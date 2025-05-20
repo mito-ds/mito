@@ -9,9 +9,9 @@ from typing import Any, Final
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
 
-APP_DIR_PATH_DB: Final[str] = os.path.join(MITO_FOLDER, "db")
-CONNECTIONS_PATH: Final[str] = os.path.join(APP_DIR_PATH_DB, "connections.json")
-SCHEMAS_PATH: Final[str] = os.path.join(APP_DIR_PATH_DB, "schemas.json")
+DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
+CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
+SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
 
 
 class ConnectionsHandler(tornado.web.RequestHandler):
@@ -22,7 +22,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
     def prepare(self) -> None:
         """Called before any request handler method."""
         # Ensure the db directory exists
-        os.makedirs(os.path.dirname(APP_DIR_PATH_DB), exist_ok=True)
+        os.makedirs(DB_DIR_PATH, exist_ok=True)
 
         # Create connections.json if it doesn't exist
         if not os.path.exists(CONNECTIONS_PATH):
@@ -33,10 +33,6 @@ class ConnectionsHandler(tornado.web.RequestHandler):
         if not os.path.exists(SCHEMAS_PATH):
             with open(SCHEMAS_PATH, "w") as f:
                 json.dump({}, f, indent=4)
-
-    def check_xsrf_cookie(self) -> None:
-        """Override to disable CSRF protection for this handler."""
-        pass
 
     def get(self, *args: Any, **kwargs: Any) -> None:
         """Get all connections."""
@@ -52,34 +48,34 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             # Get the new connection data from the request body
             new_connection = json.loads(self.request.body)
 
-            # Read existing connections
+            # Generate a UUID for the new connection
+            connection_id = str(uuid.uuid4())
+
+            # First, try to validate the connection by building the schema
+            schema_handler = SchemaHandler(self.application, self.request)
+            success, error_message = schema_handler.crawl_and_store_schema(
+                connection_id,
+                new_connection["username"],
+                new_connection["password"],
+                new_connection["account"],
+                new_connection["warehouse"],
+            )
+
+            if not success:
+                self.set_status(500)
+                self.write({"error": error_message})
+                return
+
+            # If schema building succeeded, save the connection
             with open(CONNECTIONS_PATH, "r") as f:
                 connections = json.load(f)
 
-            # Copy the new connection data and add the UUID as the key
-            connection_data = new_connection.copy()
-            connection_id = str(uuid.uuid4())
-            connections[connection_id] = connection_data
+            # Add the new connection
+            connections[connection_id] = new_connection
 
             # Write back to file
             with open(CONNECTIONS_PATH, "w") as f:
                 json.dump(connections, f, indent=4)
-
-            # Use SchemaHandler to crawl and store the schema
-            schema_handler = SchemaHandler(self.application, self.request)
-            success, error_message = schema_handler.crawl_and_store_schema(
-                connection_id
-            )
-
-            if not success:
-                # If we failed to crawl the schema, remove the connection from connections.json
-                del connections[connection_id]
-                with open(CONNECTIONS_PATH, "w") as f:
-                    json.dump(connections, f, indent=4)
-
-                self.set_status(500)
-                self.write({"error": error_message})
-                return
 
             self.write(
                 {
@@ -149,16 +145,19 @@ class SchemaHandler(tornado.web.RequestHandler):
     Endpoints for working with schemas.json file.
     """
 
-    def check_xsrf_cookie(self) -> None:
-        """Override to disable CSRF protection for this handler."""
-        pass
-
-    def crawl_and_store_schema(self, connection_id: str) -> tuple[bool, str]:
+    def crawl_and_store_schema(
+        self,
+        connection_id: str,
+        username: str,
+        password: str,
+        account: str,
+        warehouse: str,
+    ) -> tuple[bool, str]:
         """
         Crawl and store schema for a given connection.
         Returns (success, error_message)
         """
-        schema = snowflake.crawl_snowflake(CONNECTIONS_PATH, connection_id)
+        schema = snowflake.crawl_snowflake(username, password, account, warehouse)
         if schema:
             # If we successfully crawled the schema, write it to schemas.json
             with open(SCHEMAS_PATH, "r+") as f:

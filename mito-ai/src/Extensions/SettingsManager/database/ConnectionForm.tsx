@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { NewConnectionForm } from './types';
-import LoadingDots from '../../../components/LoadingDots';
+import { DBConnection } from './model';
 import '../../../../style/ConnectionForm.css';
+import LoadingCircle from '../../../components/LoadingCircle';
 
 interface ConnectionFormProps {
-    formData: NewConnectionForm;
+    formData: DBConnection;
     formError: string | null;
     onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
@@ -20,7 +20,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
 }) => {
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         setIsLoading(true);
         try {
@@ -55,7 +55,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                     name="username"
                     value={formData.username}
                     onChange={onInputChange}
-                    placeholder="e.g., john.doe"
+                    placeholder="john.doe"
                     required
                 />
             </div>
@@ -81,7 +81,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                     name="account"
                     value={formData.account}
                     onChange={onInputChange}
-                    placeholder="e.g., xy12345.us-east-1"
+                    placeholder="tudbfdr-ab12345"
                     required
                 />
             </div>
@@ -94,7 +94,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                     name="warehouse"
                     value={formData.warehouse}
                     onChange={onInputChange}
-                    placeholder="e.g., COMPUTE_WH"
+                    placeholder="COMPUTE_WH"
                     required
                 />
             </div>
@@ -115,7 +115,9 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                 >
                     {isLoading ? (
                         <>
-                            Adding Connection <LoadingDots />
+                            Validating Connection<div style={{ color: 'var(--purple-700)' }}>
+                                <LoadingCircle />
+                            </div>
                         </>
                     ) : (
                         'Add Connection'

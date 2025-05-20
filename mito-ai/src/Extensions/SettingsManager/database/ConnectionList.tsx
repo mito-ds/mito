@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DBConnections } from './types';
+import { DBConnections } from './model';
 
 interface ConnectionListProps {
     connections: DBConnections;
@@ -34,9 +34,6 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
                 <div key={id} className="connection-card">
                     <div className="connection-card-header">
                         <h3>{connection.type}</h3>
-                    </div>
-                    <div className="connection-type">
-                        {connection.type}
                     </div>
                     <div className="connection-details">
                         <p><strong>Username:</strong> {connection.username}</p>
