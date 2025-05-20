@@ -11,6 +11,7 @@ import AppBuilderPlugin from './Extensions/AppBuilder/AppBuilderPlugin';
 import { emptyCellPlaceholder } from './Extensions/emptyCell/EmptyCellPlugin';
 import { completionPlugin } from './Extensions/InlineCompleter';
 import { statusItem } from './Extensions/status';
+import SettingsManagerPlugin from './Extensions/SettingsManager/SettingsManagerPlugin';
 import { versionCheckPlugin } from './Extensions/VersionCheck';
 
 // This is the main entry point to the mito-ai extension. It must export all of the top level
@@ -24,5 +25,6 @@ export default [
   emptyCellPlaceholder,
   completionPlugin,
   statusItem,
+  SettingsManagerPlugin,
   versionCheckPlugin
 ];
