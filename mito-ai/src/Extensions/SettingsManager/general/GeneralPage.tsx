@@ -43,11 +43,14 @@ export const GeneralPage = (): JSX.Element => {
             <div className="settings-header">
                 <h2>General</h2>
             </div>
-            <div>
-                <label>
+            <div className="settings-option">
+                <label className="settings-checkbox-label">
                     <input type="checkbox" checked={betaMode} onChange={handleBetaModeChange} />
                     <span>Beta Mode</span>
                 </label>
+                <p className="settings-option-description">
+                    Enable early access to experimental features. These features may be less stable than regular features.
+                </p>
             </div>
         </div>
     );
