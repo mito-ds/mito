@@ -22,7 +22,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
     def prepare(self) -> None:
         """Called before any request handler method."""
         # Ensure the db directory exists
-        os.makedirs(os.path.dirname(DB_DIR_PATH), exist_ok=True)
+        os.makedirs(DB_DIR_PATH, exist_ok=True)
 
         # Create connections.json if it doesn't exist
         if not os.path.exists(CONNECTIONS_PATH):
