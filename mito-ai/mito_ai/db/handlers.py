@@ -63,7 +63,6 @@ class ConnectionsHandler(tornado.web.RequestHandler):
 
             if not success:
                 self.set_status(500)
-                print(error_message)
                 self.write({"error": error_message})
                 return
 
