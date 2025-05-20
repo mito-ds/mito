@@ -18,7 +18,6 @@ export const GeneralPage = (): JSX.Element => {
             if (data.value !== undefined) {
                 setBetaMode(data.value);
             }
-            console.log(data);
         };
         fetchSettings();
     }, []);
@@ -34,9 +33,11 @@ export const GeneralPage = (): JSX.Element => {
             body: JSON.stringify({ 'value': newBetaMode }),
         });
         const data = await response.json();
-        setBetaMode(newBetaMode);
-        console.log(data);
+        if (data.value !== undefined) {
+            setBetaMode(data.value);
+        }
     };
+    
     return (
         <div>
             <div className="settings-header">
