@@ -55,7 +55,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                     name="username"
                     value={formData.username}
                     onChange={onInputChange}
-                    placeholder="e.g., john.doe"
+                    placeholder="john.doe"
                     required
                 />
             </div>
