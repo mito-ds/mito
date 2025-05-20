@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PageConfig } from '@jupyterlab/coreutils';
-import { DBConnections, NewConnectionForm } from './types';
+import { DBConnections, DBConnection } from './model';
 import { ConnectionList } from './ConnectionList';
 import { ConnectionForm } from './ConnectionForm';
 import '../../../../style/DatabasePage.css';
@@ -10,7 +10,7 @@ export const DatabasePage = (): JSX.Element => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState<NewConnectionForm>({
+    const [formData, setFormData] = useState<DBConnection>({
         type: 'snowflake',
         username: '',
         password: '',

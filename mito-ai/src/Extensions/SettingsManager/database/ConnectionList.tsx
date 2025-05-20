@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DBConnections } from './types';
+import { DBConnections } from './model';
 
 interface ConnectionListProps {
     connections: DBConnections;

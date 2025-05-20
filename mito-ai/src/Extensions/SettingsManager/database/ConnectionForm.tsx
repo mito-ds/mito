@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { NewConnectionForm } from './types';
+import { DBConnection } from './model';
 import '../../../../style/ConnectionForm.css';
 import LoadingCircle from '../../../components/LoadingCircle';
 
 interface ConnectionFormProps {
-    formData: NewConnectionForm;
+    formData: DBConnection;
     formError: string | null;
     onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
