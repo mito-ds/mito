@@ -16,7 +16,6 @@ class GeminiClient:
         messages: List[Dict[str, Any]], 
         response_format_info: Optional[ResponseFormatInfo] = None
     ) -> str:
-        print("Gemini")
         try:
             contents = self.convert_messages_for_gemini(messages)
             if response_format_info:
