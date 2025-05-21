@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 from mitosheet.column_headers import ColumnIDMap, get_column_header_display
-from mitosheet.is_type_utils import get_float_dt_td_columns, is_int_dtype
+from mitosheet.is_type_utils import get_float_dt_td_period_columns, is_int_dtype
 from mitosheet.types import (FC_BOOLEAN_IS_FALSE, FC_BOOLEAN_IS_TRUE, FC_DATETIME_EXACTLY, FC_DATETIME_GREATER, FC_DATETIME_GREATER_THAN_OR_EQUAL, FC_DATETIME_LESS,
         FC_DATETIME_LESS_THAN_OR_EQUAL, FC_DATETIME_NOT_EXACTLY, FC_EMPTY,
         FC_LEAST_FREQUENT, FC_MOST_FREQUENT, FC_NOT_EMPTY, FC_NUMBER_EXACTLY,
@@ -513,7 +513,7 @@ def convert_df_to_parsed_json(original_df: pd.DataFrame, max_rows: Optional[int]
     # we only show the first max_columns columns!
     df = df.iloc[: , :max_columns]
 
-    float_columns, date_columns, timedelta_columns = get_float_dt_td_columns(df)
+    float_columns, date_columns, timedelta_columns, period_columns = get_float_dt_td_period_columns(df)
     # We figure out which of the columns contain dates, and we
     # convert them to string columns (for formatting reasons).
     # NOTE: we don't use date_format='iso' in df.to_json call as it appends seconds to the object, 
@@ -525,12 +525,20 @@ def convert_df_to_parsed_json(original_df: pd.DataFrame, max_rows: Optional[int]
     # we format the timedeltas as strings to make them readable
     for column_header in timedelta_columns:
         df[column_header] = df[column_header].apply(lambda x: str(x))
+        
+    # Fourth, we figure out which of the columns contain periods, and 
+    # we format the periods as strings to make them readable
+    for column_header in period_columns:
+        df[column_header] = df[column_header].astype(str)
 
     # Then, we check the index. If it is a datetime or a timedelta, we have to do
     # the same conversions that we did above
     # Then, if we have a datetime index, we update the index to be jsonified better
     if isinstance(df.index, pd.DatetimeIndex):
         df.index = df.index.strftime('%Y-%m-%d %X')
+    # Check for Period index and handle it - add this block
+    elif isinstance(df.index, pd.PeriodIndex):
+        df.index = df.index.astype(str)
     elif isinstance(df.index, pd.TimedeltaIndex):
         df.index = df.index.to_series().apply(lambda x: str(x))
 

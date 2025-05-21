@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.settings-widget {
+    height: 100%;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.settings-layout {
+    display: flex;
+    height: 100%;
+}
+
+.settings-sidebar {
+    width: 250px;
+    padding: 20px;
+}
+
+.settings-sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.settings-sidebar nav li {
+    padding: 12px 16px;
+    margin: 4px 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.settings-sidebar nav li:hover {
+    background-color: var(--jp-layout-color2);
+}
+
+.settings-sidebar nav li.active {
+    background-color: var(--jp-layout-color2);
+    font-weight: 500;
+}
+
+.settings-main {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+a {
+    color: var(--purple-500) !important;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.settings-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--jp-ui-font-color1);
+}
+
+.settings-option {
+    margin: 12px 0;
+}
+
+.settings-checkbox-label {
+    display: flex;
+    align-items: center; 
+    cursor: pointer;
+}
+
+.settings-checkbox-label input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.settings-checkbox-label span {
+    line-height: 1; /* Ensures text aligns with checkbox */
+}
+
+.settings-option-description {
+    margin-top: 4px;
+    margin-left: 26px; /* Aligns with the text label text */
+    font-size: 0.9em;
+    color: var(--jp-ui-font-color2);
+    line-height: 1.4;
+}

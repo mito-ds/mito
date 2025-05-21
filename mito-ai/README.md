@@ -63,7 +63,7 @@ The `jlpm` command is JupyterLab's pinned version of
 touch yarn.lock
 
 # Install package in development mode
-pip install -e ".[test, deploy]"
+pip install -e ".[test]"
 
 # Install the node modules
 jlpm install

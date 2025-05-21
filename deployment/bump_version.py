@@ -94,7 +94,7 @@ def bump_version(package: str, deploy_location: str, new_version: Optional[Tuple
     with open('package.json', 'r+') as f:
         package_obj = json.loads(f.read())
         # Sanity check that we are bumping the version of the package
-
+    
     assert package_obj['name'] == package
     package_obj['version'] = '.'.join(map(str, new_version))
 

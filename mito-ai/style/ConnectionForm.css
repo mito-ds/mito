@@ -1,0 +1,121 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--jp-layout-color0);
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 4px;
+    padding: 20px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--jp-ui-font-color1);
+}
+
+.modal-close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--jp-ui-font-color2);
+}
+
+.modal-close-button:hover {
+    color: var(--jp-ui-font-color1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--jp-ui-font-color1);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 4px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+.form-group input::placeholder {
+    color: var(--jp-ui-font-color3);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--jp-border-color1);
+}
+
+.form-actions button {
+    min-width: 100px;
+    padding: 8px 16px;
+}
+
+.form-actions button[type="submit"] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.error {
+    color: var(--jp-error-color1);
+    background: var(--jp-error-color3);
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 14px;
+} 

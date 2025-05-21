@@ -2,22 +2,20 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from __future__ import annotations
-import os
 from datetime import datetime
-from typing import Any, List, Sequence
-from unittest.mock import patch, MagicMock, PropertyMock, AsyncMock
+from typing import Any, List
+from unittest.mock import patch, MagicMock, AsyncMock
 
 import pytest
 from traitlets.config import Config
-from mito_ai.providers import OpenAIProvider
-from mito_ai.models import (
+from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.models import (
     MessageType,
-    CompletionError,
     AICapabilities,
-    CompletionReply,
-    CompletionStreamChunk,
-    CompletionItem,
+    CompletionReply
 )
+from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.models import MessageType, AICapabilities
 from mito_ai.utils.server_limits import OS_MONTHLY_AI_COMPLETIONS_LIMIT
 from openai.types.chat import ChatCompletionMessageParam
 
