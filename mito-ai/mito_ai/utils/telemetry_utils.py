@@ -278,3 +278,5 @@ def log_ai_completion_success(
 
         log(f"mito_ai_{message_type.value}_success", params=final_params, key_type=key_type, thread_id=thread_id)
         
+def log_db_connection_attempt() -> None:
+    log("mito_ai_db_connection_attempt")

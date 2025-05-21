@@ -8,6 +8,7 @@ import uuid
 from typing import Any, Final
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
+from mito_ai.utils.telemetry_utils import log_db_connection_attempt
 
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
 CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
@@ -45,6 +46,8 @@ class ConnectionsHandler(tornado.web.RequestHandler):
     def post(self, *args: Any, **kwargs: Any) -> None:
         """Add a new connection."""
         try:
+            log_db_connection_attempt()
+
             # Get the new connection data from the request body
             new_connection = json.loads(self.request.body)
 
