@@ -21,6 +21,9 @@ class ConnectionsHandler(tornado.web.RequestHandler):
 
     def prepare(self) -> None:
         """Called before any request handler method."""
+        # Check for CSRF token
+        self.check_xsrf_cookie()
+
         # Ensure the db directory exists
         os.makedirs(DB_DIR_PATH, exist_ok=True)
 
@@ -144,6 +147,11 @@ class SchemaHandler(tornado.web.RequestHandler):
     """
     Endpoints for working with schemas.json file.
     """
+
+    def prepare(self) -> None:
+        """Called before any request handler method."""
+        # Check for CSRF token
+        self.check_xsrf_cookie()
 
     def crawl_and_store_schema(
         self,

@@ -37,8 +37,14 @@ export const DatabasePage = (): JSX.Element => {
 
     const fetchConnections = async (): Promise<void> => {
         try {
+            const xsrfToken = getXsrfToken();
             const baseUrl = PageConfig.getBaseUrl();
-            const response = await fetch(`${baseUrl}mito-ai/db/connections`);
+            const response = await fetch(`${baseUrl}mito-ai/db/connections`, {
+                credentials: 'include',
+                headers: {
+                    'X-XSRFToken': xsrfToken || ''
+                },
+            });
             if (!response.ok) {
                 throw new Error('Failed to fetch connections');
             }
