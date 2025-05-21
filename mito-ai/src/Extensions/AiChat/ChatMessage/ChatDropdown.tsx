@@ -26,7 +26,7 @@ interface ChatDropdownRuleOption {
     rule: string;
 }
 
-type ChatDropdownOption = ChatDropdownVariableOption | ChatDropdownRuleOption;
+export type ChatDropdownOption = ChatDropdownVariableOption | ChatDropdownRuleOption;
 
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
     options,

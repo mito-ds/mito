@@ -15,6 +15,7 @@ import PythonCode from './PythonCode';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
+import { ChatDropdownOption } from './ChatDropdown';
 
 interface ChatInputProps {
     initialContent: string;
@@ -111,7 +112,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
-    const handleOptionSelect = (variableName: string, parentDf?: string): void => {
+    const handleOptionSelect = (option: ChatDropdownOption): void => {
+
         const textarea = textAreaRef.current;
         if (!textarea) return;
 
@@ -120,11 +122,20 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const atIndex = textBeforeCursor.lastIndexOf("@");
         const textAfterCursor = input.slice(cursorPosition);
 
-        let variableNameWithBackticks: string;
-        if (!parentDf) {
-            variableNameWithBackticks = `\`${variableName}\``
-        } else {
-            variableNameWithBackticks = `\`${parentDf}['${variableName}']\``
+        let variableNameWithBackticks: string = ''
+
+        if (option.type === 'variable') {
+            
+            if (option.variable.parent_df) {
+                variableNameWithBackticks = `\`${option.variable.variable_name}\``
+            } else {
+                variableNameWithBackticks = `\`${option.variable.variable_name}\``
+            }
+        } else if (option.type === 'rule') {
+            // TODO: We need to
+            //  1) Add a UI element to show that the rule is being applied. This could just be using the `backtick` around the word..
+            //  2) Add the rule to the input
+            variableNameWithBackticks = `\`${option.rule}\``
         }
 
         const newValue =
