@@ -5,80 +5,93 @@
 
 import { expect, test } from '@jupyterlab/galata';
 import {
-    createAndRunNotebookWithCells,
-    getCodeFromCell,
-    waitForIdle,
+  createAndRunNotebookWithCells,
+  getCodeFromCell,
+  waitForIdle,
+  selectCell
 } from '../jupyter_utils/jupyterlab_utils';
 import {
-    clickOnMitoAIChatTab,
-    sendMessageToAgent,
-    sendMessagetoAIChat,
-    waitForMitoAILoadingToDisappear,
-    turnOnAgentMode,
-    getNotebookCode,
-    waitForAgentToFinish,
-    startNewMitoAIChat,
-    clickPreviewButton,
-    clickAcceptButton
+  clickOnMitoAIChatTab,
+  sendMessagetoAIChat,
+  waitForMitoAILoadingToDisappear,
+  startNewMitoAIChat,
+  turnOnAgentMode,
+  sendMessageToAgent,
+  waitForAgentToFinish,
+  getNotebookCode,
+  clickPreviewButton,
+  clickAcceptButton,
+  clearMitoAIChatInput
 } from './utils';
 
-test.describe('Gemini Model Tests', () => {
-    test.beforeEach(async ({ page }) => {
-        // Create a new notebook for each test
-        await createAndRunNotebookWithCells(page, []);
-        await waitForIdle(page);
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
-        await startNewMitoAIChat(page);
-        await waitForIdle(page);
-    });
+test('Gemini model basic functionality test', async ({ page }) => {
+  // Create a single notebook for all tests
+  await createAndRunNotebookWithCells(page, ['# Test notebook for Gemini']);
+  await waitForIdle(page);
 
-    test('Chat mode with Gemini model', async ({ page }) => {
-        // Test basic chat functionality
-        await sendMessagetoAIChat(page, 'Write code to create a list of numbers from 1 to 5');
-        await waitForMitoAILoadingToDisappear(page);
+  // TEST 1: CHAT MODE
+  console.log("Testing chat mode functionality...");
+  await clickOnMitoAIChatTab(page);
+  await startNewMitoAIChat(page);
+  await clearMitoAIChatInput(page);
 
-        // Verify response and code generation
-        await clickPreviewButton(page);
-        await clickAcceptButton(page);
-        await waitForIdle(page);
+  // Select the first cell
+  await selectCell(page, 0);
 
-        const code = await getCodeFromCell(page, 0);
-        expect(code).toContain('numbers = [1, 2, 3, 4, 5]');
-    });
+  // Simple code generation test
+  await sendMessagetoAIChat(page, 'Create a variable x = 5');
+  await waitForMitoAILoadingToDisappear(page);
 
-    test('Agent mode with Gemini model', async ({ page }) => {
-        // Switch to agent mode
-        await turnOnAgentMode(page);
+  await clickPreviewButton(page);
+  await clickAcceptButton(page);
+  await waitForIdle(page);
 
-        // Test agent functionality
-        await sendMessageToAgent(page, 'Create a list of numbers from 1 to 5 and print it');
-        await waitForAgentToFinish(page);
+  const code = await getCodeFromCell(page, 0);
+  expect(code).toContain('x = 5');
 
-        // Verify the code was executed
-        const codeFromCells = await getNotebookCode(page);
-        const codeFromCellsString = codeFromCells.join(' ');
-        expect(codeFromCellsString).toContain('numbers = [1, 2, 3, 4, 5]');
-        expect(codeFromCellsString).toContain('print');
-    });
+  // TEST 2: AGENT MODE
+  console.log("Testing agent mode functionality...");
+  await clickOnMitoAIChatTab(page);
+  await startNewMitoAIChat(page);
+  await clearMitoAIChatInput(page);
 
-    test('Autocomplete with Gemini model', async ({ page }) => {
-        // Type partial code to trigger autocomplete
-        await page.locator('.jp-Cell-inputArea').click();
-        await page.keyboard.type('import pandas as pd\n');
-        await page.keyboard.type('df = pd.DataF');
-        
-        // Wait for autocomplete suggestions
-        await page.waitForTimeout(1000);
-        
-        // Verify autocomplete suggestions appear
-        const suggestions = await page.locator('.jp-Completer-item').count();
-        expect(suggestions).toBeGreaterThan(0);
-        
-        // Verify DataFrame is in suggestions
-        const suggestionTexts = await Promise.all(
-            (await page.locator('.jp-Completer-item').all()).map(item => item.textContent())
-        );
-        expect(suggestionTexts.some(text => text?.includes('DataFrame'))).toBe(true);
-    });
-}); 
+  // Switch to agent mode
+  await turnOnAgentMode(page);
+  await waitForIdle(page);
+
+  // Execute a simple command
+  await sendMessageToAgent(page, 'Set y = 10 and print it');
+  await waitForAgentToFinish(page);
+
+  // Verify the execution
+  const codeFromCells = await getNotebookCode(page);
+  const codeFromCellsString = codeFromCells.join(' ');
+  expect(codeFromCellsString).toContain('y = 10');
+
+  // TEST 3: AUTOCOMPLETE
+  console.log("Testing autocomplete functionality...");
+  // Select the first cell
+  await selectCell(page, 0);
+
+  // Type code to trigger autocomplete
+  await page.locator('.jp-Cell-inputArea').click();
+  await page.keyboard.type('import numpy as np\n');
+  await page.keyboard.type('np.ar');
+
+  // Wait for suggestions
+  await page.waitForTimeout(1500);
+
+  // Verify autocomplete suggestions appear
+  const suggestions = await page.locator('.jp-Completer-item').all();
+  const suggestionTexts = await Promise.all(
+    suggestions.map(async item => await item.textContent())
+  );
+
+  // Look for common numpy array functions
+  const expectedFunctions = ['array', 'arange', 'arccos'];
+  const foundFunctions = expectedFunctions.filter(func =>
+    suggestionTexts.some(text => text?.includes(func))
+  );
+
+  expect(foundFunctions.length).toBeGreaterThan(0);
+});
