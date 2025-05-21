@@ -65,3 +65,29 @@ a {
     font-size: 1.5em;
     color: var(--jp-ui-font-color1);
 }
+
+.settings-option {
+    margin: 12px 0;
+}
+
+.settings-checkbox-label {
+    display: flex;
+    align-items: center; 
+    cursor: pointer;
+}
+
+.settings-checkbox-label input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.settings-checkbox-label span {
+    line-height: 1; /* Ensures text aligns with checkbox */
+}
+
+.settings-option-description {
+    margin-top: 4px;
+    margin-left: 26px; /* Aligns with the text label text */
+    font-size: 0.9em;
+    color: var(--jp-ui-font-color2);
+    line-height: 1.4;
+}

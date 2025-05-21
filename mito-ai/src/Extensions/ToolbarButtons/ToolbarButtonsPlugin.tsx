@@ -10,6 +10,7 @@ import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLa
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
 import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
 import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
+import { getSetting } from '../../RestAPI';
 
 const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/toolbar-buttons.json file.
@@ -74,7 +75,24 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             className: 'text-button-mito-ai button-base button-purple button-small',
             execute: async () => {
                 void convertNotebookToStreamlit(notebookTracker, appBuilderService);
+            },
+            isVisible: () => {
+                // Default to hidden, will be updated after async check since we are not allowed to 
+                // use async commands in isVisible.
+                return app.commands.hasCommand('mito-ai:beta-mode-enabled');
             }
+        });
+
+        // Check if the beta mode is enabled. After checking, tell Jupyter to 
+        // re-evaluate convert-to-streamlit visibility now that we have had the 
+        // opportunity to set the mito-ai:beta-mode-enabled command if beta mode is enabled.
+        getSetting('beta_mode').then(value => {
+            if (value === 'true') {
+                commands.addCommand('mito-ai:beta-mode-enabled', { execute: () => { /* no-op */ } });
+                commands.notifyCommandChanged('toolbar-button:convert-to-streamlit');
+            }
+        }).catch(error => {
+            console.error('Error checking beta mode:', error);
         });
 
         console.log("mito-ai: ToolbarButtonsPlugin activated");
