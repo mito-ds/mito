@@ -80,6 +80,6 @@ export const getRules = async(): Promise<string[]> => {
         }
     });
     const data = await response.json();
-    return data.content;
+    return data.rules;
 }
 
