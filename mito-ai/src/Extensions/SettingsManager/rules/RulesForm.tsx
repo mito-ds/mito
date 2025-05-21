@@ -1,0 +1,96 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+import React, { useState } from 'react';
+import LoadingCircle from '../../../components/LoadingCircle';
+import '../../../../style/RulesForm.css';
+import { Rule } from './models';
+
+interface RuleFormProps {
+    formData: Rule;
+    formError: string | null;
+    onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    onSubmit: (e: React.FormEvent) => void;
+    onClose: () => void;
+}
+
+export const RulesForm: React.FC<RuleFormProps> = ({
+    formData,
+    formError,
+    onInputChange,
+    onSubmit,
+    onClose
+}) => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            await onSubmit(e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="connection-form">
+            {formError && <p className="error">{formError}</p>}
+
+            <div className="form-group">
+                <label htmlFor="name">Rule Name</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={onInputChange}
+                    placeholder="Enter rule name"
+                    required
+                />
+            </div>
+
+            <div className="form-group">
+                <label htmlFor="description">Rule Content</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={onInputChange}
+                    placeholder="Enter or paste rule content here"
+                    rows={30}
+                    required
+                    className="form-textarea"
+                />
+            </div>
+
+            <div className="form-actions">
+                <button
+                    type="button"
+                    className="button-base button-gray"
+                    onClick={onClose}
+                    disabled={isLoading}
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    className="button-base button-purple"
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <>
+                            Saving Rule<div style={{ color: 'var(--purple-700)' }}>
+                                <LoadingCircle />
+                            </div>
+                        </>
+                    ) : (
+                        'Add Rule'
+                    )}
+                </button>
+            </div>
+        </form>
+    );
+}; 

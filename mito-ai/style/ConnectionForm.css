@@ -28,6 +28,10 @@
     position: relative;
 }
 
+.modal-content-large {
+    width: 90%;
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
