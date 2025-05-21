@@ -50,13 +50,13 @@ class ConnectionsHandler(tornado.web.RequestHandler):
     def post(self, *args: Any, **kwargs: Any) -> None:
         """Add a new connection."""
         try:
-            log_db_connection_attempt()
-
             # Get the new connection data from the request body
             new_connection = json.loads(self.request.body)
 
             # Generate a UUID for the new connection
             connection_id = str(uuid.uuid4())
+
+            log_db_connection_attempt(new_connection["type"])
 
             # First, try to validate the connection by building the schema
             schema_handler = SchemaHandler(self.application, self.request)
@@ -69,7 +69,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             )
 
             if not success:
-                log_db_connection_error(error_message=error_message)
+                log_db_connection_error(new_connection["type"], error_message)
                 self.set_status(500)
                 self.write({"error": error_message})
                 return
@@ -85,7 +85,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             with open(CONNECTIONS_PATH, "w") as f:
                 json.dump(connections, f, indent=4)
 
-            log_db_connection_success()
+            log_db_connection_success(new_connection["type"])
 
             self.write(
                 {
