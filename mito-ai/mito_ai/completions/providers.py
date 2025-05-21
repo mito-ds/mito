@@ -13,6 +13,7 @@ from mito_ai import constants
 from mito_ai.enterprise.utils import is_azure_openai_configured
 from mito_ai.gemini_client import GeminiClient
 from mito_ai.openai_client import OpenAIClient
+from mito_ai.anthropic_client import AnthropicClient
 from mito_ai.logger import get_logger
 from mito_ai.completions.models import (
     AICapabilities,
@@ -34,6 +35,7 @@ from mito_ai.utils.telemetry_utils import (
 )
 
 __all__ = ["OpenAIProvider"]
+
 
 class OpenAIProvider(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
@@ -58,15 +60,16 @@ This attribute is observed by the websocket provider to push the error to the cl
         if 'api_key' in kwargs:
             config['OpenAIClient'] = {'api_key': kwargs['api_key']}
         kwargs['config'] = config
-        
+
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._openai_client: Optional[OpenAIClient] = None
         self._gemini_client: Optional[GeminiClient] = None
-        
+        self._anthropic_client: Optional[AnthropicClient] = None
+
         # Initialize OpenAI client with the configured api_key
         self._openai_client = OpenAIClient(parent=self)
-        
+
         # Initialize Gemini client if configured
         if constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
             self._gemini_client = GeminiClient(
@@ -74,9 +77,24 @@ This attribute is observed by the websocket provider to push the error to the cl
                 model=constants.GEMINI_MODEL
             )
 
+        # Initialize Anthropic client if configured
+        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
+            self._anthropic_client = AnthropicClient(
+                api_key=constants.CLAUDE_API_KEY,
+                model=constants.CLAUDE_MODEL
+            )
+
     @property
     def capabilities(self) -> AICapabilities:
         """Get the provider capabilities."""
+        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+            return AICapabilities(
+                configuration={
+                    "model": constants.CLAUDE_MODEL
+                },
+                provider="Claude",
+            )
+
         if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
             return AICapabilities(
                 configuration={
@@ -84,10 +102,10 @@ This attribute is observed by the websocket provider to push the error to the cl
                 },
                 provider="Gemini",
             )
-            
+
         if self._openai_client:
             return self._openai_client.capabilities
-            
+
         return AICapabilities(
             configuration={
                 "model": "gpt-4.1",
@@ -98,12 +116,15 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def key_type(self) -> str:
         """Returns the authentication key type being used."""
+        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+            return "claude"
+
         if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
             return "gemini"
-            
+
         if self._openai_client:
             return self._openai_client.key_type
-            
+
         return MITO_SERVER_KEY
 
     async def request_completions(
@@ -131,14 +152,24 @@ This attribute is observed by the websocket provider to push the error to the cl
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
 
         try:
+            # Handle Claude API calls
+            if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+                if self._anthropic_client is None:
+                    self._anthropic_client = AnthropicClient(
+                        api_key=constants.CLAUDE_API_KEY,
+                        model=model
+                    )
+
+                completion = await self._anthropic_client.request_completions(messages, response_format_info)
+
             # Handle Gemini API calls
-            if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+            elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
                 if self._gemini_client is None:
                     self._gemini_client = GeminiClient(
                         api_key=constants.GEMINI_API_KEY,
                         model=model
                     )
-                
+
                 completion = await self._gemini_client.request_completions(messages, response_format_info)
 
             # Handle OpenAI and other providers
@@ -161,7 +192,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 user_input=user_input or "",
                 thread_id=thread_id or ""
             )
-            
+
             return completion
 
         except BaseException as e:
@@ -169,17 +200,17 @@ This attribute is observed by the websocket provider to push the error to the cl
             self.last_error = CompletionError.from_exception(e)
             log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
             raise
-    
+
     async def stream_completions(
-        self,
-        message_type: MessageType,
-        messages: List[ChatCompletionMessageParam],
-        model: str,
-        message_id: str,
-        thread_id: str,
-        reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
-        user_input: Optional[str] = None,
-        response_format_info: Optional[ResponseFormatInfo] = None
+            self,
+            message_type: MessageType,
+            messages: List[ChatCompletionMessageParam],
+            model: str,
+            message_id: str,
+            thread_id: str,
+            reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+            user_input: Optional[str] = None,
+            response_format_info: Optional[ResponseFormatInfo] = None
     ) -> str:
         """
         Stream completions from the AI provider and return the accumulated response.
@@ -189,7 +220,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         self.last_error = None
         accumulated_response = ""
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
-        
+
         # Send initial acknowledgment
         reply_fn(CompletionReply(
             items=[
@@ -199,14 +230,28 @@ This attribute is observed by the websocket provider to push the error to the cl
         ))
 
         try:
+            # Handle Claude API calls
+            if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+                if self._anthropic_client is None:
+                    self._anthropic_client = AnthropicClient(
+                        api_key=constants.CLAUDE_API_KEY,
+                        model=model
+                    )
+
+                accumulated_response = await self._anthropic_client.stream_response(
+                    messages=messages,
+                    message_id=message_id,
+                    reply_fn=reply_fn
+                )
+
             # Handle Gemini API calls
-            if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+            elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
                 if self._gemini_client is None:
                     self._gemini_client = GeminiClient(
                         api_key=constants.GEMINI_API_KEY,
                         model=model
                     )
-                
+
                 accumulated_response = await self._gemini_client.stream_completions(
                     messages=messages,
                     message_id=message_id,
@@ -237,7 +282,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 user_input=user_input or "",
                 thread_id=thread_id
             )
-            
+
             return accumulated_response
 
         except BaseException as e:
@@ -265,3 +310,4 @@ This attribute is observed by the websocket provider to push the error to the cl
                 error=CompletionError.from_exception(e),
             ))
             raise
+
