@@ -8,7 +8,11 @@ import uuid
 from typing import Any, Final
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
-from mito_ai.utils.telemetry_utils import log_db_connection_attempt
+from mito_ai.utils.telemetry_utils import (
+    log_db_connection_attempt,
+    log_db_connection_success,
+    log_db_connection_error,
+)
 
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
 CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
@@ -65,6 +69,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             )
 
             if not success:
+                log_db_connection_error(error_message=error_message)
                 self.set_status(500)
                 self.write({"error": error_message})
                 return
@@ -79,6 +84,8 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             # Write back to file
             with open(CONNECTIONS_PATH, "w") as f:
                 json.dump(connections, f, indent=4)
+
+            log_db_connection_success()
 
             self.write(
                 {
@@ -160,17 +167,19 @@ class SchemaHandler(tornado.web.RequestHandler):
         Crawl and store schema for a given connection.
         Returns (success, error_message)
         """
-        schema = snowflake.crawl_snowflake(username, password, account, warehouse)
-        if schema:
+        snowflake_response = snowflake.crawl_snowflake(
+            username, password, account, warehouse
+        )
+        if snowflake_response["schema"]:
             # If we successfully crawled the schema, write it to schemas.json
             with open(SCHEMAS_PATH, "r+") as f:
                 schemas = json.load(f)
-                schemas[connection_id] = schema
+                schemas[connection_id] = snowflake_response["schema"]
                 f.seek(0)  # Move to the beginning of the file
                 json.dump(schemas, f, indent=4)
                 f.truncate()  # Remove any remaining content
             return True, ""
-        return False, "Failed to crawl schema"
+        return False, snowflake_response["error"]
 
     def get(self, *args: Any, **kwargs: Any) -> None:
         """Get all schemas."""

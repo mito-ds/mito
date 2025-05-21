@@ -280,3 +280,9 @@ def log_ai_completion_success(
         
 def log_db_connection_attempt() -> None:
     log("mito_ai_db_connection_attempt")
+
+def log_db_connection_success() -> None:
+    log("mito_ai_db_connection_success")
+
+def log_db_connection_error(error_message: str) -> None:
+    log("mito_ai_db_connection_error", params={"error_message": error_message})

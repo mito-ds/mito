@@ -58,7 +58,12 @@ def crawl_snowflake(username: str, password: str, account: str, warehouse: str):
             f"snowflake://{username}:{password}@{account}/" f"?warehouse={warehouse}"
         )
         engine = create_engine(conn_str)
-        return get_full_metadata_from_snowflake(engine)
+        return {
+            "schema": get_full_metadata_from_snowflake(engine),
+            "error": None,
+        }
     except Exception as e:
-        print(f"Error crawling snowflake: {e}")
-        return None
+        return {
+            "schema": None,
+            "error": str(e),
+        }
