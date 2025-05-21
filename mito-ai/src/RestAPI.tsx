@@ -126,3 +126,46 @@ export const updateSettings = async (settingsKey: string, settingsValue: string)
     const data = await response.json();
     return data.value;
 }
+
+
+/************************************
+
+RULES ENDPOINTS
+
+************************************/
+
+export const setRule = async(ruleName: string, ruleContent: string): Promise<string> => {
+    const response = await fetch(`${baseUrl}mito-ai/rules/${ruleName}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-XSRFToken': getXsrfToken() || '',
+        },
+        body: JSON.stringify({ content: ruleContent }),
+    });
+    const data = await response.json();
+    return data.content;
+}
+
+export const getRule = async(ruleName: string): Promise<string | undefined> => {
+    const response = await fetch(`${baseUrl}mito-ai/rules/${ruleName}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'X-XSRFToken': getXsrfToken() || '',
+        }
+    });
+    const data = await response.json();
+    return data.content;
+}
+
+export const getRules = async(): Promise<string[]> => {
+    const response = await fetch(`${baseUrl}mito-ai/rules`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'X-XSRFToken': getXsrfToken() || '',
+        }
+    });
+    const data = await response.json();
+    return data.content;
+}
+

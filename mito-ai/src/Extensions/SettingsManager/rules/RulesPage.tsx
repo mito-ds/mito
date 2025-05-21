@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
+import { setRule } from '../../../RestAPI';
 
 export const RulesPage = (): JSX.Element => {
     const [showModal, setShowModal] = useState(false);
@@ -23,12 +24,13 @@ export const RulesPage = (): JSX.Element => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent): void => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
 
         // TODO: Validate that the rule name is a valid file name
         setFormError(null);
-        console.log(formData);
+        await setRule(formData.name, formData.description);
+        setShowModal(false);
     };
 
     return (
