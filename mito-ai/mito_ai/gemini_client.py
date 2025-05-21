@@ -3,7 +3,7 @@
 
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 from google import genai
-from mito_ai.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, ResponseFormatInfo
+from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, ResponseFormatInfo
 
 
 class GeminiClient:

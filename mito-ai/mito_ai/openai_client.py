@@ -12,7 +12,7 @@ from traitlets.config import LoggingConfigurable
 from mito_ai import constants
 from mito_ai.enterprise.utils import is_azure_openai_configured
 from mito_ai.logger import get_logger
-from mito_ai.models import (
+from mito_ai.completions.models import (
     AICapabilities,
     CompletionError,
     CompletionItem,
