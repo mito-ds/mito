@@ -24,7 +24,7 @@ export class AppBuilderWebsocketClient extends BaseWebsocketClient<IAppBuilderRe
   /**
    * The service URL for the websocket endpoint.
    */
-  protected readonly SERVICE_URL = 'mito-ai/app-builder';
+  protected readonly SERVICE_URL = 'mito_ai/app-builder';
 
   /**
    * Create a new app builder client.

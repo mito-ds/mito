@@ -6,22 +6,21 @@ from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.app_builder.handlers import AppBuilderHandler
+from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
 from mito_ai.settings.urls import get_settings_urls
 try:
     from _version import __version__
 except ImportError:
-    # Fallback when using the package in dev mode without installing
-    # in editable mode with pip. It is highly recommended to install
+    # Fallback when using the package in dev mode without installing in editable mode with pip. It is highly recommended to install
     # the package from a stable release or in editable mode: https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs
     import warnings
-
+    
     warnings.warn("Importing 'mito_ai' outside a proper installation.")
     __version__ = "dev"
 
-
 def _jupyter_labextension_paths() -> List[Dict[str, str]]:
-    return [{"src": "labextension", "dest": "mito-ai"}]
+    return [{"src": "labextension", "dest": "mito_ai"}]
 
 
 def _jupyter_server_extension_points() -> List[Dict[str, str]]:
@@ -49,7 +48,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     # WebSocket handlers
     handlers = [
         (
-            url_path_join(base_url, "mito-ai", "completions"),
+            url_path_join(base_url, "mito_ai", "completions"),
             CompletionHandler,
             {"llm": open_ai_provider},
         ),
@@ -57,6 +56,11 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             url_path_join(base_url, "mito-ai", "app-builder"),
             AppBuilderHandler,
             {}
+        ),
+        (
+            url_path_join(base_url, "mito-ai", "version-check"),
+            VersionCheckHandler,
+            {},
         )
     ]
     
