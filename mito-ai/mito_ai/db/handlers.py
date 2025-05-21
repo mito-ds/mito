@@ -5,6 +5,7 @@ import json
 import os
 import tornado
 import uuid
+from dataclasses import dataclass
 from typing import Any, Final
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
@@ -60,7 +61,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
 
             # First, try to validate the connection by building the schema
             schema_handler = SchemaHandler(self.application, self.request)
-            success, error_message = schema_handler.crawl_and_store_schema(
+            response = schema_handler.crawl_and_store_schema(
                 connection_id,
                 new_connection["username"],
                 new_connection["password"],
@@ -68,10 +69,10 @@ class ConnectionsHandler(tornado.web.RequestHandler):
                 new_connection["warehouse"],
             )
 
-            if not success:
-                log_db_connection_error(new_connection["type"], error_message)
+            if not response.success:
+                log_db_connection_error(new_connection["type"], response.error_message)
                 self.set_status(500)
-                self.write({"error": error_message})
+                self.write({"error": response.error_message})
                 return
 
             # If schema building succeeded, save the connection
@@ -85,7 +86,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             with open(CONNECTIONS_PATH, "w") as f:
                 json.dump(connections, f, indent=4)
 
-            log_db_connection_success(new_connection["type"])
+            log_db_connection_success(new_connection["type"], response.schema)
 
             self.write(
                 {
@@ -155,6 +156,12 @@ class SchemaHandler(tornado.web.RequestHandler):
     Endpoints for working with schemas.json file.
     """
 
+    @dataclass
+    class SchemaCrawlResponse:
+        success: bool
+        schema: dict[str, Any]
+        error_message: str
+
     def crawl_and_store_schema(
         self,
         connection_id: str,
@@ -162,7 +169,7 @@ class SchemaHandler(tornado.web.RequestHandler):
         password: str,
         account: str,
         warehouse: str,
-    ) -> tuple[bool, str]:
+    ) -> SchemaCrawlResponse:
         """
         Crawl and store schema for a given connection.
         Returns (success, error_message)
@@ -178,8 +185,16 @@ class SchemaHandler(tornado.web.RequestHandler):
                 f.seek(0)  # Move to the beginning of the file
                 json.dump(schemas, f, indent=4)
                 f.truncate()  # Remove any remaining content
-            return True, ""
-        return False, snowflake_response["error"]
+            return self.SchemaCrawlResponse(
+                success=True,
+                schema=snowflake_response["schema"],
+                error_message="",
+            )
+        return self.SchemaCrawlResponse(
+            success=False,
+            schema={},
+            error_message=snowflake_response["error"],
+        )
 
     def get(self, *args: Any, **kwargs: Any) -> None:
         """Get all schemas."""
