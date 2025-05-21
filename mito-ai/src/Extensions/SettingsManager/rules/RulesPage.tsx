@@ -12,14 +12,12 @@ export const RulesPage = (): JSX.Element => {
     const [showModal, setShowModal] = useState(false);
     const [rules, setRules] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
-    console.log(showModal);
 
     const [formData, setFormData] = useState<Rule>({
         name: '',
         description: ''
     });
     const [formError, setFormError] = useState<string | null>(null);
-
 
     const fetchRules = async (): Promise<void> => {
         try {

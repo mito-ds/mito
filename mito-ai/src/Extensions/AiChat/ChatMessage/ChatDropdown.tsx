@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { ExpandedVariable } from './ChatInput';
+import { getRules } from '../../../RestAPI';
 
 interface ChatDropdownProps {
     options: ExpandedVariable[];
@@ -15,6 +16,18 @@ interface ChatDropdownProps {
     position?: 'above' | 'below';
 }
 
+interface ChatDropdownVariableOption {
+    type: 'variable'
+    variable: ExpandedVariable;
+}
+
+interface ChatDropdownRuleOption {
+    type: 'rule'
+    rule: string;
+}
+
+type ChatDropdownOption = ChatDropdownVariableOption | ChatDropdownRuleOption;
+
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
     options,
     onSelect,
@@ -23,15 +36,42 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    const filteredOptions = options.filter((variable) =>
-        variable.variable_name.toLowerCase().includes(filterText.toLowerCase()) &&
-        variable.type !== "<class 'module'>" &&
-        variable.variable_name !== "FUNCTIONS" // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
+    const [rules, setRules] = useState<string[]>([]);
+
+    useEffect(() => {
+        const fetchRules = async () => {
+            const rules = await getRules();
+            setRules(rules);
+        };
+        fetchRules();
+    }, []);
+
+    // Create a list of all options with the format 
+    // ['type': 'variable', "expandedVariable": variable]
+    // ['type': 'rule', "rule": rule]
+    const allOptions: ChatDropdownOption[] = [
+        ...options.map((variable): ChatDropdownVariableOption => ({ 
+            type: 'variable', 
+            variable: variable 
+        })),
+        ...rules.map((rule): ChatDropdownRuleOption => ({ 
+            type: 'rule', 
+            rule: rule 
+        })),
+    ];
+
+    const filteredOptions = allOptions.filter((option) =>
+        option.type === 'variable' ?
+            option.variable.variable_name.toLowerCase().includes(filterText.toLowerCase()) &&
+            option.variable.type !== "<class 'module'>" &&
+            option.variable.variable_name !== "FUNCTIONS" // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
+        :
+            option.rule.toLowerCase().includes(filterText.toLowerCase())
     ).slice(0, maxDropdownItems);
 
     useEffect(() => {
         setSelectedIndex(0);
-    }, [options, filterText]);
+    }, [options, rules, filterText]);
 
     const handleKeyDown = (event: KeyboardEvent): void => {
         switch (event.key) {
@@ -55,7 +95,11 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 event.preventDefault();
                 const selectedOption = filteredOptions[selectedIndex];
                 if (selectedOption !== undefined) {
-                    onSelect(selectedOption.variable_name, selectedOption.parent_df);
+                    if (selectedOption.type === 'variable') {
+                        onSelect(selectedOption.variable.variable_name, selectedOption.variable.parent_df);
+                    } else {
+                        onSelect(selectedOption.rule, undefined);
+                    }
                 }
                 break;
             }
