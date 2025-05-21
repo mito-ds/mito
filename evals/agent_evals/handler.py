@@ -1,22 +1,23 @@
 import nbformat
 import json
-from execute_code import exec_code_and_get_globals_and_output
-from agent_testing_utils import process_response_for_errors, process_notebook_update, create_prompt_from_code_and_user_task, start_new_conversation_history, get_history_from_response, get_test_case_mappings, get_eval_result_mappings, get_input_and_expected_output_nb
+from evals.agent_evals.execute_code import exec_code_and_get_globals_and_output
+from evals.agent_evals.agent_testing_utils import process_response_for_errors, process_notebook_update, create_prompt_from_code_and_user_task, start_new_conversation_history, get_history_from_response, get_test_case_mappings, get_eval_result_mappings, get_input_and_expected_output_nb
 
-from default_system_prompt import create_agent_system_message_prompt
-from run_test_case import get_openai_code_and_conversation_history
-from eval_metrics import Evals
+from evals.agent_evals.default_system_prompt import create_agent_system_message_prompt
+from evals.agent_evals.run_test_case import get_openai_code_and_conversation_history
+from evals.agent_evals.eval_metrics import Evals
+import os
 
 import warnings
 warnings.filterwarnings("ignore", message="Importing 'mito_ai' outside a proper installation.")
 
 DEFAULT_MODEL = "gpt-4.1"
-TEST_CASES_PATH = "test_cases.json"
+TEST_CASES_PATH = os.path.join(os.path.dirname(__file__), "test_cases.json")
+
 PROMPT = create_agent_system_message_prompt(True)
 
 with open(TEST_CASES_PATH, "r", encoding="utf-8") as f:
     test_cases = json.load(f)
-
 
 def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_path, output_conversation_history_path, input_conversation_history_path=""):
     with open(input_nb_path, "r", encoding="utf-8") as f:
@@ -104,7 +105,7 @@ def display_result_metrics(result_metrics_dict, passed_tests_dict):
 
 
 def test_case_handler():
-
+    base_dir = os.path.dirname(__file__)
     result_metrics_all = {}
     number_of_tests_all = {}
 
@@ -113,15 +114,17 @@ def test_case_handler():
         test_case_name = test["test_case_name"]
         user_task = test["user_task"]
         evals_to_test = test["evals_to_test"]
-        input_nb_path = f"test_case_inputs/input_notebooks/{test_case_name}.ipynb"
-        expected_output_nb_path = f"test_case_inputs/expected_output_notebooks/{test_case_name}.ipynb"
-        output_nb_path = f"test_case_outputs/observed_output_notebooks/{test_case_name}.ipynb"
-        output_response_path = f"test_case_outputs/observed_agent_responses/{test_case_name}.json"
-        output_conversation_history_path = f"test_case_outputs/conversation_histories/{test_case_name}.json"
+        
+        # Use absolute paths based on the current file's location
+        input_nb_path = os.path.join(base_dir, f"test_case_inputs/input_notebooks/{test_case_name}.ipynb")
+        expected_output_nb_path = os.path.join(base_dir, f"test_case_inputs/expected_output_notebooks/{test_case_name}.ipynb")
+        output_nb_path = os.path.join(base_dir, f"test_case_outputs/observed_output_notebooks/{test_case_name}.ipynb")
+        output_response_path = os.path.join(base_dir, f"test_case_outputs/observed_agent_responses/{test_case_name}.json")
+        output_conversation_history_path = os.path.join(base_dir, f"test_case_outputs/conversation_histories/{test_case_name}.json")
 
         print(f"Executing {test_case_name}")
         if test["conversation_history_present"]:
-            input_conversation_history_path = f"test_case_inputs/conversation_histories/{test_case_name}.json"
+            input_conversation_history_path = os.path.join(base_dir, f"test_case_inputs/conversation_histories/{test_case_name}.json")
             output_nb, list_of_responses, conversation_history = execute_test_case(input_nb_path, user_task, output_nb_path, output_response_path, output_conversation_history_path, input_conversation_history_path)
         else:
             output_nb, list_of_responses, conversation_history = execute_test_case(input_nb_path, user_task, output_nb_path, output_response_path, output_conversation_history_path)

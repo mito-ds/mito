@@ -8,6 +8,7 @@ ACTIVE_CELL_ID_SECTION_HEADING = "The ID of the active code cell:"
 ACTIVE_CELL_OUTPUT_SECTION_HEADING = "Output of the active code cell:"
 GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING = "Output of the code cell you just applied the CELL_UPDATE to:"
 JUPYTER_NOTEBOOK_SECTION_HEADING = "Jupyter Notebook:"
+USER_TASK_HEADING_SECTION = "Your task:"
 
 CITATION_RULES = """RULES FOR CITING YOUR WORK
 
