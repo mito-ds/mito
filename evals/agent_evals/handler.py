@@ -1,7 +1,7 @@
 import nbformat
 import json
 from execute_code import exec_code_and_get_globals_and_output
-from agent_testing_utils import process_response_for_errors, process_notebook_update, create_prompt_from_code_and_user_task, get_history_from_response, get_test_case_mappings, get_eval_result_mappings, get_input_and_expected_output_nb
+from agent_testing_utils import process_response_for_errors, process_notebook_update, create_prompt_from_code_and_user_task, get_history_from_response, get_test_case_mappings, get_eval_result_mappings, get_input_and_expected_output_nb, start_new_conversation_history
 
 from default_system_prompt import create_agent_system_message_prompt
 from run_test_case import get_openai_code
@@ -27,7 +27,7 @@ def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_
         with open(input_conversation_history_path, 'r', encoding='utf-8') as f:
             conversation_history = json.load(f)
     else:
-        conversation_history = []
+        conversation_history = start_new_conversation_history(PROMPT)
 
     output_nb = None
     cell_update_type = ""
@@ -56,7 +56,7 @@ def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_
         json.dump(existing_response_json, f, indent=4)
 
     with open(output_conversation_history_path, "w", encoding="utf-8") as f:
-        json.dump(conversation_history, f, indent=4)
+        json.dump(conversation_history[1:], f, indent=4)
 
     with open(output_nb_path, "w", encoding="utf-8") as f:
         nbformat.write(output_nb, f)

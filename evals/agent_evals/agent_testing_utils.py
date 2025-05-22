@@ -91,6 +91,14 @@ def get_eval_result_mappings():
     return {True: "PASS", False: "FAIL"}
 
 
+def start_new_conversation_history(system_prompt):
+    """Function to get new conversation history"""
+    conversation_history = [
+            {"role": "system", "content": system_prompt},
+        ]
+    return conversation_history
+
+
 def get_input_and_expected_output_nb(input_nb_path, expected_output_nb_path):
     """Returns input notebook and expected output notebook from paths"""
     with open(input_nb_path, "r", encoding="utf-8") as f:
