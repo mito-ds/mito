@@ -94,30 +94,6 @@ def first_connection_id():
     return connection_id
 
 
-# --- GET CONNECTIONS ---
-
-
-def test_get_connections_with_auth(jp_base_url):
-    response = requests.get(
-        jp_base_url + "/mito-ai/db/connections",
-        headers={"Authorization": f"token {TOKEN}"},
-    )
-    assert response.status_code == 200
-
-
-def test_get_connections_with_no_auth(jp_base_url):
-    response = requests.get(jp_base_url + "/mito-ai/db/connections")
-    assert response.status_code == 403  # Forbidden
-
-
-def test_get_connections_with_incorrect_auth(jp_base_url):
-    response = requests.get(
-        jp_base_url + "/mito-ai/db/connections",
-        headers={"Authorization": f"token incorrect-token"},
-    )
-    assert response.status_code == 403  # Forbidden
-
-
 # --- ADD CONNECTION ---
 
 
@@ -143,6 +119,30 @@ def test_add_connection_with_incorrect_auth(jp_base_url):
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token incorrect-token"},
         json=CONNECTION_JSON,
+    )
+    assert response.status_code == 403  # Forbidden
+
+
+# --- GET CONNECTIONS ---
+
+
+def test_get_connections_with_auth(jp_base_url):
+    response = requests.get(
+        jp_base_url + "/mito-ai/db/connections",
+        headers={"Authorization": f"token {TOKEN}"},
+    )
+    assert response.status_code == 200
+
+
+def test_get_connections_with_no_auth(jp_base_url):
+    response = requests.get(jp_base_url + "/mito-ai/db/connections")
+    assert response.status_code == 403  # Forbidden
+
+
+def test_get_connections_with_incorrect_auth(jp_base_url):
+    response = requests.get(
+        jp_base_url + "/mito-ai/db/connections",
+        headers={"Authorization": f"token incorrect-token"},
     )
     assert response.status_code == 403  # Forbidden
 
