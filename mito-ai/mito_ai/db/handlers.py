@@ -6,6 +6,7 @@ import os
 import tornado
 import uuid
 from typing import Any, Final
+from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
 
@@ -14,16 +15,14 @@ CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
 SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
 
 
-class ConnectionsHandler(tornado.web.RequestHandler):
+class ConnectionsHandler(APIHandler):
     """
     Endpoints for working with connections.json file.
     """
 
-    def prepare(self) -> None:
-        """Called before any request handler method."""
-        # Check for CSRF token
-        self.check_xsrf_cookie()
-
+    @tornado.web.authenticated
+    def get(self) -> None:
+        """Get all connections."""
         # Ensure the db directory exists
         os.makedirs(DB_DIR_PATH, exist_ok=True)
 
@@ -37,14 +36,11 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             with open(SCHEMAS_PATH, "w") as f:
                 json.dump({}, f, indent=4)
 
-    def get(self, *args: Any, **kwargs: Any) -> None:
-        """Get all connections."""
         with open(CONNECTIONS_PATH, "r") as f:
             connections = json.load(f)
+        self.finish(json.dumps(connections))
 
-        self.write(connections)
-        self.finish()
-
+    @tornado.web.authenticated
     def post(self, *args: Any, **kwargs: Any) -> None:
         """Add a new connection."""
         try:
@@ -97,6 +93,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
         finally:
             self.finish()
 
+    @tornado.web.authenticated
     def delete(self, *args: Any, **kwargs: Any) -> None:
         """Delete a connection by UUID."""
         try:
