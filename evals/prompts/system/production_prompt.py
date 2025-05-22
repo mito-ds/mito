@@ -5,10 +5,7 @@ from evals.prompts.constants import (
     CITATION_RULES,
     ACTIVE_CELL_ID_SECTION_HEADING,
     CODE_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING,
-    FILES_SECTION_HEADING,
 )
-
 
 def get_system_prompt(database_rules: str) -> str:
     return f"""You are Mito Data Copilot, an AI assistant for Jupyter. You're a great python programmer, a seasoned data scientist and a subject matter expert.
