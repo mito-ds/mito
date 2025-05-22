@@ -20,6 +20,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ tit
             className="selected-rule-container"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            data-testid="selected-context-container"
         >
             <div
                 className={`icon`}
