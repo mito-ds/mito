@@ -7,10 +7,19 @@ import { CodeCell } from '@jupyterlab/cells';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import '@testing-library/jest-dom'
-import { render, fireEvent, screen, createEvent, act } from '@testing-library/react'
+import { render, fireEvent, screen, createEvent, act, within } from '@testing-library/react'
 import React from 'react';
 import ChatInput from '../../Extensions/AiChat/ChatMessage/ChatInput';
 import { Variable } from '../../Extensions/ContextManager/VariableInspector';
+
+// Add import for RestAPI to mock getRules
+// import * as RestAPI from '../../RestAPI'; Jest will use the mock below
+
+// Mock the RestAPI.getRules function
+jest.mock('../../RestAPI', () => ({
+  ...jest.requireActual('../../RestAPI'), // Import and retain default behavior
+  getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']) 
+}));
 
 // Mock data for test cases
 const TEST_CELL_CODE = 'print("Hello World")';
@@ -23,6 +32,9 @@ const MOCK_VARIABLES: Variable[] = [
   { variable_name: 'x', type: "<class 'int'>", value: 42 },
   { variable_name: 'y', type: "<class 'float'>", value: 3.14 }
 ];
+
+// Sample rules for testing
+const MOCK_RULES = ['Data Analysis', 'Visualization', 'Machine Learning'];
 
 // Mock cell with code
 const createMockCell = (code: string, cellId: string) => ({
@@ -174,7 +186,7 @@ describe('ChatInput Component', () => {
             fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter' });
             
             // Verify onSave was called with the input content
-            expect(onSaveMock).toHaveBeenCalledWith(testMessage);
+            expect(onSaveMock).toHaveBeenCalledWith(testMessage, undefined, []);
             
             // Verify the input was cleared
             expect(textarea).toHaveValue('');
@@ -256,7 +268,7 @@ describe('ChatInput Component', () => {
             fireEvent.click(saveButton);
             
             // Verify onSave was called with the updated content
-            expect(editSaveMock).toHaveBeenCalledWith(updatedContent);
+            expect(editSaveMock).toHaveBeenCalledWith(updatedContent, undefined, []);
         });
 
         it('calls onCancel when Cancel button is clicked', () => {
@@ -336,6 +348,151 @@ describe('ChatInput Component', () => {
             
             // Variable should be inserted with backticks
             expect(textarea).toHaveValue('`df`');
+        });
+    });
+
+    describe('Rules Dropdown', () => {
+        beforeEach(() => {
+            // Clear the DOM between tests
+            document.body.innerHTML = '';
+        });
+
+        afterEach(() => {
+            // jest.restoreAllMocks(); // Not needed if mocks are cleared correctly or scoped
+            jest.clearAllMocks(); // Clear all mocks after each test
+        });
+
+        it('shows rules in dropdown when @ character is typed', async () => {
+            // Clear and re-render to ensure our mock is used
+            document.body.innerHTML = '';
+            
+            await act(async () => {
+                renderChatInput();
+            });
+            
+            const textarea = screen.getByRole('textbox');
+            
+            // Type @ character in textarea
+            await act(async () => {
+                typeInTextarea(textarea, '@');
+            });
+            
+            // Dropdown should become visible
+            expect(screen.getByTestId('chat-dropdown')).toBeInTheDocument();
+            
+            // Check for rules in the dropdown
+            for (const rule of MOCK_RULES) {
+                const ruleElement = screen.getByText(rule);
+                expect(ruleElement).toBeInTheDocument();
+            }
+        });
+        
+        it('filters rules based on text after @', async () => {
+            // Clear and re-render to ensure our mock is used
+            document.body.innerHTML = '';
+            
+            await act(async () => {
+                renderChatInput();
+            });
+            
+            const textarea = screen.getByRole('textbox');
+            
+            // Type @V to filter for rules starting with 'V'
+            await act(async () => {
+                typeInTextarea(textarea, '@V');
+            });
+            
+            // Wait for the dropdown to update
+            expect(screen.getByTestId('chat-dropdown')).toBeInTheDocument();
+            
+            // Should show 'Visualization' rule
+            expect(screen.getByText('Visualization')).toBeInTheDocument();
+            
+            // Should not show other rules
+            expect(screen.queryByText('Data Analysis')).not.toBeInTheDocument();
+            expect(screen.queryByText('Machine Learning')).not.toBeInTheDocument();
+        });
+        
+        it('selects rule when clicked in dropdown', async () => {
+            // Clear and re-render to ensure our mock is used
+            document.body.innerHTML = '';
+            
+            await act(async () => {
+                renderChatInput();
+            });
+            
+            const textarea = screen.getByRole('textbox');
+            
+            // Type @ character in textarea
+            await act(async () => {
+                typeInTextarea(textarea, '@');
+            });
+            
+            // Find and click the rule 'Data Analysis'
+            expect(screen.getByTestId('chat-dropdown-list')).toBeInTheDocument();
+            const ruleItem = screen.getByText('Data Analysis');
+            
+            // Click the rule item
+            fireEvent.click(ruleItem);
+            
+            // After clicking, dropdown should be closed
+            expect(screen.queryByTestId('chat-dropdown')).not.toBeInTheDocument();
+            
+            // Rule should be inserted with backticks
+            expect(textarea).toHaveValue('`Data Analysis`');
+            
+            // Wait for the SelectedContextContainer to appear
+            const selectedContextContainer = await screen.findByTestId('selected-context-container');
+            expect(selectedContextContainer).toBeInTheDocument();
+
+            // Then, look for the rule text *within* that container
+            const ruleTextInContainer = within(selectedContextContainer).getByText('Data Analysis', {exact: false});
+            expect(ruleTextInContainer).toBeInTheDocument();
+            
+            // Look for the container by its class instead of data-testid as an alternative
+            const ruleContainer = document.querySelector('.selected-rule-container');
+            expect(ruleContainer).not.toBeNull();
+        });
+        
+        it('displays SelectedContextContainer when a rule is selected', async () => {
+            // Clear and re-render to ensure our mock is used
+            document.body.innerHTML = '';
+            
+            await act(async () => {
+                renderChatInput();
+            });
+            
+            const textarea = screen.getByRole('textbox');
+            
+            // Type @ character in textarea
+            await act(async () => {
+                typeInTextarea(textarea, '@');
+            });
+            
+            // Find and click the rule 'Machine Learning'
+            const ruleItem = screen.getByText('Machine Learning');
+            
+            await act(async () => {
+                fireEvent.click(ruleItem);
+            });
+            
+            // SelectedContextContainer should be displayed with the selected rule
+            const selectedRule = screen.getByText('Machine Learning');
+            expect(selectedRule).toBeInTheDocument();
+            
+            // Check that the rule container has a remove button
+            const removeButton = selectedRule.parentElement?.querySelector('.icon');
+            expect(removeButton).toBeInTheDocument();
+            
+            // Click the remove button
+            await act(async () => {
+                if (removeButton) {
+                    fireEvent.click(removeButton);
+                }
+            });
+            
+            // After removing, the SelectedContextContainer should not be in the document
+            expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
         });
     });
 });
