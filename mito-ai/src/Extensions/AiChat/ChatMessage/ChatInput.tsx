@@ -16,6 +16,7 @@ import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
+import SelectedRuleContainer from '../../../components/SelectedRuleContainer';
 
 interface ChatInputProps {
     initialContent: string;
@@ -196,9 +197,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
         >
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
             {selectedRules.map((rule) => (
-                <div key={rule} className="selected-rule">
-                    {rule}
-                </div>
+                <SelectedRuleContainer
+                    key={rule}
+                    ruleName={rule}
+                    onRemove={() => setSelectedRules(selectedRules.filter((r) => r !== rule))}
+                />
             ))}
             {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
                 && (isFocused || input.length > 0)
