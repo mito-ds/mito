@@ -124,26 +124,27 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const atIndex = textBeforeCursor.lastIndexOf("@");
         const textAfterCursor = input.slice(cursorPosition);
 
-        let variableNameWithBackticks: string = ''
+        let contextChatRepresentation: string = ''
 
         if (option.type === 'variable') {
             
             if (option.variable.parent_df) {
-                variableNameWithBackticks = `\`${option.variable.variable_name}\``
+                contextChatRepresentation = `\`${option.variable.variable_name}\``
             } else {
-                variableNameWithBackticks = `\`${option.variable.variable_name}\``
+                contextChatRepresentation = `\`${option.variable.variable_name}\``
             }
         } else if (option.type === 'rule') {
-            // TODO: We need to
-            //  1) Add a UI element to show that the rule is being applied. This could just be using the `backtick` around the word..
-            //  2) Add the rule to the input
-            variableNameWithBackticks = `\`${option.rule}\``
+            // We don't add the rule as an back ticked element in the chat input, 
+            // and instead just add it as plain text because we also add it as 
+            // a context container above the chat input and we want the user to 
+            // delete the context from there if they want to. 
+            contextChatRepresentation = option.rule
             setSelectedRules([...selectedRules, option.rule]);
         }
 
         const newValue =
             input.slice(0, atIndex) +
-            variableNameWithBackticks +
+            contextChatRepresentation +
             textAfterCursor;
         setInput(newValue);
 
@@ -153,7 +154,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         // We use setTimeout to ensure this happens after React's state update
         setTimeout(() => {
             if (textarea) {
-                const newCursorPosition = atIndex + variableNameWithBackticks.length;
+                const newCursorPosition = atIndex + contextChatRepresentation.length;
                 textarea.focus();
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }
