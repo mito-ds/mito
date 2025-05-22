@@ -248,7 +248,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             e.preventDefault();
                             adjustHeight(true)
                             onSave(input, undefined, selectedRules)
+
+                            // Reset
                             setInput('')
+                            setSelectedRules([])
                             setIsFocused(false)
                         }
                         // Escape key cancels editing
