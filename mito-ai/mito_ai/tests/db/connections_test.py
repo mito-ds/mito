@@ -1,4 +1,5 @@
 import os
+import json
 import pytest
 import requests
 import threading
@@ -83,6 +84,9 @@ def jp_base_url(jp_serverapp):
     return jp_serverapp.connection_url
 
 
+# --- GET CONNECTIONS ---
+
+
 def test_get_connections_with_auth(jp_base_url):
     response = requests.get(
         jp_base_url + "/mito-ai/db/connections",
@@ -102,6 +106,9 @@ def test_get_connections_with_incorrect_auth(jp_base_url):
         headers={"Authorization": f"token incorrect-token"},
     )
     assert response.status_code == 403  # Forbidden
+
+
+# --- ADD CONNECTION ---
 
 
 def test_add_connection_with_auth(jp_base_url):
@@ -128,3 +135,47 @@ def test_add_connection_with_incorrect_auth(jp_base_url):
         json=CONNECTION_JSON,
     )
     assert response.status_code == 403  # Forbidden
+
+
+# --- DELETE CONNECTION ---
+
+
+def test_delete_connection_with_no_auth(jp_base_url):
+    # Manually open the connections.json file and get the first connection ID
+    with open(CONNECTIONS_PATH, "r") as f:
+        connections = json.load(f)
+    # Get the first connection ID from the object keys
+    connection_id = next(iter(connections.keys()))
+
+    response = requests.delete(
+        jp_base_url + f"/mito-ai/db/connections/{connection_id}",
+    )
+    assert response.status_code == 403  # Forbidden
+
+
+def test_delete_connection_with_incorrect_auth(jp_base_url):
+    # Manually open the connections.json file and get the first connection ID
+    with open(CONNECTIONS_PATH, "r") as f:
+        connections = json.load(f)
+    # Get the first connection ID from the object keys
+    connection_id = next(iter(connections.keys()))
+
+    response = requests.delete(
+        jp_base_url + f"/mito-ai/db/connections/{connection_id}",
+        headers={"Authorization": f"token incorrect-token"},
+    )
+    assert response.status_code == 403  # Forbidden
+
+
+def test_delete_connection_with_auth(jp_base_url):
+    # Manually open the connections.json file and get the first connection ID
+    with open(CONNECTIONS_PATH, "r") as f:
+        connections = json.load(f)
+    # Get the first connection ID from the object keys
+    connection_id = next(iter(connections.keys()))
+
+    response = requests.delete(
+        jp_base_url + f"/mito-ai/db/connections/{connection_id}",
+        headers={"Authorization": f"token {TOKEN}"},
+    )
+    assert response.status_code == 200
