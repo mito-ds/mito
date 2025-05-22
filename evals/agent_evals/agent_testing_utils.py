@@ -33,7 +33,6 @@ def process_notebook_update(notebook, cell_update):
     all_code = "\n\n".join(
         cell.source for cell in notebook.cells if cell.cell_type == "code"
     )
-    # print(all_code)
     return notebook, all_code
 
 

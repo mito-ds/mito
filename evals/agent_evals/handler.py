@@ -4,7 +4,7 @@ from execute_code import exec_code_and_get_globals_and_output
 from agent_testing_utils import process_response_for_errors, process_notebook_update, create_prompt_from_code_and_user_task, start_new_conversation_history, get_history_from_response, get_test_case_mappings, get_eval_result_mappings, get_input_and_expected_output_nb
 
 from default_system_prompt import create_agent_system_message_prompt
-from run_test_case import get_openai_code_and_conversation_history
+from run_test_case import get_openai_code
 from eval_metrics import Evals
 
 import warnings
@@ -29,12 +29,11 @@ def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_
     else:
         conversation_history = start_new_conversation_history(PROMPT)
 
-    # print(f"conversation_history: {conversation_history}")
     output_nb = None
     cell_update_type = ""
     while cell_update_type!="finished_task":
         user_prompt = create_prompt_from_code_and_user_task(input_nb["cells"], user_task)
-        agent_response = get_openai_code_and_conversation_history(user_task=user_prompt,
+        agent_response = get_openai_code(user_task=user_prompt,
                                                                   model=DEFAULT_MODEL,
                                                                   system_prompt=PROMPT,
                                                                   conversation_history=conversation_history)
@@ -43,7 +42,7 @@ def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_
         response_json = json.loads(agent_response)
         existing_response_json['response'].append(response_json)
 
-        # print(f"response_json: {response_json}")
+
         if response_json["type"]!="finished_task":
             output_nb, output_code = process_notebook_update(input_nb, response_json['cell_update'])
             globals, exec_output = exec_code_and_get_globals_and_output(output_code)
@@ -68,7 +67,6 @@ def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_
 def run_evals(evals_to_test, input_nb, output_nb, expected_output_nb, list_of_responses, conversation_history):
     total_tests = len(evals_to_test)
     passed_tests = 0
-    # print(f"list_of_responses: {list_of_responses}")
     eval_class = Evals(input_nb,
                        output_nb,
                        expected_output_nb,
@@ -82,15 +80,14 @@ def run_evals(evals_to_test, input_nb, output_nb, expected_output_nb, list_of_re
     for evals in evals_to_test:
         test_case_name = evals["eval_name"]
         input_params = evals["params"]
-        # print("-----------------------------")
-        # print(f"TEST CASE: {test_case_name}")
+
+
         eval_function = test_case_mappings[test_case_name]
         result = eval_function(input_params)
-        # print(f"\nResult of {test_case_name}: {eval_result_mappings[result]}")
+
         result_metrics[test_case_name] = eval_result_mappings[result]
         if result:
             passed_tests+=1
-    # print(f"\nEval metrics: Passed {passed_tests} out of {total_tests}")
     return result_metrics, passed_tests, total_tests
 
 

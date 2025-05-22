@@ -30,9 +30,6 @@ class Evals:
         expected_output_cell = next((cell for cell in self.expected_output_nb.cells if cell.get('id') == cell_id), None)
         output_cell = next((cell for cell in self.output_nb.cells if cell.get('id') == cell_id), None)
 
-        #print(f"expected_output_cell: {expected_output_cell}")
-        #print(f"output_cell: {output_cell}")
-
         if expected_output_cell is None or output_cell is None:
             return False
         return expected_output_cell["source"].strip() == output_cell["source"].strip()
@@ -62,11 +59,6 @@ class Evals:
         expected_output = input_params["expected_output"]
         input_cells = [cell for cell in self.input_nb.cells if cell.cell_type == "code"]
         output_cells = [cell for cell in self.output_nb.cells if cell.cell_type == "code"]
-
-        #print(f"expected_output: {expected_output}")
-        #print(f"input_cells: {input_cells}")
-        #print(f"output_cells: {output_cells}")
-
         result = True if len(output_cells) > len(input_cells) else False
         return result == expected_output
 
@@ -92,14 +84,12 @@ class Evals:
                 try:
                     exec(cell.source, globals_dict)
                 except Exception as exec_err:
-                    #print(f"Error in cell execution: {exec_err}")
                     return False
                 if cell.get("id") == cell_id:
                     break
             return globals_dict.get(variable_name) == expected_value
 
         except Exception as e:
-            #print(f"Unexpected error: {e}")
             return False
 
         finally:
@@ -115,16 +105,11 @@ class Evals:
         cell_index = input_params["cell_index"]
         expected_value = input_params["expected_value"]
 
-        #print(f"variable_name: {variable_name}")
-        #print(f"expected_value: {expected_value}")
-        #print(f"cell_index: {cell_index}")
-
         globals_dict = {}
         old_stdout = sys.stdout
         sys.stdout = StringIO()
 
         try:
-            #print("in try")
             for i in range(cell_index + 1):  # inclusive
                 cell = self.output_nb.cells[i]
                 if cell.cell_type != "code":
@@ -132,13 +117,10 @@ class Evals:
                 try:
                     exec(cell.source, globals_dict)
                 except Exception as exec_err:
-                    #print(f"Error in cell execution: {exec_err}")
                     return False
-            #print(f"globals dict: {globals_dict.get(variable_name)}")
             return globals_dict.get(variable_name) == expected_value
 
         except Exception as e:
-            #print(f"Unexpected error: {e}")
             return False
 
         finally:
@@ -165,7 +147,6 @@ class Evals:
                 try:
                     exec(cell.source, globals_dict)
                 except Exception as exec_err:
-                    #print(f"Error in cell execution: {exec_err}")
                     return False
                 if cell.get("id") == cell_id:
                     break
@@ -174,7 +155,6 @@ class Evals:
             return isinstance(variable_value, expected_type)
 
         except Exception as e:
-            #print(f"Unexpected error: {e}")
             return False
 
         finally:
@@ -204,18 +184,14 @@ class Evals:
                 if cell.cell_type != "code":
                     continue
                 try:
-                    #print(f"cell_source: {cell.source}")
                     exec(cell.source, globals_dict)
                 except Exception as exec_err:
-                    #print(f"Error in cell execution: {exec_err}")
                     return False
 
-            #print(f"globals_dict: {globals_dict}")
             variable_value = globals_dict.get(variable_name, None)
             return type(variable_value).__name__ == expected_type
 
         except Exception as e:
-            #print(f"Unexpected error: {e}")
             return False
 
         finally:
@@ -230,7 +206,6 @@ class Evals:
         """
         response = self.immediate_next_response
         expected_cell_index = input_params["index_expecting_change"]
-        #print(f"response: {response}")
         if response["type"] == "cell_update" and response["cell_update"]["type"] == "new":
             return response["cell_update"]["index"] == expected_cell_index
         return False
@@ -243,8 +218,6 @@ class Evals:
         """
         response = self.immediate_next_response
         expected_cell_to_edit = input_params["expected_cell_to_edit"]
-        #print(f"response: {response}")
-        #print(f"expected_cell_to_edit")
         if response["type"] == "cell_update" and response["cell_update"]["type"] == "modification":
             return response["cell_update"]["id"] == expected_cell_to_edit
         return False

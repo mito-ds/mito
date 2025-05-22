@@ -30,7 +30,7 @@ def get_code_block_from_message(message: str) -> str:
 
     return message.split('```python\n')[1].split('\n```')[0]
 
-def get_openai_code_and_conversation_history(user_task: str, model: str, system_prompt: Optional[str] = None, conversation_history: Optional[List] = []):
+def get_openai_code(user_task: str, model: str, system_prompt: Optional[str] = None, conversation_history: Optional[List] = []):
 
     completion_function_params = get_open_ai_completion_function_params_for_agent(user_task, model, system_prompt, conversation_history)
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
