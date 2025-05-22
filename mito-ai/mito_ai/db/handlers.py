@@ -29,6 +29,7 @@ class ConnectionsHandler(APIHandler):
     @tornado.web.authenticated
     def get(self) -> None:
         """Get all connections."""
+        # If the db dir doesn't exist, create it
         setup_database_dir(DB_DIR_PATH, CONNECTIONS_PATH, SCHEMAS_PATH)
 
         with open(CONNECTIONS_PATH, "r") as f:
@@ -39,6 +40,9 @@ class ConnectionsHandler(APIHandler):
     def post(self) -> None:
         """Add a new connection."""
         try:
+            # If the db dir doesn't exist, create it
+            setup_database_dir(DB_DIR_PATH, CONNECTIONS_PATH, SCHEMAS_PATH)
+
             # Get the new connection data from the request body
             new_connection = json.loads(self.request.body)
 

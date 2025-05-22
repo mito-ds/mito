@@ -126,12 +126,16 @@ def test_add_connection_with_incorrect_auth(jp_base_url):
 # --- GET CONNECTIONS ---
 
 
-def test_get_connections_with_auth(jp_base_url):
+def test_get_connections_with_auth(jp_base_url, first_connection_id):
     response = requests.get(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
     )
     assert response.status_code == 200
+    # Ensure the response has the correct number of connections
+    assert len(response.json()) == 1
+    # Ensure the response has the correct connection details
+    assert response.json()[first_connection_id] == CONNECTION_JSON
 
 
 def test_get_connections_with_no_auth(jp_base_url):
@@ -171,3 +175,10 @@ def test_delete_connection_with_auth(jp_base_url, first_connection_id):
         headers={"Authorization": f"token {TOKEN}"},
     )
     assert response.status_code == 200
+
+    # Ensure the connection was deleted
+    response = requests.get(
+        jp_base_url + f"/mito-ai/db/connections",
+        headers={"Authorization": f"token {TOKEN}"},
+    )
+    assert len(response.json()) == 0
