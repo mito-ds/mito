@@ -41,7 +41,7 @@ class ConnectionsHandler(APIHandler):
         self.finish(json.dumps(connections))
 
     @tornado.web.authenticated
-    def post(self, *args: Any, **kwargs: Any) -> None:
+    def post(self) -> None:
         """Add a new connection."""
         try:
             # Get the new connection data from the request body
@@ -140,15 +140,10 @@ class ConnectionsHandler(APIHandler):
             self.finish()
 
 
-class SchemaHandler(tornado.web.RequestHandler):
+class SchemaHandler(APIHandler):
     """
     Endpoints for working with schemas.json file.
     """
-
-    def prepare(self) -> None:
-        """Called before any request handler method."""
-        # Check for CSRF token
-        self.check_xsrf_cookie()
 
     def crawl_and_store_schema(
         self,
@@ -174,7 +169,8 @@ class SchemaHandler(tornado.web.RequestHandler):
             return True, ""
         return False, "Failed to crawl schema"
 
-    def get(self, *args: Any, **kwargs: Any) -> None:
+    @tornado.web.authenticated
+    def get(self) -> None:
         """Get all schemas."""
         with open(SCHEMAS_PATH, "r") as f:
             schemas = json.load(f)
@@ -182,6 +178,7 @@ class SchemaHandler(tornado.web.RequestHandler):
         self.write(schemas)
         self.finish()
 
+    @tornado.web.authenticated
     def delete(self, *args: Any, **kwargs: Any) -> None:
         """Delete a schema by UUID."""
         # Get the schema UUID from either kwargs (when called as a request handler)
