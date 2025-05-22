@@ -86,6 +86,7 @@ export interface IAgentExecutionMetadata {
   index?: number;
   threadId: string;
   isChromeBrowser: boolean;
+  selectedRules?: string[];
 }
 
 export interface IAgentSmartDebugMetadata {

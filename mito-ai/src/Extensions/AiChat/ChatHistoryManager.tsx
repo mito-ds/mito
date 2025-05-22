@@ -113,7 +113,7 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
-    addAgentExecutionMessage(activeThreadId: string, input?: string): IAgentExecutionMetadata {
+    addAgentExecutionMessage(activeThreadId: string, input?: string, selectedRules?: string[]): IAgentExecutionMetadata {
 
         const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 
@@ -124,7 +124,8 @@ export class ChatHistoryManager {
             aiOptimizedCells: aiOptimizedCells,
             input: input || '',
             threadId: activeThreadId,
-            isChromeBrowser: isChromeBasedBrowser()
+            isChromeBrowser: isChromeBasedBrowser(),
+            selectedRules: selectedRules
         }
 
         // We use this function in two ways: 

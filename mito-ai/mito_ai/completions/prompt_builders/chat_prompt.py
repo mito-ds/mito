@@ -11,21 +11,6 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
 )
 from mito_ai.rules.utils import get_rules_file
 
-def get_rules_str(selected_rules: Optional[List[str]]) -> str:
-    if selected_rules is None:
-        return ''
-    
-    rules_str = ''
-    for rule in selected_rules:
-        rule_content = get_rules_file(rule)
-        if rule_content is None or rule_content == '':
-            continue
-        
-        rules_str += f"===========\n\nCustom Instructions Provided by User: {rule}\n\n{rule_content}\n\n==========="
-    
-    return rules_str
-
-
 def create_chat_prompt(
     variables: List[str],
     files: List[str],

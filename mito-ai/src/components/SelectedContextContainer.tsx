@@ -7,15 +7,12 @@ import React, { useState } from 'react';
 import '../../style/SelectedRuleContainer.css';
 import RuleIcon from '../icons/RuleIcon';
 
-interface SelectedRuleContainerProps {
-    ruleName: string;
-    onRemove: (ruleName: string) => void;
+interface SelectedContextContainerProps {
+    title: string;
+    onRemove: () => void;
 }
 
-const SelectedRuleContainer: React.FC<SelectedRuleContainerProps> = ({ 
-    ruleName, 
-    onRemove 
-}) => {
+const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ title, onRemove }) => {
     const [isHovered, setIsHovered] = useState(false);
 
     return (
@@ -26,7 +23,7 @@ const SelectedRuleContainer: React.FC<SelectedRuleContainerProps> = ({
         >
             <div
                 className={`icon`}
-                onClick={() => onRemove(ruleName)}
+                onClick={() => onRemove()}
                 title={isHovered ? "Remove rule" : "Selected rule"}
             >
                 {isHovered ? (
@@ -36,10 +33,10 @@ const SelectedRuleContainer: React.FC<SelectedRuleContainerProps> = ({
                 )}
             </div>
             <span className="rule-name">
-                {ruleName}
+                {title}
             </span>
         </button>
     );
 };
 
-export default SelectedRuleContainer;
+export default SelectedContextContainer;

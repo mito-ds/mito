@@ -16,7 +16,7 @@ import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
-import SelectedRuleContainer from '../../../components/SelectedRuleContainer';
+import SelectedContextContainer from '../../../components/SelectedContextContainer';
 
 interface ChatInputProps {
     initialContent: string;
@@ -196,13 +196,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }}
         >
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
-            {selectedRules.map((rule) => (
-                <SelectedRuleContainer
-                    key={rule}
-                    ruleName={rule}
-                    onRemove={() => setSelectedRules(selectedRules.filter((r) => r !== rule))}
-                />
-            ))}
+            {selectedRules.length > 0 && (
+                <div className='context-container'>
+                    {selectedRules.map((rule) => (
+                        <SelectedContextContainer
+                            key={rule}
+                            title={rule}
+                            onRemove={() => setSelectedRules(selectedRules.filter((r) => r !== rule))}
+                        />
+                    ))}
+                </div>
+            )}
             {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
                 && (isFocused || input.length > 0)
                 && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
