@@ -1,5 +1,6 @@
 import json
 import os
+from mito_ai.db.crawlers import snowflake
 
 
 def setup_database_dir(
@@ -79,3 +80,40 @@ def delete_schema(schemas_path: str, schema_id: str) -> None:
 
     with open(schemas_path, "w") as f:
         json.dump(schemas, f, indent=4)
+
+
+def crawl_and_store_schema(
+    schemas_path: str,
+    connection_id: str,
+    username: str,
+    password: str,
+    account: str,
+    warehouse: str,
+) -> tuple[bool, str]:
+    """
+    Crawl and store schema for a given connection.
+
+    Args:
+        schemas_path (str): The path to the schemas.json file.
+        connection_id (str): The UUID of the connection to crawl.
+        username (str): The username for the connection.
+        password (str): The password for the connection.
+        account (str): The account for the connection.
+        warehouse (str): The warehouse for the connection.
+
+    Returns:
+        tuple[bool, str]: A tuple containing a boolean indicating success and an error message.
+    """
+
+    schema = snowflake.crawl_snowflake(username, password, account, warehouse)
+
+    if schema:
+        # If we successfully crawled the schema, write it to schemas.json
+        with open(schemas_path, "r+") as f:
+            schemas = json.load(f)
+            schemas[connection_id] = schema
+            f.seek(0)  # Move to the beginning of the file
+            json.dump(schemas, f, indent=4)
+            f.truncate()  # Remove any remaining content
+        return True, ""
+    return False, "Failed to crawl schema"

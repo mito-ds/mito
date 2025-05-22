@@ -8,12 +8,12 @@ import uuid
 from typing import Any, Final
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.schema import MITO_FOLDER
-from mito_ai.db.crawlers import snowflake
 from mito_ai.db.utils import (
     setup_database_dir,
     save_connection,
     delete_connection,
     delete_schema,
+    crawl_and_store_schema,
 )
 
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
@@ -46,8 +46,8 @@ class ConnectionsHandler(APIHandler):
             connection_id = str(uuid.uuid4())
 
             # First, try to validate the connection by building the schema
-            schema_handler = SchemaHandler(self.application, self.request)
-            success, error_message = schema_handler.crawl_and_store_schema(
+            success, error_message = crawl_and_store_schema(
+                SCHEMAS_PATH,
                 connection_id,
                 new_connection["username"],
                 new_connection["password"],
@@ -116,30 +116,6 @@ class SchemaHandler(APIHandler):
     """
     Endpoints for working with schemas.json file.
     """
-
-    def crawl_and_store_schema(
-        self,
-        connection_id: str,
-        username: str,
-        password: str,
-        account: str,
-        warehouse: str,
-    ) -> tuple[bool, str]:
-        """
-        Crawl and store schema for a given connection.
-        Returns (success, error_message)
-        """
-        schema = snowflake.crawl_snowflake(username, password, account, warehouse)
-        if schema:
-            # If we successfully crawled the schema, write it to schemas.json
-            with open(SCHEMAS_PATH, "r+") as f:
-                schemas = json.load(f)
-                schemas[connection_id] = schema
-                f.seek(0)  # Move to the beginning of the file
-                json.dump(schemas, f, indent=4)
-                f.truncate()  # Remove any remaining content
-            return True, ""
-        return False, "Failed to crawl schema"
 
     @tornado.web.authenticated
     def get(self) -> None:
