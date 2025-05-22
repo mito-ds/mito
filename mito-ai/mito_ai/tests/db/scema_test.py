@@ -24,7 +24,7 @@ CONNECTION_JSON = {
 }
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def backup_db_folder():
     """Backup the DB folder before tests and restore it after."""
     if os.path.exists(DB_DIR_PATH):
