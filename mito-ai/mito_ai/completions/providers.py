@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union, Type
-
-import openai
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
