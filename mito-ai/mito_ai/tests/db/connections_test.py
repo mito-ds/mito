@@ -1,11 +1,42 @@
+import os
 import pytest
 import requests
-from jupyter_server.serverapp import ServerApp
-from traitlets.config import Config
 import threading
 import time
+import shutil
+from typing import Final
+from jupyter_server.serverapp import ServerApp
+from traitlets.config import Config
+from mito_ai.utils.schema import MITO_FOLDER
 
 TOKEN = "test-token"
+DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
+CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
+SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
+BACKUP_DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db_backup")
+CONNECTION_JSON = {
+    "type": "snowflake",
+    "username": os.environ.get("SNOWFLAKE_USERNAME"),
+    "password": os.environ.get("SNOWFLAKE_PASSWORD"),
+    "account": os.environ.get("SNOWFLAKE_ACCOUNT"),
+    "warehouse": "COMPUTE_WH",
+}
+
+
+@pytest.fixture(scope="session", autouse=True)
+def backup_db_folder():
+    """Backup the DB folder before tests and restore it after."""
+    if os.path.exists(DB_DIR_PATH):
+        # Create backup, so we can test with a clean db dir
+        shutil.move(DB_DIR_PATH, BACKUP_DB_DIR_PATH)
+
+    yield
+
+    # Cleanup after tests
+    if os.path.exists(DB_DIR_PATH):
+        shutil.rmtree(DB_DIR_PATH)
+    if os.path.exists(BACKUP_DB_DIR_PATH):
+        shutil.move(BACKUP_DB_DIR_PATH, DB_DIR_PATH)
 
 
 @pytest.fixture
@@ -52,6 +83,14 @@ def jp_base_url(jp_serverapp):
     return jp_serverapp.connection_url
 
 
+def test_get_connections_with_auth(jp_base_url):
+    response = requests.get(
+        jp_base_url + "/mito-ai/db/connections",
+        headers={"Authorization": f"token {TOKEN}"},
+    )
+    assert response.status_code == 200
+
+
 def test_get_connections_with_no_auth(jp_base_url):
     response = requests.get(jp_base_url + "/mito-ai/db/connections")
     assert response.status_code == 403  # Forbidden
@@ -65,9 +104,27 @@ def test_get_connections_with_incorrect_auth(jp_base_url):
     assert response.status_code == 403  # Forbidden
 
 
-def test_get_connections_with_auth(jp_base_url):
-    response = requests.get(
+def test_add_connection_with_auth(jp_base_url):
+    response = requests.post(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
+        json=CONNECTION_JSON,
     )
     assert response.status_code == 200
+
+
+def test_add_connection_with_no_auth(jp_base_url):
+    response = requests.post(
+        jp_base_url + "/mito-ai/db/connections",
+        json=CONNECTION_JSON,
+    )
+    assert response.status_code == 403  # Forbidden
+
+
+def test_add_connection_with_incorrect_auth(jp_base_url):
+    response = requests.post(
+        jp_base_url + "/mito-ai/db/connections",
+        headers={"Authorization": f"token incorrect-token"},
+        json=CONNECTION_JSON,
+    )
+    assert response.status_code == 403  # Forbidden

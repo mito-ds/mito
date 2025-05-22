@@ -46,6 +46,9 @@ jobs:
         pytest
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        SNOWFLAKE_USERNAME: ${{ secrets.PYTEST_SNOWFLAKE_USERNAME }}
+        SNOWFLAKE_PASSWORD: ${{ secrets.PYTEST_SNOWFLAKE_PASSWORD }}
+        SNOWFLAKE_ACCOUNT: ${{ secrets.PYTEST_SNOWFLAKE_ACCOUNT }}
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()
