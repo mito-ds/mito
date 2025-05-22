@@ -24,11 +24,11 @@ def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_
         input_nb = nbformat.read(f, as_version=4)
     existing_response_json = {"response": []}
 
+    conversation_history = start_new_conversation_history(PROMPT)
     if input_conversation_history_path:
         with open(input_conversation_history_path, 'r', encoding='utf-8') as f:
-            conversation_history = json.load(f)
-    else:
-        conversation_history = start_new_conversation_history(PROMPT)
+            existing_history = json.load(f)
+        conversation_history.extend(existing_history)
 
     output_nb = None
     cell_update_type = ""
