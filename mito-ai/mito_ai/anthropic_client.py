@@ -6,48 +6,10 @@ import anthropic
 from typing import Dict, Any, Optional, Union, Callable, List
 
 from anthropic.types import Message
-from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
+from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, AgentResponse
 from openai.types.chat import ChatCompletionMessageParam
 
-AGENT_RESPONSE_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "type": {
-            "type": "string",
-            "enum": ["cell_update", "get_cell_output", "finished_task"]
-        },
-        "message": {
-            "type": "string"
-        },
-        "cell_update": {
-            "type": "object",
-            "properties": {
-                "type": {
-                    "type": "string",
-                    "enum": ["new", "modification"]
-                },
-                "index": {
-                    "type": ["integer", "null"]
-                },
-                "id": {
-                    "type": ["string", "null"]
-                },
-                "code": {
-                    "type": "string"
-                },
-                "cell_type": {
-                    "type": ["string", "null"],
-                    "enum": ["code", "markdown", "null"]
-                }
-            },
-            "required": ["type", "code"]
-        },
-        "get_cell_output_cell_id": {
-            "type": ["string", "null"]
-        }
-    },
-    "required": ["type", "message"]
-}
+MAX_TOKENS = 2_000
 
 AGENT_RESPONSE_EXAMPLES = {
     "cell_update_example": {
@@ -182,13 +144,13 @@ class AnthropicClient:
                 tools = [{
                     "name": "agent_response",
                     "description": "Output a structured response following the AgentResponse format",
-                    "input_schema": AGENT_RESPONSE_SCHEMA
+                    "input_schema": AgentResponse.model_json_schema()
                 }]
 
                 # Make the API request with tool use
                 response = self.client.messages.create(
                     model=self.model,
-                    max_tokens=2000,
+                    max_tokens=MAX_TOKENS,
                     temperature=0,
                     messages=[
                         {"role": "user", "content": _formatted_prompt(prompt)}
@@ -201,9 +163,10 @@ class AnthropicClient:
                 return json.dumps(result) if not isinstance(result, str) else result
 
             else:
+                print(prompt)
                 response = self.client.messages.create(
                     model=self.model,
-                    max_tokens=2000,
+                    max_tokens=MAX_TOKENS,
                     temperature=0,
                     messages=[
                         {"role": "user", "content": prompt}
@@ -225,7 +188,7 @@ class AnthropicClient:
 
             stream = self.client.messages.create(
                 model=self.model,
-                max_tokens=2000,
+                max_tokens=MAX_TOKENS,
                 temperature=0,
                 messages=[
                     {"role": "user", "content": prompt}
