@@ -10,7 +10,7 @@ import { getRules } from '../../../RestAPI';
 
 interface ChatDropdownProps {
     options: ExpandedVariable[];
-    onSelect: (variableName: string, parentDf: string | undefined) => void;
+    onSelect: (option: ChatDropdownOption) => void;
     filterText: string;
     maxDropdownItems?: number;
     position?: 'above' | 'below';
@@ -96,9 +96,9 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 const selectedOption = filteredOptions[selectedIndex];
                 if (selectedOption !== undefined) {
                     if (selectedOption.type === 'variable') {
-                        onSelect(selectedOption.variable.variable_name, selectedOption.variable.parent_df);
+                        onSelect(selectedOption);
                     } else {
-                        onSelect(selectedOption.rule, undefined);
+                        onSelect(selectedOption);
                     }
                 }
                 break;
@@ -138,7 +138,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                                 variable={option.variable}
                                 index={index}   
                                 selectedIndex={selectedIndex}
-                                onSelect={onSelect}
+                                onSelect={() => onSelect(option)}
                             />
                         );
                     } else {
@@ -148,7 +148,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                                 rule={option.rule}
                                 index={index}
                                 selectedIndex={selectedIndex}
-                                onSelect={(rule) => onSelect(rule, undefined)}
+                                onSelect={() => onSelect(option)}
                             />
                         )
                     }
