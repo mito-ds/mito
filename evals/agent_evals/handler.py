@@ -1,11 +1,11 @@
 import nbformat
 import json
-from execute_code import exec_code_and_get_globals_and_output
-from agent_testing_utils import process_response_for_errors, process_notebook_update, create_prompt_from_code_and_user_task, start_new_conversation_history, get_history_from_response, get_test_case_mappings, get_eval_result_mappings, get_input_and_expected_output_nb
+from evals.agent_evals.execute_code import exec_code_and_get_globals_and_output
+from evals.agent_evals.agent_testing_utils import process_response_for_errors, process_notebook_update, create_prompt_from_code_and_user_task, start_new_conversation_history, get_history_from_response, get_test_case_mappings, get_eval_result_mappings, get_input_and_expected_output_nb
 
-from default_system_prompt import create_agent_system_message_prompt
-from run_test_case import get_openai_code
-from eval_metrics import Evals
+from evals.agent_evals.default_system_prompt import create_agent_system_message_prompt
+from evals.agent_evals.run_test_case import get_openai_code
+from evals.agent_evals.eval_metrics import Evals
 import os
 
 import warnings
@@ -44,7 +44,6 @@ def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_
         existing_response_json['response'].append(response_json)
         cell_update_type = response_json["type"]
 
-        # print(f"response_json: {response_json}")
         if cell_update_type!="finished_task":
             output_nb, output_code = process_notebook_update(input_nb, response_json['cell_update'])
             globals, exec_output = exec_code_and_get_globals_and_output(output_code)
