@@ -43,16 +43,19 @@ def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_
         agent_response = process_response_for_errors(agent_response)
         response_json = json.loads(agent_response)
         existing_response_json['response'].append(response_json)
+        cell_update_type = response_json["type"]
 
         # print(f"response_json: {response_json}")
-        if response_json["type"]!="finished_task":
+        if cell_update_type!="finished_task":
             output_nb, output_code = process_notebook_update(input_nb, response_json['cell_update'])
             globals, exec_output = exec_code_and_get_globals_and_output(output_code)
+            
+            # TODO: Before building more evals, we need to pass the globals before we pass the 
+            # information back to the agent.
             user_task = create_prompt_from_code_and_user_task(output_nb, exec_output)
 
         conversation_history.append(get_history_from_response(response_json))
         input_nb = output_nb
-        cell_update_type = response_json["type"]
 
     with open(output_response_path, "w", encoding="utf-8") as f:
         json.dump(existing_response_json, f, indent=4)
