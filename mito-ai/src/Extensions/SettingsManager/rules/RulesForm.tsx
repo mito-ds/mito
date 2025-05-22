@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import LoadingCircle from '../../../components/LoadingCircle';
 import '../../../../style/RulesForm.css';
 import { Rule } from './models';
+import { classNames } from '../../../utils/classNames';
 
 interface RuleFormProps {
     formData: Rule;
@@ -36,7 +37,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="connection-form">
+        <form onSubmit={handleSubmit} className={classNames("connection-form", "rules-form")}>
             {formError && <p className="error">{formError}</p>}
 
             <div className="form-group">

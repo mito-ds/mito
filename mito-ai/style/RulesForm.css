@@ -1,4 +1,4 @@
-textarea {
+.rules-form textarea {
     width: 100%;
     box-sizing: border-box;
     padding: 8px 12px;
@@ -13,7 +13,7 @@ textarea {
     min-height: 120px;
 }
 
-textarea:focus {
+.rules-form textarea:focus {
     outline: none;
     border-color: var(--purple-500);
     box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
