@@ -19,4 +19,8 @@
         ```
 
 ### How to run the evals:
-1. Run the file handler.py. This will collect the evals from test_cases.json and evaluate them.
+1. Start `evals` virtual environment.
+2. From the `mito` directory, run the command:
+```
+python3 -m evals.agent_evals.handler
+```

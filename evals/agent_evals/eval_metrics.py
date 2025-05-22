@@ -6,12 +6,12 @@ import re
 class Evals:
 
     def __init__(self,
-                 input_nb,
-                 output_nb,
-                 expected_output_nb,
-                 list_of_responses,
-                 conversation_history
-                 ):
+            input_nb,
+            output_nb,
+            expected_output_nb,
+            list_of_responses,
+            conversation_history
+        ):
         self.input_nb = input_nb
         self.output_nb = output_nb
         self.expected_output_nb = expected_output_nb
@@ -135,6 +135,10 @@ class Evals:
         variable_name = input_params["variable_name"]
         cell_id = input_params["cell_id"]
         expected_type = input_params["expected_type"]
+        
+        # TODO: We can probably get the cell index from the cell id 
+        # and then call the check_executed_variable_value_by_cell_index 
+        # function so we don't have to duplicate all of this logic.
 
         globals_dict = {}
         old_stdout = sys.stdout

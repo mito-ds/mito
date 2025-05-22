@@ -1,1 +1,0 @@
-USER_TASK_HEADING_SECTION = "Your task:"
