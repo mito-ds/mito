@@ -73,6 +73,7 @@ export interface IChatMessageMetadata {
   input: string;
   index?: number;
   threadId: string;
+  selectedRules?: string[];
 }
 
 export interface IAgentExecutionMetadata {
