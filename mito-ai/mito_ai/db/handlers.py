@@ -9,6 +9,7 @@ from typing import Any, Final
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
+from mito_ai.db.utils import setup_database_dir, delete_schema
 
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
 CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
@@ -23,18 +24,7 @@ class ConnectionsHandler(APIHandler):
     @tornado.web.authenticated
     def get(self) -> None:
         """Get all connections."""
-        # Ensure the db directory exists
-        os.makedirs(DB_DIR_PATH, exist_ok=True)
-
-        # Create connections.json if it doesn't exist
-        if not os.path.exists(CONNECTIONS_PATH):
-            with open(CONNECTIONS_PATH, "w") as f:
-                json.dump({}, f, indent=4)
-
-        # Create schemas.json if it doesn't exist
-        if not os.path.exists(SCHEMAS_PATH):
-            with open(SCHEMAS_PATH, "w") as f:
-                json.dump({}, f, indent=4)
+        setup_database_dir(DB_DIR_PATH, CONNECTIONS_PATH, SCHEMAS_PATH)
 
         with open(CONNECTIONS_PATH, "r") as f:
             connections = json.load(f)
@@ -122,8 +112,7 @@ class ConnectionsHandler(APIHandler):
                 json.dump(connections, f, indent=4)
 
             # Delete the schema
-            schema_handler = SchemaHandler(self.application, self.request)
-            schema_handler.delete(connection_id)
+            delete_schema(SCHEMAS_PATH, connection_id)
 
             self.set_status(200)
             self.write(
@@ -191,24 +180,7 @@ class SchemaHandler(APIHandler):
                 self.finish()
             return
 
-        # Read existing schemas
-        with open(SCHEMAS_PATH, "r") as f:
-            schemas = json.load(f)
-
-        # Check if schema exists
-        if schema_id not in schemas:
-            self.set_status(404)
-            self.write({"error": f"Schema with UUID {schema_id} not found"})
-            if not args:  # Only finish if this is a request handler call
-                self.finish()
-            return
-
-        # Remove the schema
-        del schemas[schema_id]
-
-        # Write back to file
-        with open(SCHEMAS_PATH, "w") as f:
-            json.dump(schemas, f, indent=4)
+        delete_schema(SCHEMAS_PATH, schema_id)
 
         self.set_status(200)
         self.write({"status": "success", "message": "Schema deleted successfully"})
