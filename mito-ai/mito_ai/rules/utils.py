@@ -15,11 +15,15 @@ def set_rules_file(rule_name: str, value: Any) -> None:
         f.write(value)
     
 
-def get_rules_file(rule_name: str) -> Any:
+def get_rules_file(rule_name: str) -> str:
     """
     Retrieves the value of a specific rule file from the rules directory
     """
+    if rule_name.endswith('.md'):
+        rule_name = rule_name[:-3]
+    
     file_path = os.path.join(RULES_DIR_PATH, f"{rule_name}.md")
+    
     with open(file_path, 'r') as f:
         return f.read()
 

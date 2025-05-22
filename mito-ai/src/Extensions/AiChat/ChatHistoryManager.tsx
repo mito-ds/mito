@@ -85,7 +85,7 @@ export class ChatHistoryManager {
         );
     }
 
-    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number): Promise<IChatMessageMetadata> {
+    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number, selectedRules?: string[]): Promise<IChatMessageMetadata> {
         const activeCellCode = getActiveCellCode(this.notebookTracker) || ''
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
 
@@ -97,7 +97,8 @@ export class ChatHistoryManager {
             activeCellId: activeCellID,
             input: input,
             threadId: activeThreadId,
-            index: messageIndex
+            index: messageIndex,
+            selectedRules: selectedRules
         }
 
         this.displayOptimizedChatHistory.push(

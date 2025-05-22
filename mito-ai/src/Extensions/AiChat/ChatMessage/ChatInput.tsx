@@ -20,7 +20,7 @@ import { ChatDropdownOption } from './ChatDropdown';
 interface ChatInputProps {
     initialContent: string;
     placeholder: string;
-    onSave: (content: string) => void;
+    onSave: (content: string, index?: number, selectedRules?: string[]) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -54,6 +54,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
+    const [selectedRules, setSelectedRules] = useState<string[]>([]);
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
@@ -136,6 +137,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             //  1) Add a UI element to show that the rule is being applied. This could just be using the `backtick` around the word..
             //  2) Add the rule to the input
             variableNameWithBackticks = `\`${option.rule}\``
+            setSelectedRules([...selectedRules, option.rule]);
         }
 
         const newValue =
@@ -193,6 +195,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }}
         >
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
+            {selectedRules.map((rule) => (
+                <div key={rule} className="selected-rule">
+                    {rule}
+                </div>
+            ))}
             {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
                 && (isFocused || input.length > 0)
                 && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
@@ -233,7 +240,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
-                            onSave(input)
+                            onSave(input, undefined, selectedRules)
                             setInput('')
                             setIsFocused(false)
                         }
@@ -257,7 +264,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => onSave(input)}>Save</button>
+                    <button onClick={() => onSave(input, undefined, selectedRules)}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

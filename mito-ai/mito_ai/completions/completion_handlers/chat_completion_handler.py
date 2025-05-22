@@ -41,7 +41,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.activeCellCode, 
             metadata.activeCellId,
             metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
-            metadata.input
+            metadata.input,
+            metadata.selectedRules
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
@@ -95,6 +96,9 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Add the system message if it doesn't already exist
         await append_chat_system_message(message_history, provider, metadata.threadId)
         
+        print('metadata.activeCellCode', metadata.activeCellCode)
+        print('metadata.selectedRules', metadata.selectedRules)
+        
         # Create the prompt
         prompt = create_chat_prompt(
             metadata.variables or [], 
@@ -102,7 +106,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.activeCellCode, 
             metadata.activeCellId,
             metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
-            metadata.input
+            metadata.input,
+            metadata.selectedRules
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         

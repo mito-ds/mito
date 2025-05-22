@@ -78,6 +78,8 @@ class ChatMessageMetadata():
     base64EncodedActiveCellOutput: Optional[str] = None
     index: Optional[int] = None
     stream: bool = False
+    selectedRules: Optional[List[str]] = None
+    
     
 @dataclass(frozen=True)
 class AgentExecutionMetadata():

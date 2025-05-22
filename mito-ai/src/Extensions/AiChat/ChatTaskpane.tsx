@@ -431,7 +431,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number): Promise<void> => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
         // Step 0: Reject the previous AI generated code if they did not accept it
         rejectAICode()
 
@@ -443,7 +443,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const chatMessageMetadata: IChatMessageMetadata = await newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current, messageIndex)
+        const chatMessageMetadata: IChatMessageMetadata = await newChatHistoryManager.addChatInputMessage(
+            input,
+            activeThreadIdRef.current,
+            messageIndex,
+            selectedRules
+        )
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingAIResponse(true)
@@ -705,7 +710,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('idle');
     }
 
-    const startAgentExecution = async (input: string, messageIndex?: number): Promise<void> => {
+    const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
         setAgentExecutionStatus('working')
 
         // Reset the execution flag at the start of a new plan
