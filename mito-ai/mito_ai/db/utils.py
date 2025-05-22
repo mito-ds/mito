@@ -23,6 +23,46 @@ def setup_database_dir(
             json.dump({}, f, indent=4)
 
 
+def save_connection(
+    connections_path: str, connection_id: str, connection_details: dict
+) -> None:
+    """
+    Save a connection to the connections.json file.
+
+    Args:
+        connections_path (str): The path to the connections.json file.
+        connection_id (str): The UUID of the connection to save.
+        connection_details (dict): The details of the connection to save.
+    """
+
+    with open(connections_path, "r") as f:
+        connections = json.load(f)
+
+    # Add the new connection
+    connections[connection_id] = connection_details
+
+    # Write back to file
+    with open(connections_path, "w") as f:
+        json.dump(connections, f, indent=4)
+
+
+def delete_connection(connections_path: str, connection_id: str) -> None:
+    """
+    Delete a connection by UUID.
+    """
+
+    # Read existing connections
+    with open(connections_path, "r") as f:
+        connections = json.load(f)
+
+    # Remove the connection
+    del connections[connection_id]
+
+    # Write back to file
+    with open(connections_path, "w") as f:
+        json.dump(connections, f, indent=4)
+
+
 def delete_schema(schemas_path: str, schema_id: str) -> None:
     """
     Delete a schema by UUID.

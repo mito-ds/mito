@@ -9,7 +9,12 @@ from typing import Any, Final
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.db.crawlers import snowflake
-from mito_ai.db.utils import setup_database_dir, delete_schema
+from mito_ai.db.utils import (
+    setup_database_dir,
+    save_connection,
+    delete_connection,
+    delete_schema,
+)
 
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
 CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
@@ -56,15 +61,7 @@ class ConnectionsHandler(APIHandler):
                 return
 
             # If schema building succeeded, save the connection
-            with open(CONNECTIONS_PATH, "r") as f:
-                connections = json.load(f)
-
-            # Add the new connection
-            connections[connection_id] = new_connection
-
-            # Write back to file
-            with open(CONNECTIONS_PATH, "w") as f:
-                json.dump(connections, f, indent=4)
+            save_connection(CONNECTIONS_PATH, connection_id, new_connection)
 
             self.write(
                 {
@@ -94,22 +91,8 @@ class ConnectionsHandler(APIHandler):
                 self.write({"error": "Connection UUID is required"})
                 return
 
-            # Read existing connections
-            with open(CONNECTIONS_PATH, "r") as f:
-                connections = json.load(f)
-
-            # Check if connection exists
-            if connection_id not in connections:
-                self.set_status(404)
-                self.write({"error": f"Connection with UUID {connection_id} not found"})
-                return
-
-            # Remove the connection
-            del connections[connection_id]
-
-            # Write back to file
-            with open(CONNECTIONS_PATH, "w") as f:
-                json.dump(connections, f, indent=4)
+            # Delete the connection
+            delete_connection(CONNECTIONS_PATH, connection_id)
 
             # Delete the schema
             delete_schema(SCHEMAS_PATH, connection_id)
