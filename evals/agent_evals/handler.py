@@ -1,7 +1,7 @@
 import nbformat
 import json
 from execute_code import exec_code_and_get_globals_and_output
-from agent_testing_utils import process_response_for_errors, process_notebook_update, create_prompt_from_code_and_user_task, start_new_conversation_history, get_history_from_response, get_test_case_mappings, get_eval_result_mappings, get_input_and_expected_output_nb
+from agent_testing_utils import process_response_for_errors, process_notebook_update, create_prompt_from_code_and_user_task, get_history_from_response, get_test_case_mappings, get_eval_result_mappings, get_input_and_expected_output_nb
 
 from default_system_prompt import create_agent_system_message_prompt
 from run_test_case import get_openai_code
@@ -27,16 +27,16 @@ def execute_test_case(input_nb_path, user_task, output_nb_path, output_response_
         with open(input_conversation_history_path, 'r', encoding='utf-8') as f:
             conversation_history = json.load(f)
     else:
-        conversation_history = start_new_conversation_history(PROMPT)
+        conversation_history = []
 
     output_nb = None
     cell_update_type = ""
     while cell_update_type!="finished_task":
         user_prompt = create_prompt_from_code_and_user_task(input_nb["cells"], user_task)
         agent_response = get_openai_code(user_task=user_prompt,
-                                                                  model=DEFAULT_MODEL,
-                                                                  system_prompt=PROMPT,
-                                                                  conversation_history=conversation_history)
+                                         model=DEFAULT_MODEL,
+                                         system_prompt=PROMPT,
+                                         conversation_history=conversation_history)
 
         agent_response = process_response_for_errors(agent_response)
         response_json = json.loads(agent_response)

@@ -62,12 +62,6 @@ def create_prompt_from_code_and_user_task(code, user_task, variables="", files="
 
     return prompt
 
-def start_new_conversation_history(system_prompt):
-    """Function to get new conversation history"""
-    conversation_history = [
-            {"role": "system", "content": system_prompt},
-        ]
-    return conversation_history
 
 def get_history_from_response(response):
     """Based on the code and message provided by the agent, return respective conversation history"""
@@ -95,6 +89,7 @@ def get_test_case_mappings(eval_instance):
 def get_eval_result_mappings():
     """Mappings of the eval results"""
     return {True: "PASS", False: "FAIL"}
+
 
 def get_input_and_expected_output_nb(input_nb_path, expected_output_nb_path):
     """Returns input notebook and expected output notebook from paths"""
