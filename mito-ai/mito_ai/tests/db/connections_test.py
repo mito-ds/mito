@@ -84,6 +84,16 @@ def jp_base_url(jp_serverapp):
     return jp_serverapp.connection_url
 
 
+@pytest.fixture
+def first_connection_id():
+    # Manually open the connections.json file and get the first connection ID
+    with open(CONNECTIONS_PATH, "r") as f:
+        connections = json.load(f)
+    # Get the first connection ID from the object keys
+    connection_id = next(iter(connections.keys()))
+    return connection_id
+
+
 # --- GET CONNECTIONS ---
 
 
@@ -140,42 +150,24 @@ def test_add_connection_with_incorrect_auth(jp_base_url):
 # --- DELETE CONNECTION ---
 
 
-def test_delete_connection_with_no_auth(jp_base_url):
-    # Manually open the connections.json file and get the first connection ID
-    with open(CONNECTIONS_PATH, "r") as f:
-        connections = json.load(f)
-    # Get the first connection ID from the object keys
-    connection_id = next(iter(connections.keys()))
-
+def test_delete_connection_with_no_auth(jp_base_url, first_connection_id):
     response = requests.delete(
-        jp_base_url + f"/mito-ai/db/connections/{connection_id}",
+        jp_base_url + f"/mito-ai/db/connections/{first_connection_id}",
     )
     assert response.status_code == 403  # Forbidden
 
 
-def test_delete_connection_with_incorrect_auth(jp_base_url):
-    # Manually open the connections.json file and get the first connection ID
-    with open(CONNECTIONS_PATH, "r") as f:
-        connections = json.load(f)
-    # Get the first connection ID from the object keys
-    connection_id = next(iter(connections.keys()))
-
+def test_delete_connection_with_incorrect_auth(jp_base_url, first_connection_id):
     response = requests.delete(
-        jp_base_url + f"/mito-ai/db/connections/{connection_id}",
+        jp_base_url + f"/mito-ai/db/connections/{first_connection_id}",
         headers={"Authorization": f"token incorrect-token"},
     )
     assert response.status_code == 403  # Forbidden
 
 
-def test_delete_connection_with_auth(jp_base_url):
-    # Manually open the connections.json file and get the first connection ID
-    with open(CONNECTIONS_PATH, "r") as f:
-        connections = json.load(f)
-    # Get the first connection ID from the object keys
-    connection_id = next(iter(connections.keys()))
-
+def test_delete_connection_with_auth(jp_base_url, first_connection_id):
     response = requests.delete(
-        jp_base_url + f"/mito-ai/db/connections/{connection_id}",
+        jp_base_url + f"/mito-ai/db/connections/{first_connection_id}",
         headers={"Authorization": f"token {TOKEN}"},
     )
     assert response.status_code == 200
