@@ -42,6 +42,9 @@ export const RulesForm: React.FC<RuleFormProps> = ({
 
             <div className="form-group">
                 <label htmlFor="name">Rule Name</label>
+                <sub>
+                    <span>Rules must contain only alphanumeric characters, underscores, or hyphens.</span>
+                </sub>
                 <input
                     type="text"
                     id="name"
@@ -51,6 +54,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                     placeholder="Enter rule name"
                     required
                 />
+
             </div>
 
             <div className="form-group">

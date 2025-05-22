@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
 import { getRules, setRule } from '../../../RestAPI';
+import { isValidFileName } from '../../../utils/fileName';
 
 export const RulesPage = (): JSX.Element => {
     const [showModal, setShowModal] = useState(false);
@@ -42,6 +43,13 @@ export const RulesPage = (): JSX.Element => {
 
         // TODO: Validate that the rule name is a valid file name
         setFormError(null);
+
+        // Make sure tha the rule is a valid file name
+        if (!isValidFileName(formData.name)) {
+            setFormError('Invalid rule name. Rules must contain only alphanumeric characters, underscores, or hyphens.');
+            return;
+        }
+
         await setRule(formData.name, formData.description);
         setShowModal(false);
         setFormData({
