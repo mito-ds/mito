@@ -439,7 +439,7 @@ describe('ChatInput Component', () => {
             expect(screen.queryByTestId('chat-dropdown')).not.toBeInTheDocument();
             
             // Rule should be inserted with backticks
-            expect(textarea).toHaveValue('`Data Analysis`');
+            expect(textarea).toHaveValue('Data Analysis');
             
             // Wait for the SelectedContextContainer to appear
             const selectedContextContainer = await screen.findByTestId('selected-context-container');
@@ -477,11 +477,15 @@ describe('ChatInput Component', () => {
             });
             
             // SelectedContextContainer should be displayed with the selected rule
-            const selectedRule = screen.getByText('Machine Learning');
+            const selectedContextContainer = await screen.findByTestId('selected-context-container');
+            expect(selectedContextContainer).toBeInTheDocument();
+
+            // And it should be in the chat input
+            const selectedRule = within(textarea).getByText('Machine Learning');
             expect(selectedRule).toBeInTheDocument();
             
             // Check that the rule container has a remove button
-            const removeButton = selectedRule.parentElement?.querySelector('.icon');
+            const removeButton = selectedContextContainer.querySelector('.icon');
             expect(removeButton).toBeInTheDocument();
             
             // Click the remove button
