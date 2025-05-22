@@ -1,0 +1,5 @@
+// This function checks if a given string is a valid file name.
+// It returns true if the string contains only alphanumeric characters, underscores, or hyphens.
+export const isValidFileName = (fileName: string): boolean => {
+    return /^[a-zA-Z0-9_-]+$/.test(fileName);
+};

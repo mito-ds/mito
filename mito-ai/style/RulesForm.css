@@ -18,3 +18,10 @@
     border-color: var(--purple-500);
     box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
 }
+
+.rules-form .form-group sub {
+    color: var(--jp-ui-font-color2);
+    margin-top: 4px;
+    margin-bottom: 4px;
+    display: block;
+}
