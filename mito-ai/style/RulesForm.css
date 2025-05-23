@@ -34,7 +34,7 @@
     gap: 16px;
 }
 
-.rule-item {
+.rules-list .rule-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -46,17 +46,17 @@
     cursor: pointer;
 }
 
-.rule-item:hover {
+.rules-list .rule-item:hover {
     border-color: var(--jp-border-color2);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.rule-content {
+.rules-list .rule-content {
     flex: 1;
     margin-right: 16px;
 }
 
-.rule-name {
+.rules-list .rule-name {
     margin: 0 0 8px 0;
     color: var(--jp-ui-font-color1);
     font-size: 14px;
@@ -64,37 +64,26 @@
     line-height: 1;
 }
 
-.rule-description {
+.rules-list .rule-description {
     margin: 0;
     color: var(--jp-ui-font-color2);
     font-size: 14px;
     line-height: 1.5;
 }
 
-.rule-actions {
+.rules-list .rule-actions {
     display: flex;
     gap: 8px;
 }
 
-.button-secondary {
-    background: var(--jp-layout-color2);
-    color: var(--jp-ui-font-color1);
-    border: 1px solid var(--jp-border-color2);
-}
-
-.button-secondary:hover {
-    background: var(--jp-layout-color3);
-    border-color: var(--jp-border-color3);
-}
-
-.empty-state {
+.rules-list .empty-state {
     text-align: center;
     padding: 40px 20px;
     color: var(--jp-ui-font-color2);
     font-style: italic;
 }
 
-.empty-state p {
+.rules-list .empty-state p {
     margin: 0;
     font-size: 16px;
 }

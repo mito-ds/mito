@@ -3,3 +3,7 @@
 export const isValidFileName = (fileName: string): boolean => {
     return /^[a-zA-Z0-9_-]+$/.test(fileName);
 };
+
+export const stripFileEnding = (rule: string): string => {
+    return rule.replace('.md', '');
+};

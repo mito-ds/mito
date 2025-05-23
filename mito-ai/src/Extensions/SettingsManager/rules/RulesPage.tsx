@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
 import { getRule, getRules, setRule } from '../../../RestAPI';
-import { isValidFileName } from '../../../utils/fileName';
+import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
 
 export const RulesPage = (): JSX.Element => {
     const [modalStatus, setModalStatus] = useState<'new rule' | 'edit rule' | undefined>(undefined);
@@ -67,10 +67,6 @@ export const RulesPage = (): JSX.Element => {
         setModalStatus('edit rule');
     };
 
-    const stripFileEnding = (rule: string): string => {
-        return rule.replace('.md', '');
-    };
-
     return (
         <div>
             <div className="settings-header">
@@ -99,7 +95,7 @@ export const RulesPage = (): JSX.Element => {
                         </div>
                         <div className="rule-actions">
                             <button 
-                                className="button-base button-secondary"
+                                className="button-base button-gray"
                             >
                                 Update
                             </button>

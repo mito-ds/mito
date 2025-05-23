@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import '../../style/SelectedRuleContainer.css';
+import '../../style/SelectedContextContainer.css';
 import RuleIcon from '../icons/RuleIcon';
 
 interface SelectedContextContainerProps {
@@ -17,7 +17,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ tit
 
     return (
         <button 
-            className="selected-rule-container"
+            className="selected-context-container"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             data-testid="selected-context-container"
