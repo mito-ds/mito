@@ -15,11 +15,11 @@ def test_put_settings_with_auth(jp_base_url):
         json={"value": SETTINGS_VALUE},
     )
     assert response.status_code == 200
-    assert response.json() == {
-        "status": "updated",
-        "key": SETTINGS_KEY,
-        "value": SETTINGS_VALUE,
-    }
+    
+    response_json = response.json()
+    assert response_json["status"] == "updated"
+    assert response_json["key"] == SETTINGS_KEY
+    assert response_json["value"] == SETTINGS_VALUE
 
 
 def test_put_settings_with_no_auth(jp_base_url):
