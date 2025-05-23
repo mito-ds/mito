@@ -1,9 +1,9 @@
 import requests
-from mito_ai.tests.settings.test_settings_constants import TOKEN
 
 SETTINGS_KEY = "super_secret_mode"
 SETTINGS_VALUE = "yes"
 
+from mito_ai.tests.conftest import TOKEN
 
 # --- PUT SETTINGS ---
 
