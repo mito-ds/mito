@@ -13,6 +13,7 @@ from mito_ai.utils.telemetry_utils import (
     log_db_connection_attempt,
     log_db_connection_success,
     log_db_connection_error,
+)
 from mito_ai.db.utils import (
     setup_database_dir,
     save_connection,
@@ -66,16 +67,16 @@ class ConnectionsHandler(APIHandler):
                 new_connection["warehouse"],
             )
 
-            if not response.success:
-                log_db_connection_error(new_connection["type"], response.error_message)
+            if not success:
+                log_db_connection_error(new_connection["type"], error_message)
                 self.set_status(500)
-                self.write({"error": response.error_message})
+                self.write({"error": error_message})
                 return
 
             # If schema building succeeded, save the connection
             save_connection(CONNECTIONS_PATH, connection_id, new_connection)
 
-            log_db_connection_success(new_connection["type"], response.schema)
+            log_db_connection_success(new_connection["type"], {})
 
             self.write(
                 {
