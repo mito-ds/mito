@@ -6,7 +6,12 @@ import threading
 import time
 from jupyter_server.serverapp import ServerApp
 from traitlets.config import Config
-from test_constants import TOKEN, DB_DIR_PATH, CONNECTIONS_PATH, BACKUP_DB_DIR_PATH
+from mito_ai.tests.db.test_constants import (
+    TOKEN,
+    DB_DIR_PATH,
+    CONNECTIONS_PATH,
+    BACKUP_DB_DIR_PATH,
+)
 
 
 @pytest.fixture(scope="module", autouse=True)

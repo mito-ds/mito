@@ -1,5 +1,5 @@
 import requests
-from test_constants import TOKEN, CONNECTION_JSON
+from mito_ai.tests.db.test_constants import TOKEN, CONNECTION_JSON
 
 
 # --- GET SCHEMAS ---
