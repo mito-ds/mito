@@ -43,6 +43,7 @@
     border-radius: 8px;
     background: var(--jp-layout-color0);
     transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
 }
 
 .rule-item:hover {
@@ -58,9 +59,9 @@
 .rule-name {
     margin: 0 0 8px 0;
     color: var(--jp-ui-font-color1);
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.4;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
 }
 
 .rule-description {
