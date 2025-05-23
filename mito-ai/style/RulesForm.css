@@ -25,3 +25,75 @@
     margin-bottom: 4px;
     display: block;
 }
+
+/* Rules List Styling */
+.rules-list {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 8px;
+    background: var(--jp-layout-color0);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.rule-item:hover {
+    border-color: var(--jp-border-color2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rule-content {
+    flex: 1;
+    margin-right: 16px;
+}
+
+.rule-name {
+    margin: 0 0 8px 0;
+    color: var(--jp-ui-font-color1);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.rule-description {
+    margin: 0;
+    color: var(--jp-ui-font-color2);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.rule-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.button-secondary {
+    background: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color1);
+    border: 1px solid var(--jp-border-color2);
+}
+
+.button-secondary:hover {
+    background: var(--jp-layout-color3);
+    border-color: var(--jp-border-color3);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--jp-ui-font-color2);
+    font-style: italic;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 16px;
+}
