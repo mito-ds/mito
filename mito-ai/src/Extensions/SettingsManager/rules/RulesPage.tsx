@@ -10,7 +10,7 @@ import { getRule, getRules, setRule } from '../../../RestAPI';
 import { isValidFileName } from '../../../utils/fileName';
 
 export const RulesPage = (): JSX.Element => {
-    const [showModal, setShowModal] = useState(false);
+    const [modalStatus, setModalStatus] = useState<'new rule' | 'edit rule' | undefined>(undefined);
     const [rules, setRules] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
 
@@ -51,7 +51,7 @@ export const RulesPage = (): JSX.Element => {
         }
 
         await setRule(formData.name, formData.description);
-        setShowModal(false);
+        setModalStatus(undefined);
         setFormData({
             name: '',
             description: ''
@@ -64,7 +64,7 @@ export const RulesPage = (): JSX.Element => {
             name: stripFileEnding(rule),
             description: ruleContent || ''
         });
-        setShowModal(true);
+        setModalStatus('edit rule');
     };
 
     const stripFileEnding = (rule: string): string => {
@@ -77,7 +77,7 @@ export const RulesPage = (): JSX.Element => {
                 <h2>Rules</h2>
                 <button
                     className="button-base button-purple"
-                    onClick={() => setShowModal(true)}
+                    onClick={() => setModalStatus('new rule')}
                 >
                     <b>＋ Add Rule</b>
                 </button>
@@ -112,15 +112,22 @@ export const RulesPage = (): JSX.Element => {
                 )}
             </div>
 
-            {showModal && (
-                <div className="modal-overlay" onClick={() => setShowModal(false)}>
+            {modalStatus && (
+                <div className="modal-overlay">
                     <div className="modal-content modal-content-large" onClick={e => e.stopPropagation()}>
                         <RulesForm
                             formData={formData}
                             formError={formError}
                             onInputChange={handleInputChange}
                             onSubmit={handleSubmit}
-                            onClose={() => setShowModal(false)}
+                            onClose={() => {
+                                setModalStatus(undefined);
+                                setFormData({
+                                    name: '',
+                                    description: ''
+                                });
+                            }}
+                            isEditing={formData.name !== ''}
                         />
                     </div>
                 </div>

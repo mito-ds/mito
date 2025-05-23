@@ -15,6 +15,7 @@ interface RuleFormProps {
     onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
     onClose: () => void;
+    isEditing: boolean;
 }
 
 export const RulesForm: React.FC<RuleFormProps> = ({
@@ -22,7 +23,8 @@ export const RulesForm: React.FC<RuleFormProps> = ({
     formError,
     onInputChange,
     onSubmit,
-    onClose
+    onClose,
+    isEditing
 }) => {
     const [isLoading, setIsLoading] = useState(false);
 
@@ -92,7 +94,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                             </div>
                         </>
                     ) : (
-                        'Add Rule'
+                        isEditing ? 'Update Rule' : 'Add Rule'
                     )}
                 </button>
             </div>
