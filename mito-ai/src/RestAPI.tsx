@@ -50,6 +50,27 @@ export async function requestAPI<T>(
 
     let data: any = await response.text();
 
+    if (!response.ok) {
+        try {
+            data = JSON.parse(data);
+            return {
+                error: {
+                    message: data.message || 'Server error occurred',
+                    type: 'response',
+                    status: response.status
+                }
+            };
+        } catch (error) {
+            return {
+                error: {
+                    message: 'Server error occurred',
+                    type: 'response',
+                    status: response.status
+                }
+            };
+        }
+    }
+
     if (data.length > 0) {
         try {
             data = JSON.parse(data);
@@ -62,16 +83,6 @@ export async function requestAPI<T>(
                 }
             };
         }
-    }
-
-    if (!response.ok) {
-        return {
-            error: {
-                message: data.message || 'Server error occurred',
-                type: 'response',
-                status: response.status
-            }
-        };
     }
 
     return { data };
