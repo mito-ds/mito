@@ -72,11 +72,33 @@ export const RulesPage = (): JSX.Element => {
             <p>Rules provide more context to Ai models to help them follow your preferences, adhere to your organization's style guides, learn niche topics, and be a better colleague.</p>
 
             {error && <p className="error">{error}</p>}
-            {rules && rules.length > 0 && rules.map((rule) => (
-                <div key={rule}>
-                    <h3>{rule}</h3>
-                </div>
-            ))}
+            
+            <div className="rules-list">
+                {rules && rules.length > 0 ? rules.map((rule) => (
+                    <div key={rule} className="rule-item">
+                        <div className="rule-content">
+                            <h3 className="rule-name">{rule}</h3>
+                            <p className="rule-description">Click update to edit this rule's description and settings.</p>
+                        </div>
+                        <div className="rule-actions">
+                            <button 
+                                className="button-base button-secondary"
+                                onClick={() => {
+                                    // TODO: Implement update functionality
+                                    console.log('Update rule:', rule);
+                                }}
+                            >
+                                Update
+                            </button>
+                        </div>
+                    </div>
+                )) : (
+                    <div className="empty-state">
+                        <p>No rules created yet. Add your first rule to get started!</p>
+                    </div>
+                )}
+            </div>
+
             {showModal && (
                 <div className="modal-overlay" onClick={() => setShowModal(false)}>
                     <div className="modal-content modal-content-large" onClick={e => e.stopPropagation()}>
