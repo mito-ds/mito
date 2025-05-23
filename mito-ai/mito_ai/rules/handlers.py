@@ -33,8 +33,6 @@ class RulesHandler(tornado.web.RequestHandler):
     def put(self, key):
         """Update or create a specific setting"""
         data = json.loads(self.request.body)
-        print("BODY")
-        print(data)
         if 'content' not in data:
             self.set_status(400)
             self.finish(json.dumps({"error": "Content is required"}))
