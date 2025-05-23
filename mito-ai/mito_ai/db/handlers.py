@@ -58,7 +58,7 @@ class ConnectionsHandler(APIHandler):
             log_db_connection_attempt(new_connection["type"])
 
             # First, try to validate the connection by building the schema
-            success, error_message = crawl_and_store_schema(
+            crawl_result = crawl_and_store_schema(
                 SCHEMAS_PATH,
                 connection_id,
                 new_connection["username"],
@@ -67,10 +67,12 @@ class ConnectionsHandler(APIHandler):
                 new_connection["warehouse"],
             )
 
-            if not success:
-                log_db_connection_error(new_connection["type"], error_message)
+            if not crawl_result["success"]:
+                log_db_connection_error(
+                    new_connection["type"], crawl_result["error_message"]
+                )
                 self.set_status(500)
-                self.write({"error": error_message})
+                self.write({"error": crawl_result["error_message"]})
                 return
 
             # If schema building succeeded, save the connection
