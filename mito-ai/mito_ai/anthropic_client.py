@@ -3,41 +3,13 @@
 
 import json
 import anthropic
-from typing import Dict, Any, Optional, Union, Callable, List
+from typing import Dict, Any, Optional, Tuple, Union, Callable, List
 
-from anthropic.types import Message
+from anthropic.types import Message, MessageParam, ToolUnionParam
 from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, AgentResponse
 from openai.types.chat import ChatCompletionMessageParam
 
 MAX_TOKENS = 2_000
-
-AGENT_RESPONSE_EXAMPLES = {
-    "cell_update_example": {
-        "type": "cell_update",
-        "message": "I've created a new cell with a function to calculate fibonacci numbers.",
-        "cell_update": {
-            "type": "new",
-            "index": 2,
-            "id": None,
-            "code": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)",
-            "cell_type": "code"
-        },
-        "get_cell_output_cell_id": None
-    },
-    "get_output_example": {
-        "type": "get_cell_output",
-        "message": "Let me check the output of the previous cell.",
-        "cell_update": None,
-        "get_cell_output_cell_id": "cell-123"
-    },
-    "finished_task_example": {
-        "type": "finished_task",
-        "message": "I've completed the requested analysis.",
-        "cell_update": None,
-        "get_cell_output_cell_id": None
-    }
-}
-
 
 def _extract_and_parse_json_response(response: Message) -> Union[object, Any]:
     """
@@ -74,52 +46,29 @@ def _extract_and_parse_json_response(response: Message) -> Union[object, Any]:
         raise Exception(f"Failed to parse response: {e}")
 
 
-def _formatted_prompt(prompt: str) -> str:
-    return f"""
-                {prompt}
-
-                I need your response to follow the AgentResponse format exactly. DO NOT add a preamble or any other 
-                text surrounding the JSON response. Stick to the JSON format strictly.
-
-                Here are examples of valid responses:
-
-                Cell Update Example:
-                {json.dumps(AGENT_RESPONSE_EXAMPLES["cell_update_example"], indent=2)}
-
-                Get Cell Output Example:
-                {json.dumps(AGENT_RESPONSE_EXAMPLES["get_output_example"], indent=2)}
-
-                Finished Task Example:
-                {json.dumps(AGENT_RESPONSE_EXAMPLES["finished_task_example"], indent=2)}
-
-                Important requirements:
-                - If type is "cell_update", you MUST include a valid cell_update object with "type" and "code" fields.
-                - If type is "get_cell_output", you MUST include a get_cell_output_cell_id.
-                - For "finished_task", no additional fields are required.
-                - The message field is always required.
-                """
-
-
-def _convert_messages_to_prompt(messages: List[ChatCompletionMessageParam]) -> str:
+def _get_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) -> Tuple[Union[str, anthropic.NotGiven], List[MessageParam]]:
     """
-    Convert a list of chat messages to a single prompt string for Claude.
-
-    Args:
-        messages: List of chat messages in OpenAI format
-
-    Returns:
-        A single string prompt formatted for Claude
+    Convert a list of OpenAI messages to a list of Anthropic messages.
     """
-    # Filter out messages without content and convert to string format
-    formatted_messages = []
-    for msg in messages:
-        if isinstance(msg, dict) and 'content' in msg and msg['content']:
-            role = msg.get('role', 'user')
-            content = msg['content']
-            if isinstance(content, str):
-                formatted_messages.append(f"{role}: {content}")
+    anthropic_messages: List[MessageParam] = []
+    system_prompt: Union[str, anthropic.NotGiven] = anthropic.NotGiven()
+    
+    for message in messages:
+        if 'content' not in message:
+            continue
+        
+        # We assume that the converastion only has one system message.
+        # Or if there are multiple, we take the last one.
+        if message['role'] == 'system':
+            system_prompt = str(message['content'])
 
-    return "\n".join(formatted_messages)
+        # Construct the messages for the user and assistant in Anthropic format.
+        if message['role'] == 'user':
+            anthropic_messages.append(MessageParam(role='user', content=str(message['content'])))
+        elif message['role'] == 'assistant':
+            anthropic_messages.append(MessageParam(role='assistant', content=str(message['content'])))
+
+    return system_prompt, anthropic_messages
 
 
 class AnthropicClient:
@@ -137,24 +86,23 @@ class AnthropicClient:
         Get a response from Claude that adheres to the AgentResponse format.
         """
         try:
-            prompt = _convert_messages_to_prompt(messages)
+            anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
 
-            if response_format_info:
+            if response_format_info and response_format_info.name == "agent_response":
                 # Define the tool for structured output
-                tools = [{
+                tools: List[ToolUnionParam] = [{
                     "name": "agent_response",
                     "description": "Output a structured response following the AgentResponse format",
                     "input_schema": AgentResponse.model_json_schema()
-                }]
+                }]             
 
                 # Make the API request with tool use
                 response = self.client.messages.create(
                     model=self.model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
-                    messages=[
-                        {"role": "user", "content": _formatted_prompt(prompt)}
-                    ],
+                    system=anthropic_system_prompt,
+                    messages=anthropic_messages,
                     tools=tools,
                     tool_choice={"type": "tool", "name": "agent_response"}
                 )
@@ -163,14 +111,12 @@ class AnthropicClient:
                 return json.dumps(result) if not isinstance(result, str) else result
 
             else:
-                print(prompt)
                 response = self.client.messages.create(
                     model=self.model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
-                    messages=[
-                        {"role": "user", "content": prompt}
-                    ]
+                    system=anthropic_system_prompt,
+                    messages=anthropic_messages,
                 )
                 return response.content[0].text
 
@@ -183,16 +129,15 @@ class AnthropicClient:
     async def stream_response(self, messages: List[ChatCompletionMessageParam], message_id: str,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]):
         try:
-            prompt = _convert_messages_to_prompt(messages)
+            anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
             accumulated_response = ""
 
             stream = self.client.messages.create(
                 model=self.model,
                 max_tokens=MAX_TOKENS,
                 temperature=0,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ],
+                system=anthropic_system_prompt,
+                messages=anthropic_messages,
                 stream=True
             )
 
