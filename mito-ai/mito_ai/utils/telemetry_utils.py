@@ -283,11 +283,24 @@ def log_db_connection_attempt(connection_type: str) -> None:
 
 def log_db_connection_success(connection_type: str, schema: dict[str, Any]) -> None:
     log(
-        "mito_ai_db_connection_success", 
+        "mito_ai_db_connection_success",
         params={
-            "connection_type": connection_type, 
-            }
-        )
+            "connection_type": connection_type,
+            "num_dbs": len(schema),
+            "num_schemas": sum(len(db.keys()) for db in schema.values()),
+            "num_tables": sum(
+                sum(len(schema_tables) for schema_tables in db.values())
+                for db in schema.values()
+            ),
+            "num_columns": sum(
+                sum(
+                    sum(len(columns) for columns in schema_tables.values())
+                    for schema_tables in db.values()
+                )
+                for db in schema.values()
+            ),
+        },
+    )
 
 def log_db_connection_error(connection_type: str, error_message: str) -> None:
     log(
