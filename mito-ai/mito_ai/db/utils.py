@@ -92,7 +92,7 @@ def crawl_and_store_schema(
     password: str,
     account: str,
     warehouse: str,
-) -> tuple[bool, str]:
+) -> dict:
     """
     Crawl and store schema for a given connection.
 
@@ -118,5 +118,13 @@ def crawl_and_store_schema(
             f.seek(0)  # Move to the beginning of the file
             json.dump(schemas, f, indent=4)
             f.truncate()  # Remove any remaining content
-        return True, ""
-    return False, "Failed to crawl schema"
+        return {
+            "success": True,
+            "error_message": "",
+            "schema": schema,
+        }
+    return {
+        "success": False,
+        "error_message": "Failed to crawl schema",
+        "schema": {},
+    }
