@@ -278,3 +278,22 @@ def log_ai_completion_success(
 
         log(f"mito_ai_{message_type.value}_success", params=final_params, key_type=key_type, thread_id=thread_id)
         
+def log_db_connection_attempt(connection_type: str) -> None:
+    log("mito_ai_db_connection_attempt", params={"connection_type": connection_type})
+
+def log_db_connection_success(connection_type: str, schema: dict[str, Any]) -> None:
+    log(
+        "mito_ai_db_connection_success",
+        params={
+            "connection_type": connection_type,
+        },
+    )
+
+def log_db_connection_error(connection_type: str, error_message: str) -> None:
+    log(
+        "mito_ai_db_connection_error", 
+        params={
+            "connection_type": connection_type, 
+            "error_message": error_message,
+        }
+    )

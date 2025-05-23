@@ -83,12 +83,19 @@ def get_database_rules() -> str:
     connections_path: Final[str] = os.path.join(APP_DIR_PATH, 'db', 'connections.json')
     schemas_path: Final[str] = os.path.join(APP_DIR_PATH, 'db', 'schemas.json')
     
-    with open(connections_path, 'r') as f:
-        connections = json.load(f)
-        sanitized_connections = redact_sensitive_info(connections)
+    try:
+        with open(connections_path, 'r') as f:
+            connections = json.load(f)
+            sanitized_connections = redact_sensitive_info(connections)
+    except FileNotFoundError:
+        connections = None
+        sanitized_connections = None
 
-    with open(schemas_path, 'r') as f:
-        schemas = json.load(f)
+    try:
+        with open(schemas_path, 'r') as f:
+            schemas = json.load(f)
+    except FileNotFoundError:
+        schemas = None
 
     # If there is a db configuration, add return the rules
 
