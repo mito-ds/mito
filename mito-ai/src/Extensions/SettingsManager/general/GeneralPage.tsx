@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { getSetting, updateSettings } from '../../../RestAPI';
+import { getSetting, updateSettings } from '../../../restAPI/RestAPI';
 
 export const GeneralPage = (): JSX.Element => {
 

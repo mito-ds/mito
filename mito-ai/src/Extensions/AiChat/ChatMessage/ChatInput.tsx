@@ -15,11 +15,13 @@ import PythonCode from './PythonCode';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
+import { ChatDropdownOption } from './ChatDropdown';
+import SelectedContextContainer from '../../../components/SelectedContextContainer';
 
 interface ChatInputProps {
     initialContent: string;
     placeholder: string;
-    onSave: (content: string) => void;
+    onSave: (content: string, index?: number, selectedRules?: string[]) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -53,6 +55,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
+    const [selectedRules, setSelectedRules] = useState<string[]>([]);
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
@@ -111,7 +114,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
-    const handleOptionSelect = (variableName: string, parentDf?: string): void => {
+    const handleOptionSelect = (option: ChatDropdownOption): void => {
+
         const textarea = textAreaRef.current;
         if (!textarea) return;
 
@@ -120,16 +124,27 @@ const ChatInput: React.FC<ChatInputProps> = ({
         const atIndex = textBeforeCursor.lastIndexOf("@");
         const textAfterCursor = input.slice(cursorPosition);
 
-        let variableNameWithBackticks: string;
-        if (!parentDf) {
-            variableNameWithBackticks = `\`${variableName}\``
-        } else {
-            variableNameWithBackticks = `\`${parentDf}['${variableName}']\``
+        let contextChatRepresentation: string = ''
+
+        if (option.type === 'variable') {
+            
+            if (option.variable.parent_df) {
+                contextChatRepresentation = `\`${option.variable.variable_name}\``
+            } else {
+                contextChatRepresentation = `\`${option.variable.variable_name}\``
+            }
+        } else if (option.type === 'rule') {
+            // We don't add the rule as an back ticked element in the chat input, 
+            // and instead just add it as plain text because we also add it as 
+            // a context container above the chat input and we want the user to 
+            // delete the context from there if they want to. 
+            contextChatRepresentation = option.rule
+            setSelectedRules([...selectedRules, option.rule]);
         }
 
         const newValue =
             input.slice(0, atIndex) +
-            variableNameWithBackticks +
+            contextChatRepresentation +
             textAfterCursor;
         setInput(newValue);
 
@@ -139,7 +154,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         // We use setTimeout to ensure this happens after React's state update
         setTimeout(() => {
             if (textarea) {
-                const newCursorPosition = atIndex + variableNameWithBackticks.length;
+                const newCursorPosition = atIndex + contextChatRepresentation.length;
                 textarea.focus();
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }
@@ -182,6 +197,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }}
         >
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
+            {selectedRules.length > 0 && (
+                <div className='context-container'>
+                    {selectedRules.map((rule) => (
+                        <SelectedContextContainer
+                            key={rule}
+                            title={rule}
+                            onRemove={() => setSelectedRules(selectedRules.filter((r) => r !== rule))}
+                        />
+                    ))}
+                </div>
+            )}
             {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
                 && (isFocused || input.length > 0)
                 && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
@@ -222,8 +248,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
-                            onSave(input)
+                            onSave(input, undefined, selectedRules)
+
+                            // Reset
                             setInput('')
+                            setSelectedRules([])
                             setIsFocused(false)
                         }
                         // Escape key cancels editing
@@ -246,7 +275,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => onSave(input)}>Save</button>
+                    <button onClick={() => onSave(input, undefined, selectedRules)}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

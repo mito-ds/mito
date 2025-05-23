@@ -9,6 +9,7 @@ from mito_ai.app_builder.handlers import AppBuilderHandler
 from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
 from mito_ai.settings.urls import get_settings_urls
+from mito_ai.rules.urls import get_rules_urls
 try:
     from _version import __version__
 except ImportError:
@@ -34,8 +35,6 @@ def _jupyter_server_extension_points() -> List[Dict[str, str]]:
 # Jupyter Server is the backend used by JupyterLab. A sever extension lets
 # us add new API's to the backend, so we can do some processing that we don't
 # want to exist in the users's javascript.
-
-
 # For a further explanation of the Jupyter architecture watch the first 35 minutes
 # of this video: https://www.youtube.com/watch?v=9_-siU-_XoI
 def _load_jupyter_server_extension(server_app) -> None: # type: ignore
@@ -67,6 +66,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     # REST API endpoints
     handlers.extend(get_db_urls(base_url))
     handlers.extend(get_settings_urls(base_url))
+    handlers.extend(get_rules_urls(base_url))
     
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")

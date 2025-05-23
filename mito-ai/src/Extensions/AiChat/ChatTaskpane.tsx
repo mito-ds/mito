@@ -391,7 +391,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: No post processing step needed for explaining code. 
     }
 
-    const sendAgentExecutionMessage = async (input: string, messageIndex?: number, sendActiveCellOutput: boolean = false): Promise<void> => {
+    const sendAgentExecutionMessage = async (
+        input: string, 
+        messageIndex?: number, 
+        sendActiveCellOutput: boolean = false,
+        selectedRules?: string[]
+    ): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
 
@@ -403,7 +408,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadIdRef.current, input)
+        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadIdRef.current, input, selectedRules)
         if (messageIndex !== undefined) {
             agentExecutionMetadata.index = messageIndex
         }
@@ -431,7 +436,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number): Promise<void> => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
         // Step 0: Reject the previous AI generated code if they did not accept it
         rejectAICode()
 
@@ -443,7 +448,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const chatMessageMetadata: IChatMessageMetadata = await newChatHistoryManager.addChatInputMessage(input, activeThreadIdRef.current, messageIndex)
+        const chatMessageMetadata: IChatMessageMetadata = await newChatHistoryManager.addChatInputMessage(
+            input,
+            activeThreadIdRef.current,
+            messageIndex,
+            selectedRules
+        )
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingAIResponse(true)
@@ -705,7 +715,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('idle');
     }
 
-    const startAgentExecution = async (input: string, messageIndex?: number): Promise<void> => {
+    const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
         setAgentExecutionStatus('working')
 
         // Reset the execution flag at the start of a new plan
@@ -726,7 +736,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Only the first message sent to the Agent should contain the user's input.
             // All other messages only contain updated information about the state of the notebook.
             if (agentExecutionDepth === 1) {
-                await sendAgentExecutionMessage(input, messageIndex)
+                await sendAgentExecutionMessage(input, messageIndex, false, selectedRules)
             } else {
                 await sendAgentExecutionMessage('', undefined, sendActiveCellOutput)
 

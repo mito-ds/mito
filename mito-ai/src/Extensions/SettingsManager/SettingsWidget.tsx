@@ -8,6 +8,7 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import { DatabasePage } from './database/DatabasePage';
 import { SupportPage } from './support/SupportPage';
 import { GeneralPage } from './general/GeneralPage';
+import { RulesPage } from './rules/RulesPage';
 import '../../../style/SettingsWidget.css';
 
 const TABS_CONFIG = {
@@ -18,6 +19,10 @@ const TABS_CONFIG = {
     general: {
         label: 'General',
         component: GeneralPage
+    },
+    rules: {
+        label: 'Rules',
+        component: RulesPage
     },
     support: {
         label: 'Support',
