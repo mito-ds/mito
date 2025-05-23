@@ -9,7 +9,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     CODE_SECTION_HEADING,
     get_active_cell_output_str
 )
-from mito_ai.rules.utils import get_rules_file
+from mito_ai.completions.prompt_builders.utils import get_rules_str
 
 def create_chat_prompt(
     variables: List[str],

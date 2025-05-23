@@ -1,4 +1,4 @@
-from typing import Any, Final, List
+from typing import Any, Final, List, Optional
 import os
 from mito_ai.utils.schema import MITO_FOLDER
 
@@ -19,7 +19,7 @@ def set_rules_file(rule_name: str, value: Any) -> None:
         f.write(value)
     
 
-def get_rules_file(rule_name: str) -> str:
+def get_rule(rule_name: str) -> Optional[str]:
     """
     Retrieves the value of a specific rule file from the rules directory
     """
@@ -29,11 +29,11 @@ def get_rules_file(rule_name: str) -> str:
     
     file_path = os.path.join(RULES_DIR_PATH, f"{rule_name}.md")
     
-    try:
-        with open(file_path, 'r') as f:
-            return f.read()
-    except FileNotFoundError:
-        return ''
+    if not os.path.exists(file_path):
+        return None
+    
+    with open(file_path, 'r') as f:
+        return f.read()
 
 
 def get_all_rules() -> List[str]:

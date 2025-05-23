@@ -1,5 +1,5 @@
 from typing import List, Optional
-from mito_ai.completions.prompt_builders.chat_prompt import get_rules_file
+from mito_ai.rules.utils import get_rule
 
 def get_rules_str(selected_rules: Optional[List[str]]) -> str:
     """
@@ -10,7 +10,7 @@ def get_rules_str(selected_rules: Optional[List[str]]) -> str:
     
     rules_str = ''
     for rule in selected_rules:
-        rule_content = get_rules_file(rule)
+        rule_content = get_rule(rule)
         if rule_content is None or rule_content == '':
             continue
         
