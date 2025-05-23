@@ -4,7 +4,7 @@ from typing import Any, Final
 import tornado
 import os
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rules_file, set_rules_file
+from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rule, set_rules_file
 
 
 class RulesHandler(APIHandler):
@@ -19,7 +19,7 @@ class RulesHandler(APIHandler):
             self.finish(json.dumps(rules))
         else:
             # Key provided, return specific rule
-            rule_content = get_rules_file(key)
+            rule_content = get_rule(key)
             if rule_content is None:
                 self.set_status(404)
                 self.finish(json.dumps({"error": f"Rule with key '{key}' not found"}))
