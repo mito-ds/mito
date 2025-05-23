@@ -87,6 +87,8 @@ class AnthropicClient:
         """
         try:
             anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+            
+            response: Message
 
             if response_format_info and response_format_info.name == "agent_response":
                 # Define the tool for structured output
@@ -118,7 +120,12 @@ class AnthropicClient:
                     system=anthropic_system_prompt,
                     messages=anthropic_messages,
                 )
-                return response.content[0].text
+                
+                content = response.content
+                if content[0].type == "text":
+                    return content[0].text
+                else:
+                    return ""
 
         except anthropic.RateLimitError:
             raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
@@ -127,7 +134,7 @@ class AnthropicClient:
             return f"Error streaming content: {str(e)}"
 
     async def stream_response(self, messages: List[ChatCompletionMessageParam], message_id: str,
-                              reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]):
+                              reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
             anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
             accumulated_response = ""
@@ -142,8 +149,8 @@ class AnthropicClient:
             )
 
             for chunk in stream:
-                if chunk.type == "content_block_delta" and chunk.delta.text:
-                    content = chunk.delta.text
+                if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
+                    content = chunk.delta.text 
                     accumulated_response += content
 
                     is_finished = chunk.type == "message_stop"
