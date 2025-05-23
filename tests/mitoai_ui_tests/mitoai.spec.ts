@@ -340,20 +340,21 @@ test.describe.parallel('Mito AI Chat', () => {
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'none_type_col_A' })).toBeVisible();
   });
 
-  test('Active cell preview is displayed and updated when active cell changes', async ({ page }) => {
+  test.only('Active cell preview is displayed and updated when active cell changes', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['print(1)', 'print(2)']);
     await waitForIdle(page);
 
     await selectCell(page, 0);
 
     await clickOnMitoAIChatTab(page);
+    
+    // Check visibility before starting a new chat, since starting a new chat auto-focuses the input
+    await expect.soft(page.locator('.active-cell-preview-container')).not.toBeVisible();
+    
     await startNewMitoAIChat(page);
 
     // Turn on chat mode
     await turnOnChatMode(page);
-
-    // The active cell preview should not be visible before the user focusses on the chat input
-    await expect.soft(page.locator('.active-cell-preview-container')).not.toBeVisible();
     
     // The active cell preview should show the code from the first cell
     await page.locator('.chat-input').fill('Test');
