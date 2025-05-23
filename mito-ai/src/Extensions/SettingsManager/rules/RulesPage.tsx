@@ -23,7 +23,7 @@ export const RulesPage = (): JSX.Element => {
     const fetchRules = async (): Promise<void> => {
         try {
             const rules = await getRules();
-            setRules(rules);
+            setRules(rules.sort());
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         }
@@ -41,13 +41,12 @@ export const RulesPage = (): JSX.Element => {
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
 
-        // TODO: Validate that the rule name is a valid file name
-        setFormError(null);
-
         // Make sure tha the rule is a valid file name
         if (!isValidFileName(formData.name)) {
             setFormError('Invalid rule name. Rules must contain only alphanumeric characters, underscores, or hyphens.');
             return;
+        } else {
+            setFormError(null);
         }
 
         await setRule(formData.name, formData.description);
@@ -56,6 +55,7 @@ export const RulesPage = (): JSX.Element => {
             name: '',
             description: ''
         });
+        fetchRules();
     };
 
     const handleRuleClick = async (rule: string): Promise<void> => {
@@ -127,7 +127,7 @@ export const RulesPage = (): JSX.Element => {
                                     description: ''
                                 });
                             }}
-                            isEditing={formData.name !== ''}
+                            isEditing={modalStatus === 'edit rule'}
                         />
                     </div>
                 </div>
