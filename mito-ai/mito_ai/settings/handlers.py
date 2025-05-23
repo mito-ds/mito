@@ -14,6 +14,10 @@ class SettingsHandler(tornado.web.RequestHandler):
     
     def prepare(self) -> None:
         """Called before any request handler method."""
+        
+        # Check for CSRF token
+        self.check_xsrf_cookie()
+
         # Ensure the settings.json file exists
         if not os.path.exists(SETTINGS_PATH):
             with open(SETTINGS_PATH, 'w') as f:

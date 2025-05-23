@@ -1,0 +1,82 @@
+name: Test - Mito AI Frontend Playwright with Gemini
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'mito-ai/**'
+      - 'tests/mitoai_ui_tests/**'
+      - '.github/workflows/test-mito-ai-gemini.yml'
+  pull_request:
+    paths:
+      - 'mito-ai/**'
+      - 'tests/mitoai_ui_tests/**'
+      - '.github/workflows/test-mito-ai-gemini.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-mitoai-frontend-jupyterlab-gemini:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: |
+          mito-ai/setup.py
+          tests/requirements.txt
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: mito-ai/package-lock.json
+    - name: Upgrade pip
+      run: |
+        python -m pip install --upgrade pip
+    - name: Install dependencies
+      run: |
+        cd tests
+        bash mac-setup.sh
+    - name: Install JupyterLab
+      run: |
+        python -m pip install jupyterlab
+    - name: Install Node.js dependencies
+      run: |
+        cd mito-ai
+        jlpm install
+    - name: Setup JupyterLab
+      run: |
+        cd tests
+        source venv/bin/activate
+        pip install setuptools==68.0.0
+        cd ../mito-ai
+        jupyter labextension develop . --overwrite
+        jupyter server extension enable --py mito_ai
+    - name: Start a server and run Gemini tests
+      run: |
+        cd tests
+        source venv/bin/activate
+        jupyter lab --config jupyter_server_test_config.py &
+        jlpm run test:mitoai:gemini
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GEMINI_MODEL: "gemini-2.0-flash"
+    - name: Upload test-results
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: mitoai-jupyterlab-playwright-gemini-report-${{ matrix.python-version }}-${{ github.run_id }}
+        path: tests/playwright-report/
+        retention-days: 14 

@@ -7,12 +7,18 @@ import tornado
 import uuid
 from dataclasses import dataclass
 from typing import Any, Final
+from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.schema import MITO_FOLDER
-from mito_ai.db.crawlers import snowflake
 from mito_ai.utils.telemetry_utils import (
     log_db_connection_attempt,
     log_db_connection_success,
     log_db_connection_error,
+from mito_ai.db.utils import (
+    setup_database_dir,
+    save_connection,
+    delete_connection,
+    delete_schema,
+    crawl_and_store_schema,
 )
 
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
@@ -20,37 +26,28 @@ CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
 SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
 
 
-class ConnectionsHandler(tornado.web.RequestHandler):
+class ConnectionsHandler(APIHandler):
     """
     Endpoints for working with connections.json file.
     """
 
-    def prepare(self) -> None:
-        """Called before any request handler method."""
-        # Ensure the db directory exists
-        os.makedirs(DB_DIR_PATH, exist_ok=True)
-
-        # Create connections.json if it doesn't exist
-        if not os.path.exists(CONNECTIONS_PATH):
-            with open(CONNECTIONS_PATH, "w") as f:
-                json.dump({}, f, indent=4)
-
-        # Create schemas.json if it doesn't exist
-        if not os.path.exists(SCHEMAS_PATH):
-            with open(SCHEMAS_PATH, "w") as f:
-                json.dump({}, f, indent=4)
-
-    def get(self, *args: Any, **kwargs: Any) -> None:
+    @tornado.web.authenticated
+    def get(self) -> None:
         """Get all connections."""
+        # If the db dir doesn't exist, create it
+        setup_database_dir(DB_DIR_PATH, CONNECTIONS_PATH, SCHEMAS_PATH)
+
         with open(CONNECTIONS_PATH, "r") as f:
             connections = json.load(f)
+        self.finish(json.dumps(connections))
 
-        self.write(connections)
-        self.finish()
-
-    def post(self, *args: Any, **kwargs: Any) -> None:
+    @tornado.web.authenticated
+    def post(self) -> None:
         """Add a new connection."""
         try:
+            # If the db dir doesn't exist, create it
+            setup_database_dir(DB_DIR_PATH, CONNECTIONS_PATH, SCHEMAS_PATH)
+
             # Get the new connection data from the request body
             new_connection = json.loads(self.request.body)
 
@@ -60,8 +57,8 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             log_db_connection_attempt(new_connection["type"])
 
             # First, try to validate the connection by building the schema
-            schema_handler = SchemaHandler(self.application, self.request)
-            response = schema_handler.crawl_and_store_schema(
+            success, error_message = crawl_and_store_schema(
+                SCHEMAS_PATH,
                 connection_id,
                 new_connection["username"],
                 new_connection["password"],
@@ -76,15 +73,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
                 return
 
             # If schema building succeeded, save the connection
-            with open(CONNECTIONS_PATH, "r") as f:
-                connections = json.load(f)
-
-            # Add the new connection
-            connections[connection_id] = new_connection
-
-            # Write back to file
-            with open(CONNECTIONS_PATH, "w") as f:
-                json.dump(connections, f, indent=4)
+            save_connection(CONNECTIONS_PATH, connection_id, new_connection)
 
             log_db_connection_success(new_connection["type"], response.schema)
 
@@ -105,6 +94,7 @@ class ConnectionsHandler(tornado.web.RequestHandler):
         finally:
             self.finish()
 
+    @tornado.web.authenticated
     def delete(self, *args: Any, **kwargs: Any) -> None:
         """Delete a connection by UUID."""
         try:
@@ -115,26 +105,11 @@ class ConnectionsHandler(tornado.web.RequestHandler):
                 self.write({"error": "Connection UUID is required"})
                 return
 
-            # Read existing connections
-            with open(CONNECTIONS_PATH, "r") as f:
-                connections = json.load(f)
-
-            # Check if connection exists
-            if connection_id not in connections:
-                self.set_status(404)
-                self.write({"error": f"Connection with UUID {connection_id} not found"})
-                return
-
-            # Remove the connection
-            del connections[connection_id]
-
-            # Write back to file
-            with open(CONNECTIONS_PATH, "w") as f:
-                json.dump(connections, f, indent=4)
+            # Delete the connection
+            delete_connection(CONNECTIONS_PATH, connection_id)
 
             # Delete the schema
-            schema_handler = SchemaHandler(self.application, self.request)
-            schema_handler.delete(connection_id)
+            delete_schema(SCHEMAS_PATH, connection_id)
 
             self.set_status(200)
             self.write(
@@ -151,52 +126,13 @@ class ConnectionsHandler(tornado.web.RequestHandler):
             self.finish()
 
 
-class SchemaHandler(tornado.web.RequestHandler):
+class SchemaHandler(APIHandler):
     """
     Endpoints for working with schemas.json file.
     """
 
-    @dataclass
-    class SchemaCrawlResponse:
-        success: bool
-        schema: dict[str, Any]
-        error_message: str
-
-    def crawl_and_store_schema(
-        self,
-        connection_id: str,
-        username: str,
-        password: str,
-        account: str,
-        warehouse: str,
-    ) -> SchemaCrawlResponse:
-        """
-        Crawl and store schema for a given connection.
-        Returns (success, error_message)
-        """
-        snowflake_response = snowflake.crawl_snowflake(
-            username, password, account, warehouse
-        )
-        if snowflake_response["schema"]:
-            # If we successfully crawled the schema, write it to schemas.json
-            with open(SCHEMAS_PATH, "r+") as f:
-                schemas = json.load(f)
-                schemas[connection_id] = snowflake_response["schema"]
-                f.seek(0)  # Move to the beginning of the file
-                json.dump(schemas, f, indent=4)
-                f.truncate()  # Remove any remaining content
-            return self.SchemaCrawlResponse(
-                success=True,
-                schema=snowflake_response["schema"],
-                error_message="",
-            )
-        return self.SchemaCrawlResponse(
-            success=False,
-            schema={},
-            error_message=snowflake_response["error"],
-        )
-
-    def get(self, *args: Any, **kwargs: Any) -> None:
+    @tornado.web.authenticated
+    def get(self) -> None:
         """Get all schemas."""
         with open(SCHEMAS_PATH, "r") as f:
             schemas = json.load(f)
@@ -204,38 +140,20 @@ class SchemaHandler(tornado.web.RequestHandler):
         self.write(schemas)
         self.finish()
 
+    @tornado.web.authenticated
     def delete(self, *args: Any, **kwargs: Any) -> None:
         """Delete a schema by UUID."""
-        # Get the schema UUID from either kwargs (when called as a request handler)
-        # or from the first argument (when called programmatically)
-        schema_id = kwargs.get("uuid") or (args[0] if args else None)
+        # Get the schema UUID from kwargs
+        schema_id = kwargs.get("uuid")
+
         if not schema_id:
             self.set_status(400)
             self.write({"error": "Schema UUID is required"})
-            if not args:  # Only finish if this is a request handler call
-                self.finish()
+            self.finish()
             return
 
-        # Read existing schemas
-        with open(SCHEMAS_PATH, "r") as f:
-            schemas = json.load(f)
-
-        # Check if schema exists
-        if schema_id not in schemas:
-            self.set_status(404)
-            self.write({"error": f"Schema with UUID {schema_id} not found"})
-            if not args:  # Only finish if this is a request handler call
-                self.finish()
-            return
-
-        # Remove the schema
-        del schemas[schema_id]
-
-        # Write back to file
-        with open(SCHEMAS_PATH, "w") as f:
-            json.dump(schemas, f, indent=4)
+        delete_schema(SCHEMAS_PATH, schema_id)
 
         self.set_status(200)
         self.write({"status": "success", "message": "Schema deleted successfully"})
-        if not args:  # Only finish if this is a request handler call
-            self.finish()
+        self.finish()
