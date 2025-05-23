@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
-import { getRules, setRule } from '../../../RestAPI';
+import { getRule, getRules, setRule } from '../../../RestAPI';
 import { isValidFileName } from '../../../utils/fileName';
 
 export const RulesPage = (): JSX.Element => {
@@ -58,6 +58,19 @@ export const RulesPage = (): JSX.Element => {
         });
     };
 
+    const handleRuleClick = async (rule: string): Promise<void> => {
+        const ruleContent = await getRule(rule);
+        setFormData({
+            name: stripFileEnding(rule),
+            description: ruleContent || ''
+        });
+        setShowModal(true);
+    };
+
+    const stripFileEnding = (rule: string): string => {
+        return rule.replace('.md', '');
+    };
+
     return (
         <div>
             <div className="settings-header">
@@ -75,18 +88,18 @@ export const RulesPage = (): JSX.Element => {
             
             <div className="rules-list">
                 {rules && rules.length > 0 ? rules.map((rule) => (
-                    <div key={rule} className="rule-item">
+                    <div 
+                        key={rule} 
+                        className="rule-item"
+                        onClick={() => handleRuleClick(rule)}
+                    >
                         <div className="rule-content">
-                            <h3 className="rule-name">{rule}</h3>
+                            <h4 className="rule-name">{stripFileEnding(rule)}</h4>
                             <p className="rule-description">Click update to edit this rule's description and settings.</p>
                         </div>
                         <div className="rule-actions">
                             <button 
                                 className="button-base button-secondary"
-                                onClick={() => {
-                                    // TODO: Implement update functionality
-                                    console.log('Update rule:', rule);
-                                }}
                             >
                                 Update
                             </button>
