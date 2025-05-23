@@ -3,10 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { PageConfig, URLExt } from "@jupyterlab/coreutils";
+import { URLExt } from "@jupyterlab/coreutils";
 import { ServerConnection } from '@jupyterlab/services';
-
-const baseUrl = PageConfig.getBaseUrl();
 
 interface APIResponse<T> {
     data?: T;
@@ -40,6 +38,7 @@ export async function requestAPI<T>(
     try {
         response = await ServerConnection.makeRequest(requestUrl, init, settings);
     } catch (error) {
+        console.log(error);
         return {
             error: {
                 message: (error as Error).message || 'Network error occurred',
@@ -48,7 +47,9 @@ export async function requestAPI<T>(
         };
     }
 
+    console.log(response);
     let data: any = await response.text();
+    console.log(data);
 
     if (!response.ok) {
         try {
@@ -96,76 +97,3 @@ export const getXsrfToken = (): string | null | undefined => {
     }
     return null;
 }
-
-/************************************
-
-SETTINGS ENDPOINTS
-
-************************************/
-
-export const getSetting = async (settingsKey: string): Promise<string | undefined> => {
-    const response = await fetch(`${baseUrl}mito-ai/settings/${settingsKey}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'X-XSRFToken': getXsrfToken() || '',
-        }
-    });
-    const data = await response.json();
-    return data.value;
-}
-
-export const updateSettings = async (settingsKey: string, settingsValue: string): Promise<string> => {
-    const response = await fetch(`${baseUrl}mito-ai/settings/${settingsKey}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-XSRFToken': getXsrfToken() || '',
-        },
-        body: JSON.stringify({ value: settingsValue }),
-    });
-    const data = await response.json();
-    return data.value;
-}
-
-
-/************************************
-
-RULES ENDPOINTS
-
-************************************/
-
-export const setRule = async(ruleName: string, ruleContent: string): Promise<string> => {
-    const response = await fetch(`${baseUrl}mito-ai/rules/${ruleName}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-XSRFToken': getXsrfToken() || '',
-        },
-        body: JSON.stringify({ content: ruleContent }),
-    });
-    const data = await response.json();
-    return data.content;
-}
-
-export const getRule = async(ruleName: string): Promise<string | undefined> => {
-    const response = await fetch(`${baseUrl}mito-ai/rules/${ruleName}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'X-XSRFToken': getXsrfToken() || '',
-        }
-    });
-    const data = await response.json();
-    return data.content;
-}
-
-export const getRules = async(): Promise<string[]> => {
-    const response = await fetch(`${baseUrl}mito-ai/rules`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'X-XSRFToken': getXsrfToken() || '',
-        }
-    });
-    const data = await response.json();
-    return data.rules;
-}
-

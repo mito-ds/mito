@@ -3,24 +3,20 @@ import json
 from typing import Any, Final
 import tornado
 import os
+from jupyter_server.base.handlers import APIHandler
 from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rules_file, set_rules_file
 
 
-class RulesHandler(tornado.web.RequestHandler):
+class RulesHandler(APIHandler):
     """Handler for operations on a specific setting"""
     
-    def prepare(self) -> None:
-        """Called before any request handler method."""
-        # Ensure the rules directory exists
-        if not os.path.exists(RULES_DIR_PATH):
-            os.makedirs(RULES_DIR_PATH)
-    
+    @tornado.web.authenticated
     def get(self, key=None):
         """Get a specific rule by key or all rules if no key provided"""
         if key is None or key == '':
             # No key provided, return all rules
             rules = get_all_rules()
-            self.finish(json.dumps({"rules": rules}))
+            self.finish(json.dumps(rules))
         else:
             # Key provided, return specific rule
             rule_content = get_rules_file(key)
@@ -30,6 +26,7 @@ class RulesHandler(tornado.web.RequestHandler):
             else:
                 self.finish(json.dumps({"key": key, "content": rule_content}))
     
+    @tornado.web.authenticated
     def put(self, key):
         """Update or create a specific setting"""
         data = json.loads(self.request.body)

@@ -8,11 +8,11 @@ import '@testing-library/jest-dom'
 import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import ChatDropdown from '../../Extensions/AiChat/ChatMessage/ChatDropdown';
 import { ExpandedVariable } from '../../Extensions/AiChat/ChatMessage/ChatInput';
-import { getRules } from '../../RestAPI';
+import { getRules } from '../../restAPI/RestAPI';
 
 // Mock the RestAPI.getRules function
-jest.mock('../../RestAPI', () => ({
-  ...jest.requireActual('../../RestAPI'), // Import and retain default behavior
+jest.mock('../../restAPI/RestAPI', () => ({
+  ...jest.requireActual('../../restAPI/RestAPI'), // Import and retain default behavior
   getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']) 
 }));
 

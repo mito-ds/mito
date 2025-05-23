@@ -12,7 +12,8 @@ def get_rules_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
         List of (url_pattern, handler_class, handler_kwargs) tuples
     """
     BASE_URL = base_url + "/mito-ai"
+    
     return [
         (url_path_join(BASE_URL, "rules"), RulesHandler, {}),
-        (url_path_join(BASE_URL, "rules/(.*)"), RulesHandler, {}),
+        (url_path_join(BASE_URL, "rules/(.+)"), RulesHandler, {}),
     ]

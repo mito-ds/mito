@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { ExpandedVariable } from './ChatInput';
-import { getRules } from '../../../RestAPI';
+import { getRules } from '../../../restAPI/RestAPI';
 
 interface ChatDropdownProps {
     options: ExpandedVariable[];
