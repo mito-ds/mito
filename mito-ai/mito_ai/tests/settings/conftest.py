@@ -5,11 +5,12 @@ import threading
 import time
 from jupyter_server.serverapp import ServerApp
 from traitlets.config import Config
-from mito_ai.tests.settings.test_constants import (
+from mito_ai.tests.settings.test_settings_constants import (
     TOKEN,
     SETTINGS_PATH,
     BACKUP_SETTINGS_PATH,
 )
+from mito_ai.utils.schema import MITO_FOLDER
 
 
 @pytest.fixture(scope="module", autouse=True)
