@@ -1,5 +1,5 @@
 import requests
-from test_constants import TOKEN
+from mito_ai.tests.settings.test_constants import TOKEN
 
 SETTINGS_KEY = "super_secret_mode"
 SETTINGS_VALUE = "yes"
@@ -15,7 +15,7 @@ def test_put_settings_with_auth(jp_base_url):
         json={"value": SETTINGS_VALUE},
     )
     assert response.status_code == 200
-    
+
     response_json = response.json()
     assert response_json["status"] == "updated"
     assert response_json["key"] == SETTINGS_KEY
