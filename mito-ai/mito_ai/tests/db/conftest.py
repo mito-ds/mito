@@ -6,7 +6,6 @@ import json
 import pytest
 import shutil
 from mito_ai.tests.db.test_db_constants import (
-    TOKEN,
     DB_DIR_PATH,
     CONNECTIONS_PATH,
     BACKUP_DB_DIR_PATH,

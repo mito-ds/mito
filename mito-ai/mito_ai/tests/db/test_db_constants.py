@@ -5,8 +5,6 @@ import os
 from typing import Final
 from mito_ai.utils.schema import MITO_FOLDER
 
-
-TOKEN = "test-token"
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
 CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
 SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
