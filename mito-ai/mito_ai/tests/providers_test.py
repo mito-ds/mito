@@ -70,7 +70,7 @@ def mock_openai_client() -> Any:
     mock_client.key_type = "user"
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
-    return patch("mito_ai.providers.OpenAIClient", return_value=mock_client)
+    return patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client)
 
 
 def mock_gemini_client() -> Any:
@@ -84,7 +84,7 @@ def mock_gemini_client() -> Any:
     mock_client.key_type = "gemini"
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
-    return patch("mito_ai.providers.GeminiClient", return_value=mock_client)
+    return patch("mito_ai.completions.providers.GeminiClient", return_value=mock_client)
 
 
 def mock_azure_openai_client() -> Any:
@@ -98,7 +98,7 @@ def mock_azure_openai_client() -> Any:
     mock_client.key_type = "azure"
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
-    return patch("mito_ai.providers.OpenAIClient", return_value=mock_client)
+    return patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client)
 
 
 def test_os_user_openai_key_set_below_limit(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
@@ -248,7 +248,7 @@ async def test_completion_request(monkeypatch: pytest.MonkeyPatch, provider_conf
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
 
-    with patch("mito_ai.providers.OpenAIClient", return_value=mock_client):
+    with patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client):
         llm = OpenAIProvider(config=provider_config)
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
@@ -279,7 +279,7 @@ async def test_stream_completion(monkeypatch: pytest.MonkeyPatch, provider_confi
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
 
-    with patch("mito_ai.providers.OpenAIClient", return_value=mock_client):
+    with patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client):
         llm = OpenAIProvider(config=provider_config)
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
@@ -316,6 +316,6 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
     mock_client.key_type = "user"
     mock_client.request_completions.side_effect = Exception("API error")
 
-    with patch("mito_ai.providers.OpenAIClient", return_value=mock_client):
+    with patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client):
         llm = OpenAIProvider(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
