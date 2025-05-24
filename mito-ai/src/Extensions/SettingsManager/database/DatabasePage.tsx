@@ -4,10 +4,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { PageConfig } from '@jupyterlab/coreutils';
 import { DBConnections, DBConnection } from './model';
 import { ConnectionList } from './ConnectionList';
 import { ConnectionForm } from './ConnectionForm';
+import { requestAPI } from '../../../RestAPI';
 import '../../../../style/DatabasePage.css';
 
 export const DatabasePage = (): JSX.Element => {
@@ -24,35 +24,22 @@ export const DatabasePage = (): JSX.Element => {
     });
     const [formError, setFormError] = useState<string | null>(null);
 
-    const getXsrfToken = (): string | null => {
-        const cookies = document.cookie.split(';');
-        const xsrfCookie = cookies.find(cookie => cookie.trim().startsWith('_xsrf='));
-        if (xsrfCookie) {
-            const token = xsrfCookie.split('=')[1];
-            return token || null;
-        }
-        return null;
-    }
-
-
     const fetchConnections = async (): Promise<void> => {
-        try {
-            const baseUrl = PageConfig.getBaseUrl();
-            const response = await fetch(`${baseUrl}mito-ai/db/connections`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch connections');
-            }
-            const data = await response.json();
-            setConnections(data);
-            setLoading(false);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
-            setLoading(false);
+        const resp = await requestAPI<DBConnections>('db/connections')
+        if (resp.error) {
+            // Handle error case - you might want to show an error message to the user
+            console.error('Failed to fetch database connections:', resp.error.message);
+            setError(resp.error.message);
+            setConnections({});
+        } else if (resp.data) {
+            setConnections(resp.data);
+            setError(null);
         }
+        setLoading(false);
     };
 
     useEffect(() => {
-        fetchConnections();
+        void fetchConnections();
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
@@ -67,23 +54,17 @@ export const DatabasePage = (): JSX.Element => {
         e.preventDefault();
         setFormError(null);
 
-        try {
-            const xsrfToken = getXsrfToken();
-            const baseUrl = PageConfig.getBaseUrl();
-            const response = await fetch(`${baseUrl}mito-ai/db/connections`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-XSRFToken': xsrfToken || ''
-                },
-                body: JSON.stringify(formData)
-            });
+        const resp = await requestAPI<{ status: string; message: string; connection_id: string }>('db/connections', {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
 
-            if (!response.ok) {
-                throw new Error('Failed to create connection');
-            }
+        if (resp.error) {
+            setFormError(resp.error.message);
+            return;
+        }
 
+        if (resp.data) {
             // Refresh the connections list
             await fetchConnections();
             setShowModal(false);
@@ -94,32 +75,23 @@ export const DatabasePage = (): JSX.Element => {
                 account: '',
                 warehouse: '',
             });
-        } catch (err) {
-            setFormError(err instanceof Error ? err.message : 'An error occurred');
         }
+
     };
 
     const handleDelete = async (id: string): Promise<void> => {
-        try {
-            const xsrfToken = getXsrfToken();
-            const baseUrl = PageConfig.getBaseUrl();
-            const response = await fetch(`${baseUrl}mito-ai/db/connections/${id}`, {
-                method: 'DELETE',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-XSRFToken': xsrfToken || ''
-                },
-            });
+        const resp = await requestAPI<{ status: string; message: string }>(`db/connections/${id}`, {
+            method: 'DELETE',
+        });
 
-            if (!response.ok) {
-                throw new Error('Failed to delete connection');
-            }
+        if (resp.error) {
+            setError(resp.error.message);
+            return;
+        }
 
+        if (resp.data) {
             // Refresh the connections list
             await fetchConnections();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
         }
     };
 

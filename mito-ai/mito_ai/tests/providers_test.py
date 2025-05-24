@@ -101,6 +101,7 @@ def mock_azure_openai_client() -> Any:
     return patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client)
 
 
+
 def mock_claude_client() -> Any:
     """Mock the Claude client capabilities."""
     mock_client = MagicMock()
@@ -454,5 +455,5 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
     mock_client.request_completions.side_effect = Exception("API error")
 
     with patch("mito_ai.completions.providers.AnthropicClient", return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
-        assert llm.last_error is None  # Error should be None until a request is made
+      llm = OpenAIProvider(config=provider_config)
+      assert llm.last_error is None  # Error should be None until a request is made
