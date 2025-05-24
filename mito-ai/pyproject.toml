@@ -41,7 +41,8 @@ dependencies = [
     "SQLAlchemy",
     "snowflake-sqlalchemy",
     "pipreqs",
-    "google-genai"
+    "google-genai",
+    "anthropic"
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
