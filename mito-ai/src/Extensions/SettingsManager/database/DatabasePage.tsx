@@ -39,7 +39,7 @@ export const DatabasePage = (): JSX.Element => {
     };
 
     useEffect(() => {
-        fetchConnections();
+        void fetchConnections();
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {

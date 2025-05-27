@@ -1146,7 +1146,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         icon={<settingsIcon.react />}
                         title="Mito AI Settings"
                         onClick={() => {
-                            app.commands.execute(COMMAND_MITO_AI_SETTINGS);
+                            void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
                     />
                 </div>
