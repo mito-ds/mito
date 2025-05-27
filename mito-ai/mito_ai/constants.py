@@ -5,19 +5,17 @@ import os
 
 ACTIVE_MODEL = None
 
-# Claude Base URL
-CLAUDE_MODEL = os.environ.get("CLAUDE_MODEL")
+# Claude
 CLAUDE_API_KEY = os.environ.get("CLAUDE_API_KEY")
 
-# Gemini Base URL
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL")
+# Gemini
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
-# Ollama Config
+# Ollama
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL")
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 
-# OpenAI API KEY
+# OpenAI
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # Azure OpenAI Config 
@@ -34,22 +32,6 @@ def set_active_model(model):
     global ACTIVE_MODEL
     ACTIVE_MODEL = model
     return model
-
-def get_active_model():
-    """
-    Get the active model with fallback to env variables
-    """
-    # Return the active model if set
-    if ACTIVE_MODEL:
-        return ACTIVE_MODEL
-
-    # Default to environment variables if no active model
-    for model in [CLAUDE_MODEL, GEMINI_MODEL, OLLAMA_MODEL]:
-        if model:
-            return model
-
-    return None
-
 
 def get_model_type(model):
     """
