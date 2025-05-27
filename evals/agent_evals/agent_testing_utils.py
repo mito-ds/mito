@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import nbformat
 from evals.prompts.constants import JUPYTER_NOTEBOOK_SECTION_HEADING, VARIABLES_SECTION_HEADING, FILES_SECTION_HEADING, USER_TASK_HEADING_SECTION
 

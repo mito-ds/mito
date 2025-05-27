@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import nbformat
 import json
 from evals.agent_evals.execute_code import exec_code_and_get_globals_and_output
