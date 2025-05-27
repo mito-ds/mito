@@ -16,8 +16,8 @@ import { Variable } from '../../Extensions/ContextManager/VariableInspector';
 // import * as RestAPI from '../../RestAPI'; Jest will use the mock below
 
 // Mock the RestAPI.getRules function
-jest.mock('../../RestAPI', () => ({
-  ...jest.requireActual('../../RestAPI'), // Import and retain default behavior
+jest.mock('../../restAPI/RestAPI', () => ({
+  ...jest.requireActual('../../restAPI/RestAPI'), // Import and retain default behavior
   getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']) 
 }));
 
@@ -450,7 +450,7 @@ describe('ChatInput Component', () => {
             expect(ruleTextInContainer).toBeInTheDocument();
             
             // Look for the container by its class instead of data-testid as an alternative
-            const ruleContainer = document.querySelector('.selected-rule-container');
+            const ruleContainer = document.querySelector('.selected-context-container');
             expect(ruleContainer).not.toBeNull();
         });
         
