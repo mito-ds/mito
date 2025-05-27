@@ -48,7 +48,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     # WebSocket handlers
     handlers = [
         (
-            url_path_join(base_url, "mito_ai", "completions"),
+            url_path_join(base_url, "mito-ai", "completions"),
             CompletionHandler,
             {"llm": open_ai_provider},
         ),
