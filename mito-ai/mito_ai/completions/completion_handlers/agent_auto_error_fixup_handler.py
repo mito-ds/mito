@@ -20,7 +20,8 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
     async def get_completion(
         metadata: AgentSmartDebugMetadata,
         provider: OpenAIProvider,
-        message_history: GlobalMessageHistory
+        message_history: GlobalMessageHistory,
+        model: str = None
     ) -> str:
         """Get a smart debug completion from the AI provider."""
 
@@ -39,7 +40,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_AUTO_ERROR_FIXUP],
+            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_AUTO_ERROR_FIXUP],
             response_format_info=ResponseFormatInfo(
                 name='agent_response',
                 format=AgentResponse

@@ -20,7 +20,8 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
     async def get_completion(
         metadata: CodeExplainMetadata,
         provider: OpenAIProvider,
-        message_history: GlobalMessageHistory
+        message_history: GlobalMessageHistory,
+        model: str = None
     ) -> str:
         """Get a code explain completion from the AI provider."""
 
@@ -42,7 +43,7 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(thread_id), 
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
+            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
             message_type=MessageType.CODE_EXPLAIN,
             thread_id=thread_id
         )
@@ -60,6 +61,7 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         message_history: GlobalMessageHistory,
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+        model: str = None
     ) -> str:
         """Stream code explain completions from the AI provider.
 
@@ -92,7 +94,7 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
         accumulated_response = await provider.stream_completions(
             message_type=MessageType.CODE_EXPLAIN,
             messages=message_history.get_ai_optimized_history(thread_id),
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
+            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.CODE_EXPLAIN],
             message_id=message_id,
             reply_fn=reply_fn,
             thread_id=thread_id

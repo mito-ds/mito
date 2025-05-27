@@ -19,7 +19,8 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
     async def get_completion(
         metadata: InlineCompleterMetadata,
         provider: OpenAIProvider,
-        message_history: GlobalMessageHistory
+        message_history: GlobalMessageHistory,
+        model: str = None
     ) -> str:
         """Get an inline completion from the AI provider."""
         
@@ -37,7 +38,7 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=messages, 
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.INLINE_COMPLETION],
+            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.INLINE_COMPLETION],
             message_type=MessageType.INLINE_COMPLETION,
             thread_id=None
         )
