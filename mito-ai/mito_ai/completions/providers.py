@@ -23,7 +23,7 @@ from mito_ai.completions.models import (
     CompletionReply,
     CompletionStreamChunk,
     MessageType,
-    ResponseFormatInfo,
+    ResponseFormatInfo, CompletionItemError,
 )
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
@@ -217,6 +217,16 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
             else:
                 raise ValueError(f"No AI provider configured for model: {model}")
+
+            # Log the successful completion
+            log_ai_completion_success(
+                key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
+                message_type=message_type,
+                last_message_content=last_message_content,
+                response={"completion": accumulated_response},
+                user_input=user_input or "",
+                thread_id=thread_id
+            )
             return accumulated_response
 
         except BaseException as e:
