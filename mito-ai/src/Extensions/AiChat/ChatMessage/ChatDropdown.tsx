@@ -39,11 +39,11 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     const [rules, setRules] = useState<string[]>([]);
 
     useEffect(() => {
-        const fetchRules = async () => {
+        const fetchRules = async (): Promise<void> => {
             const rules = await getRules();
             setRules(rules);
         };
-        fetchRules();
+        void fetchRules();
     }, []);
 
     // Create a list of all options with the format 

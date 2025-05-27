@@ -30,7 +30,7 @@ export const RulesPage = (): JSX.Element => {
     };
 
     useEffect(() => {
-        fetchRules();
+        void fetchRules();
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
@@ -55,7 +55,7 @@ export const RulesPage = (): JSX.Element => {
             name: '',
             description: ''
         });
-        fetchRules();
+        void fetchRules();
     };
 
     const handleRuleClick = async (rule: string): Promise<void> => {
@@ -78,7 +78,7 @@ export const RulesPage = (): JSX.Element => {
                     <b>＋ Add Rule</b>
                 </button>
             </div>
-            <p>Rules provide more context to Ai models to help them follow your preferences, adhere to your organization's style guides, learn niche topics, and be a better colleague.</p>
+            <p>Rules provide more context to Ai models to help them follow your preferences, adhere to your organization&apos;s style guides, learn niche topics, and be a better colleague.</p>
 
             {error && <p className="error">{error}</p>}
             
@@ -91,7 +91,7 @@ export const RulesPage = (): JSX.Element => {
                     >
                         <div className="rule-content">
                             <h4 className="rule-name">{stripFileEnding(rule)}</h4>
-                            <p className="rule-description">Click update to edit this rule's description and settings.</p>
+                            <p className="rule-description">Click update to edit this rule&apos;s description and settings.</p>
                         </div>
                         <div className="rule-actions">
                             <button 
