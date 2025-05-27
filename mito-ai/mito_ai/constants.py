@@ -3,8 +3,6 @@
 
 import os
 
-ACTIVE_MODEL = None
-
 # Claude
 CLAUDE_API_KEY = os.environ.get("CLAUDE_API_KEY")
 
@@ -23,15 +21,6 @@ AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION")
 AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_MODEL = os.environ.get("AZURE_OPENAI_MODEL")
-
-def set_active_model(model):
-    """
-    Set the active model.
-    This will override the environment variable settings.
-    """
-    global ACTIVE_MODEL
-    ACTIVE_MODEL = model
-    return model
 
 def get_model_type(model):
     """

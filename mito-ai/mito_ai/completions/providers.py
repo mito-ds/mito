@@ -19,7 +19,7 @@ from mito_ai.completions.models import (
     CompletionReply,
     CompletionStreamChunk,
     MessageType,
-    ResponseFormatInfo,
+    ResponseFormatInfo, CompletionItemError,
 )
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
@@ -201,10 +201,41 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
             else:
                 raise ValueError(f"No AI provider configured for model: {model}")
+
+            # Log the successful completion
+            log_ai_completion_success(
+                key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
+                message_type=message_type,
+                last_message_content=last_message_content,
+                response={"completion": accumulated_response},
+                user_input=user_input or "",
+                thread_id=thread_id
+            )
             return accumulated_response
         except BaseException as e:
             self.log.exception(f"Error during stream_completions: {e}")
             self.last_error = CompletionError.from_exception(e)
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
+            log(
+                MITO_AI_COMPLETION_ERROR,
+                params={
+                    KEY_TYPE_PARAM: self.key_type,
+                    'message_type': message_type.value,
+                },
+                error=e
+            )
+            # Send error message to client before raising
+            reply_fn(CompletionStreamChunk(
+                parent_id=message_id,
+                chunk=CompletionItem(
+                    content="",
+                    isIncomplete=True,
+                    error=CompletionItemError(
+                        message=f"Failed to process completion: {e!r}"
+                    ),
+                    token=message_id,
+                ),
+                done=True,
+                error=CompletionError.from_exception(e),
+            ))
             raise
 
