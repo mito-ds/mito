@@ -32,6 +32,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         metadata: SmartDebugMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
+        model: str = None
     ) -> str:
         """Get a smart debug completion from the AI provider."""
 
@@ -67,7 +68,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(thread_id),
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],
+            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],
             message_type=MessageType.SMART_DEBUG,
             user_input=metadata.errorMessage,
             thread_id=thread_id
@@ -98,6 +99,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         message_history: GlobalMessageHistory,
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+        model: str = None
     ) -> str:
         """Stream smart debug completions from the AI provider.
 
@@ -144,7 +146,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         accumulated_response = await provider.stream_completions(
             message_type=MessageType.SMART_DEBUG,
             messages=message_history.get_ai_optimized_history(thread_id),
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],
+            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],
             message_id=message_id,
             reply_fn=reply_fn,
             thread_id=thread_id

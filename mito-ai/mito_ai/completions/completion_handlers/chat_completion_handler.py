@@ -21,7 +21,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
     async def get_completion(
         metadata: ChatMessageMetadata,
         provider: OpenAIProvider,
-        message_history: GlobalMessageHistory
+        message_history: GlobalMessageHistory,
+        model: str = None
     ) -> str:
         """Get a chat completion from the AI provider."""
 
@@ -54,7 +55,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Get the completion (non-streaming)
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
+            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_type=MessageType.CHAT,
             user_input=metadata.input,
             thread_id=metadata.threadId
@@ -71,7 +72,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
         message_id: str,
-        reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]
+        reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+        model: str = None
     ) -> str:
         """Stream chat completions from the AI provider.
         
@@ -117,7 +119,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         accumulated_response = await provider.stream_completions(
             message_type=MessageType.CHAT,
             messages=message_history.get_ai_optimized_history(metadata.threadId),
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
+            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
             message_id=message_id,
             reply_fn=reply_fn,
             user_input=metadata.input,

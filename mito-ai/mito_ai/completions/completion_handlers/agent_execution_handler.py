@@ -20,7 +20,8 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
     async def get_completion(
         metadata: AgentExecutionMetadata,
         provider: OpenAIProvider,
-        message_history: GlobalMessageHistory
+        message_history: GlobalMessageHistory,
+        model: str = None
     ) -> str:
         """Get an agent execution completion from the AI provider."""
 
@@ -46,7 +47,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_EXECUTION],
+            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_EXECUTION],
             response_format_info=ResponseFormatInfo(
                 name='agent_response',
                 format=AgentResponse

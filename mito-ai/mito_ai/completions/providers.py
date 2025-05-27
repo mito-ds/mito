@@ -3,9 +3,6 @@
 
 from __future__ import annotations
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union, Type
-
-from openai import api_key
-
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
@@ -36,6 +33,7 @@ from mito_ai.utils.telemetry_utils import (
     log,
     log_ai_completion_success,
 )
+from mito_ai.constants import get_model_type
 
 __all__ = ["OpenAIProvider"]
 
@@ -66,78 +64,47 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
-        self._openai_client: Optional[OpenAIClient] = None
+        self._openai_client: Optional[OpenAIClient] = OpenAIClient(**config)
         self._gemini_client: Optional[GeminiClient] = None
         self._anthropic_client: Optional[AnthropicClient] = None
 
-        # Initialize OpenAI client with the configured api_key
-        self._openai_client = OpenAIClient(parent=self)
-
-        # Initialize Gemini client if configured
-        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY:
-            self._gemini_client = GeminiClient(
-                api_key=constants.GEMINI_API_KEY,
-                model=constants.GEMINI_MODEL
-            )
-
-        # Initialize Anthropic client if configured
-        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY:
-            self._anthropic_client = AnthropicClient(
-                api_key=constants.CLAUDE_API_KEY,
-                model=constants.CLAUDE_MODEL
-            )
-
     @property
     def capabilities(self) -> AICapabilities:
-        """Get the provider capabilities."""
-        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+        if constants.CLAUDE_API_KEY and not self.api_key:
             return AICapabilities(
-                configuration={
-                    "model": constants.CLAUDE_MODEL
-                },
+                configuration={"model": "<dynamic>"},
                 provider="Claude",
             )
-
-        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+        if constants.GEMINI_API_KEY and not self.api_key:
             return AICapabilities(
-                configuration={
-                    "model": constants.GEMINI_MODEL
-                },
+                configuration={"model": "<dynamic>"},
                 provider="Gemini",
             )
-
         if self._openai_client:
             return self._openai_client.capabilities
-
         return AICapabilities(
-            configuration={
-                "model": "gpt-4.1",
-            },
+            configuration={"model": "gpt-4.1"},
             provider="Mito server",
         )
 
     @property
     def key_type(self) -> str:
-        """Returns the authentication key type being used."""
-        if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+        if constants.CLAUDE_API_KEY and not self.api_key:
             return "claude"
-
-        if constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
+        if constants.GEMINI_API_KEY and not self.api_key:
             return "gemini"
-
         if self._openai_client:
             return self._openai_client.key_type
-
         return MITO_SERVER_KEY
 
     async def request_completions(
-            self,
-            message_type: MessageType,
-            messages: List[ChatCompletionMessageParam],
-            model: str,
-            response_format_info: Optional[ResponseFormatInfo] = None,
-            user_input: Optional[str] = None,
-            thread_id: Optional[str] = None
+        self,
+        message_type: MessageType,
+        messages: List[ChatCompletionMessageParam],
+        model: str,
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        user_input: Optional[str] = None,
+        thread_id: Optional[str] = None
     ) -> str:
         """
         Request completions from the AI provider.
@@ -149,44 +116,23 @@ This attribute is observed by the websocket provider to push the error to the cl
         Returns:
             The completion from the AI provider.
         """
-        # Reset the last error
         self.last_error = None
         completion = None
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
-
+        model_type = get_model_type(model)
         try:
-            # Handle Claude API calls
-            if constants.CLAUDE_MODEL and not self.api_key:
-                if self._anthropic_client is None:
-                    if constants.CLAUDE_API_KEY:
-                        self._anthropic_client = AnthropicClient(
-                            api_key=constants.CLAUDE_API_KEY,
-                            model=constants.CLAUDE_MODEL
-                        )
-                    else:
-                        self._anthropic_client = AnthropicClient(
-                            api_key=None,
-                            model=constants.CLAUDE_MODEL
-                        )
-                completion = await self._anthropic_client.request_completions(messages, response_format_info, message_type)
-
-            # Handle Gemini API calls
-            elif constants.GEMINI_MODEL and not self.api_key:
-                if self._gemini_client is None:
-                    if constants.GEMINI_API_KEY:
-                        self._gemini_client = GeminiClient(
-                            api_key=constants.GEMINI_API_KEY,
-                            model=constants.GEMINI_MODEL
-                        )
-                    else:
-                        self._gemini_client = GeminiClient(
-                            api_key=None,
-                            model=constants.GEMINI_MODEL
-                        )
-                completion = await self._gemini_client.request_completions(messages, response_format_info, message_type)
-
-            # Handle OpenAI and other providers
-            elif self._openai_client:
+            if model_type == "claude":
+                api_key = constants.CLAUDE_API_KEY or ""
+                anthropic_client = AnthropicClient(api_key=api_key, model=model)
+                completion = await anthropic_client.request_completions(messages, response_format_info)
+            elif model_type == "gemini":
+                api_key = constants.GEMINI_API_KEY or ""
+                gemini_client = GeminiClient(api_key=api_key, model=model)
+                from typing import cast, Dict, Any
+                completion = await gemini_client.request_completions(cast(List[Dict[str, Any]], messages), response_format_info)
+            elif model_type == "openai":
+                if not self._openai_client:
+                    raise RuntimeError("OpenAI client is not initialized.")
                 completion = await self._openai_client.request_completions(
                     message_type=message_type,
                     messages=messages,
@@ -194,9 +140,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     response_format_info=response_format_info
                 )
             else:
-                raise ValueError("No AI provider configured")
-
-            # Log the successful completion
+                raise ValueError(f"No AI provider configured for model: {model}")
             log_ai_completion_success(
                 key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
                 message_type=message_type,
@@ -205,7 +149,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                 user_input=user_input or "",
                 thread_id=thread_id or ""
             )
-
             return completion
 
         except BaseException as e:
@@ -215,26 +158,24 @@ This attribute is observed by the websocket provider to push the error to the cl
             raise
 
     async def stream_completions(
-            self,
-            message_type: MessageType,
-            messages: List[ChatCompletionMessageParam],
-            model: str,
-            message_id: str,
-            thread_id: str,
-            reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
-            user_input: Optional[str] = None,
-            response_format_info: Optional[ResponseFormatInfo] = None
+        self,
+        message_type: MessageType,
+        messages: List[ChatCompletionMessageParam],
+        model: str,
+        message_id: str,
+        thread_id: str,
+        reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+        user_input: Optional[str] = None,
+        response_format_info: Optional[ResponseFormatInfo] = None
     ) -> str:
         """
         Stream completions from the AI provider and return the accumulated response.
         Returns: The accumulated response string.
         """
-        # Reset the last error
         self.last_error = None
         accumulated_response = ""
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
-
-        # Send initial acknowledgment
+        model_type = get_model_type(model)
         reply_fn(CompletionReply(
             items=[
                 CompletionItem(content="", isIncomplete=True, token=message_id)
@@ -243,43 +184,27 @@ This attribute is observed by the websocket provider to push the error to the cl
         ))
 
         try:
-            # Handle Claude API calls
-            if constants.CLAUDE_MODEL and not self.api_key:
-                if self._anthropic_client is None:
-                    if constants.CLAUDE_API_KEY:
-                        self._anthropic_client = AnthropicClient(
-                            api_key=constants.CLAUDE_API_KEY,
-                            model=constants.CLAUDE_MODEL
-                        )
-                    else:
-                        self._anthropic_client = AnthropicClient(api_key=None, model=constants.CLAUDE_MODEL)
-
-                accumulated_response = await self._anthropic_client.stream_response(
+            if model_type == "claude":
+                api_key = constants.CLAUDE_API_KEY or ""
+                anthropic_client = AnthropicClient(api_key=api_key, model=model)
+                accumulated_response = await anthropic_client.stream_response(
                     messages=messages,
                     message_type=message_type,
                     message_id=message_id,
                     reply_fn=reply_fn
                 )
-
-            # Handle Gemini API calls
-            elif constants.GEMINI_MODEL and not self.api_key:
-                if self._gemini_client is None:
-                    if constants.GEMINI_API_KEY:
-                        self._gemini_client = GeminiClient(
-                            api_key=constants.GEMINI_API_KEY,
-                            model=model
-                        )
-                    else:
-                        self._gemini_client = GeminiClient(api_key=None, model=constants.GEMINI_MODEL)
-
-                accumulated_response = await self._gemini_client.stream_completions(
-                    messages=messages,
+            elif model_type == "gemini":
+                api_key = constants.GEMINI_API_KEY or ""
+                gemini_client = GeminiClient(api_key=api_key, model=model)
+                from typing import cast, Dict, Any
+                accumulated_response = await gemini_client.stream_completions(
+                    messages=cast(List[Dict[str, Any]], messages),
                     message_id=message_id,
                     reply_fn=reply_fn,
                 )
-
-            # Handle OpenAI and other providers
-            elif self._openai_client:
+            elif model_type == "openai":
+                if not self._openai_client:
+                    raise RuntimeError("OpenAI client is not initialized.")
                 accumulated_response = await self._openai_client.stream_completions(
                     message_type=message_type,
                     messages=messages,
@@ -291,21 +216,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                     response_format_info=response_format_info
                 )
             else:
-                raise ValueError("No AI provider configured")
-
-            # Log the successful completion
-            log_ai_completion_success(
-                key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
-                message_type=message_type,
-                last_message_content=last_message_content,
-                response={"completion": accumulated_response},
-                user_input=user_input or "",
-                thread_id=thread_id
-            )
-
+                raise ValueError(f"No AI provider configured for model: {model}")
             return accumulated_response
 
         except BaseException as e:
+            self.log.exception(f"Error during stream_completions: {e}")
             self.last_error = CompletionError.from_exception(e)
             log(
                 MITO_AI_COMPLETION_ERROR,
