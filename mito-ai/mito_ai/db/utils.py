@@ -110,21 +110,22 @@ def crawl_and_store_schema(
 
     schema = snowflake.crawl_snowflake(username, password, account, warehouse)
 
-    if schema:
-        # If we successfully crawled the schema, write it to schemas.json
-        with open(schemas_path, "r+") as f:
-            schemas = json.load(f)
-            schemas[connection_id] = schema
-            f.seek(0)  # Move to the beginning of the file
-            json.dump(schemas, f, indent=4)
-            f.truncate()  # Remove any remaining content
+    if schema["error"]:
         return {
-            "success": True,
-            "error_message": "",
-            "schema": schema,
+            "success": False,
+            "error_message": schema["error"],
+            "schema": {},
         }
+
+    # If we successfully crawled the schema, write it to schemas.json
+    with open(schemas_path, "r+") as f:
+        schemas = json.load(f)
+        schemas[connection_id] = schema
+        f.seek(0)  # Move to the beginning of the file
+        json.dump(schemas, f, indent=4)
+        f.truncate()  # Remove any remaining content
     return {
-        "success": False,
-        "error_message": "Failed to crawl schema",
-        "schema": {},
+        "success": True,
+        "error_message": "",
+        "schema": schema,
     }
