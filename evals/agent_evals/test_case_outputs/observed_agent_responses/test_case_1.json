@@ -1,0 +1,21 @@
+{
+    "response": [
+        {
+            "type": "cell_update",
+            "message": "Let's start by importing pandas and creating an empty dataframe called `df`.",
+            "cell_update": {
+                "type": "modification",
+                "id": "73cb3a1d-9364-4a76-87dc-c6ecfec80ea6",
+                "code": "import pandas as pd\n\ndf = pd.DataFrame()\ndf",
+                "cell_type": "code"
+            },
+            "get_cell_output_cell_id": null
+        },
+        {
+            "type": "finished_task",
+            "message": "I've created an empty pandas DataFrame named `df` as requested.",
+            "get_cell_output_cell_id": null,
+            "cell_update": null
+        }
+    ]
+}
