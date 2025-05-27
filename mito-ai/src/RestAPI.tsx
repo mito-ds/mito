@@ -55,7 +55,7 @@ export async function requestAPI<T>(
             data = JSON.parse(data);
             return {
                 error: {
-                    message: data.message || 'Server error occurred',
+                    message: data.error || 'Server error occurred',
                     type: 'response',
                     status: response.status
                 }
