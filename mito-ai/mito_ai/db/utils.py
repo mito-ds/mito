@@ -119,11 +119,15 @@ def crawl_and_store_schema(
 
     # If we successfully crawled the schema, write it to schemas.json
     with open(schemas_path, "r+") as f:
+        # Load the existing schemas
         schemas = json.load(f)
+        # Remove the error key from the schema and add the crawled schema
+        schema.pop("error", None)
         schemas[connection_id] = schema
-        f.seek(0)  # Move to the beginning of the file
+        # Move to the beginning of the file and write the new schema
+        f.seek(0)
         json.dump(schemas, f, indent=4)
-        f.truncate()  # Remove any remaining content
+        f.truncate()
     return {
         "success": True,
         "error_message": "",
