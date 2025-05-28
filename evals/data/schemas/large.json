@@ -1,0 +1,1194 @@
+{
+  "CUSTOMER_MGMT": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "CUSTOMERS": [
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "NAME",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "EMAIL_ADDRESS",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "PHONE_NUMBER",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "STREET_ADDRESS",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "CITY_NAME",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "STATE_PROVINCE",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "ZIP",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "COUNTRY_NAME",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "CREATED_DATE",
+          "type": "TIMESTAMP_NTZ(9)"
+        },
+        {
+          "name": "ACTIVE",
+          "type": "BOOLEAN"
+        }
+      ],
+      "CUSTOMER_DATA": [
+        {
+          "name": "ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "FIRST_NAME",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "LAST_NAME",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "EMAIL",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "PHONE",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "ADDRESS",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "CITY",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "STATE",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "POSTAL",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "COUNTRY",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "CREATE_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "STATUS",
+          "type": "VARCHAR(20)"
+        }
+      ]
+    }
+  },
+  "FINANCE_DB": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "DEPARTMENT_LOOKUP": [
+        {
+          "name": "DEPT_CODE",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "DEPARTMENT_NAME",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "COST_CENTER",
+          "type": "VARCHAR(10)"
+        }
+      ],
+      "DIM_ACCOUNTS": [
+        {
+          "name": "ACCOUNT_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "ACCOUNT_NAME",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "ACCOUNT_TYPE",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "CREATED_DT",
+          "type": "TIMESTAMP_NTZ(9)"
+        },
+        {
+          "name": "STATUS",
+          "type": "VARCHAR(10)"
+        }
+      ],
+      "FACT_TRANSACTIONS": [
+        {
+          "name": "TRANSACTION_ID",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "ACCOUNT_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "TRANSACTION_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "AMOUNT",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "DESCRIPTION",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "CATEGORY_ID",
+          "type": "NUMBER(38,0)"
+        }
+      ],
+      "TBL_BUDGET_2024": [
+        {
+          "name": "BUDGET_ID",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "DEPT_CODE",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "ANNUAL_AMOUNT",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "REMAINING",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "LAST_UPDATED",
+          "type": "TIMESTAMP_NTZ(9)"
+        }
+      ],
+      "TRANSACTION_CATEGORIES": [
+        {
+          "name": "CATEGORY_ID",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "CATEGORY_NAME",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "PARENT_CATEGORY_ID",
+          "type": "NUMBER(38,0)"
+        }
+      ]
+    }
+  },
+  "HEDGE_FUND_DB": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "FUNDS": [
+        {
+          "name": "FUND_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "FUND_NAME",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "MANAGER_NAME",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "STRATEGY",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "INCEPTION_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "AUM_USD",
+          "type": "NUMBER(20,2)"
+        },
+        {
+          "name": "STATUS",
+          "type": "VARCHAR(20)"
+        }
+      ],
+      "FUND_PERFORMANCE": [
+        {
+          "name": "FUND_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "REPORTING_MONTH",
+          "type": "VARCHAR(7)"
+        },
+        {
+          "name": "RETURN_PCT",
+          "type": "NUMBER(5,2)"
+        },
+        {
+          "name": "SHARPE_RATIO",
+          "type": "NUMBER(5,2)"
+        },
+        {
+          "name": "VOLATILITY",
+          "type": "NUMBER(5,2)"
+        }
+      ],
+      "INVESTORS": [
+        {
+          "name": "INVESTOR_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "FULL_NAME",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "EMAIL",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "JOIN_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "FUND_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "INVESTMENT_AMOUNT",
+          "type": "NUMBER(20,2)"
+        }
+      ],
+      "POSITIONS": [
+        {
+          "name": "POSITION_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "FUND_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "SYMBOL",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "QUANTITY",
+          "type": "NUMBER(12,0)"
+        },
+        {
+          "name": "AVG_COST",
+          "type": "NUMBER(12,4)"
+        },
+        {
+          "name": "MARKET_VALUE",
+          "type": "NUMBER(20,2)"
+        },
+        {
+          "name": "LAST_UPDATED",
+          "type": "TIMESTAMP_NTZ(9)"
+        }
+      ],
+      "TRADES": [
+        {
+          "name": "TRADE_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "FUND_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "SYMBOL",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "TRADE_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "QUANTITY",
+          "type": "NUMBER(12,0)"
+        },
+        {
+          "name": "PRICE",
+          "type": "NUMBER(12,4)"
+        },
+        {
+          "name": "SIDE",
+          "type": "VARCHAR(4)"
+        },
+        {
+          "name": "ASSET_CLASS",
+          "type": "VARCHAR(20)"
+        }
+      ]
+    }
+  },
+  "HR_SYSTEM": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "DEPARTMENTS": [
+        {
+          "name": "DEPARTMENT_ID",
+          "type": "NUMBER(4,0)"
+        },
+        {
+          "name": "DEPARTMENT_NAME",
+          "type": "VARCHAR(30)"
+        },
+        {
+          "name": "MANAGER_ID",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "LOCATION_ID",
+          "type": "NUMBER(4,0)"
+        }
+      ],
+      "EMPLOYEES": [
+        {
+          "name": "EMPLOYEE_ID",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "FIRST_NAME",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "LAST_NAME",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "EMAIL",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "PHONE_NUMBER",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "HIRE_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "JOB_ID",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "SALARY",
+          "type": "NUMBER(8,2)"
+        },
+        {
+          "name": "COMMISSION_PCT",
+          "type": "NUMBER(2,2)"
+        },
+        {
+          "name": "MANAGER_ID",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "DEPARTMENT_ID",
+          "type": "NUMBER(4,0)"
+        }
+      ],
+      "JOBS": [
+        {
+          "name": "JOB_ID",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "JOB_TITLE",
+          "type": "VARCHAR(35)"
+        },
+        {
+          "name": "MIN_SALARY",
+          "type": "NUMBER(8,2)"
+        },
+        {
+          "name": "MAX_SALARY",
+          "type": "NUMBER(8,2)"
+        }
+      ],
+      "JOB_HISTORY": [
+        {
+          "name": "EMPLOYEE_ID",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "START_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "END_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "JOB_ID",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "DEPARTMENT_ID",
+          "type": "NUMBER(4,0)"
+        }
+      ]
+    }
+  },
+  "INVENTORY_SYSTEM": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "PRODUCTS": [
+        {
+          "name": "PRODUCT_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "PRODUCT_NAME",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "DESCRIPTION",
+          "type": "VARCHAR(500)"
+        },
+        {
+          "name": "CATEGORY",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "PRICE",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "STOCK_QUANTITY",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "SUPPLIER_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "CREATED_AT",
+          "type": "TIMESTAMP_NTZ(9)"
+        },
+        {
+          "name": "OLD_CATEGORY_ID",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "DEPRECATED_TAX_CODE",
+          "type": "VARCHAR(10)"
+        },
+        {
+          "name": "OLD_PRICE",
+          "type": "VARCHAR(20)"
+        }
+      ]
+    }
+  },
+  "IOT_PLATFORM": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "DEVICES": [
+        {
+          "name": "DEVICE_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "SERIAL_NUMBER",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "DEVICE_TYPE",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "MANUFACTURER",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "MODEL",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "FIRMWARE_VERSION",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "INSTALLED_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "STATUS",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "LOCATION_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(36)"
+        }
+      ],
+      "LOCATIONS": [
+        {
+          "name": "LOCATION_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "LOCATION_NAME",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "ADDRESS",
+          "type": "VARCHAR(255)"
+        },
+        {
+          "name": "CITY",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "STATE",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "COUNTRY",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "POSTAL_CODE",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "LATITUDE",
+          "type": "FLOAT"
+        },
+        {
+          "name": "LONGITUDE",
+          "type": "FLOAT"
+        }
+      ],
+      "SENSOR_READINGS": [
+        {
+          "name": "READING_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "DEVICE_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "TIMESTAMP",
+          "type": "TIMESTAMP_NTZ(9)"
+        },
+        {
+          "name": "TEMPERATURE",
+          "type": "FLOAT"
+        },
+        {
+          "name": "HUMIDITY",
+          "type": "FLOAT"
+        },
+        {
+          "name": "PRESSURE",
+          "type": "FLOAT"
+        },
+        {
+          "name": "BATTERY_LEVEL",
+          "type": "FLOAT"
+        },
+        {
+          "name": "SIGNAL_STRENGTH",
+          "type": "FLOAT"
+        }
+      ]
+    }
+  },
+  "REPORTING_DB": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "CUSTOMER_ENGAGEMENT_METRICS": [
+        {
+          "name": "METRIC_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "MONTH",
+          "type": "VARCHAR(7)"
+        },
+        {
+          "name": "EMAILS_OPENED",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "SITE_VISITS",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "PURCHASES",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "ENGAGEMENT_SCORE",
+          "type": "NUMBER(5,2)"
+        }
+      ],
+      "MONTHLY_SALES_SUMMARY": [
+        {
+          "name": "SUMMARY_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "MONTH",
+          "type": "VARCHAR(7)"
+        },
+        {
+          "name": "TOTAL_SALES",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "TOTAL_ORDERS",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "AVERAGE_ORDER_VALUE",
+          "type": "NUMBER(38,2)"
+        }
+      ]
+    }
+  },
+  "SALES_DB": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "CUSTOMERS": [
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "FIRST_NAME",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "LAST_NAME",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "EMAIL",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "PHONE",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "CREATED_AT",
+          "type": "TIMESTAMP_NTZ(9)"
+        },
+        {
+          "name": "STATUS",
+          "type": "VARCHAR(20)"
+        }
+      ],
+      "CUSTOMER_ADDRESSES": [
+        {
+          "name": "ADDRESS_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "ADDRESS_LINE1",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "ADDRESS_LINE2",
+          "type": "VARCHAR(100)"
+        },
+        {
+          "name": "CITY",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "STATE",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "POSTAL_CODE",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "COUNTRY",
+          "type": "VARCHAR(50)"
+        },
+        {
+          "name": "IS_PRIMARY",
+          "type": "BOOLEAN"
+        }
+      ],
+      "ORDERITEMS": [
+        {
+          "name": "ITEM_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "ORDER_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "PRODUCT_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "QUANTITY",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "UNIT_PRICE",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "DISCOUNT_AMOUNT",
+          "type": "NUMBER(38,2)"
+        }
+      ],
+      "ORDERS": [
+        {
+          "name": "ORDER_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "ORDER_DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "TOTAL_AMOUNT",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "STATUS",
+          "type": "VARCHAR(20)"
+        },
+        {
+          "name": "SHIPPING_ADDRESS_ID",
+          "type": "VARCHAR(36)"
+        }
+      ],
+      "PRODUCTS": [
+        {
+          "name": "PRODUCT_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "PRODUCT_NAME",
+          "type": "VARCHAR(200)"
+        },
+        {
+          "name": "DESCRIPTION",
+          "type": "VARCHAR(1000)"
+        },
+        {
+          "name": "CATEGORY_ID",
+          "type": "VARCHAR(36)"
+        },
+        {
+          "name": "PRICE",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "COST",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "ACTIVE",
+          "type": "BOOLEAN"
+        }
+      ]
+    }
+  },
+  "SP_500": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "SP500_COMPANIES": [
+        {
+          "name": "EXCHANGE",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "SYMBOL",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "SHORTNAME",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "LONGNAME",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "SECTOR",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "INDUSTRY",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "CURRENTPRICE",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "MARKETCAP",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "EBITDA",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "REVENUEGROWTH",
+          "type": "NUMBER(38,3)"
+        },
+        {
+          "name": "CITY",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "STATE",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "COUNTRY",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "FULLTIMEEMPLOYEES",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "LONGBUSINESSSUMMARY",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "WEIGHT",
+          "type": "VARCHAR(16777216)"
+        }
+      ],
+      "SP500_STOCKS": [
+        {
+          "name": "DATE",
+          "type": "DATE"
+        },
+        {
+          "name": "SYMBOL",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "CLOSE",
+          "type": "NUMBER(38,15)"
+        },
+        {
+          "name": "HIGH",
+          "type": "NUMBER(38,15)"
+        },
+        {
+          "name": "LOW",
+          "type": "NUMBER(38,15)"
+        },
+        {
+          "name": "OPEN",
+          "type": "NUMBER(38,15)"
+        },
+        {
+          "name": "VOLUME",
+          "type": "NUMBER(38,1)"
+        }
+      ]
+    }
+  },
+  "TELCO_CHRUN": {
+    "INFORMATION_SCHEMA": {},
+    "PUBLIC": {
+      "CUSTOMER_INFO": [
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "GENDER",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "AGE",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "UNDER_30",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "SENIOR_CITIZEN",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "PARTNER",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "DEPENDENTS",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "NUMBER_OF_DEPENDENTS",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "MARRIED",
+          "type": "BOOLEAN"
+        }
+      ],
+      "LOCATION_DATA": [
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "COUNTRY",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "STATE",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "CITY",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "ZIP_CODE",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "TOTAL_POPULATION",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "LATITUDE",
+          "type": "NUMBER(38,6)"
+        },
+        {
+          "name": "LONGITUDE",
+          "type": "NUMBER(38,6)"
+        }
+      ],
+      "ONLINE_SERVICES": [
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "PHONE_SERVICE",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "INTERNET_SERVICE",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "ONLINE_SECURITY",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "ONLINE_BACKUP",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "DEVICE_PROTECTION",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "PREMIUM_TECH_SUPPORT",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "STREAMING_TV",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "STREAMING_MOVIES",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "STREAMING_MUSIC",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "INTERNET_TYPE",
+          "type": "VARCHAR(16777216)"
+        }
+      ],
+      "PAYMENT_INFO": [
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "CONTRACT",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "PAPERLESS_BILLING",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "PAYMENT_METHOD",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "MONTHLY_CHARGES",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "AVG_MONTHLY_LONG_DISTANCE_CHARGES",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "TOTAL_CHARGES",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "TOTAL_REFUNDS",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "TOTAL_EXTRA_DATA_CHARGES",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "TOTAL_LONG_DISTANCE_CHARGES",
+          "type": "NUMBER(38,2)"
+        },
+        {
+          "name": "TOTAL_REVENUE",
+          "type": "NUMBER(38,2)"
+        }
+      ],
+      "SERVICE_OPTIONS": [
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "TENURE",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "INTERNET_SERVICE",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "PHONE_SERVICE",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "MULTIPLE_LINES",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "AVG_MONTHLY_GB_DOWNLOAD",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "UNLIMITED_DATA",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "OFFER",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "REFERRED_A_FRIEND",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "NUMBER_OF_REFERRALS",
+          "type": "NUMBER(38,0)"
+        }
+      ],
+      "STATUS_ANALYSIS": [
+        {
+          "name": "CUSTOMER_ID",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "SATISFACTION_SCORE",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "CLTV",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "CUSTOMER_STATUS",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "CHURN_SCORE",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "CHURN_LABEL",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "CHURN_VALUE",
+          "type": "NUMBER(38,0)"
+        },
+        {
+          "name": "CHURN_CATEGORY",
+          "type": "VARCHAR(16777216)"
+        },
+        {
+          "name": "CHURN_REASON",
+          "type": "VARCHAR(16777216)"
+        }
+      ]
+    }
+  }
+}

@@ -21,7 +21,7 @@
 
 # from openai.types.chat import ChatCompletionMessageParam
 # from mito_ai.providers import OpenAIProvider
-# from mito_ai.models import MessageType
+# from mito_ai.completions.models import MessageType
 # from mito_ai.tests.data.prompt_sm import prompt_sm
 # from mito_ai.tests.data.prompt_lg import prompt_lg
 # from mito_ai.tests.data.prompt_xl import prompt_xl

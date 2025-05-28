@@ -20,7 +20,11 @@ def parse_db_schema_table_names(table_path: str) -> Tuple[str, str, str]:
     Returns:
         A tuple of (database_name, schema_name, table_name)
     """
-    database_name, schema_name, table_name = table_path.split(".")
+    try:
+        database_name, schema_name, table_name = table_path.split(".")
+    except Exception as e:
+        database_name, schema_name, table_name = "EXCEPTION_TRIGGERED", "EXCEPTION_TRIGGERED", "EXCEPTION_TRIGGERED"
+
     return database_name, schema_name, table_name
 
 

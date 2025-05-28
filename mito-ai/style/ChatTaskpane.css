@@ -24,10 +24,17 @@
   padding-bottom: 10px;
 }
 
+.suggestions-container {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .chat-taskpane-header {
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding-top: 10px;
   padding-bottom: 5px;
@@ -39,6 +46,16 @@
   /* Ensure background color covers content behind */
   z-index: 1;
   /* Ensure it stays above other content */
+}
+
+.chat-taskpane-header-left {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-taskpane-header-right {
+  display: flex;
+  gap: 8px;
 }
 
 .chat-taskpane-header-title {
@@ -56,6 +73,8 @@
   flex: 1;
   overflow-y: auto;
   padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-empty-message {
@@ -63,13 +82,17 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  height: auto;
+  min-height: 200px;
+  max-height: 100%;
   text-align: center;
   color: var(--muted-text-color);
   padding: 20px;
   /* Add container query support */
   container-type: inline-size;
   user-select: none;
+  overflow-y: hidden;
+  margin: auto 0; /* This centers it vertically in the flex container */
 }
 
 .chat-empty-message .long-message {
@@ -133,4 +156,47 @@
 .agent-cancel-button {
   width: 32px;
   padding: 0;
+}
+
+/* Add suggestion box container styling */
+.chat-suggestions {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 8px;
+  padding-bottom: 16px;
+  margin: 8px 0;
+  /* smooth scrolling on touch devices */
+  -webkit-overflow-scrolling: touch;
+  /* Mask properties will be applied dynamically through JavaScript */
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+}
+
+/* Add individual suggestion box styling */
+.suggestion-box {
+  background-color: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  flex-shrink: 0;
+  /* wrap text onto multiple lines */
+  white-space: normal;
+  text-align: center;
+  /* limit width for wrapping into two lines */
+  max-width: 140px;
+  /* align content vertically */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.suggestion-box:hover {
+  background-color: var(--jp-border-color2);
 }

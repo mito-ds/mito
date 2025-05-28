@@ -18,7 +18,10 @@ class _ProductionPromptWithSQL(ChatPromptGenerator):
 
     def set_database_rules(self, schemas: str, connections: str) -> str:
         # We need this format for the SQL test funnels
-        test_specific_rules = "When writing the query, make sure to explicitly use the format: database_name.schema_name.table_name"
+        test_specific_rules = """
+- When writing the query, make sure to explicitly use the format: database_name.schema_name.table_name
+- If possible, do not use aliases. Please try to preserve the original table and column names.
+"""
 
         if connections != "":
             return f"""DATABASE RULES:

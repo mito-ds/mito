@@ -3,3 +3,5 @@
 
 # Schemas
 SMALL_SCHEMA = "small.json"
+MEDIUM_SCHEMA = "medium.json"
+LARGE_SCHEMA = "large.json"

@@ -31,8 +31,10 @@ def is_sql_generated_test(
     """
     name = "is_sql_generated_test"
 
-    expected_sql_query_exists = expected_output is not None and expected_output != ''  
-    actual_sql_query_exists = sql_query_recieved is not None and sql_query_recieved != ''  
+    expected_sql_query_exists = expected_output is not None and expected_output != ""
+    actual_sql_query_exists = (
+        sql_query_recieved is not None and sql_query_recieved != ""
+    )
 
     if not expected_sql_query_exists and not actual_sql_query_exists:
         # No SQL query was expected and none was generated
@@ -138,19 +140,35 @@ def no_column_table_mismatch_test(
     name = "no_column_table_mismatch_test"
 
     for table_detail in table_details:
-        database_name, schema_name, table_name = parse_db_schema_table_names(table_detail.name)
-        columns = table_detail.columns
+        try:
+            database_name, schema_name, table_name = parse_db_schema_table_names(
+                table_detail.name
+            )
+            columns = table_detail.columns
 
-        # Our reference point:
-        # the columns that are actually in the schema
-        columns_in_schema = [
-            column["name"] for column in schema[database_name][schema_name][table_name]
-        ]
+            # Our reference point:
+            # the columns that are actually in the schema
+            columns_in_schema = [
+                column["name"]
+                for column in schema[database_name][schema_name][table_name]
+            ]
 
-        # Check if all columns exist in the table
-        missing_columns = [col for col in columns if not col.startswith("*") and col not in columns_in_schema]  
-        if missing_columns:  
-            return FunnelStepResult(name=name, passed=False, notes=f"Columns not found in table '{table_name}': {', '.join(missing_columns)}")  
+            # Check if all columns exist in the table
+            missing_columns = [
+                col
+                for col in columns
+                if not col.startswith("*") and col not in columns_in_schema
+            ]
+            if missing_columns:
+                return FunnelStepResult(
+                    name=name,
+                    passed=False,
+                    notes=f"Columns not found in table '{table_name}': {', '.join(missing_columns)}",
+                )
+        except Exception as e:
+            return FunnelStepResult(
+                name=name, passed=False, notes=f"Error parsing table name: {e}"
+            )
 
     return FunnelStepResult(name=name, passed=True)
 
@@ -185,16 +203,38 @@ def execute_without_errors_test(
     return result, FunnelStepResult(name=name, passed=True)
 
 
-def correct_data_shape_test(
+def minimum_expected_cols_test(
     expected_df: pd.DataFrame,
     actual_df: pd.DataFrame,
 ) -> FunnelStepResult:
     """
-    Verifies that the actual data shape matches the expected data shape.
+    Verifies that the actual dataframe has (at a minimum) the same columns as the expected dataframe.
     """
-    name = "correct_data_shape_test"
+    name = "minimum_expected_cols_test"
 
-    if expected_df.shape != actual_df.shape:
+    # Check if the actual dataframe has all the columns that the expected dataframe has
+    missing_columns = [
+        col for col in expected_df.columns if col not in actual_df.columns
+    ]
+    if missing_columns:
+        return FunnelStepResult(
+            name=name,
+            passed=False,
+            notes=f"Columns not found in actual dataframe: {', '.join(missing_columns)}",
+        )
+
+    return FunnelStepResult(name=name, passed=True)
+
+
+def row_count_test(
+    expected_df: pd.DataFrame,
+    actual_df: pd.DataFrame,
+) -> FunnelStepResult:
+    """
+    Verifies that the actual dataframe has the same number of rows as the expected dataframe.
+    """
+    name = "row_count_test"
+    if expected_df.shape[0] != actual_df.shape[0]:
         return FunnelStepResult(
             name=name,
             passed=False,

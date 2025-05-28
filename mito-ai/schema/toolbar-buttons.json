@@ -1,0 +1,37 @@
+{
+    "jupyter.lab.shortcuts": [],
+    "title": "mito_ai",
+    "description": "mito-ai settings.",
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false,
+    "jupyter.lab.toolbars": {
+      "Cell": [
+        {
+          "name": "explain-code",
+          "command": "toolbar-button:explain-code"
+        },
+        {
+          "name": "toggle-include-cell-in-app",
+          "command": "toolbar-button:toggle-include-cell-in-app"
+        },
+        {
+          "name": "accept-code",
+          "command": "toolbar-button:accept-code",
+          "rank": 1
+        },
+        {
+          "name": "reject-code",
+          "command": "toolbar-button:reject-code",
+          "rank": 2
+        }
+      ],
+      "Notebook": [
+        {
+          "name": "convert-to-streamlit",
+          "command": "toolbar-button:convert-to-streamlit",
+          "rank": 1000
+        }
+      ]
+    }
+}

@@ -1,0 +1,84 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.connections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.connection-card {
+    background: var(--jp-layout-color0);
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 8px;
+    padding: 16px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.connection-card:hover {
+    border: 1px solid var(--purple-500);
+}
+
+.connection-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.connection-card-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: var(--jp-ui-font-color1);
+}
+
+.connection-type {
+    font-size: 0.9em;
+    color: var(--jp-ui-font-color2);
+    text-transform: capitalize;
+    margin-bottom: 8px;
+}
+
+.connection-details {
+    flex-grow: 1;
+}
+
+.connection-details p {
+    margin: 4px 0;
+    font-size: 0.9em;
+    color: var(--jp-ui-font-color2);
+}
+
+.connection-actions {
+    display: flex;
+    margin-top: 12px;
+    gap: 8px;
+}
+
+.connection-actions button {
+    padding: 4px 8px;
+    font-size: 0.9em;
+}
+
+.connection-actions .delete-button {
+    color: var(--jp-error-color1);
+}
+
+.connection-actions .delete-button:hover {
+    background-color: var(--jp-error-color2);
+    color: white;
+}
+
+.delete-container {
+    position: relative;
+}
+
+.confirmation-buttons {
+    display: flex;
+    gap: 8px;
+} 
