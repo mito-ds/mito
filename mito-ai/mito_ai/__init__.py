@@ -6,6 +6,7 @@ from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.app_builder.handlers import AppBuilderHandler
+from mito_ai.log.urls import get_log_urls
 from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
 from mito_ai.settings.urls import get_settings_urls
@@ -67,6 +68,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_db_urls(base_url))
     handlers.extend(get_settings_urls(base_url))
     handlers.extend(get_rules_urls(base_url))
+    handlers.extend(get_log_urls(base_url))
     
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")
