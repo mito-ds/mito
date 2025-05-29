@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { DBConnections, DBConnection } from './model';
 import { ConnectionList } from './ConnectionList';
 import { ConnectionForm } from './ConnectionForm';
-import { requestAPI } from '../../../RestAPI';
+import { requestAPI } from '../../../restAPI/utils';
 import '../../../../style/DatabasePage.css';
 
 export const DatabasePage = (): JSX.Element => {

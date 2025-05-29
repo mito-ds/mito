@@ -10,7 +10,7 @@ import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLa
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
 import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
 import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
-import { getSetting } from '../../RestAPI';
+import { getSetting } from '../../restAPI/RestAPI';
 
 const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/toolbar-buttons.json file.
