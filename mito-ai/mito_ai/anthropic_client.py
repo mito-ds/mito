@@ -6,8 +6,9 @@ import anthropic
 from typing import Dict, Any, Optional, Tuple, Union, Callable, List
 
 from anthropic.types import Message, MessageParam, ToolUnionParam
-from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, AgentResponse
+from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, AgentResponse, MessageType
 from openai.types.chat import ChatCompletionMessageParam
+from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server
 
 MAX_TOKENS = 2_000
 
@@ -73,17 +74,24 @@ def _get_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) 
 
 class AnthropicClient:
     """
-    A client for interacting with the Anthropic API.
+    A client for interacting with the Anthropic API or the Mito server fallback.
     """
 
-    def __init__(self, api_key: str, model: str):
-        self.client = anthropic.Anthropic(api_key=api_key)
+    def __init__(self, api_key: Optional[str], model: str, timeout: int = 30, max_retries: int = 1):
+        self.api_key = api_key
         self.model = model
+        self.timeout = timeout
+        self.max_retries = max_retries
+        if api_key:
+            self.client = anthropic.Anthropic(api_key=api_key)
+        else:
+            self.client = None
 
     async def request_completions(self, messages: List[ChatCompletionMessageParam],
-                                  response_format_info: Optional[ResponseFormatInfo] = None) -> Any:
+                                  response_format_info: Optional[ResponseFormatInfo] = None,
+                                  message_type: MessageType = MessageType.CHAT) -> Any:
         """
-        Get a response from Claude that adheres to the AgentResponse format.
+        Get a response from Claude or the Mito server that adheres to the AgentResponse format.
         """
         try:
             anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
@@ -96,30 +104,52 @@ class AnthropicClient:
                     "name": "agent_response",
                     "description": "Output a structured response following the AgentResponse format",
                     "input_schema": AgentResponse.model_json_schema()
-                }]             
+                }]
 
-                # Make the API request with tool use
-                response = self.client.messages.create(
-                    model=self.model,
-                    max_tokens=MAX_TOKENS,
-                    temperature=0,
-                    system=anthropic_system_prompt,
-                    messages=anthropic_messages,
-                    tools=tools,
-                    tool_choice={"type": "tool", "name": "agent_response"}
-                )
+                if self.api_key:
+                    # Make the API request with tool use
+                    response = self.client.messages.create(
+                        model=self.model,
+                        max_tokens=MAX_TOKENS,
+                        temperature=0,
+                        system=anthropic_system_prompt,
+                        messages=anthropic_messages,
+                        tools=tools,
+                        tool_choice={"type": "tool", "name": "agent_response"}
+                    )
+                else:
+                    response = await get_anthropic_completion_from_mito_server(
+                        model=self.model,
+                        max_tokens=MAX_TOKENS,
+                        temperature=0,
+                        system=anthropic_system_prompt,
+                        messages=anthropic_messages,
+                        tools=tools,
+                        tool_choice={"type": "tool", "name": "agent_response"},
+                        message_type=message_type
+                    )
 
                 result = _extract_and_parse_json_response(response)
                 return json.dumps(result) if not isinstance(result, str) else result
 
             else:
-                response = self.client.messages.create(
-                    model=self.model,
-                    max_tokens=MAX_TOKENS,
-                    temperature=0,
-                    system=anthropic_system_prompt,
-                    messages=anthropic_messages,
-                )
+                if self.api_key:
+                    response = self.client.messages.create(
+                        model=self.model,
+                        max_tokens=MAX_TOKENS,
+                        temperature=0,
+                        system=anthropic_system_prompt,
+                        messages=anthropic_messages,
+                    )
+                else:
+                    response = await get_anthropic_completion_from_mito_server(
+                        model=self.model,
+                        max_tokens=MAX_TOKENS,
+                        temperature=0,
+                        system=anthropic_system_prompt,
+                        messages=anthropic_messages,
+                        message_type=message_type
+                    )
                 
                 content = response.content
                 if content[0].type == "text":
@@ -133,37 +163,51 @@ class AnthropicClient:
         except Exception as e:
             return f"Error streaming content: {str(e)}"
 
-    async def stream_response(self, messages: List[ChatCompletionMessageParam], message_id: str,
+    async def stream_response(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
             anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
             accumulated_response = ""
 
-            stream = self.client.messages.create(
-                model=self.model,
-                max_tokens=MAX_TOKENS,
-                temperature=0,
-                system=anthropic_system_prompt,
-                messages=anthropic_messages,
-                stream=True
-            )
+            if self.api_key:
+                stream = self.client.messages.create(
+                    model=self.model,
+                    max_tokens=MAX_TOKENS,
+                    temperature=0,
+                    system=anthropic_system_prompt,
+                    messages=anthropic_messages,
+                    stream=True
+                )
 
-            for chunk in stream:
-                if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
-                    content = chunk.delta.text 
-                    accumulated_response += content
 
-                    is_finished = chunk.type == "message_stop"
+                for chunk in stream:
+                    if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
+                        content = chunk.delta.text
+                        accumulated_response += content
 
-                    reply_fn(CompletionStreamChunk(
-                        parent_id=message_id,
-                        chunk=CompletionItem(
-                            content=content,
-                            isIncomplete=not is_finished,
-                            token=message_id,
-                        ),
-                        done=is_finished,
-                    ))
+                        is_finished = chunk.type == "message_stop"
+
+                        reply_fn(CompletionStreamChunk(
+                            parent_id=message_id,
+                            chunk=CompletionItem(
+                                content=content,
+                                isIncomplete=not is_finished,
+                                token=message_id,
+                            ),
+                            done=is_finished,
+                        ))
+
+            else:
+                   async for stram_chunk in stream_anthropic_completion_from_mito_server(
+                    model=self.model,
+                    max_tokens=MAX_TOKENS,
+                    temperature=0,
+                    system=anthropic_system_prompt,
+                    messages=anthropic_messages,
+                    stream=True,
+                    message_type=message_type
+                ):
+                       accumulated_response += stram_chunk
 
             return accumulated_response
 

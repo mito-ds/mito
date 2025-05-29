@@ -3,6 +3,9 @@
 
 from __future__ import annotations
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union, Type
+
+from openai import api_key
+
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
@@ -153,14 +156,20 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         try:
             # Handle Claude API calls
-            if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+            if constants.CLAUDE_MODEL and not self.api_key:
                 if self._anthropic_client is None:
-                    self._anthropic_client = AnthropicClient(
-                        api_key=constants.CLAUDE_API_KEY,
-                        model=model
-                    )
+                    if constants.CLAUDE_API_KEY:
+                        self._anthropic_client = AnthropicClient(
+                            api_key=constants.CLAUDE_API_KEY,
+                            model=model
+                        )
+                    else:
+                        self._anthropic_client = AnthropicClient(
+                            api_key=None,
+                            model=model
+                        )
 
-                completion = await self._anthropic_client.request_completions(messages, response_format_info)
+                completion = await self._anthropic_client.request_completions(messages, response_format_info, message_type)
 
             # Handle Gemini API calls
             elif constants.GEMINI_MODEL and constants.GEMINI_API_KEY and not self.api_key:
@@ -231,15 +240,19 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         try:
             # Handle Claude API calls
-            if constants.CLAUDE_MODEL and constants.CLAUDE_API_KEY and not self.api_key:
+            if constants.CLAUDE_MODEL and not self.api_key:
                 if self._anthropic_client is None:
-                    self._anthropic_client = AnthropicClient(
-                        api_key=constants.CLAUDE_API_KEY,
-                        model=model
-                    )
+                    if constants.CLAUDE_API_KEY:
+                        self._anthropic_client = AnthropicClient(
+                            api_key=constants.CLAUDE_API_KEY,
+                            model=model
+                        )
+                    else:
+                        self._anthropic_client = AnthropicClient(api_key=None, model=model)
 
                 accumulated_response = await self._anthropic_client.stream_response(
                     messages=messages,
+                    message_type=message_type,
                     message_id=message_id,
                     reply_fn=reply_fn
                 )
