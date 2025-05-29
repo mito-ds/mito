@@ -169,5 +169,13 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       contextManager: contextManager
     });
     completionManager.registerInlineProvider(provider);
+
+
+    app.commands.commandExecuted.connect((_, args: {id: string}) => {
+      if (args.id == 'inline-completer:accept') {
+        const acceptedCompletionInfo = provider.getCurrentCompletionInfo();
+        console.log('Inline completion accepted:', acceptedCompletionInfo);
+      }
+    });
   }
 };
