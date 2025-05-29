@@ -25,7 +25,7 @@ export class CompletionWebsocketClient extends BaseWebsocketClient<ICompletionRe
   /**
    * The service URL for the websocket endpoint.
    */
-  protected readonly SERVICE_URL = 'mito_ai/completions';
+  protected readonly SERVICE_URL = 'mito-ai/completions';
 
   /**
    * Create a new completion client.
