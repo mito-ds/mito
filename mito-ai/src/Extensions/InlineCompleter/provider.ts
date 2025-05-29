@@ -64,6 +64,16 @@ export class MitoAIInlineCompleter
   // Similarly, we only want to show the general completion failure notification once
   private _displayed_completion_failure_notification = false;
 
+  // Store the current inline completion
+  private _currentCompletionInfo: {
+    insertText: string;
+    prefix: string;
+    suffix: string;
+  } = {
+    insertText: '',
+    prefix: '',
+    suffix: ''
+  };
 
   constructor({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -232,10 +242,18 @@ export class MitoAIInlineCompleter
       }
 
       return {
-        items: result.items.map(item => ({
-          ...item,
-          insertText: this._cleanCompletion(item.content, prefix, suffix)
-        }))
+        items: result.items.map(item => {
+          const insertText = this._cleanCompletion(item.content, prefix, suffix);
+          this._currentCompletionInfo = {
+            insertText: insertText,
+            prefix: prefix,
+            suffix: suffix
+          };
+          return {
+            ...item,
+            insertText: insertText
+          };
+        })
       };
     } finally {
       this._completionLock.resolve();
@@ -458,10 +476,28 @@ Thanks for your help!
     return cleanedCompletion;
   }
 
-
+  // Get the current completion info, including the completed line.
+  // This is used to log the completion info to the backend.
+  getCurrentCompletionInfo(): {
+    insertText: string;
+    prefix: string;
+    suffix: string;
+    completedCodeCell: string;
+  } {
+    const completedCodeCell = this._currentCompletionInfo.prefix + this._currentCompletionInfo.insertText + this._currentCompletionInfo.suffix;
+    return {
+      ...this._currentCompletionInfo,
+      completedCodeCell: completedCodeCell
+    };
+  }
 
   private _resetCurrentStream(): void {
     this._currentToken = '';
+    this._currentCompletionInfo = {
+      insertText: '',
+      prefix: '',
+      suffix: ''
+    };
     if (this._currentStream) {
       this._currentStream.stop();
       this._fullCompletionMap.delete(this._currentStream);
