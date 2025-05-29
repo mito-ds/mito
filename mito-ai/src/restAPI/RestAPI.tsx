@@ -3,6 +3,26 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/************************************
+
+LOG ENDPOINTS
+
+************************************/
+
+export const logEvent = async (logEvent: string, params?: Record<string, any>): Promise<void> => {
+    const resp = await requestAPI<void>('log', {
+        method: 'PUT',
+        body: JSON.stringify({ 
+            log_event: logEvent,
+            params: params || {}
+        }),
+    });
+    
+    if (resp.error) {
+        console.error(resp.error.message);
+    }
+}
+
 
 /************************************
 
@@ -65,4 +85,3 @@ export const getRules = async(): Promise<string[]> => {
     }
     return resp.data || [];
 }
-
