@@ -19,13 +19,14 @@
     min-width: 80px; /* Minimum width for very short model names */
     height: 20px; /* Fixed height to match other elements */
     border-radius: 4px;
-    border: 1px solid #c3a4fe;
+    border: 1px solid var(--purple-400);
     cursor: pointer;
-    background-color: #d0b9fe;
-    transition: border-color 0.2s ease, width 0.3s ease;
-    /* Width is dynamically set by inline style */
+    background-color: var(--purple-400);
+    transition: border-color 0.2s ease;
     display: flex;
     align-items: center; /* Ensure content is vertically centered */
+    width: min-content;
+    max-width: 18ch;
   }
   
   /* Compact mode style */
@@ -38,7 +39,7 @@
   }
   
   .model-selector-dropdown:hover {
-    border-color: #844af7;
+    border-color: var(--purple-700);
   }
   
   .selected-model {
@@ -50,7 +51,7 @@
     padding: 0 8px;
     font-size: 11px; /* Smaller font for thinner button */
     line-height: 1; /* Tighter line height */
-    color: #844af7;
+    color: var(--purple-700);
     font-weight: 500;
     white-space: nowrap; /* Prevent text wrapping */
     overflow: hidden; /* Hide overflow text */
@@ -73,7 +74,7 @@
   
   .dropdown-arrow {
     font-size: 7px; /* Smaller arrow */
-    color: #844af7;
+    color: var(--purple-700);
     transition: transform 0.2s;
     margin-left: 4px; /* Ensure some space between text and arrow */
     flex-shrink: 0; /* Prevent arrow from shrinking */
@@ -91,8 +92,8 @@
     left: 0;
     max-height: 180px;
     overflow-y: auto;
-    background-color: white;
-    border: 1px solid #ccc;
+    background-color: var(--jp-layout-color1);
+    border: 1px solid var(--jp-layout-color2);
     border-radius: 4px;
     margin-bottom: 4px;
     box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
@@ -110,19 +111,20 @@
   .model-option {
     padding: 4px 8px;
     font-size: 12px; /* Keep this size for readability */
-    color: #333;
+    color: var(--jp-content-font-color1);
     cursor: pointer;
     transition: background-color 0.2s;
     white-space: nowrap; /* Prevent text wrapping */
   }
   
   .model-option:hover {
-    background-color: #f0f0f0;
+    background-color: var(--jp-layout-color2);
+    color: var(--purple-700);
   }
   
   .model-option.selected {
-    background-color: #f0f0f0;
-    color: #844af7;
+    background-color: var(--jp-layout-color2);
+    color: var(--purple-700);
     font-weight: 500;
   }
   
@@ -148,36 +150,11 @@
     position: relative;
   }
   
-  /* Add style for active item in dropdown */
-  .model-option.selected {
-    background-color: #f0f0f0;
-    color: #844af7;
-    font-weight: 500;
-  }
-  
-  /* Media query for small screens */
-  @media (max-width: 768px) {
-    .model-selector-dropdown {
-      min-width: 28px;
-      width: 28px !important;
-      padding: 0;
-      justify-content: center;
-    }
-  
-    .selected-model {
-      justify-content: center;
-      padding: 0 4px;
-    }
-  
-    .model-selector-dropdown .dropdown-arrow {
-      margin-left: 0;
-    }
-  
-    .model-icon {
-      display: block;
-    }
-  
-    .selected-model span:not(.model-icon):not(.dropdown-arrow) {
-      display: none;
-    }
+  .model-name {
+    display: inline-block;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
   }

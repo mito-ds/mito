@@ -21,7 +21,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         metadata: AgentSmartDebugMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        model: str = None
+        model: str
     ) -> str:
         """Get a smart debug completion from the AI provider."""
 

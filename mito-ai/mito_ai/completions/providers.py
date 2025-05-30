@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from __future__ import annotations
-from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union, Type
+from typing import Any, Callable, Dict, List, Optional, Union, cast
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
@@ -33,10 +33,9 @@ from mito_ai.utils.telemetry_utils import (
     log,
     log_ai_completion_success,
 )
-from mito_ai.constants import get_model_type
+from mito_ai.constants import get_model_provider
 
 __all__ = ["OpenAIProvider"]
-
 
 class OpenAIProvider(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
@@ -56,7 +55,6 @@ This attribute is observed by the websocket provider to push the error to the cl
     )
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
-        # Create config for OpenAI client before parent initialization
         config = kwargs.get('config', {})
         if 'api_key' in kwargs:
             config['OpenAIClient'] = {'api_key': kwargs['api_key']}
@@ -65,8 +63,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._openai_client: Optional[OpenAIClient] = OpenAIClient(**config)
-        self._gemini_client: Optional[GeminiClient] = None
-        self._anthropic_client: Optional[AnthropicClient] = None
 
     @property
     def capabilities(self) -> AICapabilities:
@@ -108,18 +104,11 @@ This attribute is observed by the websocket provider to push the error to the cl
     ) -> str:
         """
         Request completions from the AI provider.
-
-        Args:
-            message_type: The type of message to request completions for.
-            messages: The messages to request completions for.
-            model: The model to request completions for.
-        Returns:
-            The completion from the AI provider.
         """
         self.last_error = None
         completion = None
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
-        model_type = get_model_type(model)
+        model_type = get_model_provider(model)
         try:
             if model_type == "claude":
                 api_key = constants.CLAUDE_API_KEY or ""
@@ -128,8 +117,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             elif model_type == "gemini":
                 api_key = constants.GEMINI_API_KEY or ""
                 gemini_client = GeminiClient(api_key=api_key, model=model)
-                from typing import cast, Dict, Any
-                completion = await gemini_client.request_completions(cast(List[Dict[str, Any]], messages), response_format_info)
+                completion = await gemini_client.request_completions(messages, response_format_info)
             elif model_type == "openai":
                 if not self._openai_client:
                     raise RuntimeError("OpenAI client is not initialized.")
@@ -175,7 +163,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         self.last_error = None
         accumulated_response = ""
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
-        model_type = get_model_type(model)
+        model_type = get_model_provider(model)
         reply_fn(CompletionReply(
             items=[
                 CompletionItem(content="", isIncomplete=True, token=message_id)
@@ -196,9 +184,8 @@ This attribute is observed by the websocket provider to push the error to the cl
             elif model_type == "gemini":
                 api_key = constants.GEMINI_API_KEY or ""
                 gemini_client = GeminiClient(api_key=api_key, model=model)
-                from typing import cast, Dict, Any
                 accumulated_response = await gemini_client.stream_completions(
-                    messages=cast(List[Dict[str, Any]], messages),
+                    messages=messages,
                     message_id=message_id,
                     reply_fn=reply_fn,
                 )
