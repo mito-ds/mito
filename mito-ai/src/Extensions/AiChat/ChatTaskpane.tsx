@@ -65,11 +65,13 @@ import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
+import ModelSelector from '../../components/ModelSelector';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
+const DEFAULT_MODEL = 'gpt-4.1'
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
@@ -140,6 +142,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
+
+    const updateModelOnBackend = async (model: string): Promise<void> => {
+        try {
+            await websocketClient.sendMessage({
+              type: "update_model_config",
+              message_id: UUID.uuid4(),
+              metadata: {
+                promptType: "update_model_config",
+                model: model
+              },
+              stream: false
+            });
+    
+            console.log('Model configuration updated on backend:', model);
+          } catch (error) {
+            console.error('Failed to update model configuration on backend:', error);
+          }
+    };
 
     const fetchChatThreads = async (): Promise<void> => {
         const metadata: IGetThreadsMetadata = {
@@ -277,6 +297,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 );
             }
         };
+
+        // Set the model on backend when the taskpane is opened
+        updateModelOnBackend(DEFAULT_MODEL); // Placeholder/default model
 
         void initializeChatHistory();
     }, [websocketClient]);
@@ -1269,21 +1292,27 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             />
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
                 <div className="chat-controls">
-                    <ToggleButton
-                        leftText="Chat"
-                        rightText="Agent"
-                        isLeftSelected={!agentModeEnabled}
-                        onChange={async (isLeftSelected) => {
-                            await startNewChat(); // TODO: delete thread instead of starting new chat
-                            setAgentModeEnabled(!isLeftSelected);
-                            // Focus the chat input directly
-                            const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
-                            if (chatInput) {
-                                chatInput.focus();
-                            }
-                        }}
-                        title="Agent can create plans and run code."
-                    />
+                    <div className="chat-controls-left">
+                        <ToggleButton
+                            leftText="Chat"
+                            rightText="Agent"
+                            isLeftSelected={!agentModeEnabled}
+                            onChange={async (isLeftSelected) => {
+                                await startNewChat(); // TODO: delete thread instead of starting new chat
+                                setAgentModeEnabled(!isLeftSelected);
+                                // Focus the chat input directly
+                                const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
+                                if (chatInput) {
+                                    chatInput.focus();
+                                }
+                            }}
+                            title="Agent can create plans and run code."
+                        />
+                        <ModelSelector onConfigChange={(config) => {
+                        // Just update the backend
+                        updateModelOnBackend(config.model);
+                        }}/>
+                    </div>
                     <button
                         className="button-base submit-button"
                         onClick={() => {

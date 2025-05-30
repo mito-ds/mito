@@ -4,6 +4,7 @@
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 from google import genai
 from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, ResponseFormatInfo
+from openai.types.chat import ChatCompletionMessageParam
 
 
 class GeminiClient:
@@ -13,7 +14,7 @@ class GeminiClient:
 
     async def request_completions(
         self, 
-        messages: List[Dict[str, Any]], 
+        messages: List[ChatCompletionMessageParam], 
         response_format_info: Optional[ResponseFormatInfo] = None
     ) -> str:
         try:
@@ -73,7 +74,7 @@ class GeminiClient:
 
     async def stream_completions(
         self, 
-        messages: List[Dict[str, Any]],
+        messages: List[ChatCompletionMessageParam],
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
     ) -> str:
@@ -120,12 +121,12 @@ class GeminiClient:
             return f"Error streaming content: {str(e)}"
             
             
-    def convert_messages_for_gemini(self, messages: List[Dict[str, Any]]) -> str:
+    def convert_messages_for_gemini(self, messages: List[ChatCompletionMessageParam]) -> str:
         """
-        Convert a list of messages to a single string for Gemini.
+        Convert a list of OpenAI ChatCompletionMessageParam messages to a single string for Gemini.
         """
         prompt = "\n".join([
-            f"{m.get('role', 'user')}: {m.get('content', '')}" 
+            f"{m.get('role', 'user')}: {m.get('content', '')}"
             for m in messages if isinstance(m, dict) and 'content' in m
         ])
         return prompt
