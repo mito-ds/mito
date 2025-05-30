@@ -7,7 +7,91 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 12px;
+}
+
+/* Input container */
+.input-container {
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Input wrapper */
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: var(--jp-layout-color2);
+    border: 2px solid var(--jp-brand-color1);
+    border-radius: 24px;
+    padding: 8px 16px;
     gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.input-wrapper:focus-within {
+    border-color: var(--jp-brand-color0);
+    box-shadow: 0 0 0 2px rgba(54, 124, 255, 0.2);
+}
+
+/* Left icon */
+.input-icon-left {
+    font-size: 16px;
+    color: var(--jp-ui-font-color2);
+    display: flex;
+    align-items: center;
+}
+
+/* Input field */
+.prompt-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    font-family: var(--jp-ui-font-family);
+    color: var(--jp-ui-font-color1);
+    padding: 4px 0;
+}
+
+.prompt-input::placeholder {
+    color: var(--jp-ui-font-color2);
+}
+
+/* Right icons container */
+.input-icons-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Input action buttons */
+.input-action-button {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background-color: transparent;
+    color: var(--jp-ui-font-color2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.input-action-button:hover {
+    background-color: var(--jp-layout-color3);
+    color: var(--jp-ui-font-color1);
+}
+
+.submit-button {
+    color: var(--jp-brand-color1);
+}
+
+.submit-button:hover {
+    background-color: var(--jp-brand-color1);
+    color: white;
 }
 
 /* Button row */

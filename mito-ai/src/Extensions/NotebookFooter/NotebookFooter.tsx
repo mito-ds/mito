@@ -10,6 +10,7 @@ interface NotebookFooterProps {
 export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook}) => {
     const [cellCount, setCellCount] = useState(notebook.widgets.length);
     const [lastAction, setLastAction] = useState<string>('');
+    const [inputValue, setInputValue] = useState('');
 
     const updateCellCount = useCallback(() => {
         setCellCount(notebook.widgets.length);
@@ -46,13 +47,95 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook}) => {
         void NotebookActions.focusActiveCell(notebook);
     };
 
+    const handleInputSubmit = () => {
+        if (inputValue.trim()) {
+            // For now, just add a code cell with the input as a comment
+            addCell('code');
+            // TODO: Implement AI functionality to process the input
+            console.log('User input:', inputValue);
+            setInputValue('');
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        // Prevent JupyterLab from intercepting keyboard events
+        e.stopPropagation();
+        
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleInputSubmit();
+        }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        // Prevent JupyterLab from intercepting keyboard events
+        e.stopPropagation();
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.stopPropagation();
+        setInputValue(e.target.value);
+    };
+
+    const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+        // Ensure the input stays focused
+        e.stopPropagation();
+    };
+
+    const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        e.stopPropagation();
+    };
+
     return (
         <div className="notebook-footer-container">
+            {/* Input field */}
+            <div className="input-container">
+                <div className="input-wrapper">
+                    <div className="input-icon-left">
+                        ✦
+                    </div>
+                    <input
+                        type="text"
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                        onKeyPress={handleKeyPress}
+                        onFocus={handleInputFocus}
+                        onBlur={handleInputBlur}
+                        placeholder="What can I help you build?"
+                        className="prompt-input"
+                        autoComplete="off"
+                        spellCheck={false}
+                    />
+                    <div className="input-icons-right">
+                        <button 
+                            className="input-action-button"
+                            onClick={() => {
+                                // TODO: Implement add functionality
+                                console.log('Add clicked');
+                            }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                        >
+                            ⊕
+                        </button>
+                        <button 
+                            className="input-action-button submit-button"
+                            onClick={handleInputSubmit}
+                            onMouseDown={(e) => e.stopPropagation()}
+                        >
+                            ▷
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Button row */}
             <div className="button-row">
                 {/* Python button */}
                 <button
                     onClick={() => addCell('code')}
                     className="footer-button python-button"
+                    onMouseDown={(e) => e.stopPropagation()}
                 >
                     <div className="button-content">
                         <div className="button-icon">
@@ -67,6 +150,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook}) => {
                 <button
                     onClick={() => addCell('markdown')}
                     className="footer-button text-button"
+                    onMouseDown={(e) => e.stopPropagation()}
                 >
                     <div className="button-content">
                         <div className="button-icon">
