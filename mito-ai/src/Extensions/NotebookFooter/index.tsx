@@ -1,7 +1,7 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { ReactWidget } from '@jupyterlab/ui-components';
-import { NotebookFooterComponent } from './NotebookFooterComponent';
+import { NotebookFooter } from './NotebookFooter';
 import React from 'react';
 
 class AdvancedNotebookFooter extends ReactWidget {
@@ -12,7 +12,7 @@ class AdvancedNotebookFooter extends ReactWidget {
 
   render(): JSX.Element {
     return (
-      <NotebookFooterComponent notebook={this.notebook} />
+      <NotebookFooter notebook={this.notebook} />
     );
   }
 }
@@ -25,6 +25,8 @@ const extension: JupyterFrontEndPlugin<void> = {
     
     const replaceFooter = (notebook: any) => {
       const layout = notebook.layout;
+
+      console.log('layout', layout);
       
       if (layout.footer) {
         layout.footer.dispose();
