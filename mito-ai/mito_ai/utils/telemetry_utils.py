@@ -262,6 +262,10 @@ def log_ai_completion_success(
         
         for chunk_key, chunk_value in user_input_chunks.items():
             final_params[chunk_key] = chunk_value
+            
+        # If the user input is not empty, then this is the user giving the agent a new task
+        new_user_input = 'True' if len(user_input_chunks) > 0 else 'False'
+        final_params["new_user_input"] = new_user_input
 
         log("mito_ai_agent_execution_success", params=final_params, key_type=key_type, thread_id=thread_id)
     elif message_type == MessageType.INLINE_COMPLETION:
