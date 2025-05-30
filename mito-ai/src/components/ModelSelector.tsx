@@ -5,8 +5,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import '../../style/ModelSelector.css';
-// Import the AI icon image
-// Note: You'll need to adjust this import path to match your project structure
 import AIIcon from "../icons/AiIcon";
 
 interface ModelConfig {
@@ -15,23 +13,13 @@ interface ModelConfig {
 
 const ALL_MODELS = [
   'gpt-4.1',
-  'o3-mini',
   'claude-opus-4-20250514',
-  'claude-sonnet-4-20250514	',
-  'claude-3-7-sonnet-latest',
-  'claude-3-5-haiku-latest',
-  'claude-3-5-sonnet-latest',
-  'claude-3-opus-latest',
-  'gemini-2.5-flash-preview-05-20',
-  'gemini-2.0-flash',
-  'gemini-1.5-pro',
-  'gemini-2.0-flash-lite',
-  'gemini-2.5-pro-preview-03-25',
-  'gemini-1.5-flash'
+  'claude-sonnet-4-20250514',
+  'gemini-2.5-pro-preview-03-25'
 ];
 
 // Maximum length for displayed model name before truncating
-const MAX_MODEL_NAME_LENGTH = 18;
+const DEFAULT_MODEL = 'gpt-4.1';
 
 interface ModelSelectorProps {
   onConfigChange: (config: ModelConfig) => void;
@@ -40,7 +28,6 @@ interface ModelSelectorProps {
 const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   const [selectedModel, setSelectedModel] = useState<string>('gpt-4o-mini');
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [dropdownWidth, setDropdownWidth] = useState<number>(0);
   const [isCompact, setIsCompact] = useState<boolean>(false);
   const selectedModelRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -51,7 +38,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     if (storedConfig) {
       try {
         const parsedConfig = JSON.parse(storedConfig);
-        const model = parsedConfig.model || 'gpt-4o-mini';
+        const model = parsedConfig.model || DEFAULT_MODEL;
         setSelectedModel(model);
 
         onConfigChange({ model });
@@ -81,19 +68,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
 
   useEffect(() => {
     if (selectedModelRef.current && !isCompact) {
-      const textWidth = selectedModelRef.current.scrollWidth;
-      setDropdownWidth(Math.min(textWidth + 30, 150)); // Set a maximum width of 150px
-    } else if (isCompact) {setDropdownWidth(28);
+      // Removed dropdownWidth logic
+    } else if (isCompact) {
+      // Removed dropdownWidth logic
     }
   }, [selectedModel, isCompact]);
-
-  // Shorten model name if it's too long
-  const truncateModelName = (name: string): string => {
-    if (name.length > MAX_MODEL_NAME_LENGTH) {
-      return `${name.substring(0, MAX_MODEL_NAME_LENGTH - 3)}...`;
-    }
-    return name;
-  };
 
   const handleModelChange = (model: string) => {
     setSelectedModel(model);
@@ -125,56 +104,55 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isOpen && dropdownRef.current && containerRef.current) {
-      const dropdown = dropdownRef.current;
-      const container = containerRef.current;
-      const rect = container.getBoundingClientRect();
+  // useEffect(() => {
+  //   if (isOpen && dropdownRef.current && containerRef.current) {
+  //     const dropdown = dropdownRef.current;
+  //     const container = containerRef.current;
+  //     const rect = container.getBoundingClientRect();
 
-      if (rect.top < dropdown.offsetHeight) {
-        dropdown.style.bottom = 'auto';
-        dropdown.style.top = '100%';
-        dropdown.style.marginTop = '4px';
-        dropdown.style.marginBottom = '0';
-      } else {
-        // Default: position above
-        dropdown.style.top = 'auto';
-        dropdown.style.bottom = '100%';
-        dropdown.style.marginBottom = '4px';
-        dropdown.style.marginTop = '0';
-      }
+  //     if (rect.top < dropdown.offsetHeight) {
+  //       dropdown.style.bottom = 'auto';
+  //       dropdown.style.top = '100%';
+  //       dropdown.style.marginTop = '4px';
+  //       dropdown.style.marginBottom = '0';
+  //     } else {
+  //       // Default: position above
+  //       dropdown.style.top = 'auto';
+  //       dropdown.style.bottom = '100%';
+  //       dropdown.style.marginBottom = '4px';
+  //       dropdown.style.marginTop = '0';
+  //     }
 
-      // Ensure it doesn't overflow horizontally
-      if (isCompact) {
-        const leftSpace = rect.left;
-        const rightSpace = window.innerWidth - rect.right;
+  //     // Ensure it doesn't overflow horizontally
+  //     if (isCompact) {
+  //       const leftSpace = rect.left;
+  //       const rightSpace = window.innerWidth - rect.right;
 
-        if (leftSpace < (dropdown.offsetWidth / 2) || rightSpace < (dropdown.offsetWidth / 2)) {
-          // Not enough space to center, align to the side with more space
-          if (leftSpace < rightSpace) {
-            dropdown.style.left = '0';
-            dropdown.style.right = 'auto';
-            dropdown.style.transform = 'none';
-          } else {
-            dropdown.style.left = 'auto';
-            dropdown.style.right = '0';
-            dropdown.style.transform = 'none';
-          }
-        } else {
-          dropdown.style.left = '50%';
-          dropdown.style.right = 'auto';
-          dropdown.style.transform = 'translateX(-50%)';
-        }
-      }
-    }
-  }, [isOpen, isCompact]);
+  //       if (leftSpace < (dropdown.offsetWidth / 2) || rightSpace < (dropdown.offsetWidth / 2)) {
+  //         // Not enough space to center, align to the side with more space
+  //         if (leftSpace < rightSpace) {
+  //           dropdown.style.left = '0';
+  //           dropdown.style.right = 'auto';
+  //           dropdown.style.transform = 'none';
+  //         } else {
+  //           dropdown.style.left = 'auto';
+  //           dropdown.style.right = '0';
+  //           dropdown.style.transform = 'none';
+  //         }
+  //       } else {
+  //         dropdown.style.left = '50%';
+  //         dropdown.style.right = 'auto';
+  //         dropdown.style.transform = 'translateX(-50%)';
+  //       }
+  //     }
+  //   }
+  // }, [isOpen, isCompact]);
 
   return (
     <div className="model-selector" ref={containerRef}>
       <div
         className={`model-selector-dropdown ${isCompact ? 'compact-mode' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
-        style={{ width: `${dropdownWidth}px` }}
         title={isCompact ? selectedModel : undefined}
       >
         <div className="selected-model">
@@ -185,9 +163,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
           ) : (
             <span
               ref={selectedModelRef}
+              className="model-name"
               title={selectedModel} // Show full name on hover
             >
-              {truncateModelName(selectedModel)}
+              {selectedModel}
             </span>
           )}
           <span className={`dropdown-arrow ${isCompact ? 'compact' : ''}`}>▼</span>
@@ -196,7 +175,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
           <div
             ref={dropdownRef}
             className={`model-options dropup ${isCompact ? 'from-icon' : ''}`}
-            style={{ minWidth: isCompact ? '120px' : `${dropdownWidth}px` }}
+            style={{ minWidth: isCompact ? '120px' : '150px' }}
           >
             {ALL_MODELS.map(model => (
               <div
