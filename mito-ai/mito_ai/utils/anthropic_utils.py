@@ -46,12 +46,15 @@ def _prepare_anthropic_request_data_and_headers(
         "email": __user_email,
         "user_id": __user_id,
         "temperature": temperature,
-        "system": system,
         "messages": messages
     }
 
+    # Add system to data only if it is not anthropic.NotGiven
+    if system and system[0] is not anthropic.NotGiven:
+        data["system"] = system[0]
+
     if tools:
-        data["tools"] = tools,
+        data["tools"] = tools[0],
         data["tool_choice"] = tool_choice
 
     if stream:
@@ -68,28 +71,6 @@ def _create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient
         http_client_timeout = timeout * 1000 * max_retries + 10000
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
     return http_client, http_client_timeout
-
-def convert_string_to_anthropic_message(text_response: str) -> Message:
-    """
-    Converts a string response to an anthropic.types.Message object.
-    """
-    # Create a content block for the text
-    text_block = TextBlock(
-        type="text",
-        text=text_response
-    )
-
-    # Return a Message object with the content block
-    return Message(
-        id="msg_converted",  # You can use any ID or generate one
-        type="message",
-        role="assistant",
-        content=[text_block],
-        model=None,  # Optional fields can be None
-        stop_reason=None,
-        stop_sequence=None,
-        usage=None
-    )
 
 async def get_anthropic_completion_from_mito_server(
     model: Union[str, None],
@@ -121,7 +102,7 @@ async def get_anthropic_completion_from_mito_server(
     finally:
         http_client.close()
     content = json.loads(res.body)
-    return convert_string_to_anthropic_message(content)
+    return content
 
 async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],

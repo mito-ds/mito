@@ -95,7 +95,6 @@ class AnthropicClient:
         """
         try:
             anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
-            
             response: Message
 
             if response_format_info and response_format_info.name == "agent_response":
@@ -117,6 +116,8 @@ class AnthropicClient:
                         tools=tools,
                         tool_choice={"type": "tool", "name": "agent_response"}
                     )
+                    result = _extract_and_parse_json_response(response)
+                    return json.dumps(result) if not isinstance(result, str) else result
                 else:
                     response = await get_anthropic_completion_from_mito_server(
                         model=self.model,
@@ -128,9 +129,7 @@ class AnthropicClient:
                         tool_choice={"type": "tool", "name": "agent_response"},
                         message_type=message_type
                     )
-
-                result = _extract_and_parse_json_response(response)
-                return json.dumps(result) if not isinstance(result, str) else result
+                    return response
 
             else:
                 if self.api_key:
@@ -148,8 +147,11 @@ class AnthropicClient:
                         temperature=0,
                         system=anthropic_system_prompt,
                         messages=anthropic_messages,
+                        tools=None,
+                        tool_choice=None,
                         message_type=message_type
                     )
+                    return response
                 
                 content = response.content
                 if content[0].type == "text":
@@ -207,7 +209,16 @@ class AnthropicClient:
                     stream=True,
                     message_type=message_type
                 ):
-                       accumulated_response += stram_chunk
+                    accumulated_response += stram_chunk
+                    reply_fn(CompletionStreamChunk(
+                        parent_id=message_id,
+                        chunk=CompletionItem(
+                            content=stram_chunk,
+                            isIncomplete=True,
+                            token=message_id,
+                        ),
+                        done=False,
+                    ))
 
             return accumulated_response
 
