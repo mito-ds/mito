@@ -3,36 +3,62 @@
 
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 from google import genai
-from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, ResponseFormatInfo
+from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, \
+    ResponseFormatInfo, MessageType
+from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server
 
 
 class GeminiClient:
-    def __init__(self, api_key: str, model: str):
-        self.client = genai.Client(api_key=api_key)
+    def __init__(self, api_key: Optional[str], model: str):
+        self.api_key = api_key
         self.model = model
+        if api_key:
+            self.client = genai.Client(api_key=api_key)
 
     async def request_completions(
         self, 
         messages: List[Dict[str, Any]], 
-        response_format_info: Optional[ResponseFormatInfo] = None
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        message_type: MessageType = MessageType.CHAT
     ) -> str:
         try:
             contents = self.convert_messages_for_gemini(messages)
             if response_format_info:
-                response = self.client.models.generate_content(
-                    model=self.model,
-                    contents=contents,
-                    config={
-                        "response_mime_type": "application/json",
-                        "response_schema": AgentResponse
-                    }
-                )
+                if self.api_key:
+                    response = self.client.models.generate_content(
+                        model=self.model,
+                        contents=contents,
+                        config={
+                            "response_mime_type": "application/json",
+                            "response_schema": AgentResponse.model_json_schema()
+                        }
+                    )
+                else:
+                    response = await get_gemini_completion_from_mito_server(
+                        model=self.model,
+                        contents=contents,
+                        config={
+                            "response_mime_type": "application/json",
+                            "response_schema": AgentResponse.model_json_schema()
+                        },
+                        response_format_info=response_format_info,
+                        message_type=message_type
+                    )
+                    return response
             else:
-                response = self.client.models.generate_content(
-                    model=self.model,
-                    contents=contents
-                )
-            
+                if self.api_key:
+                    response = self.client.models.generate_content(
+                        model=self.model,
+                        contents=contents
+                    )
+                else:
+                    response = await get_gemini_completion_from_mito_server(
+                        model=self.model,
+                        contents=contents,
+                        message_type=message_type
+                    )
+                    return response
+
             if not response:
                 return "No response received from Gemini API"
                 
@@ -76,44 +102,57 @@ class GeminiClient:
         messages: List[Dict[str, Any]],
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+        message_type: MessageType = MessageType.CHAT
     ) -> str:
         accumulated_response = ""
         try:
             contents = self.convert_messages_for_gemini(messages)
-            for chunk in self.client.models.generate_content_stream(
-                model=self.model,
-                contents=contents,
-            ):
-                
-                if hasattr(chunk, 'text'):
-                    next_chunk = chunk.text
-                else:
-                    next_chunk = str(chunk)
+            if self.api_key:
+                for chunk in self.client.models.generate_content_stream(
+                    model=self.model,
+                    contents=contents,
+                ):
+
                     
-                accumulated_response += next_chunk
+                    if hasattr(chunk, 'text'):
+                        next_chunk = chunk.text
+                    else:
+                        next_chunk = str(chunk)
+
+                    accumulated_response += next_chunk
+                    print(next_chunk)
+                    
+                    # Return the chunk to the frontend
+                    reply_fn(CompletionStreamChunk(
+                        parent_id=message_id,
+                        chunk=CompletionItem(
+                            content=next_chunk,
+                            isIncomplete=True,
+                            token=message_id,
+                        ),
+                        done=False,
+                    ))
                 
-                # Return the chunk to the frontend
+                # Send final chunk
                 reply_fn(CompletionStreamChunk(
                     parent_id=message_id,
                     chunk=CompletionItem(
-                        content=next_chunk,
-                        isIncomplete=True,
+                        content="",
+                        isIncomplete=False,
                         token=message_id,
                     ),
-                    done=False,
+                    done=True,
                 ))
-                
-            # Send final chunk
-            reply_fn(CompletionStreamChunk(
-                parent_id=message_id,
-                chunk=CompletionItem(
-                    content="",
-                    isIncomplete=False,
-                    token=message_id,
-                ),
-                done=True,
-            ))
-            
+            else:
+                async for chunk in stream_gemini_completion_from_mito_server(
+                    model=self.model,
+                    contents=contents,
+                    message_type=message_type,
+                    message_id=message_id,
+                    reply_fn=reply_fn
+                ):
+                    accumulated_response += chunk
+
             return accumulated_response
 
         except Exception as e:
