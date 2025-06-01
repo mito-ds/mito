@@ -4,6 +4,7 @@ import { NotebookActions } from "@jupyterlab/notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { COMMAND_MITO_AI_SEND_AGENT_MESSAGE, COMMAND_MITO_AI_OPEN_CHAT } from "../../commands";
 import '../../../style/NotebookFooter.css';
+import LoadingCircle from "../../components/LoadingCircle";
 
 interface NotebookFooterProps {
     notebook: any;
@@ -14,6 +15,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
     const [cellCount, setCellCount] = useState(notebook.widgets.length);
     const [lastAction, setLastAction] = useState<string>('');
     const [inputValue, setInputValue] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const updateCellCount = useCallback(() => {
         setCellCount(notebook.widgets.length);
@@ -55,9 +57,11 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
         const _handleInputSubmitAsync = async () => {
             const submittedInput = inputValue.trim();
             if (submittedInput !== '') {
+                setIsGenerating(true);
                 setInputValue('');
                 await app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
                 await app.commands.execute(COMMAND_MITO_AI_SEND_AGENT_MESSAGE, { input: submittedInput });
+                setIsGenerating(false);
             }
         }
 
@@ -99,7 +103,11 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
             <div className="input-container">
                 <div className="input-wrapper">
                     <div className="input-icon-left">
-                        ✦
+                        {isGenerating ? (
+                            <LoadingCircle />
+                        ) : (
+                            <>✦</>
+                        )}
                     </div>
                     <input
                         type="text"
@@ -109,7 +117,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
                         onKeyPress={handleKeyPress}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
-                        placeholder="What can I help you build?"
+                        placeholder={isGenerating ? 'Generating notebook...' : 'What can I help you build?'}
                         className="prompt-input"
                         autoComplete="off"
                         spellCheck={false}
