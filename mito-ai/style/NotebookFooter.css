@@ -94,6 +94,7 @@
     background-color: var(--jp-layout-color0);
     border: 1px solid var(--jp-border-color2);
     border-radius: 3px;
+    overflow: hidden;
 }
 
 /* Footer buttons */
@@ -108,6 +109,7 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    box-sizing: border-box;
 }
 
 .jp-ThemedContainer .button-row button {
@@ -130,15 +132,21 @@
 
 /* Button icon */
 .button-icon {
-    font-size: 16px;
+    height: 16px;
+    width: 16px;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--jp-ui-font-color2);
 }
 
 /* Button label */
 .button-label {
-    font-size: 11px;
-    font-weight: 500;
+    margin-top: 4px;
+    font-size: 10px;
     line-height: 1;
+    color: var(--jp-ui-font-color2);
 }
 
 /* Cell info */

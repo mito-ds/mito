@@ -5,6 +5,8 @@ import { JupyterFrontEnd } from "@jupyterlab/application";
 import { COMMAND_MITO_AI_SEND_AGENT_MESSAGE, COMMAND_MITO_AI_OPEN_CHAT } from "../../commands";
 import '../../../style/NotebookFooter.css';
 import LoadingCircle from "../../components/LoadingCircle";
+import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
+import TextIcon from "../../icons/NotebookFooter/TextIcon";
 
 interface NotebookFooterProps {
     notebook: any;
@@ -117,7 +119,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
                         onKeyPress={handleKeyPress}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
-                        placeholder={isGenerating ? 'Generating notebook...' : 'What can I help you build?'}
+                        placeholder={isGenerating ? 'Generating notebook...' : 'What analysis can I help you with?'}
                         className="prompt-input"
                         autoComplete="off"
                         spellCheck={false}
@@ -144,8 +146,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
                 >
                     <div className="button-content">
                         <div className="button-icon">
-                            {/* Icon placeholder - will be replaced with logo later */}
-                            🐍
+                            <CodeIcon />
                         </div>
                         <span className="button-label">Python</span>
                     </div>
@@ -159,8 +160,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
                 >
                     <div className="button-content">
                         <div className="button-icon">
-                            {/* Icon placeholder - will be replaced with logo later */}
-                            📝
+                            <TextIcon />
                         </div>
                         <span className="button-label">Text</span>
                     </div>
