@@ -5,14 +5,14 @@ import { NotebookFooter } from './NotebookFooter';
 import React from 'react';
 
 class AdvancedNotebookFooter extends ReactWidget {
-  constructor(protected notebook: any) {
+  constructor(protected notebook: INotebookTracker, protected app: JupyterFrontEnd) {
     super();
     this.addClass('jp-Notebook-footer-wrapper');
   }
 
   render(): JSX.Element {
     return (
-      <NotebookFooter notebook={this.notebook} />
+      <NotebookFooter notebook={this.notebook} app={this.app} />
     );
   }
 }
@@ -25,14 +25,12 @@ const extension: JupyterFrontEndPlugin<void> = {
     
     const replaceFooter = (notebook: any) => {
       const layout = notebook.layout;
-
-      console.log('layout', layout);
       
       if (layout.footer) {
         layout.footer.dispose();
       }
       
-      const customFooter = new AdvancedNotebookFooter(notebook);
+      const customFooter = new AdvancedNotebookFooter(notebook, app);
       layout.footer = customFooter;
     };
 

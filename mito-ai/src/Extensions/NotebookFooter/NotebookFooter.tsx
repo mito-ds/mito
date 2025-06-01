@@ -1,13 +1,16 @@
 import React from "react";
-import { NotebookActions } from "@jupyterlab/notebook";
 import { useCallback, useEffect, useState } from "react";
+import { NotebookActions } from "@jupyterlab/notebook";
+import { JupyterFrontEnd } from "@jupyterlab/application";
+import { COMMAND_MITO_AI_SEND_AGENT_MESSAGE, COMMAND_MITO_AI_OPEN_CHAT } from "../../commands";
 import '../../../style/NotebookFooter.css';
 
 interface NotebookFooterProps {
     notebook: any;
+    app: JupyterFrontEnd;
 }
 
-export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook}) => {
+export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) => {
     const [cellCount, setCellCount] = useState(notebook.widgets.length);
     const [lastAction, setLastAction] = useState<string>('');
     const [inputValue, setInputValue] = useState('');
@@ -48,13 +51,17 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook}) => {
     };
 
     const handleInputSubmit = () => {
-        if (inputValue.trim()) {
-            // For now, just add a code cell with the input as a comment
-            addCell('code');
-            // TODO: Implement AI functionality to process the input
-            console.log('User input:', inputValue);
-            setInputValue('');
+
+        const _handleInputSubmitAsync = async () => {
+            const submittedInput = inputValue.trim();
+            if (submittedInput !== '') {
+                setInputValue('');
+                await app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, { focusChatInput: false });
+                await app.commands.execute(COMMAND_MITO_AI_SEND_AGENT_MESSAGE, { input: submittedInput });
+            }
         }
+
+        void _handleInputSubmitAsync();
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {

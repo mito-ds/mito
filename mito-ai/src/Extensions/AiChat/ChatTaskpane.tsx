@@ -32,6 +32,7 @@ import {
     COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE,
     COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_REJECT_LATEST_CODE,
+    COMMAND_MITO_AI_SEND_AGENT_MESSAGE,
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
@@ -1013,6 +1014,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.addCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, {
             execute: async () => {
                 await sendExplainCodeMessage()
+            }
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_SEND_AGENT_MESSAGE, {
+            execute: async (args?: ReadonlyPartialJSONObject) => {
+                if (args?.input) {
+                    // Make sure we're in agent mode 
+                    console.log('Setting agent mode to true')
+                    setAgentModeEnabled(true)
+
+                    // Wait for the next tick to ensure state update is processed
+                    await new Promise(resolve => setTimeout(resolve, 0));
+
+                    await startAgentExecution(args.input.toString())
+                }
             }
         });
 
