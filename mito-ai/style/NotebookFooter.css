@@ -12,7 +12,7 @@
 
 /* Input container */
 .input-container {
-    width: 100%;
+    width: 80%;
     max-width: 600px;
 }
 
@@ -21,8 +21,8 @@
     display: flex;
     align-items: center;
     background-color: var(--jp-layout-color2);
-    border: 2px solid var(--jp-brand-color1);
-    border-radius: 24px;
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 10px;
     padding: 8px 16px;
     gap: 8px;
     transition: all 0.2s ease;
@@ -30,7 +30,7 @@
 
 .input-wrapper:focus-within {
     border-color: var(--jp-brand-color0);
-    box-shadow: 0 0 0 2px rgba(54, 124, 255, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Left icon */
@@ -47,7 +47,7 @@
     border: none;
     outline: none;
     background: transparent;
-    font-size: 14px;
+    font-size: 12px;
     font-family: var(--jp-ui-font-family);
     color: var(--jp-ui-font-color1);
     padding: 4px 0;
@@ -85,31 +85,21 @@
     color: var(--jp-ui-font-color1);
 }
 
-.submit-button {
-    color: var(--jp-brand-color1);
-}
-
-.submit-button:hover {
-    background-color: var(--jp-brand-color1);
-    color: white;
-}
-
 /* Button row */
 .button-row {
     display: flex;
-    gap: 12px;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
+    background-color: var(--jp-layout-color0);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 3px;
 }
 
 /* Footer buttons */
 .footer-button {
     min-width: 80px;
     padding: 8px 12px;
-    border: 1px solid var(--jp-border-color2);
-    border-radius: 4px;
-    background-color: var(--jp-layout-color2);
-    color: var(--jp-ui-font-color1);
     font-size: 12px;
     font-family: var(--jp-ui-font-family);
     cursor: pointer;
@@ -120,14 +110,14 @@
     gap: 4px;
 }
 
-.footer-button:hover {
-    background-color: var(--jp-layout-color3);
-    border-color: var(--jp-brand-color1);
+.jp-ThemedContainer .button-row button {
+    border: none;
+    background-color: inherit;
+    border-radius: 0;
 }
 
-.footer-button:active {
-    background-color: var(--jp-brand-color1);
-    color: white;
+.jp-ThemedContainer .button-row button:hover {
+    background-color: var(--jp-layout-color3);
 }
 
 /* Button content */
@@ -151,77 +141,10 @@
     line-height: 1;
 }
 
-/* Python button specific styling */
-.python-button .button-icon {
-    color: #3776ab;
-}
-
-/* Text button specific styling */
-.text-button .button-icon {
-    color: var(--jp-ui-font-color2);
-}
-
 /* Cell info */
 .cell-info {
     font-size: 11px;
     color: var(--jp-ui-font-color2);
     font-family: var(--jp-ui-font-family);
     text-align: center;
-}
-
-/* Legacy styles for backward compatibility */
-.add-button {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    background-color: #4CAF50;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.add-button:hover {
-    background-color: #45a049;
-}
-
-.dropdown-toggle {
-    padding: 12px 8px;
-    border: none;
-    border-radius: 8px;
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.dropdown-menu {
-    position: absolute;
-    bottom: 100%;
-    right: 0;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    z-index: 1000;
-    min-width: 150px;
-}
-
-.dropdown-item {
-    width: 100%;
-    padding: 8px 12px;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-}
-
-.dropdown-item:hover {
-    background-color: #f5f5f5;
 }

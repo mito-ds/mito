@@ -124,21 +124,11 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
                     />
                     <div className="input-icons-right">
                         <button 
-                            className="input-action-button"
-                            onClick={() => {
-                                // TODO: Implement add functionality
-                                console.log('Add clicked');
-                            }}
-                            onMouseDown={(e) => e.stopPropagation()}
-                        >
-                            ⊕
-                        </button>
-                        <button 
                             className="input-action-button submit-button"
                             onClick={handleInputSubmit}
                             onMouseDown={(e) => e.stopPropagation()}
                         >
-                            ▷
+                            ▶
                         </button>
                     </div>
                 </div>
