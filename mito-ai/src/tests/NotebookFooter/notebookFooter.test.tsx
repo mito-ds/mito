@@ -318,6 +318,49 @@ describe('NotebookFooter Component', () => {
             // Input should be cleared
             expect(input).toHaveValue('');
         });
+
+        it('disables input field during message submission', async () => {
+            // Mock app.commands.execute to return a promise that we can control
+            let resolvePromise: () => void;
+            const mockPromise = new Promise<void>((resolve) => {
+                resolvePromise = resolve;
+            });
+
+            const mockApp = {
+                commands: {
+                    execute: jest.fn().mockReturnValue(mockPromise)
+                }
+            } as unknown as JupyterFrontEnd;
+
+            renderNotebookFooter({ app: mockApp });
+
+            const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
+            
+            // Initially, input should not be disabled
+            expect(input).not.toBeDisabled();
+            
+            fireEvent.change(input, { target: { value: 'Test message' } });
+            
+            // Submit the message
+            act(() => {
+                fireEvent.click(screen.getByText('▶'));
+            });
+
+            // Input should be disabled during loading
+            await waitFor(() => {
+                expect(input).toBeDisabled();
+            });
+
+            // Resolve the promise to end loading state
+            act(() => {
+                resolvePromise!();
+            });
+
+            // Input should be enabled again after loading completes
+            await waitFor(() => {
+                expect(input).not.toBeDisabled();
+            });
+        });
     });
 
     describe('Cell Creation', () => {

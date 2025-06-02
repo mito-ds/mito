@@ -123,6 +123,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
                         className="prompt-input"
                         autoComplete="off"
                         spellCheck={false}
+                        disabled={isGenerating}
                     />
                     <div className="input-icons-right">
                         <button 
