@@ -33,6 +33,7 @@ interface ChatInputProps {
 
 export interface ExpandedVariable extends Variable {
     parent_df?: string;
+    file_name?: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -178,10 +179,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         value: "replace_me",
                         parent_df: df.variable_name,
                     }))
-                ) || [])
+                ) || []),
+            // Add files
+            ...(contextManager?.files.map(file => ({
+                variable_name: file.file_name,
+                type: file.file_name.split('.').pop()?.toLowerCase() || '',
+                value: file.file_name,
+                file_name: file.file_name
+            })) || [])
         ];
         setExpandedVariables(expandedVariables);
-    }, [contextManager?.variables]);
+    }, [contextManager?.variables, contextManager?.files]);
 
     // If there are more than 8 lines, show the first 8 lines and add a "..."
     const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
