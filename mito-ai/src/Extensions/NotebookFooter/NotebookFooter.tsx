@@ -90,7 +90,6 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
     };
 
     const handleKeyDown = (e: React.KeyboardEvent): void => {
-        // Prevent JupyterLab from intercepting keyboard events
         e.stopPropagation();
         
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -142,7 +141,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
                 {/* Python button */}
                 <button
                     onClick={() => addCell('code')}
-                    className="footer-button python-button"
+                    className="footer-button"
                     onMouseDown={(e) => e.stopPropagation()}
                 >
                     <div className="button-content">
@@ -156,7 +155,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
                 {/* Text button */}
                 <button
                     onClick={() => addCell('markdown')}
-                    className="footer-button text-button"
+                    className="footer-button"
                     onMouseDown={(e) => e.stopPropagation()}
                 >
                     <div className="button-content">
