@@ -3,6 +3,7 @@
 
 import json
 import tornado
+import pkg_resources
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.settings.utils import (
     get_settings_field,
@@ -39,3 +40,16 @@ class SettingsHandler(APIHandler):
         self.finish(
             json.dumps({"status": "updated", "key": key, "value": data["value"]})
         )
+
+
+class PackageHandler(APIHandler):
+    """Handler for working with pip packages"""
+
+    @tornado.web.authenticated
+    def get(self):
+        """Get a list of all installed packages"""
+        packages = [
+            {"name": package.key, "version": package.version}
+            for package in sorted(pkg_resources.working_set, key=lambda x: x.key)
+        ]
+        self.finish(json.dumps({"packages": packages}))
