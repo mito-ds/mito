@@ -34,7 +34,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
         };
     }, [notebook, updateCellCount]);
 
-    const addCell = (cellType: 'code' | 'markdown' = 'code') => {
+    const addCell = (cellType: 'code' | 'markdown' = 'code'): void => {
         if (notebook.widgets.length > 0) {
             notebook.activeCellIndex = notebook.widgets.length - 1;
         }
@@ -54,9 +54,8 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
         void NotebookActions.focusActiveCell(notebook);
     };
 
-    const handleInputSubmit = () => {
-
-        const _handleInputSubmitAsync = async () => {
+    const handleInputSubmit = (): void => {
+        const _handleInputSubmitAsync = async (): Promise<void> => {
             const submittedInput = inputValue.trim();
             if (submittedInput !== '') {
                 setIsGenerating(true);
@@ -70,7 +69,27 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
         void _handleInputSubmitAsync();
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
+    /* 
+    We handle keypress events to prevent JupyterLab from intercepting keyboard events
+    and taking some other action while the user is typing in this input field. Jupyter 
+    might otherwise do things like: change cell type, move focus to a cell, etc. 
+    */
+    const handleKeyPress = (e: React.KeyboardEvent): void => {
+        e.stopPropagation();
+    };
+    const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>): void => {
+        e.stopPropagation();
+    };
+    const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>): void => {
+        e.stopPropagation();
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        e.stopPropagation();
+        setInputValue(e.target.value);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent): void => {
         // Prevent JupyterLab from intercepting keyboard events
         e.stopPropagation();
         
@@ -78,25 +97,6 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
             e.preventDefault();
             handleInputSubmit();
         }
-    };
-
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        // Prevent JupyterLab from intercepting keyboard events
-        e.stopPropagation();
-    };
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.stopPropagation();
-        setInputValue(e.target.value);
-    };
-
-    const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-        // Ensure the input stays focused
-        e.stopPropagation();
-    };
-
-    const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        e.stopPropagation();
     };
 
     return (

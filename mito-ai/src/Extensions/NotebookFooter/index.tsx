@@ -23,7 +23,7 @@ const extension: JupyterFrontEndPlugin<void> = {
   requires: [INotebookTracker],
   activate: (app: JupyterFrontEnd, tracker: INotebookTracker) => {
     
-    const replaceFooter = (notebook: any) => {
+    const replaceFooter = (notebook: any): void => {
       const layout = notebook.layout;
       
       if (layout.footer) {
