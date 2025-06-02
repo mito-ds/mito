@@ -6,8 +6,9 @@ from tornado.httpclient import AsyncHTTPClient
 from mito_ai.completions.models import CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 
 MITO_GEMINI_PROD_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/gemini/completions"
-MITO_GEMINI_DEV_URL = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/gemini/completions/"
-MITO_GEMINI_URL = MITO_GEMINI_PROD_URL
+MITO_GEMINI_DEV_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/gemini/completions/"
+
+MITO_GEMINI_URL = MITO_GEMINI_DEV_URL
 
 timeout = 30
 max_retries = 1

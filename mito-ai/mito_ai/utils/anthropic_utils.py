@@ -14,8 +14,8 @@ from mito_ai.utils.server_limits import check_mito_server_quota
 from tornado.httpclient import AsyncHTTPClient
 
 MITO_ANTHROPIC_PROD_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/anthropic/completions"
-MITO_ANTHROPIC_DEV_URL = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/anthropic-completions/"
-MITO_ANTHROPIC_URL = MITO_ANTHROPIC_PROD_URL
+MITO_ANTHROPIC_DEV_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/anthropic/completions/"
+MITO_ANTHROPIC_URL = MITO_ANTHROPIC_DEV_URL
 
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
