@@ -56,6 +56,13 @@ export class ContextManager implements IContextManager {
                 return;
             }
 
+            // Listen for kernel refresh events
+            notebookPanel.context.sessionContext.statusChanged.connect((sender, status) => {
+                if (status === 'restarting') {
+                    this.setVariables([]); // Clear variables on kernel refresh
+                }
+            });
+
             // As soon as the notebook is opened, fetch the files so we don't have to wait for the first message.
             await fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
 
