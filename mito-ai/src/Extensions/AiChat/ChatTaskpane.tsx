@@ -119,7 +119,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
+    /* 
+        Keep track of agent mode enabled state and use keep a ref in sync with it 
+        so that we can access the most up-to-date value during a function's execution.
+        Without it, we would always use the initial value of agentModeEnabled.
+    */ 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(true)
+    const agentModeEnabledRef = useRef<boolean>(agentModeEnabled);
+    useEffect(() => {
+        // Update the ref whenever agentModeEnabled state changes
+        agentModeEnabledRef.current = agentModeEnabled;
+    }, [agentModeEnabled]);
+
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
     // the last active thread or create a new thread if there are no previously existing threads. So that
@@ -1022,7 +1033,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 if (args?.input) {
                     // Make sure we're in agent mode 
                     console.log('Setting agent mode to true')
-                    setAgentModeEnabled(true)
+
+                    // If its not already in agent mode, start a new chat in agent mode
+                    if (!agentModeEnabledRef.current) {
+                        await startNewChat();
+                        setAgentModeEnabled(true);
+                    }
 
                     // Wait for the next tick to ensure state update is processed
                     await new Promise(resolve => setTimeout(resolve, 0));
