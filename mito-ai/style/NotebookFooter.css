@@ -3,7 +3,7 @@
     position: relative;
     width: 100%;
     padding: 12px 16px;
-    background-color: var(--jp-layout-color1);
+    background-color: var(--jp-layout-color0);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -29,7 +29,7 @@
 }
 
 .input-wrapper:focus-within {
-    border-color: var(--jp-brand-color0);
+    border-color: var(--purple-500);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
