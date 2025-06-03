@@ -7,6 +7,7 @@ from mito_ai.completions.models import AgentResponse, CompletionItem, Completion
     ResponseFormatInfo, MessageType
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server
 
+INLINE_COMPLETION_MODEL = "gemini-2.0-flash-lite"
 
 class GeminiClient:
     def __init__(self, api_key: Optional[str], model: str):
@@ -48,12 +49,12 @@ class GeminiClient:
             else:
                 if self.api_key:
                     response = self.client.models.generate_content(
-                        model=self.model,
+                        model=INLINE_COMPLETION_MODEL,
                         contents=contents
                     )
                 else:
                     response = await get_gemini_completion_from_mito_server(
-                        model=self.model,
+                        model=INLINE_COMPLETION_MODEL,
                         contents=contents,
                         message_type=message_type
                     )

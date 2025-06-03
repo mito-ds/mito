@@ -31,6 +31,8 @@ MITO_AI_URL: Final[str] = MITO_OPEN_AI_DEV_URL
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
 
+INLINE_COMPLETION_MODEL = "gpt-4.1-nano-2025-04-14"
+
 def _prepare_request_data_and_headers(
     last_message_content: Union[str, None],
     ai_completion_data: Dict[str, Any],
@@ -313,6 +315,8 @@ def get_open_ai_completion_function_params(
                 "strict": True
             }
         }
+    else:
+        completion_function_params["model"] = INLINE_COMPLETION_MODEL
     
     # o3-mini will error if we try setting the temperature
     if model == "gpt-4o-mini":
