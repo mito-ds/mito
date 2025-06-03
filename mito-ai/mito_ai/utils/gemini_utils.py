@@ -4,6 +4,7 @@ import time
 from typing import Any, Dict, List, Optional, Callable, Union, AsyncGenerator
 from tornado.httpclient import AsyncHTTPClient
 from mito_ai.completions.models import CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
+from .utils import _create_http_client
 
 MITO_GEMINI_PROD_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/gemini/completions"
 MITO_GEMINI_DEV_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/gemini/completions/"
@@ -37,11 +38,6 @@ def _prepare_gemini_request_data_and_headers(
         data["config"] = config
     headers = {"Content-Type": "application/json"}
     return data, headers
-
-def _create_http_client(timeout: int, max_retries: int) -> (AsyncHTTPClient, Optional[int]):
-    http_client_timeout = timeout * 1000 * max_retries + 10000
-    http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
-    return http_client, http_client_timeout
 
 async def get_gemini_completion_from_mito_server(
     model: str,

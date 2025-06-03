@@ -11,6 +11,7 @@ from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
 from mito_ai.utils.utils import is_running_test
 from mito_ai.utils.server_limits import check_mito_server_quota
+from .utils import _create_http_client
 from tornado.httpclient import AsyncHTTPClient
 
 MITO_ANTHROPIC_PROD_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/anthropic/completions"
@@ -62,15 +63,6 @@ def _prepare_anthropic_request_data_and_headers(
 
     headers = {"Content-Type": "application/json"}
     return data, headers
-
-def _create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient, Optional[int]]:
-    if is_running_test():
-        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
-        http_client_timeout = None
-    else:
-        http_client_timeout = timeout * 1000 * max_retries + 10000
-        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
-    return http_client, http_client_timeout
 
 async def get_anthropic_completion_from_mito_server(
     model: Union[str, None],
@@ -187,3 +179,35 @@ async def stream_anthropic_completion_from_mito_server(
         raise
     finally:
         http_client.close()
+
+def get_anthropic_completion_function_params(
+    model: str,
+    messages: List[MessageParam],
+    max_tokens: int,
+    temperature: float = 0.0,
+    system: Optional[Union[str, anthropic.NotGiven]] = None,
+    tools: Optional[List[ToolUnionParam]] = None,
+    tool_choice: Optional[dict] = None,
+    stream: Optional[bool] = None,
+    response_format_info: Optional[ResponseFormatInfo] = None,
+) -> Dict[str, Any]:
+    """
+    Build the provider_data dict for Anthropic completions, mirroring the OpenAI approach.
+    Only includes fields needed for the Anthropic API.
+    """
+    provider_data = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "messages": messages,
+    }
+    if system is not None and system is not anthropic.NotGiven:
+        provider_data["system"] = system
+    if tools:
+        provider_data["tools"] = tools
+    if tool_choice:
+        provider_data["tool_choice"] = tool_choice
+    if stream is not None:
+        provider_data["stream"] = stream
+    # Optionally handle response_format_info if Anthropic supports it in the future
+    return provider_data

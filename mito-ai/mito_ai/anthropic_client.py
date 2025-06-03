@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, Tuple, Union, Callable, List
 from anthropic.types import Message, MessageParam, ToolUnionParam
 from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, AgentResponse, MessageType
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server
+from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
 MAX_TOKENS = 2_000
 
@@ -95,73 +95,48 @@ class AnthropicClient:
         """
         try:
             anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
-            response: Message
-
+            # Build provider_data once
+            tools = None
+            tool_choice = None
             if response_format_info and response_format_info.name == "agent_response":
-                # Define the tool for structured output
-                tools: List[ToolUnionParam] = [{
+                tools = [{
                     "name": "agent_response",
                     "description": "Output a structured response following the AgentResponse format",
                     "input_schema": AgentResponse.model_json_schema()
                 }]
-
-                if self.api_key:
-                    # Make the API request with tool use
-                    response = self.client.messages.create(
-                        model=self.model,
-                        max_tokens=MAX_TOKENS,
-                        temperature=0,
-                        system=anthropic_system_prompt,
-                        messages=anthropic_messages,
-                        tools=tools,
-                        tool_choice={"type": "tool", "name": "agent_response"}
-                    )
+                tool_choice = {"type": "tool", "name": "agent_response"}
+            provider_data = get_anthropic_completion_function_params(
+                model=self.model,
+                messages=anthropic_messages,
+                max_tokens=MAX_TOKENS,
+                temperature=0,
+                system=anthropic_system_prompt,
+                tools=tools,
+                tool_choice=tool_choice,
+                stream=None,
+                response_format_info=response_format_info
+            )
+            if self.api_key:
+                # Unpack provider_data for direct API call
+                response = self.client.messages.create(**provider_data)
+                if tools:
                     result = _extract_and_parse_json_response(response)
                     return json.dumps(result) if not isinstance(result, str) else result
                 else:
-                    response = await get_anthropic_completion_from_mito_server(
-                        model=self.model,
-                        max_tokens=MAX_TOKENS,
-                        temperature=0,
-                        system=anthropic_system_prompt,
-                        messages=anthropic_messages,
-                        tools=tools,
-                        tool_choice={"type": "tool", "name": "agent_response"},
-                        message_type=message_type
-                    )
-                    return response
-
+                    content = response.content
+                    if content[0].type == "text":
+                        return content[0].text
+                    else:
+                        return ""
             else:
-                if self.api_key:
-                    response = self.client.messages.create(
-                        model=self.model,
-                        max_tokens=MAX_TOKENS,
-                        temperature=0,
-                        system=anthropic_system_prompt,
-                        messages=anthropic_messages,
-                    )
-                else:
-                    response = await get_anthropic_completion_from_mito_server(
-                        model=self.model,
-                        max_tokens=MAX_TOKENS,
-                        temperature=0,
-                        system=anthropic_system_prompt,
-                        messages=anthropic_messages,
-                        tools=None,
-                        tool_choice=None,
-                        message_type=message_type
-                    )
-                    return response
-                
-                content = response.content
-                if content[0].type == "text":
-                    return content[0].text
-                else:
-                    return ""
-
+                # Only pass provider_data to the server
+                response = await get_anthropic_completion_from_mito_server(
+                    **provider_data,
+                    message_type=message_type
+                )
+                return response
         except anthropic.RateLimitError:
             raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
-
         except Exception as e:
             return f"Error streaming content: {str(e)}"
 
