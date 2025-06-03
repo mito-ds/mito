@@ -1,0 +1,36 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mito"
+version = "2025.06"
+description = "Umbrella package that installs mito-ai and mitosheet"
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+authors = [{name = "Mito Maintainers"}]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["mito", "spreadsheet", "jupyter", "pandas", "ai"]
+
+dependencies = [
+    "mito-ai>=0.1.20",
+    "mitosheet>=0.2.20",
+]
+
+[project.urls]
+Homepage = "https://trymito.io"
+Documentation = "https://docs.trymito.io"
+Repository = "https://github.com/mito-ds/mito"
+Issues = "https://github.com/mito-ds/mito/issues"
