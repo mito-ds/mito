@@ -89,7 +89,9 @@
 }
 
 .input-wrapper:hover .input-icon-left,
-.input-wrapper:hover .input-action-button {
+.input-wrapper:hover .input-action-button,
+.input-wrapper.generating .input-icon-left,
+.input-wrapper.generating .input-action-button {
     color: var(--purple-500);
     transform: scale(1.05);
 }
@@ -258,10 +260,6 @@
     transition: color 0.2s ease;
 }
 
-.footer-button:hover .button-icon {
-    color: var(--jp-ui-font-color1);
-}
-
 /* Button label */
 .button-label {
     margin-top: 1px;
@@ -271,8 +269,9 @@
     transition: color 0.2s ease;
 }
 
+.footer-button:hover .button-icon,
 .footer-button:hover .button-label {
-    color: var(--jp-ui-font-color1);
+    color: var(--purple-500);
 }
 
 /* Cell info */

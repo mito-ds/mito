@@ -102,7 +102,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
         <div className="notebook-footer-container">
             {/* Input field */}
             <div className="input-container">
-                <div className="input-wrapper">
+                <div className={`input-wrapper ${isGenerating ? 'generating' : ''}`}>
                     <div className="input-icon-left">
                         {isGenerating ? (
                             <LoadingCircle />
