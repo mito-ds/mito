@@ -3,7 +3,6 @@
     position: relative;
     width: 100%;
     padding: 12px 16px;
-    background-color: var(--jp-layout-color0);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -89,7 +88,8 @@
     transform: scale(1.1);
 }
 
-.input-wrapper:hover .input-icon-left {
+.input-wrapper:hover .input-icon-left,
+.input-wrapper:hover .input-action-button {
     color: var(--purple-500);
     transform: scale(1.05);
 }
@@ -134,38 +134,18 @@
     justify-content: center;
     font-size: 16px;
     font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
+    transition: all 0.2s ease;
 }
 
-.input-wrapper:hover .input-action-button {
-    color: var(--purple-500);
-    transform: scale(1.05);
-}
-
-.input-wrapper:focus-within .input-action-button {
-    color: var(--purple-600);
+.input-action-button:hover:not(:disabled) {
     transform: scale(1.1);
-}
-
-.input-action-button:active {
-    transform: scale(1.05) translateY(0);
-    transition: transform 0.1s ease;
 }
 
 .input-action-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    background: transparent;
-}
-
-.input-action-button:disabled:hover {
-    background: transparent;
-    color: var(--jp-ui-font-color1);
-    transform: none;
+    color: var(--jp-ui-font-color2);
 }
 
 /* Right icons container */
@@ -251,11 +231,6 @@
 
 .jp-ThemedContainer .button-row button:hover::before {
     opacity: 1;
-}
-
-.jp-ThemedContainer .button-row button:active {
-    background: var(--jp-layout-color3);
-    transition: background 0.1s ease;
 }
 
 /* Button content */

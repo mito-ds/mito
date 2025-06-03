@@ -126,7 +126,7 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
                     />
                     <div className="input-icons-right">
                         <button 
-                            className="input-action-button submit-button"
+                            className="input-action-button"
                             onClick={handleInputSubmit}
                             onMouseDown={(e) => e.stopPropagation()}
                         >
