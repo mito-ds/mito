@@ -1,14 +1,13 @@
 import asyncio
 import json
 import time
-from typing import Any, Dict, List, Optional, Callable, Union, AsyncGenerator
+from typing import Any, Dict, List, Optional, Callable, Union, AsyncGenerator, Tuple
 from tornado.httpclient import AsyncHTTPClient
 from mito_ai.completions.models import CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from .utils import _create_http_client
+from mito_ai.constants import MITO_GEMINI_PROD_URL, MITO_GEMINI_DEV_URL
 
-MITO_GEMINI_PROD_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/gemini/completions"
-MITO_GEMINI_DEV_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/gemini/completions/"
-
+# For development, use the MITO_GEMINI_DEV_URL if running tests
 MITO_GEMINI_URL = MITO_GEMINI_DEV_URL
 
 timeout = 30
@@ -20,22 +19,29 @@ def _prepare_gemini_request_data_and_headers(
     message_type: MessageType,
     config: Optional[Dict[str, Any]] = None,
     response_format_info: Optional[Any] = None,
-) -> (Dict[str, Any], Dict[str, str]):
-    data = {
-        "timeout": timeout,
-        "max_retries": max_retries,
+) -> Tuple[Dict[str, Any], Dict[str, str]]:
+    inner_data = {
         "model": model,
         "contents": contents,
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
     }
     if response_format_info:
-        data["response_format_info"] = {
+        # Ensure the format is a string, not a class
+        format_value = getattr(response_format_info, 'format', None)
+        if isinstance(format_value, type):
+            format_value = format_value.__name__
+        inner_data["response_format_info"] = json.dumps({
             "name": getattr(response_format_info, 'name', None),
-            "format": str(getattr(response_format_info, 'format', None))
-        }
-
+            "format": format_value
+        })
     if config:
-        data["config"] = config
+        # Ensure config is serializable
+        inner_data["config"] = json.loads(json.dumps(config))
+    data = {
+        "timeout": timeout,
+        "max_retries": max_retries,
+        "data": inner_data
+    }
     headers = {"Content-Type": "application/json"}
     return data, headers
 

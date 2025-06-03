@@ -21,15 +21,12 @@ from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.server_limits import check_mito_server_quota
 from mito_ai.utils.telemetry_utils import log_ai_completion_success
 from .utils import _create_http_client
-
-MITO_AI_PROD_URL: Final[str] = "https://yxwyadgaznhavqvgnbfuo2k6ca0jboku.lambda-url.us-east-1.on.aws/openai/completions"
-# TODO: Create a dev endpoint for streaming
-MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
+from mito_ai.constants import MITO_OPEN_AI_PROD_URL, MITO_OPEN_AI_DEV_URL
 
 # If you want to test the dev endpoint, change this to MITO_AI_DEV_URL.
 # Note that we have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
 # before merging into dev because we always want our users to be using the prod endpoint!
-MITO_AI_URL: Final[str] = MITO_AI_PROD_URL
+MITO_AI_URL: Final[str] = MITO_OPEN_AI_DEV_URL
 
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None

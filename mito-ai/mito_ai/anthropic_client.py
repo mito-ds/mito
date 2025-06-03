@@ -130,8 +130,21 @@ class AnthropicClient:
                         return ""
             else:
                 # Only pass provider_data to the server
+                
+                system_val = provider_data.get("system", None)
+                if system_val is not None and system_val is not anthropic.NotGiven:
+                    system_tuple = (system_val,)
+                else:
+                    system_tuple = tuple()
+
                 response = await get_anthropic_completion_from_mito_server(
-                    **provider_data,
+                    model=provider_data["model"],
+                    max_tokens=provider_data["max_tokens"],
+                    temperature=provider_data["temperature"],
+                    system=system_tuple,
+                    messages=provider_data["messages"],
+                    tools=provider_data.get("tools"),
+                    tool_choice=provider_data.get("tool_choice"),
                     message_type=message_type
                 )
                 return response

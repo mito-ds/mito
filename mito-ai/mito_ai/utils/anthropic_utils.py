@@ -2,7 +2,7 @@ import asyncio
 import json
 import time
 import anthropic
-from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable, cast
 
 from anthropic.types import MessageParam, Message, TextBlock, ToolUnionParam
 from openai.types.chat import ChatCompletionMessageParam
@@ -13,10 +13,11 @@ from mito_ai.utils.utils import is_running_test
 from mito_ai.utils.server_limits import check_mito_server_quota
 from .utils import _create_http_client
 from tornado.httpclient import AsyncHTTPClient
+from mito_ai.constants import MITO_ANTHROPIC_PROD_URL, MITO_ANTHROPIC_DEV_URL
 
-MITO_ANTHROPIC_PROD_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/anthropic/completions"
-MITO_ANTHROPIC_DEV_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws/anthropic/completions/"
+# For development, use the MITO_ANTHROPIC_DEV_URL if running tests
 MITO_ANTHROPIC_URL = MITO_ANTHROPIC_DEV_URL
+
 
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
@@ -41,26 +42,30 @@ def _prepare_anthropic_request_data_and_headers(
         __user_email = get_user_field(UJ_USER_EMAIL)
     if __user_id is None:
         __user_id = get_user_field(UJ_STATIC_USER_ID)
-    data = {
+    # Build the inner data dict (excluding timeout, max_retries, email, user_id)
+    inner_data = {
         "model": model,
         "max_tokens": max_tokens,
-        "email": __user_email,
-        "user_id": __user_id,
         "temperature": temperature,
         "messages": messages
     }
-
-    # Add system to data only if it is not anthropic.NotGiven
-    if system and system[0] is not anthropic.NotGiven:
-        data["system"] = system[0]
-
+    # Add system to inner_data only if it is not anthropic.NotGiven
+    if system and type(system[0]) is not anthropic.NotGiven:
+        inner_data["system"] = system[0]
     if tools:
-        data["tools"] = tools[0],
-        data["tool_choice"] = tool_choice
-
+        inner_data["tools"] = tools
+    if tool_choice:
+        inner_data["tool_choice"] = tool_choice
     if stream:
-        data["stream"] = stream
-
+        inner_data["stream"] = stream
+    # Compose the outer data dict
+    data = {
+        "timeout": timeout,
+        "max_retries": max_retries,
+        "email": __user_email,
+        "user_id": __user_id,
+        "data": inner_data
+    }
     headers = {"Content-Type": "application/json"}
     return data, headers
 
@@ -94,7 +99,10 @@ async def get_anthropic_completion_from_mito_server(
     finally:
         http_client.close()
     content = json.loads(res.body)
-    return content
+    # If the response is wrapped in a 'data' field, extract it
+    if isinstance(content, dict) and "data" in content:
+        return cast(Message, content["data"])
+    return cast(Message, content)
 
 async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],
