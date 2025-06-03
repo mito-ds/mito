@@ -42,7 +42,7 @@ Mito is an open source tool (look around...), and will always be built by and fo
 ## ⚡️ Install Mito
 To get started, open a terminal, command prompt, or Anaconda Prompt. Then, run the command
 ```
-python -m pip install mito-ai mitosheet
+python -m pip install mito
 ```
 Then launch Jupyter by running the command
 ```
