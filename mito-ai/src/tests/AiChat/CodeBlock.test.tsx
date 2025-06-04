@@ -102,4 +102,42 @@ describe('CodeBlock Component', () => {
             expect(renderedLines[6]).toBe('line7');
         });
     });
+
+    describe('Assistant Code Actions', () => {
+        it('does not show action buttons when code is incomplete', () => {
+            const props = createMockProps({
+                role: 'assistant',
+                isLastAiMessage: true,
+                isCodeComplete: false,
+                codeReviewStatus: 'chatPreview'
+            });
+            render(<CodeBlock {...props} />);
+
+            // Verify that action buttons are not present when code is incomplete
+            expect(screen.queryByTitle('Overwrite Active Cell')).not.toBeInTheDocument();
+            expect(screen.queryByTitle('Copy')).not.toBeInTheDocument();
+            expect(screen.queryByTitle('Accept AI Generated Code')).not.toBeInTheDocument();
+            expect(screen.queryByTitle('Reject AI Generated Code')).not.toBeInTheDocument();
+
+            // Verify that the toolbar container is not present
+            expect(document.querySelector('.code-block-toolbar')).not.toBeInTheDocument();
+        });
+
+        it('shows action buttons when code is complete and is last AI message', () => {
+            const props = createMockProps({
+                role: 'assistant',
+                isLastAiMessage: true,
+                isCodeComplete: true,
+                codeReviewStatus: 'chatPreview'
+            });
+            render(<CodeBlock {...props} />);
+
+            // Verify that action buttons are present when code is complete
+            expect(screen.getByTitle('Overwrite Active Cell')).toBeInTheDocument();
+            expect(screen.getByTitle('Copy')).toBeInTheDocument();
+
+            // Verify that the toolbar container is present
+            expect(document.querySelector('.code-block-toolbar')).toBeInTheDocument();
+        });
+    });
 });
