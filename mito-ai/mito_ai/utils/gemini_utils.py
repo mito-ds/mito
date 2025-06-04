@@ -5,10 +5,7 @@ from typing import Any, Dict, List, Optional, Callable, Union, AsyncGenerator, T
 from tornado.httpclient import AsyncHTTPClient
 from mito_ai.completions.models import CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from .utils import _create_http_client
-from mito_ai.constants import MITO_GEMINI_PROD_URL, MITO_GEMINI_DEV_URL
-
-# For development, use the MITO_GEMINI_DEV_URL if running tests
-MITO_GEMINI_URL = MITO_GEMINI_DEV_URL
+from mito_ai.constants import MITO_GEMINI_URL
 
 timeout = 30
 max_retries = 1
@@ -150,4 +147,24 @@ async def stream_gemini_completion_from_mito_server(
                 pass
         raise
     finally:
-        http_client.close() 
+        http_client.close()
+
+def get_gemini_completion_function_params(
+    model: str,
+    contents: str,
+    message_type: MessageType,
+    config: Optional[Dict[str, Any]] = None,
+    response_format_info: Optional[Any] = None,
+) -> Dict[str, Any]:
+    """
+    Build the provider_data dict for Gemini completions, mirroring the OpenAI/Anthropic approach.
+    Only includes fields needed for the Gemini API.
+    """
+    provider_data = {
+        "model": model,
+        "contents": contents,
+        "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
+    }
+    if config:
+        provider_data["config"] = json.dumps(config)
+    return provider_data 

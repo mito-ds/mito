@@ -21,12 +21,8 @@ from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.server_limits import check_mito_server_quota
 from mito_ai.utils.telemetry_utils import log_ai_completion_success
 from .utils import _create_http_client
-from mito_ai.constants import MITO_OPEN_AI_PROD_URL, MITO_OPEN_AI_DEV_URL
+from mito_ai.constants import MITO_OPENAI_URL
 
-# If you want to test the dev endpoint, change this to MITO_AI_DEV_URL.
-# Note that we have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
-# before merging into dev because we always want our users to be using the prod endpoint!
-MITO_AI_URL: Final[str] = MITO_OPEN_AI_DEV_URL
 
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
@@ -112,7 +108,7 @@ async def get_ai_completion_from_mito_server(
             # have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
             # before merging into dev. So if you change which variable we are using here, the 
             # test will not catch our mistakes.
-            MITO_AI_URL, 
+            MITO_OPENAI_URL, 
             method="POST", 
             headers=headers, 
             body=json.dumps(data), 
@@ -200,7 +196,7 @@ async def stream_ai_completion_from_mito_server(
         # a new chunk arrives, allowing for immediate processing without waiting for the
         # entire response to complete.
         fetch_future = http_client.fetch(
-            MITO_AI_URL, 
+            MITO_OPENAI_URL, 
             method="POST", 
             headers=headers, 
             body=json.dumps(data), 

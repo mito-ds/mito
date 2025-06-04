@@ -13,17 +13,14 @@ from mito_ai.utils.utils import is_running_test
 from mito_ai.utils.server_limits import check_mito_server_quota
 from .utils import _create_http_client
 from tornado.httpclient import AsyncHTTPClient
-from mito_ai.constants import MITO_ANTHROPIC_PROD_URL, MITO_ANTHROPIC_DEV_URL
-
-# For development, use the MITO_ANTHROPIC_DEV_URL if running tests
-MITO_ANTHROPIC_URL = MITO_ANTHROPIC_DEV_URL
-
+from mito_ai.constants import MITO_ANTHROPIC_URL
 
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
 
 timeout = 30
 max_retries = 1
+INLINE_COMPLETION_MODEL = "claude-3-5-haiku-latest"
 
 def _prepare_anthropic_request_data_and_headers(
     model: Union[str, None],
@@ -209,6 +206,8 @@ def get_anthropic_completion_function_params(
         "temperature": temperature,
         "messages": messages,
     }
+    if response_format_info is not None:
+        provider_data["model"] = INLINE_COMPLETION_MODEL
     if system is not None and system is not anthropic.NotGiven:
         provider_data["system"] = system
     if tools:
