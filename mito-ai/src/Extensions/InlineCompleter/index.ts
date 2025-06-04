@@ -172,10 +172,12 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     completionManager.registerInlineProvider(provider);
 
 
-    app.commands.commandExecuted.connect((_, args: {id: string}) => {
+    // Log when the user accepts an inline completion so we can understand
+    // how useful our completions are to the user.
+    app.commands.commandExecuted.connect((_, args: {id: string}): void => {
       if (args.id == 'inline-completer:accept') {
         const acceptedCompletionInfo = provider.getCurrentCompletionInfo();
-        logEvent('mito_ai_inline_completion_accepted', acceptedCompletionInfo);
+        void logEvent('mito_ai_inline_completion_accepted', acceptedCompletionInfo);
       }
     });
   }
