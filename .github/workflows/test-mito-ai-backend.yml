@@ -42,6 +42,7 @@ jobs:
         jupyter server extension enable --py mito_ai
     - name: Setup databases
       run: |
+        cd mito-ai
         docker compose -f mito_ai/tests/docker/postgres.yml up -d
     - name: Run tests
       run: |
