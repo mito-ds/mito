@@ -28,40 +28,6 @@ export interface DatabaseConfig {
 }
 
 export const databaseConfigs: Record<string, DatabaseConfig> = {
-    snowflake: {
-        type: 'snowflake',
-        displayName: 'Snowflake',
-        fields: [
-            {
-                name: 'username',
-                type: 'text',
-                label: 'Username',
-                placeholder: 'john.doe',
-                required: true
-            },
-            {
-                name: 'password',
-                type: 'password',
-                label: 'Password',
-                placeholder: 'Enter your password',
-                required: true
-            },
-            {
-                name: 'account',
-                type: 'text',
-                label: 'Account',
-                placeholder: 'tudbfdr-ab12345',
-                required: true
-            },
-            {
-                name: 'warehouse',
-                type: 'text',
-                label: 'Warehouse',
-                placeholder: 'COMPUTE_WH',
-                required: true
-            }
-        ]
-    },
     postgres: {
         type: 'postgres',
         displayName: 'PostgreSQL',
@@ -106,6 +72,40 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
                 type: 'text',
                 label: 'Database',
                 placeholder: 'mydb',
+                required: true
+            }
+        ]
+    },
+    snowflake: {
+        type: 'snowflake',
+        displayName: 'Snowflake',
+        fields: [
+            {
+                name: 'username',
+                type: 'text',
+                label: 'Username',
+                placeholder: 'john.doe',
+                required: true
+            },
+            {
+                name: 'password',
+                type: 'password',
+                label: 'Password',
+                placeholder: 'Enter your password',
+                required: true
+            },
+            {
+                name: 'account',
+                type: 'text',
+                label: 'Account',
+                placeholder: 'tudbfdr-ab12345',
+                required: true
+            },
+            {
+                name: 'warehouse',
+                type: 'text',
+                label: 'Warehouse',
+                placeholder: 'COMPUTE_WH',
                 required: true
             }
         ]
