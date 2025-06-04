@@ -67,6 +67,9 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                 // Force command refresh to update the icon
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
             },
+            isVisible: () => {
+                return app.commands.hasCommand('mito-ai:beta-mode-enabled');
+            }
         });
 
         commands.addCommand('toolbar-button:convert-to-streamlit', {
@@ -90,6 +93,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             if (value === 'true') {
                 commands.addCommand('mito-ai:beta-mode-enabled', { execute: () => { /* no-op */ } });
                 commands.notifyCommandChanged('toolbar-button:convert-to-streamlit');
+                commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
             }
         }).catch(error => {
             console.error('Error checking beta mode:', error);
