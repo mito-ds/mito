@@ -29,7 +29,6 @@ import {
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
-import { Kernel } from '@jupyterlab/services';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -491,62 +490,6 @@ function activateMitosheetExtension(
         keys: ['Shift Enter'],
         selector: '.mito-container'
     });
-
-    /* 
-        The section below is responsible for importing the mitosheet package into each 
-        kernel by default. This allows us to render a mitosheet as the default dataframe
-        renderer even if the user has not yet ran `import mitosheet`
-
-        See the file dataframe_display_formatters.py for full documentation.
-
-        TODO: This approach still fails the race condition caused when the user clicks
-        "Restart Kernel and run all cells". When doing so, the `import mitosheet` code triggered
-        below does not get executed until after all of the code cells have been executed. Which means
-        that the mitosheet package is not imported when rendering any dataframes in the notebook. In
-        this case, we just default to the pandas dataframe renderer. That is okay.
-    */
-
-    const importMitosheetPackage = (kernel: Kernel.IKernelConnection | null | undefined) => {
-        if (kernel) {
-            // Although I don't think necessary, wrap in a try, except statement for extra safety
-            kernel.requestExecute({ code: `try: 
-    import mitosheet
-    mitosheet.set_dataframe_display_formatters()
-except:
-    pass` });
-        }
-    }
-  
-    // Listen for new notebooks
-    notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
-        
-        // When the session changes we need to re-import the package. For example, if the user 
-        // restarts a kernel. Also, becuase the extension is loaded before the kernel is created
-        // this sessionChange approach is required to import mitosheet when first opening a notebook.
-        notebookPanel.sessionContext.sessionChanged.connect((sessionContext, ) => {
-            const kernel = sessionContext.session?.kernel
-            importMitosheetPackage(kernel);
-        });
-
-        // Inject code into the current kernel
-        const kernel = notebookPanel.sessionContext?.session?.kernel
-        importMitosheetPackage(kernel);
-    });
-
-    // When activating the Mito extension, import the mitosheet package so we can 
-    // render mitosheets as the default dataframe renderer. TODO: Check if this code
-    // is ever successful. It might be at this stage in the extension activation process
-    // the kernel is never defined and so we rely on the above checks instead. 
-    const notebookPanel = notebookTracker.currentWidget
-    const kernel = notebookPanel?.sessionContext?.session?.kernel
-    importMitosheetPackage(kernel)
-
-
-    /* 
-        Finally, add the app commands to the window 
-        so we can write to it elsewhere
-    */
-    window.commands = app.commands;
 }
 
 const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<void> = {
