@@ -53,6 +53,11 @@ jobs:
         SNOWFLAKE_USERNAME: ${{ secrets.PYTEST_SNOWFLAKE_USERNAME }}
         SNOWFLAKE_PASSWORD: ${{ secrets.PYTEST_SNOWFLAKE_PASSWORD }}
         SNOWFLAKE_ACCOUNT: ${{ secrets.PYTEST_SNOWFLAKE_ACCOUNT }}
+    - name: Cleanup databases
+      if: always()
+      run: |
+        cd mito-ai
+        docker compose -f mito_ai/tests/docker/postgres.yml down -v
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()
