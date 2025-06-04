@@ -12,5 +12,4 @@ def is_azure_openai_configured() -> bool:
     Azure OpenAI is only supported for Mito Enterprise users
     """
     is_allowed_to_use_azure = is_enterprise() or is_mitosheet_private()
-    print('is_allowed_to_use_azure', is_allowed_to_use_azure)
     return all([is_allowed_to_use_azure, AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_VERSION, AZURE_OPENAI_MODEL])
