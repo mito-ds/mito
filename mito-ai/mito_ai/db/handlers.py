@@ -5,11 +5,9 @@ import json
 import os
 import tornado
 import uuid
-from dataclasses import dataclass
 from typing import Any, Final
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.schema import MITO_FOLDER
-from mito_ai.utils.utils import get_installed_packages
 from mito_ai.utils.telemetry_utils import (
     log_db_connection_attempt,
     log_db_connection_success,
@@ -21,6 +19,7 @@ from mito_ai.db.utils import (
     delete_connection,
     delete_schema,
     crawl_and_store_schema,
+    install_db_drivers,
 )
 
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
@@ -56,11 +55,16 @@ class ConnectionsHandler(APIHandler):
             # Generate a UUID for the new connection
             connection_id = str(uuid.uuid4())
 
-            log_db_connection_attempt(new_connection["type"])
+            db_type = new_connection["type"]
+            log_db_connection_attempt(db_type)
 
             # Install database drivers
-            packages = get_installed_packages()
-            
+            install_result = install_db_drivers(db_type)
+            if not install_result["success"]:
+                log_db_connection_error(db_type, install_result["error"])
+                self.set_status(500)
+                self.write({"error": install_result["error"]})
+                return
 
             # First, try to validate the connection by building the schema
             crawl_result = crawl_and_store_schema(

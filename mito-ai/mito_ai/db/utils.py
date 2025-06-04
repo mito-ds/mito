@@ -138,3 +138,34 @@ def crawl_and_store_schema(
         "error_message": "",
         "schema": schema,
     }
+
+
+def install_db_drivers(db_type: str) -> dict:
+    """
+    Install required database drivers for the given database type.
+
+    Args:
+        db_type (str): The type of database (e.g. 'snowflake', 'postgres')
+
+    Returns:
+        dict: A dictionary containing success status and error message if any
+    """
+    from mito_ai.utils.utils import get_installed_packages, install_packages
+
+    installed_packages = get_installed_packages()
+    required_packages = drivers[db_type]
+    packages_to_install = []
+
+    for package in required_packages:
+        if package not in installed_packages:
+            packages_to_install.append(package)
+
+    if len(packages_to_install) > 0:
+        install_result = install_packages(packages_to_install)
+        if not install_result["success"]:
+            return {
+                "success": False,
+                "error": f"Failed to install {db_type} drivers: {install_result['error']}"
+            }
+
+    return {"success": True, "error": None}

@@ -3,6 +3,8 @@
 
 import uuid
 import os
+import subprocess
+import sys
 from typing import List
 import pkg_resources
 
@@ -35,3 +37,26 @@ def get_installed_packages() -> List[str]:
         package.key
         for package in sorted(pkg_resources.working_set, key=lambda x: x.key)
     ]
+
+def install_packages(packages: List[str]) -> dict:
+    """
+    Install a list of packages.
+    
+    Returns:
+        dict: A dictionary containing:
+            - 'success': bool
+            - 'error': error message captured from the subprocess call
+    """
+    result = {
+        'success': True,
+        'error': None
+    }
+    
+    for package in packages:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        except subprocess.CalledProcessError as e:
+            result['success'] = False
+            result['error'] = str(e)
+    
+    return result
