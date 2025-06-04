@@ -16,3 +16,11 @@ SNOWFLAKE = {
     "account": os.environ.get("SNOWFLAKE_ACCOUNT"),
     "warehouse": "COMPUTE_WH",
 }
+POSTGRES = {
+    "type": "postgres",
+    "username": "test_user",
+    "password": "test_pass",
+    "host": "localhost",
+    "port": "5432",
+    "database": "test_db",
+}
