@@ -361,21 +361,19 @@ describe('ChatMessage Component', () => {
 
         it('does not show overwrite button when code is still generating (incomplete)', () => {
             renderChatMessage({
-                message: createMockMessage('assistant', 'Here is some code:\n```python\nimport pandas as pd\ndf = pd.DataFrame({"A": [1, 2, 3]})'),
+                message: createMockMessage('assistant', '```python\nimport pandas as pd\ndf = pd.DataFrame({"A": [1, 2, 3]})'),
                 isLastAiMessage: true,
                 codeReviewStatus: 'chatPreview'
             });
 
-            // Find all buttons on the page
-            const buttons = screen.getAllByRole('button');
-            const buttonTexts = buttons.map(button => button.textContent || '');
+            const buttons = screen.queryAllByRole('button');
 
-            // Verify that the "Overwrite" button is NOT present when code is incomplete
-            expect(buttonTexts.some(text => text.includes('Overwrite') || text.includes('Active'))).toBe(false);
-            expect(buttonTexts.some(text => text.includes('Copy'))).toBe(false);
+            // Verify that no buttons are present when code is incomplete
+            expect(buttons).toHaveLength(0);
 
-            // Verify that the chat-message-buttons container is not present
+            // Also verify that the specific button texts are not present
             expect(screen.queryByText('Overwrite Active Cell')).not.toBeInTheDocument();
+            expect(screen.queryByText('Copy')).not.toBeInTheDocument();
         });
     });
 }); 
