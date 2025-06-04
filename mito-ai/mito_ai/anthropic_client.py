@@ -85,7 +85,7 @@ class AnthropicClient:
         if api_key:
             self.client = anthropic.Anthropic(api_key=api_key)
         else:
-            self.client = None
+            self.client = None  # type: ignore[assignment]
 
     async def request_completions(self, messages: List[ChatCompletionMessageParam],
                                   response_format_info: Optional[ResponseFormatInfo] = None,
@@ -96,7 +96,7 @@ class AnthropicClient:
         try:
             anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
             # Build provider_data once
-            tools = None
+            tools: Optional[List[ToolUnionParam]] = None
             tool_choice = None
             if response_format_info and response_format_info.name == "agent_response":
                 tools = [{
@@ -118,6 +118,7 @@ class AnthropicClient:
             )
             if self.api_key:
                 # Unpack provider_data for direct API call
+                assert self.client is not None
                 response = self.client.messages.create(**provider_data)
                 if tools:
                     result = _extract_and_parse_json_response(response)
@@ -135,7 +136,7 @@ class AnthropicClient:
                 if system_val is not None and system_val is not anthropic.NotGiven:
                     system_tuple = (system_val,)
                 else:
-                    system_tuple = tuple()
+                    system_tuple = tuple()  # type: ignore[assignment]
 
                 response = await get_anthropic_completion_from_mito_server(
                     model=provider_data["model"],
@@ -160,6 +161,7 @@ class AnthropicClient:
             accumulated_response = ""
 
             if self.api_key:
+                assert self.client is not None
                 stream = self.client.messages.create(
                     model=self.model,
                     max_tokens=MAX_TOKENS,
@@ -188,11 +190,11 @@ class AnthropicClient:
                         ))
 
             else:
-                   async for stram_chunk in stream_anthropic_completion_from_mito_server(
+                async for stram_chunk in stream_anthropic_completion_from_mito_server(
                     model=self.model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
-                    system=anthropic_system_prompt,
+                    system=(anthropic_system_prompt,),
                     messages=anthropic_messages,
                     stream=True,
                     message_type=message_type

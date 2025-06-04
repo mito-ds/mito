@@ -46,14 +46,13 @@ class GeminiClient:
                 )
             else:
                 # Only pass provider_data to the server
-                response = await get_gemini_completion_from_mito_server(
+                return await get_gemini_completion_from_mito_server(
                     model=provider_data["model"],
                     contents=provider_data["contents"],
                     message_type=message_type,
                     config=config,
                     response_format_info=response_format_info
                 )
-                return response
 
             if not response:
                 return "No response received from Gemini API"
@@ -76,8 +75,8 @@ class GeminiClient:
                 for chunk in response:
                     if isinstance(chunk, str):
                         collected_response += chunk or ''
-                    elif hasattr(chunk, 'text') and chunk.text:
-                        collected_response += chunk.text or ''
+                    elif hasattr(chunk, 'text') and chunk.text: # type: ignore[attr-defined]
+                        collected_response += chunk.text or ''  # type: ignore[attr-defined]
                     else:
                         collected_response += str(chunk)
                 return collected_response
@@ -146,14 +145,14 @@ class GeminiClient:
                     done=True,
                 ))
             else:
-                async for chunk in stream_gemini_completion_from_mito_server(
+                async for chunk_text in stream_gemini_completion_from_mito_server(
                     model=self.model,
                     contents=contents,
                     message_type=message_type,
                     message_id=message_id,
                     reply_fn=reply_fn
                 ):
-                    accumulated_response += chunk or ''
+                    accumulated_response += chunk_text or ''
 
             return accumulated_response
 

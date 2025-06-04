@@ -40,7 +40,7 @@ def _prepare_anthropic_request_data_and_headers(
     if __user_id is None:
         __user_id = get_user_field(UJ_STATIC_USER_ID)
     # Build the inner data dict (excluding timeout, max_retries, email, user_id)
-    inner_data = {
+    inner_data: Dict[str, Any] = {
         "model": model,
         "max_tokens": max_tokens,
         "temperature": temperature,
