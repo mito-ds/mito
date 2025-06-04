@@ -40,6 +40,9 @@ jobs:
         jlpm build
         jupyter labextension develop . --overwrite
         jupyter server extension enable --py mito_ai
+    - name: Setup databases (via docker-compose)
+      run: |
+        docker-compose -f mito_ai/tests/docker/postgres.yml up
     - name: Run tests
       run: |
         cd mito-ai
