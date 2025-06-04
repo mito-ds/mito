@@ -29,7 +29,6 @@ import {
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
-import { Kernel } from '@jupyterlab/services';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
