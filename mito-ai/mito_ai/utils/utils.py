@@ -3,6 +3,8 @@
 
 import uuid
 import os
+from typing import Optional, Tuple
+from tornado.httpclient import AsyncHTTPClient
 
 def get_random_id() -> str:
     """
@@ -24,3 +26,29 @@ def is_running_test() -> bool:
     running_ci = 'CI' in os.environ and os.environ['CI'] is not None
 
     return running_pytests or running_ci
+
+def _create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient, Optional[int]]:
+    """
+    Create an HTTP client with appropriate timeout settings.
+    
+    Args:
+        timeout: The timeout in seconds
+        max_retries: The maximum number of retries
+        
+    Returns:
+        A tuple containing the HTTP client and the timeout value in milliseconds
+    """
+    from .utils import is_running_test  # local import to avoid circular import if needed
+    if is_running_test():
+        # If we are running in a test environment, setting the request_timeout fails for some reason.
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+        http_client_timeout = None
+    else:
+        # To avoid 599 client timeout errors, we set the request_timeout. By default, the HTTP client 
+        # timesout after 20 seconds. We update this to match the timeout we give to OpenAI. 
+        # The OpenAI timeouts are denoted in seconds, whereas the HTTP client expects milliseconds. 
+        # We also give the HTTP client a 10 second buffer to account for
+        http_client_timeout = timeout * 1000 * max_retries + 10000
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
+    
+    return http_client, http_client_timeout
