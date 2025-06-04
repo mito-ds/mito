@@ -50,12 +50,12 @@ class ConnectionsHandler(APIHandler):
             setup_database_dir(DB_DIR_PATH, CONNECTIONS_PATH, SCHEMAS_PATH)
 
             # Get the new connection data from the request body
-            new_connection = json.loads(self.request.body)
+            connection_details = json.loads(self.request.body)
 
             # Generate a UUID for the new connection
             connection_id = str(uuid.uuid4())
 
-            db_type = new_connection["type"]
+            db_type = connection_details["type"]
             log_db_connection_attempt(db_type)
 
             # Install database drivers
@@ -70,21 +70,21 @@ class ConnectionsHandler(APIHandler):
             crawl_result = crawl_and_store_schema(
                 SCHEMAS_PATH,
                 connection_id,
-                new_connection,
+                connection_details,
             )
 
             if not crawl_result["success"]:
                 log_db_connection_error(
-                    new_connection["type"], crawl_result["error_message"]
+                    connection_details["type"], crawl_result["error_message"]
                 )
                 self.set_status(500)
                 self.write({"error": crawl_result["error_message"]})
                 return
 
             # If schema building succeeded, save the connection
-            save_connection(CONNECTIONS_PATH, connection_id, new_connection)
+            save_connection(CONNECTIONS_PATH, connection_id, connection_details)
 
-            log_db_connection_success(new_connection["type"], {})
+            log_db_connection_success(connection_details["type"], {})
 
             self.write(
                 {
