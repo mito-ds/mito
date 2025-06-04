@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Any, Final
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.schema import MITO_FOLDER
+from mito_ai.utils.utils import get_installed_packages
 from mito_ai.utils.telemetry_utils import (
     log_db_connection_attempt,
     log_db_connection_success,
@@ -56,6 +57,10 @@ class ConnectionsHandler(APIHandler):
             connection_id = str(uuid.uuid4())
 
             log_db_connection_attempt(new_connection["type"])
+
+            # Install database drivers
+            packages = get_installed_packages()
+            
 
             # First, try to validate the connection by building the schema
             crawl_result = crawl_and_store_schema(

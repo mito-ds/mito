@@ -3,6 +3,8 @@
 
 import uuid
 import os
+from typing import List
+import pkg_resources
 
 def get_random_id() -> str:
     """
@@ -24,3 +26,12 @@ def is_running_test() -> bool:
     running_ci = 'CI' in os.environ and os.environ['CI'] is not None
 
     return running_pytests or running_ci
+
+def get_installed_packages() -> List[str]:
+    """
+    Get a list of all installed packages.
+    """
+    return [
+        package.key
+        for package in sorted(pkg_resources.working_set, key=lambda x: x.key)
+    ]

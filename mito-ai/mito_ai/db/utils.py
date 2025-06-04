@@ -5,6 +5,11 @@ import json
 import os
 from mito_ai.db.crawlers import snowflake
 
+drivers = {
+    "snowflake": ["snowflake-sqlalchemy"],
+    "postgres": ["psycopg2-binary"],
+}
+
 
 def setup_database_dir(
     db_dir_path: str, connections_path: str, schemas_path: str
