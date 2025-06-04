@@ -3,11 +3,12 @@
 
 import json
 import os
-from mito_ai.db.crawlers import snowflake, postgres
+from mito_ai.db.crawlers import snowflake, postgres, sqlite
 
 drivers = {
     "snowflake": ["snowflake-sqlalchemy"],
     "postgres": ["psycopg2-binary"],
+    "sqlite": [],
 }
 
 
@@ -123,6 +124,10 @@ def crawl_and_store_schema(
             connection_details["password"],
             connection_details["host"],
             connection_details["port"],
+            connection_details["database"],
+        )
+    elif connection_details["type"] == "sqlite":
+        schema = sqlite.crawl_sqlite(
             connection_details["database"],
         )
 

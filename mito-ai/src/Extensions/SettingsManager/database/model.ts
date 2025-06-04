@@ -109,5 +109,18 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
                 required: true
             }
         ]
+    },
+    sqlite: {
+        type: 'sqlite',
+        displayName: 'SQLite',
+        fields: [
+            {
+                name: 'database',
+                type: 'text',
+                label: 'Path to database',
+                placeholder: '/Users/jake/db.sqlite3',
+                required: true
+            }
+        ]
     }
 }; 
