@@ -25,7 +25,6 @@ export interface DatabaseConfig {
     type: string;
     displayName: string;
     fields: DatabaseField[];
-    validation?: (values: Record<string, any>) => string | null;
 }
 
 export const databaseConfigs: Record<string, DatabaseConfig> = {
