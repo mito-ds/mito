@@ -1,0 +1,167 @@
+name: Deploy All Packages
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+      specific_version:
+        description: 'Specific version (optional, overrides version_type)'
+        required: false
+        type: string
+
+jobs:
+  deploy-all:
+    name: Deploy all packages with unified SemVer
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python-version: [3.11]
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+        
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.extract_branch.outputs.branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          
+      - name: Setup Auth for PyPi
+        run: |
+          echo -e "[distutils]" >> ~/.pypirc
+          echo -e "index-servers =" >> ~/.pypirc
+          echo -e "    pypi" >> ~/.pypirc
+          echo -e "    testpypi" >> ~/.pypirc
+          echo -e "[pypi]" >> ~/.pypirc
+          echo -e "repository = https://upload.pypi.org/legacy/" >> ~/.pypirc
+          echo -e "username = __token__" >> ~/.pypirc
+          echo -e "password = ${{ secrets.PYPI_API_TOKEN }}" >> ~/.pypirc
+          echo -e "" >> ~/.pypirc
+          echo -e "[testpypi]" >> ~/.pypirc
+          echo -e "repository = https://test.pypi.org/legacy/" >> ~/.pypirc
+          echo -e "username = __token__" >> ~/.pypirc
+          echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
+          
+      - name: Bump versions
+        run: |
+          if [[ -n "${{ inputs.specific_version }}" ]]; then
+            python deployment/bump_version.py "${{ inputs.specific_version }}"
+          else
+            python deployment/bump_version.py "${{ inputs.version_type || 'patch' }}"
+          fi
+          
+      - name: Get new version
+        id: version
+        run: |
+          NEW_VERSION=$(python -c "import json; print(json.load(open('version.json'))['version'])")
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Verify version consistency
+        run: |
+          echo "Verifying all packages have consistent versions..."
+          python deployment/check_versions.py
+          
+      - name: Setup and build mitosheet
+        run: |
+          cd mitosheet
+          rm -rf venv
+          python3 -m venv venv
+          source venv/bin/activate
+          python -m pip install -e ".[deploy]"    
+          jlpm install
+          jlpm run build
+          
+      - name: Setup and build mito-ai
+        run: |
+          cd mito-ai
+          rm -rf venv
+          python3 -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[deploy]" --verbose
+          python -m pip check
+          jlpm install --frozen-lockfile
+          jlpm run build
+          
+      - name: Setup mito metapackage
+        run: |
+          cd mito
+          python -m pip install --upgrade pip
+          pip install build twine hatchling
+          
+      - name: Deploy mitosheet
+        run: |
+          cd mitosheet
+          source venv/bin/activate
+          python setup.py sdist bdist_wheel
+          twine upload dist/*
+          
+      - name: Deploy mito-ai
+        run: |
+          cd mito-ai
+          source venv/bin/activate
+          python -m build --sdist --wheel
+          twine upload dist/*
+          
+      - name: Deploy mito metapackage
+        run: |
+          cd mito
+          rm -rf dist/
+          python -m build --sdist --wheel
+          twine upload dist/*
+          
+      - name: Commit version changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add version.json
+          git add mito/pyproject.toml
+          git add mitosheet/package.json
+          git add mito-ai/package.json
+          git commit -m "Bump version to $NEW_VERSION [skip ci]" || exit 0
+          git push
+          
+      - name: Create Git Tag
+        run: |
+          git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
+          git push origin "v$NEW_VERSION"
+          
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.NEW_VERSION }}
+          release_name: Release v${{ env.NEW_VERSION }}
+          body: |
+            ## Release v${{ env.NEW_VERSION }}
+            
+            This release includes updates to all Mito packages:
+            - mitosheet v${{ env.NEW_VERSION }}
+            - mito-ai v${{ env.NEW_VERSION }}
+            - mito v${{ env.NEW_VERSION }}
+            
+            All packages now use unified SemVer versioning.
+          draft: false
+          prerelease: false 

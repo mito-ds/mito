@@ -42,13 +42,13 @@ Mito is an open source tool (look around...), and will always be built by and fo
 ## ⚡️ Install Mito
 To get started, open a terminal, command prompt, or Anaconda Prompt. Then, run the command
 ```
-python -m pip install mito
+pip install mito
 ```
 Then launch Jupyter by running the command
 ```
 jupyter lab
 ```
-This will install Mito for JupyterLab 4.0. More detailed installation instructions can also be found [here](https://docs.trymito.io/getting-started/installing-mito).
+This will install Mito for JupyterLab 4.0+. For more detailed installation instructions, troubleshooting, and setup guides, visit our [documentation](https://docs.trymito.io/getting-started/installing-mito).
 
 ## 📚 Documentation
 You can find all [Mito documentation available here](https://docs.trymito.io).
