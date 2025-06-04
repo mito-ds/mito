@@ -3,7 +3,7 @@
 
 import json
 import os
-from mito_ai.db.crawlers import snowflake
+from mito_ai.db.crawlers import snowflake, postgres
 
 drivers = {
     "snowflake": ["snowflake-sqlalchemy"],
@@ -93,10 +93,7 @@ def delete_schema(schemas_path: str, schema_id: str) -> None:
 def crawl_and_store_schema(
     schemas_path: str,
     connection_id: str,
-    username: str,
-    password: str,
-    account: str,
-    warehouse: str,
+    connection_details: dict,
 ) -> dict:
     """
     Crawl and store schema for a given connection.
@@ -113,7 +110,21 @@ def crawl_and_store_schema(
         tuple[bool, str]: A tuple containing a boolean indicating success and an error message.
     """
 
-    schema = snowflake.crawl_snowflake(username, password, account, warehouse)
+    if connection_details["type"] == "snowflake":
+        schema = snowflake.crawl_snowflake(
+            connection_details["username"],
+            connection_details["password"],
+            connection_details["account"],
+            connection_details["warehouse"],
+        )
+    elif connection_details["type"] == "postgres":
+        schema = postgres.crawl_postgres(
+            connection_details["username"],
+            connection_details["password"],
+            connection_details["host"],
+            connection_details["port"],
+            connection_details["database"],
+        )
 
     if schema["error"]:
         return {
@@ -165,7 +176,7 @@ def install_db_drivers(db_type: str) -> dict:
         if not install_result["success"]:
             return {
                 "success": False,
-                "error": f"Failed to install {db_type} drivers: {install_result['error']}"
+                "error": f"Failed to install {db_type} drivers: {install_result['error']}",
             }
 
     return {"success": True, "error": None}

@@ -70,10 +70,7 @@ class ConnectionsHandler(APIHandler):
             crawl_result = crawl_and_store_schema(
                 SCHEMAS_PATH,
                 connection_id,
-                new_connection["username"],
-                new_connection["password"],
-                new_connection["account"],
-                new_connection["warehouse"],
+                new_connection,
             )
 
             if not crawl_result["success"]:
