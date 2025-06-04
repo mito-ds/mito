@@ -23,6 +23,7 @@ jest.mock('../../Extensions/AiChat/ChatMessage/PythonCode', () => {
 // Create base props for the component
 const createMockProps = (overrides = {}) => ({
     code: 'line1\nline2\nline3\nline4\nline5\nline6\nline7',
+    isCodeComplete: true,
     role: 'user' as const,
     renderMimeRegistry: {} as IRenderMimeRegistry,
     previewAICode: jest.fn(),
