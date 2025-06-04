@@ -3,7 +3,7 @@
 
 import pytest
 import requests
-from mito_ai.tests.db.test_db_constants import CONNECTION_JSON
+from mito_ai.tests.db.test_db_constants import SNOWFLAKE
 from mito_ai.tests.conftest import TOKEN
 
 # --- GET SCHEMAS ---
@@ -14,7 +14,7 @@ def test_get_schemas_with_auth(jp_base_url):
     response = requests.post(
         jp_base_url + f"/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
-        json=CONNECTION_JSON,
+        json=SNOWFLAKE,
     )
     assert response.status_code == 200
 

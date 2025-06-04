@@ -9,7 +9,7 @@ DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
 CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
 SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
 BACKUP_DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db_backup")
-CONNECTION_JSON = {
+SNOWFLAKE = {
     "type": "snowflake",
     "username": os.environ.get("SNOWFLAKE_USERNAME"),
     "password": os.environ.get("SNOWFLAKE_PASSWORD"),
