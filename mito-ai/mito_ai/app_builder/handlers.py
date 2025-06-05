@@ -164,26 +164,30 @@ class AppBuilderHandler(BaseWebSocketHandler):
             
             self.log.info(f"Received pre-signed URL. App will be available at: {expected_app_url}")
             
-            # Step 2: Create a zip file of the app
-            with tempfile.NamedTemporaryFile(suffix='.zip') as temp_zip:
+            # Step 2: Create a zip file of the app.
+            temp_zip_path = None
+            try:
+                # Create temp file and close it before writing to avoid file handle conflicts
+                with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as temp_zip:
+                    temp_zip_path = temp_zip.name
+
                 self.log.info("Zipping application files...")
-                with zipfile.ZipFile(temp_zip.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
                     for root, _, files in os.walk(app_path):
                         for file in files:
                             file_path = os.path.join(root, file)
                             zipf.write(file_path, arcname=os.path.relpath(file_path, app_path))
-                
-                # Step 3: Upload zip directly to S3 using presigned URL
-                self.log.info("Uploading app to S3...")
-                with open(temp_zip.name, 'rb') as file_data:
-                    upload_response = requests.put(
-                        presigned_url,
-                        data=file_data,
-                        headers={'Content-Type': 'application/zip'}
-                    )
-                    upload_response.raise_for_status()
-                
-                self.log.info(f"Upload successful! Status code: {upload_response.status_code}")
+
+                upload_response = await self._upload_app_to_s3(temp_zip_path, presigned_url)
+            except Exception as e:
+                self.log.error(f"Error zipping app: {e}")
+                raise
+            finally:
+                # Clean up
+                if temp_zip_path is not None:
+                    os.remove(temp_zip_path)
+            
+            self.log.info(f"Upload successful! Status code: {upload_response.status_code}")
             
             self.log.info(f"Deployment initiated. App will be available at: {expected_app_url}")
             return expected_app_url # type: ignore
@@ -200,3 +204,15 @@ class AppBuilderHandler(BaseWebSocketHandler):
         except Exception as e:
             self.log.error(f"Error during deployment: {str(e)}")
             raise
+
+    async def _upload_app_to_s3(self, app_path: str, presigned_url: str) -> requests.Response:
+        """Upload the app to S3 using the presigned URL."""
+        with open(app_path, 'rb') as file_data:
+            upload_response = requests.put(
+                presigned_url,
+                data=file_data,
+                headers={'Content-Type': 'application/zip'}
+            )
+            upload_response.raise_for_status()
+            
+        return upload_response
