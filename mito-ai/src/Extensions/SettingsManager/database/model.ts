@@ -36,7 +36,7 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
                 name: 'username',
                 type: 'text',
                 label: 'Username',
-                placeholder: 'postgres',
+                placeholder: 'john.doe',
                 required: true
             },
             {
