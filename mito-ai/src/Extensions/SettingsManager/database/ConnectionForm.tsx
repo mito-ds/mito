@@ -105,6 +105,19 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                 </div>
             ))}
 
+            <div className="form-info">
+                <p>
+                    Mito will automatically install any required database drivers when you connect.
+                    <a
+                        href="https://docs.trymito.io/mito-ai/database-connectors/database-drivers"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Learn more about database drivers
+                    </a>
+                </p>
+            </div>
+
             <div className="form-actions">
                 <button
                     type="button"
