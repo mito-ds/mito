@@ -17,7 +17,6 @@ export interface DatabaseField {
     type: 'text' | 'password' | 'number' | 'select';
     label: string;
     placeholder?: string;
-    defaultValue?: string;
     required: boolean;
     options?: Array<{ value: string; label: string }>;
 }
@@ -59,7 +58,6 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
                 type: 'number',
                 label: 'Port',
                 placeholder: '5432',
-                defaultValue: '5432',
                 required: true
             },
             {

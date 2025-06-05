@@ -40,7 +40,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
         const commonProps = {
             id: field.name,
             name: field.name,
-            value: formData[field.name] || field.defaultValue || '',
+            value: formData[field.name] || '',
             onChange: onInputChange,
             placeholder: field.placeholder,
             required: field.required,
