@@ -2,26 +2,9 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from sqlalchemy import create_engine, text
-from typing import TypedDict, List, Dict, Optional
+from mito_ai.db.models import WarehouseDetails
 
 SUPPORTED_DATABASE_KINDS = ["STANDARD", "IMPORTED DATABASE"]
-
-
-class ColumnInfo(TypedDict):
-    name: str
-    type: str
-
-
-class SchemaInfo(TypedDict):
-    tables: Dict[str, List[ColumnInfo]]
-
-
-class DatabaseInfo(TypedDict):
-    schemas: Dict[str, SchemaInfo]
-
-
-class WarehouseDetails(TypedDict):
-    databases: Dict[str, DatabaseInfo]
 
 
 def crawl_snowflake(username: str, password: str, account: str, warehouse: str) -> dict:

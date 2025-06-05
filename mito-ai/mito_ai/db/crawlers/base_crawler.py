@@ -1,17 +1,8 @@
-from typing import TypedDict, List, Optional, Union
+from typing import List
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from mito_ai.db.crawlers.constants import SUPPORTED_DATABASES
-
-
-class ColumnInfo(TypedDict):
-    name: str
-    type: str
-
-
-class TableSchema(TypedDict):
-    tables: dict[str, List[ColumnInfo]]
-
+from mito_ai.db.models import ColumnInfo, TableSchema
 
 def crawl_db(conn_str: str, db_type: str) -> dict:
     try:
