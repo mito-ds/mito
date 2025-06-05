@@ -99,6 +99,7 @@ const createMockProps = (overrides = {}) => ({
     onDeleteMessage: jest.fn(),
     contextManager: { getVariables: jest.fn(() => []) } as unknown as IContextManager,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
+    answerAIQuestion: jest.fn(),
     ...overrides
 });
 

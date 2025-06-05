@@ -51,7 +51,8 @@ Format:
         code: str
         cell_type: 'code' | 'markdown'
     }}
-    get_cell_output_cell_id: None
+    get_cell_output_cell_id: None,
+    question: None
 }}
 
 Important information:
@@ -72,7 +73,8 @@ Format:
         code: str   
         cell_type: 'code' | 'markdown'
     }}
-    get_cell_output_cell_id: None
+    get_cell_output_cell_id: None,
+    question: None
 }}
 
 Important information:
@@ -125,7 +127,8 @@ Output:
         code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier",
         cell_type: 'code'
     }},
-    get_cell_output_cell_id: None
+    get_cell_output_cell_id: None,
+    question: None
 }}
 
 </Cell Modification Example>
@@ -172,7 +175,8 @@ Output:
         index: 2
         code: "import matplotlib.pyplot as plt\n\nplt.bar(sales_df.index, sales_df['total_price'])\nplt.title('Total Price per Sale')\nplt.xlabel('Transaction Number')\nplt.ylabel('Sales Price ($)')\nplt.show()"
     }},
-    get_cell_output_cell_id: None
+    get_cell_output_cell_id: None,
+    question: None
 }}
 
 </Cell Addition Example>
@@ -188,6 +192,7 @@ When you want to get a base64 encoded version of a cell's output, respond with t
     message: str,
     get_cell_output_cell_id: str,
     cell_update: None
+    question: None
 }}
 
 Important information:
@@ -197,6 +202,52 @@ Important information:
 ===='''
 }
 
+====
+
+TOOL: GET_USER_INPUT
+
+When you want to ask the user a clarifying question, reccomend next steps, or get additional information from the user to help you better understand how to complete the user's task, respond with this format:
+
+{{
+    type: 'get_user_input',
+    message: str,
+    get_cell_output_cell_id: None,
+    cell_update: None,
+    question: {{
+        question_type: 'multiple_choice',
+        question_text: str,
+        options: List[str],
+    }}
+}}
+
+Important information:
+1. The message is any additional information you want to communicate to the user before asking the question.
+2. The question_text is the question you want to ask the user.
+3. The options are the possible answers to the question. These should be consice and the to the point.
+4. The question_text and options are going to be displayed to the user in a standard, html multiple choice UI component.
+
+<Get User Input Example>
+
+Your task: 
+Import the sales data and create a graph of the total_price for each sale.
+
+Output:
+{{
+    type: 'get_user_input',
+    message: "I first need to figure out what data I need to build the graph.",
+    get_cell_output_cell_id: None,
+    cell_update: None,
+    question: {{
+        question_type: 'multiple_choice',
+        question_text: "I see a few different relevant datasets. Which one do you want me to use?",
+        options: ["sales.csv file from your local file system", "ALL_TRANSACTIONS from Snowflake", "ALL_TRANSACTIONS from BigQuery"]
+    }}
+}}
+
+</Get User Input Example>
+
+====
+
 TOOL: FINISHED_TASK
 
 When you have completed the user's task, respond with a message in this format:
@@ -205,7 +256,8 @@ When you have completed the user's task, respond with a message in this format:
     type: 'finished_task',
     message: str,
     get_cell_output_cell_id: None,
-    cell_update: None
+    cell_update: None,
+    question: None
 }}
 
 Important information:
@@ -270,7 +322,8 @@ Output:
         index: 2
         code: "all_time_high_row_idx = tesla_stock_prices_df['closing_price'].idxmax()\nall_time_high_date = tesla_stock_prices_df.at[all_time_high_row_idx, 'Date']\nall_time_high_price = tesla_stock_prices_df.at[all_time_high_row_idx, 'closing_price']"
     }},
-    get_cell_output_cell_id: None
+    get_cell_output_cell_id: None,
+    question: None
 }}
 
 ### User Message 2
@@ -318,7 +371,8 @@ Output:
     type: 'finished_task', 
     message: "The all time high tesla stock closing price was $265.91 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:1] on 2025-03-16 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2]",
     get_cell_output_cell_id: None,
-    cell_update: None
+    cell_update: None,
+    question: None
 }}
 
 </Cell Addition Example>
