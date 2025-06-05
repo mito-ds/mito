@@ -794,6 +794,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 break;
             }
 
+            if (agentResponse.type === 'question') {
+                // If the agent is asking the user a question, we stop and wait for the user to answer!
+                isAgentFinished = true
+                break;
+            }
+
             if (agentResponse.type === 'cell_update' && (agentResponse.cell_update === undefined || agentResponse.cell_update === null)) {
                 // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
                 isAgentFinished = true
@@ -1260,6 +1266,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             onUpdateMessage={handleUpdateMessage}
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
+                            answerAIQuestion={startAgentExecution}
                         />
                     )
                 }).filter(message => message !== null)}

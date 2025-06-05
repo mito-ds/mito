@@ -38,11 +38,18 @@ export type CellUpdateNew = {
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
+export type Question = {
+  question_type: 'multiple_choice'
+  question_text: string
+  options: string[]
+}
+
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'finished_task'
+  type: 'cell_update' | 'get_cell_output' | 'finished_task' | 'question'
   message: string,
   cell_update?: CellUpdate,
   cell_id?: string,
+  question?: Question
 }
 
 /* 

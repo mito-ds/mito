@@ -29,6 +29,7 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
+import QuestionUI from '../../../components/AgentToolComponents/QuestionUI';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -50,6 +51,7 @@ interface IChatMessageProps {
     onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
+    answerAIQuestion: (input: string) => void
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -69,7 +71,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     rejectAICode,
     onUpdateMessage,
     contextManager,
-    codeReviewStatus
+    codeReviewStatus,
+    answerAIQuestion
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -238,6 +241,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             }
             {agentResponse?.type === 'get_cell_output' && 
                 <GetCellOutputToolUI />
+            }
+            {agentResponse?.type === 'question' && agentResponse.question &&
+                <QuestionUI question={agentResponse.question} onAnswer={answerAIQuestion} />
             }
         </div>
     )
