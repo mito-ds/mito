@@ -14,11 +14,12 @@ def crawl_sqlite(database: str):
             )
             tables = [row[0] for row in tables]
 
-            schema = {}
+            schema = {"tables": {}}
             for table in tables:
                 columns = connection.execute(text(f"PRAGMA table_info({table})"))
-                columns = [row[1] for row in columns]
-                schema[table] = columns
+                # Create a list of dictionaries with column name and type
+                column_info = [{"name": row[1], "type": row[2]} for row in columns]
+                schema["tables"][table] = column_info
 
         return {
             "schema": schema,
