@@ -10,6 +10,8 @@ def crawl_postgres(username: str, password: str, host: str, port: str, database:
     try:
         engine = create_engine(conn_str)
 
+        tables = []
+
         # Get a list of all tables in the database
         with engine.connect() as connection:
             tables = connection.execute(
@@ -20,15 +22,16 @@ def crawl_postgres(username: str, password: str, host: str, port: str, database:
             tables = [row[0] for row in tables]
 
             # For each table, get the column names and data types
-            schema = {}
+            schema = {"tables": {}}
             for table in tables:
                 columns = connection.execute(
                     text(
                         f"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{table}'"
                     )
                 )
-                columns = [row[0] for row in columns]
-                schema[table] = columns
+                # Create a list of dictionaries with column name and type
+                column_info = [{"name": row[0], "type": row[1]} for row in columns]
+                schema["tables"][table] = column_info
 
         return {
             "schema": schema,

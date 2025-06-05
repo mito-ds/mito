@@ -144,7 +144,7 @@ def crawl_and_store_schema(
         schemas = json.load(f)
         # Remove the error key from the schema and add the crawled schema
         schema.pop("error", None)
-        schemas[connection_id] = schema
+        schemas[connection_id] = schema["schema"]
         # Move to the beginning of the file and write the new schema
         f.seek(0)
         json.dump(schemas, f, indent=4)
