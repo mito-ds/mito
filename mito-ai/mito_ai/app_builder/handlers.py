@@ -179,17 +179,17 @@ class AppBuilderHandler(BaseWebSocketHandler):
                         file_path = os.path.join(root, file)
                         zipf.write(file_path, arcname=os.path.relpath(file_path, app_path))
                 
-            # Step 3: Upload zip directly to S3 using presigned URL
-            self.log.info("Uploading app to S3...")
-            with open(temp_zip.name, 'rb') as file_data:
-                upload_response = requests.put(
-                    presigned_url,
-                    data=file_data,
-                    headers={'Content-Type': 'application/zip'}
-                )
-                upload_response.raise_for_status()
-            
-            self.log.info(f"Upload successful! Status code: {upload_response.status_code}")
+                # Step 3: Upload zip directly to S3 using presigned URL
+                self.log.info("Uploading app to S3...")
+                with open(temp_zip.name, 'rb') as file_data:
+                    upload_response = requests.put(
+                        presigned_url,
+                        data=file_data,
+                        headers={'Content-Type': 'application/zip'}
+                    )
+                    upload_response.raise_for_status()
+                
+                self.log.info(f"Upload successful! Status code: {upload_response.status_code}")
             
             self.log.info(f"Deployment initiated. App will be available at: {expected_app_url}")
             return expected_app_url # type: ignore
