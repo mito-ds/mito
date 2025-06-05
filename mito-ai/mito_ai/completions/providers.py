@@ -79,7 +79,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self._openai_client:
             return self._openai_client.capabilities
         return AICapabilities(
-            configuration={"model": "gpt-4.1"},
+            configuration={"model": "<dynamic>"},
             provider="Mito server",
         )
 
@@ -111,13 +111,13 @@ This attribute is observed by the websocket provider to push the error to the cl
         model_type = get_model_provider(model)
         try:
             if model_type == "claude":
-                api_key = constants.CLAUDE_API_KEY or ""
+                api_key = constants.CLAUDE_API_KEY or None
                 anthropic_client = AnthropicClient(api_key=api_key, model=model)
-                completion = await anthropic_client.request_completions(messages, response_format_info)
+                completion = await anthropic_client.request_completions(messages, response_format_info, message_type)
             elif model_type == "gemini":
-                api_key = constants.GEMINI_API_KEY or ""
+                api_key = constants.GEMINI_API_KEY or None
                 gemini_client = GeminiClient(api_key=api_key, model=model)
-                completion = await gemini_client.request_completions(messages, response_format_info)
+                completion = await gemini_client.request_completions(messages, response_format_info, message_type)
             elif model_type == "openai":
                 if not self._openai_client:
                     raise RuntimeError("OpenAI client is not initialized.")
@@ -188,6 +188,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     messages=messages,
                     message_id=message_id,
                     reply_fn=reply_fn,
+                    message_type=message_type
                 )
             elif model_type == "openai":
                 if not self._openai_client:

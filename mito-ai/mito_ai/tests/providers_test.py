@@ -34,8 +34,8 @@ def provider_config() -> Config:
 @pytest.fixture(autouse=True)
 def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
     for var in [
-        "OPENAI_API_KEY", "CLAUDE_MODEL", "CLAUDE_API_KEY",
-        "GEMINI_MODEL", "GEMINI_API_KEY", "OLLAMA_MODEL",
+        "OPENAI_API_KEY", "CLAUDE_API_KEY",
+        "GEMINI_API_KEY", "OLLAMA_MODEL",
         "AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_MODEL"
     ]:
         monkeypatch.delenv(var, raising=False)
@@ -175,16 +175,13 @@ def test_pro_user_openai_key_set_above_limit(monkeypatch: pytest.MonkeyPatch, pr
 
 def test_gemini_provider(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
     monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
-    monkeypatch.setenv("GEMINI_MODEL", "gemini-2-pro")
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", "gemini-key")
-    monkeypatch.setattr("mito_ai.constants.GEMINI_MODEL", "gemini-2-pro")
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
 
     with mock_gemini_client():
         llm = OpenAIProvider(config=provider_config)
         capabilities = llm.capabilities
         assert capabilities.provider == "Gemini"
-        assert capabilities.configuration["model"] == "gemini-2-pro"
 
 
 def test_azure_openai_provider(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
@@ -200,21 +197,17 @@ def test_azure_openai_provider(monkeypatch: pytest.MonkeyPatch, provider_config:
         llm = OpenAIProvider(config=provider_config)
         capabilities = llm.capabilities
         assert capabilities.provider == "Azure OpenAI"
-        assert capabilities.configuration["model"] == "gpt-4o"
 
 
 def test_claude_provider(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
     monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setenv("CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
 
     with mock_claude_client():
         llm = OpenAIProvider(config=provider_config)
         capabilities = llm.capabilities
         assert capabilities.provider == "Claude"
-        assert capabilities.configuration["model"] == "claude-3-opus-20240229"
 
 
 def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
@@ -228,21 +221,15 @@ def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch, provider_confi
     monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
     monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setenv("CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", "claude-3-opus-20240229")
 
     # Azure OpenAI should have highest priority when enterprise is enabled
     # Clear other provider settings to ensure Azure OpenAI is selected
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
-    monkeypatch.delenv("GEMINI_MODEL", raising=False)
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
-    monkeypatch.setattr("mito_ai.constants.GEMINI_MODEL", None)
     # Clear Claude settings to ensure Azure OpenAI is selected
     monkeypatch.delenv("CLAUDE_API_KEY", raising=False)
-    monkeypatch.delenv("CLAUDE_MODEL", raising=False)
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", None)
     with mock_azure_openai_client():
         llm = OpenAIProvider(config=provider_config)
         capabilities = llm.capabilities
@@ -263,9 +250,7 @@ def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch, provider_confi
     provider_config.OpenAIProvider.api_key = None
     # Re-enable Claude settings
     monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setenv("CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", "claude-3-opus-20240229")
     with mock_claude_client():
         llm = OpenAIProvider(config=provider_config)
         capabilities = llm.capabilities
@@ -363,9 +348,7 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
 @pytest.mark.asyncio
 async def test_claude_completion_request(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
     monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setenv("CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
 
     mock_client = MagicMock()
@@ -397,9 +380,7 @@ async def test_claude_completion_request(monkeypatch: pytest.MonkeyPatch, provid
 @pytest.mark.asyncio
 async def test_claude_stream_completion(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
     monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setenv("CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
 
     mock_client = MagicMock()
@@ -440,9 +421,7 @@ async def test_claude_stream_completion(monkeypatch: pytest.MonkeyPatch, provide
 
 def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
     monkeypatch.setenv("CLAUDE_API_KEY", "invalid-key")
-    monkeypatch.setenv("CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "invalid-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_MODEL", "claude-3-opus-20240229")
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
 
     mock_client = MagicMock()
@@ -455,5 +434,5 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
     mock_client.request_completions.side_effect = Exception("API error")
 
     with patch("mito_ai.completions.providers.AnthropicClient", return_value=mock_client):
-      llm = OpenAIProvider(config=provider_config)
-      assert llm.last_error is None  # Error should be None until a request is made
+        llm = OpenAIProvider(config=provider_config)
+        assert llm.last_error is None  # Error should be None until a request is made
