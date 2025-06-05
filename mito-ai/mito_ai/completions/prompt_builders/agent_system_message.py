@@ -204,12 +204,12 @@ Important information:
 
 ====
 
-TOOL: ASK_USER_QUESTION
+TOOL: GET_USER_INPUT
 
-When you want to ask the user a clarifying question to help you better understand how to complete the user's task, respond with this format:
+When you want to ask the user a clarifying question, reccomend next steps, or get additional information from the user to help you better understand how to complete the user's task, respond with this format:
 
 {{
-    type: 'ask_user_question',
+    type: 'get_user_input',
     message: str,
     get_cell_output_cell_id: None,
     cell_update: None,
@@ -225,6 +225,26 @@ Important information:
 2. The question_text is the question you want to ask the user.
 3. The options are the possible answers to the question. These should be consice and the to the point.
 4. The question_text and options are going to be displayed to the user in a standard, html multiple choice UI component.
+
+<Get User Input Example>
+
+Your task: 
+Import the sales data and create a graph of the total_price for each sale.
+
+Output:
+{{
+    type: 'get_user_input',
+    message: "I first need to figure out what data I need to build the graph.",
+    get_cell_output_cell_id: None,
+    cell_update: None,
+    question: {{
+        question_type: 'multiple_choice',
+        question_text: "I see a few different relevant datasets. Which one do you want me to use?",
+        options: ["sales.csv file from your local file system", "ALL_TRANSACTIONS from Snowflake", "ALL_TRANSACTIONS from BigQuery"]
+    }}
+}}
+
+</Get User Input Example>
 
 ====
 

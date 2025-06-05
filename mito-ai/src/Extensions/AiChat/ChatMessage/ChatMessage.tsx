@@ -242,7 +242,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             {agentResponse?.type === 'get_cell_output' && 
                 <GetCellOutputToolUI />
             }
-            {agentResponse?.type === 'question' && agentResponse.question &&
+            {agentResponse?.type === 'get_user_input' && agentResponse.question &&
                 <QuestionUI question={agentResponse.question} onAnswer={answerAIQuestion} />
             }
         </div>

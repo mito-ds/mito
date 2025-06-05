@@ -794,7 +794,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 break;
             }
 
-            if (agentResponse.type === 'question') {
+            if (agentResponse.type === 'get_user_input') {
                 // If the agent is asking the user a question, we stop and wait for the user to answer!
                 isAgentFinished = true
                 break;
