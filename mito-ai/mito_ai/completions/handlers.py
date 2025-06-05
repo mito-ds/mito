@@ -48,6 +48,7 @@ from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler impo
 from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.utils.telemetry_utils import identify
 
+FALLBACK_MODEL = "gpt-4.1"  # Default model to use for safety
 
 # The GlobalMessageHistory is responsible for updating the message histories stored in the .mito/ai-chats directory.
 # We create one GlobalMessageHistory per backend server instance instead of one per websocket connection so that the
@@ -67,7 +68,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
         self.is_pro = is_pro()
-        self._selected_model = "gpt-4.1"
+        self._selected_model = FALLBACK_MODEL
         identify(llm.key_type)
         
     @property
