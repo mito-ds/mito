@@ -39,16 +39,16 @@ def get_installed_packages() -> List[str]:
         for package in sorted(pkg_resources.working_set, key=lambda x: x.key)
     ]
 
-def install_packages(packages: List[str]) -> dict:
+def install_packages(packages: List[str]) -> dict[str, bool | str | None]:
     """
     Install a list of packages.
     
     Returns:
         dict: A dictionary containing:
             - 'success': bool
-            - 'error': error message captured from the subprocess call
+            - 'error': error message captured from the subprocess call or None if no error
     """
-    result = {
+    result: dict[str, bool | str | None] = {
         'success': True,
         'error': None
     }
