@@ -153,7 +153,7 @@ Note that you'll have to edit `open_ai_utils.py`, specifically the `is_running_t
 
 #### Running Databases
 
-To ensure reproducibility databases, like Postgres, are created using Docker. To run:
+To ensure reproducibility, databases, like Postgres, are created using Docker. To run:
 
 ```bash
 docker-compose -f mito_ai/tests/docker/postgres.yml up
