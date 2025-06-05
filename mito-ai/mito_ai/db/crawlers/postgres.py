@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import TypedDict, List, Optional
+from typing import TypedDict, List, Optional, Union
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -21,7 +21,7 @@ def crawl_postgres(
     host: str,
     port: str,
     database: str,
-) -> dict[str, Optional[TableSchema] | str]:
+) -> dict[str, Union[Optional[TableSchema], str]]:
     """
     Crawl a PostgreSQL database to extract its schema information.
 
