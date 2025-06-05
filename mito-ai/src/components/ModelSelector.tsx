@@ -19,7 +19,7 @@ const ALL_MODELS = [
 ];
 
 // Maximum length for displayed model name before truncating
-const DEFAULT_MODEL = 'gpt-4.1';
+export const DEFAULT_MODEL = 'gpt-4.1';
 
 interface ModelSelectorProps {
   onConfigChange: (config: ModelConfig) => void;

@@ -66,13 +66,13 @@ import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
-import ModelSelector from '../../components/ModelSelector';
+import { DEFAULT_MODEL } from '../../components/ModelSelector';
+import ModelSelector from "../../components/ModelSelector";
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
-const DEFAULT_MODEL = 'gpt-4.1'
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
