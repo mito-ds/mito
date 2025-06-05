@@ -1,9 +1,7 @@
-# Copyright (c) Saga Inc.
-# Distributed under the terms of the GNU Affero General Public License v3.0 License.
-
 from typing import TypedDict, List, Optional, Union
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+from mito_ai.db.crawlers.constants import SUPPORTED_DATABASES
 
 
 class ColumnInfo(TypedDict):
@@ -15,30 +13,7 @@ class TableSchema(TypedDict):
     tables: dict[str, List[ColumnInfo]]
 
 
-def crawl_postgres(
-    username: str,
-    password: str,
-    host: str,
-    port: str,
-    database: str,
-) -> dict[str, Union[Optional[TableSchema], str]]:
-    """
-    Crawl a PostgreSQL database to extract its schema information.
-
-    Args:
-        username: Database username
-        password: Database password
-        host: Database host
-        port: Database port
-        database: Database name
-
-    Returns:
-        A dictionary containing either:
-        - The schema information in the 'schema' key
-        - An error message in the 'error' key if something went wrong
-    """
-    conn_str = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{database}"
-
+def crawl_db(conn_str: str, db_type: str) -> dict:
     try:
         engine = create_engine(conn_str)
         tables: List[str] = []
@@ -48,9 +23,7 @@ def crawl_postgres(
         with engine.connect() as connection:
             # Use parameterized query for safety
             result = connection.execute(
-                text(
-                    "SELECT table_name FROM information_schema.tables WHERE table_schema = :schema"
-                ),
+                text(SUPPORTED_DATABASES[db_type]["tables_query"]),
                 {"schema": "public"},
             )
             tables = [row[0] for row in result]
@@ -58,9 +31,7 @@ def crawl_postgres(
             # For each table, get the column names and data types
             for table in tables:
                 columns = connection.execute(
-                    text(
-                        "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = :table"
-                    ),
+                    text(SUPPORTED_DATABASES[db_type]["columns_query"]),
                     {"table": table},
                 )
                 # Create a list of dictionaries with column name and type

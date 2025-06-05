@@ -3,13 +3,8 @@
 
 import json
 import os
-from mito_ai.db.crawlers import snowflake, postgres, sqlite
-
-drivers = {
-    "snowflake": ["snowflake-sqlalchemy"],
-    "postgres": ["psycopg2-binary"],
-    "sqlite": [],
-}
+from mito_ai.db.crawlers import snowflake, base_crawler
+from mito_ai.db.crawlers.constants import SUPPORTED_DATABASES
 
 
 def setup_database_dir(
@@ -119,17 +114,11 @@ def crawl_and_store_schema(
             connection_details["warehouse"],
         )
     elif connection_details["type"] == "postgres":
-        schema = postgres.crawl_postgres(
-            connection_details["username"],
-            connection_details["password"],
-            connection_details["host"],
-            connection_details["port"],
-            connection_details["database"],
-        )
+        conn_str = f"postgresql+psycopg2://{connection_details['username']}:{connection_details['password']}@{connection_details['host']}:{connection_details['port']}/{connection_details['database']}"
+        schema = base_crawler.crawl_db(conn_str, "postgres")
     elif connection_details["type"] == "sqlite":
-        schema = sqlite.crawl_sqlite(
-            connection_details["database"],
-        )
+        conn_str = f"sqlite:///{connection_details['database']}"
+        schema = base_crawler.crawl_db(conn_str, "sqlite")
 
     if schema["error"]:
         return {
@@ -169,7 +158,7 @@ def install_db_drivers(db_type: str) -> dict:
     from mito_ai.utils.utils import get_installed_packages, install_packages
 
     installed_packages = get_installed_packages()
-    required_packages = drivers[db_type]
+    required_packages = SUPPORTED_DATABASES[db_type]["drivers"]
     packages_to_install = []
 
     for package in required_packages:
