@@ -1,12 +1,17 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import os
 from sqlalchemy import create_engine, text
 
 
 def crawl_sqlite(database: str):
     conn_str = f"sqlite:///{database}"
     try:
+        # Check if the database file exists
+        if not os.path.exists(database):
+            raise FileNotFoundError(f"Database file not found: {database}")
+        
         engine = create_engine(conn_str)
         with engine.connect() as connection:
             tables = connection.execute(
