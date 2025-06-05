@@ -1,9 +1,12 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import uuid
 import os
-from typing import Optional, Tuple
+import pkg_resources
+import subprocess
+import sys
+import uuid
+from typing import List, Optional, Tuple
 from tornado.httpclient import AsyncHTTPClient
 
 def get_random_id() -> str:
@@ -26,6 +29,38 @@ def is_running_test() -> bool:
     running_ci = 'CI' in os.environ and os.environ['CI'] is not None
 
     return running_pytests or running_ci
+
+def get_installed_packages() -> List[str]:
+    """
+    Get a list of all installed packages.
+    """
+    return [
+        package.key
+        for package in sorted(pkg_resources.working_set, key=lambda x: x.key)
+    ]
+
+def install_packages(packages: List[str]) -> dict[str, bool | str | None]:
+    """
+    Install a list of packages.
+    
+    Returns:
+        dict: A dictionary containing:
+            - 'success': bool
+            - 'error': error message captured from the subprocess call or None if no error
+    """
+    result: dict[str, bool | str | None] = {
+        'success': True,
+        'error': None
+    }
+    
+    for package in packages:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        except subprocess.CalledProcessError as e:
+            result['success'] = False
+            result['error'] = str(e)
+    
+    return result
 
 def _create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient, Optional[int]]:
     """

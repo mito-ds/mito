@@ -151,7 +151,16 @@ To run the performance tests, just run `python -m pytest mito_ai/tests/performan
 
 Note that you'll have to edit `open_ai_utils.py`, specifically the `is_running_test` condition.
 
+#### Running Databases
 
+To ensure reproducibility, databases, like Postgres, are created using Docker. To run:
 
+```bash
+docker-compose -f mito_ai/tests/docker/postgres.yml up
+```
 
+When you're done, stop and remove the container and its volumes with:
 
+```bash
+docker-compose -f mito_ai/tests/docker/postgres.yml down -v
+```

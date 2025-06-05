@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { DBConnection } from './model';
+import { DBConnection, DatabaseField, databaseConfigs } from './model';
 import '../../../../style/ConnectionForm.css';
 import LoadingCircle from '../../../components/LoadingCircle';
 
@@ -24,6 +24,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
     onClose
 }) => {
     const [isLoading, setIsLoading] = useState(false);
+    const selectedConfig = formData.type ? databaseConfigs[formData.type] : undefined;
 
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
@@ -32,6 +33,46 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
             await onSubmit(e);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const renderField = (field: DatabaseField) => {
+        const commonProps = {
+            id: field.name,
+            name: field.name,
+            value: formData[field.name] || '',
+            onChange: onInputChange,
+            placeholder: field.placeholder,
+            required: field.required,
+            className: 'form-control'
+        };
+
+        switch (field.type) {
+            case 'select':
+                return (
+                    <select {...commonProps}>
+                        <option value="">Select {field.label}</option>
+                        {field.options?.map(option => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                );
+            case 'number':
+                return (
+                    <input
+                        {...commonProps}
+                        type="number"
+                    />
+                );
+            default:
+                return (
+                    <input
+                        {...commonProps}
+                        type={field.type}
+                    />
+                );
         }
     };
 
@@ -48,60 +89,33 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                     onChange={onInputChange}
                     required
                 >
-                    <option value="snowflake">Snowflake</option>
+                    <option value="">Select Database Type</option>
+                    {Object.values(databaseConfigs).map(config => (
+                        <option key={config.type} value={config.type}>
+                            {config.displayName}
+                        </option>
+                    ))}
                 </select>
             </div>
 
-            <div className="form-group">
-                <label htmlFor="username">Username</label>
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={formData.username}
-                    onChange={onInputChange}
-                    placeholder="john.doe"
-                    required
-                />
-            </div>
+            {selectedConfig && selectedConfig.fields.map(field => (
+                <div key={field.name} className="form-group">
+                    <label htmlFor={field.name}>{field.label}</label>
+                    {renderField(field)}
+                </div>
+            ))}
 
-            <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={onInputChange}
-                    placeholder="Enter your password"
-                    required
-                />
-            </div>
-
-            <div className="form-group">
-                <label htmlFor="account">Account</label>
-                <input
-                    type="text"
-                    id="account"
-                    name="account"
-                    value={formData.account}
-                    onChange={onInputChange}
-                    placeholder="tudbfdr-ab12345"
-                    required
-                />
-            </div>
-
-            <div className="form-group">
-                <label htmlFor="warehouse">Warehouse</label>
-                <input
-                    type="text"
-                    id="warehouse"
-                    name="warehouse"
-                    value={formData.warehouse}
-                    onChange={onInputChange}
-                    placeholder="COMPUTE_WH"
-                    required
-                />
+            <div className="form-info">
+                <p>
+                    Mito will automatically install any required database drivers when you connect.
+                    <a
+                        href="https://docs.trymito.io/mito-ai/database-connectors/database-drivers"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Learn more about database drivers
+                    </a>
+                </p>
             </div>
 
             <div className="form-actions">
