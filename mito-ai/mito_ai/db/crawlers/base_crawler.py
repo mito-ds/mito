@@ -18,22 +18,18 @@ def crawl_db(conn_str: str, db_type: str) -> dict:
         engine = create_engine(conn_str)
         tables: List[str] = []
         schema: TableSchema = {"tables": {}}
+        tables_query = SUPPORTED_DATABASES[db_type]["tables_query"]
+        columns_query = SUPPORTED_DATABASES[db_type]["columns_query"]
 
         # Get a list of all tables in the database
         with engine.connect() as connection:
             # Use parameterized query for safety
-            result = connection.execute(
-                text(SUPPORTED_DATABASES[db_type]["tables_query"]),
-                {"schema": "public"},
-            )
+            result = connection.execute(text(tables_query), {"schema": "public"})
             tables = [row[0] for row in result]
 
             # For each table, get the column names and data types
             for table in tables:
-                columns = connection.execute(
-                    text(SUPPORTED_DATABASES[db_type]["columns_query"]),
-                    {"table": table},
-                )
+                columns = connection.execute(text(columns_query), {"table": table})
                 # Create a list of dictionaries with column name and type
                 column_info: List[ColumnInfo] = [
                     {"name": row[0], "type": row[1]} for row in columns
