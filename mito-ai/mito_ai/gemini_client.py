@@ -3,11 +3,14 @@
 
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 from google import genai
+from google.genai import types
 from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, \
     ResponseFormatInfo, MessageType
-from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
+from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, \
+    stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 
 INLINE_COMPLETION_MODEL = "gemini-2.0-flash-lite"
+
 
 class GeminiClient:
     def __init__(self, api_key: Optional[str], model: str):
@@ -17,40 +20,49 @@ class GeminiClient:
             self.client = genai.Client(api_key=api_key)
 
     async def request_completions(
-        self, 
-        messages: List[Dict[str, Any]], 
-        response_format_info: Optional[ResponseFormatInfo] = None,
-        message_type: MessageType = MessageType.CHAT
+            self,
+            messages: List[Dict[str, Any]],
+            response_format_info: Optional[ResponseFormatInfo] = None,
+            message_type: MessageType = MessageType.CHAT
     ) -> str:
         try:
             contents = self.convert_messages_for_gemini(messages)
-            config = None
-            if response_format_info:
-                config = {
-                    "response_mime_type": "application/json",
-                    "response_schema": AgentResponse.model_json_schema()
-                }
+
             # Build provider_data once
             provider_data = get_gemini_completion_function_params(
                 model=self.model if not response_format_info else INLINE_COMPLETION_MODEL,
                 contents=contents,
                 message_type=message_type,
-                config=config,
                 response_format_info=response_format_info
             )
+
             if self.api_key:
                 # Unpack provider_data for direct API call
-                response = self.client.models.generate_content(
-                    model=provider_data["model"],
-                    contents=provider_data["contents"]
-                )
+                # Extract the generation config if it exists
+                generation_config = provider_data.get("generation_config")
+
+                if generation_config:
+                    # Call with generation config for structured output
+                    response = self.client.models.generate_content(
+                        model=provider_data["model"],
+                        contents=provider_data["contents"],
+                        config=types.GenerateContentConfig(
+                            response_mime_type=generation_config.get("response_mime_type"),
+                            response_schema=generation_config.get("response_schema")
+                        )
+                    )
+                else:
+                    # Call without generation config for regular responses
+                    response = self.client.models.generate_content(
+                        model=provider_data["model"],
+                        contents=provider_data["contents"]
+                    )
             else:
                 # Only pass provider_data to the server
                 return await get_gemini_completion_from_mito_server(
                     model=provider_data["model"],
                     contents=provider_data["contents"],
                     message_type=message_type,
-                    config=config,
                     response_format_info=response_format_info
                 )
 
@@ -75,7 +87,7 @@ class GeminiClient:
                 for chunk in response:
                     if isinstance(chunk, str):
                         collected_response += chunk or ''
-                    elif hasattr(chunk, 'text') and chunk.text: # type: ignore[attr-defined]
+                    elif hasattr(chunk, 'text') and chunk.text:  # type: ignore[attr-defined]
                         collected_response += chunk.text or ''  # type: ignore[attr-defined]
                     else:
                         collected_response += str(chunk)
@@ -97,19 +109,19 @@ class GeminiClient:
             return f"Error generating content: {str(e)}"
 
     async def stream_completions(
-        self, 
-        messages: List[Dict[str, Any]],
-        message_id: str,
-        reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
-        message_type: MessageType = MessageType.CHAT
+            self,
+            messages: List[Dict[str, Any]],
+            message_id: str,
+            reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+            message_type: MessageType = MessageType.CHAT
     ) -> str:
         accumulated_response = ""
         try:
             contents = self.convert_messages_for_gemini(messages)
             if self.api_key:
                 for chunk in self.client.models.generate_content_stream(
-                    model=self.model,
-                    contents=contents,
+                        model=self.model,
+                        contents=contents,
                 ):
 
                     next_chunk = ""
@@ -122,7 +134,7 @@ class GeminiClient:
 
                     accumulated_response += next_chunk
                     print(next_chunk)
-                    
+
                     # Return the chunk to the frontend
                     reply_fn(CompletionStreamChunk(
                         parent_id=message_id,
@@ -133,7 +145,7 @@ class GeminiClient:
                         ),
                         done=False,
                     ))
-                
+
                 # Send final chunk
                 reply_fn(CompletionStreamChunk(
                     parent_id=message_id,
@@ -146,11 +158,11 @@ class GeminiClient:
                 ))
             else:
                 async for chunk_text in stream_gemini_completion_from_mito_server(
-                    model=self.model,
-                    contents=contents,
-                    message_type=message_type,
-                    message_id=message_id,
-                    reply_fn=reply_fn
+                        model=self.model,
+                        contents=contents,
+                        message_type=message_type,
+                        message_id=message_id,
+                        reply_fn=reply_fn
                 ):
                     accumulated_response += chunk_text or ''
 
@@ -158,14 +170,13 @@ class GeminiClient:
 
         except Exception as e:
             return f"Error streaming content: {str(e)}"
-            
-            
+
     def convert_messages_for_gemini(self, messages: List[Dict[str, Any]]) -> str:
         """
         Convert a list of messages to a single string for Gemini.
         """
         prompt = "\n".join([
-            f"{m.get('role', 'user')}: {m.get('content', '')}" 
+            f"{m.get('role', 'user')}: {m.get('content', '')}"
             for m in messages if isinstance(m, dict) and 'content' in m
         ])
         return prompt
