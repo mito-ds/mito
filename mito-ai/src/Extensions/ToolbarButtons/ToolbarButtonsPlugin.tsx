@@ -82,6 +82,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             isVisible: () => {
                 // Default to hidden, will be updated after async check since we are not allowed to 
                 // use async commands in isVisible.
+                return true;
                 return app.commands.hasCommand('mito-ai:beta-mode-enabled');
             }
         });

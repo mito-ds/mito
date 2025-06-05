@@ -19,6 +19,7 @@ import ExpandIcon from '../../../icons/ExpandIcon';
 
 interface ICodeBlockProps {
     code: string,
+    isCodeComplete: boolean,
     role: 'user' | 'assistant'
     renderMimeRegistry: IRenderMimeRegistry
     previewAICode: () => void
@@ -30,6 +31,7 @@ interface ICodeBlockProps {
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
     code,
+    isCodeComplete,
     role,
     renderMimeRegistry,
     previewAICode,
@@ -77,7 +79,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
             <div className='code-block-container'>
                 <>
                     {/* The code block toolbar for the last AI message */}
-                    {isLastAiMessage && 
+                    {isLastAiMessage && isCodeComplete && 
                         <div className='code-block-toolbar'>
                             {codeReviewStatus === 'chatPreview' && 
                                 <IconButton 
