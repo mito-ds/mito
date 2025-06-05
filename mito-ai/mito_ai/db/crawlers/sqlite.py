@@ -5,7 +5,7 @@ import os
 from sqlalchemy import create_engine, text
 
 
-def crawl_sqlite(database: str):
+def crawl_sqlite(database: str) -> dict:
     conn_str = f"sqlite:///{database}"
     try:
         # Check if the database file exists

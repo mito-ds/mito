@@ -9,7 +9,7 @@ from mito_ai.tests.conftest import TOKEN
 # --- ADD CONNECTION ---
 
 
-def test_add_connection_with_auth(jp_base_url):
+def test_add_connection_with_auth(jp_base_url: str) -> None:
     response = requests.post(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
@@ -18,7 +18,7 @@ def test_add_connection_with_auth(jp_base_url):
     assert response.status_code == 200
 
 
-def test_add_connection_with_no_auth(jp_base_url):
+def test_add_connection_with_no_auth(jp_base_url: str) -> None:
     response = requests.post(
         jp_base_url + "/mito-ai/db/connections",
         json=SNOWFLAKE,
@@ -26,7 +26,7 @@ def test_add_connection_with_no_auth(jp_base_url):
     assert response.status_code == 403  # Forbidden
 
 
-def test_add_connection_with_incorrect_auth(jp_base_url):
+def test_add_connection_with_incorrect_auth(jp_base_url: str) -> None:
     response = requests.post(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token incorrect-token"},
@@ -38,7 +38,7 @@ def test_add_connection_with_incorrect_auth(jp_base_url):
 # --- GET CONNECTIONS ---
 
 
-def test_get_connections_with_auth(jp_base_url, first_connection_id):
+def test_get_connections_with_auth(jp_base_url: str, first_connection_id: str) -> None:
     response = requests.get(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
@@ -50,12 +50,12 @@ def test_get_connections_with_auth(jp_base_url, first_connection_id):
     assert response.json()[first_connection_id] == SNOWFLAKE
 
 
-def test_get_connections_with_no_auth(jp_base_url):
+def test_get_connections_with_no_auth(jp_base_url: str) -> None:
     response = requests.get(jp_base_url + "/mito-ai/db/connections")
     assert response.status_code == 403  # Forbidden
 
 
-def test_get_connections_with_incorrect_auth(jp_base_url):
+def test_get_connections_with_incorrect_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token incorrect-token"},
@@ -66,14 +66,16 @@ def test_get_connections_with_incorrect_auth(jp_base_url):
 # --- DELETE CONNECTION ---
 
 
-def test_delete_connection_with_no_auth(jp_base_url, first_connection_id):
+def test_delete_connection_with_no_auth(jp_base_url: str, first_connection_id: str) -> None:
     response = requests.delete(
         jp_base_url + f"/mito-ai/db/connections/{first_connection_id}",
     )
     assert response.status_code == 403  # Forbidden
 
 
-def test_delete_connection_with_incorrect_auth(jp_base_url, first_connection_id):
+def test_delete_connection_with_incorrect_auth(
+    jp_base_url: str, first_connection_id: str
+) -> None:
     response = requests.delete(
         jp_base_url + f"/mito-ai/db/connections/{first_connection_id}",
         headers={"Authorization": f"token incorrect-token"},
@@ -81,7 +83,9 @@ def test_delete_connection_with_incorrect_auth(jp_base_url, first_connection_id)
     assert response.status_code == 403  # Forbidden
 
 
-def test_delete_connection_with_auth(jp_base_url, first_connection_id):
+def test_delete_connection_with_auth(
+    jp_base_url: str, first_connection_id: str
+) -> None:
     response = requests.delete(
         jp_base_url + f"/mito-ai/db/connections/{first_connection_id}",
         headers={"Authorization": f"token {TOKEN}"},

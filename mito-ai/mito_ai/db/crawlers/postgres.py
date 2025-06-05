@@ -4,7 +4,13 @@
 from sqlalchemy import create_engine, text
 
 
-def crawl_postgres(username: str, password: str, host: str, port: str, database: str):
+def crawl_postgres(
+    username: str,
+    password: str,
+    host: str,
+    port: str,
+    database: str,
+) -> dict:
     conn_str = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{database}"
 
     try:

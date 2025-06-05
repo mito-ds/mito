@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, text
 SUPPORTED_DATABASE_KINDS = ["STANDARD", "IMPORTED DATABASE"]
 
 
-def crawl_snowflake(username: str, password: str, account: str, warehouse: str):
+def crawl_snowflake(username: str, password: str, account: str, warehouse: str) -> dict:
     try:
         conn_str = (
             f"snowflake://{username}:{password}@{account}/" f"?warehouse={warehouse}"

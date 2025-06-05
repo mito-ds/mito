@@ -11,7 +11,7 @@ from mito_ai.tests.conftest import TOKEN
 # --- PUT SETTINGS ---
 
 
-def test_put_settings_with_auth(jp_base_url):
+def test_put_settings_with_auth(jp_base_url: str) -> None:
     response = requests.put(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         headers={"Authorization": f"token {TOKEN}"},
@@ -25,7 +25,7 @@ def test_put_settings_with_auth(jp_base_url):
     assert response_json["value"] == SETTINGS_VALUE
 
 
-def test_put_settings_with_no_auth(jp_base_url):
+def test_put_settings_with_no_auth(jp_base_url: str) -> None:
     response = requests.put(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         json={"value": SETTINGS_VALUE},
@@ -34,7 +34,7 @@ def test_put_settings_with_no_auth(jp_base_url):
     assert response.status_code == 403  # Forbidden
 
 
-def test_put_settings_with_incorrect_auth(jp_base_url):
+def test_put_settings_with_incorrect_auth(jp_base_url: str) -> None:
     response = requests.put(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         headers={"Authorization": f"token incorrect-token"},
@@ -46,7 +46,7 @@ def test_put_settings_with_incorrect_auth(jp_base_url):
 # # --- GET SETTINGS ---
 
 
-def test_get_settings_with_auth(jp_base_url):
+def test_get_settings_with_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         headers={"Authorization": f"token {TOKEN}"},
@@ -55,14 +55,14 @@ def test_get_settings_with_auth(jp_base_url):
     assert response.json() == {"key": SETTINGS_KEY, "value": SETTINGS_VALUE}
 
 
-def test_get_settings_with_no_auth(jp_base_url):
+def test_get_settings_with_no_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
     )
     assert response.status_code == 403  # Forbidden
 
 
-def test_get_settings_with_incorrect_auth(jp_base_url):
+def test_get_settings_with_incorrect_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         headers={"Authorization": f"token incorrect-token"},
