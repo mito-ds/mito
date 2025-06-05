@@ -2,8 +2,26 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from sqlalchemy import create_engine, text
+from typing import TypedDict, List, Dict, Optional
 
 SUPPORTED_DATABASE_KINDS = ["STANDARD", "IMPORTED DATABASE"]
+
+
+class ColumnInfo(TypedDict):
+    name: str
+    type: str
+
+
+class SchemaInfo(TypedDict):
+    tables: Dict[str, List[ColumnInfo]]
+
+
+class DatabaseInfo(TypedDict):
+    schemas: Dict[str, SchemaInfo]
+
+
+class WarehouseDetails(TypedDict):
+    databases: Dict[str, DatabaseInfo]
 
 
 def crawl_snowflake(username: str, password: str, account: str, warehouse: str) -> dict:
@@ -44,7 +62,7 @@ def crawl_snowflake(username: str, password: str, account: str, warehouse: str) 
         )
 
         # Step 5: Execute the schema query and process the results
-        warehouse_details = {"databases": {}}
+        warehouse_details: WarehouseDetails = {"databases": {}}
 
         with engine.connect() as connection:
             result = connection.execute(schema_query)
