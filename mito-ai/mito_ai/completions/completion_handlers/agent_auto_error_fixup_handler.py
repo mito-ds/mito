@@ -9,6 +9,7 @@ from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.completions.completion_handlers.utils import append_agent_system_message
+from typing import Optional
 
 
 __all__ = ["get_agent_auto_error_fixup_completion"]
@@ -21,7 +22,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         metadata: AgentSmartDebugMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        model: str
+        model: Optional[str] = None
     ) -> str:
         """Get a smart debug completion from the AI provider."""
 

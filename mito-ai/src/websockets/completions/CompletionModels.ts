@@ -221,7 +221,7 @@ export interface IAICapabilities {
   /**
    * AI provider configuration schema.
    */
-  configuration: Record<string, any>;
+  configuration: Record<string, unknown>;
   /**
    * AI provider name.
    */

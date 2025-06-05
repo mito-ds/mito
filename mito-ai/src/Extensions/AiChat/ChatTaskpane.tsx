@@ -267,6 +267,35 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
+    const startNewChat = async (): Promise<ChatHistoryManager> => {
+
+        // If current thread is empty and we already have an active thread id, do not create a new thread.
+        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
+            return chatHistoryManager;
+        }
+        // Reset frontend chat history
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+        setChatHistoryManager(newChatHistoryManager);
+
+        // Notify the backend to request a new chat thread and get its ID
+        try {
+            const response = await websocketClient.sendMessage<ICompletionRequest, IStartNewChatReply>({
+                type: 'start_new_chat',
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: 'start_new_chat'
+                },
+                stream: false,
+            });
+
+            // Set the new thread ID as active
+            activeThreadIdRef.current = response.thread_id;
+        } catch (error) {
+            console.error('Error starting new chat:', error);
+        }
+
+        return newChatHistoryManager;
+    }
 
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
@@ -290,19 +319,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     await startNewChat();
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
                     contextManager
                 );
                 addAIMessageFromResponseAndUpdateState(
-                    (error as any).title ? (error as any).title : `${error}`,
+                    (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,
                     'chat',
                     newChatHistoryManager,
                     false
                 );
                 addAIMessageFromResponseAndUpdateState(
-                    (error as any).hint ? (error as any).hint : `${error}`,
+                    (error as { hint?: string }).hint ? (error as { hint?: string }).hint! : `${error}`,
                     'chat',
                     newChatHistoryManager,
                     true
@@ -311,10 +340,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         };
 
         // Set the model on backend when the taskpane is opened
-        updateModelOnBackend(DEFAULT_MODEL); // Placeholder/default model
+        void updateModelOnBackend(DEFAULT_MODEL); // Placeholder/default model
 
         void initializeChatHistory();
-    }, [websocketClient]);
+    }, [websocketClient, contextManager, fetchChatHistoryAndSetActiveThread, notebookTracker, startNewChat, updateModelOnBackend]);
 
     useEffect(() => {
         /* 
@@ -978,36 +1007,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
-    const startNewChat = async (): Promise<ChatHistoryManager> => {
-
-        // If current thread is empty and we already have an active thread id, do not create a new thread.
-        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
-            return chatHistoryManager;
-        }
-        // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
-        setChatHistoryManager(newChatHistoryManager);
-
-        // Notify the backend to request a new chat thread and get its ID
-        try {
-            const response = await websocketClient.sendMessage<ICompletionRequest, IStartNewChatReply>({
-                type: 'start_new_chat',
-                message_id: UUID.uuid4(),
-                metadata: {
-                    promptType: 'start_new_chat'
-                },
-                stream: false,
-            });
-
-            // Set the new thread ID as active
-            activeThreadIdRef.current = response.thread_id;
-        } catch (error) {
-            console.error('Error starting new chat:', error);
-        }
-
-        return newChatHistoryManager;
-    }
-
     useEffect(() => {
         /* 
             Add a new command to the JupyterLab command registry that applies the latest AI generated code
@@ -1132,7 +1131,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             accelYDisposable.dispose();
             accelDDisposable.dispose();
         };
-    }, [codeReviewStatus]);
+    }, [codeReviewStatus, app.commands]);
 
     const updateCellToolbarButtons = (): void => {
         // Tell Jupyter to re-evaluate if the toolbar buttons should be visible.
@@ -1342,7 +1341,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         />
                         <ModelSelector onConfigChange={(config) => {
                         // Just update the backend
-                        updateModelOnBackend(config.model);
+                        void updateModelOnBackend(config.model);
                         }}/>
                     </div>
                     <button

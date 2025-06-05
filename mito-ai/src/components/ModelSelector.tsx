@@ -74,7 +74,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     }
   }, [selectedModel, isCompact]);
 
-  const handleModelChange = (model: string) => {
+  const handleModelChange = (model: string): void => {
     setSelectedModel(model);
     setIsOpen(false);
 
@@ -89,7 +89,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent): void => {
       const target = event.target as HTMLElement;
       if (!target.closest('.model-selector')) {
         setIsOpen(false);

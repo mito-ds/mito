@@ -22,7 +22,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         metadata: ChatMessageMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        model: str = None
+        model: Optional[str] = None
     ) -> str:
         """Get a chat completion from the AI provider."""
 
@@ -73,7 +73,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         message_history: GlobalMessageHistory,
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
-        model: str = None
+        model: Optional[str] = None
     ) -> str:
         """Stream chat completions from the AI provider.
         

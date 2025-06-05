@@ -32,7 +32,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         metadata: SmartDebugMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        model: str = None
+        model: Optional[str] = None
     ) -> str:
         """Get a smart debug completion from the AI provider."""
 
@@ -99,7 +99,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         message_history: GlobalMessageHistory,
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
-        model: str = None
+        model: Optional[str] = None
     ) -> str:
         """Stream smart debug completions from the AI provider.
 

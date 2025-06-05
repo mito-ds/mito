@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Literal, Union
+from typing import List, Literal, Union, Optional
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import AgentExecutionMetadata, MessageType, ResponseFormatInfo, AgentResponse
 from mito_ai.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
@@ -21,7 +21,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         metadata: AgentExecutionMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        model: str = None
+        model: Optional[str] = None
     ) -> str:
         """Get an agent execution completion from the AI provider."""
 

@@ -117,7 +117,8 @@ This attribute is observed by the websocket provider to push the error to the cl
             elif model_type == "gemini":
                 api_key = constants.GEMINI_API_KEY or None
                 gemini_client = GeminiClient(api_key=api_key, model=model)
-                completion = await gemini_client.request_completions(messages, response_format_info, message_type)
+                messages_for_gemini = [dict(m) for m in messages]
+                completion = await gemini_client.request_completions(messages_for_gemini, response_format_info, message_type)
             elif model_type == "openai":
                 if not self._openai_client:
                     raise RuntimeError("OpenAI client is not initialized.")
@@ -184,8 +185,9 @@ This attribute is observed by the websocket provider to push the error to the cl
             elif model_type == "gemini":
                 api_key = constants.GEMINI_API_KEY or ""
                 gemini_client = GeminiClient(api_key=api_key, model=model)
+                messages_for_gemini = [dict(m) for m in messages]
                 accumulated_response = await gemini_client.stream_completions(
-                    messages=messages,
+                    messages=messages_for_gemini,
                     message_id=message_id,
                     reply_fn=reply_fn,
                     message_type=message_type

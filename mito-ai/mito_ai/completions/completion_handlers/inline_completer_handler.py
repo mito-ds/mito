@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List
+from typing import List, Optional
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import InlineCompleterMetadata, MessageType
 from mito_ai.completions.prompt_builders.inline_completer_prompt import create_inline_prompt
@@ -20,7 +20,7 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
         metadata: InlineCompleterMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        model: str = None
+        model: Optional[str] = None
     ) -> str:
         """Get an inline completion from the AI provider."""
         
