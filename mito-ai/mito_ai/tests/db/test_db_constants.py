@@ -9,7 +9,7 @@ DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
 CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
 SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
 BACKUP_DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db_backup")
-POSTGRES = {
+POSTGRES_CONNECTION_DETAILS = {
     "type": "postgres",
     "username": "test_user",
     "password": "test_pass",
@@ -30,7 +30,7 @@ SQLITE_TEST_DB_PATH: Final[str] = os.path.join(
     "data",
     "stock_data.sqlite3",
 )
-SQLITE = {
+SQLITE_CONNECTION_DETAILS = {
     "type": "sqlite",
     "database": SQLITE_TEST_DB_PATH,
 }
