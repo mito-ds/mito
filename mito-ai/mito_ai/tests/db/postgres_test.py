@@ -11,7 +11,7 @@ from mito_ai.tests.conftest import TOKEN
 # docker-compose -f mito_ai/tests/docker/postgres.yml down -v
 
 
-def test_add_postgres_connection(jp_base_url):
+def test_add_postgres_connection(jp_base_url: str) -> None:
     response = requests.post(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},

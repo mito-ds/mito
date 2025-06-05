@@ -7,7 +7,7 @@ from mito_ai.tests.db.test_db_constants import SQLITE_TEST_DB_PATH, SQLITE
 from mito_ai.tests.conftest import TOKEN
 
 
-def test_add_sqlite_connection(jp_base_url):
+def test_add_sqlite_connection(jp_base_url: str) -> None:
     # Check for the sqlite database
     assert os.path.exists(SQLITE_TEST_DB_PATH)
 
