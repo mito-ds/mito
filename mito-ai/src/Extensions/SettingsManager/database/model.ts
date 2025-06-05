@@ -33,13 +33,6 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
         displayName: 'PostgreSQL',
         fields: [
             {
-                name: 'connectionName',
-                type: 'text',
-                label: 'Connection Name',
-                placeholder: 'My PostgreSQL Connection',
-                required: true
-            },
-            {
                 name: 'username',
                 type: 'text',
                 label: 'Username',
