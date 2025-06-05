@@ -37,7 +37,7 @@ def test_ensure_no_application_databases(jp_base_url, first_connection_id):
         headers={"Authorization": f"token {TOKEN}"},
     )
 
-    crawled_databases = response.json()[first_connection_id]["schema"].keys()
+    crawled_databases = response.json()[first_connection_id]["databases"].keys()
     assert len(crawled_databases) > 0
     assert "SNOWFLAKE" not in crawled_databases
 
