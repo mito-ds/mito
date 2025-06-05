@@ -1,4 +1,11 @@
-SUPPORTED_DATABASES = {
+from typing import TypedDict, List, Optional
+
+class DatabaseConfig(TypedDict, total=False):
+    drivers: List[str]
+    tables_query: str
+    columns_query: str
+
+SUPPORTED_DATABASES: dict[str, DatabaseConfig] = {
     "postgres": {
         "drivers": ["psycopg2-binary"],
         "tables_query": "SELECT table_name FROM information_schema.tables WHERE table_schema = :schema",

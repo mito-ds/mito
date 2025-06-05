@@ -158,7 +158,7 @@ def install_db_drivers(db_type: str) -> dict:
     from mito_ai.utils.utils import get_installed_packages, install_packages
 
     installed_packages = get_installed_packages()
-    required_packages = SUPPORTED_DATABASES[db_type]["drivers"]
+    required_packages = SUPPORTED_DATABASES[db_type].get("drivers", [])
     packages_to_install = []
 
     for package in required_packages:

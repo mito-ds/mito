@@ -4,13 +4,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from mito_ai.db.crawlers.constants import SUPPORTED_DATABASES
 from mito_ai.db.models import ColumnInfo, TableSchema
 
+
 def crawl_db(conn_str: str, db_type: str) -> dict:
     try:
         engine = create_engine(conn_str)
         tables: List[str] = []
         schema: TableSchema = {"tables": {}}
-        tables_query = SUPPORTED_DATABASES[db_type]["tables_query"]
-        columns_query = SUPPORTED_DATABASES[db_type]["columns_query"]
+        tables_query = SUPPORTED_DATABASES[db_type].get("tables_query", "")
+        columns_query = SUPPORTED_DATABASES[db_type].get("columns_query", "")
 
         # Get a list of all tables in the database
         with engine.connect() as connection:
