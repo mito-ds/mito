@@ -4,8 +4,9 @@
 import asyncio
 import json
 import time
-from typing import Any, Dict, List, Optional, Callable, Union, AsyncGenerator, Tuple
+from typing import Any, Dict, List, Optional, Callable, Union, AsyncGenerator, Tuple, Sequence
 from tornado.httpclient import AsyncHTTPClient
+from google.genai.types import Content
 from mito_ai.completions.models import CompletionReply, CompletionStreamChunk, CompletionItem, MessageType, \
     AgentResponse
 from .utils import _create_http_client
@@ -17,15 +18,18 @@ max_retries = 1
 
 def _prepare_gemini_request_data_and_headers(
         model: str,
-        contents: str,
+        contents: Sequence[Content],
         message_type: MessageType,
         response_format_info: Optional[Any] = None,
+        system_prompt: Optional[str] = None,
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
     inner_data = {
         "model": model,
-        "contents": contents,
+        "contents": [{"role": c.role, "parts": [{"text": p.text} for p in c.parts if p.text is not None]} for c in contents if c.parts],
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
     }
+    if system_prompt:
+        inner_data["system_prompt"] = system_prompt
     if response_format_info:
         # Ensure the format is a string, not a class
         format_value = getattr(response_format_info, 'format', None)
@@ -37,11 +41,9 @@ def _prepare_gemini_request_data_and_headers(
         })
 
         # Add generation config for structured output
-        # Convert AgentResponse schema to Gemini's expected format
-        schema = _convert_pydantic_to_gemini_schema(AgentResponse)
         inner_data["generation_config"] = {
             "response_mime_type": "application/json",
-            "response_schema": schema
+            "response_schema": AgentResponse.model_json_schema()  # Use the raw schema directly
         }
 
     data = {
@@ -115,11 +117,14 @@ def _convert_pydantic_to_gemini_schema(pydantic_model) -> Dict[str, Any]:
 
 async def get_gemini_completion_from_mito_server(
         model: str,
-        contents: str,
+        contents: Sequence[Content],
         message_type: MessageType,
         response_format_info: Optional[Any] = None,
+        system_prompt: Optional[str] = None,
 ) -> str:
-    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, response_format_info)
+    data, headers = _prepare_gemini_request_data_and_headers(
+        model, contents, message_type, response_format_info, system_prompt
+    )
     http_client, http_client_timeout = _create_http_client(timeout, max_retries)
     start_time = time.time()
     try:
@@ -142,12 +147,15 @@ async def get_gemini_completion_from_mito_server(
 
 async def stream_gemini_completion_from_mito_server(
         model: str,
-        contents: str,
+        contents: Sequence[Content],
         message_type: MessageType,
         message_id: str,
         reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]],
+        system_prompt: Optional[str] = None,
 ) -> AsyncGenerator[str, None]:
-    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type)
+    data, headers = _prepare_gemini_request_data_and_headers(
+        model, contents, message_type, system_prompt=system_prompt
+    )
     http_client, http_client_timeout = _create_http_client(timeout, max_retries)
     start_time = time.time()
     chunk_queue: asyncio.Queue[str] = asyncio.Queue()
@@ -227,9 +235,10 @@ async def stream_gemini_completion_from_mito_server(
 
 def get_gemini_completion_function_params(
         model: str,
-        contents: str,
+        contents: Sequence[Content],
         message_type: MessageType,
         response_format_info: Optional[Any] = None,
+        system_prompt: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Build the provider_data dict for Gemini completions, mirroring the OpenAI/Anthropic approach.
@@ -237,9 +246,11 @@ def get_gemini_completion_function_params(
     """
     provider_data = {
         "model": model,
-        "contents": contents,
+        "contents": [{"role": c.role, "parts": [{"text": p.text} for p in c.parts if p.text is not None]} for c in contents if c.parts],
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
     }
+    if system_prompt:
+        provider_data["system_prompt"] = system_prompt
 
     # Add generation config for structured output
     if response_format_info:
