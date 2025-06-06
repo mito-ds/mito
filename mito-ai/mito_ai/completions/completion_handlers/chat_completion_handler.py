@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Union, Optional, AsyncGenerator, Callable
+from typing import List, Union, AsyncGenerator, Callable
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import ChatMessageMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
@@ -9,7 +9,6 @@ from mito_ai.completions.prompt_builders.chat_prompt import create_chat_prompt
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
-from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.completions.completion_handlers.utils import append_chat_system_message, create_ai_optimized_message
 
 __all__ = ["get_chat_completion", "stream_chat_completion"]
@@ -22,7 +21,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         metadata: ChatMessageMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        model: Optional[str] = None
+        model: str
     ) -> str:
         """Get a chat completion from the AI provider."""
 
@@ -55,7 +54,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Get the completion (non-streaming)
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
-            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
+            model=model,
             message_type=MessageType.CHAT,
             user_input=metadata.input,
             thread_id=metadata.threadId
@@ -73,7 +72,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         message_history: GlobalMessageHistory,
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
-        model: Optional[str] = None
+        model: str
     ) -> str:
         """Stream chat completions from the AI provider.
         
@@ -119,7 +118,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         accumulated_response = await provider.stream_completions(
             message_type=MessageType.CHAT,
             messages=message_history.get_ai_optimized_history(metadata.threadId),
-            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.CHAT],
+            model=model,
             message_id=message_id,
             reply_fn=reply_fn,
             user_input=metadata.input,

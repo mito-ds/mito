@@ -11,22 +11,29 @@ interface ModelConfig {
   model: string;
 }
 
-const ALL_MODELS = [
-  'gpt-4.1',
-  'claude-opus-4-20250514',
-  'claude-sonnet-4-20250514',
-  'gemini-2.5-pro-preview-03-25'
+interface ModelMapping {
+  displayName: string;
+  fullName: string;
+}
+
+const MODEL_MAPPINGS: ModelMapping[] = [
+  { displayName: 'GPT 4.1', fullName: 'gpt-4.1' },
+  { displayName: 'Claude 4 Opus', fullName: 'claude-opus-4-20250514' },
+  { displayName: 'Claude 4 Sonnet', fullName: 'claude-sonnet-4-20250514' },
+  { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25' }
 ];
 
+const ALL_MODELS = MODEL_MAPPINGS.map(mapping => mapping.displayName);
+
 // Maximum length for displayed model name before truncating
-export const DEFAULT_MODEL = 'gpt-4.1';
+export const DEFAULT_MODEL = 'GPT-4.1';
 
 interface ModelSelectorProps {
   onConfigChange: (config: ModelConfig) => void;
 }
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
-  const [selectedModel, setSelectedModel] = useState<string>('gpt-4o-mini');
+  const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isCompact, setIsCompact] = useState<boolean>(false);
   const selectedModelRef = useRef<HTMLSpanElement>(null);
@@ -38,11 +45,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     if (storedConfig) {
       try {
         const parsedConfig = JSON.parse(storedConfig);
-        const model = parsedConfig.model || DEFAULT_MODEL;
-        setSelectedModel(model);
+        const fullModelName = parsedConfig.model || MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL)?.fullName;
+        const displayName = MODEL_MAPPINGS.find(m => m.fullName === fullModelName)?.displayName || DEFAULT_MODEL;
+        setSelectedModel(displayName);
 
-        onConfigChange({ model });
-
+        onConfigChange({ model: fullModelName });
       } catch (e) {
         console.error('Failed to parse stored LLM config', e);
       }
@@ -66,20 +73,13 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (selectedModelRef.current && !isCompact) {
-      // Removed dropdownWidth logic
-    } else if (isCompact) {
-      // Removed dropdownWidth logic
-    }
-  }, [selectedModel, isCompact]);
-
-  const handleModelChange = (model: string): void => {
-    setSelectedModel(model);
+  const handleModelChange = (displayName: string): void => {
+    setSelectedModel(displayName);
     setIsOpen(false);
 
+    const fullModelName = MODEL_MAPPINGS.find(m => m.displayName === displayName)?.fullName || displayName;
     const newConfig = {
-      model: model
+      model: fullModelName
     };
 
     localStorage.setItem('llmModelConfig', JSON.stringify(newConfig));
@@ -103,50 +103,6 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   }, []);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // useEffect(() => {
-  //   if (isOpen && dropdownRef.current && containerRef.current) {
-  //     const dropdown = dropdownRef.current;
-  //     const container = containerRef.current;
-  //     const rect = container.getBoundingClientRect();
-
-  //     if (rect.top < dropdown.offsetHeight) {
-  //       dropdown.style.bottom = 'auto';
-  //       dropdown.style.top = '100%';
-  //       dropdown.style.marginTop = '4px';
-  //       dropdown.style.marginBottom = '0';
-  //     } else {
-  //       // Default: position above
-  //       dropdown.style.top = 'auto';
-  //       dropdown.style.bottom = '100%';
-  //       dropdown.style.marginBottom = '4px';
-  //       dropdown.style.marginTop = '0';
-  //     }
-
-  //     // Ensure it doesn't overflow horizontally
-  //     if (isCompact) {
-  //       const leftSpace = rect.left;
-  //       const rightSpace = window.innerWidth - rect.right;
-
-  //       if (leftSpace < (dropdown.offsetWidth / 2) || rightSpace < (dropdown.offsetWidth / 2)) {
-  //         // Not enough space to center, align to the side with more space
-  //         if (leftSpace < rightSpace) {
-  //           dropdown.style.left = '0';
-  //           dropdown.style.right = 'auto';
-  //           dropdown.style.transform = 'none';
-  //         } else {
-  //           dropdown.style.left = 'auto';
-  //           dropdown.style.right = '0';
-  //           dropdown.style.transform = 'none';
-  //         }
-  //       } else {
-  //         dropdown.style.left = '50%';
-  //         dropdown.style.right = 'auto';
-  //         dropdown.style.transform = 'translateX(-50%)';
-  //       }
-  //     }
-  //   }
-  // }, [isOpen, isCompact]);
 
   return (
     <div className="model-selector" ref={containerRef}>

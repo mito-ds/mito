@@ -300,6 +300,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
             try {
+                // Check for saved model preference in localStorage
+                const storedConfig = localStorage.getItem('llmModelConfig');
+                let initialModel = DEFAULT_MODEL;
+                if (storedConfig) {
+                    try {
+                        const parsedConfig = JSON.parse(storedConfig);
+                        initialModel = parsedConfig.model || DEFAULT_MODEL;
+                    } catch (e) {
+                        console.error('Failed to parse stored LLM config', e);
+                    }
+                }
+
+                // Set the model on backend when the taskpane is opened
+                void updateModelOnBackend(initialModel);
+
                 // 1. Fetch available chat threads.
                 const chatThreadsResponse = await websocketClient.sendMessage<ICompletionRequest, IFetchThreadsReply>({
                     type: "get_threads",
@@ -339,11 +354,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         };
 
-        // Set the model on backend when the taskpane is opened
-        void updateModelOnBackend(DEFAULT_MODEL); // Placeholder/default model
-
         void initializeChatHistory();
-    }, [websocketClient, contextManager, fetchChatHistoryAndSetActiveThread, notebookTracker, startNewChat, updateModelOnBackend]);
+    }, [websocketClient]);
 
     useEffect(() => {
         /* 
@@ -1131,7 +1143,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             accelYDisposable.dispose();
             accelDDisposable.dispose();
         };
-    }, [codeReviewStatus, app.commands]);
+    }, [codeReviewStatus]);
 
     const updateCellToolbarButtons = (): void => {
         // Tell Jupyter to re-evaluate if the toolbar buttons should be visible.

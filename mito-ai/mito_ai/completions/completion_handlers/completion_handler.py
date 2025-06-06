@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import Protocol, TypeVar, Optional
+from typing import Protocol, TypeVar
 from abc import abstractmethod, ABCMeta
 from mito_ai.completions.models import ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, InlineCompleterMetadata, AgentSmartDebugMetadata
 from mito_ai.completions.providers import OpenAIProvider
@@ -22,7 +22,7 @@ class CompletionHandler(Protocol[T], metaclass=ABCMeta):
         metadata: T,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        model: Optional[str] = None
+        model: str
     ) -> str:
         """Get a completion from the AI provider.
         

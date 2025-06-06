@@ -1,14 +1,13 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Literal, Union, Optional
+from typing import List, Literal, Union
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import AgentExecutionMetadata, MessageType, ResponseFormatInfo, AgentResponse
 from mito_ai.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
-from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.completions.completion_handlers.utils import append_agent_system_message, create_ai_optimized_message
 
 __all__ = ["get_agent_execution_completion"]
@@ -21,7 +20,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         metadata: AgentExecutionMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
-        model: Optional[str] = None
+        model: str
     ) -> str:
         """Get an agent execution completion from the AI provider."""
 
@@ -47,7 +46,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
-            model=model or MESSAGE_TYPE_TO_MODEL[MessageType.AGENT_EXECUTION],
+            model=model,
             response_format_info=ResponseFormatInfo(
                 name='agent_response',
                 format=AgentResponse
@@ -60,7 +59,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         
         await message_history.append_message(ai_response_message, ai_response_message, provider, metadata.threadId)
-
+        
         return completion
 
 # Use the static method directly
