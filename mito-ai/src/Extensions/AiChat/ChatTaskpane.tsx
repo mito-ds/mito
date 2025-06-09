@@ -69,6 +69,7 @@ import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import { processFirstMessageFromSessionStorage } from './FirstMessage';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -270,6 +271,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     await startNewChat();
                 }
+
+                processFirstMessageFromSessionStorage(startAgentExecution);
+
             } catch (error) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
@@ -291,6 +295,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         };
 
         void initializeChatHistory();
+
     }, [websocketClient]);
 
     useEffect(() => {
