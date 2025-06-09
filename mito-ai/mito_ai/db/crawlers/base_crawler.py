@@ -24,7 +24,14 @@ def crawl_db(conn_str: str, db_type: str) -> dict:
 
             # For each table, get the column names and data types
             for table in tables:
-                columns = connection.execute(text(columns_query), {"table": table})
+                if db_type == "mysql":
+                    # For MySQL we have to use string formatting
+                    # since MySQL doesn't support parameter binding
+                    query = columns_query.format(table=table)
+                    columns = connection.execute(text(query))
+                else:
+                    # For other databases, use parameter binding
+                    columns = connection.execute(text(columns_query), {"table": table})
                 # Create a list of dictionaries with column name and type
                 column_info: List[ColumnInfo] = [
                     {"name": row[0], "type": row[1]} for row in columns

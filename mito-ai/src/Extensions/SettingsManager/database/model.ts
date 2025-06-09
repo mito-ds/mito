@@ -28,6 +28,47 @@ export interface DatabaseConfig {
 }
 
 export const databaseConfigs: Record<string, DatabaseConfig> = {
+    mysql: {
+        type: 'mysql',
+        displayName: 'MySQL',
+        fields: [
+            {
+                name: 'username',
+                type: 'text',
+                label: 'Username',
+                placeholder: 'john.doe',
+                required: true
+            },
+            {
+                name: 'password',
+                type: 'password',
+                label: 'Password',
+                placeholder: 'Enter your password',
+                required: true
+            },
+            {
+                name: 'host',
+                type: 'text',
+                label: 'Host',
+                placeholder: 'localhost',
+                required: true
+            },
+            {
+                name: 'port',
+                type: 'number',
+                label: 'Port',
+                placeholder: '3306',
+                required: true
+            },
+            {
+                name: 'database',
+                type: 'text',
+                label: 'Database',
+                placeholder: 'mydb',
+                required: true
+            }
+        ]
+    },
     postgres: {
         type: 'postgres',
         displayName: 'PostgreSQL',
