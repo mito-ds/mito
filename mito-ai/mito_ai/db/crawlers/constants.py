@@ -12,7 +12,7 @@ class DatabaseConfig(TypedDict, total=False):
 
 SUPPORTED_DATABASES: dict[str, DatabaseConfig] = {
     "mysql": {
-        "drivers": ["mysql-connector-python"],
+        "drivers": ["PyMySQL"],
         "tables_query": "SHOW TABLES",
         "columns_query": "SHOW COLUMNS FROM {table}",
     },

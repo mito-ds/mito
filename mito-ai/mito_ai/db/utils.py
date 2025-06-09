@@ -120,7 +120,7 @@ def crawl_and_store_schema(
         conn_str = f"sqlite:///{connection_details['database']}"
         schema = base_crawler.crawl_db(conn_str, "sqlite")
     elif connection_details["type"] == "mysql":
-        conn_str = f"mysql+mysqlconnector://{connection_details['username']}:{connection_details['password']}@{connection_details['host']}:{connection_details['port']}/{connection_details['database']}"
+        conn_str = f"mysql+pymysql://{connection_details['username']}:{connection_details['password']}@{connection_details['host']}:{connection_details['port']}/{connection_details['database']}"
         schema = base_crawler.crawl_db(conn_str, "mysql")
 
     if schema["error"]:
