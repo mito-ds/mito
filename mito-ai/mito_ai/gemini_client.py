@@ -1,13 +1,38 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
+from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union, Tuple
 from google import genai
+from google.genai.types import GenerateContentConfig
 from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, \
     ResponseFormatInfo, MessageType
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 
 INLINE_COMPLETION_MODEL = "gemini-2.0-flash-lite"
+
+def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> Tuple[List[str], List[Dict[str, Any]]]:
+    """
+    Separates system instructions from user/assistant messages.
+    Returns:
+    - system_instructions: list of strings (for system_instruction param)
+    - contents: list of dicts for Gemini (excluding system role)
+    """
+    system_instructions = []
+    contents = []
+
+    for msg in messages:
+        role = msg.get("role")
+        content = msg.get("content", "")
+        if role == "system":
+            if content:
+                system_instructions.append(content)
+        elif role in ("user", "assistant"):
+            contents.append({
+                "role": role,
+                "parts": [{"text": content}]
+            })
+
+    return system_instructions, contents
 
 class GeminiClient:
     def __init__(self, api_key: Optional[str], model: str):
@@ -17,71 +42,85 @@ class GeminiClient:
             self.client = genai.Client(api_key=api_key)
 
     async def request_completions(
-        self, 
-        messages: List[Dict[str, Any]], 
+        self,
+        messages: List[Dict[str, Any]],
         response_format_info: Optional[ResponseFormatInfo] = None,
         message_type: MessageType = MessageType.CHAT
     ) -> str:
         try:
-            contents = self.convert_messages_for_gemini(messages)
             config = None
             if response_format_info:
+                # Extract system instructions and Gemini-compatible contents
+                system_instructions, contents = extract_system_instruction_and_contents(messages)
+
                 config = {
                     "response_mime_type": "application/json",
                     "response_schema": AgentResponse.model_json_schema()
                 }
-            # Build provider_data once
-            provider_data = get_gemini_completion_function_params(
-                model=self.model if not response_format_info else INLINE_COMPLETION_MODEL,
-                contents=contents,
-                message_type=message_type,
-                config=config,
-                response_format_info=response_format_info
-            )
-            if self.api_key:
-                # Unpack provider_data for direct API call
-                response = self.client.models.generate_content(
-                    model=provider_data["model"],
-                    contents=provider_data["contents"]
-                )
-            else:
-                # Only pass provider_data to the server
-                return await get_gemini_completion_from_mito_server(
-                    model=provider_data["model"],
-                    contents=provider_data["contents"],
+
+                provider_data = get_gemini_completion_function_params(
+                    model=self.model if not response_format_info else INLINE_COMPLETION_MODEL,
+                    contents=contents,
                     message_type=message_type,
                     config=config,
                     response_format_info=response_format_info
                 )
+                if self.api_key:
+                    print(provider_data["model"])
+                    print(provider_data)
+                    print(contents)
+                    response = self.client.models.generate_content(
+                        model=provider_data["model"],
+                        contents=contents,
+                        config=GenerateContentConfig(
+                            system_instruction=system_instructions,
+                            response_mime_type=provider_data["config"].get("response_mime_type") if provider_data.get("config") else None,
+                            response_schema=provider_data["config"].get("response_schema") if provider_data.get("config") else None
+                        )
+                    )
+                else:
+                    return await get_gemini_completion_from_mito_server(
+                        model=provider_data["model"],
+                        contents=self.convert_messages_for_gemini(messages),
+                        message_type=message_type,
+                        config=config,
+                        response_format_info=response_format_info
+                    )
+            else:
+                if self.api_key:
+                    response = self.client.models.generate_content(
+                        model=self.model if not response_format_info else INLINE_COMPLETION_MODEL,
+                        contents=self.convert_messages_for_gemini(messages)
+                    )
+                else:
+                    return await get_gemini_completion_from_mito_server(
+                        model=self.model if not response_format_info else INLINE_COMPLETION_MODEL,
+                        contents=self.convert_messages_for_gemini(messages),
+                        message_type=message_type,
+                        response_format_info=response_format_info
+                    )
+
 
             if not response:
                 return "No response received from Gemini API"
 
-            # If response is a tuple or string, just return str(response)
             if isinstance(response, (tuple, str)):
                 return str(response)
 
             if hasattr(response, 'text') and response.text:
                 return response.text
 
-            # Attempt to handle different possible response types from the Gemini API:
-            # 1. If the response is iterable (e.g., a streaming response), collect and concatenate all chunks.
-            # 2. If the response contains 'candidates', extract the first candidate's content, handling both 'parts' and direct content.
-            # 3. If neither of the above, return the string representation of the response.
-
-            # Handle streaming response
             if hasattr(response, '__iter__') and not isinstance(response, (str, tuple)):
                 collected_response = ""
                 for chunk in response:
                     if isinstance(chunk, str):
                         collected_response += chunk or ''
-                    elif hasattr(chunk, 'text') and chunk.text: # type: ignore[attr-defined]
-                        collected_response += chunk.text or ''  # type: ignore[attr-defined]
+                    elif hasattr(chunk, 'text') and chunk.text:
+                        collected_response += chunk.text or ''
                     else:
                         collected_response += str(chunk)
                 return collected_response
 
-            # Handle candidates response
             if hasattr(response, 'candidates') and response.candidates:
                 candidate = response.candidates[0]
                 if hasattr(candidate, 'content') and candidate.content:

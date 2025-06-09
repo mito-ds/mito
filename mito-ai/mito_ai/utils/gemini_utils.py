@@ -154,7 +154,7 @@ async def stream_gemini_completion_from_mito_server(
 
 def get_gemini_completion_function_params(
     model: str,
-    contents: str,
+    contents: list[dict[str, Any]],
     message_type: MessageType,
     config: Optional[Dict[str, Any]] = None,
     response_format_info: Optional[Any] = None,
@@ -169,5 +169,5 @@ def get_gemini_completion_function_params(
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
     }
     if config:
-        provider_data["config"] = json.dumps(config)
-    return provider_data 
+        provider_data["config"] = config
+    return provider_data
