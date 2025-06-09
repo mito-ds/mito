@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:17
+    container_name: pg_test_db
+    ports:
+      - "5432:5432"  # Maps container port 5432 to host port 5432
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_pass
+      POSTGRES_DB: test_db
+    volumes:
+      - pg_data:/var/lib/postgresql/data        # persistent data volume
+      - ./init:/docker-entrypoint-initdb.d      # SQL files to run on init
+    restart: unless-stopped
+
+volumes:
+  pg_data:
