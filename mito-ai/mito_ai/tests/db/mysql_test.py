@@ -2,20 +2,20 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import requests
-from mito_ai.tests.db.test_db_constants import POSTGRES_CONNECTION_DETAILS
+from mito_ai.tests.db.test_db_constants import MYSQL_CONNECTION_DETAILS
 from mito_ai.tests.conftest import TOKEN
 
-# To create a postgres database, run the following command:
-# docker-compose -f mito_ai/docker/postgres/compose.yml up
+# To create a mysql database, run the following command:
+# docker-compose -f mito_ai/docker/mysql/compose.yml up
 # and then, to delete the database, run the following command:
-# docker-compose -f mito_ai/docker/postgres/compose.yml down -v
+# docker-compose -f mito_ai/docker/mysql/compose.yml down -v
 
 
-def test_add_postgres_connection(jp_base_url: str) -> None:
+def test_add_mysql_connection(jp_base_url: str) -> None:
     response = requests.post(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
-        json=POSTGRES_CONNECTION_DETAILS,
+        json=MYSQL_CONNECTION_DETAILS,
     )
     assert response.status_code == 200
 
