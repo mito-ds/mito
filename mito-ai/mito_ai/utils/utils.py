@@ -6,7 +6,7 @@ import pkg_resources
 import subprocess
 import sys
 import uuid
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 from tornado.httpclient import AsyncHTTPClient
 
 def get_random_id() -> str:
@@ -39,7 +39,7 @@ def get_installed_packages() -> List[str]:
         for package in sorted(pkg_resources.working_set, key=lambda x: x.key)
     ]
 
-def install_packages(packages: List[str]) -> dict[str, bool | str | None]:
+def install_packages(packages: List[str]) -> dict[str, Union[bool, str, None]]:
     """
     Install a list of packages.
     
@@ -48,7 +48,7 @@ def install_packages(packages: List[str]) -> dict[str, bool | str | None]:
             - 'success': bool
             - 'error': error message captured from the subprocess call or None if no error
     """
-    result: dict[str, bool | str | None] = {
+    result: dict[str, Union[bool, str, None]] = {
         'success': True,
         'error': None
     }
