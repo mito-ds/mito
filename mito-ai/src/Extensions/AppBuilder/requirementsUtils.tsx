@@ -44,7 +44,7 @@ with tempfile.TemporaryDirectory() as temp_dir:
     # Save the notebook code to a temporary Python file
     temp_file = os.path.join(temp_dir, "notebook_code.py")
     with open(temp_file, "w") as f:
-        f.write("""${codeContent}""")
+        f.write("""${codeContent.replace(/\\/g, '\\\\').replace(/"""/g, '\\"\\"\\"')}""")
     
     # Make sure pipreqs is installed. Then
     # 1. Create a requirements.in file
