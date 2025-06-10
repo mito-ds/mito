@@ -5,7 +5,7 @@
 
 import React from "react";
 import { useCallback, useEffect, useState } from "react";
-import { NotebookActions } from "@jupyterlab/notebook";
+import { INotebookTracker, NotebookActions } from "@jupyterlab/notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { COMMAND_MITO_AI_SEND_AGENT_MESSAGE, COMMAND_MITO_AI_OPEN_CHAT } from "../../commands";
 import '../../../style/NotebookFooter.css';
@@ -14,33 +14,42 @@ import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
 
 interface NotebookFooterProps {
-    notebook: any;
+    notebookTracker: INotebookTracker;
     app: JupyterFrontEnd;
 }
 
-const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) => {
-    const [cellCount, setCellCount] = useState(notebook.widgets.length);
+const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) => {
+    const notebook = notebookTracker.currentWidget?.content
+
+    const [cellCount, setCellCount] = useState(notebook?.widgets.length || 0);
     const [lastAction, setLastAction] = useState<string>('');
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
 
     const updateCellCount = useCallback(() => {
-        setCellCount(notebook.widgets.length);
+        setCellCount(notebook?.widgets.length || 0);
     }, [notebook]);
 
     useEffect(() => {
-        if (!notebook.model) return;
+        if (notebook === undefined || notebook.model === null) {
+            return;
+        }
         
         notebook.model.cells.changed.connect(updateCellCount);
         return () => {
-            if (!notebook.model.isDisposed) {
-                notebook.model.cells.changed.disconnect(updateCellCount);
+            if (notebook?.model && !notebook.model.isDisposed) {
+                notebook?.model.cells.changed.disconnect(updateCellCount);
             }
         };
     }, [notebook, updateCellCount]);
 
+    // If the notebook is not loaded yet, don't render anything
+    if (notebook === undefined || notebook.model === null) {
+        return null;
+    }
+
     const addCell = (cellType: 'code' | 'markdown' = 'code'): void => {
-        if (notebook.widgets.length > 0) {
+        if (notebook.widgets.length && notebook.widgets.length > 0) {
             notebook.activeCellIndex = notebook.widgets.length - 1;
         }
 
