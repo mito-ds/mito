@@ -6,7 +6,7 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent, cleanup, act, waitFor } from '@testing-library/react';
-import { NotebookFooter } from '../../Extensions/NotebookFooter/NotebookFooter';
+import NotebookFooter from '../../Extensions/NotebookFooter/NotebookFooter';
 import { NotebookActions } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { COMMAND_MITO_AI_SEND_AGENT_MESSAGE, COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
