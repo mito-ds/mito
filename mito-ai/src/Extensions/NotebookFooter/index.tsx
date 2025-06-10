@@ -10,14 +10,14 @@ import { NotebookFooter } from './NotebookFooter';
 import React from 'react';
 
 class AdvancedNotebookFooter extends ReactWidget {
-  constructor(protected notebook: INotebookTracker, protected app: JupyterFrontEnd) {
+  constructor(protected notebookTracker: INotebookTracker, protected app: JupyterFrontEnd) {
     super();
     this.addClass('jp-Notebook-footer-wrapper');
   }
 
   render(): JSX.Element {
     return (
-      <NotebookFooter notebook={this.notebook} app={this.app} />
+      <NotebookFooter notebookTracker={this.notebookTracker} app={this.app} />
     );
   }
 }
