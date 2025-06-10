@@ -32,7 +32,7 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
             content: (os: OperatingSystem) => <span>Use {os === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.</span>
         },
         {
-            content: <span>You can use @ to reference variables, columns in a dataframe, and more.</span>
+            content: <span>Use @ to reference your variables, files, rules, and more.</span>
         }
     ];
 
