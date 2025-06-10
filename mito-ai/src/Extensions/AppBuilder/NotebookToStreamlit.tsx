@@ -82,17 +82,17 @@ export const convertNotebookToStreamlit = async (
       // Convert the Mito App Input into Streamlit components
       // Temporarily replace \\n with a placeholder
       const placeholder = '__ESCAPED_NEWLINE_PLACEHOLDER__';
-      let tempContent = cellContent.replace(/\\n/g, placeholder);
+      cellContent = cellContent.replace(/\\n/g, placeholder);
 
       // Now split on actual newlines safely
-      tempContent = tempContent.split('\n').map(line => {
+      cellContent = cellContent.split('\n').map(line => {
           return transformMitoAppInput(line);
       }).join('\n');
 
       // Transform the cell for visualizations using our new unified approach
       cellContent = transformVisualizationCell(cellContent);
       // Restore the \\n sequences
-      cellContent = tempContent.replace(new RegExp(placeholder, 'g'), '\\n');
+      cellContent = cellContent.replace(new RegExp(placeholder, 'g'), '\\n');
 
       streamlitCode = streamlitCode.concat(cellContent);
 
