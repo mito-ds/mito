@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
