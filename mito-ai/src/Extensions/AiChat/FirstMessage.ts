@@ -29,7 +29,7 @@ const getFirstMessageFromCookies = (): string | null => {
 
 export const getFirstMessageFromCookie = (): string | undefined => {
     // Primary: Check cookies (works through SSO flow)
-    let firstMessage = getFirstMessageFromCookies();
+    const firstMessage = getFirstMessageFromCookies();
     console.log('Cookie check:', firstMessage);
 
     return firstMessage || undefined;
