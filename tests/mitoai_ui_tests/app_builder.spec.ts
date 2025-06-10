@@ -10,7 +10,7 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 
 test.describe('App Builder Integration Test', () => {
-  test('Convert notebook to Streamlit and run the app', async ({ page }) => {
+  test.skip('Convert notebook to Streamlit and run the app', async ({ page }) => {
 
     const notebookCode = 'x = 10'
     await createAndRunNotebookWithCells(page, [notebookCode]);

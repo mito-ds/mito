@@ -20,18 +20,14 @@ from mito_ai.utils.db import get_user_field
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.server_limits import check_mito_server_quota
 from mito_ai.utils.telemetry_utils import log_ai_completion_success
+from .utils import _create_http_client
+from mito_ai.constants import MITO_OPENAI_URL
 
-MITO_AI_PROD_URL: Final[str] = "https://yxwyadgaznhavqvgnbfuo2k6ca0jboku.lambda-url.us-east-1.on.aws/openai/completions"
-# TODO: Create a dev endpoint for streaming
-MITO_AI_DEV_URL: Final[str] = "https://x0l7hinm12.execute-api.us-east-1.amazonaws.com/Prod/completions/"
-
-# If you want to test the dev endpoint, change this to MITO_AI_DEV_URL.
-# Note that we have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
-# before merging into dev because we always want our users to be using the prod endpoint!
-MITO_AI_URL: Final[str] = MITO_AI_PROD_URL
 
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
+
+INLINE_COMPLETION_MODEL = "gpt-4.1-nano-2025-04-14"
 
 def _prepare_request_data_and_headers(
     last_message_content: Union[str, None],
@@ -78,31 +74,6 @@ def _prepare_request_data_and_headers(
     
     return data, headers
 
-def _create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient, Optional[int]]:
-    """
-    Create an HTTP client with appropriate timeout settings.
-    
-    Args:
-        timeout: The timeout in seconds
-        max_retries: The maximum number of retries
-        
-    Returns:
-        A tuple containing the HTTP client and the timeout value in milliseconds
-    """
-    if is_running_test():
-        # If we are running in a test environment, setting the request_timeout fails for some reason.
-        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
-        http_client_timeout = None
-    else:
-        # To avoid 599 client timeout errors, we set the request_timeout. By default, the HTTP client 
-        # timesout after 20 seconds. We update this to match the timeout we give to OpenAI. 
-        # The OpenAI timeouts are denoted in seconds, whereas the HTTP client expects milliseconds. 
-        # We also give the HTTP client a 10 second buffer to account for
-        http_client_timeout = timeout * 1000 * max_retries + 10000
-        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout))
-    
-    return http_client, http_client_timeout
-
 async def get_ai_completion_from_mito_server(
     last_message_content: Union[str, None],
     ai_completion_data: Dict[str, Any],
@@ -137,7 +108,7 @@ async def get_ai_completion_from_mito_server(
             # have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
             # before merging into dev. So if you change which variable we are using here, the 
             # test will not catch our mistakes.
-            MITO_AI_URL, 
+            MITO_OPENAI_URL, 
             method="POST", 
             headers=headers, 
             body=json.dumps(data), 
@@ -225,7 +196,7 @@ async def stream_ai_completion_from_mito_server(
         # a new chunk arrives, allowing for immediate processing without waiting for the
         # entire response to complete.
         fetch_future = http_client.fetch(
-            MITO_AI_URL, 
+            MITO_OPENAI_URL, 
             method="POST", 
             headers=headers, 
             body=json.dumps(data), 
@@ -340,6 +311,8 @@ def get_open_ai_completion_function_params(
                 "strict": True
             }
         }
+    else:
+        completion_function_params["model"] = INLINE_COMPLETION_MODEL
     
     # o3-mini will error if we try setting the temperature
     if model == "gpt-4o-mini":

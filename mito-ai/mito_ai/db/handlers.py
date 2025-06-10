@@ -5,7 +5,6 @@ import json
 import os
 import tornado
 import uuid
-from dataclasses import dataclass
 from typing import Any, Final
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.schema import MITO_FOLDER
@@ -20,6 +19,7 @@ from mito_ai.db.utils import (
     delete_connection,
     delete_schema,
     crawl_and_store_schema,
+    install_db_drivers,
 )
 
 DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
@@ -50,35 +50,41 @@ class ConnectionsHandler(APIHandler):
             setup_database_dir(DB_DIR_PATH, CONNECTIONS_PATH, SCHEMAS_PATH)
 
             # Get the new connection data from the request body
-            new_connection = json.loads(self.request.body)
+            connection_details = json.loads(self.request.body)
 
             # Generate a UUID for the new connection
             connection_id = str(uuid.uuid4())
 
-            log_db_connection_attempt(new_connection["type"])
+            db_type = connection_details["type"]
+            log_db_connection_attempt(db_type)
+
+            # Install database drivers
+            install_result = install_db_drivers(db_type)
+            if not install_result["success"]:
+                log_db_connection_error(db_type, install_result["error"])
+                self.set_status(500)
+                self.write({"error": install_result["error"]})
+                return
 
             # First, try to validate the connection by building the schema
             crawl_result = crawl_and_store_schema(
                 SCHEMAS_PATH,
                 connection_id,
-                new_connection["username"],
-                new_connection["password"],
-                new_connection["account"],
-                new_connection["warehouse"],
+                connection_details,
             )
 
             if not crawl_result["success"]:
                 log_db_connection_error(
-                    new_connection["type"], crawl_result["error_message"]
+                    connection_details["type"], crawl_result["error_message"]
                 )
                 self.set_status(500)
                 self.write({"error": crawl_result["error_message"]})
                 return
 
             # If schema building succeeded, save the connection
-            save_connection(CONNECTIONS_PATH, connection_id, new_connection)
+            save_connection(CONNECTIONS_PATH, connection_id, connection_details)
 
-            log_db_connection_success(new_connection["type"], {})
+            log_db_connection_success(connection_details["type"], {})
 
             self.write(
                 {
