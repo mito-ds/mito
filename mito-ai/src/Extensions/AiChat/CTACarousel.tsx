@@ -1,39 +1,40 @@
 import React, { useState } from 'react';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../utils/user';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 
-// To add a new hint/message to the carousel, simply add a new object to this array:
-// You can use JSX for links, buttons, etc.
-export const CTACAROUSEL_MESSAGES = [
-    {
-        content: (
-            <span>
-                Talk to your database. No SQL required.
-                <br />
-                <button
-                    className="button-base button-purple"
-                    onClick={() => COMMAND_MITO_AI_SETTINGS}
-                    style={{ marginTop: '8px' }}
-                >
-                    <b>＋ Add Connection</b>
-                </button>
-            </span>
-        )
-    },
-    {
-        content: (os: OperatingSystem) => <span>Use {os === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.</span>
-    },
-    {
-        content: <span>You can use @ to reference variables, columns in a dataframe, and more.</span>
-    }
-];
-
 interface CTACarouselProps {
+    app: JupyterFrontEnd;
     operatingSystem: OperatingSystem;
 }
 
-const CTACarousel: React.FC<CTACarouselProps> = ({ operatingSystem }) => {
+const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+
+    // Define messages inside component to access app prop
+    const CTACAROUSEL_MESSAGES = [
+        {
+            content: (
+                <span>
+                    Talk to your database. No SQL required.
+                    <br />
+                    <button
+                        className="button-base button-purple"
+                        onClick={() => app.commands.execute(COMMAND_MITO_AI_SETTINGS)}
+                        style={{ marginTop: '8px' }}
+                    >
+                        <b>＋ Add Database</b>
+                    </button>
+                </span>
+            )
+        },
+        {
+            content: (os: OperatingSystem) => <span>Use {os === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.</span>
+        },
+        {
+            content: <span>You can use @ to reference variables, columns in a dataframe, and more.</span>
+        }
+    ];
 
     // Resolve message content (supporting both ReactNode and function for OS-specific messages)
     const resolvedMessages = CTACAROUSEL_MESSAGES.map(msg =>
