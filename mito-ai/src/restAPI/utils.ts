@@ -47,9 +47,7 @@ export async function requestAPI<T>(
         };
     }
 
-    console.log(response);
     let data: any = await response.text();
-    console.log(data);
 
     if (!response.ok) {
         try {
