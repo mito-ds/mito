@@ -7,7 +7,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
-import { getCellContent, removeInvalidLines, transformMitoAppInput } from './cellConversionUtils';
+import { getCellContent, transformMitoAppInput } from './cellConversionUtils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 import { generateDisplayVizFunction, transformVisualizationCell } from './visualizationConversionUtils';
@@ -80,12 +80,19 @@ export const convertNotebookToStreamlit = async (
       streamlitCode.push("\n# Converting Code Cell");
 
       // Convert the Mito App Input into Streamlit components
-      cellContent = cellContent.split('\n').map(line => { return transformMitoAppInput(line) }).join('\n');
+      // Temporarily replace \\n with a placeholder
+      const placeholder = '__ESCAPED_NEWLINE_PLACEHOLDER__';
+      let tempContent = cellContent.replace(/\\n/g, placeholder);
 
-      cellContent = removeInvalidLines(cellContent);
+      // Now split on actual newlines safely
+      tempContent = tempContent.split('\n').map(line => {
+          return transformMitoAppInput(line);
+      }).join('\n');
 
       // Transform the cell for visualizations using our new unified approach
       cellContent = transformVisualizationCell(cellContent);
+      // Restore the \\n sequences
+      cellContent = tempContent.replace(new RegExp(placeholder, 'g'), '\\n');
 
       streamlitCode = streamlitCode.concat(cellContent);
 

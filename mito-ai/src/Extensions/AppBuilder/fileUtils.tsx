@@ -21,7 +21,10 @@ export const saveFileWithKernel = async (
     const session = notebookPanel.sessionContext.session;
     if (session) {
       // Escape any triple quotes in the source code
-      const escapedContent = fileContent.replace(/"""/g, '\\"\\"\\"');
+
+      const escapedContent = fileContent
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"');
 
       // Create Python code to save the file
       const pythonCode = `
