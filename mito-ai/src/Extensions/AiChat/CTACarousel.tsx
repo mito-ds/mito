@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { OperatingSystem } from '../../utils/user';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import '../../../style/CTACarousel.css';
 
 interface CTACarouselProps {
     app: JupyterFrontEnd;
@@ -19,9 +20,8 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
                     Talk to your database, no SQL required.
                     <br />
                     <button
-                        className="button-base button-gray"
+                        className="button-base button-gray cta-carousel-button"
                         onClick={() => app.commands.execute(COMMAND_MITO_AI_SETTINGS)}
-                        style={{ marginTop: '8px' }}
                     >
                         <b>＋ Add Database</b>
                     </button>
@@ -44,45 +44,16 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
 
     return (
         <div className="cta-carousel">
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: '56px',
-                }}
-            >
-                <div
-                    className="cta-message"
-                    style={{
-                        display: 'block',
-                        textAlign: 'center',
-                        marginBottom: '15px',
-                        opacity: 1,
-                        transition: 'opacity 0.5s ease-in-out',
-                        flex: 1,
-                        fontSize: '0.95rem',
-                        lineHeight: 1.3,
-                        minHeight: '2.5em',
-                        padding: '0 8px',
-                    }}
-                >
+            <div className="cta-carousel-container">
+                <div className="cta-message">
                     {currentMessage}
                 </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
+            <div className="cta-carousel-dots">
                 {resolvedMessages.map((_, index) => (
                     <div
                         key={index}
-                        style={{
-                            width: '12px',
-                            height: '12px',
-                            borderRadius: '50%',
-                            backgroundColor: index === currentIndex ? 'var(--purple-500)' : 'var(--jp-layout-color3)',
-                            cursor: 'pointer',
-                            transition: 'background-color 0.3s ease',
-                            boxSizing: 'border-box',
-                        }}
+                        className={`cta-carousel-dot ${index === currentIndex ? 'active' : ''}`}
                         onClick={() => setCurrentIndex(index)}
                         title={`Go to message ${index + 1}`}
                     />
