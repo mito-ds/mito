@@ -88,8 +88,7 @@ def is_mitosheet_private() -> bool:
     Helper function for returning if this is a Mito Private
     users
     """
-    
+
     if MITOSHEET_PRIVATE:
         return True
     return False
-
