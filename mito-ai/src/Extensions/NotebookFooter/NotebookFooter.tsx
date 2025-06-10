@@ -44,6 +44,7 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) =
     }, [notebook, updateCellCount]);
 
     // If the notebook is not loaded yet, don't render anything
+    // This must come after the useEffects
     if (notebook === undefined || notebook.model === null) {
         return null;
     }
