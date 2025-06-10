@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import aiInputStyles from './AIInputField.module.css';
 import { classNames } from '../../utils/classNames';
+import { JUPYTERHUB_MITO_LINK } from '../CTAButtons/CTAButtons';
 
 // LoadingCircle component
 const LoadingCircle = (): JSX.Element => {
@@ -43,7 +44,6 @@ const AIInputField: React.FC<AIInputFieldProps> = ({
     className,
     placeholder = 'What analysis can I help you with?',
     autoLaunchJupyterLab = false,
-    jupyterLabUrl = 'http://localhost:8889/lab?token=73ee8fa776ffa345be9559cc6bb2bf1ebe68fcf7d0b9501e'
 }) => {
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
@@ -70,25 +70,10 @@ const AIInputField: React.FC<AIInputFieldProps> = ({
             // For production: Use cookies (persist through SSO flow)
             setCookie('mito-ai-first-message', submittedInput);
             
-            // For development/fallback: Also prepare URL approach
-            const encodedMessage = encodeURIComponent(submittedInput);
-            const separator = jupyterLabUrl.includes('?') ? '&' : '?';
-            const jupyterLabUrlWithMessage = `${jupyterLabUrl}${separator}mito-ai-first-message=${encodedMessage}`;
-            
             if (autoLaunchJupyterLab) {
-                // For development: Launch with URL params
-                if (window.location.hostname === 'localhost') {
-                    window.open(jupyterLabUrlWithMessage, '_blank');
-                    console.log('🚀 Development: Launching with URL params');
-                } else {
-                    // For production: Navigate to launch.trymito.io (cookies will persist)
-                    window.location.href = 'https://launch.trymito.io';
-                    console.log('🚀 Production: Redirecting to launch.trymito.io with cookie');
-                }
-            } else {
-                console.log('📋 Message stored in cookie for SSO flow');
-                console.log('🔧 Development URL fallback:', jupyterLabUrlWithMessage);
-            }
+                // Navigate to launch.trymito.io (cookies will persist)
+                window.location.href = JUPYTERHUB_MITO_LINK;
+            } 
             
             // Simulate processing
             setTimeout(() => {
