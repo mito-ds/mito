@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { OperatingSystem } from '../../utils/user';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 import '../../../style/CTACarousel.css';
 
 interface CTACarouselProps {
     app: JupyterFrontEnd;
-    operatingSystem: OperatingSystem;
 }
 
-const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
+const CTACarousel: React.FC<CTACarouselProps> = ({ app }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     // Define messages inside component to access app prop
@@ -30,18 +28,14 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
             )
         },
         {
-            content: (os: OperatingSystem) => <span>Use Agent mode to let the AI write and execute cells on your behalf.</span>
+            content: <span>Use Agent mode to let the AI write and execute cells on your behalf.</span>
         },
         {
             content: <span>Use @ to reference your variables, files, rules, and more.</span>
         }
     ];
 
-    // Resolve message content (supporting both ReactNode and function for OS-specific messages)
-    const resolvedMessages = CTACAROUSEL_MESSAGES.map(msg =>
-        typeof msg.content === 'function' ? msg.content(operatingSystem) : msg.content
-    );
-    const currentMessage = resolvedMessages[currentIndex] ?? resolvedMessages[0];
+    const currentMessage = CTACAROUSEL_MESSAGES[Math.min(currentIndex, CTACAROUSEL_MESSAGES.length - 1)]!.content;
 
     return (
         <div className="cta-carousel">
@@ -51,7 +45,7 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
                 </div>
             </div>
             <div className="cta-carousel-dots">
-                {resolvedMessages.map((_, index) => (
+                {CTACAROUSEL_MESSAGES.map((_, index) => (
                     <div
                         key={index}
                         className={`cta-carousel-dot ${index === currentIndex ? 'active' : ''}`}

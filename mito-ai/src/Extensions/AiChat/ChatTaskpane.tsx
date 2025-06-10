@@ -1225,7 +1225,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             <MitoLogo width="60" height="30" />
                         </div>
                         <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
-                        <CTACarousel app={app} operatingSystem={operatingSystem} />
+                        <CTACarousel app={app} />
                     </div>
                 }
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {

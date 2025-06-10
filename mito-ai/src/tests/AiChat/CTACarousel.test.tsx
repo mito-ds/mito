@@ -16,7 +16,7 @@ describe('CTACarousel', () => {
     });
 
     it('renders with a message', () => {
-        render(<CTACarousel app={mockApp} operatingSystem={'mac'} />);
+        render(<CTACarousel app={mockApp} />);
 
         // Check if any message is rendered
         const messageContainer = screen.getByTestId('cta-message');
@@ -25,7 +25,7 @@ describe('CTACarousel', () => {
     });
 
     it('renders navigation dots', () => {
-        render(<CTACarousel app={mockApp} operatingSystem={'mac'} />);
+        render(<CTACarousel app={mockApp} />);
 
         // Should have dots for navigation
         const dots = screen.getAllByRole('button', { name: '' });
@@ -33,7 +33,7 @@ describe('CTACarousel', () => {
     });
 
     it('changes message when clicking navigation dots', () => {
-        render(<CTACarousel app={mockApp} operatingSystem={'mac'} />);
+        render(<CTACarousel app={mockApp} />);
 
         // Get initial message
         const initialMessage = screen.getByTestId('cta-message').textContent;
