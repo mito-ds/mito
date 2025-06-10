@@ -91,7 +91,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         ):
             raise tornado.web.HTTPError(HTTPStatus.FORBIDDEN)
 
-    async def get(self, *args: Any, **kwargs: dict[str, Any]) -> None:
+    async def get(self, *args: Any, **kwargs: Dict[str, Any]) -> None:
         """Get an event to open a socket or check service availability."""
         # Check if this is just a service availability check
         if self.get_query_argument('check_availability', None) == 'true':
