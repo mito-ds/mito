@@ -6,7 +6,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 56px;
+    min-height: 100px;
 }
 
 .cta-message {
