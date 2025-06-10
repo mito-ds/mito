@@ -18,7 +18,7 @@ interface NotebookFooterProps {
     app: JupyterFrontEnd;
 }
 
-export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) => {
+const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) => {
     const [cellCount, setCellCount] = useState(notebook.widgets.length);
     const [lastAction, setLastAction] = useState<string>('');
     const [inputValue, setInputValue] = useState('');
@@ -179,3 +179,5 @@ export const NotebookFooter: React.FC<NotebookFooterProps> = ({notebook, app}) =
         </div>
     );
 };
+
+export default NotebookFooter;
