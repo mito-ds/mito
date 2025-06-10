@@ -49,28 +49,27 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
                         image_url_data = item.get("image_url", {})
                         image_url = image_url_data.get("url", "")
 
-                        if image_url:
+                        if image_url and image_url.startswith("data:"):
                             # Handle base64 data URLs
-                            if image_url.startswith("data:"):
-                                try:
-                                    # Extract the base64 data and mime type
-                                    header, base64_data = image_url.split(",", 1)
-                                    mime_type = header.split(";")[0].split(":")[1]
+                            try:
+                                # Extract the base64 data and mime type
+                                header, base64_data = image_url.split(",", 1)
+                                mime_type = header.split(";")[0].split(":")[1]
 
-                                    # Decode base64 to bytes
-                                    image_bytes = base64.b64decode(base64_data)
+                                # Decode base64 to bytes
+                                image_bytes = base64.b64decode(base64_data)
 
-                                    # Create Gemini image part
-                                    image_part = types.Part.from_bytes(
-                                        data=image_bytes,
-                                        mime_type=mime_type
-                                    )
-                                    parts.append(image_part)
-                                except Exception as e:
-                                    print(f"Error processing image: {e}")
-                                    # Skip this image if there's an error
-                                    continue
-
+                                # Create Gemini image part
+                                image_part = types.Part.from_bytes(
+                                    data=image_bytes,
+                                    mime_type=mime_type
+                                )
+                                parts.append(image_part)
+                            except Exception as e:
+                                print(f"Error processing image: {e}")
+                                # Skip this image if there's an error
+                                continue
+                            
             # Only add to contents if we have parts
             if parts:
                 contents.append({
