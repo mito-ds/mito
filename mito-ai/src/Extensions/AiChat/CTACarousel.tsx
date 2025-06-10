@@ -29,7 +29,7 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
             )
         },
         {
-            content: (os: OperatingSystem) => <span>Use {os === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.</span>
+            content: (os: OperatingSystem) => <span>Use Agent mode to let the AI write and execute cells on your behalf.</span>
         },
         {
             content: <span>Use @ to reference your variables, files, rules, and more.</span>
