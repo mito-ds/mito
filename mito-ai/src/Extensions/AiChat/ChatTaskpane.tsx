@@ -69,6 +69,7 @@ import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import CTACarousel from './CTACarousel';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -1224,17 +1225,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             <MitoLogo width="60" height="30" />
                         </div>
                         <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
-                        <p className="long-message">
-                            <div style={{ display: 'block', textAlign: 'center', marginBottom: '15px' }}>
-                                Ask your personal Python expert anything!
-                            </div>
-                            Hint:
-                            {[
-                                " Use @ to reference variables.",
-                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + E to chat with Mito AI.`,
-                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.`
-                            ][Math.floor(Math.random() * 3)]}
-                        </p>
+                        <CTACarousel app={app} />
                     </div>
                 }
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
