@@ -27,15 +27,10 @@ const getFirstMessageFromCookies = (): string | null => {
     return null;
 }
 
-export const processFirstMessageFromSessionStorage = (
-    startAgentExecution: (message: string) => Promise<void>
-): void => {
+export const getFirstMessageFromCookie = (): string | undefined => {
     // Primary: Check cookies (works through SSO flow)
     let firstMessage = getFirstMessageFromCookies();
     console.log('Cookie check:', firstMessage);
-    
-    console.log('Final first message:', firstMessage);
-    if (firstMessage) {
-        void startAgentExecution(firstMessage);
-    }
+
+    return firstMessage || undefined;
 }

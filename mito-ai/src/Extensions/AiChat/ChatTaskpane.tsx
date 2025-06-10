@@ -69,7 +69,7 @@ import LoadingCircle from '../../components/LoadingCircle';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
-import { processFirstMessageFromSessionStorage } from './FirstMessage';
+import { getFirstMessageFromCookie } from './FirstMessage';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -272,7 +272,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     await startNewChat();
                 }
 
-                processFirstMessageFromSessionStorage(startAgentExecution);
+                const firstMessage = getFirstMessageFromCookie();
+                if (firstMessage) {
+                    await startAgentExecution(firstMessage);
+                    
+                }
 
             } catch (error) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
