@@ -62,6 +62,11 @@ export const convertNotebookToStreamlit = async (
       return
     }
 
+    // Check if it's an empty code cell
+    if (cellModel.type === 'code' && !cellModel.sharedModel.source.trim()) {
+      return
+    }
+
     if (cellWidget instanceof MarkdownCell) {
       streamlitCode.push("\n# Converting Markdown Cell");
       // Convert markdown cells to st.markdown
@@ -71,7 +76,7 @@ export const convertNotebookToStreamlit = async (
       streamlitCode.push(`st.markdown("""${escapedContent}""")`);
       streamlitCode.push("");
     } else if (cellWidget instanceof CodeCell) {
-      
+
       streamlitCode.push("\n# Converting Code Cell");
 
       // Convert the Mito App Input into Streamlit components
