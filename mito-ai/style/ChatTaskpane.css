@@ -120,6 +120,15 @@
   align-items: center;
 }
 
+.chat-controls-left {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-start;
+}
+.chat-controls-left > * {
+  margin: 0 !important;
+}
 .submit-button {
   background-color: var(--purple-400);
   color: var(--purple-700);
