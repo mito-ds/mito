@@ -16,7 +16,7 @@
     opacity: 1;
     transition: opacity 0.5s ease-in-out;
     flex: 1;
-    font-size: 0.95rem;
+    font-size: 14px;
     line-height: 1.3;
     min-height: 2.5em;
     padding: 0 8px;
