@@ -48,26 +48,46 @@ const AIInputField: React.FC<AIInputFieldProps> = ({
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
 
+    const setCookie = (name: string, value: string, hours: number = 24): void => {
+        const date = new Date();
+        date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+        const expires = "expires=" + date.toUTCString();
+        
+        // Set cookie for all subdomains of trymito.io (production)
+        document.cookie = `${name}=${value}; ${expires}; path=/; domain=.trymito.io; SameSite=Lax; Secure`;
+        
+        // For localhost development
+        if (window.location.hostname === 'localhost') {
+            document.cookie = `${name}=${value}; ${expires}; path=/`;
+        }
+    };
+
     const handleInputSubmit = (): void => {
         const submittedInput = inputValue.trim();
         if (submittedInput !== '') {
             setIsGenerating(true);
             
-            // Encode the message for URL
-            const encodedMessage = encodeURIComponent(submittedInput);
+            // For production: Use cookies (persist through SSO flow)
+            setCookie('mito-ai-first-message', submittedInput);
             
-            // Create URL with message parameter
+            // For development/fallback: Also prepare URL approach
+            const encodedMessage = encodeURIComponent(submittedInput);
             const separator = jupyterLabUrl.includes('?') ? '&' : '?';
             const jupyterLabUrlWithMessage = `${jupyterLabUrl}${separator}mito-ai-first-message=${encodedMessage}`;
             
             if (autoLaunchJupyterLab) {
-                // Automatically launch JupyterLab with the message in the URL
-                window.open(jupyterLabUrlWithMessage, '_blank');
-                console.log('🚀 Launching JupyterLab with message in URL');
+                // For development: Launch with URL params
+                if (window.location.hostname === 'localhost') {
+                    window.open(jupyterLabUrlWithMessage, '_blank');
+                    console.log('🚀 Development: Launching with URL params');
+                } else {
+                    // For production: Navigate to launch.trymito.io (cookies will persist)
+                    window.location.href = 'https://launch.trymito.io';
+                    console.log('🚀 Production: Redirecting to launch.trymito.io with cookie');
+                }
             } else {
-                // Log for manual use
-                console.log('📋 Copy this URL to launch JupyterLab with your message:');
-                console.log(jupyterLabUrlWithMessage);
+                console.log('📋 Message stored in cookie for SSO flow');
+                console.log('🔧 Development URL fallback:', jupyterLabUrlWithMessage);
             }
             
             // Simulate processing
