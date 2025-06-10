@@ -23,7 +23,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
   { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25' }
 ];
 
-const ALL_MODELS = MODEL_MAPPINGS.map(mapping => mapping.displayName);
+const ALL_MODEL_DISPLAY_NAMES = MODEL_MAPPINGS.map(mapping => mapping.displayName);
 
 // Maximum length for displayed model name before truncating
 export const DEFAULT_MODEL = 'GPT-4.1';
@@ -133,7 +133,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
             className={`model-options dropup ${isCompact ? 'from-icon' : ''}`}
             style={{ minWidth: isCompact ? '120px' : '150px' }}
           >
-            {ALL_MODELS.map(model => (
+            {ALL_MODEL_DISPLAY_NAMES.map(model => (
               <div
                 key={model}
                 className={`model-option ${model === selectedModel ? 'selected' : ''}`}

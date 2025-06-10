@@ -111,11 +111,11 @@ This attribute is observed by the websocket provider to push the error to the cl
         model_type = get_model_provider(model)
         try:
             if model_type == "claude":
-                api_key = constants.CLAUDE_API_KEY or None
+                api_key = constants.CLAUDE_API_KEY
                 anthropic_client = AnthropicClient(api_key=api_key, model=model)
                 completion = await anthropic_client.request_completions(messages, response_format_info, message_type)
             elif model_type == "gemini":
-                api_key = constants.GEMINI_API_KEY or None
+                api_key = constants.GEMINI_API_KEY
                 gemini_client = GeminiClient(api_key=api_key, model=model)
                 messages_for_gemini = [dict(m) for m in messages]
                 completion = await gemini_client.request_completions(messages_for_gemini, response_format_info, message_type)
@@ -174,7 +174,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         try:
             if model_type == "claude":
-                api_key = constants.CLAUDE_API_KEY or ""
+                api_key = constants.CLAUDE_API_KEY
                 anthropic_client = AnthropicClient(api_key=api_key, model=model)
                 accumulated_response = await anthropic_client.stream_response(
                     messages=messages,
@@ -183,7 +183,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     reply_fn=reply_fn
                 )
             elif model_type == "gemini":
-                api_key = constants.GEMINI_API_KEY or ""
+                api_key = constants.GEMINI_API_KEY
                 gemini_client = GeminiClient(api_key=api_key, model=model)
                 messages_for_gemini = [dict(m) for m in messages]
                 accumulated_response = await gemini_client.stream_completions(

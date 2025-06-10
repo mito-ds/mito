@@ -1352,8 +1352,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             title="Agent can create plans and run code."
                         />
                         <ModelSelector onConfigChange={(config) => {
-                        // Just update the backend
-                        void updateModelOnBackend(config.model);
+                            // Just update the backend
+                            void updateModelOnBackend(config.model);
                         }}/>
                     </div>
                     <button
