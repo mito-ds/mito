@@ -17,7 +17,7 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
         {
             content: (
                 <span>
-                    Talk to your database, no SQL required.
+                    Generate more than just Python code. Talk to your database, no SQL required.
                     <br />
                     <button
                         className="button-base button-gray cta-carousel-button"
