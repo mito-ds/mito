@@ -5,6 +5,7 @@ import os
 import json
 import pytest
 import shutil
+from typing import Generator
 from mito_ai.tests.db.test_db_constants import (
     DB_DIR_PATH,
     CONNECTIONS_PATH,
@@ -13,7 +14,7 @@ from mito_ai.tests.db.test_db_constants import (
 
 
 @pytest.fixture(scope="module", autouse=True)
-def backup_db_folder():
+def backup_db_folder() -> Generator[None, None, None]:
     """Backup the DB folder before tests and restore it after."""
     if os.path.exists(DB_DIR_PATH):
         # Create backup, so we can test with a clean db dir
@@ -29,7 +30,7 @@ def backup_db_folder():
 
 
 @pytest.fixture
-def first_connection_id():
+def first_connection_id() -> str:
     # Manually open the connections.json file and get the first connection ID
     with open(CONNECTIONS_PATH, "r") as f:
         connections = json.load(f)

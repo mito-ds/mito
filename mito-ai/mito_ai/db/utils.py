@@ -3,7 +3,8 @@
 
 import json
 import os
-from mito_ai.db.crawlers import snowflake
+from mito_ai.db.crawlers import snowflake, base_crawler
+from mito_ai.db.crawlers.constants import SUPPORTED_DATABASES
 
 
 def setup_database_dir(
@@ -88,10 +89,7 @@ def delete_schema(schemas_path: str, schema_id: str) -> None:
 def crawl_and_store_schema(
     schemas_path: str,
     connection_id: str,
-    username: str,
-    password: str,
-    account: str,
-    warehouse: str,
+    connection_details: dict,
 ) -> dict:
     """
     Crawl and store schema for a given connection.
@@ -108,7 +106,22 @@ def crawl_and_store_schema(
         tuple[bool, str]: A tuple containing a boolean indicating success and an error message.
     """
 
-    schema = snowflake.crawl_snowflake(username, password, account, warehouse)
+    if connection_details["type"] == "snowflake":
+        schema = snowflake.crawl_snowflake(
+            connection_details["username"],
+            connection_details["password"],
+            connection_details["account"],
+            connection_details["warehouse"],
+        )
+    elif connection_details["type"] == "postgres":
+        conn_str = f"postgresql+psycopg2://{connection_details['username']}:{connection_details['password']}@{connection_details['host']}:{connection_details['port']}/{connection_details['database']}"
+        schema = base_crawler.crawl_db(conn_str, "postgres")
+    elif connection_details["type"] == "sqlite":
+        conn_str = f"sqlite:///{connection_details['database']}"
+        schema = base_crawler.crawl_db(conn_str, "sqlite")
+    elif connection_details["type"] == "mysql":
+        conn_str = f"mysql+pymysql://{connection_details['username']}:{connection_details['password']}@{connection_details['host']}:{connection_details['port']}/{connection_details['database']}"
+        schema = base_crawler.crawl_db(conn_str, "mysql")
 
     if schema["error"]:
         return {
@@ -123,7 +136,7 @@ def crawl_and_store_schema(
         schemas = json.load(f)
         # Remove the error key from the schema and add the crawled schema
         schema.pop("error", None)
-        schemas[connection_id] = schema
+        schemas[connection_id] = schema["schema"]
         # Move to the beginning of the file and write the new schema
         f.seek(0)
         json.dump(schemas, f, indent=4)
@@ -133,3 +146,34 @@ def crawl_and_store_schema(
         "error_message": "",
         "schema": schema,
     }
+
+
+def install_db_drivers(db_type: str) -> dict:
+    """
+    Install required database drivers for the given database type.
+
+    Args:
+        db_type (str): The type of database (e.g. 'snowflake', 'postgres')
+
+    Returns:
+        dict: A dictionary containing success status and error message if any
+    """
+    from mito_ai.utils.utils import get_installed_packages, install_packages
+
+    installed_packages = get_installed_packages()
+    required_packages = SUPPORTED_DATABASES[db_type].get("drivers", [])
+    packages_to_install = []
+
+    for package in required_packages:
+        if package not in installed_packages:
+            packages_to_install.append(package)
+
+    if len(packages_to_install) > 0:
+        install_result = install_packages(packages_to_install)
+        if not install_result["success"]:
+            return {
+                "success": False,
+                "error": f"Failed to install {db_type} drivers: {install_result['error']}",
+            }
+
+    return {"success": True, "error": None}

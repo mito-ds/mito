@@ -358,5 +358,22 @@ describe('ChatMessage Component', () => {
             expect(screen.getByTestId('get-cell-output-tool')).toBeInTheDocument();
             expect(screen.getByText('Taking a look at the cell output')).toBeInTheDocument();
         });
+
+        it('does not show overwrite button when code is still generating (incomplete)', () => {
+            renderChatMessage({
+                message: createMockMessage('assistant', '```python\nimport pandas as pd\ndf = pd.DataFrame({"A": [1, 2, 3]})'),
+                isLastAiMessage: true,
+                codeReviewStatus: 'chatPreview'
+            });
+
+            const buttons = screen.queryAllByRole('button');
+
+            // Verify that no buttons are present when code is incomplete
+            expect(buttons).toHaveLength(0);
+
+            // Also verify that the specific button texts are not present
+            expect(screen.queryByText('Overwrite Active Cell')).not.toBeInTheDocument();
+            expect(screen.queryByText('Copy')).not.toBeInTheDocument();
+        });
     });
 }); 
