@@ -16,10 +16,10 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
         {
             content: (
                 <span>
-                    Talk to your database. No SQL required.
+                    Talk to your database, no SQL required.
                     <br />
                     <button
-                        className="button-base button-purple"
+                        className="button-base button-gray"
                         onClick={() => app.commands.execute(COMMAND_MITO_AI_SETTINGS)}
                         style={{ marginTop: '8px' }}
                     >
