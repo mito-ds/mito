@@ -28,6 +28,10 @@
     position: relative;
 }
 
+.modal-content-large {
+    width: 90%;
+}
+
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -118,4 +122,19 @@
     border-radius: 4px;
     margin-bottom: 20px;
     font-size: 14px;
+}
+
+.form-info {
+    font-size: 12px;
+    color: var(--jp-ui-font-color3);
+}
+
+.form-info a {
+    margin-left: 4px;
+    color: var(--purple-700);
+    text-decoration: none;
+}
+
+.form-info a:hover {
+    text-decoration: underline;
 } 

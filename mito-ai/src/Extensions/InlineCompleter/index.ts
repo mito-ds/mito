@@ -13,6 +13,7 @@ import { ConfigSection } from '@jupyterlab/services';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { MitoAIInlineCompleter } from './provider';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
+import { logEvent } from '../../restAPI/RestAPI';
 
 /**
  * Interface for the Mito AI configuration settings.
@@ -169,5 +170,15 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       contextManager: contextManager
     });
     completionManager.registerInlineProvider(provider);
+
+
+    // Log when the user accepts an inline completion so we can understand
+    // how useful our completions are to the user.
+    app.commands.commandExecuted.connect((_, args: {id: string}): void => {
+      if (args.id == 'inline-completer:accept') {
+        const acceptedCompletionInfo = provider.getCurrentCompletionInfo();
+        void logEvent('mito_ai_inline_completion_accepted', acceptedCompletionInfo);
+      }
+    });
   }
 };

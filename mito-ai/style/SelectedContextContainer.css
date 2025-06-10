@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.selected-context-container {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    background-color: var(--jp-layout-color2);
+    border-radius: 3px;
+    padding: 4px 8px;
+    margin: 4px;
+
+    font-size: 12px;
+    height: 20px;
+    width: fit-content;
+
+    border: 1px solid var(--jp-border-color1);
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--jp-layout-color3);
+    }
+}
+
+.selected-context-container .rule-name {
+    margin-left: 6px;
+    color: var(--jp-content-font-color1);
+}
+
+.selected-context-container .icon {
+    width: 12px;
+    height: 12px;
+}

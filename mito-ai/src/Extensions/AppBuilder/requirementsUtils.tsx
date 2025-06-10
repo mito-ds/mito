@@ -89,9 +89,13 @@ with tempfile.TemporaryDirectory() as temp_dir:
       if (resultText.trim()) {
         // Replace the default with pipreqs results
         requirementsContent = resultText.trim();
-        // Make sure streamlit is included
-        if (!requirementsContent.includes('streamlit')) {
-          requirementsContent = 'streamlit>=1.28.0\n' + requirementsContent;
+
+        const requiredPackages = ['streamlit', 'pandas', 'matplotlib']
+        // Make sure the required packages are included
+        for (const requiredPackage of requiredPackages) {
+          if (!requirementsContent.includes(requiredPackage)) {
+            requirementsContent = requiredPackage + '\n' + requirementsContent;
+          }
         }
       }
     }

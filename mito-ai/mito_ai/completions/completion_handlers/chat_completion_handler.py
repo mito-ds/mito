@@ -41,7 +41,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.activeCellCode, 
             metadata.activeCellId,
             metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
-            metadata.input
+            metadata.input,
+            metadata.selectedRules
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
@@ -102,7 +103,8 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.activeCellCode, 
             metadata.activeCellId,
             metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
-            metadata.input
+            metadata.input,
+            metadata.selectedRules
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         

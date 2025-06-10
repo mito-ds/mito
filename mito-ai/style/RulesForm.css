@@ -1,0 +1,94 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.rules-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 4px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    transition: border-color 0.2s;
+    font-family: var(--jp-ui-font-family);
+    resize: vertical;
+    min-height: 120px;
+}
+
+.rules-form textarea:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+.rules-form .form-group sub {
+    color: var(--jp-ui-font-color2);
+    margin-top: 4px;
+    margin-bottom: 4px;
+    display: block;
+}
+
+/* Rules List Styling */
+.rules-list {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rules-list .rule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 8px;
+    background: var(--jp-layout-color0);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.rules-list .rule-item:hover {
+    border-color: var(--jp-border-color2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rules-list .rule-content {
+    flex: 1;
+    margin-right: 16px;
+}
+
+.rules-list .rule-name {
+    margin: 0 0 8px 0;
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.rules-list .rule-description {
+    margin: 0;
+    color: var(--jp-ui-font-color2);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.rules-list .rule-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.rules-list .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--jp-ui-font-color2);
+    font-style: italic;
+}
+
+.rules-list .empty-state p {
+    margin: 0;
+    font-size: 16px;
+}

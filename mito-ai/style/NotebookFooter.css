@@ -1,0 +1,294 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Main container */
+.notebook-footer-container {
+    position: relative;
+    width: 100%;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Input container */
+.input-container {
+    width: 80%;
+    max-width: 600px;
+}
+
+/* Input wrapper */
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 12px;
+    padding: 8px 10px;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.1),
+        0 1px 3px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.input-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--jp-layout-color0);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.input-wrapper:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.input-wrapper:hover::before {
+    opacity: 1;
+}
+
+.input-wrapper:focus-within {
+    border-color: var(--purple-500);
+    box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.15),
+        0 2px 8px rgba(0, 0, 0, 0.1),
+        0 0 0 3px rgba(147, 51, 234, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.input-wrapper:focus-within::before {
+    opacity: 1;
+}
+
+/* Left icon */
+.input-icon-left {
+    font-size: 18px;
+    color: var(--jp-ui-font-color2);
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    font-weight: 500;
+}
+
+.input-wrapper:focus-within .input-icon-left {
+    color: var(--purple-600);
+    transform: scale(1.1);
+}
+
+.input-wrapper:hover .input-icon-left,
+.input-wrapper:hover .input-action-button,
+.input-wrapper.generating .input-icon-left,
+.input-wrapper.generating .input-action-button {
+    color: var(--purple-500);
+    transform: scale(1.05);
+}
+
+/* Input field */
+.prompt-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    font-family: var(--jp-ui-font-family);
+    color: var(--jp-ui-font-color1);
+    padding: 6px 0;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.prompt-input::placeholder {
+    color: var(--jp-ui-font-color2);
+    font-weight: 400;
+}
+
+.prompt-input:focus {
+    color: var(--jp-ui-font-color0);
+}
+
+/* Input action buttons */
+.input-action-button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--jp-ui-font-color2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.input-action-button:hover:not(:disabled) {
+    transform: scale(1.1);
+}
+
+.input-action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    color: var(--jp-ui-font-color2);
+}
+
+/* Right icons container */
+.input-icons-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Button row */
+.button-row {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    background: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+}
+
+.button-row:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-color: var(--jp-border-color2);
+}
+
+/* Footer buttons */
+.footer-button {
+    min-width: 80px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.3;
+    font-family: var(--jp-ui-font-family);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-sizing: border-box;
+    position: relative;
+    color: var(--jp-ui-font-color1);
+}
+
+.footer-button:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 30%;
+    bottom: 30%;
+    width: 1px;
+    background: var(--jp-border-color1);
+    opacity: 0.6;
+}
+
+.jp-ThemedContainer .button-row button {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.jp-ThemedContainer .button-row button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.02);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.jp-ThemedContainer .button-row button:hover {
+    background: var(--jp-layout-color2);
+}
+
+.jp-ThemedContainer .button-row button:hover::before {
+    opacity: 1;
+}
+
+/* Button content */
+.button-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.footer-button:hover .button-content {
+    transform: none;
+}
+
+/* Button icon */
+.button-icon {
+    height: 16px;
+    width: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--jp-ui-font-color2);
+    transition: color 0.2s ease;
+}
+
+/* Button label */
+.button-label {
+    margin-top: 1px;
+    font-size: 10px;
+    line-height: 1.2;
+    color: var(--jp-ui-font-color2);
+    transition: color 0.2s ease;
+}
+
+.footer-button:hover .button-icon,
+.footer-button:hover .button-label {
+    color: var(--purple-500);
+}
+
+/* Cell info */
+.cell-info {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--jp-ui-font-color2);
+    font-family: var(--jp-ui-font-family);
+    text-align: center;
+    padding: 4px 8px;
+    background: rgba(var(--jp-ui-font-color3), 0.05);
+    border-radius: 6px;
+    backdrop-filter: blur(4px);
+}

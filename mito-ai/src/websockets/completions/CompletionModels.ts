@@ -73,6 +73,7 @@ export interface IChatMessageMetadata {
   input: string;
   index?: number;
   threadId: string;
+  selectedRules?: string[];
 }
 
 export interface IAgentExecutionMetadata {
@@ -85,6 +86,7 @@ export interface IAgentExecutionMetadata {
   index?: number;
   threadId: string;
   isChromeBrowser: boolean;
+  selectedRules?: string[];
 }
 
 export interface IAgentSmartDebugMetadata {

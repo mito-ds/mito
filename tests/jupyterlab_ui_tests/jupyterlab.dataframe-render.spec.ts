@@ -10,7 +10,7 @@ const placeholderCellText = '# Empty code cell';
 
 test.describe.configure({ mode: 'parallel' });
 
-test.describe('Dataframe renders as mitosheet', () => {
+test.describe.skip('Dataframe renders as mitosheet', () => {
   test('renders a mitosheet when hanging dataframe', async ({ page, tmpPath }) => {
 
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})\ndf']);

@@ -5,16 +5,16 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
+import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLabIcon } from '../../icons';
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
 import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
 import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
-import { getSetting } from '../../RestAPI';
+import { getSetting } from '../../restAPI/RestAPI';
 
 const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     // Important: The Cell Toolbar Buttons are added to the toolbar registry via the schema/toolbar-buttons.json file.
-    // The id here must be mito-ai:toolbar-buttons otherwise the buttons are not successfull added. My understanding is that
+    // The id here must be mito-ai:toolbar-buttons otherwise the buttons are not successfully added. My understanding is that
     // the id must match the name of the package and `toolbar-buttons` must match the name of the .json file.
     id: 'mito_ai:toolbar-buttons',
     description: 'Adds an "explain code cell with AI" button to the cell toolbar',
@@ -67,10 +67,13 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                 // Force command refresh to update the icon
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
             },
+            isVisible: () => {
+                return app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
+            }
         });
 
         commands.addCommand('toolbar-button:convert-to-streamlit', {
-            label: 'Build App',
+            label: 'Deploy App',
             caption: 'Convert to Streamlit',
             className: 'text-button-mito-ai button-base button-purple button-small',
             execute: async () => {
@@ -79,7 +82,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             isVisible: () => {
                 // Default to hidden, will be updated after async check since we are not allowed to 
                 // use async commands in isVisible.
-                return app.commands.hasCommand('mito-ai:beta-mode-enabled');
+                return app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
             }
         });
 
@@ -88,8 +91,9 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
         // opportunity to set the mito-ai:beta-mode-enabled command if beta mode is enabled.
         getSetting('beta_mode').then(value => {
             if (value === 'true') {
-                commands.addCommand('mito-ai:beta-mode-enabled', { execute: () => { /* no-op */ } });
+                commands.addCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED, { execute: () => { /* no-op */ } });
                 commands.notifyCommandChanged('toolbar-button:convert-to-streamlit');
+                commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
             }
         }).catch(error => {
             console.error('Error checking beta mode:', error);
