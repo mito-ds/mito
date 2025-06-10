@@ -13,7 +13,7 @@ class ColumnInfo(TypedDict):
 
 
 class TableSchema(TypedDict):
-    tables: dict[str, List[ColumnInfo]]
+    tables: Dict[str, List[ColumnInfo]]
 
 
 # SNOWFLAKE MODELS
