@@ -111,7 +111,7 @@ with tempfile.TemporaryDirectory() as temp_dir:
         // Replace the default with pipreqs results
         requirementsContent = resultText.trim();
 
-        const requiredPackages = ['streamlit', 'pandas', 'matplotlib']
+        const requiredPackages = ['streamlit', 'pandas', 'matplotlib', 'snowflake-sqlalchemy']
         // Make sure the required packages are included
         for (const requiredPackage of requiredPackages) {
           if (!requirementsContent.includes(requiredPackage)) {
