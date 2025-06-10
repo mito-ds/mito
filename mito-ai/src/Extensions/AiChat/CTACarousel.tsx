@@ -22,6 +22,7 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
                     <button
                         className="button-base button-gray cta-carousel-button"
                         onClick={() => app.commands.execute(COMMAND_MITO_AI_SETTINGS)}
+                        data-testid="cta-carousel-button"
                     >
                         <b>＋ Add Database</b>
                     </button>
@@ -45,7 +46,7 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
     return (
         <div className="cta-carousel">
             <div className="cta-carousel-container">
-                <div className="cta-message">
+                <div className="cta-message" data-testid="cta-message">
                     {currentMessage}
                 </div>
             </div>
@@ -55,6 +56,8 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
                         key={index}
                         className={`cta-carousel-dot ${index === currentIndex ? 'active' : ''}`}
                         onClick={() => setCurrentIndex(index)}
+                        data-testid="cta-carousel-dot"
+                        role="button"
                     />
                 ))}
             </div>
