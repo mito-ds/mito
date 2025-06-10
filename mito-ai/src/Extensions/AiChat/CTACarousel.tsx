@@ -55,7 +55,6 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app, operatingSystem }) => {
                         key={index}
                         className={`cta-carousel-dot ${index === currentIndex ? 'active' : ''}`}
                         onClick={() => setCurrentIndex(index)}
-                        title={`Go to message ${index + 1}`}
                     />
                 ))}
             </div>
