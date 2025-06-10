@@ -323,7 +323,7 @@ def log_ai_completion_success(
 def log_db_connection_attempt(connection_type: str) -> None:
     log("mito_ai_db_connection_attempt", params={"connection_type": connection_type})
 
-def log_db_connection_success(connection_type: str, schema: dict[str, Any]) -> None:
+def log_db_connection_success(connection_type: str, schema: Dict[str, Any]) -> None:
     log(
         "mito_ai_db_connection_success",
         params={

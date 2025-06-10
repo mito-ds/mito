@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import TypedDict, List
+from typing import Dict, TypedDict, List
 
 
 class DatabaseConfig(TypedDict, total=False):
@@ -10,7 +10,7 @@ class DatabaseConfig(TypedDict, total=False):
     columns_query: str
 
 
-SUPPORTED_DATABASES: dict[str, DatabaseConfig] = {
+SUPPORTED_DATABASES: Dict[str, DatabaseConfig] = {
     "mysql": {
         "drivers": ["PyMySQL"],
         "tables_query": "SHOW TABLES",

@@ -36,7 +36,7 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
         }
     };
 
-    const renderField = (field: DatabaseField) => {
+    const renderField = (field: DatabaseField): JSX.Element => {
         const commonProps = {
             id: field.name,
             name: field.name,

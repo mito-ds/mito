@@ -1,14 +1,14 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List
+from typing import List, Dict, Any
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from mito_ai.db.crawlers.constants import SUPPORTED_DATABASES
 from mito_ai.db.models import ColumnInfo, TableSchema
 
 
-def crawl_db(conn_str: str, db_type: str) -> dict:
+def crawl_db(conn_str: str, db_type: str) -> Dict[str, Any]:
     try:
         engine = create_engine(conn_str)
         tables: List[str] = []
