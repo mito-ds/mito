@@ -16,3 +16,6 @@ export const COMMAND_MITO_AI_SEND_AGENT_MESSAGE = `${MITO_AI}:send-agent-message
 
 export const COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE = `toolbar-button:accept-code`
 export const COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE = `toolbar-button:reject-code`
+
+// Beta mode commands
+export const COMMAND_MITO_AI_BETA_MODE_ENABLED = `${MITO_AI}:beta-mode-enabled`
