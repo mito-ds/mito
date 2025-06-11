@@ -40,26 +40,28 @@
     0%, 100% {
         box-shadow: 
             /* Default shadows */
-            0 4px 20px rgba(0, 0, 0, 0.08),
-            0 2px 12px rgba(0, 0, 0, 0.05),
-            0 1px 4px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+            0 4px 20px rgba(0, 0, 0, 0.3),
+            0 2px 12px rgba(0, 0, 0, 0.2),
+            0 1px 4px rgba(0, 0, 0, 0.4),
+            /* Inner highlight */
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.2),
             /* Subtle purple glow */
-            0 0 20px rgba(147, 51, 234, 0.15),
-            0 0 40px rgba(147, 51, 234, 0.08);
+            0 0 20px rgba(157, 108, 255, 0.2),
+            0 0 40px rgba(157, 108, 255, 0.1);
     }
     50% {
         box-shadow: 
             /* Default shadows */
-            0 4px 20px rgba(0, 0, 0, 0.08),
-            0 2px 12px rgba(0, 0, 0, 0.05),
-            0 1px 4px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+            0 4px 20px rgba(0, 0, 0, 0.3),
+            0 2px 12px rgba(0, 0, 0, 0.2),
+            0 1px 4px rgba(0, 0, 0, 0.4),
+            /* Inner highlight */
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.2),
             /* Enhanced purple glow */
-            0 0 25px rgba(147, 51, 234, 0.2),
-            0 0 50px rgba(147, 51, 234, 0.12);
+            0 0 25px rgba(157, 108, 255, 0.3),
+            0 0 50px rgba(157, 108, 255, 0.15);
     }
 }
 
@@ -67,35 +69,35 @@
 @keyframes iconTwinkle {
     0%, 90%, 100% {
         transform: scale(1) rotate(0deg);
-        filter: drop-shadow(0 2px 4px rgba(147, 51, 234, 0.2));
+        filter: drop-shadow(0 2px 4px rgba(157, 108, 255, 0.3));
     }
     5% {
         transform: scale(1.1) rotate(5deg);
-        filter: drop-shadow(0 2px 6px rgba(147, 51, 234, 0.4)) brightness(1.2);
+        filter: drop-shadow(0 2px 6px rgba(157, 108, 255, 0.5)) brightness(1.2);
     }
     10% {
         transform: scale(1.05) rotate(-3deg);
-        filter: drop-shadow(0 2px 6px rgba(147, 51, 234, 0.4)) brightness(1.1);
+        filter: drop-shadow(0 2px 6px rgba(157, 108, 255, 0.5)) brightness(1.1);
     }
     15% {
         transform: scale(1) rotate(0deg);
-        filter: drop-shadow(0 2px 4px rgba(147, 51, 234, 0.2));
+        filter: drop-shadow(0 2px 4px rgba(157, 108, 255, 0.3));
     }
 }
 
 /* Icon color shifting */
 @keyframes iconColorShift {
     0%, 100% {
-        color: #9333ea;
+        color: var(--color-purple, #9D6CFF);
     }
     25% {
-        color: #a855f7;
+        color: var(--color-light-purple, #ac84fc);
     }
     50% {
         color: #c084fc;
     }
     75% {
-        color: #a855f7;
+        color: var(--color-light-purple, #ac84fc);
     }
 }
 
@@ -123,33 +125,19 @@
     animation: breathe 4s ease-in-out infinite;
 }
 
-/* Animated gradient border wrapper */
-.input_container::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(
-        45deg,
-        rgba(147, 51, 234, 0.2),
-        rgba(168, 85, 247, 0.3),
-        rgba(196, 117, 251, 0.2),
-        rgba(147, 51, 234, 0.2)
-    );
-    background-size: 400% 400%;
-    border-radius: 14px;
-    opacity: 0.6; /* Show by default now */
-    transition: opacity 0.4s ease;
-    pointer-events: none;
-    z-index: 0;
-    animation: gradientShift 3s ease infinite;
+/* Stop breathing animation when input has content */
+.input_container:has(.prompt_input:not(:placeholder-shown)) {
+    animation: none;
 }
 
-.input_container:focus-within::before,
-.input_container:hover::before {
-    opacity: 1;
+/* Fallback for browsers that don't support :has() */
+.input_container:focus-within {
+    animation: none;
+}
+
+/* Re-enable breathing only when focused but empty */
+.input_container:focus-within:has(.prompt_input:placeholder-shown) {
+    animation: breathe 4s ease-in-out infinite;
 }
 
 /* Input wrapper */
@@ -157,40 +145,40 @@
     display: flex;
     align-items: center;
     
-    /* Glass-morphism background with gradient */
+    /* Dark glass-morphism background with gradient */
     background: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.95) 0%,
-        rgba(255, 255, 255, 0.9) 50%,
-        rgba(248, 250, 252, 0.95) 100%
+        rgba(34, 27, 46, 0.9) 0%,
+        rgba(28, 24, 36, 0.95) 50%,
+        rgba(19, 15, 26, 0.9) 100%
     );
     
     /* Glass-morphism backdrop blur */
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     
-    /* Default purple border instead of gray */
-    border: 1px solid rgba(147, 51, 234, 0.3);
+    /* Dark purple border */
+    border: 1px solid rgba(157, 108, 255, 0.4);
     border-radius: 12px;
     padding: 8px 10px;
     gap: 12px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     
-    /* Enhanced default shadows with purple glow */
+    /* Enhanced default shadows with purple glow for dark mode */
     box-shadow: 
         /* Main depth shadow */
-        0 4px 20px rgba(0, 0, 0, 0.08),
+        0 4px 20px rgba(0, 0, 0, 0.3),
         /* Mid-range shadow */
-        0 2px 12px rgba(0, 0, 0, 0.05),
+        0 2px 12px rgba(0, 0, 0, 0.2),
         /* Close shadow for definition */
-        0 1px 4px rgba(0, 0, 0, 0.1),
+        0 1px 4px rgba(0, 0, 0, 0.4),
         /* Inner highlight */
-        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
         /* Inner shadow for depth */
-        inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
         /* Default purple glow */
-        0 0 20px rgba(147, 51, 234, 0.15),
-        0 0 40px rgba(147, 51, 234, 0.08);
+        0 0 20px rgba(157, 108, 255, 0.2),
+        0 0 40px rgba(157, 108, 255, 0.1);
     
     position: relative;
     overflow: hidden;
@@ -200,7 +188,12 @@
     animation: glowPulse 3.5s ease-in-out infinite;
 }
 
-/* Enhanced glass overlay */
+/* Stop glow pulse when input has content */
+.input_wrapper:has(.prompt_input:not(:placeholder-shown)) {
+    animation: none;
+}
+
+/* Enhanced glass overlay for dark mode */
 .input_wrapper::before {
     content: '';
     position: absolute;
@@ -210,16 +203,16 @@
     bottom: 0;
     background: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0.05) 50%,
-        rgba(147, 51, 234, 0.02) 100%
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 50%,
+        rgba(157, 108, 255, 0.03) 100%
     );
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
 }
 
-/* Gradient shimmer effect */
+/* Gradient shimmer effect for dark mode */
 .input_wrapper::after {
     content: '';
     position: absolute;
@@ -230,7 +223,7 @@
     background: linear-gradient(
         90deg,
         rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0.1) 50%,
         rgba(255, 255, 255, 0) 100%
     );
     transition: left 0.6s ease;
@@ -240,32 +233,32 @@
 .input_wrapper:hover {
     transform: translateY(-2px);
     
-    /* Enhanced hover shadows with purple accent */
+    /* Enhanced hover shadows with purple accent for dark mode */
     box-shadow: 
         /* Main depth shadow - enhanced */
-        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 8px 32px rgba(0, 0, 0, 0.4),
         /* Mid-range shadow */
-        0 4px 20px rgba(0, 0, 0, 0.08),
+        0 4px 20px rgba(0, 0, 0, 0.3),
         /* Close shadow */
-        0 2px 8px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.5),
         /* Purple accent shadows */
-        0 4px 24px rgba(147, 51, 234, 0.25),
-        0 2px 12px rgba(168, 85, 247, 0.2),
+        0 4px 24px rgba(157, 108, 255, 0.3),
+        0 2px 12px rgba(172, 132, 252, 0.2),
         /* Inner highlights */
-        inset 0 1px 0 rgba(255, 255, 255, 0.8),
-        inset 0 -1px 0 rgba(147, 51, 234, 0.1);
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 0 rgba(157, 108, 255, 0.2);
     
-    /* Enhanced glass background */
+    /* Enhanced dark glass background */
     background: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.98) 0%,
-        rgba(255, 255, 255, 0.95) 50%,
-        rgba(248, 250, 252, 0.98) 100%
+        rgba(34, 27, 46, 0.95) 0%,
+        rgba(28, 24, 36, 1) 50%,
+        rgba(19, 15, 26, 0.95) 100%
     );
     
-    border-color: rgba(147, 51, 234, 0.5);
+    border-color: rgba(157, 108, 255, 0.6);
     
-    /* Pause the breathing animation on hover */
+    /* Pause the glow pulse animation on hover */
     animation: none;
 }
 
@@ -280,36 +273,36 @@
 .input_wrapper:focus-within {
     transform: translateY(-3px);
     
-    /* Focus state with animated purple shadows */
+    /* Focus state with animated purple shadows for dark mode */
     box-shadow: 
         /* Main depth shadow - maximum */
-        0 12px 40px rgba(0, 0, 0, 0.15),
+        0 12px 40px rgba(0, 0, 0, 0.5),
         /* Mid-range shadow */
-        0 6px 24px rgba(0, 0, 0, 0.1),
+        0 6px 24px rgba(0, 0, 0, 0.4),
         /* Close shadow */
-        0 3px 12px rgba(0, 0, 0, 0.12),
+        0 3px 12px rgba(0, 0, 0, 0.6),
         /* Purple accent shadows - intense */
-        0 8px 32px rgba(147, 51, 234, 0.35),
-        0 4px 16px rgba(168, 85, 247, 0.3),
-        0 2px 8px rgba(196, 117, 251, 0.25),
+        0 8px 32px rgba(157, 108, 255, 0.4),
+        0 4px 16px rgba(172, 132, 252, 0.3),
+        0 2px 8px rgba(192, 132, 252, 0.25),
         /* Focus ring */
-        0 0 0 4px rgba(147, 51, 234, 0.2),
+        0 0 0 4px rgba(157, 108, 255, 0.25),
         /* Inner effects */
-        inset 0 1px 0 rgba(255, 255, 255, 1),
-        inset 0 -1px 0 rgba(147, 51, 234, 0.2),
-        inset 0 0 20px rgba(147, 51, 234, 0.08);
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(157, 108, 255, 0.3),
+        inset 0 0 20px rgba(157, 108, 255, 0.1);
     
-    /* Enhanced focus background */
+    /* Enhanced focus background for dark mode */
     background: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 1) 0%,
-        rgba(255, 255, 255, 0.98) 50%,
-        rgba(251, 245, 255, 0.98) 100%
+        rgba(34, 27, 46, 1) 0%,
+        rgba(28, 24, 36, 1) 50%,
+        rgba(25, 20, 35, 1) 100%
     );
     
-    border-color: rgba(147, 51, 234, 0.7);
+    border-color: rgba(157, 108, 255, 0.8);
     
-    /* Pause the breathing animation on focus */
+    /* Pause the glow pulse animation on focus */
     animation: none;
 }
 
@@ -318,45 +311,14 @@
     animation: gradientPulse 2s ease-in-out infinite;
 }
 
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-    .input_wrapper {
-        background: linear-gradient(
-            135deg,
-            rgba(30, 30, 30, 0.95) 0%,
-            rgba(40, 40, 40, 0.9) 50%,
-            rgba(25, 25, 30, 0.95) 100%
-        );
-        border-color: rgba(147, 51, 234, 0.4);
-    }
-    
-    .input_wrapper:hover {
-        background: linear-gradient(
-            135deg,
-            rgba(40, 40, 40, 0.98) 0%,
-            rgba(50, 50, 50, 0.95) 50%,
-            rgba(35, 35, 40, 0.98) 100%
-        );
-    }
-    
-    .input_wrapper:focus-within {
-        background: linear-gradient(
-            135deg,
-            rgba(45, 45, 45, 1) 0%,
-            rgba(55, 55, 55, 0.98) 50%,
-            rgba(40, 35, 50, 0.98) 100%
-        );
-    }
-}
-
-/* Left icon with enhanced animations */
+/* Left icon with enhanced animations for dark mode */
 .input_icon_left {
     font-size: 20px;
-    color: #9333ea; /* Default purple color */
+    color: var(--color-purple, #9D6CFF); /* Use CSS variable with fallback */
     display: flex;
     align-items: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 2px 4px rgba(147, 51, 234, 0.2));
+    filter: drop-shadow(0 2px 4px rgba(157, 108, 255, 0.3));
     font-weight: 500;
     position: relative;
     z-index: 2;
@@ -367,6 +329,12 @@
         iconColorShift 8s ease-in-out infinite;
 }
 
+/* Stop icon animations when input has content */
+.input_wrapper:has(.prompt_input:not(:placeholder-shown)) .input_icon_left {
+    animation: none;
+    color: var(--color-purple, #9D6CFF); /* Keep consistent color when typing */
+}
+
 /* Sparkle effects around the icon */
 .input_icon_left::before,
 .input_icon_left::after {
@@ -375,6 +343,14 @@
     font-size: 8px;
     pointer-events: none;
     animation: sparkle 6s ease-in-out infinite;
+    color: var(--color-light-purple, #ac84fc);
+}
+
+/* Hide sparkles when input has content */
+.input_wrapper:has(.prompt_input:not(:placeholder-shown)) .input_icon_left::before,
+.input_wrapper:has(.prompt_input:not(:placeholder-shown)) .input_icon_left::after {
+    animation: none;
+    opacity: 0;
 }
 
 .input_icon_left::before {
@@ -390,9 +366,9 @@
 }
 
 .input_wrapper:focus-within .input_icon_left {
-    color: var(--purple-600, #7c3aed);
+    color: var(--color-light-purple, #ac84fc);
     transform: scale(1.15);
-    filter: drop-shadow(0 4px 8px rgba(147, 51, 234, 0.4));
+    filter: drop-shadow(0 4px 8px rgba(157, 108, 255, 0.5));
     animation: none; /* Stop default animations when focused */
 }
 
@@ -400,9 +376,9 @@
 .input_wrapper:hover .input_action_button,
 .generating .input_icon_left,
 .generating .input_action_button {
-    color: var(--purple-500, #9333ea);
+    color: var(--color-purple, #9D6CFF);
     transform: scale(1.08);
-    filter: drop-shadow(0 3px 6px rgba(147, 51, 234, 0.3));
+    filter: drop-shadow(0 3px 6px rgba(157, 108, 255, 0.4));
 }
 
 .input_wrapper:hover .input_icon_left {
@@ -419,7 +395,7 @@
     font-weight: 400;
     line-height: 1.4;
     font-family: var(--jp-ui-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif);
-    color: var(--jp-ui-font-color1, #111111);
+    color: var(--color-text-primary, #ffffff); /* White text for dark mode */
     padding: 6px 0;
     transition: all 0.4s ease;
     position: relative;
@@ -427,13 +403,13 @@
 }
 
 .prompt_input::placeholder {
-    color: var(--jp-ui-font-color2, #666666);
+    color: var(--color-text-secondary, #D0D0D0); /* Light gray placeholder for dark mode */
     font-weight: 400;
     transition: all 0.3s ease;
 }
 
 .prompt_input:focus {
-    color: var(--jp-ui-font-color0, #000000);
+    color: var(--color-text-primary, #ffffff);
 }
 
 .prompt_input:focus::placeholder {
@@ -449,10 +425,10 @@
     border-radius: 50%;
     background: linear-gradient(
         135deg,
-        rgba(147, 51, 234, 0.15) 0%,
-        rgba(168, 85, 247, 0.1) 100%
+        rgba(157, 108, 255, 0.2) 0%,
+        rgba(172, 132, 252, 0.15) 100%
     );
-    color: #9333ea; /* Default purple color */
+    color: var(--color-purple, #9D6CFF); /* Purple color for dark mode */
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -463,28 +439,28 @@
     position: relative;
     z-index: 2;
     box-shadow: 
-        0 2px 8px rgba(147, 51, 234, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        0 2px 8px rgba(157, 108, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .input_action_button:hover:not(:disabled) {
     transform: scale(1.15);
     background: linear-gradient(
         135deg,
-        rgba(147, 51, 234, 0.25) 0%,
-        rgba(168, 85, 247, 0.15) 100%
+        rgba(157, 108, 255, 0.3) 0%,
+        rgba(172, 132, 252, 0.2) 100%
     );
     box-shadow: 
-        0 4px 16px rgba(147, 51, 234, 0.25),
-        0 2px 8px rgba(168, 85, 247, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        0 4px 16px rgba(157, 108, 255, 0.3),
+        0 2px 8px rgba(172, 132, 252, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .input_action_button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    color: var(--jp-ui-font-color2, #666666);
+    color: var(--color-text-secondary, #D0D0D0);
     background: transparent;
     box-shadow: none;
 }
@@ -505,11 +481,11 @@
 
 .generating .input_wrapper {
     box-shadow: 
-        0 8px 32px rgba(147, 51, 234, 0.3),
-        0 4px 16px rgba(168, 85, 247, 0.25),
-        0 2px 8px rgba(196, 117, 251, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8),
-        inset 0 0 20px rgba(147, 51, 234, 0.1);
+        0 8px 32px rgba(157, 108, 255, 0.4),
+        0 4px 16px rgba(172, 132, 252, 0.3),
+        0 2px 8px rgba(192, 132, 252, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 0 20px rgba(157, 108, 255, 0.15);
     
     /* Pause breathing during generation */
     animation: none;
