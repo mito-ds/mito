@@ -58,11 +58,11 @@ const Home: NextPage = () => {
                 - Write Python 4x faster. Take the test.
                 - Don't know how to code? Now you do.
               */}
-              The Jupyter-based Data Copilot
+              Cursor for Data Teams
             </h1>
 
             <h2 className={titleStyles.description}>
-              The world&apos;s largest companies save hours per week with Mito&apos;s AI copilot and spreadsheet editor.
+              Go from raw data to presentation-ready insights 4x faster with AI that understands your data.
             </h2>
               
             <div className={homeStyles.cta_button_and_video_spacer}>
