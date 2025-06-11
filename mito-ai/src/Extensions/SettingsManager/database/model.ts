@@ -28,6 +28,54 @@ export interface DatabaseConfig {
 }
 
 export const databaseConfigs: Record<string, DatabaseConfig> = {
+    mssql: {
+        type: 'mssql',
+        displayName: 'Microsoft SQL Server',
+        fields: [
+            {
+                name: 'username',
+                type: 'text',
+                label: 'Username',
+                placeholder: 'john.doe',
+                required: true
+            },
+            {
+                name: 'password',
+                type: 'password',
+                label: 'Password',
+                placeholder: 'Enter your password',
+                required: true
+            },
+            {
+                name: 'host',
+                type: 'text',
+                label: 'Host',
+                placeholder: 'localhost',
+                required: true
+            },
+            {
+                name: 'port',
+                type: 'number',
+                label: 'Port',
+                placeholder: '1433',
+                required: true
+            },
+            {
+                name: 'database',
+                type: 'text',
+                label: 'Database',
+                placeholder: 'mydb',
+                required: true
+            },
+            {
+                name: 'odbc_driver_version',
+                type: 'text',
+                label: 'ODBC Driver Version',
+                placeholder: '18',
+                required: true
+            }
+        ]
+    },
     mysql: {
         type: 'mysql',
         displayName: 'MySQL',
