@@ -71,6 +71,7 @@ import ModelSelector from "../../components/ModelSelector";
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import { getFirstMessageFromCookie } from './FirstMessage';
 import CTACarousel from './CTACarousel';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
@@ -335,6 +336,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     await startNewChat();
                 }
+
+                const firstMessage = getFirstMessageFromCookie();
+                if (firstMessage) {
+                    await startAgentExecution(firstMessage);
+                    
+                }
+
             } catch (error: unknown) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
@@ -356,6 +364,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         };
 
         void initializeChatHistory();
+
     }, [websocketClient]);
 
     useEffect(() => {

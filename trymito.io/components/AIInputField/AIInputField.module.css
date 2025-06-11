@@ -1,0 +1,157 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Input container */
+.input_container {
+    width: 80%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Input wrapper */
+.input_wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--jp-layout-color1, #ffffff);
+    border: 1px solid var(--jp-border-color2, #e1e5e9);
+    border-radius: 12px;
+    padding: 8px 10px;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.1),
+        0 1px 3px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.input_wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--jp-layout-color0, #f8f9fa);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.input_wrapper:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.input_wrapper:hover::before {
+    opacity: 1;
+}
+
+.input_wrapper:focus-within {
+    border-color: var(--purple-500, #9333ea);
+    box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.15),
+        0 2px 8px rgba(0, 0, 0, 0.1),
+        0 0 0 3px rgba(147, 51, 234, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.input_wrapper:focus-within::before {
+    opacity: 1;
+}
+
+.generating {
+    /* Additional styles for generating state */
+}
+
+/* Left icon */
+.input_icon_left {
+    font-size: 18px;
+    color: var(--jp-ui-font-color2, #666666);
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    font-weight: 500;
+}
+
+.input_wrapper:focus-within .input_icon_left {
+    color: var(--purple-600, #7c3aed);
+    transform: scale(1.1);
+}
+
+.input_wrapper:hover .input_icon_left,
+.input_wrapper:hover .input_action_button,
+.generating .input_icon_left,
+.generating .input_action_button {
+    color: var(--purple-500, #9333ea);
+    transform: scale(1.05);
+}
+
+/* Input field */
+.prompt_input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    font-family: var(--jp-ui-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif);
+    color: var(--jp-ui-font-color1, #111111);
+    padding: 6px 0;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.prompt_input::placeholder {
+    color: var(--jp-ui-font-color2, #666666);
+    font-weight: 400;
+}
+
+.prompt_input:focus {
+    color: var(--jp-ui-font-color0, #000000);
+}
+
+/* Input action buttons */
+.input_action_button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--jp-ui-font-color2, #666666);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.input_action_button:hover:not(:disabled) {
+    transform: scale(1.1);
+}
+
+.input_action_button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    color: var(--jp-ui-font-color2, #666666);
+}
+
+/* Right icons container */
+.input_icons_right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+} 

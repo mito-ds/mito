@@ -18,6 +18,7 @@ import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header
 import InstallInstructions from '../components/InstallInstructions/InstallInstructions';
 import LogoSection from '../components/LogoSection/LogoSection';
 import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
+import AIInputField from '../components/AIInputField/AIInputField';
 import homeStyles from '../styles/Home.module.css';
 import pageStyles from '../styles/Page.module.css';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css';
@@ -27,6 +28,7 @@ import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausib
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
+
 const Home: NextPage = () => {
 
   useEffect(() => {
@@ -71,16 +73,7 @@ const Home: NextPage = () => {
             </div>
 
             <div className={classNames(spreadsheetAutomationStyles.video_wrapper)}>
-              <div className={spreadsheetAutomationStyles.video_container}>
-                <iframe 
-                  className={spreadsheetAutomationStyles.video}
-                  src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=d0a543a3-cb0c-456b-89ff-a61a35f1e540&hideEmbedTopBar=true" 
-                  title="Mito Demo" 
-                  frameBorder={0}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowFullScreen
-                /> 
-              </div>
+              <AIInputField autoLaunchJupyterLab={true} />
             </div>
           </section>
 
