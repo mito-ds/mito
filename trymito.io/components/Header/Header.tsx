@@ -83,7 +83,7 @@ const Header = (): JSX.Element => {
             <nav className={classNames(headerStyles.desktop_menu_items, 'display-desktop-only-flex')}>
               <ul>
 
-                {/* Product Dropdown */}
+                {/* Home Dropdown
                 <HeaderDropdown dropdownButtonTitle="Product">
                   <HeaderDropdownItem 
                     title='Mito Spreadsheet'
@@ -118,7 +118,6 @@ const Header = (): JSX.Element => {
                 </HeaderDropdown>
 
 
-                {/* Use Cases Dropdown */}
                 <HeaderDropdown dropdownButtonTitle="Use Cases">
                 <HeaderDropdownItem
                     title='Python Training'
@@ -139,6 +138,7 @@ const Header = (): JSX.Element => {
                     altText="Life Sciences"
                   />
                 </HeaderDropdown>
+                */}
 
                 <li className={classNames('highlight-on-hover', headerStyles.nav_item)}>
                   <Link href='/plans'>Plans</Link>
