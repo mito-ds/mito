@@ -106,6 +106,14 @@ def crawl_and_store_schema(
         tuple[bool, str]: A tuple containing a boolean indicating success and an error message.
     """
 
+    conn_str_base = (
+        f"{connection_details['username']}:"
+        f"{connection_details['password']}@"
+        f"{connection_details['host']}:"
+        f"{connection_details['port']}/"
+        f"{connection_details['database']}"
+    )
+
     if connection_details["type"] == "snowflake":
         schema = snowflake.crawl_snowflake(
             connection_details["username"],
@@ -114,17 +122,21 @@ def crawl_and_store_schema(
             connection_details["warehouse"],
         )
     elif connection_details["type"] == "postgres":
-        conn_str = f"postgresql+psycopg2://{connection_details['username']}:{connection_details['password']}@{connection_details['host']}:{connection_details['port']}/{connection_details['database']}"
+        conn_str = f"postgresql+psycopg2://{conn_str_base}"
         schema = base_crawler.crawl_db(conn_str, "postgres")
     elif connection_details["type"] == "sqlite":
         conn_str = f"sqlite:///{connection_details['database']}"
         schema = base_crawler.crawl_db(conn_str, "sqlite")
     elif connection_details["type"] == "mysql":
-        conn_str = f"mysql+pymysql://{connection_details['username']}:{connection_details['password']}@{connection_details['host']}:{connection_details['port']}/{connection_details['database']}"
+        conn_str = f"mysql+pymysql://{conn_str_base}"
         schema = base_crawler.crawl_db(conn_str, "mysql")
     elif connection_details["type"] == "oracle":
         conn_str = f"oracle+oracledb://{connection_details['username']}:{connection_details['password']}@{connection_details['host']}:{connection_details['port']}?service_name={connection_details['service_name']}"
         schema = base_crawler.crawl_db(conn_str, "oracle")
+    elif connection_details["type"] == "mssql":
+        odbc_driver_version = connection_details["odbc_driver_version"]
+        conn_str = f"mssql+pyodbc://{conn_str_base}?driver=ODBC+Driver+{odbc_driver_version}+for+SQL+Server"
+        schema = base_crawler.crawl_db(conn_str, "mssql")
 
     if schema["error"]:
         return {

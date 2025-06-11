@@ -11,6 +11,11 @@ class DatabaseConfig(TypedDict, total=False):
 
 
 SUPPORTED_DATABASES: Dict[str, DatabaseConfig] = {
+    "mssql": {
+        "drivers": ["pyodbc"],
+        "tables_query": "SELECT table_name FROM information_schema.tables WHERE table_schema = 'dbo'",
+        "columns_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = :table",
+    },
     "mysql": {
         "drivers": ["PyMySQL"],
         "tables_query": "SHOW TABLES",
