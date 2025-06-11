@@ -9,6 +9,15 @@ DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db")
 CONNECTIONS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "connections.json")
 SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
 BACKUP_DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db_backup")
+MSSQL_CONNECTION_DETAILS = {
+    "type": "mssql",
+    "username": "SA",
+    "password": "YourStrong!Passw0rd",
+    "host": "localhost",
+    "port": "1433",
+    "database": "test_db",
+    "odbc_driver_version": "18",
+}
 MYSQL_CONNECTION_DETAILS = {
     "type": "mysql",
     "username": "test_user",
