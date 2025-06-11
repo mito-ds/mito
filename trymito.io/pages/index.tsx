@@ -100,29 +100,6 @@ const Home: NextPage = () => {
           </section>
 
           <section>
-
-            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-              <div className={textImageSplitStyles.functionality_text}>
-                <h2>
-                  All in <span className='text-color-jupyter-orange'>Jupyter</span>, <span className='text-color-streamlit-red'>Streamlit</span>, and <span className='text-highlight'>Dash</span>
-                </h2>
-                <p className='only-on-mobile'> 
-                  Mito is a Jupyter extension and Streamlit component, so you don&apos;t need to set up any new infrastructure. 
-                  Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
-                </p>
-                <p className='only-on-desktop-inline-block'>
-                  Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure. You can use Mito in JupyterLab, Jupyter Notebooks, JupyterHub, SageMaker and more.
-                </p>
-              </div>
-              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/jupyter-and-streamlit.png'} alt='Use Mito in Jupyter or Streamlit' width={678} height={342} layout='responsive'/>
-              </div>
-            </div>
-
-          </section>
-
-
-          <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
                 <h2>
                   Upgrade Python scripts to interactive Streamlit Dashboards
