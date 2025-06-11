@@ -24,7 +24,7 @@ const AiChatCard = () => {
                 <Image src='/features/ai-chat.png' alt='AI Chat' height={243} width={464} />
             </div>
             <p className={pageStyles.link}>
-                <Link href="/python-ai-tools" >
+                <Link href="https://docs.trymito.io/mito-ai/agent">
                     Learn more about Mito AI →
                 </Link>
             </p>
