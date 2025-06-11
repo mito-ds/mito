@@ -10,7 +10,14 @@ from mito_ai.db.models import ColumnInfo, TableSchema
 
 def crawl_db(conn_str: str, db_type: str) -> Dict[str, Any]:
     try:
-        engine = create_engine(conn_str)
+        if db_type == "mssql":
+            # For Microsoft SQL Server, we need to trust the server certificate
+            engine = create_engine(
+                conn_str, connect_args={"TrustServerCertificate": "yes"}
+            )
+        else:
+            engine = create_engine(conn_str)
+
         tables: List[str] = []
         schema: TableSchema = {"tables": {}}
         tables_query = SUPPORTED_DATABASES[db_type].get("tables_query", "")
