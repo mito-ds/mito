@@ -3,31 +3,204 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/* Keyframes for animated gradient border */
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes gradientPulse {
+    0%, 100% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Breathing animation for the input */
+@keyframes breathe {
+    0%, 100% {
+        transform: scale(0.99);
+    }
+    50% {
+        transform: scale(1.0);
+    }
+}
+
+/* Gentle glow pulse */
+@keyframes glowPulse {
+    0%, 100% {
+        box-shadow: 
+            /* Default shadows */
+            0 4px 20px rgba(0, 0, 0, 0.08),
+            0 2px 12px rgba(0, 0, 0, 0.05),
+            0 1px 4px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+            /* Subtle purple glow */
+            0 0 20px rgba(147, 51, 234, 0.15),
+            0 0 40px rgba(147, 51, 234, 0.08);
+    }
+    50% {
+        box-shadow: 
+            /* Default shadows */
+            0 4px 20px rgba(0, 0, 0, 0.08),
+            0 2px 12px rgba(0, 0, 0, 0.05),
+            0 1px 4px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+            /* Enhanced purple glow */
+            0 0 25px rgba(147, 51, 234, 0.2),
+            0 0 50px rgba(147, 51, 234, 0.12);
+    }
+}
+
+/* Icon sparkle/twinkle animation */
+@keyframes iconTwinkle {
+    0%, 90%, 100% {
+        transform: scale(1) rotate(0deg);
+        filter: drop-shadow(0 2px 4px rgba(147, 51, 234, 0.2));
+    }
+    5% {
+        transform: scale(1.1) rotate(5deg);
+        filter: drop-shadow(0 2px 6px rgba(147, 51, 234, 0.4)) brightness(1.2);
+    }
+    10% {
+        transform: scale(1.05) rotate(-3deg);
+        filter: drop-shadow(0 2px 6px rgba(147, 51, 234, 0.4)) brightness(1.1);
+    }
+    15% {
+        transform: scale(1) rotate(0deg);
+        filter: drop-shadow(0 2px 4px rgba(147, 51, 234, 0.2));
+    }
+}
+
+/* Icon color shifting */
+@keyframes iconColorShift {
+    0%, 100% {
+        color: #9333ea;
+    }
+    25% {
+        color: #a855f7;
+    }
+    50% {
+        color: #c084fc;
+    }
+    75% {
+        color: #a855f7;
+    }
+}
+
+/* Sparkle effects */
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1) rotate(180deg);
+    }
+}
+
 /* Input container */
 .input_container {
     width: 80%;
     max-width: 600px;
     margin: 0 auto;
+    height: 30px;
+    position: relative;
+    
+    /* Add breathing animation */
+    animation: breathe 4s ease-in-out infinite;
+}
+
+/* Animated gradient border wrapper */
+.input_container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+        45deg,
+        rgba(147, 51, 234, 0.2),
+        rgba(168, 85, 247, 0.3),
+        rgba(196, 117, 251, 0.2),
+        rgba(147, 51, 234, 0.2)
+    );
+    background-size: 400% 400%;
+    border-radius: 14px;
+    opacity: 0.6; /* Show by default now */
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: 0;
+    animation: gradientShift 3s ease infinite;
+}
+
+.input_container:focus-within::before,
+.input_container:hover::before {
+    opacity: 1;
 }
 
 /* Input wrapper */
 .input_wrapper {
     display: flex;
     align-items: center;
-    background: var(--jp-layout-color1, #ffffff);
-    border: 1px solid var(--jp-border-color2, #e1e5e9);
+    
+    /* Glass-morphism background with gradient */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.9) 50%,
+        rgba(248, 250, 252, 0.95) 100%
+    );
+    
+    /* Glass-morphism backdrop blur */
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    
+    /* Default purple border instead of gray */
+    border: 1px solid rgba(147, 51, 234, 0.3);
     border-radius: 12px;
     padding: 8px 10px;
     gap: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Enhanced default shadows with purple glow */
     box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.1),
-        0 1px 3px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        /* Main depth shadow */
+        0 4px 20px rgba(0, 0, 0, 0.08),
+        /* Mid-range shadow */
+        0 2px 12px rgba(0, 0, 0, 0.05),
+        /* Close shadow for definition */
+        0 1px 4px rgba(0, 0, 0, 0.1),
+        /* Inner highlight */
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        /* Inner shadow for depth */
+        inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+        /* Default purple glow */
+        0 0 20px rgba(147, 51, 234, 0.15),
+        0 0 40px rgba(147, 51, 234, 0.08);
+    
     position: relative;
     overflow: hidden;
+    z-index: 1;
+    
+    /* Add gentle glow pulse animation */
+    animation: glowPulse 3.5s ease-in-out infinite;
 }
 
+/* Enhanced glass overlay */
 .input_wrapper::before {
     content: '';
     position: absolute;
@@ -35,56 +208,192 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: var(--jp-layout-color0, #f8f9fa);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(147, 51, 234, 0.02) 100%
+    );
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+/* Gradient shimmer effect */
+.input_wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transition: left 0.6s ease;
     pointer-events: none;
 }
 
 .input_wrapper:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    
+    /* Enhanced hover shadows with purple accent */
     box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.15),
-        0 2px 6px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        /* Main depth shadow - enhanced */
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        /* Mid-range shadow */
+        0 4px 20px rgba(0, 0, 0, 0.08),
+        /* Close shadow */
+        0 2px 8px rgba(0, 0, 0, 0.1),
+        /* Purple accent shadows */
+        0 4px 24px rgba(147, 51, 234, 0.25),
+        0 2px 12px rgba(168, 85, 247, 0.2),
+        /* Inner highlights */
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        inset 0 -1px 0 rgba(147, 51, 234, 0.1);
+    
+    /* Enhanced glass background */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.98) 0%,
+        rgba(255, 255, 255, 0.95) 50%,
+        rgba(248, 250, 252, 0.98) 100%
+    );
+    
+    border-color: rgba(147, 51, 234, 0.5);
+    
+    /* Pause the breathing animation on hover */
+    animation: none;
 }
 
 .input_wrapper:hover::before {
     opacity: 1;
 }
 
+.input_wrapper:hover::after {
+    left: 100%;
+}
+
 .input_wrapper:focus-within {
-    border-color: var(--purple-500, #9333ea);
+    transform: translateY(-3px);
+    
+    /* Focus state with animated purple shadows */
     box-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.15),
-        0 2px 8px rgba(0, 0, 0, 0.1),
-        0 0 0 3px rgba(147, 51, 234, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
+        /* Main depth shadow - maximum */
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        /* Mid-range shadow */
+        0 6px 24px rgba(0, 0, 0, 0.1),
+        /* Close shadow */
+        0 3px 12px rgba(0, 0, 0, 0.12),
+        /* Purple accent shadows - intense */
+        0 8px 32px rgba(147, 51, 234, 0.35),
+        0 4px 16px rgba(168, 85, 247, 0.3),
+        0 2px 8px rgba(196, 117, 251, 0.25),
+        /* Focus ring */
+        0 0 0 4px rgba(147, 51, 234, 0.2),
+        /* Inner effects */
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        inset 0 -1px 0 rgba(147, 51, 234, 0.2),
+        inset 0 0 20px rgba(147, 51, 234, 0.08);
+    
+    /* Enhanced focus background */
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.98) 50%,
+        rgba(251, 245, 255, 0.98) 100%
+    );
+    
+    border-color: rgba(147, 51, 234, 0.7);
+    
+    /* Pause the breathing animation on focus */
+    animation: none;
 }
 
 .input_wrapper:focus-within::before {
     opacity: 1;
+    animation: gradientPulse 2s ease-in-out infinite;
 }
 
-.generating {
-    /* Additional styles for generating state */
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .input_wrapper {
+        background: linear-gradient(
+            135deg,
+            rgba(30, 30, 30, 0.95) 0%,
+            rgba(40, 40, 40, 0.9) 50%,
+            rgba(25, 25, 30, 0.95) 100%
+        );
+        border-color: rgba(147, 51, 234, 0.4);
+    }
+    
+    .input_wrapper:hover {
+        background: linear-gradient(
+            135deg,
+            rgba(40, 40, 40, 0.98) 0%,
+            rgba(50, 50, 50, 0.95) 50%,
+            rgba(35, 35, 40, 0.98) 100%
+        );
+    }
+    
+    .input_wrapper:focus-within {
+        background: linear-gradient(
+            135deg,
+            rgba(45, 45, 45, 1) 0%,
+            rgba(55, 55, 55, 0.98) 50%,
+            rgba(40, 35, 50, 0.98) 100%
+        );
+    }
 }
 
-/* Left icon */
+/* Left icon with enhanced animations */
 .input_icon_left {
-    font-size: 18px;
-    color: var(--jp-ui-font-color2, #666666);
+    font-size: 20px;
+    color: #9333ea; /* Default purple color */
     display: flex;
     align-items: center;
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 2px 4px rgba(147, 51, 234, 0.2));
     font-weight: 500;
+    position: relative;
+    z-index: 2;
+    
+    /* Add sparkle animations */
+    animation: 
+        iconTwinkle 5s ease-in-out infinite,
+        iconColorShift 8s ease-in-out infinite;
+}
+
+/* Sparkle effects around the icon */
+.input_icon_left::before,
+.input_icon_left::after {
+    content: '✨';
+    position: absolute;
+    font-size: 8px;
+    pointer-events: none;
+    animation: sparkle 6s ease-in-out infinite;
+}
+
+.input_icon_left::before {
+    top: -5px;
+    right: -8px;
+    animation-delay: 0s;
+}
+
+.input_icon_left::after {
+    bottom: -3px;
+    left: -6px;
+    animation-delay: 3s;
 }
 
 .input_wrapper:focus-within .input_icon_left {
     color: var(--purple-600, #7c3aed);
-    transform: scale(1.1);
+    transform: scale(1.15);
+    filter: drop-shadow(0 4px 8px rgba(147, 51, 234, 0.4));
+    animation: none; /* Stop default animations when focused */
 }
 
 .input_wrapper:hover .input_icon_left,
@@ -92,7 +401,12 @@
 .generating .input_icon_left,
 .generating .input_action_button {
     color: var(--purple-500, #9333ea);
-    transform: scale(1.05);
+    transform: scale(1.08);
+    filter: drop-shadow(0 3px 6px rgba(147, 51, 234, 0.3));
+}
+
+.input_wrapper:hover .input_icon_left {
+    animation: none; /* Stop default animations when hovered */
 }
 
 /* Input field */
@@ -101,24 +415,30 @@
     border: none;
     outline: none;
     background: transparent;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 400;
     line-height: 1.4;
     font-family: var(--jp-ui-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif);
     color: var(--jp-ui-font-color1, #111111);
     padding: 6px 0;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .prompt_input::placeholder {
     color: var(--jp-ui-font-color2, #666666);
     font-weight: 400;
+    transition: all 0.3s ease;
 }
 
 .prompt_input:focus {
     color: var(--jp-ui-font-color0, #000000);
+}
+
+.prompt_input:focus::placeholder {
+    opacity: 0.6;
+    transform: translateY(-1px);
 }
 
 /* Input action buttons */
@@ -127,19 +447,37 @@
     height: 32px;
     border: none;
     border-radius: 50%;
-    background: transparent;
-    color: var(--jp-ui-font-color2, #666666);
+    background: linear-gradient(
+        135deg,
+        rgba(147, 51, 234, 0.15) 0%,
+        rgba(168, 85, 247, 0.1) 100%
+    );
+    color: #9333ea; /* Default purple color */
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 2;
+    box-shadow: 
+        0 2px 8px rgba(147, 51, 234, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .input_action_button:hover:not(:disabled) {
-    transform: scale(1.1);
+    transform: scale(1.15);
+    background: linear-gradient(
+        135deg,
+        rgba(147, 51, 234, 0.25) 0%,
+        rgba(168, 85, 247, 0.15) 100%
+    );
+    box-shadow: 
+        0 4px 16px rgba(147, 51, 234, 0.25),
+        0 2px 8px rgba(168, 85, 247, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .input_action_button:disabled {
@@ -147,6 +485,8 @@
     cursor: not-allowed;
     transform: none;
     color: var(--jp-ui-font-color2, #666666);
+    background: transparent;
+    box-shadow: none;
 }
 
 /* Right icons container */
@@ -154,4 +494,28 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    z-index: 2;
+    position: relative;
+}
+
+/* Generating state enhancements */
+.generating {
+    animation: gradientPulse 2s ease-in-out infinite;
+}
+
+.generating .input_wrapper {
+    box-shadow: 
+        0 8px 32px rgba(147, 51, 234, 0.3),
+        0 4px 16px rgba(168, 85, 247, 0.25),
+        0 2px 8px rgba(196, 117, 251, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        inset 0 0 20px rgba(147, 51, 234, 0.1);
+    
+    /* Pause breathing during generation */
+    animation: none;
+}
+
+.generating .input_container {
+    /* Pause breathing during generation */
+    animation: none;
 } 
