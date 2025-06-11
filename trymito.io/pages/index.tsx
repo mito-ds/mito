@@ -71,9 +71,7 @@ const Home: NextPage = () => {
               </div>
             </div>
 
-            <div className={classNames(spreadsheetAutomationStyles.video_wrapper)}>
-              <AIInputField autoLaunchJupyterLab={true} />
-            </div>
+            <AIInputField autoLaunchJupyterLab={true} />
           </section>
 
           <LogoSection></LogoSection>

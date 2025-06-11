@@ -34,16 +34,23 @@ const LoadingCircle = (): JSX.Element => {
 };
 
 interface AIInputFieldProps {
-    className?: string;
     placeholder?: string;
     autoLaunchJupyterLab?: boolean;
     jupyterLabUrl?: string;
+    showExamples?: boolean;
 }
 
+// Default example prompts
+const DEFAULT_EXAMPLES = [
+    "Plot Meta's acquisition impact on stock prices",
+    "Analyze car crash fatalities by region",
+    "Explore US trade surplus and deficits by country"
+];
+
 const AIInputField: React.FC<AIInputFieldProps> = ({
-    className,
     placeholder = 'What analysis can I help you with?',
     autoLaunchJupyterLab = false,
+    showExamples = true,
 }) => {
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
@@ -62,10 +69,15 @@ const AIInputField: React.FC<AIInputFieldProps> = ({
         }
     };
 
-    const handleInputSubmit = (): void => {
-        const submittedInput = inputValue.trim();
+    const handleInputSubmit = (customInput?: string): void => {
+        const submittedInput = (customInput || inputValue).trim();
         if (submittedInput !== '') {
             setIsGenerating(true);
+            
+            // Set the input value if using a custom input (from example button)
+            if (customInput) {
+                setInputValue(customInput);
+            }
             
             // For production: Use cookies (persist through SSO flow)
             setCookie('mito-ai-first-message', submittedInput);
@@ -83,6 +95,10 @@ const AIInputField: React.FC<AIInputFieldProps> = ({
         }
     };
 
+    const handleExampleClick = (exampleText: string): void => {
+        handleInputSubmit(exampleText);
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         e.stopPropagation();
         setInputValue(e.target.value);
@@ -98,37 +114,54 @@ const AIInputField: React.FC<AIInputFieldProps> = ({
     };
 
     return (
-        <div className={classNames(aiInputStyles.input_container, className)}>
-            <div className={classNames(aiInputStyles.input_wrapper, isGenerating ? aiInputStyles.generating : '')}>
-                <div className={aiInputStyles.input_icon_left}>
-                    {isGenerating ? (
-                        <LoadingCircle />
-                    ) : (
-                        <>✦</>
-                    )}
-                </div>
-                <input
-                    type="text"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    placeholder={isGenerating ? 'Processing your request...' : placeholder}
-                    className={aiInputStyles.prompt_input}
-                    autoComplete="off"
-                    spellCheck={false}
-                    disabled={isGenerating}
-                />
-                <div className={aiInputStyles.input_icons_right}>
-                    <button 
-                        className={aiInputStyles.input_action_button}
-                        onClick={handleInputSubmit}
-                        onMouseDown={(e) => e.stopPropagation()}
+        <div className={classNames(aiInputStyles.ai_input_field_wrapper)}>
+            <div className={aiInputStyles.input_container}>
+                <div className={classNames(aiInputStyles.input_wrapper, isGenerating ? aiInputStyles.generating : '')}>
+                    <div className={aiInputStyles.input_icon_left}>
+                        {isGenerating ? (
+                            <LoadingCircle />
+                        ) : (
+                            <>✦</>
+                        )}
+                    </div>
+                    <input
+                        type="text"
+                        value={inputValue}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                        placeholder={isGenerating ? 'Processing your request...' : placeholder}
+                        className={aiInputStyles.prompt_input}
+                        autoComplete="off"
+                        spellCheck={false}
                         disabled={isGenerating}
-                    >
-                        ▶
-                    </button>
+                    />
+                    <div className={aiInputStyles.input_icons_right}>
+                        <button 
+                            className={aiInputStyles.input_action_button}
+                            onClick={() => handleInputSubmit()}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            disabled={isGenerating}
+                        >
+                            ▶
+                        </button>
+                    </div>
                 </div>
             </div>
+            
+            {showExamples && (
+                <div className={classNames(aiInputStyles.examples_container, isGenerating ? aiInputStyles.generating : '')}>
+                    {DEFAULT_EXAMPLES.map((example, index) => (
+                        <button
+                            key={index}
+                            className={aiInputStyles.example_button}
+                            onClick={() => handleExampleClick(example)}
+                            disabled={isGenerating}
+                        >
+                            {example}
+                        </button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
