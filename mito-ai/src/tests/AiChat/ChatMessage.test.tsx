@@ -8,12 +8,14 @@ import '@testing-library/jest-dom';
 import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
 import ChatMessage from '../../Extensions/AiChat/ChatMessage/ChatMessage';
 import { CodeReviewStatus } from '../../Extensions/AiChat/ChatTaskpane';
-import { ChatMessageType, PromptType } from '../../Extensions/AiChat/ChatHistoryManager';
+import { IDisplayOptimizedChatItem, PromptType } from '../../Extensions/AiChat/ChatHistoryManager';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { IContextManager } from '../../Extensions/ContextManager/ContextManagerPlugin';
 import { OperatingSystem } from '../../utils/user';
 import { createMockMessage } from '../__mocks__/openaiMocks';
-import { createMockNotebookTracker, createMockRenderMimeRegistry } from '../__mocks__/jupyterMocks';
+import { OpenAI } from 'openai';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 jest.mock('../../Extensions/AiChat/ChatMessage/MarkdownBlock', () => {
     return {
@@ -79,17 +81,17 @@ jest.mock('../../utils/copyToClipboard', () => {
 
 // Create base props for the component
 const createMockProps = (overrides = {}) => ({
-    message: createMockMessage('user', 'Hello, can you help me with pandas?'),
-    messageType: 'openai message' as ChatMessageType,
-    codeCellID: 'test-cell-id',
+    message: { role: 'user', content: 'Test message' } as OpenAI.Chat.ChatCompletionMessageParam,
+    messageType: 'user' as IDisplayOptimizedChatItem['type'],
+    codeCellID: undefined,
+    agentResponse: undefined,
     messageIndex: 0,
     promptType: 'chat' as PromptType,
-    agentResponse: undefined,
     mitoAIConnectionError: false,
     mitoAIConnectionErrorType: null,
-    notebookTracker: createMockNotebookTracker(),
-    renderMimeRegistry: createMockRenderMimeRegistry(),
-    app: { commands: { execute: jest.fn() } } as unknown as JupyterFrontEnd,
+    notebookTracker: {} as INotebookTracker,
+    renderMimeRegistry: {} as IRenderMimeRegistry,
+    app: {} as JupyterFrontEnd,
     isLastAiMessage: false,
     operatingSystem: 'mac' as OperatingSystem,
     previewAICode: jest.fn(),
@@ -99,6 +101,7 @@ const createMockProps = (overrides = {}) => ({
     onDeleteMessage: jest.fn(),
     contextManager: { getVariables: jest.fn(() => []) } as unknown as IContextManager,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
+    answerAIQuestion: jest.fn(),
     ...overrides
 });
 

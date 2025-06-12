@@ -1294,6 +1294,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             onUpdateMessage={handleUpdateMessage}
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
+                            answerAIQuestion={startAgentExecution}
                         />
                     )
                 }).filter(message => message !== null)}
