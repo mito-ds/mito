@@ -32,6 +32,8 @@ jobs:
         cache-dependency-path: |
           mito-ai/setup.py
           tests/requirements.txt
+    - name: Install Microsoft ODBC Driver
+      run: sudo ACCEPT_EULA=Y apt-get install msodbcsql18 -y
     - name: Install dependencies
       run: |
         cd mito-ai
@@ -45,6 +47,7 @@ jobs:
         cd mito-ai
         docker compose -f mito_ai/docker/postgres/compose.yml up -d
         docker compose -f mito_ai/docker/mysql/compose.yml up -d
+        docker compose -f mito_ai/docker/mssql/compose.yml up -d
     - name: Run tests
       run: |
         cd mito-ai
@@ -60,6 +63,7 @@ jobs:
         cd mito-ai
         docker compose -f mito_ai/docker/postgres/compose.yml down -v
         docker compose -f mito_ai/docker/mysql/compose.yml down -v
+        docker compose -f mito_ai/docker/mssql/compose.yml down -v
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()

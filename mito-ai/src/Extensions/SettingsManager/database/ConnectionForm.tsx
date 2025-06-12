@@ -79,6 +79,9 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
     return (
         <form onSubmit={handleSubmit} className="connection-form">
             {formError && <p className="error">{formError}</p>}
+            {selectedConfig?.alertText && (
+                <div className="alert-banner" dangerouslySetInnerHTML={{ __html: selectedConfig.alertText }} />
+            )}
 
             <div className="form-group">
                 <label htmlFor="type">Database Type</label>

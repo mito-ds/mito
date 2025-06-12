@@ -138,3 +138,14 @@
 .form-info a:hover {
     text-decoration: underline;
 } 
+
+.alert-banner {
+    background-color: var(--yellow-100);
+    border: 1px solid var(--yellow-500);
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--grey-900);
+}

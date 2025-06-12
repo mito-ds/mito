@@ -24,10 +24,60 @@ export interface DatabaseField {
 export interface DatabaseConfig {
     type: string;
     displayName: string;
+    alertText?: string;  // Optional HTML content for alerts/notifications
     fields: DatabaseField[];
 }
 
 export const databaseConfigs: Record<string, DatabaseConfig> = {
+    mssql: {
+        type: 'mssql',
+        displayName: 'Microsoft SQL Server',
+        alertText: 'Microsoft SQL Server requires an additional driver. If you\'ve already installed it, you can safely ignore this message. For more info, consult the <a href="https://docs.trymito.io/mito-ai/database-connectors/microsoft-sql-server" target="_blank">Mito docs</a>.',
+        fields: [
+            {
+                name: 'username',
+                type: 'text',
+                label: 'Username',
+                placeholder: 'john.doe',
+                required: true
+            },
+            {
+                name: 'password',
+                type: 'password',
+                label: 'Password',
+                placeholder: 'Enter your password',
+                required: true
+            },
+            {
+                name: 'host',
+                type: 'text',
+                label: 'Host',
+                placeholder: 'localhost',
+                required: true
+            },
+            {
+                name: 'port',
+                type: 'number',
+                label: 'Port',
+                placeholder: '1433',
+                required: true
+            },
+            {
+                name: 'database',
+                type: 'text',
+                label: 'Database',
+                placeholder: 'mydb',
+                required: true
+            },
+            {
+                name: 'odbc_driver_version',
+                type: 'text',
+                label: 'ODBC Driver Version',
+                placeholder: '18',
+                required: true
+            }
+        ]
+    },
     mysql: {
         type: 'mysql',
         displayName: 'MySQL',
