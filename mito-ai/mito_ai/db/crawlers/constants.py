@@ -23,8 +23,8 @@ SUPPORTED_DATABASES: Dict[str, DatabaseConfig] = {
     },
     "oracle": {
         "drivers": ["oracledb"],
-        "tables_query": "SELECT table_name FROM all_tables",
-        "columns_query": "SELECT column_name, data_type FROM all_tab_columns WHERE table_name = :table",
+        "tables_query": "SELECT table_name FROM user_tables",
+        "columns_query": "SELECT column_name, data_type FROM user_tab_columns WHERE table_name = :table",
     },
     "postgres": {
         "drivers": ["psycopg2-binary"],
