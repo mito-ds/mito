@@ -22,6 +22,8 @@ describe('NotebookToStreamlit Basic Conversion', () => {
     beforeEach(() => {
         jest.clearAllMocks();
 
+        let codeSource = 'import pandas as pd\ndf = pd.DataFrame({"A": [1, 2, 3]})'
+
         // Setup mock notebook panel
         mockNotebookPanel = {
             context: { path: 'test_notebook.ipynb' },
@@ -30,7 +32,7 @@ describe('NotebookToStreamlit Basic Conversion', () => {
                     model: {
                         type: 'code',
                         sharedModel: {
-                            source: 'import pandas as pd\ndf = pd.DataFrame({"A": [1, 2, 3]})'
+                            source: codeSource
                         },
                         id: 'test-cell-id',
                         metadata: {},
@@ -71,11 +73,13 @@ describe('NotebookToStreamlit Basic Conversion', () => {
     test('should convert a markdown cells correctly in the streamlit app', async () => {
         // Create a mock MarkdownCell instance with a model getter
         const mockMarkdownCell = Object.create(MarkdownCell.prototype);
+        let codeSource = '# This is a heading\nSome *italic* text.';
+        let expectedCode = 'st.markdown("""# This is a heading\nSome *italic* text.""")';
         Object.defineProperty(mockMarkdownCell, 'model', {
             get: () => ({
                 type: 'markdown',
                 sharedModel: {
-                    source: '# This is a heading\nSome *italic* text.'
+                    source: codeSource
                 },
                 id: 'markdown-cell-id',
                 metadata: {},
@@ -97,18 +101,21 @@ describe('NotebookToStreamlit Basic Conversion', () => {
         const generatedCode = appPyCall[2];
 
         // Check that st.markdown is present with the markdown content
-        expect(generatedCode).toContain('st.markdown("""# This is a heading\nSome *italic* text.""")');
+        expect(generatedCode).toContain(expectedCode);
     });
 
     test('should convert a code cell to code in streamlit app', async () => {
         // Create a mock CodeCell instance with a model getter
         const { CodeCell } = require('@jupyterlab/cells');
         const mockCodeCell = Object.create(CodeCell.prototype);
+        let codeSource = 'x = 42\nprint(x)';
+        let expectedCode = ['x = 42', 'print(x)'];
+
         Object.defineProperty(mockCodeCell, 'model', {
             get: () => ({
                 type: 'code',
                 sharedModel: {
-                    source: 'x = 42\nprint(x)'
+                    source: codeSource
                 },
                 id: 'code-cell-id',
                 metadata: {},
@@ -131,19 +138,21 @@ describe('NotebookToStreamlit Basic Conversion', () => {
         const generatedCode = appPyCall[2];
 
         // Check that the code cell's content is present in the generated code
-        expect(generatedCode).toContain('x = 42');
-        expect(generatedCode).toContain('print(x)');
+        expect(generatedCode).toContain(expectedCode[0]);
+        expect(generatedCode).toContain(expectedCode[1]);
     });
 
     test('should handle empty code cell', async () => {
         // Create a mock CodeCell instance with an empty source
         const { CodeCell } = require('@jupyterlab/cells');
         const mockEmptyCodeCell = Object.create(CodeCell.prototype);
+        let codeSource = '';
+        let expectedCode = '# Converting Code Cell';
         Object.defineProperty(mockEmptyCodeCell, 'model', {
             get: () => ({
                 type: 'code',
                 sharedModel: {
-                    source: '' // Empty code cell
+                    source: codeSource // Empty code cell
                 },
                 id: 'empty-code-cell-id',
                 metadata: {},
@@ -167,18 +176,20 @@ describe('NotebookToStreamlit Basic Conversion', () => {
 
         // The generated code should NOT contain any code from the empty cell
         // It should only have the initial imports and title, but not "# Converting Code Cell"
-        expect(generatedCode).not.toContain('# Converting Code Cell');
+        expect(generatedCode).not.toContain(expectedCode);
     });
 
     test('should generate requirements.txt with correct packages (sklearn and requests) using real implementation', async () => {
         // Create a mock CodeCell instance that imports sklearn and requests
         const { CodeCell } = require('@jupyterlab/cells');
         const mockCodeCell = Object.create(CodeCell.prototype);
+        let codeSource = 'import sklearn\nimport requests';
+        let expectedCode = 'scikit-learn==1.2.2\nrequests==2.31.0\nstreamlit>=1.28.0\n';
         Object.defineProperty(mockCodeCell, 'model', {
             get: () => ({
                 type: 'code',
                 sharedModel: {
-                    source: 'import sklearn\nimport requests'
+                    source: codeSource
                 },
                 id: 'code-cell-id',
                 metadata: {},
@@ -198,7 +209,7 @@ describe('NotebookToStreamlit Basic Conversion', () => {
                 };
                 let outputMsg = {
                     header: { msg_type: 'stream' },
-                    content: { name: 'stdout', text: 'scikit-learn==1.2.2\nrequests==2.31.0\nstreamlit>=1.28.0\n' }
+                    content: { name: 'stdout', text: expectedCode }
                 };
                 Object.defineProperty(future, 'onIOPub', {
                     get() { return this._onIOPub; },
@@ -242,11 +253,12 @@ describe('NotebookToStreamlit Basic Conversion', () => {
         // Create a mock CodeCell instance with matplotlib and plotly visualization code
         const { CodeCell } = require('@jupyterlab/cells');
         const mockMatplotlibCell = Object.create(CodeCell.prototype);
+        let codeSourceMatplotlib = 'import matplotlib.pyplot as plt\nplt.plot([1,2,3], [4,5,6])\nplt.show()';
         Object.defineProperty(mockMatplotlibCell, 'model', {
             get: () => ({
                 type: 'code',
                 sharedModel: {
-                    source: 'import matplotlib.pyplot as plt\nplt.plot([1,2,3], [4,5,6])\nplt.show()'
+                    source: codeSourceMatplotlib
                 },
                 id: 'matplotlib-cell-id',
                 metadata: {},
@@ -257,11 +269,12 @@ describe('NotebookToStreamlit Basic Conversion', () => {
         });
 
         const mockPlotlyCell = Object.create(CodeCell.prototype);
+        let codeSourcePlotly = 'import plotly.graph_objects as go\nfig = go.Figure()\ndisplay_viz(fig)';
         Object.defineProperty(mockPlotlyCell, 'model', {
             get: () => ({
                 type: 'code',
                 sharedModel: {
-                    source: 'import plotly.graph_objects as go\nfig = go.Figure()\ndisplay_viz(fig)'
+                    source: codeSourcePlotly
                 },
                 id: 'plotly-cell-id',
                 metadata: {},
@@ -270,6 +283,8 @@ describe('NotebookToStreamlit Basic Conversion', () => {
             }),
             configurable: true
         });
+
+        let expectedCode = ['def display_viz(fig):', 'st.pyplot(fig)', 'st.plotly_chart(fig)', 'plt.plot([1,2,3], [4,5,6])', 'display_viz(fig)'];
 
         // Replace the widgets with both visualization cells
         mockNotebookPanel.content.widgets = [mockMatplotlibCell, mockPlotlyCell];
@@ -284,25 +299,28 @@ describe('NotebookToStreamlit Basic Conversion', () => {
         const generatedCode = appPyCall[2];
 
         // Check that the generated code contains the display_viz function and calls
-        expect(generatedCode).toContain('def display_viz(fig):');
+        expect(generatedCode).toContain(expectedCode[0]);
         // For matplotlib
-        expect(generatedCode).toContain('st.pyplot(fig)');
+        expect(generatedCode).toContain(expectedCode[1]);
         // For plotly
-        expect(generatedCode).toContain('st.plotly_chart(fig)');
+        expect(generatedCode).toContain(expectedCode[2]);
         // The code cell content should be present
-        expect(generatedCode).toContain('plt.plot([1,2,3], [4,5,6])');
-        expect(generatedCode).toContain('display_viz(fig)');
+        expect(generatedCode).toContain(expectedCode[3]);
+        expect(generatedCode).toContain(expectedCode[4]);
     });
 
     test('should handle dataframe display', async () => {
         // Create a mock CodeCell instance that creates and displays a DataFrame
         const { CodeCell } = require('@jupyterlab/cells');
         const mockDataFrameCell = Object.create(CodeCell.prototype);
+        let codeSource = 'import pandas as pd\ndf = pd.DataFrame({"A": [1, 2, 3]})\ndf';
+        let expectedCode = ['import pandas as pd', 'df = pd.DataFrame({"A": [1, 2, 3]})'];
+        let codeToMatch = /df\s*$/m;
         Object.defineProperty(mockDataFrameCell, 'model', {
             get: () => ({
                 type: 'code',
                 sharedModel: {
-                    source: 'import pandas as pd\ndf = pd.DataFrame({"A": [1, 2, 3]})\ndf'
+                    source: codeSource
                 },
                 id: 'dataframe-cell-id',
                 metadata: {},
@@ -325,21 +343,23 @@ describe('NotebookToStreamlit Basic Conversion', () => {
         const generatedCode = appPyCall[2];
 
         // Check that the DataFrame creation and display code is present
-        expect(generatedCode).toContain('import pandas as pd');
-        expect(generatedCode).toContain('df = pd.DataFrame({"A": [1, 2, 3]})');
+        expect(generatedCode).toContain(expectedCode[0]);
+        expect(generatedCode).toContain(expectedCode[1]);
         // The last line 'df' should be present, which in Streamlit will display the DataFrame
-        expect(generatedCode).toMatch(/df\s*$/m);
+        expect(generatedCode).toMatch(codeToMatch);
     });
 
     test('should handle newlines in print statements correctly', async () => {
         // Create a mock CodeCell instance with a print statement containing a newline
         const { CodeCell } = require('@jupyterlab/cells');
         const mockPrintCell = Object.create(CodeCell.prototype);
+        let codeSource = 'print("a\\nb")';
+        let expectedCode = 'print("a\\nb")';
         Object.defineProperty(mockPrintCell, 'model', {
             get: () => ({
                 type: 'code',
                 sharedModel: {
-                    source: 'print("a\\nb")'
+                    source: codeSource
                 },
                 id: 'print-cell-id',
                 metadata: {},
@@ -362,18 +382,20 @@ describe('NotebookToStreamlit Basic Conversion', () => {
         const generatedCode = appPyCall[2];
 
         // Check that the print statement with the newline is present in the generated code
-        expect(generatedCode).toContain('print("a\\nb")');
+        expect(generatedCode).toContain(expectedCode);
     });
 
     test('should convert a simple notebook with one code cell', async () => {
         // Create a mock CodeCell instance with a simple print statement
         const { CodeCell } = require('@jupyterlab/cells');
         const mockSimpleCodeCell = Object.create(CodeCell.prototype);
+        let codeSource = 'print("hello world")';
+        let expectedCode = 'print("hello world")';
         Object.defineProperty(mockSimpleCodeCell, 'model', {
             get: () => ({
                 type: 'code',
                 sharedModel: {
-                    source: 'print("hello world")'
+                    source: codeSource
                 },
                 id: 'simple-code-cell-id',
                 metadata: {},
@@ -396,6 +418,6 @@ describe('NotebookToStreamlit Basic Conversion', () => {
         const generatedCode = appPyCall[2];
 
         // Check that the code cell's content is present in the generated code
-        expect(generatedCode).toContain('print("hello world")');
+        expect(generatedCode).toContain(expectedCode);
     });
 }); 
