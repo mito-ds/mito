@@ -55,7 +55,7 @@ test = [
 ]
 deploy = [
     "twine>=4.0.0",
-    "hatchling>=1.5.0",
+    "hatchling>=1.18.0",
     "hatch-nodejs-version>=0.3.2",
     "hatch-jupyter-builder>=0.5"
 ]
