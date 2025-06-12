@@ -6,21 +6,10 @@
 .connected-input-container {
     display: flex;
     flex-direction: column;
-    border-radius: 12px;
-    border: 1px solid var(--jp-border-color2);
-    background: var(--jp-layout-color1);
+    align-items: center;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.connected-input-container.has-next-steps .next-steps-pills-container {
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-}
-
-.connected-input-container.has-next-steps .chat-input {
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+    margin-bottom: 16px;
+    width: 100%;
 }
 
 .next-steps-pills-container {
@@ -29,14 +18,11 @@
     gap: 8px;
     padding: 8px 12px;
     margin-bottom: 0;
-    background: linear-gradient(135deg, var(--jp-layout-color0) 0%, var(--jp-layout-color1) 100%);
-    border: none;
-    border-bottom: 1px solid var(--jp-border-color2);
-    border-radius: 0;
-    opacity: 0;
+    border-radius: 3px;
+    background-color: var(--chat-user-message-background-color);
     transform: translateY(-10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: none;
+    width: 80%;
 }
 
 .next-steps-pills-container.visible {
@@ -179,24 +165,9 @@
     }
 }
 
-/* Dark theme adjustments */
-[data-jp-theme-light="false"] .next-steps-pills-container {
-    background: linear-gradient(135deg, var(--jp-layout-color0) 0%, var(--jp-layout-color1) 100%);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-[data-jp-theme-light="false"] .connected-input-container {
-    background: var(--jp-layout-color1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-[data-jp-theme-light="false"] .next-step-pill:hover {
-    box-shadow: 0 4px 12px rgba(var(--jp-brand-color1), 0.25);
-}
-
 /* Animation for when pills are being dismissed */
 .next-steps-pills-container.animating-out .next-step-pill {
-    animation: pillSlideOut 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
+    animation: pillSlideOut 0.2s cubic-bezier(0.4, 0, 1, 1) backwards;
 }
 
 @keyframes pillSlideOut {

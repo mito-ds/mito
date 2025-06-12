@@ -8,9 +8,12 @@
   bottom: 0;
   margin: 10px 0;
   margin-top: auto;
-  border-radius: 3px;
-  border: 1px solid var(--grey-300);
   background-color: var(--chat-user-message-background-color);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(0, 0, 0, 0.02);
+  width: 100%;
 }
 
 .chat-input {
@@ -22,63 +25,10 @@
   overflow-y: hidden;
   box-sizing: border-box;
   flex-shrink: 0 !important;
-  background-color: white;
-}
-
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 0 0 var(--glow-color);
-  }
-  50% {
-    box-shadow: 0 0 10px 3px var(--glow-color);
-  }
-  100% {
-    box-shadow: 0 0 0 0 var(--glow-color);
-  }
-}
-
-.chat-input-container:has(.chat-input.agent-mode) {
-  border: 1px solid var(--purple-500);
-  animation: glow 1s ease-in-out;
-  --glow-color: var(--purple-500);
+  background-color: var(--chat-user-message-background-color);
 }
 
 .active-cell-preview-container {
   padding: 10px;
   background-color: var(--chat-user-message-background-color);
-}
-
-/* Styles for connected input container */
-.connected-input-container .chat-input-container {
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  background-color: transparent;
-  position: static;
-}
-
-.connected-input-container .chat-input {
-  background-color: var(--jp-layout-color1);
-  border-radius: 0;
-}
-
-.connected-input-container:has(.chat-input.agent-mode) {
-  border: 1px solid var(--purple-500);
-  animation: glow 1s ease-in-out;
-  --glow-color: var(--purple-500);
-}
-
-/* Remove the glow animation from the inner chat-input-container when in connected mode */
-.connected-input-container .chat-input-container:has(.chat-input.agent-mode) {
-  border: none;
-  animation: none;
-}
-
-/* When there are no next steps, the input should have rounded corners */
-.connected-input-container:not(.has-next-steps) {
-  border-radius: 12px;
-}
-
-.connected-input-container:not(.has-next-steps) .chat-input {
-  border-radius: 12px;
 }
