@@ -17,7 +17,6 @@ If it still does not work, please email jake@sagacollab.com
 """
 
 # Public interface we want users to rely on
-from mitosheet.dataframe_display_formatters import set_dataframe_display_formatters
 from mitosheet.mito_backend import sheet
 from mitosheet._version import __version__
 
@@ -40,10 +39,6 @@ from mitosheet.step_performers.bulk_old_rename.deprecated_utils import (
 # Make sure the user is initalized
 from mitosheet.user import initialize_user
 initialize_user()
-
-# Make the Mitosheet the default dataframe display
-set_dataframe_display_formatters()
-
 
 # This function is only necessary for mitosheet3, as it is used
 # in jlab3 to find the extension. It is not used in jlab2

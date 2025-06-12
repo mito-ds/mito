@@ -127,6 +127,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         return <></>
     }
 
+    // While the code is streaming back we don't want to show the overwrite button. 
+    // Users end up applying the code in the middle of streaming and it gets very confusing
+    // very quickly for users. 
+    let isCodeComplete = false;
+
     return (
         <div className={classNames(
             "message",
@@ -135,6 +140,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
+                    
+                    isCodeComplete = messagePart.endsWith('```');
+
                     // Make sure that there is actually code in the message. 
                     // An empty code will look like this '```python  ```'
                     if (messagePart.length > 14) {
@@ -143,6 +151,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 <CodeBlock
                                     key={index + messagePart}
                                     code={messagePart}
+                                    isCodeComplete={isCodeComplete}
                                     role={message.role}
                                     renderMimeRegistry={renderMimeRegistry}
                                     previewAICode={previewAICode}
@@ -152,7 +161,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     codeReviewStatus={codeReviewStatus}
                                 />
 
-                                {isLastAiMessage && codeReviewStatus === 'chatPreview' && 
+                                {isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' && 
                                     <div className='chat-message-buttons'>
                                         <TextAndIconButton 
                                             onClick={() => {previewAICode()}}
@@ -172,7 +181,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         />
                                     </div>
                                 }
-                                {isLastAiMessage && codeReviewStatus === 'codeCellPreview' && 
+                                {isLastAiMessage && isCodeComplete && codeReviewStatus === 'codeCellPreview' && 
                                     <div className='chat-message-buttons'>
                                         <TextButton 
                                             onClick={() => {acceptAICode()}}

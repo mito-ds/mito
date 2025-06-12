@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.10', '3.11']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
       fail-fast: false
 
     steps:
@@ -40,6 +40,11 @@ jobs:
         jlpm build
         jupyter labextension develop . --overwrite
         jupyter server extension enable --py mito_ai
+    - name: Setup databases
+      run: |
+        cd mito-ai
+        docker compose -f mito_ai/docker/postgres/compose.yml up -d
+        docker compose -f mito_ai/docker/mysql/compose.yml up -d
     - name: Run tests
       run: |
         cd mito-ai
@@ -49,6 +54,12 @@ jobs:
         SNOWFLAKE_USERNAME: ${{ secrets.PYTEST_SNOWFLAKE_USERNAME }}
         SNOWFLAKE_PASSWORD: ${{ secrets.PYTEST_SNOWFLAKE_PASSWORD }}
         SNOWFLAKE_ACCOUNT: ${{ secrets.PYTEST_SNOWFLAKE_ACCOUNT }}
+    - name: Cleanup databases
+      if: always()
+      run: |
+        cd mito-ai
+        docker compose -f mito_ai/docker/postgres/compose.yml down -v
+        docker compose -f mito_ai/docker/mysql/compose.yml down -v
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()

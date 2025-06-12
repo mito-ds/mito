@@ -30,6 +30,8 @@ MITO_AI_COMPLETION_ERROR = 'mito_ai_error'
 KEY_TYPE_PARAM = 'AI_key_type'
 MITO_SERVER_KEY: Literal['mito_server_key'] = 'mito_server_key'
 USER_KEY: Literal['user_key'] = 'user_key'
+# - logging if the user is in dev mode
+IS_DEV_MODE_PARAM = 'is_dev_mode'
 
 # - logging the number of usages of the Mito server
 MITO_SERVER_NUM_USAGES = 'mito_server_num_usages'
@@ -40,11 +42,45 @@ MITO_SERVER_NUM_USAGES = 'mito_server_num_usages'
 MITO_SERVER_FREE_TIER_LIMIT_REACHED = 'mito_server_free_tier_limit_reached'
 #################################
 
+def is_dev_mode() -> bool:
+    """
+    Check if mito-ai is installed in editable/development mode.
+    
+    This function detects editable installs using the modern PEP 660 standard
+    (pip >= 21.3). Works for most development scenarios where developers use
+    `pip install -e .`
+    
+    Returns:
+        bool: True if running in development mode, False otherwise.
+        
+    Limitations:
+        - Requires pip >= 21.3 for reliable detection
+        - Won't detect manual PYTHONPATH manipulation
+        - Won't detect legacy .egg-link installations (very old pip)
+        
+    Note: This is a best-effort detection. For 100% reliability, consider
+    also setting a MITO_DEVELOPER_MODE environment variable.
+    """
+    try:
+        import importlib.metadata
+        import json
+        
+        dist = importlib.metadata.distribution('mito-ai')
+        direct_url_text = dist.read_text('direct_url.json')
+        if direct_url_text:
+            direct_url = json.loads(direct_url_text)
+            return direct_url.get('dir_info', {}).get('editable', False)
+    except Exception:
+        pass
+    
+    return False
+
 def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     """
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
+    
     # If the user is on the Mito server, then they are sending
     # us their information already
     if key_type == 'mito_server_key':
@@ -84,6 +120,7 @@ def identify(key_type: Optional[str] = None) -> None:
         'is_pro': is_pro(),
         'is_jupyterhub': 'True' if 'JUPYTERHUB_API_URL' in os.environ else 'False',
         'is_mito_jupyterhub': 'True' if os.getenv('MITO_JUPYTERHUB') is not None else 'False',
+        IS_DEV_MODE_PARAM: is_dev_mode(),
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
 
@@ -195,6 +232,7 @@ def log_ai_completion_success(
     # Params that every log has
     base_params = {
         KEY_TYPE_PARAM: str(key_type),
+        IS_DEV_MODE_PARAM: is_dev_mode(),
     }
 
     try:
@@ -285,7 +323,7 @@ def log_ai_completion_success(
 def log_db_connection_attempt(connection_type: str) -> None:
     log("mito_ai_db_connection_attempt", params={"connection_type": connection_type})
 
-def log_db_connection_success(connection_type: str, schema: dict[str, Any]) -> None:
+def log_db_connection_success(connection_type: str, schema: Dict[str, Any]) -> None:
     log(
         "mito_ai_db_connection_success",
         params={

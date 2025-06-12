@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { DBConnections } from './model';
+import { DBConnections, databaseConfigs } from './model';
 
 interface ConnectionListProps {
     connections: DBConnections;
@@ -41,9 +41,20 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
                         <h3>{connection.type}</h3>
                     </div>
                     <div className="connection-details">
-                        <p><strong>Username:</strong> {connection.username}</p>
-                        <p><strong>Account:</strong> {connection.account}</p>
-                        <p><strong>Warehouse:</strong> {connection.warehouse}</p>
+                        {databaseConfigs[connection.type]?.fields.map(field => {
+                            // Skip password fields for security
+                            if (field.type === 'password') return null;
+                            
+                            const value = connection[field.name];
+                            // Only show fields that have values
+                            if (value === undefined || value === '') return null;
+                            
+                            return (
+                                <p key={field.name}>
+                                    <strong>{field.label}:</strong> {value}
+                                </p>
+                            );
+                        })}
                     </div>
                     <div className="connection-actions">
                         {clickedDelete === id ? (

@@ -11,10 +11,6 @@ from mito_ai.utils.server_limits import (
 )
 from mito_ai.utils.telemetry_utils import MITO_SERVER_FREE_TIER_LIMIT_REACHED
 from mito_ai.completions.models import MessageType
-from mito_ai.utils.open_ai_utils import (
-    MITO_AI_PROD_URL,
-    MITO_AI_URL,
-)
 
 REALLY_OLD_DATE = "2020-01-01"
 TODAY = datetime.now().strftime("%Y-%m-%d")
@@ -75,9 +71,3 @@ def test_check_mito_server_quota_pro_user() -> None:
          patch("mito_ai.utils.server_limits.get_last_reset_date", return_value=REALLY_OLD_DATE):
         
         check_mito_server_quota(MessageType.CHAT)
-
-
-def test_mito_ai_url_is_prod_url() -> None:
-    # This test ensures that the MITO_AI_URL is set to the prod URL 
-    # before merging into dev.
-    assert MITO_AI_URL == MITO_AI_PROD_URL

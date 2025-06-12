@@ -32,6 +32,7 @@ import {
     COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE,
     COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_REJECT_LATEST_CODE,
+    COMMAND_MITO_AI_SEND_AGENT_MESSAGE,
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
@@ -65,9 +66,13 @@ import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
+import { DEFAULT_MODEL } from '../../components/ModelSelector';
+import ModelSelector from "../../components/ModelSelector";
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import { getFirstMessageFromCookie } from './FirstMessage';
+import CTACarousel from './CTACarousel';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -118,7 +123,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
+    /* 
+        Keep track of agent mode enabled state and use keep a ref in sync with it 
+        so that we can access the most up-to-date value during a function's execution.
+        Without it, we would always use the initial value of agentModeEnabled.
+    */ 
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(true)
+    const agentModeEnabledRef = useRef<boolean>(agentModeEnabled);
+    useEffect(() => {
+        // Update the ref whenever agentModeEnabled state changes
+        agentModeEnabledRef.current = agentModeEnabled;
+    }, [agentModeEnabled]);
+
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
     // the last active thread or create a new thread if there are no previously existing threads. So that
@@ -140,6 +156,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
+
+    const updateModelOnBackend = async (model: string): Promise<void> => {
+        try {
+            await websocketClient.sendMessage({
+              type: "update_model_config",
+              message_id: UUID.uuid4(),
+              metadata: {
+                promptType: "update_model_config",
+                model: model
+              },
+              stream: false
+            });
+    
+            console.log('Model configuration updated on backend:', model);
+          } catch (error) {
+            console.error('Failed to update model configuration on backend:', error);
+          }
+    };
 
     const fetchChatThreads = async (): Promise<void> => {
         const metadata: IGetThreadsMetadata = {
@@ -235,10 +269,54 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
+    const startNewChat = async (): Promise<ChatHistoryManager> => {
+
+        // If current thread is empty and we already have an active thread id, do not create a new thread.
+        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
+            return chatHistoryManager;
+        }
+        // Reset frontend chat history
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+        setChatHistoryManager(newChatHistoryManager);
+
+        // Notify the backend to request a new chat thread and get its ID
+        try {
+            const response = await websocketClient.sendMessage<ICompletionRequest, IStartNewChatReply>({
+                type: 'start_new_chat',
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: 'start_new_chat'
+                },
+                stream: false,
+            });
+
+            // Set the new thread ID as active
+            activeThreadIdRef.current = response.thread_id;
+        } catch (error) {
+            console.error('Error starting new chat:', error);
+        }
+
+        return newChatHistoryManager;
+    }
 
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
             try {
+                // Check for saved model preference in localStorage
+                const storedConfig = localStorage.getItem('llmModelConfig');
+                let initialModel = DEFAULT_MODEL;
+                if (storedConfig) {
+                    try {
+                        const parsedConfig = JSON.parse(storedConfig);
+                        initialModel = parsedConfig.model || DEFAULT_MODEL;
+                    } catch (e) {
+                        console.error('Failed to parse stored LLM config', e);
+                    }
+                }
+
+                // Set the model on backend when the taskpane is opened
+                void updateModelOnBackend(initialModel);
+
                 // 1. Fetch available chat threads.
                 const chatThreadsResponse = await websocketClient.sendMessage<ICompletionRequest, IFetchThreadsReply>({
                     type: "get_threads",
@@ -258,19 +336,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     await startNewChat();
                 }
-            } catch (error) {
+
+                const firstMessage = getFirstMessageFromCookie();
+                if (firstMessage) {
+                    await startAgentExecution(firstMessage);
+                    
+                }
+
+            } catch (error: unknown) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
                     contextManager
                 );
                 addAIMessageFromResponseAndUpdateState(
-                    (error as any).title ? (error as any).title : `${error}`,
+                    (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,
                     'chat',
                     newChatHistoryManager,
                     false
                 );
                 addAIMessageFromResponseAndUpdateState(
-                    (error as any).hint ? (error as any).hint : `${error}`,
+                    (error as { hint?: string }).hint ? (error as { hint?: string }).hint! : `${error}`,
                     'chat',
                     newChatHistoryManager,
                     true
@@ -279,6 +364,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         };
 
         void initializeChatHistory();
+
     }, [websocketClient]);
 
     useEffect(() => {
@@ -943,36 +1029,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
-    const startNewChat = async (): Promise<ChatHistoryManager> => {
-
-        // If current thread is empty and we already have an active thread id, do not create a new thread.
-        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
-            return chatHistoryManager;
-        }
-        // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
-        setChatHistoryManager(newChatHistoryManager);
-
-        // Notify the backend to request a new chat thread and get its ID
-        try {
-            const response = await websocketClient.sendMessage<ICompletionRequest, IStartNewChatReply>({
-                type: 'start_new_chat',
-                message_id: UUID.uuid4(),
-                metadata: {
-                    promptType: 'start_new_chat'
-                },
-                stream: false,
-            });
-
-            // Set the new thread ID as active
-            activeThreadIdRef.current = response.thread_id;
-        } catch (error) {
-            console.error('Error starting new chat:', error);
-        }
-
-        return newChatHistoryManager;
-    }
-
     useEffect(() => {
         /* 
             Add a new command to the JupyterLab command registry that applies the latest AI generated code
@@ -1013,6 +1069,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.addCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, {
             execute: async () => {
                 await sendExplainCodeMessage()
+            }
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_SEND_AGENT_MESSAGE, {
+            execute: async (args?: ReadonlyPartialJSONObject) => {
+                if (args?.input) {
+                    // Make sure we're in agent mode 
+                    console.log('Setting agent mode to true')
+
+                    // If its not already in agent mode, start a new chat in agent mode
+                    if (!agentModeEnabledRef.current) {
+                        await startNewChat();
+                        setAgentModeEnabled(true);
+                    }
+
+                    // Wait for the next tick to ensure state update is processed
+                    await new Promise(resolve => setTimeout(resolve, 0));
+
+                    await startAgentExecution(args.input.toString())
+                }
             }
         });
 
@@ -1192,17 +1268,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             <MitoLogo width="60" height="30" />
                         </div>
                         <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
-                        <p className="long-message">
-                            <div style={{ display: 'block', textAlign: 'center', marginBottom: '15px' }}>
-                                Ask your personal Python expert anything!
-                            </div>
-                            Hint:
-                            {[
-                                " Use @ to reference variables.",
-                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + E to chat with Mito AI.`,
-                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.`
-                            ][Math.floor(Math.random() * 3)]}
-                        </p>
+                        <CTACarousel app={app} />
                     </div>
                 }
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
@@ -1269,21 +1335,27 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             />
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
                 <div className="chat-controls">
-                    <ToggleButton
-                        leftText="Chat"
-                        rightText="Agent"
-                        isLeftSelected={!agentModeEnabled}
-                        onChange={async (isLeftSelected) => {
-                            await startNewChat(); // TODO: delete thread instead of starting new chat
-                            setAgentModeEnabled(!isLeftSelected);
-                            // Focus the chat input directly
-                            const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
-                            if (chatInput) {
-                                chatInput.focus();
-                            }
-                        }}
-                        title="Agent can create plans and run code."
-                    />
+                    <div className="chat-controls-left">
+                        <ToggleButton
+                            leftText="Chat"
+                            rightText="Agent"
+                            isLeftSelected={!agentModeEnabled}
+                            onChange={async (isLeftSelected) => {
+                                await startNewChat(); // TODO: delete thread instead of starting new chat
+                                setAgentModeEnabled(!isLeftSelected);
+                                // Focus the chat input directly
+                                const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
+                                if (chatInput) {
+                                    chatInput.focus();
+                                }
+                            }}
+                            title="Agent can create plans and run code."
+                        />
+                        <ModelSelector onConfigChange={(config) => {
+                            // Just update the backend
+                            void updateModelOnBackend(config.model);
+                        }}/>
+                    </div>
                     <button
                         className="button-base submit-button"
                         onClick={() => {

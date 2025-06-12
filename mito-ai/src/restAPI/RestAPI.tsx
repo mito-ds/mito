@@ -34,11 +34,12 @@ import { requestAPI } from "./utils";
 
 export const getSetting = async (settingsKey: string): Promise<string | undefined> => {
 
-    const resp = await requestAPI<string | undefined>(`settings/${settingsKey}`)
+    const resp = await requestAPI<{key: string, value: string} | undefined>(`settings/${settingsKey}`)
     if (resp.error) {
         throw new Error(resp.error.message);
     }
-    return resp.data;
+
+    return resp.data?.value || undefined;
 }
 
 export const updateSettings = async (settingsKey: string, settingsValue: string): Promise<string> => {
@@ -67,15 +68,17 @@ export const setRule = async(ruleName: string, ruleContent: string): Promise<str
     if (resp.error) {
         throw new Error(resp.error.message);
     }
+
     return resp.data || '';
 }
 
 export const getRule = async(ruleName: string): Promise<string | undefined> => {
-    const resp = await requestAPI<string>(`rules/${ruleName}`)
+    const resp = await requestAPI<{key: string, content: string}>(`rules/${ruleName}`)
     if (resp.error) {
         throw new Error(resp.error.message);
     }
-    return resp.data;
+
+    return resp.data?.content;
 }
 
 export const getRules = async(): Promise<string[]> => {
