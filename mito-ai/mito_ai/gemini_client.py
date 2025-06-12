@@ -1,10 +1,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 import base64
-from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union, Tuple, Sequence
+from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from google import genai
 from google.genai import types
-from google.genai.types import GenerateContentConfig, Content, Part
+from google.genai.types import GenerateContentConfig
 from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, \
     ResponseFormatInfo, MessageType
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
@@ -96,15 +96,17 @@ class GeminiClient:
         try:
             config = None
 
-            # Extract system instructions and Gemini-compatible contents
+            # Extract system instructions and contents
             system_instructions, contents = extract_system_instruction_and_contents(messages)
 
+            # Configure response format if provided
             if response_format_info:
                 config = {
                     "response_mime_type": "application/json",
                     "response_schema": AgentResponse.model_json_schema()
                 }
 
+            # Get provider data for Gemini completion
             provider_data = get_gemini_completion_function_params(
                 model=self.model if not response_format_info else INLINE_COMPLETION_MODEL,
                 contents=contents,
@@ -114,32 +116,26 @@ class GeminiClient:
             )
 
             if self.api_key:
-                if provider_data.get("config"):
-                    response = self.client.models.generate_content(
-                        model=provider_data["model"],
-                        contents=contents,
-                        config=GenerateContentConfig(
-                            system_instruction=system_instructions,
-                            response_mime_type=provider_data["config"].get("response_mime_type") if provider_data.get("config") else None,
-                            response_schema=provider_data["config"].get("response_schema") if provider_data.get("config") else None
-                        )
-                    )
-                else:
-                    response = self.client.models.generate_content(
-                        model=provider_data["model"],
-                        contents=contents,
-                        config=GenerateContentConfig(
-                            system_instruction=""   # No system instruction needed for inline completions
-                        )
-                    )
+                # Generate content using the Gemini client
+                response_config = GenerateContentConfig(
+                    system_instruction=system_instructions,
+                    response_mime_type=provider_data.get("config", {}).get("response_mime_type"),
+                    response_schema=provider_data.get("config", {}).get("response_schema")
+                )
+                response = self.client.models.generate_content(
+                    model=provider_data["model"],
+                    contents=contents,
+                    config=response_config
+                )
             else:
+                # Fallback to Mito server for completion
                 return await get_gemini_completion_from_mito_server(
                     model=provider_data["model"],
-                    contents=str(contents),  # Use the processed contents instead of str(messages)
+                    contents=str(contents), # Use the extracted contents instead of converted messages to avoid serialization issues
                     message_type=message_type,
                     config=config,
                     response_format_info=response_format_info,
-                    system_instructions=str(system_instructions)  # Pass system instructions separately
+                    system_instructions=system_instructions
                 )
 
             if not response:
@@ -230,7 +226,7 @@ class GeminiClient:
             else:
                 async for chunk_text in stream_gemini_completion_from_mito_server(
                         model=self.model,
-                        contents=contents,  # Use the extracted contents instead of converted messages
+                        contents=str(contents),  # Use the extracted contents instead of converted messages to avoid serialization issues
                         message_type=message_type,
                         message_id=message_id,
                         reply_fn=reply_fn,

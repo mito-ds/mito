@@ -53,7 +53,7 @@ async def get_gemini_completion_from_mito_server(
     message_type: MessageType,
     config: Optional[Dict[str, Any]] = None,
     response_format_info: Optional[Any] = None,
-    system_instructions: Optional[str] = None,
+    system_instructions: list[str] = None,
 ) -> str:
     data, headers = _prepare_gemini_request_data_and_headers(model, contents, system_instructions, message_type, config, response_format_info)
     http_client, http_client_timeout = _create_http_client(timeout, max_retries)
