@@ -73,6 +73,7 @@ import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 import { getFirstMessageFromCookie } from './FirstMessage';
 import CTACarousel from './CTACarousel';
+import NextStepsPills from '../../components/NextStepsPills';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -156,6 +157,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
+
+    // State for managing next steps from finished_task responses
+    const [nextSteps, setNextSteps] = useState<string[]>([]);
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -389,6 +393,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             when the state changes.
         */
         chatHistoryManagerRef.current = chatHistoryManager;
+        
     }, [chatHistoryManager]);
 
     // Scroll to bottom whenever chat history updates
@@ -416,6 +421,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
+        
+        // Clear next steps when sending a new message
+        setNextSteps([])
 
         // Step 1: Add the smart debug message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -437,6 +445,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
+        
+        // Clear next steps when sending a new message
+        setNextSteps([])
 
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -457,6 +468,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendExplainCodeMessage = async (): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
+        
+        // Clear next steps when sending a new message
+        setNextSteps([])
 
         // Step 1: Add the code explain message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -485,6 +499,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     ): Promise<void> => {
         // Step 0: Reject the previous Ai generated code if they did not accept it
         rejectAICode()
+        
+        // Clear next steps when sending a new message
+        setNextSteps([])
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -525,6 +542,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendChatInputMessage = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
         // Step 0: Reject the previous AI generated code if they did not accept it
         rejectAICode()
+        
+        // Clear next steps when sending a new message
+        setNextSteps([])
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -865,6 +885,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentResponse.type === 'finished_task') {
                 // If the agent told us that it is finished, we can stop
                 isAgentFinished = true
+                if (agentResponse.next_steps) {
+                    setNextSteps(agentResponse.next_steps)
+                }
                 break;
             }
 
@@ -1294,7 +1317,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             onUpdateMessage={handleUpdateMessage}
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
-                            answerAIQuestion={startAgentExecution}
                         />
                     )
                 }).filter(message => message !== null)}
@@ -1316,6 +1338,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         }}
                     />
                 </div>
+            )}
+            {nextSteps.length > 0 && (
+                <NextStepsPills 
+                    nextSteps={nextSteps}
+                    onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                    onDismiss={() => setNextSteps([])}
+                />
             )}
             <ChatInput
                 initialContent={''}

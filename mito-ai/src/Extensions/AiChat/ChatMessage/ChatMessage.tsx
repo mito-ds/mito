@@ -29,7 +29,6 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
-import NextStepsUI from '../../../components/AgentToolComponents/NextStepsUI';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -51,7 +50,6 @@ interface IChatMessageProps {
     onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
-    answerAIQuestion: (input: string) => void
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -72,7 +70,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     onUpdateMessage,
     contextManager,
     codeReviewStatus,
-    answerAIQuestion
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -250,9 +247,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             }
             {agentResponse?.type === 'get_cell_output' && 
                 <GetCellOutputToolUI />
-            }
-            {agentResponse?.type === 'finished_task' && agentResponse.next_steps && agentResponse.next_steps.length > 0 &&
-                <NextStepsUI nextSteps={agentResponse.next_steps} onSelectNextStep={answerAIQuestion} />
             }
         </div>
     )
