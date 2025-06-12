@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.anthropic_client import _get_system_prompt_and_messages
-from anthropic.types import MessageParam
+from mito_ai.anthropic_client import _get_system_prompt_and_messages, _extract_and_parse_json_response
+from anthropic.types import MessageParam, Message, ContentBlock, TextBlock, ToolUseBlock, Usage
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
 import anthropic
 from typing import List, Dict, Any, cast, Union
@@ -92,4 +92,138 @@ def test_empty_message_content():
     assert isinstance(system_prompt, anthropic.NotGiven)
     assert len(anthropic_messages) == 1  # Should skip the message with missing content
     assert anthropic_messages[0]["role"] == "assistant"
-    assert anthropic_messages[0]["content"] == "Hi!" 
+    assert anthropic_messages[0]["content"] == "Hi!"
+
+def test_extract_json_from_tool_use():
+    # Create a mock response with tool use
+    tool_use_block = ToolUseBlock(
+        type="tool_use",
+        id="test_id",
+        name="agent_response",
+        input={"key": "value"}
+    )
+    response = Message(
+        id="test_id",
+        role="assistant",
+        content=[tool_use_block],
+        model="claude-3-opus-20240229",
+        type="message",
+        usage=Usage(input_tokens=0, output_tokens=0)
+    )
+    
+    result = _extract_and_parse_json_response(response)
+    assert result == {"key": "value"}
+
+def test_extract_json_from_text():
+    # Create a mock response with JSON in text
+    text_block = TextBlock(
+        type="text",
+        text='Here is some JSON: {"key": "value"}'
+    )
+    response = Message(
+        id="test_id",
+        role="assistant",
+        content=[text_block],
+        model="claude-3-opus-20240229",
+        type="message",
+        usage=Usage(input_tokens=0, output_tokens=0)
+    )
+    
+    result = _extract_and_parse_json_response(response)
+    assert result == {"key": "value"}
+
+def test_extract_json_from_text_with_multiple_blocks():
+    # Create a mock response with multiple text blocks
+    text_block1 = TextBlock(
+        type="text",
+        text='Here is the JSON: {"key": "value"}'  # Put JSON in first block since that's what the implementation checks
+    )
+    text_block2 = TextBlock(
+        type="text",
+        text="Some text after JSON"
+    )
+    response = Message(
+        id="test_id",
+        role="assistant",
+        content=[text_block1, text_block2],
+        model="claude-3-opus-20240229",
+        type="message",
+        usage=Usage(input_tokens=0, output_tokens=0)
+    )
+    
+    result = _extract_and_parse_json_response(response)
+    assert result == {"key": "value"}
+
+def test_invalid_json_in_text():
+    # Create a mock response with invalid JSON in text
+    text_block = TextBlock(
+        type="text",
+        text='Here is invalid JSON: {"key": value}'
+    )
+    response = Message(
+        id="test_id",
+        role="assistant",
+        content=[text_block],
+        model="claude-3-opus-20240229",
+        type="message",
+        usage=Usage(input_tokens=0, output_tokens=0)
+    )
+    
+    with pytest.raises(Exception) as exc_info:
+        _extract_and_parse_json_response(response)
+    assert "No valid AgentResponse format found" in str(exc_info.value)
+
+def test_no_json_in_text():
+    # Create a mock response with no JSON in text
+    text_block = TextBlock(
+        type="text",
+        text="This is just plain text with no JSON"
+    )
+    response = Message(
+        id="test_id",
+        role="assistant",
+        content=[text_block],
+        model="claude-3-opus-20240229",
+        type="message",
+        usage=Usage(input_tokens=0, output_tokens=0)
+    )
+    
+    with pytest.raises(Exception) as exc_info:
+        _extract_and_parse_json_response(response)
+    assert "No valid AgentResponse format found" in str(exc_info.value)
+
+def test_empty_content():
+    # Create a mock response with empty content
+    response = Message(
+        id="test_id",
+        role="assistant",
+        content=[],
+        model="claude-3-opus-20240229",
+        type="message",
+        usage=Usage(input_tokens=0, output_tokens=0)
+    )
+    
+    with pytest.raises(Exception) as exc_info:
+        _extract_and_parse_json_response(response)
+    assert "No valid AgentResponse format found" in str(exc_info.value)
+
+def test_tool_use_without_agent_response():
+    # Create a mock response with tool use but not agent_response
+    tool_use_block = ToolUseBlock(
+        type="tool_use",
+        id="test_id",
+        name="other_tool",
+        input={"key": "value"}
+    )
+    response = Message(
+        id="test_id",
+        role="assistant",
+        content=[tool_use_block],
+        model="claude-3-opus-20240229",
+        type="message",
+        usage=Usage(input_tokens=0, output_tokens=0)
+    )
+    
+    with pytest.raises(Exception) as exc_info:
+        _extract_and_parse_json_response(response)
+    assert "No valid AgentResponse format found" in str(exc_info.value) 
