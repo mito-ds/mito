@@ -38,7 +38,6 @@ dependencies = [
     "traitlets",
     "pydantic",
     "requests>=2.25.0",
-    "SQLAlchemy",
     "pipreqs",
     "google-genai",
     "anthropic"
