@@ -10,7 +10,6 @@ All Mito packages (mitosheet, mito-ai, and mito) use unified SemVer versioning. 
 
 - **`bump_version.py`** - New unified version bumping script for SemVer
 - **`check_versions.py`** - Utility to check version consistency across all packages
-- **`bump_version.py`** - Legacy version bumping script (deprecated)
 - **`deploy.py`** - Local deployment script for mitosheet
 - **`deploy_hatch.py`** - Local deployment script for mito-ai
 
@@ -35,4 +34,33 @@ python deployment/bump_version.py 1.2.3
 
 ### Automated Deployment
 
-Use the GitHub workflow `.github/workflows/deploy-all-packages.yml` for automated deployment of all packages.
+Use the GitHub workflow `.github/workflows/deploy.yml` for automated deployment of all packages.
+
+#### Production Deployment (PyPI)
+- **Trigger**: Push to `main` branch or manual workflow dispatch
+- **Target**: PyPI (production)
+- **Behavior**: 
+  - Bumps version using SemVer
+  - Deploys to production PyPI
+  - Commits version changes to main branch
+  - Creates Git tag and GitHub release
+
+#### Test Deployment (TestPyPI)
+- **Trigger**: Push to `dev` branch
+- **Target**: TestPyPI (testing)
+- **Behavior**:
+  - Creates dev version with timestamp suffix (e.g., `1.2.3.dev20241201123045`)
+  - Deploys to TestPyPI for testing
+  - Does NOT commit version changes or create releases
+
+#### Installing from TestPyPI
+
+After a successful dev deployment, you can install the test packages:
+
+```bash
+# Install individual packages
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mitosheet==<dev-version>
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mito-ai==<dev-version>
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mito==<dev-version>
+```
+

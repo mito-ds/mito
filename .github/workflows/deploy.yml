@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - dev
   workflow_dispatch:
     inputs:
       version_type:
@@ -62,6 +63,19 @@ jobs:
           echo -e "username = __token__" >> ~/.pypirc
           echo -e "password = ${{ secrets.TEST_PYPI_API_TOKEN }}" >> ~/.pypirc
           
+      - name: Determine deployment target
+        id: deployment_target
+        run: |
+          if [[ "${{ steps.extract_branch.outputs.branch }}" == "dev" ]]; then
+            echo "target=testpypi" >> $GITHUB_OUTPUT
+            echo "is_dev=true" >> $GITHUB_OUTPUT
+            echo "suffix=-dev" >> $GITHUB_OUTPUT
+          else
+            echo "target=pypi" >> $GITHUB_OUTPUT
+            echo "is_dev=false" >> $GITHUB_OUTPUT
+            echo "suffix=" >> $GITHUB_OUTPUT
+          fi
+          
       - name: Bump versions
         run: |
           if [[ -n "${{ inputs.specific_version }}" ]]; then
@@ -69,6 +83,16 @@ jobs:
           else
             python deployment/bump_version.py "${{ inputs.version_type || 'patch' }}"
           fi
+          
+      - name: Add dev suffix to version for TestPyPI
+        if: steps.deployment_target.outputs.is_dev == 'true'
+        run: |
+          # Add dev suffix and timestamp to make version unique for TestPyPI
+          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+          CURRENT_VERSION=$(python -c "import json; print(json.load(open('version.json'))['version'])")
+          DEV_VERSION="${CURRENT_VERSION}.dev${TIMESTAMP}"
+          echo "Creating dev version: $DEV_VERSION"
+          python deployment/bump_version.py "$DEV_VERSION"
           
       - name: Get new version
         id: version
@@ -115,23 +139,36 @@ jobs:
           cd mitosheet
           source venv/bin/activate
           python setup.py sdist bdist_wheel
-          twine upload dist/*
+          if [[ "${{ steps.deployment_target.outputs.is_dev }}" == "true" ]]; then
+            twine upload --repository testpypi dist/*
+          else
+            twine upload dist/*
+          fi
           
       - name: Deploy mito-ai
         run: |
           cd mito-ai
           source venv/bin/activate
           python -m build --sdist --wheel
-          twine upload dist/*
+          if [[ "${{ steps.deployment_target.outputs.is_dev }}" == "true" ]]; then
+            twine upload --repository testpypi dist/*
+          else
+            twine upload dist/*
+          fi
           
       - name: Deploy mito metapackage
         run: |
           cd mito
           rm -rf dist/
           python -m build --sdist --wheel
-          twine upload dist/*
+          if [[ "${{ steps.deployment_target.outputs.is_dev }}" == "true" ]]; then
+            twine upload --repository testpypi dist/*
+          else
+            twine upload dist/*
+          fi
           
       - name: Commit version changes
+        if: steps.deployment_target.outputs.is_dev == 'false'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -143,11 +180,13 @@ jobs:
           git push
           
       - name: Create Git Tag
+        if: steps.deployment_target.outputs.is_dev == 'false'
         run: |
           git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
           git push origin "v$NEW_VERSION"
           
       - name: Create GitHub Release
+        if: steps.deployment_target.outputs.is_dev == 'false'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -165,3 +204,15 @@ jobs:
             All packages now use unified SemVer versioning.
           draft: false
           prerelease: false 
+          
+      - name: Deployment Summary
+        run: |
+          if [[ "${{ steps.deployment_target.outputs.is_dev }}" == "true" ]]; then
+            echo "🧪 Successfully deployed version $NEW_VERSION to TestPyPI!"
+            echo "📦 You can install the test packages with:"
+            echo "    pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mitosheet==$NEW_VERSION"
+            echo "    pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mito-ai==$NEW_VERSION"
+            echo "    pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ mito==$NEW_VERSION"
+          else
+            echo "🚀 Successfully deployed version $NEW_VERSION to production PyPI!"
+          fi 

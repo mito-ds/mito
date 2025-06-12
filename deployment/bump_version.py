@@ -17,11 +17,21 @@ from pathlib import Path
 
 
 def version_string_to_tuple(version_string: str) -> Tuple[int, int, int]:
-    """Convert version string to tuple."""
-    parts = list(map(int, version_string.split('.')))
+    """Convert version string to tuple, handling dev versions."""
+    # Handle dev versions like 1.2.3.dev20241201123045
+    if '.dev' in version_string:
+        base_version = version_string.split('.dev')[0]
+    else:
+        base_version = version_string
+    
+    parts = base_version.split('.')
     if len(parts) != 3:
-        raise ValueError(f"Version string must have exactly 3 parts, got {len(parts)}")
-    return (parts[0], parts[1], parts[2])
+        raise ValueError(f"Base version string must have exactly 3 parts, got {len(parts)} in {base_version}")
+    
+    try:
+        return (int(parts[0]), int(parts[1]), int(parts[2]))
+    except ValueError as e:
+        raise ValueError(f"Version parts must be integers: {parts}")
 
 
 def tuple_to_version_string(version_tuple: Tuple[int, int, int]) -> str:
@@ -166,7 +176,8 @@ if __name__ == '__main__':
         try:
             version_string_to_tuple(arg)  # Validate format
             bump_all_versions(specific_version=arg)
-        except ValueError:
+        except ValueError as e:
             print(f"Invalid version format: {arg}")
-            print("Version must be in format x.y.z (e.g., 1.2.3)")
+            print("Version must be in format x.y.z (e.g., 1.2.3) or x.y.z.dev<timestamp> for dev versions")
+            print(f"Error: {e}")
             sys.exit(1) 
