@@ -1344,7 +1344,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <NextStepsPills 
                         nextSteps={nextSteps}
                         onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
-                        onDismiss={() => setNextSteps([])}
                     />
                 )}
                 <ChatInput
