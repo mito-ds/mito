@@ -39,6 +39,7 @@ const CTAButtons = (props: {
                     text={props.ctaText || 'Install Mito'}
                     href={MITO_INSTALLATION_DOCS_LINK}
                     className={props.textButtonClassName}
+                    variant='purple'
                 />
             }
             {props.variant === 'scroll-to-install' && 
