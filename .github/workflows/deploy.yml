@@ -138,7 +138,7 @@ jobs:
         run: |
           cd mitosheet
           source venv/bin/activate
-          python setup.py sdist bdist_wheel
+          python -m build --sdist --wheel
           if [[ "${{ steps.deployment_target.outputs.is_dev }}" == "true" ]]; then
             twine upload --repository testpypi dist/*
           else

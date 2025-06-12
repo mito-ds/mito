@@ -11,7 +11,7 @@ All Mito packages (mitosheet, mito-ai, and mito) use unified SemVer versioning. 
 - **`bump_version.py`** - New unified version bumping script for SemVer
 - **`check_versions.py`** - Utility to check version consistency across all packages
 - **`deploy.py`** - Local deployment script for mitosheet
-- **`deploy_hatch.py`** - Local deployment script for mito-ai
+
 
 ### Usage
 
