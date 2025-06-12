@@ -15,11 +15,10 @@ This automatically installs:
 
 ## Versioning
 
-This metapackage uses [Calendar Versioning (CalVer)](https://calver.org/) with the `YYYY.MM[.PATCH]` scheme:
+This metapackage uses [Semantic Versioning (SemVer)](https://semver.org/) with the `MAJOR.MINOR.PATCH` scheme:
 
-- **YYYY.MM** (e.g., `2025.06`) - First bundle in a month
-- **YYYY.MM.PATCH** (e.g., `2025.06.1`) - Additional bundles or hot-fixes in the same month
-- **Pre-releases** (e.g., `2025.06b1`) - Optional beta/RC versions
-- **Post-releases** (e.g., `2025.06.post1`) - Re-uploads with packaging-only fixes
+- **MAJOR** - Incompatible API changes
+- **MINOR** - New functionality in a backwards compatible manner
+- **PATCH** - Backwards compatible bug fixes
 
-The version indicates when the package was bundled and what dependency versions were current at that time.
+All Mito packages (`mitosheet`, `mito-ai`, and `mito`) use unified versioning, meaning they always share the same version number for consistency and easier dependency management.
