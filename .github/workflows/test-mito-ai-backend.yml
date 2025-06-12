@@ -37,7 +37,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd mito-ai
-        pip install -e ".[test, deploy]"
+        pip install ".[test, deploy]"
         jlpm install --frozen-lockfile
         jlpm build
         jupyter labextension develop . --overwrite
