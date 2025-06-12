@@ -1339,30 +1339,32 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     />
                 </div>
             )}
-            {nextSteps.length > 0 && (
-                <NextStepsPills 
-                    nextSteps={nextSteps}
-                    onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
-                    onDismiss={() => setNextSteps([])}
+            <div className={`connected-input-container ${nextSteps.length > 0 ? 'has-next-steps' : ''}`}>
+                {nextSteps.length > 0 && (
+                    <NextStepsPills 
+                        nextSteps={nextSteps}
+                        onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                        onDismiss={() => setNextSteps([])}
+                    />
+                )}
+                <ChatInput
+                    initialContent={''}
+                    placeholder={
+                        agentExecutionStatus === 'working' ? 'Agent is working...' :
+                            agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
+                                agentModeEnabled ? 'Ask agent to do anything' :
+                                    displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                                        : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                    }
+                    onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                    onCancel={undefined}
+                    isEditing={false}
+                    contextManager={contextManager}
+                    notebookTracker={notebookTracker}
+                    renderMimeRegistry={renderMimeRegistry}
+                    agentModeEnabled={agentModeEnabled}
                 />
-            )}
-            <ChatInput
-                initialContent={''}
-                placeholder={
-                    agentExecutionStatus === 'working' ? 'Agent is working...' :
-                        agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
-                            agentModeEnabled ? 'Ask agent to do anything' :
-                                displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                                    : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                }
-                onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
-                onCancel={undefined}
-                isEditing={false}
-                contextManager={contextManager}
-                notebookTracker={notebookTracker}
-                renderMimeRegistry={renderMimeRegistry}
-                agentModeEnabled={agentModeEnabled}
-            />
+            </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
                 <div className="chat-controls">
                     <div className="chat-controls-left">

@@ -47,3 +47,38 @@
   padding: 10px;
   background-color: var(--chat-user-message-background-color);
 }
+
+/* Styles for connected input container */
+.connected-input-container .chat-input-container {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  position: static;
+}
+
+.connected-input-container .chat-input {
+  background-color: var(--jp-layout-color1);
+  border-radius: 0;
+}
+
+.connected-input-container:has(.chat-input.agent-mode) {
+  border: 1px solid var(--purple-500);
+  animation: glow 1s ease-in-out;
+  --glow-color: var(--purple-500);
+}
+
+/* Remove the glow animation from the inner chat-input-container when in connected mode */
+.connected-input-container .chat-input-container:has(.chat-input.agent-mode) {
+  border: none;
+  animation: none;
+}
+
+/* When there are no next steps, the input should have rounded corners */
+.connected-input-container:not(.has-next-steps) {
+  border-radius: 12px;
+}
+
+.connected-input-container:not(.has-next-steps) .chat-input {
+  border-radius: 12px;
+}
