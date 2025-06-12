@@ -32,7 +32,7 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
     mssql: {
         type: 'mssql',
         displayName: 'Microsoft SQL Server',
-        alertText: 'Microsoft SQL Server requires an additional driver to be installed. For more info, consult the <a href="https://docs.trymito.io/mito-ai/database-connectors/microsoft-sql-server" target="_blank">Mito docs</a>.',
+        alertText: 'Microsoft SQL Server requires an additional driver. If you\'ve already installed it, you can safely ignore this message. For more info, consult the <a href="https://docs.trymito.io/mito-ai/database-connectors/microsoft-sql-server" target="_blank">Mito docs</a>.',
         fields: [
             {
                 name: 'username',
