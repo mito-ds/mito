@@ -3,3 +3,4 @@ jupyterlab~=4.0
 mitosheet-helper-enterprise
 requests
 streamlit==1.31
+pytest-asyncio>=0.23.0
