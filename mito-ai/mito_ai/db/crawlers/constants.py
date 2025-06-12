@@ -16,6 +16,11 @@ SUPPORTED_DATABASES: Dict[str, DatabaseConfig] = {
         "tables_query": "SHOW TABLES",
         "columns_query": "SHOW COLUMNS FROM {table}",
     },
+    "oracle": {
+        "drivers": ["oracledb"],
+        "tables_query": "SELECT table_name FROM all_tables",
+        "columns_query": "SELECT column_name, data_type FROM all_tab_columns WHERE table_name = :table",
+    },
     "postgres": {
         "drivers": ["psycopg2-binary"],
         "tables_query": "SELECT table_name FROM information_schema.tables WHERE table_schema = :schema",
