@@ -51,7 +51,8 @@ Format:
         code: str
         cell_type: 'code' | 'markdown'
     }}
-    get_cell_output_cell_id: None
+    get_cell_output_cell_id: None,
+    next_steps: None
 }}
 
 Important information:
@@ -72,7 +73,8 @@ Format:
         code: str   
         cell_type: 'code' | 'markdown'
     }}
-    get_cell_output_cell_id: None
+    get_cell_output_cell_id: None,
+    next_steps: None
 }}
 
 Important information:
@@ -125,7 +127,8 @@ Output:
         code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier",
         cell_type: 'code'
     }},
-    get_cell_output_cell_id: None
+    get_cell_output_cell_id: None,
+    next_steps: None
 }}
 
 </Cell Modification Example>
@@ -172,7 +175,8 @@ Output:
         index: 2
         code: "import matplotlib.pyplot as plt\n\nplt.bar(sales_df.index, sales_df['total_price'])\nplt.title('Total Price per Sale')\nplt.xlabel('Transaction Number')\nplt.ylabel('Sales Price ($)')\nplt.show()"
     }},
-    get_cell_output_cell_id: None
+    get_cell_output_cell_id: None,
+    next_steps: None
 }}
 
 </Cell Addition Example>
@@ -187,7 +191,8 @@ When you want to get a base64 encoded version of a cell's output, respond with t
     type: 'get_cell_output',
     message: str,
     get_cell_output_cell_id: str,
-    cell_update: None
+    cell_update: None,
+    next_steps: Optional[List[str]]
 }}
 
 Important information:
@@ -206,24 +211,23 @@ When you have completed the user's task, respond with a message in this format:
     message: str,
     get_cell_output_cell_id: None,
     cell_update: None,
-    question: None,
     next_steps: Optional[List[str]]
 }}
 
 Important information:
 1. The message is a short summary of the ALL the work that you've completed on this task. It should not just refer to the final message. It could be something like "I've completed the sales strategy analysis by exploring key relationships in the data and summarizing creating a report with three recommendations to boost sales.""
 2. The message should include citations for any insights that you shared with the user.
-3. The next_steps is an optional list of suggested follow-up tasks or analyses that the user might want to perform next. These should be concise, actionable suggestions that build on the work you've just completed. For example: ["Create a visualization of the results", "Export the cleaned data to CSV", "Perform statistical analysis on the key metrics"].
+3. The next_steps is an optional list of 2 or 3 suggested follow-up tasks or analyses that the user might want to perform next. These should be concise, actionable suggestions that build on the work you've just completed. For example: ["Visualize the results", "Export the cleaned data to CSV", "Perform statistical analysis on the key metrics"].
+4. The next_steps should be as relevant to the user's actual task as possible. Try your best not to make generic suggestions like "Analyze the data" or "Visualize the results". For example, if the user just asked you to calculate LTV of their customers, you might suggest the following next steps: ["Graph key LTV drivers: churn and average transaction value", "Visualize LTV per customer age group"].
 
 <Finished Task Example>
 
 {{
     type: 'finished_task',
-    message: "I've completed the data cleaning and analysis of the sales dataset. The data now has properly formatted dates, calculated total revenue of $50,234, and identified the top 3 performing products [MITO_CITATION:abc123:5].",
+    message: "I've completed the data cleaning and analysis of the sales dataset. The data now has properly formatted dates, calculated total revenue of $50,234 [MITO_CITATION:abc123:2], and identified the top 3 performing products [MITO_CITATION:xyz456:5].",
     get_cell_output_cell_id: None,
     cell_update: None,
-    question: None,
-    next_steps: ["Create a bar chart showing sales by product category", "Export the cleaned dataset to CSV", "Calculate monthly sales trends", "Identify seasonal patterns in the data"]
+    next_steps: ["Graph sales by product category", "Identify seasonal patterns in data", "Find the top 3 performing products"]
 }}
 
 </Finished Task Example>
@@ -336,7 +340,6 @@ Output:
     message: "The all time high tesla stock closing price was $265.91 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:1] on 2025-03-16 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2]",
     get_cell_output_cell_id: None,
     cell_update: None,
-    question: None,
     next_steps: ["Create a visualization of Tesla's stock price over time", "Calculate the percentage change from the lowest to highest price", "Analyze the volatility of Tesla's stock"]
 }}
 
