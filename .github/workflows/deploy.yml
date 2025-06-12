@@ -76,7 +76,26 @@ jobs:
             echo "suffix=" >> $GITHUB_OUTPUT
           fi
           
-      - name: Bump versions
+      - name: Check if version was manually bumped
+        id: version_check
+        run: |
+          # Check if version.json was modified in this push
+          if git diff HEAD~1 HEAD --name-only | grep -q "version.json"; then
+            echo "version_already_bumped=true" >> $GITHUB_OUTPUT
+            echo "Version was already manually bumped in this push"
+          else
+            echo "version_already_bumped=false" >> $GITHUB_OUTPUT
+            echo "No manual version bump detected"
+          fi
+          
+      - name: Use existing version (manual bump detected)
+        if: steps.version_check.outputs.version_already_bumped == 'true'
+        run: |
+          CURRENT_VERSION=$(python -c "import json; print(json.load(open('version.json'))['version'])")
+          echo "Using manually bumped version: $CURRENT_VERSION"
+          
+      - name: Bump versions (auto-bump)
+        if: steps.version_check.outputs.version_already_bumped == 'false'
         run: |
           if [[ -n "${{ inputs.specific_version }}" ]]; then
             python deployment/bump_version.py "${{ inputs.specific_version }}"
