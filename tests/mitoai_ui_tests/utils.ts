@@ -163,7 +163,6 @@ export const turnOnChatMode = async (page: IJupyterLabPageFixture) => {
     await waitForIdle(page);
 }
 
-
 export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<string[]> => {
     // Get count of cells in the notebook
     const cellCount = await page.locator('.jp-Cell').count();
@@ -177,6 +176,15 @@ export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<str
         }
     }
     return codeFromCells
+}
+
+export const selectModel = async (page: IJupyterLabPageFixture, modelName: string) => {
+    // Try both selectors for the model dropdown
+    const modelSelector = await page.getByTestId('ai-icon').isVisible()
+        .then(isVisible => isVisible ? page.getByTestId('ai-icon') : page.getByText('GPT-4.1▼'));
+    await modelSelector.click();
+    await page.getByText(modelName).click();
+    await waitForIdle(page);
 }
 
 
