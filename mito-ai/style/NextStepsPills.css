@@ -90,8 +90,6 @@
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: var(--jp-layout-color1);
-    border: 1px solid var(--jp-border-color2);
     border-radius: 20px;
     color: var(--jp-ui-font-color3);
     font-size: 12px;
@@ -106,6 +104,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     position: relative;
+    border: none;
 }
 
 .next-step-pill::before {
@@ -121,10 +120,15 @@
     transition: opacity 0.2s ease;
 }
 
+.next-step-pill button {
+    border: none;
+}
+    
 .next-step-pill:hover {
     border-color: var(--jp-brand-color2);
     transform: translateY(-1px) scale(1.02);
     box-shadow: 0 4px 12px rgba(var(--jp-brand-color1), 0.15);
+    color: var(--jp-ui-font-color1);
 }
 
 .next-step-pill:hover::before {
