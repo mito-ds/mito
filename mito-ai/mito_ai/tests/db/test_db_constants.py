@@ -28,11 +28,11 @@ MYSQL_CONNECTION_DETAILS = {
 }
 POSTGRES_CONNECTION_DETAILS = {
     "type": "postgres",
-    "username": "test_user",
-    "password": "test_pass",
-    "host": "localhost",
+    "username": os.environ.get("POSTGRES_USERNAME"),
+    "password": os.environ.get("POSTGRES_PASSWORD"),
+    "host": os.environ.get("POSTGRES_HOST"),
     "port": "5432",
-    "database": "test_db",
+    "database": "postgres",
 }
 SNOWFLAKE = {
     "type": "snowflake",
