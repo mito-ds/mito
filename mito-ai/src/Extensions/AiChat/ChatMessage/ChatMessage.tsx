@@ -69,7 +69,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     rejectAICode,
     onUpdateMessage,
     contextManager,
-    codeReviewStatus
+    codeReviewStatus,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 

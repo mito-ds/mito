@@ -29,6 +29,7 @@ interface ChatInputProps {
     renderMimeRegistry: IRenderMimeRegistry;
     displayActiveCellCode?: boolean;
     agentModeEnabled: boolean;
+    onInputChange?: (value: string) => void;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -47,6 +48,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     renderMimeRegistry,
     displayActiveCellCode = true,
     agentModeEnabled = false,
+    onInputChange,
 }) => {
 
     const [input, setInput] = useState(initialContent);
@@ -112,6 +114,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
         } else {
             setDropdownVisible(false);
             setDropdownFilter('');
+        }
+
+        if (onInputChange) {
+            onInputChange(value);
         }
     };
 
@@ -234,7 +240,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 div. We do this so that the dropdown sits on top of (ie: covering) the code 
                 preview instead of sitting higher up the taskpane.
             */}
-            <div style={{ position: 'relative', height: 'min-content'}}>
+            <div className='chat-input-text-area-container'>
                 <textarea
                     ref={textAreaRef}
                     className={classNames("message", "message-user", 'chat-input', {"agent-mode": agentModeEnabled})}
