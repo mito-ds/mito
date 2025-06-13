@@ -15,10 +15,11 @@ concurrency:
 
 jobs:
   test-mitoai-backend:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       matrix:
+        os: [ubuntu-24.04, windows-latest]
         python-version: ['3.9', '3.10', '3.11', '3.12']
       fail-fast: false
 
@@ -33,7 +34,14 @@ jobs:
           mito-ai/setup.py
           tests/requirements.txt
     - name: Install Microsoft ODBC Driver
+      if: runner.os == 'Linux'
       run: sudo ACCEPT_EULA=Y apt-get install msodbcsql18 -y
+    - name: Install Microsoft ODBC Driver (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2307162" -OutFile "msodbcsql.msi"
+        Start-Process msiexec.exe -Wait -ArgumentList "/i msodbcsql.msi /qn IACCEPTMSODBCSQLLICENSETERMS=YES"
     - name: Install dependencies
       run: |
         cd mito-ai
@@ -42,13 +50,6 @@ jobs:
         jlpm build
         jupyter labextension develop . --overwrite
         jupyter server extension enable --py mito_ai
-    - name: Setup databases
-      run: |
-        cd mito-ai
-        docker compose -f mito_ai/docker/postgres/compose.yml up -d
-        docker compose -f mito_ai/docker/mysql/compose.yml up -d
-        docker compose -f mito_ai/docker/mssql/compose.yml up -d
-        docker compose -f mito_ai/docker/oracle/compose.yml up -d
     - name: Run tests
       run: |
         cd mito-ai
@@ -58,18 +59,19 @@ jobs:
         SNOWFLAKE_USERNAME: ${{ secrets.PYTEST_SNOWFLAKE_USERNAME }}
         SNOWFLAKE_PASSWORD: ${{ secrets.PYTEST_SNOWFLAKE_PASSWORD }}
         SNOWFLAKE_ACCOUNT: ${{ secrets.PYTEST_SNOWFLAKE_ACCOUNT }}
-    - name: Cleanup databases
-      if: always()
-      run: |
-        cd mito-ai
-        docker compose -f mito_ai/docker/postgres/compose.yml down -v
-        docker compose -f mito_ai/docker/mysql/compose.yml down -v
-        docker compose -f mito_ai/docker/mssql/compose.yml down -v
-        docker compose -f mito_ai/docker/oracle/compose.yml down -v
+        POSTGRES_USERNAME: ${{ secrets.PYTEST_POSTGRES_USERNAME }}
+        POSTGRES_PASSWORD: ${{ secrets.PYTEST_POSTGRES_PASSWORD }}
+        POSTGRES_HOST: ${{ secrets.PYTEST_POSTGRES_HOST }}
+        MYSQL_USERNAME: ${{ secrets.PYTEST_MYSQL_USERNAME }}
+        MYSQL_PASSWORD: ${{ secrets.PYTEST_MYSQL_PASSWORD }}
+        MYSQL_HOST: ${{ secrets.PYTEST_MYSQL_HOST }}
+        MSSQL_USERNAME: ${{ secrets.PYTEST_MSSQL_USERNAME }}
+        MSSQL_PASSWORD: ${{ secrets.PYTEST_MSSQL_PASSWORD }}
+        MSSQL_HOST: ${{ secrets.PYTEST_MSSQL_HOST }}
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: mitoai-backend-report-${{ matrix.python-version }}-${{ github.run_id }}
+        name: mitoai-backend-report-${{ matrix.os }}-${{ matrix.python-version }}-${{ github.run_id }}
         path: mito-ai/tests/pytest-report/
         retention-days: 14
