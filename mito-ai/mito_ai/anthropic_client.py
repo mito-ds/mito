@@ -134,15 +134,15 @@ class AnthropicClient:
                 
                 system_val = provider_data.get("system", None)
                 if system_val is not None and system_val is not anthropic.NotGiven:
-                    system_tuple = (system_val,)
+                    system = system_val
                 else:
-                    system_tuple = tuple()  # type: ignore[assignment]
+                    system = anthropic.NotGiven()
 
                 response = await get_anthropic_completion_from_mito_server(
                     model=provider_data["model"],
                     max_tokens=provider_data["max_tokens"],
                     temperature=provider_data["temperature"],
-                    system=system_tuple,
+                    system=system,
                     messages=provider_data["messages"],
                     tools=provider_data.get("tools"),
                     tool_choice=provider_data.get("tool_choice"),
@@ -194,7 +194,7 @@ class AnthropicClient:
                     model=self.model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
-                    system=(anthropic_system_prompt,),
+                    system=anthropic_system_prompt,
                     messages=anthropic_messages,
                     stream=True,
                     message_type=message_type
