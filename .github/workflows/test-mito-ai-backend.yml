@@ -15,10 +15,11 @@ concurrency:
 
 jobs:
   test-mitoai-backend:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       matrix:
+        os: [ubuntu-24.04, windows-latest]
         python-version: ['3.9', '3.10', '3.11', '3.12']
       fail-fast: false
 
@@ -33,7 +34,13 @@ jobs:
           mito-ai/setup.py
           tests/requirements.txt
     - name: Install Microsoft ODBC Driver
+      if: runner.os == 'Linux'
       run: sudo ACCEPT_EULA=Y apt-get install msodbcsql18 -y
+    - name: Install Microsoft ODBC Driver (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        curl https://go.microsoft.com/fwlink/?linkid=2307162 -o msodbcsql.msi
+        msiexec /i msodbcsql.msi /qn IACCEPTMSODBCSQLLICENSETERMS=YES
     - name: Install dependencies
       run: |
         cd mito-ai
@@ -68,6 +75,6 @@ jobs:
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: mitoai-backend-report-${{ matrix.python-version }}-${{ github.run_id }}
+        name: mitoai-backend-report-${{ matrix.os }}-${{ matrix.python-version }}-${{ github.run_id }}
         path: mito-ai/tests/pytest-report/
         retention-days: 14
