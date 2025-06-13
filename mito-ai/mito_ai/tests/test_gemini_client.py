@@ -8,6 +8,7 @@ from google.genai.types import Part
 from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
 from google.genai.types import GenerateContentResponse, Candidate, Content
 from unittest.mock import MagicMock
+from mito_ai.gemini_client import GeminiClient
 
 # Dummy base64 image (1x1 PNG)
 DUMMY_IMAGE_DATA_URL = (
@@ -58,10 +59,6 @@ def test_system_instructions_and_content():
 
 @pytest.mark.asyncio
 async def test_json_response_handling():
-    from mito_ai.gemini_client import GeminiClient
-    from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
-    from google.genai.types import GenerateContentResponse, Candidate, Content, Part
-
     # Create a mock response with JSON content
     mock_response = GenerateContentResponse(
         candidates=[
@@ -88,16 +85,20 @@ async def test_json_response_handling():
 
 @pytest.mark.asyncio
 async def test_json_response_handling_with_invalid_json():
-    from mito_ai.gemini_client import GeminiClient
-    from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
-    from google.genai.types import GenerateContentResponse, Candidate, Content, Part
-
+    """
+    Tests how the GeminiClient handles responses with invalid JSON when a response format is specified.
+    
+    This test is important because:
+    1. It verifies that the client doesn't crash when receiving malformed JSON responses
+    2. It ensures that the raw response text is returned even when JSON parsing would fail
+    3. It tests the error handling path in the response processing logic    
+    """
     # Create a mock response with invalid JSON content
     mock_response = GenerateContentResponse(
         candidates=[
             Candidate(
                 content=Content(
-                    parts=[Part(text='{"key": value}')]  # Invalid JSON
+                    parts=[Part(text='{"key": value}')]  # Invalid JSON - missing quotes around 'value'
                 )
             )
         ]
@@ -119,10 +120,6 @@ async def test_json_response_handling_with_invalid_json():
 
 @pytest.mark.asyncio
 async def test_json_response_handling_with_multiple_parts():
-    from mito_ai.gemini_client import GeminiClient
-    from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
-    from google.genai.types import GenerateContentResponse, Candidate, Content, Part
-
     # Create a mock response with multiple parts
     mock_response = GenerateContentResponse(
         candidates=[
