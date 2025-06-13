@@ -26,4 +26,4 @@ def test_add_postgres_connection(jp_base_url: str) -> None:
     )
     assert response.status_code == 200
     # Esnure that there is one scema dict in the response
-    assert len(response.json()) == 1
+    assert len(response.json()) == 1 
