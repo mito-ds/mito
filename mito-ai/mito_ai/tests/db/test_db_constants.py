@@ -20,11 +20,11 @@ MSSQL_CONNECTION_DETAILS = {
 }
 MYSQL_CONNECTION_DETAILS = {
     "type": "mysql",
-    "username": "test_user",
-    "password": "test_pass",
-    "host": "localhost",
+    "username": os.environ.get("MYSQL_USERNAME"),
+    "password": os.environ.get("MYSQL_PASSWORD"),
+    "host": os.environ.get("MYSQL_HOST"),
     "port": "3306",
-    "database": "test_db",
+    "database": "Northwind",
 }
 POSTGRES_CONNECTION_DETAILS = {
     "type": "postgres",
