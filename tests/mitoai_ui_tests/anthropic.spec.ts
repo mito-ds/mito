@@ -25,14 +25,14 @@ import {
   selectModel
 } from './utils';
 
-test.describe.parallel('Gemini Model Tests', () => {
+test.describe.parallel('Anthropic Model Tests', () => {
   test('chat mode basic functionality', async ({ page }) => {
     // Create a single notebook for all tests
-    await createAndRunNotebookWithCells(page, ['# Test notebook for Gemini']);
+    await createAndRunNotebookWithCells(page, ['# Test notebook for Anthropic']);
     await waitForIdle(page);
 
-    // Switch to Gemini model
-    await selectModel(page, 'Gemini 2.5 Pro');
+    // Switch to Anthropic model
+    await selectModel(page, 'Claude 4 Sonnet');
 
     // Start a new chat
     await clickOnMitoAIChatTab(page);
@@ -61,11 +61,11 @@ test.describe.parallel('Gemini Model Tests', () => {
 
   test('agent mode basic functionality', async ({ page }) => {
     // Create a single notebook for all tests
-    await createAndRunNotebookWithCells(page, ['# Test notebook for Gemini']);
+    await createAndRunNotebookWithCells(page, ['# Test notebook for Anthropic']);
     await waitForIdle(page);
 
-    // Switch to Gemini model
-    await selectModel(page, 'Gemini 2.5 Pro');
+    // Switch to Anthropic model
+    await selectModel(page, 'Claude 4 Sonnet');
 
     // Start a new chat and switch to agent mode
     await clickOnMitoAIChatTab(page);
@@ -83,4 +83,4 @@ test.describe.parallel('Gemini Model Tests', () => {
     expect(joinedCode).toContain('hello');
     expect(joinedCode).toContain('world');
   });
-});
+}); 
