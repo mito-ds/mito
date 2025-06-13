@@ -26,6 +26,14 @@ MYSQL_CONNECTION_DETAILS = {
     "port": "3306",
     "database": "test_db",
 }
+ORACLE_CONNECTION_DETAILS = {
+    "type": "oracle",
+    "username": "test_user",
+    "password": "test_pass",
+    "host": "localhost",
+    "port": "1521",
+    "service_name": "xepdb1",
+}
 POSTGRES_CONNECTION_DETAILS = {
     "type": "postgres",
     "username": "test_user",
