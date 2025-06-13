@@ -58,6 +58,8 @@ with tempfile.TemporaryDirectory() as temp_dir:
             text=True
         )
 
+        print("Log: ", generate_req_in_file.stderr)
+
         command_for_generating_req_txt_file = r"""
         cat requirements.in | while read line; do \\
         pkg=$(echo $line | cut -d'=' -f1 | tr -d '[:space:]'); \\
@@ -99,7 +101,12 @@ with tempfile.TemporaryDirectory() as temp_dir:
       // Set up handler for output
       future.onIOPub = (msg: any) => {
         if (msg.header.msg_type === 'stream' && msg.content.name === 'stdout') {
-          resultText += msg.content.text;
+          const text = msg.content.text;
+	        if (text.startsWith('Log: ')) {
+	          console.error(text);
+	        } else {
+	          resultText += text;
+	        }
         }
       };
 
