@@ -38,9 +38,10 @@ jobs:
       run: sudo ACCEPT_EULA=Y apt-get install msodbcsql18 -y
     - name: Install Microsoft ODBC Driver (Windows)
       if: runner.os == 'Windows'
+      shell: pwsh
       run: |
-        curl https://go.microsoft.com/fwlink/?linkid=2307162 -o msodbcsql.msi
-        msiexec /i msodbcsql.msi /qn IACCEPTMSODBCSQLLICENSETERMS=YES
+        Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/?linkid=2307162" -OutFile "msodbcsql.msi"
+        Start-Process msiexec.exe -Wait -ArgumentList "/i msodbcsql.msi /qn IACCEPTMSODBCSQLLICENSETERMS=YES"
     - name: Install dependencies
       run: |
         cd mito-ai
