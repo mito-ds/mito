@@ -51,7 +51,7 @@ const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNext
                 <div className={`next-steps-caret ${isExpanded ? 'expanded' : 'collapsed'}`}>
                     ▼
                 </div>
-                <span className="next-steps-title">Next Steps</span>
+                <span className="next-steps-title">Suggested Next Steps</span>
             </div>
             {isExpanded && (
                 <div className="next-steps-pills-list">
