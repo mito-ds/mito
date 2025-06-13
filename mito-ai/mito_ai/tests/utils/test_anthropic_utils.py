@@ -27,7 +27,7 @@ def test_basic_request_preparation():
     max_tokens = 100
     temperature = 0.7
     # Use NotGiven to ensure system is not included in inner_data
-    system = cast(Tuple[Union[str, anthropic.NotGiven]], (anthropic.NotGiven(),))
+    system = anthropic.NotGiven()
     messages: List[MessageParam] = [{"role": "user", "content": "Hello"}]
     message_type = MessageType.CHAT
 
@@ -60,7 +60,7 @@ def test_basic_request_preparation():
 
 def test_system_message_handling():
     """Test handling of system message when provided"""
-    system = cast(Tuple[Union[str, anthropic.NotGiven]], ("You are a helpful assistant",))
+    system = "You are a helpful assistant"
     messages: List[MessageParam] = [{"role": "user", "content": "Hello"}]
 
     data, _ = _prepare_anthropic_request_data_and_headers(
@@ -75,7 +75,7 @@ def test_system_message_handling():
         stream=None
     )
 
-    assert data["data"]["system"] == system[0]
+    assert data["data"]["system"] == system
 
 
 def test_tools_and_tool_choice():
@@ -98,7 +98,7 @@ def test_tools_and_tool_choice():
         model="claude-3-sonnet",
         max_tokens=100,
         temperature=0.7,
-        system=cast(Tuple[Union[str, anthropic.NotGiven]], (anthropic.NotGiven(),)),
+        system=anthropic.NotGiven(),
         messages=[{"role": "user", "content": "Hello"}],
         message_type=MessageType.CHAT,
         tools=tools,
@@ -116,7 +116,7 @@ def test_stream_parameter():
         model="claude-3-sonnet",
         max_tokens=100,
         temperature=0.7,
-        system=cast(Tuple[Union[str, anthropic.NotGiven]], (anthropic.NotGiven(),)),
+        system=anthropic.NotGiven(),
         messages=[{"role": "user", "content": "Hello"}],
         message_type=MessageType.CHAT,
         tools=None,
@@ -142,7 +142,7 @@ def test_missing_user_info(monkeypatch):
         model="claude-3-sonnet",
         max_tokens=100,
         temperature=0.7,
-        system=cast(Tuple[Union[str, anthropic.NotGiven]], (anthropic.NotGiven(),)),
+        system=anthropic.NotGiven(),
         messages=[{"role": "user", "content": "Hello"}],
         message_type=MessageType.CHAT,
         tools=None,

@@ -105,9 +105,6 @@ def test_prepare_request_data_and_headers_basic() -> None:
 
 def test_prepare_request_data_and_headers_null_message() -> None:
     """Test handling of null message content"""
-    from mito_ai.utils.open_ai_utils import _prepare_request_data_and_headers
-    from mito_ai.completions.models import MessageType
-
     with patch("mito_ai.utils.open_ai_utils.get_user_field") as mock_get_user_field:
         mock_get_user_field.side_effect = ["test@example.com", "user123"]
         
@@ -125,9 +122,6 @@ def test_prepare_request_data_and_headers_null_message() -> None:
 
 def test_prepare_request_data_and_headers_caches_user_info() -> None:
     """Test that user info is cached after first call"""
-    from mito_ai.utils.open_ai_utils import _prepare_request_data_and_headers
-    from mito_ai.completions.models import MessageType
-
     # Mock both the global variables and the get_user_field function
     with patch("mito_ai.utils.open_ai_utils.__user_email", None), \
          patch("mito_ai.utils.open_ai_utils.__user_id", None), \
