@@ -28,11 +28,11 @@ MYSQL_CONNECTION_DETAILS = {
 }
 ORACLE_CONNECTION_DETAILS = {
     "type": "oracle",
-    "username": "test_user",
-    "password": "test_pass",
-    "host": "localhost",
+    "username": os.environ.get("ORACLE_USERNAME"),
+    "password": os.environ.get("ORACLE_PASSWORD"),
+    "host": os.environ.get("ORACLE_HOST"),
     "port": "1521",
-    "service_name": "xepdb1",
+    "service_name": "ORCL",
 }
 POSTGRES_CONNECTION_DETAILS = {
     "type": "postgres",
