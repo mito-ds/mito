@@ -49,12 +49,6 @@ jobs:
         jlpm build
         jupyter labextension develop . --overwrite
         jupyter server extension enable --py mito_ai
-    - name: Setup databases
-      run: |
-        cd mito-ai
-        docker compose -f mito_ai/docker/postgres/compose.yml up -d
-        docker compose -f mito_ai/docker/mysql/compose.yml up -d
-        docker compose -f mito_ai/docker/mssql/compose.yml up -d
     - name: Run tests
       run: |
         cd mito-ai
@@ -64,13 +58,15 @@ jobs:
         SNOWFLAKE_USERNAME: ${{ secrets.PYTEST_SNOWFLAKE_USERNAME }}
         SNOWFLAKE_PASSWORD: ${{ secrets.PYTEST_SNOWFLAKE_PASSWORD }}
         SNOWFLAKE_ACCOUNT: ${{ secrets.PYTEST_SNOWFLAKE_ACCOUNT }}
-    - name: Cleanup databases
-      if: always()
-      run: |
-        cd mito-ai
-        docker compose -f mito_ai/docker/postgres/compose.yml down -v
-        docker compose -f mito_ai/docker/mysql/compose.yml down -v
-        docker compose -f mito_ai/docker/mssql/compose.yml down -v
+        POSTGRES_USERNAME: ${{ secrets.PYTEST_POSTGRES_USERNAME }}
+        POSTGRES_PASSWORD: ${{ secrets.PYTEST_POSTGRES_PASSWORD }}
+        POSTGRES_HOST: ${{ secrets.PYTEST_POSTGRES_HOST }}
+        MYSQL_USERNAME: ${{ secrets.PYTEST_MYSQL_USERNAME }}
+        MYSQL_PASSWORD: ${{ secrets.PYTEST_MYSQL_PASSWORD }}
+        MYSQL_HOST: ${{ secrets.PYTEST_MYSQL_HOST }}
+        MSSQL_USERNAME: ${{ secrets.PYTEST_MSSQL_USERNAME }}
+        MSSQL_PASSWORD: ${{ secrets.PYTEST_MSSQL_PASSWORD }}
+        MSSQL_HOST: ${{ secrets.PYTEST_MSSQL_HOST }}
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()

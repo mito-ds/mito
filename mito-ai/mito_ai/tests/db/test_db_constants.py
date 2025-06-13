@@ -11,11 +11,11 @@ SCHEMAS_PATH: Final[str] = os.path.join(DB_DIR_PATH, "schemas.json")
 BACKUP_DB_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, "db_backup")
 MSSQL_CONNECTION_DETAILS = {
     "type": "mssql",
-    "username": "SA",
-    "password": "YourStrong!Passw0rd",
-    "host": "localhost",
+    "username": os.environ.get("MSSQL_USERNAME"),
+    "password": os.environ.get("MSSQL_PASSWORD"),
+    "host": os.environ.get("MSSQL_HOST"),
     "port": "1433",
-    "database": "test_db",
+    "database": "Northwind",
     "odbc_driver_version": "18",
 }
 MYSQL_CONNECTION_DETAILS = {
