@@ -70,7 +70,7 @@ jobs:
         cd tests
         source venv/bin/activate
         jupyter lab --config jupyter_server_test_config.py &
-        jlpm run test:llm_providers
+        jlpm run test:llm-providers
       env:
         GEMINI_API_KEY: ${{ matrix.use-mito-ai-server == false && secrets.GEMINI_API_KEY || '' }}
         ANTHROPIC_API_KEY: ${{ matrix.use-mito-ai-server == false && secrets.ANTHROPIC_API_KEY || '' }}
