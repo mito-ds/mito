@@ -131,11 +131,10 @@ class GeminiClient:
                 # Fallback to Mito server for completion
                 return await get_gemini_completion_from_mito_server(
                     model=provider_data["model"],
-                    contents=str(contents), # Use the extracted contents instead of converted messages to avoid serialization issues
+                    contents=messages, # Use the extracted contents instead of converted messages to avoid serialization issues
                     message_type=message_type,
                     config=config,
                     response_format_info=response_format_info,
-                    system_instructions=system_instructions
                 )
 
             if not response:
@@ -226,11 +225,10 @@ class GeminiClient:
             else:
                 async for chunk_text in stream_gemini_completion_from_mito_server(
                         model=self.model,
-                        contents=str(contents),  # Use the extracted contents instead of converted messages to avoid serialization issues
+                        contents=messages,  # Use the extracted contents instead of converted messages to avoid serialization issues
                         message_type=message_type,
                         message_id=message_id,
-                        reply_fn=reply_fn,
-                        system_instructions=str(system_instructions)  # Pass system instructions separately
+                        reply_fn=reply_fn
                 ):
                     accumulated_response += chunk_text or ''
 
