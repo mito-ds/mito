@@ -1,17 +1,17 @@
-name: Test - Mito AI Frontend Playwright with Gemini
+name: Test - Mito AI Frontend Playwright with LLM Providers
 
 on:
   push:
     branches: [ dev ]
     paths:
       - 'mito-ai/**'
-      - 'tests/mitoai_ui_tests/**'
-      - '.github/workflows/test-mito-ai-gemini.yml'
+      - 'tests/llm_providers_tests/**'
+      - '.github/workflows/test-llm-providers.yml'
   pull_request:
     paths:
       - 'mito-ai/**'
-      - 'tests/mitoai_ui_tests/**'
-      - '.github/workflows/test-mito-ai-gemini.yml'
+      - 'tests/llm_providers_tests/**'
+      - '.github/workflows/test-llm-providers.yml'
   workflow_dispatch:
 
 concurrency:
@@ -19,12 +19,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-mitoai-frontend-jupyterlab-gemini:
+  test-mitoai-frontend-jupyterlab-llm-providers:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       matrix:
         python-version: ['3.10', '3.12']
+        use-mito-ai-server: [true, false]
       fail-fast: false
 
     steps:
@@ -64,19 +65,20 @@ jobs:
         cd ../mito-ai
         jupyter labextension develop . --overwrite
         jupyter server extension enable --py mito_ai
-    - name: Start a server and run Gemini tests
+    - name: Start a server and run LLM provider tests
       run: |
         cd tests
         source venv/bin/activate
         jupyter lab --config jupyter_server_test_config.py &
-        jlpm run test:mitoai:gemini
+        jlpm run test:llm-providers
       env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        GEMINI_MODEL: "gemini-2.0-flash"
+        GEMINI_API_KEY: ${{ matrix.use-mito-ai-server == false && secrets.GEMINI_API_KEY || '' }}
+        ANTHROPIC_API_KEY: ${{ matrix.use-mito-ai-server == false && secrets.ANTHROPIC_API_KEY || '' }}
+        OPENAI_API_KEY: ${{ matrix.use-mito-ai-server == false && secrets.OPENAI_API_KEY || '' }}
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: mitoai-jupyterlab-playwright-gemini-report-${{ matrix.python-version }}-${{ github.run_id }}
+        name: mitoai-jupyterlab-playwright-llm-providers-report-${{ matrix.python-version }}-${{ matrix.use-mito-ai-server }}-${{ github.run_id }}
         path: tests/playwright-report/
         retention-days: 14 
