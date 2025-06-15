@@ -7,7 +7,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
-import { getCellContent, transformMitoAppInput } from './cellConversionUtils';
+import { getCellContent, transformMitoAppInput, removeInvalidLines } from './cellConversionUtils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 import { generateDisplayVizFunction, transformVisualizationCell } from './visualizationConversionUtils';
@@ -51,6 +51,7 @@ export const convertNotebookToStreamlit = async (
 
   // TODO: we can set the app favicon https://docs.streamlit.io/develop/api-reference/configuration/st.set_page_config
 
+  console.log("Converting notebook code to streamlit app")
   // Process each cell
   notebookPanel.content.widgets.forEach((cellWidget) => {
     const cellModel = cellWidget.model;
@@ -84,6 +85,8 @@ export const convertNotebookToStreamlit = async (
       const placeholder = '__ESCAPED_NEWLINE_PLACEHOLDER__';
       cellContent = cellContent.replace(/\\n/g, placeholder);
 
+      cellContent = removeInvalidLines(cellContent);
+
       // Now split on actual newlines safely
       cellContent = cellContent.split('\n').map(line => {
           return transformMitoAppInput(line);
@@ -115,7 +118,8 @@ export const convertNotebookToStreamlit = async (
   // Create the streamlit app.py file
   const streamlitSourceCode = streamlitCode.join('\n');
 
-  // Build the requirements.txt file    
+  // Build the requirements.txt file
+  console.debug("Building requirements.txt file")
   const requirementsContent = await generateRequirementsTxt(notebookTracker);
 
   // Save the files to the current directory
