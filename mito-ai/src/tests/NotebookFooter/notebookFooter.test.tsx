@@ -6,7 +6,7 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent, cleanup, act, waitFor } from '@testing-library/react';
-import { NotebookFooter } from '../../Extensions/NotebookFooter/NotebookFooter';
+import NotebookFooter from '../../Extensions/NotebookFooter/NotebookFooter';
 import { NotebookActions } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { COMMAND_MITO_AI_SEND_AGENT_MESSAGE, COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
@@ -80,11 +80,19 @@ const createMockApp = () => ({
 }) as unknown as JupyterFrontEnd;
 
 // Create base props for the component
-const createMockProps = (overrides = {}) => ({
-    notebook: createMockNotebook(),
-    app: createMockApp(),
-    ...overrides
-});
+const createMockProps = (overrides: any = {}) => {
+    const notebook = overrides.notebook || createMockNotebook();
+    return {
+        notebookTracker: {
+            currentWidget: {
+                content: notebook,
+                model: notebook.model
+            }
+        } as any,
+        app: createMockApp(),
+        ...overrides
+    };
+};
 
 // Helper function to render the component
 const renderNotebookFooter = (props = {}) => {

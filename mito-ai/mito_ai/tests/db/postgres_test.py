@@ -6,9 +6,9 @@ from mito_ai.tests.db.test_db_constants import POSTGRES_CONNECTION_DETAILS
 from mito_ai.tests.conftest import TOKEN
 
 # To create a postgres database, run the following command:
-# docker-compose -f mito_ai/tests/docker/postgres.yml up
+# docker-compose -f mito_ai/docker/postgres/compose.yml up
 # and then, to delete the database, run the following command:
-# docker-compose -f mito_ai/tests/docker/postgres.yml down -v
+# docker-compose -f mito_ai/docker/postgres/compose.yml down -v
 
 
 def test_add_postgres_connection(jp_base_url: str) -> None:

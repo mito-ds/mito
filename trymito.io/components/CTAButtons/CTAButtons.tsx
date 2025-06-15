@@ -10,7 +10,7 @@ import ctaButtons from './CTAButtons.module.css'
 import { classNames } from '../../utils/classNames';
 
 const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.ipynb';
-const JUPYTERHUB_MITO_LINK = 'http://launch.trymito.io';
+export const JUPYTERHUB_MITO_LINK = 'http://launch.trymito.io';
 export const CALENDLY_LINK = "https://calendly.com/jake_from_mito/30min";
 export const COMPARISON_LINK = '/chatgpt-vs-mito';
 
@@ -39,6 +39,7 @@ const CTAButtons = (props: {
                     text={props.ctaText || 'Install Mito'}
                     href={MITO_INSTALLATION_DOCS_LINK}
                     className={props.textButtonClassName}
+                    variant='purple'
                 />
             }
             {props.variant === 'scroll-to-install' && 

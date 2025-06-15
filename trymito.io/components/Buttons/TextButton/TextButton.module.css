@@ -57,6 +57,49 @@
   background-color: var(--color-text-secondary);
 }
 
+.purple {
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    rgba(157, 108, 255, 0.4) 0%,
+    rgba(172, 132, 252, 0.3) 50%,
+    rgba(192, 132, 252, 0.4) 100%
+  );
+  border: 1px solid rgba(157, 108, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 400;
+  
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 1px 4px rgba(0, 0, 0, 0.2),
+    0 1px 8px rgba(157, 108, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.purple:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(157, 108, 255, 0.5) 0%,
+    rgba(172, 132, 252, 0.4) 50%,
+    rgba(192, 132, 252, 0.5) 100%
+  );
+  border-color: rgba(157, 108, 255, 0.6);
+  transform: translateY(-1px);
+  
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 2px 12px rgba(157, 108, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.purple:active {
+  transform: translateY(0px);
+  transition-duration: 0.1s;
+}
+
 .text_button button,
 .text_button a {
   box-sizing: border-box;

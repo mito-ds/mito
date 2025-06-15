@@ -7,7 +7,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 import { PathExt } from '@jupyterlab/coreutils';
 import { getIncludeCellInApp } from '../../utils/notebook';
-import { getCellContent, removeInvalidLines, transformMitoAppInput } from './cellConversionUtils';
+import { getCellContent, transformMitoAppInput, removeInvalidLines } from './cellConversionUtils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 import { generateDisplayVizFunction, transformVisualizationCell } from './visualizationConversionUtils';
@@ -51,6 +51,7 @@ export const convertNotebookToStreamlit = async (
 
   // TODO: we can set the app favicon https://docs.streamlit.io/develop/api-reference/configuration/st.set_page_config
 
+  console.log("Converting notebook code to streamlit app")
   // Process each cell
   notebookPanel.content.widgets.forEach((cellWidget) => {
     const cellModel = cellWidget.model;
@@ -59,6 +60,11 @@ export const convertNotebookToStreamlit = async (
     // Check if the cell is marked to skip.
     const includeCellInApp = getIncludeCellInApp(notebookTracker, cellModel.id)
     if (!includeCellInApp) {
+      return
+    }
+
+    // Check if it's an empty code cell
+    if (cellModel.type === 'code' && !cellModel.sharedModel.source.trim()) {
       return
     }
 
@@ -71,16 +77,25 @@ export const convertNotebookToStreamlit = async (
       streamlitCode.push(`st.markdown("""${escapedContent}""")`);
       streamlitCode.push("");
     } else if (cellWidget instanceof CodeCell) {
-      
+
       streamlitCode.push("\n# Converting Code Cell");
 
       // Convert the Mito App Input into Streamlit components
-      cellContent = cellContent.split('\n').map(line => { return transformMitoAppInput(line) }).join('\n');
+      // Temporarily replace \\n with a placeholder
+      const placeholder = '__ESCAPED_NEWLINE_PLACEHOLDER__';
+      cellContent = cellContent.replace(/\\n/g, placeholder);
 
       cellContent = removeInvalidLines(cellContent);
 
+      // Now split on actual newlines safely
+      cellContent = cellContent.split('\n').map(line => {
+          return transformMitoAppInput(line);
+      }).join('\n');
+
       // Transform the cell for visualizations using our new unified approach
       cellContent = transformVisualizationCell(cellContent);
+      // Restore the \\n sequences
+      cellContent = cellContent.replace(new RegExp(placeholder, 'g'), '\\n');
 
       streamlitCode = streamlitCode.concat(cellContent);
 
@@ -103,7 +118,8 @@ export const convertNotebookToStreamlit = async (
   // Create the streamlit app.py file
   const streamlitSourceCode = streamlitCode.join('\n');
 
-  // Build the requirements.txt file    
+  // Build the requirements.txt file
+  console.debug("Building requirements.txt file")
   const requirementsContent = await generateRequirementsTxt(notebookTracker);
 
   // Save the files to the current directory

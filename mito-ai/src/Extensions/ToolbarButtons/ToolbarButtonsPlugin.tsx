@@ -5,7 +5,7 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
+import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLabIcon } from '../../icons';
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
 import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
@@ -68,7 +68,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
             },
             isVisible: () => {
-                return app.commands.hasCommand('mito-ai:beta-mode-enabled');
+                return app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
             }
         });
 
@@ -82,8 +82,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             isVisible: () => {
                 // Default to hidden, will be updated after async check since we are not allowed to 
                 // use async commands in isVisible.
-                return true;
-                return app.commands.hasCommand('mito-ai:beta-mode-enabled');
+                return app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
             }
         });
 
@@ -92,7 +91,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
         // opportunity to set the mito-ai:beta-mode-enabled command if beta mode is enabled.
         getSetting('beta_mode').then(value => {
             if (value === 'true') {
-                commands.addCommand('mito-ai:beta-mode-enabled', { execute: () => { /* no-op */ } });
+                commands.addCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED, { execute: () => { /* no-op */ } });
                 commands.notifyCommandChanged('toolbar-button:convert-to-streamlit');
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
             }

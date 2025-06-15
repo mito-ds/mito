@@ -15,6 +15,8 @@ def test_add_connection_with_auth(jp_base_url: str) -> None:
         headers={"Authorization": f"token {TOKEN}"},
         json=SNOWFLAKE,
     )
+    if response.status_code != 200:
+        print(f"Error response: {response.text}")
     assert response.status_code == 200
 
 

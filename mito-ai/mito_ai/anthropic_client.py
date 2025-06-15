@@ -47,25 +47,67 @@ def _extract_and_parse_json_response(response: Message) -> Union[object, Any]:
         raise Exception(f"Failed to parse response: {e}")
 
 
-def _get_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) -> Tuple[Union[str, anthropic.NotGiven], List[MessageParam]]:
+def _get_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) -> Tuple[
+    Union[str, anthropic.NotGiven], List[MessageParam]]:
     """
     Convert a list of OpenAI messages to a list of Anthropic messages.
     """
     anthropic_messages: List[MessageParam] = []
     system_prompt: Union[str, anthropic.NotGiven] = anthropic.NotGiven()
-    
+
     for message in messages:
         if 'content' not in message:
             continue
-        
-        # We assume that the converastion only has one system message.
+
+        # We assume that the conversation only has one system message.
         # Or if there are multiple, we take the last one.
         if message['role'] == 'system':
             system_prompt = str(message['content'])
 
         # Construct the messages for the user and assistant in Anthropic format.
         if message['role'] == 'user':
-            anthropic_messages.append(MessageParam(role='user', content=str(message['content'])))
+            content = message['content']
+
+            # Handle mixed content (text + images)
+            if isinstance(content, list):
+                anthropic_content = []
+
+                for item in content:
+                    if isinstance(item, dict):
+                        if item.get('type') == 'text':
+                            # Add text content
+                            anthropic_content.append({
+                                "type": "text",
+                                "text": item['text']
+                            })
+                        elif item.get('type') == 'image_url':
+                            # Convert OpenAI image format to Anthropic format
+                            image_url = item['image_url']['url']
+
+                            # Extract media type and base64 data
+                            if image_url.startswith('data:'):
+                                # Format: data:image/png;base64,<base64_data>
+                                header, base64_data = image_url.split(',', 1)
+                                media_type = header.split(';')[0].split(':')[1]  # Extract image/png or image/jpeg
+                            else:
+                                # If it's not a data URL, assume it's direct base64 and default to image/png
+                                media_type = "image/png"
+                                base64_data = image_url
+
+                            anthropic_content.append({
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": media_type,
+                                    "data": base64_data
+                                }
+                            })
+
+                anthropic_messages.append(MessageParam(role='user', content=anthropic_content))
+            else:
+                # Handle simple text content
+                anthropic_messages.append(MessageParam(role='user', content=str(content)))
+
         elif message['role'] == 'assistant':
             anthropic_messages.append(MessageParam(role='assistant', content=str(message['content'])))
 

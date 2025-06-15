@@ -44,17 +44,40 @@ with tempfile.TemporaryDirectory() as temp_dir:
     # Save the notebook code to a temporary Python file
     temp_file = os.path.join(temp_dir, "notebook_code.py")
     with open(temp_file, "w") as f:
-        f.write("""${codeContent}""")
+        f.write("""${codeContent.replace(/\\/g, '\\\\').replace(/"""/g, '\\"\\"\\"')}""")
     
-    # Make sure pipreqs is installed
+    # Make sure pipreqs is installed. Then
+    # 1. Create a requirements.in file
+    # 2. From the requirements.in file, generate the requirements.txt file with the canonical PyPI name of the packages
+    # and the versions as they exist on the user's terminal
     try:
         # Run pipreqs on the temporary directory
-        result = subprocess.run(
-            ['pipreqs', '--force', '--savepath', '-', temp_dir],
+        generate_req_in_file = subprocess.run(
+            ['pipreqs', '--savepath', 'requirements.in', '--force', temp_dir],
             capture_output=True, 
             text=True
         )
-        print(result.stdout)
+
+        print("Log: ", generate_req_in_file.stderr)
+
+        command_for_generating_req_txt_file = r"""
+        cat requirements.in | while read line; do \\
+        pkg=$(echo $line | cut -d'=' -f1 | tr -d '[:space:]'); \\
+        version=$(pip show "$pkg" 2>/dev/null | grep -i '^Version:' | awk '{print $2}'); \\
+        name=$(pip show "$pkg" 2>/dev/null | grep -i '^Name:' | awk '{print $2}'); \\
+        if [[ -n "$name" && -n "$version" ]]; then echo "$name==$version"; else echo "$line"; fi; \\
+        done"""
+
+        generate_req_txt_file = subprocess.run(
+            command_for_generating_req_txt_file,
+            shell=True,
+            executable="/bin/bash",
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print(generate_req_txt_file.stdout)
+
     except Exception as e:
         print(f"Error running pipreqs: {e}")
 `;
@@ -78,7 +101,12 @@ with tempfile.TemporaryDirectory() as temp_dir:
       // Set up handler for output
       future.onIOPub = (msg: any) => {
         if (msg.header.msg_type === 'stream' && msg.content.name === 'stdout') {
-          resultText += msg.content.text;
+          const text = msg.content.text;
+	        if (text.startsWith('Log: ')) {
+	          console.error(text);
+	        } else {
+	          resultText += text;
+	        }
         }
       };
 
@@ -90,7 +118,7 @@ with tempfile.TemporaryDirectory() as temp_dir:
         // Replace the default with pipreqs results
         requirementsContent = resultText.trim();
 
-        const requiredPackages = ['streamlit', 'pandas', 'matplotlib']
+        const requiredPackages = ['streamlit', 'pandas', 'matplotlib', 'snowflake-sqlalchemy']
         // Make sure the required packages are included
         for (const requiredPackage of requiredPackages) {
           if (!requirementsContent.includes(requiredPackage)) {

@@ -163,7 +163,6 @@ export const turnOnChatMode = async (page: IJupyterLabPageFixture) => {
     await waitForIdle(page);
 }
 
-
 export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<string[]> => {
     // Get count of cells in the notebook
     const cellCount = await page.locator('.jp-Cell').count();
@@ -177,6 +176,20 @@ export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<str
         }
     }
     return codeFromCells
+}
+
+export const selectModel = async (page: IJupyterLabPageFixture, modelName: string) => {
+    console.log(`Attempting to select model: "${modelName}"`);
+    
+    // Click the model selector to open dropdown
+    await page.getByTestId('model-selector').click();
+    await page.waitForTimeout(500);
+    
+    // Wait for the dropdown to be visible
+    await page.waitForSelector('.model-options', { state: 'visible' });
+    await page.getByTestId('model-option').filter({ hasText: modelName }).click();
+    
+    await waitForIdle(page);
 }
 
 

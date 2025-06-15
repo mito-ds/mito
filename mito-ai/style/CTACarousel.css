@@ -1,0 +1,54 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.cta-carousel {
+    width: 100%;
+}
+
+.cta-carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+}
+
+.cta-message {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    color: var(--jp-ui-font-color3);
+    margin-bottom: 15px;
+    flex: 1;
+    line-height: 1.3;
+    min-height: 2.5em;
+    padding: 0 8px;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.cta-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.cta-carousel-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--jp-layout-color3);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.cta-carousel-dot.active {
+    background-color: var(--purple-500);
+}
+
+.cta-carousel-button {
+    margin-top: 8px;
+}

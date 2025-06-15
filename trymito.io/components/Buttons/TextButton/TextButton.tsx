@@ -11,7 +11,7 @@ const TextButton = (props : {
     onClick?: () => void;
     href?: string
     action?: string
-    variant?: 'primary' | 'secondary' | 'highlight'
+    variant?: 'primary' | 'secondary' | 'highlight' | 'purple'
     fontSize?: 'small'
     buttonSize?: 'small' 
     openInNewTab?: boolean

@@ -18,6 +18,7 @@ import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header
 import InstallInstructions from '../components/InstallInstructions/InstallInstructions';
 import LogoSection from '../components/LogoSection/LogoSection';
 import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
+import AIInputField from '../components/AIInputField/AIInputField';
 import homeStyles from '../styles/Home.module.css';
 import pageStyles from '../styles/Page.module.css';
 import textImageSplitStyles from '../styles/TextImageSplit.module.css';
@@ -27,6 +28,7 @@ import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausib
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
+
 const Home: NextPage = () => {
 
   useEffect(() => {
@@ -56,32 +58,26 @@ const Home: NextPage = () => {
                 - Write Python 4x faster. Take the test.
                 - Don't know how to code? Now you do.
               */}
-              The Jupyter-based Data Copilot
+              Cursor for Data Teams
             </h1>
 
             <h2 className={titleStyles.description}>
-              The world&apos;s largest companies save hours per week with Mito&apos;s AI copilot and spreadsheet editor.
+              Go from raw data to presentation-ready insights 4x faster with AI that understands your data.
             </h2>
               
             <div className={homeStyles.cta_button_and_video_spacer}>
               <div className={homeStyles.cta_buttons_homepage_container}>
-                <CTAButtons variant='download' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
-                <CTAButtons variant='try jupyterhub' align='center' displaySecondaryCTA={false} textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}/>
+                <CTAButtons 
+                  variant='download' 
+                  ctaText='Install Mito for Jupyter'
+                  align='center' 
+                  displaySecondaryCTA={false} 
+                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}
+                  />
               </div>
             </div>
 
-            <div className={classNames(spreadsheetAutomationStyles.video_wrapper)}>
-              <div className={spreadsheetAutomationStyles.video_container}>
-                <iframe 
-                  className={spreadsheetAutomationStyles.video}
-                  src="https://www.loom.com/embed/3b6af8fd9bda4559918105424222b65c?sid=d0a543a3-cb0c-456b-89ff-a61a35f1e540&hideEmbedTopBar=true" 
-                  title="Mito Demo" 
-                  frameBorder={0}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowFullScreen
-                /> 
-              </div>
-            </div>
+            <AIInputField autoLaunchJupyterLab={true} />
           </section>
 
           <LogoSection></LogoSection>
@@ -102,29 +98,6 @@ const Home: NextPage = () => {
           <section>
             <CaseStudies />
           </section>
-
-          <section>
-
-            <div className={classNames(pageStyles.subsection, pageStyles.subsection_justify_baseline)}>
-              <div className={textImageSplitStyles.functionality_text}>
-                <h2>
-                  All in <span className='text-color-jupyter-orange'>Jupyter</span>, <span className='text-color-streamlit-red'>Streamlit</span>, and <span className='text-highlight'>Dash</span>
-                </h2>
-                <p className='only-on-mobile'> 
-                  Mito is a Jupyter extension and Streamlit component, so you don&apos;t need to set up any new infrastructure. 
-                  Get started with Mito in seconds. It&apos;s easy as pip install mitosheet.
-                </p>
-                <p className='only-on-desktop-inline-block'>
-                  Mito is a Jupyter extension, so you don&apos;t need to set up any new infrastructure. You can use Mito in JupyterLab, Jupyter Notebooks, JupyterHub, SageMaker and more.
-                </p>
-              </div>
-              <div className={classNames(textImageSplitStyles.functionality_media, textImageSplitStyles.functionality_media_supress_bottom_margin)}>
-                <Image src={'/jupyter-and-streamlit.png'} alt='Use Mito in Jupyter or Streamlit' width={678} height={342} layout='responsive'/>
-              </div>
-            </div>
-
-          </section>
-
 
           <section>
             <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>

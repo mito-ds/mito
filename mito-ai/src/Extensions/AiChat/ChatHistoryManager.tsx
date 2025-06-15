@@ -21,7 +21,8 @@ export type PromptType =
     'fetch_history' |
     'start_new_chat' |
     'get_threads' |
-    'delete_thread';
+    'delete_thread' |
+    'update_model_config';
 
 export type ChatMessageType = 'openai message' | 'connection error'
 
