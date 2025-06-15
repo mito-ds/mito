@@ -110,6 +110,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
         className={`model-selector-dropdown ${isCompact ? 'compact-mode' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         title={isCompact ? selectedModel : undefined}
+        data-testid="model-selector"
       >
         <div className="selected-model">
           {isCompact ? (
