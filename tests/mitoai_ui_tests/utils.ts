@@ -182,6 +182,7 @@ export const selectModel = async (page: IJupyterLabPageFixture, modelName: strin
     // Try both selectors for the model dropdown
     const modelSelector = page.getByTestId('model-selector')
     await modelSelector.click();
+    await page.waitForTimeout(1000);
     await page.getByText(modelName).click();
     await waitForIdle(page);
 }
