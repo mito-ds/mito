@@ -143,6 +143,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
                   handleModelChange(model);
                 }}
                 title={model} // Show full name on hover
+                data-testid="model-option"
               >
                 {model}
               </div>

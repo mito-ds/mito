@@ -30,12 +30,12 @@ const modelConfigs = [
   { name: 'Claude 4 Sonnet', provider: 'Anthropic Claude 4 Sonnet' },
   { name: 'Claude 4 Opus', provider: 'Anthropic Claude 4 Opus' },
   { name: 'Gemini 2.5 Pro', provider: 'Gemini Gemini 2.5 Pro' },
-  { name: 'gpt-4-1', provider: 'OpenAI gpt-4-1' }
+  { name: 'GPT 4.1', provider: 'OpenAI GPT 4.1' }
 ];
 
 // Run tests for each model configuration
 modelConfigs.forEach(({ name: modelName, provider }) => {
-  test.describe.parallel(`${provider} Model Tests`, () => {
+  test.describe.serial(`${provider} Model Tests`, () => {
     test('chat mode basic functionality', async ({ page }) => {
       // Create a single notebook for all tests
       await createAndRunNotebookWithCells(page, [`# Test notebook for ${provider}`]);

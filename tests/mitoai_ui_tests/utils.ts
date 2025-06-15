@@ -179,11 +179,16 @@ export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<str
 }
 
 export const selectModel = async (page: IJupyterLabPageFixture, modelName: string) => {
-    // Try both selectors for the model dropdown
-    const modelSelector = page.getByTestId('model-selector')
-    await modelSelector.click();
-    await page.waitForTimeout(1000);
-    await page.getByText(modelName).click();
+    console.log(`Attempting to select model: "${modelName}"`);
+    
+    // Click the model selector to open dropdown
+    await page.getByTestId('model-selector').click();
+    await page.waitForTimeout(500);
+    
+    // Wait for the dropdown to be visible
+    await page.waitForSelector('.model-options', { state: 'visible' });
+    await page.getByTestId('model-option').filter({ hasText: modelName }).click();
+    
     await waitForIdle(page);
 }
 
