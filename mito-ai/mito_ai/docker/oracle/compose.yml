@@ -1,0 +1,17 @@
+services:
+  db:
+    image: gvenzl/oracle-xe:21.3.0-slim
+    container_name: oracle_test_db
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: test_pass
+      APP_USER: test_user
+      APP_USER_PASSWORD: test_pass
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+      - ./init:/container-entrypoint-startdb.d
+    restart: unless-stopped
+
+volumes:
+  oracle_data:

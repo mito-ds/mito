@@ -120,6 +120,11 @@ If the user has requested data that you believe is stored in the database:
 connections[connection_name]["username"]
 ```
 
+- When connecting to an Oracle database, use the following format:
+```
+conn_str = f"oracle+oracledb://username:password@host:port?service_name=service_name"
+```
+
 - The user may colloquially ask for a "list of x", always assume they want a pandas DataFrame. 
 - When working with dataframes created from an SQL query, ALWAYS use lowercase column names. 
 - If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
