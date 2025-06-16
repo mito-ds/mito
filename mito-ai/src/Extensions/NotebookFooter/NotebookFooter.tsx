@@ -19,9 +19,6 @@ interface NotebookFooterProps {
 }
 
 const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) => {
-
-
-    console.log('NotebookFooter rendered!!!!!!!!!!')
     const notebook = notebookTracker.currentWidget?.content
 
     const [cellCount, setCellCount] = useState(notebook?.widgets.length || 0);
