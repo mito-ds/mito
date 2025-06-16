@@ -43,7 +43,7 @@ def test_no_system_instructions_only_content():
     assert len(contents) == 2
     assert contents[0]["role"] == "user"
     assert contents[0]["parts"][0]["text"] == "Hello!"
-    assert contents[1]["role"] == "assistant"
+    assert contents[1]["role"] == "model"
     assert contents[1]["parts"][0]["text"] == "Hi, how can I help you?"
 
 def test_system_instructions_and_content():
