@@ -7,21 +7,83 @@ import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent, cleanup, waitFor, act } from '@testing-library/react';
 import NextStepsPills from '../../components/NextStepsPills';
+import ChatMessage from '../../Extensions/AiChat/ChatMessage/ChatMessage';
+import { createMockJupyterApp } from '../__mocks__/jupyterMocks';
+import { IDisplayOptimizedChatItem } from '../../Extensions/AiChat/ChatHistoryManager';
 
 // Mock CSS imports
 jest.mock('../../../style/NextStepsPills.css', () => ({}));
+jest.mock('../../../style/ChatMessage.css', () => ({}));
+jest.mock('../../../style/MarkdownMessage.css', () => ({}));
 
-// Create base props for the component
+// Mock components and modules that ChatMessage depends on
+jest.mock('../../Extensions/AiChat/ChatMessage/CodeBlock', () => {
+    return function MockCodeBlock() {
+        return <div data-testid="code-block">Mocked CodeBlock</div>;
+    };
+});
+
+jest.mock('../../Extensions/AiChat/ChatMessage/AlertBlock', () => {
+    return function MockAlertBlock() {
+        return <div data-testid="alert-block">Mocked AlertBlock</div>;
+    };
+});
+
+jest.mock('../../Extensions/AiChat/ChatMessage/MarkdownBlock', () => {
+    return function MockMarkdownBlock({ markdown }: { markdown: string }) {
+        return <div data-testid="markdown-block">{markdown}</div>;
+    };
+});
+
+jest.mock('../../components/AgentToolComponents/GetCellOutputToolUI', () => {
+    return function MockGetCellOutputToolUI() {
+        return <div data-testid="get-cell-output-tool">Mocked GetCellOutputToolUI</div>;
+    };
+});
+
+// Create base props for NextStepsPills component
 const createMockProps = (overrides = {}) => ({
     nextSteps: [],
     onSelectNextStep: jest.fn(),
     ...overrides
 });
 
-// Helper function to render the component
+// Helper function to render NextStepsPills component
 const renderNextStepsPills = (props = {}) => {
     cleanup();
     return render(<NextStepsPills {...createMockProps(props)} />);
+};
+
+// Create base props for ChatMessage component
+const createMockChatMessageProps = (overrides = {}) => ({
+    message: { role: 'assistant' as const, content: 'Test message' },
+    messageType: 'assistant' as IDisplayOptimizedChatItem['type'],
+    codeCellID: undefined,
+    agentResponse: undefined,
+    messageIndex: 0,
+    promptType: 'agent:execution' as const,
+    mitoAIConnectionError: false,
+    mitoAIConnectionErrorType: null,
+    notebookTracker: {} as any,
+    renderMimeRegistry: {} as any,
+    app: createMockJupyterApp(),
+    isLastAiMessage: false,
+    isLastMessage: false,
+    operatingSystem: 'mac' as const,
+    previewAICode: jest.fn(),
+    acceptAICode: jest.fn(),
+    rejectAICode: jest.fn(),
+    onUpdateMessage: jest.fn(),
+    contextManager: undefined,
+    codeReviewStatus: 'chatPreview' as const,
+    setNextSteps: jest.fn(),
+    ...overrides
+});
+
+// Helper function to render ChatMessage component
+const renderChatMessage = (props = {}) => {
+    cleanup();
+    return render(<ChatMessage {...createMockChatMessageProps(props)} />);
 };
 
 describe('NextStepsPills Component', () => {
@@ -219,6 +281,114 @@ describe('NextStepsPills Component', () => {
 
             // Check that the animating-out class is applied
             expect(container).toHaveClass('animating-out');
+        });
+    });
+});
+
+describe('ChatMessage Next Steps Logic', () => {
+    beforeEach(() => {
+        cleanup();
+        jest.clearAllMocks();
+    });
+
+    afterEach(() => {
+        cleanup();
+    });
+
+    describe('Next Steps Display Logic', () => {
+        it('calls setNextSteps when all conditions are met', () => {
+            const mockSetNextSteps = jest.fn();
+            const nextSteps = ['Create a bar chart', 'Add data filtering', 'Export to CSV'];
+
+            renderChatMessage({
+                isLastMessage: true,
+                agentResponse: {
+                    type: 'finished_task',
+                    message: 'Task completed successfully',
+                    next_steps: nextSteps
+                },
+                setNextSteps: mockSetNextSteps
+            });
+
+            expect(mockSetNextSteps).toHaveBeenCalledWith(nextSteps);
+        });
+
+        it('does not call setNextSteps when not the last message', () => {
+            const mockSetNextSteps = jest.fn();
+            const nextSteps = ['Create a bar chart', 'Add data filtering'];
+
+            renderChatMessage({
+                isLastMessage: false, // Not last message
+                agentResponse: {
+                    type: 'finished_task',
+                    message: 'Task completed successfully',
+                    next_steps: nextSteps
+                },
+                setNextSteps: mockSetNextSteps
+            });
+
+            expect(mockSetNextSteps).not.toHaveBeenCalled();
+        });
+
+        it('does not call setNextSteps when agent response type is not finished_task', () => {
+            const mockSetNextSteps = jest.fn();
+            const nextSteps = ['Create a bar chart', 'Add data filtering'];
+
+            renderChatMessage({
+                isLastMessage: true,
+                agentResponse: {
+                    type: 'cell_update', // Different type
+                    message: 'Code updated',
+                    next_steps: nextSteps
+                },
+                setNextSteps: mockSetNextSteps
+            });
+
+            expect(mockSetNextSteps).not.toHaveBeenCalled();
+        });
+
+        it('does not call setNextSteps when agent response is undefined', () => {
+            const mockSetNextSteps = jest.fn();
+
+            renderChatMessage({
+                isLastMessage: true,
+                agentResponse: undefined, // No agent response
+                setNextSteps: mockSetNextSteps
+            });
+
+            expect(mockSetNextSteps).not.toHaveBeenCalled();
+        });
+
+        it('does not call setNextSteps when next_steps is undefined', () => {
+            const mockSetNextSteps = jest.fn();
+
+            renderChatMessage({
+                isLastMessage: true,
+                agentResponse: {
+                    type: 'finished_task',
+                    message: 'Task completed successfully',
+                    next_steps: undefined // No next steps
+                },
+                setNextSteps: mockSetNextSteps
+            });
+
+            expect(mockSetNextSteps).not.toHaveBeenCalled();
+        });
+
+        it('does not call setNextSteps when next_steps array is empty', () => {
+            const mockSetNextSteps = jest.fn();
+
+            renderChatMessage({
+                isLastMessage: true,
+                agentResponse: {
+                    type: 'finished_task',
+                    message: 'Task completed successfully',
+                    next_steps: [] // Empty array
+                },
+                setNextSteps: mockSetNextSteps
+            });
+
+            expect(mockSetNextSteps).not.toHaveBeenCalled();
         });
     });
 });
