@@ -8,9 +8,9 @@ from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
 
 
-# Mock the get_user_field function
+# Mock the get_user_field and set_user_field functions
 @pytest.fixture(autouse=True)
-def mock_get_user_field(monkeypatch):
+def mock_user_functions(monkeypatch):
     def mock_get_field(field):
         if field == UJ_USER_EMAIL:
             return "test@example.com"
@@ -18,7 +18,12 @@ def mock_get_user_field(monkeypatch):
             return "test_user_id"
         return None
 
+    def mock_set_field(field, value):
+        # Do nothing in tests
+        pass
+
     monkeypatch.setattr("mito_ai.utils.anthropic_utils.get_user_field", mock_get_field)
+    monkeypatch.setattr("mito_ai.utils.server_limits.set_user_field", mock_set_field)
 
 
 def test_basic_request_preparation():
