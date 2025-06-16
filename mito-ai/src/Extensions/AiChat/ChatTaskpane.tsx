@@ -885,9 +885,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentResponse.type === 'finished_task') {
                 // If the agent told us that it is finished, we can stop
                 isAgentFinished = true
-                if (agentResponse.next_steps) {
-                    setNextSteps(agentResponse.next_steps)
-                }
                 break;
             }
 
@@ -1310,6 +1307,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             renderMimeRegistry={renderMimeRegistry}
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
+                            isLastMessage={index === displayOptimizedChatHistory.length - 1}
                             operatingSystem={operatingSystem}
                             previewAICode={previewAICodeToActiveCell}
                             acceptAICode={acceptAICode}
@@ -1317,6 +1315,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             onUpdateMessage={handleUpdateMessage}
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
+                            setNextSteps={setNextSteps}
                         />
                     )
                 }).filter(message => message !== null)}

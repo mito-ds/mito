@@ -93,6 +93,7 @@ const createMockProps = (overrides = {}) => ({
     renderMimeRegistry: {} as IRenderMimeRegistry,
     app: {} as JupyterFrontEnd,
     isLastAiMessage: false,
+    isLastMessage: false,
     operatingSystem: 'mac' as OperatingSystem,
     previewAICode: jest.fn(),
     acceptAICode: jest.fn(),
@@ -101,6 +102,7 @@ const createMockProps = (overrides = {}) => ({
     onDeleteMessage: jest.fn(),
     contextManager: { getVariables: jest.fn(() => []) } as unknown as IContextManager,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
+    setNextSteps: jest.fn(),
     ...overrides
 });
 
