@@ -425,11 +425,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         to the AI chat.
     */
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
-        
-        // Clear next steps when sending a new message
-        setNextSteps([])
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the smart debug message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -449,11 +446,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
-        
-        // Clear next steps when sending a new message
-        setNextSteps([])
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -472,11 +466,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendExplainCodeMessage = async (): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
-        
-        // Clear next steps when sending a new message
-        setNextSteps([])
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the code explain message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -503,11 +494,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendActiveCellOutput: boolean = false,
         selectedRules?: string[]
     ): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
-        
-        // Clear next steps when sending a new message
-        setNextSteps([])
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -546,11 +534,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
-        // Step 0: Reject the previous AI generated code if they did not accept it
-        rejectAICode()
-        
-        // Clear next steps when sending a new message
-        setNextSteps([])
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -1033,6 +1018,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Focus on the active cell
             targetCell.activate();
         }
+    }
+
+    const resetForNewMessage = (): void => {
+        /* 
+        Before we send the next user message, we need to reset the state for a new message:
+        - Reject the previous Ai generated code if they did not accept it yet
+        - Clear the next steps
+        */
+        rejectAICode()
+        setNextSteps([])
     }
 
     const rejectAICode = (): void => {

@@ -29,7 +29,6 @@ interface ChatInputProps {
     renderMimeRegistry: IRenderMimeRegistry;
     displayActiveCellCode?: boolean;
     agentModeEnabled: boolean;
-    onInputChange?: (value: string) => void;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -48,7 +47,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     renderMimeRegistry,
     displayActiveCellCode = true,
     agentModeEnabled = false,
-    onInputChange,
 }) => {
 
     const [input, setInput] = useState(initialContent);
@@ -114,10 +112,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
         } else {
             setDropdownVisible(false);
             setDropdownFilter('');
-        }
-
-        if (onInputChange) {
-            onInputChange(value);
         }
     };
 
