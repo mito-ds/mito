@@ -26,6 +26,14 @@ MYSQL_CONNECTION_DETAILS = {
     "port": "3306",
     "database": "Northwind",
 }
+ORACLE_CONNECTION_DETAILS = {
+    "type": "oracle",
+    "username": os.environ.get("ORACLE_USERNAME"),
+    "password": os.environ.get("ORACLE_PASSWORD"),
+    "host": os.environ.get("ORACLE_HOST"),
+    "port": "1521",
+    "service_name": "ORCL",
+}
 POSTGRES_CONNECTION_DETAILS = {
     "type": "postgres",
     "username": os.environ.get("POSTGRES_USERNAME"),

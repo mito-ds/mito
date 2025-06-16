@@ -68,6 +68,9 @@ jobs:
         MSSQL_USERNAME: ${{ secrets.PYTEST_MSSQL_USERNAME }}
         MSSQL_PASSWORD: ${{ secrets.PYTEST_MSSQL_PASSWORD }}
         MSSQL_HOST: ${{ secrets.PYTEST_MSSQL_HOST }}
+        ORACLE_USERNAME: ${{ secrets.PYTEST_ORACLE_USERNAME }}
+        ORACLE_PASSWORD: ${{ secrets.PYTEST_ORACLE_PASSWORD }}
+        ORACLE_HOST: ${{ secrets.PYTEST_ORACLE_HOST }}
     - name: Upload test-results
       uses: actions/upload-artifact@v4
       if: failure()

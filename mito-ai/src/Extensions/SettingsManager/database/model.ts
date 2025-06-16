@@ -119,6 +119,47 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
             }
         ]
     },
+    oracle: {
+        type: 'oracle',
+        displayName: 'Oracle',
+        fields: [
+            {
+                name: 'username',
+                type: 'text',
+                label: 'Username',
+                placeholder: 'john.doe',
+                required: true
+            },
+            {
+                name: 'password',
+                type: 'password',
+                label: 'Password',
+                placeholder: 'Enter your password',
+                required: true
+            },
+            {
+                name: 'host',
+                type: 'text',
+                label: 'Host',
+                placeholder: 'localhost',
+                required: true
+            },
+            {
+                name: 'port',
+                type: 'number',
+                label: 'Port',
+                placeholder: '1521',
+                required: true
+            },
+            {
+                name: 'service_name',
+                type: 'text',
+                label: 'Service Name',
+                placeholder: 'xe',
+                required: true
+            }
+        ]
+    },
     postgres: {
         type: 'postgres',
         displayName: 'PostgreSQL',
