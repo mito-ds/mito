@@ -19,7 +19,6 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
     - system_instructions: list of strings (for system_instruction param)
     - contents: list of dicts for Gemini (excluding system role)
     """
-    print(messages)
 
     system_instructions = []
     contents = []
