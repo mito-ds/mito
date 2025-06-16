@@ -16,21 +16,28 @@ ThreadID = NewType('ThreadID', str)
 ########################################################
     
 class CellUpdate(BaseModel):
-    type: Literal['new', 'modification']
+    type: Literal['modification', 'new']
     index: Optional[int]
     id: Optional[str]
     code: str
     cell_type: Optional[Literal['code', 'markdown']]
+
+class Question(BaseModel):
+    question_type: Literal['multiple_choice']
+    question: str
+    options: List[str]
 
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
 # so instead we just combine all of the possible response types into a single class 
 # for now and rely on the AI to respond with the correct types, following the format
 # that we show it in the system prompt.
 class AgentResponse(BaseModel):
-    type: Literal['cell_update', 'get_cell_output', 'finished_task']
+    type: Literal['cell_update', 'get_cell_output', 'finished_task', 'get_user_input']
     message: str
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]
+    question: Optional[Question]
+    next_steps: Optional[List[str]]
     
     
 @dataclass(frozen=True)
@@ -225,13 +232,24 @@ class CompletionError:
         """
         error_type = type(exception)
         error_module = getattr(error_type, "__module__", "")
+        
+        # Handle OpenAI exceptions that have a 'body' attribute
+        title = ""
+        body = getattr(exception, "body", None)
+        if body and hasattr(body, "get"):
+            title = body.get("message", "")
+        
+        if not title and exception.args:
+            title = exception.args[0]
+        
+        if not title:
+            title = "Exception"
+            
         return CompletionError(
             error_type=f"{error_module}.{error_type.__name__}"
             if error_module
             else error_type.__name__,
-            title=exception.body.get("message")
-            if hasattr(exception, "body")
-            else (exception.args[0] if exception.args else "Exception"),
+            title=title,
             traceback=traceback.format_exc(),
             hint=hint,
         )

@@ -73,6 +73,7 @@ import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 import { getFirstMessageFromCookie } from './FirstMessage';
 import CTACarousel from './CTACarousel';
+import NextStepsPills from '../../components/NextStepsPills';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -156,6 +157,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
+
+    // State for managing next steps from responses
+    // If the user hides the next steps, we keep them hidden until they re-open them
+    const [nextSteps, setNextSteps] = useState<string[]>([]);
+    const [displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable] = useState(true);
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -275,6 +281,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
             return chatHistoryManager;
         }
+
+        // Clear next steps when starting a new chat
+        setNextSteps([])
+
         // Reset frontend chat history
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
         setChatHistoryManager(newChatHistoryManager);
@@ -389,6 +399,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             when the state changes.
         */
         chatHistoryManagerRef.current = chatHistoryManager;
+        
     }, [chatHistoryManager]);
 
     // Scroll to bottom whenever chat history updates
@@ -414,8 +425,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         to the AI chat.
     */
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the smart debug message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -435,8 +446,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -455,8 +466,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendExplainCodeMessage = async (): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the code explain message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -483,8 +494,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendActiveCellOutput: boolean = false,
         selectedRules?: string[]
     ): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -523,8 +534,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
-        // Step 0: Reject the previous AI generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -1009,6 +1020,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
+    const resetForNewMessage = (): void => {
+        /* 
+        Before we send the next user message, we need to reset the state for a new message:
+        - Reject the previous Ai generated code if they did not accept it yet
+        - Clear the next steps
+        */
+        rejectAICode()
+        setNextSteps([])
+    }
+
     const rejectAICode = (): void => {
         if (cellStateBeforeDiff.current === undefined) {
             return
@@ -1287,6 +1308,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             renderMimeRegistry={renderMimeRegistry}
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
+                            isLastMessage={index === displayOptimizedChatHistory.length - 1}
                             operatingSystem={operatingSystem}
                             previewAICode={previewAICodeToActiveCell}
                             acceptAICode={acceptAICode}
@@ -1294,6 +1316,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             onUpdateMessage={handleUpdateMessage}
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
+                            setNextSteps={setNextSteps}
                         />
                     )
                 }).filter(message => message !== null)}
@@ -1316,23 +1339,33 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     />
                 </div>
             )}
-            <ChatInput
-                initialContent={''}
-                placeholder={
-                    agentExecutionStatus === 'working' ? 'Agent is working...' :
-                        agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
-                            agentModeEnabled ? 'Ask agent to do anything' :
-                                displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                                    : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                }
-                onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
-                onCancel={undefined}
-                isEditing={false}
-                contextManager={contextManager}
-                notebookTracker={notebookTracker}
-                renderMimeRegistry={renderMimeRegistry}
-                agentModeEnabled={agentModeEnabled}
-            />
+            <div className={`connected-input-container ${nextSteps.length > 0 ? 'has-next-steps' : ''}`}>
+                {nextSteps.length > 0 && (
+                    <NextStepsPills 
+                        nextSteps={nextSteps}
+                        onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                        displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
+                        setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                    />
+                )}
+                <ChatInput
+                    initialContent={''}
+                    placeholder={
+                        agentExecutionStatus === 'working' ? 'Agent is working...' :
+                            agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
+                                agentModeEnabled ? 'Ask agent to do anything' :
+                                    displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                                        : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                    }
+                    onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                    onCancel={undefined}
+                    isEditing={false}
+                    contextManager={contextManager}
+                    notebookTracker={notebookTracker}
+                    renderMimeRegistry={renderMimeRegistry}
+                    agentModeEnabled={agentModeEnabled}
+                />
+            </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
                 <div className="chat-controls">
                     <div className="chat-controls-left">

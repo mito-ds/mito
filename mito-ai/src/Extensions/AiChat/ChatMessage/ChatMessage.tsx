@@ -43,6 +43,7 @@ interface IChatMessageProps {
     renderMimeRegistry: IRenderMimeRegistry
     app: JupyterFrontEnd
     isLastAiMessage: boolean
+    isLastMessage: boolean
     operatingSystem: OperatingSystem
     previewAICode: () => void
     acceptAICode: () => void
@@ -50,6 +51,7 @@ interface IChatMessageProps {
     onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
+    setNextSteps: (nextSteps: string[]) => void
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -63,13 +65,15 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     notebookTracker,
     renderMimeRegistry,
     isLastAiMessage,
+    isLastMessage,
     operatingSystem,
     previewAICode,
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
     contextManager,
-    codeReviewStatus
+    codeReviewStatus,
+    setNextSteps,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -93,6 +97,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     const handleCancel = (): void => {
         setIsEditing(false);
     };
+
+    if (isLastMessage && agentResponse?.type === 'finished_task' && agentResponse.next_steps && agentResponse.next_steps.length > 0) {
+        /* 
+        We only want to set the next steps if the message is the last message in the chat.
+        This is because the next steps are only available after the agent has finished its task.
+
+        We handle this in the ChatMessage component to automatically handle reloading a previous chat thread.
+        */
+        setNextSteps(agentResponse.next_steps);
+    }
 
     if (isEditing) {
         return (
