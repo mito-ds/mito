@@ -67,7 +67,7 @@
     opacity: 1;
 }
 
-.next-steps-pills-container.visible {
+.next-steps-pills-container {
     opacity: 1;
     transform: translateY(0);
 }

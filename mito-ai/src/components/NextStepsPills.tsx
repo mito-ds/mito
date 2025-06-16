@@ -16,6 +16,12 @@ const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNext
     const [isAnimatingOut, setIsAnimatingOut] = useState(false);
     const [isExpanded, setIsExpanded] = useState(true);
 
+    /*
+    Triggers entrance animation for next steps pills.
+    When new next steps are available, waits 50ms before making the component visible
+    to ensure smooth CSS animation transitions. The delay allows the DOM to render
+    before the animation state change occurs.
+    */
     useEffect(() => {
         if (nextSteps.length > 0) {
             // Small delay to trigger the entrance animation
@@ -23,7 +29,7 @@ const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNext
             return () => clearTimeout(timer);
         }
         return () => {}; // Return empty cleanup function for the else case
-    }, [nextSteps.length]);
+    }, []);
 
     const handleNextStepClick = (nextStep: string) => {
         // Start exit animation
