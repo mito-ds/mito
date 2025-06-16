@@ -93,9 +93,9 @@
     background: var(--jp-layout-color1);
     border: 1px solid var(--jp-border-color2);
     border-radius: 20px;
-    color: var(--jp-ui-font-color3);
+    color: var(--jp-ui-font-color2);
     font-size: 12px;
-    font-weight: 300;
+    font-weight: 400;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0;
@@ -104,7 +104,6 @@
     white-space: nowrap;
     width: 100%;
     overflow: hidden;
-    text-overflow: ellipsis;
     position: relative;
 }
 
@@ -122,7 +121,7 @@
 }
 
 .next-step-pill:hover {
-    border-color: var(--jp-brand-color2);
+    background: var(--jp-layout-color2);
     transform: translateY(-1px) scale(1.02);
     box-shadow: 0 4px 12px rgba(var(--jp-brand-color1), 0.15);
 }
@@ -145,14 +144,13 @@
 .next-step-pill-icon {
     position: relative;
     z-index: 1;
-    font-size: 10px;
     color: var(--jp-brand-color1);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0.7;
+    display: none;
 }
 
 .next-step-pill:hover .next-step-pill-icon {
-    opacity: 1;
+    display: block;
     transform: translateX(2px);
     color: var(--jp-brand-color2);
 }

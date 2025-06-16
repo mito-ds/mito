@@ -60,6 +60,7 @@ const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNext
                             key={index}
                             className="next-step-pill"
                             onClick={() => handleNextStepClick(nextStep)}
+                            title={nextStep}
                             style={{ animationDelay: `${index * 50}ms` }}
                         >
                             <span className="next-step-pill-text">{nextStep}</span>
