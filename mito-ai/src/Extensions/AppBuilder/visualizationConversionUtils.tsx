@@ -103,7 +103,8 @@ export const transformVisualizationCell = (cellContent: string): string => {
         const line = lines[i] ?? '';
         let replacedLine = false;
 
-        // Check for plt.show() calls
+        // Check for plt.show() calls We need to replace these with display_viz(plt.gcf())
+        // because we need to make sure we display the current figure.
         if (line.trim().match(/plt\.show\(/)) {
             transformedLines.push("display_viz(plt.gcf())");
             replacedLine = true;
