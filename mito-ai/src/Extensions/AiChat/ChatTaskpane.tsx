@@ -281,6 +281,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
             return chatHistoryManager;
         }
+
+        // Clear next steps when starting a new chat
+        setNextSteps([])
+
         // Reset frontend chat history
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
         setChatHistoryManager(newChatHistoryManager);
