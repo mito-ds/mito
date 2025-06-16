@@ -17,6 +17,26 @@ import { OpenAI } from 'openai';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
+jest.mock('../../Extensions/AiChat/ChatMessage/CodeBlock', () => {
+    return function MockCodeBlock() {
+        return <div data-testid="code-block">Mocked CodeBlock</div>;
+    };
+});
+
+jest.mock('../../Extensions/AiChat/ChatMessage/AlertBlock', () => {
+    return function MockAlertBlock({ content, mitoAIConnectionErrorType }: { content: string, mitoAIConnectionErrorType: string | null }) {
+        if (mitoAIConnectionErrorType === 'mito_server_free_tier_limit_reached') {
+            return (
+                <div data-testid="alert-block">
+                    <div>You've used up your free trial of Mito AI for this month</div>
+                    <div>Upgrade to Pro</div>
+                </div>
+            );
+        }
+        return <div data-testid="alert-block">{content}</div>;
+    };
+});
+
 jest.mock('../../Extensions/AiChat/ChatMessage/MarkdownBlock', () => {
     return {
         __esModule: true,
@@ -79,6 +99,10 @@ jest.mock('../../utils/copyToClipboard', () => {
     return jest.fn().mockResolvedValue(undefined);
 });
 
+// Add these CSS mocks
+jest.mock('../../../style/ChatMessage.css', () => ({}));
+jest.mock('../../../style/MarkdownMessage.css', () => ({}));
+
 // Create base props for the component
 const createMockProps = (overrides = {}) => ({
     message: { role: 'user', content: 'Test message' } as OpenAI.Chat.ChatCompletionMessageParam,
@@ -99,7 +123,6 @@ const createMockProps = (overrides = {}) => ({
     acceptAICode: jest.fn(),
     rejectAICode: jest.fn(),
     onUpdateMessage: jest.fn(),
-    onDeleteMessage: jest.fn(),
     contextManager: { getVariables: jest.fn(() => []) } as unknown as IContextManager,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
     setNextSteps: jest.fn(),
@@ -244,7 +267,7 @@ describe('ChatMessage Component', () => {
                 (window as any).__chatInputCallbacks.onSave('Updated message content');
             });
 
-            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'openai message');
+            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'user');
         });
 
         it('shows code action buttons for the last AI message with code', () => {
