@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { INotebookTracker, NotebookActions } from "@jupyterlab/notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { COMMAND_MITO_AI_SEND_AGENT_MESSAGE, COMMAND_MITO_AI_OPEN_CHAT } from "../../commands";
@@ -21,27 +21,8 @@ interface NotebookFooterProps {
 const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) => {
     const notebook = notebookTracker.currentWidget?.content
 
-    const [cellCount, setCellCount] = useState(notebook?.widgets.length || 0);
-    const [lastAction, setLastAction] = useState<string>('');
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-
-    const updateCellCount = useCallback(() => {
-        setCellCount(notebook?.widgets.length || 0);
-    }, [notebook]);
-
-    useEffect(() => {
-        if (notebook === undefined || notebook.model === null) {
-            return;
-        }
-        
-        notebook.model.cells.changed.connect(updateCellCount);
-        return () => {
-            if (notebook?.model && !notebook.model.isDisposed) {
-                notebook?.model.cells.changed.disconnect(updateCellCount);
-            }
-        };
-    }, [notebook, updateCellCount]);
 
     // If the notebook is not loaded yet, don't render anything
     // This must come after the useEffects
@@ -65,7 +46,6 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) =
             }
         }
 
-        setLastAction(`Added ${cellType === 'code' ? 'Python' : 'Text'} cell`);
         void NotebookActions.focusActiveCell(notebook);
     };
 
@@ -180,11 +160,6 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) =
                         <span className="button-label">Text</span>
                     </div>
                 </button>
-            </div>
-
-            {/* Cell count and last action */}
-            <div className="cell-info">
-                {cellCount} cells {lastAction && `• ${lastAction}`}
             </div>
         </div>
     );
