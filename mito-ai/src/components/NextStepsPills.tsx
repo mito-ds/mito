@@ -9,12 +9,13 @@ import '../../style/NextStepsPills.css';
 interface NextStepsPillsProps {
     nextSteps: string[];
     onSelectNextStep?: (nextStep: string) => void;
+    displayedNextStepsIfAvailable: boolean;
+    setDisplayedNextStepsIfAvailable: (displayedNextStepsIfAvailable: boolean) => void;
 }
 
-const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNextStep }) => {
-    const [isVisible, setIsVisible] = useState(false);
+const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNextStep, displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable }) => {
+    const [isVisible, setIsVisible] = useState(displayedNextStepsIfAvailable);
     const [isAnimatingOut, setIsAnimatingOut] = useState(false);
-    const [isExpanded, setIsExpanded] = useState(true);
 
     /*
     Triggers entrance animation for next steps pills.
@@ -44,7 +45,7 @@ const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNext
     };
 
     const toggleExpanded = () => {
-        setIsExpanded(!isExpanded);
+        setDisplayedNextStepsIfAvailable(!displayedNextStepsIfAvailable);
     };
 
     if (nextSteps.length === 0) {
@@ -54,12 +55,12 @@ const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNext
     return (
         <div className={`next-steps-pills-container ${isVisible ? 'visible' : ''} ${isAnimatingOut ? 'animating-out' : ''}`}>
             <div className="next-steps-header" onClick={toggleExpanded}>
-                <div className={`next-steps-caret ${isExpanded ? 'expanded' : 'collapsed'}`}>
+                <div className={`next-steps-caret ${displayedNextStepsIfAvailable ? 'expanded' : 'collapsed'}`}>
                     ▼
                 </div>
                 <span className="next-steps-title">Suggested Next Steps</span>
             </div>
-            {isExpanded && (
+            {displayedNextStepsIfAvailable && (
                 <div className="next-steps-pills-list">
                     {nextSteps.map((nextStep, index) => (
                         <button

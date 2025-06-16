@@ -158,8 +158,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
 
-    // State for managing next steps from finished_task responses
+    // State for managing next steps from responses
+    // If the user hides the next steps, we keep them hidden until they re-open them
     const [nextSteps, setNextSteps] = useState<string[]>([]);
+    const [displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable] = useState(true);
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -1343,6 +1345,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <NextStepsPills 
                         nextSteps={nextSteps}
                         onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                        displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
+                        setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
                     />
                 )}
                 <ChatInput

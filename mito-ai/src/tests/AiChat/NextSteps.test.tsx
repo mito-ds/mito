@@ -45,6 +45,8 @@ jest.mock('../../components/AgentToolComponents/GetCellOutputToolUI', () => {
 const createMockProps = (overrides = {}) => ({
     nextSteps: [],
     onSelectNextStep: jest.fn(),
+    displayedNextStepsIfAvailable: true,
+    setDisplayedNextStepsIfAvailable: jest.fn(),
     ...overrides
 });
 
@@ -163,27 +165,19 @@ describe('NextStepsPills Component', () => {
     });
 
     describe('Expand/Collapse Functionality', () => {
-        it('starts in expanded state by default', async () => {
-            renderNextStepsPills({
-                nextSteps: ['Create a bar chart', 'Add data filtering']
-            });
-
-            await waitFor(() => {
-                expect(screen.getByText('Suggested Next Steps')).toBeInTheDocument();
-            });
-
-            // Check that the caret is in expanded state
-            const caret = screen.getByText('▼');
-            expect(caret).toHaveClass('expanded');
-
-            // Check that next steps are visible
-            expect(screen.getByText('Create a bar chart')).toBeInTheDocument();
-            expect(screen.getByText('Add data filtering')).toBeInTheDocument();
-        });
-
         it('collapses when header is clicked', async () => {
-            renderNextStepsPills({
-                nextSteps: ['Create a bar chart', 'Add data filtering']
+            const mockSetDisplayedNextStepsIfAvailable = jest.fn();
+            let displayedNextStepsIfAvailable = true;
+            
+            // Mock the prop change behavior
+            mockSetDisplayedNextStepsIfAvailable.mockImplementation((newValue) => {
+                displayedNextStepsIfAvailable = newValue;
+            });
+
+            const { rerender } = renderNextStepsPills({
+                nextSteps: ['Create a bar chart', 'Add data filtering'],
+                displayedNextStepsIfAvailable: displayedNextStepsIfAvailable,
+                setDisplayedNextStepsIfAvailable: mockSetDisplayedNextStepsIfAvailable
             });
 
             await waitFor(() => {
@@ -197,6 +191,16 @@ describe('NextStepsPills Component', () => {
                 fireEvent.click(header!);
             });
 
+            // Check that setDisplayedNextStepsIfAvailable was called with false
+            expect(mockSetDisplayedNextStepsIfAvailable).toHaveBeenCalledWith(false);
+
+            // Simulate the prop change by re-rendering with new prop value
+            rerender(<NextStepsPills {...createMockProps({
+                nextSteps: ['Create a bar chart', 'Add data filtering'],
+                displayedNextStepsIfAvailable: false,
+                setDisplayedNextStepsIfAvailable: mockSetDisplayedNextStepsIfAvailable
+            })} />);
+
             // Check that the caret is now collapsed
             const caret = screen.getByText('▼');
             expect(caret).toHaveClass('collapsed');
@@ -207,8 +211,92 @@ describe('NextStepsPills Component', () => {
         });
 
         it('expands when header is clicked again after being collapsed', async () => {
+            const mockSetDisplayedNextStepsIfAvailable = jest.fn();
+
+            const { rerender } = renderNextStepsPills({
+                nextSteps: ['Create a bar chart', 'Add data filtering'],
+                displayedNextStepsIfAvailable: false,
+                setDisplayedNextStepsIfAvailable: mockSetDisplayedNextStepsIfAvailable
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Suggested Next Steps')).toBeInTheDocument();
+            });
+
+            // Check initial collapsed state
+            expect(screen.getByText('▼')).toHaveClass('collapsed');
+            expect(screen.queryByText('Create a bar chart')).not.toBeInTheDocument();
+
+            const header = screen.getByText('Suggested Next Steps').closest('.next-steps-header');
+
+            // Click to expand
+            act(() => {
+                fireEvent.click(header!);
+            });
+
+            // Check that setDisplayedNextStepsIfAvailable was called with true
+            expect(mockSetDisplayedNextStepsIfAvailable).toHaveBeenCalledWith(true);
+
+            // Simulate the prop change by re-rendering with new prop value
+            rerender(<NextStepsPills {...createMockProps({
+                nextSteps: ['Create a bar chart', 'Add data filtering'],
+                displayedNextStepsIfAvailable: true,
+                setDisplayedNextStepsIfAvailable: mockSetDisplayedNextStepsIfAvailable
+            })} />);
+
+            // Check that it's expanded again
+            expect(screen.getByText('▼')).toHaveClass('expanded');
+            expect(screen.getByText('Create a bar chart')).toBeInTheDocument();
+            expect(screen.getByText('Add data filtering')).toBeInTheDocument();
+        });
+    });
+
+    describe('DisplayedNextStepsIfAvailable Preference', () => {
+        it('displays next steps when displayedNextStepsIfAvailable is true', async () => {
             renderNextStepsPills({
-                nextSteps: ['Create a bar chart', 'Add data filtering']
+                nextSteps: ['Create a bar chart', 'Add data filtering'],
+                displayedNextStepsIfAvailable: true
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Suggested Next Steps')).toBeInTheDocument();
+            });
+
+            // Check that next steps are visible when preference is true
+            expect(screen.getByText('Create a bar chart')).toBeInTheDocument();
+            expect(screen.getByText('Add data filtering')).toBeInTheDocument();
+
+            // Check that the caret is in expanded state
+            const caret = screen.getByText('▼');
+            expect(caret).toHaveClass('expanded');
+        });
+
+        it('does not display next steps when displayedNextStepsIfAvailable is false', async () => {
+            renderNextStepsPills({
+                nextSteps: ['Create a bar chart', 'Add data filtering'],
+                displayedNextStepsIfAvailable: false
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Suggested Next Steps')).toBeInTheDocument();
+            });
+
+            // Check that next steps are not visible when preference is false
+            expect(screen.queryByText('Create a bar chart')).not.toBeInTheDocument();
+            expect(screen.queryByText('Add data filtering')).not.toBeInTheDocument();
+
+            // Check that the caret is in collapsed state
+            const caret = screen.getByText('▼');
+            expect(caret).toHaveClass('collapsed');
+        });
+
+        it('updates preference correctly through multiple expand/collapse cycles', async () => {
+            const mockSetDisplayedNextStepsIfAvailable = jest.fn();
+            
+            const { rerender } = renderNextStepsPills({
+                nextSteps: ['Create a bar chart', 'Add data filtering'],
+                displayedNextStepsIfAvailable: true,
+                setDisplayedNextStepsIfAvailable: mockSetDisplayedNextStepsIfAvailable
             });
 
             await waitFor(() => {
@@ -222,18 +310,26 @@ describe('NextStepsPills Component', () => {
                 fireEvent.click(header!);
             });
 
-            // Verify collapsed state
-            expect(screen.getByText('▼')).toHaveClass('collapsed');
+            expect(mockSetDisplayedNextStepsIfAvailable).toHaveBeenCalledWith(false);
+
+            // Simulate the prop change to collapsed state
+            rerender(<NextStepsPills {...createMockProps({
+                nextSteps: ['Create a bar chart', 'Add data filtering'],
+                displayedNextStepsIfAvailable: false,
+                setDisplayedNextStepsIfAvailable: mockSetDisplayedNextStepsIfAvailable
+            })} />);
 
             // Second click to expand
             act(() => {
                 fireEvent.click(header!);
             });
 
-            // Check that it's expanded again
-            expect(screen.getByText('▼')).toHaveClass('expanded');
-            expect(screen.getByText('Create a bar chart')).toBeInTheDocument();
-            expect(screen.getByText('Add data filtering')).toBeInTheDocument();
+            expect(mockSetDisplayedNextStepsIfAvailable).toHaveBeenCalledWith(true);
+
+            // Verify it was called twice with the correct values
+            expect(mockSetDisplayedNextStepsIfAvailable).toHaveBeenCalledTimes(2);
+            expect(mockSetDisplayedNextStepsIfAvailable).toHaveBeenNthCalledWith(1, false);
+            expect(mockSetDisplayedNextStepsIfAvailable).toHaveBeenNthCalledWith(2, true);
         });
     });
 
