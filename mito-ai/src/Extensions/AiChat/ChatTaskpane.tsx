@@ -189,7 +189,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const checkpoint = createAndSaveCheckpoint(notebookTracker);
         if (checkpoint) {
             setHasCheckpoint(true);
-            console.log('📸 Checkpoint created and saved successfully!');
         } else {
             console.error('❌ Failed to create checkpoint');
         }
@@ -197,11 +196,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const handleRestoreCheckpoint = (): void => {
         const success = restoreFromCurrentCheckpoint(notebookTracker);
-        if (success) {
-            console.log('🔄 Notebook restored from checkpoint successfully!');
-        } else {
+        if (!success) {
             console.error('❌ Failed to restore from checkpoint');
-        }
+        } 
     };
 
     const fetchChatThreads = async (): Promise<void> => {
