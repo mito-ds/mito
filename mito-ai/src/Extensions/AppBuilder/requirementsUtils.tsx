@@ -99,14 +99,14 @@ with tempfile.TemporaryDirectory() as temp_dir:
       let resultText = '';
 
       // Set up handler for output
-      future.onIOPub = (msg: any) => {
+      future.onIOPub = (msg: any): void => {
         if (msg.header.msg_type === 'stream' && msg.content.name === 'stdout') {
           const text = msg.content.text;
-	        if (text.startsWith('Log: ')) {
-	          console.error(text);
-	        } else {
-	          resultText += text;
-	        }
+          if (text.startsWith('Log: ')) {
+            console.error(text);
+          } else {
+            resultText += text;
+          }
         }
       };
 

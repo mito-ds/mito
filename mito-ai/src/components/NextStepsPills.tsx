@@ -32,7 +32,7 @@ const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNext
         return () => {}; // Return empty cleanup function for the else case
     }, []);
 
-    const handleNextStepClick = (nextStep: string) => {
+    const handleNextStepClick = (nextStep: string): void => {
         // Start exit animation
         setIsAnimatingOut(true);
         
@@ -44,7 +44,7 @@ const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNext
         }, 150);
     };
 
-    const toggleExpanded = () => {
+    const toggleExpanded = (): void => {
         setDisplayedNextStepsIfAvailable(!displayedNextStepsIfAvailable);
     };
 
