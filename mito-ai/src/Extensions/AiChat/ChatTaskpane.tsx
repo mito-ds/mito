@@ -185,18 +185,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
           }
     };
 
-    const handleCreateCheckpoint = (): void => {
-        const checkpoint = createAndSaveCheckpoint(notebookTracker);
-        if (checkpoint) {
-            setHasCheckpoint(true);
-        } else {
-            console.error('❌ Failed to create checkpoint');
-        }
-    };
-
     const handleRestoreCheckpoint = (): void => {
         const success = restoreFromCurrentCheckpoint(notebookTracker);
-        if (!success) {
+        if (success) {
+            // Clear the checkpoint after restoring
+            setHasCheckpoint(false);
+        } else {
             console.error('❌ Failed to restore from checkpoint');
         } 
     };
@@ -304,6 +298,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Clear next steps when starting a new chat
         setNextSteps([])
+        
+        // Clear agent checkpoint when starting new chat
+        setHasCheckpoint(false)
 
         // Reset frontend chat history
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
@@ -833,6 +830,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
+        // Create checkpoint before starting agent execution (only for new executions, not retries)
+        if (messageIndex === undefined) {
+            const checkpoint = createAndSaveCheckpoint(notebookTracker);
+            if (checkpoint) {
+                setHasCheckpoint(true);
+                console.log('📸 Agent checkpoint created before execution');
+            }
+        }
+
         setAgentExecutionStatus('working')
 
         // Reset the execution flag at the start of a new plan
@@ -1266,40 +1272,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
                     />
-                    <button
-                        className="button-base"
-                        title="Create Checkpoint"
-                        onClick={handleCreateCheckpoint}
-                        style={{ 
-                            marginLeft: '8px', 
-                            padding: '4px 8px', 
-                            fontSize: '12px',
-                            backgroundColor: '#007acc',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px'
-                        }}
-                    >
-                        📸 Checkpoint
-                    </button>
-                    <button
-                        className="button-base"
-                        title="Restore from Checkpoint"
-                        onClick={handleRestoreCheckpoint}
-                        disabled={!hasCheckpoint}
-                        style={{ 
-                            marginLeft: '4px', 
-                            padding: '4px 8px', 
-                            fontSize: '12px',
-                            backgroundColor: hasCheckpoint ? '#28a745' : '#6c757d',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: hasCheckpoint ? 'pointer' : 'not-allowed'
-                        }}
-                    >
-                        🔄 Restore
-                    </button>
                 </div>
                 <div className="chat-taskpane-header-right">
                     <IconButton
@@ -1379,6 +1351,29 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         Thinking <LoadingDots />
                     </div>
                 }
+                {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
+                {hasCheckpoint &&
+                    agentModeEnabled &&
+                    agentExecutionStatus === 'idle' &&
+                    displayOptimizedChatHistory.length > 0 && (
+                        <div className='message message-assistant-chat'>
+                            <button
+                                className="button-base button-gray button-small"
+                                title="Restore from Checkpoint"
+                                onClick={handleRestoreCheckpoint}
+                                disabled={!hasCheckpoint}
+                            >
+                                ⏪ Restore checkpoint
+                            </button>
+                            <div style={{
+                                marginTop: '5px',
+                                fontSize: '12px',
+                                color: 'var(--jp-ui-font-color3)'
+                            }}>
+                                Undo the most recent changes made by the agent
+                            </div>
+                        </div>
+                    )}
             </div>
             {displayOptimizedChatHistory.length === 0 && (
                 <div className="suggestions-container">
@@ -1430,6 +1425,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             onChange={async (isLeftSelected) => {
                                 await startNewChat(); // TODO: delete thread instead of starting new chat
                                 setAgentModeEnabled(!isLeftSelected);
+                                // Clear agent checkpoint when switching modes
+                                setHasCheckpoint(false);
                                 // Focus the chat input directly
                                 const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                 if (chatInput) {
