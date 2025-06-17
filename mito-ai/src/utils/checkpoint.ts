@@ -4,7 +4,7 @@
  */
 
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { Cell } from '@jupyterlab/cells';
+import { Cell, CodeCell } from '@jupyterlab/cells';
 import { ICellMetadata, INotebookMetadata } from '@jupyterlab/nbformat';
 import { PartialJSONValue } from '@lumino/coreutils';
 
@@ -99,7 +99,7 @@ export const getCurrentCheckpoint = (): INotebookCheckpoint | null => {
 /**
  * Restores the notebook to the state stored in the checkpoint
  */
-export const restoreFromCheckpoint = (notebookTracker: INotebookTracker, checkpoint: INotebookCheckpoint): boolean => {
+export const restoreFromCheckpoint = async (notebookTracker: INotebookTracker, checkpoint: INotebookCheckpoint): Promise<boolean> => {
     const currentWidget = notebookTracker.currentWidget;
     if (!currentWidget) {
         console.warn('No active notebook found for restoration');
@@ -155,6 +155,12 @@ export const restoreFromCheckpoint = (notebookTracker: INotebookTracker, checkpo
         }
 
         console.log(`✅ Successfully restored ${checkpoint.cells.length} cells from checkpoint`);
+
+        // Execute all code cells to restore kernel state
+        console.log('🔄 Re-executing code cells to restore kernel state...');
+        await executeAllCodeCells(notebookTracker);
+        console.log('✅ Kernel state restored');
+
         return true;
 
     } catch (error) {
@@ -176,13 +182,46 @@ export const createAndSaveCheckpoint = (notebookTracker: INotebookTracker): INot
 };
 
 /**
+ * Executes all code cells in the notebook to restore kernel state
+ */
+const executeAllCodeCells = async (notebookTracker: INotebookTracker): Promise<void> => {
+    const currentWidget = notebookTracker.currentWidget;
+    if (!currentWidget) {
+        return;
+    }
+
+    const notebook = currentWidget.content;
+    const sessionContext = currentWidget.sessionContext;
+
+    if (!sessionContext?.session?.kernel) {
+        console.warn('No kernel available for execution');
+        return;
+    }
+
+    // Execute each code cell sequentially
+    for (let i = 0; i < notebook.widgets.length; i++) {
+        const cell = notebook.widgets[i];
+        if (cell?.model.type === 'code') {
+            const codeCell = cell as CodeCell;
+            try {
+                // Execute the cell and wait for completion
+                await CodeCell.execute(codeCell, sessionContext);
+            } catch (error) {
+                console.error(`Failed to execute cell ${i}:`, error);
+                // Continue with other cells even if one fails
+            }
+        }
+    }
+};
+
+/**
  * Restores from the currently stored checkpoint
  */
-export const restoreFromCurrentCheckpoint = (notebookTracker: INotebookTracker): boolean => {
+export const restoreFromCurrentCheckpoint = async (notebookTracker: INotebookTracker): Promise<boolean> => {
     const checkpoint = getCurrentCheckpoint();
     if (!checkpoint) {
         console.warn('No checkpoint available for restoration');
         return false;
     }
-    return restoreFromCheckpoint(notebookTracker, checkpoint);
+    return await restoreFromCheckpoint(notebookTracker, checkpoint);
 };

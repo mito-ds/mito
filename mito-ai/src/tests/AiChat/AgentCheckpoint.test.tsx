@@ -20,8 +20,8 @@ const AgentRestoreButton: React.FC<{
 }> = ({ hasCheckpoint, notebookTracker }) => {
     const [showButton, setShowButton] = React.useState(hasCheckpoint);
 
-    const handleRestore = () => {
-        const success = restoreFromCurrentCheckpoint(notebookTracker);
+    const handleRestore = async () => {
+        const success = await restoreFromCurrentCheckpoint(notebookTracker);
         if (success) {
             setShowButton(false);
         }

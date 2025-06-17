@@ -185,8 +185,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
           }
     };
 
-    const handleRestoreCheckpoint = (): void => {
-        const success = restoreFromCurrentCheckpoint(notebookTracker);
+    const handleRestoreCheckpoint = async (): Promise<void> => {
+        const success = await restoreFromCurrentCheckpoint(notebookTracker);
         if (success) {
             // Clear the checkpoint after restoring
             setHasCheckpoint(false);
@@ -1360,7 +1360,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             <button
                                 className="button-base button-gray button-small"
                                 title="Restore from Checkpoint"
-                                onClick={handleRestoreCheckpoint}
+                                onClick={() => void handleRestoreCheckpoint()}
                                 disabled={!hasCheckpoint}
                             >
                                 ⏪ Restore checkpoint
