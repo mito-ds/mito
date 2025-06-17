@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import ModelSelector from '../../components/ModelSelector';

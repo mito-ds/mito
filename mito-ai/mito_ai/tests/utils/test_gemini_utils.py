@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import pytest
 from mito_ai.utils.gemini_utils import _prepare_gemini_request_data_and_headers
 from mito_ai.completions.models import MessageType
