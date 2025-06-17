@@ -324,4 +324,62 @@ result_fig.show()
       'display_viz(result_fig)',
     ]);
   });
+
+  test('should transform SymPy plot with show=True', () => {
+    const cellContent = `
+import sympy as sp
+x = sp.symbols('x')
+sp.plot(sp.sin(x), (x, 0, 10), show=True)
+`;
+    const result = transformVisualizationCell(cellContent).split('\n').filter((line: string) => line !== '');
+    expect(result).toEqual([
+      'import sympy as sp',
+      "x = sp.symbols('x')",
+      'display_viz(sp.plot(sp.sin(x), (x, 0, 10), show=True))',
+    ]);
+  });
+
+  test('should transform SymPy plot with show=False and explicit show()', () => {
+    const cellContent = `
+import sympy as sp
+x = sp.symbols('x')
+p2 = sp.plot(sp.cos(x), (x, 0, 10), show=False)
+p2.show()
+`;
+    const result = transformVisualizationCell(cellContent).split('\n').filter((line: string) => line !== '');
+    expect(result).toEqual([
+      'import sympy as sp',
+      "x = sp.symbols('x')",
+      'p2 = sp.plot(sp.cos(x), (x, 0, 10), show=False)',
+      'display_viz(p2)',
+    ]);
+  });
+
+  test('should NOT call display_viz for SymPy plot with show=False and no .show()', () => {
+    const cellContent = `
+import sympy as sp
+x = sp.symbols('x')
+p2 = sp.plot(sp.cos(x), (x, 0, 10), show=False)
+`;
+    const result = transformVisualizationCell(cellContent).split('\n').filter((line: string) => line !== '');
+    expect(result).toEqual([
+      'import sympy as sp',
+      "x = sp.symbols('x')",
+      'p2 = sp.plot(sp.cos(x), (x, 0, 10), show=False)',
+    ]);
+  });
+
+  test('should transform SymPy plot with alternative import and show=True', () => {
+    const cellContent = `
+import sympy
+x = sympy.symbols('x')
+sympy.plot(sympy.sin(x), (x, 0, 10), show=True)
+`;
+    const result = transformVisualizationCell(cellContent).split('\n').filter((line: string) => line !== '');
+    expect(result).toEqual([
+      'import sympy',
+      "x = sympy.symbols('x')",
+      'display_viz(sympy.plot(sympy.sin(x), (x, 0, 10), show=True))',
+    ]);
+  });
 });
