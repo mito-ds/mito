@@ -8,7 +8,6 @@ export const generateDisplayVizFunction = (): string => {
     return `
 def display_viz(fig):
     """Display a visualization in Streamlit based on its type."""
-    import streamlit as st
 
     # Check for SymPy plot objects first (most specific)
     if hasattr(fig, '_backend'):
@@ -115,6 +114,10 @@ export const transformVisualizationCell = (cellContent: string): string => {
           const modifiedLine = line.replace(/(.*?)(sp|sym|sy|sm|sympy)\.plot\s*\(/, '$1display_viz($2.plot(') + ')';
           transformedLines.push(modifiedLine);
           replacedLine = true;
+        }
+        // If show=False, do not call display_viz, just keep the line as is
+        else if(line.trim().match(/((sp|sym|sy|sm|sympy)\.)?plot\s*\(.*show\s*=\s*False.*\)/)) {
+          // Do nothing, just let it fall through to the original line
         }
 
         // Check for direct plot(...) calls
