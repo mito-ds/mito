@@ -9,7 +9,7 @@ from mito_ai.completions.models import MessageType
 def test_basic_request_preparation():
     """Test basic request preparation with minimal parameters."""
     model = "gemini-pro"
-    contents = "test content"
+    contents = [{"text": "test content"}]
     message_type = MessageType.CHAT
 
     data, headers = _prepare_gemini_request_data_and_headers(
@@ -24,30 +24,12 @@ def test_basic_request_preparation():
     assert data["data"]["model"] == model
     assert data["data"]["contents"] == contents
     assert data["data"]["message_type"] == message_type.value
-    assert data["data"]["system_instructions"] == ""
-
-
-def test_request_with_system_instructions():
-    """Test request preparation with system instructions."""
-    model = "gemini-pro"
-    contents = "test content"
-    message_type = MessageType.CHAT
-    system_instructions = "You are a helpful assistant"
-
-    data, headers = _prepare_gemini_request_data_and_headers(
-        model=model,
-        contents=contents,
-        message_type=message_type,
-        system_instructions=system_instructions
-    )
-
-    assert data["data"]["system_instructions"] == system_instructions
 
 
 def test_request_with_config():
     """Test request preparation with additional config parameters."""
     model = "gemini-pro"
-    contents = "test content"
+    contents = [{"text": "test content"}]
     message_type = MessageType.CHAT
     config = {
         "temperature": 0.7,
@@ -72,7 +54,7 @@ def test_request_with_response_format():
         format = "json"
 
     model = "gemini-pro"
-    contents = "test content"
+    contents = [{"text": "test content"}]
     message_type = MessageType.CHAT
     response_format_info = TestFormat()
 
@@ -93,7 +75,7 @@ def test_request_with_response_format():
 def test_request_with_complex_config():
     """Test request preparation with complex nested config."""
     model = "gemini-pro"
-    contents = "test content"
+    contents = [{"text": "test content"}]
     message_type = MessageType.CHAT
     config = {
         "temperature": 0.7,
