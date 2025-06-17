@@ -5,21 +5,23 @@
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Cell } from '@jupyterlab/cells';
+import { ICellMetadata, INotebookMetadata } from '@jupyterlab/nbformat';
+import { PartialJSONValue } from '@lumino/coreutils';
 
 export interface INotebookCheckpoint {
     checkpointId: string;
     timestamp: Date;
     notebookPath: string | null;
     cells: ICellCheckpoint[];
-    metadata: any;
+    metadata: INotebookMetadata;
 }
 
 export interface ICellCheckpoint {
     id: string;
     cellType: 'code' | 'markdown' | 'raw';
     source: string;
-    metadata: any;
-    outputs?: any[];
+    metadata: Partial<ICellMetadata>;
+    outputs?: PartialJSONValue[];
     executionCount?: number | null;
 }
 
@@ -50,7 +52,7 @@ export const createNotebookCheckpoint = (notebookTracker: INotebookTracker): INo
 
         // Add code cell specific data
         if (cellModel.type === 'code') {
-            const codeModel = cellModel as any; // Type assertion for code cell
+            const codeModel = cellModel as { outputs?: { toJSON(): PartialJSONValue[] }, executionCount?: number | null };
             cellCheckpoint.outputs = codeModel.outputs ? codeModel.outputs.toJSON() : [];
             cellCheckpoint.executionCount = codeModel.executionCount;
         }
@@ -126,7 +128,13 @@ export const restoreFromCheckpoint = (notebookTracker: INotebookTracker, checkpo
                 cell_type: cellCheckpoint.cellType,
                 source: cellCheckpoint.source,
                 metadata: cellCheckpoint.metadata || {}
-            } as any;
+            } as {
+                cell_type: 'code' | 'markdown' | 'raw';
+                source: string;
+                metadata: Partial<ICellMetadata>;
+                outputs?: PartialJSONValue[];
+                execution_count?: number | null;
+            };
 
             // Add code cell specific data
             if (cellCheckpoint.cellType === 'code') {
@@ -139,8 +147,10 @@ export const restoreFromCheckpoint = (notebookTracker: INotebookTracker, checkpo
 
         // Update notebook metadata
         if (checkpoint.metadata) {
-            Object.keys(checkpoint.metadata).forEach(key => {
-                notebookModel.sharedModel.setMetadata(key, checkpoint.metadata[key]);
+            Object.entries(checkpoint.metadata).forEach(([key, value]) => {
+                if (value !== undefined) {
+                    notebookModel.sharedModel.setMetadata(key, value);
+                }
             });
         }
 
