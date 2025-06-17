@@ -29,7 +29,7 @@ def _prepare_anthropic_request_data_and_headers(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Tuple[Union[str, anthropic.NotGiven]],
+    system: Union[str, anthropic.NotGiven],
     messages: List[MessageParam],
     message_type: MessageType,
     tools: Optional[List[ToolUnionParam]],
@@ -50,8 +50,8 @@ def _prepare_anthropic_request_data_and_headers(
         "messages": messages
     }
     # Add system to inner_data only if it is not anthropic.NotGiven
-    if system and type(system[0]) is not anthropic.NotGiven:
-        inner_data["system"] = system[0]
+    if not isinstance(system, anthropic.NotGiven):
+        inner_data["system"] = system
     if tools:
         inner_data["tools"] = tools
     if tool_choice:
@@ -73,7 +73,7 @@ async def get_anthropic_completion_from_mito_server(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Tuple[Union[str, anthropic.NotGiven]],
+    system: Union[str, anthropic.NotGiven],
     messages: List[MessageParam],
     tools: Optional[List[ToolUnionParam]],
     tool_choice: Optional[dict],
@@ -108,7 +108,7 @@ async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Tuple[Union[str, anthropic.NotGiven]],
+    system: Union[str, anthropic.NotGiven],
     messages: List[MessageParam],
     stream: bool,
     message_type: MessageType,
