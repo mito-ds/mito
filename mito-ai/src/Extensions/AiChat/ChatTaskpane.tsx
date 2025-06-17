@@ -74,6 +74,7 @@ import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlug
 import { getFirstMessageFromCookie } from './FirstMessage';
 import CTACarousel from './CTACarousel';
 import NextStepsPills from '../../components/NextStepsPills';
+import { createAndSaveCheckpoint, restoreFromCurrentCheckpoint } from '../../utils/checkpoint';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -163,6 +164,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [nextSteps, setNextSteps] = useState<string[]>([]);
     const [displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable] = useState(true);
 
+    // Track if checkpoint exists for UI updates
+    const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
+
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
             await websocketClient.sendMessage({
@@ -179,6 +183,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
           } catch (error) {
             console.error('Failed to update model configuration on backend:', error);
           }
+    };
+
+    const handleCreateCheckpoint = (): void => {
+        const checkpoint = createAndSaveCheckpoint(notebookTracker);
+        if (checkpoint) {
+            setHasCheckpoint(true);
+            console.log('📸 Checkpoint created and saved successfully!');
+        } else {
+            console.error('❌ Failed to create checkpoint');
+        }
+    };
+
+    const handleRestoreCheckpoint = (): void => {
+        const success = restoreFromCurrentCheckpoint(notebookTracker);
+        if (success) {
+            console.log('🔄 Notebook restored from checkpoint successfully!');
+        } else {
+            console.error('❌ Failed to restore from checkpoint');
+        }
     };
 
     const fetchChatThreads = async (): Promise<void> => {
@@ -1246,6 +1269,40 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
                     />
+                    <button
+                        className="button-base"
+                        title="Create Checkpoint"
+                        onClick={handleCreateCheckpoint}
+                        style={{ 
+                            marginLeft: '8px', 
+                            padding: '4px 8px', 
+                            fontSize: '12px',
+                            backgroundColor: '#007acc',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        📸 Checkpoint
+                    </button>
+                    <button
+                        className="button-base"
+                        title="Restore from Checkpoint"
+                        onClick={handleRestoreCheckpoint}
+                        disabled={!hasCheckpoint}
+                        style={{ 
+                            marginLeft: '4px', 
+                            padding: '4px 8px', 
+                            fontSize: '12px',
+                            backgroundColor: hasCheckpoint ? '#28a745' : '#6c757d',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: hasCheckpoint ? 'pointer' : 'not-allowed'
+                        }}
+                    >
+                        🔄 Restore
+                    </button>
                 </div>
                 <div className="chat-taskpane-header-right">
                     <IconButton
