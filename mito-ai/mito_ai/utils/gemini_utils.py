@@ -15,16 +15,15 @@ max_retries = 1
 
 def _prepare_gemini_request_data_and_headers(
     model: str,
-    contents: str,
-    system_instructions: Optional[str] = None,
+    contents: List[Dict[str, Any]],
     message_type: MessageType = None,
     config: Optional[Dict[str, Any]] = None,
     response_format_info: Optional[Any] = None,
+    stream: bool = False
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
     inner_data = {
         "model": model,
         "contents": contents,
-        "system_instructions": system_instructions if system_instructions else "",
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
     }
     if response_format_info:
@@ -36,6 +35,8 @@ def _prepare_gemini_request_data_and_headers(
             "name": getattr(response_format_info, 'name', None),
             "format": format_value
         })
+    if stream:
+        inner_data["stream"] = True
     if config:
         # Ensure config is serializable
         inner_data["config"] = json.loads(json.dumps(config))
@@ -49,13 +50,12 @@ def _prepare_gemini_request_data_and_headers(
 
 async def get_gemini_completion_from_mito_server(
     model: str,
-    contents: str,
+    contents: List[Dict[str, Any]],
     message_type: MessageType,
     config: Optional[Dict[str, Any]] = None,
-    response_format_info: Optional[Any] = None,
-    system_instructions: list[str] = None,
+    response_format_info: Optional[Any] = None
 ) -> str:
-    data, headers = _prepare_gemini_request_data_and_headers(model, contents, system_instructions, message_type, config, response_format_info)
+    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, config, response_format_info, stream=False)
     http_client, http_client_timeout = _create_http_client(timeout, max_retries)
     start_time = time.time()
     try:
@@ -77,13 +77,12 @@ async def get_gemini_completion_from_mito_server(
 
 async def stream_gemini_completion_from_mito_server(
     model: str,
-    contents: str,
+    contents: List[Dict[str, Any]],
     message_type: MessageType,
     message_id: str,
-    reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]],
-    system_instructions: Optional[str] = None
+    reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]]
 ) -> AsyncGenerator[str, None]:
-    data, headers = _prepare_gemini_request_data_and_headers(model, contents, system_instructions, message_type)
+    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, stream=True)
     http_client, http_client_timeout = _create_http_client(timeout, max_retries)
     start_time = time.time()
     chunk_queue: asyncio.Queue[str] = asyncio.Queue()
