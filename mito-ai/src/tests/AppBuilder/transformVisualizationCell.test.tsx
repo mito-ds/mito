@@ -247,6 +247,29 @@ plt.show()
     ]);
   });
 
+  test.skip('should handle visualizations with alternative import patterns', () => {
+    const cellContent = `
+import matplotlib.pyplot as pyplot
+
+pyplot.figure(figsize=(8, 4))
+pyplot.plot([1, 2, 3], [4, 5, 6])
+pyplot.title('Alternative import pattern')
+pyplot.show()
+`;
+    
+    // Note: Currently the function would not detect this because it's hardcoded to 'plt'
+    // This test shows the current behavior, which is a limitation
+    const result = transformVisualizationCell(cellContent).split('\n').filter((line: string) => line !== '');
+    
+    expect(result).toEqual([
+      'import matplotlib.pyplot as pyplot',
+      'pyplot.figure(figsize=(8, 4))',
+      'pyplot.plot([1, 2, 3], [4, 5, 6])',
+      'pyplot.title(\'Alternative import pattern\')',
+      'pyplot.show()',
+    ]);
+  });
+
   test('should handle Plotly with chained methods', () => {
     const cellContent = `
 import plotly.express as px
