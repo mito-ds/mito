@@ -16,16 +16,18 @@ max_retries = 1
 def _prepare_gemini_request_data_and_headers(
     model: str,
     contents: List[Dict[str, Any]],
-    message_type: MessageType = None,
+    message_type: MessageType,
     config: Optional[Dict[str, Any]] = None,
     response_format_info: Optional[Any] = None,
     stream: bool = False
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
+    
     inner_data = {
         "model": model,
         "contents": contents,
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
     }
+    
     if response_format_info:
         # Ensure the format is a string, not a class
         format_value = getattr(response_format_info, 'format', None)
@@ -35,16 +37,20 @@ def _prepare_gemini_request_data_and_headers(
             "name": getattr(response_format_info, 'name', None),
             "format": format_value
         })
+        
     if stream:
         inner_data["stream"] = True
+        
     if config:
         # Ensure config is serializable
         inner_data["config"] = json.loads(json.dumps(config))
+        
     data = {
         "timeout": timeout,
         "max_retries": max_retries,
         "data": inner_data
     }
+    
     headers = {"Content-Type": "application/json"}
     return data, headers
 
