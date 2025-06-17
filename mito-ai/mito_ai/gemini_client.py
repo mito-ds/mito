@@ -236,7 +236,6 @@ class GeminiClient:
                     # Clean and decode the chunk text
                     clean_chunk = chunk_text.strip('"')
                     decoded_chunk = clean_chunk.encode().decode('unicode_escape')
-                    print(f"Decoded chunk: {decoded_chunk}")
                     accumulated_response += decoded_chunk or ''
 
                 # Send final chunk with the complete response
@@ -250,7 +249,6 @@ class GeminiClient:
                     done=True,
                 ))
 
-                print(f"Final accumulated response: {accumulated_response}")
                 return accumulated_response
 
         except Exception as e:
