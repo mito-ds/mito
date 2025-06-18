@@ -831,13 +831,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
-        // Create checkpoint before starting agent execution (only for new executions, not retries)
-        if (messageIndex === undefined) {
-            const checkpoint = createAndSaveCheckpoint(notebookTracker);
-            if (checkpoint) {
-                setHasCheckpoint(true);
-                console.log('📸 Agent checkpoint created before execution');
-            }
+        // Always create checkpoint before starting agent execution, even for edits
+        const checkpoint = createAndSaveCheckpoint(notebookTracker);
+        if (checkpoint) {
+            setHasCheckpoint(true);
         }
 
         setAgentExecutionStatus('working')
