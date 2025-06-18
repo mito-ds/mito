@@ -32,7 +32,7 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
                 # We assume that that there is only one system message 
                 system_instructions = content
         elif role in ("user", "assistant"):
-            parts = []
+            parts: List[Any] = []
 
             # Handle different content types
             if isinstance(content, str):
@@ -127,7 +127,7 @@ class GeminiClient:
                 )
                 response = self.client.models.generate_content(
                     model=provider_data["model"],
-                    contents=contents,
+                    contents=contents,  # type: ignore
                     config=response_config
                 )
             else:
@@ -143,22 +143,8 @@ class GeminiClient:
             if not response:
                 return "No response received from Gemini API"
 
-            if isinstance(response, (tuple, str)):
-                return str(response)
-
             if hasattr(response, 'text') and response.text:
                 return response.text
-
-            if hasattr(response, '__iter__') and not isinstance(response, (str, tuple)):
-                collected_response = ""
-                for chunk in response:
-                    if isinstance(chunk, str):
-                        collected_response += chunk or ''
-                    elif hasattr(chunk, 'text') and chunk.text:
-                        collected_response += chunk.text or ''
-                    else:
-                        collected_response += str(chunk)
-                return collected_response
 
             if hasattr(response, 'candidates') and response.candidates:
                 candidate = response.candidates[0]
@@ -188,7 +174,7 @@ class GeminiClient:
             if self.api_key:
                 for chunk in self.client.models.generate_content_stream(
                         model=self.model,
-                        contents=contents,
+                        contents=contents,  # type: ignore
                         config=GenerateContentConfig(
                             system_instruction=system_instructions
                         )
@@ -197,8 +183,6 @@ class GeminiClient:
                     next_chunk = ""
                     if hasattr(chunk, 'text'):
                         next_chunk = chunk.text or ''
-                    elif isinstance(chunk, str):
-                        next_chunk = chunk
                     else:
                         next_chunk = str(chunk)
 
