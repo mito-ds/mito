@@ -61,7 +61,7 @@ describe('Checkpoint Utils', () => {
         expect(checkpoint).toBeNull();
     });
 
-    it('restores notebook from checkpoint', () => {
+    it('restores notebook from checkpoint', async () => {
         const testCheckpoint: INotebookCheckpoint = {
             checkpointId: 'test',
             timestamp: new Date(),
@@ -75,7 +75,7 @@ describe('Checkpoint Utils', () => {
             metadata: {}
         };
 
-        const result = restoreFromCheckpoint(mockNotebookTracker, testCheckpoint);
+        const result = await restoreFromCheckpoint(mockNotebookTracker, testCheckpoint);
 
         expect(result).toBe(true);
         expect(mockNotebookModel.sharedModel.deleteCell).toHaveBeenCalled();
