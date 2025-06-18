@@ -12,7 +12,7 @@ from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, s
 INLINE_COMPLETION_MODEL = "gemini-2.0-flash-lite"
 
 
-def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> Tuple[List[str], List[Dict[str, Any]]]:
+def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
     """
     Separates system instructions from user/assistant messages and handles image content.
     Returns:
@@ -20,7 +20,7 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
     - contents: list of dicts for Gemini (excluding system role)
     """
 
-    system_instructions = []
+    system_instructions = ""
     contents = []
 
     for msg in messages:
@@ -29,7 +29,8 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
 
         if role == "system":
             if content:
-                system_instructions.append(content)
+                # We assume that that there is only one system message 
+                system_instructions = content
         elif role in ("user", "assistant"):
             parts = []
 

@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 import json
-from typing import Any, Final
+from typing import Any, Final, Union
 import tornado
 import os
 from jupyter_server.base.handlers import APIHandler
@@ -14,7 +14,7 @@ class RulesHandler(APIHandler):
     """Handler for operations on a specific setting"""
     
     @tornado.web.authenticated
-    def get(self, key=None):
+    def get(self, key: Union[str, None] = None) -> None:
         """Get a specific rule by key or all rules if no key provided"""
         if key is None or key == '':
             # No key provided, return all rules
@@ -30,7 +30,7 @@ class RulesHandler(APIHandler):
                 self.finish(json.dumps({"key": key, "content": rule_content}))
     
     @tornado.web.authenticated
-    def put(self, key):
+    def put(self, key: str) -> None:
         """Update or create a specific setting"""
         data = json.loads(self.request.body)
         if 'content' not in data:

@@ -36,4 +36,4 @@ def first_connection_id() -> str:
         connections = json.load(f)
     # Get the first connection ID from the object keys
     connection_id = next(iter(connections.keys()))
-    return connection_id
+    return str(connection_id)

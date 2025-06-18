@@ -69,7 +69,9 @@ def is_dev_mode() -> bool:
         direct_url_text = dist.read_text('direct_url.json')
         if direct_url_text:
             direct_url = json.loads(direct_url_text)
-            return direct_url.get('dir_info', {}).get('editable', False)
+            direct_url_dir_info = direct_url.get('dir_info', {})
+            editable = direct_url_dir_info.get('editable', None)
+            return False if editable is None else editable
     except Exception:
         pass
     

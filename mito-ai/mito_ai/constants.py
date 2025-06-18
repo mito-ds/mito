@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import os
+from typing import Union
 
 # Claude
 CLAUDE_API_KEY = os.environ.get("CLAUDE_API_KEY")
@@ -22,7 +23,7 @@ AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION")
 AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_MODEL = os.environ.get("AZURE_OPENAI_MODEL")
 
-def get_model_provider(model):
+def get_model_provider(model: str) -> Union[str, None]:
     """
     Determine the model type based on the model name prefix
     """
