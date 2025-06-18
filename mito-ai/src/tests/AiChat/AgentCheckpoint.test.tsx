@@ -5,7 +5,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import { restoreFromCurrentCheckpoint } from '../../utils/checkpoint';
 
 // Mock checkpoint utilities
@@ -63,8 +63,8 @@ describe('Agent Checkpoint', () => {
         expect(restoreFromCurrentCheckpoint).toHaveBeenCalledWith(mockNotebookTracker);
     });
 
-    it('hides button after successful restore', () => {
-        (restoreFromCurrentCheckpoint as jest.Mock).mockReturnValue(true);
+    it('hides button after successful restore', async () => {
+        (restoreFromCurrentCheckpoint as jest.Mock).mockResolvedValue(true);
 
         const { getByTestId, queryByTestId } = render(
             <AgentRestoreButton hasCheckpoint={true} notebookTracker={mockNotebookTracker} />
@@ -72,6 +72,8 @@ describe('Agent Checkpoint', () => {
 
         fireEvent.click(getByTestId('restore-button'));
 
-        expect(queryByTestId('restore-button')).not.toBeInTheDocument();
+        await waitFor(() => {
+            expect(queryByTestId('restore-button')).not.toBeInTheDocument();
+        });
     });
 });
