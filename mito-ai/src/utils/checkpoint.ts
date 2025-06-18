@@ -4,7 +4,7 @@
  */
 
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { Cell, CodeCell } from '@jupyterlab/cells';
+import { Cell } from '@jupyterlab/cells';
 import { ICellMetadata, INotebookMetadata } from '@jupyterlab/nbformat';
 import { PartialJSONValue } from '@lumino/coreutils';
 
@@ -155,12 +155,6 @@ export const restoreFromCheckpoint = async (notebookTracker: INotebookTracker, c
         }
 
         console.log(`✅ Successfully restored ${checkpoint.cells.length} cells from checkpoint`);
-
-        // Execute all code cells to restore kernel state
-        console.log('🔄 Re-executing code cells to restore kernel state...');
-        await executeAllCodeCells(notebookTracker);
-        console.log('✅ Kernel state restored');
-
         return true;
 
     } catch (error) {
@@ -179,39 +173,6 @@ export const createAndSaveCheckpoint = (notebookTracker: INotebookTracker): INot
         return checkpoint;
     }
     return null;
-};
-
-/**
- * Executes all code cells in the notebook to restore kernel state
- */
-const executeAllCodeCells = async (notebookTracker: INotebookTracker): Promise<void> => {
-    const currentWidget = notebookTracker.currentWidget;
-    if (!currentWidget) {
-        return;
-    }
-
-    const notebook = currentWidget.content;
-    const sessionContext = currentWidget.sessionContext;
-
-    if (!sessionContext?.session?.kernel) {
-        console.warn('No kernel available for execution');
-        return;
-    }
-
-    // Execute each code cell sequentially
-    for (let i = 0; i < notebook.widgets.length; i++) {
-        const cell = notebook.widgets[i];
-        if (cell?.model.type === 'code') {
-            const codeCell = cell as CodeCell;
-            try {
-                // Execute the cell and wait for completion
-                await CodeCell.execute(codeCell, sessionContext);
-            } catch (error) {
-                console.error(`Failed to execute cell ${i}:`, error);
-                // Continue with other cells even if one fails
-            }
-        }
-    }
 };
 
 /**

@@ -188,7 +188,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleRestoreCheckpoint = async (): Promise<void> => {
         const success = await restoreFromCurrentCheckpoint(notebookTracker);
         if (success) {
-            // Clear the checkpoint after restoring
+            console.log('🔄 Re-executing code cells to restore kernel state...');
+            await app.commands.execute("notebook:run-all-cells");
             setHasCheckpoint(false);
         } else {
             console.error('❌ Failed to restore from checkpoint');
