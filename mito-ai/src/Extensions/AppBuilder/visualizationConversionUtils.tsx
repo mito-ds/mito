@@ -8,23 +8,30 @@ export const generateDisplayVizFunction = (): string => {
     return `
 def display_viz(fig):
     """Display a visualization in Streamlit based on its type."""
-    
+
+    # Check for SymPy plot objects first (most specific)
+    if hasattr(fig, '_backend'):
+        fig._backend.process_series()
+        matplotlib_fig = fig._backend.plt.gcf()
+        st.pyplot(matplotlib_fig)
+        return
+
     # Check for Plotly figure
     if hasattr(fig, 'update_layout') or str(type(fig)).find('plotly') >= 0:
         st.plotly_chart(fig)
         return
-    
-    # Check for Matplotlib figure
-    if hasattr(fig, 'add_subplot') or str(type(fig)).find('matplotlib') >= 0:
+
+    # Check for Matplotlib figure (be more specific to avoid SymPy conflicts)
+    if hasattr(fig, 'add_subplot') and hasattr(fig, 'savefig'):
         st.pyplot(fig)
         return
-    
+
     # Fallback - try pyplot as it's most common
     try:
         st.pyplot(fig)
-    except Exception:
-        st.error(f"Couldn't display visualization of type: {type(fig)}")
-        st.write(fig)  # Attempt to display as generic object
+    except Exception as e:
+        st.error(f"Couldn't display visualization of type: {type(fig)}. Error: {str(e)}")
+        st.write(fig)  # Show the object for debugging
 `;
 };
 
@@ -93,26 +100,43 @@ export const transformVisualizationCell = (cellContent: string): string => {
     
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i] ?? '';
-        
-        // Check for plt.show() calls. We need to replace these with display_viz(plt.gcf())
-        // because we need to make sure we display the current figure.
         let replacedLine = false;
+
+        // Check for plt.show() calls We need to replace these with display_viz(plt.gcf())
+        // because we need to make sure we display the current figure.
         if (line.trim().match(/plt\.show\(/)) {
             transformedLines.push("display_viz(plt.gcf())");
             replacedLine = true;
-            continue;
         }
-        
-        // Check for figure.show() calls for any detected figure variables. Here, we need to pass
-        // the figure name to display_viz.
-        for (const figVar of figVariables) {
-            if (line.trim().startsWith(`${figVar}.show`)) {
-                transformedLines.push(`display_viz(${figVar})`);
-                replacedLine = true;
-                break;
+
+        // Check for SymPy plot calls
+        else if(line.trim().match(/(sp|sym|sy|sm|sympy)\.plot\s*\(.*show\s*=\s*True.*\)/)) {
+          const modifiedLine = line.replace(/(.*?)(sp|sym|sy|sm|sympy)\.plot\s*\(/, '$1display_viz($2.plot(') + ')';
+          transformedLines.push(modifiedLine);
+          replacedLine = true;
+        }
+        // If show=False, do not call display_viz, just keep the line as is
+        else if(line.trim().match(/((sp|sym|sy|sm|sympy)\.)?plot\s*\(.*show\s*=\s*False.*\)/)) {
+          // Do nothing, just let it fall through to the original line
+        }
+
+        // Check for direct plot(...) calls
+        else if (line.trim().match(/^plot\s*\(/)) {
+            const modifiedLine = line.replace(/^plot\s*\(/, 'display_viz(plot(') + ')';
+            transformedLines.push(modifiedLine);
+            replacedLine = true;
+        }
+
+        // Check for figure.show() calls for any detected figure variables
+        else {
+            for (const figVar of figVariables) {
+                if (line.trim().startsWith(`${figVar}.show`)) {
+                    transformedLines.push(`display_viz(${figVar})`);
+                    replacedLine = true;
+                    break;
+                }
             }
         }
-        
         // If we didn't replace the line, keep the original
         if (!replacedLine) {
             transformedLines.push(line);

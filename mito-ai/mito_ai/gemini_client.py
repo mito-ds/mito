@@ -72,8 +72,10 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
                             
             # Only add to contents if we have parts
             if parts:
+                # Map assistant role to model role for Gemini API
+                gemini_role = "model" if role == "assistant" else "user"
                 contents.append({
-                    "role": role,
+                    "role": gemini_role,
                     "parts": parts
                 })
 
@@ -131,11 +133,10 @@ class GeminiClient:
                 # Fallback to Mito server for completion
                 return await get_gemini_completion_from_mito_server(
                     model=provider_data["model"],
-                    contents=str(contents), # Use the extracted contents instead of converted messages to avoid serialization issues
+                    contents=messages, # Use the extracted contents instead of converted messages to avoid serialization issues
                     message_type=message_type,
                     config=config,
                     response_format_info=response_format_info,
-                    system_instructions=system_instructions
                 )
 
             if not response:
@@ -223,18 +224,32 @@ class GeminiClient:
                     ),
                     done=True,
                 ))
+                return accumulated_response
             else:
                 async for chunk_text in stream_gemini_completion_from_mito_server(
                         model=self.model,
-                        contents=str(contents),  # Use the extracted contents instead of converted messages to avoid serialization issues
+                        contents=messages,  # Use the extracted contents instead of converted messages to avoid serialization issues
                         message_type=message_type,
                         message_id=message_id,
-                        reply_fn=reply_fn,
-                        system_instructions=str(system_instructions)  # Pass system instructions separately
+                        reply_fn=reply_fn
                 ):
-                    accumulated_response += chunk_text or ''
+                    # Clean and decode the chunk text
+                    clean_chunk = chunk_text.strip('"')
+                    decoded_chunk = clean_chunk.encode().decode('unicode_escape')
+                    accumulated_response += decoded_chunk or ''
 
-            return accumulated_response
+                # Send final chunk with the complete response
+                reply_fn(CompletionStreamChunk(
+                    parent_id=message_id,
+                    chunk=CompletionItem(
+                        content=accumulated_response,
+                        isIncomplete=False,
+                        token=message_id,
+                    ),
+                    done=True,
+                ))
+
+                return accumulated_response
 
         except Exception as e:
             return f"Error streaming content: {str(e)}"
