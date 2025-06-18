@@ -4,7 +4,7 @@ import base64
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from google import genai
 from google.genai import types
-from google.genai.types import GenerateContentConfig
+from google.genai.types import GenerateContentConfig, Part, Content
 from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, \
     ResponseFormatInfo, MessageType
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
@@ -32,7 +32,7 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
                 # We assume that that there is only one system message 
                 system_instructions = content
         elif role in ("user", "assistant"):
-            parts: List[Any] = []
+            parts: List[Union[Dict[str, str], Part]] = []
 
             # Handle different content types
             if isinstance(content, str):
