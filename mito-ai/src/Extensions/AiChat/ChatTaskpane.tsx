@@ -1357,13 +1357,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             >
                                 ⏪ Restore checkpoint
                             </button>
-                            <div style={{
-                                marginTop: '5px',
-                                fontSize: '12px',
-                                color: 'var(--jp-ui-font-color3)'
-                            }}>
+                            <p className="text-muted text-sm">
                                 Undo the most recent changes made by the agent
-                            </div>
+                            </p>
                         </div>
                     )}
             </div>
