@@ -3,7 +3,7 @@
 
 import json
 import anthropic
-from typing import Dict, Any, Optional, Tuple, Union, Callable, List
+from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
 
 from anthropic.types import Message, MessageParam, ToolUnionParam
 from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, AgentResponse, MessageType
@@ -74,15 +74,21 @@ def _get_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) 
 
                 for item in content:
                     if isinstance(item, dict):
-                        if item.get('type') == 'text':
+                        item_dict = cast(Dict[str, Any], item)
+                        if item_dict.get('type') == 'text':
                             # Add text content
+                            text_content = item_dict.get('text', '')
                             anthropic_content.append({
                                 "type": "text",
-                                "text": item['text']
+                                "text": text_content
                             })
-                        elif item.get('type') == 'image_url':
+                        elif item_dict.get('type') == 'image_url':
                             # Convert OpenAI image format to Anthropic format
-                            image_url = item['image_url']['url']
+                            image_url_obj = item_dict.get('image_url', {})
+                            if isinstance(image_url_obj, dict):
+                                image_url = image_url_obj.get('url', '')
+                            else:
+                                image_url = str(image_url_obj)
 
                             # Extract media type and base64 data
                             if image_url.startswith('data:'):
@@ -103,7 +109,7 @@ def _get_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) 
                                 }
                             })
 
-                anthropic_messages.append(MessageParam(role='user', content=anthropic_content))
+                anthropic_messages.append(MessageParam(role='user', content=cast(Any, anthropic_content)))
             else:
                 # Handle simple text content
                 anthropic_messages.append(MessageParam(role='user', content=str(content)))
@@ -124,10 +130,11 @@ class AnthropicClient:
         self.model = model
         self.timeout = timeout
         self.max_retries = max_retries
+        self.client: Optional[anthropic.Anthropic]
         if api_key:
             self.client = anthropic.Anthropic(api_key=api_key)
         else:
-            self.client = None  # type: ignore[assignment]
+            self.client = None
 
     async def request_completions(self, messages: List[ChatCompletionMessageParam],
                                   response_format_info: Optional[ResponseFormatInfo] = None,

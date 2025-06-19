@@ -9,6 +9,7 @@ from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
 from google.genai.types import GenerateContentResponse, Candidate, Content
 from unittest.mock import MagicMock
 from mito_ai.gemini_client import GeminiClient
+from typing import List, Dict, Any
 
 # Dummy base64 image (1x1 PNG)
 DUMMY_IMAGE_DATA_URL = (
@@ -16,7 +17,7 @@ DUMMY_IMAGE_DATA_URL = (
 )
 
 def test_mixed_text_and_image():
-    messages = [
+    messages: List[Dict[str, Any]] = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": [
             {"type": "text", "text": "Here is an image:"},
@@ -24,7 +25,7 @@ def test_mixed_text_and_image():
         ]}
     ]
     system_instructions, contents = extract_system_instruction_and_contents(messages)
-    assert system_instructions == ["You are a helpful assistant."]
+    assert system_instructions == "You are a helpful assistant."
     assert len(contents) == 1
     assert contents[0]["role"] == "user"
     # Should have two parts: text and image
@@ -34,12 +35,12 @@ def test_mixed_text_and_image():
     assert isinstance(contents[0]["parts"][1], Part)
 
 def test_no_system_instructions_only_content():
-    messages = [
+    messages: List[Dict[str, Any]] = [
         {"role": "user", "content": "Hello!"},
         {"role": "assistant", "content": "Hi, how can I help you?"}
     ]
     system_instructions, contents = extract_system_instruction_and_contents(messages)
-    assert system_instructions == []
+    assert system_instructions == ""
     assert len(contents) == 2
     assert contents[0]["role"] == "user"
     assert contents[0]["parts"][0]["text"] == "Hello!"
@@ -47,12 +48,12 @@ def test_no_system_instructions_only_content():
     assert contents[1]["parts"][0]["text"] == "Hi, how can I help you?"
 
 def test_system_instructions_and_content():
-    messages = [
+    messages: List[Dict[str, Any]] = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "What is the weather today?"}
     ]
     system_instructions, contents = extract_system_instruction_and_contents(messages)
-    assert system_instructions == ["You are a helpful assistant."]
+    assert system_instructions == "You are a helpful assistant."
     assert len(contents) == 1
     assert contents[0]["role"] == "user"
     assert contents[0]["parts"][0]["text"] == "What is the weather today?"

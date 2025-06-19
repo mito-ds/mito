@@ -22,7 +22,7 @@ def _prepare_gemini_request_data_and_headers(
     stream: bool = False
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
     
-    inner_data = {
+    inner_data: Dict[str, Any] = {
         "model": model,
         "contents": contents,
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
@@ -172,7 +172,7 @@ def get_gemini_completion_function_params(
     Build the provider_data dict for Gemini completions, mirroring the OpenAI/Anthropic approach.
     Only includes fields needed for the Gemini API.
     """
-    provider_data = {
+    provider_data: Dict[str, Any] = {
         "model": model,
         "contents": contents,
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
