@@ -1355,7 +1355,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 onClick={() => restoreCheckpoint()}
                                 disabled={!hasCheckpoint}
                             >
-                                ⏪ Restore checkpoint
+                                ⏪ Revert changes
                             </button>
                             <p className="text-muted text-sm">
                                 Undo the most recent changes made by the agent
