@@ -5,6 +5,9 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, Notebook } from '@jupyterlab/notebook';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import CellHeader from './CellHeader';
 
 const CellNumberingPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito-ai:cell-numbering',
@@ -18,21 +21,12 @@ const CellNumberingPlugin: JupyterFrontEndPlugin<void> = {
       cells.forEach((cell, index) => {
         const existingNumber = cell.querySelector('.cell-number');
         if (existingNumber) {
-          existingNumber.textContent = `Cell ${index + 1}`;
+          ReactDOM.render(React.createElement(CellHeader, { number: index + 1 }), existingNumber);
         } else {
           const numberDiv = document.createElement('div');
           numberDiv.className = 'cell-number';
-          numberDiv.textContent = `Cell ${index + 1}`;
-          numberDiv.style.cssText = `
-            font-size: 12px;
-            color: #666;
-            background: #f5f5f5;
-            padding: 2px 8px;
-            border-radius: 3px;
-            margin-bottom: 4px;
-            font-family: monospace;
-            border: 1px solid #ddd;
-          `;
+          
+          ReactDOM.render(React.createElement(CellHeader, { number: index + 1 }), numberDiv);
           
           cell.insertBefore(numberDiv, cell.firstChild);
         }
