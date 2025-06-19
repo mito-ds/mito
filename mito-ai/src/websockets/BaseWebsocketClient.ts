@@ -133,6 +133,18 @@ export abstract class BaseWebsocketClient<RequestType, ResponseType, StreamType 
   }
 
   /**
+   * Cancel all pending requests by rejecting them with a cancellation error.
+   * This is useful for immediately stopping agent execution.
+   */
+  public cancelPendingRequests(): void {
+    // Reject all pending requests with a cancellation error
+    for (const [messageId, resolver] of this._pendingRepliesMap.entries()) {
+      resolver.reject(new Error('Request cancelled by user'));
+      this._pendingRepliesMap.delete(messageId);
+    }
+  }
+
+  /**
    * Initializes the WebSocket connection to the backend. This
    * must be awaited before calling any other method.
    */

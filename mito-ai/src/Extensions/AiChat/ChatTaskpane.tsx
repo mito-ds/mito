@@ -462,7 +462,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             metadata: agentSmartDebugMessage,
             stream: false
         }
-        await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
+        const success = await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
+        
+        // If the request was cancelled, throw an error to break out of the agent execution loop
+        if (!success) {
+            throw new Error('Agent execution cancelled');
+        }
     }
 
     const sendExplainCodeMessage = async (): Promise<void> => {
@@ -527,7 +532,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             metadata: agentExecutionMetadata,
             stream: false
         }
-        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
+        const success = await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
+        
+        // If the request was cancelled, throw an error to break out of the agent execution loop
+        if (!success) {
+            throw new Error('Agent execution cancelled');
+        }
     }
 
     /* 
@@ -692,6 +702,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                 }
             } catch (error) {
+                // Check if this is a cancellation error
+                if (error instanceof Error && error.message === 'Request cancelled by user') {
+                    // Don't add error messages for cancellation - just return false to indicate failure
+                    console.log('Request was cancelled by user');
+                    return false;
+                }
+                
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).title ? (error as any).title : `${error}`,
                     'chat',
@@ -703,7 +720,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     completionRequest.metadata.promptType,
                     newChatHistoryManager,
                     true
-                );
+                )
+            } finally {
+                // Reset states to allow future messages to show the "Apply" button
+                setCodeReviewStatus('chatPreview');
+                setLoadingAIResponse(false);
             }
         } else {
             // NON-STREAMING RESPONSES
@@ -755,6 +776,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     }
                 }
             } catch (error) {
+                // Check if this is a cancellation error
+                if (error instanceof Error && error.message === 'Request cancelled by user') {
+                    // Don't add error messages for cancellation - just return false to indicate failure
+                    console.log('Request was cancelled by user');
+                    return false;
+                }
+                
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).title ? (error as any).title : `${error}`,
                     'chat',
@@ -795,6 +823,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const markAgentForStopping = (): void => {
         // Signal that the agent should stop after current task
         shouldContinueAgentExecution.current = false;
+        
+        // IMMEDIATELY cancel all pending websocket requests
+        websocketClient.cancelPendingRequests();
+        
         // Update UI to show stopping state
         setAgentExecutionStatus('stopping');
     }
@@ -802,6 +834,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const finalizeAgentStop = (): void => {
         // Notify user that agent has been stopped
         shouldContinueAgentExecution.current = false;
+        
+        // Ensure any remaining pending requests are cancelled
+        websocketClient.cancelPendingRequests();
+        
+        // Disconnect any active stream handlers
+        if (streamHandlerRef.current) {
+            websocketClient.stream.disconnect(streamHandlerRef.current, null);
+            streamHandlerRef.current = null;
+        }
+        
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         addAIMessageFromResponseAndUpdateState(
             "Agent execution stopped. You can continue the conversation or start a new one.",
@@ -810,6 +852,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         );
         // Reset agent to idle state
         setAgentExecutionStatus('idle');
+        setLoadingAIResponse(false);
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
@@ -822,127 +865,138 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         let agentExecutionDepth = 1
         let sendActiveCellOutput = false
 
-        // Loop through each message in the plan and send it to the AI
-        while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
-            // Check if we should continue execution
-            if (!shouldContinueAgentExecution.current) {
-                finalizeAgentStop()
-                break;
-            }
+        try {
+            // Loop through each message in the plan and send it to the AI
+            while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
+                // Check if we should continue execution
+                if (!shouldContinueAgentExecution.current) {
+                    finalizeAgentStop()
+                    break;
+                }
 
-            // Only the first message sent to the Agent should contain the user's input.
-            // All other messages only contain updated information about the state of the notebook.
-            if (agentExecutionDepth === 1) {
-                await sendAgentExecutionMessage(input, messageIndex, false, selectedRules)
-            } else {
-                await sendAgentExecutionMessage('', undefined, sendActiveCellOutput)
+                // Only the first message sent to the Agent should contain the user's input.
+                // All other messages only contain updated information about the state of the notebook.
+                if (agentExecutionDepth === 1) {
+                    await sendAgentExecutionMessage(input, messageIndex, false, selectedRules)
+                } else {
+                    await sendAgentExecutionMessage('', undefined, sendActiveCellOutput)
 
-                // Reset flag back to false until the agent requests the active cell output again
-                sendActiveCellOutput = false
-            }
+                    // Reset flag back to false until the agent requests the active cell output again
+                    sendActiveCellOutput = false
+                }
 
-            // Iterate the agent execution depth
-            agentExecutionDepth++
+                // Iterate the agent execution depth
+                agentExecutionDepth++
 
-            // Check the code generated by the AI for blacklisted words before running it
-            const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
+                // Check the code generated by the AI for blacklisted words before running it
+                const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
 
-            // # TODO: Make this is a helper function so we can also use it in the auto error fixup! 
-            if (aiDisplayOptimizedChatItem) {
-                const aiGeneratedCode = getCodeBlockFromMessage(aiDisplayOptimizedChatItem.message);
-                if (aiGeneratedCode) {
-                    const securityCheck = checkForBlacklistedWords(aiGeneratedCode);
-                    if (!securityCheck.safe) {
-                        console.error('Security Warning:', securityCheck.reason);
+                // # TODO: Make this is a helper function so we can also use it in the auto error fixup! 
+                if (aiDisplayOptimizedChatItem) {
+                    const aiGeneratedCode = getCodeBlockFromMessage(aiDisplayOptimizedChatItem.message);
+                    if (aiGeneratedCode) {
+                        const securityCheck = checkForBlacklistedWords(aiGeneratedCode);
+                        if (!securityCheck.safe) {
+                            console.error('Security Warning:', securityCheck.reason);
+                            addAIMessageFromResponseAndUpdateState(
+                                `I cannot execute this code without your approval because this code did not pass my security checks. ${securityCheck.reason}. For your safety, I am stopping execution of this plan.`,
+                                'agent:execution',
+                                chatHistoryManager
+                            );
+                            finalizeAgentStop()
+                            break;
+                        }
+                    }
+                }
+
+                const agentResponse = aiDisplayOptimizedChatItem?.agentResponse
+
+                if (agentResponse === undefined) {
+                    // If the agent response is undefined, we need to send a message to the agent
+                    isAgentFinished = true
+                    break;
+                }
+
+                if (agentResponse.type === 'finished_task') {
+                    // If the agent told us that it is finished, we can stop
+                    isAgentFinished = true
+                    break;
+                }
+
+                if (agentResponse.type === 'cell_update' && (agentResponse.cell_update === undefined || agentResponse.cell_update === null)) {
+                    // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
+                    isAgentFinished = true
+                    break;
+                }
+
+                if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
+                    // Run the code and handle any errors
+                    await acceptAndRunCellUpdate(
+                        agentResponse.cell_update,
+                        notebookTracker,
+                        app,
+                        previewAICodeToActiveCell,
+                        acceptAICode
+                    )
+
+                    const status = await retryIfExecutionError(
+                        notebookTracker,
+                        app,
+                        getDuplicateChatHistoryManager,
+                        addAIMessageFromResponseAndUpdateState,
+                        sendAgentSmartDebugMessage,
+                        previewAICodeToActiveCell,
+                        acceptAICode,
+                        shouldContinueAgentExecution,
+                        finalizeAgentStop,
+                        chatHistoryManagerRef
+                    )
+
+                    if (status === 'interupted') {
+                        break;
+                    }
+
+                    // If we were not able to run the code, break out of the loop 
+                    // so we don't continue to execute the plan. Instead, we encourage
+                    // the user to update the plan and try again. 
+                    // TODO: Save this message in backend also even if there is not another message sent. 
+                    // TODO: Move this into the retryIfExecutionError function?
+                    if (status === 'failure') {
                         addAIMessageFromResponseAndUpdateState(
-                            `I cannot execute this code without your approval because this code did not pass my security checks. ${securityCheck.reason}. For your safety, I am stopping execution of this plan.`,
+                            "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
                             'agent:execution',
                             chatHistoryManager
-                        );
-                        finalizeAgentStop()
+                        )
                         break;
                     }
                 }
-            }
 
-            const agentResponse = aiDisplayOptimizedChatItem?.agentResponse
-
-            if (agentResponse === undefined) {
-                // If the agent response is undefined, we need to send a message to the agent
-                isAgentFinished = true
-                break;
-            }
-
-            if (agentResponse.type === 'finished_task') {
-                // If the agent told us that it is finished, we can stop
-                isAgentFinished = true
-                break;
-            }
-
-            if (agentResponse.type === 'cell_update' && (agentResponse.cell_update === undefined || agentResponse.cell_update === null)) {
-                // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
-                isAgentFinished = true
-                break;
-            }
-
-            if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
-                // Run the code and handle any errors
-                await acceptAndRunCellUpdate(
-                    agentResponse.cell_update,
-                    notebookTracker,
-                    app,
-                    previewAICodeToActiveCell,
-                    acceptAICode
-                )
-
-                const status = await retryIfExecutionError(
-                    notebookTracker,
-                    app,
-                    getDuplicateChatHistoryManager,
-                    addAIMessageFromResponseAndUpdateState,
-                    sendAgentSmartDebugMessage,
-                    previewAICodeToActiveCell,
-                    acceptAICode,
-                    shouldContinueAgentExecution,
-                    finalizeAgentStop,
-                    chatHistoryManagerRef
-                )
-
-                if (status === 'interupted') {
-                    break;
-                }
-
-                // If we were not able to run the code, break out of the loop 
-                // so we don't continue to execute the plan. Instead, we encourage
-                // the user to update the plan and try again. 
-                // TODO: Save this message in backend also even if there is not another message sent. 
-                // TODO: Move this into the retryIfExecutionError function?
-                if (status === 'failure') {
-                    addAIMessageFromResponseAndUpdateState(
-                        "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
-                        'agent:execution',
-                        chatHistoryManager
-                    )
-                    break;
+                if (agentResponse.type === 'get_cell_output') {
+                    // Mark that we should send the active cell output to the agent 
+                    // in the next loop iteration
+                    sendActiveCellOutput = true
                 }
             }
 
-            if (agentResponse.type === 'get_cell_output') {
-                // Mark that we should send the active cell output to the agent 
-                // in the next loop iteration
-                sendActiveCellOutput = true
+            if (agentExecutionDepth > AGENT_EXECUTION_DEPTH_LIMIT) {
+                addAIMessageFromResponseAndUpdateState(
+                    "Since I've been working for a while now, give my work a review and then tell me how to continue.",
+                    'agent:execution',
+                    chatHistoryManager
+                )
             }
+        } catch (error) {
+            // Check if this is a cancellation error
+            if (error instanceof Error && error.message === 'Agent execution cancelled') {
+                console.log('Agent execution was cancelled');
+                finalizeAgentStop();
+            } else {
+                // Re-throw other errors
+                throw error;
+            }
+        } finally {
+            setAgentExecutionStatus('idle')
         }
-
-        if (agentExecutionDepth > AGENT_EXECUTION_DEPTH_LIMIT) {
-            addAIMessageFromResponseAndUpdateState(
-                "Since I've been working for a while now, give my work a review and then tell me how to continue.",
-                'agent:execution',
-                chatHistoryManager
-            )
-        }
-
-        setAgentExecutionStatus('idle')
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined, updateCellID: string): void => {
