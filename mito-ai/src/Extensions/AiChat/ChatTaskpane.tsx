@@ -74,7 +74,6 @@ import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlug
 import { getFirstMessageFromCookie } from './FirstMessage';
 import CTACarousel from './CTACarousel';
 import NextStepsPills from '../../components/NextStepsPills';
-import { createAndSaveCheckpoint, restoreFromCurrentCheckpoint } from '../../utils/checkpoint';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -167,6 +166,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
 
+    const createCheckpoint = () => {
+        app.commands.execute("logconsole:add-checkpoint")
+        setHasCheckpoint(true)
+    }
+    
+    const restoreCheckpoint =  async () => {
+        await app.commands.execute("docmanager:restore-checkpoint")
+        await app.commands.execute("notebook:restart-run-all")
+        setHasCheckpoint(false)
+    }
+
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
             await websocketClient.sendMessage({
@@ -183,17 +193,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
           } catch (error) {
             console.error('Failed to update model configuration on backend:', error);
           }
-    };
-
-    const handleRestoreCheckpoint = async (): Promise<void> => {
-        const success = await restoreFromCurrentCheckpoint(notebookTracker);
-        if (success) {
-            console.log('🔄 Re-executing code cells to restore kernel state...');
-            await app.commands.execute("notebook:run-all-cells");
-            setHasCheckpoint(false);
-        } else {
-            console.error('❌ Failed to restore from checkpoint');
-        } 
     };
 
     const fetchChatThreads = async (): Promise<void> => {
@@ -831,12 +830,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
-        // Always create checkpoint before starting agent execution, even for edits
-        const checkpoint = createAndSaveCheckpoint(notebookTracker);
-        if (checkpoint) {
-            setHasCheckpoint(true);
-        }
-
+        createCheckpoint();
         setAgentExecutionStatus('working')
 
         // Reset the execution flag at the start of a new plan
@@ -1358,7 +1352,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             <button
                                 className="button-base button-gray button-small"
                                 title="Restore from Checkpoint"
-                                onClick={() => void handleRestoreCheckpoint()}
+                                onClick={() => restoreCheckpoint()}
                                 disabled={!hasCheckpoint}
                             >
                                 ⏪ Restore checkpoint
