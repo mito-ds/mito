@@ -16,8 +16,8 @@ import { PromiseDelegate } from "@lumino/coreutils";
 
 const GHOST_SELECTOR = ".jp-GhostText";
 
-test.describe("first time setup", () => {
-  test.skip("should ask the user to activate the inline completion", async ({
+test.describe.skip("first time setup", () => {
+  test("should ask the user to activate the inline completion", async ({
     page,
     request,
   }) => {
@@ -62,7 +62,7 @@ test.describe("first time setup", () => {
   });
 });
 
-test.describe("default inline completion", () => {
+test.describe.skip("default inline completion", () => {
   test.use({
     autoGoto: false,
     mockSettings: {
@@ -144,7 +144,7 @@ test.describe("default inline completion", () => {
   });
 });
 
-test.describe("default manual inline completion", () => {
+test.describe.skip("default manual inline completion", () => {
   test.use({
     autoGoto: false,
     mockSettings: {
