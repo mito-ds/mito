@@ -50,7 +50,14 @@ const SpreadsheetEditorCard = () => {
                 View 100+ transformations →
             </a>
             <div className={featureSquaresStyles.feature_card_image_container}>
-                <Image src='/features/spreadsheet-editor.png' alt='Spreadsheet Editor' height={243} width={464} />
+                <video 
+                    src='/mitosheet-1080-website.mp4' 
+                    autoPlay 
+                    loop 
+                    muted 
+                    playsInline
+                    style={{ width: '100%', height: 'auto', maxWidth: '800px' }}
+                />
             </div>
         </div>
     )
@@ -82,8 +89,8 @@ const FeatureSquares = (): JSX.Element => {
     return (
         <div className={featureSquaresStyles.feature_squares_container}>
             <AiChatCard />
-            <SpreadsheetEditorCard />
             <SmartDebuggingCard />
+            <SpreadsheetEditorCard />
         </div>
     )
 }
