@@ -74,6 +74,8 @@ import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlug
 import { getFirstMessageFromCookie } from './FirstMessage';
 import CTACarousel from './CTACarousel';
 import NextStepsPills from '../../components/NextStepsPills';
+import UndoIcon from '../../icons/UndoIcon';
+import TextAndIconButton from '../../components/TextAndIconButton';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -1364,14 +1366,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     agentExecutionStatus === 'idle' &&
                     displayOptimizedChatHistory.length > 0 && (
                         <div className='message message-assistant-chat'>
-                            <button
-                                className="button-base button-gray restore-checkpoint-button"
-                                title="Restore from Checkpoint"
+                            <TextAndIconButton
+                                text="Revert changes"
+                                icon={UndoIcon}
+                                title="Revert changes"
                                 onClick={() => restoreCheckpoint()}
-                                disabled={!hasCheckpoint}
-                            >
-                                ⏪ Revert changes
-                            </button>
+                                variant="gray"
+                                width="fit-contents"
+                                iconPosition="left"
+                            />
                             <p className="text-muted text-sm">
                                 Undo the most recent changes made by the agent
                             </p>
