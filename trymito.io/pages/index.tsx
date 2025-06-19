@@ -46,7 +46,7 @@ const Home: NextPage = () => {
       <div className={pageStyles.container}>
 
         <main className={pageStyles.main}>
-          <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
+          <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
             <h1 className={titleStyles.title}>
               {/* Other ideas:
                 - Automate your spreadsheets. No Computer Science Degree Required.
