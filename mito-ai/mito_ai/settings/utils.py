@@ -33,7 +33,7 @@ def ensure_settings_file_exists(method: Callable) -> Callable:
     """Decorator to ensure the settings.json file exists before executing the handler method."""
 
     @wraps(method)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
         if not os.path.exists(SETTINGS_PATH):
             with open(SETTINGS_PATH, "w") as f:
                 json.dump({}, f, indent=4)

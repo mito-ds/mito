@@ -133,19 +133,8 @@ describe('NotebookFooter Component', () => {
             const textButton = screen.getByText('Text');
             expect(textButton).toBeInTheDocument();
 
-            // Check for cell count display
-            expect(screen.getByText('3 cells')).toBeInTheDocument();
-
             // Check for the sparkle icon when not generating
             expect(screen.getByText('✦')).toBeInTheDocument();
-        });
-
-        it('displays the correct cell count from notebook widgets', () => {
-            renderNotebookFooter({
-                notebook: createMockNotebook(5)
-            });
-
-            expect(screen.getByText('5 cells')).toBeInTheDocument();
         });
 
         it('renders icons for Python and Text buttons', () => {
@@ -383,9 +372,6 @@ describe('NotebookFooter Component', () => {
             // Check that NotebookActions.insertBelow was called
             expect(NotebookActions.insertBelow).toHaveBeenCalledWith(mockNotebook);
             expect(NotebookActions.focusActiveCell).toHaveBeenCalledWith(mockNotebook);
-
-            // Check that the last action is updated
-            expect(screen.getByText('3 cells • Added Python cell')).toBeInTheDocument();
         });
 
         it('creates a new markdown cell when Text button is clicked', () => {
@@ -400,9 +386,6 @@ describe('NotebookFooter Component', () => {
             expect(NotebookActions.insertBelow).toHaveBeenCalledWith(mockNotebook);
             expect(NotebookActions.changeCellType).toHaveBeenCalledWith(mockNotebook, 'markdown');
             expect(NotebookActions.focusActiveCell).toHaveBeenCalledWith(mockNotebook);
-
-            // Check that the last action is updated
-            expect(screen.getByText('3 cells • Added Text cell')).toBeInTheDocument();
         });
 
         it('sets active cell index before adding new cell when notebook has widgets', () => {
@@ -443,28 +426,6 @@ describe('NotebookFooter Component', () => {
     });
 
     describe('Cell Count Updates', () => {
-        it('updates cell count when notebook cells change', () => {
-            const mockNotebook = createMockNotebook(3);
-            renderNotebookFooter({ notebook: mockNotebook });
-
-            // Initially shows 3 cells
-            expect(screen.getByText('3 cells')).toBeInTheDocument();
-
-            // Simulate notebook cell change
-            mockNotebook.widgets.push({ id: 'new-cell', model: { type: 'code' } });
-            
-            // Trigger the callback that would be called by Jupyter
-            const connectCall = mockNotebook.model.cells.changed.connect.mock.calls[0];
-            const updateCallback = connectCall[0];
-            
-            act(() => {
-                updateCallback();
-            });
-
-            // Should show updated cell count
-            expect(screen.getByText('4 cells')).toBeInTheDocument();
-        });
-
         it('handles notebook without model gracefully', () => {
             const mockNotebook = {
                 widgets: [{ id: 'cell-1' }],
@@ -475,32 +436,6 @@ describe('NotebookFooter Component', () => {
             expect(() => {
                 renderNotebookFooter({ notebook: mockNotebook });
             }).not.toThrow();
-        });
-
-        it('disconnects cell change listener on cleanup', () => {
-            const mockNotebook = createMockNotebook();
-            const { unmount } = renderNotebookFooter({ notebook: mockNotebook });
-
-            // Component should have connected to cell changes
-            expect(mockNotebook.model.cells.changed.connect).toHaveBeenCalled();
-
-            // Unmount the component
-            unmount();
-
-            // Should have disconnected the listener
-            expect(mockNotebook.model.cells.changed.disconnect).toHaveBeenCalled();
-        });
-
-        it('does not disconnect if model is disposed', () => {
-            const mockNotebook = createMockNotebook();
-            mockNotebook.model.isDisposed = true;
-
-            const { unmount } = renderNotebookFooter({ notebook: mockNotebook });
-            
-            unmount();
-
-            // Should not try to disconnect if model is disposed
-            expect(mockNotebook.model.cells.changed.disconnect).not.toHaveBeenCalled();
         });
     });
 

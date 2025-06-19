@@ -11,8 +11,7 @@
   --jp-sidebar-min-width: 350px;
   width: 100%;
   box-sizing: border-box;
-  overflow-y: scroll;
-
+  overflow-y: hidden;
   /* 
         Don't set padding on top from the taskpane so we can instead
         set the padding on the chat-taskpane-header instead to make 
