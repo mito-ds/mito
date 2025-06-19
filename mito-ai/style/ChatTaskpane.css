@@ -208,3 +208,8 @@
 .suggestion-box:hover {
   background-color: var(--jp-border-color2);
 }
+
+.restore-checkpoint-button {
+  padding: 4px 10px 4px 10px;
+  font-size: 12px;
+}

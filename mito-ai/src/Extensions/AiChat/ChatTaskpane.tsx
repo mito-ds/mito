@@ -1350,7 +1350,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     displayOptimizedChatHistory.length > 0 && (
                         <div className='message message-assistant-chat'>
                             <button
-                                className="button-base button-gray button-small"
+                                className="button-base button-gray restore-checkpoint-button"
                                 title="Restore from Checkpoint"
                                 onClick={() => restoreCheckpoint()}
                                 disabled={!hasCheckpoint}
