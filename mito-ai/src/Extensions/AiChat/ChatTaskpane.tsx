@@ -462,12 +462,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             metadata: agentSmartDebugMessage,
             stream: false
         }
-        const success = await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
-        
-        // If the request was cancelled, throw an error to break out of the agent execution loop
-        if (!success) {
-            throw new Error('Agent execution cancelled');
-        }
+        await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
 
     const sendExplainCodeMessage = async (): Promise<void> => {
@@ -532,12 +527,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             metadata: agentExecutionMetadata,
             stream: false
         }
-        const success = await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
-        
-        // If the request was cancelled, throw an error to break out of the agent execution loop
-        if (!success) {
-            throw new Error('Agent execution cancelled');
-        }
+        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
     }
 
     /* 
@@ -625,7 +615,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const _sendMessageAndSaveResponse = async (
         completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager
-    ): Promise<boolean> => {
+    ): Promise<void> => {
         if (completionRequest.stream) {
             // Reset the streaming response and set streaming state
             streamingContentRef.current = '';
@@ -704,9 +694,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } catch (error) {
                 // Check if this is a cancellation error
                 if (error instanceof Error && error.message === 'Request cancelled by user') {
-                    // Don't add error messages for cancellation - just return false to indicate failure
+                    // Throw a specific cancellation error to be handled by the caller
                     console.log('Request was cancelled by user');
-                    return false;
+                    throw new Error('Agent execution cancelled');
                 }
                 
                 addAIMessageFromResponseAndUpdateState(
@@ -778,9 +768,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } catch (error) {
                 // Check if this is a cancellation error
                 if (error instanceof Error && error.message === 'Request cancelled by user') {
-                    // Don't add error messages for cancellation - just return false to indicate failure
+                    // Throw a specific cancellation error to be handled by the caller
                     console.log('Request was cancelled by user');
-                    return false;
+                    throw new Error('Agent execution cancelled');
                 }
                 
                 addAIMessageFromResponseAndUpdateState(
@@ -801,8 +791,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 setLoadingAIResponse(false);
             }
         }
-
-        return true
     }
 
     const addAIMessageFromResponseAndUpdateState = (
@@ -834,15 +822,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const finalizeAgentStop = (): void => {
         // Notify user that agent has been stopped
         shouldContinueAgentExecution.current = false;
-        
-        // Ensure any remaining pending requests are cancelled
-        websocketClient.cancelPendingRequests();
-        
-        // Disconnect any active stream handlers
-        if (streamHandlerRef.current) {
-            websocketClient.stream.disconnect(streamHandlerRef.current, null);
-            streamHandlerRef.current = null;
-        }
         
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         addAIMessageFromResponseAndUpdateState(
