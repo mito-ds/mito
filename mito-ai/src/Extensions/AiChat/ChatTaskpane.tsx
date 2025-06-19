@@ -174,10 +174,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setHasCheckpoint(true)
     }
     
-    const restoreCheckpoint =  async () => {
+    const restoreCheckpoint =  async () => {    
+        // Restore the checkpoint        
         await app.commands.execute("docmanager:restore-checkpoint")
-        await app.commands.execute("notebook:restart-run-all")
         setHasCheckpoint(false)
+
+        // Add a message to the chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager();
+        newChatHistoryManager.addAIMessageFromResponse(
+            "I've reverted all previous changes",
+            "chat",
+            false
+        )
+        setChatHistoryManager(newChatHistoryManager);           
+        
+        // Restart the run all
+        await app.commands.execute("notebook:restart-run-all")
     }
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
