@@ -166,8 +166,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
 
-    const createCheckpoint = () => {
-        app.commands.execute("logconsole:add-checkpoint")
+    const createCheckpoint = async () => {
+        // By saving the notebook, we create a checkpoint that we can restore from
+        await app.commands.execute("docmanager:save")
+        // Despite what the docs say, this does not seem to do anything:
+        // await app.commands.execute("logconsole:add-checkpoint")
         setHasCheckpoint(true)
     }
     
@@ -830,7 +833,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
-        createCheckpoint();
+        await createCheckpoint();
         setAgentExecutionStatus('working')
 
         // Reset the execution flag at the start of a new plan
