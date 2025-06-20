@@ -3,20 +3,20 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-/* CSS-only cell numbering using counters */
+/* Cell numbering using CSS counters - fixed approach for virtualization */
 
 /* Initialize counter on the notebook container */
 .jp-Notebook {
   counter-reset: cell-counter;
 }
 
-/* Increment counter for each cell (not on the ::before element) */
-.jp-Cell {
+/* Increment counter for each cell - including hidden ones */
+.jp-Cell[data-windowed-list-index] {
   counter-increment: cell-counter;
 }
 
-/* Style the existing JupyterLab cell headers and inject counter content */
-.jp-Cell .jp-CellHeader::before {
+/* Style the existing JupyterLab cell headers */
+.jp-Cell[data-windowed-list-index] .jp-Cell-header::before {
   content: "Cell " counter(cell-counter);
   display: block;
   padding-left: 8px;
@@ -27,14 +27,66 @@
   user-select: none;
   font-family: var(--jp-ui-font-family);
   box-sizing: border-box;
+  
+  /* Debug: Temporary background to see if this is working */
+  background-color: rgba(0, 255, 0, 0.1); /* Green tint for debugging */
 }
 
-.jp-Cell .jp-CellHeader {
+/* Fallback: If no header element, create one on the cell itself */
+.jp-Cell[data-windowed-list-index]:not(:has(.jp-Cell-header))::before {
+  content: "Cell " counter(cell-counter) " (fallback)";
+  display: block;
+  padding-left: 8px;
+  font-size: 14px;
+  color: var(--jp-ui-font-color2);
+  border-bottom: 1px solid var(--jp-border-color2);
+  margin-bottom: 4px;
+  user-select: none;
+  font-family: var(--jp-ui-font-family);
+  box-sizing: border-box;
+  background-color: rgba(255, 0, 0, 0.1); /* Red tint for fallback debugging */
+}
+
+/* Ensure proper header height */
+.jp-Cell .jp-CellHeader,
+.jp-Cell .lm-Widget.jp-CellHeader {
   height: 32px !important;
   line-height: 32px !important;
+}
+
+/* Debug: Show all cells with a border to verify we're targeting them */
+.jp-Cell[data-windowed-list-index] {
+  border-left: 2px solid rgba(0, 0, 255, 0.2); /* Blue border for debugging */
 }
 
 /* Ensure proper spacing in notebook */
 .jp-Cell {
   /* Cell already has proper spacing, headers are part of cell content */
+}
+
+/* 1. Hide the empty built-in header so we don't see it twice */
+.jp-Cell-header { display:none; }
+
+/* 2. Give every cell a 32-px top padding so the new header has room
+      – this padding is part of the cell's box, so virtualization
+        height calculations stay correct. */
+.jp-Cell[data-windowed-list-index]{
+  position:relative;
+  padding-top:32px;        /* header height */
+}
+
+/* 3. Inject the number using the data-windowed-list-index attribute */
+.jp-Cell[data-windowed-list-index]::before{
+  content:"Cell " attr(data-windowed-list-index);
+  position:absolute;
+  top:0;
+  left:0;
+  height:32px;
+  line-height:32px;
+  width:100%;
+  padding-left:8px;
+  font:14px/32px var(--jp-ui-font-family);
+  color:var(--jp-ui-font-color2);
+  border-bottom:1px solid var(--jp-border-color2);
+  box-sizing:border-box;
 }
