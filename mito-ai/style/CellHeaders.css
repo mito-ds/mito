@@ -3,12 +3,35 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-/* Cell Headers Extension Styles */
-.jp-cell-header {
-  /* Minimal styling - no background */
+/* CSS-only cell numbering using counters */
+
+/* Initialize counter on the notebook container */
+.jp-Notebook {
+  counter-reset: cell-counter;
+}
+
+/* Increment counter for each cell (not on the ::before element) */
+.jp-Cell {
+  counter-increment: cell-counter;
+}
+
+/* Style the existing JupyterLab cell headers and inject counter content */
+.jp-Cell .jp-CellHeader::before {
+  content: "Cell " counter(cell-counter);
+  display: block;
+  padding-left: 8px;
+  font-size: 14px;
+  color: var(--jp-ui-font-color2);
+  border-bottom: 1px solid var(--jp-border-color2);
+  margin-bottom: 4px;
   user-select: none;
   font-family: var(--jp-ui-font-family);
   box-sizing: border-box;
+}
+
+.jp-Cell .jp-CellHeader {
+  height: 32px !important;
+  line-height: 32px !important;
 }
 
 /* Ensure proper spacing in notebook */

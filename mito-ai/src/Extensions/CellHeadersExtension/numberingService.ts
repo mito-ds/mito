@@ -5,8 +5,11 @@
 
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { Signal, ISignal } from '@lumino/signaling';
-import { isEnhancedCell } from './cellFactories';
 
+/**
+ * Simplified numbering service for CSS-based cell headers.
+ * CSS counters handle all the numbering automatically!
+ */
 export class CellNumberingService {
   private _notebooks = new Map<NotebookPanel, boolean>();
   private _updateRequested = new Signal<this, NotebookPanel>(this);
@@ -19,71 +22,54 @@ export class CellNumberingService {
     try {
       if (this._notebooks.has(notebook)) return;
 
+      // Track the notebook
       this._notebooks.set(notebook, true);
 
-      // Listen for cell model changes
-      if (notebook.content?.model?.cells) {
-        notebook.content.model.cells.changed.connect(() => {
-          this._scheduleUpdate(notebook);
-        });
+      // CSS handles all numbering, but we can still listen for changes
+      // in case we need to do other things in the future
+      const content = notebook.content;
+      if (content?.model?.cells) {
+        content.model.cells.changed.connect(this._onCellsChanged, this);
       }
 
-      // Listen for notebook disposal
-      notebook.disposed.connect(() => {
-        this._notebooks.delete(notebook);
-      });
-
-      // Initial numbering
-      this._scheduleUpdate(notebook);
+      console.log('CSS-based cell numbering registered for notebook');
     } catch (error) {
-      console.warn('Failed to register notebook for cell numbering:', error);
+      console.warn('Failed to register notebook with numbering service:', error);
     }
   }
 
-  private _scheduleUpdate(notebook: NotebookPanel): void {
+  public unregisterNotebook(notebook: NotebookPanel): void {
     try {
-      // Debounce updates to avoid excessive recalculation
-      setTimeout(() => {
-        this.updateCellNumbers(notebook);
-      }, 10);
+      if (!this._notebooks.has(notebook)) return;
+
+      this._notebooks.delete(notebook);
+      
+      const content = notebook.content;
+      if (content?.model?.cells) {
+        content.model.cells.changed.disconnect(this._onCellsChanged, this);
+      }
     } catch (error) {
-      console.warn('Failed to schedule cell numbering update:', error);
+      console.warn('Failed to unregister notebook from numbering service:', error);
     }
   }
 
   public updateCellNumbers(notebook: NotebookPanel): void {
     try {
-      if (!notebook.content?.widgets) return;
-
-      let cellNumber = 1;
-      
-      // Iterate through all cells and update numbers
-      for (const cell of notebook.content.widgets) {
-        if (isEnhancedCell(cell)) {
-          (cell as any).setCellNumber(cellNumber);
-          cellNumber++;
-        }
-      }
-
+      // CSS counters handle numbering automatically!
+      // This method exists for API compatibility but doesn't need to do anything
       this._updateRequested.emit(notebook);
     } catch (error) {
-      console.warn('Failed to update cell numbers:', error);
-      // Try to clear all numbers to avoid inconsistent state
-      this._clearAllNumbers(notebook);
+      console.warn('CSS numbering update requested:', error);
     }
   }
 
+  private _onCellsChanged = (): void => {
+    // CSS counters automatically update when cells are added/removed/reordered
+    // No manual intervention needed!
+  };
+
   private _clearAllNumbers(notebook: NotebookPanel): void {
-    try {
-      if (!notebook.content?.widgets) return;
-      
-      for (const cell of notebook.content.widgets) {
-        if (isEnhancedCell(cell)) {
-          (cell as any).setCellNumber(0); // 0 means no number displayed
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to clear cell numbers:', error);
-    }
+    // CSS counters handle clearing automatically
+    // This method exists for API compatibility
   }
 }
