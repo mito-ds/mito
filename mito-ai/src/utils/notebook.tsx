@@ -325,7 +325,7 @@ export const scrollToCell = (
     // It scrolls to the cell and then flashes back to the active cell.
     setActiveCellByID(notebookTracker, cellID);
   
-    notebookTracker.currentWidget?.content.scrollToCell(cell, position);
+    void notebookTracker.currentWidget?.content.scrollToCell(cell, position);
 
     setTimeout(() => {
         if (lineNumber !== undefined) {
