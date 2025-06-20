@@ -296,6 +296,69 @@ export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker,
     }, 2000);
 }
 
+export const highlightLinesOfCodeInCodeCell = (notebookTracker: INotebookTracker, codeCellID: string, startLine: number, endLine: number): void => {
+    /*
+        Briefly highlights a range of lines in a code cell, to draw the user's attention to it.
+        
+        Args:
+            notebookTracker: The notebook tracker.
+            codeCellID: The ID of the code cell.
+            startLine: The 0-indexed start line number to highlight.
+            endLine: The 0-indexed end line number to highlight (inclusive).
+    */
+    // Get the cell with the given ID
+    const cell = getCellByID(notebookTracker, codeCellID);
+    if (!cell) {
+        return;
+    }
+
+    // Get the cell's editor
+    const editor = cell.editor;
+    if (!editor) {
+        return;
+    }
+
+    // We expect the line numbers to be 0-indexed. To be safe, if the line numbers are out of bounds, we clamp them.
+    const lines = editor.model.sharedModel.source.split('\n');
+    const targetStartLine = Math.min(Math.max(startLine, 0), lines.length - 1);
+    const targetEndLine = Math.min(Math.max(endLine, 0), lines.length - 1);
+
+    // Find the line elements in the DOM
+    const cmEditor = cell.node.querySelector('.jp-Editor');
+    if (!cmEditor) {
+        return;
+    }
+
+    // Find all line elements
+    const lineElements = cmEditor.querySelectorAll('.cm-line');
+    const elementsToHighlight: HTMLElement[] = [];
+    const originalBackgrounds: string[] = [];
+
+    // Collect all line elements in the range
+    for (let i = targetStartLine; i <= targetEndLine; i++) {
+        if (i < lineElements.length) {
+            const lineElement = lineElements[i] as HTMLElement;
+            if (lineElement) {
+                elementsToHighlight.push(lineElement);
+                originalBackgrounds.push(lineElement.style.background);
+            }
+        }
+    }
+
+    // Highlight all lines in the range
+    elementsToHighlight.forEach(lineElement => {
+        lineElement.style.background = 'var(--purple-400)';
+        lineElement.style.transition = 'background 0.5s ease';
+    });
+
+    // Reset the background colors after a delay
+    setTimeout(() => {
+        elementsToHighlight.forEach((lineElement, index) => {
+            lineElement.style.background = originalBackgrounds[index] || '';
+        });
+    }, 2000);
+}
+
 export const scrollToCell = (
     notebookTracker: INotebookTracker, 
     cellID: string, 
@@ -328,6 +391,49 @@ export const scrollToCell = (
         setTimeout(() => {
             if (lineNumber !== undefined) {
                 highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
+            }
+        }, 500);
+    }
+}
+
+// New overloaded function to support line ranges
+export const scrollToCellWithRange = (
+    notebookTracker: INotebookTracker, 
+    cellID: string, 
+    startLine: number,
+    endLine?: number,
+    position: ScrollLogicalPosition = 'center'
+): void => {
+
+    // First activate the cell
+    setActiveCellByID(notebookTracker, cellID);
+
+    // Get the cell
+    const cell = getCellByID(notebookTracker, cellID);
+    if (!cell) {
+        return;
+    }
+
+    // Get the cell's editor
+    const editor = cell.editor;
+    if (!editor) {
+        return;
+    }
+
+    // Make the cell node visible by scrolling to it
+    const cellNode = cell.node;
+    if (cellNode) {
+        cellNode.scrollIntoView({ behavior: 'smooth', block: position });
+
+        // Wait for the scroll animation to complete before highlighting the lines
+        // The default smooth scroll takes about 300-500ms to complete
+        setTimeout(() => {
+            if (endLine !== undefined && endLine !== startLine) {
+                // Highlight range of lines
+                highlightLinesOfCodeInCodeCell(notebookTracker, cellID, startLine, endLine);
+            } else {
+                // Highlight single line
+                highlightLineOfCodeInCodeCell(notebookTracker, cellID, startLine);
             }
         }, 500);
     }

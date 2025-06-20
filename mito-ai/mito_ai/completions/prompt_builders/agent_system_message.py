@@ -225,7 +225,7 @@ Important information:
 
 {{
     type: 'finished_task',
-    message: "I've completed the data cleaning and analysis of the sales dataset. The data now has properly formatted dates, calculated total revenue of $50,234 [MITO_CITATION:abc123:2], and identified the top 3 performing products [MITO_CITATION:xyz456:5].",
+    message: "I've completed the data cleaning and analysis of the sales dataset. The data now has properly formatted dates, calculated total revenue of $50,234 [MITO_CITATION:abc123:2], and identified the top 3 performing products [MITO_CITATION:xyz456:5]. The comprehensive analysis[MITO_CITATION:abc123:8-12] shows strong seasonal trends.",
     get_cell_output_cell_id: None,
     cell_update: None,
     next_steps: ["Graph sales by product category", "Identify seasonal patterns in data", "Find the top 3 performing products"]
