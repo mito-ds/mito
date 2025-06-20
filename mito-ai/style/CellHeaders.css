@@ -12,30 +12,19 @@
   ------------------------------------------------------------- 
 */
 
-/* Hide the built-in (empty) header element */
+/* Display (and size) JupyterLab's built-in header element */
 .jp-Cell-header {
-  display: none;
-}
-
-/* Expand the cell box to make room for the header */
-.jp-Cell[data-windowed-list-index] {
-  position: relative;
-  padding-top: 32px; /* header height */
-}
-
-/* 3️⃣  Inject "Cell N" before each cell using the attribute */
-.jp-Cell[data-windowed-list-index]::before {
-  content: "Cell " attr(data-windowed-list-index);
-  position: absolute;
-  top: 0;
-  left: 0;
+  display: block;
   height: 32px;
   line-height: 32px;
-  width: 100%;
+}
+
+/* Inject the label using the number copied into data-cell-number */
+.jp-Cell-header::before {
+  content: "Cell " attr(data-cell-number);
   padding-left: 8px;
   font-size: 14px;
   font-family: var(--jp-ui-font-family);
   color: var(--jp-ui-font-color2);
-  border-bottom: 1px solid var(--jp-border-color2);
-  box-sizing: border-box;
+  user-select: none;
 }

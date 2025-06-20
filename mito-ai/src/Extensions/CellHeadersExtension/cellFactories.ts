@@ -5,10 +5,11 @@
 
 import { CodeCell, MarkdownCell, RawCell, Cell } from '@jupyterlab/cells';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { Message } from '@lumino/messaging';
 
 /**
- * CSS-based cell headers using CSS counters.
- * No complex DOM manipulation needed - CSS handles everything!
+ * Enhances cells by copying data-windowed-list-index onto the built-in
+ * .jp-Cell-header element so CSS can show "Cell N" without JS layout hacks.
  */
 
 /**
@@ -19,14 +20,43 @@ export function addHeaderFunctionality(cell: Cell): void {
     // Add a marker to identify enhanced cells (for future extensions)
     (cell as any)._mitoHeadersEnabled = true;
     
-    // Add methods for API compatibility (though CSS handles the numbering)
+    // Utility to copy the windowed-list index onto the header element
+    const updateHeaderNumber = (): void => {
+      try {
+        const headerEl = cell.node.querySelector('.jp-Cell-header') as HTMLElement | null;
+        if (!headerEl) {
+          return;
+        }
+        const idx = cell.node.getAttribute('data-windowed-list-index');
+        if (idx !== null) {
+          headerEl.setAttribute('data-cell-number', idx);
+        }
+      } catch (err) {
+        console.warn('Failed to update cell header number:', err);
+      }
+    };
+
+    // Initial update
+    updateHeaderNumber();
+
+    // Patch onUpdateRequest so header number stays in sync (covers virtualization re-attach)
+    const originalOnUpdateRequest = (cell as any).onUpdateRequest?.bind(cell);
+    (cell as any).onUpdateRequest = function(msg: Message): void {
+      if (originalOnUpdateRequest) {
+        originalOnUpdateRequest(msg);
+      }
+      updateHeaderNumber();
+    };
+
+    // Lightweight API compatibility helpers
     (cell as any).setCellNumber = function(_cellNumber: number): void {
-      // CSS counters handle numbering automatically - this is just for API compatibility
+      updateHeaderNumber();
     };
 
     (cell as any).getCellNumber = function(): number {
-      // CSS counters handle numbering - this would need to be implemented if needed
-      return 0;
+      const headerEl = cell.node.querySelector('.jp-Cell-header');
+      const val = headerEl?.getAttribute('data-cell-number');
+      return val ? parseInt(val, 10) : 0;
     };
 
   } catch (error) {
