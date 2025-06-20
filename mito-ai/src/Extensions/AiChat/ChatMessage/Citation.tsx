@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { scrollToCell, getCellCodeByID } from '../../../utils/notebook';
+import { scrollToCell } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import '../../../../style/Citation.css';
 
@@ -17,17 +17,10 @@ export interface CitationProps {
 }
 
 // Citation button component
+// Citation button component
 export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line, notebookTracker }): JSX.Element => {
   const handleClick = (): void => {
-    // To determine how we should handle scrolling, 
-    // we need to first count the number of lines in the cell.
-    // If the line is closer to the top, 
-    // we set the scroll position to "start," otherwise we set it to "end."
-    const code = getCellCodeByID(notebookTracker, cellId);
-    const relativeLinePosition = line / (code?.split('\n').length || 1);
-    const position = relativeLinePosition < 0.5 ? 'start' : 'end';
-
-    scrollToCell(notebookTracker, cellId, line, position);
+    scrollToCell(notebookTracker, cellId, line);
   };
 
   return (
