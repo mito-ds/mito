@@ -74,6 +74,8 @@ import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlug
 import { getFirstMessageFromCookie } from './FirstMessage';
 import CTACarousel from './CTACarousel';
 import NextStepsPills from '../../components/NextStepsPills';
+import UndoIcon from '../../icons/UndoIcon';
+import TextAndIconButton from '../../components/TextAndIconButton';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -162,6 +164,35 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // If the user hides the next steps, we keep them hidden until they re-open them
     const [nextSteps, setNextSteps] = useState<string[]>([]);
     const [displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable] = useState(true);
+
+    // Track if checkpoint exists for UI updates
+    const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
+
+    const createCheckpoint = async (): Promise<void> => {
+        // By saving the notebook, we create a checkpoint that we can restore from
+        await app.commands.execute("docmanager:save")
+        // Despite what the docs say, this does not seem to do anything:
+        // await app.commands.execute("logconsole:add-checkpoint")
+        setHasCheckpoint(true)
+    }
+    
+    const restoreCheckpoint =  async (): Promise<void> => {    
+        // Restore the checkpoint        
+        await app.commands.execute("docmanager:restore-checkpoint")
+        setHasCheckpoint(false)
+
+        // Add a message to the chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager();
+        newChatHistoryManager.addAIMessageFromResponse(
+            "I've reverted all previous changes",
+            "chat",
+            false
+        )
+        setChatHistoryManager(newChatHistoryManager);           
+        
+        // Restart the run all
+        await app.commands.execute("notebook:restart-run-all")
+    }
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -284,6 +315,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Clear next steps when starting a new chat
         setNextSteps([])
+        
+        // Clear agent checkpoint when starting new chat
+        setHasCheckpoint(false)
 
         // Reset frontend chat history
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
@@ -813,6 +847,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
+        await createCheckpoint();
         setAgentExecutionStatus('working')
 
         // Reset the execution flag at the start of a new plan
@@ -1325,6 +1360,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         Thinking <LoadingDots />
                     </div>
                 }
+                {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
+                {hasCheckpoint &&
+                    agentModeEnabled &&
+                    agentExecutionStatus === 'idle' &&
+                    displayOptimizedChatHistory.length > 0 && (
+                        <div className='message message-assistant-chat'>
+                            <TextAndIconButton
+                                text="Revert changes"
+                                icon={UndoIcon}
+                                title="Revert changes"
+                                onClick={() => restoreCheckpoint()}
+                                variant="gray"
+                                width="fit-contents"
+                                iconPosition="left"
+                            />
+                            <p className="text-muted text-sm">
+                                Undo the most recent changes made by the agent
+                            </p>
+                        </div>
+                    )}
             </div>
             {displayOptimizedChatHistory.length === 0 && (
                 <div className="suggestions-container">
@@ -1376,6 +1431,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             onChange={async (isLeftSelected) => {
                                 await startNewChat(); // TODO: delete thread instead of starting new chat
                                 setAgentModeEnabled(!isLeftSelected);
+                                // Clear agent checkpoint when switching modes
+                                setHasCheckpoint(false);
                                 // Focus the chat input directly
                                 const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                 if (chatInput) {
