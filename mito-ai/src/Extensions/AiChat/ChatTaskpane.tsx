@@ -136,6 +136,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         agentModeEnabledRef.current = agentModeEnabled;
     }, [agentModeEnabled]);
 
+    /* 
+        Auto-scroll follow mode: tracks whether we should automatically scroll to bottom
+        when new messages arrive. Set to false when user manually scrolls up.
+    */
+    const [autoScrollFollowMode, setAutoScrollFollowMode] = useState<boolean>(true);
+    const autoScrollFollowModeRef = useRef<boolean>(autoScrollFollowMode);
+    useEffect(() => {
+        autoScrollFollowModeRef.current = autoScrollFollowMode;
+    }, [autoScrollFollowMode]);
+
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
     // the last active thread or create a new thread if there are no previously existing threads. So that
@@ -285,6 +295,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Clear next steps when starting a new chat
         setNextSteps([])
 
+        // Enable follow mode when starting a new chat
+        setAutoScrollFollowMode(true);
+
         // Reset frontend chat history
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
         setChatHistoryManager(newChatHistoryManager);
@@ -402,11 +415,35 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         
     }, [chatHistoryManager]);
 
-    // Scroll to bottom whenever chat history updates
+    // Scroll to bottom whenever chat history updates, but only if in follow mode
     useEffect(() => {
-        scrollToDiv(chatMessagesRef);
-    }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
+        if (autoScrollFollowMode) {
+            scrollToDiv(chatMessagesRef);
+        }
+    }, [chatHistoryManager.getDisplayOptimizedHistory().length, autoScrollFollowMode]);
 
+    // Add scroll event handler to detect manual scrolling
+    useEffect(() => {
+        const chatContainer = chatMessagesRef.current;
+        if (!chatContainer) return;
+
+        const handleScroll = (): void => {
+            const { scrollTop, scrollHeight, clientHeight } = chatContainer;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
+            
+            // If user is not at bottom and we're in follow mode, break out of follow mode
+            if (!isAtBottom && autoScrollFollowModeRef.current) {
+                setAutoScrollFollowMode(false);
+            }
+            // If user scrolls back to bottom, re-enter follow mode
+            else if (isAtBottom && !autoScrollFollowModeRef.current) {
+                setAutoScrollFollowMode(true);
+            }
+        };
+
+        chatContainer.addEventListener('scroll', handleScroll);
+        return () => chatContainer.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const getDuplicateChatHistoryManager = (): ChatHistoryManager => {
 
@@ -427,6 +464,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
+
+        // Enable follow mode when sending a debug message
+        setAutoScrollFollowMode(true);
 
         // Step 1: Add the smart debug message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -468,6 +508,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendExplainCodeMessage = async (): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
+
+        // Enable follow mode when explaining code
+        setAutoScrollFollowMode(true);
 
         // Step 1: Add the code explain message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -537,6 +580,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
+        // Enable follow mode when user sends a new message
+        setAutoScrollFollowMode(true);
+
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
 
@@ -575,29 +621,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             stream: true
         }
 
-        // Step 2: Scroll to the bottom of the chat messages container
-        // Add a small delay to ensure the new message is rendered
-        setTimeout(() => {
-            chatMessagesRef.current?.scrollTo({
-                top: chatMessagesRef.current.scrollHeight,
-                behavior: 'smooth'
-            });
-        }, 100);
-
-        // Step 3: Send the message to the AI
+        // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
-
-        // TODO: Can we move this into the _sendMessageAndSaveResponse function?        
-        // Step 4: Scroll to the bottom of the chat smoothly
-        setTimeout(() => {
-            const chatContainer = chatMessagesRef.current;
-            if (chatContainer) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
     }
 
     const handleUpdateMessage = async (
@@ -814,6 +839,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
         setAgentExecutionStatus('working')
+
+        // Enable follow mode when user starts agent execution
+        setAutoScrollFollowMode(true);
 
         // Reset the execution flag at the start of a new plan
         shouldContinueAgentExecution.current = true;
