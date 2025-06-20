@@ -7,7 +7,7 @@ interface CellHeaderProps {
 const CellHeader: React.FC<CellHeaderProps> = ({ number }) => {
   return (
     <div
-      className="cell-number"
+      className="mito-cell-number"
       style={{
         fontSize: '12px',
         color: '#666',
