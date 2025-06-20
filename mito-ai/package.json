@@ -75,6 +75,7 @@
     "@lumino/commands": "^2.0.0",
     "@lumino/coreutils": "^2.0.0",
     "@lumino/disposable": "^2.0.0",
+    "@lumino/messaging": "^2.0.0",
     "@lumino/signaling": "^2.0.0",
     "@lumino/widgets": "^2.3.0",
     "@types/react": "^18.0.26",

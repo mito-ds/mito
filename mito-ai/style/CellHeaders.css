@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Cell Headers Extension Styles */
+.jp-cell-header {
+  /* Minimal styling - no background */
+  user-select: none;
+  font-family: var(--jp-ui-font-family);
+  box-sizing: border-box;
+}
+
+/* Ensure proper spacing in notebook */
+.jp-Cell {
+  /* Cell already has proper spacing, headers are part of cell content */
+}
