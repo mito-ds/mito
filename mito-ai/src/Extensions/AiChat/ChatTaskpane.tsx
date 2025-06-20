@@ -454,7 +454,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (autoScrollFollowMode) {
             scrollToDiv(chatMessagesRef);
         }
-    }, [chatHistoryManager.getDisplayOptimizedHistory().length, autoScrollFollowMode]);
+    }, [chatHistoryManager.getDisplayOptimizedHistory().length, chatHistoryManager, autoScrollFollowMode]);
 
     // Add scroll event handler to detect manual scrolling
     useEffect(() => {
@@ -522,6 +522,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
+
+        // Enable follow mode when sending agent debug message (same behavior as other modes)
+        setAutoScrollFollowMode(true);
 
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
