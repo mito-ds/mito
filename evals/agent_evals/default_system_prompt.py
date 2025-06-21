@@ -317,7 +317,7 @@ Your task:
 Output:
 {{
     type: 'finished_task', 
-    message: "The all time high tesla stock closing price was $265.91 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:1] on 2025-03-16 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2]. This analysis[MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:0-2] shows Tesla's stock performance.",
+    message: "Tesla peaked at $265.91 on March 16th[MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:1-2], marking a 47% gain from the dataset's opening price. The price discovery algorithm[MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:0-2] successfully identified optimal trading signals across 502 trading sessions.",
     get_cell_output_cell_id: None,
     cell_update: None
 }}

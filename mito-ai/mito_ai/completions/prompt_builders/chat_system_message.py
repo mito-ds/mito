@@ -28,22 +28,25 @@ There are two possible types of responses you might give:
 
 {CODE_SECTION_HEADING}
 ```python
-min_value = 0
-max_value = 100
-average_value = 53
-std_dev = 15.2
+sales_df = pd.read_csv('sales_data.csv')
+monthly_revenue = sales_df.groupby('month')['revenue'].sum()
+top_month = monthly_revenue.idxmax()
+peak_revenue = monthly_revenue.max()
+growth_rate = (monthly_revenue.iloc[-1] / monthly_revenue.iloc[0] - 1) * 100
 ```
 
-Your task: What is the average value and standard deviation?
+Your task: What are the key revenue insights from this sales data?
 
 Output:
-The average value is 53[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:2] and the standard deviation is 15.2[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:3]. These statistical measures[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:2-3] provide insights into the data distribution.
+Peak monthly revenue reached $847,392 in March[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:2-3], representing a 23.8% year-over-year growth rate[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:4]. The revenue aggregation analysis[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:1-2] reveals strong seasonal performance patterns.
 
 </Example>
 
 Notice in the example above:
-- Single line citations use line number (e.g., :2 for line 2)
-- Multiline citations use range format (e.g., :2-3 for lines 2-3)
+- Citations support specific facts and numbers, not vague summaries
+- Single line citations reference specific calculations (e.g., :4 for growth rate)
+- Multiline citations reference broader analysis blocks (e.g., :1-2 for the groupby operation)
+- Language is information-dense with concrete metrics
 - All line numbers are 0-indexed
 
 ===
