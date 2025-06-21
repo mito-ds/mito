@@ -1465,7 +1465,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             }
                         }}
                     >
-                        Submit ⏎
+                        <span className="submit-text">Submit</span> ⏎
                     </button>
                 </div>
             )}
