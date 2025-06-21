@@ -12,17 +12,14 @@
     height: 20px; /* Match height of other elements */
     display: flex;
     align-items: center; /* Center vertically */
+    color: var(--jp-ui-font-color1);
   }
   
   .model-selector-dropdown {
     position: relative;
-    min-width: 80px; /* Minimum width for very short model names */
     height: 20px; /* Fixed height to match other elements */
     border-radius: 4px;
-    border: 1px solid var(--purple-400);
     cursor: pointer;
-    background-color: var(--purple-400);
-    transition: border-color 0.2s ease;
     display: flex;
     align-items: center; /* Ensure content is vertically centered */
     width: min-content;
@@ -37,10 +34,7 @@
     padding: 0;
     justify-content: center;
   }
-  
-  .model-selector-dropdown:hover {
-    border-color: var(--purple-700);
-  }
+
   
   .selected-model {
     display: flex;
@@ -51,7 +45,6 @@
     padding: 0 8px;
     font-size: 11px; /* Smaller font for thinner button */
     line-height: 1; /* Tighter line height */
-    color: var(--purple-700);
     font-weight: 500;
     white-space: nowrap; /* Prevent text wrapping */
     overflow: hidden; /* Hide overflow text */
@@ -73,10 +66,9 @@
   }
   
   .dropdown-arrow {
-    font-size: 7px; /* Smaller arrow */
-    color: var(--purple-700);
+    font-size: 8px; 
     transition: transform 0.2s;
-    margin-left: 4px; /* Ensure some space between text and arrow */
+    margin-left: 4px; 
     flex-shrink: 0; /* Prevent arrow from shrinking */
   }
   
@@ -125,7 +117,6 @@
   .model-option.selected {
     background-color: var(--jp-layout-color2);
     color: var(--purple-700);
-    font-weight: 500;
   }
   
   /* When inside chat-controls - ensure proper alignment with other controls */
