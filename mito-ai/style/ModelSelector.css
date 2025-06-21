@@ -149,3 +149,22 @@
     white-space: nowrap;
     vertical-align: bottom;
   }
+
+/* On wider screens, show only the name of the model*/
+.model-icon {
+  display: none;
+}
+
+.model-name {
+  display: inline;
+}
+
+/* On compact screens, show only the icon */
+@container (max-width: 300px) {
+  .model-icon {
+    display: inline;
+  }
+  .model-name {
+    display: none;
+  }
+}

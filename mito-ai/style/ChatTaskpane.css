@@ -216,7 +216,7 @@
 }
 
 /* Hide the 'Submit' text in the submit button when the chat-taskpane is narrow */
-@container (max-width: 400px) {
+@container (max-width: 350px) {
   .submit-button .submit-text {
     display: none;
   }

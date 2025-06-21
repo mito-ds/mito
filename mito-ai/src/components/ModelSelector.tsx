@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../style/ModelSelector.css';
 import AIIcon from "../icons/AiIcon";
 
@@ -35,9 +35,6 @@ interface ModelSelectorProps {
 const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isCompact, setIsCompact] = useState<boolean>(false);
-  const selectedModelRef = useRef<HTMLSpanElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Load config from localStorage on component mount and notify parent
   useEffect(() => {
@@ -55,23 +52,6 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
       }
     }
   }, [onConfigChange]);
-
-  // Set up resize observer to detect container width changes
-  useEffect(() => {
-    const observer = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        const containerWidth = entry.contentRect.width;
-        setIsCompact(containerWidth < 300);
-      }
-    });
-
-    const chatControls = containerRef.current?.closest('.chat-controls');
-    if (chatControls) {
-      observer.observe(chatControls);
-    }
-
-    return () => observer.disconnect();
-  }, []);
 
   const handleModelChange = (displayName: string): void => {
     setSelectedModel(displayName);
@@ -102,37 +82,25 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     };
   }, []);
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
   return (
-    <div className="model-selector" ref={containerRef}>
+    <div className="model-selector">
       <div
-        className={`model-selector-dropdown ${isCompact ? 'compact-mode' : ''}`}
+        className={`model-selector-dropdown`}
         onClick={() => setIsOpen(!isOpen)}
-        title={isCompact ? selectedModel : undefined}
+        title={selectedModel}
         data-testid="model-selector"
       >
         <div className="selected-model">
-          {isCompact ? (
-            <span className="model-icon">
-              <AIIcon width={14} height={14} />
-            </span>
-          ) : (
-            <span
-              ref={selectedModelRef}
-              className="model-name"
-              title={selectedModel} // Show full name on hover
-            >
-              {selectedModel}
-            </span>
-          )}
-          <span className={`dropdown-arrow ${isCompact ? 'compact' : ''}`}>▼</span>
+          <span className="model-icon">
+            <AIIcon width={14} height={14} />
+          </span>
+          <span className="model-name">{selectedModel}</span>
+          <span className="dropdown-arrow">▼</span>
         </div>
         {isOpen && (
           <div
-            ref={dropdownRef}
-            className={`model-options dropup ${isCompact ? 'from-icon' : ''}`}
-            style={{ minWidth: isCompact ? '120px' : '150px' }}
+            className={`model-options dropup`}
+            style={{ minWidth: '150px' }}
           >
             {ALL_MODEL_DISPLAY_NAMES.map(model => (
               <div
