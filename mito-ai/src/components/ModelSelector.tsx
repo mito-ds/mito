@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import '../../style/ModelSelector.css';
-import AIIcon from "../icons/AiIcon";
+import NucleausIcon from '../icons/NucleausIcon';
 
 interface ModelConfig {
   model: string;
@@ -92,7 +92,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
       >
         <div className="selected-model">
           <span className="model-icon">
-            <AIIcon width={14} height={14} />
+            <NucleausIcon height={10} width={10} />
           </span>
           <span className="model-name">{selectedModel}</span>
           <span className="dropdown-arrow">▼</span>
