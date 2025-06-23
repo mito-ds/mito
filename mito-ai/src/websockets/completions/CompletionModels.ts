@@ -45,7 +45,7 @@ export type Question = {
 }
 
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'finished_task' | 'get_user_input'
+  type: 'cell_update' | 'get_cell_output' | 'finished_task'
   message: string,
   cell_update?: CellUpdate,
   cell_id?: string,
