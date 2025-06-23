@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from mito_ai.completions.prompt_builders.prompt_constants import (
+    CHAT_CODE_FORMATTING_RULES,
     CITATION_RULES, 
     ACTIVE_CELL_ID_SECTION_HEADING, 
     CODE_SECTION_HEADING,
@@ -46,6 +47,8 @@ Notice in the example above that the citation uses line number 2 because citatio
 {get_database_rules()}
 
 ==== 
+{CHAT_CODE_FORMATTING_RULES}
+
 IMPORTANT RULES:
 - Do not recreate variables that already exist
 - Keep as much of the original code as possible
