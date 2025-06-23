@@ -8,6 +8,7 @@ import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
 import { captureNode } from './nodeToPng';
+import { WindowedList } from '@jupyterlab/ui-components';
 
 const INCLUDE_CELL_IN_APP = 'include-cell-in-app'
 
@@ -363,11 +364,8 @@ export const scrollToCell = (
     notebookTracker: INotebookTracker, 
     cellID: string, 
     lineNumber?: number,
-    position: ScrollLogicalPosition = 'center'
+    position: WindowedList.BaseScrollToAlignment = 'center'
 ): void => {
-
-    // First activate the cell
-    setActiveCellByID(notebookTracker, cellID);
 
     // Get the cell
     const cell = getCellByID(notebookTracker, cellID);
@@ -375,16 +373,22 @@ export const scrollToCell = (
         return;
     }
 
-    // Get the cell's editor
-    const editor = cell.editor;
-    if (!editor) {
-        return;
+    // If a line number is provided, figure out what position to scroll to 
+    // in order to display that line by counting the number of lines in the cell.
+    // we need to first count the number of lines in the cell.
+    if (lineNumber !== undefined) {
+        const code = getCellCodeByID(notebookTracker, cellID);
+        const relativeLinePosition = lineNumber / (code?.split('\n').length || 1);
+
+        // These positions must be of type BaseScrollToAlignment defined in @jupyterlab/ui-components
+        position = relativeLinePosition < 0.5 ? 'start' : 'end';
     }
 
-    // Make the cell node visible by scrolling to it
-    const cellNode = cell.node;
-    if (cellNode) {
-        cellNode.scrollIntoView({ behavior: 'smooth', block: position });
+    // If the cell is not the active cell, the scrolling does not work. 
+    // It scrolls to the cell and then flashes back to the active cell.
+    setActiveCellByID(notebookTracker, cellID);
+  
+    void notebookTracker.currentWidget?.content.scrollToCell(cell, position);
 
         // Wait for the scroll animation to complete before highlighting the line
         // The default smooth scroll takes about 300-500ms to complete

@@ -4,6 +4,7 @@
 from typing import List, Optional
 from mito_ai.completions.prompt_builders.prompt_constants import (
     ACTIVE_CELL_ID_SECTION_HEADING,
+    CHAT_CODE_FORMATTING_RULES,
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     CODE_SECTION_HEADING,
@@ -27,6 +28,9 @@ def create_chat_prompt(
     prompt = f"""{rules_str}
     
 Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete.
+
+{CHAT_CODE_FORMATTING_RULES}
+
 <Example>
 
 {FILES_SECTION_HEADING}

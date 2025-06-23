@@ -39,6 +39,7 @@ const getScrollTargetLine = (line: CitationLine): number => {
 };
 
 // Citation button component
+// Citation button component
 export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line, notebookTracker }): JSX.Element => {
   const handleClick = (): void => {
     // To determine how we should handle scrolling, 
