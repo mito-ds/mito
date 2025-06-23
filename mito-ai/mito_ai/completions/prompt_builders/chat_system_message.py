@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from mito_ai.completions.prompt_builders.prompt_constants import (
+    CHAT_CODE_FORMATTING_RULES,
     CITATION_RULES, 
     ACTIVE_CELL_ID_SECTION_HEADING, 
     CODE_SECTION_HEADING,
@@ -46,11 +47,7 @@ Notice in the example above that the citation uses line number 2 because citatio
 {get_database_rules()}
 
 ==== 
-CRITICAL CODE UPDATE RULES:
-- COMPLETE REPLACEMENT: When you provide a code update, your code will COMPLETELY REPLACE the entire contents of the active code cell. 
-- INCLUDE ALL CODE: You MUST return the COMPLETE, FULL contents of the entire code cell - including ALL existing code that should remain plus your modifications.
-- NEVER PARTIAL CODE: NEVER return only a portion, snippet, or subset of the code cell. Partial responses will break the user's notebook by deleting important code.
-- PRESERVE EXISTING CODE: Always preserve imports, variable definitions, and other code that the user needs, even if you're only modifying one small part.
+{CHAT_CODE_FORMATTING_RULES}
 
 IMPORTANT RULES:
 - Do not recreate variables that already exist

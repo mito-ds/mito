@@ -136,3 +136,11 @@ Here is the schema:
         DATABASE_RULES = ""
 
     return DATABASE_RULES
+
+
+CHAT_CODE_FORMATTING_RULES = """CRITICAL CODE UPDATE RULES:
+- COMPLETE REPLACEMENT: Your code will COMPLETELY REPLACE the entire contents of the active code cell. 
+- INCLUDE ALL CODE: You MUST return the COMPLETE, FULL contents of the entire code cell - including ALL existing code that should remain plus your modifications.
+- NEVER PARTIAL CODE: NEVER return only a portion, snippet, or subset of the code cell. Partial responses will break the user's notebook by deleting important code.
+- PRESERVE EXISTING CODE: Always preserve imports, variable definitions, and other code that the user needs, even if you're only modifying one small part.
+"""
