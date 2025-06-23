@@ -31,7 +31,7 @@ Help me complete the following task. I will provide you with a set of variables,
 
 {CHAT_CODE_FORMATTING_RULES}
 
-<Example>
+<Example 1>
 
 {FILES_SECTION_HEADING}
 file_name: sales.csv
@@ -68,7 +68,24 @@ sales_df['total_price'] = sales_df['total_price'] * sales_multiplier
 
 Converted the `transaction_date` column to datetime using the built-in pd.to_datetime function and multiplied the `total_price` column by the `sales_multiplier` variable [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:3].
 
-</Example>
+</Example 1>
+
+<Example 2>
+
+{ACTIVE_CELL_ID_SECTION_HEADING}
+'1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6'
+
+{CODE_SECTION_HEADING}
+```python
+```
+
+Your task: Hello
+
+Output:
+Hey there! I'm Mito AI. How can I help you today? 
+
+</Example 2>
+
 
 {FILES_SECTION_HEADING}
 {files_str}
