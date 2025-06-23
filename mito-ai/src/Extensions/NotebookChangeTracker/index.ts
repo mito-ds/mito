@@ -3,6 +3,7 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { notebookEventEmitter } from '../../utils/notebookEvents';
 
 /**
  * Plugin to track notebook changes including cell insertion/deletion,
@@ -51,7 +52,8 @@ const notebookChangeTrackerPlugin: JupyterFrontEndPlugin<void> = {
 };
 
 export const notifyCellListChanged = () => {
-  console.log("Change detected")
+  console.log("Change detected");
+  notebookEventEmitter.emitCellListChanged();
 }
 
 /**

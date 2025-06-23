@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getCellIndexByID } from '../../../utils/notebook';
+import { useCellIndex } from '../../../hooks/useCellIndex';
 import '../../../../style/CellReference.css';
 
 export interface CellReferenceProps {
@@ -17,8 +17,8 @@ export const CellReference: React.FC<CellReferenceProps> = ({
   cellId, 
   notebookTracker 
 }) => {
-  // Get the cell index (1-based for display) from the cell ID
-  const cellIndex = getCellIndexByID(notebookTracker, cellId);
+  // Get the cell index (automatically updates when notebook changes)
+  const cellIndex = useCellIndex(cellId, notebookTracker);
   const displayIndex = cellIndex !== undefined ? cellIndex + 1 : '?';
 
   const handleClick = (): void => {
