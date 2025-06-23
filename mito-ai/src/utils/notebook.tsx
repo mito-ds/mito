@@ -390,27 +390,23 @@ export const scrollToCell = (
   
     void notebookTracker.currentWidget?.content.scrollToCell(cell, position);
 
-        // Wait for the scroll animation to complete before highlighting the line
-        // The default smooth scroll takes about 300-500ms to complete
-        setTimeout(() => {
-            if (lineNumber !== undefined) {
-                highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
-            }
-        }, 500);
-    }
+    // Wait for the scroll animation to complete before highlighting the line
+    // The default smooth scroll takes about 300-500ms to complete
+    setTimeout(() => {
+        if (lineNumber !== undefined) {
+            highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
+        }
+    }, 500);
 }
 
-// New overloaded function to support line ranges
+// Updated scrollToCellWithRange function to use the new scrolling approach
 export const scrollToCellWithRange = (
     notebookTracker: INotebookTracker, 
     cellID: string, 
     startLine: number,
     endLine?: number,
-    position: ScrollLogicalPosition = 'center'
+    position: WindowedList.BaseScrollToAlignment = 'center'
 ): void => {
-
-    // First activate the cell
-    setActiveCellByID(notebookTracker, cellID);
 
     // Get the cell
     const cell = getCellByID(notebookTracker, cellID);
@@ -418,27 +414,30 @@ export const scrollToCellWithRange = (
         return;
     }
 
-    // Get the cell's editor
-    const editor = cell.editor;
-    if (!editor) {
-        return;
-    }
+    // If line numbers are provided, figure out what position to scroll to 
+    // based on the start line's position in the cell
+    const code = getCellCodeByID(notebookTracker, cellID);
+    const relativeLinePosition = startLine / (code?.split('\n').length || 1);
 
-    // Make the cell node visible by scrolling to it
-    const cellNode = cell.node;
-    if (cellNode) {
-        cellNode.scrollIntoView({ behavior: 'smooth', block: position });
+    // These positions must be of type BaseScrollToAlignment defined in @jupyterlab/ui-components
+    position = relativeLinePosition < 0.5 ? 'start' : 'end';
 
-        // Wait for the scroll animation to complete before highlighting the lines
-        // The default smooth scroll takes about 300-500ms to complete
-        setTimeout(() => {
-            if (endLine !== undefined && endLine !== startLine) {
-                // Highlight range of lines
-                highlightLinesOfCodeInCodeCell(notebookTracker, cellID, startLine, endLine);
-            } else {
-                // Highlight single line
-                highlightLineOfCodeInCodeCell(notebookTracker, cellID, startLine);
-            }
-        }, 500);
-    }
+    // If the cell is not the active cell, the scrolling does not work. 
+    // It scrolls to the cell and then flashes back to the active cell.
+    setActiveCellByID(notebookTracker, cellID);
+
+    // Use the new JupyterLab scrollToCell method instead of DOM node scrollIntoView
+    void notebookTracker.currentWidget?.content.scrollToCell(cell, position);
+
+    // Wait for the scroll animation to complete before highlighting the lines
+    // The default smooth scroll takes about 300-500ms to complete
+    setTimeout(() => {
+        if (endLine !== undefined && endLine !== startLine) {
+            // Highlight range of lines
+            highlightLinesOfCodeInCodeCell(notebookTracker, cellID, startLine, endLine);
+        } else {
+            // Highlight single line
+            highlightLineOfCodeInCodeCell(notebookTracker, cellID, startLine);
+        }
+    }, 500);
 }

@@ -39,25 +39,15 @@ const getScrollTargetLine = (line: CitationLine): number => {
 };
 
 // Citation button component
-// Citation button component
 export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line, notebookTracker }): JSX.Element => {
   const handleClick = (): void => {
-    // To determine how we should handle scrolling, 
-    // we need to first count the number of lines in the cell.
-    // If the line is closer to the top, 
-    // we set the scroll position to "start," otherwise we set it to "end."
-    const code = getCellCodeByID(notebookTracker, cellId);
-    const scrollTargetLine = getScrollTargetLine(line);
-    const relativeLinePosition = scrollTargetLine / (code?.split('\n').length || 1);
-    const position = relativeLinePosition < 0.5 ? 'start' : 'end';
-
     // Use different scroll functions for single line vs range
     if (typeof line === 'number') {
-      // Single line citation
-      scrollToCell(notebookTracker, cellId, line, position);
+      // Single line citation - uses the new scrollToCell approach
+      scrollToCell(notebookTracker, cellId, line);
     } else {
       // Multiline citation - use the new range function
-      scrollToCellWithRange(notebookTracker, cellId, line.start, line.end, position);
+      scrollToCellWithRange(notebookTracker, cellId, line.start, line.end);
     }
   };
 
@@ -72,4 +62,4 @@ export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line,
   );
 };
 
-export default Citation; 
+export default Citation;
