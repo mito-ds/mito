@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getCellIndexByID } from '../utils/notebook';
-import { notebookEventEmitter } from '../utils/notebookEvents';
+import { notebookChangeEmitter } from '../Extensions/NotebookChangeTracker/notebookChangeEmitter';
 
 /**
  * Hook that provides the current cell index for a given cell ID
@@ -26,7 +26,7 @@ export const useCellIndex = (cellId: string, notebookTracker: INotebookTracker):
     };
 
     // Subscribe to cellListChanged events
-    const unsubscribe = notebookEventEmitter.onCellListChanged(updateCellIndex);
+    const unsubscribe = notebookChangeEmitter.onCellListChanged(updateCellIndex);
 
     // Cleanup subscription on unmount
     return unsubscribe;

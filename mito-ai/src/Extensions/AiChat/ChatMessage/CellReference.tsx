@@ -7,6 +7,7 @@ import React from 'react';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { useCellIndex } from '../../../hooks/useCellIndex';
 import '../../../../style/CellReference.css';
+import { scrollToCell } from '../../../utils/notebook';
 
 export interface CellReferenceProps {
   cellId: string;
@@ -21,39 +22,13 @@ export const CellReference: React.FC<CellReferenceProps> = ({
   const cellIndex = useCellIndex(cellId, notebookTracker);
   const displayIndex = cellIndex !== undefined ? cellIndex + 1 : '?';
 
-  const handleClick = (): void => {
-    // Navigate to the cell when clicked
-    const notebook = notebookTracker.currentWidget?.content;
-    if (notebook && cellIndex !== undefined) {
-      // Set the active cell to the referenced cell
-      notebook.activeCellIndex = cellIndex;
-      
-      // Scroll the cell into view
-      const cellWidget = notebook.widgets[cellIndex];
-      if (cellWidget) {
-        cellWidget.node.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        });
-      }
-    }
-  };
-
   return (
-    <span 
+    <button 
       className="cell-reference" 
-      onClick={handleClick}
+      onClick={() => scrollToCell(notebookTracker, cellId)}
       title={`Jump to Cell ${displayIndex}`}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
     >
       Cell {displayIndex}
-    </span>
+    </button>
   );
 };

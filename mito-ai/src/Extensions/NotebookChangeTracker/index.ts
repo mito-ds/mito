@@ -3,7 +3,25 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
-import { notebookEventEmitter } from '../../utils/notebookEvents';
+import { notebookChangeEmitter } from './notebookChangeEmitter';
+
+export const notifyCellListChanged = () => {
+  console.log("Change detected");
+  notebookChangeEmitter.emitCellListChanged();
+}
+
+const setupCellEventListeners = (notebookPanel: NotebookPanel): void => {
+  const notebook = notebookPanel.content;
+  const model = notebook.model;
+
+  if (!model) {
+    return;
+  }
+
+  model.cells.changed.connect(() => {
+    notifyCellListChanged()
+  });
+}
 
 /**
  * Plugin to track notebook changes including cell insertion/deletion,
@@ -16,13 +34,13 @@ const notebookChangeTrackerPlugin: JupyterFrontEndPlugin<void> = {
   activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
     console.log('NotebookChangeTracker: Plugin activated');
 
-    // Track notebook switching and loading
+    /************************************************
+     * EVENT 1: Notebook switching and loading
+    *************************************************/
+
     notebookTracker.currentChanged.connect((tracker, notebookPanel) => {
       if (notebookPanel) {
-        // console.log('NotebookChangeTracker: Notebook switched/loaded', {
-        //   notebookPath: notebookPanel.context.path,
-        //   notebookName: notebookPanel.title.label
-        // });
+
         notifyCellListChanged()
         
         // Set up cell-level event listeners for this notebook
@@ -32,44 +50,26 @@ const notebookChangeTrackerPlugin: JupyterFrontEndPlugin<void> = {
       }
     });
 
-    // Track when new notebook widgets are added (notebook loading)
+    /************************************************
+     * EVENT 1: Notebook is added 
+     * Todo: Do we need this one?
+    *************************************************/
     notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
       notifyCellListChanged()
-      // console.log('NotebookChangeTracker: New notebook widget added', {
-      //   notebookPath: notebookPanel.context.path,
-      //   notebookName: notebookPanel.title.label
-      // });
       
       // Set up cell-level event listeners for this new notebook
       setupCellEventListeners(notebookPanel);
     });
 
+    /************************************************
+     * For any notebooks that are already open, we add 
+     * the cell-level event listeners
+    *************************************************/
     // Set up listeners for any already-open notebooks
     notebookTracker.forEach(notebookPanel => {
       setupCellEventListeners(notebookPanel);
     });
   }
 };
-
-export const notifyCellListChanged = () => {
-  console.log("Change detected");
-  notebookEventEmitter.emitCellListChanged();
-}
-
-/**
- * Set up event listeners for cell-level changes in a notebook
- */
-function setupCellEventListeners(notebookPanel: NotebookPanel): void {
-  const notebook = notebookPanel.content;
-  const model = notebook.model;
-
-  if (!model) {
-    return;
-  }
-
-  model.cells.changed.connect(() => {
-    notifyCellListChanged()
-  });
-}
 
 export default notebookChangeTrackerPlugin;

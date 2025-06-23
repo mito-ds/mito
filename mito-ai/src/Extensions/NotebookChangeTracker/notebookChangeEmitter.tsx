@@ -5,12 +5,15 @@
 
 /**
  * Simple event emitter for notebook changes.
- * Bridges JupyterLab notebook events to React components.
+ * This gives us a nice interface for creating our own event listeners. For example, 
+ * the notebook change tracker watches a bunch of different events and emits a cellListChanged event.
+ * As a result, our components can just subscribe to that one event and not have to worry about tracking
+ * all of the different events.
  */
 
 type CellListChangedCallback = () => void;
 
-class NotebookEventEmitter {
+class NotebookChangeEmitter {
   private cellListChangedListeners: Set<CellListChangedCallback> = new Set();
 
   /**
@@ -48,4 +51,4 @@ class NotebookEventEmitter {
 }
 
 // Global singleton instance
-export const notebookEventEmitter = new NotebookEventEmitter();
+export const notebookChangeEmitter = new NotebookChangeEmitter();
