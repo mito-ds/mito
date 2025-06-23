@@ -1426,7 +1426,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <div className="chat-controls-left">
                         <ToggleButton
                             leftText="Chat"
+                            leftTooltip="Chat mode suggests an edit to the active cell and let's you decide to accept or reject it."
                             rightText="Agent"
+                            rightTooltip="Agent mode writes and executes code until it's finished your request."
                             isLeftSelected={!agentModeEnabled}
                             onChange={async (isLeftSelected) => {
                                 await startNewChat(); // TODO: delete thread instead of starting new chat
@@ -1439,7 +1441,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                     chatInput.focus();
                                 }
                             }}
-                            title="Agent can create plans and run code."
                         />
                         <ModelSelector onConfigChange={(config) => {
                             // Just update the backend
@@ -1465,7 +1466,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             }
                         }}
                     >
-                        Submit ⏎
+                        <span className="submit-text">Submit</span> ⏎
                     </button>
                 </div>
             )}
