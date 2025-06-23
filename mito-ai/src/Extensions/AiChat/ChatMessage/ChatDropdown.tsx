@@ -7,6 +7,8 @@ import React, { useState, useEffect } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { ExpandedVariable } from './ChatInput';
 import { getRules } from '../../../restAPI/RestAPI';
+import { getNumberOfCells } from '../../../utils/notebook';
+import { INotebookTracker } from '@jupyterlab/notebook';
 
 interface ChatDropdownProps {
     options: ExpandedVariable[];
@@ -14,6 +16,7 @@ interface ChatDropdownProps {
     filterText: string;
     maxDropdownItems?: number;
     position?: 'above' | 'below';
+    notebookTracker: INotebookTracker;
 }
 
 interface ChatDropdownVariableOption {
@@ -26,12 +29,18 @@ interface ChatDropdownRuleOption {
     rule: string;
 }
 
-export type ChatDropdownOption = ChatDropdownVariableOption | ChatDropdownRuleOption;
+interface CellReferenceOption {
+    type: 'cell_reference'
+    cell_index: number;
+}
+
+export type ChatDropdownOption = ChatDropdownVariableOption | ChatDropdownRuleOption | CellReferenceOption;
 
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
     options,
     onSelect,
     filterText,
+    notebookTracker,
     maxDropdownItems = 10,
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -46,10 +55,17 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         void fetchRules();
     }, []);
 
+    const numberOfCells = getNumberOfCells(notebookTracker)
+
     // Create a list of all options with the format 
     // ['type': 'variable', "expandedVariable": variable]
     // ['type': 'rule', "rule": rule]
+    // ['type': 'cell_reference', "cell_index": cell_index]
     const allOptions: ChatDropdownOption[] = [
+        ...Array.from(
+            { length: numberOfCells },
+            (_, i): CellReferenceOption => ({ type: 'cell_reference', cell_index: i })
+        ),
         ...options.map((variable): ChatDropdownVariableOption => ({ 
             type: 'variable', 
             variable: variable 
@@ -60,14 +76,19 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         })),
     ];
 
-    const filteredOptions = allOptions.filter((option) =>
-        option.type === 'variable' ?
-            option.variable.variable_name.toLowerCase().includes(filterText.toLowerCase()) &&
-            option.variable.type !== "<class 'module'>" &&
-            option.variable.variable_name !== "FUNCTIONS" // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
-        :
-            option.rule.toLowerCase().includes(filterText.toLowerCase())
-    ).slice(0, maxDropdownItems);
+    const filteredOptions = allOptions.filter((option) => {
+        if (option.type === 'variable') {
+            return option.variable.variable_name.toLowerCase().includes(filterText.toLowerCase()) &&
+                option.variable.type !== "<class 'module'>" &&
+                option.variable.variable_name !== "FUNCTIONS" // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
+        } else if (option.type === 'rule') {
+            return option.rule.toLowerCase().includes(filterText.toLowerCase())
+        } else if (option.type === 'cell_reference') {
+            return option.cell_index.toString().includes(filterText.toLowerCase())
+        } else {
+            return false;
+        }
+    }).slice(0, maxDropdownItems);
 
     useEffect(() => {
         setSelectedIndex(0);
@@ -127,8 +148,10 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                         uniqueKey = option.variable.parent_df
                             ? `${option.variable.parent_df}.${option.variable.variable_name}`
                             : option.variable.variable_name;
-                    } else {
+                    } else if (option.type === 'rule') {
                         uniqueKey = option.rule;
+                    } else {
+                        uniqueKey = option.cell_index.toString();
                     }
 
                     if (option.type === 'variable') {
@@ -141,7 +164,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                                 onSelect={() => onSelect(option)}
                             />
                         );
-                    } else {
+                    } else if (option.type === 'rule') {
                         return (
                             <RuleDropdownItem
                                 key={uniqueKey}
@@ -150,6 +173,12 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                                 selectedIndex={selectedIndex}
                                 onSelect={() => onSelect(option)}
                             />
+                        )
+                    } else {
+                        return (
+                            <div>
+                                Cell: {option.cell_index}
+                            </div>
                         )
                     }
                 })}

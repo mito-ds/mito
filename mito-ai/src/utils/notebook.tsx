@@ -111,6 +111,11 @@ export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeC
     return undefined
 }
 
+export const getNumberOfCells = (notebookTracker: INotebookTracker): number => {
+    const cellList = notebookTracker.currentWidget?.model?.cells
+    return cellList?.length || 0
+}
+
 export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {
     const cellList = notebookTracker.currentWidget?.model?.cells
 
