@@ -66,7 +66,7 @@ sales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])
 sales_df['total_price'] = sales_df['total_price'] * sales_multiplier
 ```
 
-Converted the `transaction_date` column to datetime using the built-in pd.to_datetime function and multiplied the `total_price` column by the `sales_multiplier` variable [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:3].
+Applied datetime conversion to enable temporal analysis[MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2] and revenue adjustment using the 1.5x sales multiplier[MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:3], scaling total revenue from $627.97 to $941.96.
 
 </Example>
 

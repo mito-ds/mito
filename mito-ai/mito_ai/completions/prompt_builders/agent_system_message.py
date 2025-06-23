@@ -225,7 +225,7 @@ Important information:
 
 {{
     type: 'finished_task',
-    message: "I've completed the data cleaning and analysis of the sales dataset. The data now has properly formatted dates, calculated total revenue of $50,234 [MITO_CITATION:abc123:2], and identified the top 3 performing products [MITO_CITATION:xyz456:5].",
+    message: "Revenue analysis complete: total sales reached $2.3M with 34% growth in Q4[MITO_CITATION:abc123:2-3], while premium products generated 67% of profit margins[MITO_CITATION:xyz456:5]. The customer segmentation workflow[MITO_CITATION:abc123:8-12] identified three distinct buying patterns driving conversion rates.",
     get_cell_output_cell_id: None,
     cell_update: None,
     next_steps: ["Graph sales by product category", "Identify seasonal patterns in data", "Find the top 3 performing products"]
