@@ -9,6 +9,7 @@ These constants ensure consistency between prompt building and message trimming.
 import os
 import json
 from typing import Final
+from mito_ai.completions.prompt_builders.utils import redact_sensitive_info
 from mito_ai.utils.schema import MITO_FOLDER
 
 # Section headings used in prompts
@@ -40,6 +41,26 @@ Citation Rules:
 7. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
 """
 
+CELL_REFERENCE_RULES = """CELL REFERENCE RULES
+
+When referring to specific notebook cells in your responses, you can use cell references to help users quickly navigate to the relevant code. Use the following format:
+
+[MITO_CELL_REFERENCE:cell_id]
+
+Cell Reference Guidelines:
+1. Use cell references when pointing users to specific cells that contain relevant code, results, or explanations.
+2. The cell_id should be the actual ID of the cell you want to reference.
+3. Cell references will be rendered as interactive UI components that show the cell number and allow users to jump to that cell.
+4. Use cell references sparingly - only when they add real value for the user's understanding.
+5. Place cell references immediately after statements that relate to specific cells.
+6. Do not explain the cell reference format - just use it naturally in your response.
+
+Example usage:
+"The data cleaning code in [MITO_CELL_REFERENCE:abc123def456] processes the raw dataset and handles missing values."
+
+This will render as an interactive cell reference showing "Cell 3" (or whatever the actual cell number is) that users can click to navigate to that cell.
+"""
+
 def get_active_cell_output_str(has_active_cell_output: bool) -> str:
     """
     Used to tell the AI about the output of the active code cell. 
@@ -58,18 +79,6 @@ def cell_update_output_str(has_cell_update_output: bool) -> str:
         return f"{GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING}\nAttatched is an image of code cell output that you requested."
     else:
         return ""
-
-def redact_sensitive_info(connections: dict) -> dict:
-    """
-    Redacts sensitive information from connections data.
-    Returns a copy of the connections dict with sensitive fields masked.
-    """
-    redacted = {}
-    for conn_name, conn_data in connections.items():
-        redacted[conn_name] = conn_data.copy()
-        for key, value in redacted[conn_name].items():
-            redacted[conn_name][key] = 'redacted'
-    return redacted
 
 def get_database_rules() -> str:
     """

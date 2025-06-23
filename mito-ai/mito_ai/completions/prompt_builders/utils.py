@@ -20,3 +20,16 @@ def get_rules_str(selected_rules: Optional[List[str]]) -> str:
         rules_str += f"===========\n\nCustom Instructions Provided by User: {rule}\n\n{rule_content}\n\n==========="
     
     return rules_str
+
+
+def redact_sensitive_info(connections: dict) -> dict:
+    """
+    Redacts sensitive information from connections data.
+    Returns a copy of the connections dict with sensitive fields masked.
+    """
+    redacted = {}
+    for conn_name, conn_data in connections.items():
+        redacted[conn_name] = conn_data.copy()
+        for key, value in redacted[conn_name].items():
+            redacted[conn_name][key] = 'redacted'
+    return redacted

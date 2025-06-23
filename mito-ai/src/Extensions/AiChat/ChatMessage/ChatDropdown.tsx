@@ -132,9 +132,6 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [filteredOptions, selectedIndex]);
 
-
-
-
     return (
         <div className={`chat-dropdown`} data-testid="chat-dropdown">
             <ul className="chat-dropdown-list" data-testid="chat-dropdown-list">

@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.cell-reference {
+    background-color: var(--blue-400);
+    color: var(--blue-700);
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    vertical-align: baseline;
+    margin: 0 2px;
+    white-space: nowrap;
+    user-select: none;
+    border: 1px solid var(--blue-500);
+    transition: all 0.2s ease;
+}
+
+.cell-reference:hover {
+    background-color: var(--blue-500);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cell-reference:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.cell-reference:focus {
+    outline: 2px solid var(--blue-600);
+    outline-offset: 2px;
+}

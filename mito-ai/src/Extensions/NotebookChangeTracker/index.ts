@@ -18,10 +18,10 @@ const notebookChangeTrackerPlugin: JupyterFrontEndPlugin<void> = {
     // Track notebook switching and loading
     notebookTracker.currentChanged.connect((tracker, notebookPanel) => {
       if (notebookPanel) {
-        console.log('NotebookChangeTracker: Notebook switched/loaded', {
-          notebookPath: notebookPanel.context.path,
-          notebookName: notebookPanel.title.label
-        });
+        // console.log('NotebookChangeTracker: Notebook switched/loaded', {
+        //   notebookPath: notebookPanel.context.path,
+        //   notebookName: notebookPanel.title.label
+        // });
         notifyCellListChanged()
         
         // Set up cell-level event listeners for this notebook
@@ -34,10 +34,10 @@ const notebookChangeTrackerPlugin: JupyterFrontEndPlugin<void> = {
     // Track when new notebook widgets are added (notebook loading)
     notebookTracker.widgetAdded.connect((sender, notebookPanel) => {
       notifyCellListChanged()
-      console.log('NotebookChangeTracker: New notebook widget added', {
-        notebookPath: notebookPanel.context.path,
-        notebookName: notebookPanel.title.label
-      });
+      // console.log('NotebookChangeTracker: New notebook widget added', {
+      //   notebookPath: notebookPanel.context.path,
+      //   notebookName: notebookPanel.title.label
+      // });
       
       // Set up cell-level event listeners for this new notebook
       setupCellEventListeners(notebookPanel);
