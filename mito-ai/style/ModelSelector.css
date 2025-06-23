@@ -116,11 +116,6 @@
   /* Higher z-index to ensure visibility */
 }
 
-/* Make sure dropdown shows up correctly on the page boundaries */
-.model-selector {
-  position: relative;
-}
-
 .model-name {
   display: inline-block;
   max-width: 120px;
