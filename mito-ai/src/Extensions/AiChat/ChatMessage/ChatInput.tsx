@@ -277,6 +277,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         options={expandedVariables}
                         onSelect={handleOptionSelect}
                         filterText={dropdownFilter}
+                        notebookTracker={notebookTracker}
                     />
                 )}
             </div>

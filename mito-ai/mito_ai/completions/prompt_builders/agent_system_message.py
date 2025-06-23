@@ -3,6 +3,7 @@
 
 from mito_ai.completions.prompt_builders.prompt_constants import (
     CITATION_RULES,
+    CELL_REFERENCE_RULES,
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
@@ -216,7 +217,7 @@ When you have completed the user's task, respond with a message in this format:
 
 Important information:
 1. The message is a short summary of the ALL the work that you've completed on this task. It should not just refer to the final message. It could be something like "I've completed the sales strategy analysis by exploring key relationships in the data and summarizing creating a report with three recommendations to boost sales.""
-2. The message should include citations for any insights that you shared with the user.
+2. The message should include citations for any insights that you shared with the user and cell references for whenever you refer to specific cells that you've updated or created.
 3. The next_steps is an optional list of 2 or 3 suggested follow-up tasks or analyses that the user might want to perform next. These should be concise, actionable suggestions that build on the work you've just completed. For example: ["Visualize the results", "Export the cleaned data to CSV", "Perform statistical analysis on the key metrics"].
 4. The next_steps should be as relevant to the user's actual task as possible. Try your best not to make generic suggestions like "Analyze the data" or "Visualize the results". For example, if the user just asked you to calculate LTV of their customers, you might suggest the following next steps: ["Graph key LTV drivers: churn and average transaction value", "Visualize LTV per customer age group"].
 5. If you are not sure what the user might want to do next, err on the side of suggesting next steps instead of making an assumption and using more CELL_UPDATES.
@@ -225,7 +226,7 @@ Important information:
 
 {{
     type: 'finished_task',
-    message: "I've completed the data cleaning and analysis of the sales dataset. The data now has properly formatted dates, calculated total revenue of $50,234 [MITO_CITATION:abc123:2], and identified the top 3 performing products [MITO_CITATION:xyz456:5].",
+    message: "I've completed the data cleaning code in [MITO_CELL_REFERENCE:abc123] and analysis of the sales dataset in [MITO_CELL_REFERENCE:xyz456]. The data now has properly formatted dates, calculated total revenue of $50,234 [MITO_CITATION:abc123:2], and identified the top 3 performing products [MITO_CITATION:xyz456:5].",
     get_cell_output_cell_id: None,
     cell_update: None,
     next_steps: ["Graph sales by product category", "Identify seasonal patterns in data", "Find the top 3 performing products"]
@@ -346,7 +347,10 @@ Output:
 
 </Cell Addition Example>
 
-===
+====
+{CELL_REFERENCE_RULES}
+
+====
 {get_database_rules()}
 
 ====

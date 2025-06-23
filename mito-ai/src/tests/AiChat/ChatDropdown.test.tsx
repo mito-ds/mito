@@ -9,12 +9,25 @@ import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/re
 import ChatDropdown from '../../Extensions/AiChat/ChatMessage/ChatDropdown';
 import { ExpandedVariable } from '../../Extensions/AiChat/ChatMessage/ChatInput';
 import { getRules } from '../../restAPI/RestAPI';
+import { INotebookTracker } from '@jupyterlab/notebook';
+
 
 // Mock the RestAPI.getRules function
 jest.mock('../../restAPI/RestAPI', () => ({
   ...jest.requireActual('../../restAPI/RestAPI'), // Import and retain default behavior
   getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']) 
 }));
+
+const mockCellList = {
+  length: 0,
+  changed: { connect: jest.fn(), disconnect: jest.fn() }
+} as any;
+
+const mockNotebookTracker = {
+  currentWidget: {
+    model: { cells: mockCellList }
+  }
+} as unknown as INotebookTracker;
 
 // Helper function to create mock variables
 const createMockVariables = (): ExpandedVariable[] => {
@@ -54,6 +67,7 @@ const createMockProps = (overrides = {}) => ({
     onSelect: jest.fn(),
     filterText: '',
     maxDropdownItems: 10,
+    notebookTracker: mockNotebookTracker,
     ...overrides
 });
 

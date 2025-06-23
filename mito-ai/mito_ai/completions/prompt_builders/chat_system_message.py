@@ -3,7 +3,8 @@
 
 from mito_ai.completions.prompt_builders.prompt_constants import (
     CHAT_CODE_FORMATTING_RULES,
-    CITATION_RULES, 
+    CITATION_RULES,
+    CELL_REFERENCE_RULES,
     ACTIVE_CELL_ID_SECTION_HEADING, 
     CODE_SECTION_HEADING,
     get_database_rules
@@ -22,6 +23,11 @@ There are two possible types of responses you might give:
 
 ====
 {CITATION_RULES}
+
+====
+{CELL_REFERENCE_RULES}
+
+====
 
 <Example> 
 {ACTIVE_CELL_ID_SECTION_HEADING}
@@ -43,7 +49,7 @@ The average value is 53[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:2]
 
 Notice in the example above that the citation uses line number 2 because citation line numbers are 0-indexed.
 
-===
+====
 {get_database_rules()}
 
 ==== 

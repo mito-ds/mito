@@ -7,6 +7,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 import { createPortal } from 'react-dom';
 import { Citation, CitationProps } from './Citation';
+import { CellReference, CellReferenceProps } from './CellReference';
 import { INotebookTracker } from '@jupyterlab/notebook';
 
 /**
@@ -52,6 +53,15 @@ const CitationPortal: React.FC<CitationPortalProps> = ({ container, ...props }) 
     return createPortal(<Citation {...props} />, container);
 };
 
+// Cell Reference Portal component to render CellReference into DOM
+interface CellReferencePortalProps extends CellReferenceProps {
+    container: HTMLElement;
+}
+
+const CellReferencePortal: React.FC<CellReferencePortalProps> = ({ container, ...props }) => {
+    return createPortal(<CellReference {...props} />, container);
+};
+
 interface IMarkdownCodeProps {
     markdown: string;
     renderMimeRegistry: IRenderMimeRegistry;
@@ -64,6 +74,13 @@ interface Citation {
         citation_index: number;
         cell_id: string;
         line: number;
+    };
+}
+
+interface CellReferenceData {
+    id: string;
+    data: {
+        cell_id: string;
     };
 }
 
@@ -101,6 +118,35 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         return { processedMarkdown, citations };
     }, []);
 
+    // Extract cell references from the markdown, returning the markdown with cell references replaced with 
+    // cell reference placeholders {{${id}}} and an array of cell reference objects.
+    const extractCellReferences = useCallback((text: string): { processedMarkdown: string; cellReferences: CellReferenceData[] } => {
+        // Regex to match [MITO_CELL_REFERENCE:cell_id] format
+        const cellReferenceRegex = /\[MITO_CELL_REFERENCE:([^\]]+)\]/g;
+        const cellReferences: CellReferenceData[] = [];
+        let counter = 0;
+
+        // Replace each cell reference with a placeholder
+        const processedMarkdown = text.replace(cellReferenceRegex, (match, cellId) => {
+            console.log("cellId!!!", cellId);
+            try {
+                const id = `cell-ref-${counter++}`;
+                cellReferences.push({
+                    id,
+                    data: {
+                        cell_id: cellId
+                    }
+                });
+                return `{{${id}}}`;
+            } catch (e) {
+                console.error("Failed to parse cell reference:", e);
+                return match;
+            }
+        });
+
+        return { processedMarkdown, cellReferences };
+    }, []);
+
     // Uses the Jupyter markdowm MimeRenderer to render the markdown content as normal HTML
     const renderMarkdownContent = useCallback(async (processedMarkdown: string): Promise<void> => {
         if (!processedMarkdown || !containerRef.current) return;
@@ -121,16 +167,17 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         }
     }, [renderMimeRegistry]);
 
-    // Replace the citation placeholders with Citation Components in the DOM
-    const createCitationPortals = useCallback((citations: Citation[]): React.ReactElement[] => {
-        if (!containerRef.current || citations.length === 0) return [];
+    // Replace the citation and cell reference placeholders with Components in the DOM
+    const createPortals = useCallback((citations: Citation[], cellReferences: CellReferenceData[]): React.ReactElement[] => {
+        if (!containerRef.current || (citations.length === 0 && cellReferences.length === 0)) return [];
 
         const newPortals: React.ReactElement[] = [];
 
-        // Create a map of placeholder to citation for faster lookup
+        // Create maps of placeholder to data for faster lookup
         const citationMap = new Map(citations.map(citation => [`{{${citation.id}}}`, citation]));
+        const cellReferenceMap = new Map(cellReferences.map(cellRef => [`{{${cellRef.id}}}`, cellRef]));
 
-        // Find all text nodes that contain our placeholder like {{citation-id}}).
+        // Find all text nodes that contain our placeholders
         // Since these placeholders exist within the text content (not as separate DOM elements):
         //  - Find all text nodes in the rendered markdown
         //  - Check each one to see if it contains any of your placeholders
@@ -149,7 +196,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
 
             // Check if this node contains any placeholders
             let containsPlaceholder = false;
-            for (const placeholder of citationMap.keys()) {
+            for (const placeholder of [...citationMap.keys(), ...cellReferenceMap.keys()]) {
                 if (node.nodeValue.includes(placeholder)) {
                     containsPlaceholder = true;
                     break;
@@ -158,8 +205,8 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
 
             if (!containsPlaceholder) return;
 
-            // Create a regex to match all placeholders
-            const placeholderPattern = /\{\{citation-\d+\}\}/g;
+            // Create a regex to match all placeholders (citations and cell references)
+            const placeholderPattern = /\{\{(?:citation-\d+|cell-ref-\d+)\}\}/g;
             const matches = [...node.nodeValue.matchAll(placeholderPattern)];
 
             if (matches.length === 0) return;
@@ -171,7 +218,9 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             matches.forEach(match => {
                 const placeholder = match[0];
                 const citation = citationMap.get(placeholder);
-                if (!citation) return;
+                const cellReference = cellReferenceMap.get(placeholder);
+                
+                if (!citation && !cellReference) return;
 
                 const startIndex = match.index!;
 
@@ -182,23 +231,39 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                     );
                 }
 
-                // Create span for the citation
+                // Create span for the citation or cell reference
                 const span = document.createElement('span');
-                span.classList.add('citation-container');
-                span.dataset.citationId = citation.id;
+                if (citation) {
+                    span.classList.add('citation-container');
+                    span.dataset.citationId = citation.id;
+                } else if (cellReference) {
+                    span.classList.add('cell-reference-container');
+                    span.dataset.cellReferenceId = cellReference.id;
+                }
                 fragment.appendChild(span);
 
                 // Create React portal for this span
-                newPortals.push(
-                    <CitationPortal
-                        key={citation.id + '-' + matches.indexOf(match)}
-                        container={span}
-                        citationIndex={citation.data.citation_index}
-                        cellId={citation.data.cell_id}
-                        line={citation.data.line}
-                        notebookTracker={notebookTracker}
-                    />
-                );
+                if (citation) {
+                    newPortals.push(
+                        <CitationPortal
+                            key={citation.id + '-' + matches.indexOf(match)}
+                            container={span}
+                            citationIndex={citation.data.citation_index}
+                            cellId={citation.data.cell_id}
+                            line={citation.data.line}
+                            notebookTracker={notebookTracker}
+                        />
+                    );
+                } else if (cellReference) {
+                    newPortals.push(
+                        <CellReferencePortal
+                            key={cellReference.id + '-' + matches.indexOf(match)}
+                            container={span}
+                            cellId={cellReference.data.cell_id}
+                            notebookTracker={notebookTracker}
+                        />
+                    );
+                }
 
                 lastIndex = startIndex + placeholder.length;
             });
@@ -223,18 +288,21 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     useEffect(() => {
         const processMarkdown = async (): Promise<void> => {
             // Step 1: Extract citations and get processed markdown
-            const { processedMarkdown, citations } = extractCitations(markdown);
+            const { processedMarkdown: markdownAfterCitations, citations } = extractCitations(markdown);
 
-            // Step 2: Render markdown with placeholders
-            await renderMarkdownContent(processedMarkdown);
+            // Step 2: Extract cell references from the processed markdown
+            const { processedMarkdown: finalMarkdown, cellReferences } = extractCellReferences(markdownAfterCitations);
 
-            // Step 3: Create and insert citation portals
-            const portals = createCitationPortals(citations);
+            // Step 3: Render markdown with placeholders
+            await renderMarkdownContent(finalMarkdown);
+
+            // Step 4: Create and insert citation and cell reference portals
+            const portals = createPortals(citations, cellReferences);
             setCitationPortals(portals);
         };
 
         void processMarkdown();
-    }, [markdown, extractCitations, renderMarkdownContent, createCitationPortals]);
+    }, [markdown, extractCitations, extractCellReferences, renderMarkdownContent, createPortals]);
 
     return (
         <div ref={containerRef} className="markdown-block-with-citations">
