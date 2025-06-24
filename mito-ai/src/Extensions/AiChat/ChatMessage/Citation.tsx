@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { scrollToCell, scrollToCellWithRange, getCellCodeByID } from '../../../utils/notebook';
+import { scrollToAndHighlightCell } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import '../../../../style/Citation.css';
 
@@ -28,37 +28,17 @@ const getLineDisplayText = (line: CitationLine): string => {
   }
 };
 
-// Helper function to get the scroll target line
-const getScrollTargetLine = (line: CitationLine): number => {
-  if (typeof line === 'number') {
-    return line;
-  } else {
-    // For ranges, scroll to the start of the range
-    return line.start;
-  }
-};
-
-// Citation button component
 // Citation button component
 export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line, notebookTracker }): JSX.Element => {
+  
   const handleClick = (): void => {
-    // To determine how we should handle scrolling, 
-    // we need to first count the number of lines in the cell.
-    // If the line is closer to the top, 
-    // we set the scroll position to "start," otherwise we set it to "end."
-    const code = getCellCodeByID(notebookTracker, cellId);
-    const scrollTargetLine = getScrollTargetLine(line);
-    const relativeLinePosition = scrollTargetLine / (code?.split('\n').length || 1);
-    const position = relativeLinePosition < 0.5 ? 'start' : 'end';
+    const lineStart = typeof line === 'number' ? line : line.start;
+    // In order to support old citations that have just one line, we 
+    // we set the end line to the start line if only a single line number is provided.
+    const lineEnd = typeof line === 'number' ? line : line.end;
 
-    // Use different scroll functions for single line vs range
-    if (typeof line === 'number') {
-      // Single line citation
-      scrollToCell(notebookTracker, cellId, line, position);
-    } else {
-      // Multiline citation - use the new range function
-      scrollToCellWithRange(notebookTracker, cellId, line.start, line.end, position);
-    }
+    // Scroll to the cell and highlight the lines
+    scrollToAndHighlightCell(notebookTracker, cellId, lineStart, lineEnd);
   };
 
   return (
@@ -72,4 +52,4 @@ export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line,
   );
 };
 
-export default Citation; 
+export default Citation;

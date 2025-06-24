@@ -31,7 +31,7 @@ Single line citation:
 [MITO_CITATION:cell_id:line_number]
 
 Multiline citation (for citing a range of lines):
-[MITO_CITATION:cell_id:start_line-end_line]
+[MITO_CITATION:cell_id:first_line-last_line]
 
 Citation Rules:
 
@@ -39,7 +39,7 @@ Citation Rules:
 2. When choosing the citation, select the code that will most help the user validate the fact or statement that you shared with them.
 3. Place the citation immediately after the statement it supports. Do not explain the citation with phrases like "See", "Derived from", etc. Just provide the citation object.
 4. For the "line_number" field, use the line number within the cell that is most relevant to the citation. Important: The cell line number should be 0-indexed and should not skip comments.
-5. For multiline citations, use the "start_line-end_line" format when the insight spans multiple lines of code. Both line numbers should be 0-indexed.
+5. For multiline citations, use the "first_line-last_line" format when the insight spans multiple lines of code. Both line numbers should be 0-indexed.
 6. If you cannot find relevant information in the notebook to answer a question, clearly state this and do not provide a citation.
 7. You ONLY need to provide a citation when sharing an insight from the data in the message part of the response. If all you are doing is writing/updating code, then there is no need to provide a citation.
 8. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.

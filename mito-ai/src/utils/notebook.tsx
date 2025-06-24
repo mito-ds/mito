@@ -94,6 +94,10 @@ export const getActiveCellOutput = async (notebookTracker: INotebookTracker): Pr
 }
 
 export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeCellID: string | undefined): Promise<string | undefined> => {
+    // TODO: There is a bug where if the cell is not actually rendered on the screen, 
+    // then the output is not captured. This is pretty unlikely to happen currently because
+    // the agent scrolls to the cell.
+
     if (codeCellID === undefined) {
         return undefined
     }
@@ -242,64 +246,16 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
     }
 }
 
-export const highlightLineOfCodeInCodeCell = (notebookTracker: INotebookTracker, codeCellID: string, lineNumber: number): void => {
-    /*
-        Briefly highlights a specific line in a code cell, to draw the user's attention to it.
-        
-        Args:
-            notebookTracker: The notebook tracker.
-            codeCellID: The ID of the code cell.
-            lineNumber: The 0-indexed line number to highlight.
-    */
-    // Get the cell with the given ID
-    const cell = getCellByID(notebookTracker, codeCellID);
-    if (!cell) {
-        return;
-    }
-
-    // Get the cell's editor
-    const editor = cell.editor;
-    if (!editor) {
-        return;
-    }
-
-    // We expect the line number to be 0-indexed. To be safe, if the line number is out of bounds, we clamp it.
-    const lines = editor.model.sharedModel.source.split('\n');
-    const targetLine = Math.min(Math.max(lineNumber, 0), lines.length - 1);
-
-    // Find the line element in the DOM
-    const cmEditor = cell.node.querySelector('.jp-Editor');
-    if (!cmEditor) {
-        return;
-    }
-
-    // Find all line elements and get the one at the target index
-    const lineElements = cmEditor.querySelectorAll('.cm-line');
-    if (targetLine >= lineElements.length) {
-        return;
-    }
-
-    const lineElement = lineElements[targetLine] as HTMLElement;
-    if (!lineElement) {
-        return;
-    }
-
-    // Store the original background color
-    const originalBackground = lineElement.style.background;
-
-    // Change the background color to highlight the line
-    lineElement.style.background = 'var(--purple-400)';
-    lineElement.style.transition = 'background 0.5s ease';
-
-    // Reset the background color after a delay
-    setTimeout(() => {
-        lineElement.style.background = originalBackground;
-    }, 2000);
-}
-
-export const highlightLinesOfCodeInCodeCell = (notebookTracker: INotebookTracker, codeCellID: string, startLine: number, endLine: number): void => {
+export const highlightLinesOfCodeInCodeCell = (
+    notebookTracker: INotebookTracker, 
+    codeCellID: string, 
+    startLine: number | undefined, 
+    endLine: number | undefined
+): void => {
     /*
         Briefly highlights a range of lines in a code cell, to draw the user's attention to it.
+
+        If no start and end line is provided, then highlight the entire cell.
         
         Args:
             notebookTracker: The notebook tracker.
@@ -321,8 +277,8 @@ export const highlightLinesOfCodeInCodeCell = (notebookTracker: INotebookTracker
 
     // We expect the line numbers to be 0-indexed. To be safe, if the line numbers are out of bounds, we clamp them.
     const lines = editor.model.sharedModel.source.split('\n');
-    const targetStartLine = Math.min(Math.max(startLine, 0), lines.length - 1);
-    const targetEndLine = Math.min(Math.max(endLine, 0), lines.length - 1);
+    const targetStartLine = startLine ? Math.min(Math.max(startLine, 0), lines.length - 1) : 0;
+    const targetEndLine = endLine ? Math.min(Math.max(endLine, 0), lines.length - 1) : lines.length - 1;
 
     // Find the line elements in the DOM
     const cmEditor = cell.node.querySelector('.jp-Editor');
@@ -360,10 +316,36 @@ export const highlightLinesOfCodeInCodeCell = (notebookTracker: INotebookTracker
     }, 2000);
 }
 
+export const scrollToAndHighlightCell = (
+    notebookTracker: INotebookTracker, 
+    cellID: string, 
+    startLine: number | undefined,
+    endLine?: number,
+    position: WindowedList.BaseScrollToAlignment = 'center'
+): void => {
+
+    // Scroll to the cell
+    scrollToCell(notebookTracker, cellID, startLine, position);
+
+    // Wait for the scroll animation to complete before highlighting the lines
+    // The default smooth scroll takes about 300-500ms to complete
+    setTimeout(() => {
+
+        if (startLine !== undefined) {
+            // If no end line was provided, then we just highlight the single line 
+            endLine = endLine || startLine;
+            highlightLinesOfCodeInCodeCell(notebookTracker, cellID, startLine, endLine);
+        } else {
+            // If no start line was provided, then we just highlight the entire cell
+            highlightLinesOfCodeInCodeCell(notebookTracker, cellID, undefined, undefined);
+        }
+    }, 500);
+}
+
 export const scrollToCell = (
     notebookTracker: INotebookTracker, 
     cellID: string, 
-    lineNumber?: number,
+    startLine: number | undefined,
     position: WindowedList.BaseScrollToAlignment = 'center'
 ): void => {
 
@@ -373,70 +355,20 @@ export const scrollToCell = (
         return;
     }
 
-    // If a line number is provided, figure out what position to scroll to 
-    // in order to display that line by counting the number of lines in the cell.
-    // we need to first count the number of lines in the cell.
-    if (lineNumber !== undefined) {
-        const code = getCellCodeByID(notebookTracker, cellID);
-        const relativeLinePosition = lineNumber / (code?.split('\n').length || 1);
+    // If line numbers are provided, figure out what position to scroll to 
+    // based on the start line's position in the cell
+    const code = getCellCodeByID(notebookTracker, cellID);
 
-        // These positions must be of type BaseScrollToAlignment defined in @jupyterlab/ui-components
-        position = relativeLinePosition < 0.5 ? 'start' : 'end';
-    }
+    startLine = startLine || 0;
+    const relativeLinePosition = startLine / (code?.split('\n').length || 1);
+
+    // These positions must be of type BaseScrollToAlignment defined in @jupyterlab/ui-components
+    position = relativeLinePosition < 0.5 ? 'start' : 'end';
 
     // If the cell is not the active cell, the scrolling does not work. 
     // It scrolls to the cell and then flashes back to the active cell.
     setActiveCellByID(notebookTracker, cellID);
-  
+
+    // Use the new JupyterLab scrollToCell method instead of DOM node scrollIntoView
     void notebookTracker.currentWidget?.content.scrollToCell(cell, position);
-
-    // Wait for the scroll animation to complete before highlighting the line
-    // The default smooth scroll takes about 300-500ms to complete
-    setTimeout(() => {
-        if (lineNumber !== undefined) {
-            highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
-        }
-    }, 500);
-}
-
-export const scrollToCellWithRange = (
-    notebookTracker: INotebookTracker, 
-    cellID: string, 
-    startLine: number,
-    endLine?: number,
-    position: ScrollLogicalPosition = 'center'
-): void => {
-
-    // First activate the cell
-    setActiveCellByID(notebookTracker, cellID);
-
-    // Get the cell
-    const cell = getCellByID(notebookTracker, cellID);
-    if (!cell) {
-        return;
-    }
-
-    // Get the cell's editor
-    const editor = cell.editor;
-    if (!editor) {
-        return;
-    }
-
-    // Make the cell node visible by scrolling to it
-    const cellNode = cell.node;
-    if (cellNode) {
-        cellNode.scrollIntoView({ behavior: 'smooth', block: position });
-
-        // Wait for the scroll animation to complete before highlighting the lines
-        // The default smooth scroll takes about 300-500ms to complete
-        setTimeout(() => {
-            if (endLine !== undefined && endLine !== startLine) {
-                // Highlight range of lines
-                highlightLinesOfCodeInCodeCell(notebookTracker, cellID, startLine, endLine);
-            } else {
-                // Highlight single line
-                highlightLineOfCodeInCodeCell(notebookTracker, cellID, startLine);
-            }
-        }, 500);
-    }
 }
