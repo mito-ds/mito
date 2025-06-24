@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { scrollToCell, scrollToCellWithRange, getCellCodeByID } from '../../../utils/notebook';
+import { scrollToCell, scrollToCellWithRange } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import '../../../../style/Citation.css';
 
@@ -25,16 +25,6 @@ const getLineDisplayText = (line: CitationLine): string => {
     return `Line ${line}`;
   } else {
     return `Lines ${line.start}-${line.end}`;
-  }
-};
-
-// Helper function to get the scroll target line
-const getScrollTargetLine = (line: CitationLine): number => {
-  if (typeof line === 'number') {
-    return line;
-  } else {
-    // For ranges, scroll to the start of the range
-    return line.start;
   }
 };
 
