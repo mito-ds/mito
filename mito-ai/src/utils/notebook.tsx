@@ -94,6 +94,10 @@ export const getActiveCellOutput = async (notebookTracker: INotebookTracker): Pr
 }
 
 export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeCellID: string | undefined): Promise<string | undefined> => {
+    // TODO: There is a bug where if the cell is not actually rendered on the screen, 
+    // then the output is not captured. This is pretty unlikely to happen currently because
+    // the agent scrolls to the cell.
+
     if (codeCellID === undefined) {
         return undefined
     }
