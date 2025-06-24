@@ -140,6 +140,8 @@ export abstract class BaseWebsocketClient<RequestType, ResponseType, StreamType 
     // Reject all pending requests with a cancellation error
     for (const [messageId, resolver] of this._pendingRepliesMap.entries()) {
       resolver.reject(new Error('Request cancelled by user'));
+      // Track cancelled message IDs to ignore their responses
+      this._cancelledMessageIds.add(messageId);
       this._pendingRepliesMap.delete(messageId);
     }
   }
@@ -452,6 +454,9 @@ export abstract class BaseWebsocketClient<RequestType, ResponseType, StreamType 
   
   /** Dictionary mapping message IDs to Promise resolvers. */
   protected _pendingRepliesMap = new Map<string, PromiseDelegate<ResponseType>>();
+  
+  /** Set of cancelled message IDs to ignore responses for */
+  protected _cancelledMessageIds = new Set<string>();
   
   /** Connection status stream */
   protected _connectionStatus = new Stream<BaseWebsocketClient<RequestType, ResponseType, StreamType>, 'connected' | 'disconnected'>(this);
