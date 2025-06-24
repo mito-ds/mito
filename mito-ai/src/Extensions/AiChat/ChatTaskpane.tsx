@@ -74,6 +74,8 @@ import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlug
 import { getFirstMessageFromCookie } from './FirstMessage';
 import CTACarousel from './CTACarousel';
 import NextStepsPills from '../../components/NextStepsPills';
+import { undoIcon } from '@jupyterlab/ui-components';
+import TextAndIconButton from '../../components/TextAndIconButton';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -162,6 +164,35 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // If the user hides the next steps, we keep them hidden until they re-open them
     const [nextSteps, setNextSteps] = useState<string[]>([]);
     const [displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable] = useState(true);
+
+    // Track if checkpoint exists for UI updates
+    const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
+
+    const createCheckpoint = async (): Promise<void> => {
+        // By saving the notebook, we create a checkpoint that we can restore from
+        await app.commands.execute("docmanager:save")
+        // Despite what the docs say, this does not seem to do anything:
+        // await app.commands.execute("logconsole:add-checkpoint")
+        setHasCheckpoint(true)
+    }
+    
+    const restoreCheckpoint =  async (): Promise<void> => {    
+        // Restore the checkpoint        
+        await app.commands.execute("docmanager:restore-checkpoint")
+        setHasCheckpoint(false)
+
+        // Add a message to the chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager();
+        newChatHistoryManager.addAIMessageFromResponse(
+            "I've reverted all previous changes",
+            "chat",
+            false
+        )
+        setChatHistoryManager(newChatHistoryManager);           
+        
+        // Restart the run all
+        await app.commands.execute("notebook:restart-run-all")
+    }
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -284,6 +315,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Clear next steps when starting a new chat
         setNextSteps([])
+        
+        // Clear agent checkpoint when starting new chat
+        setHasCheckpoint(false)
 
         // Reset frontend chat history
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
@@ -628,6 +662,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             // Create the stream handler function and store it in the ref
             const streamHandler = (_: CompletionWebsocketClient, chunk: ICompletionStreamChunk): void => {
+                // Safety check: Don't process responses if agent execution has been stopped
+                if (!shouldContinueAgentExecution.current) {
+                    console.log('Ignoring response chunk because agent execution was stopped');
+                    return;
+                }
+
                 if (chunk.error) {
                     console.group('Error calling OpenAI API:');
                     console.error('Title:', chunk.error.title);
@@ -681,6 +721,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             try {
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
+                
+                // Safety check: Don't process responses if agent execution has been stopped
+                if (!shouldContinueAgentExecution.current) {
+                    console.log('Ignoring streaming completion response because agent execution was stopped');
+                    return;
+                }
+                
                 const content = aiResponse.items[0]?.content ?? '';
 
                 if (
@@ -689,7 +736,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 ) {
                     // Agent:Execution prompts return a CellUpdate object that we need to parse
                     const agentResponse: AgentResponse = JSON.parse(content)
-                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+                    
+                    // Safety check: Don't add agent responses if execution has been stopped
+                    if (shouldContinueAgentExecution.current) {
+                        newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+                    } else {
+                        console.log('Ignoring agent response because execution was stopped');
+                    }
                 }
             } catch (error) {
                 // Check if this is a cancellation error
@@ -722,6 +775,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             try {
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
 
+                // Safety check: Don't process responses if agent execution has been stopped
+                if (!shouldContinueAgentExecution.current) {
+                    console.log('Ignoring non-streaming completion response because agent execution was stopped');
+                    return;
+                }
+
                 if (aiResponse.error) {
 
                     console.group('Error calling OpenAI API:');
@@ -753,7 +812,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
                         // Agent:Execution prompts return a CellUpdate object that we need to parse
                         const agentResponse: AgentResponse = JSON.parse(content)
-                        newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+                        
+                        // Safety check: Don't add agent responses if execution has been stopped
+                        if (shouldContinueAgentExecution.current) {
+                            newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
+                        } else {
+                            console.log('Ignoring agent response because execution was stopped');
+                        }
                     } else {
                         // For all other prompt types, we can just add the content to the chat history
                         aiResponse.items.forEach((item: any) => {
@@ -804,6 +869,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Adds a new message to the chat history and updates the state. If we don't update the state 
         then the chat history does not update in the UI. 
         */
+        
+        // Safety check: Don't add messages if agent execution has been stopped (except for errors)
+        if (!shouldContinueAgentExecution.current && !mitoAIConnectionError && promptType !== 'chat') {
+            console.log('Ignoring AI message because agent execution was stopped');
+            return;
+        }
+        
         chatHistoryManager.addAIMessageFromResponse(messageContent, promptType, mitoAIConnectionError, mitoAIConnectionErrorType)
         setChatHistoryManager(chatHistoryManager)
     }
@@ -819,22 +891,54 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('stopping');
     }
 
-    const finalizeAgentStop = (): void => {
+    const finalizeAgentStop = async (): Promise<void> => {
         // Notify user that agent has been stopped
         shouldContinueAgentExecution.current = false;
         
+        // Save the stop message to backend without updating UI
+        const stopMessage = "Agent execution stopped by user. I will no longer continue to address your previous query. Please submit a new request if you need further assistance.";
+        
+        try {
+            // Create a minimal chat message to save the stop message to backend only
+            const chatMetadata: IChatMessageMetadata = {
+                promptType: 'chat',
+                variables: [],
+                files: [],
+                activeCellCode: '',
+                activeCellId: '',
+                input: stopMessage,
+                threadId: activeThreadIdRef.current
+            };
+
+            const completionRequest: ICompletionRequest = {
+                type: 'chat',
+                message_id: UUID.uuid4(),
+                metadata: chatMetadata,
+                stream: false
+            };
+
+            // Send directly to backend without updating UI - message will appear on refresh
+            await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
+            
+        } catch (error) {
+            console.warn('Failed to save agent stop message to backend:', error);
+        }
+        
+        // Display immediate UI message to inform user that agent has stopped
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         addAIMessageFromResponseAndUpdateState(
-            "Agent execution stopped. You can continue the conversation or start a new one.",
+            "Agent execution has been stopped by user.",
             'chat',
             newChatHistoryManager
         );
+        
         // Reset agent to idle state
         setAgentExecutionStatus('idle');
         setLoadingAIResponse(false);
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
+        await createCheckpoint();
         setAgentExecutionStatus('working')
 
         // Reset the execution flag at the start of a new plan
@@ -849,7 +953,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
                 // Check if we should continue execution
                 if (!shouldContinueAgentExecution.current) {
-                    finalizeAgentStop()
+                    await finalizeAgentStop()
                     break;
                 }
 
@@ -877,12 +981,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         const securityCheck = checkForBlacklistedWords(aiGeneratedCode);
                         if (!securityCheck.safe) {
                             console.error('Security Warning:', securityCheck.reason);
-                            addAIMessageFromResponseAndUpdateState(
-                                `I cannot execute this code without your approval because this code did not pass my security checks. ${securityCheck.reason}. For your safety, I am stopping execution of this plan.`,
-                                'agent:execution',
-                                chatHistoryManager
-                            );
-                            finalizeAgentStop()
+                            // Only show security message if agent is still running
+                            if (shouldContinueAgentExecution.current) {
+                                addAIMessageFromResponseAndUpdateState(
+                                    `I cannot execute this code without your approval because this code did not pass my security checks. ${securityCheck.reason}. For your safety, I am stopping execution of this plan.`,
+                                    'agent:execution',
+                                    chatHistoryManager
+                                );
+                            }
+                            await finalizeAgentStop()
                             break;
                         }
                     }
@@ -941,11 +1048,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // TODO: Save this message in backend also even if there is not another message sent. 
                     // TODO: Move this into the retryIfExecutionError function?
                     if (status === 'failure') {
-                        addAIMessageFromResponseAndUpdateState(
-                            "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
-                            'agent:execution',
-                            chatHistoryManager
-                        )
+                        // Only show failure message if agent is still running
+                        if (shouldContinueAgentExecution.current) {
+                            addAIMessageFromResponseAndUpdateState(
+                                "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
+                                'agent:execution',
+                                chatHistoryManager
+                            )
+                        }
                         break;
                     }
                 }
@@ -958,17 +1068,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentExecutionDepth > AGENT_EXECUTION_DEPTH_LIMIT) {
-                addAIMessageFromResponseAndUpdateState(
-                    "Since I've been working for a while now, give my work a review and then tell me how to continue.",
-                    'agent:execution',
-                    chatHistoryManager
-                )
+                // Only show depth limit message if agent is still running
+                if (shouldContinueAgentExecution.current) {
+                    addAIMessageFromResponseAndUpdateState(
+                        "Since I've been working for a while now, give my work a review and then tell me how to continue.",
+                        'agent:execution',
+                        chatHistoryManager
+                    )
+                }
             }
         } catch (error) {
             // Check if this is a cancellation error
             if (error instanceof Error && error.message === 'Agent execution cancelled') {
                 console.log('Agent execution was cancelled');
-                finalizeAgentStop();
+                await finalizeAgentStop();
             } else {
                 // Re-throw other errors
                 throw error;
@@ -1358,6 +1471,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         Thinking <LoadingDots />
                     </div>
                 }
+                {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
+                {hasCheckpoint &&
+                    agentModeEnabled &&
+                    agentExecutionStatus === 'idle' &&
+                    displayOptimizedChatHistory.length > 0 && (
+                        <div className='message message-assistant-chat'>
+                            <TextAndIconButton
+                                text="Revert changes"
+                                icon={undoIcon.react}
+                                title="Revert changes"
+                                onClick={() => restoreCheckpoint()}
+                                variant="gray"
+                                width="fit-contents"
+                                iconPosition="left"
+                            />
+                            <p className="text-muted text-sm">
+                                Undo the most recent changes made by the agent
+                            </p>
+                        </div>
+                    )}
             </div>
             {displayOptimizedChatHistory.length === 0 && (
                 <div className="suggestions-container">
@@ -1405,17 +1538,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         <ToggleButton
                             leftText="Chat"
                             rightText="Agent"
+                            title="Switch between Chat and Agent mode"
                             isLeftSelected={!agentModeEnabled}
                             onChange={async (isLeftSelected) => {
                                 await startNewChat(); // TODO: delete thread instead of starting new chat
                                 setAgentModeEnabled(!isLeftSelected);
+                                // Clear agent checkpoint when switching modes
+                                setHasCheckpoint(false);
                                 // Focus the chat input directly
                                 const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                 if (chatInput) {
                                     chatInput.focus();
                                 }
                             }}
-                            title="Agent can create plans and run code."
                         />
                         <ModelSelector onConfigChange={(config) => {
                             // Just update the backend
@@ -1441,7 +1576,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             }
                         }}
                     >
-                        Submit ⏎
+                        <span className="submit-text">Submit</span> ⏎
                     </button>
                 </div>
             )}
