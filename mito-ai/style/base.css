@@ -55,6 +55,14 @@
   --purple-300: #e9e0fd;
 }
 
+.text-muted {
+  color: var(--jp-ui-font-color3);
+}
+
+.text-sm {
+  font-size: 12px;
+}
+
 /* 
     Jupyter tries to ensure that the cell toolbar does not overlap with the contents of the cell. 
     There's some algorithm that adds the class `.jp-toolbar-overlap` to the cell toolbar 

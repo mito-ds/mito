@@ -6,7 +6,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 import { createPortal } from 'react-dom';
-import { Citation, CitationProps } from './Citation';
+import { Citation, CitationProps, CitationLine } from './Citation';
 import { INotebookTracker } from '@jupyterlab/notebook';
 
 /**
@@ -63,7 +63,7 @@ interface Citation {
     data: {
         citation_index: number;
         cell_id: string;
-        line: number;
+        line: CitationLine;
     };
 }
 
@@ -71,24 +71,53 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     const [citationPortals, setCitationPortals] = useState<React.ReactElement[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
 
+    // Helper function to parse line numbers or ranges
+    const parseLineNumber = (lineStr: string): CitationLine => {
+        if (lineStr.includes('-')) {
+            // Handle range format like "18-41"
+            const parts = lineStr.split('-');
+            const startStr = parts[0];
+            const endStr = parts[1];
+            
+            if (!startStr || !endStr) {
+                // Fallback to single line if split fails
+                return parseInt(lineStr, 10);
+            }
+            
+            const start = parseInt(startStr, 10);
+            const end = parseInt(endStr, 10);
+            
+            if (isNaN(start) || isNaN(end)) {
+                // Fallback to single line if parsing fails
+                return parseInt(lineStr, 10);
+            }
+            
+            return { start, end };
+        } else {
+            // Handle single line number
+            return parseInt(lineStr, 10);
+        }
+    };
+
     // Extract citations from the markdown, returning the markdown with the JSON citations replaced with 
     // citation placeholders {{${id}}} and an array of citation objects.
     const extractCitations = useCallback((text: string): { processedMarkdown: string; citations: Citation[] } => {
-        // New regex to match [MITO_CITATION:cell_id:line_number] format
-        const citationRegex = /\[MITO_CITATION:([^:]+):(\d+)\]/g;
+        // Updated regex to match both single lines and line ranges: [MITO_CITATION:cell_id:line_number] or [MITO_CITATION:cell_id:start_line-end_line]
+        const citationRegex = /\[MITO_CITATION:([^:]+):(\d+(?:-\d+)?)\]/g;
         const citations: Citation[] = [];
         let counter = 0;
 
         // Replace each citation with a placeholder
-        const processedMarkdown = text.replace(citationRegex, (match, cellId, line) => {
+        const processedMarkdown = text.replace(citationRegex, (match, cellId, lineStr) => {
             try {
                 const id = `citation-${counter++}`;
+                const line = parseLineNumber(lineStr);
                 citations.push({
                     id,
                     data: {
                         citation_index: counter,
                         cell_id: cellId,
-                        line: parseInt(line, 10)
+                        line: line
                     }
                 });
                 return `{{${id}}}`;
