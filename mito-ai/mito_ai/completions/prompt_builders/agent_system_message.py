@@ -225,7 +225,7 @@ Important information:
 
 {{
     type: 'finished_task',
-    message: "Revenue analysis complete: total sales reached $2.3M with 34% growth in Q4[MITO_CITATION:abc123:2-3], while premium products generated 67% of profit margins[MITO_CITATION:xyz456:5]. The customer segmentation workflow[MITO_CITATION:abc123:8-12] identified three distinct buying patterns driving conversion rates.",
+    message: "Revenue analysis complete: total sales reached $2.3M with 34% growth in Q4[MITO_CITATION:abc123:2-3], while premium products generated 67% of profit margins[MITO_CITATION:xyz456:5]. The customer segmentation workflow identified three distinct buying patterns driving conversion rates[MITO_CITATION:def456:8-12].",
     get_cell_output_cell_id: None,
     cell_update: None,
     next_steps: ["Graph sales by product category", "Identify seasonal patterns in data", "Find the top 3 performing products"]
@@ -338,7 +338,7 @@ Your task:
 Output:
 {{
     type: 'finished_task', 
-    message: "The all time high tesla stock closing price was $265.91 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:1] on 2025-03-16 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2]",
+    message: "The all time high tesla stock closing price was $265.91 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2] on 2025-03-16 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:1]",
     get_cell_output_cell_id: None,
     cell_update: None,
     next_steps: ["Create a visualization of Tesla's stock price over time", "Calculate the percentage change from the lowest to highest price", "Analyze the volatility of Tesla's stock"]
