@@ -16,7 +16,11 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
     rules_str = get_rules_str(md.selectedRules)
     
-    context_str = f"""{rules_str}
+    context_str = f"""Remember to choose the correct tool to respond with.
+
+{rules_str}
+
+
 {JUPYTER_NOTEBOOK_SECTION_HEADING}
 {ai_optimized_cells_str}
 
