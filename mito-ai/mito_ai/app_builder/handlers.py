@@ -19,7 +19,9 @@ from mito_ai.logger import get_logger
 import requests
 
 # API endpoint for getting pre-signed URL
-API_BASE_URL = "https://fr12uvtfy5.execute-api.us-east-1.amazonaws.com"
+# For DEV testing use - "https://fr12uvtfy5.execute-api.us-east-1.amazonaws.com"
+# TODO: Change the API before production deployment
+API_BASE_URL = "https://iyual08t6d.execute-api.us-east-1.amazonaws.com"
 
 class AppBuilderHandler(BaseWebSocketHandler):
     """Handler for app building requests."""
