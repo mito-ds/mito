@@ -390,17 +390,15 @@ export const scrollToCell = (
   
     void notebookTracker.currentWidget?.content.scrollToCell(cell, position);
 
-        // Wait for the scroll animation to complete before highlighting the line
-        // The default smooth scroll takes about 300-500ms to complete
-        setTimeout(() => {
-            if (lineNumber !== undefined) {
-                highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
-            }
-        }, 500);
-    }
+    // Wait for the scroll animation to complete before highlighting the line
+    // The default smooth scroll takes about 300-500ms to complete
+    setTimeout(() => {
+        if (lineNumber !== undefined) {
+            highlightLineOfCodeInCodeCell(notebookTracker, cellID, lineNumber);
+        }
+    }, 500);
 }
 
-// New overloaded function to support line ranges
 export const scrollToCellWithRange = (
     notebookTracker: INotebookTracker, 
     cellID: string, 
