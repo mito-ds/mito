@@ -37,7 +37,17 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { getActiveCellID, getActiveCellOutput, getCellByID, getCellCodeByID, highlightCodeCell, scrollToCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
+import { 
+    getActiveCellID, 
+    getActiveCellOutput, 
+    getCellByID, 
+    getCellCodeByID, 
+    highlightCodeCell, 
+    scrollToCell, 
+    setActiveCellByID, 
+    writeCodeToCellByID, 
+    getAIOptimizedCells, 
+} from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -175,10 +185,32 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // await app.commands.execute("logconsole:add-checkpoint")
         setHasCheckpoint(true)
     }
+
+    // Helper function to get a hash of the current notebook state
+    const getNotebookStateHash = (): string => {
+        const cells = getAIOptimizedCells(notebookTracker);
+        // Create a simple hash by concatenating all cell IDs and their content
+        const notebookState = cells.map(cell => `${cell.id}:${cell.code}`).join('|');
+        return notebookState;
+    }
     
     const restoreCheckpoint =  async (): Promise<void> => {    
+        // Get the notebook state before attempting restoration
+        const notebookStateBefore = getNotebookStateHash();
+        
         // Restore the checkpoint        
         await app.commands.execute("docmanager:restore-checkpoint")
+        
+        // Get the notebook state after the command
+        const notebookStateAfter = getNotebookStateHash();
+        
+        // Only proceed with state updates if the notebook actually changed
+        if (notebookStateBefore === notebookStateAfter) {
+            // The user canceled the restoration, so don't update any state
+            return;
+        }
+        
+        // The restoration was successful, so update the state
         setHasCheckpoint(false)
 
         // Add a message to the chat history
