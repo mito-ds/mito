@@ -17,16 +17,16 @@ interface ModelMapping {
 }
 
 const MODEL_MAPPINGS: ModelMapping[] = [
+  { displayName: 'Claude 4 Sonnet', fullName: 'claude-sonnet-4-20250514' },
   { displayName: 'GPT 4.1', fullName: 'gpt-4.1' },
   { displayName: 'Claude 4 Opus', fullName: 'claude-opus-4-20250514' },
-  { displayName: 'Claude 4 Sonnet', fullName: 'claude-sonnet-4-20250514' },
   { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25' }
 ];
 
 const ALL_MODEL_DISPLAY_NAMES = MODEL_MAPPINGS.map(mapping => mapping.displayName);
 
 // Maximum length for displayed model name before truncating
-export const DEFAULT_MODEL = 'GPT-4.1';
+export const DEFAULT_MODEL = 'Claude 4 Sonnet';
 
 interface ModelSelectorProps {
   onConfigChange: (config: ModelConfig) => void;
