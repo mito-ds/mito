@@ -32,13 +32,13 @@ const getLineDisplayText = (line: CitationLine): string => {
 export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line, notebookTracker }): JSX.Element => {
   
   const handleClick = (): void => {
-    const lineState = typeof line === 'number' ? line : line.start;
+    const lineStart = typeof line === 'number' ? line : line.start;
     // In order to support old citations that have just one line, we 
     // we set the end line to the start line if only a single line number is provided.
     const lineEnd = typeof line === 'number' ? line : line.end;
 
     // Scroll to the cell and highlight the lines
-    scrollToAndHighlightCell(notebookTracker, cellId, lineState, lineEnd);
+    scrollToAndHighlightCell(notebookTracker, cellId, lineStart, lineEnd);
   };
 
   return (
