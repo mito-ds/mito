@@ -1023,7 +1023,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         scrollToCell(notebookTracker, activeCellID, undefined, 'end')
-        console.log('Scrolling to and highlighting cell', activeCellID)
         updateCodeDiffStripes(lastAIDisplayMessage.message, activeCellID)
         updateCellToolbarButtons()
     }
