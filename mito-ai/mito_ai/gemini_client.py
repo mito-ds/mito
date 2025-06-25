@@ -5,11 +5,10 @@ from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from google import genai
 from google.genai import types
 from google.genai.types import GenerateContentConfig, Part, Content
-from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, \
-    ResponseFormatInfo, MessageType
+from mito_ai.completions.models import CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 
-INLINE_COMPLETION_MODEL = "gemini-2.0-flash-lite"
+GEMINI_FAST_MODEL = "gemini-2.0-flash-lite"
 
 def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
     """
@@ -101,13 +100,10 @@ class GeminiClient:
         try:
             # Extract system instructions and contents
             system_instructions, contents = extract_system_instruction_and_contents(messages)
-            
-            print("Response format info: ", response_format_info)
-            print("Not response format info: ", not response_format_info)
 
             # Get provider data for Gemini completion
             provider_data = get_gemini_completion_function_params(
-                model=self.model if response_format_info else INLINE_COMPLETION_MODEL,
+                model=self.model if response_format_info else GEMINI_FAST_MODEL,
                 contents=contents,
                 message_type=message_type,
                 response_format_info=response_format_info

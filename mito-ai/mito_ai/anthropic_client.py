@@ -5,12 +5,14 @@ import json
 import anthropic
 from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
 
-from anthropic.types import Message, MessageParam, ToolUnionParam
-from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, AgentResponse, MessageType
+from anthropic.types import Message, MessageParam
+from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
 MAX_TOKENS = 2_000
+
+ANTHROPIC_FAST_MODEL = "claude-3-5-haiku-latest"
 
 def _extract_and_parse_json_response(response: Message) -> Union[object, Any]:
     """
@@ -146,7 +148,7 @@ class AnthropicClient:
             anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
             
             provider_data = get_anthropic_completion_function_params(
-                model=self.model,
+                model=self.model if response_format_info else ANTHROPIC_FAST_MODEL,
                 messages=anthropic_messages,
                 max_tokens=MAX_TOKENS,
                 temperature=0,
