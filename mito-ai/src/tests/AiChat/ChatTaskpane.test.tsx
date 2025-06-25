@@ -94,9 +94,11 @@ jest.mock('../../Extensions/AiChat/ChatHistoryManager', () => {
             getDisplayOptimizedHistory: jest.fn(() => []),
             createDuplicateChatHistoryManager: jest.fn(() => ({
                 addAIMessageFromResponse: jest.fn(),
-                getDisplayOptimizedHistory: jest.fn(() => [])
+                getDisplayOptimizedHistory: jest.fn(() => []),
+                getLastAIMessageIndex: jest.fn(() => undefined)
             })),
-            addAIMessageFromResponse: jest.fn()
+            addAIMessageFromResponse: jest.fn(),
+            getLastAIMessageIndex: jest.fn(() => undefined)
         }))
     };
 });
