@@ -46,7 +46,6 @@ import {
     scrollToCell, 
     setActiveCellByID, 
     writeCodeToCellByID, 
-    getAIOptimizedCells, 
 } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
@@ -86,6 +85,7 @@ import CTACarousel from './CTACarousel';
 import NextStepsPills from '../../components/NextStepsPills';
 import UndoIcon from '../../icons/UndoIcon';
 import TextAndIconButton from '../../components/TextAndIconButton';
+import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -177,54 +177,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
-
-    const createCheckpoint = async (): Promise<void> => {
-        // By saving the notebook, we create a checkpoint that we can restore from
-        await app.commands.execute("docmanager:save")
-        // Despite what the docs say, this does not seem to do anything:
-        // await app.commands.execute("logconsole:add-checkpoint")
-        setHasCheckpoint(true)
-    }
-
-    // Helper function to get a hash of the current notebook state
-    const getNotebookStateHash = (): string => {
-        const cells = getAIOptimizedCells(notebookTracker);
-        // Create a simple hash by concatenating all cell IDs and their content
-        const notebookState = cells.map(cell => `${cell.id}:${cell.code}`).join('|');
-        return notebookState;
-    }
-    
-    const restoreCheckpoint =  async (): Promise<void> => {    
-        // Get the notebook state before attempting restoration
-        const notebookStateBefore = getNotebookStateHash();
-        
-        // Restore the checkpoint        
-        await app.commands.execute("docmanager:restore-checkpoint")
-        
-        // Get the notebook state after the command
-        const notebookStateAfter = getNotebookStateHash();
-        
-        // Only proceed with state updates if the notebook actually changed
-        if (notebookStateBefore === notebookStateAfter) {
-            // The user canceled the restoration, so don't update any state
-            return;
-        }
-        
-        // The restoration was successful, so update the state
-        setHasCheckpoint(false)
-
-        // Add a message to the chat history
-        const newChatHistoryManager = getDuplicateChatHistoryManager();
-        newChatHistoryManager.addAIMessageFromResponse(
-            "I've reverted all previous changes",
-            "chat",
-            false
-        )
-        setChatHistoryManager(newChatHistoryManager);           
-        
-        // Restart the run all
-        await app.commands.execute("notebook:restart-run-all")
-    }
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -879,7 +831,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
-        await createCheckpoint();
+        await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
         // Reset the execution flag at the start of a new plan
@@ -1403,7 +1355,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 text="Revert changes"
                                 icon={UndoIcon}
                                 title="Revert changes"
-                                onClick={() => restoreCheckpoint()}
+                                onClick={() => restoreCheckpoint(app, notebookTracker, setHasCheckpoint, getDuplicateChatHistoryManager, setChatHistoryManager)}
                                 variant="gray"
                                 width="fit-contents"
                                 iconPosition="left"
