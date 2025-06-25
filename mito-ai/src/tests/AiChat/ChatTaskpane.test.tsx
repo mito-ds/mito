@@ -177,17 +177,11 @@ describe('ChatTaskpane Checkpoint Restore', () => {
             .mockReturnValueOnce(mockCellsBefore)  // Before restore
             .mockReturnValueOnce(mockCellsAfter);  // After restore (same = cancelled)
 
-        // Track if commands are called
-        let restoreCheckpointCalled = false;
-        let restartRunAllCalled = false;
-        
         mockAppExecute.mockImplementation((command: string) => {
             if (command === 'docmanager:restore-checkpoint') {
-                restoreCheckpointCalled = true;
                 return Promise.resolve();
             }
             if (command === 'notebook:restart-run-all') {
-                restartRunAllCalled = true;
                 return Promise.resolve();
             }
             return Promise.resolve();
@@ -235,17 +229,11 @@ describe('ChatTaskpane Checkpoint Restore', () => {
             .mockReturnValueOnce(mockCellsBefore)  // Before restore
             .mockReturnValueOnce(mockCellsAfter);  // After restore (different = confirmed)
 
-        // Track if commands are called
-        let restoreCheckpointCalled = false;
-        let restartRunAllCalled = false;
-        
         mockAppExecute.mockImplementation((command: string) => {
             if (command === 'docmanager:restore-checkpoint') {
-                restoreCheckpointCalled = true;
                 return Promise.resolve();
             }
             if (command === 'notebook:restart-run-all') {
-                restartRunAllCalled = true;
                 return Promise.resolve();
             }
             return Promise.resolve();
