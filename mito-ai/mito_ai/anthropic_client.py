@@ -144,32 +144,22 @@ class AnthropicClient:
         """
         try:
             anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
-            # Build provider_data once
-            tools: Optional[List[ToolUnionParam]] = None
-            tool_choice = None
-            if response_format_info and response_format_info.name == "agent_response":
-                tools = [{
-                    "name": "agent_response",
-                    "description": "Output a structured response following the AgentResponse format",
-                    "input_schema": AgentResponse.model_json_schema()
-                }]
-                tool_choice = {"type": "tool", "name": "agent_response"}
+            
             provider_data = get_anthropic_completion_function_params(
                 model=self.model,
                 messages=anthropic_messages,
                 max_tokens=MAX_TOKENS,
                 temperature=0,
                 system=anthropic_system_prompt,
-                tools=tools,
-                tool_choice=tool_choice,
                 stream=None,
                 response_format_info=response_format_info
             )
+            
             if self.api_key:
                 # Unpack provider_data for direct API call
                 assert self.client is not None
                 response = self.client.messages.create(**provider_data)
-                if tools:
+                if provider_data.get("tool_choice") is not None:
                     result = _extract_and_parse_json_response(response)
                     return json.dumps(result) if not isinstance(result, str) else result
                 else:
@@ -180,18 +170,11 @@ class AnthropicClient:
                         return ""
             else:
                 # Only pass provider_data to the server
-                
-                system_val = provider_data.get("system", None)
-                if system_val is not None and system_val is not anthropic.NotGiven:
-                    system = system_val
-                else:
-                    system = anthropic.NotGiven()
-
                 response = await get_anthropic_completion_from_mito_server(
                     model=provider_data["model"],
                     max_tokens=provider_data["max_tokens"],
                     temperature=provider_data["temperature"],
-                    system=system,
+                    system=provider_data["system"],
                     messages=provider_data["messages"],
                     tools=provider_data.get("tools"),
                     tool_choice=provider_data.get("tool_choice"),
