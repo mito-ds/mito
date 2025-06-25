@@ -180,7 +180,6 @@ describe('ChatTaskpane Checkpoint Restore', () => {
         // Track if commands are called
         let restoreCheckpointCalled = false;
         let restartRunAllCalled = false;
-        let addMessageCalled = false;
         
         mockAppExecute.mockImplementation((command: string) => {
             if (command === 'docmanager:restore-checkpoint') {
@@ -194,9 +193,6 @@ describe('ChatTaskpane Checkpoint Restore', () => {
             return Promise.resolve();
         });
 
-        // Mock the websocket to track if success message is sent
-        const originalSendMessage = mockProps.websocketClient.sendMessage as jest.Mock;
-        
         render(<ChatTaskpane {...mockProps} />);
 
         // Wait for component to initialize
