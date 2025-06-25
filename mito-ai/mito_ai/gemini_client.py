@@ -97,24 +97,14 @@ class GeminiClient:
         message_type: MessageType = MessageType.CHAT
     ) -> str:
         try:
-            config = None
-
             # Extract system instructions and contents
             system_instructions, contents = extract_system_instruction_and_contents(messages)
-
-            # Configure response format if provided
-            if response_format_info:
-                config = {
-                    "response_mime_type": "application/json",
-                    "response_schema": AgentResponse.model_json_schema()
-                }
 
             # Get provider data for Gemini completion
             provider_data = get_gemini_completion_function_params(
                 model=self.model if not response_format_info else INLINE_COMPLETION_MODEL,
                 contents=contents,
                 message_type=message_type,
-                config=config,
                 response_format_info=response_format_info
             )
 
@@ -136,7 +126,7 @@ class GeminiClient:
                     model=provider_data["model"],
                     contents=messages, # Use the extracted contents instead of converted messages to avoid serialization issues
                     message_type=message_type,
-                    config=config,
+                    config=provider_data.get("config", None),
                     response_format_info=response_format_info,
                 )
 
