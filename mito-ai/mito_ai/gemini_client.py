@@ -11,13 +11,15 @@ from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, s
 
 INLINE_COMPLETION_MODEL = "gemini-2.0-flash-lite"
 
-
 def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
     """
     Separates system instructions from user/assistant messages and handles image content.
     Returns:
     - system_instructions: list of strings (for system_instruction param)
     - contents: list of dicts for Gemini (excluding system role)
+    
+    IMPORTANT: THIS FUNCTION IS ALSO USED IN THE LAMDBA FUNCTION. IF YOU UPDATE IT HERE,
+    YOU PROBABLY NEED TO UPDATE THE LAMBDA FUNCTION AS WELL.
     """
 
     system_instructions = ""
@@ -99,10 +101,13 @@ class GeminiClient:
         try:
             # Extract system instructions and contents
             system_instructions, contents = extract_system_instruction_and_contents(messages)
+            
+            print("Response format info: ", response_format_info)
+            print("Not response format info: ", not response_format_info)
 
             # Get provider data for Gemini completion
             provider_data = get_gemini_completion_function_params(
-                model=self.model if not response_format_info else INLINE_COMPLETION_MODEL,
+                model=self.model if response_format_info else INLINE_COMPLETION_MODEL,
                 contents=contents,
                 message_type=message_type,
                 response_format_info=response_format_info
