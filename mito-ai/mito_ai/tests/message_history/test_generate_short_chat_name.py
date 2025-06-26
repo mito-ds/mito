@@ -73,8 +73,6 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     assert result == "Test Chat Name"
     
     
-
-
 @pytest.mark.asyncio
 async def test_generate_short_chat_name_cleans_gemini_response() -> None:
     """Test that generate_short_chat_name properly cleans Gemini-style responses with quotes and newlines."""
