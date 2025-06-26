@@ -2,7 +2,10 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.gemini_client import GeminiClient, GEMINI_FAST_MODEL, extract_system_instruction_and_contents
+import ast
+import inspect
+import requests
+from mito_ai.gemini_client import GeminiClient, GEMINI_FAST_MODEL, get_gemini_system_prompt_and_messages
 from mito_ai.utils.gemini_utils import get_gemini_completion_function_params
 from google.genai.types import Part, GenerateContentResponse, Candidate, Content
 from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
@@ -22,7 +25,7 @@ def test_mixed_text_and_image():
             {"type": "image_url", "image_url": {"url": DUMMY_IMAGE_DATA_URL}}
         ]}
     ]
-    system_instructions, contents = extract_system_instruction_and_contents(messages)
+    system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
     assert system_instructions == "You are a helpful assistant."
     assert len(contents) == 1
     assert contents[0]["role"] == "user"
@@ -37,7 +40,7 @@ def test_no_system_instructions_only_content():
         {"role": "user", "content": "Hello!"},
         {"role": "assistant", "content": "Hi, how can I help you?"}
     ]
-    system_instructions, contents = extract_system_instruction_and_contents(messages)
+    system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
     assert system_instructions == ""
     assert len(contents) == 2
     assert contents[0]["role"] == "user"
@@ -50,7 +53,7 @@ def test_system_instructions_and_content():
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "What is the weather today?"}
     ]
-    system_instructions, contents = extract_system_instruction_and_contents(messages)
+    system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
     assert system_instructions == "You are a helpful assistant."
     assert len(contents) == 1
     assert contents[0]["role"] == "user"

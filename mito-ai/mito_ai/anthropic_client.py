@@ -49,13 +49,14 @@ def _extract_and_parse_json_response(response: Message) -> Union[object, Any]:
         raise Exception(f"Failed to parse response: {e}")
 
 
-def _get_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) -> Tuple[
+def get_anthropic_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) -> Tuple[
     Union[str, anthropic.NotGiven], List[MessageParam]]:
     """
     Convert a list of OpenAI messages to a list of Anthropic messages.
     """
-    anthropic_messages: List[MessageParam] = []
+    
     system_prompt: Union[str, anthropic.NotGiven] = anthropic.NotGiven()
+    anthropic_messages: List[MessageParam] = []
 
     for message in messages:
         if 'content' not in message:
@@ -145,7 +146,7 @@ class AnthropicClient:
         Get a response from Claude or the Mito server that adheres to the AgentResponse format.
         """
         try:
-            anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+            anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
             
             provider_data = get_anthropic_completion_function_params(
                 model=self.model if response_format_info else ANTHROPIC_FAST_MODEL,
@@ -191,7 +192,7 @@ class AnthropicClient:
     async def stream_response(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
-            anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+            anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
             accumulated_response = ""
 
             if self.api_key:

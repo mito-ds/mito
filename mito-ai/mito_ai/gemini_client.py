@@ -10,19 +10,16 @@ from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, s
 
 GEMINI_FAST_MODEL = "gemini-2.0-flash-lite"
 
-def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
+def get_gemini_system_prompt_and_messages(messages: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
     """
-    Separates system instructions from user/assistant messages and handles image content.
-    Returns:
-    - system_instructions: list of strings (for system_instruction param)
-    - contents: list of dicts for Gemini (excluding system role)
+    Converts a list of OpenAI messages to a list of Gemini messages.
     
     IMPORTANT: THIS FUNCTION IS ALSO USED IN THE LAMDBA FUNCTION. IF YOU UPDATE IT HERE,
     YOU PROBABLY NEED TO UPDATE THE LAMBDA FUNCTION AS WELL.
     """
 
-    system_instructions = ""
-    contents = []
+    system_prompt = ""
+    gemini_messages: List[Dict[str, Any]] = []
 
     for msg in messages:
         role = msg.get("role")
@@ -31,7 +28,7 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
         if role == "system":
             if content:
                 # We assume that that there is only one system message 
-                system_instructions = content
+                system_prompt = content
         elif role in ("user", "assistant"):
             parts: List[Union[Dict[str, str], Part]] = []
 
@@ -76,12 +73,12 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
             if parts:
                 # Map assistant role to model role for Gemini API
                 gemini_role = "model" if role == "assistant" else "user"
-                contents.append({
+                gemini_messages.append({
                     "role": gemini_role,
                     "parts": parts
                 })
 
-    return system_instructions, contents
+    return system_prompt, gemini_messages
 
 
 class GeminiClient:
@@ -99,7 +96,7 @@ class GeminiClient:
     ) -> str:
         try:
             # Extract system instructions and contents
-            system_instructions, contents = extract_system_instruction_and_contents(messages)
+            system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
 
             # Get provider data for Gemini completion
             provider_data = get_gemini_completion_function_params(
@@ -161,7 +158,7 @@ class GeminiClient:
         accumulated_response = ""
         try:
             # Extract system instructions and Gemini-compatible contents
-            system_instructions, contents = extract_system_instruction_and_contents(messages)
+            system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
             if self.api_key:
                 for chunk in self.client.models.generate_content_stream(
                         model=self.model,

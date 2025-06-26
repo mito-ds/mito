@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.anthropic_client import _get_system_prompt_and_messages, _extract_and_parse_json_response, AnthropicClient, ANTHROPIC_FAST_MODEL
+from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, _extract_and_parse_json_response, AnthropicClient, ANTHROPIC_FAST_MODEL
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_function_params
 from anthropic.types import MessageParam, Message, ContentBlock, TextBlock, ToolUseBlock, Usage
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
@@ -24,7 +24,7 @@ def test_mixed_text_and_image():
             {"type": "image_url", "image_url": {"url": DUMMY_IMAGE_DATA_URL}}
         ])
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     assert system_prompt == "You are a helpful assistant."
     assert len(anthropic_messages) == 1
@@ -50,7 +50,7 @@ def test_no_system_instructions_only_content():
         ChatCompletionUserMessageParam(role="user", content="Hello!"),
         ChatCompletionAssistantMessageParam(role="assistant", content="Hi, how can I help you?")
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     assert isinstance(system_prompt, anthropic.NotGiven)
     assert len(anthropic_messages) == 2
@@ -64,7 +64,7 @@ def test_system_instructions_and_content():
         ChatCompletionSystemMessageParam(role="system", content="You are a helpful assistant."),
         ChatCompletionUserMessageParam(role="user", content="What is the weather today?")
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     assert system_prompt == "You are a helpful assistant."
     assert len(anthropic_messages) == 1
@@ -77,7 +77,7 @@ def test_multiple_system_messages():
         ChatCompletionSystemMessageParam(role="system", content="Second system message."),
         ChatCompletionUserMessageParam(role="user", content="Hello!")
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     # Should take the last system message
     assert system_prompt == "Second system message."
@@ -90,7 +90,7 @@ def test_empty_message_content():
         cast(ChatCompletionMessageParam, {"role": "user"}),  # Missing content
         ChatCompletionAssistantMessageParam(role="assistant", content="Hi!")
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     assert isinstance(system_prompt, anthropic.NotGiven)
     assert len(anthropic_messages) == 1  # Should skip the message with missing content
