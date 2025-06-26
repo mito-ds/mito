@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import '../../../../style/CodeBlock.css'
@@ -123,6 +123,80 @@ const UserCodeBlock: React.FC<IUserCodeBlockProps> = ({
     );
 };
 
+const renderAgentModeToggle = (
+    isCodeExpanded: boolean,
+    lineCount: number,
+    onToggle: () => void
+): JSX.Element => {
+    return (
+        <div
+            onClick={onToggle}
+            className={`agent-mode-toggle ${isCodeExpanded ? 'expanded' : ''}`}
+        >
+            <span className="agent-mode-toggle-content">
+                <CodeIcon />
+                Generated {lineCount} lines of code
+            </span>
+            <ExpandIcon isExpanded={isCodeExpanded} />
+        </div>
+    );
+};
+
+const renderLastAiMessageToolbar = (
+    codeReviewStatus: CodeReviewStatus,
+    code: string,
+    onPreview: () => void,
+    onAccept: () => void,
+    onReject: () => void
+): JSX.Element => {
+    return (
+        <div className='code-block-toolbar'>
+            {codeReviewStatus === 'chatPreview' && (
+                <IconButton
+                    icon={<PlayButtonIcon />}
+                    title="Overwrite Active Cell"
+                    onClick={onPreview}
+                />
+            )}
+            {codeReviewStatus === 'codeCellPreview' && (
+                <>
+                    <IconButton
+                        icon={<AcceptIcon />}
+                        title="Accept AI Generated Code"
+                        onClick={onAccept}
+                        style={{ color: 'var(--green-700)' }}
+                    />
+                    <IconButton
+                        icon={<RejectIcon />}
+                        title="Reject AI Generated Code"
+                        onClick={onReject}
+                        style={{ color: 'var(--red-700)' }}
+                    />
+                </>
+            )}
+            {codeReviewStatus !== 'codeCellPreview' && (
+                <IconButton
+                    icon={<CopyIcon />}
+                    title="Copy"
+                    onClick={() => { void copyToClipboard(code) }}
+                />
+            )}
+        </div>
+    );
+};
+
+const renderOtherAiMessageToolbar = (code: string): JSX.Element => {
+    return (
+        <div className='code-block-toolbar'>
+            <IconButton
+                icon={<CopyIcon />}
+                title="Copy"
+                onClick={() => { void copyToClipboard(code) }}
+            />
+        </div>
+    );
+};
+
 const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     code,
     isCodeComplete,
@@ -136,103 +210,72 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
 }) => {
     const [isCodeExpanded, setIsCodeExpanded] = useState(false);
 
-    return (
-        <div
-            className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''}`}
-            style={agentModeEnabled && !isCodeExpanded ? { border: 'none' } : {}}
-        >
-            {agentModeEnabled && renderAgentModeToggle()}
-            {(!agentModeEnabled || isCodeExpanded) && renderAssistantCodeContent()}
-        </div>
-    );
+    // Memoize calculations
+    const lineCount = useMemo(() => code.split('\n').length, [code]);
 
-    function renderAgentModeToggle(): JSX.Element {
-        return (
-            <div
-                onClick={() => setIsCodeExpanded(!isCodeExpanded)}
-                className={`agent-mode-toggle ${isCodeExpanded ? 'expanded' : ''}`}
-            >
-                <span className="agent-mode-toggle-content">
-                    <CodeIcon />
-                    Generated {code.split('\n').length} lines of code
-                </span>
-                <ExpandIcon isExpanded={isCodeExpanded} />
-            </div>
-        );
-    }
+    // Memoize event handlers
+    const handleToggleExpanded = useCallback(() => {
+        setIsCodeExpanded(!isCodeExpanded);
+    }, [isCodeExpanded]);
 
-    function renderAssistantCodeContent(): JSX.Element {
-        return (
-            <>
-                {renderCodeToolbar()}
-                <PythonCode
-                    code={code}
-                    renderMimeRegistry={renderMimeRegistry}
-                />
-            </>
-        );
-    }
+    const handlePreviewCode = useCallback(() => {
+        previewAICode();
+    }, [previewAICode]);
 
-    function renderCodeToolbar(): JSX.Element | null {
-        if (!isLastAiMessage && !isCodeComplete) {
+    const handleAcceptCode = useCallback(() => {
+        acceptAICode();
+    }, [acceptAICode]);
+
+    const handleRejectCode = useCallback(() => {
+        rejectAICode();
+    }, [rejectAICode]);
+
+    // Memoize conditional logic
+    const shouldShowToolbar = isLastAiMessage || isCodeComplete;
+    const shouldShowFullToolbar = isLastAiMessage && isCodeComplete;
+
+    const toolbarElement = useMemo(() => {
+        if (!shouldShowToolbar) {
             return null;
         }
 
-        if (isLastAiMessage && isCodeComplete) {
-            return renderLastAiMessageToolbar();
+        if (shouldShowFullToolbar) {
+            return renderLastAiMessageToolbar(
+                codeReviewStatus,
+                code,
+                handlePreviewCode,
+                handleAcceptCode,
+                handleRejectCode
+            );
         }
 
-        return renderOtherAiMessageToolbar();
-    }
+        return renderOtherAiMessageToolbar(code);
+    }, [
+        shouldShowToolbar,
+        shouldShowFullToolbar,
+        codeReviewStatus,
+        code,
+        handlePreviewCode,
+        handleAcceptCode,
+        handleRejectCode
+    ]);
 
-    function renderLastAiMessageToolbar(): JSX.Element {
-        return (
-            <div className='code-block-toolbar'>
-                {codeReviewStatus === 'chatPreview' &&
-                    <IconButton
-                        icon={<PlayButtonIcon />}
-                        title="Overwrite Active Cell"
-                        onClick={() => { previewAICode() }}
+    return (
+        <div
+            className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''} ${agentModeEnabled && !isCodeExpanded ? 'agent-mode-collapsed' : ''}`}
+        >
+            {agentModeEnabled && renderAgentModeToggle(isCodeExpanded, lineCount, handleToggleExpanded)}
+            {(!agentModeEnabled || isCodeExpanded) && (
+                <>
+                    {toolbarElement}
+                    <PythonCode
+                        code={code}
+                        renderMimeRegistry={renderMimeRegistry}
                     />
-                }
-                {codeReviewStatus === 'codeCellPreview' &&
-                    <IconButton
-                        icon={<AcceptIcon />}
-                        title="Accept AI Generated Code"
-                        onClick={() => { acceptAICode() }}
-                        style={{ color: 'var(--green-700)' }}
-                    />
-                }
-                {codeReviewStatus === 'codeCellPreview' &&
-                    <IconButton
-                        icon={<RejectIcon />}
-                        title="Reject AI Generated Code"
-                        onClick={() => { rejectAICode() }}
-                        style={{ color: 'var(--red-700)' }}
-                    />
-                }
-                {codeReviewStatus !== 'codeCellPreview' &&
-                    <IconButton
-                        icon={<CopyIcon />}
-                        title="Copy"
-                        onClick={() => { void copyToClipboard(code) }}
-                    />
-                }
-            </div>
-        );
-    }
-
-    function renderOtherAiMessageToolbar(): JSX.Element {
-        return (
-            <div className='code-block-toolbar'>
-                <IconButton
-                    icon={<CopyIcon />}
-                    title="Copy"
-                    onClick={() => { void copyToClipboard(code) }}
-                />
-            </div>
-        );
-    }
+                </>
+            )}
+        </div>
+    );
 };
 
 export default CodeBlock
