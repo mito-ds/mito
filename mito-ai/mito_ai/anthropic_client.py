@@ -5,12 +5,14 @@ import json
 import anthropic
 from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
 
-from anthropic.types import Message, MessageParam, ToolUnionParam
-from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, AgentResponse, MessageType
+from anthropic.types import Message, MessageParam
+from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
 MAX_TOKENS = 2_000
+
+ANTHROPIC_FAST_MODEL = "claude-3-5-haiku-latest"
 
 def _extract_and_parse_json_response(response: Message) -> Union[object, Any]:
     """
@@ -47,13 +49,14 @@ def _extract_and_parse_json_response(response: Message) -> Union[object, Any]:
         raise Exception(f"Failed to parse response: {e}")
 
 
-def _get_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) -> Tuple[
+def get_anthropic_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) -> Tuple[
     Union[str, anthropic.NotGiven], List[MessageParam]]:
     """
     Convert a list of OpenAI messages to a list of Anthropic messages.
     """
-    anthropic_messages: List[MessageParam] = []
+    
     system_prompt: Union[str, anthropic.NotGiven] = anthropic.NotGiven()
+    anthropic_messages: List[MessageParam] = []
 
     for message in messages:
         if 'content' not in message:
@@ -143,33 +146,23 @@ class AnthropicClient:
         Get a response from Claude or the Mito server that adheres to the AgentResponse format.
         """
         try:
-            anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
-            # Build provider_data once
-            tools: Optional[List[ToolUnionParam]] = None
-            tool_choice = None
-            if response_format_info and response_format_info.name == "agent_response":
-                tools = [{
-                    "name": "agent_response",
-                    "description": "Output a structured response following the AgentResponse format",
-                    "input_schema": AgentResponse.model_json_schema()
-                }]
-                tool_choice = {"type": "tool", "name": "agent_response"}
+            anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
+            
             provider_data = get_anthropic_completion_function_params(
-                model=self.model,
+                model=self.model if response_format_info else ANTHROPIC_FAST_MODEL,
                 messages=anthropic_messages,
                 max_tokens=MAX_TOKENS,
                 temperature=0,
                 system=anthropic_system_prompt,
-                tools=tools,
-                tool_choice=tool_choice,
                 stream=None,
                 response_format_info=response_format_info
             )
+            
             if self.api_key:
                 # Unpack provider_data for direct API call
                 assert self.client is not None
                 response = self.client.messages.create(**provider_data)
-                if tools:
+                if provider_data.get("tool_choice") is not None:
                     result = _extract_and_parse_json_response(response)
                     return json.dumps(result) if not isinstance(result, str) else result
                 else:
@@ -180,18 +173,11 @@ class AnthropicClient:
                         return ""
             else:
                 # Only pass provider_data to the server
-                
-                system_val = provider_data.get("system", None)
-                if system_val is not None and system_val is not anthropic.NotGiven:
-                    system = system_val
-                else:
-                    system = anthropic.NotGiven()
-
                 response = await get_anthropic_completion_from_mito_server(
                     model=provider_data["model"],
                     max_tokens=provider_data["max_tokens"],
                     temperature=provider_data["temperature"],
-                    system=system,
+                    system=provider_data["system"],
                     messages=provider_data["messages"],
                     tools=provider_data.get("tools"),
                     tool_choice=provider_data.get("tool_choice"),
@@ -206,7 +192,7 @@ class AnthropicClient:
     async def stream_response(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
-            anthropic_system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+            anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
             accumulated_response = ""
 
             if self.api_key:

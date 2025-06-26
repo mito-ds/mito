@@ -6,7 +6,7 @@ import json
 import time
 from typing import Any, Dict, List, Optional, Callable, Union, AsyncGenerator, Tuple
 from tornado.httpclient import AsyncHTTPClient
-from mito_ai.completions.models import CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
+from mito_ai.completions.models import AgentResponse, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from .utils import _create_http_client
 from mito_ai.constants import MITO_GEMINI_URL
 
@@ -165,7 +165,6 @@ def get_gemini_completion_function_params(
     model: str,
     contents: list[dict[str, Any]],
     message_type: MessageType,
-    config: Optional[Dict[str, Any]] = None,
     response_format_info: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
@@ -177,6 +176,12 @@ def get_gemini_completion_function_params(
         "contents": contents,
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
     }
-    if config:
-        provider_data["config"] = config
+        
+    # Configure response format if provided
+    if response_format_info:
+        provider_data["config"] = {
+            "response_mime_type": "application/json",
+            "response_schema": AgentResponse.model_json_schema()
+        }
+        
     return provider_data

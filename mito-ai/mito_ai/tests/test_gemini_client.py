@@ -2,13 +2,14 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-import pytest_asyncio
-from mito_ai.gemini_client import extract_system_instruction_and_contents
-from google.genai.types import Part
+import ast
+import inspect
+import requests
+from mito_ai.gemini_client import GeminiClient, GEMINI_FAST_MODEL, get_gemini_system_prompt_and_messages
+from mito_ai.utils.gemini_utils import get_gemini_completion_function_params
+from google.genai.types import Part, GenerateContentResponse, Candidate, Content
 from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
-from google.genai.types import GenerateContentResponse, Candidate, Content
-from unittest.mock import MagicMock
-from mito_ai.gemini_client import GeminiClient
+from unittest.mock import MagicMock, patch
 from typing import List, Dict, Any
 
 # Dummy base64 image (1x1 PNG)
@@ -24,7 +25,7 @@ def test_mixed_text_and_image():
             {"type": "image_url", "image_url": {"url": DUMMY_IMAGE_DATA_URL}}
         ]}
     ]
-    system_instructions, contents = extract_system_instruction_and_contents(messages)
+    system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
     assert system_instructions == "You are a helpful assistant."
     assert len(contents) == 1
     assert contents[0]["role"] == "user"
@@ -39,7 +40,7 @@ def test_no_system_instructions_only_content():
         {"role": "user", "content": "Hello!"},
         {"role": "assistant", "content": "Hi, how can I help you?"}
     ]
-    system_instructions, contents = extract_system_instruction_and_contents(messages)
+    system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
     assert system_instructions == ""
     assert len(contents) == 2
     assert contents[0]["role"] == "user"
@@ -52,7 +53,7 @@ def test_system_instructions_and_content():
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "What is the weather today?"}
     ]
-    system_instructions, contents = extract_system_instruction_and_contents(messages)
+    system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
     assert system_instructions == "You are a helpful assistant."
     assert len(contents) == 1
     assert contents[0]["role"] == "user"
@@ -149,3 +150,42 @@ async def test_json_response_handling_with_multiple_parts():
     )
     # Should concatenate all parts
     assert result == 'Here is the JSON: {"key": "value"} End of response' 
+    
+CUSTOM_MODEL = "gemini-1.5-pro"
+@pytest.mark.parametrize("response_format_info, expected_model", [
+    (ResponseFormatInfo(name="agent_response", format=AgentResponse), CUSTOM_MODEL),  # With response_format_info - should use self.model
+    (None, GEMINI_FAST_MODEL),  # Without response_format_info - should use GEMINI_FAST_MODEL
+])
+@pytest.mark.asyncio
+async def test_model_selection_based_on_response_format_info(response_format_info, expected_model):
+    """
+    Tests that the correct model is selected based on whether response_format_info is provided.
+    """
+    
+    # Create a GeminiClient with a specific model
+    custom_model = CUSTOM_MODEL
+    client = GeminiClient(api_key="test_key", model=custom_model)
+    
+    # Mock the generate_content method to avoid actual API calls
+    client.client = MagicMock()
+    mock_response = GenerateContentResponse(
+        candidates=[
+            Candidate(
+                content=Content(
+                    parts=[Part(text='Test response')]
+                )
+            )
+        ]
+    )
+    client.client.models.generate_content.return_value = mock_response
+    
+    with patch('mito_ai.gemini_client.get_gemini_completion_function_params', wraps=get_gemini_completion_function_params) as mock_get_params:
+        await client.request_completions(
+            messages=[{"role": "user", "content": "Test message"}],
+            response_format_info=response_format_info
+        )
+        
+        # Verify that get_gemini_completion_function_params was called with the expected model
+        mock_get_params.assert_called_once()
+        call_args = mock_get_params.call_args
+        assert call_args[1]['model'] == expected_model
