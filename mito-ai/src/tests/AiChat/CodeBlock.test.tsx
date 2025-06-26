@@ -105,7 +105,26 @@ describe('CodeBlock Component', () => {
     });
 
     describe('Assistant Code Actions', () => {
-        it('does not show action buttons when code is incomplete', () => {
+        it('does not show action buttons when code is incomplete and not last AI message', () => {
+            const props = createMockProps({
+                role: 'assistant',
+                isLastAiMessage: false,
+                isCodeComplete: false,
+                codeReviewStatus: 'chatPreview'
+            });
+            render(<CodeBlock {...props} />);
+
+            // Verify that action buttons are not present when code is incomplete and not last AI message
+            expect(screen.queryByTitle('Overwrite Active Cell')).not.toBeInTheDocument();
+            expect(screen.queryByTitle('Copy')).not.toBeInTheDocument();
+            expect(screen.queryByTitle('Accept AI Generated Code')).not.toBeInTheDocument();
+            expect(screen.queryByTitle('Reject AI Generated Code')).not.toBeInTheDocument();
+
+            // Verify that the toolbar container is not present
+            expect(document.querySelector('.code-block-toolbar')).not.toBeInTheDocument();
+        });
+
+        it('shows copy button when code is incomplete but is last AI message', () => {
             const props = createMockProps({
                 role: 'assistant',
                 isLastAiMessage: true,
@@ -114,14 +133,14 @@ describe('CodeBlock Component', () => {
             });
             render(<CodeBlock {...props} />);
 
-            // Verify that action buttons are not present when code is incomplete
+            // Verify that only copy button is present when code is incomplete but is last AI message
             expect(screen.queryByTitle('Overwrite Active Cell')).not.toBeInTheDocument();
-            expect(screen.queryByTitle('Copy')).not.toBeInTheDocument();
+            expect(screen.getByTitle('Copy')).toBeInTheDocument();
             expect(screen.queryByTitle('Accept AI Generated Code')).not.toBeInTheDocument();
             expect(screen.queryByTitle('Reject AI Generated Code')).not.toBeInTheDocument();
 
-            // Verify that the toolbar container is not present
-            expect(document.querySelector('.code-block-toolbar')).not.toBeInTheDocument();
+            // Verify that the toolbar container is present
+            expect(document.querySelector('.code-block-toolbar')).toBeInTheDocument();
         });
 
         it('shows action buttons when code is complete and is last AI message', () => {
