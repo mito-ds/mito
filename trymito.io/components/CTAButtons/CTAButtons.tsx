@@ -34,13 +34,26 @@ const CTAButtons = (props: {
             )}
             style={props.style}
         > 
+
             {props.variant === 'download' && 
-                <TextButton 
-                    text={props.ctaText || 'Install Mito'}
-                    href={MITO_INSTALLATION_DOCS_LINK}
-                    className={props.textButtonClassName}
-                    variant='purple'
-                />
+                <>
+                    <div className={'only-on-desktop'}>
+                        <TextButton 
+                            text={props.ctaText || 'Install Mito for Jupyter'}
+                            href={MITO_INSTALLATION_DOCS_LINK}
+                            className={props.textButtonClassName}
+                            variant='purple'
+                        />
+                    </div>
+                    <div className={classNames('only-on-mobile-block')}>
+                        <TextButton 
+                            text={props.ctaText || 'Install Mito'}
+                            href={MITO_INSTALLATION_DOCS_LINK}
+                            className={props.textButtonClassName}
+                            variant='purple'
+                        />
+                    </div>
+                </>
             }
             {props.variant === 'scroll-to-install' && 
                 <TextButton 
