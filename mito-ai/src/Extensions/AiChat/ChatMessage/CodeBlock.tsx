@@ -84,9 +84,17 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                 {agentModeEnabled && (
                     <div 
                         onClick={() => setIsCodeExpanded(!isCodeExpanded)}
-                        style={{cursor: 'pointer', padding: '10px', color: 'var(--chat-user-message-font-color)'}}
+                        style={{
+                            cursor: 'pointer', 
+                            padding: '10px', 
+                            color: 'var(--chat-user-message-font-color)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}
                     >
-                        {isCodeExpanded ? 'Hide' : 'Show'} {code.split('\n').length} lines of code
+                        <span>{code.split('\n').length} lines of code</span>
+                        <ExpandIcon isExpanded={isCodeExpanded} />
                     </div>
                 )}
                 {(!agentModeEnabled || isCodeExpanded) && (
