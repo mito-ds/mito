@@ -12,16 +12,6 @@ from mito_ai.anthropic_client import ANTHROPIC_FAST_MODEL
 from mito_ai.gemini_client import GEMINI_FAST_MODEL
 
 
-
-# Test cases for different models and their expected providers/fast models
-PROVIDER_TEST_CASES = [
-    # (model, client_patch_path)
-    ("gpt-4.1", "mito_ai.completions.providers.OpenAIClient"),
-    ("claude-3-5-sonnet-20241022", "mito_ai.completions.providers.AnthropicClient"),
-    ("gemini-2.0-flash-exp", "mito_ai.completions.providers.GeminiClient")
-]
-
-
 @pytest.fixture
 def provider_config() -> Config:
     """Create a proper Config object for the OpenAIProvider."""
@@ -30,6 +20,14 @@ def provider_config() -> Config:
     config.OpenAIClient = Config()
     return config
 
+
+# Test cases for different models and their expected providers/fast models
+PROVIDER_TEST_CASES = [
+    # (model, client_patch_path)
+    ("gpt-4.1", "mito_ai.completions.providers.OpenAIClient"),
+    ("claude-3-5-sonnet-20241022", "mito_ai.completions.providers.AnthropicClient"),
+    ("gemini-2.0-flash-exp", "mito_ai.completions.providers.GeminiClient")
+]
 
 @pytest.mark.parametrize("selected_model,client_patch_path", PROVIDER_TEST_CASES)
 @pytest.mark.asyncio
@@ -66,12 +64,15 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
             model=selected_model,
             llm_provider=llm_provider
         )
-    
-    # Verify the result
-    assert result == "Test Chat Name"
-    
+        
     # Verify that the correct client's request_completions was called
     mock_client.request_completions.assert_called_once()
+
+    # As a double check, if we have used the correct client, then we must get the correct result
+    # from the mocked client as well.
+    assert result == "Test Chat Name"
+    
+    
 
 
 @pytest.mark.asyncio
