@@ -15,7 +15,7 @@ import { CodeReviewStatus } from '../ChatTaskpane';
 import AcceptIcon from '../../../icons/AcceptIcon';
 import RejectIcon from '../../../icons/RejectIcon';
 import ExpandIcon from '../../../icons/ExpandIcon';
-
+import CodeIcon from '../../../icons/CodeIcon';
 
 interface ICodeBlockProps {
     code: string,
@@ -93,7 +93,10 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                             alignItems: 'center'
                         }}
                     >
-                        <span>{code.split('\n').length} lines of code</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <CodeIcon />
+                            {code.split('\n').length} lines of code
+                        </span>
                         <ExpandIcon isExpanded={isCodeExpanded} />
                     </div>
                 )}
