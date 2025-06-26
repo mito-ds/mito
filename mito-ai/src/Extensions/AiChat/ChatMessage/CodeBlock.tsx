@@ -87,7 +87,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
                         style={{
                             cursor: 'pointer', 
                             padding: '10px', 
-                            color: 'var(--chat-user-message-font-color)',
+                            color: 'var(--jp-ui-font-color2)',
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center'
