@@ -27,6 +27,7 @@ interface ICodeBlockProps {
     rejectAICode: () => void
     isLastAiMessage: boolean
     codeReviewStatus: CodeReviewStatus
+    agentModeEnabled: boolean
 }
 
 const CodeBlock: React.FC<ICodeBlockProps> = ({
@@ -39,6 +40,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     rejectAICode,
     isLastAiMessage,
     codeReviewStatus,
+    agentModeEnabled,
 }): JSX.Element => {
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -50,7 +52,7 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
 
         return (
             <div 
-                className='code-block-container active-cell-code-block' 
+                className={`code-block-container active-cell-code-block ${agentModeEnabled ? 'agent-mode' : ''}`}
                 onClick={() => setIsExpanded(!isExpanded)}
                 style={{cursor: 'pointer'}}
             >
@@ -75,59 +77,71 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     }
 
     if (role === 'assistant') {
+        const [isCodeExpanded, setIsCodeExpanded] = useState(false);
+
         return (
-            <div className='code-block-container'>
-                <>
-                    {/* The code block toolbar for the last AI message */}
-                    {isLastAiMessage && isCodeComplete && 
-                        <div className='code-block-toolbar'>
-                            {codeReviewStatus === 'chatPreview' && 
-                                <IconButton 
-                                    icon={<PlayButtonIcon />}
-                                    title="Overwrite Active Cell"
-                                    onClick={() => {previewAICode()}}
-                                />
-                            }
-                            {codeReviewStatus === 'codeCellPreview' && 
-                                <IconButton 
-                                    icon={<AcceptIcon />}
-                                    title="Accept AI Generated Code"
-                                    onClick={() => {acceptAICode()}}
-                                    style={{color: 'var(--green-700)'}}
-                                />
-                            }
-                            {codeReviewStatus === 'codeCellPreview' && 
-                                <IconButton 
-                                    icon={<RejectIcon />}
-                                    title="Reject AI Generated Code"
-                                    onClick={() => {rejectAICode()}}
-                                    style={{color: 'var(--red-700)'}}
-                                />
-                            }
-                            {codeReviewStatus !== 'codeCellPreview' && 
+            <div className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''}`}>
+                {agentModeEnabled && (
+                    <div 
+                        onClick={() => setIsCodeExpanded(!isCodeExpanded)}
+                        style={{cursor: 'pointer', padding: '10px', color: 'var(--chat-user-message-font-color)'}}
+                    >
+                        {isCodeExpanded ? 'Hide' : 'Show'} {code.split('\n').length} lines of code
+                    </div>
+                )}
+                {(!agentModeEnabled || isCodeExpanded) && (
+                    <>
+                        {/* The code block toolbar for the last AI message */}
+                        {isLastAiMessage && isCodeComplete && 
+                            <div className='code-block-toolbar'>
+                                {codeReviewStatus === 'chatPreview' && 
+                                    <IconButton 
+                                        icon={<PlayButtonIcon />}
+                                        title="Overwrite Active Cell"
+                                        onClick={() => {previewAICode()}}
+                                    />
+                                }
+                                {codeReviewStatus === 'codeCellPreview' && 
+                                    <IconButton 
+                                        icon={<AcceptIcon />}
+                                        title="Accept AI Generated Code"
+                                        onClick={() => {acceptAICode()}}
+                                        style={{color: 'var(--green-700)'}}
+                                    />
+                                }
+                                {codeReviewStatus === 'codeCellPreview' && 
+                                    <IconButton 
+                                        icon={<RejectIcon />}
+                                        title="Reject AI Generated Code"
+                                        onClick={() => {rejectAICode()}}
+                                        style={{color: 'var(--red-700)'}}
+                                    />
+                                }
+                                {codeReviewStatus !== 'codeCellPreview' && 
+                                    <IconButton
+                                        icon={<CopyIcon />}
+                                        title="Copy"
+                                        onClick={() => {void copyToClipboard(code)}}
+                                    />
+                                }
+                            </div>
+                        }
+                        {/* The code block toolbar for every other AI message */}
+                        {!isLastAiMessage && 
+                            <div className='code-block-toolbar'>
                                 <IconButton
                                     icon={<CopyIcon />}
                                     title="Copy"
                                     onClick={() => {void copyToClipboard(code)}}
                                 />
-                            }
-                        </div>
-                    }
-                    {/* The code block toolbar for every other AI message */}
-                    {!isLastAiMessage && 
-                        <div className='code-block-toolbar'>
-                            <IconButton
-                                icon={<CopyIcon />}
-                                title="Copy"
-                                onClick={() => {void copyToClipboard(code)}}
-                            />
-                        </div>
-                    }
-                </>
-                <PythonCode
-                    code={code}
-                    renderMimeRegistry={renderMimeRegistry}
-                />
+                            </div>
+                        }
+                        <PythonCode
+                            code={code}
+                            renderMimeRegistry={renderMimeRegistry}
+                        />
+                    </>
+                )}
             </div>
         )
     }

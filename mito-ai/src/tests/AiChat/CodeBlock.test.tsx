@@ -31,6 +31,7 @@ const createMockProps = (overrides = {}) => ({
     rejectAICode: jest.fn(),
     isLastAiMessage: false,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
+    agentModeEnabled: false,
     ...overrides
 });
 
@@ -138,6 +139,30 @@ describe('CodeBlock Component', () => {
 
             // Verify that the toolbar container is present
             expect(document.querySelector('.code-block-toolbar')).toBeInTheDocument();
+        });
+
+        it('applies agent mode styling when agentModeEnabled is true', () => {
+            const props = createMockProps({
+                role: 'assistant',
+                agentModeEnabled: true
+            });
+            render(<CodeBlock {...props} />);
+
+            // Verify that the agent mode CSS class is applied
+            const codeBlockContainer = document.querySelector('.code-block-container');
+            expect(codeBlockContainer).toHaveClass('agent-mode');
+        });
+
+        it('does not apply agent mode styling when agentModeEnabled is false', () => {
+            const props = createMockProps({
+                role: 'assistant',
+                agentModeEnabled: false
+            });
+            render(<CodeBlock {...props} />);
+
+            // Verify that the agent mode CSS class is not applied
+            const codeBlockContainer = document.querySelector('.code-block-container');
+            expect(codeBlockContainer).not.toHaveClass('agent-mode');
         });
     });
 });

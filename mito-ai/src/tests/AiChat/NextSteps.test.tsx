@@ -79,6 +79,7 @@ const createMockChatMessageProps = (overrides = {}) => ({
     contextManager: undefined,
     codeReviewStatus: 'chatPreview' as const,
     setNextSteps: jest.fn(),
+    agentModeEnabled: false,
     ...overrides
 });
 

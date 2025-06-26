@@ -52,6 +52,7 @@ interface IChatMessageProps {
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
+    agentModeEnabled: boolean
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -74,6 +75,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     contextManager,
     codeReviewStatus,
     setNextSteps,
+    agentModeEnabled,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -173,6 +175,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     rejectAICode={rejectAICode}
                                     isLastAiMessage={isLastAiMessage}
                                     codeReviewStatus={codeReviewStatus}
+                                    agentModeEnabled={agentModeEnabled}
                                 />
 
                                 {isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' && 

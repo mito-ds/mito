@@ -126,6 +126,7 @@ const createMockProps = (overrides = {}) => ({
     contextManager: { getVariables: jest.fn(() => []) } as unknown as IContextManager,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
     setNextSteps: jest.fn(),
+    agentModeEnabled: false,
     ...overrides
 });
 
