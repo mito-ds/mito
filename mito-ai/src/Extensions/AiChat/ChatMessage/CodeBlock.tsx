@@ -154,7 +154,7 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
             >
                 <span className="agent-mode-toggle-content">
                     <CodeIcon />
-                    {code.split('\n').length} lines of code
+                    Generated {code.split('\n').length} lines of code
                 </span>
                 <ExpandIcon isExpanded={isCodeExpanded} />
             </div>

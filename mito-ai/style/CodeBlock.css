@@ -105,6 +105,8 @@
 
 .agent-mode-toggle.expanded {
   border: none;
+  border-bottom: 1px solid var(--grey-300);
+  border-radius: 5px 5px 0 0;
 }
 
 
