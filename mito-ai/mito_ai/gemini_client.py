@@ -25,7 +25,8 @@ def extract_and_parse_gemini_json_response(response: GenerateContentResponse) ->
                 return " ".join(str(part) for part in content.parts)
             return str(content)
         return str(candidate)
-
+    
+    return None
 
 def get_gemini_system_prompt_and_messages(messages: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
     """
