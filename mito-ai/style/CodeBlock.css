@@ -86,5 +86,26 @@
   background-color: transparent;
 }
 
+.agent-mode-toggle {
+  cursor: pointer;
+  padding: 10px;
+  color: var(--jp-ui-font-color2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--jp-ui-font-color2);
+  border-radius: 5px;
+}
+
+.agent-mode-toggle-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.agent-mode-toggle.expanded {
+  border: none;
+}
+
 
 

@@ -80,20 +80,16 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
         const [isCodeExpanded, setIsCodeExpanded] = useState(false);
 
         return (
-            <div className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''}`}>
+            <div 
+                className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''}`}
+                style={agentModeEnabled && !isCodeExpanded ? { border: 'none' } : {}}
+            >
                 {agentModeEnabled && (
                     <div 
                         onClick={() => setIsCodeExpanded(!isCodeExpanded)}
-                        style={{
-                            cursor: 'pointer', 
-                            padding: '10px', 
-                            color: 'var(--jp-ui-font-color2)',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}
+                        className={`agent-mode-toggle ${isCodeExpanded ? 'expanded' : ''}`}
                     >
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className="agent-mode-toggle-content">
                             <CodeIcon />
                             {code.split('\n').length} lines of code
                         </span>
