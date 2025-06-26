@@ -30,6 +30,24 @@ interface ICodeBlockProps {
     agentModeEnabled: boolean
 }
 
+interface IUserCodeBlockProps {
+    code: string;
+    renderMimeRegistry: IRenderMimeRegistry;
+    agentModeEnabled: boolean;
+}
+
+interface IAssistantCodeBlockProps {
+    code: string;
+    isCodeComplete: boolean;
+    renderMimeRegistry: IRenderMimeRegistry;
+    previewAICode: () => void;
+    acceptAICode: () => void;
+    rejectAICode: () => void;
+    isLastAiMessage: boolean;
+    codeReviewStatus: CodeReviewStatus;
+    agentModeEnabled: boolean;
+}
+
 const CodeBlock: React.FC<ICodeBlockProps> = ({
     code,
     isCodeComplete,
@@ -42,118 +60,179 @@ const CodeBlock: React.FC<ICodeBlockProps> = ({
     codeReviewStatus,
     agentModeEnabled,
 }): JSX.Element => {
-    const [isExpanded, setIsExpanded] = useState(false);
-
     if (role === 'user') {
-
-        const numCodePreviewLines = 5;
-        const isCodeExpandable = code.split('\n').length > numCodePreviewLines;
-        const previewCode = code.split('\n').slice(0, numCodePreviewLines).join('\n')
-
         return (
-            <div 
-                className={`code-block-container active-cell-code-block ${agentModeEnabled ? 'agent-mode' : ''}`}
-                onClick={() => setIsExpanded(!isExpanded)}
-                style={{cursor: 'pointer'}}
-            >
-                <PythonCode
-                    code={isExpanded ? code : previewCode}
-                    renderMimeRegistry={renderMimeRegistry}
-                />
-                {isCodeExpandable && (
-                    <div 
-                        className='code-block-expand-button'
-                        title={isExpanded ? "Collapse" : "Expand"}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsExpanded(!isExpanded);
-                        }}
-                    >
-                        <ExpandIcon isExpanded={isExpanded} />  
-                    </div>
-                )}
-            </div>
-        )
+            <UserCodeBlock
+                code={code}
+                renderMimeRegistry={renderMimeRegistry}
+                agentModeEnabled={agentModeEnabled}
+            />
+        );
     }
 
     if (role === 'assistant') {
-        const [isCodeExpanded, setIsCodeExpanded] = useState(false);
-
         return (
-            <div 
-                className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''}`}
-                style={agentModeEnabled && !isCodeExpanded ? { border: 'none' } : {}}
-            >
-                {agentModeEnabled && (
-                    <div 
-                        onClick={() => setIsCodeExpanded(!isCodeExpanded)}
-                        className={`agent-mode-toggle ${isCodeExpanded ? 'expanded' : ''}`}
-                    >
-                        <span className="agent-mode-toggle-content">
-                            <CodeIcon />
-                            {code.split('\n').length} lines of code
-                        </span>
-                        <ExpandIcon isExpanded={isCodeExpanded} />
-                    </div>
-                )}
-                {(!agentModeEnabled || isCodeExpanded) && (
-                    <>
-                        {/* The code block toolbar for the last AI message */}
-                        {isLastAiMessage && isCodeComplete && 
-                            <div className='code-block-toolbar'>
-                                {codeReviewStatus === 'chatPreview' && 
-                                    <IconButton 
-                                        icon={<PlayButtonIcon />}
-                                        title="Overwrite Active Cell"
-                                        onClick={() => {previewAICode()}}
-                                    />
-                                }
-                                {codeReviewStatus === 'codeCellPreview' && 
-                                    <IconButton 
-                                        icon={<AcceptIcon />}
-                                        title="Accept AI Generated Code"
-                                        onClick={() => {acceptAICode()}}
-                                        style={{color: 'var(--green-700)'}}
-                                    />
-                                }
-                                {codeReviewStatus === 'codeCellPreview' && 
-                                    <IconButton 
-                                        icon={<RejectIcon />}
-                                        title="Reject AI Generated Code"
-                                        onClick={() => {rejectAICode()}}
-                                        style={{color: 'var(--red-700)'}}
-                                    />
-                                }
-                                {codeReviewStatus !== 'codeCellPreview' && 
-                                    <IconButton
-                                        icon={<CopyIcon />}
-                                        title="Copy"
-                                        onClick={() => {void copyToClipboard(code)}}
-                                    />
-                                }
-                            </div>
-                        }
-                        {/* The code block toolbar for every other AI message */}
-                        {!isLastAiMessage && 
-                            <div className='code-block-toolbar'>
-                                <IconButton
-                                    icon={<CopyIcon />}
-                                    title="Copy"
-                                    onClick={() => {void copyToClipboard(code)}}
-                                />
-                            </div>
-                        }
-                        <PythonCode
-                            code={code}
-                            renderMimeRegistry={renderMimeRegistry}
-                        />
-                    </>
-                )}
-            </div>
-        )
+            <AssistantCodeBlock
+                code={code}
+                isCodeComplete={isCodeComplete}
+                renderMimeRegistry={renderMimeRegistry}
+                previewAICode={previewAICode}
+                acceptAICode={acceptAICode}
+                rejectAICode={rejectAICode}
+                isLastAiMessage={isLastAiMessage}
+                codeReviewStatus={codeReviewStatus}
+                agentModeEnabled={agentModeEnabled}
+            />
+        );
     }
 
-    return <></>
+    return <></>;
 }
+
+const UserCodeBlock: React.FC<IUserCodeBlockProps> = ({
+    code, renderMimeRegistry, agentModeEnabled
+}) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const numCodePreviewLines = 5;
+    const isCodeExpandable = code.split('\n').length > numCodePreviewLines;
+    const previewCode = code.split('\n').slice(0, numCodePreviewLines).join('\n');
+
+    return (
+        <div
+            className={`code-block-container active-cell-code-block ${agentModeEnabled ? 'agent-mode' : ''}`}
+            onClick={() => setIsExpanded(!isExpanded)}
+            style={{ cursor: 'pointer' }}
+        >
+            <PythonCode
+                code={isExpanded ? code : previewCode}
+                renderMimeRegistry={renderMimeRegistry}
+            />
+            {isCodeExpandable && (
+                <div
+                    className='code-block-expand-button'
+                    title={isExpanded ? "Collapse" : "Expand"}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(!isExpanded);
+                    }}
+                >
+                    <ExpandIcon isExpanded={isExpanded} />
+                </div>
+            )}
+        </div>
+    );
+};
+
+const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
+    code,
+    isCodeComplete,
+    renderMimeRegistry,
+    previewAICode,
+    acceptAICode,
+    rejectAICode,
+    isLastAiMessage,
+    codeReviewStatus,
+    agentModeEnabled
+}) => {
+    const [isCodeExpanded, setIsCodeExpanded] = useState(false);
+
+    return (
+        <div
+            className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''}`}
+            style={agentModeEnabled && !isCodeExpanded ? { border: 'none' } : {}}
+        >
+            {agentModeEnabled && renderAgentModeToggle()}
+            {(!agentModeEnabled || isCodeExpanded) && renderAssistantCodeContent()}
+        </div>
+    );
+
+    function renderAgentModeToggle(): JSX.Element {
+        return (
+            <div
+                onClick={() => setIsCodeExpanded(!isCodeExpanded)}
+                className={`agent-mode-toggle ${isCodeExpanded ? 'expanded' : ''}`}
+            >
+                <span className="agent-mode-toggle-content">
+                    <CodeIcon />
+                    {code.split('\n').length} lines of code
+                </span>
+                <ExpandIcon isExpanded={isCodeExpanded} />
+            </div>
+        );
+    }
+
+    function renderAssistantCodeContent(): JSX.Element {
+        return (
+            <>
+                {renderCodeToolbar()}
+                <PythonCode
+                    code={code}
+                    renderMimeRegistry={renderMimeRegistry}
+                />
+            </>
+        );
+    }
+
+    function renderCodeToolbar(): JSX.Element | null {
+        if (!isLastAiMessage && !isCodeComplete) {
+            return null;
+        }
+
+        if (isLastAiMessage && isCodeComplete) {
+            return renderLastAiMessageToolbar();
+        }
+
+        return renderOtherAiMessageToolbar();
+    }
+
+    function renderLastAiMessageToolbar(): JSX.Element {
+        return (
+            <div className='code-block-toolbar'>
+                {codeReviewStatus === 'chatPreview' &&
+                    <IconButton
+                        icon={<PlayButtonIcon />}
+                        title="Overwrite Active Cell"
+                        onClick={() => { previewAICode() }}
+                    />
+                }
+                {codeReviewStatus === 'codeCellPreview' &&
+                    <IconButton
+                        icon={<AcceptIcon />}
+                        title="Accept AI Generated Code"
+                        onClick={() => { acceptAICode() }}
+                        style={{ color: 'var(--green-700)' }}
+                    />
+                }
+                {codeReviewStatus === 'codeCellPreview' &&
+                    <IconButton
+                        icon={<RejectIcon />}
+                        title="Reject AI Generated Code"
+                        onClick={() => { rejectAICode() }}
+                        style={{ color: 'var(--red-700)' }}
+                    />
+                }
+                {codeReviewStatus !== 'codeCellPreview' &&
+                    <IconButton
+                        icon={<CopyIcon />}
+                        title="Copy"
+                        onClick={() => { void copyToClipboard(code) }}
+                    />
+                }
+            </div>
+        );
+    }
+
+    function renderOtherAiMessageToolbar(): JSX.Element {
+        return (
+            <div className='code-block-toolbar'>
+                <IconButton
+                    icon={<CopyIcon />}
+                    title="Copy"
+                    onClick={() => { void copyToClipboard(code) }}
+                />
+            </div>
+        );
+    }
+};
 
 export default CodeBlock
