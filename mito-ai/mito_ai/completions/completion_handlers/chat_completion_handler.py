@@ -32,7 +32,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             )
 
         # Add the system message if it doesn't alredy exist
-        await append_chat_system_message(message_history, provider, metadata.threadId)
+        await append_chat_system_message(message_history, model, provider, metadata.threadId)
         
         # Create the prompt
         prompt = create_chat_prompt(
@@ -49,7 +49,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, model, provider, metadata.threadId)
         
         # Get the completion (non-streaming)
         completion = await provider.request_completions(
@@ -61,7 +61,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         )
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
-        await message_history.append_message(ai_response_message, ai_response_message, provider, metadata.threadId)
+        await message_history.append_message(ai_response_message, ai_response_message, model, provider, metadata.threadId)
 
         return completion
     
@@ -95,7 +95,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             )
         
         # Add the system message if it doesn't already exist
-        await append_chat_system_message(message_history, provider, metadata.threadId)
+        await append_chat_system_message(message_history, model, provider, metadata.threadId)
         
         # Create the prompt
         prompt = create_chat_prompt(
@@ -112,7 +112,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Add the prompt to the message history
         new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, model, provider, metadata.threadId)
         
         # Stream the completions using the provider's stream method
         accumulated_response = await provider.stream_completions(
@@ -131,7 +131,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             "content": accumulated_response,
         }
         await message_history.append_message(
-            ai_response_message, ai_response_message, provider, metadata.threadId
+            ai_response_message, ai_response_message, model, provider, metadata.threadId
         )
 
         return accumulated_response

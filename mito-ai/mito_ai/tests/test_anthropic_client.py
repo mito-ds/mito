@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, _extract_and_parse_json_response, AnthropicClient, ANTHROPIC_FAST_MODEL
+from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, extract_and_parse_anthropic_json_response, AnthropicClient, ANTHROPIC_FAST_MODEL
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_function_params
 from anthropic.types import MessageParam, Message, ContentBlock, TextBlock, ToolUseBlock, Usage
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
@@ -114,7 +114,7 @@ def test_extract_json_from_tool_use():
         usage=Usage(input_tokens=0, output_tokens=0)
     )
     
-    result = _extract_and_parse_json_response(response)
+    result = extract_and_parse_anthropic_json_response(response)
     assert result == {"key": "value"}
 
 def test_extract_json_from_text():
@@ -132,7 +132,7 @@ def test_extract_json_from_text():
         usage=Usage(input_tokens=0, output_tokens=0)
     )
     
-    result = _extract_and_parse_json_response(response)
+    result = extract_and_parse_anthropic_json_response(response)
     assert result == {"key": "value"}
 
 def test_extract_json_from_text_with_multiple_blocks():
@@ -154,7 +154,7 @@ def test_extract_json_from_text_with_multiple_blocks():
         usage=Usage(input_tokens=0, output_tokens=0)
     )
     
-    result = _extract_and_parse_json_response(response)
+    result = extract_and_parse_anthropic_json_response(response)
     assert result == {"key": "value"}
 
 def test_invalid_json_in_text():
@@ -173,7 +173,7 @@ def test_invalid_json_in_text():
     )
     
     with pytest.raises(Exception) as exc_info:
-        _extract_and_parse_json_response(response)
+        extract_and_parse_anthropic_json_response(response)
     assert "No valid AgentResponse format found" in str(exc_info.value)
 
 def test_no_json_in_text():
@@ -192,7 +192,7 @@ def test_no_json_in_text():
     )
     
     with pytest.raises(Exception) as exc_info:
-        _extract_and_parse_json_response(response)
+        extract_and_parse_anthropic_json_response(response)
     assert "No valid AgentResponse format found" in str(exc_info.value)
 
 def test_empty_content():
@@ -207,7 +207,7 @@ def test_empty_content():
     )
     
     with pytest.raises(Exception) as exc_info:
-        _extract_and_parse_json_response(response)
+        extract_and_parse_anthropic_json_response(response)
     assert "No valid AgentResponse format found" in str(exc_info.value)
 
 def test_tool_use_without_agent_response():
@@ -228,7 +228,7 @@ def test_tool_use_without_agent_response():
     )
     
     with pytest.raises(Exception) as exc_info:
-        _extract_and_parse_json_response(response)
+        extract_and_parse_anthropic_json_response(response)
     assert "No valid AgentResponse format found" in str(exc_info.value)
 
 CUSTOM_MODEL = "claude-3-5-sonnet-latest"

@@ -14,7 +14,7 @@ MAX_TOKENS = 2_000
 
 ANTHROPIC_FAST_MODEL = "claude-3-5-haiku-latest"
 
-def _extract_and_parse_json_response(response: Message) -> Union[object, Any]:
+def extract_and_parse_anthropic_json_response(response: Message) -> Union[object, Any]:
     """
     Extracts and parses the JSON response from the Claude API.
     """
@@ -163,7 +163,7 @@ class AnthropicClient:
                 assert self.client is not None
                 response = self.client.messages.create(**provider_data)
                 if provider_data.get("tool_choice") is not None:
-                    result = _extract_and_parse_json_response(response)
+                    result = extract_and_parse_anthropic_json_response(response)
                     return json.dumps(result) if not isinstance(result, str) else result
                 else:
                     content = response.content

@@ -11,6 +11,7 @@ from mito_ai.completions.prompt_builders.agent_system_message import create_agen
 
 async def append_chat_system_message(
         message_history: GlobalMessageHistory,
+        model: str,
         provider: OpenAIProvider,
         thread_id: ThreadID
 ) -> None:
@@ -29,12 +30,14 @@ async def append_chat_system_message(
     await message_history.append_message(
         ai_optimized_message=system_message,
         display_message=system_message,
+        model=model,
         llm_provider=provider,
         thread_id=thread_id
     )
 
 async def append_agent_system_message(
         message_history: GlobalMessageHistory,
+        model: str,
         provider: OpenAIProvider,
         thread_id: ThreadID,
         isChromeBrowser: bool
@@ -54,6 +57,7 @@ async def append_agent_system_message(
     await message_history.append_message(
         ai_optimized_message=system_message,
         display_message=system_message,
+        model=model,
         llm_provider=provider,
         thread_id=thread_id
     )
