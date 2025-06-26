@@ -17,9 +17,15 @@ import { OpenAI } from 'openai';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
-jest.mock('../../Extensions/AiChat/ChatMessage/CodeBlock', () => {
-    return function MockCodeBlock() {
-        return <div data-testid="code-block">Mocked CodeBlock</div>;
+jest.mock('../../Extensions/AiChat/ChatMessage/UserCodeBlock', () => {
+    return function MockUserCodeBlock() {
+        return <div data-testid="user-code-block">Mocked UserCodeBlock</div>;
+    };
+});
+
+jest.mock('../../Extensions/AiChat/ChatMessage/AssistantCodeBlock', () => {
+    return function MockAssistantCodeBlock() {
+        return <div data-testid="assistant-code-block">Mocked AssistantCodeBlock</div>;
     };
 });
 
