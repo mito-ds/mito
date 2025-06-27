@@ -29,11 +29,29 @@ interface IAssistantCodeBlockProps {
     agentModeEnabled: boolean;
 }
 
-const renderAgentModeToggle = (
-    isCodeExpanded: boolean,
-    lineCount: number,
-    onToggle: () => void
-): JSX.Element => {
+interface IAgentModeToggleProps {
+    isCodeExpanded: boolean;
+    lineCount: number;
+    onToggle: () => void;
+}
+
+interface ILastAiMessageToolbarProps {
+    codeReviewStatus: CodeReviewStatus;
+    code: string;
+    onPreview: () => void;
+    onAccept: () => void;
+    onReject: () => void;
+}
+
+interface IOtherAiMessageToolbarProps {
+    code: string;
+}
+
+const AgentModeToggle: React.FC<IAgentModeToggleProps> = ({
+    isCodeExpanded,
+    lineCount,
+    onToggle
+}) => {
     return (
         <div
             onClick={onToggle}
@@ -48,13 +66,13 @@ const renderAgentModeToggle = (
     );
 };
 
-const renderLastAiMessageToolbar = (
-    codeReviewStatus: CodeReviewStatus,
-    code: string,
-    onPreview: () => void,
-    onAccept: () => void,
-    onReject: () => void
-): JSX.Element => {
+const LastAiMessageToolbar: React.FC<ILastAiMessageToolbarProps> = ({
+    codeReviewStatus,
+    code,
+    onPreview,
+    onAccept,
+    onReject
+}) => {
     return (
         <div className='code-block-toolbar'>
             {codeReviewStatus === 'chatPreview' && (
@@ -91,7 +109,7 @@ const renderLastAiMessageToolbar = (
     );
 };
 
-const renderOtherAiMessageToolbar = (code: string): JSX.Element => {
+const OtherAiMessageToolbar: React.FC<IOtherAiMessageToolbarProps> = ({ code }) => {
     return (
         <div className='code-block-toolbar'>
             <IconButton
@@ -146,16 +164,18 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
         }
 
         if (shouldShowFullToolbar) {
-            return renderLastAiMessageToolbar(
-                codeReviewStatus,
-                code,
-                handlePreviewCode,
-                handleAcceptCode,
-                handleRejectCode
+            return (
+                <LastAiMessageToolbar
+                    codeReviewStatus={codeReviewStatus}
+                    code={code}
+                    onPreview={handlePreviewCode}
+                    onAccept={handleAcceptCode}
+                    onReject={handleRejectCode}
+                />
             );
         }
 
-        return renderOtherAiMessageToolbar(code);
+        return <OtherAiMessageToolbar code={code} />;
     }, [
         shouldShowToolbar,
         shouldShowFullToolbar,
@@ -170,7 +190,13 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
         <div
             className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''} ${agentModeEnabled && !isCodeExpanded ? 'agent-mode-collapsed' : ''}`}
         >
-            {agentModeEnabled && renderAgentModeToggle(isCodeExpanded, lineCount, handleToggleExpanded)}
+            {agentModeEnabled && (
+                <AgentModeToggle
+                    isCodeExpanded={isCodeExpanded}
+                    lineCount={lineCount}
+                    onToggle={handleToggleExpanded}
+                />
+            )}
             {(!agentModeEnabled || isCodeExpanded) && (
                 <>
                     {toolbarElement}
