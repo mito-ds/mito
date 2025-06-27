@@ -20,6 +20,14 @@ jest.mock('../../Extensions/AiChat/ChatMessage/PythonCode', () => {
     };
 });
 
+// Mock the CodeBlockToolbar component
+jest.mock('../../Extensions/AiChat/ChatMessage/CodeBlockToolbar', () => {
+    return {
+        __esModule: true,
+        default: jest.fn(() => <div data-testid="code-block-toolbar" />)
+    };
+});
+
 // Mock copyToClipboard utility
 jest.mock('../../utils/copyToClipboard', () => jest.fn());
 
@@ -39,23 +47,21 @@ const createMockProps = (overrides = {}) => ({
 
 describe('AssistantCodeBlock Component', () => {
     describe('Toolbar Rendering', () => {
-        it('shows full toolbar for complete code and last AI message', () => {
+        it('shows toolbar for complete code and last AI message', () => {
             const props = createMockProps();
             render(<AssistantCodeBlock {...props} />);
 
-            expect(screen.getByTitle('Overwrite Active Cell')).toBeInTheDocument();
-            expect(screen.getByTitle('Copy')).toBeInTheDocument();
+            expect(screen.getByTestId('code-block-toolbar')).toBeInTheDocument();
         });
 
-        it('shows only copy button for non-last AI message', () => {
+        it('shows toolbar for non-last AI message with complete code', () => {
             const props = createMockProps({
                 isLastAiMessage: false,
                 isCodeComplete: true
             });
             render(<AssistantCodeBlock {...props} />);
 
-            expect(screen.queryByTitle('Overwrite Active Cell')).not.toBeInTheDocument();
-            expect(screen.getByTitle('Copy')).toBeInTheDocument();
+            expect(screen.getByTestId('code-block-toolbar')).toBeInTheDocument();
         });
 
         it('shows no toolbar for incomplete code and non-last message', () => {
@@ -65,19 +71,16 @@ describe('AssistantCodeBlock Component', () => {
             });
             render(<AssistantCodeBlock {...props} />);
 
-            expect(screen.queryByTitle('Overwrite Active Cell')).not.toBeInTheDocument();
-            expect(screen.queryByTitle('Copy')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('code-block-toolbar')).not.toBeInTheDocument();
         });
 
-        it('shows accept/reject buttons in codeCellPreview status', () => {
+        it('shows toolbar in codeCellPreview status', () => {
             const props = createMockProps({
                 codeReviewStatus: 'codeCellPreview'
             });
             render(<AssistantCodeBlock {...props} />);
 
-            expect(screen.getByTitle('Accept AI Generated Code')).toBeInTheDocument();
-            expect(screen.getByTitle('Reject AI Generated Code')).toBeInTheDocument();
-            expect(screen.queryByTitle('Copy')).not.toBeInTheDocument();
+            expect(screen.getByTestId('code-block-toolbar')).toBeInTheDocument();
         });
     });
 
@@ -102,7 +105,6 @@ describe('AssistantCodeBlock Component', () => {
             fireEvent.click(toggle);
 
             expect(screen.getByTestId('python-code')).toBeInTheDocument();
-            expect(screen.getByTitle('Copy')).toBeInTheDocument();
         });
 
         it('applies agent mode styling when enabled', () => {
@@ -113,43 +115,6 @@ describe('AssistantCodeBlock Component', () => {
 
             const container = document.querySelector('.code-block-container');
             expect(container).toHaveClass('agent-mode');
-        });
-    });
-
-    describe('Event Handlers', () => {
-        it('calls previewAICode when preview button is clicked', () => {
-            const mockPreview = jest.fn();
-            const props = createMockProps({
-                previewAICode: mockPreview
-            });
-            render(<AssistantCodeBlock {...props} />);
-
-            fireEvent.click(screen.getByTitle('Overwrite Active Cell'));
-            expect(mockPreview).toHaveBeenCalledTimes(1);
-        });
-
-        it('calls acceptAICode when accept button is clicked', () => {
-            const mockAccept = jest.fn();
-            const props = createMockProps({
-                codeReviewStatus: 'codeCellPreview',
-                acceptAICode: mockAccept
-            });
-            render(<AssistantCodeBlock {...props} />);
-
-            fireEvent.click(screen.getByTitle('Accept AI Generated Code'));
-            expect(mockAccept).toHaveBeenCalledTimes(1);
-        });
-
-        it('calls rejectAICode when reject button is clicked', () => {
-            const mockReject = jest.fn();
-            const props = createMockProps({
-                codeReviewStatus: 'codeCellPreview',
-                rejectAICode: mockReject
-            });
-            render(<AssistantCodeBlock {...props} />);
-
-            fireEvent.click(screen.getByTitle('Reject AI Generated Code'));
-            expect(mockReject).toHaveBeenCalledTimes(1);
         });
     });
 
