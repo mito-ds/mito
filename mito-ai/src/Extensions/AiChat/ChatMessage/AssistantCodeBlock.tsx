@@ -6,6 +6,7 @@
 import React, { useState, useMemo } from 'react';
 import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { classNames } from '../../../utils/classNames';
 import '../../../../style/CodeBlock.css'
 import copyToClipboard from '../../../utils/copyToClipboard';
 import IconButton from '../../../components/IconButton';
@@ -117,12 +118,17 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
 
     return (
         <div
-            className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''} ${agentModeEnabled && !isCodeExpanded ? 'agent-mode-collapsed' : ''}`}
+            className={classNames('code-block-container', {
+                'agent-mode': agentModeEnabled,
+                'agent-mode-collapsed': agentModeEnabled && !isCodeExpanded
+            })}
         >
             {agentModeEnabled && (
                 <div
                     onClick={() => setIsCodeExpanded(!isCodeExpanded)}
-                    className={`agent-mode-toggle ${isCodeExpanded ? 'expanded' : ''}`}
+                    className={classNames('agent-mode-toggle', {
+                        expanded: isCodeExpanded
+                    })}
                 >
                     <span className="agent-mode-toggle-content">
                         <CodeIcon />
