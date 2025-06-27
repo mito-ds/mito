@@ -137,23 +137,6 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     // Memoize calculations
     const lineCount = useMemo(() => code.split('\n').length, [code]);
 
-    // Memoize event handlers
-    const handleToggleExpanded = useCallback(() => {
-        setIsCodeExpanded(!isCodeExpanded);
-    }, [isCodeExpanded]);
-
-    const handlePreviewCode = useCallback(() => {
-        previewAICode();
-    }, [previewAICode]);
-
-    const handleAcceptCode = useCallback(() => {
-        acceptAICode();
-    }, [acceptAICode]);
-
-    const handleRejectCode = useCallback(() => {
-        rejectAICode();
-    }, [rejectAICode]);
-
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
     const shouldShowFullToolbar = isLastAiMessage && isCodeComplete;
 
@@ -167,9 +150,9 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
                 <LastAiMessageToolbar
                     codeReviewStatus={codeReviewStatus}
                     code={code}
-                    onPreview={handlePreviewCode}
-                    onAccept={handleAcceptCode}
-                    onReject={handleRejectCode}
+                    onPreview={previewAICode}
+                    onAccept={acceptAICode}
+                    onReject={rejectAICode}
                 />
             );
         }
@@ -180,9 +163,9 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
         shouldShowFullToolbar,
         codeReviewStatus,
         code,
-        handlePreviewCode,
-        handleAcceptCode,
-        handleRejectCode
+        previewAICode,
+        acceptAICode,
+        rejectAICode
     ]);
 
     return (
@@ -193,7 +176,7 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
                 <AgentModeToggle
                     isCodeExpanded={isCodeExpanded}
                     lineCount={lineCount}
-                    onToggle={handleToggleExpanded}
+                    onToggle={() => setIsCodeExpanded(!isCodeExpanded)}
                 />
             )}
             {(!agentModeEnabled || isCodeExpanded) && (
