@@ -62,22 +62,10 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
                     <ExpandIcon isExpanded={isCodeExpanded} />
                 </div>
                 {isCodeExpanded && (
-                    <>
-                        {shouldShowToolbar && (
-                            <CodeBlockToolbar
-                                code={code}
-                                isLastAiMessage={isLastAiMessage}
-                                codeReviewStatus={codeReviewStatus}
-                                onPreview={previewAICode}
-                                onAccept={acceptAICode}
-                                onReject={rejectAICode}
-                            />
-                        )}
-                        <PythonCode
-                            code={code}
-                            renderMimeRegistry={renderMimeRegistry}
-                        />
-                    </>
+                    <PythonCode
+                        code={code}
+                        renderMimeRegistry={renderMimeRegistry}
+                    />
                 )}
             </div>
         );
