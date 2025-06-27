@@ -1,0 +1,33 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.error-fixup-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    background-color: transparent;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--jp-ui-font-color2);
+    margin: 10px 0;
+    color: var(--jp-ui-font-color2);
+    cursor: pointer;
+}
+
+.error-fixup-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 5px;
+}
+
+.error-fixup-expanded {
+    background-color: var(--jp-layout-color2);
+    border: 1px solid var(--jp-ui-font-color1);
+    color: var(--jp-ui-font-color1);
+    white-space: pre-wrap;
+    word-break: break-word;
+} 

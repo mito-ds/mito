@@ -29,6 +29,7 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
+import ErrorFixupToolUi from '../../../components/AgentToolComponents/ErrorFixupToolUi';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -108,6 +109,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         setNextSteps(agentResponse.next_steps);
     }
 
+    // Special handling for agent:autoErrorFixup prompt type
+    if (promptType === 'agent:autoErrorFixup' && message.role === 'user') {
+        return <ErrorFixupToolUi message={message} />;
+    }
+    
     if (isEditing) {
         return (
             <ChatInput
