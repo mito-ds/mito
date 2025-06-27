@@ -26,7 +26,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
 const ALL_MODEL_DISPLAY_NAMES = MODEL_MAPPINGS.map(mapping => mapping.displayName);
 
 // Maximum length for displayed model name before truncating
-export const DEFAULT_MODEL = 'GPT-4.1';
+export const DEFAULT_MODEL = 'Claude 4 Sonnet';
 
 interface ModelSelectorProps {
   onConfigChange: (config: ModelConfig) => void;
@@ -39,18 +39,31 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   // Load config from localStorage on component mount and notify parent
   useEffect(() => {
     const storedConfig = localStorage.getItem('llmModelConfig');
+    let fullModelName: string | undefined;
+    let displayName: string | undefined;
+
     if (storedConfig) {
       try {
         const parsedConfig = JSON.parse(storedConfig);
-        const fullModelName = parsedConfig.model || MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL)?.fullName;
-        const displayName = MODEL_MAPPINGS.find(m => m.fullName === fullModelName)?.displayName || DEFAULT_MODEL;
-        setSelectedModel(displayName);
-
-        onConfigChange({ model: fullModelName });
+        fullModelName = parsedConfig.model;
+        displayName = MODEL_MAPPINGS.find(m => m.fullName === fullModelName)?.displayName;
       } catch (e) {
         console.error('Failed to parse stored LLM config', e);
       }
     }
+
+    // Fallback to default if not found
+    let defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL);
+    if (!defaultMapping) {
+      defaultMapping = MODEL_MAPPINGS[0];
+    }
+    if (!fullModelName || !displayName) {
+      fullModelName = defaultMapping!.fullName;
+      displayName = defaultMapping!.displayName;
+    }
+
+    setSelectedModel(displayName);
+    onConfigChange({ model: fullModelName });
   }, [onConfigChange]);
 
   const handleModelChange = (displayName: string): void => {

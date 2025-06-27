@@ -30,13 +30,15 @@ def get_model_provider(model: str) -> Union[str, None]:
     if not model:
         return None
 
-    if model.startswith('claude'):
+    model_lower = model.lower()
+
+    if model_lower.startswith('claude'):
         return 'claude'
-    elif model.startswith('gemini'):
+    elif model_lower.startswith('gemini'):
         return 'gemini'
-    elif model.startswith('ollama'):
+    elif model_lower.startswith('ollama'):
         return 'ollama'
-    elif model.startswith('gpt') or model.startswith('o3'):
+    elif model_lower.startswith('gpt'):
         return 'openai'
 
     return None
