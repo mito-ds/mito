@@ -43,14 +43,12 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
 
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
 
-    return (
-        <div
-            className={classNames('code-block-container', {
-                'agent-mode': agentModeEnabled,
-                'agent-mode-collapsed': agentModeEnabled && !isCodeExpanded
-            })}
-        >
-            {agentModeEnabled && (
+    if (agentModeEnabled) {
+        return (
+            <div className={classNames('code-block-container', {
+                'agent-mode': true,
+                'agent-mode-collapsed': !isCodeExpanded
+            })}>
                 <div
                     onClick={() => setIsCodeExpanded(!isCodeExpanded)}
                     className={classNames('agent-mode-toggle', {
@@ -63,27 +61,46 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
                     </span>
                     <ExpandIcon isExpanded={isCodeExpanded} />
                 </div>
-            )}
-            {(!agentModeEnabled || isCodeExpanded) && (
-                <>
-                    {shouldShowToolbar && (
-                        <CodeBlockToolbar
+                {isCodeExpanded && (
+                    <>
+                        {shouldShowToolbar && (
+                            <CodeBlockToolbar
+                                code={code}
+                                isLastAiMessage={isLastAiMessage}
+                                codeReviewStatus={codeReviewStatus}
+                                onPreview={previewAICode}
+                                onAccept={acceptAICode}
+                                onReject={rejectAICode}
+                            />
+                        )}
+                        <PythonCode
                             code={code}
-                            isLastAiMessage={isLastAiMessage}
-                            codeReviewStatus={codeReviewStatus}
-                            onPreview={previewAICode}
-                            onAccept={acceptAICode}
-                            onReject={rejectAICode}
+                            renderMimeRegistry={renderMimeRegistry}
                         />
-                    )}
-                    <PythonCode
+                    </>
+                )}
+            </div>
+        );
+    } else {
+        return (
+            <div className="code-block-container">
+                {shouldShowToolbar && (
+                    <CodeBlockToolbar
                         code={code}
-                        renderMimeRegistry={renderMimeRegistry}
+                        isLastAiMessage={isLastAiMessage}
+                        codeReviewStatus={codeReviewStatus}
+                        onPreview={previewAICode}
+                        onAccept={acceptAICode}
+                        onReject={rejectAICode}
                     />
-                </>
-            )}
-        </div>
-    );
+                )}
+                <PythonCode
+                    code={code}
+                    renderMimeRegistry={renderMimeRegistry}
+                />
+            </div>
+        );
+    }
 };
 
 export default AssistantCodeBlock;
