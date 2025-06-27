@@ -5,7 +5,8 @@
 
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import ModelSelector from '../../components/ModelSelector';
+import ModelSelector, { DEFAULT_MODEL } from '../../components/ModelSelector';
+
 
 describe('ModelSelector', () => {
   const mockOnConfigChange = jest.fn();
@@ -21,7 +22,7 @@ describe('ModelSelector', () => {
     render(<ModelSelector onConfigChange={mockOnConfigChange} />);
     
     // Open the dropdown
-    const dropdown = screen.getByText('GPT-4.1').closest('.model-selector-dropdown');
+    const dropdown = screen.getByText(DEFAULT_MODEL).closest('.model-selector-dropdown');
     if (!dropdown) throw new Error('Dropdown element not found');
     fireEvent.click(dropdown);
 
