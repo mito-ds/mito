@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import '../../../../style/CodeBlock.css'
@@ -140,34 +140,6 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
     const shouldShowFullToolbar = isLastAiMessage && isCodeComplete;
 
-    const toolbarElement = useMemo(() => {
-        if (!shouldShowToolbar) {
-            return null;
-        }
-
-        if (shouldShowFullToolbar) {
-            return (
-                <LastAiMessageToolbar
-                    codeReviewStatus={codeReviewStatus}
-                    code={code}
-                    onPreview={previewAICode}
-                    onAccept={acceptAICode}
-                    onReject={rejectAICode}
-                />
-            );
-        }
-
-        return <OtherAiMessageToolbar code={code} />;
-    }, [
-        shouldShowToolbar,
-        shouldShowFullToolbar,
-        codeReviewStatus,
-        code,
-        previewAICode,
-        acceptAICode,
-        rejectAICode
-    ]);
-
     return (
         <div
             className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''} ${agentModeEnabled && !isCodeExpanded ? 'agent-mode-collapsed' : ''}`}
@@ -181,7 +153,18 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
             )}
             {(!agentModeEnabled || isCodeExpanded) && (
                 <>
-                    {toolbarElement}
+                    {shouldShowFullToolbar && (
+                        <LastAiMessageToolbar
+                            codeReviewStatus={codeReviewStatus}
+                            code={code}
+                            onPreview={previewAICode}
+                            onAccept={acceptAICode}
+                            onReject={rejectAICode}
+                        />
+                    )}
+                    {shouldShowToolbar && !shouldShowFullToolbar && (
+                        <OtherAiMessageToolbar code={code} />
+                    )}
                     <PythonCode
                         code={code}
                         renderMimeRegistry={renderMimeRegistry}
