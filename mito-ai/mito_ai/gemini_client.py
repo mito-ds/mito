@@ -4,11 +4,29 @@ import base64
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from google import genai
 from google.genai import types
-from google.genai.types import GenerateContentConfig, Part, Content
+from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse
 from mito_ai.completions.models import CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 
 GEMINI_FAST_MODEL = "gemini-2.0-flash-lite"
+
+def extract_and_parse_gemini_json_response(response: GenerateContentResponse) -> Optional[str]:
+    """
+    Extracts and parses the JSON response from the Gemini API.
+    """
+    if hasattr(response, 'text') and response.text:
+        return response.text
+
+    if hasattr(response, 'candidates') and response.candidates:
+        candidate = response.candidates[0]
+        if hasattr(candidate, 'content') and candidate.content:
+            content = candidate.content
+            if hasattr(content, 'parts') and content.parts:
+                return " ".join(str(part) for part in content.parts)
+            return str(content)
+        return str(candidate)
+    
+    return None
 
 def get_gemini_system_prompt_and_messages(messages: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
     """
@@ -118,6 +136,13 @@ class GeminiClient:
                     contents=contents,  # type: ignore
                     config=response_config
                 )
+                
+                result = extract_and_parse_gemini_json_response(response)
+                
+                if not result:
+                    return "No response received from Gemini API"
+
+                return result
             else:
                 # Fallback to Mito server for completion
                 return await get_gemini_completion_from_mito_server(
@@ -127,23 +152,6 @@ class GeminiClient:
                     config=provider_data.get("config", None),
                     response_format_info=response_format_info,
                 )
-
-            if not response:
-                return "No response received from Gemini API"
-
-            if hasattr(response, 'text') and response.text:
-                return response.text
-
-            if hasattr(response, 'candidates') and response.candidates:
-                candidate = response.candidates[0]
-                if hasattr(candidate, 'content') and candidate.content:
-                    content = candidate.content
-                    if hasattr(content, 'parts') and content.parts:
-                        return " ".join(str(part) for part in content.parts)
-                    return str(content)
-                return str(candidate)
-
-            return str(response)
 
         except Exception as e:
             return f"Error generating content: {str(e)}"

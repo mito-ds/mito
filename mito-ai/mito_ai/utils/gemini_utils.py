@@ -78,6 +78,7 @@ async def get_gemini_completion_from_mito_server(
         raise
     finally:
         http_client.close()
+    
     # The response is a string
     return res.body.decode("utf-8")
 

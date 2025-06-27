@@ -9,7 +9,6 @@ from threading import Lock
 from typing import Dict, List, Optional
 
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.completions.models import CompletionRequest, ChatThreadMetadata, MessageType, ThreadID
 from mito_ai.completions.prompt_builders.chat_name_prompt import create_chat_name_prompt
 from mito_ai.completions.providers import OpenAIProvider
@@ -20,15 +19,34 @@ CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 NEW_CHAT_NAME = "(New Chat)"
 NUMBER_OF_THREADS_CUT_OFF = 50
 
-async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider: OpenAIProvider) -> str:
+async def generate_short_chat_name(user_message: str, assistant_message: str, model: str, llm_provider: OpenAIProvider) -> str:
     prompt = create_chat_name_prompt(user_message, assistant_message)
 
     completion = await llm_provider.request_completions(
         messages=[{"role": "user", "content": prompt}], 
-        model=MESSAGE_TYPE_TO_MODEL[MessageType.CHAT_NAME_GENERATION],
+        # We set the model so we can use the correct model provider, but request_completions will decide to 
+        # use the fast model from that provider to make the request.
+        model=model, 
         message_type=MessageType.CHAT_NAME_GENERATION,
         thread_id=None
     )
+    
+    # Do a little cleanup of the completion. Gemini seems to return the string
+    # wrapped in quotes and a newline character. 
+    # TODO: Fix this problem upstream. I wonder if there is some extra encoding
+    # we are doing with the gemini responses.
+    if isinstance(completion, str):
+        # If completion has quotes around it, remove them
+        if completion.startswith('"') and completion.endswith('"'):
+            completion = completion[1:-1]
+            
+        if completion.startswith("'") and completion.endswith("'"):
+            completion = completion[1:-1]
+            
+        # If completion ends in a \n, remove it
+        completion = completion.strip()
+        completion = completion.replace("\n", "") # Remove newline character
+        completion = completion.replace("\\n", "") # Remove literal \ and n characters
         
     if not completion or completion == "":
         return "Untitled Chat"
@@ -239,6 +257,7 @@ class GlobalMessageHistory:
         self, 
         ai_optimized_message: ChatCompletionMessageParam, 
         display_message: ChatCompletionMessageParam, 
+        model: str,
         llm_provider: OpenAIProvider,
         thread_id: ThreadID
     ) -> None:
@@ -278,7 +297,7 @@ class GlobalMessageHistory:
 
         # Outside the lock, await the name generation if needed
         if name_gen_input:
-            new_name = await generate_short_chat_name(str(name_gen_input[0]), str(name_gen_input[1]), llm_provider)
+            new_name = await generate_short_chat_name(str(name_gen_input[0]), str(name_gen_input[1]), model, llm_provider)
             with self._lock:
                 # Update the thread's name if still required
                 thread = self._chat_threads[thread_id]
