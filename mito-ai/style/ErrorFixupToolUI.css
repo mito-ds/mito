@@ -5,8 +5,8 @@
 
 .error-fixup-container {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: start;
     background-color: transparent;
     padding: 10px;
@@ -26,8 +26,10 @@
 
 .error-fixup-expanded {
     background-color: var(--jp-layout-color2);
-    border: 1px solid var(--jp-ui-font-color1);
     color: var(--jp-ui-font-color1);
     white-space: pre-wrap;
     word-break: break-word;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
 } 
