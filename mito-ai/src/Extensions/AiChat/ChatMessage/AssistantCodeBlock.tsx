@@ -29,12 +29,6 @@ interface IAssistantCodeBlockProps {
     agentModeEnabled: boolean;
 }
 
-interface IAgentModeToggleProps {
-    isCodeExpanded: boolean;
-    lineCount: number;
-    onToggle: () => void;
-}
-
 interface ILastAiMessageToolbarProps {
     codeReviewStatus: CodeReviewStatus;
     code: string;
@@ -46,25 +40,6 @@ interface ILastAiMessageToolbarProps {
 interface IOtherAiMessageToolbarProps {
     code: string;
 }
-
-const AgentModeToggle: React.FC<IAgentModeToggleProps> = ({
-    isCodeExpanded,
-    lineCount,
-    onToggle
-}) => {
-    return (
-        <div
-            onClick={onToggle}
-            className={`agent-mode-toggle ${isCodeExpanded ? 'expanded' : ''}`}
-        >
-            <span className="agent-mode-toggle-content">
-                <CodeIcon />
-                Generated {lineCount} lines of code
-            </span>
-            <ExpandIcon isExpanded={isCodeExpanded} />
-        </div>
-    );
-};
 
 const LastAiMessageToolbar: React.FC<ILastAiMessageToolbarProps> = ({
     codeReviewStatus,
@@ -145,11 +120,16 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
             className={`code-block-container ${agentModeEnabled ? 'agent-mode' : ''} ${agentModeEnabled && !isCodeExpanded ? 'agent-mode-collapsed' : ''}`}
         >
             {agentModeEnabled && (
-                <AgentModeToggle
-                    isCodeExpanded={isCodeExpanded}
-                    lineCount={lineCount}
-                    onToggle={() => setIsCodeExpanded(!isCodeExpanded)}
-                />
+                <div
+                    onClick={() => setIsCodeExpanded(!isCodeExpanded)}
+                    className={`agent-mode-toggle ${isCodeExpanded ? 'expanded' : ''}`}
+                >
+                    <span className="agent-mode-toggle-content">
+                        <CodeIcon />
+                        Generated {lineCount} lines of code
+                    </span>
+                    <ExpandIcon isExpanded={isCodeExpanded} />
+                </div>
             )}
             {(!agentModeEnabled || isCodeExpanded) && (
                 <>
