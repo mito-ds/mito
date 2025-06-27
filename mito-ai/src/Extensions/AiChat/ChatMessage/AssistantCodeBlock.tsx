@@ -154,7 +154,6 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
         rejectAICode();
     }, [rejectAICode]);
 
-    // Memoize conditional logic
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
     const shouldShowFullToolbar = isLastAiMessage && isCodeComplete;
 
