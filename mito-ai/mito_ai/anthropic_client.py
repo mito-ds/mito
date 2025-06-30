@@ -12,7 +12,8 @@ from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_ser
 
 # Max tokens is a required parameter for the Anthropic API. 
 # We set it to a high number so that we can edit large code cells
-MAX_TOKENS = 20_000
+# 8192 is the maximum allowed number of output tokens for claude-3-5-haiku-20241022
+MAX_TOKENS = 8_000
 
 ANTHROPIC_FAST_MODEL = "claude-3-5-haiku-latest"
 
