@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { classNames } from '../../utils/classNames';
+// import { classNames } from '../../utils/classNames';
 import { getContentStringFromMessage } from '../../utils/strings';
 import OpenAI from 'openai';
 import ErrorIcon from '../../icons/ErrorIcon';
@@ -32,7 +32,7 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ message }) => {
             </div>
 
             {isExpanded && (
-                <div className={classNames("error-fixup-container", "error-fixup-expanded")}>
+                <div>
                     {messageContent}
                 </div>
             )}
