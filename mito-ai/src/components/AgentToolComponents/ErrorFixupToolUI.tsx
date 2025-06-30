@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// import { classNames } from '../../utils/classNames';
+import { classNames } from '../../utils/classNames';
 import { getContentStringFromMessage } from '../../utils/strings';
 import OpenAI from 'openai';
 import '../../../style/ErrorFixupToolUI.css';
@@ -21,18 +21,23 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ message }) => {
     const messageContent = getContentStringFromMessage(message);
 
     return (
-        <div
-            className="error-fixup-container"
-            onClick={() => setIsExpanded(!isExpanded)}
-        >
-            <div className="error-fixup-content">
-                <WrenchAndScrewdriverIcon />
-                <span>Fixing {parsePythonErrorType(messageContent)}</span>
+        <div className={classNames('error-fixup-container', {
+            'error-fixup-collapsed': !isExpanded
+        })}>
+            <div
+                onClick={() => setIsExpanded(!isExpanded)}
+                className={classNames('error-fixup-toggle', {
+                    expanded: isExpanded
+                })}
+            >
+                <span className="error-fixup-toggle-content">
+                    <WrenchAndScrewdriverIcon />
+                    Fixing {parsePythonErrorType(messageContent)}
+                </span>
                 <ExpandIcon isExpanded={isExpanded} />
             </div>
-
             {isExpanded && (
-                <div>
+                <div className="error-fixup-expanded">
                     {messageContent}
                 </div>
             )}
