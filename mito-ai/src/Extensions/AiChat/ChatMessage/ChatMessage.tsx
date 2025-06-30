@@ -85,7 +85,19 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     const editable = message.role === 'user'
 
     const messageContentParts = splitStringWithCodeBlocks(message);
-
+    const messageContent = getContentStringFromMessage(message);
+    const isErrorFixupMessage = (
+        // Initially, messages are labeled with the prompt type 'agent:autoErrorFixup'
+        promptType === 'agent:autoErrorFixup' ||
+        // However, when the chat history is saved, this field is stripped, and every message is labeled as 'chat'.
+        // In this case we have to manually determine if the message is an error fixup message.
+        (message.role === 'user' && 
+            messageContent && 
+            messageContent.includes('---->') && 
+            /\w+Error:/.test(messageContent)
+        )
+    );
+    
     const handleEditClick = (): void => {
         setIsEditing(true);
     };
@@ -109,8 +121,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         setNextSteps(agentResponse.next_steps);
     }
 
-    // Special handling for agent:autoErrorFixup prompt type
-    if (promptType === 'agent:autoErrorFixup' && message.role === 'user') {
+    if (isErrorFixupMessage) {
         return <ErrorFixupToolUi message={message} />;
     }
     
@@ -142,7 +153,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     }
 
     // If the message is empty, don't render anything
-    const messageContent = getContentStringFromMessage(message)
     if (messageContent === undefined || messageContent === '') {
         return <></>
     }
