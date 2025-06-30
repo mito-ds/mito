@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 // import { classNames } from '../../utils/classNames';
 import { getContentStringFromMessage } from '../../utils/strings';
 import OpenAI from 'openai';
-import ErrorIcon from '../../icons/ErrorIcon';
 import '../../../style/ErrorFixupToolUI.css';
 import ExpandIcon from '../../icons/ExpandIcon';
+import WrenchAndScrewdriverIcon from '../../icons/WrenchAndScrewdriverIcon';
 
 interface IErrorFixupToolUIProps {
     message: OpenAI.Chat.ChatCompletionMessageParam;
@@ -26,7 +26,7 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ message }) => {
             onClick={() => setIsExpanded(!isExpanded)}
         >
             <div className="error-fixup-content">
-                <ErrorIcon />
+                <WrenchAndScrewdriverIcon />
                 <span>Fixing {parsePythonErrorType(messageContent)}</span>
                 <ExpandIcon isExpanded={isExpanded} />
             </div>
