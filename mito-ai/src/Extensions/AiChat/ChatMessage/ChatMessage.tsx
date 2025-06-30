@@ -29,7 +29,7 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
-import ErrorFixupToolUi from '../../../components/AgentToolComponents/ErrorFixupToolUi';
+import ErrorFixupToolUI from '../../../components/AgentToolComponents/ErrorFixupToolUI';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -122,7 +122,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     }
 
     if (isErrorFixupMessage) {
-        return <ErrorFixupToolUi message={message} />;
+        return <ErrorFixupToolUI message={message} />;
     }
     
     if (isEditing) {
