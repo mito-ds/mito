@@ -17,6 +17,7 @@ export interface IAppBuilderRequest {
 export interface IBuildAppRequest extends IAppBuilderRequest {
     type: 'build-app'
     path: string
+    jwt_token?: string
 }
 
 /**
