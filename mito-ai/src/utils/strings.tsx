@@ -9,6 +9,8 @@ export const PYTHON_CODE_BLOCK_START_WITH_NEW_LINE = '```python\n'
 export const PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE = '```python'
 export const PYTHON_CODE_BLOCK_END_WITH_NEW_LINE = '\n```'
 export const PYTHON_CODE_BLOCK_END_WITHOUT_NEW_LINE = '```'
+export const SUMMARY_BLOCK_START = '```Summary\n'
+export const SUMMARY_BLOCK_END = '\n```'
 
 
 /* 
@@ -108,6 +110,15 @@ export const addMarkdownCodeFormatting = (code: string | undefined, trim?: boole
     // Note: We add a space after the code because for some unknown reason, the markdown 
     // renderer is cutting off the last character in the code block.
     return `${PYTHON_CODE_BLOCK_START_WITH_NEW_LINE}${codeWithoutBackticks} ${PYTHON_CODE_BLOCK_END_WITH_NEW_LINE}`
+}
+
+export const addMarkdownSummaryFormatting = (summary: string | undefined): string | undefined => {
+
+    if (summary === undefined) {
+        return undefined
+    }
+
+    return `${SUMMARY_BLOCK_START}${summary}${SUMMARY_BLOCK_END}`
 }
 
 /* 

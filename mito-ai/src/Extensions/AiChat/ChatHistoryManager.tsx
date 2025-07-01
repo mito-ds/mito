@@ -8,7 +8,7 @@ import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../websockets/completions/CompletionModels";
-import { addMarkdownCodeFormatting } from "../../utils/strings";
+import { addMarkdownCodeFormatting, addMarkdownSummaryFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
 
 export type PromptType = 
@@ -304,9 +304,10 @@ export class ChatHistoryManager {
             // and just display the message.
             const code = agentResponse.cell_update?.code
             const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
+            const codeSummary = addMarkdownSummaryFormatting(agentResponse.cell_update?.code_summary)
 
             if (codeWithMarkdownFormatting !== undefined) {
-                content = content + '\n\n' + codeWithMarkdownFormatting
+                content = content + '\n\n' + codeWithMarkdownFormatting + '\n\n' + codeSummary
             }
         }
 
@@ -314,6 +315,7 @@ export class ChatHistoryManager {
             role: 'assistant',
             content: content
         }
+        console.log(aiMessage)
 
         this.displayOptimizedChatHistory.push(
             {
