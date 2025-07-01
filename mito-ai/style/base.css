@@ -11,6 +11,7 @@
 
 @import url('icons.css');
 @import url('statusItem.css');
+@import url('CellHeaders.css');
 
 :root {
   --chat-background-color: var(--jp-layout-color1);

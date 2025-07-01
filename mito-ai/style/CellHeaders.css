@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* 
+  -------------------------------------------------------------
+   JupyterLab Cell Headers (Mito) – Production Styles
+  -------------------------------------------------------------
+   • Uses each cell's data-windowed-list-index attribute
+   • Works with JupyterLab's virtualization (hidden cells)
+  ------------------------------------------------------------- 
+*/
+
+/* Display (and size) JupyterLab's built-in header element */
+.jp-Cell-header {
+  display: block;
+  height: 32px;
+  line-height: 32px;
+}
+
+/* Inject the label using the number copied into data-cell-number */
+.jp-Cell-header::before {
+  content: "Cell " attr(data-cell-number);
+  padding-left: 8px;
+  font-size: 14px;
+  font-family: var(--jp-ui-font-family);
+  color: var(--jp-ui-font-color2);
+  user-select: none;
+}
