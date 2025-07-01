@@ -66,6 +66,14 @@ export class CompletionWebsocketClient extends BaseWebsocketClient<ICompletionRe
    * Process a message received from the websocket.
    */
   protected _onMessage(message: CompleterMessage): void {
+    // Check if this message is from a cancelled request
+    if ('parent_id' in message && this._cancelledMessageIds.has(message.parent_id)) {
+      console.log('Ignoring message from cancelled request:', message.parent_id);
+      // Clean up the cancelled message ID
+      this._cancelledMessageIds.delete(message.parent_id);
+      return;
+    }
+
     /**
      * Emit unconditionally the message to interested parties.
      */
