@@ -60,7 +60,7 @@ Important information:
 1. The id is the id of the code cell that you want to update. The id MUST already be part of the original Jupyter Notebook that your colleague shared with you.
 2. The message is a short summary of your thought process that helped you decide what to update in cell_update.
 3. The code should be the full contents of that updated code cell. The code that you return will overwrite the existing contents of the code cell so it must contain all necessary code.
-4. The code_summary is a one sentence summary of the code that you are adding. It should be no more than 5 words, and start with a verb. For example, "Converting the transaction_date column", "Calculating the all time high closing price", "Plotting total_price", etc.
+4. The code_summary must be a short phrase (no more than 5 words) that starts with a verb ending in “-ing” (e.g., “Calculating,” “Plotting,” “Converting”). 
 5. Important: Only use the CELL_UPDATE tool if you want to add/modify a notebook cell in response to the user's request. If the user is just sending you a friendly greeting or asking you a question about yourself, you SHOULD NOT USE A CELL_UPDATE tool because it does not require modifying the notebook. Instead, just use the FINISHED_TASK response.
 
 #### Cell Addition:
