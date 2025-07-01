@@ -8,6 +8,7 @@ from typing import Any, Union
 import zipfile
 import tempfile
 from mito_ai.utils.create import initialize_user
+from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
 from mito_ai.app_builder.models import (
     BuildAppReply,
@@ -221,6 +222,8 @@ class AppBuilderHandler(BaseWebSocketHandler):
             headers = {}
             if jwt_token and jwt_token != 'placeholder-jwt-token':
                 headers['Authorization'] = f'Bearer {jwt_token}'
+
+            headers["Subscription-Tier"] = 'Pro' if is_pro() else 'Standard'
             
             url_response = requests.get(f"{API_BASE_URL}/get-upload-url?app_name={app_name}", headers=headers)
             url_response.raise_for_status()
