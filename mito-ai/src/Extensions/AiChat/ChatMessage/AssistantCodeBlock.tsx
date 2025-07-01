@@ -15,7 +15,7 @@ import CodeBlockToolbar from './CodeBlockToolbar';
 
 interface IAssistantCodeBlockProps {
     code: string;
-    codeSummary: string;
+    codeSummary: string | undefined;
     isCodeComplete: boolean;
     renderMimeRegistry: IRenderMimeRegistry;
     previewAICode: () => void;
@@ -56,7 +56,7 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
                 >
                     <span className="agent-mode-toggle-content">
                         <CodeIcon />
-                        {codeSummary}
+                        {codeSummary ?? 'Generated code'}
                     </span>
                     <ExpandIcon isExpanded={isCodeExpanded} />
                 </div>

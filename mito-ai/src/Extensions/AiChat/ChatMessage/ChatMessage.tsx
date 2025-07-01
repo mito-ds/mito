@@ -174,7 +174,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 ) : (
                                     <AssistantCodeBlock
                                         code={messagePart}
-                                        codeSummary={agentResponse?.cell_update?.code_summary ?? ''}
+                                        codeSummary={agentResponse?.cell_update?.code_summary ?? undefined}
                                         isCodeComplete={isCodeComplete}
                                         renderMimeRegistry={renderMimeRegistry}
                                         previewAICode={previewAICode}
