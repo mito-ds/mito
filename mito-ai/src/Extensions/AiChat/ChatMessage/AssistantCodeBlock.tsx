@@ -15,6 +15,7 @@ import CodeBlockToolbar from './CodeBlockToolbar';
 
 interface IAssistantCodeBlockProps {
     code: string;
+    codeSummary: string;
     isCodeComplete: boolean;
     renderMimeRegistry: IRenderMimeRegistry;
     previewAICode: () => void;
@@ -27,6 +28,7 @@ interface IAssistantCodeBlockProps {
 
 const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     code,
+    codeSummary,
     isCodeComplete,
     renderMimeRegistry,
     previewAICode,
@@ -40,6 +42,7 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
 
     // Memoize calculations
     const lineCount = useMemo(() => code.split('\n').length, [code]);
+    console.log(lineCount)
 
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
 
@@ -57,7 +60,7 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
                 >
                     <span className="agent-mode-toggle-content">
                         <CodeIcon />
-                        Generated {lineCount} lines of code
+                        {codeSummary}
                     </span>
                     <ExpandIcon isExpanded={isCodeExpanded} />
                 </div>

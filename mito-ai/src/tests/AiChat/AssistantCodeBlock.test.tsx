@@ -42,6 +42,7 @@ const createMockProps = (overrides = {}) => ({
     isLastAiMessage: true,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
     agentModeEnabled: false,
+    codeSummary: '',
     ...overrides
 });
 
