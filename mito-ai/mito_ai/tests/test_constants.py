@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from typing import Any
 import pytest
 from mito_ai.constants import ACTIVE_BASE_URL, MITO_PROD_BASE_URL, MITO_DEV_BASE_URL
