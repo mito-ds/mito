@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { classNames } from '../../../utils/classNames';
@@ -39,10 +39,6 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     agentModeEnabled
 }) => {
     const [isCodeExpanded, setIsCodeExpanded] = useState(false);
-
-    // Memoize calculations
-    const lineCount = useMemo(() => code.split('\n').length, [code]);
-    console.log(lineCount)
 
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
 
