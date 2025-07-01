@@ -16,10 +16,10 @@ export const waitForNotebookReady = async (notebookTracker: INotebookTracker): P
     
     // Wait a bit more for cells to be fully initialized
     if (!notebook.content.isAttached) {
-        await new Promise(resolve => {
-            const checkAttached = () => {
+        await new Promise<void>(resolve => {
+            const checkAttached = (): void => {
                 if (notebook.content.isAttached) {
-                    resolve(true);
+                    resolve();
                 } else {
                     setTimeout(checkAttached, 100);
                 }
