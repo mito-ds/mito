@@ -16,11 +16,12 @@ ThreadID = NewType('ThreadID', str)
 ########################################################
     
 class CellUpdate(BaseModel):
-    type: Literal['new', 'modification']
+    type: Literal['modification', 'new']
     index: Optional[int]
     id: Optional[str]
     code: str
     cell_type: Optional[Literal['code', 'markdown']]
+
 
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
 # so instead we just combine all of the possible response types into a single class 
@@ -31,6 +32,7 @@ class AgentResponse(BaseModel):
     message: str
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]
+    next_steps: Optional[List[str]]
     
     
 @dataclass(frozen=True)
@@ -58,6 +60,8 @@ class MessageType(Enum):
     FETCH_HISTORY = "fetch_history"
     GET_THREADS = "get_threads"
     DELETE_THREAD = "delete_thread"
+    UPDATE_MODEL_CONFIG = "update_model_config"
+
     
 @dataclass(frozen=True)
 class AIOptimizedCell():
@@ -223,13 +227,24 @@ class CompletionError:
         """
         error_type = type(exception)
         error_module = getattr(error_type, "__module__", "")
+        
+        # Handle OpenAI exceptions that have a 'body' attribute
+        title = ""
+        body = getattr(exception, "body", None)
+        if body and hasattr(body, "get"):
+            title = body.get("message", "")
+        
+        if not title and exception.args:
+            title = exception.args[0]
+        
+        if not title:
+            title = "Exception"
+            
         return CompletionError(
             error_type=f"{error_module}.{error_type.__name__}"
             if error_module
             else error_type.__name__,
-            title=exception.body.get("message")
-            if hasattr(exception, "body")
-            else (exception.args[0] if exception.args else "Exception"),
+            title=title,
             traceback=traceback.format_exc(),
             hint=hint,
         )
@@ -359,3 +374,7 @@ class DeleteThreadReply:
 
     # Message type.
     type: Literal["reply"] = "reply"
+
+@dataclass(frozen=True)
+class UpdateModelConfigMetadata:
+    model: str

@@ -11,8 +11,7 @@
   --jp-sidebar-min-width: 350px;
   width: 100%;
   box-sizing: border-box;
-  overflow-y: scroll;
-
+  overflow-y: hidden;
   /* 
         Don't set padding on top from the taskpane so we can instead
         set the padding on the chat-taskpane-header instead to make 
@@ -22,6 +21,12 @@
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 10px;
+  /*
+    'container-type: inline-size' enables container queries on this element.
+    This allows child elements to use @container rules to react to the width of .chat-taskpane,
+    rather than the viewport.
+  */
+  container-type: inline-size;
 }
 
 .suggestions-container {
@@ -120,6 +125,15 @@
   align-items: center;
 }
 
+.chat-controls-left {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-start;
+}
+.chat-controls-left > * {
+  margin: 0 !important;
+}
 .submit-button {
   background-color: var(--purple-400);
   color: var(--purple-700);
@@ -199,4 +213,11 @@
 
 .suggestion-box:hover {
   background-color: var(--jp-border-color2);
+}
+
+/* Hide the 'Submit' text in the submit button when the chat-taskpane is narrow */
+@container (max-width: 350px) {
+  .submit-button .submit-text {
+    display: none;
+  }
 }

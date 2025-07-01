@@ -43,6 +43,7 @@ export type AgentResponse = {
   message: string,
   cell_update?: CellUpdate,
   cell_id?: string,
+  next_steps?: string[]
 }
 
 /* 
@@ -61,7 +62,8 @@ type CompletionRequestMetadata =
   IGetThreadsMetadata |
   IDeleteThreadMetadata |
   IAgentExecutionMetadata | 
-  IAgentSmartDebugMetadata
+  IAgentSmartDebugMetadata |
+  IUpdateModelConfigMetadata
 
 export interface IChatMessageMetadata {
   promptType: 'chat'
@@ -168,6 +170,15 @@ export interface ICompletionRequest {
   stream: boolean;
 }
 
+export interface IUpdateModelConfigRequest extends ICompletionRequest {
+  type: 'update_model_config'
+  metadata: IUpdateModelConfigMetadata
+}
+
+export interface IUpdateModelConfigMetadata {
+  promptType: 'update_model_config'
+  model: string;
+}
 
 export interface IChatCompletionRequest extends ICompletionRequest {
   type: 'chat',
@@ -211,7 +222,7 @@ export interface IAICapabilities {
   /**
    * AI provider configuration schema.
    */
-  configuration: Record<string, any>;
+  configuration: Record<string, unknown>;
   /**
    * AI provider name.
    */

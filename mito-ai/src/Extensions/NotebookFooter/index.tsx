@@ -4,46 +4,46 @@
  */
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, Notebook } from '@jupyterlab/notebook';
 import { ReactWidget } from '@jupyterlab/ui-components';
-import { NotebookFooter } from './NotebookFooter';
+import NotebookFooter from './NotebookFooter';
 import React from 'react';
+import { IChatTracker } from '../AiChat/token';
 
-class AdvancedNotebookFooter extends ReactWidget {
-  constructor(protected notebook: INotebookTracker, protected app: JupyterFrontEnd) {
+export class MitoNotebookFooter extends ReactWidget {
+  constructor(protected notebookTracker: INotebookTracker, protected app: JupyterFrontEnd) {
     super();
-    this.addClass('jp-Notebook-footer-wrapper');
   }
 
   render(): JSX.Element {
     return (
-      <NotebookFooter notebook={this.notebook} app={this.app} />
+      <NotebookFooter notebookTracker={this.notebookTracker} app={this.app} />
     );
   }
 }
 
-const extension: JupyterFrontEndPlugin<void> = {
-  id: 'advanced-react-footer',
+const NotebookFooterPlugin: JupyterFrontEndPlugin<void> = {
+  id: 'mito-ai:notebook-footer',
   autoStart: true,
-  requires: [INotebookTracker],
-  activate: (app: JupyterFrontEnd, tracker: INotebookTracker) => {
-    
-    const replaceFooter = (notebook: any): void => {
+  requires: [INotebookTracker, IChatTracker],
+  activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
+
+    const replaceFooter = (notebook: Notebook): void => {
       const layout = notebook.layout;
-      
-      if (layout.footer) {
-        layout.footer.dispose();
+
+      if (layout === undefined) {
+        return;
       }
-      
-      const customFooter = new AdvancedNotebookFooter(notebook, app);
-      layout.footer = customFooter;
+
+      const customFooter = new MitoNotebookFooter(notebookTracker, app);
+      (layout as any).footer = customFooter;
     };
 
-    tracker.forEach(widget => {
+    notebookTracker.forEach(widget => {
       replaceFooter(widget.content);
     });
 
-    tracker.widgetAdded.connect((sender, widget) => {
+    notebookTracker.widgetAdded.connect((sender, widget) => {
       setTimeout(() => {
         replaceFooter(widget.content);
       }, 100);
@@ -51,4 +51,5 @@ const extension: JupyterFrontEndPlugin<void> = {
   }
 };
 
-export default extension;
+export default NotebookFooterPlugin;
+

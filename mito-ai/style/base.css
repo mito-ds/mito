@@ -38,6 +38,7 @@
   --yellow-900: #5c4813;
   --yellow-500: #fae29f;
   --yellow-300: #fde047;
+  --yellow-100: #fef9c3;
 
   --grey-900: #222934;
   --grey-800: #5f6b7a;
@@ -52,6 +53,14 @@
   --purple-500: #ba9bf8;
   --purple-400: #d0b9fe;
   --purple-300: #e9e0fd;
+}
+
+.text-muted {
+  color: var(--jp-ui-font-color3);
+}
+
+.text-sm {
+  font-size: 12px;
 }
 
 /* 

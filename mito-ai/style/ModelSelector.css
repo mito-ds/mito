@@ -1,0 +1,152 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* ModelSelector.css - responsive design with compact mode */
+
+.model-selector {
+  position: relative;
+  flex: 0 0 auto;
+  margin: 0 8px;
+  height: 20px; /* Match height of other elements */
+  display: flex;
+  align-items: center; /* Center vertically */
+  color: var(--jp-ui-font-color2);
+}
+
+.model-selector:hover {
+  color: var(--jp-ui-font-color1);
+}
+
+.model-selector-dropdown {
+  position: relative;
+  height: 20px; /* Fixed height to match other elements */
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center; /* Ensure content is vertically centered */
+  width: min-content;
+  max-width: 18ch;
+}
+
+
+.selected-model {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.model-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  line-height: 1;
+}
+
+.dropdown-arrow {
+  font-size: 8px;
+  transition: transform 0.2s;
+  margin-left: 4px;
+  flex-shrink: 0; /* Prevent arrow from shrinking */
+}
+
+/* Model options dropdown */
+.model-options {
+  position: absolute;
+  bottom: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  background-color: var(--jp-layout-color1);
+  border: 1px solid var(--jp-layout-color2);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: auto;
+}
+
+.model-option {
+  padding: 4px 8px;
+  font-size: 12px;
+  /* Keep this size for readability */
+  color: var(--jp-content-font-color1);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  /* Prevent text wrapping */
+}
+
+.model-option:hover {
+  background-color: var(--jp-layout-color2);
+  color: var(--purple-700);
+}
+
+.model-option.selected {
+  background-color: var(--jp-layout-color2);
+  color: var(--purple-700);
+}
+
+/* When inside chat-controls - ensure proper alignment with other controls */
+.chat-controls .model-selector {
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.chat-controls .model-selector-dropdown {
+  height: 20px;
+  align-self: center;
+}
+
+/* Ensure dropdown appears above other elements */
+.model-options {
+  z-index: 1010;
+  /* Higher z-index to ensure visibility */
+}
+
+.model-name {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+/* On wider screens, show only the name of the model*/
+.model-icon {
+  display: none;
+}
+
+.model-name {
+  display: inline;
+}
+
+/* On compact screens, show only the icon */
+@container (max-width: 300px) {
+
+  /* Shift the dropdown to the left to help prevent right-edge overflow */
+  .model-options {
+    left: -40px;
+  }
+
+  .model-icon {
+    display: inline;
+  }
+
+  .model-name {
+    display: none;
+  }
+}

@@ -16,7 +16,7 @@ class SettingsHandler(APIHandler):
 
     @tornado.web.authenticated
     @ensure_settings_file_exists
-    def get(self, key):
+    def get(self, key: str) -> None:
         """Get a specific setting by key"""
         setting_value = get_settings_field(key)
         if setting_value is None:
@@ -27,7 +27,7 @@ class SettingsHandler(APIHandler):
 
     @tornado.web.authenticated
     @ensure_settings_file_exists
-    def put(self, key):
+    def put(self, key: str) -> None:
         """Update or create a specific setting"""
         data = json.loads(self.request.body)
         if "value" not in data:

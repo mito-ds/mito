@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Call
 
 from anthropic.types import MessageParam, Message, TextBlock, ToolUnionParam
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.completions.models import MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
+from mito_ai.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
 from mito_ai.utils.utils import is_running_test
@@ -29,7 +29,7 @@ def _prepare_anthropic_request_data_and_headers(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Tuple[Union[str, anthropic.NotGiven]],
+    system: Union[str, anthropic.NotGiven],
     messages: List[MessageParam],
     message_type: MessageType,
     tools: Optional[List[ToolUnionParam]],
@@ -50,8 +50,8 @@ def _prepare_anthropic_request_data_and_headers(
         "messages": messages
     }
     # Add system to inner_data only if it is not anthropic.NotGiven
-    if system and type(system[0]) is not anthropic.NotGiven:
-        inner_data["system"] = system[0]
+    if not isinstance(system, anthropic.NotGiven):
+        inner_data["system"] = system
     if tools:
         inner_data["tools"] = tools
     if tool_choice:
@@ -73,7 +73,7 @@ async def get_anthropic_completion_from_mito_server(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Tuple[Union[str, anthropic.NotGiven]],
+    system: Union[str, anthropic.NotGiven],
     messages: List[MessageParam],
     tools: Optional[List[ToolUnionParam]],
     tool_choice: Optional[dict],
@@ -108,7 +108,7 @@ async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Tuple[Union[str, anthropic.NotGiven]],
+    system: Union[str, anthropic.NotGiven],
     messages: List[MessageParam],
     stream: bool,
     message_type: MessageType,
@@ -192,8 +192,8 @@ def get_anthropic_completion_function_params(
     model: str,
     messages: List[MessageParam],
     max_tokens: int,
+    system: Union[str, anthropic.NotGiven],
     temperature: float = 0.0,
-    system: Optional[Union[str, anthropic.NotGiven]] = None,
     tools: Optional[List[ToolUnionParam]] = None,
     tool_choice: Optional[dict] = None,
     stream: Optional[bool] = None,
@@ -208,13 +208,21 @@ def get_anthropic_completion_function_params(
         "max_tokens": max_tokens,
         "temperature": temperature,
         "messages": messages,
+        "system": system,
     }
     if response_format_info is not None:
         provider_data["model"] = INLINE_COMPLETION_MODEL
-    if system is not None and system is not anthropic.NotGiven:
-        provider_data["system"] = system
     if tools:
         provider_data["tools"] = tools
+    if response_format_info and response_format_info.name == "agent_response":
+        provider_data["tools"] = [{
+            "name": "agent_response",
+            "description": "Output a structured response following the AgentResponse format",
+            "input_schema": AgentResponse.model_json_schema()
+        }]
+        provider_data["tool_choice"] = {"type": "tool", "name": "agent_response"}
+    
+    
     if tool_choice:
         provider_data["tool_choice"] = tool_choice
     if stream is not None:

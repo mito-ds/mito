@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Union, Optional, AsyncGenerator, Callable
+from typing import List, Union, AsyncGenerator, Callable
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import (
@@ -18,7 +18,6 @@ from mito_ai.completions.prompt_builders.smart_debug_prompt import (
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
-from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.completions.completion_handlers.utils import append_chat_system_message
 
 __all__ = ["get_smart_debug_completion", "stream_smart_debug_completion"]
@@ -32,6 +31,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         metadata: SmartDebugMetadata,
         provider: OpenAIProvider,
         message_history: GlobalMessageHistory,
+        model: str
     ) -> str:
         """Get a smart debug completion from the AI provider."""
 
@@ -42,34 +42,26 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         files = metadata.files or []
         thread_id = metadata.threadId
 
-        # Add the system message if it doesn't alredy exist
-        await append_chat_system_message(message_history, provider, thread_id)
+        # Add the system message if it doesn't already exist
+        await append_chat_system_message(message_history, model, provider, thread_id)
 
         # Create the prompt
         prompt = create_error_prompt(error_message, active_cell_code, active_cell_id, variables, files)
-        display_prompt = (
-            f"```python{metadata.activeCellCode or ''}```{metadata.errorMessage}"
-        )
+        display_prompt = f"```python{active_cell_code or ''}```{error_message}"
 
         # Add the prompt to the message history
-        new_ai_optimized_message: ChatCompletionMessageParam = {
-            "role": "user",
-            "content": prompt,
-        }
-        new_display_optimized_message: ChatCompletionMessageParam = {
-            "role": "user",
-            "content": display_prompt,
-        }
+        new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(
-            new_ai_optimized_message, new_display_optimized_message, provider, thread_id
+            new_ai_optimized_message, new_display_optimized_message, model, provider, thread_id
         )
 
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(thread_id),
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],
+            model=model,
             message_type=MessageType.SMART_DEBUG,
-            user_input=metadata.errorMessage,
+            user_input=error_message,
             thread_id=thread_id
         )
 
@@ -86,7 +78,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
             "content": display_completion,
         }
         await message_history.append_message(
-            ai_response_message, display_response_message, provider, thread_id
+            ai_response_message, display_response_message, model, provider, thread_id
         )
 
         return display_completion
@@ -98,6 +90,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         message_history: GlobalMessageHistory,
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+        model: str
     ) -> str:
         """Stream smart debug completions from the AI provider.
 
@@ -119,34 +112,27 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         thread_id = metadata.threadId
 
         # Add the system message if it doesn't already exist
-        await append_chat_system_message(message_history, provider, thread_id)
+        await append_chat_system_message(message_history, model, provider, thread_id)
 
         # Create the prompt
         prompt = create_error_prompt(error_message, active_cell_code, active_cell_id, variables, files)
-        display_prompt = (
-            f"```python{metadata.activeCellCode or ''}```{metadata.errorMessage}"
-        )
+        display_prompt = f"```python{active_cell_code or ''}```{error_message}"
 
         # Add the prompt to the message history
-        new_ai_optimized_message: ChatCompletionMessageParam = {
-            "role": "user",
-            "content": prompt,
-        }
-        new_display_optimized_message: ChatCompletionMessageParam = {
-            "role": "user",
-            "content": display_prompt,
-        }
+        new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(
-            new_ai_optimized_message, new_display_optimized_message, provider, thread_id
+            new_ai_optimized_message, new_display_optimized_message, model, provider, thread_id
         )
 
         # Stream the completions using the provider's stream method
         accumulated_response = await provider.stream_completions(
             message_type=MessageType.SMART_DEBUG,
             messages=message_history.get_ai_optimized_history(thread_id),
-            model=MESSAGE_TYPE_TO_MODEL[MessageType.SMART_DEBUG],
+            model=model,
             message_id=message_id,
             reply_fn=reply_fn,
+            user_input=error_message,
             thread_id=thread_id
         )
 
@@ -163,7 +149,7 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
             "content": display_completion,
         }
         await message_history.append_message(
-            ai_response_message, display_response_message, provider, thread_id
+            ai_response_message, display_response_message, model, provider, thread_id
         )
 
         return display_completion

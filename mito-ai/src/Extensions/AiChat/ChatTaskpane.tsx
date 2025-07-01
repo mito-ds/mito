@@ -37,7 +37,16 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { getActiveCellID, getActiveCellOutput, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
+import { 
+    getActiveCellID, 
+    getActiveCellOutput, 
+    getCellByID, 
+    getCellCodeByID, 
+    highlightCodeCell, 
+    scrollToCell, 
+    setActiveCellByID, 
+    writeCodeToCellByID, 
+} from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -66,9 +75,17 @@ import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
 import { scrollToDiv } from '../../utils/scroll';
 import LoadingCircle from '../../components/LoadingCircle';
+import { DEFAULT_MODEL } from '../../components/ModelSelector';
+import ModelSelector from "../../components/ModelSelector";
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import { getFirstMessageFromCookie } from './FirstMessage';
+import CTACarousel from './CTACarousel';
+import NextStepsPills from '../../components/NextStepsPills';
+import UndoIcon from '../../icons/UndoIcon';
+import TextAndIconButton from '../../components/TextAndIconButton';
+import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -131,6 +148,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         agentModeEnabledRef.current = agentModeEnabled;
     }, [agentModeEnabled]);
 
+    /* 
+        Auto-scroll follow mode: tracks whether we should automatically scroll to bottom
+        when new messages arrive. Set to false when user manually scrolls up.
+    */
+    const [autoScrollFollowMode, setAutoScrollFollowMode] = useState<boolean>(true);
+    const autoScrollFollowModeRef = useRef<boolean>(autoScrollFollowMode);
+    useEffect(() => {
+        autoScrollFollowModeRef.current = autoScrollFollowMode;
+    }, [autoScrollFollowMode]);
+
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
     // the last active thread or create a new thread if there are no previously existing threads. So that
@@ -152,6 +179,32 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
+
+    // State for managing next steps from responses
+    // If the user hides the next steps, we keep them hidden until they re-open them
+    const [nextSteps, setNextSteps] = useState<string[]>([]);
+    const [displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable] = useState(true);
+
+    // Track if checkpoint exists for UI updates
+    const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
+
+    const updateModelOnBackend = async (model: string): Promise<void> => {
+        try {
+            await websocketClient.sendMessage({
+              type: "update_model_config",
+              message_id: UUID.uuid4(),
+              metadata: {
+                promptType: "update_model_config",
+                model: model
+              },
+              stream: false
+            });
+    
+            console.log('Model configuration updated on backend:', model);
+          } catch (error) {
+            console.error('Failed to update model configuration on backend:', error);
+          }
+    };
 
     const fetchChatThreads = async (): Promise<void> => {
         const metadata: IGetThreadsMetadata = {
@@ -247,10 +300,64 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
+    const startNewChat = async (): Promise<ChatHistoryManager> => {
+
+        // If current thread is empty and we already have an active thread id, do not create a new thread.
+        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
+            return chatHistoryManager;
+        }
+
+        // Clear next steps when starting a new chat
+        setNextSteps([])
+        
+        // Clear agent checkpoint when starting new chat
+        setHasCheckpoint(false)
+
+        // Enable follow mode when starting a new chat
+        setAutoScrollFollowMode(true);
+
+        // Reset frontend chat history
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+        setChatHistoryManager(newChatHistoryManager);
+
+        // Notify the backend to request a new chat thread and get its ID
+        try {
+            const response = await websocketClient.sendMessage<ICompletionRequest, IStartNewChatReply>({
+                type: 'start_new_chat',
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: 'start_new_chat'
+                },
+                stream: false,
+            });
+
+            // Set the new thread ID as active
+            activeThreadIdRef.current = response.thread_id;
+        } catch (error) {
+            console.error('Error starting new chat:', error);
+        }
+
+        return newChatHistoryManager;
+    }
 
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
             try {
+                // Check for saved model preference in localStorage
+                const storedConfig = localStorage.getItem('llmModelConfig');
+                let initialModel = DEFAULT_MODEL;
+                if (storedConfig) {
+                    try {
+                        const parsedConfig = JSON.parse(storedConfig);
+                        initialModel = parsedConfig.model || DEFAULT_MODEL;
+                    } catch (e) {
+                        console.error('Failed to parse stored LLM config', e);
+                    }
+                }
+
+                // Set the model on backend when the taskpane is opened
+                void updateModelOnBackend(initialModel);
+
                 // 1. Fetch available chat threads.
                 const chatThreadsResponse = await websocketClient.sendMessage<ICompletionRequest, IFetchThreadsReply>({
                     type: "get_threads",
@@ -270,19 +377,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     await startNewChat();
                 }
-            } catch (error) {
+
+                const firstMessage = getFirstMessageFromCookie();
+                if (firstMessage) {
+                    await startAgentExecution(firstMessage);
+                    
+                }
+
+            } catch (error: unknown) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
                     contextManager
                 );
                 addAIMessageFromResponseAndUpdateState(
-                    (error as any).title ? (error as any).title : `${error}`,
+                    (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,
                     'chat',
                     newChatHistoryManager,
                     false
                 );
                 addAIMessageFromResponseAndUpdateState(
-                    (error as any).hint ? (error as any).hint : `${error}`,
+                    (error as { hint?: string }).hint ? (error as { hint?: string }).hint! : `${error}`,
                     'chat',
                     newChatHistoryManager,
                     true
@@ -291,6 +405,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         };
 
         void initializeChatHistory();
+
     }, [websocketClient]);
 
     useEffect(() => {
@@ -315,13 +430,38 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             when the state changes.
         */
         chatHistoryManagerRef.current = chatHistoryManager;
+        
     }, [chatHistoryManager]);
 
-    // Scroll to bottom whenever chat history updates
+    // Scroll to bottom whenever chat history updates, but only if in follow mode
     useEffect(() => {
-        scrollToDiv(chatMessagesRef);
-    }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
+        if (autoScrollFollowMode) {
+            scrollToDiv(chatMessagesRef);
+        }
+    }, [chatHistoryManager.getDisplayOptimizedHistory().length, chatHistoryManager, autoScrollFollowMode]);
 
+    // Add scroll event handler to detect manual scrolling
+    useEffect(() => {
+        const chatContainer = chatMessagesRef.current;
+        if (!chatContainer) return;
+
+        const handleScroll = (): void => {
+            const { scrollTop, scrollHeight, clientHeight } = chatContainer;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
+            
+            // If user is not at bottom and we're in follow mode, break out of follow mode
+            if (!isAtBottom && autoScrollFollowModeRef.current) {
+                setAutoScrollFollowMode(false);
+            }
+            // If user scrolls back to bottom, re-enter follow mode
+            else if (isAtBottom && !autoScrollFollowModeRef.current) {
+                setAutoScrollFollowMode(true);
+            }
+        };
+
+        chatContainer.addEventListener('scroll', handleScroll);
+        return () => chatContainer.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const getDuplicateChatHistoryManager = (): ChatHistoryManager => {
 
@@ -340,8 +480,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         to the AI chat.
     */
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
+
+        // Enable follow mode when sending a debug message
+        setAutoScrollFollowMode(true);
 
         // Step 1: Add the smart debug message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -361,8 +504,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
+
+        // Enable follow mode when sending agent debug message (same behavior as other modes)
+        setAutoScrollFollowMode(true);
 
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -381,8 +527,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendExplainCodeMessage = async (): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
+
+        // Enable follow mode when explaining code
+        setAutoScrollFollowMode(true);
 
         // Step 1: Add the code explain message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -409,8 +558,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendActiveCellOutput: boolean = false,
         selectedRules?: string[]
     ): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -449,8 +598,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
-        // Step 0: Reject the previous AI generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
+
+        // Enable follow mode when user sends a new message
+        setAutoScrollFollowMode(true);
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -490,29 +642,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             stream: true
         }
 
-        // Step 2: Scroll to the bottom of the chat messages container
-        // Add a small delay to ensure the new message is rendered
-        setTimeout(() => {
-            chatMessagesRef.current?.scrollTo({
-                top: chatMessagesRef.current.scrollHeight,
-                behavior: 'smooth'
-            });
-        }, 100);
-
-        // Step 3: Send the message to the AI
+        // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
-
-        // TODO: Can we move this into the _sendMessageAndSaveResponse function?        
-        // Step 4: Scroll to the bottom of the chat smoothly
-        setTimeout(() => {
-            const chatContainer = chatMessagesRef.current;
-            if (chatContainer) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
     }
 
     const handleUpdateMessage = async (
@@ -728,7 +859,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
+        await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
+
+        // Enable follow mode when user starts agent execution
+        setAutoScrollFollowMode(true);
 
         // Reset the execution flag at the start of a new plan
         shouldContinueAgentExecution.current = true;
@@ -902,6 +1037,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
+        scrollToCell(notebookTracker, activeCellID, undefined, 'end')
         updateCodeDiffStripes(lastAIDisplayMessage.message, activeCellID)
         updateCellToolbarButtons()
     }
@@ -935,6 +1071,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
+    const resetForNewMessage = (): void => {
+        /* 
+        Before we send the next user message, we need to reset the state for a new message:
+        - Reject the previous Ai generated code if they did not accept it yet
+        - Clear the next steps
+        */
+        rejectAICode()
+        setNextSteps([])
+    }
+
     const rejectAICode = (): void => {
         if (cellStateBeforeDiff.current === undefined) {
             return
@@ -953,36 +1099,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             writeCodeToCellByID(notebookTracker, code, codeCellID)
             updateCellToolbarButtons()
         }
-    }
-
-    const startNewChat = async (): Promise<ChatHistoryManager> => {
-
-        // If current thread is empty and we already have an active thread id, do not create a new thread.
-        if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
-            return chatHistoryManager;
-        }
-        // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
-        setChatHistoryManager(newChatHistoryManager);
-
-        // Notify the backend to request a new chat thread and get its ID
-        try {
-            const response = await websocketClient.sendMessage<ICompletionRequest, IStartNewChatReply>({
-                type: 'start_new_chat',
-                message_id: UUID.uuid4(),
-                metadata: {
-                    promptType: 'start_new_chat'
-                },
-                stream: false,
-            });
-
-            // Set the new thread ID as active
-            activeThreadIdRef.current = response.thread_id;
-        } catch (error) {
-            console.error('Error starting new chat:', error);
-        }
-
-        return newChatHistoryManager;
     }
 
     useEffect(() => {
@@ -1224,17 +1340,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             <MitoLogo width="60" height="30" />
                         </div>
                         <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
-                        <p className="long-message">
-                            <div style={{ display: 'block', textAlign: 'center', marginBottom: '15px' }}>
-                                Ask your personal Python expert anything!
-                            </div>
-                            Hint:
-                            {[
-                                " Use @ to reference variables.",
-                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + E to chat with Mito AI.`,
-                                ` Use ${operatingSystem === 'mac' ? '⌘' : 'CTRL'} + Y to preview code suggestions.`
-                            ][Math.floor(Math.random() * 3)]}
-                        </p>
+                        <CTACarousel app={app} />
                     </div>
                 }
                 {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
@@ -1253,6 +1359,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             renderMimeRegistry={renderMimeRegistry}
                             app={app}
                             isLastAiMessage={index === lastAIMessagesIndex}
+                            isLastMessage={index === displayOptimizedChatHistory.length - 1}
                             operatingSystem={operatingSystem}
                             previewAICode={previewAICodeToActiveCell}
                             acceptAICode={acceptAICode}
@@ -1260,6 +1367,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             onUpdateMessage={handleUpdateMessage}
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
+                            setNextSteps={setNextSteps}
                         />
                     )
                 }).filter(message => message !== null)}
@@ -1268,6 +1376,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         Thinking <LoadingDots />
                     </div>
                 }
+                {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
+                {hasCheckpoint &&
+                    agentModeEnabled &&
+                    agentExecutionStatus === 'idle' &&
+                    displayOptimizedChatHistory.length > 0 && (
+                        <div className='message message-assistant-chat'>
+                            <TextAndIconButton
+                                text="Revert changes"
+                                icon={UndoIcon}
+                                title="Revert changes"
+                                onClick={() => restoreCheckpoint(app, notebookTracker, setHasCheckpoint, getDuplicateChatHistoryManager, setChatHistoryManager)}
+                                variant="gray"
+                                width="fit-contents"
+                                iconPosition="left"
+                            />
+                            <p className="text-muted text-sm">
+                                Undo the most recent changes made by the agent
+                            </p>
+                        </div>
+                    )}
             </div>
             {displayOptimizedChatHistory.length === 0 && (
                 <div className="suggestions-container">
@@ -1282,40 +1410,59 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     />
                 </div>
             )}
-            <ChatInput
-                initialContent={''}
-                placeholder={
-                    agentExecutionStatus === 'working' ? 'Agent is working...' :
-                        agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
-                            agentModeEnabled ? 'Ask agent to do anything' :
-                                displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                                    : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                }
-                onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
-                onCancel={undefined}
-                isEditing={false}
-                contextManager={contextManager}
-                notebookTracker={notebookTracker}
-                renderMimeRegistry={renderMimeRegistry}
-                agentModeEnabled={agentModeEnabled}
-            />
+            <div className={`connected-input-container ${nextSteps.length > 0 ? 'has-next-steps' : ''}`}>
+                {nextSteps.length > 0 && (
+                    <NextStepsPills 
+                        nextSteps={nextSteps}
+                        onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                        displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
+                        setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                    />
+                )}
+                <ChatInput
+                    initialContent={''}
+                    placeholder={
+                        agentExecutionStatus === 'working' ? 'Agent is working...' :
+                            agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
+                                agentModeEnabled ? 'Ask agent to do anything' :
+                                    displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                                        : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                    }
+                    onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                    onCancel={undefined}
+                    isEditing={false}
+                    contextManager={contextManager}
+                    notebookTracker={notebookTracker}
+                    renderMimeRegistry={renderMimeRegistry}
+                    agentModeEnabled={agentModeEnabled}
+                />
+            </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
                 <div className="chat-controls">
-                    <ToggleButton
-                        leftText="Chat"
-                        rightText="Agent"
-                        isLeftSelected={!agentModeEnabled}
-                        onChange={async (isLeftSelected) => {
-                            await startNewChat(); // TODO: delete thread instead of starting new chat
-                            setAgentModeEnabled(!isLeftSelected);
-                            // Focus the chat input directly
-                            const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
-                            if (chatInput) {
-                                chatInput.focus();
-                            }
-                        }}
-                        title="Agent can create plans and run code."
-                    />
+                    <div className="chat-controls-left">
+                        <ToggleButton
+                            leftText="Chat"
+                            leftTooltip="Chat mode suggests an edit to the active cell and let's you decide to accept or reject it."
+                            rightText="Agent"
+                            rightTooltip="Agent mode writes and executes code until it's finished your request."
+                            isLeftSelected={!agentModeEnabled}
+                            onChange={async (isLeftSelected) => {
+                                await startNewChat(); // TODO: delete thread instead of starting new chat
+                                setAgentModeEnabled(!isLeftSelected);
+                                // Clear agent checkpoint when switching modes
+                                setHasCheckpoint(false);
+                                // Focus the chat input directly
+                                const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
+                                if (chatInput) {
+                                    chatInput.focus();
+                                }
+                            }}
+                        />
+                        <ModelSelector onConfigChange={(config) => {
+                            // Just update the backend
+                            void updateModelOnBackend(config.model);
+                        }}/>
+                    </div>
                     <button
                         className="button-base submit-button"
                         onClick={() => {
@@ -1335,7 +1482,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             }
                         }}
                     >
-                        Submit ⏎
+                        <span className="submit-text">Submit</span> ⏎
                     </button>
                 </div>
             )}

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql_test_db
+    ports:
+      - "1433:1433"
+    environment:
+      # Default user is SA (System Administrator)
+      SA_PASSWORD: "YourStrong!Passw0rd" # Password must meet complexity requirements
+      ACCEPT_EULA: "Y"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    restart: unless-stopped
+
+  # Run setup.sql 
+  sqltools:
+    image: mcr.microsoft.com/mssql-tools
+    depends_on:
+      - db
+    volumes:
+      - ./init:/init
+    entrypoint: >
+      /bin/bash -c "
+        echo '⏳ Waiting for SQL Server to be ready...';
+        for i in {1..30}; do
+          /opt/mssql-tools/bin/sqlcmd -S db -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1' && break
+          sleep 2
+        done;
+        echo '🚀 Running init script...';
+        /opt/mssql-tools/bin/sqlcmd -S db -U SA -P 'YourStrong!Passw0rd' -i /init/setup.sql
+      "
+    restart: "no"
+
+volumes:
+  mssql_data:

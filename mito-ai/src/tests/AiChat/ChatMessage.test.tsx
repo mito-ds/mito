@@ -8,12 +8,34 @@ import '@testing-library/jest-dom';
 import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
 import ChatMessage from '../../Extensions/AiChat/ChatMessage/ChatMessage';
 import { CodeReviewStatus } from '../../Extensions/AiChat/ChatTaskpane';
-import { ChatMessageType, PromptType } from '../../Extensions/AiChat/ChatHistoryManager';
+import { IDisplayOptimizedChatItem, PromptType } from '../../Extensions/AiChat/ChatHistoryManager';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { IContextManager } from '../../Extensions/ContextManager/ContextManagerPlugin';
 import { OperatingSystem } from '../../utils/user';
 import { createMockMessage } from '../__mocks__/openaiMocks';
-import { createMockNotebookTracker, createMockRenderMimeRegistry } from '../__mocks__/jupyterMocks';
+import { OpenAI } from 'openai';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+
+jest.mock('../../Extensions/AiChat/ChatMessage/CodeBlock', () => {
+    return function MockCodeBlock() {
+        return <div data-testid="code-block">Mocked CodeBlock</div>;
+    };
+});
+
+jest.mock('../../Extensions/AiChat/ChatMessage/AlertBlock', () => {
+    return function MockAlertBlock({ content, mitoAIConnectionErrorType }: { content: string, mitoAIConnectionErrorType: string | null }) {
+        if (mitoAIConnectionErrorType === 'mito_server_free_tier_limit_reached') {
+            return (
+                <div data-testid="alert-block">
+                    <div>You've used up your free trial of Mito AI for this month</div>
+                    <div>Upgrade to Pro</div>
+                </div>
+            );
+        }
+        return <div data-testid="alert-block">{content}</div>;
+    };
+});
 
 jest.mock('../../Extensions/AiChat/ChatMessage/MarkdownBlock', () => {
     return {
@@ -77,28 +99,33 @@ jest.mock('../../utils/copyToClipboard', () => {
     return jest.fn().mockResolvedValue(undefined);
 });
 
+// Add these CSS mocks
+jest.mock('../../../style/ChatMessage.css', () => ({}));
+jest.mock('../../../style/MarkdownMessage.css', () => ({}));
+
 // Create base props for the component
 const createMockProps = (overrides = {}) => ({
-    message: createMockMessage('user', 'Hello, can you help me with pandas?'),
-    messageType: 'openai message' as ChatMessageType,
-    codeCellID: 'test-cell-id',
+    message: { role: 'user', content: 'Test message' } as OpenAI.Chat.ChatCompletionMessageParam,
+    messageType: 'user' as IDisplayOptimizedChatItem['type'],
+    codeCellID: undefined,
+    agentResponse: undefined,
     messageIndex: 0,
     promptType: 'chat' as PromptType,
-    agentResponse: undefined,
     mitoAIConnectionError: false,
     mitoAIConnectionErrorType: null,
-    notebookTracker: createMockNotebookTracker(),
-    renderMimeRegistry: createMockRenderMimeRegistry(),
-    app: { commands: { execute: jest.fn() } } as unknown as JupyterFrontEnd,
+    notebookTracker: {} as INotebookTracker,
+    renderMimeRegistry: {} as IRenderMimeRegistry,
+    app: {} as JupyterFrontEnd,
     isLastAiMessage: false,
+    isLastMessage: false,
     operatingSystem: 'mac' as OperatingSystem,
     previewAICode: jest.fn(),
     acceptAICode: jest.fn(),
     rejectAICode: jest.fn(),
     onUpdateMessage: jest.fn(),
-    onDeleteMessage: jest.fn(),
     contextManager: { getVariables: jest.fn(() => []) } as unknown as IContextManager,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
+    setNextSteps: jest.fn(),
     ...overrides
 });
 
@@ -240,7 +267,7 @@ describe('ChatMessage Component', () => {
                 (window as any).__chatInputCallbacks.onSave('Updated message content');
             });
 
-            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'openai message');
+            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'user');
         });
 
         it('shows code action buttons for the last AI message with code', () => {

@@ -1,0 +1,189 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.connected-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+}
+
+.next-steps-pills-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 20px;
+    margin-bottom: 0;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    margin-left: 10px;
+    margin-right: 10px;
+    align-self: stretch; /* Stretch the container to the width of the parent */
+    background-color: var(--chat-user-message-background-color);
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.next-steps-header {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    width: 100%;
+    padding: 4px 0;
+    cursor: pointer;
+    user-select: none;
+    gap: 4px;
+}
+
+.next-steps-title {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--jp-ui-font-color2);
+    letter-spacing: 0.5px;
+}
+
+.next-steps-caret {
+    font-size: 10px;
+    color: var(--jp-ui-font-color2);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.7;
+}
+
+.next-steps-header:hover {
+    color: var(--jp-ui-font-color1);
+}
+
+.next-steps-caret.expanded {
+    transform: rotate(0deg);
+}
+
+.next-steps-caret.collapsed {
+    transform: rotate(-90deg);
+}
+
+.next-steps-header:hover .next-steps-caret {
+    opacity: 1;
+}
+
+.next-steps-pills-container {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.next-steps-pills-container.animating-out {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.next-steps-pills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.next-step-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 20px;
+    color: var(--jp-ui-font-color2);
+    font-size: 12px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateY(5px) scale(0.9);
+    animation: pillSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.next-step-pill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--jp-brand-color3) 0%, rgba(var(--jp-brand-color1), 0.1) 100%);
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.next-step-pill:hover {
+    background: var(--jp-layout-color2);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(var(--jp-brand-color1), 0.15);
+}
+
+.next-step-pill:hover::before {
+    opacity: 1;
+}
+
+.next-step-pill:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+.next-step-pill-text {
+    position: relative;
+    z-index: 1;
+    line-height: 1.2;
+}
+
+.next-step-pill-icon {
+    position: relative;
+    z-index: 1;
+    color: var(--jp-brand-color1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: none;
+}
+
+.next-step-pill:hover .next-step-pill-icon {
+    display: block;
+    transform: translateX(2px);
+    color: var(--jp-brand-color2);
+}
+
+@keyframes pillSlideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+    .next-step-pill {
+        max-width: 150px;
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+    
+    .next-steps-pills-container {
+        padding: 6px 10px;
+        margin-bottom: 6px;
+    }
+}
+
+/* Animation for when pills are being dismissed */
+.next-steps-pills-container.animating-out .next-step-pill {
+    animation: pillSlideOut 0.2s cubic-bezier(0.4, 0, 1, 1) backwards;
+}
+
+@keyframes pillSlideOut {
+    to {
+        opacity: 0;
+        transform: translateY(-5px) scale(0.8);
+    }
+} 
