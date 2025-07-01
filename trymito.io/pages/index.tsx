@@ -46,7 +46,7 @@ const Home: NextPage = () => {
       <div className={pageStyles.container}>
 
         <main className={pageStyles.main}>
-          <section className={pageStyles.background_card + ' ' + titleStyles.title_card}>
+          <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
             <h1 className={titleStyles.title}>
               {/* Other ideas:
                 - Automate your spreadsheets. No Computer Science Degree Required.
@@ -69,7 +69,6 @@ const Home: NextPage = () => {
               <div className={homeStyles.cta_buttons_homepage_container}>
                 <CTAButtons 
                   variant='download' 
-                  ctaText='Install Mito for Jupyter'
                   align='center' 
                   displaySecondaryCTA={false} 
                   textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}
@@ -97,24 +96,6 @@ const Home: NextPage = () => {
 
           <section>
             <CaseStudies />
-          </section>
-
-          <section>
-            <div className={classNames(pageStyles.subsection, pageStyles.subsection_column, 'center')}>
-                <h2>
-                  Upgrade Python scripts to interactive Streamlit Dashboards
-                </h2>
-                <p>
-                  Turn one hour of automation savings into tens of hours by sharing automation scripts through Streamlit dashboards.
-                </p>
-                <p className={pageStyles.link}>
-                  <Link href="/data-app" >
-                    Learn more about Mito in Streamlit →
-                  </Link>
-                </p>
-            </div>
-            <StreamlitAppGallery />
-                
           </section>
 
           <section className={pageStyles.background_card}>

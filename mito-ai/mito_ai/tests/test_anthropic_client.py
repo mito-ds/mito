@@ -2,9 +2,12 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.anthropic_client import _get_system_prompt_and_messages, _extract_and_parse_json_response
+from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, extract_and_parse_anthropic_json_response, AnthropicClient, ANTHROPIC_FAST_MODEL
+from mito_ai.utils.anthropic_utils import get_anthropic_completion_function_params
 from anthropic.types import MessageParam, Message, ContentBlock, TextBlock, ToolUseBlock, Usage
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
+from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
+from unittest.mock import MagicMock, patch
 import anthropic
 from typing import List, Dict, Any, cast, Union
 
@@ -21,7 +24,7 @@ def test_mixed_text_and_image():
             {"type": "image_url", "image_url": {"url": DUMMY_IMAGE_DATA_URL}}
         ])
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     assert system_prompt == "You are a helpful assistant."
     assert len(anthropic_messages) == 1
@@ -47,7 +50,7 @@ def test_no_system_instructions_only_content():
         ChatCompletionUserMessageParam(role="user", content="Hello!"),
         ChatCompletionAssistantMessageParam(role="assistant", content="Hi, how can I help you?")
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     assert isinstance(system_prompt, anthropic.NotGiven)
     assert len(anthropic_messages) == 2
@@ -61,7 +64,7 @@ def test_system_instructions_and_content():
         ChatCompletionSystemMessageParam(role="system", content="You are a helpful assistant."),
         ChatCompletionUserMessageParam(role="user", content="What is the weather today?")
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     assert system_prompt == "You are a helpful assistant."
     assert len(anthropic_messages) == 1
@@ -74,7 +77,7 @@ def test_multiple_system_messages():
         ChatCompletionSystemMessageParam(role="system", content="Second system message."),
         ChatCompletionUserMessageParam(role="user", content="Hello!")
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     # Should take the last system message
     assert system_prompt == "Second system message."
@@ -87,7 +90,7 @@ def test_empty_message_content():
         cast(ChatCompletionMessageParam, {"role": "user"}),  # Missing content
         ChatCompletionAssistantMessageParam(role="assistant", content="Hi!")
     ]
-    system_prompt, anthropic_messages = _get_system_prompt_and_messages(messages)
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
     assert isinstance(system_prompt, anthropic.NotGiven)
     assert len(anthropic_messages) == 1  # Should skip the message with missing content
@@ -111,7 +114,7 @@ def test_extract_json_from_tool_use():
         usage=Usage(input_tokens=0, output_tokens=0)
     )
     
-    result = _extract_and_parse_json_response(response)
+    result = extract_and_parse_anthropic_json_response(response)
     assert result == {"key": "value"}
 
 def test_extract_json_from_text():
@@ -129,7 +132,7 @@ def test_extract_json_from_text():
         usage=Usage(input_tokens=0, output_tokens=0)
     )
     
-    result = _extract_and_parse_json_response(response)
+    result = extract_and_parse_anthropic_json_response(response)
     assert result == {"key": "value"}
 
 def test_extract_json_from_text_with_multiple_blocks():
@@ -151,7 +154,7 @@ def test_extract_json_from_text_with_multiple_blocks():
         usage=Usage(input_tokens=0, output_tokens=0)
     )
     
-    result = _extract_and_parse_json_response(response)
+    result = extract_and_parse_anthropic_json_response(response)
     assert result == {"key": "value"}
 
 def test_invalid_json_in_text():
@@ -170,7 +173,7 @@ def test_invalid_json_in_text():
     )
     
     with pytest.raises(Exception) as exc_info:
-        _extract_and_parse_json_response(response)
+        extract_and_parse_anthropic_json_response(response)
     assert "No valid AgentResponse format found" in str(exc_info.value)
 
 def test_no_json_in_text():
@@ -189,7 +192,7 @@ def test_no_json_in_text():
     )
     
     with pytest.raises(Exception) as exc_info:
-        _extract_and_parse_json_response(response)
+        extract_and_parse_anthropic_json_response(response)
     assert "No valid AgentResponse format found" in str(exc_info.value)
 
 def test_empty_content():
@@ -204,7 +207,7 @@ def test_empty_content():
     )
     
     with pytest.raises(Exception) as exc_info:
-        _extract_and_parse_json_response(response)
+        extract_and_parse_anthropic_json_response(response)
     assert "No valid AgentResponse format found" in str(exc_info.value)
 
 def test_tool_use_without_agent_response():
@@ -225,5 +228,43 @@ def test_tool_use_without_agent_response():
     )
     
     with pytest.raises(Exception) as exc_info:
-        _extract_and_parse_json_response(response)
-    assert "No valid AgentResponse format found" in str(exc_info.value) 
+        extract_and_parse_anthropic_json_response(response)
+    assert "No valid AgentResponse format found" in str(exc_info.value)
+
+CUSTOM_MODEL = "claude-3-5-sonnet-latest"
+@pytest.mark.parametrize("response_format_info, expected_model", [
+    (ResponseFormatInfo(name="agent_response", format=AgentResponse), CUSTOM_MODEL),  # With response_format_info - should use self.model
+    (None, ANTHROPIC_FAST_MODEL),  # Without response_format_info - should use ANTHROPIC_FAST_MODEL
+])
+@pytest.mark.asyncio
+async def test_model_selection_based_on_response_format_info(response_format_info, expected_model):
+    """
+    Tests that the correct model is selected based on whether response_format_info is provided.
+    """
+    
+    # Create an AnthropicClient with a specific model
+    custom_model = CUSTOM_MODEL
+    client = AnthropicClient(api_key="test_key", model=custom_model)
+    
+    # Mock the messages.create method to avoid actual API calls
+    client.client = MagicMock()
+    mock_response = Message(
+        id="test_id",
+        role="assistant",
+        content=[TextBlock(type="text", text="Test response")],
+        model=custom_model,
+        type="message",
+        usage=Usage(input_tokens=0, output_tokens=0)
+    )
+    client.client.messages.create.return_value = mock_response
+    
+    with patch('mito_ai.anthropic_client.get_anthropic_completion_function_params', wraps=get_anthropic_completion_function_params) as mock_get_params:
+        await client.request_completions(
+            messages=[{"role": "user", "content": "Test message"}],
+            response_format_info=response_format_info
+        )
+        
+        # Verify that get_anthropic_completion_function_params was called with the expected model
+        mock_get_params.assert_called_once()
+        call_args = mock_get_params.call_args
+        assert call_args[1]['model'] == expected_model 

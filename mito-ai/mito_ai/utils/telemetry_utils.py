@@ -219,7 +219,8 @@ def log_ai_completion_success(
     last_message_content: str,
     user_input: str,
     response: Dict[str, Any],
-    thread_id: str
+    thread_id: str,
+    model: str
 ) -> None:
     """
     Logs AI completion success based on the input location.
@@ -228,13 +229,17 @@ def log_ai_completion_success(
         key_type: The type of key that was used to get the AI completion
         message_type: The type of message that was sent to the AI
         last_message_content: The last message sent to the AI
+        user_input: The user input that was sent to the AI
         response: The response received from the AI
+        thread_id: The thread ID for the conversation
+        model: The model that was used to get the AI completion
     """
 
     # Params that every log has
     base_params = {
         KEY_TYPE_PARAM: str(key_type),
         IS_DEV_MODE_PARAM: is_dev_mode(),
+        'model': model,
     }
 
     try:

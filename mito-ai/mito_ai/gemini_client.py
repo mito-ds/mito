@@ -4,24 +4,40 @@ import base64
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from google import genai
 from google.genai import types
-from google.genai.types import GenerateContentConfig
-from mito_ai.completions.models import AgentResponse, CompletionItem, CompletionReply, CompletionStreamChunk, \
-    ResponseFormatInfo, MessageType
+from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse
+from mito_ai.completions.models import CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 
-INLINE_COMPLETION_MODEL = "gemini-2.0-flash-lite"
+GEMINI_FAST_MODEL = "gemini-2.0-flash-lite"
 
-
-def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
+def extract_and_parse_gemini_json_response(response: GenerateContentResponse) -> Optional[str]:
     """
-    Separates system instructions from user/assistant messages and handles image content.
-    Returns:
-    - system_instructions: list of strings (for system_instruction param)
-    - contents: list of dicts for Gemini (excluding system role)
+    Extracts and parses the JSON response from the Gemini API.
+    """
+    if hasattr(response, 'text') and response.text:
+        return response.text
+
+    if hasattr(response, 'candidates') and response.candidates:
+        candidate = response.candidates[0]
+        if hasattr(candidate, 'content') and candidate.content:
+            content = candidate.content
+            if hasattr(content, 'parts') and content.parts:
+                return " ".join(str(part) for part in content.parts)
+            return str(content)
+        return str(candidate)
+    
+    return None
+
+def get_gemini_system_prompt_and_messages(messages: List[Dict[str, Any]]) -> Tuple[str, List[Dict[str, Any]]]:
+    """
+    Converts a list of OpenAI messages to a list of Gemini messages.
+    
+    IMPORTANT: THIS FUNCTION IS ALSO USED IN THE LAMDBA FUNCTION. IF YOU UPDATE IT HERE,
+    YOU PROBABLY NEED TO UPDATE THE LAMBDA FUNCTION AS WELL.
     """
 
-    system_instructions = ""
-    contents = []
+    system_prompt = ""
+    gemini_messages: List[Dict[str, Any]] = []
 
     for msg in messages:
         role = msg.get("role")
@@ -30,9 +46,9 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
         if role == "system":
             if content:
                 # We assume that that there is only one system message 
-                system_instructions = content
+                system_prompt = content
         elif role in ("user", "assistant"):
-            parts = []
+            parts: List[Union[Dict[str, str], Part]] = []
 
             # Handle different content types
             if isinstance(content, str):
@@ -75,12 +91,12 @@ def extract_system_instruction_and_contents(messages: List[Dict[str, Any]]) -> T
             if parts:
                 # Map assistant role to model role for Gemini API
                 gemini_role = "model" if role == "assistant" else "user"
-                contents.append({
+                gemini_messages.append({
                     "role": gemini_role,
                     "parts": parts
                 })
 
-    return system_instructions, contents
+    return system_prompt, gemini_messages
 
 
 class GeminiClient:
@@ -97,24 +113,14 @@ class GeminiClient:
         message_type: MessageType = MessageType.CHAT
     ) -> str:
         try:
-            config = None
-
             # Extract system instructions and contents
-            system_instructions, contents = extract_system_instruction_and_contents(messages)
-
-            # Configure response format if provided
-            if response_format_info:
-                config = {
-                    "response_mime_type": "application/json",
-                    "response_schema": AgentResponse.model_json_schema()
-                }
+            system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
 
             # Get provider data for Gemini completion
             provider_data = get_gemini_completion_function_params(
-                model=self.model if not response_format_info else INLINE_COMPLETION_MODEL,
+                model=self.model if response_format_info else GEMINI_FAST_MODEL,
                 contents=contents,
                 message_type=message_type,
-                config=config,
                 response_format_info=response_format_info
             )
 
@@ -127,49 +133,25 @@ class GeminiClient:
                 )
                 response = self.client.models.generate_content(
                     model=provider_data["model"],
-                    contents=contents,
+                    contents=contents,  # type: ignore
                     config=response_config
                 )
+                
+                result = extract_and_parse_gemini_json_response(response)
+                
+                if not result:
+                    return "No response received from Gemini API"
+
+                return result
             else:
                 # Fallback to Mito server for completion
                 return await get_gemini_completion_from_mito_server(
                     model=provider_data["model"],
                     contents=messages, # Use the extracted contents instead of converted messages to avoid serialization issues
                     message_type=message_type,
-                    config=config,
+                    config=provider_data.get("config", None),
                     response_format_info=response_format_info,
                 )
-
-            if not response:
-                return "No response received from Gemini API"
-
-            if isinstance(response, (tuple, str)):
-                return str(response)
-
-            if hasattr(response, 'text') and response.text:
-                return response.text
-
-            if hasattr(response, '__iter__') and not isinstance(response, (str, tuple)):
-                collected_response = ""
-                for chunk in response:
-                    if isinstance(chunk, str):
-                        collected_response += chunk or ''
-                    elif hasattr(chunk, 'text') and chunk.text:
-                        collected_response += chunk.text or ''
-                    else:
-                        collected_response += str(chunk)
-                return collected_response
-
-            if hasattr(response, 'candidates') and response.candidates:
-                candidate = response.candidates[0]
-                if hasattr(candidate, 'content') and candidate.content:
-                    content = candidate.content
-                    if hasattr(content, 'parts') and content.parts:
-                        return " ".join(str(part) for part in content.parts)
-                    return str(content)
-                return str(candidate)
-
-            return str(response)
 
         except Exception as e:
             return f"Error generating content: {str(e)}"
@@ -184,11 +166,11 @@ class GeminiClient:
         accumulated_response = ""
         try:
             # Extract system instructions and Gemini-compatible contents
-            system_instructions, contents = extract_system_instruction_and_contents(messages)
+            system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
             if self.api_key:
                 for chunk in self.client.models.generate_content_stream(
                         model=self.model,
-                        contents=contents,
+                        contents=contents,  # type: ignore
                         config=GenerateContentConfig(
                             system_instruction=system_instructions
                         )
@@ -197,8 +179,6 @@ class GeminiClient:
                     next_chunk = ""
                     if hasattr(chunk, 'text'):
                         next_chunk = chunk.text or ''
-                    elif isinstance(chunk, str):
-                        next_chunk = chunk
                     else:
                         next_chunk = str(chunk)
 

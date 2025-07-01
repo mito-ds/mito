@@ -21,6 +21,12 @@
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 10px;
+  /*
+    'container-type: inline-size' enables container queries on this element.
+    This allows child elements to use @container rules to react to the width of .chat-taskpane,
+    rather than the viewport.
+  */
+  container-type: inline-size;
 }
 
 .suggestions-container {
@@ -207,4 +213,11 @@
 
 .suggestion-box:hover {
   background-color: var(--jp-border-color2);
+}
+
+/* Hide the 'Submit' text in the submit button when the chat-taskpane is narrow */
+@container (max-width: 350px) {
+  .submit-button .submit-text {
+    display: none;
+  }
 }

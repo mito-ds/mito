@@ -25,9 +25,13 @@ CONTENT_REMOVED_PLACEHOLDER = "Content removed to save space"
 
 CITATION_RULES = """RULES FOR CITING YOUR WORK
 
-It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use the following format inline in your response:
+It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use one of the following formats inline in your response:
 
+Single line citation:
 [MITO_CITATION:cell_id:line_number]
+
+Multiline citation (for citing a range of lines):
+[MITO_CITATION:cell_id:first_line-last_line]
 
 Citation Rules:
 
@@ -35,9 +39,10 @@ Citation Rules:
 2. When choosing the citation, select the code that will most help the user validate the fact or statement that you shared with them.
 3. Place the citation immediately after the statement it supports. Do not explain the citation with phrases like "See", "Derived from", etc. Just provide the citation object.
 4. For the "line_number" field, use the line number within the cell that is most relevant to the citation. Important: The cell line number should be 0-indexed and should not skip comments.
-5. If you cannot find relevant information in the notebook to answer a question, clearly state this and do not provide a citation.
-6. You ONLY need to provide a citation when sharing an insight from the data in the message part of the response. If all you are doing is writing/updating code, then there is no need to provide a citation.
-7. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
+5. For multiline citations, use the "first_line-last_line" format when the insight spans multiple lines of code. Both line numbers should be 0-indexed.
+6. If you cannot find relevant information in the notebook to answer a question, clearly state this and do not provide a citation.
+7. You ONLY need to provide a citation when sharing an insight from the data in the message part of the response. If all you are doing is writing/updating code, then there is no need to provide a citation.
+8. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
 """
 
 def get_active_cell_output_str(has_active_cell_output: bool) -> str:
@@ -136,3 +141,11 @@ Here is the schema:
         DATABASE_RULES = ""
 
     return DATABASE_RULES
+
+
+CHAT_CODE_FORMATTING_RULES = """CRITICAL CODE UPDATE RULES:
+- COMPLETE REPLACEMENT: Your code will COMPLETELY REPLACE the entire contents of the active code cell. 
+- INCLUDE ALL CODE: You MUST return the COMPLETE, FULL contents of the entire code cell - including ALL existing code that should remain plus your modifications.
+- NEVER PARTIAL CODE: NEVER return only a portion, snippet, or subset of the code cell. Partial responses will break the user's notebook by deleting important code.
+- PRESERVE EXISTING CODE: Always preserve imports, variable definitions, and other code that the user needs, even if you're only modifying one small part.
+"""

@@ -30,15 +30,13 @@ from mito_ai.utils.open_ai_utils import (
 )
 from mito_ai.utils.server_limits import update_mito_server_quota
 from mito_ai.utils.telemetry_utils import (
-    KEY_TYPE_PARAM,
-    MITO_AI_COMPLETION_ERROR,
     MITO_SERVER_KEY,
     USER_KEY,
-    log,
-    log_ai_completion_success,
 )
 
 OPENAI_MODEL_FALLBACK = "gpt-4.1"
+
+OPENAI_FAST_MODEL = "gpt-4.1-nano"
 
 class OpenAIClient(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
@@ -225,9 +223,9 @@ This attribute is observed by the websocket provider to push the error to the cl
         return client
 
     def _resolve_model(self, model: Optional[str] = None) -> str:
-        if is_azure_openai_configured():
-            return constants.AZURE_OPENAI_MODEL or OPENAI_MODEL_FALLBACK
-        if constants.OLLAMA_MODEL and not self.api_key:
+        if is_azure_openai_configured() and constants.AZURE_OPENAI_MODEL is not None:
+            return constants.AZURE_OPENAI_MODEL
+        elif constants.OLLAMA_MODEL is not None:
             return constants.OLLAMA_MODEL
         elif model:
             return model
@@ -255,7 +253,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         completion = None
 
         try:
-            model = self._resolve_model(model)
+            model = self._resolve_model(model) if response_format_info else OPENAI_FAST_MODEL
 
             # Handle other providers as before
             completion_function_params = get_open_ai_completion_function_params(

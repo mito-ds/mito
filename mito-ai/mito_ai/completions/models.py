@@ -22,21 +22,16 @@ class CellUpdate(BaseModel):
     code: str
     cell_type: Optional[Literal['code', 'markdown']]
 
-class Question(BaseModel):
-    question_type: Literal['multiple_choice']
-    question: str
-    options: List[str]
 
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
 # so instead we just combine all of the possible response types into a single class 
 # for now and rely on the AI to respond with the correct types, following the format
 # that we show it in the system prompt.
 class AgentResponse(BaseModel):
-    type: Literal['cell_update', 'get_cell_output', 'finished_task', 'get_user_input']
+    type: Literal['cell_update', 'get_cell_output', 'finished_task']
     message: str
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]
-    question: Optional[Question]
     next_steps: Optional[List[str]]
     
     
