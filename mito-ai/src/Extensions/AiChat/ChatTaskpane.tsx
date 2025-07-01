@@ -1368,6 +1368,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
                             setNextSteps={setNextSteps}
+                            agentModeEnabled={agentModeEnabled}
                         />
                     )
                 }).filter(message => message !== null)}
