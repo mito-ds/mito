@@ -4,10 +4,10 @@
  */
 
 .chat-input-container {
-  position: sticky;
-  bottom: 0;
+  /* Removed sticky positioning - footer is now always at bottom via flex layout */
   margin: 10px 0;
   margin-top: auto;
+  flex-shrink: 0; /* Prevent input from shrinking at different zoom levels */
   background-color: var(--chat-user-message-background-color);
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.08),

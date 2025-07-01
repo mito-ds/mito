@@ -6,12 +6,13 @@
 .chat-taskpane {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh; /* Use viewport height for better zoom compatibility */
+  min-height: 0; /* Allow flexbox shrinking */
   background-color: var(--chat-background-color) !important;
   --jp-sidebar-min-width: 350px;
   width: 100%;
   box-sizing: border-box;
-  overflow-y: hidden;
+  overflow: hidden; /* Changed from overflow-y to prevent layout issues */
   /* 
         Don't set padding on top from the taskpane so we can instead
         set the padding on the chat-taskpane-header instead to make 
@@ -43,14 +44,9 @@
   align-items: center;
   padding-top: 10px;
   padding-bottom: 5px;
-  position: sticky;
-  /* Make the header sticky */
-  top: 0;
-  /* Stick to the top of the container */
+  /* Removed sticky positioning - header is now always at top via flex layout */
   background-color: var(--chat-background-color);
-  /* Ensure background color covers content behind */
-  z-index: 1;
-  /* Ensure it stays above other content */
+  flex-shrink: 0; /* Prevent header from shrinking at different zoom levels */
 }
 
 .chat-taskpane-header-left {
@@ -76,6 +72,7 @@
 
 .chat-messages {
   flex: 1;
+  min-height: 0; /* Allow flexbox shrinking */
   overflow-y: auto;
   padding-bottom: 10px;
   display: flex;
