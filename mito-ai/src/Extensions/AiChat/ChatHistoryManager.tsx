@@ -314,7 +314,6 @@ export class ChatHistoryManager {
             role: 'assistant',
             content: content
         }
-        console.log(aiMessage)
 
         this.displayOptimizedChatHistory.push(
             {
