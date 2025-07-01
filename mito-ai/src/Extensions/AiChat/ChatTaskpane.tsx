@@ -86,6 +86,7 @@ import NextStepsPills from '../../components/NextStepsPills';
 import UndoIcon from '../../icons/UndoIcon';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
+import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -380,8 +381,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 const firstMessage = getFirstMessageFromCookie();
                 if (firstMessage) {
+                    await waitForNotebookReady(notebookTracker);
                     await startAgentExecution(firstMessage);
-                    
                 }
 
             } catch (error: unknown) {
@@ -1252,6 +1253,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (cell.model.type === 'code') {
                 const isActiveCodeCell = activeCellIndex === index
                 const codeCell = cell as CodeCell;
+                
+                // Add validation before using as WeakMap key
+                if (!codeCell || typeof codeCell !== 'object') {
+                    console.warn('Invalid codeCell object, skipping');
+                    return;
+                }
+                
                 const cmEditor = codeCell.editor as CodeMirrorEditor;
                 const editorView = cmEditor?.editor;
 
