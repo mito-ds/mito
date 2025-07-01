@@ -86,6 +86,7 @@ import NextStepsPills from '../../components/NextStepsPills';
 import UndoIcon from '../../icons/UndoIcon';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
+import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -380,8 +381,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 const firstMessage = getFirstMessageFromCookie();
                 if (firstMessage) {
+                    await waitForNotebookReady(notebookTracker);
                     await startAgentExecution(firstMessage);
-                    
                 }
 
             } catch (error: unknown) {
@@ -1251,7 +1252,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         notebook.widgets.forEach((cell, index) => {
             if (cell.model.type === 'code') {
                 const isActiveCodeCell = activeCellIndex === index
-                const codeCell = cell as CodeCell;
+
+                // TODO: Instead of casting, we should rely on the type system to make 
+                // sure we're using the correct types!
+                const codeCell = cell as CodeCell; 
+                
                 const cmEditor = codeCell.editor as CodeMirrorEditor;
                 const editorView = cmEditor?.editor;
 
