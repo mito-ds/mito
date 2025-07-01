@@ -11,6 +11,8 @@
     background-color: transparent;
     margin: 10px 0;
     color: var(--jp-ui-font-color2);
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .error-fixup-toggle {
