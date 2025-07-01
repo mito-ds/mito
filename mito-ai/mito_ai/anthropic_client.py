@@ -10,7 +10,10 @@ from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, Comp
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
-MAX_TOKENS = 2_000
+# Max tokens is a required parameter for the Anthropic API. 
+# We set it to a high number so that we can edit large code cells
+# 8192 is the maximum allowed number of output tokens for claude-3-5-haiku-20241022
+MAX_TOKENS = 8_000
 
 ANTHROPIC_FAST_MODEL = "claude-3-5-haiku-latest"
 

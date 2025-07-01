@@ -7,7 +7,8 @@ import React, { useState } from 'react';
 import OpenAI from 'openai';
 import { classNames } from '../../../utils/classNames';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import CodeBlock from './CodeBlock';
+import UserCodeBlock from './UserCodeBlock';
+import AssistantCodeBlock from './AssistantCodeBlock';
 import AlertBlock from './AlertBlock';
 import MarkdownBlock from './MarkdownBlock';
 import { INotebookTracker } from '@jupyterlab/notebook';
@@ -53,6 +54,7 @@ interface IChatMessageProps {
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
+    agentModeEnabled: boolean
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -75,6 +77,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     contextManager,
     codeReviewStatus,
     setNextSteps,
+    agentModeEnabled,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -178,18 +181,25 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     if (messagePart.length > 14) {
                         return ( 
                             <>
-                                <CodeBlock
-                                    key={index + messagePart}
-                                    code={messagePart}
-                                    isCodeComplete={isCodeComplete}
-                                    role={message.role}
-                                    renderMimeRegistry={renderMimeRegistry}
-                                    previewAICode={previewAICode}
-                                    acceptAICode={acceptAICode}
-                                    rejectAICode={rejectAICode}
-                                    isLastAiMessage={isLastAiMessage}
-                                    codeReviewStatus={codeReviewStatus}
-                                />
+                                {message.role === 'user' ? (
+                                    <UserCodeBlock
+                                        code={messagePart}
+                                        renderMimeRegistry={renderMimeRegistry}
+                                        agentModeEnabled={agentModeEnabled}
+                                    />
+                                ) : (
+                                    <AssistantCodeBlock
+                                        code={messagePart}
+                                        isCodeComplete={isCodeComplete}
+                                        renderMimeRegistry={renderMimeRegistry}
+                                        previewAICode={previewAICode}
+                                        acceptAICode={acceptAICode}
+                                        rejectAICode={rejectAICode}
+                                        isLastAiMessage={isLastAiMessage}
+                                        codeReviewStatus={codeReviewStatus}
+                                        agentModeEnabled={agentModeEnabled}
+                                    />
+                                )}
 
                                 {isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' && 
                                     <div className='chat-message-buttons'>

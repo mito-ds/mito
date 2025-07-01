@@ -30,20 +30,22 @@ def get_model_provider(model: str) -> Union[str, None]:
     if not model:
         return None
 
-    if model.startswith('claude'):
+    model_lower = model.lower()
+
+    if model_lower.startswith('claude'):
         return 'claude'
-    elif model.startswith('gemini'):
+    elif model_lower.startswith('gemini'):
         return 'gemini'
-    elif model.startswith('ollama'):
+    elif model_lower.startswith('ollama'):
         return 'ollama'
-    elif model.startswith('gpt') or model.startswith('o3'):
+    elif model_lower.startswith('gpt'):
         return 'openai'
 
     return None
 
 
 # Mito AI Base URLs and Endpoint Paths
-MITO_PROD_BASE_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws"
+MITO_PROD_BASE_URL = "https://yxwyadgaznhavqvgnbfuo2k6ca0jboku.lambda-url.us-east-1.on.aws"
 MITO_DEV_BASE_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws"
 
 # Set ACTIVE_BASE_URL manually

@@ -16,13 +16,6 @@ jest.mock('../../../style/NextStepsPills.css', () => ({}));
 jest.mock('../../../style/ChatMessage.css', () => ({}));
 jest.mock('../../../style/MarkdownMessage.css', () => ({}));
 
-// Mock components and modules that ChatMessage depends on
-jest.mock('../../Extensions/AiChat/ChatMessage/CodeBlock', () => {
-    return function MockCodeBlock() {
-        return <div data-testid="code-block">Mocked CodeBlock</div>;
-    };
-});
-
 jest.mock('../../Extensions/AiChat/ChatMessage/AlertBlock', () => {
     return function MockAlertBlock() {
         return <div data-testid="alert-block">Mocked AlertBlock</div>;
@@ -79,6 +72,7 @@ const createMockChatMessageProps = (overrides = {}) => ({
     contextManager: undefined,
     codeReviewStatus: 'chatPreview' as const,
     setNextSteps: jest.fn(),
+    agentModeEnabled: false,
     ...overrides
 });
 
