@@ -1252,13 +1252,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         notebook.widgets.forEach((cell, index) => {
             if (cell.model.type === 'code') {
                 const isActiveCodeCell = activeCellIndex === index
-                const codeCell = cell as CodeCell;
-                
-                // Add validation before using as WeakMap key
-                if (!codeCell || typeof codeCell !== 'object') {
-                    console.warn('Invalid codeCell object, skipping');
-                    return;
-                }
+
+                // TODO: Instead of casting, we should rely on the type system to make 
+                // sure we're using the correct types!
+                const codeCell = cell as CodeCell; 
                 
                 const cmEditor = codeCell.editor as CodeMirrorEditor;
                 const editorView = cmEditor?.editor;
