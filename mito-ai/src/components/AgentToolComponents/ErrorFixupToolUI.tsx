@@ -7,6 +7,7 @@ import ExpandIcon from '../../icons/ExpandIcon';
 import WrenchAndScrewdriverIcon from '../../icons/WrenchAndScrewdriverIcon';
 import { GroupedErrorMessages } from '../../utils/chatHistory';
 import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
+import AssistantCodeBlock from '../../Extensions/AiChat/ChatMessage/AssistantCodeBlock';
 
 interface IErrorFixupToolUIProps {
     messages: GroupedErrorMessages;
@@ -20,79 +21,94 @@ const parsePythonErrorType = (content: string | undefined): string => {
 };
 
 const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMimeRegistry }) => {
-    const [expandedMessages, setExpandedMessages] = useState<Set<number>>(new Set());
+    const [expandedError, setExpandedError] = useState(false);
 
-    const toggleMessage = (index: number) => {
-        const newExpanded = new Set(expandedMessages);
-        if (newExpanded.has(index)) {
-            newExpanded.delete(index);
-        } else {
-            newExpanded.add(index);
-        }
-        setExpandedMessages(newExpanded);
+    const toggleError = (): void => {
+        setExpandedError(!expandedError);
     };
 
     if (!messages || messages.length === 0) return null;
 
+    // Get the error content from the first message
+    const errorContent = getContentStringFromMessage(messages[0]!.message);
+    const errorType = parsePythonErrorType(errorContent);
+
     return (
         <div className="error-fixup-messages-container">
-            {messages.map((message, messageIndex) => {
-                const messageContent = getContentStringFromMessage(message.message);
-                if (!messageContent) return null;
+            {/* Hardcoded "Fixing an error" message */}
+            <div className="error-fixup-header">
+                <WrenchAndScrewdriverIcon />
+                Fixing an error
+            </div>
 
-                const isExpanded = expandedMessages.has(messageIndex);
-
-                return (
+            {/* Indented block for error and responses */}
+            <div className="error-fixup-indented-block">
+                {/* Error details in toggleable dropdown */}
+                <div
+                    className={classNames('error-fixup-container', {
+                        'error-fixup-collapsed': !expandedError
+                    })}
+                >
                     <div
-                        key={messageIndex}
-                        className={classNames('error-fixup-container', {
-                            'error-fixup-collapsed': !isExpanded
+                        onClick={toggleError}
+                        className={classNames('error-fixup-toggle', {
+                            expanded: expandedError
                         })}
                     >
-                        <div
-                            onClick={() => toggleMessage(messageIndex)}
-                            className={classNames('error-fixup-toggle', {
-                                expanded: isExpanded
-                            })}
-                        >
-                            <span className="error-fixup-toggle-content">
-                                <WrenchAndScrewdriverIcon />
-                                Fixing {parsePythonErrorType(messageContent)}
-                            </span>
-                            <ExpandIcon isExpanded={isExpanded} />
-                        </div>
-                        {isExpanded && (
-                            <div className="error-fixup-expanded">
-                                {messageIndex === 0 ? (
-                                    <PythonCode
-                                        key={`${messageIndex}-0`}
-                                        code={messageContent}
-                                        renderMimeRegistry={renderMimeRegistry}
-                                    />
-                                ) : (() => {
-                                    const messageContentParts = splitStringWithCodeBlocks(message.message);
-                                    return messageContentParts.map((messagePart, partIndex) => {
-                                        if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
-                                            return (
-                                                <PythonCode
-                                                    key={`${messageIndex}-${partIndex}`}
-                                                    code={messagePart}
-                                                    renderMimeRegistry={renderMimeRegistry}
-                                                />
-                                            );
-                                        }
-                                        return (
-                                            <div key={`${messageIndex}-${partIndex}`}>
-                                                {messagePart}
-                                            </div>
-                                        );
-                                    });
-                                })()}
-                            </div>
-                        )}
+                        <span className="error-fixup-toggle-content">
+                            Error {errorType}
+                        </span>
+                        <ExpandIcon isExpanded={expandedError} />
                     </div>
-                );
-            })}
+                    {expandedError && errorContent && (
+                        <div className="error-fixup-expanded">
+                            <PythonCode
+                                code={errorContent}
+                                renderMimeRegistry={renderMimeRegistry}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* Render responses using AssistantCodeBlock */}
+                {messages.slice(1).map((message, messageIndex) => {
+                    const messageContent = getContentStringFromMessage(message.message);
+                    if (!messageContent) return null;
+
+                    const messageContentParts = splitStringWithCodeBlocks(message.message);
+                    
+                    return (
+                        <div key={messageIndex + 1} className="error-fixup-response">
+                            {messageContentParts.map((messagePart, partIndex) => {
+                                if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
+                                    return (
+                                        <AssistantCodeBlock
+                                            key={`${messageIndex + 1}-${partIndex}`}
+                                            code={messagePart}
+                                            isCodeComplete={true}
+                                            renderMimeRegistry={renderMimeRegistry}
+                                            previewAICode={() => {}}
+                                            acceptAICode={() => {}}
+                                            rejectAICode={() => {}}
+                                            isLastAiMessage={false}
+                                            codeReviewStatus="chatPreview"
+                                            agentModeEnabled={true}
+                                        />
+                                    );
+                                }
+                                return (
+                                    <div 
+                                        key={`${messageIndex + 1}-${partIndex}`}
+                                        className="error-fixup-text-content"
+                                    >
+                                        {messagePart}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 };

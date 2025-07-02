@@ -57,4 +57,20 @@
     border: 1px solid var(--jp-ui-font-color2);
     border-top: none;
     border-radius: 0 0 5px 5px;
+}
+
+.error-fixup-text-content {
+    color: var(--jp-ui-font-color1);
+    line-height: 1.6;
+    margin: 8px 0;
+    font-size: 14px;
+    font-family: var(--jp-ui-font-family);
+    padding: 0 15px;
+    margin-bottom: 0px;
+}
+
+.error-fixup-indented-block {
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid var(--jp-ui-font-color3);
 } 
