@@ -37,7 +37,6 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMi
         <div className="error-fixup-messages-container">
             {/* Hardcoded "Fixing an error" message */}
             <div className="error-fixup-header">
-                <WrenchAndScrewdriverIcon />
                 Fixing an error
             </div>
 
@@ -56,6 +55,7 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMi
                         })}
                     >
                         <span className="error-fixup-toggle-content">
+                            <WrenchAndScrewdriverIcon />
                             Error {errorType}
                         </span>
                         <ExpandIcon isExpanded={expandedError} />
@@ -76,7 +76,7 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMi
                     if (!messageContent) return null;
 
                     const messageContentParts = splitStringWithCodeBlocks(message.message);
-                    
+
                     return (
                         <div key={messageIndex + 1} className="error-fixup-response">
                             {messageContentParts.map((messagePart, partIndex) => {
@@ -87,9 +87,9 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMi
                                             code={messagePart}
                                             isCodeComplete={true}
                                             renderMimeRegistry={renderMimeRegistry}
-                                            previewAICode={() => {}}
-                                            acceptAICode={() => {}}
-                                            rejectAICode={() => {}}
+                                            previewAICode={() => { }}
+                                            acceptAICode={() => { }}
+                                            rejectAICode={() => { }}
                                             isLastAiMessage={false}
                                             codeReviewStatus="chatPreview"
                                             agentModeEnabled={true}
@@ -97,7 +97,7 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMi
                                     );
                                 }
                                 return (
-                                    <div 
+                                    <div
                                         key={`${messageIndex + 1}-${partIndex}`}
                                         className="error-fixup-text-content"
                                     >

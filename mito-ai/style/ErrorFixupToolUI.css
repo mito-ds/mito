@@ -3,6 +3,11 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+.error-fixup-messages-container{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 .error-fixup-container {
     display: flex;
     flex-direction: column;
@@ -11,8 +16,6 @@
     background-color: transparent;
     margin: 10px 0;
     color: var(--jp-ui-font-color2);
-    padding-left: 10px;
-    padding-right: 10px;
 }
 
 /* Create hierarchy: indent all messages except the first one */
