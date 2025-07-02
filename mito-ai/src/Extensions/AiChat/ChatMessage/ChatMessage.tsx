@@ -31,6 +31,7 @@ import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
 import ErrorFixupToolUI from '../../../components/AgentToolComponents/ErrorFixupToolUI';
+import { isErrorFixupMessage } from '../../../utils/errors';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -89,17 +90,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
     const messageContentParts = splitStringWithCodeBlocks(message);
     const messageContent = getContentStringFromMessage(message);
-    const isErrorFixupMessage = (
-        // Initially, messages are labeled with the prompt type 'agent:autoErrorFixup'
-        promptType === 'agent:autoErrorFixup' ||
-        // However, when the chat history is saved, this field is stripped, and every message is labeled as 'chat'.
-        // In this case we have to manually determine if the message is an error fixup message.
-        (message.role === 'user' && 
-            messageContent && 
-            messageContent.includes('->') || messageContent?.includes('^') && 
-            /\w+Error:/.test(messageContent)
-        )
-    );
+    const _isErrorFixupMessage = isErrorFixupMessage(promptType, message, messageContent);
     
     const handleEditClick = (): void => {
         setIsEditing(true);
@@ -124,7 +115,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         setNextSteps(agentResponse.next_steps);
     }
 
-    if (isErrorFixupMessage) {
+    if (agentModeEnabled && _isErrorFixupMessage) {
         return <ErrorFixupToolUI message={message} renderMimeRegistry={renderMimeRegistry} />;
     }
     

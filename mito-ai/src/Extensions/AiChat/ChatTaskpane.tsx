@@ -21,7 +21,7 @@ import MitoLogo from '../../icons/MitoLogo';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
-import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
+import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import ToggleButton from '../../components/ToggleButton';
 import IconButton from '../../components/IconButton';
@@ -47,7 +47,7 @@ import {
     setActiveCellByID, 
     writeCodeToCellByID, 
 } from '../../utils/notebook';
-import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
+import { getCodeBlockFromMessage, getContentStringFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
 import {
@@ -86,6 +86,7 @@ import NextStepsPills from '../../components/NextStepsPills';
 import UndoIcon from '../../icons/UndoIcon';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
+import { GroupedErrorMessages, processChatHistoryForErrorGrouping } from '../../utils/chatHistory';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -1286,6 +1287,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
+    let processedDisplayOptimizedChatHistory: (IDisplayOptimizedChatItem | GroupedErrorMessages)[] = []
+    
+    if (agentModeEnabled) {
+        processedDisplayOptimizedChatHistory = processChatHistoryForErrorGrouping(
+            chatHistoryManager.getDisplayOptimizedHistory()
+        );
+    } else {
+        processedDisplayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
+    }
+
+    console.log('processedDisplayOptimizedChatHistory', processedDisplayOptimizedChatHistory)
+
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
@@ -1343,34 +1356,48 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         <CTACarousel app={app} />
                     </div>
                 }
-                {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
-                    return (
-                        <ChatMessage
-                            key={index}
-                            message={displayOptimizedChat.message}
-                            promptType={displayOptimizedChat.promptType}
-                            messageType={displayOptimizedChat.type}
-                            agentResponse={displayOptimizedChat.agentResponse}
-                            codeCellID={displayOptimizedChat.codeCellID}
-                            mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
-                            mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}
-                            messageIndex={index}
-                            notebookTracker={notebookTracker}
-                            renderMimeRegistry={renderMimeRegistry}
-                            app={app}
-                            isLastAiMessage={index === lastAIMessagesIndex}
-                            isLastMessage={index === displayOptimizedChatHistory.length - 1}
-                            operatingSystem={operatingSystem}
-                            previewAICode={previewAICodeToActiveCell}
-                            acceptAICode={acceptAICode}
-                            rejectAICode={rejectAICode}
-                            onUpdateMessage={handleUpdateMessage}
-                            contextManager={contextManager}
-                            codeReviewStatus={codeReviewStatus}
-                            setNextSteps={setNextSteps}
-                            agentModeEnabled={agentModeEnabled}
-                        />
-                    )
+                {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
+                    if (Array.isArray(displayOptimizedChat)) {
+                        return (
+                            <div style={{backgroundColor: 'red', padding: '10px'}}>
+                                {displayOptimizedChat.map((message, index) => {
+                                    return (
+                                        <div key={index}>
+                                            {getContentStringFromMessage(message.message)}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )
+                    } else {
+                        return (
+                            <ChatMessage
+                                key={index}
+                                message={displayOptimizedChat.message}
+                                promptType={displayOptimizedChat.promptType}
+                                messageType={displayOptimizedChat.type}
+                                agentResponse={displayOptimizedChat.agentResponse}
+                                codeCellID={displayOptimizedChat.codeCellID}
+                                mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
+                                mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}
+                                messageIndex={index}
+                                notebookTracker={notebookTracker}
+                                renderMimeRegistry={renderMimeRegistry}
+                                app={app}
+                                isLastAiMessage={index === lastAIMessagesIndex}
+                                isLastMessage={index === displayOptimizedChatHistory.length - 1}
+                                operatingSystem={operatingSystem}
+                                previewAICode={previewAICodeToActiveCell}
+                                acceptAICode={acceptAICode}
+                                rejectAICode={rejectAICode}
+                                onUpdateMessage={handleUpdateMessage}
+                                contextManager={contextManager}
+                                codeReviewStatus={codeReviewStatus}
+                                setNextSteps={setNextSteps}
+                                agentModeEnabled={agentModeEnabled}
+                            />
+                        )
+                    }
                 }).filter(message => message !== null)}
                 {loadingAIResponse &&
                     <div className="chat-loading-message">
