@@ -96,7 +96,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         // In this case we have to manually determine if the message is an error fixup message.
         (message.role === 'user' && 
             messageContent && 
-            messageContent.includes('---->') && 
+            messageContent.includes('->') || messageContent?.includes('^') && 
             /\w+Error:/.test(messageContent)
         )
     );
