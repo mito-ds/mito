@@ -8,6 +8,7 @@ import ExpandIcon from '../../icons/ExpandIcon';
 import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
 import AssistantCodeBlock from '../../Extensions/AiChat/ChatMessage/AssistantCodeBlock';
 import '../../../style/ErrorFixupToolUI.css';
+import { OpenAI } from 'openai';
 
 interface IErrorFixupToolUIProps {
     messages: GroupedErrorMessages;
@@ -20,7 +21,13 @@ const parsePythonErrorType = (content: string | undefined): string => {
     return errorMatch?.[1] || 'Error';
 };
 
-const ErrorBlock = ({ errorMessage, renderMimeRegistry }: { errorMessage: any, renderMimeRegistry: IRenderMimeRegistry }) => {
+const ErrorBlock = ({
+    errorMessage,
+    renderMimeRegistry,
+}: {
+    errorMessage: OpenAI.Chat.ChatCompletionMessageParam,
+    renderMimeRegistry: IRenderMimeRegistry,
+}) => {
     const [expandedError, setExpandedError] = useState(false);
 
     const errorContent = getContentStringFromMessage(errorMessage);
@@ -31,36 +38,35 @@ const ErrorBlock = ({ errorMessage, renderMimeRegistry }: { errorMessage: any, r
     };
 
     return (
-        <div
-        className={classNames('error-fixup-container', {
-            'error-fixup-collapsed': !expandedError
-        })}
-    >
-        <div
-            onClick={toggleError}
-            className={classNames('error-fixup-toggle', {
-                expanded: expandedError
-            })}
-        >
-            <span className="error-fixup-toggle-content">
-                <WrenchAndScrewdriverIcon />
-                Error {errorType}
-            </span>
-            <ExpandIcon isExpanded={expandedError} />
-        </div>
-        {expandedError && errorContent && (
-            <div className="error-fixup-expanded">
-                <PythonCode
-                    code={errorContent}
-                    renderMimeRegistry={renderMimeRegistry}
-                />
+        <div className="error-fixup-container">
+            <div
+                onClick={toggleError}
+                className={classNames('error-fixup-toggle', {
+                    expanded: expandedError
+                })}
+            >
+                <span className="error-fixup-toggle-content">
+                    <WrenchAndScrewdriverIcon />
+                    Error {errorType}
+                </span>
+                <ExpandIcon isExpanded={expandedError} />
             </div>
+            {expandedError && errorContent && (
+                <div className="error-fixup-expanded">
+                    <PythonCode
+                        code={errorContent}
+                        renderMimeRegistry={renderMimeRegistry}
+                    />
+                </div>
             )}
         </div>
     );
 }
 
-const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMimeRegistry }) => {
+const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({
+    messages,
+    renderMimeRegistry,
+}) => {
     return (
         <div className="error-fixup-root">
             <div className="error-fixup-header">
@@ -69,12 +75,16 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMi
             <div className="error-fixup-messages-container">
                 {messages.map((messageItem, index) => {
                     const isUserMessage = messageItem.message.role === 'user';
-                    
+
                     if (isUserMessage) {
                         return (
-                            <ErrorBlock key={`error-${index}`} errorMessage={messageItem.message} renderMimeRegistry={renderMimeRegistry} />
+                            <ErrorBlock
+                                key={`error-${index}`}
+                                errorMessage={messageItem.message}
+                                renderMimeRegistry={renderMimeRegistry}
+                            />
                         );
-                    } 
+                    }
                     return (
                         <AssistantCodeBlock
                             key={`assistant-${index}`}

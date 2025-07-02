@@ -11,19 +11,14 @@
 
 .error-fixup-header {
     color: var(--jp-ui-font-color1);
-    padding-left: 10px;
-    padding-right: 10px;
-
+    padding: 0 10px;
 }
 
 .error-fixup-messages-container {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 0 10px 0 15px;
     min-height: 100px;
     margin-left: 20px;
     border-left: 2px solid var(--jp-ui-font-color3);
-    padding-left: 15px;
-
 }
 
 .error-fixup-container {
@@ -54,13 +49,7 @@
 }
 
 .error-fixup-toggle.expanded {
-    border: 1px solid var(--jp-ui-font-color2);
-    border-bottom: 1px solid var(--jp-ui-font-color2);
     border-radius: 5px 5px 0 0;
-}
-
-.error-fixup-collapsed {
-    border: none;
 }
 
 .error-fixup-expanded {
