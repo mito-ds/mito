@@ -47,7 +47,6 @@
     color: var(--jp-ui-font-color1);
     white-space: pre-wrap;
     word-break: break-word;
-    padding: 10px;
     border: 1px solid var(--jp-ui-font-color2);
     border-top: none;
     border-radius: 0 0 5px 5px;

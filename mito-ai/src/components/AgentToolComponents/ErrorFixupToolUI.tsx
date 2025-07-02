@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { classNames } from '../../utils/classNames';
 import { getContentStringFromMessage } from '../../utils/strings';
 import OpenAI from 'openai';
 import '../../../style/ErrorFixupToolUI.css';
 import ExpandIcon from '../../icons/ExpandIcon';
 import WrenchAndScrewdriverIcon from '../../icons/WrenchAndScrewdriverIcon';
+import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
 
 interface IErrorFixupToolUIProps {
     message: OpenAI.Chat.ChatCompletionMessageParam;
+    renderMimeRegistry: IRenderMimeRegistry;
 }
 
 const parsePythonErrorType = (content: string | undefined): string => {
@@ -16,9 +19,10 @@ const parsePythonErrorType = (content: string | undefined): string => {
     return errorMatch?.[1] || 'Error';
 };
 
-const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ message }) => {
+const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ message, renderMimeRegistry }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const messageContent = getContentStringFromMessage(message);
+    if (!messageContent) return null;
 
     return (
         <div className={classNames('error-fixup-container', {
@@ -38,7 +42,7 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ message }) => {
             </div>
             {isExpanded && (
                 <div className="error-fixup-expanded">
-                    {messageContent}
+                    <PythonCode code={messageContent} renderMimeRegistry={renderMimeRegistry} />
                 </div>
             )}
         </div>

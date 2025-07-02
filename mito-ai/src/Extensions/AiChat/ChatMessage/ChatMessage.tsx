@@ -125,7 +125,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     }
 
     if (isErrorFixupMessage) {
-        return <ErrorFixupToolUI message={message} />;
+        return <ErrorFixupToolUI message={message} renderMimeRegistry={renderMimeRegistry} />;
     }
     
     if (isEditing) {
