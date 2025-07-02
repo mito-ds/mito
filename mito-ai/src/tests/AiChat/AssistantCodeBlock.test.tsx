@@ -42,7 +42,7 @@ const createMockProps = (overrides = {}) => ({
     isLastAiMessage: true,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
     agentModeEnabled: false,
-    codeSummary: '',
+    codeSummary: 'Sample code summary',
     ...overrides
 });
 
@@ -116,6 +116,27 @@ describe('AssistantCodeBlock Component', () => {
 
             const container = document.querySelector('.code-block-container');
             expect(container).toHaveClass('agent-mode');
+        });
+
+        it('shows custom code summary when provided in agent mode', () => {
+            const props = createMockProps({
+                agentModeEnabled: true,
+                codeSummary: 'Custom summary for data processing'
+            });
+            render(<AssistantCodeBlock {...props} />);
+
+            expect(screen.getByText('Custom summary for data processing')).toBeInTheDocument();
+            expect(screen.queryByText('Generated code')).not.toBeInTheDocument();
+        });
+
+        it('shows default "Generated code" when codeSummary is undefined in agent mode', () => {
+            const props = createMockProps({
+                agentModeEnabled: true,
+                codeSummary: undefined
+            });
+            render(<AssistantCodeBlock {...props} />);
+
+            expect(screen.getByText('Generated code')).toBeInTheDocument();
         });
     });
 
