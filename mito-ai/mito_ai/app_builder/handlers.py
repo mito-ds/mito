@@ -16,12 +16,8 @@ from mito_ai.app_builder.models import (
     MessageType
 )
 from mito_ai.logger import get_logger
+from mito_ai.app_builder.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
-
-# API endpoint for getting pre-signed URL
-# For DEV testing use - "https://fr12uvtfy5.execute-api.us-east-1.amazonaws.com"
-# TODO: Change the API before production deployment
-API_BASE_URL = "https://iyual08t6d.execute-api.us-east-1.amazonaws.com"
 
 class AppBuilderHandler(BaseWebSocketHandler):
     """Handler for app building requests."""
@@ -157,7 +153,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
         try:
             # Step 1: Get pre-signed URL from API
             self.log.info("Getting pre-signed upload URL...")
-            url_response = requests.get(f"{API_BASE_URL}/get-upload-url?app_name={app_name}")
+            url_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/get-upload-url?app_name={app_name}")
             url_response.raise_for_status()
             
             url_data = url_response.json()
