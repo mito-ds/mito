@@ -30,8 +30,6 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
-import ErrorFixupToolUI from '../../../components/AgentToolComponents/ErrorFixupToolUI';
-import { isErrorFixupMessage } from '../../../utils/errors';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -90,7 +88,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
     const messageContentParts = splitStringWithCodeBlocks(message);
     const messageContent = getContentStringFromMessage(message);
-    const _isErrorFixupMessage = isErrorFixupMessage(promptType, message, messageContent);
     
     const handleEditClick = (): void => {
         setIsEditing(true);
@@ -113,10 +110,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         We handle this in the ChatMessage component to automatically handle reloading a previous chat thread.
         */
         setNextSteps(agentResponse.next_steps);
-    }
-
-    if (agentModeEnabled && _isErrorFixupMessage) {
-        return <ErrorFixupToolUI message={message} renderMimeRegistry={renderMimeRegistry} />;
     }
     
     if (isEditing) {

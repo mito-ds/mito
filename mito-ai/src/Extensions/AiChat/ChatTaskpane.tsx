@@ -47,7 +47,7 @@ import {
     setActiveCellByID, 
     writeCodeToCellByID, 
 } from '../../utils/notebook';
-import { getCodeBlockFromMessage, getContentStringFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
+import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
 import {
@@ -86,7 +86,9 @@ import NextStepsPills from '../../components/NextStepsPills';
 import UndoIcon from '../../icons/UndoIcon';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
-import { GroupedErrorMessages, processChatHistoryForErrorGrouping } from '../../utils/chatHistory';
+import { processChatHistoryForErrorGrouping } from '../../utils/chatHistory';
+import { GroupedErrorMessages } from '../../utils/chatHistory';
+import ErrorFixupToolUI from '../../components/AgentToolComponents/ErrorFixupToolUI';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -1359,15 +1361,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     if (Array.isArray(displayOptimizedChat)) {
                         return (
-                            <div style={{backgroundColor: 'red', padding: '10px'}}>
-                                {displayOptimizedChat.map((message, index) => {
-                                    return (
-                                        <div key={index}>
-                                            {getContentStringFromMessage(message.message)}
-                                        </div>
-                                    )
-                                })}
-                            </div>
+                            <ErrorFixupToolUI
+                                key={index}
+                                messages={displayOptimizedChat}
+                                renderMimeRegistry={renderMimeRegistry}
+                            />
                         )
                     } else {
                         return (

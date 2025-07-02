@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { classNames } from '../../utils/classNames';
-import { getContentStringFromMessage } from '../../utils/strings';
-import OpenAI from 'openai';
+import { getContentStringFromMessage, PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE, splitStringWithCodeBlocks } from '../../utils/strings';
+// import OpenAI f`rom 'openai';
 import '../../../style/ErrorFixupToolUI.css';
 import ExpandIcon from '../../icons/ExpandIcon';
 import WrenchAndScrewdriverIcon from '../../icons/WrenchAndScrewdriverIcon';
+// import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
+import { GroupedErrorMessages } from '../../utils/chatHistory';
 import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
 
 interface IErrorFixupToolUIProps {
-    message: OpenAI.Chat.ChatCompletionMessageParam;
+    messages: GroupedErrorMessages;
     renderMimeRegistry: IRenderMimeRegistry;
 }
 
@@ -19,9 +21,9 @@ const parsePythonErrorType = (content: string | undefined): string => {
     return errorMatch?.[1] || 'Error';
 };
 
-const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ message, renderMimeRegistry }) => {
+const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMimeRegistry }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const messageContent = getContentStringFromMessage(message);
+    const messageContent = getContentStringFromMessage(messages[0]!.message);
     if (!messageContent) return null;
 
     return (
@@ -41,8 +43,22 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ message, renderMim
                 <ExpandIcon isExpanded={isExpanded} />
             </div>
             {isExpanded && (
-                <div className="error-fixup-expanded">
-                    <PythonCode code={messageContent} renderMimeRegistry={renderMimeRegistry} />
+                 <div className="error-fixup-expanded">
+                    {messages.map((message, index) => {
+                        const messageContentParts = splitStringWithCodeBlocks(message.message);
+                        // const messageContent = getContentStringFromMessage(message.message);
+
+                        return messageContentParts.map((messagePart, index) => {
+                            if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
+                                return (
+                                    <PythonCode code={messagePart} renderMimeRegistry={renderMimeRegistry} />
+                                )
+                            }
+                            return (
+                                <div key={index}>{messagePart}</div>
+                            )
+                        })
+                    })}
                 </div>
             )}
         </div>
