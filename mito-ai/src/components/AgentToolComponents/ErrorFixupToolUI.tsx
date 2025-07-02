@@ -43,7 +43,7 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMi
                 const isExpanded = expandedMessages.has(messageIndex);
 
                 return (
-                    <div 
+                    <div
                         key={messageIndex}
                         className={classNames('error-fixup-container', {
                             'error-fixup-collapsed': !isExpanded
@@ -64,30 +64,30 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMi
                         {isExpanded && (
                             <div className="error-fixup-expanded">
                                 {messageIndex === 0 ? (
-                                    <PythonCode 
+                                    <PythonCode
                                         key={`${messageIndex}-0`}
-                                        code={messageContent} 
-                                        renderMimeRegistry={renderMimeRegistry} 
+                                        code={messageContent}
+                                        renderMimeRegistry={renderMimeRegistry}
                                     />
-                                ) : (
-                                    (() => {
-                                        const messageContentParts = splitStringWithCodeBlocks(message.message);
-                                        return messageContentParts.map((messagePart, partIndex) => {
-                                            if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
-                                                return (
-                                                    <PythonCode 
-                                                        key={`${messageIndex}-${partIndex}`}
-                                                        code={messagePart} 
-                                                        renderMimeRegistry={renderMimeRegistry} 
-                                                    />
-                                                );
-                                            }
+                                ) : (() => {
+                                    const messageContentParts = splitStringWithCodeBlocks(message.message);
+                                    return messageContentParts.map((messagePart, partIndex) => {
+                                        if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
                                             return (
-                                                <div key={`${messageIndex}-${partIndex}`}>{messagePart}</div>
+                                                <PythonCode
+                                                    key={`${messageIndex}-${partIndex}`}
+                                                    code={messagePart}
+                                                    renderMimeRegistry={renderMimeRegistry}
+                                                />
                                             );
-                                        });
-                                    })()
-                                )}
+                                        }
+                                        return (
+                                            <div key={`${messageIndex}-${partIndex}`}>
+                                                {messagePart}
+                                            </div>
+                                        );
+                                    });
+                                })()}
                             </div>
                         )}
                     </div>
