@@ -62,30 +62,35 @@ const ErrorBlock = ({ errorMessage, renderMimeRegistry }: { errorMessage: any, r
 
 const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMimeRegistry }) => {
     return (
-        <div>
-            {messages.map((messageItem, index) => {
-                const isUserMessage = messageItem.message.role === 'user';
-                
-                if (isUserMessage) {
+        <div className="error-fixup-root">
+            <div className="error-fixup-header">
+                <p>Fixing an error</p>
+            </div>
+            <div className="error-fixup-messages-container">
+                {messages.map((messageItem, index) => {
+                    const isUserMessage = messageItem.message.role === 'user';
+                    
+                    if (isUserMessage) {
+                        return (
+                            <ErrorBlock key={`error-${index}`} errorMessage={messageItem.message} renderMimeRegistry={renderMimeRegistry} />
+                        );
+                    } 
                     return (
-                        <ErrorBlock errorMessage={messageItem.message} renderMimeRegistry={renderMimeRegistry} />
+                        <AssistantCodeBlock
+                            key={`assistant-${index}`}
+                            code={messageItem.message.content as string}
+                            isCodeComplete={true}
+                            renderMimeRegistry={renderMimeRegistry}
+                            previewAICode={() => { }}
+                            acceptAICode={() => { }}
+                            rejectAICode={() => { }}
+                            isLastAiMessage={false}
+                            codeReviewStatus="chatPreview"
+                            agentModeEnabled={true}
+                        />
                     );
-                } 
-                return (
-                    <AssistantCodeBlock
-                        key={`${index}`}
-                        code={messageItem.message.content as string}
-                        isCodeComplete={true}
-                        renderMimeRegistry={renderMimeRegistry}
-                        previewAICode={() => { }}
-                        acceptAICode={() => { }}
-                        rejectAICode={() => { }}
-                        isLastAiMessage={false}
-                        codeReviewStatus="chatPreview"
-                        agentModeEnabled={true}
-                    />
-                );
-            })}
+                })}
+            </div>
         </div>
     );
 };

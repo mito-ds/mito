@@ -3,9 +3,27 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.error-fixup-messages-container{
+.error-fixup-root {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.error-fixup-header {
+    color: var(--jp-ui-font-color1);
     padding-left: 10px;
     padding-right: 10px;
+
+}
+
+.error-fixup-messages-container {
+    padding-left: 10px;
+    padding-right: 10px;
+    min-height: 100px;
+    margin-left: 20px;
+    border-left: 2px solid var(--jp-ui-font-color3);
+    padding-left: 15px;
+
 }
 
 .error-fixup-container {
@@ -16,13 +34,6 @@
     background-color: transparent;
     margin: 10px 0;
     color: var(--jp-ui-font-color2);
-}
-
-/* Create hierarchy: indent all messages except the first one */
-.error-fixup-container:nth-child(n+2) {
-    margin-left: 20px;
-    border-left: 2px solid var(--jp-ui-font-color3);
-    padding-left: 15px;
 }
 
 .error-fixup-toggle {
