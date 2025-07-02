@@ -63,23 +63,31 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({ messages, renderMi
                         </div>
                         {isExpanded && (
                             <div className="error-fixup-expanded">
-                                {(() => {
-                                    const messageContentParts = splitStringWithCodeBlocks(message.message);
-                                    return messageContentParts.map((messagePart, partIndex) => {
-                                        if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
+                                {messageIndex === 0 ? (
+                                    <PythonCode 
+                                        key={`${messageIndex}-0`}
+                                        code={messageContent} 
+                                        renderMimeRegistry={renderMimeRegistry} 
+                                    />
+                                ) : (
+                                    (() => {
+                                        const messageContentParts = splitStringWithCodeBlocks(message.message);
+                                        return messageContentParts.map((messagePart, partIndex) => {
+                                            if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
+                                                return (
+                                                    <PythonCode 
+                                                        key={`${messageIndex}-${partIndex}`}
+                                                        code={messagePart} 
+                                                        renderMimeRegistry={renderMimeRegistry} 
+                                                    />
+                                                );
+                                            }
                                             return (
-                                                <PythonCode 
-                                                    key={`${messageIndex}-${partIndex}`}
-                                                    code={messagePart} 
-                                                    renderMimeRegistry={renderMimeRegistry} 
-                                                />
+                                                <div key={`${messageIndex}-${partIndex}`}>{messagePart}</div>
                                             );
-                                        }
-                                        return (
-                                            <div key={`${messageIndex}-${partIndex}`}>{messagePart}</div>
-                                        );
-                                    });
-                                })()}
+                                        });
+                                    })()
+                                )}
                             </div>
                         )}
                     </div>
