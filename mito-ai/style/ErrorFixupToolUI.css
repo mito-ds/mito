@@ -15,6 +15,13 @@
     padding-right: 10px;
 }
 
+/* Create hierarchy: indent all messages except the first one */
+.error-fixup-container:nth-child(n+2) {
+    margin-left: 20px;
+    border-left: 2px solid var(--jp-ui-font-color3);
+    padding-left: 15px;
+}
+
 .error-fixup-toggle {
     cursor: pointer;
     padding: 10px;
