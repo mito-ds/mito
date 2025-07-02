@@ -10,6 +10,8 @@ import AssistantCodeBlock from '../../Extensions/AiChat/ChatMessage/AssistantCod
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { CodeReviewStatus } from '../../Extensions/AiChat/ChatTaskpane';
 
+const SAMPLE_CODE_SUMMARY = 'Sample code summary';
+
 // Mock the PythonCode component
 jest.mock('../../Extensions/AiChat/ChatMessage/PythonCode', () => {
     return {
@@ -42,7 +44,7 @@ const createMockProps = (overrides = {}) => ({
     isLastAiMessage: true,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
     agentModeEnabled: false,
-    codeSummary: 'Sample code summary',
+    codeSummary: SAMPLE_CODE_SUMMARY,
     ...overrides
 });
 
@@ -92,7 +94,7 @@ describe('AssistantCodeBlock Component', () => {
             });
             render(<AssistantCodeBlock {...props} />);
 
-            expect(screen.getByText('Generated 5 lines of code')).toBeInTheDocument();
+            expect(screen.getByText(SAMPLE_CODE_SUMMARY)).toBeInTheDocument();
             expect(screen.queryByTestId('python-code')).not.toBeInTheDocument();
         });
 
@@ -102,7 +104,7 @@ describe('AssistantCodeBlock Component', () => {
             });
             render(<AssistantCodeBlock {...props} />);
 
-            const toggle = screen.getByText('Generated 5 lines of code');
+            const toggle = screen.getByText(SAMPLE_CODE_SUMMARY);
             fireEvent.click(toggle);
 
             expect(screen.getByTestId('python-code')).toBeInTheDocument();
@@ -156,7 +158,7 @@ describe('AssistantCodeBlock Component', () => {
             render(<AssistantCodeBlock {...props} />);
 
             // Click to expand
-            fireEvent.click(screen.getByText('Generated 5 lines of code'));
+            fireEvent.click(screen.getByText(SAMPLE_CODE_SUMMARY));
 
             const codeElement = screen.getByTestId('python-code');
             expect(codeElement.textContent).toBe('line1\nline2\nline3\nline4\nline5');
