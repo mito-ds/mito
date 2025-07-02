@@ -111,16 +111,13 @@ export const retryIfExecutionError = async (
 
         const newChatHistoryManager = getDuplicateChatHistoryManager()
 
-        addAIMessageFromResponseAndUpdateState(
-            attempts === 0 
-                ? "Hmm, looks like my first attempt didn't work. Let me try again."
-                : `Looks like my ${attempts === 1 ? 'second' : 'third'} attempt didn't work. ${attempts === 1 ? 'Let me try again.': "Let me try one more time. If I cannot figure it out this time, I'll ask you for more information"}`,
-            'agent:execution',
-            newChatHistoryManager
-        )
-
-        // Wait two seconds so the use can more easily see what is going on 
-        await sleep(2000)
+        if (attempts === 0) {
+            addAIMessageFromResponseAndUpdateState(
+                "Looks like my first attempt didn't work. Let me try again.",
+                'agent:execution',
+                newChatHistoryManager
+            )
+        }
 
         await sendAgentSmartDebugMessage(errorMessage)
         const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
