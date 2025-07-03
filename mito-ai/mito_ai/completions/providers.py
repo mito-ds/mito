@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from __future__ import annotations
+import asyncio
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
@@ -93,6 +94,52 @@ This attribute is observed by the websocket provider to push the error to the cl
             return self._openai_client.key_type
         return MITO_SERVER_KEY
 
+    def _should_retry(self, error: BaseException, model_type: Optional[str]) -> bool:
+        """
+        Determine if an error should be retried based on the provider type and error message.
+        
+        Args:
+            error: The exception that occurred
+            model_type: The type of model/provider ("openai", "claude", "gemini")
+            
+        Returns:
+            bool: True if the error should be retried, False otherwise
+        """
+        if model_type is None:
+            return False
+            
+        error_msg = str(error).lower()
+        
+        # Provider-specific retry conditions
+        if model_type == "openai":
+            # OpenAI/Mito server retryable errors
+            retryable_patterns = [
+                "rate limit", "rate_limit", "timeout", "502", "503", "504", 
+                "connection", "network", "internal server error", "overloaded"
+            ]
+        elif model_type == "claude":
+            # Anthropic retryable errors
+            retryable_patterns = [
+                "rate_limit", "overloaded", "timeout", "502", "503", "504",
+                "connection", "network", "internal server error"
+            ]
+        elif model_type == "gemini":
+            # Gemini retryable errors
+            retryable_patterns = [
+                "rate_limit_exceeded", "internal", "timeout", "502", "503", "504",
+                "connection", "network", "unavailable"
+            ]
+        else:
+            # Unknown provider, don't retry
+            return False
+        
+        # Check if error message contains any retryable patterns
+        for pattern in retryable_patterns:
+            if pattern in error_msg:
+                return True
+        
+        return False
+
     async def request_completions(
         self,
         message_type: MessageType,
@@ -100,7 +147,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         model: str,
         response_format_info: Optional[ResponseFormatInfo] = None,
         user_input: Optional[str] = None,
-        thread_id: Optional[str] = None
+        thread_id: Optional[str] = None,
+        max_retries: int = 3
     ) -> str:
         """
         Request completions from the AI provider.
@@ -109,43 +157,61 @@ This attribute is observed by the websocket provider to push the error to the cl
         completion = None
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
         model_type = get_model_provider(model)
-        try:
-            if model_type == "claude":
-                api_key = constants.CLAUDE_API_KEY
-                anthropic_client = AnthropicClient(api_key=api_key, model=model)
-                completion = await anthropic_client.request_completions(messages, response_format_info, message_type)
-            elif model_type == "gemini":
-                api_key = constants.GEMINI_API_KEY
-                gemini_client = GeminiClient(api_key=api_key, model=model)
-                messages_for_gemini = [dict(m) for m in messages]
-                completion = await gemini_client.request_completions(messages_for_gemini, response_format_info, message_type)
-            elif model_type == "openai":
-                if not self._openai_client:
-                    raise RuntimeError("OpenAI client is not initialized.")
-                completion = await self._openai_client.request_completions(
+        
+        # Retry loop
+        for attempt in range(max_retries + 1):
+            try:
+                if model_type == "claude":
+                    api_key = constants.CLAUDE_API_KEY
+                    anthropic_client = AnthropicClient(api_key=api_key, model=model)
+                    completion = await anthropic_client.request_completions(messages, response_format_info, message_type)
+                elif model_type == "gemini":
+                    api_key = constants.GEMINI_API_KEY
+                    gemini_client = GeminiClient(api_key=api_key, model=model)
+                    messages_for_gemini = [dict(m) for m in messages]
+                    completion = await gemini_client.request_completions(messages_for_gemini, response_format_info, message_type)
+                elif model_type == "openai":
+                    if not self._openai_client:
+                        raise RuntimeError("OpenAI client is not initialized.")
+                    completion = await self._openai_client.request_completions(
+                        message_type=message_type,
+                        messages=messages,
+                        model=model,
+                        response_format_info=response_format_info
+                    )
+                else:
+                    raise ValueError(f"No AI provider configured for model: {model}")
+                
+                # Success! Log and return
+                log_ai_completion_success(
+                    key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
                     message_type=message_type,
-                    messages=messages,
-                    model=model,
-                    response_format_info=response_format_info
+                    last_message_content=last_message_content,
+                    response={"completion": completion},
+                    user_input=user_input or "",
+                    thread_id=thread_id or "",
+                    model=model
                 )
-            else:
-                raise ValueError(f"No AI provider configured for model: {model}")
-            log_ai_completion_success(
-                key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
-                message_type=message_type,
-                last_message_content=last_message_content,
-                response={"completion": completion},
-                user_input=user_input or "",
-                thread_id=thread_id or "",
-                model=model
-            )
-            return completion
+                return completion
 
-        except BaseException as e:
-            self.log.exception(f"Error during request_completions: {e}")
-            self.last_error = CompletionError.from_exception(e)
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
-            raise
+            except BaseException as e:
+                # Check if we should retry
+                if attempt < max_retries and self._should_retry(e, model_type):
+                    # Exponential backoff: wait 2^attempt seconds
+                    wait_time = 2 ** attempt
+                    self.log.info(f"Retrying request_completions after {wait_time}s (attempt {attempt + 1}/{max_retries + 1})")
+                    await asyncio.sleep(wait_time)
+                    continue
+                else:
+                    # Final failure - set error state and raise
+                    self.log.exception(f"Error during request_completions after {attempt + 1} attempts: {e}")
+                    self.last_error = CompletionError.from_exception(e)
+                    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
+                    raise
+        
+        # This should never be reached due to the raise in the except block,
+        # but added to satisfy the linter
+        raise RuntimeError("Unexpected code path in request_completions")
 
     async def stream_completions(
         self,
