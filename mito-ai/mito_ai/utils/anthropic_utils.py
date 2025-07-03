@@ -78,7 +78,7 @@ async def get_anthropic_completion_from_mito_server(
     tools: Optional[List[ToolUnionParam]],
     tool_choice: Optional[dict],
     message_type: MessageType
-) -> Message:
+) -> str:
     data, headers = _prepare_anthropic_request_data_and_headers(
         model, max_tokens, temperature, system, messages, message_type, tools, tool_choice, None
     )
@@ -98,11 +98,19 @@ async def get_anthropic_completion_from_mito_server(
         raise
     finally:
         http_client.close()
+    
+    
     content = json.loads(res.body)
-    # If the response is wrapped in a 'data' field, extract it
-    if isinstance(content, dict) and "data" in content:
-        return cast(Message, content["data"])
-    return cast(Message, content)
+    print(f"Anthropic response: {content}")
+
+    # If the response is an error, raise it as an exception
+    if "completion" in content:
+        print(f"Anthropic completion: {content['completion']}")
+        return content["completion"]
+    elif "error" in content:
+        raise Exception(f"{content['error']}")
+    else:
+        raise Exception(f"No completion found in response: {content}")
 
 async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],

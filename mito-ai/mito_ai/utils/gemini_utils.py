@@ -79,8 +79,14 @@ async def get_gemini_completion_from_mito_server(
     finally:
         http_client.close()
     
-    # The response is a string
-    return res.body.decode("utf-8")
+    content = json.loads(res.body.decode("utf-8"))
+    print(f"Gemini response: {content}")
+    if "completion" in content:
+        return content["completion"]
+    elif "error" in content:
+        raise Exception(f"{content['error']}")
+    else:
+        raise Exception(f"No completion found in response: {content}")
 
 async def stream_gemini_completion_from_mito_server(
     model: str,

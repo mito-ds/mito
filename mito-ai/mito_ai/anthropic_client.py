@@ -187,10 +187,17 @@ class AnthropicClient:
                     message_type=message_type
                 )
                 return response
+            
+            # TODO: We are not updating the quota here!
+            # We should push this down to a centralized calling mito server function
+            # that is responsible for updating the quota so we don't need to update it 
+            # each provider.
+            
         except anthropic.RateLimitError:
             raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
         except Exception as e:
-            return f"Error streaming content: {str(e)}"
+            print(f"Error streaming content: {str(e)}")
+            raise e
 
     async def stream_completions(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
@@ -254,6 +261,7 @@ class AnthropicClient:
             raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
 
         except Exception as e:
-            return f"Error streaming content: {str(e)}"
+            print(f"Error streaming content: {str(e)}")
+            raise e
 
 
