@@ -36,9 +36,9 @@ from mito_ai.utils.telemetry_utils import (
 )
 from mito_ai.constants import get_model_provider
 
-__all__ = ["OpenAIProvider"]
+__all__ = ["ProviderOrchestrator"]
 
-class OpenAIProvider(LoggingConfigurable):
+class ProviderOrchestrator(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
 
     api_key = Unicode(

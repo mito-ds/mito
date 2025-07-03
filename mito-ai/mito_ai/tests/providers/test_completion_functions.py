@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from mito_ai.tests.providers.utils import mock_azure_openai_client, mock_openai_client, patch_server_limits
 import pytest
 from traitlets.config import Config
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.completions.models import (
     MessageType,
     AICapabilities,
@@ -113,7 +113,7 @@ async def test_completion_request(
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
 
     with patch(provider_config_data["mock_patch"], return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderOrchestrator(config=provider_config)
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
         ]
@@ -188,7 +188,7 @@ async def test_stream_completion_parameterized(
     mock_client.stream_response = AsyncMock(return_value="Test completion")  # For Claude
 
     with patch(provider_config_data["mock_patch"], return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderOrchestrator(config=provider_config)
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
         ]
@@ -225,7 +225,7 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
     mock_client.request_completions.side_effect = Exception("API error")
 
     with patch("mito_ai.completions.providers.provider_orchestrator.OpenAIClient", return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderOrchestrator(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
 
 def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
@@ -243,7 +243,7 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
     mock_client.request_completions.side_effect = Exception("API error")
 
     with patch("mito_ai.completions.providers.provider_orchestrator.AnthropicClient", return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderOrchestrator(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
 
 
@@ -252,21 +252,21 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
     {
         "name": "openai_fallback",
         "model": "gpt-4o-mini",
-        "mock_function": "mito_ai.completions.providers.provider_orchestrator.get_ai_completion_from_mito_server",
+        "mock_function": "mito_ai.completions.providers.openai_client.get_ai_completion_from_mito_server",
         "provider_name": "Mito server",
         "key_type": "mito_server"
     },
     {
         "name": "claude_fallback", 
         "model": "claude-3-opus-20240229",
-        "mock_function": "mito_ai.completions.providers.provider_orchestrator.get_anthropic_completion_from_mito_server",
+        "mock_function": "mito_ai.completions.providers.anthropic_client.get_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
     },
     {
         "name": "gemini_fallback",
         "model": "gemini-2.0-flash",
-        "mock_function": "mito_ai.completions.providers.provider_orchestrator.get_gemini_completion_from_mito_server",
+        "mock_function": "mito_ai.completions.providers.gemini_client.get_gemini_completion_from_mito_server",
         "provider_name": "Gemini",
         "key_type": "gemini"
     },
@@ -292,7 +292,7 @@ async def test_mito_server_fallback_completion_request(
         # Also need to patch server limits for OpenAI fallback
         if mito_server_config["name"] == "openai_fallback":
             with patch_server_limits():
-                llm = OpenAIProvider(config=provider_config)
+                llm = ProviderOrchestrator(config=provider_config)
                 messages: List[ChatCompletionMessageParam] = [
                     {"role": "user", "content": "Test message"}
                 ]
@@ -306,7 +306,7 @@ async def test_mito_server_fallback_completion_request(
                 assert completion == "Mito server response"
                 mock_mito_function.assert_called_once()
         else:
-            llm = OpenAIProvider(config=provider_config)
+            llm = ProviderOrchestrator(config=provider_config)
             messages: List[ChatCompletionMessageParam] = [
                 {"role": "user", "content": "Test message"}
             ]
@@ -325,21 +325,21 @@ async def test_mito_server_fallback_completion_request(
     {
         "name": "openai_fallback",
         "model": "gpt-4o-mini",
-        "mock_function": "mito_ai.openai_client.stream_ai_completion_from_mito_server",
+        "mock_function": "mito_ai.completions.providers.openai_client.stream_ai_completion_from_mito_server",
         "provider_name": "Mito server",
         "key_type": "mito_server"
     },
     {
         "name": "claude_fallback", 
         "model": "claude-3-opus-20240229",
-        "mock_function": "mito_ai.anthropic_client.stream_anthropic_completion_from_mito_server",
+        "mock_function": "mito_ai.completions.providers.anthropic_client.stream_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
     },
     {
         "name": "gemini_fallback",
         "model": "gemini-2.0-flash",
-        "mock_function": "mito_ai.gemini_client.stream_gemini_completion_from_mito_server",
+        "mock_function": "mito_ai.completions.providers.gemini_client.stream_gemini_completion_from_mito_server",
         "provider_name": "Gemini",
         "key_type": "gemini"
     },
@@ -371,7 +371,7 @@ async def test_mito_server_fallback_stream_completion(
         # Also need to patch server limits for OpenAI fallback
         if mito_server_config["name"] == "openai_fallback":
             with patch_server_limits():
-                llm = OpenAIProvider(config=provider_config)
+                llm = ProviderOrchestrator(config=provider_config)
                 messages: List[ChatCompletionMessageParam] = [
                     {"role": "user", "content": "Test message"}
                 ]
@@ -395,7 +395,7 @@ async def test_mito_server_fallback_stream_completion(
                 assert len(reply_chunks) > 0
                 assert isinstance(reply_chunks[0], CompletionReply)
         else:
-            llm = OpenAIProvider(config=provider_config)
+            llm = ProviderOrchestrator(config=provider_config)
             messages: List[ChatCompletionMessageParam] = [
                 {"role": "user", "content": "Test message"}
             ]
@@ -440,7 +440,7 @@ def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch, provider_confi
     monkeypatch.delenv("CLAUDE_API_KEY", raising=False)
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
     with mock_azure_openai_client():
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderOrchestrator(config=provider_config)
         capabilities = llm.capabilities
         assert capabilities.provider == "Azure OpenAI"
 
@@ -448,7 +448,7 @@ def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch, provider_confi
     monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: False)
     monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
     with mock_openai_client():
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderOrchestrator(config=provider_config)
         capabilities = llm.capabilities
         assert capabilities.provider == "OpenAI with user key"
 

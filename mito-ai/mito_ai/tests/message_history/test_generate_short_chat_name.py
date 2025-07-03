@@ -5,7 +5,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from traitlets.config import Config
 from mito_ai.completions.message_history import generate_short_chat_name
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.completions.models import MessageType
 from mito_ai.completions.providers.openai_client import OPENAI_FAST_MODEL
 from mito_ai.completions.providers.anthropic_client import ANTHROPIC_FAST_MODEL  
@@ -55,7 +55,7 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     # We need to patch before creating the OpenAIProvider since OpenAI client is created in constructor
     with patch(client_patch_path, return_value=mock_client):
         # Create the OpenAIProvider after patching so the mock client is used
-        llm_provider = OpenAIProvider(config=provider_config)
+        llm_provider = ProviderOrchestrator(config=provider_config)
         
         # Test the function
         result = await generate_short_chat_name(
@@ -78,7 +78,7 @@ async def test_generate_short_chat_name_cleans_gemini_response() -> None:
     """Test that generate_short_chat_name properly cleans Gemini-style responses with quotes and newlines."""
     
     # Create mock llm_provider that returns a response with quotes and newlines
-    mock_llm_provider = MagicMock(spec=OpenAIProvider)
+    mock_llm_provider = MagicMock(spec=ProviderOrchestrator)
     mock_llm_provider.request_completions = AsyncMock(return_value='"France Geography Discussion\n"')
     
     result = await generate_short_chat_name(
@@ -99,7 +99,7 @@ async def test_generate_short_chat_name_handles_empty_response() -> None:
     """Test that generate_short_chat_name handles empty or None responses gracefully."""
     
     # Test with empty string response
-    mock_llm_provider = MagicMock(spec=OpenAIProvider)
+    mock_llm_provider = MagicMock(spec=ProviderOrchestrator)
     mock_llm_provider.request_completions = AsyncMock(return_value="")
     
     result = await generate_short_chat_name(

@@ -5,7 +5,7 @@ from typing import List, Literal, Union
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import AgentExecutionMetadata, MessageType, ResponseFormatInfo, AgentResponse
 from mito_ai.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completions.completion_handlers.utils import append_agent_system_message, create_ai_optimized_message
@@ -18,7 +18,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
     @staticmethod
     async def get_completion(
         metadata: AgentExecutionMetadata,
-        provider: OpenAIProvider,
+        provider: ProviderOrchestrator,
         message_history: GlobalMessageHistory,
         model: str
     ) -> str:

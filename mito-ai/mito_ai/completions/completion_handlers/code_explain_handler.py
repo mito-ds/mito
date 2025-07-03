@@ -5,7 +5,7 @@ from typing import List, Union, AsyncGenerator, Callable
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import CodeExplainMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
 from mito_ai.completions.prompt_builders.explain_code_prompt import create_explain_code_prompt
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completions.completion_handlers.utils import append_chat_system_message
@@ -18,7 +18,7 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
     @staticmethod
     async def get_completion(
         metadata: CodeExplainMetadata,
-        provider: OpenAIProvider,
+        provider: ProviderOrchestrator,
         message_history: GlobalMessageHistory,
         model: str
     ) -> str:
@@ -57,7 +57,7 @@ class CodeExplainHandler(CompletionHandler[CodeExplainMetadata]):
     @staticmethod
     async def stream_completion(
         metadata: CodeExplainMetadata,
-        provider: OpenAIProvider,
+        provider: ProviderOrchestrator,
         message_history: GlobalMessageHistory,
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],

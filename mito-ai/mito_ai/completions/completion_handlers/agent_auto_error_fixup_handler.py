@@ -4,7 +4,7 @@
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import AgentResponse, AgentSmartDebugMetadata, MessageType, ResponseFormatInfo
 from mito_ai.completions.prompt_builders.agent_smart_debug_prompt import create_agent_smart_debug_prompt
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completions.completion_handlers.utils import append_agent_system_message
@@ -17,7 +17,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
     @staticmethod
     async def get_completion(
         metadata: AgentSmartDebugMetadata,
-        provider: OpenAIProvider,
+        provider: ProviderOrchestrator,
         message_history: GlobalMessageHistory,
         model: str
     ) -> str:

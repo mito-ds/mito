@@ -4,7 +4,7 @@
 from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.app_builder.handlers import AppBuilderHandler
 from mito_ai.log.urls import get_log_urls
 from mito_ai.version_check import VersionCheckHandler
@@ -43,7 +43,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     web_app = server_app.web_app
     base_url = web_app.settings["base_url"]
 
-    open_ai_provider = OpenAIProvider(config=server_app.config)
+    open_ai_provider = ProviderOrchestrator(config=server_app.config)
 
     # WebSocket handlers
     handlers = [

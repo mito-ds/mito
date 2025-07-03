@@ -4,7 +4,7 @@
 from typing import Protocol, TypeVar
 from abc import abstractmethod, ABCMeta
 from mito_ai.completions.models import ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, InlineCompleterMetadata, AgentSmartDebugMetadata
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.completions.message_history import GlobalMessageHistory
 
 T = TypeVar('T', ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, AgentSmartDebugMetadata, InlineCompleterMetadata, contravariant=True)
@@ -20,7 +20,7 @@ class CompletionHandler(Protocol[T], metaclass=ABCMeta):
     @abstractmethod
     async def get_completion(
         metadata: T,
-        provider: OpenAIProvider,
+        provider: ProviderOrchestrator,
         message_history: GlobalMessageHistory,
         model: str
     ) -> str:

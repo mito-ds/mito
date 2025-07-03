@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.tests.providers.utils import mock_azure_openai_client, mock_openai_client, patch_server_limits
 from traitlets.config import Config
 
@@ -109,7 +109,7 @@ def test_provider_capabilities_real_logic(
                 # Mock server limits for Mito server fallback
                 with patch_server_limits():
                     # NOW create the provider after ALL mocks are set up
-                    llm = OpenAIProvider(config=provider_config)
+                    llm = ProviderOrchestrator(config=provider_config)
                     
                     # Test capabilities 
                     capabilities = llm.capabilities
@@ -139,7 +139,7 @@ def test_azure_openai_provider(monkeypatch: pytest.MonkeyPatch, provider_config:
                 
                 with patch_server_limits():
                     # Create provider after Azure mocks are set up
-                    llm = OpenAIProvider(config=provider_config)
+                    llm = ProviderOrchestrator(config=provider_config)
                     
                     # Test that Azure is properly detected
                     capabilities = llm.capabilities

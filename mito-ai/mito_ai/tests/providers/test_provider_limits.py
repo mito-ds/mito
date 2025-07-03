@@ -1,6 +1,6 @@
 
 import pytest
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.tests.providers.utils import mock_openai_client, patch_server_limits
 from mito_ai.utils.server_limits import OS_MONTHLY_AI_COMPLETIONS_LIMIT
 from traitlets.config import Config
@@ -34,7 +34,7 @@ def test_openai_provider_with_limits(
         patch_server_limits(is_pro=is_pro, completion_count=completion_count),
         mock_openai_client()
     ):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderOrchestrator(config=provider_config)
         capabilities = llm.capabilities
         assert "user key" in capabilities.provider
         assert llm.last_error is None

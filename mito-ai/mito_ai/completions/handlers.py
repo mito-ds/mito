@@ -35,7 +35,7 @@ from mito_ai.completions.models import (
     InlineCompleterMetadata,
     MessageType
 )
-from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import ProviderOrchestrator
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.completions.completion_handlers.chat_completion_handler import get_chat_completion, stream_chat_completion
@@ -61,7 +61,7 @@ message_history = GlobalMessageHistory()
 class CompletionHandler(JupyterHandler, WebSocketHandler):
     """Completion websocket handler."""
 
-    def initialize(self, llm: OpenAIProvider) -> None:
+    def initialize(self, llm: ProviderOrchestrator) -> None:
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
