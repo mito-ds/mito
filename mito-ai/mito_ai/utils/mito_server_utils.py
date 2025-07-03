@@ -23,7 +23,7 @@ async def get_response_from_mito_server(
     data: Dict[str, Any],
     timeout: int, 
     max_retries: int
-) -> Optional[str]:
+) -> str:
     http_client, http_client_timeout = _create_http_client(timeout, max_retries)
     start_time = time.time()
     try:
@@ -41,6 +41,8 @@ async def get_response_from_mito_server(
             return content["completion"]
         elif "error" in content:
             raise MitoServerException(f"{content['error']}")
+        else:
+            raise MitoServerException(f"No completion found in response: {content}")
     except MitoServerException as e:
         raise e
     except Exception as e:

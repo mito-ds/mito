@@ -84,8 +84,7 @@ async def get_anthropic_completion_from_mito_server(
         model, max_tokens, temperature, system, messages, message_type, tools, tool_choice, None
     )
     
-    res = await get_response_from_mito_server(MITO_ANTHROPIC_URL, headers, data, timeout, max_retries)
-    return res or ""
+    return await get_response_from_mito_server(MITO_ANTHROPIC_URL, headers, data, timeout, max_retries)
 
 async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],
