@@ -38,7 +38,7 @@ const ErrorBlock = ({
     };
 
     return (
-        <div className="error-fixup-container">
+        <div className={classNames('error-fixup-container', { expanded: expandedError })}>
             <div
                 onClick={toggleError}
                 className={classNames('error-fixup-toggle', {

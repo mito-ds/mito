@@ -45,23 +45,23 @@
     gap: 10px;
 }
 
-.error-fixup-toggle.expanded {
-    border-radius: 5px 5px 0 0;
-    border: 1px solid var(--jp-ui-font-color2);
+.error-fixup-container.expanded {
+    border: 1px solid var(--grey-300);
+    border-radius: 5px;
+    background-color: var(--jp-layout-color2);
 }
 
 .error-fixup-expanded {
-    background-color: var(--jp-layout-color2);
+    background-color: transparent;
     color: var(--jp-ui-font-color1);
     white-space: pre-wrap;
     word-break: break-word;
-    border: 1px solid var(--jp-ui-font-color2);
-    border-top: none;
-    border-radius: 0 0 5px 5px;
+    border: none;
+    border-radius: 0;
 }
 
 .error-fixup-indented-block {
-  margin-left: 10px;
-  padding-left: 10px;
-  border-left: 1px solid var(--jp-ui-font-color3);
-} 
+    margin-left: 10px;
+    padding-left: 10px;
+    border-left: 1px solid var(--jp-ui-font-color3);
+}

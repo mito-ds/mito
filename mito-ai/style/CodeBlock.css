@@ -101,6 +101,10 @@
   border: none;
 }
 
+.agent-mode-toggle.error-fixup.expanded {
+  background-color: var(--jp-layout-color2);
+}
+
 .agent-mode-toggle-content {
   display: flex;
   align-items: center;
@@ -109,8 +113,8 @@
 
 .agent-mode-toggle.expanded {
   border: none;
-  border-bottom: 1px solid var(--grey-300);
   border-radius: 5px 5px 0 0;
+  background-color: var(--jp-layout-color2);
 }
 
 .agent-mode-collapsed {
