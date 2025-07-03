@@ -109,16 +109,6 @@ export const retryIfExecutionError = async (
         }
         const errorMessage = getFullErrorMessageFromTraceback(errorOutput.traceback as string[]);
 
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-
-        if (attempts === 0) {
-            addAIMessageFromResponseAndUpdateState(
-                "Looks like my first attempt didn't work. Let me try again.",
-                'agent:execution',
-                newChatHistoryManager
-            )
-        }
-
         await sendAgentSmartDebugMessage(errorMessage)
         const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
 
