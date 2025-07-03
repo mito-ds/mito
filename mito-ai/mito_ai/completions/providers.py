@@ -244,7 +244,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             if model_type == "claude":
                 api_key = constants.CLAUDE_API_KEY
                 anthropic_client = AnthropicClient(api_key=api_key, model=model)
-                accumulated_response = await anthropic_client.stream_response(
+                accumulated_response = await anthropic_client.stream_completions(
                     messages=messages,
                     message_type=message_type,
                     message_id=message_id,

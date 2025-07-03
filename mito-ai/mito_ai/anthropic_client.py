@@ -192,7 +192,7 @@ class AnthropicClient:
         except Exception as e:
             return f"Error streaming content: {str(e)}"
 
-    async def stream_response(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
+    async def stream_completions(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
             anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)

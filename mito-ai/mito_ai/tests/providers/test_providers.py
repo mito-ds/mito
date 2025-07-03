@@ -156,22 +156,66 @@ async def test_completion_request(
         getattr(mock_client, provider_config_data["mock_method"]).assert_called_once()
 
 
+@pytest.mark.parametrize("provider_config_data", [
+    {
+        "name": "openai",
+        "env_vars": {"OPENAI_API_KEY": FAKE_API_KEY},
+        "constants": {"OPENAI_API_KEY": FAKE_API_KEY},
+        "model": "gpt-4o-mini",
+        "mock_patch": "mito_ai.completions.providers.OpenAIClient",
+        "mock_method": "stream_completions",
+        "provider_name": "OpenAI with user key",
+        "key_type": "user"
+    },
+    {
+        "name": "claude", 
+        "env_vars": {"CLAUDE_API_KEY": "claude-key"},
+        "constants": {"CLAUDE_API_KEY": "claude-key", "OPENAI_API_KEY": None},
+        "model": "claude-3-opus-20240229",
+        "mock_patch": "mito_ai.completions.providers.AnthropicClient",
+        "mock_method": "stream_completions", 
+        "provider_name": "Claude",
+        "key_type": "claude"
+    },
+    {
+        "name": "gemini",
+        "env_vars": {"GEMINI_API_KEY": "gemini-key"},
+        "constants": {"GEMINI_API_KEY": "gemini-key", "OPENAI_API_KEY": None},
+        "model": "gemini-2.0-flash",
+        "mock_patch": "mito_ai.completions.providers.GeminiClient",
+        "mock_method": "stream_completions",
+        "provider_name": "Gemini",
+        "key_type": "gemini"
+    },
+])
 @pytest.mark.asyncio
-async def test_stream_completion(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
-    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
-    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+async def test_stream_completion_parameterized(
+    provider_config_data: dict,
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test stream completions for different providers."""
+    # Set up environment variables
+    for env_var, value in provider_config_data["env_vars"].items():
+        monkeypatch.setenv(env_var, value)
+    
+    # Set up constants
+    for constant, value in provider_config_data["constants"].items():
+        monkeypatch.setattr(f"mito_ai.constants.{constant}", value)
 
+    # Create mock client
     mock_client = MagicMock()
     mock_client.capabilities = AICapabilities(
-        configuration={"model": "gpt-4o-mini"},
-        provider="OpenAI with user key",
+        configuration={"model": provider_config_data["model"]},
+        provider=provider_config_data["provider_name"],
         type="ai_capabilities"
     )
-    mock_client.key_type = "user"
+    mock_client.key_type = provider_config_data["key_type"]
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
+    mock_client.stream_response = AsyncMock(return_value="Test completion")  # For Claude
 
-    with patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client):
+    with patch(provider_config_data["mock_patch"], return_value=mock_client):
         llm = OpenAIProvider(config=provider_config)
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
@@ -184,14 +228,14 @@ async def test_stream_completion(monkeypatch: pytest.MonkeyPatch, provider_confi
         completion = await llm.stream_completions(
             message_type=MessageType.CHAT,
             messages=messages,
-            model="gpt-4o-mini",
+            model=provider_config_data["model"],
             message_id="test-id",
             thread_id="test-thread",
             reply_fn=mock_reply
         )
 
         assert completion == "Test completion"
-        mock_client.stream_completions.assert_called_once()
+        getattr(mock_client, provider_config_data["mock_method"]).assert_called_once()
         assert len(reply_chunks) > 0
         assert isinstance(reply_chunks[0], CompletionReply)
 
@@ -211,81 +255,6 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
     with patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client):
         llm = OpenAIProvider(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
-
-
-@pytest.mark.asyncio
-async def test_claude_completion_request(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
-    monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
-
-    mock_client = MagicMock()
-    mock_client.capabilities = AICapabilities(
-        configuration={"model": "claude-3-opus-20240229"},
-        provider="Claude",
-        type="ai_capabilities"
-    )
-    mock_client.key_type = "claude"
-    mock_client.request_completions = AsyncMock(return_value="Test completion")
-    mock_client.stream_completions = AsyncMock(return_value="Test completion")
-
-    with patch("mito_ai.completions.providers.AnthropicClient", return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
-        messages: List[ChatCompletionMessageParam] = [
-            {"role": "user", "content": "Test message"}
-        ]
-
-        completion = await llm.request_completions(
-            message_type=MessageType.CHAT,
-            messages=messages,
-            model="claude-3-opus-20240229"
-        )
-
-        assert completion == "Test completion"
-        mock_client.request_completions.assert_called_once()
-
-
-@pytest.mark.asyncio
-async def test_claude_stream_completion(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
-    monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
-
-    mock_client = MagicMock()
-    mock_client.capabilities = AICapabilities(
-        configuration={"model": "claude-3-opus-20240229"},
-        provider="Claude",
-        type="ai_capabilities"
-    )
-    mock_client.key_type = "claude"
-    mock_client.request_completions = AsyncMock(return_value="Test completion")
-    mock_client.stream_completions = AsyncMock(return_value="Test completion")
-    mock_client.stream_response = AsyncMock(return_value="Test completion")
-
-    with patch("mito_ai.completions.providers.AnthropicClient", return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
-        messages: List[ChatCompletionMessageParam] = [
-            {"role": "user", "content": "Test message"}
-        ]
-
-        reply_chunks = []
-        def mock_reply(chunk):
-            reply_chunks.append(chunk)
-
-        completion = await llm.stream_completions(
-            message_type=MessageType.CHAT,
-            messages=messages,
-            model="claude-3-opus-20240229",
-            message_id="test-id",
-            thread_id="test-thread",
-            reply_fn=mock_reply
-        )
-
-        assert completion == "Test completion"
-        mock_client.stream_response.assert_called_once()
-        assert len(reply_chunks) > 0
-        assert isinstance(reply_chunks[0], CompletionReply)
-
 
 def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
     monkeypatch.setenv("CLAUDE_API_KEY", "invalid-key")
