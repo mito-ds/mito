@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { OpenAI } from 'openai';
 import { GroupedErrorMessages } from '../../utils/chatHistory';
 import { classNames } from '../../utils/classNames';
 import { getContentStringFromMessage } from '../../utils/strings';
-import ExpandIcon from '../../icons/ExpandIcon';
 import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
 import AssistantCodeBlock from '../../Extensions/AiChat/ChatMessage/AssistantCodeBlock';
-import '../../../style/ErrorFixupToolUI.css';
-import { OpenAI } from 'openai';
+import ExpandIcon from '../../icons/ExpandIcon';
 import AlertIcon from '../../icons/AlertIcon';
+import '../../../style/ErrorFixupToolUI.css';
 
 interface IErrorFixupToolUIProps {
     messages: GroupedErrorMessages;
