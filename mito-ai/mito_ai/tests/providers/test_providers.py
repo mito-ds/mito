@@ -45,6 +45,11 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
 # ====================
 
 @pytest.mark.parametrize("provider_name,env_var,api_key,mock_client_func,expected_provider", [
+    # If no key is provided, it should use the Mito Server as a fallback
+    ("gemini", None, None, mock_gemini_client, "Mito server"),
+    ("claude", None, None, mock_claude_client, "Mito server"),
+    ("openai", None, None, mock_openai_client, "Mito server"),
+    
     # If a key is provided, it should use the provider as a fallback
     ("gemini", "GEMINI_API_KEY", "gemini-key", mock_gemini_client, "Gemini"),
     ("claude", "CLAUDE_API_KEY", "claude-key", mock_claude_client, "Claude"),
@@ -61,15 +66,44 @@ def test_provider_capabilities(
     provider_config: Config
 ) -> None:
     """Test provider capabilities for different AI providers."""
+    # First clear all existing API keys
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+    provider_config.OpenAIProvider.api_key = None
+    
+    # Then set the API key if it's provided
     if env_var and api_key:
         monkeypatch.setenv(env_var, api_key)
         monkeypatch.setattr(f"mito_ai.constants.{env_var}", api_key)
         monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+        
+    with patch_server_limits():
+        with mock_client_func():
+            llm = OpenAIProvider(config=provider_config)
+            capabilities = llm.capabilities
+            assert capabilities.provider == expected_provider
 
-    with mock_client_func():
+        
+@pytest.mark.asyncio
+async def test_mito_server_capabilities_when_no_keys(
+    monkeypatch: pytest.MonkeyPatch,
+    provider_config: Config
+) -> None:
+    """Test that capabilities show 'Mito server' when no API keys are available."""
+    # Clear all API keys
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+    provider_config.OpenAIProvider.api_key = None
+
+    with patch_server_limits():
         llm = OpenAIProvider(config=provider_config)
         capabilities = llm.capabilities
-        assert capabilities.provider == expected_provider
+        assert capabilities.provider == "Mito server"
+        assert llm.key_type == "mito_server_key"  # Fixed: should be "mito_server_key", not "mito_server"
 
 
 @pytest.mark.parametrize("provider_config_data", [
@@ -335,3 +369,177 @@ def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch, provider_confi
         llm = OpenAIProvider(config=provider_config)
         capabilities = llm.capabilities
         assert capabilities.provider == "Claude"
+
+
+# Mito Server Fallback Tests
+@pytest.mark.parametrize("mito_server_config", [
+    {
+        "name": "openai_fallback",
+        "model": "gpt-4o-mini",
+        "mock_function": "mito_ai.openai_client.get_ai_completion_from_mito_server",
+        "provider_name": "Mito server",
+        "key_type": "mito_server"
+    },
+    {
+        "name": "claude_fallback", 
+        "model": "claude-3-opus-20240229",
+        "mock_function": "mito_ai.anthropic_client.get_anthropic_completion_from_mito_server",
+        "provider_name": "Claude",
+        "key_type": "claude"
+    },
+    {
+        "name": "gemini_fallback",
+        "model": "gemini-2.0-flash",
+        "mock_function": "mito_ai.gemini_client.get_gemini_completion_from_mito_server",
+        "provider_name": "Gemini",
+        "key_type": "gemini"
+    },
+])
+@pytest.mark.asyncio
+async def test_mito_server_fallback_completion_request(
+    mito_server_config: dict,
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that completion requests fallback to Mito server when no API keys are set."""
+    # Clear all API keys to force Mito server fallback
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+    provider_config.OpenAIProvider.api_key = None
+
+    # Mock the appropriate Mito server function
+    with patch(mito_server_config["mock_function"], new_callable=AsyncMock) as mock_mito_function:
+        mock_mito_function.return_value = "Mito server response"
+
+        # Also need to patch server limits for OpenAI fallback
+        if mito_server_config["name"] == "openai_fallback":
+            with patch_server_limits():
+                llm = OpenAIProvider(config=provider_config)
+                messages: List[ChatCompletionMessageParam] = [
+                    {"role": "user", "content": "Test message"}
+                ]
+
+                completion = await llm.request_completions(
+                    message_type=MessageType.CHAT,
+                    messages=messages,
+                    model=mito_server_config["model"]
+                )
+
+                assert completion == "Mito server response"
+                mock_mito_function.assert_called_once()
+        else:
+            llm = OpenAIProvider(config=provider_config)
+            messages: List[ChatCompletionMessageParam] = [
+                {"role": "user", "content": "Test message"}
+            ]
+
+            completion = await llm.request_completions(
+                message_type=MessageType.CHAT,
+                messages=messages,
+                model=mito_server_config["model"]
+            )
+
+            assert completion == "Mito server response"
+            mock_mito_function.assert_called_once()
+
+
+@pytest.mark.parametrize("mito_server_config", [
+    {
+        "name": "openai_fallback",
+        "model": "gpt-4o-mini",
+        "mock_function": "mito_ai.openai_client.stream_ai_completion_from_mito_server",
+        "provider_name": "Mito server",
+        "key_type": "mito_server"
+    },
+    {
+        "name": "claude_fallback", 
+        "model": "claude-3-opus-20240229",
+        "mock_function": "mito_ai.anthropic_client.stream_anthropic_completion_from_mito_server",
+        "provider_name": "Claude",
+        "key_type": "claude"
+    },
+    {
+        "name": "gemini_fallback",
+        "model": "gemini-2.0-flash",
+        "mock_function": "mito_ai.gemini_client.stream_gemini_completion_from_mito_server",
+        "provider_name": "Gemini",
+        "key_type": "gemini"
+    },
+])
+@pytest.mark.asyncio
+async def test_mito_server_fallback_stream_completion(
+    mito_server_config: dict,
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that stream completions fallback to Mito server when no API keys are set."""
+    # Clear all API keys to force Mito server fallback
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+    provider_config.OpenAIProvider.api_key = None
+
+    # Create an async generator that yields chunks for streaming
+    async def mock_stream_generator():
+        yield "Chunk 1"
+        yield "Chunk 2"
+        yield "Chunk 3"
+
+    # Mock the appropriate Mito server streaming function
+    with patch(mito_server_config["mock_function"]) as mock_mito_stream:
+        mock_mito_stream.return_value = mock_stream_generator()
+
+        # Also need to patch server limits for OpenAI fallback
+        if mito_server_config["name"] == "openai_fallback":
+            with patch_server_limits():
+                llm = OpenAIProvider(config=provider_config)
+                messages: List[ChatCompletionMessageParam] = [
+                    {"role": "user", "content": "Test message"}
+                ]
+
+                reply_chunks = []
+                def mock_reply(chunk):
+                    reply_chunks.append(chunk)
+
+                completion = await llm.stream_completions(
+                    message_type=MessageType.CHAT,
+                    messages=messages,
+                    model=mito_server_config["model"],
+                    message_id="test-id",
+                    thread_id="test-thread",
+                    reply_fn=mock_reply
+                )
+
+                # Verify that the Mito server function was called
+                mock_mito_stream.assert_called_once()
+                # Verify that reply chunks were generated
+                assert len(reply_chunks) > 0
+                assert isinstance(reply_chunks[0], CompletionReply)
+        else:
+            llm = OpenAIProvider(config=provider_config)
+            messages: List[ChatCompletionMessageParam] = [
+                {"role": "user", "content": "Test message"}
+            ]
+
+            reply_chunks = []
+            def mock_reply(chunk):
+                reply_chunks.append(chunk)
+
+            completion = await llm.stream_completions(
+                message_type=MessageType.CHAT,
+                messages=messages,
+                model=mito_server_config["model"],
+                message_id="test-id",
+                thread_id="test-thread",
+                reply_fn=mock_reply
+            )
+
+            # Verify that the Mito server function was called
+            mock_mito_stream.assert_called_once()
+            # Verify that reply chunks were generated
+            assert len(reply_chunks) > 0
+
+
