@@ -3,12 +3,12 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { GroupedErrorMessages } from '../../utils/chatHistory';
 import { classNames } from '../../utils/classNames';
 import { getContentStringFromMessage } from '../../utils/strings';
-import WrenchAndScrewdriverIcon from '../../icons/WrenchAndScrewdriverIcon';
 import ExpandIcon from '../../icons/ExpandIcon';
 import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
 import AssistantCodeBlock from '../../Extensions/AiChat/ChatMessage/AssistantCodeBlock';
 import '../../../style/ErrorFixupToolUI.css';
 import { OpenAI } from 'openai';
+import AlertIcon from '../../icons/AlertIcon';
 
 interface IErrorFixupToolUIProps {
     messages: GroupedErrorMessages;
@@ -46,8 +46,8 @@ const ErrorBlock = ({
                 })}
             >
                 <span className="error-fixup-toggle-content">
-                    <WrenchAndScrewdriverIcon />
-                    Error {errorType}
+                    <AlertIcon />
+                    {errorType} Detected
                 </span>
                 <ExpandIcon isExpanded={expandedError} />
             </div>
