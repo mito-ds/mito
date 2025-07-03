@@ -32,6 +32,10 @@ export const waitForNotebookReady = async (notebookTracker: INotebookTracker): P
     await new Promise<void>(resolve => {
         const checkCellsReady = (): void => {
             const cells = notebook.content.widgets;
+
+            // In large notebooks, not all of the cells are attatched I think. 
+            // So instead we just wait for any cell to be ready and then give it 
+            // another 500ms to be ready.
             const anyCellReady = cells.some(cell => cell.isAttached && cell.model);
             
             if (anyCellReady && cells.length > 0) {
