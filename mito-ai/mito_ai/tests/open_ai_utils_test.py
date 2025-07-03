@@ -10,7 +10,7 @@ from mito_ai.utils.server_limits import (
     OS_MONTHLY_AUTOCOMPLETE_LIMIT,
 )
 from mito_ai.completions.models import MessageType
-from mito_ai.utils.open_ai_utils import _prepare_request_data_and_headers
+from mito_ai.completions.providers.open_ai_utils import _prepare_request_data_and_headers
 
 REALLY_OLD_DATE = "2020-01-01"
 TODAY = datetime.now().strftime("%Y-%m-%d")

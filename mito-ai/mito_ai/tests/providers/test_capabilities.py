@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
 from mito_ai.tests.providers.utils import mock_azure_openai_client, mock_openai_client, patch_server_limits
 from traitlets.config import Config
 

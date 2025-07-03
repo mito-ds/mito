@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, extract_and_parse_anthropic_json_response, AnthropicClient, ANTHROPIC_FAST_MODEL
-from mito_ai.utils.anthropic_utils import get_anthropic_completion_function_params
+from mito_ai.completions.providers.anthropic_client import get_anthropic_system_prompt_and_messages, extract_and_parse_anthropic_json_response, AnthropicClient, ANTHROPIC_FAST_MODEL
+from mito_ai.completions.providers.anthropic_utils import get_anthropic_completion_function_params
 from anthropic.types import MessageParam, Message, ContentBlock, TextBlock, ToolUseBlock, Usage
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
 from mito_ai.completions.models import ResponseFormatInfo, AgentResponse

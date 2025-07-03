@@ -1,6 +1,6 @@
 
 import pytest
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
 from mito_ai.tests.providers.utils import mock_openai_client, patch_server_limits
 from mito_ai.utils.server_limits import OS_MONTHLY_AI_COMPLETIONS_LIMIT
 from traitlets.config import Config

@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse
 from mito_ai.completions.models import CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
-from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
+from mito_ai.completions.providers.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 
 GEMINI_FAST_MODEL = "gemini-2.0-flash-lite"
 

@@ -13,14 +13,13 @@ from typing import Any, Dict, List, Optional, Final, Union, AsyncGenerator, Tupl
 from tornado.httpclient import AsyncHTTPClient
 from openai.types.chat import ChatCompletionMessageParam
 
-from mito_ai.utils.utils import is_running_test
+from mito_ai.utils.utils import create_http_client, is_running_test
 from mito_ai.completions.models import MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.server_limits import check_mito_server_quota
 from mito_ai.utils.telemetry_utils import log_ai_completion_success
-from .utils import _create_http_client
 from mito_ai.constants import MITO_OPENAI_URL
 
 
@@ -92,7 +91,7 @@ async def get_ai_completion_from_mito_server(
     )
     
     # Create HTTP client with appropriate timeout settings
-    http_client, http_client_timeout = _create_http_client(timeout, max_retries)
+    http_client, http_client_timeout = create_http_client(timeout, max_retries)
     
     # There are several types of timeout errors that can happen here. 
     # == 504 Timeout (tornado.httpclient.HTTPClientError: 504) ==  
@@ -125,7 +124,7 @@ async def get_ai_completion_from_mito_server(
     # The lambda function returns a dictionary with a completion entry in it,
     # so we just return that.
     content = json.loads(res.body)
-    
+    print(f"OpenAI response: {content}")
     if "completion" in content:
         return content["completion"] # type: ignore
     elif "error" in content:
@@ -170,7 +169,7 @@ async def stream_ai_completion_from_mito_server(
     )
     
     # ===== STEP 2: Create HTTP client with appropriate timeout settings =====
-    http_client, http_client_timeout = _create_http_client(timeout, max_retries)
+    http_client, http_client_timeout = create_http_client(timeout, max_retries)
     
     # ===== STEP 3: Set up streaming infrastructure =====
     start_time = time.time()

@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
 from anthropic.types import Message, MessageParam
 from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
+from mito_ai.completions.providers.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
 # Max tokens is a required parameter for the Anthropic API. 
 # We set it to a high number so that we can edit large code cells
@@ -186,11 +186,17 @@ class AnthropicClient:
                     tool_choice=provider_data.get("tool_choice"),
                     message_type=message_type
                 )
+                
+                # TODO: We are not updating the quota here!
+                # We should push this down to a centralized calling mito server function
+                # that is responsible for updating the quota so we don't need to update it 
+                # each provider.
+                
                 return response
         except anthropic.RateLimitError:
             raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
         except Exception as e:
-            return f"Error streaming content: {str(e)}"
+            raise e
 
     async def stream_completions(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
@@ -254,6 +260,6 @@ class AnthropicClient:
             raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
 
         except Exception as e:
-            return f"Error streaming content: {str(e)}"
+            raise e
 
 

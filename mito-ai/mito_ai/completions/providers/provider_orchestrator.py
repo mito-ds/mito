@@ -12,9 +12,9 @@ from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai import constants
 from mito_ai.enterprise.utils import is_azure_openai_configured
-from mito_ai.gemini_client import GeminiClient
-from mito_ai.openai_client import OpenAIClient
-from mito_ai.anthropic_client import AnthropicClient
+from mito_ai.completions.providers.gemini_client import GeminiClient
+from mito_ai.completions.providers.openai_client import OpenAIClient
+from mito_ai.completions.providers.anthropic_client import AnthropicClient
 from mito_ai.logger import get_logger
 from mito_ai.completions.models import (
     AICapabilities,

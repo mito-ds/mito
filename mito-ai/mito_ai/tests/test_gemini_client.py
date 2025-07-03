@@ -2,11 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-import ast
-import inspect
-import requests
-from mito_ai.gemini_client import GeminiClient, GEMINI_FAST_MODEL, get_gemini_system_prompt_and_messages
-from mito_ai.utils.gemini_utils import get_gemini_completion_function_params
+from mito_ai.completions.providers.gemini_client import GeminiClient, GEMINI_FAST_MODEL, get_gemini_system_prompt_and_messages
+from mito_ai.completions.providers.gemini_utils import get_gemini_completion_function_params
 from google.genai.types import Part, GenerateContentResponse, Candidate, Content
 from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
 from unittest.mock import MagicMock, patch
@@ -179,7 +176,7 @@ async def test_model_selection_based_on_response_format_info(response_format_inf
     )
     client.client.models.generate_content.return_value = mock_response
     
-    with patch('mito_ai.gemini_client.get_gemini_completion_function_params', wraps=get_gemini_completion_function_params) as mock_get_params:
+    with patch('mito_ai.completions.providers.gemini_client.get_gemini_completion_function_params', wraps=get_gemini_completion_function_params) as mock_get_params:
         await client.request_completions(
             messages=[{"role": "user", "content": "Test message"}],
             response_format_info=response_format_info

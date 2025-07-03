@@ -5,7 +5,7 @@ import pytest
 import anthropic
 from typing import List, Dict, Any, Tuple, Union, cast
 from anthropic.types import MessageParam, ToolUnionParam, ToolParam
-from mito_ai.utils.anthropic_utils import _prepare_anthropic_request_data_and_headers
+from mito_ai.completions.providers.anthropic_utils import _prepare_anthropic_request_data_and_headers
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
@@ -25,7 +25,7 @@ def mock_user_functions(monkeypatch):
         # Do nothing in tests
         pass
 
-    monkeypatch.setattr("mito_ai.utils.anthropic_utils.get_user_field", mock_get_field)
+    monkeypatch.setattr("mito_ai.completions.providers.anthropic_utils.get_user_field", mock_get_field)
     monkeypatch.setattr("mito_ai.utils.server_limits.set_user_field", mock_set_field)
 
 
@@ -142,9 +142,9 @@ def test_missing_user_info(monkeypatch):
         return None
 
     # Override the autouse fixture for this specific test
-    monkeypatch.setattr("mito_ai.utils.anthropic_utils.get_user_field", mock_get_field)
-    monkeypatch.setattr("mito_ai.utils.anthropic_utils.__user_email", None)
-    monkeypatch.setattr("mito_ai.utils.anthropic_utils.__user_id", None)
+    monkeypatch.setattr("mito_ai.completions.providers.anthropic_utils.get_user_field", mock_get_field)
+    monkeypatch.setattr("mito_ai.completions.providers.anthropic_utils.__user_email", None)
+    monkeypatch.setattr("mito_ai.completions.providers.anthropic_utils.__user_id", None)
 
     data, _ = _prepare_anthropic_request_data_and_headers(
         model="claude-3-sonnet",

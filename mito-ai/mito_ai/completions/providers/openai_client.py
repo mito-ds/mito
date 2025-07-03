@@ -22,7 +22,7 @@ from mito_ai.completions.models import (
     MessageType,
     ResponseFormatInfo,
 )
-from mito_ai.utils.open_ai_utils import (
+from mito_ai.completions.providers.open_ai_utils import (
     check_mito_server_quota,
     get_ai_completion_from_mito_server,
     get_open_ai_completion_function_params,

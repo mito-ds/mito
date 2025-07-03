@@ -5,11 +5,11 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from traitlets.config import Config
 from mito_ai.completions.message_history import generate_short_chat_name
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
 from mito_ai.completions.models import MessageType
-from mito_ai.openai_client import OPENAI_FAST_MODEL
-from mito_ai.anthropic_client import ANTHROPIC_FAST_MODEL  
-from mito_ai.gemini_client import GEMINI_FAST_MODEL
+from mito_ai.completions.providers.openai_client import OPENAI_FAST_MODEL
+from mito_ai.completions.providers.anthropic_client import ANTHROPIC_FAST_MODEL  
+from mito_ai.completions.providers.gemini_client import GEMINI_FAST_MODEL
 
 
 @pytest.fixture

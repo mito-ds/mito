@@ -62,7 +62,7 @@ def install_packages(packages: List[str]) -> dict[str, Union[bool, str, None]]:
     
     return result
 
-def _create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient, Optional[int]]:
+def create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient, Optional[int]]:
     """
     Create an HTTP client with appropriate timeout settings.
     
@@ -73,7 +73,6 @@ def _create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient
     Returns:
         A tuple containing the HTTP client and the timeout value in milliseconds
     """
-    from .utils import is_running_test  # local import to avoid circular import if needed
     if is_running_test():
         # If we are running in a test environment, setting the request_timeout fails for some reason.
         http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))

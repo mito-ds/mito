@@ -11,7 +11,7 @@ from typing import Dict, List, Optional
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import CompletionRequest, ChatThreadMetadata, MessageType, ThreadID
 from mito_ai.completions.prompt_builders.chat_name_prompt import create_chat_name_prompt
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.utils.message_history_utils import trim_old_messages
 

@@ -4,7 +4,7 @@
 from typing import Optional, Union, List, Dict, Any, cast
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import ThreadID
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.providers.provider_orchestrator import OpenAIProvider
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.prompt_builders.chat_system_message import create_chat_system_message_prompt
 from mito_ai.completions.prompt_builders.agent_system_message import create_agent_system_message_prompt
