@@ -14,9 +14,9 @@ export const waitForNotebookReady = async (notebookTracker: INotebookTracker): P
     // Wait for notebook to be ready and attached
     await notebook.context.ready;
     
-    // Wait a bit more for cells to be fully initialized
+    // Wait for attachment
     if (!notebook.content.isAttached) {
-        await new Promise<void>(resolve => {
+         await new Promise<void>(resolve => {
             const checkAttached = (): void => {
                 if (notebook.content.isAttached) {
                     resolve();
@@ -27,4 +27,22 @@ export const waitForNotebookReady = async (notebookTracker: INotebookTracker): P
             checkAttached();
         });
     }
+
+    // Wait for all cells to be created and ready
+    await new Promise<void>(resolve => {
+        const checkCellsReady = (): void => {
+            const cells = notebook.content.widgets;
+            const anyCellReady = cells.some(cell => cell.isAttached && cell.model);
+            
+            if (anyCellReady && cells.length > 0) {
+                resolve();
+            } else {
+                setTimeout(checkCellsReady, 100);
+            }
+        };
+        checkCellsReady();
+    });
+
+    // Small buffer for final initialization
+    await new Promise(resolve => setTimeout(resolve, 500));
 };
