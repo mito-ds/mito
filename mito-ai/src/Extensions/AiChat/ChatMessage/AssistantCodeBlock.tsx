@@ -23,6 +23,7 @@ interface IAssistantCodeBlockProps {
     isLastAiMessage: boolean;
     codeReviewStatus: CodeReviewStatus;
     agentModeEnabled: boolean;
+    isErrorFixup?: boolean;
 }
 
 const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
@@ -34,7 +35,8 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     rejectAICode,
     isLastAiMessage,
     codeReviewStatus,
-    agentModeEnabled
+    agentModeEnabled,
+    isErrorFixup
 }) => {
     const [isCodeExpanded, setIsCodeExpanded] = useState(false);
 
@@ -47,12 +49,13 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
         return (
             <div className={classNames('code-block-container', {
                 'agent-mode': true,
-                'agent-mode-collapsed': !isCodeExpanded
+                'agent-mode-collapsed': !isCodeExpanded,
             })}>
                 <div
                     onClick={() => setIsCodeExpanded(!isCodeExpanded)}
                     className={classNames('agent-mode-toggle', {
-                        expanded: isCodeExpanded
+                        expanded: isCodeExpanded,
+                        'error-fixup': isErrorFixup
                     })}
                 >
                     <span className="agent-mode-toggle-content">

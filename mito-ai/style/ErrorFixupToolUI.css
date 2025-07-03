@@ -38,8 +38,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid var(--jp-ui-font-color2);
-    border-radius: 5px;
 }
 
 .error-fixup-toggle-content {
@@ -50,6 +48,7 @@
 
 .error-fixup-toggle.expanded {
     border-radius: 5px 5px 0 0;
+    border: 1px solid var(--jp-ui-font-color2);
 }
 
 .error-fixup-expanded {

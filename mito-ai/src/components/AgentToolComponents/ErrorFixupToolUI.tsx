@@ -97,6 +97,7 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({
                             isLastAiMessage={false}
                             codeReviewStatus="chatPreview"
                             agentModeEnabled={true}
+                            isErrorFixup={true}
                         />
                     );
                 })}

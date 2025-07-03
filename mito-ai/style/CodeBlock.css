@@ -97,6 +97,10 @@
   border-radius: 5px;
 }
 
+.agent-mode-toggle.error-fixup {
+  border: none;
+}
+
 .agent-mode-toggle-content {
   display: flex;
   align-items: center;
