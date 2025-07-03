@@ -79,6 +79,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
         if self._openai_client:
             return self._openai_client.capabilities
+        
         return AICapabilities(
             configuration={"model": "<dynamic>"},
             provider="Mito server",
