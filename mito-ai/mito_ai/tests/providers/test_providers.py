@@ -43,47 +43,116 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
 # ====================
 # TESTS
 # ====================
-
-@pytest.mark.parametrize("provider_name,env_var,api_key,mock_client_func,expected_provider", [
-    # If no key is provided, it should use the Mito Server as a fallback
-    ("gemini", None, None, mock_gemini_client, "Mito server"),
-    ("claude", None, None, mock_claude_client, "Mito server"),
-    ("openai", None, None, mock_openai_client, "Mito server"),
-    
-    # If a key is provided, it should use the provider as a fallback
-    ("gemini", "GEMINI_API_KEY", "gemini-key", mock_gemini_client, "Gemini"),
-    ("claude", "CLAUDE_API_KEY", "claude-key", mock_claude_client, "Claude"),
-    ("azure", "AZURE_OPENAI_API_KEY", "azure-key", mock_azure_openai_client, "Azure OpenAI"),
-    ("openai", "OPENAI_API_KEY", "openai-key", mock_openai_client, "OpenAI with user key"),
+            
+@pytest.mark.parametrize("test_case", [
+    {
+        "name": "mito_server_fallback_no_keys",
+        "setup": {
+            "OPENAI_API_KEY": None,
+            "CLAUDE_API_KEY": None, 
+            "GEMINI_API_KEY": None,
+            "is_azure_configured": False,
+        },
+        "expected_provider": "Mito server",
+        "expected_key_type": "mito_server_key"
+    },
+    {
+        "name": "claude_when_only_claude_key",
+        "setup": {
+            "OPENAI_API_KEY": None,
+            "CLAUDE_API_KEY": "claude-test-key",
+            "GEMINI_API_KEY": None,
+            "is_azure_configured": False,
+        },
+        "expected_provider": "Claude",
+        "expected_key_type": "claude"
+    },
+    {
+        "name": "gemini_when_only_gemini_key",
+        "setup": {
+            "OPENAI_API_KEY": None,
+            "CLAUDE_API_KEY": None,
+            "GEMINI_API_KEY": "gemini-test-key",
+            "is_azure_configured": False,
+        },
+        "expected_provider": "Gemini", 
+        "expected_key_type": "gemini"
+    },
+    {
+        "name": "openai_when_openai_key",
+        "setup": {
+            "OPENAI_API_KEY": FAKE_API_KEY,
+            "CLAUDE_API_KEY": None,
+            "GEMINI_API_KEY": None,
+            "is_azure_configured": False,
+        },
+        "expected_provider": "OpenAI (user key)",
+        "expected_key_type": "user"
+    },
+    {
+        "name": "azure_when_azure_configured",
+        "setup": {
+            "OPENAI_API_KEY": None,
+            "CLAUDE_API_KEY": None,
+            "GEMINI_API_KEY": None,
+            "is_azure_configured": True,
+        },
+        "expected_provider": "Azure OpenAI",
+        "expected_key_type": "azure"
+    },
+    {
+        "name": "claude_priority_over_gemini",
+        "setup": {
+            "OPENAI_API_KEY": None,
+            "CLAUDE_API_KEY": "claude-test-key",
+            "GEMINI_API_KEY": "gemini-test-key",
+            "is_azure_configured": False,
+        },
+        "expected_provider": "Claude",
+        "expected_key_type": "claude"
+    },
 ])
-def test_provider_capabilities(
-    provider_name: str,
-    env_var: Optional[str], 
-    api_key: Optional[str],
-    mock_client_func,
-    expected_provider: str,
+def test_provider_capabilities_real_logic(
+    test_case: dict,
     monkeypatch: pytest.MonkeyPatch, 
     provider_config: Config
 ) -> None:
-    """Test provider capabilities for different AI providers."""
-    # First clear all existing API keys
-    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
-    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
-    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+    """Test the actual provider selection logic in OpenAIProvider.capabilities"""
+    
+    # Set up the environment based on test case
+    setup = test_case["setup"]
+    
+    # Set all the constants
+    for key, value in setup.items():
+        if key == "is_azure_configured":
+            monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: value)
+            if value:  # If Azure is configured, set the required Azure constants
+                monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_KEY", "azure-test-key")
+                monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_ENDPOINT", "https://test.openai.azure.com")
+                monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", "gpt-4o")
+                monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+        else:
+            monkeypatch.setattr(f"mito_ai.constants.{key}", value)
+    
+    # Clear the provider config API key to ensure it uses constants
     provider_config.OpenAIProvider.api_key = None
     
-    # Then set the API key if it's provided
-    if env_var and api_key:
-        monkeypatch.setenv(env_var, api_key)
-        monkeypatch.setattr(f"mito_ai.constants.{env_var}", api_key)
-        monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    # Mock HTTP calls but let the real logic run
+    with patch("openai.OpenAI") as mock_openai_constructor:
+        # Mock successful API key validation for OpenAI
+        mock_openai_instance = MagicMock()
+        mock_openai_instance.models.list.return_value = [MagicMock(id="gpt-4o-mini")]
+        mock_openai_constructor.return_value = mock_openai_instance
         
-    with patch_server_limits():
-        with mock_client_func():
+        # Mock server limits for Mito server fallback
+        with patch_server_limits():
+            # Create the provider and test the real logic
             llm = OpenAIProvider(config=provider_config)
+            
+            # Test capabilities 
             capabilities = llm.capabilities
-            assert capabilities.provider == expected_provider
+            assert capabilities.provider == test_case["expected_provider"], f"Test case: {test_case['name']}"
+            assert llm.key_type == test_case["expected_key_type"], f"Test case: {test_case['name']}"
 
         
 @pytest.mark.asyncio

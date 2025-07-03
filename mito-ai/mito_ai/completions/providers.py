@@ -67,6 +67,9 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def capabilities(self) -> AICapabilities:
+        """
+        Returns the capabilities of the AI provider.
+        """
         if constants.CLAUDE_API_KEY and not self.api_key:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
