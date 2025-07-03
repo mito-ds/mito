@@ -57,3 +57,10 @@ OPENAI_PATH = "openai/completions"
 MITO_ANTHROPIC_URL = f"{ACTIVE_BASE_URL}/{ANTHROPIC_PATH}"
 MITO_GEMINI_URL = f"{ACTIVE_BASE_URL}/{GEMINI_PATH}"
 MITO_OPENAI_URL = f"{ACTIVE_BASE_URL}/{OPENAI_PATH}"
+
+# Streamlit conversion endpoints
+MITO_STREAMLIT_DEV_BASE_URL = "https://fr12uvtfy5.execute-api.us-east-1.amazonaws.com"
+MITO_STREAMLIT_TEST_BASE_URL = "https://iyual08t6d.execute-api.us-east-1.amazonaws.com"
+
+# Set ACTIVE_BASE_URL manually
+ACTIVE_STREAMLIT_BASE_URL = MITO_STREAMLIT_TEST_BASE_URL  # Change to MITO_STREAMLIT_DEV_BASE_URL for dev

@@ -16,7 +16,7 @@ from mito_ai.app_builder.models import (
     MessageType
 )
 from mito_ai.logger import get_logger
-from mito_ai.app_builder.constants import ACTIVE_STREAMLIT_BASE_URL
+from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
 
 class AppBuilderHandler(BaseWebSocketHandler):
