@@ -16,7 +16,6 @@
 
 .error-fixup-messages-container {
     padding: 0 10px 0 15px;
-    min-height: 100px;
     margin-left: 20px;
     border-left: 2px solid var(--jp-ui-font-color3);
 }
