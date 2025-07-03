@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from mito_ai.completions.providers import OpenAIProvider
-from mito_ai.tests.providers.utils import patch_server_limits
+from mito_ai.tests.providers.utils import mock_azure_openai_client, mock_openai_client, patch_server_limits
 from traitlets.config import Config
 
 FAKE_API_KEY = "sk-1234567890"
@@ -59,18 +59,6 @@ def provider_config() -> Config:
         "expected_provider": "OpenAI (user key)",
         "expected_key_type": "user_key"
     },
-    # TODO: Fix the Azure test case
-    # {
-    #     "name": "azure_when_azure_configured",
-    #     "setup": {
-    #         "OPENAI_API_KEY": None,
-    #         "CLAUDE_API_KEY": None,
-    #         "GEMINI_API_KEY": None,
-    #         "is_azure_configured": True,
-    #     },
-    #     "expected_provider": "Azure OpenAI",
-    #     "expected_key_type": "mito_server_key"
-    # },
     {
         "name": "claude_priority_over_gemini",
         "setup": {
@@ -127,3 +115,36 @@ def test_provider_capabilities_real_logic(
                     capabilities = llm.capabilities
                     assert capabilities.provider == test_case["expected_provider"], f"Test case: {test_case['name']}"
                     assert llm.key_type == test_case["expected_key_type"], f"Test case: {test_case['name']}"
+
+
+def test_azure_openai_provider(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
+    """Test that Azure OpenAI is properly detected and configured."""
+    
+    # Set up Azure configuration BEFORE creating the provider
+    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: True)
+    monkeypatch.setattr("mito_ai.openai_client.is_azure_openai_configured", lambda: True)
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_ENDPOINT", "https://example.openai.azure.com")
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", "gpt-4o")
+    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
+
+    # Mock only the HTTP calls, let real Azure detection logic run
+    with patch("openai.OpenAI") as mock_openai_constructor:
+        with patch("openai.AsyncOpenAI") as mock_async_openai:
+            with patch("openai.AsyncAzureOpenAI") as mock_async_azure_openai:
+                # Mock successful API validation
+                mock_openai_instance = MagicMock()
+                mock_openai_instance.models.list.return_value = [MagicMock(id="gpt-4o")]
+                mock_openai_constructor.return_value = mock_openai_instance
+                
+                with patch_server_limits():
+                    # Create provider after Azure mocks are set up
+                    llm = OpenAIProvider(config=provider_config)
+                    
+                    # Test that Azure is properly detected
+                    capabilities = llm.capabilities
+                    assert capabilities.provider == "Azure OpenAI"
+                    assert capabilities.configuration["model"] == "gpt-4o"
+                    
+                    # Test that key type is correct for Azure
+                    assert llm.key_type == "mito_server_key"
