@@ -8,6 +8,7 @@ import anthropic
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable, cast
 
 from anthropic.types import MessageParam, Message, TextBlock, ToolUnionParam
+from mito_ai.utils.mito_server_utils import get_response_from_mito_server
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
@@ -82,35 +83,9 @@ async def get_anthropic_completion_from_mito_server(
     data, headers = _prepare_anthropic_request_data_and_headers(
         model, max_tokens, temperature, system, messages, message_type, tools, tool_choice, None
     )
-    http_client, http_client_timeout = _create_http_client(timeout, max_retries)
-    start_time = time.time()
-    try:
-        res = await http_client.fetch(
-            MITO_ANTHROPIC_URL,
-            method="POST",
-            headers=headers,
-            body=json.dumps(data),
-            request_timeout=http_client_timeout
-        )
-        print(f"Anthropic request completed in {time.time() - start_time:.2f} seconds")
-    except Exception as e:
-        print(f"Anthropic request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
-        raise
-    finally:
-        http_client.close()
     
-    
-    content = json.loads(res.body)
-    print(f"Anthropic response: {content}")
-
-    # If the response is an error, raise it as an exception
-    if "completion" in content:
-        print(f"Anthropic completion: {content['completion']}")
-        return content["completion"]
-    elif "error" in content:
-        raise Exception(f"{content['error']}")
-    else:
-        raise Exception(f"No completion found in response: {content}")
+    res = await get_response_from_mito_server(MITO_ANTHROPIC_URL, headers, data, timeout, max_retries)
+    return res or ""
 
 async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],

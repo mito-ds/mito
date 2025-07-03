@@ -152,6 +152,11 @@ class GeminiClient:
                     config=provider_data.get("config", None),
                     response_format_info=response_format_info,
                 )
+                
+                # TODO: We are not updating the quota here!
+                # We should push this down to a centralized calling mito server function
+                # that is responsible for updating the quota so we don't need to update it 
+                # each provider.
 
         except Exception as e:
             return f"Error generating content: {str(e)}"

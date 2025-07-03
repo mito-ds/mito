@@ -10,6 +10,7 @@ import asyncio
 import json
 import time
 from typing import Any, Dict, List, Optional, Final, Union, AsyncGenerator, Tuple, Callable
+from mito_ai.utils.mito_server_utils import get_response_from_mito_server
 from tornado.httpclient import AsyncHTTPClient
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -91,47 +92,8 @@ async def get_ai_completion_from_mito_server(
         message_type
     )
     
-    # Create HTTP client with appropriate timeout settings
-    http_client, http_client_timeout = _create_http_client(timeout, max_retries)
-    
-    # There are several types of timeout errors that can happen here. 
-    # == 504 Timeout (tornado.httpclient.HTTPClientError: 504) ==  
-    # The server (AWS Lambda) took too long to process your request
-    # == 599 Timeout (tornado.httpclient.HTTPClientError: 599) ==  
-    # The client (Tornado) gave up waiting for a response
-    
-    start_time = time.time()
-    try:
-        res = await http_client.fetch(
-            # Important: DO NOT CHANGE MITO_AI_URL. If you want to use the dev endpoint, 
-            # go to the top of this file and change MITO_AI_URL to MITO_AI_DEV_URL. We 
-            # have a pytest that ensures that the MITO_AI_URL is always set to MITO_AI_PROD_URL 
-            # before merging into dev. So if you change which variable we are using here, the 
-            # test will not catch our mistakes.
-            MITO_OPENAI_URL, 
-            method="POST", 
-            headers=headers, 
-            body=json.dumps(data), 
-            # For some reason, we need to add the request_timeout here as well
-            request_timeout=http_client_timeout
-        )
-        print(f"Request completed in {time.time() - start_time:.2f} seconds")
-    except Exception as e:
-        print(f"Request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
-        raise
-    finally:
-        http_client.close()
-
-    # The lambda function returns a dictionary with a completion entry in it,
-    # so we just return that.
-    content = json.loads(res.body)
-    
-    if "completion" in content:
-        return content["completion"] # type: ignore
-    elif "error" in content:
-        raise Exception(f"{content['error']}")
-    else:
-        raise Exception(f"No completion found in response: {content}")
+    res = await get_response_from_mito_server(MITO_OPENAI_URL, headers, data, timeout, max_retries)
+    return res or ""
 
 async def stream_ai_completion_from_mito_server(
     last_message_content: Union[str, None],
