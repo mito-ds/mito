@@ -99,52 +99,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             return self._openai_client.key_type
         return MITO_SERVER_KEY
 
-    def _should_retry(self, error: BaseException, model_type: Optional[str]) -> bool:
-        """
-        Determine if an error should be retried based on the provider type and error message.
-        
-        Args:
-            error: The exception that occurred
-            model_type: The type of model/provider ("openai", "claude", "gemini")
-            
-        Returns:
-            bool: True if the error should be retried, False otherwise
-        """
-        if model_type is None:
-            return False
-            
-        error_msg = str(error).lower()
-        
-        # Provider-specific retry conditions
-        if model_type == "openai":
-            # OpenAI/Mito server retryable errors
-            retryable_patterns = [
-                "rate limit", "rate_limit", "timeout", "502", "503", "504", 
-                "connection", "network", "internal server error", "overloaded"
-            ]
-        elif model_type == "claude":
-            # Anthropic retryable errors
-            retryable_patterns = [
-                "rate_limit", "overloaded", "timeout", "502", "503", "504",
-                "connection", "network", "internal server error"
-            ]
-        elif model_type == "gemini":
-            # Gemini retryable errors
-            retryable_patterns = [
-                "rate_limit_exceeded", "internal", "timeout", "502", "503", "504",
-                "connection", "network", "unavailable"
-            ]
-        else:
-            # Unknown provider, don't retry
-            return False
-        
-        # Check if error message contains any retryable patterns
-        for pattern in retryable_patterns:
-            if pattern in error_msg:
-                return True
-        
-        return False
-
     async def request_completions(
         self,
         message_type: MessageType,
@@ -199,7 +153,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
                 return completion
 
-            except Exception as e:
+            except BaseException as e:
                 # Check if we should retry (not on the last attempt)
                 if attempt < max_retries:
                     # Exponential backoff: wait 2^attempt seconds
@@ -210,8 +164,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                 else:
                     # Final failure after all retries - set error state and raise
                     self.log.exception(f"Error during request_completions after {attempt + 1} attempts: {e}")
+                    self.last_error = CompletionError.from_exception(e)
                     log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
-                    raise e
+                    raise
         
         # This should never be reached due to the raise in the except block,
         # but added to satisfy the linter
