@@ -6,7 +6,8 @@ import anthropic
 from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
 
 from anthropic.types import Message, MessageParam
-from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
+from mito_ai.completions.models import CompletionError, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
+from mito_ai.utils.mito_server_utils import ProviderCompletionException
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
@@ -148,56 +149,44 @@ class AnthropicClient:
         """
         Get a response from Claude or the Mito server that adheres to the AgentResponse format.
         """
-        try:
-            anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
-            
-            provider_data = get_anthropic_completion_function_params(
-                model=self.model if response_format_info else ANTHROPIC_FAST_MODEL,
-                messages=anthropic_messages,
-                max_tokens=MAX_TOKENS,
-                temperature=0,
-                system=anthropic_system_prompt,
-                stream=None,
-                response_format_info=response_format_info
-            )
-            
-            if self.api_key:
-                # Unpack provider_data for direct API call
-                assert self.client is not None
-                response = self.client.messages.create(**provider_data)
-                if provider_data.get("tool_choice") is not None:
-                    result = extract_and_parse_anthropic_json_response(response)
-                    return json.dumps(result) if not isinstance(result, str) else result
-                else:
-                    content = response.content
-                    if content[0].type == "text":
-                        return content[0].text
-                    else:
-                        return ""
+        anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
+        
+        provider_data = get_anthropic_completion_function_params(
+            model=self.model if response_format_info else ANTHROPIC_FAST_MODEL,
+            messages=anthropic_messages,
+            max_tokens=MAX_TOKENS,
+            temperature=0,
+            system=anthropic_system_prompt,
+            stream=None,
+            response_format_info=response_format_info
+        )
+        
+        if self.api_key:
+            # Unpack provider_data for direct API call
+            assert self.client is not None
+            response = self.client.messages.create(**provider_data)
+            if provider_data.get("tool_choice") is not None:
+                result = extract_and_parse_anthropic_json_response(response)
+                return json.dumps(result) if not isinstance(result, str) else result
             else:
-                # Only pass provider_data to the server
-                response = await get_anthropic_completion_from_mito_server(
-                    model=provider_data["model"],
-                    max_tokens=provider_data["max_tokens"],
-                    temperature=provider_data["temperature"],
-                    system=provider_data["system"],
-                    messages=provider_data["messages"],
-                    tools=provider_data.get("tools"),
-                    tool_choice=provider_data.get("tool_choice"),
-                    message_type=message_type
-                )
-                return response
-            
-            # TODO: We are not updating the quota here!
-            # We should push this down to a centralized calling mito server function
-            # that is responsible for updating the quota so we don't need to update it 
-            # each provider.
-            
-        except anthropic.RateLimitError:
-            raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
-        except Exception as e:
-            print(f"Error streaming content: {str(e)}")
-            raise e
+                content = response.content
+                if content[0].type == "text":
+                    return content[0].text
+                else:
+                    return ""
+        else:
+            # Only pass provider_data to the server
+            response = await get_anthropic_completion_from_mito_server(
+                model=provider_data["model"],
+                max_tokens=provider_data["max_tokens"],
+                temperature=provider_data["temperature"],
+                system=provider_data["system"],
+                messages=provider_data["messages"],
+                tools=provider_data.get("tools"),
+                tool_choice=provider_data.get("tool_choice"),
+                message_type=message_type
+            )
+            return response
 
     async def stream_completions(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:

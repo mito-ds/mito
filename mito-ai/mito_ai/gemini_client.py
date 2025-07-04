@@ -5,8 +5,9 @@ from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from google import genai
 from google.genai import types
 from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse
-from mito_ai.completions.models import CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
+from mito_ai.completions.models import CompletionError, CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
+from mito_ai.utils.mito_server_utils import ProviderCompletionException
 
 GEMINI_FAST_MODEL = "gemini-2.0-flash-lite"
 
@@ -112,54 +113,45 @@ class GeminiClient:
         response_format_info: Optional[ResponseFormatInfo] = None,
         message_type: MessageType = MessageType.CHAT
     ) -> str:
-        try:
-            # Extract system instructions and contents
-            system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
+        # Extract system instructions and contents
+        system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
 
-            # Get provider data for Gemini completion
-            provider_data = get_gemini_completion_function_params(
-                model=self.model if response_format_info else GEMINI_FAST_MODEL,
-                contents=contents,
-                message_type=message_type,
-                response_format_info=response_format_info
+        # Get provider data for Gemini completion
+        provider_data = get_gemini_completion_function_params(
+            model=self.model if response_format_info else GEMINI_FAST_MODEL,
+            contents=contents,
+            message_type=message_type,
+            response_format_info=response_format_info
+        )
+
+        if self.api_key:
+            # Generate content using the Gemini client
+            response_config = GenerateContentConfig(
+                system_instruction=system_instructions,
+                response_mime_type=provider_data.get("config", {}).get("response_mime_type"),
+                response_schema=provider_data.get("config", {}).get("response_schema")
             )
+            response = self.client.models.generate_content(
+                model=provider_data["model"],
+                contents=contents,  # type: ignore
+                config=response_config
+            )
+            
+            result = extract_and_parse_gemini_json_response(response)
+            
+            if not result:
+                return "No response received from Gemini API"
 
-            if self.api_key:
-                # Generate content using the Gemini client
-                response_config = GenerateContentConfig(
-                    system_instruction=system_instructions,
-                    response_mime_type=provider_data.get("config", {}).get("response_mime_type"),
-                    response_schema=provider_data.get("config", {}).get("response_schema")
-                )
-                response = self.client.models.generate_content(
-                    model=provider_data["model"],
-                    contents=contents,  # type: ignore
-                    config=response_config
-                )
-                
-                result = extract_and_parse_gemini_json_response(response)
-                
-                if not result:
-                    return "No response received from Gemini API"
-
-                return result
-            else:
-                # Fallback to Mito server for completion
-                return await get_gemini_completion_from_mito_server(
-                    model=provider_data["model"],
-                    contents=messages, # Use the extracted contents instead of converted messages to avoid serialization issues
-                    message_type=message_type,
-                    config=provider_data.get("config", None),
-                    response_format_info=response_format_info,
-                )
-                
-                # TODO: We are not updating the quota here!
-                # We should push this down to a centralized calling mito server function
-                # that is responsible for updating the quota so we don't need to update it 
-                # each provider.
-
-        except Exception as e:
-            return f"Error generating content: {str(e)}"
+            return result
+        else:
+            # Fallback to Mito server for completion
+            return await get_gemini_completion_from_mito_server(
+                model=provider_data["model"],
+                contents=messages, # Use the extracted contents instead of converted messages to avoid serialization issues
+                message_type=message_type,
+                config=provider_data.get("config", None),
+                response_format_info=response_format_info,
+            )
 
     async def stream_completions(
             self,

@@ -34,7 +34,8 @@ from mito_ai.utils.telemetry_utils import (
     log,
     log_ai_completion_success,
 )
-from mito_ai.constants import get_model_provider
+from mito_ai.utils.provider_utils import get_model_provider
+from mito_ai.utils.mito_server_utils import ProviderCompletionException
 
 __all__ = ["OpenAIProvider"]
 
@@ -198,6 +199,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
                 return completion
 
+            except ProviderCompletionException as e:
+                self.last_error = CompletionError.from_exception(e)
+                raise
             except BaseException as e:
                 # Check if we should retry
                 if attempt < max_retries and self._should_retry(e, model_type):
