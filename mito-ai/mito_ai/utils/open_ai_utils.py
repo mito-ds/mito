@@ -92,7 +92,15 @@ async def get_ai_completion_from_mito_server(
         message_type
     )
     
-    return await get_response_from_mito_server(MITO_OPENAI_URL, headers, data, timeout, max_retries, message_type)
+    return await get_response_from_mito_server(
+        MITO_OPENAI_URL, 
+        headers, 
+        data, 
+        timeout, 
+        max_retries, 
+        message_type,
+        provider_name="OpenAI"
+    )
 
 async def stream_ai_completion_from_mito_server(
     last_message_content: Union[str, None],

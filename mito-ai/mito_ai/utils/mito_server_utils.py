@@ -11,22 +11,20 @@ from mito_ai.utils.utils import _create_http_client
 class ProviderCompletionException(Exception):
     """Custom exception for Mito server errors that converts well to CompletionError."""
     
-    def __init__(self, error_message: str, error_type: str = "LLMProviderError"):
+    def __init__(self, error_message: str, provider_name: str = "LLM Provider", error_type: str = "LLMProviderError"):
         self.error_message = error_message
+        self.provider_name = provider_name
         self.error_type = error_type
         
-        # Create a body attribute that mimics OpenAI's error structure
-        # This will be picked up by CompletionError.from_exception()
-        self.body = {
-            "message": error_message,
-            "type": error_type
-        }
-        
+        # Create user-friendly title and hint
+        self.user_friendly_title = f"{provider_name} Error: {error_message}"
+        self.user_friendly_hint = f"There was a problem with {provider_name}. Try switching to a different model and trying again."
+
         # Set args[0] for fallback compatibility
-        super().__init__(error_message)
+        super().__init__(self.user_friendly_title)
 
     def __str__(self):
-        return f"{self.error_type}: {self.error_message}"
+        return f"{self.provider_name} Error: {self.error_message}"
 
 
 async def get_response_from_mito_server(
@@ -35,7 +33,8 @@ async def get_response_from_mito_server(
     data: Dict[str, Any],
     timeout: int, 
     max_retries: int,
-    message_type: MessageType
+    message_type: MessageType,
+    provider_name: str = "Mito Server"
 ) -> str:
     """
     Get a response from the Mito server.
@@ -55,12 +54,14 @@ async def get_response_from_mito_server(
             body=json.dumps(data),
             request_timeout=http_client_timeout
         )
-        # TODO: Update with model name
         print(f"Mito server request completed in {time.time() - start_time:.2f} seconds")
         
         # Parse and validate response
         try:
             content = json.loads(res.body.decode("utf-8"))
+            
+            # Temporarily add this for testing
+            content = {'error': "There was an error accessing the Anthropic API: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}}"}
             
             if "completion" in content:
                 # Success! Update quota and return
@@ -68,12 +69,24 @@ async def get_response_from_mito_server(
                 return content["completion"]
             elif "error" in content:
                 # Server returned an error
-                raise ProviderCompletionException(f"Server error: {content['error']}")
+                raise ProviderCompletionException(
+                    content['error'], 
+                    provider_name=provider_name
+                )
             else:
-                # Invalid response format - this shouldn't be retried
-                raise ProviderCompletionException(f"No completion found in response: {content}")
+                # Invalid response format
+                raise ProviderCompletionException(
+                    f"No completion found in response: {content}",
+                    provider_name=provider_name
+                )
+        except ProviderCompletionException:
+            # Re-raise ProviderCompletionException as-is
+            raise
         except Exception as e:
-            raise ProviderCompletionException(f"str(e)")
+            raise ProviderCompletionException(
+                f"Error parsing response: {str(e)}",
+                provider_name=provider_name
+            )
             
     finally:
         http_client.close()

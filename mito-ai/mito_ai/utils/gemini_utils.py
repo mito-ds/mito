@@ -62,7 +62,15 @@ async def get_gemini_completion_from_mito_server(
     response_format_info: Optional[Any] = None
 ) -> str:
     data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, config, response_format_info, stream=False)
-    return await get_response_from_mito_server(MITO_GEMINI_URL, headers, data, timeout, max_retries, message_type)    
+    return await get_response_from_mito_server(
+        MITO_GEMINI_URL, 
+        headers, 
+        data, 
+        timeout, 
+        max_retries, 
+        message_type, 
+        provider_name="Gemini"
+    )    
 
 async def stream_gemini_completion_from_mito_server(
     model: str,
