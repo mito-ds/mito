@@ -59,36 +59,27 @@ async def get_response_from_mito_server(
         # Parse and validate response
         try:
             content = json.loads(res.body.decode("utf-8"))
-            
-            # Temporarily add this for testing
-            content = {'error': "There was an error accessing the Anthropic API: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}}"}
-            
+                        
             if "completion" in content:
-                # Success! Update quota and return
-                update_mito_server_quota(message_type)
                 return content["completion"]
             elif "error" in content:
                 # Server returned an error
-                raise ProviderCompletionException(
-                    content['error'], 
-                    provider_name=provider_name
-                )
+                raise ProviderCompletionException(content['error'], provider_name=provider_name)
             else:
                 # Invalid response format
-                raise ProviderCompletionException(
-                    f"No completion found in response: {content}",
-                    provider_name=provider_name
-                )
+                raise ProviderCompletionException(f"No completion found in response: {content}", provider_name=provider_name)
         except ProviderCompletionException:
             # Re-raise ProviderCompletionException as-is
             raise
         except Exception as e:
-            raise ProviderCompletionException(
-                f"Error parsing response: {str(e)}",
-                provider_name=provider_name
-            )
+            raise ProviderCompletionException(f"Error parsing response: {str(e)}", provider_name=provider_name)
             
     finally:
+        try:
+            # We always update the quota, even if there is an error
+            update_mito_server_quota(message_type)
+        except Exception as e:
+            pass
         http_client.close()
         
     
