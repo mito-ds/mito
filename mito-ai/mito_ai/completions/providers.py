@@ -199,23 +199,19 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
                 return completion
 
-            except ProviderCompletionException as e:
-                self.last_error = CompletionError.from_exception(e)
-                raise
-            except BaseException as e:
-                # Check if we should retry
-                if attempt < max_retries and self._should_retry(e, model_type):
+            except Exception as e:
+                # Check if we should retry (not on the last attempt)
+                if attempt < max_retries:
                     # Exponential backoff: wait 2^attempt seconds
                     wait_time = 2 ** attempt
-                    self.log.info(f"Retrying request_completions after {wait_time}s (attempt {attempt + 1}/{max_retries + 1})")
+                    self.log.info(f"Retrying request_completions after {wait_time}s (attempt {attempt + 1}/{max_retries + 1}): {str(e)}")
                     await asyncio.sleep(wait_time)
                     continue
                 else:
-                    # Final failure - set error state and raise
+                    # Final failure after all retries - set error state and raise
                     self.log.exception(f"Error during request_completions after {attempt + 1} attempts: {e}")
-                    self.last_error = CompletionError.from_exception(e)
                     log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
-                    raise
+                    raise e
         
         # This should never be reached due to the raise in the except block,
         # but added to satisfy the linter
