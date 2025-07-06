@@ -6,9 +6,8 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
-import CodeBlock from '../../Extensions/AiChat/ChatMessage/CodeBlock';
+import UserCodeBlock from '../../Extensions/AiChat/ChatMessage/UserCodeBlock';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { CodeReviewStatus } from '../../Extensions/AiChat/ChatTaskpane';
 
 // Mock the PythonCode component since it's a complex component that we don't need to test here
 jest.mock('../../Extensions/AiChat/ChatMessage/PythonCode', () => {
@@ -23,22 +22,16 @@ jest.mock('../../Extensions/AiChat/ChatMessage/PythonCode', () => {
 // Create base props for the component
 const createMockProps = (overrides = {}) => ({
     code: 'line1\nline2\nline3\nline4\nline5\nline6\nline7',
-    isCodeComplete: true,
-    role: 'user' as const,
     renderMimeRegistry: {} as IRenderMimeRegistry,
-    previewAICode: jest.fn(),
-    acceptAICode: jest.fn(),
-    rejectAICode: jest.fn(),
-    isLastAiMessage: false,
-    codeReviewStatus: 'chatPreview' as CodeReviewStatus,
+    agentModeEnabled: false,
     ...overrides
 });
 
-describe('CodeBlock Component', () => {
-    describe('User Code Preview', () => {
+describe('UserCodeBlock Component', () => {
+    describe('Code Preview', () => {
         it('shows only first 5 lines in preview mode', () => {
             const props = createMockProps();
-            render(<CodeBlock {...props} />);
+            render(<UserCodeBlock {...props} />);
 
             // Get the rendered code content
             const codeElement = screen.getByTestId('python-code');
@@ -59,7 +52,7 @@ describe('CodeBlock Component', () => {
 
         it('shows expand button when code has more than 5 lines', () => {
             const props = createMockProps();
-            render(<CodeBlock {...props} />);
+            render(<UserCodeBlock {...props} />);
 
             // Check for the expand button
             const expandButton = screen.getByTitle('Expand');
@@ -70,16 +63,16 @@ describe('CodeBlock Component', () => {
             const props = createMockProps({
                 code: 'line1\nline2\nline3\nline4\nline5'
             });
-            render(<CodeBlock {...props} />);
+            render(<UserCodeBlock {...props} />);
 
             // Check that expand button is not present
             const expandButton = screen.queryByTitle('Expand');
             expect(expandButton).not.toBeInTheDocument();
         });
 
-        it('expands to show all lines when clicked', () => {
+        it('expands to show all lines when expand button is clicked', () => {
             const props = createMockProps();
-            render(<CodeBlock {...props} />);
+            render(<UserCodeBlock {...props} />);
 
             // Click the expand button
             const expandButton = screen.getByTitle('Expand');
@@ -101,43 +94,65 @@ describe('CodeBlock Component', () => {
             expect(renderedLines[5]).toBe('line6');
             expect(renderedLines[6]).toBe('line7');
         });
-    });
 
-    describe('Assistant Code Actions', () => {
-        it('does not show action buttons when code is incomplete', () => {
-            const props = createMockProps({
-                role: 'assistant',
-                isLastAiMessage: true,
-                isCodeComplete: false,
-                codeReviewStatus: 'chatPreview'
-            });
-            render(<CodeBlock {...props} />);
+        it('collapses back to preview when expand button is clicked again', () => {
+            const props = createMockProps();
+            render(<UserCodeBlock {...props} />);
 
-            // Verify that action buttons are not present when code is incomplete
-            expect(screen.queryByTitle('Overwrite Active Cell')).not.toBeInTheDocument();
-            expect(screen.queryByTitle('Copy')).not.toBeInTheDocument();
-            expect(screen.queryByTitle('Accept AI Generated Code')).not.toBeInTheDocument();
-            expect(screen.queryByTitle('Reject AI Generated Code')).not.toBeInTheDocument();
+            // Click the expand button to expand
+            const expandButton = screen.getByTitle('Expand');
+            fireEvent.click(expandButton);
 
-            // Verify that the toolbar container is not present
-            expect(document.querySelector('.code-block-toolbar')).not.toBeInTheDocument();
+            // Verify expanded state
+            expect(screen.getByTitle('Collapse')).toBeInTheDocument();
+            const expandedCodeElement = screen.getByTestId('python-code');
+            const expandedLines = expandedCodeElement.textContent?.split('\n') || [];
+            expect(expandedLines).toHaveLength(7);
+
+            // Click the collapse button to collapse
+            fireEvent.click(expandButton);
+
+            // Verify collapsed state
+            expect(screen.getByTitle('Expand')).toBeInTheDocument();
+            const collapsedCodeElement = screen.getByTestId('python-code');
+            const collapsedLines = collapsedCodeElement.textContent?.split('\n') || [];
+            expect(collapsedLines).toHaveLength(5);
         });
 
-        it('shows action buttons when code is complete and is last AI message', () => {
-            const props = createMockProps({
-                role: 'assistant',
-                isLastAiMessage: true,
-                isCodeComplete: true,
-                codeReviewStatus: 'chatPreview'
-            });
-            render(<CodeBlock {...props} />);
+        it('expands when clicking on the container', () => {
+            const props = createMockProps();
+            render(<UserCodeBlock {...props} />);
 
-            // Verify that action buttons are present when code is complete
-            expect(screen.getByTitle('Overwrite Active Cell')).toBeInTheDocument();
-            expect(screen.getByTitle('Copy')).toBeInTheDocument();
+            // Click on the container (not the expand button)
+            const container = document.querySelector('.code-block-container');
+            expect(container).toBeInTheDocument();
+            fireEvent.click(container!);
 
-            // Verify that the toolbar container is present
-            expect(document.querySelector('.code-block-toolbar')).toBeInTheDocument();
+            // Verify expanded state
+            const codeElement = screen.getByTestId('python-code');
+            const renderedLines = codeElement.textContent?.split('\n') || [];
+            expect(renderedLines).toHaveLength(7);
+        });
+
+        it('prevents event propagation when clicking expand button', () => {
+            const props = createMockProps();
+            render(<UserCodeBlock {...props} />);
+
+            // Click the expand button
+            const expandButton = screen.getByTitle('Expand');
+            fireEvent.click(expandButton);
+
+            // Verify expanded state
+            const codeElement = screen.getByTestId('python-code');
+            const renderedLines = codeElement.textContent?.split('\n') || [];
+            expect(renderedLines).toHaveLength(7);
+
+            // Click the expand button again (should collapse)
+            fireEvent.click(expandButton);
+
+            // Verify collapsed state
+            const collapsedLines = codeElement.textContent?.split('\n') || [];
+            expect(collapsedLines).toHaveLength(5);
         });
     });
 });

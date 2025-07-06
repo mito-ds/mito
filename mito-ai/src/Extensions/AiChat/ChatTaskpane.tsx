@@ -1251,6 +1251,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         notebook.widgets.forEach((cell, index) => {
             if (cell.model.type === 'code') {
+
                 const isActiveCodeCell = activeCellIndex === index
 
                 // TODO: Instead of casting, we should rely on the type system to make 
@@ -1373,6 +1374,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             contextManager={contextManager}
                             codeReviewStatus={codeReviewStatus}
                             setNextSteps={setNextSteps}
+                            agentModeEnabled={agentModeEnabled}
                         />
                     )
                 }).filter(message => message !== null)}
