@@ -1236,9 +1236,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE);
         app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE);
     }
-
-    // Create a WeakMap to store compartments per code cell
-    const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
+    
+    const codeDiffStripesCompartments = React.useRef(new Map<string, Compartment>());
 
     // Function to update the extensions of code cells
     const updateCodeCellsExtensions = (unifiedDiffLines: UnifiedDiffLine[] | undefined): void => {
@@ -1249,49 +1248,46 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const activeCellIndex = notebook.activeCellIndex
 
-        try {
-            notebook.widgets.forEach((cell, index) => {
-                if (cell.model.type === 'code') {
+        notebook.widgets.forEach((cell, index) => {
+            if (cell.model.type === 'code') {
 
-                    const isActiveCodeCell = activeCellIndex === index
+                const isActiveCodeCell = activeCellIndex === index
 
-                    // TODO: Instead of casting, we should rely on the type system to make 
-                    // sure we're using the correct types!
-                    const codeCell = cell as CodeCell;
+                // TODO: Instead of casting, we should rely on the type system to make 
+                // sure we're using the correct types!
+                const codeCell = cell as CodeCell;
 
-                    const cmEditor = codeCell.editor as CodeMirrorEditor;
-                    const editorView = cmEditor?.editor;
+                const cmEditor = codeCell.editor as CodeMirrorEditor;
+                const editorView = cmEditor?.editor;
 
-                    if (editorView) {
-                        let compartment = codeDiffStripesCompartments.current.get(codeCell);
+                if (editorView) {
+                    const cellId = codeCell.model.id;
+                    let compartment = codeDiffStripesCompartments.current.get(cellId);
 
-                        if (!compartment) {
-                            // Create a new compartment and store it
-                            compartment = new Compartment();
-                            codeDiffStripesCompartments.current.set(codeCell, compartment);
+                    if (!compartment) {
+                        // Create a new compartment and store it
+                        compartment = new Compartment();
+                        codeDiffStripesCompartments.current.set(cellId, compartment);
 
-                            // Apply the initial configuration
-                            editorView.dispatch({
-                                effects: StateEffect.appendConfig.of(
-                                    compartment.of(unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : [])
-                                ),
-                            });
-                        } else {
-                            // Reconfigure the compartment
-                            editorView.dispatch({
-                                effects: compartment.reconfigure(
-                                    unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : []
-                                ),
-                            });
-                        }
+                        // Apply the initial configuration
+                        editorView.dispatch({
+                            effects: StateEffect.appendConfig.of(
+                                compartment.of(unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : [])
+                            ),
+                        });
                     } else {
-                        console.log('Mito AI: editor view not found when applying code diff stripes')
+                        // Reconfigure the compartment
+                        editorView.dispatch({
+                            effects: compartment.reconfigure(
+                                unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : []
+                            ),
+                        });
                     }
+                } else {
+                    console.log('Mito AI: editor view not found when applying code diff stripes')
                 }
-            });
-        } catch (error) {
-            console.error('Error updating code cells extensions', error)
-        }
+            }
+        });
     };
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
