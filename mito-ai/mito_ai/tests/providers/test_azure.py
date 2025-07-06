@@ -93,6 +93,50 @@ COMPLETION_MESSAGE_TYPES = [
     MessageType.CHAT_NAME_GENERATION,
 ]
 
+# Common test data
+TEST_MESSAGES: List[ChatCompletionMessageParam] = [
+    {"role": "user", "content": "Test message"}
+]
+
+# Helper functions for common test patterns
+def create_mock_azure_client_with_response(response_content: str = "Test Azure completion") -> tuple[MagicMock, MagicMock]:
+    """Create a mock Azure OpenAI client with a standard response."""
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = response_content
+    
+    mock_azure_client = MagicMock()
+    mock_azure_client.chat.completions.create = AsyncMock(return_value=mock_response)
+    mock_azure_client.is_closed.return_value = False
+    
+    return mock_azure_client, mock_response
+
+def create_mock_streaming_response(chunks: List[str]) -> Any:
+    """Create a mock streaming response with the given chunks."""
+    async def mock_stream():
+        for i, content in enumerate(chunks):
+            mock_chunk = MagicMock()
+            mock_chunk.choices = [MagicMock()]
+            mock_chunk.choices[0].delta.content = content
+            mock_chunk.choices[0].finish_reason = "stop" if i == len(chunks) - 1 else None
+            yield mock_chunk
+    return mock_stream
+
+def assert_azure_client_called_correctly(mock_azure_client_class: MagicMock, mock_azure_client: MagicMock, expected_model: str = FAKE_AZURE_MODEL, should_stream: bool = False) -> None:
+    """Assert that Azure client was called correctly."""
+    # Verify Azure client was created
+    mock_azure_client_class.assert_called_once()
+    
+    # Verify request was made through Azure client
+    mock_azure_client.chat.completions.create.assert_called_once()
+    
+    # Verify the model used was the Azure model
+    call_args = mock_azure_client.chat.completions.create.call_args
+    assert call_args[1]["model"] == expected_model
+    
+    if should_stream:
+        assert call_args[1]["stream"] == True
+
 
 class TestAzureOpenAIClientCreation:
     """Test that Azure OpenAI client is properly created when configured."""
@@ -157,41 +201,23 @@ class TestAzureOpenAICompletions:
     ) -> None:
         """Test that request_completions uses Azure OpenAI client for all message types."""
         
-        # Mock the response
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "Test Azure completion"
-        
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client_class:
-            mock_azure_client = MagicMock()
-            mock_azure_client.chat.completions.create = AsyncMock(return_value=mock_response)
-            mock_azure_client.is_closed.return_value = False
+            mock_azure_client, mock_response = create_mock_azure_client_with_response()
             mock_azure_client_class.return_value = mock_azure_client
             
             openai_client = OpenAIClient(config=provider_config)
             
-            messages: List[ChatCompletionMessageParam] = [
-                {"role": "user", "content": "Test message"}
-            ]
-            
             completion = await openai_client.request_completions(
                 message_type=message_type,
-                messages=messages,
+                messages=TEST_MESSAGES,
                 model="gpt-4.1"
             )
             
             # Verify the completion was returned
             assert completion == "Test Azure completion"
             
-            # Verify Azure client was created
-            mock_azure_client_class.assert_called_once()
-            
-            # Verify request was made through Azure client
-            mock_azure_client.chat.completions.create.assert_called_once()
-            
-            # Verify the model used was the Azure model, not the requested model
-            call_args = mock_azure_client.chat.completions.create.call_args
-            assert call_args[1]["model"] == FAKE_AZURE_MODEL
+            # Verify Azure client was called correctly
+            assert_azure_client_called_correctly(mock_azure_client_class, mock_azure_client)
     
     @pytest.mark.asyncio
     async def test_request_completions_with_response_format(
@@ -241,44 +267,33 @@ class TestAzureOpenAICompletions:
             assert call_args[1]["model"] == FAKE_AZURE_MODEL
     
     @pytest.mark.asyncio
+    @pytest.mark.parametrize("requested_model", ["gpt-4.1", "gpt-3.5-turbo", "gpt-4-turbo", "gpt-4o"])
     async def test_request_completions_uses_azure_model_not_requested_model(
         self, 
         mock_azure_openai_environment: None, 
-        provider_config: Config
+        provider_config: Config,
+        requested_model: str
     ) -> None:
         """Test that Azure model is used regardless of requested model when Azure is configured."""
         
-        # Mock the response
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "Test Azure completion"
-        
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client_class:
-            mock_azure_client = MagicMock()
-            mock_azure_client.chat.completions.create = AsyncMock(return_value=mock_response)
-            mock_azure_client.is_closed.return_value = False
+            mock_azure_client, mock_response = create_mock_azure_client_with_response()
             mock_azure_client_class.return_value = mock_azure_client
             
             openai_client = OpenAIClient(config=provider_config)
             
-            messages: List[ChatCompletionMessageParam] = [
-                {"role": "user", "content": "Test message"}
-            ]
+            completion = await openai_client.request_completions(
+                message_type=MessageType.CHAT,
+                messages=TEST_MESSAGES,
+                model=requested_model
+            )
             
-            # Request with different models - should always use Azure model
-            for requested_model in ["gpt-4.1", "gpt-3.5-turbo", "gpt-4-turbo"]:
-                completion = await openai_client.request_completions(
-                    message_type=MessageType.CHAT,
-                    messages=messages,
-                    model=requested_model
-                )
-                
-                assert completion == "Test Azure completion"
-                
-                # Verify the model used was the Azure model, not the requested model
-                call_args = mock_azure_client.chat.completions.create.call_args
-                assert call_args[1]["model"] == FAKE_AZURE_MODEL
-                assert call_args[1]["model"] != requested_model  # Explicitly check it's not the requested model
+            assert completion == "Test Azure completion"
+            
+            # Verify Azure client was called correctly and used Azure model, not requested model
+            assert_azure_client_called_correctly(mock_azure_client_class, mock_azure_client)
+            call_args = mock_azure_client.chat.completions.create.call_args
+            assert call_args[1]["model"] != requested_model  # Explicitly check it's not the requested model
 
 
 class TestAzureOpenAIStreamCompletions:
@@ -294,32 +309,16 @@ class TestAzureOpenAIStreamCompletions:
     ) -> None:
         """Test that stream_completions uses Azure OpenAI client for all message types."""
         
-        # Mock the streaming response
-        mock_chunk1 = MagicMock()
-        mock_chunk1.choices = [MagicMock()]
-        mock_chunk1.choices[0].delta.content = "Hello"
-        mock_chunk1.choices[0].finish_reason = None
-        
-        mock_chunk2 = MagicMock()
-        mock_chunk2.choices = [MagicMock()]
-        mock_chunk2.choices[0].delta.content = " World"
-        mock_chunk2.choices[0].finish_reason = "stop"
-        
-        async def mock_stream():
-            yield mock_chunk1
-            yield mock_chunk2
+        stream_chunks = ["Hello", " World"]
+        expected_completion = "".join(stream_chunks)
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client_class:
             mock_azure_client = MagicMock()
-            mock_azure_client.chat.completions.create = AsyncMock(return_value=mock_stream())
+            mock_azure_client.chat.completions.create = AsyncMock(return_value=create_mock_streaming_response(stream_chunks)())
             mock_azure_client.is_closed.return_value = False
             mock_azure_client_class.return_value = mock_azure_client
             
             openai_client = OpenAIClient(config=provider_config)
-            
-            messages: List[ChatCompletionMessageParam] = [
-                {"role": "user", "content": "Test message"}
-            ]
             
             reply_chunks = []
             def mock_reply(chunk):
@@ -327,7 +326,7 @@ class TestAzureOpenAIStreamCompletions:
             
             completion = await openai_client.stream_completions(
                 message_type=message_type,
-                messages=messages,
+                messages=TEST_MESSAGES,
                 model="gpt-4.1",
                 message_id="test-id",
                 thread_id="test-thread",
@@ -335,18 +334,10 @@ class TestAzureOpenAIStreamCompletions:
             )
             
             # Verify the full completion was returned
-            assert completion == "Hello World"
+            assert completion == expected_completion
             
-            # Verify Azure client was created
-            mock_azure_client_class.assert_called_once()
-            
-            # Verify request was made through Azure client
-            mock_azure_client.chat.completions.create.assert_called_once()
-            
-            # Verify the model used was the Azure model, not the requested model
-            call_args = mock_azure_client.chat.completions.create.call_args
-            assert call_args[1]["model"] == FAKE_AZURE_MODEL
-            assert call_args[1]["stream"] == True  # Should be streaming
+            # Verify Azure client was called correctly for streaming
+            assert_azure_client_called_correctly(mock_azure_client_class, mock_azure_client, should_stream=True)
             
             # Verify reply function was called with chunks
             assert len(reply_chunks) >= 2  # Initial reply + chunks
