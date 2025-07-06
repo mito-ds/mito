@@ -29,9 +29,12 @@ from mito_ai.completions.models import (
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
+    MITO_AI_COMPLETION_RETRY,
     MITO_SERVER_KEY,
     USER_KEY,
     log,
+    log_ai_completion_error,
+    log_ai_completion_retry,
     log_ai_completion_success,
 )
 from mito_ai.utils.provider_utils import get_model_provider
@@ -159,13 +162,14 @@ This attribute is observed by the websocket provider to push the error to the cl
                     # Exponential backoff: wait 2^attempt seconds
                     wait_time = 2 ** attempt
                     self.log.info(f"Retrying request_completions after {wait_time}s (attempt {attempt + 1}/{max_retries + 1}): {str(e)}")
+                    log_ai_completion_retry('user_key' if self.key_type == MITO_SERVER_KEY else 'mito_server_key', message_type, e)
                     await asyncio.sleep(wait_time)
                     continue
                 else:
                     # Final failure after all retries - set error state and raise
                     self.log.exception(f"Error during request_completions after {attempt + 1} attempts: {e}")
                     self.last_error = CompletionError.from_exception(e)
-                    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
+                    log_ai_completion_error('user_key' if self.key_type == MITO_SERVER_KEY else 'mito_server_key', message_type, e)
                     raise
         
         # This should never be reached due to the raise in the except block,

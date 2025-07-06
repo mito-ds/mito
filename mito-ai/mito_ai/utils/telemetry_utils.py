@@ -24,6 +24,7 @@ PRINT_LOGS = False
 # Constants for logging the success or error of Mito AI
 MITO_AI_COMPLETION_SUCCESS = 'mito_ai_success'
 MITO_AI_COMPLETION_ERROR = 'mito_ai_error'
+MITO_AI_COMPLETION_RETRY = 'mito_ai_retry'
 
 # Params 
 # - logging the type of key 
@@ -338,6 +339,12 @@ def log_db_connection_success(connection_type: str, schema: Dict[str, Any]) -> N
         },
     )
 
+def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
+    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, error=error)
+    
+def log_ai_completion_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
+    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, error=error)
+
 def log_db_connection_error(connection_type: str, error_message: str) -> None:
     log(
         "mito_ai_db_connection_error", 
@@ -346,3 +353,4 @@ def log_db_connection_error(connection_type: str, error_message: str) -> None:
             "error_message": error_message,
         }
     )
+

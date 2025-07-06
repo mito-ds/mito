@@ -283,3 +283,104 @@ class TestRetryLogic:
             assert provider.last_error is not None
             assert isinstance(provider.last_error, CompletionError)
             assert error_message in provider.last_error.title
+
+    @pytest.mark.parametrize("scenario,side_effects,max_retries,expected_retry_logs,expected_error_logs,expected_success_logs", [
+        # Scenario 1: Success on first try
+        ("immediate_success", ["Success!"], 3, 0, 0, 1),
+        
+        # Scenario 2: Fail once, then succeed
+        ("retry_then_success", [Exception("Test error"), "Success!"], 3, 1, 0, 1),
+        
+        # Scenario 3: Fail twice, then succeed
+        ("retry_twice_then_success", [Exception("Test error"), Exception("Test error"), "Success!"], 3, 2, 0, 1),
+        
+        # Scenario 4: Fail and never succeed (1 retry)
+        ("fail_after_one_retry", [Exception("Test error"), Exception("Test error")], 1, 1, 1, 0),
+        
+        # Scenario 5: Fail and never succeed (2 retries)
+        ("fail_after_two_retries", [Exception("Test error"), Exception("Test error"), Exception("Test error")], 2, 2, 1, 0),
+        
+        # Scenario 6: Fail and never succeed (3 retries)
+        ("fail_after_three_retries", [Exception("Test error"), Exception("Test error"), Exception("Test error"), Exception("Test error")], 3, 3, 1, 0),
+    ])
+    @pytest.mark.asyncio
+    async def test_logging_functions_comprehensive(
+        self, 
+        scenario: str,
+        side_effects: list,
+        max_retries: int,
+        expected_retry_logs: int,
+        expected_error_logs: int,
+        expected_success_logs: int,
+        provider_config: Config,
+        mock_messages,
+        mock_sleep,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys
+    ):
+        """Test comprehensive logging behavior for all retry scenarios."""
+        monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
+        monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+        
+        # Clear other API keys to ensure OpenAI path is used
+        monkeypatch.delenv("CLAUDE_API_KEY", raising=False)
+        monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+        monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+        monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
+        
+        # Enable print logs to capture telemetry output
+        monkeypatch.setattr("mito_ai.utils.telemetry_utils.PRINT_LOGS", True)
+        
+        with patch_server_limits():
+            # Create a mock OpenAI client that will be used by the provider
+            mock_client = MagicMock()
+            mock_client.request_completions = AsyncMock(side_effect=side_effects)
+            mock_client.key_type = "user"
+            
+            # Create the provider and set the mock client
+            provider = OpenAIProvider(config=provider_config)
+            provider._openai_client = mock_client
+            
+            # Determine if we expect success or failure
+            will_succeed = any(isinstance(effect, str) for effect in side_effects)
+            
+            if will_succeed:
+                # Test successful completion
+                result = await provider.request_completions(
+                    message_type=MessageType.CHAT,
+                    messages=mock_messages,
+                    model="gpt-4o-mini",
+                    max_retries=max_retries
+                )
+                
+                # Verify we got the expected success result
+                assert result == "Success!"
+                assert provider.last_error is None
+            else:
+                # Test failure after all retries
+                with pytest.raises(Exception):
+                    await provider.request_completions(
+                        message_type=MessageType.CHAT,
+                        messages=mock_messages,
+                        model="gpt-4o-mini",
+                        max_retries=max_retries
+                    )
+                
+                # Verify error state was set
+                assert provider.last_error is not None
+                assert isinstance(provider.last_error, CompletionError)
+            
+            # Capture the printed logs
+            captured = capsys.readouterr()
+            log_output = captured.out
+            
+            # Count the different types of logs
+            retry_log_count = log_output.count("mito_ai_retry")
+            error_log_count = log_output.count("mito_ai_error")
+            success_log_count = log_output.count("mito_ai_chat_success")
+            
+            # Verify logging function calls
+            assert retry_log_count == expected_retry_logs, f"Expected {expected_retry_logs} retry logs for scenario '{scenario}', got {retry_log_count}"
+            assert error_log_count == expected_error_logs, f"Expected {expected_error_logs} error logs for scenario '{scenario}', got {error_log_count}"
+            assert success_log_count == expected_success_logs, f"Expected {expected_success_logs} success logs for scenario '{scenario}', got {success_log_count}"
+
