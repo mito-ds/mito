@@ -33,7 +33,7 @@ jest.mock('../../utils/copyToClipboard', () => jest.fn());
 
 // Create base props for the component
 const createMockProps = (overrides = {}) => ({
-    code: 'line1\nline2\nline3\nline4\nline5',
+    code: '```python\nline1\nline2\nline3\nline4\nline5\n```',
     isCodeComplete: true,
     renderMimeRegistry: {} as IRenderMimeRegistry,
     previewAICode: jest.fn(),
