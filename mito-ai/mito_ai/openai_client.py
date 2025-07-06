@@ -194,7 +194,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             # The format for using Azure OpenAI is different than using
             # other providers, so we have a special case for it here.
             # Create Azure OpenAI client with explicit arguments
-            print("HERE!!: BUILDING AZURE OPENAI CLIENT")
             return openai.AsyncAzureOpenAI(
                 api_key=constants.AZURE_OPENAI_API_KEY,
                 api_version=constants.AZURE_OPENAI_API_VERSION,
@@ -227,7 +226,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         
         # If they have set an Azure OpenAI model, then we always use it
         if is_azure_openai_configured() and constants.AZURE_OPENAI_MODEL is not None:
-            print('using azure openai model', constants.AZURE_OPENAI_MODEL)
+            self.log.debug(f"Resolving to Azure OpenAI model: {constants.AZURE_OPENAI_MODEL}")
             return constants.AZURE_OPENAI_MODEL
         
         # Otherwise, we use the fast model for anything other than the agent mode
@@ -268,6 +267,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         try:
             
             # Make sure we are using the correct model
+            # TODO: If we bring back inline completions or another action that needs to 
+            # respond fast, we must require the user to configure a fast model with Azure as well. 
             model = self._resolve_model(model, response_format_info)
 
             # Handle other providers as before
@@ -276,8 +277,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
 
             if self._active_async_client is not None:
-                print("HERE")
-                print("sending request with messages", messages)
                 response = await self._active_async_client.chat.completions.create(**completion_function_params)
                 completion = response.choices[0].message.content or ""
             else: 
