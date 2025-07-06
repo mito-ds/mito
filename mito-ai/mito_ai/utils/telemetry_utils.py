@@ -17,7 +17,7 @@ analytics.write_key = WRITE_KEY
 
 # If you want, you can optionally choose to print logs
 # helpful for debugging.
-PRINT_LOGS = True
+PRINT_LOGS = False
 
 ################################# 
 # Mito AI Completion 
