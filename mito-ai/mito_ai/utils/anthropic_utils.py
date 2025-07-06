@@ -211,6 +211,9 @@ def get_anthropic_completion_function_params(
         "system": system,
     }
     if response_format_info is not None:
+        # TODO: This should not be here.. the model is resolved in the anthropic client. 
+        # This also means that chat is using the fast model... 
+        # I bet the same bug exists in gemini...
         provider_data["model"] = INLINE_COMPLETION_MODEL
     if tools:
         provider_data["tools"] = tools
