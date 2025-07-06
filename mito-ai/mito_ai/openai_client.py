@@ -198,7 +198,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             return openai.AsyncAzureOpenAI(
                 api_key=constants.AZURE_OPENAI_API_KEY,
                 api_version=constants.AZURE_OPENAI_API_VERSION,
-                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT or OPENAI_MODEL_FALLBACK,
+                azure_endpoint=constants.AZURE_OPENAI_ENDPOINT, # type: ignore
                 max_retries=self.max_retries,
                 timeout=self.timeout,
             )
@@ -223,13 +223,25 @@ This attribute is observed by the websocket provider to push the error to the cl
         )
         return client
 
-    def _resolve_model(self, model: Optional[str] = None) -> str:
+    def _resolve_model(self, model: Optional[str] = None, response_format_info: Optional[ResponseFormatInfo] = None) -> str:
+        
+        # If they have set an Azure OpenAI model, then we always use it
         if is_azure_openai_configured() and constants.AZURE_OPENAI_MODEL is not None:
+            self.log.debug(f"Resolving to Azure OpenAI model: {constants.AZURE_OPENAI_MODEL}")
             return constants.AZURE_OPENAI_MODEL
-        elif constants.OLLAMA_MODEL is not None:
+        
+        # Otherwise, we use the fast model for anything other than the agent mode
+        if response_format_info:
+            return OPENAI_FAST_MODEL
+        
+        # If they have set an Ollama model, then we use it
+        if constants.OLLAMA_MODEL is not None:
             return constants.OLLAMA_MODEL
-        elif model:
+        
+        # If they have set a model, then we use it
+        if model:
             return model
+        
         return OPENAI_MODEL_FALLBACK
 
     async def request_completions(
@@ -255,8 +267,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         
         # Note: We don't catch exceptions here because we want them to bubble up 
         # to the providers file so we can handle all client exceptions in one place.
-
-        model = self._resolve_model(model) if response_format_info else OPENAI_FAST_MODEL
+        model = self._resolve_model(model, response_format_info)
 
         # Handle other providers as before
         completion_function_params = get_open_ai_completion_function_params(
@@ -299,7 +310,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         accumulated_response = ""
         
         # Validate that the model is supported.
-        model = self._resolve_model(model)
+        model = self._resolve_model(model, response_format_info)
             
         # Send initial acknowledgment
         reply_fn(CompletionReply(

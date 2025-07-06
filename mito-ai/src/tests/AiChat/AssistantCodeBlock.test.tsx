@@ -33,7 +33,7 @@ jest.mock('../../utils/copyToClipboard', () => jest.fn());
 
 // Create base props for the component
 const createMockProps = (overrides = {}) => ({
-    code: 'line1\nline2\nline3\nline4\nline5',
+    code: '```python\nline1\nline2\nline3\nline4\nline5\n```',
     isCodeComplete: true,
     renderMimeRegistry: {} as IRenderMimeRegistry,
     previewAICode: jest.fn(),
@@ -124,7 +124,7 @@ describe('AssistantCodeBlock Component', () => {
             render(<AssistantCodeBlock {...props} />);
 
             const codeElement = screen.getByTestId('python-code');
-            expect(codeElement.textContent).toBe('line1\nline2\nline3\nline4\nline5');
+            expect(codeElement.textContent).toBe('```python\nline1\nline2\nline3\nline4\nline5\n```');
         });
 
         it('shows full code when agent mode is expanded', () => {
@@ -137,7 +137,7 @@ describe('AssistantCodeBlock Component', () => {
             fireEvent.click(screen.getByText('Generated 5 lines of code'));
 
             const codeElement = screen.getByTestId('python-code');
-            expect(codeElement.textContent).toBe('line1\nline2\nline3\nline4\nline5');
+            expect(codeElement.textContent).toBe('```python\nline1\nline2\nline3\nline4\nline5\n```');
         });
     });
 });
