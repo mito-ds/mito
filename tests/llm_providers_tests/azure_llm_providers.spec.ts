@@ -93,7 +93,7 @@ test.describe.serial('Azure OpenAI Integration Tests', () => {
     await selectModel(page, 'GPT 4.1');
 
     // Check the status button
-    await page.getByRole("button", { name: "Mito AI" }).click();
+    await page.getByRole('button', { name: 'Mito AI', exact: true }).click();
     await expect(page.locator(".mito-ai-status-popup")).toBeVisible();
     await expect(page.locator(".mito-ai-status-popup")).toContainText("Azure OpenAI")
   });
