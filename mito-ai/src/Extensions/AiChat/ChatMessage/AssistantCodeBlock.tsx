@@ -39,7 +39,7 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     const [isCodeExpanded, setIsCodeExpanded] = useState(false);
 
     // Memoize calculations
-    const lineCount = useMemo(() => code.split('\n').length, [code]);
+    const lineCount = useMemo(() => code.split('\n').length - 2, [code]);
 
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
 
