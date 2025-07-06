@@ -17,7 +17,7 @@ analytics.write_key = WRITE_KEY
 
 # If you want, you can optionally choose to print logs
 # helpful for debugging.
-PRINT_LOGS = False
+PRINT_LOGS = True
 
 ################################# 
 # Mito AI Completion 
@@ -83,7 +83,6 @@ def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
-    
     # If the user is on the Mito server, then they are sending
     # us their information already
     if key_type == 'mito_server_key':
@@ -340,10 +339,10 @@ def log_db_connection_success(connection_type: str, schema: Dict[str, Any]) -> N
     )
 
 def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
-    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, error=error)
+    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
     
 def log_ai_completion_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
-    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, error=error)
+    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
 
 def log_db_connection_error(connection_type: str, error_message: str) -> None:
     log(
