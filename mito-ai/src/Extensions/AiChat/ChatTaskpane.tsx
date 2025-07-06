@@ -37,15 +37,15 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { 
-    getActiveCellID, 
-    getActiveCellOutput, 
-    getCellByID, 
-    getCellCodeByID, 
-    highlightCodeCell, 
-    scrollToCell, 
-    setActiveCellByID, 
-    writeCodeToCellByID, 
+import {
+    getActiveCellID,
+    getActiveCellOutput,
+    getCellByID,
+    getCellCodeByID,
+    highlightCodeCell,
+    scrollToCell,
+    setActiveCellByID,
+    writeCodeToCellByID,
 } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
@@ -141,7 +141,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Keep track of agent mode enabled state and use keep a ref in sync with it 
         so that we can access the most up-to-date value during a function's execution.
         Without it, we would always use the initial value of agentModeEnabled.
-    */ 
+    */
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(true)
     const agentModeEnabledRef = useRef<boolean>(agentModeEnabled);
     useEffect(() => {
@@ -192,19 +192,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
             await websocketClient.sendMessage({
-              type: "update_model_config",
-              message_id: UUID.uuid4(),
-              metadata: {
-                promptType: "update_model_config",
-                model: model
-              },
-              stream: false
+                type: "update_model_config",
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: "update_model_config",
+                    model: model
+                },
+                stream: false
             });
-    
+
             console.log('Model configuration updated on backend:', model);
-          } catch (error) {
+        } catch (error) {
             console.error('Failed to update model configuration on backend:', error);
-          }
+        }
     };
 
     const fetchChatThreads = async (): Promise<void> => {
@@ -310,7 +310,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Clear next steps when starting a new chat
         setNextSteps([])
-        
+
         // Clear agent checkpoint when starting new chat
         setHasCheckpoint(false)
 
@@ -431,7 +431,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             when the state changes.
         */
         chatHistoryManagerRef.current = chatHistoryManager;
-        
+
     }, [chatHistoryManager]);
 
     // Scroll to bottom whenever chat history updates, but only if in follow mode
@@ -449,7 +449,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const handleScroll = (): void => {
             const { scrollTop, scrollHeight, clientHeight } = chatContainer;
             const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
-            
+
             // If user is not at bottom and we're in follow mode, break out of follow mode
             if (!isAtBottom && autoScrollFollowModeRef.current) {
                 setAutoScrollFollowMode(false);
@@ -554,8 +554,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendAgentExecutionMessage = async (
-        input: string, 
-        messageIndex?: number, 
+        input: string,
+        messageIndex?: number,
         sendActiveCellOutput: boolean = false,
         selectedRules?: string[]
     ): Promise<void> => {
@@ -1249,52 +1249,49 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const activeCellIndex = notebook.activeCellIndex
 
-        notebook.widgets.forEach((cell, index) => {
-            if (cell.model.type === 'code') {
+        try {
+            notebook.widgets.forEach((cell, index) => {
+                if (cell.model.type === 'code') {
 
-                const isActiveCodeCell = activeCellIndex === index
+                    const isActiveCodeCell = activeCellIndex === index
 
-                // TODO: Instead of casting, we should rely on the type system to make 
-                // sure we're using the correct types!
-                const codeCell = cell as CodeCell; 
-                
-                // Add safety check to ensure codeCell is a valid object before using it as WeakMap key
-                // This sometimes happens when starting a chat from trymito.io
-                if (!codeCell || typeof codeCell !== 'object') {
-                    console.warn('Mito AI: Invalid codeCell object, skipping code diff stripes');
-                    return;
-                }
-                
-                const cmEditor = codeCell.editor as CodeMirrorEditor;
-                const editorView = cmEditor?.editor;
+                    // TODO: Instead of casting, we should rely on the type system to make 
+                    // sure we're using the correct types!
+                    const codeCell = cell as CodeCell;
 
-                if (editorView) {
-                    let compartment = codeDiffStripesCompartments.current.get(codeCell);
+                    const cmEditor = codeCell.editor as CodeMirrorEditor;
+                    const editorView = cmEditor?.editor;
 
-                    if (!compartment) {
-                        // Create a new compartment and store it
-                        compartment = new Compartment();
-                        codeDiffStripesCompartments.current.set(codeCell, compartment);
+                    if (editorView) {
+                        let compartment = codeDiffStripesCompartments.current.get(codeCell);
 
-                        // Apply the initial configuration
-                        editorView.dispatch({
-                            effects: StateEffect.appendConfig.of(
-                                compartment.of(unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : [])
-                            ),
-                        });
+                        if (!compartment) {
+                            // Create a new compartment and store it
+                            compartment = new Compartment();
+                            codeDiffStripesCompartments.current.set(codeCell, compartment);
+
+                            // Apply the initial configuration
+                            editorView.dispatch({
+                                effects: StateEffect.appendConfig.of(
+                                    compartment.of(unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : [])
+                                ),
+                            });
+                        } else {
+                            // Reconfigure the compartment
+                            editorView.dispatch({
+                                effects: compartment.reconfigure(
+                                    unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : []
+                                ),
+                            });
+                        }
                     } else {
-                        // Reconfigure the compartment
-                        editorView.dispatch({
-                            effects: compartment.reconfigure(
-                                unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : []
-                            ),
-                        });
+                        console.log('Mito AI: editor view not found when applying code diff stripes')
                     }
-                } else {
-                    console.log('Mito AI: editor view not found when applying code diff stripes')
                 }
-            }
-        });
+            });
+        } catch (error) {
+            console.error('Error updating code cells extensions', error)
+        }
     };
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
@@ -1426,7 +1423,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             )}
             <div className={`connected-input-container ${nextSteps.length > 0 ? 'has-next-steps' : ''}`}>
                 {nextSteps.length > 0 && (
-                    <NextStepsPills 
+                    <NextStepsPills
                         nextSteps={nextSteps}
                         onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
                         displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
@@ -1475,7 +1472,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         <ModelSelector onConfigChange={(config) => {
                             // Just update the backend
                             void updateModelOnBackend(config.model);
-                        }}/>
+                        }} />
                     </div>
                     <button
                         className="button-base submit-button"
