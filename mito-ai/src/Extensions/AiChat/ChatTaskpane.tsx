@@ -1258,6 +1258,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // sure we're using the correct types!
                 const codeCell = cell as CodeCell; 
                 
+                // Add safety check to ensure codeCell is a valid object before using it as WeakMap key
+                // This sometimes happens when starting a chat from trymito.io
+                if (!codeCell || typeof codeCell !== 'object') {
+                    console.warn('Mito AI: Invalid codeCell object, skipping code diff stripes');
+                    return;
+                }
+                
                 const cmEditor = codeCell.editor as CodeMirrorEditor;
                 const editorView = cmEditor?.editor;
 
