@@ -10,14 +10,13 @@
 }
 
 .error-fixup-header {
-    color: var(--jp-ui-font-color1);
-    padding: 0 10px;
+    padding: 0 var(--chat-taskpane-item-indent);
 }
 
 .error-fixup-messages-container {
-    padding: 0 10px 0 15px;
-    margin-left: 20px;
-    border-left: 2px solid var(--jp-ui-font-color3);
+    margin-left: var(--chat-taskpane-item-indent);
+    padding: 0 10px;
+    border-left: 1.5px solid var(--jp-cell-editor-border-color);
 }
 
 .error-fixup-container {
@@ -26,8 +25,9 @@
     align-items: stretch;
     justify-content: start;
     background-color: transparent;
-    margin: 10px 0;
+    margin: 0 0;
     color: var(--jp-ui-font-color2);
+    overflow: hidden;
 }
 
 .error-fixup-toggle {
@@ -46,9 +46,10 @@
 }
 
 .error-fixup-container.expanded {
-    border: 1px solid var(--grey-300);
+    border: 1px solid var(--jp-cell-editor-border-color);
     border-radius: 5px;
     background-color: var(--jp-layout-color2);
+    margin-bottom: 5px;
 }
 
 .error-fixup-expanded {
