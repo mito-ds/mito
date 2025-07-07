@@ -41,7 +41,7 @@ export const processChatHistoryForErrorGrouping = (
             // which is the ai response to the error fixup message.
             groupedErrorMessages.push(displayOptimizedChatItem);
             
-            // TODO: Make sure the next message is an ai response to the error fixup message. 
+            // Note: We check that the next message is an ai response to the error fixup message.
             // If the user has stopped the agent, it might not be an ai response to the error fixup message.
 
             const next_index = i + 1;
