@@ -1299,8 +1299,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         processedDisplayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
     }
 
-    console.log('processedDisplayOptimizedChatHistory', processedDisplayOptimizedChatHistory)
-
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
