@@ -89,6 +89,7 @@ const GroupedErrorsAndFixes: React.FC<IErrorFixupToolUIProps> = ({
                         <AssistantCodeBlock
                             key={`assistant-${index}`}
                             code={messageItem.message.content as string}
+                            codeSummary={undefined}
                             isCodeComplete={true}
                             renderMimeRegistry={renderMimeRegistry}
                             previewAICode={() => { }}
