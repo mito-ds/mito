@@ -490,6 +490,12 @@ function activateMitosheetExtension(
         keys: ['Shift Enter'],
         selector: '.mito-container'
     });
+
+
+    // We need to add the app.commands to the window object 
+    // so we can create a new mitosheet when the user clicks the button.
+    // And establish the connection from Jupyter to the Mito frontend.
+    window.commands = app.commands;
 }
 
 const mitosheetJupyterLabPlugin: JupyterFrontEndPlugin<void> = {

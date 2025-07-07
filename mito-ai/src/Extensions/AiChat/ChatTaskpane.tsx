@@ -37,15 +37,15 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { 
-    getActiveCellID, 
-    getActiveCellOutput, 
-    getCellByID, 
-    getCellCodeByID, 
-    highlightCodeCell, 
-    scrollToCell, 
-    setActiveCellByID, 
-    writeCodeToCellByID, 
+import {
+    getActiveCellID,
+    getActiveCellOutput,
+    getCellByID,
+    getCellCodeByID,
+    highlightCodeCell,
+    scrollToCell,
+    setActiveCellByID,
+    writeCodeToCellByID,
 } from '../../utils/notebook';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
@@ -89,6 +89,7 @@ import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
 import { processChatHistoryForErrorGrouping } from '../../utils/chatHistory';
 import { GroupedErrorMessages } from '../../utils/chatHistory';
 import ErrorFixupToolUI from '../../components/AgentToolComponents/ErrorFixupToolUI';
+import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -143,7 +144,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Keep track of agent mode enabled state and use keep a ref in sync with it 
         so that we can access the most up-to-date value during a function's execution.
         Without it, we would always use the initial value of agentModeEnabled.
-    */ 
+    */
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(true)
     const agentModeEnabledRef = useRef<boolean>(agentModeEnabled);
     useEffect(() => {
@@ -194,19 +195,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
             await websocketClient.sendMessage({
-              type: "update_model_config",
-              message_id: UUID.uuid4(),
-              metadata: {
-                promptType: "update_model_config",
-                model: model
-              },
-              stream: false
+                type: "update_model_config",
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: "update_model_config",
+                    model: model
+                },
+                stream: false
             });
-    
+
             console.log('Model configuration updated on backend:', model);
-          } catch (error) {
+        } catch (error) {
             console.error('Failed to update model configuration on backend:', error);
-          }
+        }
     };
 
     const fetchChatThreads = async (): Promise<void> => {
@@ -312,7 +313,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Clear next steps when starting a new chat
         setNextSteps([])
-        
+
         // Clear agent checkpoint when starting new chat
         setHasCheckpoint(false)
 
@@ -383,8 +384,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 const firstMessage = getFirstMessageFromCookie();
                 if (firstMessage) {
+                    await waitForNotebookReady(notebookTracker);
                     await startAgentExecution(firstMessage);
-                    
                 }
 
             } catch (error: unknown) {
@@ -433,7 +434,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             when the state changes.
         */
         chatHistoryManagerRef.current = chatHistoryManager;
-        
+
     }, [chatHistoryManager]);
 
     // Scroll to bottom whenever chat history updates, but only if in follow mode
@@ -451,7 +452,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const handleScroll = (): void => {
             const { scrollTop, scrollHeight, clientHeight } = chatContainer;
             const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
-            
+
             // If user is not at bottom and we're in follow mode, break out of follow mode
             if (!isAtBottom && autoScrollFollowModeRef.current) {
                 setAutoScrollFollowMode(false);
@@ -556,8 +557,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendAgentExecutionMessage = async (
-        input: string, 
-        messageIndex?: number, 
+        input: string,
+        messageIndex?: number,
         sendActiveCellOutput: boolean = false,
         selectedRules?: string[]
     ): Promise<void> => {
@@ -1238,9 +1239,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE);
         app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE);
     }
-
-    // Create a WeakMap to store compartments per code cell
-    const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
+    
+    const codeDiffStripesCompartments = React.useRef(new Map<string, Compartment>());
 
     // Function to update the extensions of code cells
     const updateCodeCellsExtensions = (unifiedDiffLines: UnifiedDiffLine[] | undefined): void => {
@@ -1253,18 +1253,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         notebook.widgets.forEach((cell, index) => {
             if (cell.model.type === 'code') {
+
                 const isActiveCodeCell = activeCellIndex === index
+
+                // TODO: Instead of casting, we should rely on the type system to make 
+                // sure we're using the correct types!
                 const codeCell = cell as CodeCell;
+
                 const cmEditor = codeCell.editor as CodeMirrorEditor;
                 const editorView = cmEditor?.editor;
 
                 if (editorView) {
-                    let compartment = codeDiffStripesCompartments.current.get(codeCell);
+                    const cellId = codeCell.model.id;
+                    let compartment = codeDiffStripesCompartments.current.get(cellId);
 
                     if (!compartment) {
                         // Create a new compartment and store it
                         compartment = new Compartment();
-                        codeDiffStripesCompartments.current.set(codeCell, compartment);
+                        codeDiffStripesCompartments.current.set(cellId, compartment);
 
                         // Apply the initial configuration
                         editorView.dispatch({
@@ -1438,7 +1444,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             )}
             <div className={`connected-input-container ${nextSteps.length > 0 ? 'has-next-steps' : ''}`}>
                 {nextSteps.length > 0 && (
-                    <NextStepsPills 
+                    <NextStepsPills
                         nextSteps={nextSteps}
                         onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
                         displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
@@ -1487,7 +1493,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         <ModelSelector onConfigChange={(config) => {
                             // Just update the backend
                             void updateModelOnBackend(config.model);
-                        }}/>
+                        }} />
                     </div>
                     <button
                         className="button-base submit-button"

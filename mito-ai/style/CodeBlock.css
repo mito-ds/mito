@@ -109,6 +109,16 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-mode-toggle-content svg {
+  flex-shrink: 0;
+}
+
+.agent-mode-toggle svg:last-child {
+  flex-shrink: 0;
 }
 
 .agent-mode-toggle.expanded {
