@@ -45,8 +45,7 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
 
     if (agentModeEnabled) {
         return (
-            <div className={classNames('code-block-container', {
-                'agent-mode': true,
+            <div className={classNames('code-block-container', 'agent-mode', {
                 'agent-mode-collapsed': !isCodeExpanded,
             })}>
                 <div
