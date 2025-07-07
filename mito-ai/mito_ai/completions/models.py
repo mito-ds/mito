@@ -20,6 +20,7 @@ class CellUpdate(BaseModel):
     index: Optional[int]
     id: Optional[str]
     code: str
+    code_summary: str
     cell_type: Optional[Literal['code', 'markdown']]
 
 
