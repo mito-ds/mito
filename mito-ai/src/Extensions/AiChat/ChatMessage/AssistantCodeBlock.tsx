@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { classNames } from '../../../utils/classNames';
@@ -15,6 +15,7 @@ import CodeBlockToolbar from './CodeBlockToolbar';
 
 interface IAssistantCodeBlockProps {
     code: string;
+    codeSummary: string | undefined;
     isCodeComplete: boolean;
     renderMimeRegistry: IRenderMimeRegistry;
     previewAICode: () => void;
@@ -28,6 +29,7 @@ interface IAssistantCodeBlockProps {
 
 const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     code,
+    codeSummary,
     isCodeComplete,
     renderMimeRegistry,
     previewAICode,
@@ -39,10 +41,6 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     isErrorFixup
 }) => {
     const [isCodeExpanded, setIsCodeExpanded] = useState(false);
-
-    // Memoize calculations
-    const lineCount = useMemo(() => code.split('\n').length, [code]);
-
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
 
     if (agentModeEnabled) {
@@ -60,7 +58,7 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
                 >
                     <span className="agent-mode-toggle-content">
                         <CodeIcon />
-                        Generated {lineCount} lines of code
+                        {codeSummary ?? 'Generated code'}
                     </span>
                     <ExpandIcon isExpanded={isCodeExpanded} />
                 </div>

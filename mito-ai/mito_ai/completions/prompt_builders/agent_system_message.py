@@ -49,6 +49,7 @@ Format:
         type: 'modification'
         id: str,
         code: str
+        code_summary: str
         cell_type: 'code' | 'markdown'
     }}
     get_cell_output_cell_id: None,
@@ -59,7 +60,8 @@ Important information:
 1. The id is the id of the code cell that you want to update. The id MUST already be part of the original Jupyter Notebook that your colleague shared with you.
 2. The message is a short summary of your thought process that helped you decide what to update in cell_update.
 3. The code should be the full contents of that updated code cell. The code that you return will overwrite the existing contents of the code cell so it must contain all necessary code.
-4. Important: Only use the CELL_UPDATE tool if you want to add/modify a notebook cell in response to the user's request. If the user is just sending you a friendly greeting or asking you a question about yourself, you SHOULD NOT USE A CELL_UPDATE tool because it does not require modifying the notebook. Instead, just use the FINISHED_TASK response.
+4. The code_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Loading data", "Filtering rows", "Calculating average", "Plotting revenue"). Avoid full sentences or explanations—this should read like a quick commit message or code label, not a description.
+5. Important: Only use the CELL_UPDATE tool if you want to add/modify a notebook cell in response to the user's request. If the user is just sending you a friendly greeting or asking you a question about yourself, you SHOULD NOT USE A CELL_UPDATE tool because it does not require modifying the notebook. Instead, just use the FINISHED_TASK response.
 
 #### Cell Addition:
 When you want to add a new cell to the notebook, respond in this format
@@ -72,6 +74,7 @@ Format:
         type: 'new'
         index: int
         code: str   
+        code_summary: str
         cell_type: 'code' | 'markdown'
     }}
     get_cell_output_cell_id: None,
@@ -82,7 +85,8 @@ Important information:
 1. The index should be the 0-index position of where you want the new code cell to be added in the notebook.
 2. The message is a short summary of your thought process that helped you decide what to update in cell_update.
 3. The code should be the full contents of that updated code cell. The code that you return will overwrite the existing contents of the code cell so it must contain all necessary code.
-4. The cell_type should only be 'markdown' if there is no code to add. There may be times where the code has comments. These are still code cells and should have the cell_type 'code'. Any cells that are labeled 'markdown' will be converted to markdown cells by the user.
+4. code_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Loading data", "Filtering rows", "Calculating average", "Plotting revenue"). Avoid full sentences or explanations—this should read like a quick commit message or code label, not a description.
+5. The cell_type should only be 'markdown' if there is no code to add. There may be times where the code has comments. These are still code cells and should have the cell_type 'code'. Any cells that are labeled 'markdown' will be converted to markdown cells by the user.
 
 <Cell Modification Example>
 Jupyter Notebook:
@@ -126,6 +130,7 @@ Output:
         type: 'modification'
         id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc',
         code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier",
+        code_summary: "Converting the transaction_date column",
         cell_type: 'code'
     }},
     get_cell_output_cell_id: None,
@@ -175,6 +180,8 @@ Output:
         type: 'add'
         index: 2
         code: "import matplotlib.pyplot as plt\n\nplt.bar(sales_df.index, sales_df['total_price'])\nplt.title('Total Price per Sale')\nplt.xlabel('Transaction Number')\nplt.ylabel('Sales Price ($)')\nplt.show()"
+        code_summary: "Plotting total_price",
+        code_summary: "Plotting total_price"
     }},
     get_cell_output_cell_id: None,
     next_steps: None
@@ -309,6 +316,7 @@ Output:
         type: 'add'
         index: 2
         code: "all_time_high_row_idx = tesla_stock_prices_df['closing_price'].idxmax()\nall_time_high_date = tesla_stock_prices_df.at[all_time_high_row_idx, 'Date']\nall_time_high_price = tesla_stock_prices_df.at[all_time_high_row_idx, 'closing_price']"
+        code_summary: "Calculating all time high"
     }},
     get_cell_output_cell_id: None
 }}
