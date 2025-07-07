@@ -66,4 +66,5 @@ MITO_STREAMLIT_DEV_BASE_URL = "https://fr12uvtfy5.execute-api.us-east-1.amazonaw
 MITO_STREAMLIT_TEST_BASE_URL = "https://iyual08t6d.execute-api.us-east-1.amazonaws.com"
 
 # Set ACTIVE_BASE_URL manually
+# TODO: Modify to PROD url before release
 ACTIVE_STREAMLIT_BASE_URL = MITO_STREAMLIT_TEST_BASE_URL  # Change to MITO_STREAMLIT_DEV_BASE_URL for dev
