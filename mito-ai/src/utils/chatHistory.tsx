@@ -56,6 +56,8 @@ export const processChatHistoryForErrorGrouping = (
         } else {
             if (groupedErrorMessages.length > 0) {
                 processedDisplayOptimizedChatHistory.push(groupedErrorMessages);
+                // Create a new array object since arrays are mutable and we want to avoid
+                // accidentally modifying the array that was just pushed to the history
                 groupedErrorMessages = new Array<IDisplayOptimizedChatItem>();
             }
             
