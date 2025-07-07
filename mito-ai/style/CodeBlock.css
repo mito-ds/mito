@@ -95,6 +95,11 @@
   align-items: center;
   border: 1px solid var(--jp-cell-editor-border-color);
   border-radius: 5px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.agent-mode-toggle:hover {
+  background-color: var(--jp-layout-color3);
 }
 
 .agent-mode-toggle.error-fixup {
