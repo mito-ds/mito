@@ -132,9 +132,8 @@ class AnthropicClient:
     A client for interacting with the Anthropic API or the Mito server fallback.
     """
 
-    def __init__(self, api_key: Optional[str], model: str, timeout: int = 30, max_retries: int = 1):
+    def __init__(self, api_key: Optional[str], timeout: int = 30, max_retries: int = 1):
         self.api_key = api_key
-        self.model = model
         self.timeout = timeout
         self.max_retries = max_retries
         self.client: Optional[anthropic.Anthropic]
@@ -143,16 +142,19 @@ class AnthropicClient:
         else:
             self.client = None
 
-    async def request_completions(self, messages: List[ChatCompletionMessageParam],
-                                  response_format_info: Optional[ResponseFormatInfo] = None,
-                                  message_type: MessageType = MessageType.CHAT) -> Any:
+    async def request_completions(
+        self, messages: List[ChatCompletionMessageParam],
+        model: str,
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        message_type: MessageType = MessageType.CHAT
+    ) -> Any:
         """
         Get a response from Claude or the Mito server that adheres to the AgentResponse format.
         """
         anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
         
         provider_data = get_anthropic_completion_function_params(
-            model=self.model if response_format_info else ANTHROPIC_FAST_MODEL,
+            model=model if response_format_info is not None else ANTHROPIC_FAST_MODEL,
             messages=anthropic_messages,
             max_tokens=MAX_TOKENS,
             temperature=0,
@@ -188,7 +190,7 @@ class AnthropicClient:
             )
             return response
 
-    async def stream_completions(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
+    async def stream_completions(self, messages: List[ChatCompletionMessageParam], model: str, message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
             anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
@@ -197,7 +199,7 @@ class AnthropicClient:
             if self.api_key:
                 assert self.client is not None
                 stream = self.client.messages.create(
-                    model=self.model,
+                    model=model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
                     system=anthropic_system_prompt,
@@ -225,7 +227,7 @@ class AnthropicClient:
 
             else:
                 async for stram_chunk in stream_anthropic_completion_from_mito_server(
-                    model=self.model,
+                    model=model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
                     system=anthropic_system_prompt,

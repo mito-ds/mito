@@ -418,9 +418,6 @@ async def test_mito_server_fallback_stream_completion(
             # Verify that reply chunks were generated
             assert len(reply_chunks) > 0
 
-
-
-
 def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
     # Set up all possible providers
     monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: True)

@@ -101,15 +101,15 @@ def get_gemini_system_prompt_and_messages(messages: List[Dict[str, Any]]) -> Tup
 
 
 class GeminiClient:
-    def __init__(self, api_key: Optional[str], model: str):
+    def __init__(self, api_key: Optional[str]):
         self.api_key = api_key
-        self.model = model
         if api_key:
             self.client = genai.Client(api_key=api_key)
 
     async def request_completions(
         self,
         messages: List[Dict[str, Any]],
+        model: str,
         response_format_info: Optional[ResponseFormatInfo] = None,
         message_type: MessageType = MessageType.CHAT
     ) -> str:
@@ -118,7 +118,7 @@ class GeminiClient:
 
         # Get provider data for Gemini completion
         provider_data = get_gemini_completion_function_params(
-            model=self.model if response_format_info else GEMINI_FAST_MODEL,
+            model=model if response_format_info else GEMINI_FAST_MODEL,
             contents=contents,
             message_type=message_type,
             response_format_info=response_format_info
@@ -156,6 +156,7 @@ class GeminiClient:
     async def stream_completions(
             self,
             messages: List[Dict[str, Any]],
+            model: str,
             message_id: str,
             reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
             message_type: MessageType = MessageType.CHAT
@@ -166,7 +167,7 @@ class GeminiClient:
             system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
             if self.api_key:
                 for chunk in self.client.models.generate_content_stream(
-                        model=self.model,
+                        model=model,
                         contents=contents,  # type: ignore
                         config=GenerateContentConfig(
                             system_instruction=system_instructions
@@ -205,7 +206,7 @@ class GeminiClient:
                 return accumulated_response
             else:
                 async for chunk_text in stream_gemini_completion_from_mito_server(
-                        model=self.model,
+                        model=model,
                         contents=messages,  # Use the extracted contents instead of converted messages to avoid serialization issues
                         message_type=message_type,
                         message_id=message_id,

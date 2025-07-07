@@ -125,13 +125,13 @@ This attribute is observed by the websocket provider to push the error to the cl
             try:
                 if model_type == "claude":
                     api_key = constants.CLAUDE_API_KEY
-                    anthropic_client = AnthropicClient(api_key=api_key, model=model)
-                    completion = await anthropic_client.request_completions(messages, response_format_info, message_type)
+                    anthropic_client = AnthropicClient(api_key=api_key)
+                    completion = await anthropic_client.request_completions(messages, model, response_format_info, message_type)
                 elif model_type == "gemini":
                     api_key = constants.GEMINI_API_KEY
-                    gemini_client = GeminiClient(api_key=api_key, model=model)
+                    gemini_client = GeminiClient(api_key=api_key)
                     messages_for_gemini = [dict(m) for m in messages]
-                    completion = await gemini_client.request_completions(messages_for_gemini, response_format_info, message_type)
+                    completion = await gemini_client.request_completions(messages_for_gemini, model, response_format_info, message_type)
                 elif model_type == "openai":
                     if not self._openai_client:
                         raise RuntimeError("OpenAI client is not initialized.")
@@ -205,19 +205,23 @@ This attribute is observed by the websocket provider to push the error to the cl
         try:
             if model_type == "claude":
                 api_key = constants.CLAUDE_API_KEY
-                anthropic_client = AnthropicClient(api_key=api_key, model=model)
+                anthropic_client = AnthropicClient(api_key=api_key)
                 accumulated_response = await anthropic_client.stream_completions(
                     messages=messages,
+                    model=model,
                     message_type=message_type,
                     message_id=message_id,
                     reply_fn=reply_fn
                 )
             elif model_type == "gemini":
                 api_key = constants.GEMINI_API_KEY
-                gemini_client = GeminiClient(api_key=api_key, model=model)
+                gemini_client = GeminiClient(api_key=api_key)
+                # TODO: We shouldn't need to do this because the messages should already be dictionaries... 
+                # but if we do have to do some pre-processing, we should do it in the gemini_client instead.
                 messages_for_gemini = [dict(m) for m in messages]
                 accumulated_response = await gemini_client.stream_completions(
                     messages=messages_for_gemini,
+                    model=model,
                     message_id=message_id,
                     reply_fn=reply_fn,
                     message_type=message_type
