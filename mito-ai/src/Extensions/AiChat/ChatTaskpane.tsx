@@ -3,29 +3,21 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { JupyterFrontEnd } from '@jupyterlab/application';
-import { CodeCell } from '@jupyterlab/cells';
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
+// External libraries
 import { Compartment, StateEffect } from '@codemirror/state';
 import OpenAI from "openai";
 import React, { useEffect, useRef, useState } from 'react';
-import '../../../style/button.css';
-import '../../../style/ChatTaskpane.css';
-import '../../../style/TextButton.css';
+
+// JupyterLab imports
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { CodeCell } from '@jupyterlab/cells';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { addIcon, historyIcon, deleteIcon, settingsIcon } from '@jupyterlab/ui-components';
-import { OpenIndicatorLabIcon } from '../../icons';
-import MitoLogo from '../../icons/MitoLogo';
-import ChatInput from './ChatMessage/ChatInput';
-import ChatMessage from './ChatMessage/ChatMessage';
-import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
-import { ChatHistoryManager, PromptType } from './ChatHistoryManager';
-import { codeDiffStripesExtension } from './CodeDiffDisplay';
-import ToggleButton from '../../components/ToggleButton';
-import IconButton from '../../components/IconButton';
-import LoadingDots from '../../components/LoadingDots';
+import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
+
+// Internal imports - Commands
 import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
@@ -36,10 +28,46 @@ import {
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
+
+// Internal imports - Components
+import GroupedErrorsAndFixes from '../../components/AgentComponents/ErrorFixupToolUI';
+import DropdownMenu from '../../components/DropdownMenu';
+import IconButton from '../../components/IconButton';
+import LoadingCircle from '../../components/LoadingCircle';
+import LoadingDots from '../../components/LoadingDots';
+import { DEFAULT_MODEL } from '../../components/ModelSelector';
+import ModelSelector from "../../components/ModelSelector";
+import NextStepsPills from '../../components/NextStepsPills';
+import TextAndIconButton from '../../components/TextAndIconButton';
+import ToggleButton from '../../components/ToggleButton';
+
+// Internal imports - Icons
+import { OpenIndicatorLabIcon } from '../../icons';
+import MitoLogo from '../../icons/MitoLogo';
+import UndoIcon from '../../icons/UndoIcon';
+
+// Internal imports - Utils
+import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
+import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
+import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
+import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
-import { getActiveCellID, getActiveCellOutput, getCellByID, getCellCodeByID, highlightCodeCell, setActiveCellByID, writeCodeToCellByID } from '../../utils/notebook';
+import {
+    getActiveCellID,
+    getActiveCellOutput,
+    getCellByID,
+    getCellCodeByID,
+    highlightCodeCell,
+    scrollToCell,
+    setActiveCellByID,
+    writeCodeToCellByID,
+} from '../../utils/notebook';
+import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
+import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
+
+// Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
 import {
     IChatThreadMetadataItem,
@@ -62,17 +90,24 @@ import {
     AgentResponse,
     ICompletionStreamChunk
 } from '../../websockets/completions/CompletionModels';
+
+// Internal imports - Extensions
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
-import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
-import { scrollToDiv } from '../../utils/scroll';
-import LoadingCircle from '../../components/LoadingCircle';
-import { DEFAULT_MODEL } from '../../components/ModelSelector';
-import ModelSelector from "../../components/ModelSelector";
-import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
-import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
-import { getFirstMessageFromCookie } from './FirstMessage';
+
+// Internal imports - Chat components
 import CTACarousel from './CTACarousel';
+import { codeDiffStripesExtension } from './CodeDiffDisplay';
+import { getFirstMessageFromCookie } from './FirstMessage';
+import ChatInput from './ChatMessage/ChatInput';
+import ChatMessage from './ChatMessage/ChatMessage';
+import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
+import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
+
+// Styles
+import '../../../style/button.css';
+import '../../../style/ChatTaskpane.css';
+import '../../../style/TextButton.css';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -127,13 +162,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Keep track of agent mode enabled state and use keep a ref in sync with it 
         so that we can access the most up-to-date value during a function's execution.
         Without it, we would always use the initial value of agentModeEnabled.
-    */ 
+    */
     const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(true)
     const agentModeEnabledRef = useRef<boolean>(agentModeEnabled);
     useEffect(() => {
         // Update the ref whenever agentModeEnabled state changes
         agentModeEnabledRef.current = agentModeEnabled;
     }, [agentModeEnabled]);
+
+    /* 
+        Auto-scroll follow mode: tracks whether we should automatically scroll to bottom
+        when new messages arrive. Set to false when user manually scrolls up.
+    */
+    const [autoScrollFollowMode, setAutoScrollFollowMode] = useState<boolean>(true);
+    const autoScrollFollowModeRef = useRef<boolean>(autoScrollFollowMode);
+    useEffect(() => {
+        autoScrollFollowModeRef.current = autoScrollFollowMode;
+    }, [autoScrollFollowMode]);
 
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
@@ -157,22 +202,30 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
 
+    // State for managing next steps from responses
+    // If the user hides the next steps, we keep them hidden until they re-open them
+    const [nextSteps, setNextSteps] = useState<string[]>([]);
+    const [displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable] = useState(true);
+
+    // Track if checkpoint exists for UI updates
+    const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
+
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
             await websocketClient.sendMessage({
-              type: "update_model_config",
-              message_id: UUID.uuid4(),
-              metadata: {
-                promptType: "update_model_config",
-                model: model
-              },
-              stream: false
+                type: "update_model_config",
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: "update_model_config",
+                    model: model
+                },
+                stream: false
             });
-    
+
             console.log('Model configuration updated on backend:', model);
-          } catch (error) {
+        } catch (error) {
             console.error('Failed to update model configuration on backend:', error);
-          }
+        }
     };
 
     const fetchChatThreads = async (): Promise<void> => {
@@ -275,6 +328,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
             return chatHistoryManager;
         }
+
+        // Clear next steps when starting a new chat
+        setNextSteps([])
+
+        // Clear agent checkpoint when starting new chat
+        setHasCheckpoint(false)
+
+        // Enable follow mode when starting a new chat
+        setAutoScrollFollowMode(true);
+
         // Reset frontend chat history
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
         setChatHistoryManager(newChatHistoryManager);
@@ -339,8 +402,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 const firstMessage = getFirstMessageFromCookie();
                 if (firstMessage) {
+                    await waitForNotebookReady(notebookTracker);
                     await startAgentExecution(firstMessage);
-                    
                 }
 
             } catch (error: unknown) {
@@ -389,13 +452,38 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             when the state changes.
         */
         chatHistoryManagerRef.current = chatHistoryManager;
+
     }, [chatHistoryManager]);
 
-    // Scroll to bottom whenever chat history updates
+    // Scroll to bottom whenever chat history updates, but only if in follow mode
     useEffect(() => {
-        scrollToDiv(chatMessagesRef);
-    }, [chatHistoryManager.getDisplayOptimizedHistory().length]);
+        if (autoScrollFollowMode) {
+            scrollToDiv(chatMessagesRef);
+        }
+    }, [chatHistoryManager.getDisplayOptimizedHistory().length, chatHistoryManager, autoScrollFollowMode]);
 
+    // Add scroll event handler to detect manual scrolling
+    useEffect(() => {
+        const chatContainer = chatMessagesRef.current;
+        if (!chatContainer) return;
+
+        const handleScroll = (): void => {
+            const { scrollTop, scrollHeight, clientHeight } = chatContainer;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
+
+            // If user is not at bottom and we're in follow mode, break out of follow mode
+            if (!isAtBottom && autoScrollFollowModeRef.current) {
+                setAutoScrollFollowMode(false);
+            }
+            // If user scrolls back to bottom, re-enter follow mode
+            else if (isAtBottom && !autoScrollFollowModeRef.current) {
+                setAutoScrollFollowMode(true);
+            }
+        };
+
+        chatContainer.addEventListener('scroll', handleScroll);
+        return () => chatContainer.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const getDuplicateChatHistoryManager = (): ChatHistoryManager => {
 
@@ -414,8 +502,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         to the AI chat.
     */
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
+
+        // Enable follow mode when sending a debug message
+        setAutoScrollFollowMode(true);
 
         // Step 1: Add the smart debug message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -435,8 +526,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
+
+        // Enable follow mode when sending agent debug message (same behavior as other modes)
+        setAutoScrollFollowMode(true);
 
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -455,8 +549,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendExplainCodeMessage = async (): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
+
+        // Enable follow mode when explaining code
+        setAutoScrollFollowMode(true);
 
         // Step 1: Add the code explain message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -478,13 +575,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendAgentExecutionMessage = async (
-        input: string, 
-        messageIndex?: number, 
+        input: string,
+        messageIndex?: number,
         sendActiveCellOutput: boolean = false,
         selectedRules?: string[]
     ): Promise<void> => {
-        // Step 0: Reject the previous Ai generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -523,8 +620,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
-        // Step 0: Reject the previous AI generated code if they did not accept it
-        rejectAICode()
+        // Step 0: reset the state for a new message
+        resetForNewMessage()
+
+        // Enable follow mode when user sends a new message
+        setAutoScrollFollowMode(true);
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -564,29 +664,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             stream: true
         }
 
-        // Step 2: Scroll to the bottom of the chat messages container
-        // Add a small delay to ensure the new message is rendered
-        setTimeout(() => {
-            chatMessagesRef.current?.scrollTo({
-                top: chatMessagesRef.current.scrollHeight,
-                behavior: 'smooth'
-            });
-        }, 100);
-
-        // Step 3: Send the message to the AI
+        // Step 2: Send the message to the AI
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
-
-        // TODO: Can we move this into the _sendMessageAndSaveResponse function?        
-        // Step 4: Scroll to the bottom of the chat smoothly
-        setTimeout(() => {
-            const chatContainer = chatMessagesRef.current;
-            if (chatContainer) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
     }
 
     const handleUpdateMessage = async (
@@ -802,7 +881,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
+        await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
+
+        // Enable follow mode when user starts agent execution
+        setAutoScrollFollowMode(true);
 
         // Reset the execution flag at the start of a new plan
         shouldContinueAgentExecution.current = true;
@@ -976,6 +1059,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
+        scrollToCell(notebookTracker, activeCellID, undefined, 'end')
         updateCodeDiffStripes(lastAIDisplayMessage.message, activeCellID)
         updateCellToolbarButtons()
     }
@@ -1007,6 +1091,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Focus on the active cell
             targetCell.activate();
         }
+    }
+
+    const resetForNewMessage = (): void => {
+        /* 
+        Before we send the next user message, we need to reset the state for a new message:
+        - Reject the previous Ai generated code if they did not accept it yet
+        - Clear the next steps
+        */
+        rejectAICode()
+        setNextSteps([])
     }
 
     const rejectAICode = (): void => {
@@ -1163,9 +1257,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE);
         app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE);
     }
-
-    // Create a WeakMap to store compartments per code cell
-    const codeDiffStripesCompartments = React.useRef(new WeakMap<CodeCell, Compartment>());
+    
+    const codeDiffStripesCompartments = React.useRef(new Map<string, Compartment>());
 
     // Function to update the extensions of code cells
     const updateCodeCellsExtensions = (unifiedDiffLines: UnifiedDiffLine[] | undefined): void => {
@@ -1178,18 +1271,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         notebook.widgets.forEach((cell, index) => {
             if (cell.model.type === 'code') {
+
                 const isActiveCodeCell = activeCellIndex === index
+
+                // TODO: Instead of casting, we should rely on the type system to make 
+                // sure we're using the correct types!
                 const codeCell = cell as CodeCell;
+
                 const cmEditor = codeCell.editor as CodeMirrorEditor;
                 const editorView = cmEditor?.editor;
 
                 if (editorView) {
-                    let compartment = codeDiffStripesCompartments.current.get(codeCell);
+                    const cellId = codeCell.model.id;
+                    let compartment = codeDiffStripesCompartments.current.get(cellId);
 
                     if (!compartment) {
                         // Create a new compartment and store it
                         compartment = new Compartment();
-                        codeDiffStripesCompartments.current.set(codeCell, compartment);
+                        codeDiffStripesCompartments.current.set(cellId, compartment);
 
                         // Apply the initial configuration
                         editorView.dispatch({
@@ -1213,6 +1312,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
+
+    let processedDisplayOptimizedChatHistory: (IDisplayOptimizedChatItem | GroupedErrorMessages)[] = []
+    
+    // In agent mode, we group consecutive error messages together. 
+    // In chat mode, we display messages individually as they were sent
+    if (agentModeEnabled) {
+        processedDisplayOptimizedChatHistory = processChatHistoryForErrorGrouping(
+            chatHistoryManager.getDisplayOptimizedHistory()
+        );
+    } else {
+        processedDisplayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
+    }
+
+    // Type guard function to check if an item is GroupedErrorMessages
+    const isGroupedErrorMessages = (item: GroupedErrorMessages | IDisplayOptimizedChatItem): item is GroupedErrorMessages => {
+        return Array.isArray(item);
+    };
 
     return (
         <div className="chat-taskpane">
@@ -1271,37 +1387,70 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         <CTACarousel app={app} />
                     </div>
                 }
-                {displayOptimizedChatHistory.map((displayOptimizedChat, index) => {
-                    return (
-                        <ChatMessage
-                            key={index}
-                            message={displayOptimizedChat.message}
-                            promptType={displayOptimizedChat.promptType}
-                            messageType={displayOptimizedChat.type}
-                            agentResponse={displayOptimizedChat.agentResponse}
-                            codeCellID={displayOptimizedChat.codeCellID}
-                            mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
-                            mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}
-                            messageIndex={index}
-                            notebookTracker={notebookTracker}
-                            renderMimeRegistry={renderMimeRegistry}
-                            app={app}
-                            isLastAiMessage={index === lastAIMessagesIndex}
-                            operatingSystem={operatingSystem}
-                            previewAICode={previewAICodeToActiveCell}
-                            acceptAICode={acceptAICode}
-                            rejectAICode={rejectAICode}
-                            onUpdateMessage={handleUpdateMessage}
-                            contextManager={contextManager}
-                            codeReviewStatus={codeReviewStatus}
-                        />
-                    )
+                {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
+                    if (isGroupedErrorMessages(displayOptimizedChat)) {
+                        return (
+                            <GroupedErrorsAndFixes
+                                key={index}
+                                messages={displayOptimizedChat}
+                                renderMimeRegistry={renderMimeRegistry}
+                            />
+                        )
+                    } else {
+                        return (
+                            <ChatMessage
+                                key={index}
+                                message={displayOptimizedChat.message}
+                                promptType={displayOptimizedChat.promptType}
+                                messageType={displayOptimizedChat.type}
+                                agentResponse={displayOptimizedChat.agentResponse}
+                                codeCellID={displayOptimizedChat.codeCellID}
+                                mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
+                                mitoAIConnectionErrorType={displayOptimizedChat.mitoAIConnectionErrorType || null}
+                                messageIndex={index}
+                                notebookTracker={notebookTracker}
+                                renderMimeRegistry={renderMimeRegistry}
+                                app={app}
+                                isLastAiMessage={index === lastAIMessagesIndex}
+                                isLastMessage={index === displayOptimizedChatHistory.length - 1}
+                                operatingSystem={operatingSystem}
+                                previewAICode={previewAICodeToActiveCell}
+                                acceptAICode={acceptAICode}
+                                rejectAICode={rejectAICode}
+                                onUpdateMessage={handleUpdateMessage}
+                                contextManager={contextManager}
+                                codeReviewStatus={codeReviewStatus}
+                                setNextSteps={setNextSteps}
+                                agentModeEnabled={agentModeEnabled}
+                            />
+                        )
+                    }
                 }).filter(message => message !== null)}
                 {loadingAIResponse &&
                     <div className="chat-loading-message">
                         Thinking <LoadingDots />
                     </div>
                 }
+                {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
+                {hasCheckpoint &&
+                    agentModeEnabled &&
+                    agentExecutionStatus === 'idle' &&
+                    displayOptimizedChatHistory.length > 0 && (
+                        <div className='message message-assistant-chat'>
+                            <TextAndIconButton
+                                text="Revert changes"
+                                icon={UndoIcon}
+                                title="Revert changes"
+                                onClick={() => restoreCheckpoint(app, notebookTracker, setHasCheckpoint, getDuplicateChatHistoryManager, setChatHistoryManager)}
+                                variant="gray"
+                                width="fit-contents"
+                                iconPosition="left"
+                            />
+                            <p className="text-muted text-sm">
+                                Undo the most recent changes made by the agent
+                            </p>
+                        </div>
+                    )}
             </div>
             {displayOptimizedChatHistory.length === 0 && (
                 <div className="suggestions-container">
@@ -1316,45 +1465,58 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     />
                 </div>
             )}
-            <ChatInput
-                initialContent={''}
-                placeholder={
-                    agentExecutionStatus === 'working' ? 'Agent is working...' :
-                        agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
-                            agentModeEnabled ? 'Ask agent to do anything' :
-                                displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                                    : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                }
-                onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
-                onCancel={undefined}
-                isEditing={false}
-                contextManager={contextManager}
-                notebookTracker={notebookTracker}
-                renderMimeRegistry={renderMimeRegistry}
-                agentModeEnabled={agentModeEnabled}
-            />
+            <div className={`connected-input-container ${nextSteps.length > 0 ? 'has-next-steps' : ''}`}>
+                {nextSteps.length > 0 && (
+                    <NextStepsPills
+                        nextSteps={nextSteps}
+                        onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                        displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
+                        setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                    />
+                )}
+                <ChatInput
+                    initialContent={''}
+                    placeholder={
+                        agentExecutionStatus === 'working' ? 'Agent is working...' :
+                            agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
+                                agentModeEnabled ? 'Ask agent to do anything' :
+                                    displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                                        : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
+                    }
+                    onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                    onCancel={undefined}
+                    isEditing={false}
+                    contextManager={contextManager}
+                    notebookTracker={notebookTracker}
+                    renderMimeRegistry={renderMimeRegistry}
+                    agentModeEnabled={agentModeEnabled}
+                />
+            </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
                 <div className="chat-controls">
                     <div className="chat-controls-left">
                         <ToggleButton
                             leftText="Chat"
+                            leftTooltip="Chat mode suggests an edit to the active cell and let's you decide to accept or reject it."
                             rightText="Agent"
+                            rightTooltip="Agent mode writes and executes code until it's finished your request."
                             isLeftSelected={!agentModeEnabled}
                             onChange={async (isLeftSelected) => {
                                 await startNewChat(); // TODO: delete thread instead of starting new chat
                                 setAgentModeEnabled(!isLeftSelected);
+                                // Clear agent checkpoint when switching modes
+                                setHasCheckpoint(false);
                                 // Focus the chat input directly
                                 const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                 if (chatInput) {
                                     chatInput.focus();
                                 }
                             }}
-                            title="Agent can create plans and run code."
                         />
                         <ModelSelector onConfigChange={(config) => {
                             // Just update the backend
                             void updateModelOnBackend(config.model);
-                        }}/>
+                        }} />
                     </div>
                     <button
                         className="button-base submit-button"
@@ -1375,7 +1537,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             }
                         }}
                     >
-                        Submit ⏎
+                        <span className="submit-text">Submit</span> ⏎
                     </button>
                 </div>
             )}

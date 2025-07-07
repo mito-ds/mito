@@ -26,6 +26,7 @@ export type CellUpdateModification = {
   type: 'modification'
   id: string,
   code: string,
+  code_summary: string,
   cell_type: 'code' | 'markdown',
 }
 
@@ -33,6 +34,7 @@ export type CellUpdateNew = {
   type: 'new'
   index: number,
   code: string,
+  code_summary: string,
   cell_type: 'code' | 'markdown',
 }
 
@@ -43,6 +45,7 @@ export type AgentResponse = {
   message: string,
   cell_update?: CellUpdate,
   cell_id?: string,
+  next_steps?: string[]
 }
 
 /* 

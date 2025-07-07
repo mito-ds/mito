@@ -136,7 +136,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                 last_message_content=last_message_content,
                 response={"completion": completion},
                 user_input=user_input or "",
-                thread_id=thread_id or ""
+                thread_id=thread_id or "",
+                model=model
             )
             return completion
 
@@ -215,7 +216,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                 last_message_content=last_message_content,
                 response={"completion": accumulated_response},
                 user_input=user_input or "",
-                thread_id=thread_id
+                thread_id=thread_id,
+                model=model
             )
             return accumulated_response
 

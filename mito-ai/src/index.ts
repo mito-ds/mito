@@ -9,7 +9,6 @@ import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRen
 import ToolbarButtonsPlugin from './Extensions/ToolbarButtons/ToolbarButtonsPlugin';
 import AppBuilderPlugin from './Extensions/AppBuilder/AppBuilderPlugin';
 import { emptyCellPlaceholder } from './Extensions/emptyCell/EmptyCellPlugin';
-import { completionPlugin } from './Extensions/InlineCompleter';
 import { statusItem } from './Extensions/status';
 import SettingsManagerPlugin from './Extensions/SettingsManager/SettingsManagerPlugin';
 import { versionCheckPlugin } from './Extensions/VersionCheck';
@@ -24,7 +23,6 @@ export default [
   AppBuilderPlugin,
   ToolbarButtonsPlugin,
   emptyCellPlaceholder,
-  completionPlugin,
   statusItem,
   SettingsManagerPlugin,
   versionCheckPlugin,

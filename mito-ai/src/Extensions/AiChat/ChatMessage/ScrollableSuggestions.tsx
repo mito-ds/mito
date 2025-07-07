@@ -17,10 +17,6 @@ const DEFAULT_SUGGESTION_OPTIONS: SuggestionOption[] = [
         prompt: "Build an annotated graph of how Meta's acquisitions of Instagram, Whatsapp, and Giphy affected the Meta stock price. Use the data from https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/meta_stock_prices.csv"
     },
     {
-        display: "Explore EV Registrations",
-        prompt: "Visualize the top 20 electric vehicle (EV) makes and models registered in Washington state. Download the zip file with dataset with requests from https://www.kaggle.com/api/v1/datasets/download/sahirmaharajj/electric-vehicle-population"
-    },
-    {
         display: "Analyze Vehicle Fatalities",
         prompt: "Visualize which vehicle types are most deadly to pedestrians and cyclists, measuring total fatalities and fatality rate per collision. Use the data from https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/nyc_car_crashes.csv"
     },

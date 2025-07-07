@@ -11,7 +11,7 @@
 
   background-color: var(--chat-background-color);
   border-radius: 4px;
-  border: 1px solid var(--grey-300);
+  border: 1px solid var(--jp-cell-editor-border-color);
   overflow: hidden;
 }
 
@@ -28,7 +28,7 @@
 
   width: 100%;
   background-color: var(--chat-user-message-background-color);
-  border-bottom: 1px solid var(--grey-300);
+  border-bottom: 1px solid var(--jp-cell-editor-border-color);
   font-size: 0.8em;
 }
 
@@ -41,7 +41,7 @@
 .code-block-toolbar button {
   background-color: var(--chat-user-message-background-color);
   border: none;
-  border-left: 1px solid var(--grey-300);
+  border-left: 1px solid var(--jp-cell-editor-border-color);
   border-radius: 0px;
 
   font-size: 0.8em;
@@ -84,6 +84,57 @@
 
 .code-block-expand-button .icon-button {
   background-color: transparent;
+}
+
+.agent-mode-toggle {
+  cursor: pointer;
+  padding: 10px;
+  color: var(--jp-ui-font-color2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--jp-cell-editor-border-color);
+  border-radius: 5px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.agent-mode-toggle:hover {
+  background-color: var(--jp-layout-color3);
+}
+
+.agent-mode-toggle.error-fixup {
+  border: none;
+}
+
+.agent-mode-toggle.error-fixup.expanded {
+  background-color: var(--jp-layout-color2);
+}
+
+.agent-mode-toggle-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-mode-toggle-content svg {
+  flex-shrink: 0;
+}
+
+.agent-mode-toggle svg:last-child {
+  flex-shrink: 0;
+}
+
+.agent-mode-toggle.expanded {
+  border: none;
+  border-radius: 5px 5px 0 0;
+  background-color: var(--jp-layout-color2);
+}
+
+.agent-mode-collapsed {
+  border: none;
+  margin: 0 0;
 }
 
 

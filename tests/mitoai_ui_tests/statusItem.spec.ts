@@ -54,7 +54,7 @@ test.describe("Mito AI status item", () => {
 
     await page.goto(`tree/${tmpPath}`);
 
-    await page.getByRole("button", { name: "Mito AI" }).click();
+    await page.getByRole('button', { name: 'Mito AI', exact: true }).click();
 
     await expect(page.locator(".mito-ai-status-popup")).toBeVisible();
     await expect(page.locator(".mito-ai-status-popup")).toContainText("Mito server")
@@ -80,7 +80,7 @@ test.describe("Mito AI status item", () => {
 
     await page.goto(`tree/${tmpPath}`);
 
-    await page.getByRole("button", { name: "Mito AI" }).click();
+    await page.getByRole('button', { name: 'Mito AI', exact: true }).click();
 
     await expect(page.locator(".mito-ai-status-popup")).toBeVisible();
     await expect(page.locator(".mito-ai-status-popup")).toContainText("Free Trial Expired")
@@ -121,7 +121,7 @@ test.describe("Mito AI status item", () => {
 
     await page.goto(`tree/${tmpPath}`);
 
-    await page.getByRole("button", { name: "Mito AI" }).click();
+    await page.getByRole('button', { name: 'Mito AI', exact: true }).click();
 
     await expect(page.locator(".mito-ai-status-popup")).toContainText("Bad OpenAI API key");
     await expect(page.locator(".mito-ai-status-popup")).toContainText("Try again with a valid API key")
@@ -131,17 +131,17 @@ test.describe("Mito AI status item", () => {
     page,
     tmpPath,
   }) => {
-        // Mock head request to websocket to fake missing server endpoint
-        await page.route(/.*\/mito-ai\/completions/, (request) => {
-          request.fulfill({
-            status: 404,
-            body: 'Not Found',
-          })
-        });
-    
-        await page.goto(`tree/${tmpPath}`);
-    
-        await page.getByRole("button", { name: "Mito AI" }).click();
+    // Mock head request to websocket to fake missing server endpoint
+    await page.route(/.*\/mito-ai\/completions/, (request) => {
+      request.fulfill({
+        status: 404,
+        body: 'Not Found',
+      })
+    });
+
+    await page.goto(`tree/${tmpPath}`);
+
+    await page.getByRole('button', { name: 'Mito AI', exact: true }).click();
 
     await expect(page.locator(".mito-ai-status-popup")).toContainText("Mito AI extension not enabled.")
     await expect(page.locator(".mito-ai-status-popup")).toContainText("You can enable it by running in a cell `!jupyter server extension enable mito_ai`. Then restart the application.")

@@ -237,6 +237,6 @@ class Evals:
             bool; True if the MITO_CITATION object is present and False otherwise
         """
         last_response_message = self.list_of_responses[-1]["message"]
-        citation_pattern = r"\[MITO_CITATION:[\w\-]+:\d+\]"
+        citation_pattern = r"\[MITO_CITATION:[\w\-]+:\d+(?:-\d+)?\]"
         match = re.search(citation_pattern, last_response_message)
         return True if match else False

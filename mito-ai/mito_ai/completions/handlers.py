@@ -38,14 +38,12 @@ from mito_ai.completions.models import (
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
-from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.completion_handlers.chat_completion_handler import get_chat_completion, stream_chat_completion
 from mito_ai.completions.completion_handlers.smart_debug_handler import get_smart_debug_completion, stream_smart_debug_completion
 from mito_ai.completions.completion_handlers.code_explain_handler import get_code_explain_completion, stream_code_explain_completion
 from mito_ai.completions.completion_handlers.inline_completer_handler import get_inline_completion
 from mito_ai.completions.completion_handlers.agent_execution_handler import get_agent_execution_completion
 from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
-from mito_ai.completions.completion_handlers.open_ai_models import MESSAGE_TYPE_TO_MODEL
 from mito_ai.utils.telemetry_utils import identify
 
 FALLBACK_MODEL = "gpt-4.1"  # Default model to use for safety

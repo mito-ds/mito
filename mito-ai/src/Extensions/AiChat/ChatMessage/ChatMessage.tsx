@@ -7,7 +7,8 @@ import React, { useState } from 'react';
 import OpenAI from 'openai';
 import { classNames } from '../../../utils/classNames';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import CodeBlock from './CodeBlock';
+import UserCodeBlock from './UserCodeBlock';
+import AssistantCodeBlock from './AssistantCodeBlock';
 import AlertBlock from './AlertBlock';
 import MarkdownBlock from './MarkdownBlock';
 import { INotebookTracker } from '@jupyterlab/notebook';
@@ -28,7 +29,7 @@ import { IDisplayOptimizedChatItem } from '../ChatHistoryManager';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
-import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
+import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -43,6 +44,7 @@ interface IChatMessageProps {
     renderMimeRegistry: IRenderMimeRegistry
     app: JupyterFrontEnd
     isLastAiMessage: boolean
+    isLastMessage: boolean
     operatingSystem: OperatingSystem
     previewAICode: () => void
     acceptAICode: () => void
@@ -50,6 +52,8 @@ interface IChatMessageProps {
     onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
+    setNextSteps: (nextSteps: string[]) => void
+    agentModeEnabled: boolean
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -63,13 +67,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     notebookTracker,
     renderMimeRegistry,
     isLastAiMessage,
+    isLastMessage,
     operatingSystem,
     previewAICode,
     acceptAICode,
     rejectAICode,
     onUpdateMessage,
     contextManager,
-    codeReviewStatus
+    codeReviewStatus,
+    setNextSteps,
+    agentModeEnabled,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -80,7 +87,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     const editable = message.role === 'user'
 
     const messageContentParts = splitStringWithCodeBlocks(message);
-
+    const messageContent = getContentStringFromMessage(message);
+    
     const handleEditClick = (): void => {
         setIsEditing(true);
     };
@@ -94,6 +102,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         setIsEditing(false);
     };
 
+    if (isLastMessage && agentResponse?.type === 'finished_task' && agentResponse.next_steps && agentResponse.next_steps.length > 0) {
+        /* 
+        We only want to set the next steps if the message is the last message in the chat.
+        This is because the next steps are only available after the agent has finished its task.
+
+        We handle this in the ChatMessage component to automatically handle reloading a previous chat thread.
+        */
+        setNextSteps(agentResponse.next_steps);
+    }
+    
     if (isEditing) {
         return (
             <ChatInput
@@ -122,7 +140,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     }
 
     // If the message is empty, don't render anything
-    const messageContent = getContentStringFromMessage(message)
     if (messageContent === undefined || messageContent === '') {
         return <></>
     }
@@ -148,18 +165,26 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     if (messagePart.length > 14) {
                         return ( 
                             <>
-                                <CodeBlock
-                                    key={index + messagePart}
-                                    code={messagePart}
-                                    isCodeComplete={isCodeComplete}
-                                    role={message.role}
-                                    renderMimeRegistry={renderMimeRegistry}
-                                    previewAICode={previewAICode}
-                                    acceptAICode={acceptAICode}
-                                    rejectAICode={rejectAICode}
-                                    isLastAiMessage={isLastAiMessage}
-                                    codeReviewStatus={codeReviewStatus}
-                                />
+                                {message.role === 'user' ? (
+                                    <UserCodeBlock
+                                        code={messagePart}
+                                        renderMimeRegistry={renderMimeRegistry}
+                                        agentModeEnabled={agentModeEnabled}
+                                    />
+                                ) : (
+                                    <AssistantCodeBlock
+                                        code={messagePart}
+                                        codeSummary={agentResponse?.cell_update?.code_summary ?? undefined}
+                                        isCodeComplete={isCodeComplete}
+                                        renderMimeRegistry={renderMimeRegistry}
+                                        previewAICode={previewAICode}
+                                        acceptAICode={acceptAICode}
+                                        rejectAICode={rejectAICode}
+                                        isLastAiMessage={isLastAiMessage}
+                                        codeReviewStatus={codeReviewStatus}
+                                        agentModeEnabled={agentModeEnabled}
+                                    />
+                                )}
 
                                 {isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' && 
                                     <div className='chat-message-buttons'>

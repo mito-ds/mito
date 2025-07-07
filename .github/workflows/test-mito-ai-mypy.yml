@@ -34,4 +34,5 @@ jobs:
         pip install -e ".[test]"
     - name: Check types with MyPY
       run: |
-        mypy mito-ai/mito_ai/ --ignore-missing-imports
+        cd mito-ai
+        mypy mito_ai/ --ignore-missing-imports

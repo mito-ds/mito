@@ -4,41 +4,52 @@
  */
 
 import React from 'react';
-import { scrollToCell, getCellCodeByID } from '../../../utils/notebook';
+import { scrollToAndHighlightCell } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import '../../../../style/Citation.css';
+
+// Citation line can be either a single line number or a range of lines
+export type CitationLine = number | { start: number; end: number };
 
 // Citation component props interface
 export interface CitationProps {
   citationIndex: number;
   cellId: string;
-  line: number;
+  line: CitationLine;
   notebookTracker: INotebookTracker;
 }
 
+// Helper function to get the display text for a line/range
+const getLineDisplayText = (line: CitationLine): string => {
+  if (typeof line === 'number') {
+    return `Line ${line}`;
+  } else {
+    return `Lines ${line.start}-${line.end}`;
+  }
+};
+
 // Citation button component
 export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line, notebookTracker }): JSX.Element => {
+  
   const handleClick = (): void => {
-    // To determine how we should handle scrolling, 
-    // we need to first count the number of lines in the cell.
-    // If the line is closer to the top, 
-    // we set the scroll position to "start," otherwise we set it to "end."
-    const code = getCellCodeByID(notebookTracker, cellId);
-    const relativeLinePosition = line / (code?.split('\n').length || 1);
-    const position = relativeLinePosition < 0.5 ? 'start' : 'end';
+    const lineStart = typeof line === 'number' ? line : line.start;
+    // In order to support old citations that have just one line, we 
+    // we set the end line to the start line if only a single line number is provided.
+    const lineEnd = typeof line === 'number' ? line : line.end;
 
-    scrollToCell(notebookTracker, cellId, line, position);
+    // Scroll to the cell and highlight the lines
+    scrollToAndHighlightCell(notebookTracker, cellId, lineStart, lineEnd);
   };
 
   return (
     <span
       className="citation-button"
       onClick={handleClick}
-      title={`Line ${line}`}
+      title={getLineDisplayText(line)}
     >
       {citationIndex}
     </span>
   );
 };
 
-export default Citation; 
+export default Citation;

@@ -11,21 +11,23 @@ import { classNames } from '../utils/classNames';
 export interface ToggleButtonProps {
     leftText: string;
     rightText: string;
+    leftTooltip?: string;
+    rightTooltip?: string;
     leftIcon?: React.FC<{ fill?: string; height?: string; width?: string; }>;
     rightIcon?: React.FC<{ fill?: string; height?: string; width?: string; }>;
     isLeftSelected: boolean;
     onChange: (isLeftSelected: boolean) => void;
-    title: string;
 }
 
 const ToggleButton: React.FC<ToggleButtonProps> = ({ 
     leftText, 
     rightText, 
+    leftTooltip,
+    rightTooltip,
     leftIcon: LeftIcon,
     rightIcon: RightIcon,
     isLeftSelected, 
     onChange, 
-    title, 
 }) => {
     return (
         <div className={classNames(
@@ -38,7 +40,7 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
                     isLeftSelected ? 'selected' : 'unselected'
                 )}
                 onClick={() => onChange(true)}
-                title={title}
+                title={leftTooltip}
             >
                 {LeftIcon && <LeftIcon width="16px" height="16px" />}
                 {leftText}
@@ -50,7 +52,7 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
                     !isLeftSelected ? 'selected' : 'unselected'
                 )}
                 onClick={() => onChange(false)}
-                title={title}
+                title={rightTooltip}
             >
                 {RightIcon && <RightIcon width="16px" height="16px" />}
                 {rightText}

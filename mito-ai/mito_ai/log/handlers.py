@@ -14,7 +14,7 @@ class LogHandler(APIHandler):
     """Handler for logging"""
     
     @tornado.web.authenticated
-    def put(self):
+    def put(self) -> None:
         """Log an event"""
         data = json.loads(self.request.body)
         

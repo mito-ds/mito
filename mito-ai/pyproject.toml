@@ -3,7 +3,7 @@
 
 [build-system]
 requires = [
-    "hatchling>=1.5.0",
+    "hatchling>=1.27.0",
     "jupyterlab>=4.1.0,<5",
     "hatch-nodejs-version>=0.3.2",
     "hatch-jupyter-builder>=0.5"
@@ -51,11 +51,12 @@ test = [
     "pytest-asyncio==0.25.3",
     "mypy>=1.8.0",
     "types-tornado>=5.1.1",
-    "types-requests>=2.25.0"
+    "types-requests>=2.25.0",
+    "types-setuptools"
 ]
 deploy = [
     "twine>=4.0.0",
-    "hatchling>=1.5.0",
+    "hatchling>=1.27.0",
     "hatch-nodejs-version>=0.3.2",
     "hatch-jupyter-builder>=0.5"
 ]
