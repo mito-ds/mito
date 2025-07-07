@@ -30,28 +30,6 @@
     overflow: hidden;
 }
 
-.error-fixup-toggle {
-    cursor: pointer;
-    padding: 10px;
-    color: var(--jp-ui-font-color2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background-color 0.2s ease, border-radius 0.2s ease;
-    border-radius: 4px;
-}
-
-.error-fixup-toggle:hover {
-    background-color: var(--jp-layout-color3);
-    border-radius: 4px;
-}
-
-.error-fixup-toggle-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 .error-fixup-container.expanded {
     border: 1px solid var(--jp-cell-editor-border-color);
     border-radius: 5px;
