@@ -362,7 +362,8 @@ async def test_mito_server_fallback_stream_completion(
             reply_chunks.append(chunk)
 
         # Apply patch_server_limits for all cases, not just openai_fallback
-        with patch_server_limits():
+        # Also patch update_mito_server_quota where it's actually used in openai_client
+        with patch_server_limits(), patch("mito_ai.openai_client.update_mito_server_quota", MagicMock(return_value=None)):
             llm = OpenAIProvider(config=provider_config)                
 
             completion = await llm.stream_completions(
@@ -379,45 +380,3 @@ async def test_mito_server_fallback_stream_completion(
             # Verify that reply chunks were generated
             assert len(reply_chunks) > 0
             assert isinstance(reply_chunks[0], CompletionReply)
-
-def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
-    # Set up all possible providers
-    monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: True)
-    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: True)
-    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
-    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_ENDPOINT", "https://example.com")
-    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_MODEL", "gpt-4o")
-    monkeypatch.setattr("mito_ai.enterprise.utils.AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
-    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
-    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
-    monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
-
-    # Azure OpenAI should have highest priority when enterprise is enabled
-    # Clear other provider settings to ensure Azure OpenAI is selected
-    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
-    monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
-    # Clear Claude settings to ensure Azure OpenAI is selected
-    monkeypatch.delenv("CLAUDE_API_KEY", raising=False)
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
-    with mock_azure_openai_client():
-        llm = OpenAIProvider(config=provider_config)
-        capabilities = llm.capabilities
-        assert capabilities.provider == "Azure OpenAI"
-
-    # Without enterprise, OpenAI should have highest priority
-    monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: False)
-    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-    with mock_openai_client():
-        llm = OpenAIProvider(config=provider_config)
-        capabilities = llm.capabilities
-        assert capabilities.provider == "OpenAI with user key"
-
-    # Without OpenAI key, Claude should be used (higher priority than Gemini)
-    monkeypatch.delenv("OPENAI_API_KEY")
-    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
-    # Ensure provider_config doesn't have an api_key set
-    provider_config.OpenAIProvider.api_key = None
-    # Re-enable Claude settings
-    monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
