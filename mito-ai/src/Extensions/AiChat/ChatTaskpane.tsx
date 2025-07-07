@@ -88,7 +88,7 @@ import TextAndIconButton from '../../components/TextAndIconButton';
 import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
 import { processChatHistoryForErrorGrouping } from '../../utils/chatHistory';
 import { GroupedErrorMessages } from '../../utils/chatHistory';
-import ErrorFixupToolUI from '../../components/AgentToolComponents/ErrorFixupToolUI';
+import GroupedErrorsAndFixes from '../../components/AgentToolComponents/ErrorFixupToolUI';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -1366,7 +1366,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     if (isGroupedErrorMessages(displayOptimizedChat)) {
                         return (
-                            <ErrorFixupToolUI
+                            <GroupedErrorsAndFixes
                                 key={index}
                                 messages={displayOptimizedChat}
                                 renderMimeRegistry={renderMimeRegistry}

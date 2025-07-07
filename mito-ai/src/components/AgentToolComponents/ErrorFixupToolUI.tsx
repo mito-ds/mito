@@ -63,7 +63,7 @@ const ErrorBlock = ({
     );
 }
 
-const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({
+const GroupedErrorsAndFixes: React.FC<IErrorFixupToolUIProps> = ({
     messages,
     renderMimeRegistry,
 }) => {
@@ -106,4 +106,4 @@ const ErrorFixupToolUI: React.FC<IErrorFixupToolUIProps> = ({
     );
 };
 
-export default ErrorFixupToolUI;
+export default GroupedErrorsAndFixes;
