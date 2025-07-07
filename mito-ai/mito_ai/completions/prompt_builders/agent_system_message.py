@@ -181,6 +181,7 @@ Output:
         index: 2
         code: "import matplotlib.pyplot as plt\n\nplt.bar(sales_df.index, sales_df['total_price'])\nplt.title('Total Price per Sale')\nplt.xlabel('Transaction Number')\nplt.ylabel('Sales Price ($)')\nplt.show()"
         code_summary: "Plotting total_price",
+        code_summary: "Plotting total_price"
     }},
     get_cell_output_cell_id: None,
     next_steps: None
@@ -315,6 +316,7 @@ Output:
         type: 'add'
         index: 2
         code: "all_time_high_row_idx = tesla_stock_prices_df['closing_price'].idxmax()\nall_time_high_date = tesla_stock_prices_df.at[all_time_high_row_idx, 'Date']\nall_time_high_price = tesla_stock_prices_df.at[all_time_high_row_idx, 'closing_price']"
+        code_summary: "Calculating all time high"
     }},
     get_cell_output_cell_id: None
 }}
