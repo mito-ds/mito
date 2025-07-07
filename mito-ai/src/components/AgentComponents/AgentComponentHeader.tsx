@@ -2,17 +2,11 @@ import React from 'react';
 import { classNames } from '../../utils/classNames';
 
 interface AgentComponentHeaderProps {
-    /** The icon to display next to the text */
     icon: React.ReactNode;
-    /** The text to display in the header */
     text: string;
-    /** Callback function when the header is clicked */
     onClick: () => void;
-    /** Whether the section is currently expanded */
     isExpanded: boolean;
-    /** Whether to display a border around the header (default: true) */
     displayBorder?: boolean;
-    /** Additional CSS classes to apply */
     className?: string;
 }
 
