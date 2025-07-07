@@ -41,7 +41,7 @@ const AgentComponentHeader: React.FC<AgentComponentHeaderProps> = ({
                 xmlns="http://www.w3.org/2000/svg"
             >
                 <path
-                    d="M6 12L10 8L6 4"
+                    d="M4 6L8 10L12 6"
                     stroke="currentColor"
                     strokeWidth="1.5"
                     strokeLinecap="round"
