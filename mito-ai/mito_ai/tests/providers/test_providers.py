@@ -361,27 +361,9 @@ async def test_mito_server_fallback_stream_completion(
         def mock_reply(chunk):
             reply_chunks.append(chunk)
 
-        # Also need to patch server limits for OpenAI fallback
-        if mito_server_config["name"] == "openai_fallback":
-            with patch_server_limits():
-                llm = OpenAIProvider(config=provider_config)                
-
-                completion = await llm.stream_completions(
-                    message_type=MessageType.CHAT,
-                    messages=messages,
-                    model=mito_server_config["model"],
-                    message_id="test-id",
-                    thread_id="test-thread",
-                    reply_fn=mock_reply
-                )
-
-                # Verify that the Mito server function was called
-                mock_mito_stream.assert_called_once()
-                # Verify that reply chunks were generated
-                assert len(reply_chunks) > 0
-                assert isinstance(reply_chunks[0], CompletionReply)
-        else:
-            llm = OpenAIProvider(config=provider_config)
+        # Apply patch_server_limits for all cases, not just openai_fallback
+        with patch_server_limits():
+            llm = OpenAIProvider(config=provider_config)                
 
             completion = await llm.stream_completions(
                 message_type=MessageType.CHAT,
@@ -396,6 +378,7 @@ async def test_mito_server_fallback_stream_completion(
             mock_mito_stream.assert_called_once()
             # Verify that reply chunks were generated
             assert len(reply_chunks) > 0
+            assert isinstance(reply_chunks[0], CompletionReply)
 
 def test_provider_priority_order(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
     # Set up all possible providers
