@@ -28,7 +28,7 @@ jest.mock('../../Extensions/AiChat/ChatMessage/MarkdownBlock', () => {
     };
 });
 
-jest.mock('../../components/AgentToolComponents/GetCellOutputToolUI', () => {
+jest.mock('../../components/AgentComponents/GetCellOutputToolUI', () => {
     return function MockGetCellOutputToolUI() {
         return <div data-testid="get-cell-output-tool">Mocked GetCellOutputToolUI</div>;
     };
