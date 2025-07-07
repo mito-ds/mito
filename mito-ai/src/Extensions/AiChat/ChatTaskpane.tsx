@@ -1301,6 +1301,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         processedDisplayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
     }
 
+    // Type guard function to check if an item is GroupedErrorMessages
+    const isGroupedErrorMessages = (item: GroupedErrorMessages | IDisplayOptimizedChatItem): item is GroupedErrorMessages => {
+        return Array.isArray(item);
+    };
+
     return (
         <div className="chat-taskpane">
             <div className="chat-taskpane-header">
@@ -1359,7 +1364,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
                 {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
-                    if (Array.isArray(displayOptimizedChat)) {
+                    if (isGroupedErrorMessages(displayOptimizedChat)) {
                         return (
                             <ErrorFixupToolUI
                                 key={index}
