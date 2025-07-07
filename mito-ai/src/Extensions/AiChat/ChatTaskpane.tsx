@@ -1291,6 +1291,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     let processedDisplayOptimizedChatHistory: (IDisplayOptimizedChatItem | GroupedErrorMessages)[] = []
     
+    // In agent mode, we group consecutive error messages together. 
+    // In chat mode, we display messages individually as they were sent
     if (agentModeEnabled) {
         processedDisplayOptimizedChatHistory = processChatHistoryForErrorGrouping(
             chatHistoryManager.getDisplayOptimizedHistory()
