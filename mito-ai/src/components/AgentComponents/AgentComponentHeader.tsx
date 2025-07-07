@@ -17,7 +17,7 @@ const AgentComponentHeader: React.FC<AgentComponentHeaderProps> = ({
     isExpanded,
     displayBorder = true,
     className
-}) => {
+}): JSX.Element => {
     return (
         <div
             onClick={onClick}
