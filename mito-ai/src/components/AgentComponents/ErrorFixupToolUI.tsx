@@ -22,6 +22,15 @@ const parsePythonErrorType = (content: string | undefined): string => {
     return errorMatch?.[1] || 'Error';
 };
 
+const processErrorContent = (content: string | undefined): string => {
+    if (!content) return '';
+    
+    // Remove all Python code (content between triple backticks).
+    // If we don't do this, the PythonCode component will remove the error content,
+    // and only show the code block. 
+    return content.replace(/```(?:python)?[\s\S]*?```/g, '').trim();
+};
+
 const ErrorDetectedBlock = ({
     errorMessage,
     renderMimeRegistry,
@@ -31,7 +40,8 @@ const ErrorDetectedBlock = ({
 }): JSX.Element => {
     const [expandedError, setExpandedError] = useState(false);
 
-    const errorContent = getContentStringFromMessage(errorMessage);
+    const rawErrorContent = getContentStringFromMessage(errorMessage);
+    const errorContent = processErrorContent(rawErrorContent);
     const errorType = parsePythonErrorType(errorContent);
 
     const toggleError = (): void => {
