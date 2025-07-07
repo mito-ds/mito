@@ -9,8 +9,6 @@ from mito_ai.completions.models import CompletionError, CompletionItem, Completi
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
 
-GEMINI_FAST_MODEL = "gemini-2.0-flash-lite"
-
 def extract_and_parse_gemini_json_response(response: GenerateContentResponse) -> Optional[str]:
     """
     Extracts and parses the JSON response from the Gemini API.
@@ -118,7 +116,7 @@ class GeminiClient:
 
         # Get provider data for Gemini completion
         provider_data = get_gemini_completion_function_params(
-            model=model if response_format_info else GEMINI_FAST_MODEL,
+            model=model,
             contents=contents,
             message_type=message_type,
             response_format_info=response_format_info

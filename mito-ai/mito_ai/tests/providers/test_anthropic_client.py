@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, extract_and_parse_anthropic_json_response, AnthropicClient, ANTHROPIC_FAST_MODEL
-from mito_ai.utils.anthropic_utils import get_anthropic_completion_function_params
+from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, extract_and_parse_anthropic_json_response, AnthropicClient
+from mito_ai.utils.anthropic_utils import get_anthropic_completion_function_params, FAST_ANTHROPIC_MODEL
 from anthropic.types import Message, TextBlock, ToolUseBlock, Usage, ToolUseBlock, Message, Usage, TextBlock
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
 from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
@@ -235,7 +235,7 @@ def test_tool_use_without_agent_response():
 CUSTOM_MODEL = "smart-anthropic-model"
 @pytest.mark.parametrize("response_format_info, expected_model", [
     (ResponseFormatInfo(name="agent_response", format=AgentResponse), CUSTOM_MODEL),  # With response_format_info - should use self.model
-    (None, ANTHROPIC_FAST_MODEL),  # Without response_format_info - should use ANTHROPIC_FAST_MODEL
+    (None, FAST_ANTHROPIC_MODEL),  # Without response_format_info - should use FAST_ANTHROPIC_MODEL
 ])
 @pytest.mark.asyncio 
 async def test_model_selection_based_on_response_format_info(response_format_info, expected_model):

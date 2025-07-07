@@ -8,10 +8,13 @@ from typing import Any, Dict, List, Optional, Callable, Union, AsyncGenerator, T
 from mito_ai.utils.mito_server_utils import get_response_from_mito_server
 from mito_ai.completions.models import AgentResponse, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from mito_ai.constants import MITO_GEMINI_URL
+from mito_ai.utils.provider_utils import does_message_require_fast_model
 from mito_ai.utils.utils import _create_http_client
 
 timeout = 30
 max_retries = 1
+
+FAST_GEMINI_MODEL = "gemini-2.0-flash-lite"
 
 def _prepare_gemini_request_data_and_headers(
     model: str,
@@ -153,15 +156,18 @@ async def stream_gemini_completion_from_mito_server(
         http_client.close()
 
 def get_gemini_completion_function_params(
+    message_type: MessageType,
     model: str,
     contents: list[dict[str, Any]],
-    message_type: MessageType,
     response_format_info: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """
     Build the provider_data dict for Gemini completions, mirroring the OpenAI/Anthropic approach.
     Only includes fields needed for the Gemini API.
     """
+    message_requires_fast_model = does_message_require_fast_model(message_type)
+    model = FAST_GEMINI_MODEL if message_requires_fast_model else model
+    
     provider_data: Dict[str, Any] = {
         "model": model,
         "contents": contents,

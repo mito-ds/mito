@@ -5,8 +5,8 @@ import pytest
 import ast
 import inspect
 import requests
-from mito_ai.gemini_client import GeminiClient, GEMINI_FAST_MODEL, get_gemini_system_prompt_and_messages
-from mito_ai.utils.gemini_utils import get_gemini_completion_function_params
+from mito_ai.gemini_client import GeminiClient, get_gemini_system_prompt_and_messages
+from mito_ai.utils.gemini_utils import get_gemini_completion_function_params, FAST_GEMINI_MODEL
 from google.genai.types import Part, GenerateContentResponse, Candidate, Content
 from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
 from unittest.mock import MagicMock, patch
@@ -157,7 +157,7 @@ async def test_json_response_handling_with_multiple_parts():
 CUSTOM_MODEL = "gemini-1.5-pro"
 @pytest.mark.parametrize("response_format_info, expected_model", [
     (ResponseFormatInfo(name="agent_response", format=AgentResponse), CUSTOM_MODEL),  # With response_format_info - should use self.model
-    (None, GEMINI_FAST_MODEL),  # Without response_format_info - should use GEMINI_FAST_MODEL
+    (None, FAST_GEMINI_MODEL),  # Without response_format_info - should use GEMINI_FAST_MODEL
 ])
 @pytest.mark.asyncio
 async def test_model_selection_based_on_response_format_info(response_format_info, expected_model):

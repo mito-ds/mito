@@ -16,8 +16,6 @@ from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_ser
 # 8192 is the maximum allowed number of output tokens for claude-3-5-haiku-20241022
 MAX_TOKENS = 8_000
 
-ANTHROPIC_FAST_MODEL = "claude-3-5-haiku-latest"
-
 def extract_and_parse_anthropic_json_response(response: Message) -> Union[object, Any]:
     """
     Extracts and parses the JSON response from the Claude API.
@@ -154,7 +152,8 @@ class AnthropicClient:
         anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
         
         provider_data = get_anthropic_completion_function_params(
-            model=model if response_format_info is not None else ANTHROPIC_FAST_MODEL,
+            message_type=message_type,
+            model=model,
             messages=anthropic_messages,
             max_tokens=MAX_TOKENS,
             temperature=0,
