@@ -288,14 +288,15 @@ async def test_mito_server_fallback_completion_request(
     # Mock the appropriate Mito server function
     with patch(mito_server_config["mock_function"], new_callable=AsyncMock) as mock_mito_function:
         mock_mito_function.return_value = "Mito server response"
+        
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "user", "content": "Test message"}
+        ]
 
         # Also need to patch server limits for OpenAI fallback
         if mito_server_config["name"] == "openai_fallback":
             with patch_server_limits():
                 llm = OpenAIProvider(config=provider_config)
-                messages: List[ChatCompletionMessageParam] = [
-                    {"role": "user", "content": "Test message"}
-                ]
 
                 completion = await llm.request_completions(
                     message_type=MessageType.CHAT,
@@ -307,9 +308,6 @@ async def test_mito_server_fallback_completion_request(
                 mock_mito_function.assert_called_once()
         else:
             llm = OpenAIProvider(config=provider_config)
-            messages: List[ChatCompletionMessageParam] = [
-                {"role": "user", "content": "Test message"}
-            ]
 
             completion = await llm.request_completions(
                 message_type=MessageType.CHAT,
@@ -367,18 +365,19 @@ async def test_mito_server_fallback_stream_completion(
     # Mock the appropriate Mito server streaming function
     with patch(mito_server_config["mock_function"]) as mock_mito_stream:
         mock_mito_stream.return_value = mock_stream_generator()
+        
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "user", "content": "Test message"}
+        ]
+        
+        reply_chunks = []
+        def mock_reply(chunk):
+            reply_chunks.append(chunk)
 
         # Also need to patch server limits for OpenAI fallback
         if mito_server_config["name"] == "openai_fallback":
             with patch_server_limits():
-                llm = OpenAIProvider(config=provider_config)
-                messages: List[ChatCompletionMessageParam] = [
-                    {"role": "user", "content": "Test message"}
-                ]
-
-                reply_chunks = []
-                def mock_reply(chunk):
-                    reply_chunks.append(chunk)
+                llm = OpenAIProvider(config=provider_config)                
 
                 completion = await llm.stream_completions(
                     message_type=MessageType.CHAT,
@@ -396,13 +395,6 @@ async def test_mito_server_fallback_stream_completion(
                 assert isinstance(reply_chunks[0], CompletionReply)
         else:
             llm = OpenAIProvider(config=provider_config)
-            messages: List[ChatCompletionMessageParam] = [
-                {"role": "user", "content": "Test message"}
-            ]
-
-            reply_chunks = []
-            def mock_reply(chunk):
-                reply_chunks.append(chunk)
 
             completion = await llm.stream_completions(
                 message_type=MessageType.CHAT,

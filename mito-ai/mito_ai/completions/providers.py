@@ -154,7 +154,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     thread_id=thread_id or "",
                     model=model
                 )
-                return completion
+                return completion # type: ignore
 
             except BaseException as e:
                 # Check if we should retry (not on the last attempt)

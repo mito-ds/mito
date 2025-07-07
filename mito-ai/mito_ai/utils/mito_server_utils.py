@@ -23,7 +23,7 @@ class ProviderCompletionException(Exception):
         # Set args[0] for fallback compatibility
         super().__init__(self.user_friendly_title)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.provider_name} Error: {self.error_message}"
 
 
@@ -61,7 +61,7 @@ async def get_response_from_mito_server(
             content = json.loads(res.body.decode("utf-8"))
                         
             if "completion" in content:
-                return content["completion"]
+                return content["completion"] # type: ignore
             elif "error" in content:
                 # Server returned an error
                 raise ProviderCompletionException(content['error'], provider_name=provider_name)

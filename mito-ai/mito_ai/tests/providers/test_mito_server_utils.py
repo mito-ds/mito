@@ -368,7 +368,7 @@ class TestGetResponseFromMitoServer:
         
         # Execute and verify exception
         with pytest.raises(ProviderCompletionException) as exc_info:
-            await get_response_from_mito_server(**request_params)
+            await get_response_from_mito_server(**request_params) # type: ignore
         
         # Verify default provider name is used
         exception = exc_info.value
