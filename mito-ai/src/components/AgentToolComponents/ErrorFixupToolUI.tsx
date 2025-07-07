@@ -21,7 +21,7 @@ const parsePythonErrorType = (content: string | undefined): string => {
     return errorMatch?.[1] || 'Error';
 };
 
-const ErrorBlock = ({
+const ErrorDetectedBlock = ({
     errorMessage,
     renderMimeRegistry,
 }: {
@@ -78,7 +78,7 @@ const GroupedErrorsAndFixes: React.FC<IErrorFixupToolUIProps> = ({
 
                     if (isUserMessage) {
                         return (
-                            <ErrorBlock
+                            <ErrorDetectedBlock
                                 key={`error-${index}`}
                                 errorMessage={messageItem.message}
                                 renderMimeRegistry={renderMimeRegistry}
