@@ -13,6 +13,10 @@
 @import url('statusItem.css');
 
 :root {
+  /* Margins */
+  --chat-taskpane-item-indent: 10px;
+
+  /* Colors */
   --chat-background-color: var(--jp-layout-color1);
   --chat-user-message-background-color: var(--jp-input-background);
   --chat-user-message-font-color: var(--jp-content-font-color1);

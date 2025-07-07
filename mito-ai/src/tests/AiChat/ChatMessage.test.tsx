@@ -52,7 +52,7 @@ jest.mock('../../Extensions/AiChat/ChatMessage/MarkdownBlock', () => {
     };
 });
 
-jest.mock('../../components/AgentToolComponents/GetCellOutputToolUI', () => {
+jest.mock('../../components/AgentComponents/GetCellOutputToolUI', () => {
     return {
         __esModule: true,
         default: jest.fn(() => (
