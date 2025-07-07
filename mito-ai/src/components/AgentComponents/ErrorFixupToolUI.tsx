@@ -27,7 +27,7 @@ const ErrorDetectedBlock = ({
 }: {
     errorMessage: OpenAI.Chat.ChatCompletionMessageParam,
     renderMimeRegistry: IRenderMimeRegistry,
-}) => {
+}): JSX.Element => {
     const [expandedError, setExpandedError] = useState(false);
 
     const errorContent = getContentStringFromMessage(errorMessage);
