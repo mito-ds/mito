@@ -3,29 +3,21 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { JupyterFrontEnd } from '@jupyterlab/application';
-import { CodeCell } from '@jupyterlab/cells';
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
+// External libraries
 import { Compartment, StateEffect } from '@codemirror/state';
 import OpenAI from "openai";
 import React, { useEffect, useRef, useState } from 'react';
-import '../../../style/button.css';
-import '../../../style/ChatTaskpane.css';
-import '../../../style/TextButton.css';
+
+// JupyterLab imports
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { CodeCell } from '@jupyterlab/cells';
+import { CodeMirrorEditor } from '@jupyterlab/codemirror';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { addIcon, historyIcon, deleteIcon, settingsIcon } from '@jupyterlab/ui-components';
-import { OpenIndicatorLabIcon } from '../../icons';
-import MitoLogo from '../../icons/MitoLogo';
-import ChatInput from './ChatMessage/ChatInput';
-import ChatMessage from './ChatMessage/ChatMessage';
-import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
-import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
-import { codeDiffStripesExtension } from './CodeDiffDisplay';
-import ToggleButton from '../../components/ToggleButton';
-import IconButton from '../../components/IconButton';
-import LoadingDots from '../../components/LoadingDots';
+import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
+
+// Internal imports - Commands
 import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
@@ -36,6 +28,29 @@ import {
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
+
+// Internal imports - Components
+import GroupedErrorsAndFixes from '../../components/AgentComponents/ErrorFixupToolUI';
+import DropdownMenu from '../../components/DropdownMenu';
+import IconButton from '../../components/IconButton';
+import LoadingCircle from '../../components/LoadingCircle';
+import LoadingDots from '../../components/LoadingDots';
+import { DEFAULT_MODEL } from '../../components/ModelSelector';
+import ModelSelector from "../../components/ModelSelector";
+import NextStepsPills from '../../components/NextStepsPills';
+import TextAndIconButton from '../../components/TextAndIconButton';
+import ToggleButton from '../../components/ToggleButton';
+
+// Internal imports - Icons
+import { OpenIndicatorLabIcon } from '../../icons';
+import MitoLogo from '../../icons/MitoLogo';
+import UndoIcon from '../../icons/UndoIcon';
+
+// Internal imports - Utils
+import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
+import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
+import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
+import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
 import {
     getActiveCellID,
@@ -47,8 +62,12 @@ import {
     setActiveCellByID,
     writeCodeToCellByID,
 } from '../../utils/notebook';
+import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
+import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
+
+// Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
 import {
     IChatThreadMetadataItem,
@@ -71,26 +90,25 @@ import {
     AgentResponse,
     ICompletionStreamChunk
 } from '../../websockets/completions/CompletionModels';
+
+// Internal imports - Extensions
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
-import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
-import { scrollToDiv } from '../../utils/scroll';
-import LoadingCircle from '../../components/LoadingCircle';
-import { DEFAULT_MODEL } from '../../components/ModelSelector';
-import ModelSelector from "../../components/ModelSelector";
-import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
-import DropdownMenu from '../../components/DropdownMenu';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
-import { getFirstMessageFromCookie } from './FirstMessage';
+
+// Internal imports - Chat components
 import CTACarousel from './CTACarousel';
-import NextStepsPills from '../../components/NextStepsPills';
-import UndoIcon from '../../icons/UndoIcon';
-import TextAndIconButton from '../../components/TextAndIconButton';
-import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
-import { processChatHistoryForErrorGrouping } from '../../utils/chatHistory';
-import { GroupedErrorMessages } from '../../utils/chatHistory';
-import GroupedErrorsAndFixes from '../../components/AgentComponents/ErrorFixupToolUI';
-import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
-    
+import { codeDiffStripesExtension } from './CodeDiffDisplay';
+import { getFirstMessageFromCookie } from './FirstMessage';
+import ChatInput from './ChatMessage/ChatInput';
+import ChatMessage from './ChatMessage/ChatMessage';
+import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
+import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
+
+// Styles
+import '../../../style/button.css';
+import '../../../style/ChatTaskpane.css';
+import '../../../style/TextButton.css';
+
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
 const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
