@@ -8,10 +8,11 @@ import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { classNames } from '../../../utils/classNames';
 import '../../../../style/CodeBlock.css'
+import '../../../../style/AgentComponentHeader.css'
 import { CodeReviewStatus } from '../ChatTaskpane';
-import ExpandIcon from '../../../icons/ExpandIcon';
 import CodeIcon from '../../../icons/CodeIcon';
 import CodeBlockToolbar from './CodeBlockToolbar';
+import AgentComponentHeader from '../../../components/AgentComponents/AgentComponentHeader';
 
 interface IAssistantCodeBlockProps {
     code: string;
@@ -48,19 +49,14 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
             <div className={classNames('code-block-container', 'agent-mode', {
                 'agent-mode-collapsed': !isCodeExpanded,
             })}>
-                <div
+                <AgentComponentHeader
+                    icon={<CodeIcon />}
+                    text={codeSummary ?? 'Generated code'}
                     onClick={() => setIsCodeExpanded(!isCodeExpanded)}
-                    className={classNames('agent-mode-toggle', {
-                        expanded: isCodeExpanded,
-                        'error-fixup': isErrorFixup
-                    })}
-                >
-                    <span className="agent-mode-toggle-content">
-                        <CodeIcon />
-                        {codeSummary ?? 'Generated code'}
-                    </span>
-                    <ExpandIcon isExpanded={isCodeExpanded} />
-                </div>
+                    isExpanded={isCodeExpanded}
+                    displayBorder={!isErrorFixup}
+                    className={isErrorFixup ? 'error-fixup' : undefined}
+                />
                 {isCodeExpanded && (
                     <PythonCode
                         code={code}

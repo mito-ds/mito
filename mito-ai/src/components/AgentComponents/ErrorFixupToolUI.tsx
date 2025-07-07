@@ -6,9 +6,10 @@ import { classNames } from '../../utils/classNames';
 import { getContentStringFromMessage } from '../../utils/strings';
 import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
 import AssistantCodeBlock from '../../Extensions/AiChat/ChatMessage/AssistantCodeBlock';
-import ExpandIcon from '../../icons/ExpandIcon';
 import AlertIcon from '../../icons/AlertIcon';
+import AgentComponentHeader from './AgentComponentHeader';
 import '../../../style/ErrorFixupToolUI.css';
+import '../../../style/AgentComponentHeader.css';
 
 interface IErrorFixupToolUIProps {
     messages: GroupedErrorMessages;
@@ -39,18 +40,13 @@ const ErrorDetectedBlock = ({
 
     return (
         <div className={classNames('error-fixup-container', { expanded: expandedError })}>
-            <div
+            <AgentComponentHeader
+                icon={<AlertIcon />}
+                text={`${errorType} Detected`}
                 onClick={toggleError}
-                className={classNames('error-fixup-toggle', {
-                    expanded: expandedError
-                })}
-            >
-                <span className="error-fixup-toggle-content">
-                    <AlertIcon />
-                    {errorType} Detected
-                </span>
-                <ExpandIcon isExpanded={expandedError} />
-            </div>
+                isExpanded={expandedError}
+                displayBorder={false}
+            />
             {expandedError && errorContent && (
                 <div className="error-fixup-expanded">
                     <PythonCode
