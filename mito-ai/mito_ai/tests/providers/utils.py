@@ -11,7 +11,8 @@ def patch_server_limits(is_pro: bool = False, completion_count: int = 1, first_d
         get_chat_completion_count=MagicMock(return_value=completion_count),
         get_first_completion_date=MagicMock(return_value=first_date),
         is_pro=MagicMock(return_value=is_pro),
-        check_mito_server_quota=MagicMock(return_value=None)
+        check_mito_server_quota=MagicMock(return_value=None),
+        update_mito_server_quota=MagicMock(return_value=None)
     )
 
 

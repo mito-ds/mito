@@ -155,6 +155,13 @@ This attribute is observed by the websocket provider to push the error to the cl
                     model=model
                 )
                 return completion # type: ignore
+            
+            except PermissionError as e:
+                # If we hit a free tier limit, then raise an exception right away without retrying.
+                self.log.exception(f"Error during request_completions: {e}")
+                self.last_error = CompletionError.from_exception(e)
+                log_ai_completion_error('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', message_type, e)
+                raise
 
             except BaseException as e:
                 # Check if we should retry (not on the last attempt)

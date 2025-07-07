@@ -37,7 +37,7 @@ def _prepare_anthropic_request_data_and_headers(
     tool_choice: Optional[dict],
     stream: Optional[bool]
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
-    check_mito_server_quota(message_type)
+    
     global __user_email, __user_id
     if __user_email is None:
         __user_email = get_user_field(UJ_USER_EMAIL)

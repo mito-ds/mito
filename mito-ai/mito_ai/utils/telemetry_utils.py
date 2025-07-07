@@ -343,6 +343,9 @@ def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], me
     
 def log_ai_completion_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
     log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
+    
+def log_mito_server_free_tier_limit_reached(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType) -> None:
+    log(MITO_SERVER_FREE_TIER_LIMIT_REACHED, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type)
 
 def log_db_connection_error(connection_type: str, error_message: str) -> None:
     log(

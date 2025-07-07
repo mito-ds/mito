@@ -1,5 +1,5 @@
 from mito_ai.completions.models import MessageType
-from mito_ai.utils.server_limits import update_mito_server_quota
+from mito_ai.utils.server_limits import check_mito_server_quota, update_mito_server_quota
 from tornado.httpclient import HTTPResponse
 import time
 import json
@@ -43,6 +43,9 @@ async def get_response_from_mito_server(
         ProviderCompletionException: When the server returns an error or invalid response
         Exception: For network/HTTP errors (let these bubble up to be handled by retry logic)
     """
+    # First check the mito server quota. If the user has reached the limit, we raise an exception.
+    check_mito_server_quota(message_type)
+
     http_client, http_client_timeout = _create_http_client(timeout, max_retries)
     start_time = time.time()
     
@@ -80,6 +83,7 @@ async def get_response_from_mito_server(
             update_mito_server_quota(message_type)
         except Exception as e:
             pass
+        
         http_client.close()
         
     

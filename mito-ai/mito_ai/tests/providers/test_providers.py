@@ -288,14 +288,12 @@ async def test_mito_server_fallback_completion_request(
     # Mock the appropriate Mito server function
     with patch(mito_server_config["mock_function"], new_callable=AsyncMock) as mock_mito_function:
         mock_mito_function.return_value = "Mito server response"
-        
+    
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
         ]
 
-        # Also need to patch server limits for OpenAI fallback
-        if mito_server_config["name"] == "openai_fallback":
-            with patch_server_limits():
+        with patch_server_limits():
                 llm = OpenAIProvider(config=provider_config)
 
                 completion = await llm.request_completions(
@@ -306,17 +304,6 @@ async def test_mito_server_fallback_completion_request(
 
                 assert completion == "Mito server response"
                 mock_mito_function.assert_called_once()
-        else:
-            llm = OpenAIProvider(config=provider_config)
-
-            completion = await llm.request_completions(
-                message_type=MessageType.CHAT,
-                messages=messages,
-                model=mito_server_config["model"]
-            )
-
-            assert completion == "Mito server response"
-            mock_mito_function.assert_called_once()
 
 
 @pytest.mark.parametrize("mito_server_config", [

@@ -33,6 +33,7 @@ def mock_http_dependencies():
     """Mock the HTTP client and related dependencies."""
     with patch('mito_ai.utils.mito_server_utils._create_http_client') as mock_create_client, \
          patch('mito_ai.utils.mito_server_utils.update_mito_server_quota') as mock_update_quota, \
+         patch('mito_ai.utils.mito_server_utils.check_mito_server_quota') as mock_check_quota, \
          patch('mito_ai.utils.mito_server_utils.time.time') as mock_time:
         
         # Setup mock HTTP client
@@ -43,6 +44,7 @@ def mock_http_dependencies():
         mock_time.side_effect = [0.0, 1.5]  # start_time, end_time
         
         yield {
+            'mock_check_quota': mock_check_quota,
             'mock_create_client': mock_create_client,
             'mock_http_client': mock_http_client,
             'mock_update_quota': mock_update_quota,
@@ -150,6 +152,7 @@ class TestGetResponseFromMitoServer:
         
         # Verify
         assert result == completion_value
+        mock_http_dependencies['mock_check_quota'].assert_called_once_with(message_type)
         mock_http_dependencies['mock_update_quota'].assert_called_once_with(message_type)
         mock_http_dependencies['mock_http_client'].close.assert_called_once()
         
@@ -380,13 +383,16 @@ class TestGetResponseFromMitoServer:
         """Test that ProviderCompletionException is re-raised correctly during JSON parsing."""
         # Setup - simulate ProviderCompletionException during JSON parsing
         mock_response = MagicMock(spec=HTTPResponse)
+        mock_response.body.decode.return_value = "some json content"  # This will trigger json.loads
         
-        def mock_json_loads(content):
+        def mock_json_loads(content, **kwargs):
             raise ProviderCompletionException("Custom parsing error", "Custom Provider")
         
         mock_http_dependencies['mock_http_client'].fetch = AsyncMock(return_value=mock_response)
         
-        with patch('mito_ai.utils.mito_server_utils.json.loads', side_effect=mock_json_loads):
+        with patch('mito_ai.utils.mito_server_utils.json.loads', side_effect=mock_json_loads), \
+             patch('mito_ai.utils.mito_server_utils.check_mito_server_quota') as mock_check_quota:
+            
             # Execute and verify exception
             with pytest.raises(ProviderCompletionException) as exc_info:
                 await get_response_from_mito_server(**mock_request_params)
@@ -395,6 +401,9 @@ class TestGetResponseFromMitoServer:
             exception = exc_info.value
             assert exception.error_message == "Custom parsing error"
             assert exception.provider_name == "Custom Provider"
+            
+            # Verify quota check was called
+            mock_check_quota.assert_called_once_with(mock_request_params["message_type"])
         
         # Verify client was closed
         mock_http_dependencies['mock_http_client'].close.assert_called_once()

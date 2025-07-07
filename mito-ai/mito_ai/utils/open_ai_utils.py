@@ -47,10 +47,7 @@ def _prepare_request_data_and_headers(
         
     Returns:
         A tuple containing the request data and headers
-    """
-    # Check that the user is allowed to use the Mito Server
-    check_mito_server_quota(message_type)
-    
+    """    
     global __user_email, __user_id
 
     if __user_email is None:
