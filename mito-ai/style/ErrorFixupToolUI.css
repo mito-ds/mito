@@ -1,0 +1,53 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.error-fixup-root {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.error-fixup-header {
+    padding: 0 var(--chat-taskpane-item-indent);
+}
+
+.error-fixup-messages-container {
+    margin-left: var(--chat-taskpane-item-indent);
+    padding: 0 10px;
+    border-left: 1.5px solid var(--jp-cell-editor-border-color);
+}
+
+.error-fixup-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: start;
+    background-color: transparent;
+    margin: 0 0;
+    color: var(--jp-ui-font-color2);
+    overflow: hidden;
+}
+
+.error-fixup-container.expanded {
+    border: 1px solid var(--jp-cell-editor-border-color);
+    border-radius: 5px;
+    background-color: var(--jp-layout-color2);
+    margin-bottom: 5px;
+}
+
+.error-fixup-expanded {
+    background-color: transparent;
+    color: var(--jp-ui-font-color1);
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: none;
+    border-radius: 0;
+}
+
+.error-fixup-indented-block {
+    margin-left: 10px;
+    padding-left: 10px;
+    border-left: 1px solid var(--jp-ui-font-color3);
+}

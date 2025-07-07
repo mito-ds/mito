@@ -8,10 +8,11 @@ import PythonCode from './PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { classNames } from '../../../utils/classNames';
 import '../../../../style/CodeBlock.css'
+import '../../../../style/AgentComponentHeader.css'
 import { CodeReviewStatus } from '../ChatTaskpane';
-import ExpandIcon from '../../../icons/ExpandIcon';
 import CodeIcon from '../../../icons/CodeIcon';
 import CodeBlockToolbar from './CodeBlockToolbar';
+import AgentComponentHeader from '../../../components/AgentComponents/AgentComponentHeader';
 
 interface IAssistantCodeBlockProps {
     code: string;
@@ -24,6 +25,7 @@ interface IAssistantCodeBlockProps {
     isLastAiMessage: boolean;
     codeReviewStatus: CodeReviewStatus;
     agentModeEnabled: boolean;
+    isErrorFixup?: boolean;
 }
 
 const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
@@ -36,29 +38,25 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     rejectAICode,
     isLastAiMessage,
     codeReviewStatus,
-    agentModeEnabled
+    agentModeEnabled,
+    isErrorFixup
 }) => {
     const [isCodeExpanded, setIsCodeExpanded] = useState(false);
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
 
     if (agentModeEnabled) {
         return (
-            <div className={classNames('code-block-container', {
-                'agent-mode': true,
-                'agent-mode-collapsed': !isCodeExpanded
+            <div className={classNames('code-block-container', 'agent-mode', {
+                'agent-mode-collapsed': !isCodeExpanded,
             })}>
-                <div
+                <AgentComponentHeader
+                    icon={<CodeIcon />}
+                    text={codeSummary ?? 'Generated code'}
                     onClick={() => setIsCodeExpanded(!isCodeExpanded)}
-                    className={classNames('agent-mode-toggle', {
-                        expanded: isCodeExpanded
-                    })}
-                >
-                    <span className="agent-mode-toggle-content">
-                        <CodeIcon />
-                        {codeSummary ?? 'Generated code'}
-                    </span>
-                    <ExpandIcon isExpanded={isCodeExpanded} />
-                </div>
+                    isExpanded={isCodeExpanded}
+                    displayBorder={!isErrorFixup}
+                    className={isErrorFixup ? 'error-fixup' : undefined}
+                />
                 {isCodeExpanded && (
                     <PythonCode
                         code={code}

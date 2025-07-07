@@ -29,7 +29,7 @@ import { IDisplayOptimizedChatItem } from '../ChatHistoryManager';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
-import GetCellOutputToolUI from '../../../components/AgentToolComponents/GetCellOutputToolUI';
+import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -87,7 +87,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     const editable = message.role === 'user'
 
     const messageContentParts = splitStringWithCodeBlocks(message);
-
+    const messageContent = getContentStringFromMessage(message);
+    
     const handleEditClick = (): void => {
         setIsEditing(true);
     };
@@ -110,7 +111,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         */
         setNextSteps(agentResponse.next_steps);
     }
-
+    
     if (isEditing) {
         return (
             <ChatInput
@@ -139,7 +140,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     }
 
     // If the message is empty, don't render anything
-    const messageContent = getContentStringFromMessage(message)
     if (messageContent === undefined || messageContent === '') {
         return <></>
     }

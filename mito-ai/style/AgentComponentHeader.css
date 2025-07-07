@@ -1,0 +1,59 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.agent-component-header {
+    cursor: pointer;
+    padding: 10px;
+    color: var(--jp-ui-font-color2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--jp-cell-editor-border-color);
+    border-radius: 5px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.agent-component-header:hover {
+    background-color: var(--jp-layout-color3);
+}
+
+.agent-component-header.no-border {
+    border: none;
+}
+
+.agent-component-header.expanded {
+    border: none;
+    border-radius: 5px 5px 0 0;
+    background-color: var(--jp-layout-color2);
+}
+
+.agent-component-header.error-fixup {
+    border: none;
+}
+
+.agent-component-header.error-fixup.expanded {
+    background-color: var(--jp-layout-color2);
+}
+
+.agent-component-header-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.agent-component-header-content svg {
+    flex-shrink: 0;
+}
+
+.agent-component-header-expand-icon {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.agent-component-header-expand-icon.expanded {
+    transform: rotate(90deg);
+} 
