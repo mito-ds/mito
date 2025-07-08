@@ -6,22 +6,12 @@
 import { expect, test } from '@jupyterlab/galata';
 import {
     createAndRunNotebookWithCells,
-    getCodeFromCell,
-    selectCell,
     waitForIdle,
-    addNewCell,
     updateCell
 } from '../jupyter_utils/jupyterlab_utils';
 import {
-    clearMitoAIChatInput,
-    clickAcceptButton,
-    clickDenyButton,
-    clickPreviewButton,
-    clickOnMitoAIChatTab,
-    editMitoAIMessage,
     sendMessagetoAIChat,
-    waitForMitoAILoadingToDisappear,
-    startNewMitoAIChat,
+    startNewMitoAIChat
 } from './utils';
 
 const MODEL = 'GPT 4.1';

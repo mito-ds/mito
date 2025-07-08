@@ -3,10 +3,9 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { expect, galata, test } from '@jupyterlab/galata';
+import { expect, test } from '@jupyterlab/galata';
 import {
     createAndRunNotebookWithCells,
-    getCodeFromCell,
     waitForIdle,
 } from '../jupyter_utils/jupyterlab_utils';
 import {
