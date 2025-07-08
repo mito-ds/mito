@@ -79,9 +79,7 @@ setup_args = dict(
     data_files               = data_files,
     install_requires=[        
         "jupyterlab~=4.0",
-        # We allow users to have many versions of pandas installed. All functionality should
-        # work, with the exception of Excel import, which might require additonal dependencies
-        'pandas>=0.24.2',
+        'pandas>=2.0.0',
         'analytics-python',
         # Graphing libraries
         'plotly>=4.14.3,<6.0.0',

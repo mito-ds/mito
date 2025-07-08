@@ -21,11 +21,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.13"]
-        pandas-version: ['1.5.3', '2.2.0']
+        pandas-version: ['2.2.0']
         optional_feature_dependencies: [False, True] 
-        exclude:
-          - python-version: "3.13"
-            pandas-version: '1.5.3'
             
     steps:
     - uses: actions/checkout@v4
