@@ -19,9 +19,9 @@ jobs:
   test-mitosheet-python:
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.9", "3.13"]
-        pandas-version: ['2.2.0']
         optional_feature_dependencies: [False, True] 
             
     steps:
@@ -40,7 +40,6 @@ jobs:
     - name: Install dependencies
       run: |
         cd mitosheet
-        pip install "pandas==${{ matrix.pandas-version }}"
         pip install -e ".[test]"
     - name: Install optional feature dependencies
       if: ${{ matrix.optional_feature_dependencies }}
