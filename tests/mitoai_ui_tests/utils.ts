@@ -154,13 +154,23 @@ export const clickDenyButton = async (
 }
 
 export const turnOnAgentMode = async (page: IJupyterLabPageFixture) => {
-    await page.locator('.toggle-button-container').getByRole('button', { name: 'Agent' }).click();
-    await waitForIdle(page);
+    const agentButton = page.locator('.toggle-button-container').getByRole('button', { name: 'Agent' });
+    const isSelected = await agentButton.evaluate((el) => el.classList.contains('selected'));
+    
+    if (!isSelected) {
+        await agentButton.click();
+        await waitForIdle(page);
+    }
 }
 
 export const turnOnChatMode = async (page: IJupyterLabPageFixture) => {
-    await page.locator('.toggle-button-container').getByRole('button', { name: 'Chat' }).click();
-    await waitForIdle(page);
+    const chatButton = page.locator('.toggle-button-container').getByRole('button', { name: 'Chat' });
+    const isSelected = await chatButton.evaluate((el) => el.classList.contains('selected'));
+    
+    if (!isSelected) {
+        await chatButton.click();
+        await waitForIdle(page);
+    }
 }
 
 export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<string[]> => {

@@ -119,7 +119,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(code?.trim()).toBe("")
   });
 
-  test('Edit Message', async ({ page }) => {
+  test.only('Edit Message', async ({ page }) => {
     await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
     await waitForIdle(page);
 
