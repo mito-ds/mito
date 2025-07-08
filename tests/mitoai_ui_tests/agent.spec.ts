@@ -19,7 +19,7 @@ import {
     startNewMitoAIChat
 } from './utils';
 
-test.describe("Agent mode print hi", () => {
+test.describe.parallel("Agent mode print hi", () => {
 
     test.beforeEach(async ({ page }) => {
         /*
@@ -110,7 +110,7 @@ test.describe("Agent mode print hi", () => {
 });
 
 
-test.describe("Stop Agent", () => {
+test.describe.parallel("Stop Agent", () => {
 
     test.beforeEach(async ({ page }) => {
         /*
@@ -186,7 +186,7 @@ test.describe("Stop Agent", () => {
     });
 })
 
-test.describe("Agent overwrite existing cells", () => {
+test.describe.parallel("Agent overwrite existing cells", () => {
     test("Update existing print statement", async ({ page }) => {
 
         // Create a notebok with a few cells
@@ -213,7 +213,7 @@ test.describe("Agent overwrite existing cells", () => {
 })
 
 
-test.describe("Agent mode auto error fixup", () => {
+test.describe.parallel("Agent mode auto error fixup", () => {
 
     test.beforeEach(async ({ page }) => {
         /*
@@ -250,7 +250,7 @@ test.describe("Agent mode auto error fixup", () => {
 
 });
 
-test.describe("Agent mode blacklisted words", () => {
+test.describe.parallel("Agent mode blacklisted words", () => {
 
     test.beforeEach(async ({ page }) => {
         /*
