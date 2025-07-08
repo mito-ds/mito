@@ -69,7 +69,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(code).toContain('df["C"] = [7, 8, 9]');
   });
 
-  test.only("Accept using cell toolbar button", async ({ page }) => {
+  test("Accept using cell toolbar button", async ({ page }) => {
     await sendMessagetoAIChat(page, 'Write the code x=1');
 
     await clickPreviewButton(page);
