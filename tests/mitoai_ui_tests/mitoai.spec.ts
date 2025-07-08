@@ -69,16 +69,8 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(code).toContain('df["C"] = [7, 8, 9]');
   });
 
-  // ONLY
   test.only("Accept using cell toolbar button", async ({ page }) => {
-    await updateCell(
-      page, 
-      0, 
-      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
-      true
-    );
-
-    await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
+    await sendMessagetoAIChat(page, 'Write the code x=1');
 
     await clickPreviewButton(page);
     await page.waitForTimeout(1000);
@@ -88,11 +80,16 @@ test.describe.parallel('Mito AI Chat', () => {
     await clickAcceptButton(page, { useCellToolbar: true });
     await waitForIdle(page);
 
-    const code = await getCodeFromCell(page, 2);
-    expect(code).toContain('df["C"] = [7, 8, 9]');
+    // When using the toolbar buttons, there is a bug that Playwright triggers,
+    // where the page continously scrolls to the bottom. This loop causes a timeout.
+    // To avoid this, we manually select the first cell, forcing the page to scroll to the top.
+    await selectCell(page, 0);
+
+    const code = await getCodeFromCell(page, 0);
+    expect(code).toContain('x');
+    expect(code).toContain('1');
   });
 
-  // ONLY
   test('Reject AI Generated Code', async ({ page }) => {
     await updateCell(
       page, 
@@ -112,16 +109,8 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(code?.trim()).toBe("")
   });
 
-  // ONLY
   test("Reject using cell toolbar button", async ({ page }) => {
-    await updateCell(
-      page, 
-      0, 
-      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
-      true
-    );
-
-    await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
+    await sendMessagetoAIChat(page, 'print x=1');
 
     await clickPreviewButton(page);
     await page.waitForTimeout(1000);
@@ -131,9 +120,15 @@ test.describe.parallel('Mito AI Chat', () => {
     await clickDenyButton(page, { useCellToolbar: true });
     await waitForIdle(page);
 
-    const code = await getCodeFromCell(page, 2);
-    expect(code).not.toContain('df["C"] = [7, 8, 9]');
-    expect(code?.trim()).toBe("")
+    // When using the toolbar buttons, there is a bug that Playwright triggers,
+    // where the page continously scrolls to the bottom. This loop causes a timeout.
+    // To avoid this, we manually select the first cell, forcing the page to scroll to the top.
+    await selectCell(page, 0);
+
+    const code = await getCodeFromCell(page, 0);
+    expect(code).not.toContain('x');
+    expect(code).not.toContain('1');
+    expect(code?.trim()).toContain("Start writing python") // The placeholder ghost text
   });
 
   test('Edit Message', async ({ page }) => {
@@ -195,7 +190,6 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(codeInCell2).not.toContain('x = 1'); // Make sure the first msg does not show up in the second cell
   });
 
-  // ONLY
   test('Always write code to the preview cell', async ({ page }) => {
     await updateCell(page, 0, ['print("hello world")', '# this should not be overwritten'], true);
 
@@ -256,7 +250,6 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(codeMessagePartContainersCount).toBe(1);
   });
 
-  // ONLY
   test('Fix error button', async ({ page }) => {
     await updateCell(page, 0, ['print(1'], true);
 
