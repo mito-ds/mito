@@ -4,22 +4,22 @@
  */
 
 import { expect, test } from '@jupyterlab/galata';
-import { 
-  createAndRunNotebookWithCells, 
-  getCodeFromCell, 
-  selectCell, 
-  waitForIdle, 
+import {
+  createAndRunNotebookWithCells,
+  getCodeFromCell,
+  selectCell,
+  waitForIdle,
   addNewCell,
   updateCell
 } from '../jupyter_utils/jupyterlab_utils';
-import { 
-  clearMitoAIChatInput, 
+import {
+  clearMitoAIChatInput,
   clickAcceptButton,
-  clickDenyButton, 
-  clickPreviewButton, 
+  clickDenyButton,
+  clickPreviewButton,
   clickOnMitoAIChatTab,
-  editMitoAIMessage, 
-  sendMessagetoAIChat, 
+  editMitoAIMessage,
+  sendMessagetoAIChat,
   waitForMitoAILoadingToDisappear,
   startNewMitoAIChat,
 } from './utils';
@@ -40,13 +40,13 @@ test.describe.parallel('Mito AI Chat', () => {
     // Locate the "Clear the chat history" button
     const clearButton = page.locator('button[title="Start New Chat"]');
     expect(clearButton).toBeVisible()
-  
+
   })
 
   test('Preview and Accept AI Generated Code', async ({ page }) => {
     await updateCell(
-      page, 
-      0, 
+      page,
+      0,
       ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
       true
     );
@@ -92,8 +92,8 @@ test.describe.parallel('Mito AI Chat', () => {
 
   test('Reject AI Generated Code', async ({ page }) => {
     await updateCell(
-      page, 
-      0, 
+      page,
+      0,
       ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
       true
     );
@@ -133,8 +133,8 @@ test.describe.parallel('Mito AI Chat', () => {
 
   test('Edit Message', async ({ page }) => {
     await updateCell(
-      page, 
-      0, 
+      page,
+      0,
       ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
       true
     );
@@ -293,8 +293,8 @@ test.describe.parallel('Mito AI Chat', () => {
 
   test('Variable dropdown shows correct variables', async ({ page }) => {
     await updateCell(
-      page, 
-      0, 
+      page,
+      0,
       ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})'],
       true
     );
@@ -347,30 +347,3 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 });
 
-test.describe.serial('Mito AI Chat - Restore history', () => {
-  test.skip('Restore message history', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
-    await waitForIdle(page);
-
-    await selectCell(page, 0);
-
-    await sendMessagetoAIChat(page, 'print(2)');
-    await waitForIdle(page);
-    
-    // As you have a notebook opened, at reload a dialog shows up to 
-    // select the kernel for the notebook. The dialog prevent all the tests 
-    // carried out at page load to be performed as it capture the focus.
-    // One way around it is to set the option waitForIsReady (specific to JupyterLab):
-    // When that option is set, we don't wait for addition checks specific to JupyterLab
-    await page.reload({waitForIsReady: false});
-    await Promise.all([
-      page.getByRole('button', { name: 'Select Kernel' }).click(),
-      waitForIdle(page)
-    ]);
-
-    // 1 from the previous message, 1 for the new chat input since we use
-    // the message-user class on the chat input also
-    await expect(page.locator('.message-user')).toHaveCount(2); 
-    await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
-  });
-});
