@@ -240,9 +240,8 @@ test.describe.parallel("Agent mode auto error fixup", () => {
 
         // Check that the agent eventually sends a message that says it is trying again
         await expect(async () => {
-            const messages = await page.locator('.message-assistant-chat').all();
-            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
-            if (!messageTexts.some(text => text?.includes("Hmm, looks like my first attempt didn't work. Let me try again."))) {
+            const errorFixupHeader = await page.locator('.error-fixup-header').textContent();
+            if (!errorFixupHeader?.includes("Fixing an error")) {
                 throw new Error('Expected message not found');
             }
         }).toPass({ timeout: 45000 }); // Increase timeout if needed
