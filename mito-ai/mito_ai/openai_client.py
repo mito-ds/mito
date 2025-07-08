@@ -266,7 +266,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         )
         
         # If they have set an Azure OpenAI or Ollama model, then we use it
-        completion_function_params["model"] = self._adjust_model_for_azure_or_ollama(model)
+        completion_function_params["model"] = self._adjust_model_for_azure_or_ollama(completion_function_params["model"])
 
         if self._active_async_client is not None:
             response = await self._active_async_client.chat.completions.create(**completion_function_params)

@@ -11,6 +11,7 @@ from google.genai.types import Part, GenerateContentResponse, Candidate, Content
 from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
 from unittest.mock import MagicMock, patch
 from typing import List, Dict, Any
+from mito_ai.completions.models import MessageType
 
 # Dummy base64 image (1x1 PNG)
 DUMMY_IMAGE_DATA_URL = (
@@ -154,41 +155,49 @@ async def test_json_response_handling_with_multiple_parts():
     # Should concatenate all parts
     assert result == 'Here is the JSON: {"key": "value"} End of response' 
     
-CUSTOM_MODEL = "gemini-1.5-pro"
-@pytest.mark.parametrize("response_format_info, expected_model", [
-    (ResponseFormatInfo(name="agent_response", format=AgentResponse), CUSTOM_MODEL),  # With response_format_info - should use self.model
-    (None, FAST_GEMINI_MODEL),  # Without response_format_info - should use GEMINI_FAST_MODEL
+CUSTOM_MODEL = "smart-gemini-model"
+@pytest.mark.parametrize("message_type, expected_model", [
+    (MessageType.CHAT, CUSTOM_MODEL),  #
+    (MessageType.SMART_DEBUG, CUSTOM_MODEL),  #
+    (MessageType.CODE_EXPLAIN, CUSTOM_MODEL),  #
+    (MessageType.AGENT_EXECUTION, CUSTOM_MODEL),  #
+    (MessageType.AGENT_AUTO_ERROR_FIXUP, CUSTOM_MODEL),  #
+    (MessageType.INLINE_COMPLETION, FAST_GEMINI_MODEL),  #
+    (MessageType.CHAT_NAME_GENERATION, FAST_GEMINI_MODEL),  #
 ])
-@pytest.mark.asyncio
-async def test_model_selection_based_on_response_format_info(response_format_info, expected_model):
+@pytest.mark.asyncio 
+async def test_model_selection_based_on_message_type(message_type, expected_model):
     """
-    Tests that the correct model is selected based on whether response_format_info is provided.
+    Tests that the correct model is selected based on the message type.
     """
-    
-    # Create a GeminiClient with a specific model
-    client = GeminiClient(api_key="test_key")
-    
-    # Mock the generate_content method to avoid actual API calls
-    client.client = MagicMock()
-    mock_response = GenerateContentResponse(
-        candidates=[
-            Candidate(
-                content=Content(
-                    parts=[Part(text='Test response')]
+    with patch('google.genai.Client') as mock_genai_class:
+        mock_client = MagicMock()
+        mock_models = MagicMock()
+        mock_client.models = mock_models
+        mock_genai_class.return_value = mock_client
+        
+        client = GeminiClient(api_key="test_key")
+        
+        # Create a mock response
+        mock_response = GenerateContentResponse(
+            candidates=[
+                Candidate(
+                    content=Content(
+                        parts=[Part(text="test")]
+                    )
                 )
-            )
-        ]
-    )
-    client.client.models.generate_content.return_value = mock_response
-    
-    with patch('mito_ai.gemini_client.get_gemini_completion_function_params', wraps=get_gemini_completion_function_params) as mock_get_params:
+            ]
+        )
+        mock_models.generate_content.return_value = mock_response
+
         await client.request_completions(
             messages=[{"role": "user", "content": "Test message"}],
             model=CUSTOM_MODEL,
-            response_format_info=response_format_info
+            message_type=message_type,
+            response_format_info=None
         )
         
-        # Verify that get_gemini_completion_function_params was called with the expected model
-        mock_get_params.assert_called_once()
-        call_args = mock_get_params.call_args
-        assert call_args[1]['model'] == expected_model
+        # Verify that generate_content was called with the expected model
+        mock_models.generate_content.assert_called_once()
+        call_args = mock_models.generate_content.call_args
+        assert call_args[1]['model'] == expected_model 
