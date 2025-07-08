@@ -47,7 +47,7 @@ export const clearMitoAIChatInput = async (page: IJupyterLabPageFixture) => {
     await page.locator('.chat-input').fill('');
 }
 
-export const startNewMitoAIChat = async (page: IJupyterLabPageFixture) => {
+export const startNewMitoAIChat = async (page: IJupyterLabPageFixture, model?: string) => {
     await waitForIdle(page);
 
     // Open the Mito AI chat tab
@@ -63,6 +63,11 @@ export const startNewMitoAIChat = async (page: IJupyterLabPageFixture) => {
     // Wait for the extension to return to idle
     await waitForIdle(page);
     await page.waitForTimeout(1000);
+
+    // Select model if specified
+    if (model) {
+        await selectModel(page, model);
+    }
   };
 
 export const sendMessagetoAIChat = async (
