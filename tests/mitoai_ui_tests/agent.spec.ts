@@ -158,9 +158,8 @@ test.describe.parallel("Stop Agent", () => {
 
         // Wait for the "trying again" message to appear
         await expect(async () => {
-            const messages = await page.locator('.message-assistant-chat').all();
-            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
-            if (!messageTexts.some(text => text?.includes("Hmm, looks like my first attempt didn't work. Let me try again."))) {
+            const errorFixupHeader = await page.locator('.error-fixup-header').textContent();
+            if (!errorFixupHeader?.includes("Fixing an error")) {
                 throw new Error('Expected retry message not found');
             }
         }).toPass({ timeout: 45000 });
