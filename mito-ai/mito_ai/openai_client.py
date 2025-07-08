@@ -316,7 +316,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             message_type, model, messages, True, response_format_info
         )
         
-        completion_function_params["model"] = self._adjust_model_for_azure_or_ollama(model)
+        completion_function_params["model"] = self._adjust_model_for_azure_or_ollama(completion_function_params["model"])
 
         try:
             if self._active_async_client is not None:

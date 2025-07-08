@@ -166,7 +166,7 @@ CUSTOM_MODEL = "smart-gemini-model"
     (MessageType.CHAT_NAME_GENERATION, FAST_GEMINI_MODEL),  #
 ])
 @pytest.mark.asyncio 
-async def test_model_selection_based_on_message_type(message_type, expected_model):
+async def test_get_completion_model_selection_based_on_message_type(message_type, expected_model):
     """
     Tests that the correct model is selected based on the message type.
     """
@@ -179,15 +179,7 @@ async def test_model_selection_based_on_message_type(message_type, expected_mode
         client = GeminiClient(api_key="test_key")
         
         # Create a mock response
-        mock_response = GenerateContentResponse(
-            candidates=[
-                Candidate(
-                    content=Content(
-                        parts=[Part(text="test")]
-                    )
-                )
-            ]
-        )
+        mock_response = 'test-response'
         mock_models.generate_content.return_value = mock_response
 
         await client.request_completions(
