@@ -24,7 +24,7 @@ jobs:
         pandas-version: ['1.5.3', '2.2.0']
         optional_feature_dependencies: [False, True] 
         exclude:
-          - python-version: "3.12"
+          - python-version: "3.13"
             pandas-version: '1.5.3'
             
     steps:
