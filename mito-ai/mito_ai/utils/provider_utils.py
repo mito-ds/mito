@@ -33,15 +33,14 @@ def does_message_require_fast_model(message_type: MessageType) -> bool:
     so they don't slow down the user's experience.
     """
     
-    match message_type:
-        case MessageType.CHAT | MessageType.SMART_DEBUG | MessageType.CODE_EXPLAIN | MessageType.AGENT_EXECUTION | MessageType.AGENT_AUTO_ERROR_FIXUP:
-            return False
-        case MessageType.INLINE_COMPLETION | MessageType.CHAT_NAME_GENERATION:
-            return True
-        case MessageType.START_NEW_CHAT | MessageType.FETCH_HISTORY | MessageType.GET_THREADS | MessageType.DELETE_THREAD | MessageType.UPDATE_MODEL_CONFIG:
-            # These messages don't use any model, but we add them here for type safety
-            return True
-        case _:
-            raise ValueError(f"Invalid message type: {message_type}")
+    if message_type in (MessageType.CHAT, MessageType.SMART_DEBUG, MessageType.CODE_EXPLAIN, MessageType.AGENT_EXECUTION, MessageType.AGENT_AUTO_ERROR_FIXUP):
+        return False
+    elif message_type in (MessageType.INLINE_COMPLETION, MessageType.CHAT_NAME_GENERATION):
+        return True
+    elif message_type in (MessageType.START_NEW_CHAT, MessageType.FETCH_HISTORY, MessageType.GET_THREADS, MessageType.DELETE_THREAD, MessageType.UPDATE_MODEL_CONFIG):
+        # These messages don't use any model, but we add them here for type safety
+        return True
+    else:
+        raise ValueError(f"Invalid message type: {message_type}")
     
     
