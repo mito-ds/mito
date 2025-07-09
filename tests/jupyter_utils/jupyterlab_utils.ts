@@ -108,12 +108,29 @@ export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number
     await cell?.click();
 }
 
-
-
 export const addNewCell = async (
     page: IJupyterLabPageFixture,
     cellType: 'code' | 'markdown' = 'code',
     cellValue: string = ''
 ) => {
     await page.notebook.addCell(cellType, cellValue);
+}
+
+export const updateCell = async (
+    page: IJupyterLabPageFixture, 
+    cellIndex: number, 
+    cellValue: string[],
+    runAfterTyping?: boolean 
+) => {
+    for (let i = 0; i < cellValue.length; i++) {
+        await selectCell(page, cellIndex + i);
+        await waitForIdle(page);
+
+        await page.keyboard.type(cellValue[i], { delay: 50 });
+
+        if (runAfterTyping) {
+            await runCell(page, cellIndex + i);
+        }
+        await waitForIdle(page);
+    }
 }
