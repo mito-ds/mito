@@ -166,28 +166,25 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(messageAssistantDivs).toBe(1);
   });
 
-  test.skip('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
-    await updateCell(page, 0, ['print("cell 0")'], true);
-
-    // Send a first message in cell 1
+  test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
+    // Send a first message w. first cell selected
     await sendMessagetoAIChat(page, 'Write the code x = 1');
+    await clickPreviewButton(page);
+    await waitForIdle(page);
 
-    // Create a new cell w/o accepting the first message
-    await addNewCell(page);
-
-    // Send a second message in cell 2
-    await sendMessagetoAIChat(page, 'Write the code x = 2');
+    // Send a second message
+    await sendMessagetoAIChat(page, 'Write the code y = 2');
     await clickPreviewButton(page);
     await clickAcceptButton(page);
     await waitForIdle(page);
 
+    // Sometimes there is a bug where the page continously scrolls to the bottom.
+    // To avoid this, we manually select the first cell, forcing the page to scroll to the top.
+    await selectCell(page, 0);
 
-    const codeInCell1 = await getCodeFromCell(page, 1);
-    expect(codeInCell1).not.toContain('x = 1'); // First msg should be auto-rejected
-
-    const codeInCell2 = await getCodeFromCell(page, 2);
-    expect(codeInCell2).toContain('x = 2');
-    expect(codeInCell2).not.toContain('x = 1'); // Make sure the first msg does not show up in the second cell
+    const codeInCell = await getCodeFromCell(page, 0);
+    expect(codeInCell).not.toContain('x = 1'); // First msg should be auto-rejected
+    expect(codeInCell).toContain('y = 2');
   });
 
   test('Always write code to the preview cell', async ({ page }) => {
