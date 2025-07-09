@@ -108,20 +108,10 @@ test.describe.parallel("Agent mode basic functionality", () => {
 test.describe.parallel("Stop Agent", () => {
 
     test.beforeEach(async ({ page }) => {
-        /*
-            Before each test, we switch to agent mode, and send a message. 
-        */
-
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
-
-        await startNewMitoAIChat(page);
-        await waitForIdle(page);
-
-        // Switch to agent mode 
+        await startNewMitoAIChat(page, MODEL);
         await turnOnAgentMode(page);
     });
 
@@ -181,18 +171,18 @@ test.describe.parallel("Stop Agent", () => {
 })
 
 test.describe.parallel("Agent overwrite existing cells", () => {
-    test("Update existing print statement", async ({ page }) => {
 
-        // Create a notebok with a few cells
+    test.beforeEach(async ({ page }) => {
         await createAndRunNotebookWithCells(page, ['print("hello world")', '']);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
+        await startNewMitoAIChat(page, MODEL);
 
         // Switch to agent mode 
         await turnOnAgentMode(page);
+    });
 
+    test("Update existing print statement", async ({ page }) => {
         await sendMessageToAgent(page, "Update the print hello world statement to print goodbye world");
         await waitForAgentToFinish(page)
 
@@ -206,22 +196,13 @@ test.describe.parallel("Agent overwrite existing cells", () => {
     })
 })
 
-
 test.describe.parallel("Agent mode auto error fixup", () => {
 
     test.beforeEach(async ({ page }) => {
-        /*
-            Before each test, we switch to agent mode, and send a message. 
-        */
-
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
-
-        await startNewMitoAIChat(page);
-        await waitForIdle(page);
+        await startNewMitoAIChat(page, MODEL);
 
         // Switch to agent mode 
         await turnOnAgentMode(page);
@@ -246,18 +227,10 @@ test.describe.parallel("Agent mode auto error fixup", () => {
 test.describe.parallel("Agent mode blacklisted words", () => {
 
     test.beforeEach(async ({ page }) => {
-        /*
-            Before each test, we switch to agent mode, and send a message. 
-        */
-
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
-
-        await startNewMitoAIChat(page);
-        await waitForIdle(page);
+        await startNewMitoAIChat(page, MODEL);
 
         // Switch to agent mode 
         await turnOnAgentMode(page);
