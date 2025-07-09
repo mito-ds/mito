@@ -194,7 +194,7 @@ export const getNotebookCode = async (page: IJupyterLabPageFixture): Promise<str
 }
 
 export const selectModel = async (page: IJupyterLabPageFixture, modelName: string) => {
-    console.log(`Attempting to select model: "${modelName}"`);
+    console.log(`Switching to model: "${modelName}"`);
     
     // Click the model selector to open dropdown
     await page.getByTestId('model-selector').click();
