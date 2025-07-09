@@ -19,26 +19,20 @@ import {
     startNewMitoAIChat
 } from './utils';
 
-test.describe.parallel("Agent mode print hi", () => {
+const MODEL = 'GPT 4.1';
+
+test.describe.parallel("Agent mode basic functionality", () => {
 
     test.beforeEach(async ({ page }) => {
-        /*
-            Before each test, we switch to agent mode, and send a message. 
-        */
-
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
-
-        await startNewMitoAIChat(page);
-        await waitForIdle(page);
+        await startNewMitoAIChat(page, MODEL);
 
         // Switch to agent mode 
         await turnOnAgentMode(page);
 
-        await sendMessageToAgent(page, "print hi");
+        await sendMessageToAgent(page, "print x = 1");
         await waitForIdle(page);
     });
 
@@ -50,11 +44,12 @@ test.describe.parallel("Agent mode print hi", () => {
         // Make sure that the agent wrote code to the notebook
         const codeFromCells = await getNotebookCode(page)
         const codeFromCellsString = codeFromCells.join('')
-        expect(codeFromCellsString).toContain('hi');
+        expect(codeFromCellsString).toContain('x');
+        expect(codeFromCellsString).toContain('1');
     });
 
     test("Edit original message", async ({ page }) => {
-        const newMessage = "print bye";
+        const newMessage = "print y = 2";
 
         // Keep track of the original messages in the agent's plan.
         const oldPlanMessages: string[] = [];
@@ -88,24 +83,24 @@ test.describe.parallel("Agent mode print hi", () => {
     });
 
     test("Run agent's plan then send a follow up message", async ({ page }) => {
-        
+
         // Wait until the agent is done executing
         await waitForAgentToFinish(page);
 
         // Make sure that the agent wrote code to the notebook
         const codeFromCells = await getNotebookCode(page)
         const codeFromCellsString = codeFromCells.join(' ')
-        expect(codeFromCellsString).toContain('hi');
+        expect(codeFromCellsString).toContain('x');
+        expect(codeFromCellsString).toContain('1');
 
         // Send a follow up chat message
-        await sendMessageToAgent(page, "Update the print statement to print goodbye");
+        await sendMessageToAgent(page, "replace x with y");
         await waitForAgentToFinish(page);
 
         // Look for the code in the last cell
         const newCodeFromCells = await getNotebookCode(page)
         const newCodeFromCellsString = newCodeFromCells.join(' ')
-        expect(newCodeFromCellsString).toContain('print');
-        expect(newCodeFromCellsString).toContain('bye');
+        expect(newCodeFromCellsString).toContain('y');
     });
 });
 
@@ -137,7 +132,7 @@ test.describe.parallel("Stop Agent", () => {
 
         // Wait for the Stop Agent button to be visible before clicking it
         await page.getByTestId('stop-agent-button').waitFor({ state: 'visible' });
-        
+
         // Click the Stop Agent button
         await page.getByTestId('stop-agent-button').click();
 
