@@ -277,6 +277,33 @@ describe('ChatMessage Component', () => {
             expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'user');
         });
 
+        it('switches to edit mode when user message is double-clicked', () => {
+            const updateMessageMock = jest.fn();
+
+            renderChatMessage({
+                message: createMockMessage('user', 'Hello, can you help me with pandas?'),
+                onUpdateMessage: updateMessageMock
+            });
+
+            // Find the message text element
+            const messageText = screen.getByText('Hello, can you help me with pandas?');
+
+            // Double-click the message to trigger edit mode
+            act(() => {
+                fireEvent.dblClick(messageText);
+            });
+
+            // Should show the ChatInput component for editing
+            expect(screen.getByTestId('chat-input')).toBeInTheDocument();
+
+            // Simulate saving the edited message
+            act(() => {
+                (window as any).__chatInputCallbacks.onSave('Updated message content');
+            });
+
+            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'user');
+        });
+
         it('shows code action buttons for the last AI message with code', () => {
             renderChatMessage({
                 message: createMockMessage('assistant', '```python\nimport pandas as pd\n```'),
