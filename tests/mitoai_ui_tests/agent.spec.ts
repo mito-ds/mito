@@ -9,7 +9,6 @@ import {
     waitForIdle,
 } from '../jupyter_utils/jupyterlab_utils';
 import {
-    clickOnMitoAIChatTab,
     sendMessageToAgent,
     editMitoAIMessage,
     waitForMitoAILoadingToDisappear,
