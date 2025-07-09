@@ -21,6 +21,16 @@ jest.mock('../../restAPI/RestAPI', () => ({
   getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']) 
 }));
 
+// Mock the PythonCode component
+jest.mock('../../Extensions/AiChat/ChatMessage/PythonCode', () => {
+    return {
+        __esModule: true,
+        default: jest.fn(({ code }) => (
+            <div data-testid="python-code">{code}</div>
+        ))
+    };
+});
+
 // Mock data for test cases
 const TEST_CELL_CODE = 'print("Hello World")';
 const EMPTY_CELL_ID = 'empty-cell-id';
@@ -134,6 +144,11 @@ describe('ChatInput Component', () => {
 
             // Preview should become visible
             expect(screen.getByTestId('active-cell-preview-container')).toBeInTheDocument();
+            
+            // Verify that the active cell code content is displayed
+            // The mock cell has TEST_CELL_CODE = 'print("Hello World")'
+            const pythonCodeElement = screen.getByTestId('python-code');
+            expect(pythonCodeElement).toHaveTextContent('print("Hello World")');
         });
 
         it('does not show preview for empty cells', () => {
