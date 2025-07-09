@@ -188,6 +188,41 @@ describe('ChatInput Component', () => {
             // Preview should not be visible
             expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
         });
+
+        it('updates preview when active cell code changes', () => {
+            // Clear and re-render to ensure clean state
+            document.body.innerHTML = '';
+            
+            // Mock getCellCodeByID to return initial code
+            const { getCellCodeByID } = require('../../utils/notebook');
+            getCellCodeByID.mockImplementation(() => TEST_CELL_CODE);
+            
+            renderChatInput();
+            const textarea = screen.getByRole('textbox');
+            
+            // Type in textarea to show preview
+            typeInTextarea(textarea, 'test input');
+            
+            // Verify initial preview shows the original code
+            const pythonCodeElement = screen.getByTestId('python-code');
+            expect(pythonCodeElement).toHaveTextContent(TEST_CELL_CODE);
+            
+            // Update the mock to return new code and re-render
+            const newCellCode = 'print("goodbye")';
+            getCellCodeByID.mockImplementation(() => newCellCode);
+            
+            // Re-render the component to simulate the active cell change
+            document.body.innerHTML = '';
+            renderChatInput();
+            
+            // Type in textarea again to show preview
+            const newTextarea = screen.getByRole('textbox');
+            typeInTextarea(newTextarea, 'test input');
+            
+            // Verify the preview now shows the new code
+            const updatedPythonCodeElement = screen.getByTestId('python-code');
+            expect(updatedPythonCodeElement).toHaveTextContent(newCellCode);
+        });
     });
 
     describe('Keyboard Interactions', () => {
