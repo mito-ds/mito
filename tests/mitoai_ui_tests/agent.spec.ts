@@ -3,14 +3,12 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { expect, galata, test } from '@jupyterlab/galata';
+import { expect, test } from '@jupyterlab/galata';
 import {
     createAndRunNotebookWithCells,
-    getCodeFromCell,
     waitForIdle,
 } from '../jupyter_utils/jupyterlab_utils';
 import {
-    clickOnMitoAIChatTab,
     sendMessageToAgent,
     editMitoAIMessage,
     waitForMitoAILoadingToDisappear,
@@ -20,26 +18,20 @@ import {
     startNewMitoAIChat
 } from './utils';
 
-test.describe("Agent mode print hi", () => {
+const MODEL = 'GPT 4.1';
+
+test.describe.parallel("Agent mode basic functionality", () => {
 
     test.beforeEach(async ({ page }) => {
-        /*
-            Before each test, we switch to agent mode, and send a message. 
-        */
-
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
-
-        await startNewMitoAIChat(page);
-        await waitForIdle(page);
+        await startNewMitoAIChat(page, MODEL);
 
         // Switch to agent mode 
         await turnOnAgentMode(page);
 
-        await sendMessageToAgent(page, "print hi");
+        await sendMessageToAgent(page, "print x = 1");
         await waitForIdle(page);
     });
 
@@ -51,11 +43,12 @@ test.describe("Agent mode print hi", () => {
         // Make sure that the agent wrote code to the notebook
         const codeFromCells = await getNotebookCode(page)
         const codeFromCellsString = codeFromCells.join('')
-        expect(codeFromCellsString).toContain('hi');
+        expect(codeFromCellsString).toContain('x');
+        expect(codeFromCellsString).toContain('1');
     });
 
     test("Edit original message", async ({ page }) => {
-        const newMessage = "print bye";
+        const newMessage = "print y = 2";
 
         // Keep track of the original messages in the agent's plan.
         const oldPlanMessages: string[] = [];
@@ -89,45 +82,35 @@ test.describe("Agent mode print hi", () => {
     });
 
     test("Run agent's plan then send a follow up message", async ({ page }) => {
-        
+
         // Wait until the agent is done executing
         await waitForAgentToFinish(page);
 
         // Make sure that the agent wrote code to the notebook
         const codeFromCells = await getNotebookCode(page)
         const codeFromCellsString = codeFromCells.join(' ')
-        expect(codeFromCellsString).toContain('hi');
+        expect(codeFromCellsString).toContain('x');
+        expect(codeFromCellsString).toContain('1');
 
         // Send a follow up chat message
-        await sendMessageToAgent(page, "Update the print statement to print goodbye");
+        await sendMessageToAgent(page, "replace x with y");
         await waitForAgentToFinish(page);
 
         // Look for the code in the last cell
         const newCodeFromCells = await getNotebookCode(page)
         const newCodeFromCellsString = newCodeFromCells.join(' ')
-        expect(newCodeFromCellsString).toContain('print');
-        expect(newCodeFromCellsString).toContain('bye');
+        expect(newCodeFromCellsString).toContain('y');
     });
 });
 
 
-test.describe("Stop Agent", () => {
+test.describe.parallel("Stop Agent", () => {
 
     test.beforeEach(async ({ page }) => {
-        /*
-            Before each test, we switch to agent mode, and send a message. 
-        */
-
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
-
-        await startNewMitoAIChat(page);
-        await waitForIdle(page);
-
-        // Switch to agent mode 
+        await startNewMitoAIChat(page, MODEL);
         await turnOnAgentMode(page);
     });
 
@@ -138,7 +121,7 @@ test.describe("Stop Agent", () => {
 
         // Wait for the Stop Agent button to be visible before clicking it
         await page.getByTestId('stop-agent-button').waitFor({ state: 'visible' });
-        
+
         // Click the Stop Agent button
         await page.getByTestId('stop-agent-button').click();
 
@@ -159,9 +142,8 @@ test.describe("Stop Agent", () => {
 
         // Wait for the "trying again" message to appear
         await expect(async () => {
-            const messages = await page.locator('.message-assistant-chat').all();
-            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
-            if (!messageTexts.some(text => text?.includes("Hmm, looks like my first attempt didn't work. Let me try again."))) {
+            const errorFixupHeader = await page.locator('.error-fixup-header').textContent();
+            if (!errorFixupHeader?.includes("Fixing an error")) {
                 throw new Error('Expected retry message not found');
             }
         }).toPass({ timeout: 45000 });
@@ -187,19 +169,19 @@ test.describe("Stop Agent", () => {
     });
 })
 
-test.describe("Agent overwrite existing cells", () => {
-    test("Update existing print statement", async ({ page }) => {
+test.describe.parallel("Agent overwrite existing cells", () => {
 
-        // Create a notebok with a few cells
+    test.beforeEach(async ({ page }) => {
         await createAndRunNotebookWithCells(page, ['print("hello world")', '']);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
+        await startNewMitoAIChat(page, MODEL);
 
         // Switch to agent mode 
         await turnOnAgentMode(page);
+    });
 
+    test("Update existing print statement", async ({ page }) => {
         await sendMessageToAgent(page, "Update the print hello world statement to print goodbye world");
         await waitForAgentToFinish(page)
 
@@ -213,22 +195,13 @@ test.describe("Agent overwrite existing cells", () => {
     })
 })
 
-
-test.describe("Agent mode auto error fixup", () => {
+test.describe.parallel("Agent mode auto error fixup", () => {
 
     test.beforeEach(async ({ page }) => {
-        /*
-            Before each test, we switch to agent mode, and send a message. 
-        */
-
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
-
-        await startNewMitoAIChat(page);
-        await waitForIdle(page);
+        await startNewMitoAIChat(page, MODEL);
 
         // Switch to agent mode 
         await turnOnAgentMode(page);
@@ -241,9 +214,8 @@ test.describe("Agent mode auto error fixup", () => {
 
         // Check that the agent eventually sends a message that says it is trying again
         await expect(async () => {
-            const messages = await page.locator('.message-assistant-chat').all();
-            const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
-            if (!messageTexts.some(text => text?.includes("Hmm, looks like my first attempt didn't work. Let me try again."))) {
+            const errorFixupHeader = await page.locator('.error-fixup-header').textContent();
+            if (!errorFixupHeader?.includes("Fixing an error")) {
                 throw new Error('Expected message not found');
             }
         }).toPass({ timeout: 45000 }); // Increase timeout if needed
@@ -251,21 +223,13 @@ test.describe("Agent mode auto error fixup", () => {
 
 });
 
-test.describe("Agent mode blacklisted words", () => {
+test.describe.parallel("Agent mode blacklisted words", () => {
 
     test.beforeEach(async ({ page }) => {
-        /*
-            Before each test, we switch to agent mode, and send a message. 
-        */
-
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
 
-        await clickOnMitoAIChatTab(page);
-        await waitForIdle(page);
-
-        await startNewMitoAIChat(page);
-        await waitForIdle(page);
+        await startNewMitoAIChat(page, MODEL);
 
         // Switch to agent mode 
         await turnOnAgentMode(page);
