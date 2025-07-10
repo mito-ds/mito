@@ -164,4 +164,30 @@ describe('AssistantCodeBlock Component', () => {
             expect(codeElement.textContent).toBe('```python\nline1\nline2\nline3\nline4\nline5\n```');
         });
     });
+
+    describe('Editability', () => {
+        it('does not show edit icon for assistant code block', () => {
+            const props = createMockProps();
+            render(<AssistantCodeBlock {...props} />);
+
+            // Verify no edit button/icon is present
+            expect(screen.queryByTitle('Edit message')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('edit-button')).not.toBeInTheDocument();
+        });
+
+        it('does not enable editing on double-click', () => {
+            const props = createMockProps();
+            render(<AssistantCodeBlock {...props} />);
+
+            const codeElement = screen.getByTestId('python-code');
+            
+            // Double-click the code element
+            fireEvent.doubleClick(codeElement);
+
+            // Verify no edit input or textarea appears
+            expect(screen.queryByTestId('chat-input')).not.toBeInTheDocument();
+            expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+            expect(screen.queryByRole('textarea')).not.toBeInTheDocument();
+        });
+    });
 });
