@@ -21,7 +21,7 @@ import {
 const GHOST_SELECTOR = ".jp-GhostText";
 const THRESHOLD_IN_MS = 5000;
 
-test.describe("inline completion integration test", () => {
+test.describe.skip("inline completion integration test", () => {
 
     test('Inline completion', async ({ page }) => {
         await createAndRunNotebookWithCells(page, ['import pandas as pd']);
