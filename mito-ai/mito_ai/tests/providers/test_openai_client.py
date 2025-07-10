@@ -23,7 +23,7 @@ async def test_model_selection_based_on_message_type(message_type, expected_mode
     """
     Tests that the correct model is selected based on the message type.
     """
-    client = OpenAIClient(api_key="test_key")
+    client = OpenAIClient(api_key={"api_key": "test_key"})
     
     # Mock the _build_openai_client method to return our mock client
     with patch.object(client, '_build_openai_client') as mock_build_client, \
