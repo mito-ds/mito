@@ -24,11 +24,11 @@ AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_MODEL = os.environ.get("AZURE_OPENAI_MODEL")
 
 # Mito AI Base URLs and Endpoint Paths
-MITO_PROD_BASE_URL = "https://yxwyadgaznhavqvgnbfuo2k6ca0jboku.lambda-url.us-east-1.on.aws"
+MITO_PROD_BASE_URL = "https://7eax4i53f5odkshhlry4gw23by0yvnuv.lambda-url.us-east-1.on.aws/v1"
 MITO_DEV_BASE_URL = "https://g5vwmogjg7gh7aktqezyrvcq6a0hyfnr.lambda-url.us-east-1.on.aws/v1"
 
 # Set ACTIVE_BASE_URL manually
-ACTIVE_BASE_URL = MITO_DEV_BASE_URL  # Change to MITO_DEV_BASE_URL for dev
+ACTIVE_BASE_URL = MITO_PROD_BASE_URL  # Change to MITO_DEV_BASE_URL for dev
 
 # Endpoint paths
 ANTHROPIC_PATH = "anthropic/completions"
