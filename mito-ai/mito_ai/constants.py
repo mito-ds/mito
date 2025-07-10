@@ -23,30 +23,9 @@ AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION")
 AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_MODEL = os.environ.get("AZURE_OPENAI_MODEL")
 
-def get_model_provider(model: str) -> Union[str, None]:
-    """
-    Determine the model type based on the model name prefix
-    """
-    if not model:
-        return None
-
-    model_lower = model.lower()
-
-    if model_lower.startswith('claude'):
-        return 'claude'
-    elif model_lower.startswith('gemini'):
-        return 'gemini'
-    elif model_lower.startswith('ollama'):
-        return 'ollama'
-    elif model_lower.startswith('gpt'):
-        return 'openai'
-
-    return None
-
-
 # Mito AI Base URLs and Endpoint Paths
-MITO_PROD_BASE_URL = "https://yxwyadgaznhavqvgnbfuo2k6ca0jboku.lambda-url.us-east-1.on.aws"
-MITO_DEV_BASE_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws"
+MITO_PROD_BASE_URL = "https://7eax4i53f5odkshhlry4gw23by0yvnuv.lambda-url.us-east-1.on.aws/v1"
+MITO_DEV_BASE_URL = "https://g5vwmogjg7gh7aktqezyrvcq6a0hyfnr.lambda-url.us-east-1.on.aws/v1"
 
 # Set ACTIVE_BASE_URL manually
 ACTIVE_BASE_URL = MITO_PROD_BASE_URL  # Change to MITO_DEV_BASE_URL for dev

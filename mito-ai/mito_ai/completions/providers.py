@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from __future__ import annotations
+import asyncio
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
@@ -28,12 +29,16 @@ from mito_ai.completions.models import (
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
+    MITO_AI_COMPLETION_RETRY,
     MITO_SERVER_KEY,
     USER_KEY,
     log,
+    log_ai_completion_error,
+    log_ai_completion_retry,
     log_ai_completion_success,
 )
-from mito_ai.constants import get_model_provider
+from mito_ai.utils.provider_utils import get_model_provider
+from mito_ai.utils.mito_server_utils import ProviderCompletionException
 
 __all__ = ["OpenAIProvider"]
 
@@ -66,6 +71,9 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def capabilities(self) -> AICapabilities:
+        """
+        Returns the capabilities of the AI provider.
+        """
         if constants.CLAUDE_API_KEY and not self.api_key:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
@@ -78,6 +86,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
         if self._openai_client:
             return self._openai_client.capabilities
+        
         return AICapabilities(
             configuration={"model": "<dynamic>"},
             provider="Mito server",
@@ -100,7 +109,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         model: str,
         response_format_info: Optional[ResponseFormatInfo] = None,
         user_input: Optional[str] = None,
-        thread_id: Optional[str] = None
+        thread_id: Optional[str] = None,
+        max_retries: int = 3
     ) -> str:
         """
         Request completions from the AI provider.
@@ -109,43 +119,69 @@ This attribute is observed by the websocket provider to push the error to the cl
         completion = None
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
         model_type = get_model_provider(model)
-        try:
-            if model_type == "claude":
-                api_key = constants.CLAUDE_API_KEY
-                anthropic_client = AnthropicClient(api_key=api_key, model=model)
-                completion = await anthropic_client.request_completions(messages, response_format_info, message_type)
-            elif model_type == "gemini":
-                api_key = constants.GEMINI_API_KEY
-                gemini_client = GeminiClient(api_key=api_key, model=model)
-                messages_for_gemini = [dict(m) for m in messages]
-                completion = await gemini_client.request_completions(messages_for_gemini, response_format_info, message_type)
-            elif model_type == "openai":
-                if not self._openai_client:
-                    raise RuntimeError("OpenAI client is not initialized.")
-                completion = await self._openai_client.request_completions(
+        
+        # Retry loop
+        for attempt in range(max_retries + 1):
+            try:
+                if model_type == "claude":
+                    api_key = constants.CLAUDE_API_KEY
+                    anthropic_client = AnthropicClient(api_key=api_key)
+                    completion = await anthropic_client.request_completions(messages, model, response_format_info, message_type)
+                elif model_type == "gemini":
+                    api_key = constants.GEMINI_API_KEY
+                    gemini_client = GeminiClient(api_key=api_key)
+                    messages_for_gemini = [dict(m) for m in messages]
+                    completion = await gemini_client.request_completions(messages_for_gemini, model, response_format_info, message_type)
+                elif model_type == "openai":
+                    if not self._openai_client:
+                        raise RuntimeError("OpenAI client is not initialized.")
+                    completion = await self._openai_client.request_completions(
+                        message_type=message_type,
+                        messages=messages,
+                        model=model,
+                        response_format_info=response_format_info
+                    )
+                else:
+                    raise ValueError(f"No AI provider configured for model: {model}")
+                
+                # Success! Log and return
+                log_ai_completion_success(
+                    key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
                     message_type=message_type,
-                    messages=messages,
-                    model=model,
-                    response_format_info=response_format_info
+                    last_message_content=last_message_content,
+                    response={"completion": completion},
+                    user_input=user_input or "",
+                    thread_id=thread_id or "",
+                    model=model
                 )
-            else:
-                raise ValueError(f"No AI provider configured for model: {model}")
-            log_ai_completion_success(
-                key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
-                message_type=message_type,
-                last_message_content=last_message_content,
-                response={"completion": completion},
-                user_input=user_input or "",
-                thread_id=thread_id or "",
-                model=model
-            )
-            return completion
+                return completion # type: ignore
+            
+            except PermissionError as e:
+                # If we hit a free tier limit, then raise an exception right away without retrying.
+                self.log.exception(f"Error during request_completions: {e}")
+                self.last_error = CompletionError.from_exception(e)
+                log_ai_completion_error('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', message_type, e)
+                raise
 
-        except BaseException as e:
-            self.log.exception(f"Error during request_completions: {e}")
-            self.last_error = CompletionError.from_exception(e)
-            log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: self.key_type}, error=e)
-            raise
+            except BaseException as e:
+                # Check if we should retry (not on the last attempt)
+                if attempt < max_retries:
+                    # Exponential backoff: wait 2^attempt seconds
+                    wait_time = 2 ** attempt
+                    self.log.info(f"Retrying request_completions after {wait_time}s (attempt {attempt + 1}/{max_retries + 1}): {str(e)}")
+                    log_ai_completion_retry('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', message_type, e)
+                    await asyncio.sleep(wait_time)
+                    continue
+                else:
+                    # Final failure after all retries - set error state and raise
+                    self.log.exception(f"Error during request_completions after {attempt + 1} attempts: {e}")
+                    self.last_error = CompletionError.from_exception(e)
+                    log_ai_completion_error('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', message_type, e)
+                    raise
+        
+        # This should never be reached due to the raise in the except block,
+        # but added to satisfy the linter
+        raise RuntimeError("Unexpected code path in request_completions")
 
     async def stream_completions(
         self,
@@ -176,19 +212,23 @@ This attribute is observed by the websocket provider to push the error to the cl
         try:
             if model_type == "claude":
                 api_key = constants.CLAUDE_API_KEY
-                anthropic_client = AnthropicClient(api_key=api_key, model=model)
-                accumulated_response = await anthropic_client.stream_response(
+                anthropic_client = AnthropicClient(api_key=api_key)
+                accumulated_response = await anthropic_client.stream_completions(
                     messages=messages,
+                    model=model,
                     message_type=message_type,
                     message_id=message_id,
                     reply_fn=reply_fn
                 )
             elif model_type == "gemini":
                 api_key = constants.GEMINI_API_KEY
-                gemini_client = GeminiClient(api_key=api_key, model=model)
+                gemini_client = GeminiClient(api_key=api_key)
+                # TODO: We shouldn't need to do this because the messages should already be dictionaries... 
+                # but if we do have to do some pre-processing, we should do it in the gemini_client instead.
                 messages_for_gemini = [dict(m) for m in messages]
                 accumulated_response = await gemini_client.stream_completions(
                     messages=messages_for_gemini,
+                    model=model,
                     message_id=message_id,
                     reply_fn=reply_fn,
                     message_type=message_type

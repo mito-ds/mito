@@ -24,6 +24,7 @@ PRINT_LOGS = False
 # Constants for logging the success or error of Mito AI
 MITO_AI_COMPLETION_SUCCESS = 'mito_ai_success'
 MITO_AI_COMPLETION_ERROR = 'mito_ai_error'
+MITO_AI_COMPLETION_RETRY = 'mito_ai_retry'
 
 # Params 
 # - logging the type of key 
@@ -82,7 +83,6 @@ def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
-    
     # If the user is on the Mito server, then they are sending
     # us their information already
     if key_type == 'mito_server_key':
@@ -338,6 +338,15 @@ def log_db_connection_success(connection_type: str, schema: Dict[str, Any]) -> N
         },
     )
 
+def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
+    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
+    
+def log_ai_completion_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
+    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
+    
+def log_mito_server_free_tier_limit_reached(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType) -> None:
+    log(MITO_SERVER_FREE_TIER_LIMIT_REACHED, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type)
+
 def log_db_connection_error(connection_type: str, error_message: str) -> None:
     log(
         "mito_ai_db_connection_error", 
@@ -346,3 +355,4 @@ def log_db_connection_error(connection_type: str, error_message: str) -> None:
             "error_message": error_message,
         }
     )
+

@@ -4,6 +4,7 @@
 from __future__ import annotations
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 
+from mito_ai.utils.mito_server_utils import ProviderCompletionException
 import openai
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance, Unicode, default, validate
@@ -263,39 +264,31 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Reset the last error
         self.last_error = None
         completion = None
+        
+        # Note: We don't catch exceptions here because we want them to bubble up 
+        # to the providers file so we can handle all client exceptions in one place.
+        model = self._resolve_model(model, response_format_info)
 
-        try:
-            
-            # Make sure we are using the correct model
-            # TODO: If we bring back inline completions or another action that needs to 
-            # respond fast, we must require the user to configure a fast model with Azure as well. 
-            model = self._resolve_model(model, response_format_info)
+        # Handle other providers as before
+        completion_function_params = get_open_ai_completion_function_params(
+            model, messages, False, response_format_info
+        )
 
-            # Handle other providers as before
-            completion_function_params = get_open_ai_completion_function_params(
-                model, messages, False, response_format_info
+        if self._active_async_client is not None:
+            response = await self._active_async_client.chat.completions.create(**completion_function_params)
+            completion = response.choices[0].message.content or ""
+        else: 
+            last_message_content = str(messages[-1].get("content", "")) if messages else None
+            completion = await get_ai_completion_from_mito_server(
+                last_message_content,
+                completion_function_params,
+                self.timeout,
+                self.max_retries,
+                message_type,
             )
 
-            if self._active_async_client is not None:
-                response = await self._active_async_client.chat.completions.create(**completion_function_params)
-                completion = response.choices[0].message.content or ""
-            else: 
-                last_message_content = str(messages[-1].get("content", "")) if messages else None
-                completion = await get_ai_completion_from_mito_server(
-                    last_message_content,
-                    completion_function_params,
-                    self.timeout,
-                    self.max_retries,
-                    message_type,
-                )
+        return completion
 
-                update_mito_server_quota(message_type)
-
-            return completion
-                
-        except BaseException as e:
-            self.last_error = CompletionError.from_exception(e)
-            raise
     
     async def stream_completions(
         self,

@@ -5,10 +5,10 @@ import asyncio
 import json
 import time
 from typing import Any, Dict, List, Optional, Callable, Union, AsyncGenerator, Tuple
-from tornado.httpclient import AsyncHTTPClient
+from mito_ai.utils.mito_server_utils import get_response_from_mito_server
 from mito_ai.completions.models import AgentResponse, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
-from .utils import _create_http_client
 from mito_ai.constants import MITO_GEMINI_URL
+from mito_ai.utils.utils import _create_http_client
 
 timeout = 30
 max_retries = 1
@@ -62,25 +62,15 @@ async def get_gemini_completion_from_mito_server(
     response_format_info: Optional[Any] = None
 ) -> str:
     data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, config, response_format_info, stream=False)
-    http_client, http_client_timeout = _create_http_client(timeout, max_retries)
-    start_time = time.time()
-    try:
-        res = await http_client.fetch(
-            MITO_GEMINI_URL,
-            method="POST",
-            headers=headers,
-            body=json.dumps(data),
-            request_timeout=http_client_timeout
-        )
-        print(f"Gemini request completed in {time.time() - start_time:.2f} seconds")
-    except Exception as e:
-        print(f"Gemini request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
-        raise
-    finally:
-        http_client.close()
-    
-    # The response is a string
-    return res.body.decode("utf-8")
+    return await get_response_from_mito_server(
+        MITO_GEMINI_URL, 
+        headers, 
+        data, 
+        timeout, 
+        max_retries, 
+        message_type, 
+        provider_name="Gemini"
+    )    
 
 async def stream_gemini_completion_from_mito_server(
     model: str,

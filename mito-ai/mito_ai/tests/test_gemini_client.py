@@ -73,7 +73,7 @@ async def test_json_response_handling():
     )
 
     # Create a mock client with the response
-    client = GeminiClient(api_key="test_key", model="test-model")
+    client = GeminiClient(api_key="test_key")
     client.client = MagicMock()
     client.client.models.generate_content.return_value = mock_response
 
@@ -81,6 +81,7 @@ async def test_json_response_handling():
     response_format_info = ResponseFormatInfo(name="agent_response", format=AgentResponse)
     result = await client.request_completions(
         messages=[{"role": "user", "content": "Test message"}],
+        model="test-model",
         response_format_info=response_format_info
     )
     assert result == '{"key": "value"}'
@@ -107,7 +108,7 @@ async def test_json_response_handling_with_invalid_json():
     )
 
     # Create a mock client with the response
-    client = GeminiClient(api_key="test_key", model="test-model")
+    client = GeminiClient(api_key="test_key")
     client.client = MagicMock()
     client.client.models.generate_content.return_value = mock_response
 
@@ -115,6 +116,7 @@ async def test_json_response_handling_with_invalid_json():
     response_format_info = ResponseFormatInfo(name="agent_response", format=AgentResponse)
     result = await client.request_completions(
         messages=[{"role": "user", "content": "Test message"}],
+        model="test-model",
         response_format_info=response_format_info
     )
     # Should return the raw string even if JSON is invalid
@@ -138,7 +140,7 @@ async def test_json_response_handling_with_multiple_parts():
     )
 
     # Create a mock client with the response
-    client = GeminiClient(api_key="test_key", model="test-model")
+    client = GeminiClient(api_key="test_key")
     client.client = MagicMock()
     client.client.models.generate_content.return_value = mock_response
 
@@ -146,6 +148,7 @@ async def test_json_response_handling_with_multiple_parts():
     response_format_info = ResponseFormatInfo(name="agent_response", format=AgentResponse)
     result = await client.request_completions(
         messages=[{"role": "user", "content": "Test message"}],
+        model="test-model",
         response_format_info=response_format_info
     )
     # Should concatenate all parts
@@ -163,8 +166,7 @@ async def test_model_selection_based_on_response_format_info(response_format_inf
     """
     
     # Create a GeminiClient with a specific model
-    custom_model = CUSTOM_MODEL
-    client = GeminiClient(api_key="test_key", model=custom_model)
+    client = GeminiClient(api_key="test_key")
     
     # Mock the generate_content method to avoid actual API calls
     client.client = MagicMock()
@@ -182,6 +184,7 @@ async def test_model_selection_based_on_response_format_info(response_format_inf
     with patch('mito_ai.gemini_client.get_gemini_completion_function_params', wraps=get_gemini_completion_function_params) as mock_get_params:
         await client.request_completions(
             messages=[{"role": "user", "content": "Test message"}],
+            model=CUSTOM_MODEL,
             response_format_info=response_format_info
         )
         
