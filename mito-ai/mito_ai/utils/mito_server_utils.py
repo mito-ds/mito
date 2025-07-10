@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.server_limits import check_mito_server_quota, update_mito_server_quota
 from tornado.httpclient import HTTPResponse
