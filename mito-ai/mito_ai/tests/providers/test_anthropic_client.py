@@ -250,7 +250,7 @@ async def test_model_selection_based_on_message_type(message_type, expected_mode
     client = AnthropicClient(api_key="test_key")
     
     # Mock the messages.create method directly
-    with patch.object(client.client.messages, 'create') as mock_create:
+    with patch.object(client.client.messages, 'create') as mock_create: # type: ignore
         # Create a mock response
         mock_response = Message(
             id="test_id",
