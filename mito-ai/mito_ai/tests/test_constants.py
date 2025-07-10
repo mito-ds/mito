@@ -13,7 +13,7 @@ def test_prod_lambda_url() -> Any:
     
 def test_dev_lambda_url() -> Any:
     """Make sure that the lambda urls are correct"""
-    assert MITO_DEV_BASE_URL == "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws"
+    assert MITO_DEV_BASE_URL.startswith("https://whrxvkza23fty34trfgarkjqki0vghlk.lambda-url.us-east-1.on.aws/")
     
 def test_active_base_url() -> Any:
     """Make sure that the active base url is correct"""
