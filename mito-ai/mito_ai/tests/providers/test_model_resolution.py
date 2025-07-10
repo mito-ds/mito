@@ -41,6 +41,11 @@ MESSAGE_TYPE_TEST_CASES = [
 def test_does_message_require_fast_model(message_type: MessageType, expected_result: bool) -> None:
     """Test that does_message_require_fast_model returns the correct boolean for each message type."""
     assert does_message_require_fast_model(message_type) == expected_result
+    
+def test_does_message_require_fast_model_raises_error_for_unknown_message_type():
+    """Test that does_message_require_fast_model raises an error for an unknown message type."""
+    with pytest.raises(ValueError):
+        does_message_require_fast_model("unknown_message_type")
 
 @pytest.mark.asyncio
 async def test_request_completions_calls_does_message_require_fast_model(provider_config: Config, mock_messages, monkeypatch: pytest.MonkeyPatch):
