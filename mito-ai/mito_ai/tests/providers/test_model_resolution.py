@@ -1,5 +1,5 @@
-
-
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 """
 These tests ensure that the correct model is chosen for each message type, for each provider.
