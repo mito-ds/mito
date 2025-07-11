@@ -502,6 +502,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         to the AI chat.
     */
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
+        // Check if user is in agent mode and switch to chat mode if needed
+        if (agentModeEnabledRef.current) {
+            await startNewChat();
+            setAgentModeEnabled(false);
+            // Clear agent checkpoint when switching modes
+            setHasCheckpoint(false);
+        }
+
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
