@@ -14,6 +14,12 @@ export const isErrorFixupMessage = (
     messageContent: string | undefined
 ): boolean => {
 
+    // Smart debug messages may look like error fixup messages, but they are not.
+    // In agent mode, we want them to be displayed as an ordinary user message + an ai response.
+    if (promptType === 'smartDebug') {
+        return false;
+    }
+    
     if (!messageContent) {
         return false;
     }
