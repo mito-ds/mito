@@ -57,6 +57,7 @@ import {
     getActiveCellOutput,
     getCellByID,
     getCellCodeByID,
+    getCellIndexByID,
     highlightCodeCell,
     scrollToCell,
     setActiveCellByID,
@@ -108,6 +109,8 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
+import { logEvent } from '../../restAPI/RestAPI';
+import { getBase64EncodedCellOutput } from './utils';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -585,7 +588,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendAgentExecutionMessage = async (
         input: string,
         messageIndex?: number,
-        sendActiveCellOutput: boolean = false,
+        sendCellIDOutput: string | undefined = undefined,
         selectedRules?: string[]
     ): Promise<void> => {
         // Step 0: reset the state for a new message
@@ -604,12 +607,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        if (sendActiveCellOutput) {
-            const activeCellOutput = await getActiveCellOutput(notebookTracker)
-            if (activeCellOutput !== undefined) {
-                agentExecutionMetadata.base64EncodedActiveCellOutput = activeCellOutput
-            }
-        }
+        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutput(notebookTracker, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingAIResponse(true);
@@ -900,7 +898,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         let isAgentFinished = false
         let agentExecutionDepth = 1
-        let sendActiveCellOutput = false
+        let sendCellIDOutput: string | undefined = undefined
 
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
@@ -913,12 +911,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Only the first message sent to the Agent should contain the user's input.
             // All other messages only contain updated information about the state of the notebook.
             if (agentExecutionDepth === 1) {
-                await sendAgentExecutionMessage(input, messageIndex, false, selectedRules)
+                await sendAgentExecutionMessage(input, messageIndex, undefined, selectedRules)
             } else {
-                await sendAgentExecutionMessage('', undefined, sendActiveCellOutput)
-
+                await sendAgentExecutionMessage('', undefined, sendCellIDOutput)
                 // Reset flag back to false until the agent requests the active cell output again
-                sendActiveCellOutput = false
+                sendCellIDOutput = undefined
             }
 
             // Iterate the agent execution depth
@@ -1008,9 +1005,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'get_cell_output') {
-                // Mark that we should send the active cell output to the agent 
+                // Mark that we should send the cell output to the agent 
                 // in the next loop iteration
-                sendActiveCellOutput = true
+                sendCellIDOutput = agentResponse.cell_id
             }
         }
 
