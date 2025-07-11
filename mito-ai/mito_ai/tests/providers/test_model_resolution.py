@@ -45,7 +45,7 @@ def test_does_message_require_fast_model(message_type: MessageType, expected_res
 def test_does_message_require_fast_model_raises_error_for_unknown_message_type():
     """Test that does_message_require_fast_model raises an error for an unknown message type."""
     with pytest.raises(ValueError):
-        does_message_require_fast_model(MessageType.UNKNOWN) # type: ignore
+        does_message_require_fast_model('unknown_message_type') # type: ignore
 
 @pytest.mark.asyncio
 async def test_request_completions_calls_does_message_require_fast_model(provider_config: Config, mock_messages, monkeypatch: pytest.MonkeyPatch):
