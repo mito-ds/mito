@@ -57,7 +57,6 @@ import {
     getActiveCellOutput,
     getCellByID,
     getCellCodeByID,
-    getCellIndexByID,
     highlightCodeCell,
     scrollToCell,
     setActiveCellByID,
@@ -109,7 +108,6 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import { logEvent } from '../../restAPI/RestAPI';
 import { getBase64EncodedCellOutput } from './utils';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
