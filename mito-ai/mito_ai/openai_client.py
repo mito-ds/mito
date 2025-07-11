@@ -37,8 +37,6 @@ from mito_ai.utils.telemetry_utils import (
 
 OPENAI_MODEL_FALLBACK = "gpt-4.1"
 
-OPENAI_FAST_MODEL = "gpt-4.1-nano"
-
 class OpenAIClient(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
 
@@ -223,26 +221,20 @@ This attribute is observed by the websocket provider to push the error to the cl
         )
         return client
 
-    def _resolve_model(self, model: Optional[str] = None, response_format_info: Optional[ResponseFormatInfo] = None) -> str:
+    def _adjust_model_for_azure_or_ollama(self, model: str) -> str:
         
         # If they have set an Azure OpenAI model, then we always use it
         if is_azure_openai_configured() and constants.AZURE_OPENAI_MODEL is not None:
             self.log.debug(f"Resolving to Azure OpenAI model: {constants.AZURE_OPENAI_MODEL}")
             return constants.AZURE_OPENAI_MODEL
         
-        # Otherwise, we use the fast model for anything other than the agent mode
-        if response_format_info:
-            return OPENAI_FAST_MODEL
-        
         # If they have set an Ollama model, then we use it
         if constants.OLLAMA_MODEL is not None:
             return constants.OLLAMA_MODEL
         
-        # If they have set a model, then we use it
-        if model:
-            return model
+        # Otherwise, we use the model they provided
+        return model
         
-        return OPENAI_MODEL_FALLBACK
 
     async def request_completions(
             self,
@@ -267,12 +259,14 @@ This attribute is observed by the websocket provider to push the error to the cl
         
         # Note: We don't catch exceptions here because we want them to bubble up 
         # to the providers file so we can handle all client exceptions in one place.
-        model = self._resolve_model(model, response_format_info)
 
         # Handle other providers as before
         completion_function_params = get_open_ai_completion_function_params(
-            model, messages, False, response_format_info
+            message_type, model, messages, False, response_format_info
         )
+        
+        # If they have set an Azure OpenAI or Ollama model, then we use it
+        completion_function_params["model"] = self._adjust_model_for_azure_or_ollama(completion_function_params["model"])
 
         if self._active_async_client is not None:
             response = await self._active_async_client.chat.completions.create(**completion_function_params)
@@ -308,9 +302,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Reset the last error
         self.last_error = None
         accumulated_response = ""
-        
-        # Validate that the model is supported.
-        model = self._resolve_model(model, response_format_info)
             
         # Send initial acknowledgment
         reply_fn(CompletionReply(
@@ -322,8 +313,10 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         # Handle other providers as before
         completion_function_params = get_open_ai_completion_function_params(
-            model, messages, True, response_format_info
+            message_type, model, messages, True, response_format_info
         )
+        
+        completion_function_params["model"] = self._adjust_model_for_azure_or_ollama(completion_function_params["model"])
 
         try:
             if self._active_async_client is not None:
