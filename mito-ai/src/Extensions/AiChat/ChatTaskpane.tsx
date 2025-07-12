@@ -282,7 +282,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     isAgentChat = true
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
-                    isAgentChat = false
+                    // Don't set isAgentChat to false here - once we detect an agent message, 
+                    // the thread should remain in agent mode
                 }
             } catch {
                 newChatHistoryManager.addChatMessageFromHistory(item);
