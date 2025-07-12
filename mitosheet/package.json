@@ -23,7 +23,7 @@
     "url": "https://github.com/mito-ds/monorepo",
     "type": "git"
   },
-  "version": "0.2.1",
+  "version": "1.0.0",
   "dependencies": {
     "@jupyterlab/application": "^4.0.0",
     "@jupyterlab/notebook": "^4.2.4",
