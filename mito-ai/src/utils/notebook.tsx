@@ -7,8 +7,8 @@ import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
-import { captureNode } from './nodeToPng';
 import { WindowedList } from '@jupyterlab/ui-components';
+import { captureNode } from './nodeToPng';
 
 const INCLUDE_CELL_IN_APP = 'include-cell-in-app'
 
@@ -21,7 +21,7 @@ export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefin
 export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): Cell | undefined => {
     if (cellID === undefined) {
         return undefined
-    }
+    }   
 
     const notebook = notebookTracker.currentWidget?.content;
     return notebook?.widgets.find(cell => cell.model.id === cellID);
@@ -105,14 +105,47 @@ export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeC
     const notebook = notebookTracker.currentWidget?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
 
-    if (cell instanceof CodeCell) {
-        const outputNode = cell.outputArea?.node;
-        if (outputNode) {
-            const image = await captureNode(outputNode);
-            return image;
+    if (!(cell instanceof CodeCell)) {
+        return undefined;
+    }
+    
+    const outputNode = cell.outputArea?.node;
+    if (!outputNode) return undefined;
+
+    // Find the top-level Jupyter image output div
+    // so we can check if there is a base64 encoded image 
+    // already constructed for us.
+    const renderedImageDiv = outputNode.querySelector(
+      '.jp-RenderedImage.jp-OutputArea-output'
+    ) as HTMLDivElement | null;
+
+    console.log('renderedImageDiv')
+    console.log(renderedImageDiv)
+
+    // If the image is the top-level output, then just use that instead
+    // of capturing the entire output node. This is much faster and handles
+    // matplotlib graphs.
+    if (renderedImageDiv) {
+        const img = renderedImageDiv.querySelector('img');
+        if (img && img.src.startsWith('data:image')) {
+            console.log('image found in top-level output');
+            // Remove the data URL prefix
+            // The img is initially in the format data:image/png;base64, <base64_data>
+            // We want to return the base64 data.
+            const base64 = img.src.split(',')[1];
+            console.log(base64?.substring(0, 100));
+            return base64;
         }
     }
-    return undefined
+
+    // Fallback: (optional) handle other output types, or use captureNode if needed
+    if (outputNode) {
+        const image = await captureNode(outputNode);
+        console.log('image', image?.substring(0, 100));
+        return image;
+    }
+
+    return undefined;
 }
 
 export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {
