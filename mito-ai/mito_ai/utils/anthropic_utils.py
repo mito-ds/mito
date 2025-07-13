@@ -8,6 +8,8 @@ import anthropic
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable, cast
 
 from anthropic.types import MessageParam, Message, TextBlock, ToolUnionParam
+from mito_ai.utils.mito_server_utils import get_response_from_mito_server
+from mito_ai.utils.provider_utils import does_message_require_fast_model
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
@@ -23,7 +25,8 @@ __user_id: Optional[str] = None
 
 timeout = 30
 max_retries = 1
-INLINE_COMPLETION_MODEL = "claude-3-5-haiku-latest"
+
+FAST_ANTHROPIC_MODEL = "claude-3-5-haiku-latest"
 
 def _prepare_anthropic_request_data_and_headers(
     model: Union[str, None],
@@ -36,7 +39,7 @@ def _prepare_anthropic_request_data_and_headers(
     tool_choice: Optional[dict],
     stream: Optional[bool]
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
-    check_mito_server_quota(message_type)
+    
     global __user_email, __user_id
     if __user_email is None:
         __user_email = get_user_field(UJ_USER_EMAIL)
@@ -78,31 +81,20 @@ async def get_anthropic_completion_from_mito_server(
     tools: Optional[List[ToolUnionParam]],
     tool_choice: Optional[dict],
     message_type: MessageType
-) -> Message:
+) -> str:
     data, headers = _prepare_anthropic_request_data_and_headers(
         model, max_tokens, temperature, system, messages, message_type, tools, tool_choice, None
     )
-    http_client, http_client_timeout = _create_http_client(timeout, max_retries)
-    start_time = time.time()
-    try:
-        res = await http_client.fetch(
-            MITO_ANTHROPIC_URL,
-            method="POST",
-            headers=headers,
-            body=json.dumps(data),
-            request_timeout=http_client_timeout
-        )
-        print(f"Anthropic request completed in {time.time() - start_time:.2f} seconds")
-    except Exception as e:
-        print(f"Anthropic request failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
-        raise
-    finally:
-        http_client.close()
-    content = json.loads(res.body)
-    # If the response is wrapped in a 'data' field, extract it
-    if isinstance(content, dict) and "data" in content:
-        return cast(Message, content["data"])
-    return cast(Message, content)
+    
+    return await get_response_from_mito_server(
+        MITO_ANTHROPIC_URL, 
+        headers, 
+        data, 
+        timeout, 
+        max_retries, 
+        message_type, 
+        provider_name="Claude"
+    )
 
 async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],
@@ -189,6 +181,7 @@ async def stream_anthropic_completion_from_mito_server(
         http_client.close()
 
 def get_anthropic_completion_function_params(
+    message_type: MessageType,
     model: str,
     messages: List[MessageParam],
     max_tokens: int,
@@ -203,6 +196,10 @@ def get_anthropic_completion_function_params(
     Build the provider_data dict for Anthropic completions, mirroring the OpenAI approach.
     Only includes fields needed for the Anthropic API.
     """
+    
+    message_requires_fast_model = does_message_require_fast_model(message_type)
+    model = FAST_ANTHROPIC_MODEL if message_requires_fast_model else model
+    
     provider_data = {
         "model": model,
         "max_tokens": max_tokens,
@@ -210,11 +207,6 @@ def get_anthropic_completion_function_params(
         "messages": messages,
         "system": system,
     }
-    if response_format_info is not None:
-        # TODO: This should not be here.. the model is resolved in the anthropic client. 
-        # This also means that chat is using the fast model... 
-        # I bet the same bug exists in gemini...
-        provider_data["model"] = INLINE_COMPLETION_MODEL
     if tools:
         provider_data["tools"] = tools
     if response_format_info and response_format_info.name == "agent_response":

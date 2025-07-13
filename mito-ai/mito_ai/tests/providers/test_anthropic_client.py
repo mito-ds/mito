@@ -2,14 +2,15 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, extract_and_parse_anthropic_json_response, AnthropicClient, ANTHROPIC_FAST_MODEL
-from mito_ai.utils.anthropic_utils import get_anthropic_completion_function_params
-from anthropic.types import MessageParam, Message, ContentBlock, TextBlock, ToolUseBlock, Usage
+from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, extract_and_parse_anthropic_json_response, AnthropicClient
+from mito_ai.utils.anthropic_utils import get_anthropic_completion_function_params, FAST_ANTHROPIC_MODEL
+from anthropic.types import Message, TextBlock, ToolUseBlock, Usage, ToolUseBlock, Message, Usage, TextBlock
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
-from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
+from mito_ai.completions.models import MessageType, ResponseFormatInfo, AgentResponse
 from unittest.mock import MagicMock, patch
 import anthropic
 from typing import List, Dict, Any, cast, Union
+
 
 # Dummy base64 image (1x1 PNG)
 DUMMY_IMAGE_DATA_URL = (
@@ -231,40 +232,44 @@ def test_tool_use_without_agent_response():
         extract_and_parse_anthropic_json_response(response)
     assert "No valid AgentResponse format found" in str(exc_info.value)
 
-CUSTOM_MODEL = "claude-3-5-sonnet-latest"
-@pytest.mark.parametrize("response_format_info, expected_model", [
-    (ResponseFormatInfo(name="agent_response", format=AgentResponse), CUSTOM_MODEL),  # With response_format_info - should use self.model
-    (None, ANTHROPIC_FAST_MODEL),  # Without response_format_info - should use ANTHROPIC_FAST_MODEL
+CUSTOM_MODEL = "smart-anthropic-model"
+@pytest.mark.parametrize("message_type, expected_model", [
+    (MessageType.CHAT, CUSTOM_MODEL),  #
+    (MessageType.SMART_DEBUG, CUSTOM_MODEL),  #
+    (MessageType.CODE_EXPLAIN, CUSTOM_MODEL),  #
+    (MessageType.AGENT_EXECUTION, CUSTOM_MODEL),  #
+    (MessageType.AGENT_AUTO_ERROR_FIXUP, CUSTOM_MODEL),  #
+    (MessageType.INLINE_COMPLETION, FAST_ANTHROPIC_MODEL),  #
+    (MessageType.CHAT_NAME_GENERATION, FAST_ANTHROPIC_MODEL),  #
 ])
-@pytest.mark.asyncio
-async def test_model_selection_based_on_response_format_info(response_format_info, expected_model):
+@pytest.mark.asyncio 
+async def test_model_selection_based_on_message_type(message_type, expected_model):
     """
-    Tests that the correct model is selected based on whether response_format_info is provided.
+    Tests that the correct model is selected based on the message type.
     """
+    client = AnthropicClient(api_key="test_key")
     
-    # Create an AnthropicClient with a specific model
-    custom_model = CUSTOM_MODEL
-    client = AnthropicClient(api_key="test_key", model=custom_model)
-    
-    # Mock the messages.create method to avoid actual API calls
-    client.client = MagicMock()
-    mock_response = Message(
-        id="test_id",
-        role="assistant",
-        content=[TextBlock(type="text", text="Test response")],
-        model=custom_model,
-        type="message",
-        usage=Usage(input_tokens=0, output_tokens=0)
-    )
-    client.client.messages.create.return_value = mock_response
-    
-    with patch('mito_ai.anthropic_client.get_anthropic_completion_function_params', wraps=get_anthropic_completion_function_params) as mock_get_params:
+    # Mock the messages.create method directly
+    with patch.object(client.client.messages, 'create') as mock_create: # type: ignore
+        # Create a mock response
+        mock_response = Message(
+            id="test_id",
+            role="assistant",
+            content=[TextBlock(type="text", text="test")], 
+            model='anthropic-model-we-do-not-check', 
+            type="message",
+            usage=Usage(input_tokens=0, output_tokens=0)
+        )
+        mock_create.return_value = mock_response
+
         await client.request_completions(
             messages=[{"role": "user", "content": "Test message"}],
-            response_format_info=response_format_info
+            model=CUSTOM_MODEL,
+            message_type=message_type,
+            response_format_info=None
         )
         
-        # Verify that get_anthropic_completion_function_params was called with the expected model
-        mock_get_params.assert_called_once()
-        call_args = mock_get_params.call_args
+        # Verify that create was called with the expected model
+        mock_create.assert_called_once()
+        call_args = mock_create.call_args
         assert call_args[1]['model'] == expected_model 

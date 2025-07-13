@@ -6,7 +6,8 @@ import anthropic
 from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
 
 from anthropic.types import Message, MessageParam
-from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
+from mito_ai.completions.models import CompletionError, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
+from mito_ai.utils.mito_server_utils import ProviderCompletionException
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
@@ -14,8 +15,6 @@ from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_ser
 # We set it to a high number so that we can edit large code cells
 # 8192 is the maximum allowed number of output tokens for claude-3-5-haiku-20241022
 MAX_TOKENS = 8_000
-
-ANTHROPIC_FAST_MODEL = "claude-3-5-haiku-latest"
 
 def extract_and_parse_anthropic_json_response(response: Message) -> Union[object, Any]:
     """
@@ -131,9 +130,8 @@ class AnthropicClient:
     A client for interacting with the Anthropic API or the Mito server fallback.
     """
 
-    def __init__(self, api_key: Optional[str], model: str, timeout: int = 30, max_retries: int = 1):
+    def __init__(self, api_key: Optional[str], timeout: int = 30, max_retries: int = 1):
         self.api_key = api_key
-        self.model = model
         self.timeout = timeout
         self.max_retries = max_retries
         self.client: Optional[anthropic.Anthropic]
@@ -142,57 +140,56 @@ class AnthropicClient:
         else:
             self.client = None
 
-    async def request_completions(self, messages: List[ChatCompletionMessageParam],
-                                  response_format_info: Optional[ResponseFormatInfo] = None,
-                                  message_type: MessageType = MessageType.CHAT) -> Any:
+    async def request_completions(
+        self, messages: List[ChatCompletionMessageParam],
+        model: str,
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        message_type: MessageType = MessageType.CHAT
+    ) -> Any:
         """
         Get a response from Claude or the Mito server that adheres to the AgentResponse format.
         """
-        try:
-            anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
-            
-            provider_data = get_anthropic_completion_function_params(
-                model=self.model if response_format_info else ANTHROPIC_FAST_MODEL,
-                messages=anthropic_messages,
-                max_tokens=MAX_TOKENS,
-                temperature=0,
-                system=anthropic_system_prompt,
-                stream=None,
-                response_format_info=response_format_info
-            )
-            
-            if self.api_key:
-                # Unpack provider_data for direct API call
-                assert self.client is not None
-                response = self.client.messages.create(**provider_data)
-                if provider_data.get("tool_choice") is not None:
-                    result = extract_and_parse_anthropic_json_response(response)
-                    return json.dumps(result) if not isinstance(result, str) else result
-                else:
-                    content = response.content
-                    if content[0].type == "text":
-                        return content[0].text
-                    else:
-                        return ""
+        anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
+        
+        provider_data = get_anthropic_completion_function_params(
+            message_type=message_type,
+            model=model,
+            messages=anthropic_messages,
+            max_tokens=MAX_TOKENS,
+            temperature=0,
+            system=anthropic_system_prompt,
+            stream=None,
+            response_format_info=response_format_info
+        )
+        
+        if self.api_key:
+            # Unpack provider_data for direct API call
+            assert self.client is not None
+            response = self.client.messages.create(**provider_data)
+            if provider_data.get("tool_choice") is not None:
+                result = extract_and_parse_anthropic_json_response(response)
+                return json.dumps(result) if not isinstance(result, str) else result
             else:
-                # Only pass provider_data to the server
-                response = await get_anthropic_completion_from_mito_server(
-                    model=provider_data["model"],
-                    max_tokens=provider_data["max_tokens"],
-                    temperature=provider_data["temperature"],
-                    system=provider_data["system"],
-                    messages=provider_data["messages"],
-                    tools=provider_data.get("tools"),
-                    tool_choice=provider_data.get("tool_choice"),
-                    message_type=message_type
-                )
-                return response
-        except anthropic.RateLimitError:
-            raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
-        except Exception as e:
-            return f"Error streaming content: {str(e)}"
+                content = response.content
+                if content[0].type == "text":
+                    return content[0].text
+                else:
+                    return ""
+        else:
+            # Only pass provider_data to the server
+            response = await get_anthropic_completion_from_mito_server(
+                model=provider_data["model"],
+                max_tokens=provider_data["max_tokens"],
+                temperature=provider_data["temperature"],
+                system=provider_data["system"],
+                messages=provider_data["messages"],
+                tools=provider_data.get("tools"),
+                tool_choice=provider_data.get("tool_choice"),
+                message_type=message_type
+            )
+            return response
 
-    async def stream_response(self, messages: List[ChatCompletionMessageParam], message_id: str, message_type: MessageType,
+    async def stream_completions(self, messages: List[ChatCompletionMessageParam], model: str, message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
             anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
@@ -201,7 +198,7 @@ class AnthropicClient:
             if self.api_key:
                 assert self.client is not None
                 stream = self.client.messages.create(
-                    model=self.model,
+                    model=model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
                     system=anthropic_system_prompt,
@@ -229,7 +226,7 @@ class AnthropicClient:
 
             else:
                 async for stram_chunk in stream_anthropic_completion_from_mito_server(
-                    model=self.model,
+                    model=model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
                     system=anthropic_system_prompt,
@@ -254,6 +251,7 @@ class AnthropicClient:
             raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
 
         except Exception as e:
-            return f"Error streaming content: {str(e)}"
+            print(f"Error streaming content: {str(e)}")
+            raise e
 
 

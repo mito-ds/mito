@@ -80,28 +80,24 @@ def test_prepare_request_data_and_headers_basic() -> None:
         mock_get_user_field.side_effect = ["test@example.com", "user123"]
         
         # Mock the quota check
-        with patch("mito_ai.utils.open_ai_utils.check_mito_server_quota") as mock_check_quota:
-            data, headers = _prepare_request_data_and_headers(
-                last_message_content="test message",
-                ai_completion_data={"key": "value"},
-                timeout=30,
-                max_retries=3,
-                message_type=MessageType.CHAT
-            )
+        data, headers = _prepare_request_data_and_headers(
+            last_message_content="test message",
+            ai_completion_data={"key": "value"},
+            timeout=30,
+            max_retries=3,
+            message_type=MessageType.CHAT
+        )
 
-            # Verify quota check was called
-            mock_check_quota.assert_called_once_with(MessageType.CHAT)
+        # Verify data structure
+        assert data["timeout"] == 30
+        assert data["max_retries"] == 3
+        assert data["email"] == "test@example.com"
+        assert data["user_id"] == "user123"
+        assert data["data"] == {"key": "value"}
+        assert data["user_input"] == "test message"
 
-            # Verify data structure
-            assert data["timeout"] == 30
-            assert data["max_retries"] == 3
-            assert data["email"] == "test@example.com"
-            assert data["user_id"] == "user123"
-            assert data["data"] == {"key": "value"}
-            assert data["user_input"] == "test message"
-
-            # Verify headers
-            assert headers == {"Content-Type": "application/json"}
+        # Verify headers
+        assert headers == {"Content-Type": "application/json"}
 
 def test_prepare_request_data_and_headers_null_message() -> None:
     """Test handling of null message content"""
