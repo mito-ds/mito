@@ -25,7 +25,6 @@ export const captureNode = async (node: HTMLElement): Promise<string | undefined
         console.log('Node capture skipped: This feature is optimized for Chrome browsers');
         return undefined;
     }
-    console.log('captureNode 1')
     
     try {
         if (!node) {
@@ -44,11 +43,8 @@ export const captureNode = async (node: HTMLElement): Promise<string | undefined
         document.body.appendChild(wrapper);
 
         try {
-            console.log('captureNode right before html2canvas')
             // Perform the capture
             const canvas = await html2canvas(clone, getHtml2CanvasOptions(node));
-            console.log('captureNode right after html2canvas')
-            console.log(canvas)
             return canvas.toDataURL('image/png').split(',')[1]
         } finally {
             // Clean up
@@ -128,13 +124,13 @@ const preserveStyles = (sourceElement: HTMLElement, targetElement: HTMLElement):
  */
 // eslint-disable-next-line  @typescript-eslint/explicit-function-return-type
 const getHtml2CanvasOptions = (node: HTMLElement) => ({
-    scale: 1,
+    scale: window.devicePixelRatio,
     useCORS: true,
     logging: false,
     allowTaint: true,
     backgroundColor: null,
     removeContainer: false,
-    foreignObjectRendering: false,
+    foreignObjectRendering: true,
     width: node.offsetWidth,
     height: node.offsetHeight,
     onclone: (document: Document) => {
