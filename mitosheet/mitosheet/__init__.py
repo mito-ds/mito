@@ -40,6 +40,8 @@ from mitosheet.step_performers.bulk_old_rename.deprecated_utils import (
 from mitosheet.user import initialize_user
 initialize_user()
 
+print("HERE!")
+
 # This function is only necessary for mitosheet3, as it is used
 # in jlab3 to find the extension. It is not used in jlab2
 def _jupyter_labextension_paths():

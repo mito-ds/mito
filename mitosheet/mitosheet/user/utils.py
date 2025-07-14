@@ -98,7 +98,7 @@ def is_pro() -> bool:
         return MITOSHEET_PRIVATE
     
     if MITOSHEET_HELPER_4C2A:
-        return MITOSHEET_HELPER_4C2A
+        return False
 
     # Check if the config is set
     if os.environ.get('MITO_CONFIG_PRO') is not None:
