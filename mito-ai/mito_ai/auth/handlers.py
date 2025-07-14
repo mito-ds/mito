@@ -9,6 +9,7 @@ from jupyter_server.base.handlers import APIHandler
 from mito_ai.logger import get_logger
 
 # AWS Cognito configuration
+# TODO: Move to constants file and make changes for test and prod
 COGNITO_CONFIG = {
     'TOKEN_ENDPOINT': 'https://mito-app-auth.auth.us-east-1.amazoncognito.com/oauth2/token',
     'CLIENT_ID': '6ara3u3l8sss738hrhbq1qtiqf',

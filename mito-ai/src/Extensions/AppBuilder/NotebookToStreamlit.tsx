@@ -46,7 +46,13 @@ export const convertNotebookToStreamlit = async (
 
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
-  const appFilePath = `./app.py`;
+  // Get full path to folder
+  const pathToFolder = PathExt.dirname(notebookPath);
+  const appPath = PathExt.join(pathToFolder, 'app.py');
+
+  console.log('Notebook path:', notebookPath);
+  console.log('Notebook name:', notebookName);
+  console.log('Current working directory info:', notebookPanel.context);
 
   // Initialize Streamlit code with imports
   let streamlitCode = [
@@ -123,19 +129,12 @@ export const convertNotebookToStreamlit = async (
     }
   });
 
-  // Create the streamlit app.py file
-  const streamlitSourceCode = streamlitCode.join('\n');
-
   // Build the requirements.txt file
   console.debug("Building requirements.txt file")
   const requirementsContent = await generateRequirementsTxt(notebookTracker);
 
   // Save the files to the current directory
   await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
-  await saveFileWithKernel(notebookTracker, appFilePath, streamlitSourceCode);
-
-  // Get the full path to the folder
-  const pathToFolder = PathExt.dirname(notebookPath);
 
   // After building the files, we need to send a request to the backend to deploy the app
   if (appBuilderService) {
@@ -148,7 +147,8 @@ export const convertNotebookToStreamlit = async (
       const response: IBuildAppReply = await appBuilderService.client.sendMessage({
         type: 'build-app',
         message_id: UUID.uuid4(),
-        path: pathToFolder,
+        notebook_path: notebookPath,
+        app_path: appPath,
         jwt_token: jwtToken || appBuilderService.client.serverSettings.token
       });
       
