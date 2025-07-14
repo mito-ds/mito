@@ -12,7 +12,7 @@ import os
 from mitosheet.enterprise.license_key import decode_license_to_date
 from mitosheet.telemetry.telemetry_utils import log
 from mitosheet.types import CodeSnippetEnvVars
-from mitosheet.user.utils import is_enterprise
+from mitosheet.user.utils import is_4c2a, is_enterprise
 
 # Note: Do not change these keys, we need them for looking up 
 # the environment variables from previous mito_config_versions.
@@ -237,6 +237,9 @@ class MitoConfig:
         on_enterprise = is_enterprise()
 
         if on_enterprise:
+            return False
+        
+        if is_4c2a():
             return False
         
         return True
