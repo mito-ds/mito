@@ -36,7 +36,12 @@ try:
     MITOSHEET_PRIVATE = True
 except ImportError:
     MITOSHEET_PRIVATE = False
-
+    
+try: 
+    import mitosheet_helper_4c2a
+    MITOSHEET_HELPER_4C2A = True
+except ImportError:
+    MITOSHEET_HELPER_4C2A = False
 
 def is_running_test() -> bool:
     """
@@ -91,6 +96,9 @@ def is_pro() -> bool:
     # This package overides the user.json
     if MITOSHEET_PRIVATE:
         return MITOSHEET_PRIVATE
+    
+    if MITOSHEET_HELPER_4C2A:
+        return False
 
     # Check if the config is set
     if os.environ.get('MITO_CONFIG_PRO') is not None:
@@ -106,6 +114,11 @@ def is_pro() -> bool:
     return pro if pro is not None else False
 
 
+def is_4c2a() -> bool:
+    """
+    Helper function for returning if this is a 4C2A user
+    """
+    return MITOSHEET_HELPER_4C2A
 
 def is_local_deployment() -> bool:
     """
