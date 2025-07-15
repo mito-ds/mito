@@ -191,7 +191,7 @@ async def stream_response_from_mito_server(
                         done=False,
                     ))
                 
-                yield chunk  # Yield original chunk for backward compatibility
+                yield chunk
             except asyncio.TimeoutError:
                 # No chunk available within timeout, check if fetch is complete
                 if fetch_complete and chunk_queue.empty():
