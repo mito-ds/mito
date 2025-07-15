@@ -14,11 +14,12 @@ export const getBase64EncodedCellOutput = async (notebookTracker: INotebookTrack
     if (cellIndex === undefined) {
         // Log that the cell id is not part of the notebook
         console.log(`Cell with id ${cellID} not found in notebook`)
-        logEvent('get_cell_output_requested_non_existent_cell')
+        void logEvent('get_cell_output_requested_non_existent_cell')
         return undefined
     } 
 
     scrollToCell(notebookTracker, cellID, 0)
+    
     const activeCellOutput = await getActiveCellOutput(notebookTracker)
     if (activeCellOutput !== undefined) {
         return activeCellOutput
