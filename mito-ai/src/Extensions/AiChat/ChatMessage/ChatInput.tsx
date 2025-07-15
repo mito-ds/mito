@@ -120,6 +120,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     const handleOptionSelect = (option: ChatDropdownOption): void => {
 
+        if (isDropdownFromButton) {
+            // When triggered by "Add Context" button, add to SelectedContextContainer
+            if (option.type === 'variable') {
+                // For variables, we'll add them as a special context type
+                const contextName = option.variable.parent_df 
+                    ? `${option.variable.parent_df}.${option.variable.variable_name}`
+                    : option.variable.variable_name;
+                setSelectedRules(prev => [...prev, `Variable: ${contextName}`]);
+            } else if (option.type === 'rule') {
+                // For rules, add them directly
+                setSelectedRules(prev => [...prev, option.rule]);
+            }
+            setDropdownVisible(false);
+            return;
+        }
+
+        // Original behavior for @ dropdown - add to text input
         const textarea = textAreaRef.current;
         if (!textarea) return;
 
