@@ -129,6 +129,23 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [filteredOptions, selectedIndex]);
 
+    // Handle click outside to close dropdown
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent): void => {
+            const target = event.target as Node;
+            const dropdownElement = document.querySelector('.chat-dropdown');
+            
+            if (dropdownElement && !dropdownElement.contains(target)) {
+                if (onClose) {
+                    onClose();
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [onClose]);
+
     const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         const newFilterText = event.target.value;
         setLocalFilterText(newFilterText);
