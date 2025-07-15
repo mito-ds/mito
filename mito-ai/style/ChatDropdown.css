@@ -35,6 +35,9 @@
   align-items: center;
   gap: 8px;
   color: var(--jp-content-font-color1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chat-dropdown-item:hover,
