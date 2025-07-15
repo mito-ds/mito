@@ -6,11 +6,9 @@ import sys
 import os
 import time
 import requests
-import threading
 import tempfile
 import shutil
 import traceback
-from pathlib import Path
 import ast
 import importlib.util
 import warnings
@@ -164,7 +162,6 @@ class StreamlitValidator:
             'app_responsive': False,
             'errors': []
         }
-        print(f"app_code:\n{app_code}")
 
         try:
             # Step 1: Check syntax

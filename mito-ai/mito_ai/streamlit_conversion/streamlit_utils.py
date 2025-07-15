@@ -33,7 +33,7 @@ def create_app_file(file_path: str, code: str) -> (bool, str):
 
     """
     try:
-        with open(file_path, 'w') as f:
+        with open(file_path+"/app.py", 'w') as f:
             f.write(code)
         return True, f"Successfully created {file_path}"
     except IOError as e:

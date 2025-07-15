@@ -84,7 +84,40 @@ class AuthHandler(APIHandler):
             )
             
             if response.status_code == 200:
-                return response.json()
+                token_response = response.json()
+                
+                # Add detailed logging for debugging timezone issues
+                from datetime import datetime, timezone
+                import base64
+                import json
+                
+                current_time = datetime.now(timezone.utc)
+                self.log.info(f"Token exchange successful at {current_time.isoformat()}")
+                
+                # Decode and log JWT token information if available
+                if 'access_token' in token_response:
+                    try:
+                        token_parts = token_response['access_token'].split('.')
+                        if len(token_parts) == 3:
+                            payload_part = token_parts[1]
+                            payload_part += '=' * (4 - len(payload_part) % 4)
+                            payload_bytes = base64.urlsafe_b64decode(payload_part)
+                            payload = json.loads(payload_bytes.decode('utf-8'))
+                            
+                            if 'exp' in payload:
+                                exp_timestamp = payload['exp']
+                                exp_time = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+                                time_until_expiry = exp_timestamp - current_time.timestamp()
+                                
+                                self.log.debug(f"JWT Token Details:")
+                                self.log.debug(f"Issued at: {current_time.isoformat()}")
+                                self.log.debug(f"Expires at: {exp_time.isoformat()}")
+                                self.log.debug(f"Expires in: {time_until_expiry / 60:.1f} minutes")
+                                self.log.debug(f"Token lifetime: {token_response.get('expires_in', 'unknown')} seconds")
+                    except Exception as e:
+                        self.log.warning(f"Could not decode JWT token for logging: {e}")
+                
+                return token_response
             else:
                 self.log.error(f"Token exchange failed: {response.status_code} - {response.text}")
                 return {"error": "Failed to exchange authorization code for tokens"}
@@ -160,4 +193,4 @@ class TokenValidationHandler(APIHandler):
             
         except Exception as e:
             self.log.error(f"Error validating JWT token: {e}")
-            return False 
+            return False

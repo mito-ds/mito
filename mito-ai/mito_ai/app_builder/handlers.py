@@ -109,9 +109,6 @@ class AppBuilderHandler(BaseWebSocketHandler):
         app_path = message.get('app_path')
         jwt_token = message.get('jwt_token', '')  # Extract JWT token from request, default to empty string
 
-        print(f"app_path: {app_path}")
-        print(f"jwt_token: {jwt_token}")
-
         if not message_id:
             self.log.error("Missing message_id in request")
             return
@@ -130,8 +127,10 @@ class AppBuilderHandler(BaseWebSocketHandler):
 
         # Validate JWT token if provided
         if jwt_token and jwt_token != 'placeholder-jwt-token':
+            self.log.info(f"Validating JWT token: {jwt_token[:20]}...")
             is_valid = self._validate_jwt_token(jwt_token)
             if not is_valid:
+                self.log.error("JWT token validation failed")
                 error = AppBuilderError(
                     error_type="Unauthorized",
                     title="Invalid authentication token",
@@ -143,13 +142,17 @@ class AppBuilderHandler(BaseWebSocketHandler):
                     error=error
                 ))
                 return
+            else:
+                self.log.info("JWT token validation successful")
+        else:
+            self.log.warning("No JWT token provided or using placeholder token")
 
         try:
             # This is a placeholder for the actual app building logic
             # In a real implementation, this would deploy the app to a hosting service
             # and return the URL
 
-            success_flag, message = await streamlit_handler(notebook_path, app_path)
+            success_flag, message = await streamlit_handler(str(notebook_path) if notebook_path else "", app_path)
             if not success_flag:
                 raise Exception(message)
 
@@ -185,15 +188,17 @@ class AppBuilderHandler(BaseWebSocketHandler):
         try:
             # Basic JWT format validation (header.payload.signature)
             if not token or '.' not in token:
+                self.log.error("Token is empty or missing dots")
                 return False
 
             parts = token.split('.')
             if len(parts) != 3:
+                self.log.error("Token does not have 3 parts")
                 return False
 
-            # TODO: Add proper JWT validation using AWS Cognito public keys
-            # For now, just check that it's not a placeholder token
+            # Check for placeholder token
             if token == 'placeholder-jwt-token':
+                self.log.error("Placeholder token detected")
                 return False
 
             return True
@@ -201,6 +206,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
         except Exception as e:
             self.log.error(f"Error validating JWT token: {e}")
             return False
+
 
     async def _deploy_app(self, app_path: str, jwt_token: str = '') -> str:
         """Deploy the app using pre-signed URLs.
@@ -224,10 +230,12 @@ class AppBuilderHandler(BaseWebSocketHandler):
             headers = {}
             if jwt_token and jwt_token != 'placeholder-jwt-token':
                 headers['Authorization'] = f'Bearer {jwt_token}'
+            else:
+                self.log.warning("No JWT token provided for API request")
 
             headers["Subscription-Tier"] = 'Pro' if is_pro() else 'Standard'
 
-            url_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/get-upload-url?app_name={app_name}")
+            url_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/get-upload-url?app_name={app_name}", headers=headers)
             url_response.raise_for_status()
             
             url_data = url_response.json()

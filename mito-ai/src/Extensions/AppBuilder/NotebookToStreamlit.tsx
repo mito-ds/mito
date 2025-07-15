@@ -48,8 +48,6 @@ export const convertNotebookToStreamlit = async (
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
   // Get full path to folder
   const pathToFolder = PathExt.dirname(notebookPath);
-  const appPath = PathExt.join(pathToFolder, 'app.py');
-
   console.log('Notebook path:', notebookPath);
   console.log('Notebook name:', notebookName);
   console.log('Current working directory info:', notebookPanel.context);
@@ -148,7 +146,7 @@ export const convertNotebookToStreamlit = async (
         type: 'build-app',
         message_id: UUID.uuid4(),
         notebook_path: notebookPath,
-        app_path: appPath,
+        app_path: pathToFolder,
         jwt_token: jwtToken || appBuilderService.client.serverSettings.token
       });
       

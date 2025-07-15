@@ -1,6 +1,11 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import logging
+from anthropic.types import MessageParam
+from typing import List
+
+from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import streamlit_code_validator
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, parse_jupyter_notebook_to_extract_required_content
@@ -22,12 +27,18 @@ class StreamlitCodeGeneration:
             }
         ]
 
-    async def get_response_from_agent(self, message_to_agent: str) -> str:
+    @property
+    def log(self) -> logging.Logger:
+        """Use Mito AI logger."""
+        return get_logger()
+
+    async def get_response_from_agent(self, message_to_agent: List[MessageParam]) -> str:
         """Gets the streaming response from the agent using the mito server"""
         model = STREAMLIT_AI_MODEL
         max_tokens = 64_000
         temperature = 0.2
 
+        self.log.info("Getting response from agent...")
         accumulated_response = ""
         async for stream_chunk in stream_anthropic_completion_from_mito_server(
             model = model,
@@ -74,7 +85,6 @@ class StreamlitCodeGeneration:
             }
         )
         agent_response = await self.get_response_from_agent(self.messages)
-        # agent_response = self.get_response_from_agent(self.messages)
         converted_code = extract_code_blocks(agent_response)
         self.add_agent_response_to_context(converted_code)
 
