@@ -57,6 +57,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
     const [selectedRules, setSelectedRules] = useState<string[]>([]);
+    const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
@@ -109,9 +110,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
             const query = currentWord.slice(1);
             setDropdownFilter(query);
             setDropdownVisible(true);
+            setIsDropdownFromButton(false);
         } else {
             setDropdownVisible(false);
             setDropdownFilter('');
+            setIsDropdownFromButton(false);
         }
     };
 
@@ -210,6 +213,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     onClick={() => {
                         setDropdownVisible(true);
                         setDropdownFilter('');
+                        setIsDropdownFromButton(true);
                         textAreaRef.current?.focus();
                     }}
                 >
@@ -285,6 +289,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         options={expandedVariables}
                         onSelect={handleOptionSelect}
                         filterText={dropdownFilter}
+                        showSearchInput={isDropdownFromButton}
+                        onFilterChange={setDropdownFilter}
                     />
                 )}
             </div>

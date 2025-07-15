@@ -12,8 +12,7 @@
 
   /* Style the dropdown */
   display: flex;
-  justify-content: space-evenly;
-  align-items: baseline;
+  flex-direction: column;
   width: 100%;
 }
 
@@ -90,4 +89,34 @@
 
 .dropdown-item-disabled:hover {
   background-color: inherit;
+}
+
+.chat-dropdown-search {
+  padding: 8px;
+  border-bottom: 1px solid var(--jp-border-color1);
+  background-color: var(--jp-layout-color1);
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.chat-dropdown-search-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: var(--jp-ui-font-family);
+  background-color: var(--jp-layout-color2);
+  color: var(--jp-content-font-color1);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.chat-dropdown-search-input:focus {
+  border-color: var(--jp-brand-color1);
+  box-shadow: 0 0 0 1px var(--jp-brand-color1);
+}
+
+.chat-dropdown-search-input::placeholder {
+  color: var(--jp-content-font-color3);
 }

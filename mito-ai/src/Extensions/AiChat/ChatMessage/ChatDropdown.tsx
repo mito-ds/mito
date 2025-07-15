@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { classNames } from '../../../utils/classNames';
 import { ExpandedVariable } from './ChatInput';
 import { getRules } from '../../../restAPI/RestAPI';
@@ -14,6 +14,8 @@ interface ChatDropdownProps {
     filterText: string;
     maxDropdownItems?: number;
     position?: 'above' | 'below';
+    showSearchInput?: boolean;
+    onFilterChange?: (filterText: string) => void;
 }
 
 interface ChatDropdownVariableOption {
@@ -33,8 +35,12 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     onSelect,
     filterText,
     maxDropdownItems = 10,
+    showSearchInput = false,
+    onFilterChange,
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [localFilterText, setLocalFilterText] = useState(filterText);
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     const [rules, setRules] = useState<string[]>([]);
 
@@ -45,6 +51,16 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         };
         void fetchRules();
     }, []);
+
+    // Focus search input when dropdown opens with search input
+    useEffect(() => {
+        if (showSearchInput && searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, [showSearchInput]);
+
+    // Use local filter text when search input is shown, otherwise use prop
+    const effectiveFilterText = showSearchInput ? localFilterText : filterText;
 
     // Create a list of all options with the format 
     // ['type': 'variable', "expandedVariable": variable]
@@ -62,16 +78,16 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
 
     const filteredOptions = allOptions.filter((option) =>
         option.type === 'variable' ?
-            option.variable.variable_name.toLowerCase().includes(filterText.toLowerCase()) &&
+            option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) &&
             option.variable.type !== "<class 'module'>" &&
             option.variable.variable_name !== "FUNCTIONS" // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
         :
-            option.rule.toLowerCase().includes(filterText.toLowerCase())
+            option.rule.toLowerCase().includes(effectiveFilterText.toLowerCase())
     ).slice(0, maxDropdownItems);
 
     useEffect(() => {
         setSelectedIndex(0);
-    }, [options, rules, filterText]);
+    }, [options, rules, effectiveFilterText]);
 
     const handleKeyDown = (event: KeyboardEvent): void => {
         switch (event.key) {
@@ -111,11 +127,32 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [filteredOptions, selectedIndex]);
 
-
-
+    const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+        const newFilterText = event.target.value;
+        setLocalFilterText(newFilterText);
+        if (onFilterChange) {
+            onFilterChange(newFilterText);
+        }
+    };
 
     return (
         <div className={`chat-dropdown`} data-testid="chat-dropdown">
+            {showSearchInput && (
+                <div className="chat-dropdown-search">
+                    <input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder="Search variables and rules..."
+                        value={localFilterText}
+                        onChange={handleSearchInputChange}
+                        className="chat-dropdown-search-input"
+                        onKeyDown={(e) => {
+                            // Prevent the global keydown handler from interfering
+                            e.stopPropagation();
+                        }}
+                    />
+                </div>
+            )}
             <ul className="chat-dropdown-list" data-testid="chat-dropdown-list">
                 {filteredOptions.length === 0 && (
                     <li className="chat-dropdown-item" data-testid="chat-dropdown-empty-item">No variables found</li>
