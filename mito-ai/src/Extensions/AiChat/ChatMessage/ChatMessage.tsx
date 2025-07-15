@@ -172,18 +172,25 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         agentModeEnabled={agentModeEnabled}
                                     />
                                 ) : (
-                                    <AssistantCodeBlock
-                                        code={messagePart}
-                                        codeSummary={agentResponse?.cell_update?.code_summary ?? undefined}
-                                        isCodeComplete={isCodeComplete}
-                                        renderMimeRegistry={renderMimeRegistry}
-                                        previewAICode={previewAICode}
-                                        acceptAICode={acceptAICode}
-                                        rejectAICode={rejectAICode}
-                                        isLastAiMessage={isLastAiMessage}
-                                        codeReviewStatus={codeReviewStatus}
-                                        agentModeEnabled={agentModeEnabled}
-                                    />
+                                    <>
+                                        {agentResponse?.analysis_assumptions?.map((assumption) => (
+                                            <div key={assumption} className='chat-message-assumption'>
+                                                {assumption}
+                                            </div>
+                                        ))}
+                                        <AssistantCodeBlock
+                                            code={messagePart}
+                                            codeSummary={agentResponse?.cell_update?.code_summary ?? undefined}
+                                            isCodeComplete={isCodeComplete}
+                                            renderMimeRegistry={renderMimeRegistry}
+                                            previewAICode={previewAICode}
+                                            acceptAICode={acceptAICode}
+                                            rejectAICode={rejectAICode}
+                                            isLastAiMessage={isLastAiMessage}
+                                            codeReviewStatus={codeReviewStatus}
+                                            agentModeEnabled={agentModeEnabled}
+                                        />
+                                    </>
                                 )}
 
                                 {isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' && 

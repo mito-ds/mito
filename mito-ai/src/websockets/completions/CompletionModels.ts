@@ -45,7 +45,8 @@ export type AgentResponse = {
   message: string,
   cell_update?: CellUpdate,
   cell_id?: string,
-  next_steps?: string[]
+  next_steps?: string[],
+  analysis_assumptions?: string[]
 }
 
 /* 

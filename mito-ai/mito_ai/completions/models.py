@@ -3,10 +3,10 @@
 
 import traceback
 from dataclasses import dataclass, field
-from typing import Annotated, List, Literal, Optional, Type, Union, NewType
+from typing import List, Literal, Optional, NewType
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 # The ThreadID is the unique identifier for the chat thread.
@@ -35,7 +35,7 @@ class AgentResponse(BaseModel):
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]
     next_steps: Optional[List[str]]
-    assumptions: Optional[List[str]]
+    analysis_assumptions: Optional[List[str]]
     
     
 @dataclass(frozen=True)
