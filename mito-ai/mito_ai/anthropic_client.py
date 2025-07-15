@@ -232,18 +232,11 @@ class AnthropicClient:
                     system=anthropic_system_prompt,
                     messages=anthropic_messages,
                     stream=True,
-                    message_type=message_type
+                    message_type=message_type,
+                    reply_fn=reply_fn,
+                    message_id=message_id
                 ):
                     accumulated_response += stram_chunk
-                    reply_fn(CompletionStreamChunk(
-                        parent_id=message_id,
-                        chunk=CompletionItem(
-                            content=stram_chunk,
-                            isIncomplete=True,
-                            token=message_id,
-                        ),
-                        done=False,
-                    ))
 
             return accumulated_response
 
