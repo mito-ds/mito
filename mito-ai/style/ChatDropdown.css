@@ -93,7 +93,6 @@
 
 .chat-dropdown-search {
   padding: 8px;
-  border-bottom: 1px solid var(--jp-border-color1);
   background-color: var(--jp-layout-color1);
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
