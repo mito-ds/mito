@@ -208,7 +208,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <button 
                     className="add-context-button"
                     onClick={() => {
-                        // TODO: Implement add context functionality
+                        setDropdownVisible(true);
+                        setDropdownFilter('');
+                        textAreaRef.current?.focus();
                     }}
                 >
                     + Add Context
