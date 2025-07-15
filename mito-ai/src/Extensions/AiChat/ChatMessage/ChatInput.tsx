@@ -165,6 +165,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }, 0);
     };
 
+    const handleDropdownClose = (): void => {
+        setDropdownVisible(false);
+        setDropdownFilter('');
+        setIsDropdownFromButton(false);
+    };
+
     // Update the expandedVariables arr when the variable manager changes
     useEffect(() => {
         const expandedVariables: ExpandedVariable[] = [
@@ -291,6 +297,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         filterText={dropdownFilter}
                         showSearchInput={isDropdownFromButton}
                         onFilterChange={setDropdownFilter}
+                        onClose={handleDropdownClose}
                     />
                 )}
             </div>

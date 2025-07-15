@@ -16,6 +16,7 @@ interface ChatDropdownProps {
     position?: 'above' | 'below';
     showSearchInput?: boolean;
     onFilterChange?: (filterText: string) => void;
+    onClose?: () => void;
 }
 
 interface ChatDropdownVariableOption {
@@ -37,6 +38,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     maxDropdownItems = 10,
     showSearchInput = false,
     onFilterChange,
+    onClose,
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [localFilterText, setLocalFilterText] = useState(filterText);
@@ -135,6 +137,19 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         }
     };
 
+    const handleSearchInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            if (onFilterChange) {
+                onFilterChange(''); // Clear the filter
+            }
+            if (onClose) {
+                onClose(); // Close the dropdown
+            }
+        }
+    };
+
     return (
         <div className={`chat-dropdown`} data-testid="chat-dropdown">
             {showSearchInput && (
@@ -145,11 +160,8 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                         placeholder="Search variables and rules..."
                         value={localFilterText}
                         onChange={handleSearchInputChange}
+                        onKeyDown={handleSearchInputKeyDown}
                         className="chat-dropdown-search-input"
-                        onKeyDown={(e) => {
-                            // Prevent the global keydown handler from interfering
-                            e.stopPropagation();
-                        }}
                     />
                 </div>
             )}
