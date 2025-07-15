@@ -98,10 +98,10 @@ async def stream_response_from_mito_server(
     timeout: int,
     max_retries: int,
     message_type: MessageType,
-    provider_name: str = "Mito Server",
-    reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None,
-    message_id: Optional[str] = None,
+    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+    message_id: str,
     chunk_processor: Optional[Callable[[str], str]] = None,
+    provider_name: str = "Mito Server",
 ) -> AsyncGenerator[str, None]:
     """
     Stream responses from the Mito server.

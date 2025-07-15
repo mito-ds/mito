@@ -106,8 +106,8 @@ async def stream_ai_completion_from_mito_server(
     timeout: int,
     max_retries: int,
     message_type: MessageType,
-    reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None,
-    message_id: Optional[str] = None,
+    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+    message_id: str,
 ) -> AsyncGenerator[str, None]:
     """
     Stream AI completions from the Mito server.
@@ -144,9 +144,10 @@ async def stream_ai_completion_from_mito_server(
         timeout=timeout,
         max_retries=max_retries,
         message_type=message_type,
-        provider_name="OpenAI",
         reply_fn=reply_fn,
         message_id=message_id,
+        chunk_processor=None,
+        provider_name="OpenAI",
     ):
         yield chunk
 

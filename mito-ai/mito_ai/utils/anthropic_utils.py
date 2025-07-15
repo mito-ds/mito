@@ -104,8 +104,8 @@ async def stream_anthropic_completion_from_mito_server(
     messages: List[MessageParam],
     stream: bool,
     message_type: MessageType,
-    reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None,
-    message_id: Optional[str] = None,
+    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+    message_id: str,
 ) -> AsyncGenerator[str, None]:
     data, headers = _prepare_anthropic_request_data_and_headers(
         model, max_tokens, temperature, system, messages, message_type, None, None, stream
@@ -119,9 +119,10 @@ async def stream_anthropic_completion_from_mito_server(
         timeout=timeout,
         max_retries=max_retries,
         message_type=message_type,
-        provider_name="Claude",
         reply_fn=reply_fn,
         message_id=message_id,
+        chunk_processor=None,
+        provider_name="Claude",
     ):
         yield chunk
 

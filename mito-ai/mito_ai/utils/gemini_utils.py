@@ -80,7 +80,7 @@ async def stream_gemini_completion_from_mito_server(
     contents: List[Dict[str, Any]],
     message_type: MessageType,
     message_id: str,
-    reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]]
+    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]
 ) -> AsyncGenerator[str, None]:
     data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, stream=True)
     
@@ -97,10 +97,10 @@ async def stream_gemini_completion_from_mito_server(
         timeout=timeout,
         max_retries=max_retries,
         message_type=message_type,
-        provider_name="Gemini",
         reply_fn=reply_fn,
         message_id=message_id,
         chunk_processor=gemini_chunk_processor,
+        provider_name="Gemini",
     ):
         yield chunk
 
