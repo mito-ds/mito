@@ -35,6 +35,7 @@ class AgentResponse(BaseModel):
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]
     next_steps: Optional[List[str]]
+    assumptions: Optional[List[str]]
     
     
 @dataclass(frozen=True)
