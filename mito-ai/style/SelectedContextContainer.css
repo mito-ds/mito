@@ -3,6 +3,33 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+.context-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  background-color: var(--chat-user-message-background-color);
+}
+
+.add-context-button {
+  display: flex;
+  align-items: center;
+  background-color: var(--jp-layout-color2);
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 12px;
+  height: 20px;
+  cursor: pointer;
+  color: var(--jp-content-font-color1);
+  transition: background-color 0.2s ease;
+}
+
+.add-context-button:hover {
+  background-color: var(--jp-layout-color3);
+}
+
 .selected-context-container {
     display: flex;
     align-items: center;

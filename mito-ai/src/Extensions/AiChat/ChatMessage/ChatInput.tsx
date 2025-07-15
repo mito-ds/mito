@@ -204,18 +204,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 setIsFocused(false)
             }}
         >
+            <div className='context-container'>
+                <button 
+                    className="add-context-button"
+                    onClick={() => {
+                        // TODO: Implement add context functionality
+                    }}
+                >
+                    + Add Context
+                </button>                
+                {selectedRules.map((rule) => (
+                    <SelectedContextContainer
+                        key={rule}
+                        title={rule}
+                        onRemove={() => setSelectedRules(selectedRules.filter((r) => r !== rule))}
+                    />
+                ))}
+            </div>
             {/* Show the active cell preview if the text area has focus or the user has started typing */}
-            {selectedRules.length > 0 && (
-                <div className='context-container'>
-                    {selectedRules.map((rule) => (
-                        <SelectedContextContainer
-                            key={rule}
-                            title={rule}
-                            onRemove={() => setSelectedRules(selectedRules.filter((r) => r !== rule))}
-                        />
-                    ))}
-                </div>
-            )}
             {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
                 && (isFocused || input.length > 0)
                 && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
