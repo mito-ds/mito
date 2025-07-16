@@ -132,6 +132,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 setAdditionalContext(prev => [...prev, `Rule: ${option.rule}`]);
             }
             setDropdownVisible(false);
+            
+            // Use setTimeout to ensure this happens after React's state update cycle
+            setTimeout(() => {
+                textAreaRef.current?.focus();
+            }, 0);
             return;
         }
 
