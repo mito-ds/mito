@@ -16,6 +16,7 @@
   /* Margins */
   --chat-taskpane-item-indent: 10px;
   --chat-taskpane-item-border-radius: 5px;
+  --chat-taskpane-tool-call-horizontal-padding: 10px;
 
   /* Colors */
   --chat-background-color: var(--jp-layout-color1);
