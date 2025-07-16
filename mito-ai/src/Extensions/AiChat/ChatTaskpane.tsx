@@ -1425,6 +1425,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 codeReviewStatus={codeReviewStatus}
                                 setNextSteps={setNextSteps}
                                 agentModeEnabled={agentModeEnabled}
+                                additionalContext={displayOptimizedChat.additionalContext}
                             />
                         )
                     }

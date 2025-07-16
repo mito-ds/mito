@@ -54,6 +54,7 @@ interface IChatMessageProps {
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
     agentModeEnabled: boolean
+    additionalContext?: string[]
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -77,6 +78,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     codeReviewStatus,
     setNextSteps,
     agentModeEnabled,
+    additionalContext,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 

@@ -37,7 +37,8 @@ export interface IDisplayOptimizedChatItem {
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID?: string | undefined,
-    agentResponse?: AgentResponse
+    agentResponse?: AgentResponse,
+    additionalContext?: string[]
 }
 
 /* 
@@ -107,7 +108,8 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(input, activeCellCode), 
                 type: 'openai message',
                 codeCellID: activeCellID,
-                promptType: 'chat'
+                promptType: 'chat',
+                additionalContext: additionalContext
             }
         );
 
@@ -148,6 +150,7 @@ export class ChatHistoryManager {
                 message: userMessage,
                 type: 'openai message',
                 promptType: 'chat',
+                additionalContext: additionalContext
             }
         )
 
