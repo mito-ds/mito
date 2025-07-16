@@ -29,9 +29,6 @@ def create_chat_prompt(
 
     rules = [rule for rule in selected_rules if rule.startswith('Rule:')] if selected_rules is not None else []
     rules_str = get_rules_str(rules)
-
-    print('rules', rules)
-    print('selected_variables', selected_variables)
     
     prompt = f"""{rules_str}
     
