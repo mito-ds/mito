@@ -362,7 +362,25 @@ const RuleDropdownItem: React.FC<RuleDropdownItemProps> = ({ rule, index, select
             onClick={() => onSelect(rule)}
             data-testid={`chat-dropdown-item-${rule}`}
         >
-            {rule}
+            <span className="chat-dropdown-item-type"
+                title="rule"
+                data-testid={`chat-dropdown-item-type-${rule}`}
+            >
+                rule
+            </span>
+            <span
+                className="chat-dropdown-item-name"
+                title={rule}
+                data-testid={`chat-dropdown-item-name-${rule}`}
+                ref={(el) => {
+                    // Show full text on hover if the text is too long
+                    if (el) {
+                        el.title = el.scrollWidth > el.clientWidth ? rule : '';
+                    }
+                }}
+            >
+                {rule}
+            </span>
         </li>
     )
 }
