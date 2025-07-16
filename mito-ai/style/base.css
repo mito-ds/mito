@@ -15,6 +15,7 @@
 :root {
   /* Margins */
   --chat-taskpane-item-indent: 10px;
+  --chat-taskpane-item-border-radius: 5px;
 
   /* Colors */
   --chat-background-color: var(--jp-layout-color1);

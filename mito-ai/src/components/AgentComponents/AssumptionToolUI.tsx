@@ -17,13 +17,13 @@ const AssumptionToolUI: React.FC<AssumptionToolUIProps> = ({
         <div
             className={classNames('agent-component-header')}
             style={{
-                borderColor: 'rgba(147, 51, 234, 0.2)',
+                borderColor: 'var(--jp-cell-editor-border-color)',
                 marginTop: '15px',
                 marginBottom: '15px',
                 position: 'relative',
                 padding: '20px 15px 15px 15px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                borderRadius: 'var(--chat-taskpane-item-border-radius)',
+                backgroundColor: 'var(--jp-layout-color0)',
             }}
         >
             {/* Assumption Header Label */}
@@ -32,12 +32,11 @@ const AssumptionToolUI: React.FC<AssumptionToolUIProps> = ({
                     position: 'absolute',
                     top: '-8px',
                     left: '12px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                    backgroundColor: 'var(--jp-layout-color0)',
                     padding: '2px 8px',
                     borderRadius: '4px',
                     fontSize: '12px',
-                    fontWeight: '500',
-                    color: 'rgba(147, 51, 234, 0.6)',
+                    color: 'var(--jp-ui-font-color2)',
                     fontStyle: 'italic',
                 }}
             >
@@ -50,7 +49,7 @@ const AssumptionToolUI: React.FC<AssumptionToolUIProps> = ({
                     display: 'flex',
                     alignItems: 'flex-start',
                     gap: '8px',
-                    color: 'rgba(147, 51, 234, 0.5)',
+                    color: 'var(--jp-ui-font-color2)',
                     fontSize: '14px',
                     lineHeight: '1.4',
                 }}
