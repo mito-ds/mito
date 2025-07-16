@@ -79,6 +79,12 @@
 .rules-list .rule-actions {
     display: flex;
     gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.rules-list .rule-item:hover .rule-actions {
+    opacity: 1;
 }
 
 .rules-list .empty-state {
