@@ -28,6 +28,13 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
         else []
     )
     selected_variables_str = '\n'.join([f"{variable}" for variable in selected_variables])
+
+    selected_files = (
+        [context for context in md.additionalContext or [] if context.startswith("File:")]
+        if md.additionalContext is not None
+        else []
+    )
+    selected_files_str = '\n'.join([f"{file}" for file in selected_files])
     
     context_str = f"""Remember to choose the correct tool to respond with.
 
@@ -45,6 +52,10 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
 
 The following variables have been selected by the user to be used in the task:
 {selected_variables_str}
+
+The user has also selected the following files to be used in the task:
+
+{selected_files_str}
 
 {cell_update_output_str(md.base64EncodedActiveCellOutput is not None)}"""
 

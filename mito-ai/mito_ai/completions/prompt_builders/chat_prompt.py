@@ -34,6 +34,15 @@ def create_chat_prompt(
         [f"{variable}" for variable in selected_variables]
     )
 
+    selected_files = (
+        [context for context in additional_context if context.startswith("File:")]
+        if additional_context is not None
+        else []
+    )
+    selected_files_str = "\n".join(
+        [f"{file}" for file in selected_files]
+    )
+
     rules = (
         [context for context in additional_context if context.startswith("Rule:")]
         if additional_context is not None
@@ -120,6 +129,10 @@ Hey there! I'm Mito AI. How can I help you today?
 The following variables have been selected by the user to be used in the task:
 
 {selected_variables_str}
+
+The user has also selected the following files to be used in the task:
+
+{selected_files_str}
 
 {get_active_cell_output_str(has_active_cell_output)}
 

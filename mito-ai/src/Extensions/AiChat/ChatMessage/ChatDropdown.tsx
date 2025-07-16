@@ -29,7 +29,12 @@ interface ChatDropdownRuleOption {
     rule: string;
 }
 
-export type ChatDropdownOption = ChatDropdownVariableOption | ChatDropdownRuleOption;
+interface ChatDropdownFileOption {
+    type: 'file'
+    file: ExpandedVariable;
+}
+
+export type ChatDropdownOption = ChatDropdownVariableOption | ChatDropdownRuleOption | ChatDropdownFileOption;
 
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
     options,
@@ -67,25 +72,37 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     // Create a list of all options with the format 
     // ['type': 'variable', "expandedVariable": variable]
     // ['type': 'rule', "rule": rule]
+    // ['type': 'file', "file": file]
     const allOptions: ChatDropdownOption[] = [
-        ...options.map((variable): ChatDropdownVariableOption => ({ 
-            type: 'variable', 
-            variable: variable 
-        })),
+        ...options
+            .filter(variable => !variable.file_name) // Filter out files
+            .map((variable): ChatDropdownVariableOption => ({ 
+                type: 'variable', 
+                variable: variable 
+            })),
+        ...options
+            .filter(variable => variable.file_name) // Only files
+            .map((file): ChatDropdownFileOption => ({ 
+                type: 'file', 
+                file: file 
+            })),
         ...rules.map((rule): ChatDropdownRuleOption => ({ 
             type: 'rule', 
             rule: rule 
         })),
     ];
 
-    const filteredOptions = allOptions.filter((option) =>
-        option.type === 'variable' ?
-            option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) &&
-            option.variable.type !== "<class 'module'>" &&
-            option.variable.variable_name !== "FUNCTIONS" // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
-        :
-            option.rule.toLowerCase().includes(effectiveFilterText.toLowerCase())
-    ).slice(0, maxDropdownItems);
+    const filteredOptions = allOptions.filter((option) => {
+        if (option.type === 'variable') {
+            return option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) &&
+                option.variable.type !== "<class 'module'>" &&
+                option.variable.variable_name !== "FUNCTIONS"; // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
+        } else if (option.type === 'file') {
+            return option.file.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase());
+        } else {
+            return option.rule.toLowerCase().includes(effectiveFilterText.toLowerCase());
+        }
+    }).slice(0, maxDropdownItems);
 
     useEffect(() => {
         setSelectedIndex(0);
@@ -193,6 +210,8 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                         uniqueKey = option.variable.parent_df
                             ? `${option.variable.parent_df}.${option.variable.variable_name}`
                             : option.variable.variable_name;
+                    } else if (option.type === 'file') {
+                        uniqueKey = option.file.variable_name;
                     } else {
                         uniqueKey = option.rule;
                     }
@@ -203,6 +222,16 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                                 key={uniqueKey}
                                 variable={option.variable}
                                 index={index}   
+                                selectedIndex={selectedIndex}
+                                onSelect={() => onSelect(option)}
+                            />
+                        );
+                    } else if (option.type === 'file') {
+                        return (
+                            <FileDropdownItem
+                                key={uniqueKey}
+                                file={option.file}
+                                index={index}
                                 selectedIndex={selectedIndex}
                                 onSelect={() => onSelect(option)}
                             />
@@ -278,6 +307,43 @@ const VariableDropdownItem: React.FC<VariableDropdownItemProps> = ({ variable, i
                         {variable.parent_df}
                     </span>
                 )}
+        </li>
+    )
+}
+
+interface FileDropdownItemProps {
+    file: ExpandedVariable;
+    index: number;
+    selectedIndex: number;
+    onSelect: (file: ExpandedVariable) => void;
+}
+
+const FileDropdownItem: React.FC<FileDropdownItemProps> = ({ file, index, selectedIndex, onSelect }) => {
+    return (
+        <li
+            className={classNames("chat-dropdown-item", { selected: index === selectedIndex })}
+            onClick={() => onSelect(file)}
+            data-testid={`chat-dropdown-item-${file.variable_name}`}
+        >
+            <span className="chat-dropdown-item-type"
+                title={file.type}
+                data-testid={`chat-dropdown-item-type-${file.variable_name}`}
+            >
+                {file.type}
+            </span>
+            <span
+                className="chat-dropdown-item-name"
+                title={file.variable_name}
+                data-testid={`chat-dropdown-item-name-${file.variable_name}`}
+                ref={(el) => {
+                    // Show full text on hover if the text is too long
+                    if (el) {
+                        el.title = el.scrollWidth > el.clientWidth ? file.variable_name : '';
+                    }
+                }}
+            >
+                {file.variable_name}
+            </span>
         </li>
     )
 }

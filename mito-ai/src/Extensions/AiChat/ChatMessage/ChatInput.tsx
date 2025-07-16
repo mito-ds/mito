@@ -48,7 +48,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     displayActiveCellCode = true,
     agentModeEnabled = false,
 }) => {
-
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -127,8 +126,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     ? `${option.variable.parent_df}.${option.variable.variable_name}`
                     : option.variable.variable_name;
                 setAdditionalContext(prev => [...prev, `Variable: ${contextName}`]);
+            } else if (option.type === 'file') {
+                setAdditionalContext(prev => [...prev, `File: ${option.file.variable_name}`]);
             } else if (option.type === 'rule') {
-                // For rules, add them directly
                 setAdditionalContext(prev => [...prev, `Rule: ${option.rule}`]);
             }
             setDropdownVisible(false);
@@ -158,6 +158,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
             } else {
                 contextChatRepresentation = `\`${option.variable.variable_name}\``
             }
+        } else if (option.type === 'file') {
+            // For files, add them as both back-ticked elements and the additional context container
+            contextChatRepresentation = `\`${option.file.variable_name}\``
+            setAdditionalContext([...additionalContext, `File: ${option.file.variable_name}`]);
         } else if (option.type === 'rule') {
             // We don't add the rule as an back ticked element in the chat input, 
             // and instead just add it as plain text because we also add it as 
