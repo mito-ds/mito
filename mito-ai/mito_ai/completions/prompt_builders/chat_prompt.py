@@ -23,7 +23,15 @@ def create_chat_prompt(
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     files_str = '\n'.join([f"{file}" for file in files])
-    rules_str = get_rules_str(selected_rules)
+
+    selected_variables = [rule for rule in selected_rules if rule.startswith('Variable:')] if selected_rules is not None else []
+    selected_variables_str = '\n'.join([f"{variable}" for variable in selected_variables])
+
+    rules = [rule for rule in selected_rules if rule.startswith('Rule:')] if selected_rules is not None else []
+    rules_str = get_rules_str(rules)
+
+    print('rules', rules)
+    print('selected_variables', selected_variables)
     
     prompt = f"""{rules_str}
     
@@ -100,6 +108,10 @@ Hey there! I'm Mito AI. How can I help you today?
 ```python
 {active_cell_code}
 ```
+
+The following variables have been selected by the user to be used in the task:
+
+{selected_variables_str}
 
 {get_active_cell_output_str(has_active_cell_output)}
 

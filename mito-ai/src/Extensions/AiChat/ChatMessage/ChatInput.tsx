@@ -129,7 +129,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 setAdditionalContext(prev => [...prev, `Variable: ${contextName}`]);
             } else if (option.type === 'rule') {
                 // For rules, add them directly
-                setAdditionalContext(prev => [...prev, option.rule]);
+                setAdditionalContext(prev => [...prev, `Rule: ${option.rule}`]);
             }
             setDropdownVisible(false);
             return;
@@ -159,7 +159,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             // a context container above the chat input and we want the user to 
             // delete the context from there if they want to. 
             contextChatRepresentation = option.rule
-            setAdditionalContext([...additionalContext, option.rule]);
+            setAdditionalContext([...additionalContext, `Rule: ${option.rule}`]);
         }
 
         const newValue =
