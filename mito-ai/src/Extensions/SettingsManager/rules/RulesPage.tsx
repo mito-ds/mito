@@ -114,7 +114,7 @@ export const RulesPage = (): JSX.Element => {
                     <div 
                         key={rule} 
                         className="rule-item"
-                        onClick={() => handleRuleClick(rule)}
+                        onClick={() => void handleRuleClick(rule)}
                     >
                         <div className="rule-content">
                             <h4 className="rule-name">{stripFileEnding(rule)}</h4>
