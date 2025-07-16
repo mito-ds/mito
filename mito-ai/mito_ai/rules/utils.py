@@ -39,6 +39,29 @@ def get_rule(rule_name: str) -> Optional[str]:
         return f.read()
 
 
+def delete_rule(rule_name: str) -> bool:
+    """
+    Deletes a specific rule file from the rules directory
+    
+    Returns:
+        bool: True if the file was successfully deleted, False if the file doesn't exist
+    """
+    if rule_name.endswith('.md'):
+        rule_name = rule_name[:-3]
+    
+    file_path = os.path.join(RULES_DIR_PATH, f"{rule_name}.md")
+    
+    if not os.path.exists(file_path):
+        return False
+    
+    try:
+        os.remove(file_path)
+        return True
+    except OSError as e:
+        print(f"Error deleting rule file {file_path}: {e}")
+        return False
+
+
 def get_all_rules() -> List[str]:
     """
     Retrieves all rule files from the rules directory

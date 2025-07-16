@@ -7,7 +7,7 @@ from typing import Any, Final, Union
 import tornado
 import os
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rule, set_rules_file
+from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rule, set_rules_file, delete_rule
 
 
 class RulesHandler(APIHandler):
@@ -40,5 +40,20 @@ class RulesHandler(APIHandler):
             
         set_rules_file(key, data['content'])
         self.finish(json.dumps({"status": "updated", "rules file ": key}))
+
+    @tornado.web.authenticated
+    def delete(self, key: str) -> None:
+        """Delete a specific rule by key"""
+        if key is None or key == '':
+            self.set_status(400)
+            self.finish(json.dumps({"error": "Rule key is required"}))
+            return
+            
+        success = delete_rule(key)
+        if success:
+            self.finish(json.dumps({"status": "deleted", "rule": key}))
+        else:
+            self.set_status(404)
+            self.finish(json.dumps({"error": f"Rule with key '{key}' not found"}))
 
 

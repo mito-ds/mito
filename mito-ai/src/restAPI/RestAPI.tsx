@@ -88,3 +88,13 @@ export const getRules = async(): Promise<string[]> => {
     }
     return resp.data || [];
 }
+
+export const deleteRule = async(ruleName: string): Promise<string> => {
+    const resp = await requestAPI<string>(`rules/${ruleName}`, {
+        method: 'DELETE',
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data || '';
+}
