@@ -44,7 +44,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    border: 1px solid var(--jp-border-color1);
+    border: 1px solid var(--jp-border-color2);
     border-radius: 8px;
     background: var(--jp-layout-color0);
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -52,7 +52,7 @@
 }
 
 .rules-list .rule-item:hover {
-    border-color: var(--jp-border-color2);
+    border-color: var(--purple-500);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
