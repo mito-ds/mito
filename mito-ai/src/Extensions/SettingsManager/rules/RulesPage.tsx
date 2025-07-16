@@ -131,7 +131,7 @@ export const RulesPage = (): JSX.Element => {
                                 style={{ marginLeft: 8 }}
                                 onClick={e => {
                                     e.stopPropagation();
-                                    handleDeleteRule(rule);
+                                    void handleDeleteRule(rule);
                                 }}
                             >
                                 Delete
