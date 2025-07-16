@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
-import { getRule, getRules, setRule } from '../../../restAPI/RestAPI';
+import { getRule, getRules, setRule, deleteRule } from '../../../restAPI/RestAPI';
 import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
 
 export const RulesPage = (): JSX.Element => {
@@ -67,6 +67,18 @@ export const RulesPage = (): JSX.Element => {
         setModalStatus('edit rule');
     };
 
+    const handleDeleteRule = async (rule: string): Promise<void> => {
+        if (!window.confirm(`Are you sure you want to delete the rule "${stripFileEnding(rule)}"? This action cannot be undone.`)) {
+            return;
+        }
+        try {
+            await deleteRule(rule);
+            void fetchRules();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete rule');
+        }
+    };
+
     return (
         <div>
             <div className="settings-header">
@@ -98,6 +110,16 @@ export const RulesPage = (): JSX.Element => {
                                 className="button-base button-gray"
                             >
                                 Update
+                            </button>
+                            <button
+                                className="button-base button-red"
+                                style={{ marginLeft: 8 }}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    handleDeleteRule(rule);
+                                }}
+                            >
+                                Delete
                             </button>
                         </div>
                     </div>
