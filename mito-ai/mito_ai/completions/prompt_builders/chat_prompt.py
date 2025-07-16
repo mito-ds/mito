@@ -19,15 +19,26 @@ def create_chat_prompt(
     active_cell_id: str,
     has_active_cell_output: bool,
     input: str,
-    selected_rules: Optional[List[str]] = None
+    additional_context: Optional[List[str]] = None
 ) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in variables])
     files_str = '\n'.join([f"{file}" for file in files])
 
-    selected_variables = [rule for rule in selected_rules if rule.startswith('Variable:')] if selected_rules is not None else []
-    selected_variables_str = '\n'.join([f"{variable}" for variable in selected_variables])
 
-    rules = [rule for rule in selected_rules if rule.startswith('Rule:')] if selected_rules is not None else []
+    selected_variables = (
+        [context for context in additional_context if context.startswith("Variable:")]
+        if additional_context is not None
+        else []
+    )
+    selected_variables_str = "\n".join(
+        [f"{variable}" for variable in selected_variables]
+    )
+
+    rules = (
+        [context for context in additional_context if context.startswith("Rule:")]
+        if additional_context is not None
+        else []
+    )
     rules_str = get_rules_str(rules)
     
     prompt = f"""{rules_str}

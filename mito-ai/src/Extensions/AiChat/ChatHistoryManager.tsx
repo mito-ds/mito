@@ -86,7 +86,7 @@ export class ChatHistoryManager {
         );
     }
 
-    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number, selectedRules?: string[]): Promise<IChatMessageMetadata> {
+    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number, additionalContext?: string[]): Promise<IChatMessageMetadata> {
         const activeCellCode = getActiveCellCode(this.notebookTracker) || ''
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
 
@@ -99,7 +99,7 @@ export class ChatHistoryManager {
             input: input,
             threadId: activeThreadId,
             index: messageIndex,
-            selectedRules: selectedRules
+            additionalContext: additionalContext
         }
 
         this.displayOptimizedChatHistory.push(
@@ -114,7 +114,7 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
-    addAgentExecutionMessage(activeThreadId: string, input?: string, selectedRules?: string[]): IAgentExecutionMetadata {
+    addAgentExecutionMessage(activeThreadId: string, input?: string, additionalContext?: string[]): IAgentExecutionMetadata {
 
         const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 
@@ -126,7 +126,7 @@ export class ChatHistoryManager {
             input: input || '',
             threadId: activeThreadId,
             isChromeBrowser: isChromeBasedBrowser(),
-            selectedRules: selectedRules
+            additionalContext: additionalContext
         }
 
         // We use this function in two ways: 
