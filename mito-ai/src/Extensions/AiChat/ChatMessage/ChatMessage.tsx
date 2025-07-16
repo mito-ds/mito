@@ -30,6 +30,7 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI';
+import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -149,6 +150,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     // very quickly for users. 
     let isCodeComplete = false;
 
+    console.log(messageContentParts)
+
     return (
         <div className={classNames(
             "message",
@@ -172,25 +175,18 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         agentModeEnabled={agentModeEnabled}
                                     />
                                 ) : (
-                                    <>
-                                        {agentResponse?.analysis_assumptions?.map((assumption) => (
-                                            <div key={assumption} className='chat-message-assumption'>
-                                                {assumption}
-                                            </div>
-                                        ))}
-                                        <AssistantCodeBlock
-                                            code={messagePart}
-                                            codeSummary={agentResponse?.cell_update?.code_summary ?? undefined}
-                                            isCodeComplete={isCodeComplete}
-                                            renderMimeRegistry={renderMimeRegistry}
-                                            previewAICode={previewAICode}
-                                            acceptAICode={acceptAICode}
-                                            rejectAICode={rejectAICode}
-                                            isLastAiMessage={isLastAiMessage}
-                                            codeReviewStatus={codeReviewStatus}
-                                            agentModeEnabled={agentModeEnabled}
-                                        />
-                                    </>
+                                    <AssistantCodeBlock
+                                        code={messagePart}
+                                        codeSummary={agentResponse?.cell_update?.code_summary ?? undefined}
+                                        isCodeComplete={isCodeComplete}
+                                        renderMimeRegistry={renderMimeRegistry}
+                                        previewAICode={previewAICode}
+                                        acceptAICode={acceptAICode}
+                                        rejectAICode={rejectAICode}
+                                        isLastAiMessage={isLastAiMessage}
+                                        codeReviewStatus={codeReviewStatus}
+                                        agentModeEnabled={agentModeEnabled}
+                                    />
                                 )}
 
                                 {isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' && 
@@ -262,6 +258,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
                             </p>
+                            {agentResponse?.analysis_assumptions?.map((assumption) => (
+                                <AssumptionToolUI assumption={assumption} />
+                            ))}
                         </div>
                     )
                 }
