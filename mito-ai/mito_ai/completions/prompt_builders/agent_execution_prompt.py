@@ -8,34 +8,15 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     VARIABLES_SECTION_HEADING,
     cell_update_output_str
 )
-from mito_ai.completions.prompt_builders.utils import get_rules_str
+from mito_ai.completions.prompt_builders.utils import get_rules_str, get_selected_variables_str, get_selected_files_str
 
 def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in md.variables or []])
     files_str = '\n'.join([f"{file}" for file in md.files or []])
     ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
-
-    selected_rules = (
-        [context for context in md.additionalContext or [] if context.startswith("Rule:")]
-        if md.additionalContext is not None
-        else []
-    )
-    rules_str = get_rules_str(selected_rules)
-
-    selected_variables = (
-        [context for context in md.additionalContext or [] if context.startswith("Variable:")]
-        if md.additionalContext is not None
-        else []
-    )
-    selected_variables_str = '\n'.join([f"{variable}" for variable in selected_variables])
-
-    selected_files = (
-        [context for context in md.additionalContext or [] if context.startswith("File:")]
-        if md.additionalContext is not None
-        else []
-    )
-    selected_files_str = '\n'.join([f"{file}" for file in selected_files])
-    
+    selected_variables_str = get_selected_variables_str(md.additionalContext or [])
+    selected_files_str = get_selected_files_str(md.additionalContext or [])
+    rules_str = get_rules_str(md.additionalContext or [])
     context_str = f"""Remember to choose the correct tool to respond with.
 
 {rules_str}
@@ -50,10 +31,7 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
 {FILES_SECTION_HEADING}
 {files_str}
 
-The following variables have been selected by the user to be used in the task:
 {selected_variables_str}
-
-The user has also selected the following files to be used in the task:
 
 {selected_files_str}
 

@@ -8,48 +8,30 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     CODE_SECTION_HEADING,
-    get_active_cell_output_str
+    get_active_cell_output_str,
 )
-from mito_ai.completions.prompt_builders.utils import get_rules_str
+from mito_ai.completions.prompt_builders.utils import (
+    get_rules_str,
+    get_selected_variables_str,
+    get_selected_files_str,
+)
+
 
 def create_chat_prompt(
     variables: List[str],
     files: List[str],
-    active_cell_code: str, 
+    active_cell_code: str,
     active_cell_id: str,
     has_active_cell_output: bool,
     input: str,
-    additional_context: Optional[List[str]] = None
+    additional_context: Optional[List[str]] = None,
 ) -> str:
-    variables_str = '\n'.join([f"{variable}" for variable in variables])
-    files_str = '\n'.join([f"{file}" for file in files])
+    variables_str = "\n".join([f"{variable}" for variable in variables])
+    files_str = "\n".join([f"{file}" for file in files])
+    selected_variables_str = get_selected_variables_str(additional_context or [])
+    selected_files_str = get_selected_files_str(additional_context or [])
+    rules_str = get_rules_str(additional_context or [])
 
-
-    selected_variables = (
-        [context for context in additional_context if context.startswith("Variable:")]
-        if additional_context is not None
-        else []
-    )
-    selected_variables_str = "\n".join(
-        [f"{variable}" for variable in selected_variables]
-    )
-
-    selected_files = (
-        [context for context in additional_context if context.startswith("File:")]
-        if additional_context is not None
-        else []
-    )
-    selected_files_str = "\n".join(
-        [f"{file}" for file in selected_files]
-    )
-
-    rules = (
-        [context for context in additional_context if context.startswith("Rule:")]
-        if additional_context is not None
-        else []
-    )
-    rules_str = get_rules_str(rules)
-    
     prompt = f"""{rules_str}
     
 Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete.
@@ -126,11 +108,7 @@ Hey there! I'm Mito AI. How can I help you today?
 {active_cell_code}
 ```
 
-The following variables have been selected by the user to be used in the task:
-
 {selected_variables_str}
-
-The user has also selected the following files to be used in the task:
 
 {selected_files_str}
 
@@ -138,5 +116,5 @@ The user has also selected the following files to be used in the task:
 
 Your task: {input}
 """
-    
+
     return prompt
