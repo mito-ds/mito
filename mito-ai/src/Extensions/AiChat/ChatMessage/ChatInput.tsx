@@ -240,7 +240,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         textAreaRef.current?.focus();
                     }}
                 >
-                    + Add Context
+                    ＠ Add Context
                 </button>                
                 {selectedRules.map((rule) => (
                     <SelectedContextContainer
