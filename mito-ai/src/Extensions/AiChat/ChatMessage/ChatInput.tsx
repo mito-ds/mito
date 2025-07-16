@@ -221,46 +221,46 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
         activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
 
-    return (
-        <div 
-            className={classNames("chat-input-container")}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => {
-                setIsFocused(false)
-            }}
-        >
-            <div className='context-container'>
-                <button 
-                    className="add-context-button"
-                    onClick={() => {
-                        setDropdownVisible(true);
-                        setDropdownFilter('');
-                        setIsDropdownFromButton(true);
-                        textAreaRef.current?.focus();
-                    }}
-                >
-                    ＠ Add Context
-                </button>                
-                {additionalContext.map((context) => (
-                    <SelectedContextContainer
-                        key={context}
-                        title={context}
-                        onRemove={() => setAdditionalContext(additionalContext.filter((c) => c !== context))}
-                    />
-                ))}
-            </div>
-            {/* Show the active cell preview if the text area has focus or the user has started typing */}
-            {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
-                && (isFocused || input.length > 0)
-                && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
-                    <div className='code-block-container'>
-                        <PythonCode
-                            code={activeCellCodePreview}
-                            renderMimeRegistry={renderMimeRegistry}
-                        />
+            return (
+            <div 
+                className={classNames("chat-input-container")}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => {
+                    setIsFocused(false)
+                }}
+            >
+                {/* Show the active cell preview if the text area has focus or the user has started typing */}
+                {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
+                    && (isFocused || input.length > 0)
+                    && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
+                        <div className='code-block-container'>
+                            <PythonCode
+                                code={activeCellCodePreview}
+                                renderMimeRegistry={renderMimeRegistry}
+                            />
+                        </div>
                     </div>
+                }
+                <div className='context-container'>
+                    <button 
+                        className="add-context-button"
+                        onClick={() => {
+                            setDropdownVisible(true);
+                            setDropdownFilter('');
+                            setIsDropdownFromButton(true);
+                            textAreaRef.current?.focus();
+                        }}
+                    >
+                        ＠ Add Context
+                    </button>                
+                    {additionalContext.map((context) => (
+                        <SelectedContextContainer
+                            key={context}
+                            title={context}
+                            onRemove={() => setAdditionalContext(additionalContext.filter((c) => c !== context))}
+                        />
+                    ))}
                 </div>
-            }
             
             {/* 
                 Create a relative container for the text area and the dropdown so that when we 
