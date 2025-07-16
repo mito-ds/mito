@@ -56,7 +56,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
-    const [selectedRules, setSelectedRules] = useState<string[]>([]);
+    const [additionalContext, setAdditionalContext] = useState<string[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
@@ -119,7 +119,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     };
 
     const handleOptionSelect = (option: ChatDropdownOption): void => {
-
         if (isDropdownFromButton) {
             // When triggered by "Add Context" button, add to SelectedContextContainer
             if (option.type === 'variable') {
@@ -127,10 +126,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 const contextName = option.variable.parent_df 
                     ? `${option.variable.parent_df}.${option.variable.variable_name}`
                     : option.variable.variable_name;
-                setSelectedRules(prev => [...prev, `Variable: ${contextName}`]);
+                setAdditionalContext(prev => [...prev, `Variable: ${contextName}`]);
             } else if (option.type === 'rule') {
                 // For rules, add them directly
-                setSelectedRules(prev => [...prev, option.rule]);
+                setAdditionalContext(prev => [...prev, option.rule]);
             }
             setDropdownVisible(false);
             return;
@@ -160,7 +159,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             // a context container above the chat input and we want the user to 
             // delete the context from there if they want to. 
             contextChatRepresentation = option.rule
-            setSelectedRules([...selectedRules, option.rule]);
+            setAdditionalContext([...additionalContext, option.rule]);
         }
 
         const newValue =
@@ -242,11 +241,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 >
                     ＠ Add Context
                 </button>                
-                {selectedRules.map((rule) => (
+                {additionalContext.map((context) => (
                     <SelectedContextContainer
-                        key={rule}
-                        title={rule}
-                        onRemove={() => setSelectedRules(selectedRules.filter((r) => r !== rule))}
+                        key={context}
+                        title={context}
+                        onRemove={() => setAdditionalContext(additionalContext.filter((c) => c !== context))}
                     />
                 ))}
             </div>
@@ -291,11 +290,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
-                            onSave(input, undefined, selectedRules)
+                            onSave(input, undefined, additionalContext)
 
                             // Reset
                             setInput('')
-                            setSelectedRules([])
+                            setAdditionalContext([])
                             setIsFocused(false)
                         }
                         // Escape key cancels editing
@@ -321,7 +320,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => onSave(input, undefined, selectedRules)}>Save</button>
+                    <button onClick={() => onSave(input, undefined, additionalContext)}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

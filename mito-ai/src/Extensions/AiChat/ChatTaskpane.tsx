@@ -587,7 +587,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         input: string,
         messageIndex?: number,
         sendCellIDOutput: string | undefined = undefined,
-        selectedRules?: string[]
+        additionalContext?: string[]
     ): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
@@ -600,7 +600,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadIdRef.current, input, selectedRules)
+        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadIdRef.current, input, additionalContext)
         if (messageIndex !== undefined) {
             agentExecutionMetadata.index = messageIndex
         }
@@ -623,7 +623,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, additionalContext?: string[]): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -642,7 +642,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             input,
             activeThreadIdRef.current,
             messageIndex,
-            selectedRules
+            additionalContext
         )
 
         setChatHistoryManager(newChatHistoryManager)
@@ -884,7 +884,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('idle');
     }
 
-    const startAgentExecution = async (input: string, messageIndex?: number, selectedRules?: string[]): Promise<void> => {
+    const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: string[]): Promise<void> => {
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
@@ -909,7 +909,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Only the first message sent to the Agent should contain the user's input.
             // All other messages only contain updated information about the state of the notebook.
             if (agentExecutionDepth === 1) {
-                await sendAgentExecutionMessage(input, messageIndex, undefined, selectedRules)
+                await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext)
             } else {
                 await sendAgentExecutionMessage('', undefined, sendCellIDOutput)
                 // Reset flag back to false until the agent requests the active cell output again
