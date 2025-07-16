@@ -30,6 +30,7 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI';
+import SelectedContextContainer from '../../../components/SelectedContextContainer';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -157,6 +158,17 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             { "message-user": message.role === 'user' },
             { 'message-assistant-chat': message.role === 'assistant'},
         )}>
+            {message.role === 'user' && additionalContext && additionalContext.length > 0 && 
+                <>
+                    {additionalContext.map((context) => (
+                        <SelectedContextContainer
+                            key={context}
+                            title={context}
+                            onRemove={() => {}} // Read-only in chat history
+                        />
+                    ))}
+                </>
+            }
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
                     
