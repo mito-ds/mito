@@ -42,7 +42,6 @@
 
 .active-cell-preview-container {
   padding: 10px;
-  background-color: var(--chat-user-message-background-color);
 }
 
 .chat-input-container:focus-within {
