@@ -57,7 +57,7 @@ class RulesHandler(APIHandler):
             self.finish(json.dumps({"error": f"Rule with key '{key}' not found"}))
 
     @tornado.web.authenticated
-    def post(self, *args) -> None:
+    def post(self, *args: Any) -> None:
         """Rename a rule and optionally update its content"""
         data = json.loads(self.request.body)
         old_key = data.get('old_key')
