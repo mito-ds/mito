@@ -9,7 +9,7 @@
   box-sizing: border-box;
   width: 100%;
   font-size: 14px;
-  border-radius: 5px;
+  border-radius: var(--chat-taskpane-item-border-radius);
   padding: 0 var(--chat-taskpane-item-indent);
 }
 
