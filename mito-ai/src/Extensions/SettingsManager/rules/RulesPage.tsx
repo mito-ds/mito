@@ -6,13 +6,14 @@
 import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
-import { getRule, getRules, setRule, deleteRule } from '../../../restAPI/RestAPI';
+import { getRule, getRules, setRule, deleteRule, renameRule } from '../../../restAPI/RestAPI';
 import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
 
 export const RulesPage = (): JSX.Element => {
     const [modalStatus, setModalStatus] = useState<'new rule' | 'edit rule' | undefined>(undefined);
     const [rules, setRules] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [originalRuleName, setOriginalRuleName] = useState<string>('');
 
     const [formData, setFormData] = useState<Rule>({
         name: '',
@@ -49,21 +50,35 @@ export const RulesPage = (): JSX.Element => {
             setFormError(null);
         }
 
-        await setRule(formData.name, formData.description);
-        setModalStatus(undefined);
-        setFormData({
-            name: '',
-            description: ''
-        });
-        void fetchRules();
+        try {
+            if (modalStatus === 'edit rule' && originalRuleName !== formData.name) {
+                // Rule name changed during edit - use rename endpoint
+                await renameRule(originalRuleName, formData.name, formData.description);
+            } else {
+                // Normal create or update (name didn't change)
+                await setRule(formData.name, formData.description);
+            }
+            
+            setModalStatus(undefined);
+            setFormData({
+                name: '',
+                description: ''
+            });
+            setOriginalRuleName('');
+            void fetchRules();
+        } catch (err) {
+            setFormError(err instanceof Error ? err.message : 'An error occurred');
+        }
     };
 
     const handleRuleClick = async (rule: string): Promise<void> => {
         const ruleContent = await getRule(rule);
+        const ruleName = stripFileEnding(rule);
         setFormData({
-            name: stripFileEnding(rule),
+            name: ruleName,
             description: ruleContent || ''
         });
+        setOriginalRuleName(ruleName);
         setModalStatus('edit rule');
     };
 
@@ -144,6 +159,7 @@ export const RulesPage = (): JSX.Element => {
                                     name: '',
                                     description: ''
                                 });
+                                setOriginalRuleName('');
                             }}
                             isEditing={modalStatus === 'edit rule'}
                         />

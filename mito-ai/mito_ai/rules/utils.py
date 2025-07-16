@@ -62,6 +62,52 @@ def delete_rule(rule_name: str) -> bool:
         return False
 
 
+def rename_rule(old_rule_name: str, new_rule_name: str, new_content: Optional[str] = None) -> bool:
+    """
+    Renames a rule file and optionally updates its content
+    
+    Args:
+        old_rule_name: The current name of the rule
+        new_rule_name: The new name for the rule
+        new_content: Optional new content for the rule (if None, keeps existing content)
+    
+    Returns:
+        bool: True if the rule was successfully renamed, False otherwise
+    """
+    # Remove .md extensions if present
+    if old_rule_name.endswith('.md'):
+        old_rule_name = old_rule_name[:-3]
+    if new_rule_name.endswith('.md'):
+        new_rule_name = new_rule_name[:-3]
+    
+    old_file_path = os.path.join(RULES_DIR_PATH, f"{old_rule_name}.md")
+    new_file_path = os.path.join(RULES_DIR_PATH, f"{new_rule_name}.md")
+    
+    # Check if old file exists
+    if not os.path.exists(old_file_path):
+        return False
+    
+    # Check if new file already exists
+    if os.path.exists(new_file_path):
+        return False
+    
+    try:
+        # If new_content is provided, write it to the new file
+        if new_content is not None:
+            with open(new_file_path, 'w') as f:
+                f.write(new_content)
+            # Remove the old file
+            os.remove(old_file_path)
+        else:
+            # Just rename the file
+            os.rename(old_file_path, new_file_path)
+        
+        return True
+    except OSError as e:
+        print(f"Error renaming rule file from {old_file_path} to {new_file_path}: {e}")
+        return False
+
+
 def get_all_rules() -> List[str]:
     """
     Retrieves all rule files from the rules directory

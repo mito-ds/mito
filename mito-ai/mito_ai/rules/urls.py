@@ -19,4 +19,5 @@ def get_rules_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
     return [
         (url_path_join(BASE_URL, "rules"), RulesHandler, {}),
         (url_path_join(BASE_URL, "rules/(.+)"), RulesHandler, {}),
+        (url_path_join(BASE_URL, "rules/rename"), RulesHandler, {}),
     ]
