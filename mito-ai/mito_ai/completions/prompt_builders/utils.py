@@ -17,8 +17,6 @@ def get_rules_str(additional_context: List[str]) -> str:
     if len(selected_rules) == 0:
         return ""
 
-    print("selected_rules", selected_rules)
-
     rules_str = ""
     for rule in selected_rules:
         rule_content = get_rule(rule)
