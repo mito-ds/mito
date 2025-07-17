@@ -17,6 +17,8 @@ import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
+import DatabaseIcon from '../../../icons/DatabaseIcon';
+import TextAndIconButton from '../../../components/TextAndIconButton';
 
 interface ChatInputProps {
     initialContent: string;
@@ -256,17 +258,31 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     </div>
                 }
                 <div className='context-container'>
-                    <button 
-                        className="add-context-button"
+                    <TextAndIconButton
+                        text="Add Context"
+                        icon={() => <span style={{ fontSize: '14px', fontWeight: 'bold' }}>＠</span>}
                         onClick={() => {
                             setDropdownVisible(true);
                             setDropdownFilter('');
                             setIsDropdownFromButton(true);
                             textAreaRef.current?.focus();
                         }}
-                    >
-                        ＠ Add Context
-                    </button>                
+                        title="Add Context"
+                        variant="gray"
+                        width="fit-contents"
+                        iconPosition="left"
+                    />
+                    <TextAndIconButton
+                        text="Add Database"
+                        icon={DatabaseIcon}
+                        onClick={() => {
+                            console.log('add database');
+                        }}
+                        title="Add Database"
+                        variant="gray"
+                        width="fit-contents"
+                        iconPosition="left"
+                    />
                     {additionalContext.map((context, index) => (
                         <SelectedContextContainer
                             key={`${context.type}-${context.value}-${index}`}
