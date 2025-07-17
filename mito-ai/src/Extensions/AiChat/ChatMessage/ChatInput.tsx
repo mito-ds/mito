@@ -19,8 +19,11 @@ import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import DatabaseIcon from '../../../icons/DatabaseIcon';
 import TextAndIconButton from '../../../components/TextAndIconButton';
+import { COMMAND_MITO_AI_SETTINGS } from '../../SettingsManager/SettingsManagerPlugin';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 interface ChatInputProps {
+    app: JupyterFrontEnd;
     initialContent: string;
     placeholder: string;
     onSave: (content: string, index?: number, selectedRules?: Array<{type: string, value: string}>) => void;
@@ -44,6 +47,7 @@ interface ContextItem {
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
+    app,
     initialContent,
     placeholder,
     onSave,
@@ -276,7 +280,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         text="Add Database"
                         icon={DatabaseIcon}
                         onClick={() => {
-                            console.log('add database');
+                            void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
                         title="Add Database"
                         variant="gray"

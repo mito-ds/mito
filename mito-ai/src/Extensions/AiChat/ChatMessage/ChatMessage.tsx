@@ -68,6 +68,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     mitoAIConnectionErrorType,
     notebookTracker,
     renderMimeRegistry,
+    app,
     isLastAiMessage,
     isLastMessage,
     operatingSystem,
@@ -127,6 +128,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     if (isEditing) {
         return (
             <ChatInput
+                app={app}
                 initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
                 placeholder={"Edit your message"}
                 onSave={handleSave}
