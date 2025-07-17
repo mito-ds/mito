@@ -320,7 +320,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         options={expandedVariables}
                         onSelect={handleOptionSelect}
                         filterText={dropdownFilter}
-                        showSearchInput={isDropdownFromButton}
+                        isDropdownFromButton={isDropdownFromButton}
                         onFilterChange={setDropdownFilter}
                         onClose={handleDropdownClose}
                     />

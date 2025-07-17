@@ -14,7 +14,7 @@ interface ChatDropdownProps {
     filterText: string;
     maxDropdownItems?: number;
     position?: 'above' | 'below';
-    showSearchInput?: boolean;
+    isDropdownFromButton?: boolean;
     onFilterChange?: (filterText: string) => void;
     onClose?: () => void;
 }
@@ -41,7 +41,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     onSelect,
     filterText,
     maxDropdownItems = 10,
-    showSearchInput = false,
+    isDropdownFromButton = false,
     onFilterChange,
     onClose,
 }) => {
@@ -61,13 +61,13 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
 
     // Focus search input when dropdown opens with search input
     useEffect(() => {
-        if (showSearchInput && searchInputRef.current) {
+        if (isDropdownFromButton && searchInputRef.current) {
             searchInputRef.current.focus();
         }
-    }, [showSearchInput]);
+    }, [isDropdownFromButton]);
 
     // Use local filter text when search input is shown, otherwise use prop
-    const effectiveFilterText = showSearchInput ? localFilterText : filterText;
+    const effectiveFilterText = isDropdownFromButton ? localFilterText : filterText;
 
     // Create a list of all options with the format 
     // ['type': 'variable', "expandedVariable": variable]
@@ -186,7 +186,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
 
     return (
         <div className={`chat-dropdown`} data-testid="chat-dropdown">
-            {showSearchInput && (
+            {isDropdownFromButton && (
                 <div className="chat-dropdown-search">
                     <input
                         ref={searchInputRef}
