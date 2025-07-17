@@ -38,7 +38,7 @@ export interface IDisplayOptimizedChatItem {
     mitoAIConnectionErrorType?: string | null,
     codeCellID?: string | undefined,
     agentResponse?: AgentResponse,
-    additionalContext?: string[]
+    additionalContext?: Array<{type: string, value: string}>
 }
 
 /* 
@@ -87,7 +87,7 @@ export class ChatHistoryManager {
         );
     }
 
-    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number, additionalContext?: string[]): Promise<IChatMessageMetadata> {
+    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<IChatMessageMetadata> {
         const activeCellCode = getActiveCellCode(this.notebookTracker) || ''
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
 
@@ -116,7 +116,7 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
-    addAgentExecutionMessage(activeThreadId: string, input?: string, additionalContext?: string[]): IAgentExecutionMetadata {
+    addAgentExecutionMessage(activeThreadId: string, input?: string, additionalContext?: Array<{type: string, value: string}>): IAgentExecutionMetadata {
 
         const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 

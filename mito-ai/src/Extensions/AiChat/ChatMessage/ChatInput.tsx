@@ -21,7 +21,7 @@ import SelectedContextContainer from '../../../components/SelectedContextContain
 interface ChatInputProps {
     initialContent: string;
     placeholder: string;
-    onSave: (content: string, index?: number, selectedRules?: string[]) => void;
+    onSave: (content: string, index?: number, selectedRules?: Array<{type: string, value: string}>) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -34,6 +34,11 @@ interface ChatInputProps {
 export interface ExpandedVariable extends Variable {
     parent_df?: string;
     file_name?: string;
+}
+
+interface ContextItem {
+    type: string;
+    value: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -55,7 +60,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
-    const [additionalContext, setAdditionalContext] = useState<string[]>([]);
+    const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
@@ -125,11 +130,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 const contextName = option.variable.parent_df 
                     ? `${option.variable.parent_df}.${option.variable.variable_name}`
                     : option.variable.variable_name;
-                setAdditionalContext(prev => [...prev, `Variable: ${contextName}`]);
+                setAdditionalContext(prev => [...prev, { type: 'variable', value: contextName }]);
             } else if (option.type === 'file') {
-                setAdditionalContext(prev => [...prev, `File: ${option.file.variable_name}`]);
+                setAdditionalContext(prev => [...prev, { type: 'file', value: option.file.variable_name }]);
             } else if (option.type === 'rule') {
-                setAdditionalContext(prev => [...prev, `Rule: ${option.rule}`]);
+                setAdditionalContext(prev => [...prev, { type: 'rule', value: option.rule }]);
             }
             setDropdownVisible(false);
             
@@ -161,14 +166,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
         } else if (option.type === 'file') {
             // For files, add them as both back-ticked elements and the additional context container
             contextChatRepresentation = `\`${option.file.variable_name}\``
-            setAdditionalContext([...additionalContext, `File: ${option.file.variable_name}`]);
+            setAdditionalContext([...additionalContext, { type: 'file', value: option.file.variable_name }]);
         } else if (option.type === 'rule') {
             // We don't add the rule as an back ticked element in the chat input, 
             // and instead just add it as plain text because we also add it as 
             // a context container above the chat input and we want the user to 
             // delete the context from there if they want to. 
             contextChatRepresentation = option.rule
-            setAdditionalContext([...additionalContext, `Rule: ${option.rule}`]);
+            setAdditionalContext([...additionalContext, { type: 'rule', value: option.rule }]);
         }
 
         const newValue =
@@ -262,11 +267,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     >
                         ＠ Add Context
                     </button>                
-                    {additionalContext.map((context) => (
+                    {additionalContext.map((context, index) => (
                         <SelectedContextContainer
-                            key={context}
-                            title={context}
-                            onRemove={() => setAdditionalContext(additionalContext.filter((c) => c !== context))}
+                            key={`${context.type}-${context.value}-${index}`}
+                            title={`${context.type.charAt(0).toUpperCase() + context.type.slice(1)}: ${context.value}`}
+                            onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
                         />
                     ))}
                 </div>

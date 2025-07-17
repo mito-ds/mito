@@ -587,7 +587,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         input: string,
         messageIndex?: number,
         sendCellIDOutput: string | undefined = undefined,
-        additionalContext?: string[]
+        additionalContext?: Array<{type: string, value: string}>
     ): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
@@ -623,7 +623,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number, additionalContext?: string[]): Promise<void> => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -884,7 +884,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('idle');
     }
 
-    const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: string[]): Promise<void> => {
+    const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 

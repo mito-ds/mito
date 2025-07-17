@@ -55,7 +55,7 @@ interface IChatMessageProps {
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
     agentModeEnabled: boolean
-    additionalContext?: string[]
+    additionalContext?: Array<{type: string, value: string}>
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -96,7 +96,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         setIsEditing(true);
     };
 
-    const handleSave = (content: string): void => {
+    const handleSave = (content: string, index?: number, selectedRules?: Array<{type: string, value: string}>): void => {
         onUpdateMessage(messageIndex, content, messageType);
         setIsEditing(false);
     };
@@ -230,10 +230,10 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 }
                                 {message.role === 'user' && additionalContext && additionalContext.length > 0 && 
                                     <>
-                                        {additionalContext.map((context) => (
+                                        {additionalContext.map((context, index) => (
                                             <SelectedContextContainer
-                                                key={context}
-                                                title={context}
+                                                key={`${context.type}-${context.value}-${index}`}
+                                                title={`${context.type.charAt(0).toUpperCase() + context.type.slice(1)}: ${context.value}`}
                                                 onRemove={() => {}} // Read-only in chat history
                                             />
                                         ))}
