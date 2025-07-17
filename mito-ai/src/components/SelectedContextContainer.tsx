@@ -9,14 +9,15 @@ import RuleIcon from '../icons/RuleIcon';
 
 interface SelectedContextContainerProps {
     title: string;
+    type: string;
     onRemove: () => void;
 }
 
-const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ title, onRemove }) => {
+const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ title, type, onRemove }) => {
     const [isHovered, setIsHovered] = useState(false);
 
     return (
-        <button 
+        <button
             className="selected-context-container"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}

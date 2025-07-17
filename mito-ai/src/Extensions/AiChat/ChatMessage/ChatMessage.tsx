@@ -234,6 +234,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                             <SelectedContextContainer
                                                 key={`${context.type}-${context.value}-${index}`}
                                                 title={`${context.type.charAt(0).toUpperCase() + context.type.slice(1)}: ${context.value}`}
+                                                type={context.type}
                                                 onRemove={() => {}} // Read-only in chat history
                                             />
                                         ))}
