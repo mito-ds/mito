@@ -30,6 +30,7 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI';
+import SelectedContextContainer from '../../../components/SelectedContextContainer';
 
 interface IChatMessageProps {
     message: OpenAI.Chat.ChatCompletionMessageParam
@@ -54,6 +55,7 @@ interface IChatMessageProps {
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
     agentModeEnabled: boolean
+    additionalContext?: Array<{ type: string, value: string }>
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -77,6 +79,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     codeReviewStatus,
     setNextSteps,
     agentModeEnabled,
+    additionalContext,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -88,12 +91,17 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
     const messageContentParts = splitStringWithCodeBlocks(message);
     const messageContent = getContentStringFromMessage(message);
-    
+
     const handleEditClick = (): void => {
         setIsEditing(true);
     };
 
-    const handleSave = (content: string): void => {
+    const handleSave = (
+        content: string,
+        _index?: number,
+        _selectedRules?: Array<{ type: string, value: string }>,
+        _additionalContext?: Array<{ type: string, value: string }>
+    ): void => {
         onUpdateMessage(messageIndex, content, messageType);
         setIsEditing(false);
     };
@@ -102,7 +110,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         setIsEditing(false);
     };
 
-    if (isLastMessage && agentResponse?.type === 'finished_task' && agentResponse.next_steps && agentResponse.next_steps.length > 0) {
+    if (
+        isLastMessage && agentResponse?.type === 'finished_task' &&
+        agentResponse.next_steps &&
+        agentResponse.next_steps.length > 0
+    ) {
         /* 
         We only want to set the next steps if the message is the last message in the chat.
         This is because the next steps are only available after the agent has finished its task.
@@ -111,7 +123,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         */
         setNextSteps(agentResponse.next_steps);
     }
-    
+
     if (isEditing) {
         return (
             <ChatInput
@@ -134,7 +146,10 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             <div className={classNames(
                 "message",
             )}>
-                <AlertBlock content={message.content as string} mitoAIConnectionErrorType={mitoAIConnectionErrorType} />
+                <AlertBlock
+                    content={message.content as string}
+                    mitoAIConnectionErrorType={mitoAIConnectionErrorType}
+                />
             </div>
         )
     }
@@ -153,17 +168,17 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         <div className={classNames(
             "message",
             { "message-user": message.role === 'user' },
-            { 'message-assistant-chat': message.role === 'assistant'},
+            { 'message-assistant-chat': message.role === 'assistant' },
         )}>
             {messageContentParts.map((messagePart, index) => {
                 if (messagePart.startsWith(PYTHON_CODE_BLOCK_START_WITHOUT_NEW_LINE)) {
-                    
+
                     isCodeComplete = messagePart.endsWith('```');
 
                     // Make sure that there is actually code in the message. 
                     // An empty code will look like this '```python  ```'
                     if (messagePart.length > 14) {
-                        return ( 
+                        return (
                             <>
                                 {message.role === 'user' ? (
                                     <UserCodeBlock
@@ -186,18 +201,18 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
 
-                                {isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' && 
+                                {isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' &&
                                     <div className='chat-message-buttons'>
-                                        <TextAndIconButton 
-                                            onClick={() => {previewAICode()}}
+                                        <TextAndIconButton
+                                            onClick={() => { previewAICode() }}
                                             text={'Overwrite Active Cell'}
                                             icon={PlayButtonIcon}
                                             title={'Write the Ai generated code to the active cell in the jupyter notebook, replacing the current code.'}
                                             variant='gray'
                                             width='fit-contents'
                                         />
-                                        <TextAndIconButton 
-                                            onClick={() => {void copyToClipboard(messagePart)}}
+                                        <TextAndIconButton
+                                            onClick={() => { void copyToClipboard(messagePart) }}
                                             text={'Copy'}
                                             icon={CopyIcon}
                                             title={'Copy the Ai generated code to your clipboard'}
@@ -206,17 +221,17 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         />
                                     </div>
                                 }
-                                {isLastAiMessage && isCodeComplete && codeReviewStatus === 'codeCellPreview' && 
+                                {isLastAiMessage && isCodeComplete && codeReviewStatus === 'codeCellPreview' &&
                                     <div className='chat-message-buttons'>
-                                        <TextButton 
-                                            onClick={() => {acceptAICode()}}
+                                        <TextButton
+                                            onClick={() => { acceptAICode() }}
                                             text={`Accept code ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`}
                                             title={'Accept the Ai generated code'}
                                             variant='green'
                                             width='fit-contents'
                                         />
-                                        <TextButton 
-                                            onClick={() => {rejectAICode()}}
+                                        <TextButton
+                                            onClick={() => { rejectAICode() }}
                                             text={`Reject code ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`}
                                             title={'Reject the Ai generated code and revert to the previous version of the code cell'}
                                             variant='red'
@@ -224,6 +239,18 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         />
                                     </div>
 
+                                }
+                                {message.role === 'user' && additionalContext && additionalContext.length > 0 &&
+                                    <>
+                                        {additionalContext.map((context, index) => (
+                                            <SelectedContextContainer
+                                                key={`${context.type}-${context.value}-${index}`}
+                                                title={`${context.type.charAt(0).toUpperCase() + context.type.slice(1)}: ${context.value}`}
+                                                type={context.type}
+                                                onRemove={() => { }} // Read-only in chat history
+                                            />
+                                        ))}
+                                    </>
                                 }
                             </>
                         )
@@ -234,7 +261,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 } else {
                     return (
                         <div key={index + messagePart} className={classNames('markdown-message-part')}>
-                            <p 
+                            <p
                                 onDoubleClick={() => {
                                     // Only allow users to edit their own messages, not the AI responses
                                     if (message.role === 'user') {
@@ -259,7 +286,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     )
                 }
             })}
-            {editable && 
+            {editable &&
                 <div className="message-action-buttons">
                     <button
                         className="message-start-editing-button"
@@ -270,7 +297,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     </button>
                 </div>
             }
-            {agentResponse?.type === 'get_cell_output' && 
+            {agentResponse?.type === 'get_cell_output' &&
                 <GetCellOutputToolUI />
             }
         </div>

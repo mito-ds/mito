@@ -8,7 +8,6 @@ import '@testing-library/jest-dom'
 import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import ChatDropdown from '../../Extensions/AiChat/ChatMessage/ChatDropdown';
 import { ExpandedVariable } from '../../Extensions/AiChat/ChatMessage/ChatInput';
-import { getRules } from '../../restAPI/RestAPI';
 
 // Mock the RestAPI.getRules function
 jest.mock('../../restAPI/RestAPI', () => ({
@@ -99,12 +98,15 @@ describe('ChatDropdown Component', () => {
             // Expect 5 variables + 3 mocked rules
             expect(options).toHaveLength(defaultProps.options.length + 3);
 
-            // Check individual items
+            // Check individual items in the correct order
+            expect(screen.getByTestId('chat-dropdown-item-Data Analysis')).toBeInTheDocument();
+            expect(screen.getByTestId('chat-dropdown-item-Visualization')).toBeInTheDocument();
+            expect(screen.getByTestId('chat-dropdown-item-Machine Learning')).toBeInTheDocument();
+            expect(screen.getByTestId('chat-dropdown-item-column')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-df')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-series')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-number')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-text')).toBeInTheDocument();
-            expect(screen.getByTestId('chat-dropdown-item-column')).toBeInTheDocument();
         });
 
         it('displays the correct shortened types', async () => {
@@ -241,28 +243,36 @@ describe('ChatDropdown Component', () => {
                 expect(screen.getByText('Data Analysis')).toBeInTheDocument();
             });
 
-            // Initially, first item should be selected
-            const firstItem = screen.getByTestId('chat-dropdown-item-df');
+            // Initially, first item should be selected (which is the first rule: "Data Analysis")
+            const firstItem = screen.getByTestId('chat-dropdown-item-Data Analysis');
             expect(firstItem).toHaveClass('selected');
 
-            // Press down arrow to select the next item
+            // Press down arrow to select the next item (second rule: "Visualization")
             fireEvent.keyDown(document, { key: 'ArrowDown' });
             expect(firstItem).not.toHaveClass('selected');
-            expect(screen.getByTestId('chat-dropdown-item-series')).toHaveClass('selected');
+            expect(screen.getByTestId('chat-dropdown-item-Visualization')).toHaveClass('selected');
 
-            // Press down again
+            // Press down again to select the third rule
             fireEvent.keyDown(document, { key: 'ArrowDown' });
-            expect(screen.getByTestId('chat-dropdown-item-number')).toHaveClass('selected');
+            expect(screen.getByTestId('chat-dropdown-item-Machine Learning')).toHaveClass('selected');
 
-            // Press up arrow to go back
+            // Press down again to select the first variable (column)
+            fireEvent.keyDown(document, { key: 'ArrowDown' });
+            expect(screen.getByTestId('chat-dropdown-item-column')).toHaveClass('selected');
+
+            // Press down again to select df
+            fireEvent.keyDown(document, { key: 'ArrowDown' });
+            expect(screen.getByTestId('chat-dropdown-item-df')).toHaveClass('selected');
+
+            // Press up arrow to go back to column
             fireEvent.keyDown(document, { key: 'ArrowUp' });
-            expect(screen.getByTestId('chat-dropdown-item-series')).toHaveClass('selected');
+            expect(screen.getByTestId('chat-dropdown-item-column')).toHaveClass('selected');
 
-            // Press Enter to select the current option
+            // Press Enter to select the current option (column)
             fireEvent.keyDown(document, { key: 'Enter' });
             expect(onSelectMock).toHaveBeenCalledWith({
                 type: 'variable',
-                variable: defaultProps.options.find(v => v.variable_name === 'series')
+                variable: defaultProps.options.find(v => v.variable_name === 'column')
             });
 
             // Reset mocks and re-render
@@ -274,11 +284,11 @@ describe('ChatDropdown Component', () => {
                 expect(screen.getByText('Data Analysis')).toBeInTheDocument();
             });
 
-            // Tab should also trigger selection
+            // Tab should also trigger selection of the first item (Data Analysis rule)
             fireEvent.keyDown(document, { key: 'Tab' });
             expect(onSelectMock).toHaveBeenCalledWith({
-                type: 'variable',
-                variable: defaultProps.options.find(v => v.variable_name === 'df')
+                type: 'rule',
+                rule: 'Data Analysis'
             });
         });
 
@@ -291,16 +301,14 @@ describe('ChatDropdown Component', () => {
                 expect(screen.getByText('Data Analysis')).toBeInTheDocument();
             });
 
-            // Press up arrow when first item is selected to go to the last item (which is a rule)
+            // Press up arrow when first item is selected to go to the last item
             fireEvent.keyDown(document, { key: 'ArrowUp' });
-            // The last item in the combined list of variables and rules
-            const rules = await getRules(); // Get the mocked rules again for verification
-            const lastRuleName = rules[rules.length - 1];
-            expect(screen.getByTestId(`chat-dropdown-item-${lastRuleName}`)).toHaveClass('selected');
+            // The last item should be the last variable (text)
+            expect(screen.getByTestId('chat-dropdown-item-text')).toHaveClass('selected');
 
             // Press down arrow when last item is selected to go to the first item
             fireEvent.keyDown(document, { key: 'ArrowDown' });
-            expect(screen.getByTestId('chat-dropdown-item-df')).toHaveClass('selected');
+            expect(screen.getByTestId('chat-dropdown-item-Data Analysis')).toHaveClass('selected');
         });
     });
 }); 
