@@ -64,3 +64,21 @@
 .chat-input:focus::placeholder {
   color: var(--jp-ui-font-color3);
 }
+
+.add-context-button {
+  display: flex;
+  align-items: center;
+  background-color: var(--jp-layout-color2);
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 12px;
+  height: 20px;
+  cursor: pointer;
+  color: var(--jp-content-font-color1);
+  transition: background-color 0.2s ease;
+}
+
+.add-context-button:hover {
+  background-color: var(--jp-layout-color3);
+}
