@@ -3,14 +3,24 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { requestAPI } from '../restAPI/utils';
+import { requestAPI } from '../../restAPI/utils';
+
+
+const domain_dev = 'https://mito-app-auth.auth.us-east-1.amazoncognito.com'
+const client_id = '6ara3u3l8sss738hrhbq1qtiqf'
+
+// Change this to domain_dev for dev deployments
+const active_domain = domain_dev
+
+const currentUrl: string = window.location.href;
+console.log("currentUrl: ", currentUrl)
 
 // AWS Cognito configuration
 const COGNITO_CONFIG = {
-    SIGNUP_URL: 'https://mito-app-auth.auth.us-east-1.amazoncognito.com/signup?client_id=6ara3u3l8sss738hrhbq1qtiqf&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:8888/lab',
-    SIGNIN_URL: 'https://mito-app-auth.auth.us-east-1.amazoncognito.com/login?client_id=6ara3u3l8sss738hbq1qtiqf&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:8888/lab',
+    SIGNUP_URL: `${active_domain}/signup?client_id=${client_id}&response_type=code&scope=email+openid+profile&redirect_uri=${currentUrl}`,
+    SIGNIN_URL: `${active_domain}/login?client_id=${client_id}&response_type=code&scope=email+openid+profile&redirect_uri=${currentUrl}`,
     JWT_COOKIE_NAME: 'mito-auth-token',
-    JWT_COOKIE_EXPIRY_HOURS: 3
+    JWT_COOKIE_EXPIRY_HOURS: 1
 };
 
 /**
@@ -89,58 +99,6 @@ export const exchangeCodeForTokens = async (code: string): Promise<boolean> => {
         return false;
     } catch (error) {
         console.error('Error exchanging code for tokens:', error);
-        return false;
-    }
-};
-
-/**
- * Validate JWT token with backend
- */
-export const validateJWTToken = async (token: string): Promise<boolean> => {
-    try {
-        const response = await requestAPI('auth/validate', {
-            method: 'POST',
-            body: JSON.stringify({ token })
-        });
-
-        if (response.error) {
-            console.error('Failed to validate token:', response.error);
-            return false;
-        }
-
-        const data = response.data as { valid?: boolean };
-        return data?.valid || false;
-    } catch (error) {
-        console.error('Error validating token:', error);
-        return false;
-    }
-};
-
-/**
- * Basic JWT token validation logic for testing
- */
-export const _validate_jwt_token_logic = (token: string): boolean => {
-    try {
-        // Basic JWT format validation (header.payload.signature)
-        if (!token || token.indexOf('.') === -1) {
-            return false;
-        }
-        
-        const parts = token.split('.');
-        if (parts.length !== 3) {
-            return false;
-        }
-        
-        // TODO: Add proper JWT validation using AWS Cognito public keys
-        // For now, just check that it's not a placeholder token
-        if (token === 'placeholder-jwt-token') {
-            return false;
-        }
-        
-        return true;
-        
-    } catch (error) {
-        console.error('Error validating JWT token:', error);
         return false;
     }
 };

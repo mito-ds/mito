@@ -26,12 +26,21 @@ export const generateRequirementsTxt = async (
       const notebook = notebookPanel.content;
       let codeContent = '';
 
-      // Gather all code cells content
-      notebook.widgets.forEach(cell => {
-        if (cell.model.type === 'code') {
-          codeContent += cell.model.sharedModel.source + '\n\n';
+    // Gather all code cells content
+    notebook.widgets.forEach(cell => {
+      if (cell.model.type === 'code') {
+        const source = cell.model.sharedModel.source;
+        // Filter out lines that start with shell commands
+        const filteredLines = source.split('\n').filter(line => {
+          const trimmed = line.trim();
+          return !trimmed.startsWith('!') && !trimmed.startsWith('%');
+        });
+
+        if (filteredLines.length > 0) {
+          codeContent += filteredLines.join('\n') + '\n\n';
         }
-      });
+      }
+    });
 
       // Create Python code to run pipreqs on a temporary directory
       const pythonCode = `

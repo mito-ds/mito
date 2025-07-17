@@ -49,7 +49,7 @@ MITO_PROD_BASE_URL = "https://yxwyadgaznhavqvgnbfuo2k6ca0jboku.lambda-url.us-eas
 MITO_DEV_BASE_URL = "https://x3rafympznv4abp7phos44gzgu0clbui.lambda-url.us-east-1.on.aws"
 
 # Set ACTIVE_BASE_URL manually
-ACTIVE_BASE_URL = MITO_PROD_BASE_URL  # Change to MITO_DEV_BASE_URL for dev
+ACTIVE_BASE_URL = MITO_DEV_BASE_URL  # Change to MITO_DEV_BASE_URL for dev
 
 # Endpoint paths
 ANTHROPIC_PATH = "anthropic/completions"
@@ -67,4 +67,20 @@ MITO_STREAMLIT_TEST_BASE_URL = "https://iyual08t6d.execute-api.us-east-1.amazona
 
 # Set ACTIVE_BASE_URL manually
 # TODO: Modify to PROD url before release
-ACTIVE_STREAMLIT_BASE_URL = MITO_STREAMLIT_TEST_BASE_URL  # Change to MITO_STREAMLIT_DEV_BASE_URL for dev
+ACTIVE_STREAMLIT_BASE_URL = MITO_STREAMLIT_DEV_BASE_URL  # Change to MITO_STREAMLIT_DEV_BASE_URL for dev
+
+SIGNUP_DEV_URL = "https://mito-app-auth.auth.us-east-1.amazoncognito.com/signup?client_id=6ara3u3l8sss738hrhbq1qtiqf&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:8888/lab"
+SIGNIN_DEV_URL = "https://mito-app-auth.auth.us-east-1.amazoncognito.com/login?client_id=6ara3u3l8sss738hbq1qtiqf&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:8888/lab"
+
+ACTIVE_SIGNUP_URL = SIGNUP_DEV_URL  # Change to MITO_STREAMLIT_DEV_BASE_URL for dev
+ACTIVE_SIGNIN_URL = SIGNIN_DEV_URL  # Change to MITO_STREAMLIT_DEV_BASE_URL for dev
+
+# AWS Cognito configuration
+COGNITO_CONFIG_DEV = {
+    'TOKEN_ENDPOINT': 'https://mito-app-auth.auth.us-east-1.amazoncognito.com/oauth2/token',
+    'CLIENT_ID': '6ara3u3l8sss738hrhbq1qtiqf',
+    'CLIENT_SECRET': '',
+    'REDIRECT_URI': 'http://localhost:8888/lab'
+}
+
+ACTIVE_COGNITO_CONFIG = COGNITO_CONFIG_DEV # Change to COGNITO_CONFIG_DEV for dev

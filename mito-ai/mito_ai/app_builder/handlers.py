@@ -20,7 +20,7 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handl
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
-from mito_ai.auth.handlers import TokenValidationHandler
+
 
 class AppBuilderHandler(BaseWebSocketHandler):
     """Handler for app building requests."""
@@ -148,17 +148,13 @@ class AppBuilderHandler(BaseWebSocketHandler):
             self.log.warning("No JWT token provided or using placeholder token")
 
         try:
-            # This is a placeholder for the actual app building logic
-            # In a real implementation, this would deploy the app to a hosting service
-            # and return the URL
 
             success_flag, message = await streamlit_handler(str(notebook_path) if notebook_path else "", app_path)
             if not success_flag:
                 raise Exception(message)
 
             deploy_url = await self._deploy_app(app_path, jwt_token)
-            # deploy_url = "woohootest.trymito.io"
-            
+
             # Send the response
             self.reply(BuildAppReply(
                 parent_id=message_id,

@@ -35,28 +35,6 @@ class StreamlitValidator:
             error_msg = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
             return False, f"Syntax error: {error_msg}"
 
-    def check_imports(self, app_code):
-        """Check if all required imports are available"""
-        try:
-            # Create a temporary file to test imports
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-                f.write(app_code)
-                temp_file = f.name
-
-            # Try to compile and check imports
-            spec = importlib.util.spec_from_file_location("temp_module", temp_file)
-            module = importlib.util.module_from_spec(spec)
-
-            try:
-                spec.loader.exec_module(module)
-                os.unlink(temp_file)
-                return True, "All imports are available"
-            except ImportError as e:
-                os.unlink(temp_file)
-                return False, f"Import error: {str(e)}"
-
-        except Exception as e:
-            return False, f"Error checking imports: {str(e)}"
 
     def create_temp_app(self, app_code):
         """Create a temporary Streamlit app file"""
@@ -157,7 +135,6 @@ class StreamlitValidator:
         """Complete validation pipeline"""
         results = {
             'syntax_valid': False,
-            'imports_valid': False,
             'app_starts': False,
             'app_responsive': False,
             'errors': []
@@ -171,14 +148,7 @@ class StreamlitValidator:
                 results['errors'].append(syntax_msg)
                 return results
 
-            # Step 2: Check imports
-            imports_valid, imports_msg = self.check_imports(app_code)
-            results['imports_valid'] = imports_valid
-            if not imports_valid:
-                results['errors'].append(imports_msg)
-                return results
-
-            # Step 3: Create and start app
+            # Step 2: Create and start app
             app_path = self.create_temp_app(app_code)
             app_started, start_msg = self.start_streamlit_app(app_path)
             results['app_starts'] = app_started
@@ -187,14 +157,14 @@ class StreamlitValidator:
                 results['errors'].append(start_msg)
                 return results
 
-            # Step 4: Wait for app to be ready
+            # Step 3: Wait for app to be ready
             app_ready, ready_msg = self.wait_for_app()
             results['app_responsive'] = app_ready
 
             if not app_ready:
                 results['errors'].append(ready_msg)
 
-            # Step 5: Check for runtime errors
+            # Step 4: Check for runtime errors
             no_errors, error_msg = self.check_for_errors()
             if not no_errors:
                 results['errors'].append(error_msg)
@@ -208,26 +178,22 @@ class StreamlitValidator:
         return results
 
 
-# Usage example
 def streamlit_code_validator(app_code):
     """Convenience function to validate Streamlit code"""
     has_validation_error = False
     error_message = "Errors found: "
 
-    if "error" in app_code:
-        return has_validation_error, error_message
 
     validator = StreamlitValidator()
     results = validator.validate_app(app_code)
 
     print("Validation Results:")
     print(f"✓ Syntax valid: {results['syntax_valid']}")
-    print(f"✓ Imports valid: {results['imports_valid']}")
     print(f"✓ App starts: {results['app_starts']}")
     print(f"✓ App responsive: {results['app_responsive']}")
 
     if results['errors']:
-        print("ERROR DETECTED IN AGENT CODE")
+        print("Error detected in agent code")
         has_validation_error = True
         print("\nErrors found:")
         for error in results['errors']:

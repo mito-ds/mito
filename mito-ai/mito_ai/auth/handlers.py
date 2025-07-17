@@ -5,17 +5,11 @@ import json
 import logging
 import requests
 import tornado
+from datetime import datetime, timezone
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.logger import get_logger
+from mito_ai.constants import ACTIVE_COGNITO_CONFIG
 
-# AWS Cognito configuration
-# TODO: Move to constants file and make changes for test and prod
-COGNITO_CONFIG = {
-    'TOKEN_ENDPOINT': 'https://mito-app-auth.auth.us-east-1.amazoncognito.com/oauth2/token',
-    'CLIENT_ID': '6ara3u3l8sss738hrhbq1qtiqf',
-    'CLIENT_SECRET': '',
-    'REDIRECT_URI': 'http://localhost:8888/lab'
-}
 
 class AuthHandler(APIHandler):
     """Handler for authentication operations."""
@@ -67,18 +61,18 @@ class AuthHandler(APIHandler):
             # Prepare the token request
             token_data = {
                 'grant_type': 'authorization_code',
-                'client_id': COGNITO_CONFIG['CLIENT_ID'],
+                'client_id': ACTIVE_COGNITO_CONFIG['CLIENT_ID'],
                 'code': code,
-                'redirect_uri': COGNITO_CONFIG['REDIRECT_URI']
+                'redirect_uri': ACTIVE_COGNITO_CONFIG['REDIRECT_URI']
             }
             
             # Add client secret if configured
-            if COGNITO_CONFIG['CLIENT_SECRET']:
-                token_data['client_secret'] = COGNITO_CONFIG['CLIENT_SECRET']
+            if ACTIVE_COGNITO_CONFIG['CLIENT_SECRET']:
+                token_data['client_secret'] = ACTIVE_COGNITO_CONFIG['CLIENT_SECRET']
             
             # Make the token request
             response = requests.post(
-                COGNITO_CONFIG['TOKEN_ENDPOINT'],
+                ACTIVE_COGNITO_CONFIG['TOKEN_ENDPOINT'],
                 data=token_data,
                 headers={'Content-Type': 'application/x-www-form-urlencoded'}
             )
@@ -86,37 +80,8 @@ class AuthHandler(APIHandler):
             if response.status_code == 200:
                 token_response = response.json()
                 
-                # Add detailed logging for debugging timezone issues
-                from datetime import datetime, timezone
-                import base64
-                import json
-                
                 current_time = datetime.now(timezone.utc)
                 self.log.info(f"Token exchange successful at {current_time.isoformat()}")
-                
-                # Decode and log JWT token information if available
-                if 'access_token' in token_response:
-                    try:
-                        token_parts = token_response['access_token'].split('.')
-                        if len(token_parts) == 3:
-                            payload_part = token_parts[1]
-                            payload_part += '=' * (4 - len(payload_part) % 4)
-                            payload_bytes = base64.urlsafe_b64decode(payload_part)
-                            payload = json.loads(payload_bytes.decode('utf-8'))
-                            
-                            if 'exp' in payload:
-                                exp_timestamp = payload['exp']
-                                exp_time = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
-                                time_until_expiry = exp_timestamp - current_time.timestamp()
-                                
-                                self.log.debug(f"JWT Token Details:")
-                                self.log.debug(f"Issued at: {current_time.isoformat()}")
-                                self.log.debug(f"Expires at: {exp_time.isoformat()}")
-                                self.log.debug(f"Expires in: {time_until_expiry / 60:.1f} minutes")
-                                self.log.debug(f"Token lifetime: {token_response.get('expires_in', 'unknown')} seconds")
-                    except Exception as e:
-                        self.log.warning(f"Could not decode JWT token for logging: {e}")
-                
                 return token_response
             else:
                 self.log.error(f"Token exchange failed: {response.status_code} - {response.text}")
@@ -128,69 +93,3 @@ class AuthHandler(APIHandler):
         except Exception as e:
             self.log.error(f"Unexpected error during token exchange: {e}")
             return {"error": "Unexpected error during token exchange"}
-
-class TokenValidationHandler(APIHandler):
-    """Handler for JWT token validation."""
-    
-    @property
-    def log(self) -> logging.Logger:
-        """Use Mito AI logger."""
-        return get_logger()
-    
-    @tornado.web.authenticated
-    def post(self):
-        """Validate a JWT token."""
-        try:
-            data = json.loads(self.request.body)
-            token = data.get('token')
-            
-            if not token:
-                self.set_status(400)
-                self.finish(json.dumps({"error": "Token is required"}))
-                return
-            
-            # Validate the token
-            is_valid = self._validate_jwt_token(token)
-            
-            self.finish(json.dumps({
-                "valid": is_valid
-            }))
-            
-        except json.JSONDecodeError:
-            self.set_status(400)
-            self.finish(json.dumps({"error": "Invalid JSON in request body"}))
-        except Exception as e:
-            self.log.error(f"Error in token validation: {e}")
-            self.set_status(500)
-            self.finish(json.dumps({"error": "Internal server error"}))
-    
-    def _validate_jwt_token(self, token: str) -> bool:
-        """Validate a JWT token.
-        
-        In a production environment, you would:
-        1. Decode the JWT token
-        2. Verify the signature using AWS Cognito public keys
-        3. Check the expiration time
-        4. Validate the issuer and audience claims
-        
-        For now, we'll do a basic check that the token exists and has a reasonable format.
-        """
-        try:
-            # Basic JWT format validation (header.payload.signature)
-            if not token or '.' not in token:
-                return False
-            
-            parts = token.split('.')
-            if len(parts) != 3:
-                return False
-            
-            # TODO: Add proper JWT validation using AWS Cognito public keys
-            # For now, just check that it's not a placeholder token
-            if token == 'placeholder-jwt-token':
-                return False
-            
-            return True
-            
-        except Exception as e:
-            self.log.error(f"Error validating JWT token: {e}")
-            return False

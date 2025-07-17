@@ -27,7 +27,6 @@ CODE STRUCTURE:
 - Include all necessary imports
 - Handle data loading and processing
 - Organize content with clear sections and headers
-- Add error handling where appropriate
 - Include comments explaining key sections
 
 OUTPUT FORMAT:
@@ -36,5 +35,8 @@ OUTPUT FORMAT:
 - Make the dashboard professional and presentation-ready
 - Focus on clarity and executive-level communication
 - Don't give extra explanations, just give the python code 
+- Do NOT add emojis 
+- Do NOT modify the graphs or analysis
+- Do NOT provide your own interpretations for the analysis
 
 Remember: The goal is to transform technical analysis into a polished, interactive/visually appealing dashboard that executives can easily understand and navigate."""

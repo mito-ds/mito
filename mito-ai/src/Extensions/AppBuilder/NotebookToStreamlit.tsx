@@ -15,7 +15,7 @@ import { IAppBuilderService } from './AppBuilderPlugin';
 import { UUID } from '@lumino/coreutils';
 import { deployAppNotification } from './DeployAppNotification';
 import { IBuildAppReply } from '../../websockets/appBuilder/appBuilderModels';
-import { checkAuthenticationAndRedirect, getJWTToken } from '../../utils/auth';
+import { checkAuthenticationAndRedirect, getJWTToken } from './auth';
 
 /* 
 This function converts a notebook into a streamlit app. It processes each cell one by one,

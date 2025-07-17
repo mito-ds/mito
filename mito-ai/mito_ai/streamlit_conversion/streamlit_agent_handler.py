@@ -12,7 +12,7 @@ from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, cr
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
 
-STREAMLIT_AI_MODEL = "claude-sonnet-4-20250514"
+STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
 class StreamlitCodeGeneration:
     def __init__(self, notebook):
@@ -35,7 +35,7 @@ class StreamlitCodeGeneration:
     async def get_response_from_agent(self, message_to_agent: List[MessageParam]) -> str:
         """Gets the streaming response from the agent using the mito server"""
         model = STREAMLIT_AI_MODEL
-        max_tokens = 64_000
+        max_tokens = 8192 # 64_000
         temperature = 0.2
 
         self.log.info("Getting response from agent...")
@@ -50,6 +50,7 @@ class StreamlitCodeGeneration:
             message_type=MessageType.STREAMLIT_CONVERSION
         ):
             accumulated_response += stream_chunk
+        print(f"response from agent:\n{accumulated_response}")
         return accumulated_response
 
     def add_agent_response_to_context(self, agent_response: str):
@@ -80,7 +81,7 @@ class StreamlitCodeGeneration:
                 "role": "user",
                 "content": [{
                     "type": "text",
-                    "text": f"I am facing the following error. Correct it for me - {error}"
+                    "text": f"When I run the streamlit app code, I get the following error: {error}\nPlease return the FULL Streamlit app code with the error corrected"
                 }]
             }
         )
