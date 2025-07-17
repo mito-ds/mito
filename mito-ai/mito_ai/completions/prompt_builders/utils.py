@@ -1,18 +1,21 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Optional
+from typing import List, Optional, Dict
 from mito_ai.rules.utils import get_rule
 
 
-def get_rules_str(additional_context: List[str]) -> str:
+def get_rules_str(additional_context: Optional[List[Dict[str, str]]]) -> str:
     """
     Extract the rules from the additional context array, and retrieve the rule content.
     """
+    if not additional_context:
+        return ""
+        
     selected_rules = [
-        context.split("Rule: ")[1] # Remove the "Rule: " prefix
+        context["value"] # Get the rule value directly
         for context in additional_context
-        if context.startswith("Rule:")
+        if context.get("type") == "rule"
     ]
     if len(selected_rules) == 0:
         return ""
@@ -28,14 +31,17 @@ def get_rules_str(additional_context: List[str]) -> str:
     return rules_str
 
 
-def get_selected_variables_str(additional_context: List[str]) -> str:
+def get_selected_variables_str(additional_context: Optional[List[Dict[str, str]]]) -> str:
     """
     Extract the variables from the additional context array.
     """
+    if not additional_context:
+        return ""
+        
     selected_variables = [
-        context.split("Variable: ")[1] # Remove the "Variable: " prefix
+        context["value"] # Get the variable value directly
         for context in additional_context
-        if context.startswith("Variable:")
+        if context.get("type") == "variable"
     ]
     if len(selected_variables) == 0:
         return ""
@@ -46,14 +52,17 @@ def get_selected_variables_str(additional_context: List[str]) -> str:
     )
 
 
-def get_selected_files_str(additional_context: List[str]) -> str:
+def get_selected_files_str(additional_context: Optional[List[Dict[str, str]]]) -> str:
     """
     Extract the files from the additional context array.
     """
+    if not additional_context:
+        return ""
+        
     selected_files = [
-        context.split("File: ")[1] # Remove the "File: " prefix
+        context["value"] # Get the file value directly
         for context in additional_context
-        if context.startswith("File:")
+        if context.get("type") == "file"
     ]
     if len(selected_files) == 0:
         return ""
