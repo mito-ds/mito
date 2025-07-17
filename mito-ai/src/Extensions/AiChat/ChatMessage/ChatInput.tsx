@@ -275,6 +275,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         variant="gray"
                         width="fit-contents"
                         iconPosition="left"
+                        additionalClassNames={['add-context-button']}
                     />
                     <TextAndIconButton
                         text="Add Database"
@@ -286,6 +287,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         variant="gray"
                         width="fit-contents"
                         iconPosition="left"
+                        additionalClassNames={['add-context-button']}
                     />
                     {additionalContext.map((context, index) => (
                         <SelectedContextContainer
