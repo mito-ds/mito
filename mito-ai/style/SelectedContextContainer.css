@@ -11,6 +11,11 @@
   padding: 8px 10px;
 }
 
+/* Consistent spacing for all children of context container */
+.context-container > * {
+  margin: 2px;
+}
+
 .selected-context-container {
     display: flex;
     align-items: center;
@@ -18,7 +23,7 @@
     background-color: var(--jp-layout-color2);
     border-radius: 3px;
     padding: 4px 8px;
-    margin: 4px;
+    margin: 2px;
 
     font-size: 12px;
     height: 20px;
