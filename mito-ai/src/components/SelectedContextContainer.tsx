@@ -28,7 +28,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ tit
                 title={isHovered ? "Remove rule" : "Selected rule"}
             >
                 {isHovered ? (
-                    <span className="icon">✕</span>
+                    <span className="icon">X</span>
                 ) : (
                     <RuleIcon />
                 )}
