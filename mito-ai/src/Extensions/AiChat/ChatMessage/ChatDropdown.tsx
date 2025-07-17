@@ -74,22 +74,39 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     // ['type': 'rule', "rule": rule]
     // ['type': 'file', "file": file]
     const allOptions: ChatDropdownOption[] = [
-        ...options
-            .filter(variable => !variable.file_name) // Filter out files
-            .map((variable): ChatDropdownVariableOption => ({ 
-                type: 'variable', 
-                variable: variable 
-            })),
+        // Rules first
+        ...rules.map((rule): ChatDropdownRuleOption => ({ 
+            type: 'rule', 
+            rule: rule 
+        })),
+        // Files second
         ...options
             .filter(variable => variable.file_name) // Only files
             .map((file): ChatDropdownFileOption => ({ 
                 type: 'file', 
                 file: file 
             })),
-        ...rules.map((rule): ChatDropdownRuleOption => ({ 
-            type: 'rule', 
-            rule: rule 
-        })),
+        // Dataframes third
+        ...options
+            .filter(variable => !variable.file_name && variable.type === "pd.DataFrame")
+            .map((variable): ChatDropdownVariableOption => ({ 
+                type: 'variable', 
+                variable: variable 
+            })),
+        // Columns fourth
+        ...options
+            .filter(variable => !variable.file_name && variable.parent_df && variable.type !== "pd.DataFrame")
+            .map((variable): ChatDropdownVariableOption => ({ 
+                type: 'variable', 
+                variable: variable 
+            })),
+        // Other variables last
+        ...options
+            .filter(variable => !variable.file_name && !variable.parent_df && variable.type !== "pd.DataFrame")
+            .map((variable): ChatDropdownVariableOption => ({ 
+                type: 'variable', 
+                variable: variable 
+            })),
     ];
 
     const filteredOptions = allOptions.filter((option) => {
