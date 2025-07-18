@@ -52,7 +52,6 @@ class StreamlitCodeGeneration:
             message_id=""
         ):
             accumulated_response += stream_chunk
-        print(f"response from agent:\n{accumulated_response}")
         return accumulated_response
 
     def add_agent_response_to_context(self, agent_response: str):
