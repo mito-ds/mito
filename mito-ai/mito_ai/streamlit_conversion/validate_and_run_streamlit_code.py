@@ -181,7 +181,7 @@ class StreamlitValidator:
 def streamlit_code_validator(app_code):
     """Convenience function to validate Streamlit code"""
     has_validation_error = False
-    error_message = "Errors found: "
+    error_message = ""
 
 
     validator = StreamlitValidator()
@@ -193,13 +193,13 @@ def streamlit_code_validator(app_code):
     print(f"✓ App responsive: {results['app_responsive']}")
 
     if results['errors']:
+        error_message = "Errors found: "
         print("Error detected in agent code")
         has_validation_error = True
         print("\nErrors found:")
         for error in results['errors']:
             print(f"  - {error}")
-            error_message = error_message.join(error)
-
+            error_message += error + "\n"
     if not has_validation_error:
         print("\nAll validations passed!")
     return has_validation_error, error_message
