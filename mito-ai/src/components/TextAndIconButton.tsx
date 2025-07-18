@@ -21,7 +21,8 @@ const TextAndIconButton: React.FC<TextAndIconButtonProps> = ({
     onClick, 
     title, 
     variant,
-    iconPosition = 'right' // default to right
+    iconPosition = 'right', // default to right
+    additionalClassNames = []
 }) => {
     const content = iconPosition === 'right' ? (
         <>
@@ -44,7 +45,8 @@ const TextAndIconButton: React.FC<TextAndIconButtonProps> = ({
             'text-and-icon-button',
             'button-base',
             `button-${variant}`,
-            `button-width-fit-contents`
+            `button-width-fit-contents`,
+            ...additionalClassNames
         )} onClick={onClick} title={title}>
             {content}
         </button>

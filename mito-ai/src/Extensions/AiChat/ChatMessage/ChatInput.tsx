@@ -17,8 +17,13 @@ import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
+import DatabaseIcon from '../../../icons/DatabaseIcon';
+import TextAndIconButton from '../../../components/TextAndIconButton';
+import { COMMAND_MITO_AI_SETTINGS } from '../../SettingsManager/SettingsManagerPlugin';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 interface ChatInputProps {
+    app: JupyterFrontEnd;
     initialContent: string;
     placeholder: string;
     onSave: (content: string, index?: number, selectedRules?: Array<{type: string, value: string}>) => void;
@@ -42,6 +47,7 @@ interface ContextItem {
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
+    app,
     initialContent,
     placeholder,
     onSave,
@@ -256,17 +262,33 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     </div>
                 }
                 <div className='context-container'>
-                    <button 
-                        className="add-context-button"
+                    <TextAndIconButton
+                        text="Add Context"
+                        icon={() => <span style={{ fontSize: '14px', fontWeight: 'bold' }}>＠</span>}
                         onClick={() => {
                             setDropdownVisible(true);
                             setDropdownFilter('');
                             setIsDropdownFromButton(true);
                             textAreaRef.current?.focus();
                         }}
-                    >
-                        ＠ Add Context
-                    </button>                
+                        title="Add Context"
+                        variant="gray"
+                        width="fit-contents"
+                        iconPosition="left"
+                        additionalClassNames={['add-context-button']}
+                    />
+                    <TextAndIconButton
+                        text="Add Database"
+                        icon={DatabaseIcon}
+                        onClick={() => {
+                            void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
+                        }}
+                        title="Add Database"
+                        variant="gray"
+                        width="fit-contents"
+                        iconPosition="left"
+                        additionalClassNames={['add-context-button']}
+                    />
                     {additionalContext.map((context, index) => (
                         <SelectedContextContainer
                             key={`${context.type}-${context.value}-${index}`}

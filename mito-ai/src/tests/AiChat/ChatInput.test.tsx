@@ -11,6 +11,7 @@ import { render, fireEvent, screen, createEvent, act, within } from '@testing-li
 import React from 'react';
 import ChatInput from '../../Extensions/AiChat/ChatMessage/ChatInput';
 import { Variable } from '../../Extensions/ContextManager/VariableInspector';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 // Add import for RestAPI to mock getRules
 // import * as RestAPI from '../../RestAPI'; Jest will use the mock below
@@ -99,6 +100,11 @@ const createMockProps = (overrides = {}) => ({
     } as unknown as IRenderMimeRegistry,
     displayActiveCellCode: true,
     agentModeEnabled: false,
+    app: {
+        commands: {
+            execute: jest.fn()
+        }
+    } as unknown as JupyterFrontEnd,
     ...overrides
 });
 
@@ -563,7 +569,7 @@ describe('ChatInput Component', () => {
         it('opens dropdown with search input when Add Context button is clicked', async () => {
             renderChatInput();
             
-            const addContextButton = screen.getByText('＠ Add Context');
+            const addContextButton = screen.getByText('Add Context');
             
             // Initially, dropdown should not be visible
             expect(screen.queryByTestId('chat-dropdown')).not.toBeInTheDocument();
@@ -586,7 +592,7 @@ describe('ChatInput Component', () => {
         it('shows both variables and rules in the dropdown when opened via Add Context button', async () => {
             renderChatInput();
             
-            const addContextButton = screen.getByText('＠ Add Context');
+            const addContextButton = screen.getByText('Add Context');
             
             await act(async () => {
                 fireEvent.click(addContextButton);
@@ -609,7 +615,7 @@ describe('ChatInput Component', () => {
         it('filters dropdown options when typing in search input', async () => {
             renderChatInput();
             
-            const addContextButton = screen.getByText('＠ Add Context');
+            const addContextButton = screen.getByText('Add Context');
             
             await act(async () => {
                 fireEvent.click(addContextButton);
