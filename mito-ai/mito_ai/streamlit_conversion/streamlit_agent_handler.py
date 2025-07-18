@@ -47,7 +47,9 @@ class StreamlitCodeGeneration:
             system = streamlit_system_prompt,
             messages = message_to_agent,
             stream=True,
-            message_type=MessageType.STREAMLIT_CONVERSION
+            message_type=MessageType.STREAMLIT_CONVERSION,
+            reply_fn=None,
+            message_id=""
         ):
             accumulated_response += stream_chunk
         print(f"response from agent:\n{accumulated_response}")
