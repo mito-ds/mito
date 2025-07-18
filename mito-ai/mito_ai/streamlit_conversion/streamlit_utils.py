@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import re
 import json
 from typing import Dict
 
@@ -17,7 +18,13 @@ def extract_code_blocks(message_content: str) -> str:
     if "```python" not in message_content:
         return message_content
 
-    return message_content.split('```python\n')[1].split('\n```')[0]
+    # return message_content.split('```python\n')[1].split('\n```')[0]
+    # Use regex to find all Python code blocks
+    pattern = r'```python\n(.*?)```'
+    matches = re.findall(pattern, message_content, re.DOTALL)
+
+    # Concatenate with single newlines
+    return '\n'.join(matches)
 
 
 def create_app_file(file_path: str, code: str) -> (bool, str):
