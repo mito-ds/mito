@@ -37,7 +37,8 @@ export interface IDisplayOptimizedChatItem {
     promptType: PromptType,
     mitoAIConnectionErrorType?: string | null,
     codeCellID?: string | undefined,
-    agentResponse?: AgentResponse
+    agentResponse?: AgentResponse,
+    additionalContext?: Array<{type: string, value: string}>
 }
 
 /* 
@@ -86,7 +87,7 @@ export class ChatHistoryManager {
         );
     }
 
-    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number, selectedRules?: string[]): Promise<IChatMessageMetadata> {
+    async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<IChatMessageMetadata> {
         const activeCellCode = getActiveCellCode(this.notebookTracker) || ''
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
 
@@ -99,7 +100,7 @@ export class ChatHistoryManager {
             input: input,
             threadId: activeThreadId,
             index: messageIndex,
-            selectedRules: selectedRules
+            additionalContext: additionalContext
         }
 
         this.displayOptimizedChatHistory.push(
@@ -107,14 +108,15 @@ export class ChatHistoryManager {
                 message: getDisplayedOptimizedUserMessage(input, activeCellCode), 
                 type: 'openai message',
                 codeCellID: activeCellID,
-                promptType: 'chat'
+                promptType: 'chat',
+                additionalContext: additionalContext
             }
         );
 
         return chatMessageMetadata
     }
 
-    addAgentExecutionMessage(activeThreadId: string, input?: string, selectedRules?: string[]): IAgentExecutionMetadata {
+    addAgentExecutionMessage(activeThreadId: string, input?: string, additionalContext?: Array<{type: string, value: string}>): IAgentExecutionMetadata {
 
         const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 
@@ -126,7 +128,7 @@ export class ChatHistoryManager {
             input: input || '',
             threadId: activeThreadId,
             isChromeBrowser: isChromeBasedBrowser(),
-            selectedRules: selectedRules
+            additionalContext: additionalContext
         }
 
         // We use this function in two ways: 
@@ -148,6 +150,7 @@ export class ChatHistoryManager {
                 message: userMessage,
                 type: 'openai message',
                 promptType: 'chat',
+                additionalContext: additionalContext
             }
         )
 

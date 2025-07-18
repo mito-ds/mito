@@ -3,7 +3,7 @@
 
 import traceback
 from dataclasses import dataclass, field
-from typing import Annotated, List, Literal, Optional, Type, Union, NewType
+from typing import Annotated, List, Literal, Optional, Type, Union, NewType, Dict
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
 from pydantic import BaseModel, Field
@@ -84,7 +84,7 @@ class ChatMessageMetadata():
     base64EncodedActiveCellOutput: Optional[str] = None
     index: Optional[int] = None
     stream: bool = False
-    selectedRules: Optional[List[str]] = None
+    additionalContext: Optional[List[Dict[str, str]]] = None
     
     
 @dataclass(frozen=True)
@@ -98,7 +98,7 @@ class AgentExecutionMetadata():
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     index: Optional[int] = None
-    selectedRules: Optional[List[str]] = None
+    additionalContext: Optional[List[Dict[str, str]]] = None
     
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():
@@ -227,6 +227,19 @@ class CompletionError:
         While mypy doesn't know about this attribute on BaseException, we need to handle it
         to properly extract error messages from OpenAI API responses.
         """
+        from mito_ai.utils.mito_server_utils import ProviderCompletionException
+
+        
+        # Handle ProviderCompletionException specially
+        if isinstance(exception, ProviderCompletionException):
+            return CompletionError(
+                error_type="LLM Provider Error", 
+                title=exception.user_friendly_title, 
+                traceback=traceback.format_exc(),
+                hint=exception.user_friendly_hint
+            )
+        
+        # Handle all other exceptions as before
         error_type = type(exception)
         error_module = getattr(error_type, "__module__", "")
         
@@ -250,7 +263,6 @@ class CompletionError:
             traceback=traceback.format_exc(),
             hint=hint,
         )
-
 
 @dataclass(frozen=True)
 class ErrorMessage(CompletionError):

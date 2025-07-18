@@ -6,8 +6,17 @@
 
 import os
 
+try: 
+    import mitosheet_helper_4c2a
+    MITOSHEET_HELPER_4C2A = True
+except ImportError:
+    MITOSHEET_HELPER_4C2A = False
+
 MITO_CONFIG_KEY_HOME_FOLDER = 'MITO_CONFIG_HOME_FOLDER'
-if MITO_CONFIG_KEY_HOME_FOLDER in os.environ:
+
+if MITOSHEET_HELPER_4C2A:
+    HOME_FOLDER = 'opt/app-root/.config'
+elif MITO_CONFIG_KEY_HOME_FOLDER in os.environ:
     HOME_FOLDER = os.path.expanduser(os.environ[MITO_CONFIG_KEY_HOME_FOLDER])
 else:
     HOME_FOLDER = os.path.expanduser('~')

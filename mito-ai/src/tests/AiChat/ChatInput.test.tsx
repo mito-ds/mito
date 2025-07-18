@@ -21,6 +21,16 @@ jest.mock('../../restAPI/RestAPI', () => ({
   getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']) 
 }));
 
+// Mock the PythonCode component
+jest.mock('../../Extensions/AiChat/ChatMessage/PythonCode', () => {
+    return {
+        __esModule: true,
+        default: jest.fn(({ code }) => (
+            <div data-testid="python-code">{code}</div>
+        ))
+    };
+});
+
 // Mock data for test cases
 const TEST_CELL_CODE = 'print("Hello World")';
 const EMPTY_CELL_ID = 'empty-cell-id';
@@ -134,6 +144,11 @@ describe('ChatInput Component', () => {
 
             // Preview should become visible
             expect(screen.getByTestId('active-cell-preview-container')).toBeInTheDocument();
+            
+            // Verify that the active cell code content is displayed
+            // The mock cell has TEST_CELL_CODE = 'print("Hello World")'
+            const pythonCodeElement = screen.getByTestId('python-code');
+            expect(pythonCodeElement).toHaveTextContent('print("Hello World")');
         });
 
         it('does not show preview for empty cells', () => {
@@ -172,6 +187,41 @@ describe('ChatInput Component', () => {
 
             // Preview should not be visible
             expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
+        });
+
+        it('updates preview when active cell code changes', () => {
+            // Clear and re-render to ensure clean state
+            document.body.innerHTML = '';
+            
+            // Mock getCellCodeByID to return initial code
+            const { getCellCodeByID } = require('../../utils/notebook');
+            getCellCodeByID.mockImplementation(() => TEST_CELL_CODE);
+            
+            renderChatInput();
+            const textarea = screen.getByRole('textbox');
+            
+            // Type in textarea to show preview
+            typeInTextarea(textarea, 'test input');
+            
+            // Verify initial preview shows the original code
+            const pythonCodeElement = screen.getByTestId('python-code');
+            expect(pythonCodeElement).toHaveTextContent(TEST_CELL_CODE);
+            
+            // Update the mock to return new code and re-render
+            const newCellCode = 'print("goodbye")';
+            getCellCodeByID.mockImplementation(() => newCellCode);
+            
+            // Re-render the component to simulate the active cell change
+            document.body.innerHTML = '';
+            renderChatInput();
+            
+            // Type in textarea again to show preview
+            const newTextarea = screen.getByRole('textbox');
+            typeInTextarea(newTextarea, 'test input');
+            
+            // Verify the preview now shows the new code
+            const updatedPythonCodeElement = screen.getByTestId('python-code');
+            expect(updatedPythonCodeElement).toHaveTextContent(newCellCode);
         });
     });
 
@@ -497,6 +547,92 @@ describe('ChatInput Component', () => {
             
             // After removing, the SelectedContextContainer should not be in the document
             expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Add Context Button', () => {
+        beforeEach(() => {
+            // Clear the DOM between tests
+            document.body.innerHTML = '';
+        });
+
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('opens dropdown with search input when Add Context button is clicked', async () => {
+            renderChatInput();
+            
+            const addContextButton = screen.getByText('＠ Add Context');
+            
+            // Initially, dropdown should not be visible
+            expect(screen.queryByTestId('chat-dropdown')).not.toBeInTheDocument();
+            
+            // Click the Add Context button
+            await act(async () => {
+                fireEvent.click(addContextButton);
+            });
+            
+            // Dropdown should become visible with search input
+            expect(screen.getByTestId('chat-dropdown')).toBeInTheDocument();
+            expect(screen.getByTestId('chat-dropdown-list')).toBeInTheDocument();
+            
+            // Search input should be visible and focused
+            const searchInput = screen.getByPlaceholderText('Search variables and rules...');
+            expect(searchInput).toBeInTheDocument();
+            expect(searchInput).toHaveFocus();
+        });
+
+        it('shows both variables and rules in the dropdown when opened via Add Context button', async () => {
+            renderChatInput();
+            
+            const addContextButton = screen.getByText('＠ Add Context');
+            
+            await act(async () => {
+                fireEvent.click(addContextButton);
+            });
+            
+            // Check for variables
+            MOCK_VARIABLES.forEach(variable => {
+                const variableElement = screen.getByTestId(`chat-dropdown-item-name-${variable.variable_name}`);
+                expect(variableElement).toBeInTheDocument();
+                expect(variableElement).toHaveTextContent(variable.variable_name);
+            });
+            
+            // Check for rules
+            MOCK_RULES.forEach(rule => {
+                const ruleElement = screen.getByText(rule);
+                expect(ruleElement).toBeInTheDocument();
+            });
+        });
+
+        it('filters dropdown options when typing in search input', async () => {
+            renderChatInput();
+            
+            const addContextButton = screen.getByText('＠ Add Context');
+            
+            await act(async () => {
+                fireEvent.click(addContextButton);
+            });
+            
+            const searchInput = screen.getByPlaceholderText('Search variables and rules...');
+            
+            // Type 'df' to filter for variables starting with 'df'
+            await act(async () => {
+                fireEvent.change(searchInput, { target: { value: 'df' } });
+            });
+            
+            // Should show 'df' variable
+            expect(screen.getByTestId('chat-dropdown-item-name-df')).toBeInTheDocument();
+            
+            // Should not show other variables
+            expect(screen.queryByTestId('chat-dropdown-item-name-x')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('chat-dropdown-item-name-y')).not.toBeInTheDocument();
+            
+            // Should not show rules (since 'df' doesn't match any rule names)
+            expect(screen.queryByText('Data Analysis')).not.toBeInTheDocument();
+            expect(screen.queryByText('Visualization')).not.toBeInTheDocument();
+            expect(screen.queryByText('Machine Learning')).not.toBeInTheDocument();
         });
     });
 });

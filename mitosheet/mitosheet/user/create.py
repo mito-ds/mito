@@ -46,7 +46,7 @@ def is_user_json_exists_and_valid_json() -> bool:
 def try_create_user_json_file() -> None:
     # Create the mito folder if it does not exist
     if not os.path.exists(MITO_FOLDER):
-        os.mkdir(MITO_FOLDER)
+        os.makedirs(MITO_FOLDER, exist_ok=True)
 
     # We create a user.json file if it does not exist, or if it
     # is invalid (e.g. it is not parseable JSON).

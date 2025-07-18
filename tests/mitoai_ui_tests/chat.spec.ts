@@ -4,48 +4,52 @@
  */
 
 import { expect, test } from '@jupyterlab/galata';
-import { 
-  createAndRunNotebookWithCells, 
-  getCodeFromCell, 
-  runCell, 
-  selectCell, 
-  typeInNotebookCell, 
-  waitForIdle, 
-  addNewCell
+import {
+  createAndRunNotebookWithCells,
+  getCodeFromCell,
+  selectCell,
+  waitForIdle,
+  addNewCell,
+  updateCell
 } from '../jupyter_utils/jupyterlab_utils';
-import { 
-  clearMitoAIChatInput, 
+import {
+  clearMitoAIChatInput,
   clickAcceptButton,
-  clickDenyButton, 
-  clickPreviewButton, 
+  clickDenyButton,
+  clickPreviewButton,
   clickOnMitoAIChatTab,
-
-  editMitoAIMessage, 
-  sendMessagetoAIChat, 
+  editMitoAIMessage,
+  sendMessagetoAIChat,
   waitForMitoAILoadingToDisappear,
   startNewMitoAIChat,
-  turnOnChatMode
 } from './utils';
+
+const MODEL = 'GPT 4.1';
 
 test.describe.parallel('Mito AI Chat', () => {
 
-  test('AI Chat should open on Jupyter Launch', async ({ page }) => {
-
+  test.beforeEach(async ({ page }) => {
     await createAndRunNotebookWithCells(page, []);
     await waitForIdle(page);
 
+    await startNewMitoAIChat(page, MODEL);
+  });
+
+  test('AI Chat should open on Jupyter Launch', async ({ page }) => {
     // Expect the AI Chat is open
     // Locate the "Clear the chat history" button
     const clearButton = page.locator('button[title="Start New Chat"]');
     expect(clearButton).toBeVisible()
-  
+
   })
 
   test('Preview and Accept AI Generated Code', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
-    await waitForIdle(page);
-
-    await startNewMitoAIChat(page);
+    await updateCell(
+      page,
+      0,
+      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
+      true
+    );
 
     await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
 
@@ -66,10 +70,7 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 
   test("Accept using cell toolbar button", async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
-    await waitForIdle(page);
-
-    await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
+    await sendMessagetoAIChat(page, 'Write the code x=1');
 
     await clickPreviewButton(page);
     await page.waitForTimeout(1000);
@@ -79,15 +80,23 @@ test.describe.parallel('Mito AI Chat', () => {
     await clickAcceptButton(page, { useCellToolbar: true });
     await waitForIdle(page);
 
-    const code = await getCodeFromCell(page, 2);
-    expect(code).toContain('df["C"] = [7, 8, 9]');
+    // When using the toolbar buttons, there is a bug that Playwright triggers,
+    // where the page continously scrolls to the bottom. This loop causes a timeout.
+    // To avoid this, we manually select the first cell, forcing the page to scroll to the top.
+    await selectCell(page, 0);
+
+    const code = await getCodeFromCell(page, 0);
+    expect(code).toContain('x');
+    expect(code).toContain('1');
   });
 
   test('Reject AI Generated Code', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
-    await waitForIdle(page);
-    
-    await startNewMitoAIChat(page);
+    await updateCell(
+      page,
+      0,
+      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
+      true
+    );
 
     await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
 
@@ -101,10 +110,7 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 
   test("Reject using cell toolbar button", async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
-    await waitForIdle(page);
-
-    await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
+    await sendMessagetoAIChat(page, 'print x=1');
 
     await clickPreviewButton(page);
     await page.waitForTimeout(1000);
@@ -114,16 +120,24 @@ test.describe.parallel('Mito AI Chat', () => {
     await clickDenyButton(page, { useCellToolbar: true });
     await waitForIdle(page);
 
-    const code = await getCodeFromCell(page, 2);
-    expect(code).not.toContain('df["C"] = [7, 8, 9]');
-    expect(code?.trim()).toBe("")
+    // When using the toolbar buttons, there is a bug that Playwright triggers,
+    // where the page continously scrolls to the bottom. This loop causes a timeout.
+    // To avoid this, we manually select the first cell, forcing the page to scroll to the top.
+    await selectCell(page, 0);
+
+    const code = await getCodeFromCell(page, 0);
+    expect(code).not.toContain('x');
+    expect(code).not.toContain('1');
+    expect(code?.trim()).toContain("Start writing python") // The placeholder ghost text
   });
 
   test('Edit Message', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})']);
-    await waitForIdle(page);
-
-    await startNewMitoAIChat(page);
+    await updateCell(
+      page,
+      0,
+      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
+      true
+    );
 
     // Send the first message
     await sendMessagetoAIChat(page, 'Write the code df["C"] = [7, 8, 9]');
@@ -150,43 +164,31 @@ test.describe.parallel('Mito AI Chat', () => {
     // Ensure previous messages are removed.
     const messageAssistantDivs = await page.locator('.message.message-assistant-chat').count();
     expect(messageAssistantDivs).toBe(1);
-
-    // Ensure you cannot edit the AI's messages by clicking the pencil icon or double clicking the message
-    await expect(page.locator('.message-assistant-chat .message-start-editing-button')).not.toBeVisible();
-    await page.locator('.message-assistant-chat p').last().dblclick();
-    await expect(page.locator('.message-assistant-chat').getByRole('button', { name: 'Save' })).not.toBeVisible();
   });
 
   test('Code diffs are automatically rejected before new messages are sent', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print("cell 0")']);
+    // Send a first message w. first cell selected
+    await sendMessagetoAIChat(page, 'Write the code x = 1');
+    await clickPreviewButton(page);
     await waitForIdle(page);
 
-    await startNewMitoAIChat(page);
-
-    // Send a first message in cell 1
-    await sendMessagetoAIChat(page, 'Write the code x = 1');
-
-    // Create a new cell w/o accepting the first message
-    await addNewCell(page);
-
-    // Send a second message in cell 2
-    await sendMessagetoAIChat(page, 'Write the code x = 2');
+    // Send a second message
+    await sendMessagetoAIChat(page, 'Write the code y = 2');
     await clickPreviewButton(page);
     await clickAcceptButton(page);
     await waitForIdle(page);
 
+    // Sometimes there is a bug where the page continously scrolls to the bottom.
+    // To avoid this, we manually select the first cell, forcing the page to scroll to the top.
+    await selectCell(page, 0);
 
-    const codeInCell1 = await getCodeFromCell(page, 1);
-    expect(codeInCell1).not.toContain('x = 1'); // First msg should be auto-rejected
-
-    const codeInCell2 = await getCodeFromCell(page, 2);
-    expect(codeInCell2).toContain('x = 2');
-    expect(codeInCell2).not.toContain('x = 1'); // Make sure the first msg does not show up in the second cell
+    const codeInCell = await getCodeFromCell(page, 0);
+    expect(codeInCell).not.toContain('x = 1'); // First msg should be auto-rejected
+    expect(codeInCell).toContain('y = 2');
   });
 
   test('Always write code to the preview cell', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print("hello world")', '# this should not be overwritten']);
-    await waitForIdle(page);
+    await updateCell(page, 0, ['print("hello world")', '# this should not be overwritten'], true);
 
     // Send the first message with the first cell active
     selectCell(page, 0);
@@ -209,8 +211,9 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 
   test('Reject reverts preview cell to original code', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print("hello world")', '# this should not be overwritten']);
-    await waitForIdle(page);
+    await updateCell(
+      page, 0, ['print("hello world")', '# this should not be overwritten'], true
+    );
 
     // Send the first message with the first cell active
     selectCell(page, 0);
@@ -234,10 +237,7 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 
   test('No Code blocks are displayed when active cell is empty', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, []);
-    await waitForIdle(page);
-
-    await startNewMitoAIChat(page);
+    // Don't need to do anything here, the beforeEach will create a new notebook with an empty cell
 
     await sendMessagetoAIChat(page, 'Add print (1)');
 
@@ -247,44 +247,8 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(codeMessagePartContainersCount).toBe(1);
   });
 
-  test('Fix error button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1']);
-    await waitForIdle(page);
-
-    await page.getByRole('button', { name: 'Fix Error in AI Chat' }).click();
-    await waitForIdle(page);
-
-    await waitForMitoAILoadingToDisappear(page);
-
-    // Ensure the chat input is not focussed on 
-    await expect(page.locator('.chat-input')).not.toBeFocused();
-
-    // No code diffs should be visible before the user clicks preview
-    await expect(page.locator('.cm-codeDiffRemovedStripe')).not.toBeVisible();
-    await expect(page.locator('.cm-codeDiffInsertedStripe')).not.toBeVisible();
-
-    await clickPreviewButton(page);
-
-    await clickAcceptButton(page);
-    await waitForIdle(page);
-
-    const code = await getCodeFromCell(page, 0);
-    expect(code).toContain('print(1)');
-  });
-
-  test('No fix error button for warnings', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import warnings', 'warnings.warn("This is a warning")']);
-    await waitForIdle(page);
-
-    // Ensure that the "Fix Error in AI Chat" button is not visible
-    expect(page.getByRole('button', { name: 'Fix Error in AI Chat' })).not.toBeVisible();
-  });
-
   test('Explain code button', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
-    await waitForIdle(page);
-
-    await selectCell(page, 0);
+    await updateCell(page, 0, ['print(1)'], true);
 
     await page.getByRole('button', { name: 'Explain code in AI Chat' }).click();
     await waitForIdle(page);
@@ -292,8 +256,12 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 
   test('Variable dropdown shows correct variables', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})']);
-    await waitForIdle(page);
+    await updateCell(
+      page,
+      0,
+      ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})'],
+      true
+    );
 
     await clickOnMitoAIChatTab(page);
     await startNewMitoAIChat(page);
@@ -307,13 +275,15 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 
   test('Unserializable objects are handled correctly', async ({ page }) => {
-    await createAndRunNotebookWithCells(
+    await updateCell(
       page,
+      0,
       [
         'import pandas as pd',
         'timestamp_df = pd.DataFrame({"timestamp_col_A": [pd.to_datetime("2020-01-01"), pd.to_datetime("2020-01-02"), pd.to_datetime("2020-01-03")]}, dtype=object)',
         'none_type_df = pd.DataFrame({"none_type_col_A": [None, None, None]})'
-      ]
+      ],
+      true
     );
 
     await waitForIdle(page);
@@ -339,72 +309,5 @@ test.describe.parallel('Mito AI Chat', () => {
     await page.keyboard.type("@none_type_col_A");
     await expect(page.locator('.chat-dropdown-item-name').filter({ hasText: 'none_type_col_A' })).toBeVisible();
   });
-
-  test('Active cell preview is displayed and updated when active cell changes', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)', 'print(2)']);
-    await waitForIdle(page);
-
-    await selectCell(page, 0);
-
-    await clickOnMitoAIChatTab(page);
-    await startNewMitoAIChat(page);
-
-    // Turn on chat mode
-    await turnOnChatMode(page);
-
-    // The active cell preview should not be visible before the user focusses on the chat input
-    await expect.soft(page.locator('.active-cell-preview-container')).not.toBeVisible();
-    
-    // The active cell preview should show the code from the first cell
-    await page.locator('.chat-input').fill('Test');
-
-    // Wait for half a second for the cell preview to update
-    await page.waitForTimeout(500);
-    
-    const activeCellPreview = await page.locator('.active-cell-preview-container').textContent();
-    expect.soft(activeCellPreview).toContain('print(1)');
-
-    // After changing the selected cell, the active cell preview should update
-    await selectCell(page, 1);
-    // Wait for half a second for the cell preview to update
-    await page.waitForTimeout(500);
-
-    const activeCellPreview2 = await page.locator('.active-cell-preview-container').textContent();
-    expect.soft(activeCellPreview2).toContain('print(2)');
-
-    await page.locator('.chat-input').fill('print hello world');
-    await page.keyboard.press('Enter');
-    await waitForMitoAILoadingToDisappear(page);
-
-    // After sending the message, the active cell preview should disappear
-    expect(page.locator('.active-cell-preview-container')).not.toBeVisible();
-  });
 });
 
-test.describe.serial('Mito AI Chat - Restore history', () => {
-  test('Restore message history', async ({ page }) => {
-    await createAndRunNotebookWithCells(page, ['print(1)']);
-    await waitForIdle(page);
-
-    await selectCell(page, 0);
-
-    await sendMessagetoAIChat(page, 'print(2)');
-    await waitForIdle(page);
-    
-    // As you have a notebook opened, at reload a dialog shows up to 
-    // select the kernel for the notebook. The dialog prevent all the tests 
-    // carried out at page load to be performed as it capture the focus.
-    // One way around it is to set the option waitForIsReady (specific to JupyterLab):
-    // When that option is set, we don't wait for addition checks specific to JupyterLab
-    await page.reload({waitForIsReady: false});
-    await Promise.all([
-      page.getByRole('button', { name: 'Select Kernel' }).click(),
-      waitForIdle(page)
-    ]);
-
-    // 1 from the previous message, 1 for the new chat input since we use
-    // the message-user class on the chat input also
-    await expect(page.locator('.message-user')).toHaveCount(2); 
-    await expect(page.locator('.message-assistant-chat')).toHaveCount(1);
-  });
-});

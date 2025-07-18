@@ -17,11 +17,13 @@ import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { setRenameUntitledFileOnSave } from './jupyterSettingsManager';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 
 // The Widget Rank determins where the ChatIcon is displayed
 // in the left hand toolbar
 const WIDGET_RANK = 2000
-
 
 /**
  * Initialization data for the mito-ai extension.
@@ -35,7 +37,9 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     INotebookTracker,
     ICommandPalette,
     IRenderMimeRegistry,
-    IContextManager
+    IContextManager,
+    ISettingRegistry,
+    IDocumentManager
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
@@ -46,6 +50,8 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     palette: ICommandPalette,
     rendermime: IRenderMimeRegistry,
     contextManager: IContextManager,
+    settingRegistry: ISettingRegistry,
+    documentManager: IDocumentManager,
     restorer: ILayoutRestorer | null,
   ): WidgetTracker<ChatWidget> => {
 
@@ -141,6 +147,9 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
       // This will override the default file browser selection
       labShell.activateById(widget.id);
     });
+
+    // Update jupyter settings to work best with mito-ai
+    void setRenameUntitledFileOnSave(settingRegistry, documentManager);
 
     // By returning a tracker token, we can require the token in other 
     // plugins. This allows us to force plugin load order. For example, 
