@@ -149,9 +149,9 @@ class AppBuilderHandler(BaseWebSocketHandler):
 
         try:
 
-            success_flag, message = await streamlit_handler(str(notebook_path) if notebook_path else "", app_path)
+            success_flag, result_message = await streamlit_handler(str(notebook_path) if notebook_path else "", app_path)
             if not success_flag:
-                raise Exception(message)
+                raise Exception(result_message)
 
             deploy_url = await self._deploy_app(app_path, jwt_token)
 
