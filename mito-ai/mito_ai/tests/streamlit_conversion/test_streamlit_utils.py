@@ -11,6 +11,7 @@ from mito_ai.streamlit_conversion.streamlit_utils import (
     create_app_file,
     parse_jupyter_notebook_to_extract_required_content
 )
+from typing import Dict, Any
 
 
 class TestExtractCodeBlocks:
@@ -106,7 +107,7 @@ class TestParseJupyterNotebookToExtractRequiredContent:
 
     def test_parse_valid_notebook(self, tmp_path):
         """Test parsing a valid notebook with cells"""
-        notebook_data = {
+        notebook_data: Dict[str, Any] = {
             "cells": [
                 {
                     "cell_type": "code",
@@ -148,7 +149,7 @@ class TestParseJupyterNotebookToExtractRequiredContent:
 
     def test_parse_notebook_with_missing_cell_fields(self, tmp_path):
         """Test parsing notebook where cells are missing cell_type or source"""
-        notebook_data = {
+        notebook_data: Dict[str, Any] = {
             "cells": [
                 {
                     "cell_type": "code"
@@ -183,7 +184,7 @@ class TestParseJupyterNotebookToExtractRequiredContent:
 
     def test_parse_empty_notebook(self, tmp_path):
         """Test parsing notebook with empty cells list"""
-        notebook_data = {
+        notebook_data: Dict[str, Any] = {
             "cells": []
         }
         

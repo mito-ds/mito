@@ -12,6 +12,8 @@ import traceback
 import ast
 import importlib.util
 import warnings
+from typing import Tuple, Optional, Dict, Any
+from subprocess import Popen
 
 # warnings.filterwarnings("ignore", message=r".*missing ScriptRunContext.*")
 # warnings.filterwarnings("ignore", category=UserWarning)
@@ -20,13 +22,13 @@ warnings.filterwarnings("ignore", message=".*bare mode.*")
 
 
 class StreamlitValidator:
-    def __init__(self, port=8501, timeout=30):
+    def __init__(self, port: int = 8501, timeout: int = 30) -> None:
         self.port = port
         self.timeout = timeout
-        self.process = None
-        self.temp_dir = None
+        self.process: Optional[Popen[str]] = None
+        self.temp_dir: Optional[str] = None
 
-    def validate_syntax(self, app_code):
+    def validate_syntax(self, app_code: str) -> Tuple[bool, str]:
         """Check if the Python code has valid syntax"""
         try:
             ast.parse(app_code)
@@ -35,10 +37,11 @@ class StreamlitValidator:
             error_msg = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
             return False, f"Syntax error: {error_msg}"
 
-
-    def create_temp_app(self, app_code):
+    def create_temp_app(self, app_code: str) -> str:
         """Create a temporary Streamlit app file"""
         self.temp_dir = tempfile.mkdtemp()
+        if self.temp_dir is None:
+            raise RuntimeError("Failed to create temporary directory")
         app_path = os.path.join(self.temp_dir, "app.py")
 
         with open(app_path, 'w') as f:
@@ -46,7 +49,7 @@ class StreamlitValidator:
 
         return app_path
 
-    def start_streamlit_app(self, app_path):
+    def start_streamlit_app(self, app_path: str) -> Tuple[bool, str]:
         """Start the Streamlit app in a subprocess"""
         try:
             cmd = [
@@ -68,7 +71,7 @@ class StreamlitValidator:
         except Exception as e:
             return False, f"Failed to start Streamlit: {str(e)}"
 
-    def wait_for_app(self):
+    def wait_for_app(self) -> Tuple[bool, str]:
         """Wait for the Streamlit app to be ready"""
         start_time = time.time()
 
@@ -80,13 +83,12 @@ class StreamlitValidator:
                     return True, "App is running successfully"
             except requests.exceptions.RequestException as e:
                 exception_error = str(e)
-                pass
 
             time.sleep(1)
 
         return False, f"App failed to start within timeout - {exception_error}"
 
-    def filter_streamlit_warnings(self, text):
+    def filter_streamlit_warnings(self, text: str) -> str:
         """Filter out known Streamlit warnings that can be safely ignored"""
         if not text:
             return text
@@ -105,7 +107,7 @@ class StreamlitValidator:
 
         return '\n'.join(filtered_lines)
 
-    def check_for_errors(self):
+    def check_for_errors(self) -> Tuple[bool, str]:
         """Check if the Streamlit process has any errors"""
         if self.process:
             # Check if process is still running
@@ -120,7 +122,7 @@ class StreamlitValidator:
 
         return False, "No process found"
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Clean up the temporary files and stop the process"""
         if self.process:
             self.process.terminate()
@@ -131,9 +133,9 @@ class StreamlitValidator:
             shutil.rmtree(self.temp_dir)
             self.temp_dir = None
 
-    def validate_app(self, app_code):
+    def validate_app(self, app_code: str) -> Dict[str, Any]:
         """Complete validation pipeline"""
-        results = {
+        results: Dict[str, Any] = {
             'syntax_valid': False,
             'app_starts': False,
             'app_responsive': False,
@@ -178,10 +180,10 @@ class StreamlitValidator:
         return results
 
 
-def streamlit_code_validator(app_code):
+def streamlit_code_validator(app_code: str) -> Tuple[bool, str]:
     """Convenience function to validate Streamlit code"""
-    has_validation_error = False
-    error_message = ""
+    has_validation_error: bool = False
+    error_message: str = ""
 
 
     validator = StreamlitValidator()

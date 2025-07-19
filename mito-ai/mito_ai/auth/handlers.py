@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_COGNITO_CONFIG
+from typing import Dict, Any
 
 
 class AuthHandler(APIHandler):
@@ -20,7 +21,7 @@ class AuthHandler(APIHandler):
         return get_logger()
     
     @tornado.web.authenticated
-    def post(self):
+    def post(self) -> None:
         """Exchange authorization code for JWT tokens."""
         try:
             data = json.loads(self.request.body)
@@ -55,7 +56,7 @@ class AuthHandler(APIHandler):
             self.set_status(500)
             self.finish(json.dumps({"error": "Internal server error"}))
     
-    def _exchange_code_for_tokens(self, code: str) -> dict:
+    def _exchange_code_for_tokens(self, code: str) -> Dict[str, Any]:
         """Exchange authorization code for JWT tokens using AWS Cognito."""
         try:
             # Prepare the token request
@@ -78,7 +79,7 @@ class AuthHandler(APIHandler):
             )
             
             if response.status_code == 200:
-                token_response = response.json()
+                token_response: Dict[str, Any] = response.json()
                 
                 current_time = datetime.now(timezone.utc)
                 self.log.info(f"Token exchange successful at {current_time.isoformat()}")

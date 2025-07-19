@@ -179,7 +179,7 @@ async def stream_response_from_mito_server(
                 if chunk_processor:
                     processed_chunk = chunk_processor(chunk)
 
-                if reply_fn and message_id:
+                if reply_fn is not None and message_id is not None:
                     # Send the chunk directly to the frontend
                     reply_fn(CompletionStreamChunk(
                         parent_id=message_id,
@@ -202,7 +202,7 @@ async def stream_response_from_mito_server(
                 
         print(f"\n{provider_name} stream completed in {time.time() - start_time:.2f} seconds")
         
-        if reply_fn and message_id:
+        if reply_fn is not None and message_id is not None:
             # Send a final chunk to indicate completion
             reply_fn(CompletionStreamChunk(
                 parent_id=message_id,

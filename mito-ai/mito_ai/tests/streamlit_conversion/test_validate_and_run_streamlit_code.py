@@ -231,7 +231,7 @@ class TestStreamlitValidator:
                 mock_rmtree.assert_called_once_with("/tmp/test_dir")
                 
                 assert validator.process is None
-                assert validator.temp_dir is None
+                assert validator.temp_dir is None  # type: ignore[unreachable]
 
     def test_cleanup_without_process(self):
         """Test cleanup without process"""

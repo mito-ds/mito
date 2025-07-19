@@ -3,7 +3,7 @@
 
 import logging
 from anthropic.types import MessageParam
-from typing import List
+from typing import List, Tuple, cast
 
 from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
@@ -15,16 +15,16 @@ from mito_ai.completions.models import MessageType
 STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
 class StreamlitCodeGeneration:
-    def __init__(self, notebook):
+    def __init__(self, notebook: dict) -> None:
 
-        self.messages = [
-            {
+        self.messages: List[MessageParam] = [
+            cast(MessageParam, {
                 "role": "user",
                 "content": [{
                     "type": "text",
                     "text": f"Here is my jupyter notebook content that I want to convert into a Streamlit dashboard - {notebook}"
                 }]
-            }
+            })
         ]
 
     @property
@@ -54,16 +54,16 @@ class StreamlitCodeGeneration:
             accumulated_response += stream_chunk
         return accumulated_response
 
-    def add_agent_response_to_context(self, agent_response: str):
+    def add_agent_response_to_context(self, agent_response: str) -> None:
         """Add the agent's response to the history"""
         self.messages.append(
-            {
+            cast(MessageParam, {
                 "role": "assistant",
                 "content": [{
                     "type": "text",
                     "text": agent_response
                 }]
-            }
+            })
         )
 
     async def generate_streamlit_code(self) -> str:
@@ -78,13 +78,13 @@ class StreamlitCodeGeneration:
     async def correct_error_in_generation(self, error: str) -> str:
         """If errors are present, send it back to the agent to get corrections in code"""
         self.messages.append(
-            {
+            cast(MessageParam, {
                 "role": "user",
                 "content": [{
                     "type": "text",
                     "text": f"When I run the streamlit app code, I get the following error: {error}\nPlease return the FULL Streamlit app code with the error corrected"
                 }]
-            }
+            })
         )
         agent_response = await self.get_response_from_agent(self.messages)
         converted_code = extract_code_blocks(agent_response)
@@ -93,7 +93,7 @@ class StreamlitCodeGeneration:
         return converted_code
 
 
-async def streamlit_handler(notebook_path: str, app_path: str) -> (bool, str):
+async def streamlit_handler(notebook_path: str, app_path: str) -> Tuple[bool, str]:
     """Handler function for streamlit code generation and validation"""
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code_generator = StreamlitCodeGeneration(notebook_code)

@@ -3,7 +3,7 @@
 
 import re
 import json
-from typing import Dict
+from typing import Dict, Tuple, Any
 
 def extract_code_blocks(message_content: str) -> str:
     """
@@ -27,7 +27,7 @@ def extract_code_blocks(message_content: str) -> str:
     return '\n'.join(matches)
 
 
-def create_app_file(file_path: str, code: str) -> (bool, str):
+def create_app_file(file_path: str, code: str) -> Tuple[bool, str]:
     """
     Create app.py file and write code to it with error handling
 
@@ -49,7 +49,7 @@ def create_app_file(file_path: str, code: str) -> (bool, str):
         return False, f"Unexpected error: {str(e)}"
 
 
-def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict:
+def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict[str, Any]:
     """
     Read a Jupyter notebook and filter cells to keep only cell_type and source fields.
 
@@ -67,7 +67,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
     try:
         # Read the notebook file
         with open(notebook_path, 'r', encoding='utf-8') as f:
-            notebook_data = json.load(f)
+            notebook_data: Dict[str, Any] = json.load(f)
 
         # Check if 'cells' key exists
         if 'cells' not in notebook_data:
@@ -90,6 +90,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
     except FileNotFoundError:
         raise FileNotFoundError(f"Notebook file not found: {notebook_path}")
     except json.JSONDecodeError as e:
-        raise json.JSONDecodeError(f"Invalid JSON in notebook file: {str(e)}")
+        # JSONDecodeError requires msg, doc, pos
+        raise json.JSONDecodeError(f"Invalid JSON in notebook file: {str(e)}", e.doc if hasattr(e, 'doc') else '', e.pos if hasattr(e, 'pos') else 0)
     except Exception as e:
         raise Exception(f"Error processing notebook: {str(e)}")

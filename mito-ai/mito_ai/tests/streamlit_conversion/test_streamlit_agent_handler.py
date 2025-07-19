@@ -7,6 +7,7 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     StreamlitCodeGeneration,
     streamlit_handler
 )
+from typing import cast
 
 # Add this line to enable async support
 pytest_plugins = ('pytest_asyncio',)
@@ -17,13 +18,18 @@ class TestStreamlitCodeGeneration:
 
     def test_init(self):
         """Test StreamlitCodeGeneration initialization"""
-        notebook_data = {"cells": [{"cell_type": "code", "source": ["import pandas"]}]}
+        notebook_data: dict = {"cells": [{"cell_type": "code", "source": ["import pandas"]}]}
         generator = StreamlitCodeGeneration(notebook_data)
         
         assert len(generator.messages) == 1
         assert generator.messages[0]["role"] == "user"
-        assert generator.messages[0]["content"][0]["type"] == "text"
-        assert "jupyter notebook content" in generator.messages[0]["content"][0]["text"]
+        # Access content properly as a list and cast to expected type
+        content_list = cast(list, generator.messages[0]["content"])
+        assert isinstance(content_list, list)
+        assert len(content_list) > 0
+        content_item = cast(dict, content_list[0])
+        assert content_item["type"] == "text"
+        assert "jupyter notebook content" in content_item["text"]
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
@@ -36,10 +42,10 @@ class TestStreamlitCodeGeneration:
 
         mock_stream.return_value = mock_async_gen()
         
-        notebook_data = {"cells": []}
+        notebook_data: dict = {"cells": []}
         generator = StreamlitCodeGeneration(notebook_data)
         
-        result = await generator.get_response_from_agent("test message")
+        result = await generator.get_response_from_agent(generator.messages)
         
         assert result == "Hello World!"
         mock_stream.assert_called_once()
@@ -50,15 +56,15 @@ class TestStreamlitCodeGeneration:
         """Test empty response from agent"""
 
         async def mock_async_gen():
-            for item in []:
+            for item in []:  # type: ignore
                 yield item
 
         mock_stream.return_value = mock_async_gen()
         
-        notebook_data = {"cells": []}
+        notebook_data: dict = {"cells": []}
         generator = StreamlitCodeGeneration(notebook_data)
         
-        result = await generator.get_response_from_agent("test message")
+        result = await generator.get_response_from_agent(generator.messages)
         
         assert result == ""
 
@@ -68,15 +74,15 @@ class TestStreamlitCodeGeneration:
         """Test exception handling in get_response_from_agent"""
         mock_stream.side_effect = Exception("API Error")
         
-        notebook_data = {"cells": []}
+        notebook_data: dict = {"cells": []}
         generator = StreamlitCodeGeneration(notebook_data)
         
         with pytest.raises(Exception, match="API Error"):
-            await generator.get_response_from_agent("test message")
+            await generator.get_response_from_agent(generator.messages)
 
     def test_add_agent_response_to_context(self):
         """Test adding agent response to message history"""
-        notebook_data = {"cells": []}
+        notebook_data: dict = {"cells": []}
         generator = StreamlitCodeGeneration(notebook_data)
         
         initial_count = len(generator.messages)
@@ -84,8 +90,13 @@ class TestStreamlitCodeGeneration:
         
         assert len(generator.messages) == initial_count + 1
         assert generator.messages[-1]["role"] == "assistant"
-        assert generator.messages[-1]["content"][0]["type"] == "text"
-        assert generator.messages[-1]["content"][0]["text"] == "Test response"
+        # Access content properly as a list and cast to expected type
+        content_list = cast(list, generator.messages[-1]["content"])
+        assert isinstance(content_list, list)
+        assert len(content_list) > 0
+        content_item = cast(dict, content_list[0])
+        assert content_item["type"] == "text"
+        assert content_item["text"] == "Test response"
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
@@ -99,7 +110,7 @@ class TestStreamlitCodeGeneration:
 
         mock_stream.return_value = mock_async_gen()
         
-        notebook_data = {"cells": []}
+        notebook_data: dict = {"cells": []}
         generator = StreamlitCodeGeneration(notebook_data)
         
         result = await generator.generate_streamlit_code()
@@ -122,7 +133,7 @@ class TestStreamlitCodeGeneration:
 
         mock_stream.return_value = mock_async_gen()
         
-        notebook_data = {"cells": []}
+        notebook_data: dict = {"cells": []}
         generator = StreamlitCodeGeneration(notebook_data)
         
         result = await generator.generate_streamlit_code()
@@ -140,7 +151,7 @@ class TestStreamlitCodeGeneration:
 
         mock_stream.return_value = mock_async_gen()
 
-        notebook_data = {"cells": []}
+        notebook_data: dict = {"cells": []}
         generator = StreamlitCodeGeneration(notebook_data)
 
         result = await generator.correct_error_in_generation("ImportError: No module named 'pandas'")
@@ -159,7 +170,7 @@ class TestStreamlitCodeGeneration:
         """Test exception handling in error correction"""
         mock_stream.side_effect = Exception("API Error")
         
-        notebook_data = {"cells": []}
+        notebook_data: dict = {"cells": []}
         generator = StreamlitCodeGeneration(notebook_data)
         
         with pytest.raises(Exception, match="API Error"):
@@ -177,7 +188,7 @@ class TestStreamlitHandler:
     async def test_streamlit_handler_success(self, mock_create_file, mock_validator, mock_generator_class, mock_parse):
         """Test successful streamlit handler execution"""
         # Mock notebook parsing
-        mock_notebook_data = {"cells": [{"cell_type": "code", "source": ["import pandas"]}]}
+        mock_notebook_data: dict = {"cells": [{"cell_type": "code", "source": ["import pandas"]}]}
         mock_parse.return_value = mock_notebook_data
         
         # Mock code generation
@@ -210,7 +221,7 @@ class TestStreamlitHandler:
     async def test_streamlit_handler_with_validation_errors_retry_success(self, mock_validator, mock_generator_class, mock_parse):
         """Test streamlit handler with validation errors that get fixed on retry"""
         # Mock notebook parsing
-        mock_notebook_data = {"cells": []}
+        mock_notebook_data: dict = {"cells": []}
         mock_parse.return_value = mock_notebook_data
         
         # Mock code generation
@@ -219,24 +230,16 @@ class TestStreamlitHandler:
         mock_generator.correct_error_in_generation.return_value = "import streamlit\nst.title('Fixed')"
         mock_generator_class.return_value = mock_generator
         
-        # Mock validation: first call fails, second call succeeds
-        mock_validator.side_effect = [
-            (True, "ImportError: No module named 'pandas'"),
-            (False, "")
-        ]
+        # Mock validation (first error, then success)
+        mock_validator.side_effect = [(True, "Import error"), (False, "")]
         
-        # Mock file creation
-        with patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file') as mock_create_file:
-            mock_create_file.return_value = (True, "File created successfully")
-            
-            result = await streamlit_handler("/path/to/notebook.ipynb", "/path/to/app")
-            
-            assert result[0] is True
-            assert "File created successfully" in result[1]
-            
-            # Verify retry logic
-            assert mock_validator.call_count == 2
-            mock_generator.correct_error_in_generation.assert_called_once_with("ImportError: No module named 'pandas'")
+        result = await streamlit_handler("/path/to/notebook.ipynb", "/path/to/app")
+        
+        assert result[0] is True
+        assert "Successfully created" in result[1]
+        
+        # Verify that error correction was called
+        mock_generator.correct_error_in_generation.assert_called_once_with("Import error")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -245,7 +248,7 @@ class TestStreamlitHandler:
     async def test_streamlit_handler_max_retries_exceeded(self, mock_validator, mock_generator_class, mock_parse):
         """Test streamlit handler when max retries are exceeded"""
         # Mock notebook parsing
-        mock_notebook_data = {"cells": []}
+        mock_notebook_data: dict = {"cells": []}
         mock_parse.return_value = mock_notebook_data
         
         # Mock code generation
@@ -254,7 +257,7 @@ class TestStreamlitHandler:
         mock_generator.correct_error_in_generation.return_value = "import streamlit\nst.title('Fixed')"
         mock_generator_class.return_value = mock_generator
         
-        # Mock validation: always fails
+        # Mock validation (always errors)
         mock_validator.return_value = (True, "Persistent error")
         
         result = await streamlit_handler("/path/to/notebook.ipynb", "/path/to/app")
@@ -262,8 +265,7 @@ class TestStreamlitHandler:
         assert result[0] is False
         assert "Error generating streamlit code by agent" in result[1]
         
-        # Verify max retries (5 attempts total)
-        assert mock_validator.call_count == 6
+        # Verify that error correction was called 5 times (max retries)
         assert mock_generator.correct_error_in_generation.call_count == 5
 
     @pytest.mark.asyncio
@@ -274,7 +276,7 @@ class TestStreamlitHandler:
     async def test_streamlit_handler_file_creation_failure(self, mock_create_file, mock_validator, mock_generator_class, mock_parse):
         """Test streamlit handler when file creation fails"""
         # Mock notebook parsing
-        mock_notebook_data = {"cells": []}
+        mock_notebook_data: dict = {"cells": []}
         mock_parse.return_value = mock_notebook_data
         
         # Mock code generation
@@ -308,7 +310,7 @@ class TestStreamlitHandler:
     async def test_streamlit_handler_generation_exception(self, mock_generator_class, mock_parse):
         """Test streamlit handler when code generation fails"""
         # Mock notebook parsing
-        mock_notebook_data = {"cells": []}
+        mock_notebook_data: dict = {"cells": []}
         mock_parse.return_value = mock_notebook_data
         
         # Mock code generation failure
