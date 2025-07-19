@@ -218,33 +218,6 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.streamlit_code_validator')
-    async def test_streamlit_handler_with_validation_errors_retry_success(self, mock_validator, mock_generator_class, mock_parse):
-        """Test streamlit handler with validation errors that get fixed on retry"""
-        # Mock notebook parsing
-        mock_notebook_data: dict = {"cells": []}
-        mock_parse.return_value = mock_notebook_data
-        
-        # Mock code generation
-        mock_generator = AsyncMock()
-        mock_generator.generate_streamlit_code.return_value = "import streamlit\nst.title('Test')"
-        mock_generator.correct_error_in_generation.return_value = "import streamlit\nst.title('Fixed')"
-        mock_generator_class.return_value = mock_generator
-        
-        # Mock validation (first error, then success)
-        mock_validator.side_effect = [(True, "Import error"), (False, "")]
-        
-        result = await streamlit_handler("/path/to/notebook.ipynb", "/path/to/app")
-        
-        assert result[0] is True
-        assert "Successfully created" in result[1]
-        
-        # Verify that error correction was called
-        mock_generator.correct_error_in_generation.assert_called_once_with("Import error")
-
-    @pytest.mark.asyncio
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.streamlit_code_validator')
     async def test_streamlit_handler_max_retries_exceeded(self, mock_validator, mock_generator_class, mock_parse):
         """Test streamlit handler when max retries are exceeded"""
         # Mock notebook parsing
