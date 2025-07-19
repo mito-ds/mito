@@ -178,17 +178,18 @@ async def stream_response_from_mito_server(
                 processed_chunk = chunk
                 if chunk_processor:
                     processed_chunk = chunk_processor(chunk)
-                
-                # Send the chunk directly to the frontend
-                reply_fn(CompletionStreamChunk(
-                    parent_id=message_id,
-                    chunk=CompletionItem(
-                        content=processed_chunk,
-                        isIncomplete=True,
-                        token=message_id,
-                    ),
-                    done=False,
-                ))
+
+                if reply_fn is not None and message_id is not None:
+                    # Send the chunk directly to the frontend
+                    reply_fn(CompletionStreamChunk(
+                        parent_id=message_id,
+                        chunk=CompletionItem(
+                            content=processed_chunk,
+                            isIncomplete=True,
+                            token=message_id,
+                        ),
+                        done=False,
+                    ))
                 
                 yield chunk
             except asyncio.TimeoutError:
@@ -201,16 +202,17 @@ async def stream_response_from_mito_server(
                 
         print(f"\n{provider_name} stream completed in {time.time() - start_time:.2f} seconds")
         
-        # Send a final chunk to indicate completion
-        reply_fn(CompletionStreamChunk(
-            parent_id=message_id,
-            chunk=CompletionItem(
-                content="",
-                isIncomplete=False,
-                token=message_id,
-            ),
-            done=True,
-        ))
+        if reply_fn is not None and message_id is not None:
+            # Send a final chunk to indicate completion
+            reply_fn(CompletionStreamChunk(
+                parent_id=message_id,
+                chunk=CompletionItem(
+                    content="",
+                    isIncomplete=False,
+                    token=message_id,
+                ),
+                done=True,
+            ))
     except Exception as e:
         print(f"\n{provider_name} stream failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
         # If an exception occurred, ensure the fetch future is awaited to properly clean up

@@ -104,14 +104,16 @@ async def stream_anthropic_completion_from_mito_server(
     messages: List[MessageParam],
     stream: bool,
     message_type: MessageType,
-    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
-    message_id: str,
+    reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None,
+    message_id: Optional[str] = None,
 ) -> AsyncGenerator[str, None]:
     data, headers = _prepare_anthropic_request_data_and_headers(
         model, max_tokens, temperature, system, messages, message_type, None, None, stream
     )
-    
     # Use the unified streaming function
+    # Provide default no-op for reply_fn and empty string for message_id if not provided
+    actual_reply_fn = reply_fn if reply_fn is not None else (lambda x: None)
+    actual_message_id = message_id if message_id is not None else ""
     async for chunk in stream_response_from_mito_server(
         url=MITO_ANTHROPIC_URL,
         headers=headers,
@@ -119,8 +121,8 @@ async def stream_anthropic_completion_from_mito_server(
         timeout=timeout,
         max_retries=max_retries,
         message_type=message_type,
-        reply_fn=reply_fn,
-        message_id=message_id,
+        reply_fn=actual_reply_fn,
+        message_id=actual_message_id,
         chunk_processor=None,
         provider_name="Claude",
     ):

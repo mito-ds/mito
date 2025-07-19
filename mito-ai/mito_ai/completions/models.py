@@ -62,6 +62,7 @@ class MessageType(Enum):
     GET_THREADS = "get_threads"
     DELETE_THREAD = "delete_thread"
     UPDATE_MODEL_CONFIG = "update_model_config"
+    STREAMLIT_CONVERSION = "streamlit_conversion"
 
     
 @dataclass(frozen=True)
@@ -134,7 +135,7 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    
+
 @dataclass(frozen=True)
 class CompletionRequest:
     """

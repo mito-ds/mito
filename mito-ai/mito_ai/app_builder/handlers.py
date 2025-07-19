@@ -8,6 +8,7 @@ from typing import Any, Union
 import zipfile
 import tempfile
 from mito_ai.utils.create import initialize_user
+from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
 from mito_ai.app_builder.models import (
     BuildAppReply,
@@ -15,9 +16,11 @@ from mito_ai.app_builder.models import (
     ErrorMessage,
     MessageType
 )
+from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
+
 
 class AppBuilderHandler(BaseWebSocketHandler):
     """Handler for app building requests."""
@@ -62,6 +65,10 @@ class AppBuilderHandler(BaseWebSocketHandler):
         self.log.debug("App builder message received: %s", message)
         
         try:
+            # Ensure message is a string before parsing
+            if not isinstance(message, str):
+                raise ValueError("Message must be a string")
+
             parsed_message = self.parse_message(message)
             message_type = parsed_message.get('type')
             
@@ -98,8 +105,10 @@ class AppBuilderHandler(BaseWebSocketHandler):
             message: The parsed message.
         """
         message_id = message.get('message_id', '')  # Default to empty string if not present
-        app_path = message.get('path')
-        
+        notebook_path = message.get('notebook_path')
+        app_path = message.get('app_path')
+        jwt_token = message.get('jwt_token', '')  # Extract JWT token from request, default to empty string
+
         if not message_id:
             self.log.error("Missing message_id in request")
             return
@@ -115,13 +124,37 @@ class AppBuilderHandler(BaseWebSocketHandler):
                 error=error
             ))
             return
-        
+
+        # Validate JWT token if provided
+        if jwt_token and jwt_token != 'placeholder-jwt-token':
+            self.log.info(f"Validating JWT token: {jwt_token[:20]}...")
+            is_valid = self._validate_jwt_token(jwt_token)
+            if not is_valid:
+                self.log.error("JWT token validation failed")
+                error = AppBuilderError(
+                    error_type="Unauthorized",
+                    title="Invalid authentication token",
+                    hint="Please sign in again to deploy your app."
+                )
+                self.reply(BuildAppReply(
+                    parent_id=message_id,
+                    url="",
+                    error=error
+                ))
+                return
+            else:
+                self.log.info("JWT token validation successful")
+        else:
+            self.log.warning("No JWT token provided or using placeholder token")
+
         try:
-            # This is a placeholder for the actual app building logic
-            # In a real implementation, this would deploy the app to a hosting service
-            # and return the URL
-            deploy_url = await self._deploy_app(app_path)
-            
+
+            success_flag, result_message = await streamlit_handler(str(notebook_path) if notebook_path else "", app_path)
+            if not success_flag:
+                raise Exception(result_message)
+
+            deploy_url = await self._deploy_app(app_path, jwt_token)
+
             # Send the response
             self.reply(BuildAppReply(
                 parent_id=message_id,
@@ -137,12 +170,47 @@ class AppBuilderHandler(BaseWebSocketHandler):
                 error=error
             ))
     
-    async def _deploy_app(self, app_path: str) -> str:
+    def _validate_jwt_token(self, token: str) -> bool:
+        """Basic JWT token validation logic.
+
+        In a production environment, you would:
+        1. Decode the JWT token
+        2. Verify the signature using AWS Cognito public keys
+        3. Check the expiration time
+        4. Validate the issuer and audience claims
+
+        For now, we'll do a basic check that the token exists and has a reasonable format.
+        """
+        try:
+            # Basic JWT format validation (header.payload.signature)
+            if not token or '.' not in token:
+                self.log.error("Token is empty or missing dots")
+                return False
+
+            parts = token.split('.')
+            if len(parts) != 3:
+                self.log.error("Token does not have 3 parts")
+                return False
+
+            # Check for placeholder token
+            if token == 'placeholder-jwt-token':
+                self.log.error("Placeholder token detected")
+                return False
+
+            return True
+
+        except Exception as e:
+            self.log.error(f"Error validating JWT token: {e}")
+            return False
+
+
+    async def _deploy_app(self, app_path: str, jwt_token: str = '') -> str:
         """Deploy the app using pre-signed URLs.
         
         Args:
             app_path: Path to the app file.
-            
+            jwt_token: JWT token for authentication (optional)
+
         Returns:
             The URL of the deployed app.
         """
@@ -153,7 +221,17 @@ class AppBuilderHandler(BaseWebSocketHandler):
         try:
             # Step 1: Get pre-signed URL from API
             self.log.info("Getting pre-signed upload URL...")
-            url_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/get-upload-url?app_name={app_name}")
+
+            # Prepare headers with JWT token if provided
+            headers = {}
+            if jwt_token and jwt_token != 'placeholder-jwt-token':
+                headers['Authorization'] = f'Bearer {jwt_token}'
+            else:
+                self.log.warning("No JWT token provided for API request")
+
+            headers["Subscription-Tier"] = 'Pro' if is_pro() else 'Standard'
+
+            url_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/get-upload-url?app_name={app_name}", headers=headers)
             url_response.raise_for_status()
             
             url_data = url_response.json()
