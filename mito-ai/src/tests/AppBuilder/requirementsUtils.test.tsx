@@ -69,29 +69,40 @@ describe('requirementsUtils', () => {
 
             mockNotebookPanel.content.widgets = [mockCodeCell1, mockCodeCell2];
 
-            // Mock successful kernel execution
+            // Simulate successful pipreqs output
+            const expectedOutput = 'pandas==2.0.3\nnumpy==1.24.3\nmatplotlib==3.7.1';
+
+            // Mock the future object with proper async behavior
+            let ioHandler: any = null;
+
             const mockFuture = {
-                onIOPub: jest.fn(),
-                done: Promise.resolve()
+                set onIOPub(handler: any) {
+                    ioHandler = handler;
+                },
+                get onIOPub() {
+                    return ioHandler;
+                },
+                done: Promise.resolve().then(() => {
+                    // Simulate the stdout message AFTER future.done resolves
+                    if (ioHandler) {
+                        ioHandler({
+                            header: { msg_type: 'stream' },
+                            content: { name: 'stdout', text: expectedOutput }
+                        });
+                    }
+                })
             };
 
             mockKernel.requestExecute.mockReturnValue(mockFuture);
 
-            // Simulate successful pipreqs output
-            const expectedOutput = 'pandas==2.0.3\nnumpy==1.24.3\nmatplotlib==3.7.1\nstreamlit>=1.28.0';
-
-            // Set up the onIOPub handler to simulate output
-            mockFuture.onIOPub.mockImplementation((handler) => {
-                // Simulate stdout message
-                handler({
-                    header: { msg_type: 'stream' },
-                    content: { name: 'stdout', text: expectedOutput }
-                });
-            });
-
             const result = await generateRequirementsTxt(mockNotebookTracker);
 
-            expect(result).toBe(expectedOutput);
+            // The result should contain the pipreqs output plus the required streamlit package
+            expect(result).toContain('pandas==2.0.3');
+            expect(result).toContain('numpy==1.24.3');
+            expect(result).toContain('matplotlib==3.7.1');
+            expect(result).toContain('streamlit');
+
             expect(mockKernel.requestExecute).toHaveBeenCalledWith({
                 code: expect.stringContaining('pipreqs'),
                 silent: false
