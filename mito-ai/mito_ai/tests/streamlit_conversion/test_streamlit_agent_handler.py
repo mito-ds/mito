@@ -33,11 +33,16 @@ class TestStreamlitCodeGeneration:
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
-    async def test_get_response_from_agent_success(self, mock_stream):
-        """Test successful response from agent"""
+    @pytest.mark.parametrize("mock_items,expected_result", [
+        (["Hello", " World", "!"], "Hello World!"),
+        ([], ""),
+        (["Here's your code: import streamlit"], "Here's your code: import streamlit")
+    ])
+    async def test_get_response_from_agent(self, mock_stream, mock_items, expected_result):
+        """Test response from agent with different scenarios"""
         # Mock the async generator
         async def mock_async_gen():
-            for item in ["Hello", " World", "!"]:
+            for item in mock_items:
                 yield item
 
         mock_stream.return_value = mock_async_gen()
@@ -47,26 +52,9 @@ class TestStreamlitCodeGeneration:
         
         result = await generator.get_response_from_agent(generator.messages)
         
-        assert result == "Hello World!"
+        assert result == expected_result
         mock_stream.assert_called_once()
-
-    @pytest.mark.asyncio
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
-    async def test_get_response_from_agent_empty_response(self, mock_stream):
-        """Test empty response from agent"""
-
-        async def mock_async_gen():
-            for item in []:  # type: ignore
-                yield item
-
-        mock_stream.return_value = mock_async_gen()
         
-        notebook_data: dict = {"cells": []}
-        generator = StreamlitCodeGeneration(notebook_data)
-        
-        result = await generator.get_response_from_agent(generator.messages)
-        
-        assert result == ""
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
@@ -121,24 +109,6 @@ class TestStreamlitCodeGeneration:
         # Check that response was added to context
         assert len(generator.messages) == 2
         assert generator.messages[-1]["role"] == "assistant"
-
-    @pytest.mark.asyncio
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
-    async def test_generate_streamlit_code_no_code_blocks(self, mock_stream):
-        """Test when agent response doesn't contain code blocks"""
-        mock_response = "Here's your code: import streamlit"
-        async def mock_async_gen():
-            for item in [mock_response]:
-                yield item
-
-        mock_stream.return_value = mock_async_gen()
-        
-        notebook_data: dict = {"cells": []}
-        generator = StreamlitCodeGeneration(notebook_data)
-        
-        result = await generator.generate_streamlit_code()
-        
-        assert result == mock_response
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
