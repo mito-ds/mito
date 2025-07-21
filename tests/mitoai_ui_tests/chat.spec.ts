@@ -47,7 +47,7 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(
       page,
       0,
-      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
+      ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
       true
     );
 
@@ -94,7 +94,7 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(
       page,
       0,
-      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
+      ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
       true
     );
 
@@ -135,7 +135,7 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(
       page,
       0,
-      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
+      ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
       true
     );
 
@@ -188,7 +188,8 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 
   test('Always write code to the preview cell', async ({ page }) => {
-    await updateCell(page, 0, ['print("hello world")', '# this should not be overwritten'], true);
+    await updateCell(page, 0, ['print("hello world")'], true);
+    await updateCell(page, 1, ['# this should not be overwritten'], true);
 
     // Send the first message with the first cell active
     selectCell(page, 0);
@@ -211,9 +212,8 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 
   test('Reject reverts preview cell to original code', async ({ page }) => {
-    await updateCell(
-      page, 0, ['print("hello world")', '# this should not be overwritten'], true
-    );
+    await updateCell(page, 0, ['print("hello world")'], true);
+    await updateCell(page, 1, ['# this should not be overwritten'], true);
 
     // Send the first message with the first cell active
     selectCell(page, 0);
@@ -259,7 +259,7 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(
       page,
       0,
-      ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})'],
+      ['import pandas as pd', 'df=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})'],
       true
     );
 
