@@ -192,14 +192,14 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(page, 1, ['# this should not be overwritten'], true);
 
     // Send the first message with the first cell active
-    selectCell(page, 0);
+    await selectCell(page, 0);
     await sendMessagetoAIChat(page, 'Write the code x = 1');
 
     // Preview the changes
     await clickPreviewButton(page);
 
     // Select the second cell and accept the changes
-    selectCell(page, 1);
+    await selectCell(page, 1);
     await clickAcceptButton(page);
     await waitForIdle(page);
 
@@ -216,14 +216,14 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(page, 1, ['# this should not be overwritten'], true);
 
     // Send the first message with the first cell active
-    selectCell(page, 0);
+    await selectCell(page, 0);
     await sendMessagetoAIChat(page, 'Write the code x = 1');
 
     // Preview the changes
     await clickPreviewButton(page);
 
     // Select the second cell and accept the changes
-    selectCell(page, 1);
+    await selectCell(page, 1);
     await clickDenyButton(page);
     await waitForIdle(page);
 
