@@ -106,9 +106,8 @@ export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: n
 export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
     // Make sure the cell is visible
     await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
-    await page.locator('.jp-Cell-inputArea').nth(cellIndex).waitFor({state: 'visible'})
-    // Click on the input area
-    await page.locator('.jp-Cell-inputArea').nth(cellIndex).click();
+    const cell = await page.notebook.getCell(cellIndex);
+    await cell?.click();
 }
 
 export const addNewCell = async (
