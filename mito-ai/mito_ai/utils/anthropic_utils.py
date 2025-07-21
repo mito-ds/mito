@@ -111,7 +111,7 @@ async def stream_anthropic_completion_from_mito_server(
         model, max_tokens, temperature, system, messages, message_type, None, None, stream
     )
     # Use the unified streaming function
-    # Provide default no-op for reply_fn and empty string for message_id if not provided
+    # If the reply_fn and message_id are empty, this function still handles those requests. This is particularly needed for the streamlit dashboard functionality
     actual_reply_fn = reply_fn if reply_fn is not None else (lambda x: None)
     actual_message_id = message_id if message_id is not None else ""
     async for chunk in stream_response_from_mito_server(
