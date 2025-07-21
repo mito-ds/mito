@@ -40,7 +40,6 @@ dependencies = [
     "SQLAlchemy",
     # Mito App Dependencies
     "pipreqs",
-    "streamlit",
     # LLM Dependencies
     "openai>=1.0.0",
     "google-genai",
