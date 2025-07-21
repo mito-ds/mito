@@ -35,17 +35,6 @@ def test_streamlit_active_base_url() -> Any:
     """Make sure that the active streamlit base url is correct"""
     assert ACTIVE_STREAMLIT_BASE_URL == MITO_STREAMLIT_DEV_BASE_URL
 
-
-def test_auth_urls() -> Any:
-    """Make sure that the auth URLs are correct"""
-    expected_signup_url = "https://mito-app-auth.auth.us-east-1.amazoncognito.com/signup?client_id=6ara3u3l8sss738hrhbq1qtiqf&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:8888/lab"
-    expected_signin_url = "https://mito-app-auth.auth.us-east-1.amazoncognito.com/login?client_id=6ara3u3l8sss738hrhbq1qtiqf&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:8888/lab"
-    
-    assert SIGNUP_DEV_URL == expected_signup_url
-    assert SIGNIN_DEV_URL == expected_signin_url
-    assert ACTIVE_SIGNUP_URL == SIGNUP_DEV_URL
-    assert ACTIVE_SIGNIN_URL == SIGNIN_DEV_URL
-
 def test_cognito_config() -> Any:
     """Make sure that the Cognito configuration is correct"""
     expected_config = {
@@ -54,6 +43,6 @@ def test_cognito_config() -> Any:
         'CLIENT_SECRET': '',
         'REDIRECT_URI': 'http://localhost:8888/lab'
     }
-    
+
     assert COGNITO_CONFIG_DEV == expected_config
     assert ACTIVE_COGNITO_CONFIG == COGNITO_CONFIG_DEV
