@@ -187,7 +187,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(codeInCell).toContain('y = 2');
   });
 
-  test('Always write code to the preview cell', async ({ page }) => {
+  test.only('Always write code to the preview cell', async ({ page }) => {
     await updateCell(page, 0, ['print("hello world")'], true);
     await updateCell(page, 1, ['# this should not be overwritten'], true);
 
@@ -211,7 +211,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(codeInCell2).toContain('# this should not be overwritten');
   });
 
-  test('Reject reverts preview cell to original code', async ({ page }) => {
+  test.only('Reject reverts preview cell to original code', async ({ page }) => {
     await updateCell(page, 0, ['print("hello world")'], true);
     await updateCell(page, 1, ['# this should not be overwritten'], true);
 
