@@ -10,4 +10,27 @@
   background-color: transparent;
   border: none;
   cursor: pointer;
+  position: relative;
+}
+
+.notification-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid white;
+}
+
+.notification-dot-success {
+  background-color: var(--green-600);
+}
+
+.notification-dot-warning {
+  background-color: var(--yellow-300);
+}
+
+.notification-dot-danger {
+  background-color: var(--red-600);
 }

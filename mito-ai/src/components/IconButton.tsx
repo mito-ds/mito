@@ -13,13 +13,15 @@ interface IconButtonProps {
     onClick: () => void;
     title: string;
     style?: React.CSSProperties;
+    notificationDotType?: 'success' | 'warning' | 'danger' | null;
 }
 
-const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, style }) => {
+const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, style, notificationDotType = null }) => {
 
     return (
         <button className={classNames("icon-button")} onClick={onClick} title={title} style={style}>
             {icon}
+            {notificationDotType && <div className={`notification-dot notification-dot-${notificationDotType}`}></div>}
         </button>
     )
 }
