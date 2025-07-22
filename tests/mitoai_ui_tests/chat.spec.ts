@@ -188,7 +188,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(codeInCell).toContain('y = 2');
   });
 
-  test.only('Always write code to the preview cell', async ({ page }) => {
+  test('Always write code to the preview cell', async ({ page }) => {
     await updateCell(page, 0, ['print("hello world")'], true);
 
     // Send the first message with the first cell active
@@ -215,7 +215,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(codeInCell2).not.toContain('x = 1');
   });
 
-  test.only('Reject reverts preview cell to original code', async ({ page }) => {
+  test('Reject reverts preview cell to original code', async ({ page }) => {
     await updateCell(page, 0, ['print("hello world")'], true);
 
     // Send the first message with the first cell active
