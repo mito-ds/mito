@@ -46,4 +46,14 @@ MITO_STREAMLIT_TEST_BASE_URL = "https://iyual08t6d.execute-api.us-east-1.amazona
 
 # Set ACTIVE_BASE_URL manually
 # TODO: Modify to PROD url before release
-ACTIVE_STREAMLIT_BASE_URL = MITO_STREAMLIT_TEST_BASE_URL  # Change to MITO_STREAMLIT_DEV_BASE_URL for dev
+ACTIVE_STREAMLIT_BASE_URL = MITO_STREAMLIT_DEV_BASE_URL  # Change to MITO_STREAMLIT_DEV_BASE_URL for dev
+
+# AWS Cognito configuration
+COGNITO_CONFIG_DEV = {
+    'TOKEN_ENDPOINT': 'https://mito-app-auth.auth.us-east-1.amazoncognito.com/oauth2/token',
+    'CLIENT_ID': '6ara3u3l8sss738hrhbq1qtiqf',
+    'CLIENT_SECRET': '',
+    'REDIRECT_URI': 'http://localhost:8888/lab'
+}
+
+ACTIVE_COGNITO_CONFIG = COGNITO_CONFIG_DEV # Change to COGNITO_CONFIG_DEV for dev
