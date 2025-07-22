@@ -21,7 +21,7 @@ import DatabaseIcon from '../../../icons/DatabaseIcon';
 import IconButton from '../../../components/IconButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { COMMAND_MITO_AI_SETTINGS } from '../../SettingsManager/SettingsManagerPlugin';
-import { useDatabaseConnections } from '../../../hooks/useDatabaseConnections';
+import { getDatabaseConnections } from '../../../restAPI/RestAPI';
 
 interface ChatInputProps {
     app: JupyterFrontEnd;
@@ -70,14 +70,20 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [dropdownFilter, setDropdownFilter] = useState('');
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
+    const [databaseConnections, setDatabaseConnections] = useState<Record<string, any>>({});
 
     // Fetch database connections
-    const { connections, loading: connectionsLoading } = useDatabaseConnections();
+    useEffect(() => {
+        const fetchDatabaseConnections = async (): Promise<void> => {
+            const databaseConnections = await getDatabaseConnections();
+            setDatabaseConnections(databaseConnections);
+        };
+        void fetchDatabaseConnections();
+    }, []);
 
     // Determine notification dot type based on connections
     const getNotificationDotType = (): 'success' | 'warning' | null => {
-        if (connectionsLoading) return null; // Don't show dot while loading
-        return Object.keys(connections).length > 0 ? 'success' : 'warning';
+        return Object.keys(databaseConnections).length > 0 ? 'success' : 'warning';
     };
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
