@@ -8,7 +8,12 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     VARIABLES_SECTION_HEADING,
     cell_update_output_str
 )
-from mito_ai.completions.prompt_builders.utils import get_rules_str, get_selected_variables_str, get_selected_files_str
+from mito_ai.completions.prompt_builders.utils import (
+    get_rules_str,
+    get_selected_variables_str,
+    get_selected_files_str,
+    get_selected_db_connections_str,
+)
 
 def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     variables_str = '\n'.join([f"{variable}" for variable in md.variables or []])
@@ -16,6 +21,7 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
     selected_variables_str = get_selected_variables_str(md.additionalContext)
     selected_files_str = get_selected_files_str(md.additionalContext)
+    selected_db_connections_str = get_selected_db_connections_str(md.additionalContext)
     rules_str = get_rules_str(md.additionalContext)
     context_str = f"""Remember to choose the correct tool to respond with.
 
@@ -34,6 +40,8 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
 {selected_variables_str}
 
 {selected_files_str}
+
+{selected_db_connections_str}
 
 {cell_update_output_str(md.base64EncodedActiveCellOutput is not None)}"""
 
