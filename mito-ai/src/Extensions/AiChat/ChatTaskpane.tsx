@@ -1479,6 +1479,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     />
                 )}
                 <ChatInput
+                    app={app}
                     initialContent={''}
                     placeholder={
                         agentExecutionStatus === 'working' ? 'Agent is working...' :
