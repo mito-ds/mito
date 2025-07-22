@@ -28,7 +28,7 @@
 }
 
 .notification-dot-warning {
-  background-color: var(--yellow-300);
+  background-color: var(--yellow-600);
 }
 
 .notification-dot-danger {
