@@ -12,11 +12,7 @@ def get_rules_str(additional_context: Optional[List[Dict[str, str]]]) -> str:
     if not additional_context:
         return ""
 
-    selected_rules = [
-        context["value"]  # Get the rule value directly
-        for context in additional_context
-        if context.get("type") == "rule"
-    ]
+    selected_rules = [context["value"] for context in additional_context if context.get("type") == "rule"]
     if len(selected_rules) == 0:
         return ""
 
@@ -39,27 +35,11 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
         return ""
 
     # STEP 1: Extract each context type into a separate list
-
-    selected_variables = [
-        context["value"]
-        for context in additional_context
-        if context.get("type") == "variable"
-    ]
-
-    selected_files = [
-        context["value"]
-        for context in additional_context
-        if context.get("type") == "file"
-    ]
-
-    selected_db_connections = [
-        context["value"]
-        for context in additional_context
-        if context.get("type") == "db"
-    ]
+    selected_variables = [context["value"] for context in additional_context if context.get("type") == "variable"]
+    selected_files = [context["value"] for context in additional_context if context.get("type") == "file"]
+    selected_db_connections = [context["value"] for context in additional_context if context.get("type") == "db"]
 
     # STEP 2: Create a list of strings (instructions) for each context type
-
     context_parts = []
 
     if len(selected_variables) > 0:
