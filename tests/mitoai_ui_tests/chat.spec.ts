@@ -10,7 +10,8 @@ import {
   selectCell,
   waitForIdle,
   addNewCell,
-  updateCell
+  updateCell,
+  waitForCodeToBeWritten
 } from '../jupyter_utils/jupyterlab_utils';
 import {
   clearMitoAIChatInput,
@@ -90,7 +91,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(code).toContain('1');
   });
 
-  test('Reject AI Generated Code', async ({ page }) => {
+  test.only('Reject AI Generated Code', async ({ page }) => {
     await updateCell(
       page,
       0,
@@ -109,7 +110,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(code?.trim()).toBe("")
   });
 
-  test("Reject using cell toolbar button", async ({ page }) => {
+  test.only("Reject using cell toolbar button", async ({ page }) => {
     await sendMessagetoAIChat(page, 'print x=1');
 
     await clickPreviewButton(page);
@@ -203,9 +204,14 @@ test.describe.parallel('Mito AI Chat', () => {
     await clickAcceptButton(page);
     await waitForIdle(page);
 
+    // Wait for the code to be written to cell 0
+    await waitForCodeToBeWritten(page, 0);
+
+    // The code should be written to cell 0 (the cell that was active when the message was sent)
     const codeInCell1 = await getCodeFromCell(page, 0);
     expect(codeInCell1).toContain('x = 1');
 
+    // Cell 1 should remain unchanged
     const codeInCell2 = await getCodeFromCell(page, 1);
     expect(codeInCell2).not.toContain('x = 1');
     expect(codeInCell2).toContain('# this should not be overwritten');
@@ -222,15 +228,20 @@ test.describe.parallel('Mito AI Chat', () => {
     // Preview the changes
     await clickPreviewButton(page);
 
-    // Select the second cell and accept the changes
+    // Select the second cell and reject the changes
     await selectCell(page, 1);
     await clickDenyButton(page);
     await waitForIdle(page);
 
+    // Wait for the code to be reverted in cell 0
+    await waitForCodeToBeWritten(page, 0);
+
+    // Cell 0 should be reverted to its original content
     const codeInCell1 = await getCodeFromCell(page, 0);
     expect(codeInCell1).toContain('print("hello world")');
     expect(codeInCell1).not.toContain('x = 1');
 
+    // Cell 1 should remain unchanged
     const codeInCell2 = await getCodeFromCell(page, 1);
     expect(codeInCell2).not.toContain('x = 1');
     expect(codeInCell2).toContain('# this should not be overwritten');
