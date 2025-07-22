@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import '../../style/SelectedContextContainer.css';
 import RuleIcon from '../icons/RuleIcon';
 import CodeIcon from '../icons/CodeIcon';
+import DatabaseIcon from '../icons/DatabaseIcon';
 
 interface SelectedContextContainerProps {
     title: string;
@@ -24,6 +25,9 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ tit
             break;
         case 'variable':
             icon = <CodeIcon />;
+            break;
+        case 'db':
+            icon = <DatabaseIcon />;
             break;
     }
 
