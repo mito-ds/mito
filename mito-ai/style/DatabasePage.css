@@ -39,8 +39,8 @@
 }
 
 .connection-type {
-    background: var(--purple-100, #f3e8ff);
-    color: var(--purple-700, #6d28d9);
+    background: var(--purple-100);
+    color: var(--purple-700);
     border-radius: 12px;
     padding: 2px 10px;
     font-size: 0.85em;
@@ -51,7 +51,7 @@
 
 .connection-divider {
     height: 1px;
-    background: var(--jp-border-color2, #e0e0e0);
+    background: var(--jp-border-color2);
     margin: 8px 0 12px 0;
     width: 100%;
 }
