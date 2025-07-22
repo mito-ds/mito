@@ -17,6 +17,8 @@ import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
+import DatabaseIcon from '../../../icons/DatabaseIcon';
+import IconButton from '../../../components/IconButton';
 
 interface ChatInputProps {
     initialContent: string;
@@ -283,7 +285,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         }}
                     >
                         ＠ Add Context
-                    </button>                
+                    </button>      
+                    <IconButton
+                        icon={<DatabaseIcon />}
+                        title='Add Database'
+                        onClick={() => {
+                            console.log('database icon clicked')
+                        }}
+                    />
                     {additionalContext.map((context, index) => (
                         <SelectedContextContainer
                             key={`${context.type}-${context.value}-${index}`}
