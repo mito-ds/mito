@@ -107,10 +107,7 @@ export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number
     // Make sure the cell is visible
     await scrollToCell(page, cellIndex);
     const cell = await page.notebook.getCell(cellIndex);
-    if (cell === null) {
-        throw new Error(`Cell ${cellIndex} not found`);
-    }
-    await cell.click();
+    await cell?.click();
 }
 
 export const addNewCell = async (

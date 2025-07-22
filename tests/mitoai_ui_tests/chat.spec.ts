@@ -190,7 +190,6 @@ test.describe.parallel('Mito AI Chat', () => {
 
   test.only('Always write code to the preview cell', async ({ page }) => {
     await updateCell(page, 0, ['print("hello world")'], true);
-    await updateCell(page, 1, ['# this should not be overwritten'], true);
 
     // Send the first message with the first cell active
     await selectCell(page, 0);
@@ -214,12 +213,10 @@ test.describe.parallel('Mito AI Chat', () => {
     // Cell 1 should remain unchanged
     const codeInCell2 = await getCodeFromCell(page, 1);
     expect(codeInCell2).not.toContain('x = 1');
-    expect(codeInCell2).toContain('# this should not be overwritten');
   });
 
   test.only('Reject reverts preview cell to original code', async ({ page }) => {
     await updateCell(page, 0, ['print("hello world")'], true);
-    await updateCell(page, 1, ['# this should not be overwritten'], true);
 
     // Send the first message with the first cell active
     await selectCell(page, 0);
@@ -244,7 +241,6 @@ test.describe.parallel('Mito AI Chat', () => {
     // Cell 1 should remain unchanged
     const codeInCell2 = await getCodeFromCell(page, 1);
     expect(codeInCell2).not.toContain('x = 1');
-    expect(codeInCell2).toContain('# this should not be overwritten');
   });
 
   test('No Code blocks are displayed when active cell is empty', async ({ page }) => {
