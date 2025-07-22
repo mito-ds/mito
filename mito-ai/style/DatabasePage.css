@@ -28,20 +28,32 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
-.connection-card-header h3 {
-    margin: 0;
-    font-size: 1.1em;
+.connection-alias {
+    font-size: 1.2em;
+    font-weight: bold;
     color: var(--jp-ui-font-color1);
+    margin: 0;
 }
 
 .connection-type {
-    font-size: 0.9em;
-    color: var(--jp-ui-font-color2);
+    background: var(--purple-100, #f3e8ff);
+    color: var(--purple-700, #6d28d9);
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 0.85em;
+    font-weight: 500;
     text-transform: capitalize;
-    margin-bottom: 8px;
+    margin-left: 8px;
+}
+
+.connection-divider {
+    height: 1px;
+    background: var(--jp-border-color2, #e0e0e0);
+    margin: 8px 0 12px 0;
+    width: 100%;
 }
 
 .connection-details {
