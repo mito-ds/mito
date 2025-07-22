@@ -105,9 +105,12 @@ export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: n
 
 export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
     // Make sure the cell is visible
-    await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
+    await scrollToCell(page, cellIndex);
     const cell = await page.notebook.getCell(cellIndex);
-    await cell?.click();
+    if (cell === null) {
+        throw new Error(`Cell ${cellIndex} not found`);
+    }
+    await cell.click();
 }
 
 export const addNewCell = async (
@@ -136,4 +139,8 @@ export const updateCell = async (
         await runCell(page, cellIndex);
     }
     await waitForIdle(page);
+}
+
+export const scrollToCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
+    await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
 }

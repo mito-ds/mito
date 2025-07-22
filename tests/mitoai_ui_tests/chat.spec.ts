@@ -91,7 +91,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(code).toContain('1');
   });
 
-  test.only('Reject AI Generated Code', async ({ page }) => {
+  test('Reject AI Generated Code', async ({ page }) => {
     await updateCell(
       page,
       0,
@@ -110,7 +110,7 @@ test.describe.parallel('Mito AI Chat', () => {
     expect(code?.trim()).toBe("")
   });
 
-  test.only("Reject using cell toolbar button", async ({ page }) => {
+  test("Reject using cell toolbar button", async ({ page }) => {
     await sendMessagetoAIChat(page, 'print x=1');
 
     await clickPreviewButton(page);
