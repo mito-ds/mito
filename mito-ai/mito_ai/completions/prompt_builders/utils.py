@@ -71,3 +71,23 @@ def get_selected_files_str(additional_context: Optional[List[Dict[str, str]]]) -
         "The following files have been selected by the user to be used in the task:\n"
         + "\n".join([f"{file}" for file in selected_files])
     )
+
+def get_selected_db_connections_str(additional_context: Optional[List[Dict[str, str]]]) -> str:
+    """
+    Extract the database connections from the additional context array.
+    """
+    if not additional_context:
+        return ""
+        
+    selected_db_connections = [
+        context["value"] # Get the database connection value directly
+        for context in additional_context
+        if context.get("type") == "db"
+    ]
+    if len(selected_db_connections) == 0:
+        return ""
+
+    return (
+        "The following database connections have been selected by the user to be used in the task:\n"
+        + "\n".join([f"{db_connection}" for db_connection in selected_db_connections])
+    )

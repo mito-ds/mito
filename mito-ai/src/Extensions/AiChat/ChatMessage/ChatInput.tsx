@@ -39,6 +39,7 @@ export interface ExpandedVariable extends Variable {
 interface ContextItem {
     type: string;
     value: string;
+    display?: string; // Optional display name, will fallback to value if not provided
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -135,6 +136,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 setAdditionalContext(prev => [...prev, { type: 'file', value: option.file.variable_name }]);
             } else if (option.type === 'rule') {
                 setAdditionalContext(prev => [...prev, { type: 'rule', value: option.rule }]);
+            } else if (option.type === 'db') {
+                setAdditionalContext(prev => [
+                    ...prev,
+                    { 
+                        type: 'db', 
+                        value: option.variable.value, 
+                        display: option.variable.variable_name 
+                    }
+                ]);
             }
             setDropdownVisible(false);
             
@@ -174,6 +184,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
             // delete the context from there if they want to. 
             contextChatRepresentation = option.rule
             setAdditionalContext([...additionalContext, { type: 'rule', value: option.rule }]);
+        } else if (option.type === 'db') {
+            // For databases, add them as back-ticked elements
+            contextChatRepresentation = `\`${option.variable.variable_name}\``
+            setAdditionalContext([
+                ...additionalContext,
+                { type: 'db', value: option.variable.value, display: option.variable.variable_name }
+            ]);
         }
 
         const newValue =
@@ -270,7 +287,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     {additionalContext.map((context, index) => (
                         <SelectedContextContainer
                             key={`${context.type}-${context.value}-${index}`}
-                            title={context.value}
+                            title={context.type === 'db' && context.display ? context.display : context.value}
                             type={context.type}
                             onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
                         />
@@ -305,7 +322,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
-                            onSave(input, undefined, additionalContext)
+                            onSave(input, undefined, additionalContext.map(ctx => ctx.type === 'db' ? {type: ctx.type, value: ctx.value} : ctx))
 
                             // Reset
                             setInput('')
@@ -335,7 +352,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => onSave(input, undefined, additionalContext)}>Save</button>
+                    <button onClick={() => onSave(input, undefined, additionalContext.map(ctx => ctx.type === 'db' ? {type: ctx.type, value: ctx.value} : ctx))}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

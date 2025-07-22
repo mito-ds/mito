@@ -14,6 +14,7 @@ from mito_ai.completions.prompt_builders.utils import (
     get_rules_str,
     get_selected_variables_str,
     get_selected_files_str,
+    get_selected_db_connections_str,
 )
 
 
@@ -30,6 +31,7 @@ def create_chat_prompt(
     files_str = "\n".join([f"{file}" for file in files])
     selected_variables_str = get_selected_variables_str(additional_context)
     selected_files_str = get_selected_files_str(additional_context)
+    selected_db_connections_str = get_selected_db_connections_str(additional_context)
     rules_str = get_rules_str(additional_context)
 
     prompt = f"""{rules_str}
@@ -111,6 +113,8 @@ Hey there! I'm Mito AI. How can I help you today?
 {selected_variables_str}
 
 {selected_files_str}
+
+{selected_db_connections_str}
 
 {get_active_cell_output_str(has_active_cell_output)}
 

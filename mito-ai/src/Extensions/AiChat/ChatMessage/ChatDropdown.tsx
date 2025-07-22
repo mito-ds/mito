@@ -24,6 +24,11 @@ interface ChatDropdownVariableOption {
     variable: ExpandedVariable;
 }
 
+interface ChatDropdownDatabaseOption {
+    type: 'db'
+    variable: ExpandedVariable;
+}
+
 interface ChatDropdownRuleOption {
     type: 'rule'
     rule: string;
@@ -34,7 +39,11 @@ interface ChatDropdownFileOption {
     file: ExpandedVariable;
 }
 
-export type ChatDropdownOption = ChatDropdownVariableOption | ChatDropdownRuleOption | ChatDropdownFileOption;
+export type ChatDropdownOption =
+    | ChatDropdownVariableOption
+    | ChatDropdownRuleOption
+    | ChatDropdownFileOption
+    | ChatDropdownDatabaseOption;
 
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
     options,
@@ -93,12 +102,12 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 file: file
             })),
         // Databases third
-        ...Object.entries(databaseConnections).map(([connectionId, connection]): ChatDropdownVariableOption => ({
-            type: 'variable',
+        ...Object.entries(databaseConnections).map(([connectionId, connection]): ChatDropdownDatabaseOption => ({
+            type: 'db',
             variable: {
                 variable_name: connection.alias || connection.database,
-                type: "DB",
-                value: connectionId,
+                type: "db",
+                value: connectionId + " - " + connection.type,
                 parent_df: connection.type
             }
         })),
@@ -132,6 +141,8 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 option.variable.variable_name !== "FUNCTIONS"; // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
         } else if (option.type === 'file') {
             return option.file.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase());
+        } else if (option.type === 'db') {
+            return option.variable.value.toLowerCase().includes(effectiveFilterText.toLowerCase());
         } else {
             return option.rule.toLowerCase().includes(effectiveFilterText.toLowerCase());
         }
@@ -238,47 +249,60 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 )}
 
                 {filteredOptions.map((option, index) => {
-                    let uniqueKey: string;
-                    if (option.type === 'variable') {
-                        uniqueKey = option.variable.parent_df
-                            ? `${option.variable.parent_df}.${option.variable.variable_name}`
-                            : option.variable.variable_name;
-                    } else if (option.type === 'file') {
-                        uniqueKey = option.file.variable_name;
-                    } else {
-                        uniqueKey = option.rule;
-                    }
-
-                    if (option.type === 'variable') {
-                        return (
-                            <VariableDropdownItem
-                                key={uniqueKey}
-                                variable={option.variable}
-                                index={index}
-                                selectedIndex={selectedIndex}
-                                onSelect={() => onSelect(option)}
-                            />
-                        );
-                    } else if (option.type === 'file') {
-                        return (
-                            <FileDropdownItem
-                                key={uniqueKey}
-                                file={option.file}
-                                index={index}
-                                selectedIndex={selectedIndex}
-                                onSelect={() => onSelect(option)}
-                            />
-                        );
-                    } else {
-                        return (
-                            <RuleDropdownItem
-                                key={uniqueKey}
-                                rule={option.rule}
-                                index={index}
-                                selectedIndex={selectedIndex}
-                                onSelect={() => onSelect(option)}
-                            />
-                        )
+                    switch (option.type) {
+                        case 'variable': {
+                            const uniqueKey = option.variable.parent_df
+                                ? `${option.variable.parent_df}.${option.variable.variable_name}`
+                                : option.variable.variable_name;
+                            return (
+                                <VariableDropdownItem
+                                    key={uniqueKey}
+                                    variable={option.variable}
+                                    index={index}
+                                    selectedIndex={selectedIndex}
+                                    onSelect={() => onSelect(option)}
+                                />
+                            );
+                        }
+                        case 'file': {
+                            const uniqueKey = option.file.variable_name;
+                            return (
+                                <FileDropdownItem
+                                    key={uniqueKey}
+                                    file={option.file}
+                                    index={index}
+                                    selectedIndex={selectedIndex}
+                                    onSelect={() => onSelect(option)}
+                                />
+                            );
+                        }
+                        case 'rule': {
+                            const uniqueKey = option.rule;
+                            return (
+                                <RuleDropdownItem
+                                    key={uniqueKey}
+                                    rule={option.rule}
+                                    index={index}
+                                    selectedIndex={selectedIndex}
+                                    onSelect={() => onSelect(option)}
+                                />
+                            );
+                        }
+                        case 'db': {
+                            const uniqueKey = option.variable.variable_name;
+                            // You can replace VariableDropdownItem with a custom DBDropdownItem if you want
+                            return (
+                                <VariableDropdownItem
+                                    key={uniqueKey}
+                                    variable={option.variable}
+                                    index={index}
+                                    selectedIndex={selectedIndex}
+                                    onSelect={() => onSelect(option)}
+                                />
+                            );
+                        }
+                        default:
+                            return null;
                     }
                 })}
             </ul>
