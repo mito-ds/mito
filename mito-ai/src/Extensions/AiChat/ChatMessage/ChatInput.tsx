@@ -21,6 +21,7 @@ import DatabaseIcon from '../../../icons/DatabaseIcon';
 import IconButton from '../../../components/IconButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { COMMAND_MITO_AI_SETTINGS } from '../../SettingsManager/SettingsManagerPlugin';
+import { useDatabaseConnections } from '../../../hooks/useDatabaseConnections';
 
 interface ChatInputProps {
     app: JupyterFrontEnd;
@@ -69,6 +70,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [dropdownFilter, setDropdownFilter] = useState('');
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
+
+    // Fetch database connections
+    const { connections, loading: connectionsLoading } = useDatabaseConnections();
+
+    // Determine notification dot type based on connections
+    const getNotificationDotType = (): 'success' | 'warning' | null => {
+        if (connectionsLoading) return null; // Don't show dot while loading
+        return Object.keys(connections).length > 0 ? 'success' : 'warning';
+    };
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
@@ -296,7 +306,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         onClick={() => {
                             app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
-                        notificationDotType="success"
+                        notificationDotType={getNotificationDotType()}
                     />
                     {additionalContext.map((context, index) => (
                         <SelectedContextContainer
