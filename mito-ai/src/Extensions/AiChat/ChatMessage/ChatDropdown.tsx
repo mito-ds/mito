@@ -96,7 +96,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         ...Object.entries(databaseConnections).map(([connectionId, connection]): ChatDropdownVariableOption => ({
             type: 'variable',
             variable: {
-                variable_name: connection.database,
+                variable_name: connection.alias || connection.database,
                 type: "DB",
                 value: connectionId,
                 parent_df: connection.type
