@@ -1,0 +1,47 @@
+name: Check for test.only statements
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'tests/**'
+      - '.github/workflows/check-test-only.yml'
+  pull_request:
+    paths:
+      - 'tests/**'
+      - '.github/workflows/check-test-only.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-test-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: tests/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd tests
+        npm install
+    
+    - name: Check for test.only statements using Playwright
+      run: |
+        cd tests
+        # Run a dry test with ForbidTestOnly=true to catch any .only() statements
+        # We use --list to just list tests without actually running them
+        # This will fail if there are any test.only/describe.only statements
+        ForbidTestOnly=true npx playwright test --list
+      env:
+        ForbidTestOnly: true 

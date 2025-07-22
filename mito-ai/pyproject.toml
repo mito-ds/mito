@@ -32,14 +32,16 @@ classifiers = [
 dependencies = [
     "jinja2>=3.0.3",
     "jupyterlab>=4.1.0,<5",
-    "openai>=1.0.0",
     "analytics-python",
     "tornado>=6.2.0",
     "traitlets",
     "pydantic",
     "requests>=2.25.0",
     "SQLAlchemy",
+    # Mito App Dependencies
     "pipreqs",
+    # LLM Dependencies
+    "openai>=1.0.0",
     "google-genai",
     "anthropic"
 ]
