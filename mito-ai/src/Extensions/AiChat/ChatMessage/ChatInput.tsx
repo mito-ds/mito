@@ -20,7 +20,7 @@ import SelectedContextContainer from '../../../components/SelectedContextContain
 import DatabaseIcon from '../../../icons/DatabaseIcon';
 import IconButton from '../../../components/IconButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-// import { COMMAND_MITO_AI_SETTINGS } from '../../SettingsManager/SettingsManagerPlugin';
+import { COMMAND_MITO_AI_SETTINGS } from '../../SettingsManager/SettingsManagerPlugin';
 
 interface ChatInputProps {
     app: JupyterFrontEnd;
@@ -294,7 +294,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         icon={<DatabaseIcon />}
                         title='Add Database'
                         onClick={() => {
-                            console.log('database icon clicked')
+                            app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
                         notificationDotType="success"
                     />
