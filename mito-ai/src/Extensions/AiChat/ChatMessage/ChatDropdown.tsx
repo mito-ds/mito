@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ExpandedVariable } from './ChatInput';
-import { getRules } from '../../../restAPI/RestAPI';
+import { getDatabaseConnections, getRules } from '../../../restAPI/RestAPI';
 import { VariableDropdownItem, FileDropdownItem, RuleDropdownItem } from './ChatDropdownItems';
 
 interface ChatDropdownProps {
@@ -50,13 +50,19 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     const searchInputRef = useRef<HTMLInputElement>(null);
 
     const [rules, setRules] = useState<string[]>([]);
+    const [databaseConnections, setDatabaseConnections] = useState<Record<string, any>>({});
 
     useEffect(() => {
         const fetchRules = async (): Promise<void> => {
             const rules = await getRules();
             setRules(rules);
         };
+        const fetchDatabaseConnections = async (): Promise<void> => {
+            const databaseConnections = await getDatabaseConnections();
+            setDatabaseConnections(databaseConnections);
+        };
         void fetchRules();
+        void fetchDatabaseConnections();
     }, []);
 
     // Focus search input when dropdown opens with search input
@@ -75,37 +81,47 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     // ['type': 'file', "file": file]
     const allOptions: ChatDropdownOption[] = [
         // Rules first
-        ...rules.map((rule): ChatDropdownRuleOption => ({ 
-            type: 'rule', 
-            rule: rule 
+        ...rules.map((rule): ChatDropdownRuleOption => ({
+            type: 'rule',
+            rule: rule
         })),
         // Files second
         ...options
             .filter(variable => variable.file_name) // Only files
-            .map((file): ChatDropdownFileOption => ({ 
-                type: 'file', 
-                file: file 
+            .map((file): ChatDropdownFileOption => ({
+                type: 'file',
+                file: file
             })),
-        // Dataframes third
+        // Databases third
+        ...Object.entries(databaseConnections).map(([connectionId, connection]): ChatDropdownVariableOption => ({
+            type: 'variable',
+            variable: {
+                variable_name: connection.database,
+                type: "DB",
+                value: connectionId,
+                parent_df: connection.type
+            }
+        })),
+        // Dataframes fourth
         ...options
             .filter(variable => !variable.file_name && variable.type === "pd.DataFrame")
-            .map((variable): ChatDropdownVariableOption => ({ 
-                type: 'variable', 
-                variable: variable 
+            .map((variable): ChatDropdownVariableOption => ({
+                type: 'variable',
+                variable: variable
             })),
-        // Columns fourth
+        // Columns fifth
         ...options
             .filter(variable => !variable.file_name && variable.parent_df && variable.type !== "pd.DataFrame")
-            .map((variable): ChatDropdownVariableOption => ({ 
-                type: 'variable', 
-                variable: variable 
+            .map((variable): ChatDropdownVariableOption => ({
+                type: 'variable',
+                variable: variable
             })),
         // Other variables last
         ...options
             .filter(variable => !variable.file_name && !variable.parent_df && variable.type !== "pd.DataFrame")
-            .map((variable): ChatDropdownVariableOption => ({ 
-                type: 'variable', 
-                variable: variable 
+            .map((variable): ChatDropdownVariableOption => ({
+                type: 'variable',
+                variable: variable
             })),
     ];
 
@@ -168,7 +184,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         const handleClickOutside = (event: MouseEvent): void => {
             const target = event.target as Node;
             const dropdownElement = document.querySelector('.chat-dropdown');
-            
+
             if (dropdownElement && !dropdownElement.contains(target)) {
                 if (onClose) {
                     onClose();
@@ -238,7 +254,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                             <VariableDropdownItem
                                 key={uniqueKey}
                                 variable={option.variable}
-                                index={index}   
+                                index={index}
                                 selectedIndex={selectedIndex}
                                 onSelect={() => onSelect(option)}
                             />
