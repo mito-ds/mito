@@ -9,10 +9,11 @@ import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/re
 import ChatDropdown from '../../Extensions/AiChat/ChatMessage/ChatDropdown';
 import { ExpandedVariable } from '../../Extensions/AiChat/ChatMessage/ChatInput';
 
-// Mock the RestAPI.getRules function
+// Mock the RestAPI functions
 jest.mock('../../restAPI/RestAPI', () => ({
   ...jest.requireActual('../../restAPI/RestAPI'), // Import and retain default behavior
-  getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']) 
+  getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']),
+  getDatabaseConnections: jest.fn().mockResolvedValue({})
 }));
 
 // Helper function to create mock variables

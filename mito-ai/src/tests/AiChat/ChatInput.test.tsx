@@ -15,10 +15,11 @@ import { Variable } from '../../Extensions/ContextManager/VariableInspector';
 // Add import for RestAPI to mock getRules
 // import * as RestAPI from '../../RestAPI'; Jest will use the mock below
 
-// Mock the RestAPI.getRules function
+// Mock the RestAPI functions
 jest.mock('../../restAPI/RestAPI', () => ({
   ...jest.requireActual('../../restAPI/RestAPI'), // Import and retain default behavior
-  getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']) 
+  getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']),
+  getDatabaseConnections: jest.fn().mockResolvedValue({})
 }));
 
 // Mock the PythonCode component
