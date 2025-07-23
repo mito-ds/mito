@@ -40,7 +40,7 @@ const DatabaseButton: React.FC<DatabaseButtonProps> = ({
             icon={<DatabaseOutlineIcon />}
             title={title}
             onClick={() => {
-                app.commands.execute(COMMAND_MITO_AI_SETTINGS);
+                void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
             }}
             notificationDotType={getNotificationDotType()}
         />
