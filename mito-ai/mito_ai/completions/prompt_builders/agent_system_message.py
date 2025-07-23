@@ -231,7 +231,7 @@ When you have completed the user's task, respond with a message in this format:
     get_cell_output_cell_id: None,
     cell_update: None,
     next_steps: Optional[List[str]],
-    analysis_assumptions: Optional[List[str]]
+    analysis_assumptions: None
 }}
 
 Important information:
@@ -242,6 +242,7 @@ Important information:
 5. If you are not sure what the user might want to do next, err on the side of suggesting next steps instead of making an assumption and using more CELL_UPDATES.
 6. If the user's task doesn't involve creating or modifying a code cell, you should respond with a FINISHED_TASK response. 
 7. If the user is just sending a friendly greeting (like "Hello", "Hi", "Hey", "How are you?", "What can you help me with?", etc.), you must respond with a FINISHED_TASK response message with a friendly message like this: "Hello! I'm Mito AI, your AI assistant for data analysis and Python programming in Jupyter notebooks. I can help you analyze datasets, create visualizations, clean data, and much more. What would you like to work on today?"
+8. Do not include any analysis_assumptions in the FINISHED_TASK response.
 
 <Finished Task Example 1>
 
