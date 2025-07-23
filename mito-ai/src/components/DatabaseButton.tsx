@@ -16,18 +16,24 @@ interface DatabaseButtonProps {
 
 const DatabaseButton: React.FC<DatabaseButtonProps> = ({app}) => {
     const [databaseConnections, setDatabaseConnections] = useState<Record<string, any>>({});
+    const [isIconVisible, setIsIconVisible] = useState<boolean>(true);
+
+    // Fetch database connections
+    const fetchDatabaseConnections = async (): Promise<void> => {
+        const databaseConnections = await getDatabaseConnections();
+        setDatabaseConnections(databaseConnections);
+    };
 
     // Fetch database connections
     useEffect(() => {
-        const fetchDatabaseConnections = async (): Promise<void> => {
-            const databaseConnections = await getDatabaseConnections();
-            setDatabaseConnections(databaseConnections);
-        };
         void fetchDatabaseConnections();
     }, []);
 
     // Determine notification dot type based on connections
     const getNotificationDotType = (): 'success' | 'warning' | null => {
+        if (!isIconVisible) {
+            return null;
+        }
         return Object.keys(databaseConnections).length > 0 ? 'success' : 'warning';
     };
 
@@ -37,6 +43,7 @@ const DatabaseButton: React.FC<DatabaseButtonProps> = ({app}) => {
             title='Add Database'
             onClick={() => {
                 void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
+                setIsIconVisible(false);
             }}
             notificationDotType={getNotificationDotType()}
             className='icon-button-hover'
