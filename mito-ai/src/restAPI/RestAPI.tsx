@@ -113,3 +113,18 @@ export const renameRule = async(oldRuleName: string, newRuleName: string, newCon
     }
     return resp.data || '';
 }
+
+/************************************
+
+DATABASE ENDPOINTS
+
+************************************/
+
+export const getDatabaseConnections = async (): Promise<Record<string, any>> => {
+    const resp = await requestAPI<Record<string, any>>('db/connections')
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data || {};
+}
+

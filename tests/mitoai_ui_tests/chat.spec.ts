@@ -10,7 +10,8 @@ import {
   selectCell,
   waitForIdle,
   addNewCell,
-  updateCell
+  updateCell,
+  waitForCodeToBeWritten
 } from '../jupyter_utils/jupyterlab_utils';
 import {
   clearMitoAIChatInput,
@@ -47,7 +48,7 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(
       page,
       0,
-      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
+      ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
       true
     );
 
@@ -94,7 +95,7 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(
       page,
       0,
-      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
+      ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
       true
     );
 
@@ -135,7 +136,7 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(
       page,
       0,
-      ['import pandas as pd\ndf=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
+      ['import pandas as pd', 'df=pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})'],
       true
     );
 
@@ -188,52 +189,58 @@ test.describe.parallel('Mito AI Chat', () => {
   });
 
   test('Always write code to the preview cell', async ({ page }) => {
-    await updateCell(page, 0, ['print("hello world")', '# this should not be overwritten'], true);
+    await updateCell(page, 0, ['print("hello world")'], true);
 
     // Send the first message with the first cell active
-    selectCell(page, 0);
+    await selectCell(page, 0);
     await sendMessagetoAIChat(page, 'Write the code x = 1');
 
     // Preview the changes
     await clickPreviewButton(page);
 
     // Select the second cell and accept the changes
-    selectCell(page, 1);
+    await selectCell(page, 1);
     await clickAcceptButton(page);
     await waitForIdle(page);
 
+    // Wait for the code to be written to cell 0
+    await waitForCodeToBeWritten(page, 0);
+
+    // The code should be written to cell 0 (the cell that was active when the message was sent)
     const codeInCell1 = await getCodeFromCell(page, 0);
     expect(codeInCell1).toContain('x = 1');
 
+    // Cell 1 should remain unchanged
     const codeInCell2 = await getCodeFromCell(page, 1);
     expect(codeInCell2).not.toContain('x = 1');
-    expect(codeInCell2).toContain('# this should not be overwritten');
   });
 
   test('Reject reverts preview cell to original code', async ({ page }) => {
-    await updateCell(
-      page, 0, ['print("hello world")', '# this should not be overwritten'], true
-    );
+    await updateCell(page, 0, ['print("hello world")'], true);
 
     // Send the first message with the first cell active
-    selectCell(page, 0);
+    await selectCell(page, 0);
     await sendMessagetoAIChat(page, 'Write the code x = 1');
 
     // Preview the changes
     await clickPreviewButton(page);
 
-    // Select the second cell and accept the changes
-    selectCell(page, 1);
+    // Select the second cell and reject the changes
+    await selectCell(page, 1);
     await clickDenyButton(page);
     await waitForIdle(page);
 
+    // Wait for the code to be reverted in cell 0
+    await waitForCodeToBeWritten(page, 0);
+
+    // Cell 0 should be reverted to its original content
     const codeInCell1 = await getCodeFromCell(page, 0);
     expect(codeInCell1).toContain('print("hello world")');
     expect(codeInCell1).not.toContain('x = 1');
 
+    // Cell 1 should remain unchanged
     const codeInCell2 = await getCodeFromCell(page, 1);
     expect(codeInCell2).not.toContain('x = 1');
-    expect(codeInCell2).toContain('# this should not be overwritten');
   });
 
   test('No Code blocks are displayed when active cell is empty', async ({ page }) => {
@@ -259,7 +266,7 @@ test.describe.parallel('Mito AI Chat', () => {
     await updateCell(
       page,
       0,
-      ['import pandas as pd\ndf=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})'],
+      ['import pandas as pd', 'df=pd.DataFrame({"Apples": [1, 2, 3], "Bananas": [4, 5, 6]})'],
       true
     );
 

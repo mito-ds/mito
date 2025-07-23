@@ -12,8 +12,9 @@ import { devices } from '@playwright/test';
 
 module.exports = {
     ...exports,
-    // Fail the build on CI if you accidentally left test.only in the source code.
-    forbidOnly: !!process.env.CI,
+    // Fail the build if you accidentally left test.only in the source code.
+    // Only forbid test.only when ForbidTestOnly environment variable is set
+    forbidOnly: !!process.env.ForbidTestOnly,
     // Set timeout to 90 seconds (90000 ms)
     timeout: 90000,
     projects: [

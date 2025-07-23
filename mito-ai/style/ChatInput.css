@@ -42,7 +42,6 @@
 
 .active-cell-preview-container {
   padding: 10px;
-  background-color: var(--chat-user-message-background-color);
 }
 
 .chat-input-container:focus-within {
@@ -64,4 +63,22 @@
 
 .chat-input:focus::placeholder {
   color: var(--jp-ui-font-color3);
+}
+
+.context-button {
+  display: flex;
+  align-items: center;
+  background-color: var(--jp-layout-color2);
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 12px;
+  height: var(--chat-context-button-height);
+  cursor: pointer;
+  color: var(--jp-content-font-color1);
+  transition: background-color 0.2s ease;
+}
+
+.context-button:hover {
+  background-color: var(--jp-layout-color3);
 }

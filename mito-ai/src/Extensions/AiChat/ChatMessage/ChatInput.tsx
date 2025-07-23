@@ -17,11 +17,14 @@ import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
+import DatabaseButton from '../../../components/DatabaseButton';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 interface ChatInputProps {
+    app: JupyterFrontEnd;
     initialContent: string;
     placeholder: string;
-    onSave: (content: string, index?: number, selectedRules?: string[]) => void;
+    onSave: (content: string, index?: number, selectedRules?: Array<{type: string, value: string}>) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -36,7 +39,14 @@ export interface ExpandedVariable extends Variable {
     file_name?: string;
 }
 
+interface ContextItem {
+    type: string;
+    value: string;
+    display?: string; // Optional display name, will fallback to value if not provided
+}
+
 const ChatInput: React.FC<ChatInputProps> = ({
+    app,
     initialContent,
     placeholder,
     onSave,
@@ -48,7 +58,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     displayActiveCellCode = true,
     agentModeEnabled = false,
 }) => {
-
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -56,7 +65,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
-    const [selectedRules, setSelectedRules] = useState<string[]>([]);
+    const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
+    const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
@@ -109,14 +119,47 @@ const ChatInput: React.FC<ChatInputProps> = ({
             const query = currentWord.slice(1);
             setDropdownFilter(query);
             setDropdownVisible(true);
+            setIsDropdownFromButton(false);
         } else {
             setDropdownVisible(false);
             setDropdownFilter('');
+            setIsDropdownFromButton(false);
         }
     };
 
     const handleOptionSelect = (option: ChatDropdownOption): void => {
+        if (isDropdownFromButton) {
+            // When triggered by "Add Context" button, add to SelectedContextContainer
+            if (option.type === 'variable') {
+                // For variables, we'll add them as a special context type
+                const contextName = option.variable.parent_df 
+                    ? `${option.variable.parent_df}.${option.variable.variable_name}`
+                    : option.variable.variable_name;
+                setAdditionalContext(prev => [...prev, { type: 'variable', value: contextName }]);
+            } else if (option.type === 'file') {
+                setAdditionalContext(prev => [...prev, { type: 'file', value: option.file.variable_name }]);
+            } else if (option.type === 'rule') {
+                setAdditionalContext(prev => [...prev, { type: 'rule', value: option.rule }]);
+            } else if (option.type === 'db') {
+                setAdditionalContext(prev => [
+                    ...prev,
+                    { 
+                        type: 'db', 
+                        value: option.variable.value, 
+                        display: option.variable.variable_name 
+                    }
+                ]);
+            }
+            setDropdownVisible(false);
+            
+            // Use setTimeout to ensure this happens after React's state update cycle
+            setTimeout(() => {
+                textAreaRef.current?.focus();
+            }, 0);
+            return;
+        }
 
+        // Original behavior for @ dropdown - add to text input
         const textarea = textAreaRef.current;
         if (!textarea) return;
 
@@ -134,13 +177,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
             } else {
                 contextChatRepresentation = `\`${option.variable.variable_name}\``
             }
+        } else if (option.type === 'file') {
+            // For files, add them as both back-ticked elements and the additional context container
+            contextChatRepresentation = `\`${option.file.variable_name}\``
+            setAdditionalContext([...additionalContext, { type: 'file', value: option.file.variable_name }]);
         } else if (option.type === 'rule') {
             // We don't add the rule as an back ticked element in the chat input, 
             // and instead just add it as plain text because we also add it as 
             // a context container above the chat input and we want the user to 
             // delete the context from there if they want to. 
             contextChatRepresentation = option.rule
-            setSelectedRules([...selectedRules, option.rule]);
+            setAdditionalContext([...additionalContext, { type: 'rule', value: option.rule }]);
+        } else if (option.type === 'db') {
+            // For databases, add them as back-ticked elements
+            contextChatRepresentation = `\`${option.variable.variable_name}\``
+            setAdditionalContext([
+                ...additionalContext,
+                { type: 'db', value: option.variable.value, display: option.variable.variable_name }
+            ]);
         }
 
         const newValue =
@@ -160,6 +214,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }
         }, 0);
+    };
+
+    const handleDropdownClose = (): void => {
+        setDropdownVisible(false);
+        setDropdownFilter('');
+        setIsDropdownFromButton(false);
     };
 
     // Update the expandedVariables arr when the variable manager changes
@@ -196,37 +256,48 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
         activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
 
-    return (
-        <div 
-            className={classNames("chat-input-container")}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => {
-                setIsFocused(false)
-            }}
-        >
-            {/* Show the active cell preview if the text area has focus or the user has started typing */}
-            {selectedRules.length > 0 && (
-                <div className='context-container'>
-                    {selectedRules.map((rule) => (
-                        <SelectedContextContainer
-                            key={rule}
-                            title={rule}
-                            onRemove={() => setSelectedRules(selectedRules.filter((r) => r !== rule))}
-                        />
-                    ))}
-                </div>
-            )}
-            {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
-                && (isFocused || input.length > 0)
-                && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
-                    <div className='code-block-container'>
-                        <PythonCode
-                            code={activeCellCodePreview}
-                            renderMimeRegistry={renderMimeRegistry}
-                        />
+            return (
+            <div 
+                className={classNames("chat-input-container")}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => {
+                    setIsFocused(false)
+                }}
+            >
+                {/* Show the active cell preview if the text area has focus or the user has started typing */}
+                {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
+                    && (isFocused || input.length > 0)
+                    && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
+                        <div className='code-block-container'>
+                            <PythonCode
+                                code={activeCellCodePreview}
+                                renderMimeRegistry={renderMimeRegistry}
+                            />
+                        </div>
                     </div>
+                }
+                <div className='context-container'>
+                    <DatabaseButton app={app} />
+                    <button 
+                        className="context-button"
+                        onClick={() => {
+                            setDropdownVisible(true);
+                            setDropdownFilter('');
+                            setIsDropdownFromButton(true);
+                            textAreaRef.current?.focus();
+                        }}
+                    >
+                        ＠ Add Context
+                    </button>    
+                    {additionalContext.map((context, index) => (
+                        <SelectedContextContainer
+                            key={`${context.type}-${context.value}-${index}`}
+                            title={context.type === 'db' && context.display ? context.display : context.value}
+                            type={context.type}
+                            onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
+                        />
+                    ))}  
                 </div>
-            }
             
             {/* 
                 Create a relative container for the text area and the dropdown so that when we 
@@ -256,11 +327,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
-                            onSave(input, undefined, selectedRules)
+                            onSave(input, undefined, additionalContext.map(ctx => ctx.type === 'db' ? {type: ctx.type, value: ctx.value} : ctx))
 
                             // Reset
                             setInput('')
-                            setSelectedRules([])
+                            setAdditionalContext([])
                             setIsFocused(false)
                         }
                         // Escape key cancels editing
@@ -277,13 +348,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         options={expandedVariables}
                         onSelect={handleOptionSelect}
                         filterText={dropdownFilter}
+                        isDropdownFromButton={isDropdownFromButton}
+                        onFilterChange={setDropdownFilter}
+                        onClose={handleDropdownClose}
                     />
                 )}
             </div>
             
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => onSave(input, undefined, selectedRules)}>Save</button>
+                    <button onClick={() => onSave(input, undefined, additionalContext.map(ctx => ctx.type === 'db' ? {type: ctx.type, value: ctx.value} : ctx))}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

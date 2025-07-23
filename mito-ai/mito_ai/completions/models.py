@@ -3,11 +3,10 @@
 
 import traceback
 from dataclasses import dataclass, field
-from typing import Annotated, List, Literal, Optional, Type, Union, NewType
+from typing import Annotated, List, Literal, Optional, Type, Union, NewType, Dict
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
 from pydantic import BaseModel, Field
-
 
 # The ThreadID is the unique identifier for the chat thread.
 ThreadID = NewType('ThreadID', str)
@@ -63,6 +62,7 @@ class MessageType(Enum):
     GET_THREADS = "get_threads"
     DELETE_THREAD = "delete_thread"
     UPDATE_MODEL_CONFIG = "update_model_config"
+    STREAMLIT_CONVERSION = "streamlit_conversion"
 
     
 @dataclass(frozen=True)
@@ -84,7 +84,7 @@ class ChatMessageMetadata():
     base64EncodedActiveCellOutput: Optional[str] = None
     index: Optional[int] = None
     stream: bool = False
-    selectedRules: Optional[List[str]] = None
+    additionalContext: Optional[List[Dict[str, str]]] = None
     
     
 @dataclass(frozen=True)
@@ -98,7 +98,7 @@ class AgentExecutionMetadata():
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     index: Optional[int] = None
-    selectedRules: Optional[List[str]] = None
+    additionalContext: Optional[List[Dict[str, str]]] = None
     
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():
@@ -135,7 +135,7 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    
+
 @dataclass(frozen=True)
 class CompletionRequest:
     """

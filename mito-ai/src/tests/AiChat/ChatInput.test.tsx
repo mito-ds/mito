@@ -11,14 +11,16 @@ import { render, fireEvent, screen, createEvent, act, within } from '@testing-li
 import React from 'react';
 import ChatInput from '../../Extensions/AiChat/ChatMessage/ChatInput';
 import { Variable } from '../../Extensions/ContextManager/VariableInspector';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 // Add import for RestAPI to mock getRules
 // import * as RestAPI from '../../RestAPI'; Jest will use the mock below
 
-// Mock the RestAPI.getRules function
+// Mock the RestAPI functions
 jest.mock('../../restAPI/RestAPI', () => ({
   ...jest.requireActual('../../restAPI/RestAPI'), // Import and retain default behavior
-  getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']) 
+  getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']),
+  getDatabaseConnections: jest.fn().mockResolvedValue({})
 }));
 
 // Mock the PythonCode component
@@ -67,6 +69,11 @@ jest.mock('../../utils/notebook', () => ({
 
 // Base props for ChatInput component
 const createMockProps = (overrides = {}) => ({
+    app: {
+        commands: {
+            execute: jest.fn()
+        }
+    } as unknown as JupyterFrontEnd,
     initialContent: '',
     placeholder: 'Type your message...',
     onSave: jest.fn(),
@@ -547,6 +554,92 @@ describe('ChatInput Component', () => {
             
             // After removing, the SelectedContextContainer should not be in the document
             expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Add Context Button', () => {
+        beforeEach(() => {
+            // Clear the DOM between tests
+            document.body.innerHTML = '';
+        });
+
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('opens dropdown with search input when Add Context button is clicked', async () => {
+            renderChatInput();
+            
+            const addContextButton = screen.getByText('＠ Add Context');
+            
+            // Initially, dropdown should not be visible
+            expect(screen.queryByTestId('chat-dropdown')).not.toBeInTheDocument();
+            
+            // Click the Add Context button
+            await act(async () => {
+                fireEvent.click(addContextButton);
+            });
+            
+            // Dropdown should become visible with search input
+            expect(screen.getByTestId('chat-dropdown')).toBeInTheDocument();
+            expect(screen.getByTestId('chat-dropdown-list')).toBeInTheDocument();
+            
+            // Search input should be visible and focused
+            const searchInput = screen.getByPlaceholderText('Search variables and rules...');
+            expect(searchInput).toBeInTheDocument();
+            expect(searchInput).toHaveFocus();
+        });
+
+        it('shows both variables and rules in the dropdown when opened via Add Context button', async () => {
+            renderChatInput();
+            
+            const addContextButton = screen.getByText('＠ Add Context');
+            
+            await act(async () => {
+                fireEvent.click(addContextButton);
+            });
+            
+            // Check for variables
+            MOCK_VARIABLES.forEach(variable => {
+                const variableElement = screen.getByTestId(`chat-dropdown-item-name-${variable.variable_name}`);
+                expect(variableElement).toBeInTheDocument();
+                expect(variableElement).toHaveTextContent(variable.variable_name);
+            });
+            
+            // Check for rules
+            MOCK_RULES.forEach(rule => {
+                const ruleElement = screen.getByText(rule);
+                expect(ruleElement).toBeInTheDocument();
+            });
+        });
+
+        it('filters dropdown options when typing in search input', async () => {
+            renderChatInput();
+            
+            const addContextButton = screen.getByText('＠ Add Context');
+            
+            await act(async () => {
+                fireEvent.click(addContextButton);
+            });
+            
+            const searchInput = screen.getByPlaceholderText('Search variables and rules...');
+            
+            // Type 'df' to filter for variables starting with 'df'
+            await act(async () => {
+                fireEvent.change(searchInput, { target: { value: 'df' } });
+            });
+            
+            // Should show 'df' variable
+            expect(screen.getByTestId('chat-dropdown-item-name-df')).toBeInTheDocument();
+            
+            // Should not show other variables
+            expect(screen.queryByTestId('chat-dropdown-item-name-x')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('chat-dropdown-item-name-y')).not.toBeInTheDocument();
+            
+            // Should not show rules (since 'df' doesn't match any rule names)
+            expect(screen.queryByText('Data Analysis')).not.toBeInTheDocument();
+            expect(screen.queryByText('Visualization')).not.toBeInTheDocument();
+            expect(screen.queryByText('Machine Learning')).not.toBeInTheDocument();
         });
     });
 });

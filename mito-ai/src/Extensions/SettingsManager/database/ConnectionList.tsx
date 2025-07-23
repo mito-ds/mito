@@ -38,12 +38,17 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
             {Object.entries(connections).map(([id, connection]) => (
                 <div key={id} className="connection-card">
                     <div className="connection-card-header">
-                        <h3>{connection.type}</h3>
+                        <h3 className="connection-alias">
+                          {connection.alias ? connection.alias : connection.database}
+                        </h3>
+                        <span className="connection-type">{connection.type.toUpperCase()}</span>
                     </div>
+                    <div className="connection-divider" />
                     <div className="connection-details">
                         {databaseConfigs[connection.type]?.fields.map(field => {
-                            // Skip password fields for security
+                            // Skip specific fields
                             if (field.type === 'password') return null;
+                            if (field.name === 'alias') return null;
                             
                             const value = connection[field.name];
                             // Only show fields that have values
