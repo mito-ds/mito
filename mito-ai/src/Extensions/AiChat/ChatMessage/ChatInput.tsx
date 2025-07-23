@@ -17,11 +17,8 @@ import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
-import DatabaseOutlineIcon from '../../../icons/DatabaseOutlineIcon';
-import IconButton from '../../../components/IconButton';
+import DatabaseButton from '../../../components/DatabaseButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { COMMAND_MITO_AI_SETTINGS } from '../../SettingsManager/SettingsManagerPlugin';
-import { getDatabaseConnections } from '../../../restAPI/RestAPI';
 
 interface ChatInputProps {
     app: JupyterFrontEnd;
@@ -70,21 +67,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [dropdownFilter, setDropdownFilter] = useState('');
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
-    const [databaseConnections, setDatabaseConnections] = useState<Record<string, any>>({});
-
-    // Fetch database connections
-    useEffect(() => {
-        const fetchDatabaseConnections = async (): Promise<void> => {
-            const databaseConnections = await getDatabaseConnections();
-            setDatabaseConnections(databaseConnections);
-        };
-        void fetchDatabaseConnections();
-    }, []);
-
-    // Determine notification dot type based on connections
-    const getNotificationDotType = (): 'success' | 'warning' | null => {
-        return Object.keys(databaseConnections).length > 0 ? 'success' : 'warning';
-    };
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
@@ -306,14 +288,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     >
                         ＠ Add Context
                     </button>      
-                    <IconButton
-                        icon={<DatabaseOutlineIcon />}
-                        title='Add Database'
-                        onClick={() => {
-                            app.commands.execute(COMMAND_MITO_AI_SETTINGS);
-                        }}
-                        notificationDotType={getNotificationDotType()}
-                    />
+                    <DatabaseButton app={app} />
                     {additionalContext.map((context, index) => (
                         <SelectedContextContainer
                             key={`${context.type}-${context.value}-${index}`}
