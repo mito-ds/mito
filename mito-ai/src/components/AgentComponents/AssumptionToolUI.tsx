@@ -8,11 +8,11 @@ import { classNames } from '../../utils/classNames';
 import '../../../style/AssumptionTool.css';
 
 interface AssumptionToolUIProps {
-    assumption: string;
+    assumptions: string[];
 }
 
 const AssumptionToolUI: React.FC<AssumptionToolUIProps> = ({
-    assumption,
+    assumptions,
 }): JSX.Element => {
     return (
         <div className={classNames('assumption-tool-container')}>
@@ -21,11 +21,20 @@ const AssumptionToolUI: React.FC<AssumptionToolUIProps> = ({
                 Assumption
             </div>
             
-            <span className={classNames('assumption-content')}>
-                <div className="assumption-text">
-                    {assumption}
-                </div>
-            </span>
+            <p className={classNames('assumption-content')}>
+                {assumptions.length > 1 && (
+                    <ul>
+                        {assumptions.map((assumption, index) => (
+                            <li key={index}>
+                                {assumption}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+                {assumptions.length === 1 && (
+                    assumptions[0]
+                )}
+            </p>
         </div>
     );
 };

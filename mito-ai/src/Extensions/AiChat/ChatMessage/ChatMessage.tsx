@@ -285,9 +285,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
                             </p>
-                            {agentResponse?.analysis_assumptions?.map((assumption) => (
-                                <AssumptionToolUI assumption={assumption} />
-                            ))}
+                            {agentResponse?.analysis_assumptions &&
+                                <AssumptionToolUI assumptions={agentResponse.analysis_assumptions} />
+                            }
                         </div>
                     )
                 }
