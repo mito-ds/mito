@@ -17,7 +17,7 @@ import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
-import DatabaseIcon from '../../../icons/DatabaseIcon';
+import DatabaseOutlineIcon from '../../../icons/DatabaseOutlineIcon';
 import IconButton from '../../../components/IconButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { COMMAND_MITO_AI_SETTINGS } from '../../SettingsManager/SettingsManagerPlugin';
@@ -307,7 +307,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         ＠ Add Context
                     </button>      
                     <IconButton
-                        icon={<DatabaseIcon />}
+                        icon={<DatabaseOutlineIcon />}
                         title='Add Database'
                         onClick={() => {
                             app.commands.execute(COMMAND_MITO_AI_SETTINGS);
