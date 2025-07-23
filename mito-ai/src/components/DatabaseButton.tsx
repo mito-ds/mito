@@ -12,13 +12,9 @@ import { getDatabaseConnections } from '../restAPI/RestAPI';
 
 interface DatabaseButtonProps {
     app: JupyterFrontEnd;
-    title?: string;
 }
 
-const DatabaseButton: React.FC<DatabaseButtonProps> = ({
-    app,
-    title = 'Add Database'
-}) => {
+const DatabaseButton: React.FC<DatabaseButtonProps> = ({app}) => {
     const [databaseConnections, setDatabaseConnections] = useState<Record<string, any>>({});
 
     // Fetch database connections
@@ -38,11 +34,15 @@ const DatabaseButton: React.FC<DatabaseButtonProps> = ({
     return (
         <IconButton
             icon={<DatabaseOutlineIcon />}
-            title={title}
+            title='Add Database'
             onClick={() => {
                 void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
             }}
             notificationDotType={getNotificationDotType()}
+            className='icon-button-hover'
+            style={{
+                height: 'var(--chat-context-button-height)'
+            }}
         />
     );
 };

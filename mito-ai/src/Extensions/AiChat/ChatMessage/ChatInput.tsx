@@ -277,8 +277,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     </div>
                 }
                 <div className='context-container'>
+                    <DatabaseButton app={app} />
                     <button 
-                        className="add-context-button"
+                        className="context-button"
                         onClick={() => {
                             setDropdownVisible(true);
                             setDropdownFilter('');
@@ -287,8 +288,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         }}
                     >
                         ＠ Add Context
-                    </button>      
-                    <DatabaseButton app={app} />
+                    </button>    
                     {additionalContext.map((context, index) => (
                         <SelectedContextContainer
                             key={`${context.type}-${context.value}-${index}`}
@@ -296,7 +296,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             type={context.type}
                             onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
                         />
-                    ))}
+                    ))}  
                 </div>
             
             {/* 

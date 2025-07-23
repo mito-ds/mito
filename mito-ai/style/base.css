@@ -15,6 +15,7 @@
 :root {
   /* Margins */
   --chat-taskpane-item-indent: 10px;
+  --chat-context-button-height: 20px;
 
   /* Colors */
   --chat-background-color: var(--jp-layout-color1);
