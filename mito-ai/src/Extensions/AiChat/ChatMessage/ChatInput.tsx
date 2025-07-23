@@ -17,8 +17,11 @@ import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
+import DatabaseButton from '../../../components/DatabaseButton';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 interface ChatInputProps {
+    app: JupyterFrontEnd;
     initialContent: string;
     placeholder: string;
     onSave: (content: string, index?: number, selectedRules?: Array<{type: string, value: string}>) => void;
@@ -43,6 +46,7 @@ interface ContextItem {
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
+    app,
     initialContent,
     placeholder,
     onSave,
@@ -273,8 +277,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     </div>
                 }
                 <div className='context-container'>
+                    <DatabaseButton app={app} />
                     <button 
-                        className="add-context-button"
+                        className="context-button"
                         onClick={() => {
                             setDropdownVisible(true);
                             setDropdownFilter('');
@@ -283,7 +288,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         }}
                     >
                         ＠ Add Context
-                    </button>                
+                    </button>    
                     {additionalContext.map((context, index) => (
                         <SelectedContextContainer
                             key={`${context.type}-${context.value}-${index}`}
@@ -291,7 +296,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             type={context.type}
                             onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
                         />
-                    ))}
+                    ))}  
                 </div>
             
             {/* 

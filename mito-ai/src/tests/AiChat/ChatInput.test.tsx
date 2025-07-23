@@ -11,6 +11,7 @@ import { render, fireEvent, screen, createEvent, act, within } from '@testing-li
 import React from 'react';
 import ChatInput from '../../Extensions/AiChat/ChatMessage/ChatInput';
 import { Variable } from '../../Extensions/ContextManager/VariableInspector';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 // Add import for RestAPI to mock getRules
 // import * as RestAPI from '../../RestAPI'; Jest will use the mock below
@@ -68,6 +69,11 @@ jest.mock('../../utils/notebook', () => ({
 
 // Base props for ChatInput component
 const createMockProps = (overrides = {}) => ({
+    app: {
+        commands: {
+            execute: jest.fn()
+        }
+    } as unknown as JupyterFrontEnd,
     initialContent: '',
     placeholder: 'Type your message...',
     onSave: jest.fn(),
