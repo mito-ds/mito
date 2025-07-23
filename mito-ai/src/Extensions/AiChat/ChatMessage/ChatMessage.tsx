@@ -34,6 +34,7 @@ import AssumptionToolUI from '../../../components/AgentComponents/AssumptionTool
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 
 interface IChatMessageProps {
+    app: JupyterFrontEnd;
     message: OpenAI.Chat.ChatCompletionMessageParam
     messageType: IDisplayOptimizedChatItem['type']
     codeCellID: string | undefined
@@ -44,7 +45,6 @@ interface IChatMessageProps {
     mitoAIConnectionErrorType: string | null
     notebookTracker: INotebookTracker
     renderMimeRegistry: IRenderMimeRegistry
-    app: JupyterFrontEnd
     isLastAiMessage: boolean
     isLastMessage: boolean
     operatingSystem: OperatingSystem
@@ -60,6 +60,7 @@ interface IChatMessageProps {
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
+    app,
     message,
     messageType,
     promptType,
@@ -128,6 +129,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     if (isEditing) {
         return (
             <ChatInput
+                app={app}
                 initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
                 placeholder={"Edit your message"}
                 onSave={handleSave}

@@ -47,7 +47,9 @@
 }
 
 .selected-context-container .icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 12px;
   max-height: 14px;
-  align-self: center;
 }
