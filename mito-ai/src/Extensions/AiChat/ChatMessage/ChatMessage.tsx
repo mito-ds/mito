@@ -30,6 +30,7 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI';
+import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 
 interface IChatMessageProps {
@@ -166,6 +167,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     // very quickly for users. 
     let isCodeComplete = false;
 
+    console.log(messageContentParts)
+
     return (
         <div className={classNames(
             "message",
@@ -284,6 +287,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
                             </p>
+                            {agentResponse?.analysis_assumptions &&
+                                <AssumptionToolUI assumptions={agentResponse.analysis_assumptions} />
+                            }
                         </div>
                     )
                 }

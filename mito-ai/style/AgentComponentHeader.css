@@ -5,13 +5,13 @@
 
 .agent-component-header {
     cursor: pointer;
-    padding: 10px;
+    padding: 10px var(--chat-taskpane-tool-call-horizontal-padding);
     color: var(--jp-ui-font-color2);
     display: flex;
     justify-content: space-between;
     align-items: center;
     border: 1px solid var(--jp-cell-editor-border-color);
-    border-radius: 5px;
+    border-radius: var(--chat-taskpane-item-border-radius);
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 

@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.assumption-tool-container {
+    color: var(--jp-ui-font-color2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    position: relative;
+    padding: 8px var(--chat-taskpane-tool-call-horizontal-padding);
+    border-radius: var(--chat-taskpane-item-border-radius);
+    border: 1px solid var(--jp-cell-editor-border-color);
+    cursor: default;
+}
+
+.assumption-header-label {
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    background-color: var(--chat-background-color);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--jp-ui-font-color2);
+    font-style: italic;
+}
+
+.assumption-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--jp-ui-font-color2);
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 10px 10px 5px 10px;
+}
+
+.assumption-content ul {
+    margin: 0;
+    padding-left: 10px;
+}
