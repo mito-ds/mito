@@ -86,6 +86,20 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             }
         });
 
+        commands.addCommand('toolbar-button:preview-as-streamlit', {
+            label: 'Preview App',
+            caption: 'Preview as Streamlit',
+            className: 'text-button-mito-ai button-base button-purple button-small',
+            execute: async () => {
+                await app.commands.execute('mito-ai:preview-as-streamlit');
+            },
+            isVisible: () => {
+                // Default to hidden, will be updated after async check since we are not allowed to 
+                // use async commands in isVisible.
+                return app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
+            }
+        });
+
         // Check if the beta mode is enabled. After checking, tell Jupyter to 
         // re-evaluate convert-to-streamlit visibility now that we have had the 
         // opportunity to set the mito-ai:beta-mode-enabled command if beta mode is enabled.
@@ -94,6 +108,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                 commands.addCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED, { execute: () => { /* no-op */ } });
                 commands.notifyCommandChanged('toolbar-button:convert-to-streamlit');
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
+                commands.notifyCommandChanged('mito-ai:preview-as-streamlit');
             }
         }).catch(error => {
             console.error('Error checking beta mode:', error);
