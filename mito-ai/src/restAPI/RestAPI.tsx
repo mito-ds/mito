@@ -24,6 +24,7 @@ export const logEvent = async (logEvent: string, params?: Record<string, any>): 
 }
 
 
+import { StreamlitPreviewResponse } from "../Extensions/StreamlitPreview/StreamlitPreviewPlugin";
 /************************************
 
 SETTINGS ENDPOINTS
@@ -101,4 +102,27 @@ export const getDatabaseConnections = async (): Promise<Record<string, any>> => 
         throw new Error(resp.error.message);
     }
     return resp.data || {};
+}
+
+/************************************
+
+STREAMLIT PREVIEW ENDPOINTS
+
+************************************/
+
+
+export const startStreamlitPreview = async (notebookPath: string): Promise<StreamlitPreviewResponse> => {
+    const response = await requestAPI<StreamlitPreviewResponse>('streamlit-preview', {
+        method: 'POST',
+        body: JSON.stringify({ notebook_path: notebookPath }),
+    })
+    
+    if (response.error) {
+        throw new Error(response.error.message);
+    }
+
+    return response.data!;
+}
+
+export const stopStreamlitPreview = async (previewId: string): Promise<void> => {
 }
