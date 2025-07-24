@@ -45,7 +45,8 @@ export type AgentResponse = {
   message: string,
   cell_update?: CellUpdate,
   cell_id?: string,
-  next_steps?: string[]
+  next_steps?: string[],
+  analysis_assumptions?: string[]
 }
 
 /* 
@@ -77,7 +78,7 @@ export interface IChatMessageMetadata {
   input: string;
   index?: number;
   threadId: string;
-  selectedRules?: string[];
+  additionalContext?: Array<{type: string, value: string}>;
 }
 
 export interface IAgentExecutionMetadata {
@@ -90,7 +91,7 @@ export interface IAgentExecutionMetadata {
   index?: number;
   threadId: string;
   isChromeBrowser: boolean;
-  selectedRules?: string[];
+  additionalContext?: Array<{type: string, value: string}>;
 }
 
 export interface IAgentSmartDebugMetadata {

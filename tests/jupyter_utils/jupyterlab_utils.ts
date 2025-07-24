@@ -104,6 +104,8 @@ export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: n
 }
 
 export const selectCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
+    // Make sure the cell is visible
+    await scrollToCell(page, cellIndex);
     const cell = await page.notebook.getCell(cellIndex);
     await cell?.click();
 }
@@ -122,15 +124,20 @@ export const updateCell = async (
     cellValue: string[],
     runAfterTyping?: boolean 
 ) => {
+    await selectCell(page, cellIndex);
+    await waitForIdle(page);
+
     for (let i = 0; i < cellValue.length; i++) {
-        await selectCell(page, cellIndex + i);
-        await waitForIdle(page);
-
         await page.keyboard.type(cellValue[i], { delay: 50 });
-
-        if (runAfterTyping) {
-            await runCell(page, cellIndex + i);
-        }
-        await waitForIdle(page);
+        await page.keyboard.press('Enter');
     }
+
+    if (runAfterTyping) {
+        await runCell(page, cellIndex);
+    }
+    await waitForIdle(page);
+}
+
+export const scrollToCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
+    await page.locator('.jp-Cell-inputArea').nth(cellIndex).scrollIntoViewIfNeeded();
 }

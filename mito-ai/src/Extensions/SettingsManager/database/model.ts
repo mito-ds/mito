@@ -28,12 +28,21 @@ export interface DatabaseConfig {
     fields: DatabaseField[];
 }
 
+const ALIAS_PLACEHOLDER = 'Enter a nickname for this database';
+
 export const databaseConfigs: Record<string, DatabaseConfig> = {
     mssql: {
         type: 'mssql',
         displayName: 'Microsoft SQL Server',
         alertText: 'Microsoft SQL Server requires an additional driver. If you\'ve already installed it, you can safely ignore this message. For more info, consult the <a href="https://docs.trymito.io/mito-ai/database-connectors/microsoft-sql-server" target="_blank">Mito docs</a>.',
         fields: [
+            {
+                name: 'alias',
+                type: 'text',
+                label: 'Alias',
+                placeholder: ALIAS_PLACEHOLDER,
+                required: true
+            },
             {
                 name: 'username',
                 type: 'text',
@@ -83,6 +92,13 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
         displayName: 'MySQL',
         fields: [
             {
+                name: 'alias',
+                type: 'text',
+                label: 'Alias',
+                placeholder: ALIAS_PLACEHOLDER,
+                required: true
+            },
+            {
                 name: 'username',
                 type: 'text',
                 label: 'Username',
@@ -123,6 +139,13 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
         type: 'oracle',
         displayName: 'Oracle',
         fields: [
+            {
+                name: 'alias',
+                type: 'text',
+                label: 'Alias',
+                placeholder: ALIAS_PLACEHOLDER,
+                required: true
+            },
             {
                 name: 'username',
                 type: 'text',
@@ -165,6 +188,13 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
         displayName: 'PostgreSQL',
         fields: [
             {
+                name: 'alias',
+                type: 'text',
+                label: 'Alias',
+                placeholder: ALIAS_PLACEHOLDER,
+                required: true
+            },
+            {
                 name: 'username',
                 type: 'text',
                 label: 'Username',
@@ -206,6 +236,13 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
         displayName: 'Snowflake',
         fields: [
             {
+                name: 'alias',
+                type: 'text',
+                label: 'Alias',
+                placeholder: ALIAS_PLACEHOLDER,
+                required: true
+            },
+            {
                 name: 'username',
                 type: 'text',
                 label: 'Username',
@@ -239,6 +276,13 @@ export const databaseConfigs: Record<string, DatabaseConfig> = {
         type: 'sqlite',
         displayName: 'SQLite',
         fields: [
+            {
+                name: 'alias',
+                type: 'text',
+                label: 'Alias',
+                placeholder: ALIAS_PLACEHOLDER,
+                required: true
+            },
             {
                 name: 'database',
                 type: 'text',

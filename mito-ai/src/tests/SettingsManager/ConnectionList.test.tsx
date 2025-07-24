@@ -40,7 +40,7 @@ describe('ConnectionList', () => {
         // Verify that other fields are displayed
         expect(screen.getByText('localhost')).toBeInTheDocument();
         expect(screen.getByText('5432')).toBeInTheDocument();
-        expect(screen.getByText('testdb')).toBeInTheDocument();
+        expect(screen.queryAllByText('testdb').length).toBeGreaterThan(0);
         expect(screen.getByText('testuser')).toBeInTheDocument();
     });
 });

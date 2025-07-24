@@ -66,6 +66,9 @@ class BuildAppRequest:
     
     # Path to the app file.
     path: str
+    
+    # JWT token for authorization.
+    jwt_token: Optional[str] = None
 
 
 @dataclass(frozen=True)

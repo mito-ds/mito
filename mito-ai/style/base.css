@@ -15,6 +15,9 @@
 :root {
   /* Margins */
   --chat-taskpane-item-indent: 10px;
+  --chat-taskpane-item-border-radius: 5px;
+  --chat-taskpane-tool-call-horizontal-padding: 10px;
+  --chat-context-button-height: 20px;
 
   /* Colors */
   --chat-background-color: var(--jp-layout-color1);
@@ -40,6 +43,7 @@
   --red-300: #fce8e8;
 
   --yellow-900: #5c4813;
+  --yellow-600: #ffc107;
   --yellow-500: #fae29f;
   --yellow-300: #fde047;
   --yellow-100: #fef9c3;

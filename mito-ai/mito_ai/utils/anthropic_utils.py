@@ -8,7 +8,7 @@ import anthropic
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable, cast
 
 from anthropic.types import MessageParam, Message, TextBlock, ToolUnionParam
-from mito_ai.utils.mito_server_utils import get_response_from_mito_server
+from mito_ai.utils.mito_server_utils import get_response_from_mito_server, stream_response_from_mito_server
 from mito_ai.utils.provider_utils import does_message_require_fast_model
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
@@ -110,75 +110,23 @@ async def stream_anthropic_completion_from_mito_server(
     data, headers = _prepare_anthropic_request_data_and_headers(
         model, max_tokens, temperature, system, messages, message_type, None, None, stream
     )
-    http_client, http_client_timeout = _create_http_client(timeout, max_retries)
-    start_time = time.time()
-    chunk_queue: asyncio.Queue[str] = asyncio.Queue()
-    fetch_complete = False
-    def chunk_callback(chunk: bytes) -> None:
-        try:
-            chunk_str = chunk.decode('utf-8')
-            asyncio.create_task(chunk_queue.put(chunk_str))
-        except Exception as e:
-            print(f"Error processing Anthropic streaming chunk: {str(e)}")
-    fetch_future = None
-    try:
-        fetch_future = http_client.fetch(
-            MITO_ANTHROPIC_URL,
-            method="POST",
-            headers=headers,
-            body=json.dumps(data),
-            request_timeout=http_client_timeout,
-            streaming_callback=chunk_callback
-        )
-        async def wait_for_fetch() -> None:
-            try:
-                await fetch_future
-                nonlocal fetch_complete
-                fetch_complete = True
-                print("Anthropic fetch completed")
-            except Exception as e:
-                print(f"Error in Anthropic fetch: {str(e)}")
-                raise
-        fetch_task = asyncio.create_task(wait_for_fetch())
-        while not (fetch_complete and chunk_queue.empty()):
-            try:
-                chunk = await asyncio.wait_for(chunk_queue.get(), timeout=0.1)
-                if reply_fn and message_id:
-                    reply_fn(CompletionStreamChunk(
-                        parent_id=message_id,
-                        chunk=CompletionItem(
-                            content=chunk,
-                            isIncomplete=True,
-                            token=message_id,
-                        ),
-                        done=False,
-                    ))
-                yield chunk
-            except asyncio.TimeoutError:
-                if fetch_complete and chunk_queue.empty():
-                    break
-                continue
-        print(f"\nAnthropic stream completed in {time.time() - start_time:.2f} seconds")
-        if reply_fn and message_id:
-            reply_fn(CompletionStreamChunk(
-                parent_id=message_id,
-                chunk=CompletionItem(
-                    content="",
-                    isIncomplete=False,
-                    token=message_id,
-                ),
-                done=True,
-            ))
-    except Exception as e:
-        print(f"\nAnthropic stream failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
-        if fetch_future:
-            try:
-                await fetch_future
-            except Exception:
-                pass
-        raise
-    finally:
-        http_client.close()
+    # Use the unified streaming function
+    # If the reply_fn and message_id are empty, this function still handles those requests. This is particularly needed for the streamlit dashboard functionality
+    actual_reply_fn = reply_fn if reply_fn is not None else (lambda x: None)
+    actual_message_id = message_id if message_id is not None else ""
+    async for chunk in stream_response_from_mito_server(
+        url=MITO_ANTHROPIC_URL,
+        headers=headers,
+        data=data,
+        timeout=timeout,
+        max_retries=max_retries,
+        message_type=message_type,
+        reply_fn=actual_reply_fn,
+        message_id=actual_message_id,
+        chunk_processor=None,
+        provider_name="Claude",
+    ):
+        yield chunk
 
 def get_anthropic_completion_function_params(
     message_type: MessageType,

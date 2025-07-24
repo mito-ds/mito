@@ -6,8 +6,32 @@
 .icon-button {
   display: flex;
   align-items: center;
+  text-align: center;
   justify-content: center;
   background-color: transparent;
   border: none;
   cursor: pointer;
+  position: relative;
+}
+
+.icon-button-hover:hover {
+  background-color: var(--jp-layout-color3);
+}
+
+.notification-dot {
+  position: absolute;
+  top: -1px;
+  right: 1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid white;
+}
+
+.notification-dot-success {
+  background-color: var(--green-600);
+}
+
+.notification-dot-warning {
+  background-color: var(--yellow-600);
 }

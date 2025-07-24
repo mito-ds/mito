@@ -9,7 +9,7 @@
   box-sizing: border-box;
   width: 100%;
   font-size: 14px;
-  border-radius: 5px;
+  border-radius: var(--chat-taskpane-item-border-radius);
   padding: 0 var(--chat-taskpane-item-indent);
 }
 
@@ -36,7 +36,7 @@
   flex-direction: row;
   gap: 8px;
   margin-top: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   flex-wrap: wrap;
 }
 
