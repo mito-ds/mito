@@ -28,6 +28,18 @@ CODE STRUCTURE:
 - Handle data loading and processing
 - Organize content with clear sections and headers
 - Include comments explaining key sections
+- Always include the following code at the top of the file so the user does not use the wrong deploy button
+```python
+st.markdown(\"\"\"
+    <style>
+        #MainMenu {visibility: hidden;}
+        .stAppDeployButton {display:none;}
+        .stAppHeader {display:none;}
+        footer {visibility: hidden;}
+        .stMainBlockContainer {padding: 2rem 1rem 2rem 1rem;}
+    </style>
+\"\"\", unsafe_allow_html=True)
+```
 
 OUTPUT FORMAT:
 - Provide the complete app.py file code

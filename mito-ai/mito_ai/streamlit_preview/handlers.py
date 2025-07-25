@@ -121,9 +121,11 @@ class StreamlitPreviewHandler(APIHandler):
                 
                 # Read the generated app.py
                 app_path = f"{tmp_dir}/app.py"
+                print(f"App path: {app_path}")
                 try:
                     with open(app_path, 'r') as f:
                         app_code = f.read()
+                        print(f"App code: {app_code}")
                 except FileNotFoundError:
                     self.set_status(500)
                     self.finish({"error": 'Generated app.py file not found'})
