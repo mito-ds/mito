@@ -56,15 +56,7 @@ export class ChatHistoryManager {
     private displayOptimizedChatHistory: IDisplayOptimizedChatItem[];
     private contextManager: IContextManager;
     private notebookTracker: INotebookTracker;
-    private _allAssumptions: Set<string> = new Set();
-
-    get allAssumptions(): Set<string> {
-        return this._allAssumptions;
-    }
-
-    set allAssumptions(assumptions: Set<string>) {
-        this._allAssumptions = assumptions;
-    }
+    private _allAssumptions = new Set<string>();
 
     constructor(contextManager: IContextManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatItem[]) {
         // Initialize the history
@@ -92,19 +84,16 @@ export class ChatHistoryManager {
     }
 
     private deduplicateAssumptions(agentResponse: AgentResponse): AgentResponse {
-        if (!agentResponse.analysis_assumptions || agentResponse.analysis_assumptions.length === 0) {
+        if (!agentResponse.analysis_assumptions?.length) {
             return agentResponse;
         }
 
-        const newAssumptions: string[] = [];
+        const newAssumptions = agentResponse.analysis_assumptions.filter(
+            assumption => !this._allAssumptions.has(assumption)
+        );
         
-        agentResponse.analysis_assumptions.forEach(assumption => {
-            if (!this._allAssumptions.has(assumption)) {
-                newAssumptions.push(assumption);
-                this._allAssumptions.add(assumption);
-            }
-        });
-
+        newAssumptions.forEach(assumption => this._allAssumptions.add(assumption));
+        
         return {
             ...agentResponse,
             analysis_assumptions: newAssumptions.length > 0 ? newAssumptions : undefined
@@ -119,7 +108,7 @@ export class ChatHistoryManager {
         );
 
         // Copy the assumptions set to the duplicate
-        duplicateManager.allAssumptions = new Set(this.allAssumptions);
+        duplicateManager._allAssumptions = new Set(this._allAssumptions);
         return duplicateManager;
     }
 
