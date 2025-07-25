@@ -12,13 +12,7 @@ import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { IChatTracker } from '../AiChat/token';
 import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
-
-/**
- * The command IDs used by the streamlit preview plugin.
- */
-namespace CommandIDs {
-  export const previewAsStreamlit = 'mito-ai:preview-as-streamlit';
-}
+import { previewAsStreamlit } from '../../commands';
 
 /**
  * Interface for the streamlit preview response.
@@ -76,7 +70,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
     console.log('mito-ai: StreamlitPreviewPlugin activated');
 
     // Add command to command palette
-    app.commands.addCommand(CommandIDs.previewAsStreamlit, {
+    app.commands.addCommand(previewAsStreamlit, {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async () => {
@@ -86,7 +80,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
 
     // Add to command palette
     palette.addItem({
-      command: CommandIDs.previewAsStreamlit,
+      command: previewAsStreamlit,
       category: 'Mito AI'
     });
   }
