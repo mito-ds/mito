@@ -20,7 +20,6 @@ class PreviewProcess:
     proc: subprocess.Popen
     tmpdir: str
     port: int
-    last_used: float
 
 
 class StreamlitPreviewManager:
@@ -99,7 +98,6 @@ class StreamlitPreviewManager:
                     proc=proc,
                     tmpdir=tmpdir,
                     port=port,
-                    last_used=time.time()
                 )
             
             self.log.info(f"Started streamlit preview {preview_id} on port {port}")
@@ -167,10 +165,7 @@ class StreamlitPreviewManager:
     def get_preview(self, preview_id: str) -> Optional[PreviewProcess]:
         """Get a preview process by ID."""
         with self._lock:
-            preview = self._previews.get(preview_id)
-            if preview:
-                preview.last_used = time.time()
-            return preview
+            return self._previews.get(preview_id)
 
 # Global instance
 _preview_manager = StreamlitPreviewManager()
