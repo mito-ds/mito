@@ -24,7 +24,7 @@ class PreviewProcess:
 class StreamlitPreviewManager:
     """Manages streamlit preview processes and their lifecycle."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._previews: Dict[str, PreviewProcess] = {}
         self._lock = threading.Lock()
         self.log = get_logger()
@@ -34,7 +34,8 @@ class StreamlitPreviewManager:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind(('', 0))
             s.listen(1)
-            port = s.getsockname()[1]
+            port = int(s.getsockname()[1])
+        
         return port
     
     def start_streamlit_preview(self, app_code: str, preview_id: str) -> Tuple[bool, str, Optional[int]]:
