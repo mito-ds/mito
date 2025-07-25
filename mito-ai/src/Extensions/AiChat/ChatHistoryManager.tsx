@@ -56,6 +56,7 @@ export class ChatHistoryManager {
     private displayOptimizedChatHistory: IDisplayOptimizedChatItem[];
     private contextManager: IContextManager;
     private notebookTracker: INotebookTracker;
+    private _allAssumptions = new Set<string>();
 
     constructor(contextManager: IContextManager, notebookTracker: INotebookTracker, initialHistory?: IDisplayOptimizedChatItem[]) {
         // Initialize the history
@@ -66,10 +67,49 @@ export class ChatHistoryManager {
 
         // Save the notebook tracker
         this.notebookTracker = notebookTracker;
+
+        // Initialize assumptions from existing history
+        this.initializeAssumptionsFromHistory();
+    }
+
+    private initializeAssumptionsFromHistory(): void {
+        this._allAssumptions.clear();
+        this.displayOptimizedChatHistory.forEach(item => {
+            if (item.agentResponse?.analysis_assumptions) {
+                item.agentResponse.analysis_assumptions.forEach(assumption => {
+                    this._allAssumptions.add(assumption);
+                });
+            }
+        });
+    }
+
+    private deduplicateAssumptions(agentResponse: AgentResponse): AgentResponse {
+        if (!agentResponse.analysis_assumptions?.length) {
+            return agentResponse;
+        }
+
+        const newAssumptions = agentResponse.analysis_assumptions.filter(
+            assumption => !this._allAssumptions.has(assumption)
+        );
+        
+        newAssumptions.forEach(assumption => this._allAssumptions.add(assumption));
+        
+        return {
+            ...agentResponse,
+            analysis_assumptions: newAssumptions.length > 0 ? newAssumptions : undefined
+        };
     }
 
     createDuplicateChatHistoryManager(): ChatHistoryManager {
-        return new ChatHistoryManager(this.contextManager, this.notebookTracker, this.displayOptimizedChatHistory);
+        const duplicateManager = new ChatHistoryManager(
+            this.contextManager, 
+            this.notebookTracker, 
+            this.displayOptimizedChatHistory
+        );
+
+        // Copy the assumptions set to the duplicate
+        duplicateManager._allAssumptions = new Set(this._allAssumptions);
+        return duplicateManager;
     }
 
     getDisplayOptimizedHistory(): IDisplayOptimizedChatItem[] {
@@ -299,13 +339,14 @@ export class ChatHistoryManager {
     }
 
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
+        const deduplicatedAgentResponse = this.deduplicateAssumptions(agentResponse);
 
-        let content = agentResponse.message
-        if (agentResponse.type === 'cell_update') {
+        let content = deduplicatedAgentResponse.message
+        if (deduplicatedAgentResponse.type === 'cell_update') {
             // For cell_update messages, we want to display the code the agent wrote along with 
             // the message it sent. For all other agent responses, we ignore all other fields
             // and just display the message.
-            const code = agentResponse.cell_update?.code
+            const code = deduplicatedAgentResponse.cell_update?.code
             const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
 
             if (codeWithMarkdownFormatting !== undefined) {
@@ -323,7 +364,7 @@ export class ChatHistoryManager {
                 message: aiMessage, 
                 type: 'openai message',
                 promptType: 'agent:execution',
-                agentResponse: agentResponse
+                agentResponse: deduplicatedAgentResponse
             }
         );
     }
