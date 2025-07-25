@@ -11,6 +11,7 @@ from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import streaml
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
+from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
 
 STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
@@ -99,14 +100,27 @@ async def streamlit_handler(notebook_path: str, app_path: str) -> Tuple[bool, st
     streamlit_code_generator = StreamlitCodeGeneration(notebook_code)
     streamlit_code = await streamlit_code_generator.generate_streamlit_code()
     has_validation_error, error = streamlit_code_validator(streamlit_code)
+    
     tries = 0
     while has_validation_error and tries < 5:
         streamlit_code = await streamlit_code_generator.correct_error_in_generation(error)
         has_validation_error, error = streamlit_code_validator(streamlit_code)
+        
+        if has_validation_error:
+            # TODO: We can't easily get the key type here, so for the beta release
+            # we are just defaulting to the mito server key since that is by far the most common.
+            log_streamlit_app_creation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
         tries+=1
 
     if has_validation_error:
+        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
         return False, "Error generating streamlit code by agent"
-
+    
+    
     success_flag, message = create_app_file(app_path, streamlit_code)
+    
+    if not success_flag:
+        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, message)
+    
+    log_streamlit_app_creation_success('mito_server_key', MessageType.STREAMLIT_CONVERSION)
     return success_flag, message

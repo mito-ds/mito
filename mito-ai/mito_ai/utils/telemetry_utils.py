@@ -86,6 +86,7 @@ def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     # If the user is on the Mito server, then they are sending
     # us their information already
     if key_type == 'mito_server_key':
+        print("TELEMETRY TURNED ON")
         return True
     
     # If private helper is installed, then we don't log anything
@@ -174,7 +175,6 @@ def log(
     If telemetry is not turned off and we are not running tests,
     we log the ai event
     """
-
     final_params: Dict[str, Any] = params or {}
     
     # Then, make sure to add the user email
@@ -355,4 +355,32 @@ def log_db_connection_error(connection_type: str, error_message: str) -> None:
             "error_message": error_message,
         }
     )
+    
+#################################
+# Streamlit Conversion
+#################################
 
+def log_streamlit_app_creation_success(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType) -> None:
+    log(
+        "mito_ai_streamlit_app_creation_success", 
+        key_type=key_type
+    )
+    
+def log_streamlit_app_creation_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str) -> None:
+    log(
+        "mito_ai_streamlit_app_creation_retry", 
+        params={
+            "error_message": error,
+        },
+        key_type=key_type
+    )
+    
+def log_streamlit_app_creation_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str) -> None:
+    log(
+        "mito_ai_streamlit_app_creation_error", 
+        params={
+            "error_message": error,
+        },
+        key_type=key_type
+    )
+    

@@ -89,9 +89,6 @@ class StreamlitPreviewHandler(APIHandler):
         }
         """
         try:
-            # Initialize user
-            initialize_user()
-            
             # Parse request body
             body = self.get_json_body()
             if body is None:
