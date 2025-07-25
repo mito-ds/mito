@@ -7,9 +7,8 @@ import subprocess
 import tempfile
 import time
 import threading
-import logging
 import requests
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
 from mito_ai.logger import get_logger
 
@@ -71,10 +70,8 @@ class StreamlitPreviewManager:
             ]
             
             # TODO: Security considerations for production:
-            # - Consider enabling XSRF protection if needed
+            # - Consider enabling XSRF protection if needed, but we might already get this with the APIHandler?
             # - Add authentication headers to streamlit
-            # - Limit number of concurrent previews
-            # - Add rate limiting
             
             proc = subprocess.Popen(
                 cmd,

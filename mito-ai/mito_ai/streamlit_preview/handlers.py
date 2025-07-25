@@ -109,7 +109,13 @@ class StreamlitPreviewHandler(APIHandler):
             # Generate preview ID
             preview_id = str(uuid.uuid4())
             
-            # Create temporary directory for the app
+            # Create temporary directory for the app. This temp directory is automatically deleted 
+            # when the handler request is done. We first put the streamlit app code in this temp directory, 
+            # then read it back out and start the streamlit app with the code. 
+            # TODO: Consider not using a temp directory if we want to let users's edit the app code!
+            # We could implement this by first registering a temp directory with the manager, using that
+            # directory to create the app.py file and then using that same directory within the manager to 
+            # start the streamlit app. The directory would not get deleted until the streamlit app is stopped.
             with tempfile.TemporaryDirectory() as tmp_dir:
                 # Generate streamlit code using existing handler
                 success, message = await streamlit_handler(resolved_notebook_path, tmp_dir)
@@ -121,11 +127,9 @@ class StreamlitPreviewHandler(APIHandler):
                 
                 # Read the generated app.py
                 app_path = f"{tmp_dir}/app.py"
-                print(f"App path: {app_path}")
                 try:
                     with open(app_path, 'r') as f:
                         app_code = f.read()
-                        print(f"App code: {app_code}")
                 except FileNotFoundError:
                     self.set_status(500)
                     self.finish({"error": 'Generated app.py file not found'})

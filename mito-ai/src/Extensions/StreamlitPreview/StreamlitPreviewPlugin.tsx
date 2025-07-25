@@ -113,7 +113,7 @@ async function previewNotebookAsStreamlit(
 
   // Show building notification
   const notificationId = Notification.emit(
-    'Building Streamlit preview...',
+    'Building App Preview...',
     'in-progress',
     { autoClose: false }
   );
@@ -126,7 +126,7 @@ async function previewNotebookAsStreamlit(
 
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
-    widget.title.label = `Streamlit Preview (${notebookName})`;
+    widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
 
     // Handle widget disposal
