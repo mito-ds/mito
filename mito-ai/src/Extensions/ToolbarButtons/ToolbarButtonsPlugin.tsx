@@ -91,12 +91,11 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             caption: 'Preview as Streamlit',
             className: 'text-button-mito-ai button-base button-purple button-small',
             execute: async () => {
-                await app.commands.execute('mito-ai:preview-as-streamlit');
+                void app.commands.execute('mito-ai:preview-as-streamlit');
             },
-            isVisible: () => {
-                // Default to hidden, will be updated after async check since we are not allowed to 
-                // use async commands in isVisible.
-                return app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
+            isEnabled: () => {
+                // TODO: We should check if there is an open notebook
+                return true;
             }
         });
 

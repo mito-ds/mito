@@ -17,8 +17,6 @@ class StreamlitPreviewHandler(APIHandler):
         """Initialize the handler."""
         self.preview_manager = get_preview_manager()
     
-    # Remove set_default_headers and options methods - APIHandler handles CORS automatically
-    
     @tornado.web.authenticated
     async def post(self) -> None:
         """Start a new streamlit preview.
@@ -35,12 +33,11 @@ class StreamlitPreviewHandler(APIHandler):
             "url": "http://localhost:8501"
         }
         """
-        print("POST request received")
         try:
             # Initialize user
             initialize_user()
             
-            # Parse request body - APIHandler provides self.get_json_body()
+            # Parse request body
             body = self.get_json_body()
             if body is None:
                 self.set_status(400)
@@ -94,9 +91,6 @@ class StreamlitPreviewHandler(APIHandler):
                     'url': f'http://localhost:{port}'
                 })
                 
-                # TODO: If cross-origin issues arise, we may need to proxy through Jupyter
-                # by returning a URL like base_url + 'proxy/<port>/' instead of raw localhost
-                
         except Exception as e:
             print(f"Error in streamlit preview handler: {e}")
             self.set_status(500)
@@ -104,12 +98,7 @@ class StreamlitPreviewHandler(APIHandler):
     
     @tornado.web.authenticated
     def delete(self, preview_id: str) -> None:
-        """Stop a streamlit preview.
-        
-        Args:
-            preview_id: The preview ID to stop
-        """
-        print(f"Stopping preview {preview_id}")
+        """Stop a streamlit preview."""
         try:
             if not preview_id:
                 self.set_status(400)
