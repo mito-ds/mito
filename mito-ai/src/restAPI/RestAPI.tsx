@@ -125,4 +125,11 @@ export const startStreamlitPreview = async (notebookPath: string): Promise<Strea
 }
 
 export const stopStreamlitPreview = async (previewId: string): Promise<void> => {
+    const response = await requestAPI<void>(`streamlit-preview/${previewId}`, {
+        method: 'DELETE',
+    })
+    
+    if (response.error) {
+        throw new Error(response.error.message);
+    }
 }

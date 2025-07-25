@@ -1,37 +1,25 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import json
-import logging
 import tempfile
 import uuid
-from typing import Any, Dict
-from tornado.web import RequestHandler
-from mito_ai.logger import get_logger
+import tornado
+from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
 from mito_ai.streamlit_preview.manager import get_preview_manager
 from mito_ai.utils.create import initialize_user
 
 
-class StreamlitPreviewHandler(RequestHandler):
+class StreamlitPreviewHandler(APIHandler):
     """REST handler for streamlit preview operations."""
     
     def initialize(self) -> None:
         """Initialize the handler."""
-        self.log = get_logger()
         self.preview_manager = get_preview_manager()
     
-    def set_default_headers(self) -> None:
-        """Set CORS headers."""
-        self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Headers", "Content-Type")
-        self.set_header("Access-Control-Allow-Methods", "POST, DELETE, OPTIONS")
+    # Remove set_default_headers and options methods - APIHandler handles CORS automatically
     
-    def options(self, preview_id: str = "") -> None:
-        """Handle CORS preflight requests."""
-        self.set_status(204)
-        self.finish()
-    
+    @tornado.web.authenticated
     async def post(self) -> None:
         """Start a new streamlit preview.
         
@@ -47,19 +35,23 @@ class StreamlitPreviewHandler(RequestHandler):
             "url": "http://localhost:8501"
         }
         """
+        print("POST request received")
         try:
             # Initialize user
             initialize_user()
             
-            # Parse request body
-            body = json.loads(self.request.body.decode('utf-8'))
+            # Parse request body - APIHandler provides self.get_json_body()
+            body = self.get_json_body()
+            if body is None:
+                self.set_status(400)
+                self.finish({"error": 'Invalid or missing JSON body'})
+                return
+
             notebook_path = body.get('notebook_path')
             
             if not notebook_path:
                 self.set_status(400)
-                self.write({
-                    'error': 'Missing notebook_path parameter'
-                })
+                self.finish({"error": 'Missing notebook_path parameter'})
                 return
             
             # Generate preview ID
@@ -72,9 +64,7 @@ class StreamlitPreviewHandler(RequestHandler):
                 
                 if not success:
                     self.set_status(500)
-                    self.write({
-                        'error': f'Failed to generate streamlit code: {message}'
-                    })
+                    self.finish({"error": f'Failed to generate streamlit code: {message}'})
                     return
                 
                 # Read the generated app.py
@@ -84,9 +74,7 @@ class StreamlitPreviewHandler(RequestHandler):
                         app_code = f.read()
                 except FileNotFoundError:
                     self.set_status(500)
-                    self.write({
-                        'error': 'Generated app.py file not found'
-                    })
+                    self.finish({"error": 'Generated app.py file not found'})
                     return
                 
                 # Start streamlit preview
@@ -96,14 +84,11 @@ class StreamlitPreviewHandler(RequestHandler):
                 
                 if not success:
                     self.set_status(500)
-                    self.write({
-                        'error': f'Failed to start preview: {message}'
-                    })
+                    self.finish({"error": f'Failed to start preview: {message}'})
                     return
                 
-                # Return success response
-                self.set_status(200)
-                self.write({
+                # Return success response - APIHandler automatically handles JSON serialization
+                self.finish({
                     'id': preview_id,
                     'port': port,
                     'url': f'http://localhost:{port}'
@@ -112,30 +97,23 @@ class StreamlitPreviewHandler(RequestHandler):
                 # TODO: If cross-origin issues arise, we may need to proxy through Jupyter
                 # by returning a URL like base_url + 'proxy/<port>/' instead of raw localhost
                 
-        except json.JSONDecodeError:
-            self.set_status(400)
-            self.write({
-                'error': 'Invalid JSON in request body'
-            })
         except Exception as e:
-            self.log.error(f"Error in streamlit preview handler: {e}")
+            print(f"Error in streamlit preview handler: {e}")
             self.set_status(500)
-            self.write({
-                'error': f'Internal server error: {str(e)}'
-            })
+            self.finish({"error": f'Internal server error: {str(e)}'})
     
+    @tornado.web.authenticated
     def delete(self, preview_id: str) -> None:
         """Stop a streamlit preview.
         
         Args:
             preview_id: The preview ID to stop
         """
+        print(f"Stopping preview {preview_id}")
         try:
             if not preview_id:
                 self.set_status(400)
-                self.write({
-                    'error': 'Missing preview_id parameter'
-                })
+                self.finish({"error": 'Missing preview_id parameter'})
                 return
             
             # Stop the preview
@@ -145,13 +123,8 @@ class StreamlitPreviewHandler(RequestHandler):
                 self.set_status(204)  # No content
             else:
                 self.set_status(404)
-                self.write({
-                    'error': f'Preview {preview_id} not found'
-                })
+                self.finish({"error": f'Preview {preview_id} not found'})
                 
         except Exception as e:
-            self.log.error(f"Error stopping preview {preview_id}: {e}")
             self.set_status(500)
-            self.write({
-                'error': f'Internal server error: {str(e)}'
-            }) 
+            self.finish({"error": f'Internal server error: {str(e)}'})

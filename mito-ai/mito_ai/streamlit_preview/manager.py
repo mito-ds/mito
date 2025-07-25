@@ -138,6 +138,7 @@ class StreamlitPreviewManager:
         Returns:
             True if stopped successfully, False if not found
         """
+        print(f"Stopping preview {preview_id}")
         with self._lock:
             if preview_id not in self._previews:
                 return False

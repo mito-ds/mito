@@ -11,7 +11,7 @@ import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { IChatTracker } from '../AiChat/token';
-import { startStreamlitPreview } from '../../restAPI/RestAPI';
+import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
 
 /**
  * The command IDs used by the streamlit preview plugin.
@@ -128,12 +128,8 @@ async function previewNotebookAsStreamlit(
 
     // Handle widget disposal
     widget.disposed.connect(() => {
-      // Stop the preview when widget is closed
-      fetch(`/mito-ai/streamlit-preview/${previewData.id}`, {
-        method: 'DELETE'
-      }).catch(error => {
-        console.error('Error stopping preview:', error);
-      });
+      console.log('Widget disposed, stopping preview');
+      void stopStreamlitPreview(previewData.id);
     });
 
     // Add widget to main area with split-right mode
