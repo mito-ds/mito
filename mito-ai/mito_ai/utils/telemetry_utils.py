@@ -86,7 +86,6 @@ def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     # If the user is on the Mito server, then they are sending
     # us their information already
     if key_type == 'mito_server_key':
-        print("TELEMETRY TURNED ON")
         return True
     
     # If private helper is installed, then we don't log anything

@@ -105,6 +105,9 @@ async function previewNotebookAsStreamlit(
     return;
   }
 
+  // First save the notebook to ensure the app is up to date
+  await notebookPanel.context.save();
+
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
 
