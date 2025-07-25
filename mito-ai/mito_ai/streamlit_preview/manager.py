@@ -31,10 +31,6 @@ class StreamlitPreviewManager:
         self._lock = threading.Lock()
         self.log = get_logger()
         
-        # Start cleanup thread
-        self._cleanup_thread = threading.Thread(target=self._cleanup_loop, daemon=True)
-        self._cleanup_thread.start()
-    
     def get_free_port(self) -> int:
         """Get a free port for streamlit to use."""
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -175,37 +171,6 @@ class StreamlitPreviewManager:
             if preview:
                 preview.last_used = time.time()
             return preview
-    
-    def _cleanup_loop(self):
-        """Background thread to clean up stale previews."""
-        while True:
-            try:
-                time.sleep(300)  # Check every 5 minutes
-                self._cleanup_stale_previews()
-            except Exception as e:
-                self.log.error(f"Error in cleanup loop: {e}")
-    
-    def _cleanup_stale_previews(self, max_age: int = 3600):
-        """Clean up previews older than max_age seconds."""
-        current_time = time.time()
-        to_remove = []
-        
-        with self._lock:
-            for preview_id, preview in self._previews.items():
-                if current_time - preview.last_used > max_age:
-                    to_remove.append(preview_id)
-            
-            for preview_id in to_remove:
-                self.stop_preview(preview_id)
-    
-    def shutdown(self):
-        """Shutdown all previews (called on server shutdown)."""
-        with self._lock:
-            preview_ids = list(self._previews.keys())
-        
-        for preview_id in preview_ids:
-            self.stop_preview(preview_id)
-
 
 # Global instance
 _preview_manager = StreamlitPreviewManager()
