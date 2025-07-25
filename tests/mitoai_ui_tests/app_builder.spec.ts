@@ -20,7 +20,7 @@ test.describe('App Builder Integration Test', () => {
     await page.waitForTimeout(1000);
 
     // Wait for the tab to appear
-    await page.locator('.lm-TabBar-tabLabel').getByText('Streamlit Preview').waitFor({ state: 'visible', timeout: 20000 });
+    await page.locator('.lm-TabBar-tabLabel').getByText('App Preview').waitFor({ state: 'visible', timeout: 20000 });
   });
 
 
