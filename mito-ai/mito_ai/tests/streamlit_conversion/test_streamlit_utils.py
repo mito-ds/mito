@@ -13,7 +13,6 @@ from mito_ai.streamlit_conversion.streamlit_utils import (
 )
 from typing import Dict, Any
 
-
 class TestExtractCodeBlocks:
     """Test cases for extract_code_blocks function"""
 
