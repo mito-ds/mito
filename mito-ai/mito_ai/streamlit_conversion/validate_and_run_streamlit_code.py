@@ -44,7 +44,6 @@ class StreamlitValidator:
             raise RuntimeError("Failed to create temporary directory")
         
         app_path = os.path.join(self.temp_dir, "app.py")
-        print(f"Writing app code to {app_path}")
 
         with open(app_path, 'w') as f:
             f.write(app_code)
@@ -154,7 +153,6 @@ class StreamlitValidator:
 
             # Step 2: Create and start app
             app_path = self.create_temp_app(app_code)
-            print(f"App path: {app_path}")
             app_started, start_msg = self.start_streamlit_app(app_path)
             results['app_starts'] = app_started
 
