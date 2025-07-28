@@ -75,9 +75,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
             
             if message_type == MessageType.BUILD_APP.value:
                 # Handle build app request
-                print(f"Parsed message: {parsed_message}")
                 build_app_request = BuildAppRequest(**parsed_message)
-                print(f"Build app request: {build_app_request}")
                 await self._handle_build_app(build_app_request)
             else:
                 self.log.error(f"Unknown message type: {message_type}")

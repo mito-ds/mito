@@ -119,7 +119,6 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
         return False, None, "Error generating streamlit code by agent"
     
     app_directory = os.path.dirname(notebook_path)
-    print(f"App directory: {app_directory}")
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
     
     if not success_flag:
