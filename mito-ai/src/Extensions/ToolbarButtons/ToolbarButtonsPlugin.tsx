@@ -107,7 +107,6 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
                 commands.addCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED, { execute: () => { /* no-op */ } });
                 commands.notifyCommandChanged('toolbar-button:convert-to-streamlit');
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
-                commands.notifyCommandChanged('mito-ai:preview-as-streamlit');
             }
         }).catch(error => {
             console.error('Error checking beta mode:', error);

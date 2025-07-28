@@ -170,12 +170,12 @@ class TestStreamlitHandler:
         mock_validator.return_value = (False, "")
         
         # Mock file creation
-        mock_create_file.return_value = (True, "File created successfully")
+        mock_create_file.return_value = (True, "/path/to/app", "File created successfully")
         
-        result = await streamlit_handler("/path/to/notebook.ipynb", "/path/to/app")
+        result = await streamlit_handler("/path/to/notebook.ipynb")
         
         assert result[0] is True
-        assert "File created successfully" in result[1]
+        assert "File created successfully" in result[2]
         
         # Verify calls
         mock_parse.assert_called_once_with("/path/to/notebook.ipynb")
@@ -201,12 +201,12 @@ class TestStreamlitHandler:
         mock_generator_class.return_value = mock_generator
         
         # Mock validation (always errors)
-        mock_validator.return_value = (True, "Persistent error")
+        mock_validator.return_value = (True, None, "Persistent error")
         
-        result = await streamlit_handler("/path/to/notebook.ipynb", "/path/to/app")
+        result = await streamlit_handler("/path/to/notebook.ipynb")
         
         assert result[0] is False
-        assert "Error generating streamlit code by agent" in result[1]
+        assert "Error generating streamlit code by agent" in result[2]
         
         # Verify that error correction was called 5 times (max retries)
         assert mock_generator.correct_error_in_generation.call_count == 5
@@ -231,12 +231,12 @@ class TestStreamlitHandler:
         mock_validator.return_value = (False, "")
         
         # Mock file creation failure
-        mock_create_file.return_value = (False, "Permission denied")
+        mock_create_file.return_value = (False, None, "Permission denied")
         
-        result = await streamlit_handler("/path/to/notebook.ipynb", "/path/to/app")
+        result = await streamlit_handler("/path/to/notebook.ipynb")
         
         assert result[0] is False
-        assert "Permission denied" in result[1]
+        assert "Permission denied" in result[2]
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -245,7 +245,7 @@ class TestStreamlitHandler:
         mock_parse.side_effect = FileNotFoundError("Notebook not found")
         
         with pytest.raises(FileNotFoundError, match="Notebook not found"):
-            await streamlit_handler("/path/to/notebook.ipynb", "/path/to/app")
+            await streamlit_handler("/path/to/notebook.ipynb")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -262,4 +262,4 @@ class TestStreamlitHandler:
         mock_generator_class.return_value = mock_generator
         
         with pytest.raises(Exception, match="Generation failed"):
-            await streamlit_handler("/path/to/notebook.ipynb", "/path/to/app")
+            await streamlit_handler("/path/to/notebook.ipynb")

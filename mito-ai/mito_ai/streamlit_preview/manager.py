@@ -17,7 +17,6 @@ from mito_ai.logger import get_logger
 class PreviewProcess:
     """Data class to track a streamlit preview process."""
     proc: subprocess.Popen
-    tmpdir: str
     port: int
 
 
@@ -38,7 +37,7 @@ class StreamlitPreviewManager:
         
         return port
     
-    def start_streamlit_preview(self, app_code: str, preview_id: str) -> Tuple[bool, str, Optional[int]]:
+    def start_streamlit_preview(self, app_directory: str, preview_id: str) -> Tuple[bool, str, Optional[int]]:
         """Start a streamlit preview process.
         
         Args:
@@ -49,20 +48,13 @@ class StreamlitPreviewManager:
             Tuple of (success, message, port)
         """
         try:
-            # Create temporary directory
-            tmpdir = tempfile.mkdtemp()
-            app_path = os.path.join(tmpdir, "app.py")
-            
-            # Write app code to file
-            with open(app_path, 'w') as f:
-                f.write(app_code)
             
             # Get free port
             port = self.get_free_port()
             
             # Start streamlit process
             cmd = [
-                "streamlit", "run", app_path,
+                "streamlit", "run", 'app.py', # Since we run this command from the app_directory, we always just run app.py 
                 "--server.port", str(port),
                 "--server.headless", "true",
                 "--server.address", "localhost",
@@ -79,22 +71,26 @@ class StreamlitPreviewManager:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                cwd=tmpdir
+                cwd=app_directory
             )
+            
+            # Add this to see what's happening
+            import threading
+            def log_output(pipe, prefix):
+                for line in pipe:
+                    print(f"{prefix}: {line.strip()}")
             
             # Wait for app to be ready
             ready = self._wait_for_app_ready(port)
             if not ready:
                 proc.terminate()
                 proc.wait()
-                os.remove(tmpdir)
                 return False, "Streamlit app failed to start", None
             
             # Register the process
             with self._lock:
                 self._previews[preview_id] = PreviewProcess(
                     proc=proc,
-                    tmpdir=tmpdir,
                     port=port,
                 )
             
@@ -114,7 +110,8 @@ class StreamlitPreviewManager:
                 response = requests.get(f"http://localhost:{port}", timeout=5)
                 if response.status_code == 200:
                     return True
-            except requests.exceptions.RequestException:
+            except requests.exceptions.RequestException as e:
+                print(f"Error waiting for app to be ready: {e}")
                 pass
             
             time.sleep(1)
@@ -146,13 +143,6 @@ class StreamlitPreviewManager:
                 preview.proc.wait()
             except Exception as e:
                 self.log.error(f"Error terminating process {preview_id}: {e}")
-            
-            # Clean up temp directory
-            try:
-                import shutil
-                shutil.rmtree(preview.tmpdir)
-            except Exception as e:
-                self.log.error(f"Error cleaning up temp dir for {preview_id}: {e}")
             
             # Remove from registry
             del self._previews[preview_id]

@@ -68,7 +68,8 @@ st.write("Hello, World!")
              patch('os.path.exists') as mock_exists:
             
             # Setup mocks
-            mock_mkdtemp.return_value = "/tmp/test_dir"
+            app_directory = "/tmp/test_dir"
+            mock_mkdtemp.return_value = app_directory
             mock_proc = Mock()
             mock_proc.terminate.return_value = None
             mock_proc.wait.return_value = None
@@ -84,7 +85,7 @@ st.write("Hello, World!")
             mock_exists.return_value = True
             
             # Test
-            success, message, port = manager.start_streamlit_preview(app_code, preview_id)
+            success, message, port = manager.start_streamlit_preview(app_directory, preview_id)
             
             # Assertions
             assert success == expected_success
@@ -116,7 +117,8 @@ st.write("Hello, World!")
     def test_start_streamlit_preview_exceptions(self, manager, sample_app_code, exception_type, expected_message):
         """Test streamlit preview start with different exceptions."""
         with patch('tempfile.mkdtemp', side_effect=exception_type):
-            success, message, port = manager.start_streamlit_preview(sample_app_code, "test_preview")
+            app_directory = "/tmp/test_dir"
+            success, message, port = manager.start_streamlit_preview(app_directory, "test_preview")
             
             assert success is False
             assert expected_message in message.lower()
@@ -136,7 +138,8 @@ st.write("Hello, World!")
                  patch('builtins.open', create=True) as mock_open, \
                  patch('os.path.exists') as mock_exists:
                 
-                mock_mkdtemp.return_value = "/tmp/test_dir"
+                app_directory = "/tmp/test_dir"
+                mock_mkdtemp.return_value = app_directory
                 mock_proc = Mock()
                 mock_proc.terminate.return_value = None
                 mock_proc.wait.return_value = None
@@ -151,7 +154,7 @@ st.write("Hello, World!")
                 mock_open.return_value.__enter__.return_value = mock_file
                 mock_exists.return_value = True
                 
-                manager.start_streamlit_preview(sample_app_code, preview_id)
+                manager.start_streamlit_preview(app_directory, preview_id)
         
         with patch('shutil.rmtree') as mock_rmtree:
             result = manager.stop_preview(preview_id)
@@ -174,7 +177,9 @@ st.write("Hello, World!")
              patch('os.path.exists') as mock_exists:
             
             # Setup mocks for start
-            mock_mkdtemp.return_value = "/tmp/test_dir"
+            app_directory = "/tmp/test_dir"
+            mock_mkdtemp.return_value = app_directory
+            
             mock_proc = Mock()
             mock_proc.terminate.return_value = None
             mock_proc.wait.return_value = None
@@ -190,7 +195,7 @@ st.write("Hello, World!")
             mock_exists.return_value = True
             
             # Start a preview
-            manager.start_streamlit_preview(sample_app_code, "test_preview")
+            manager.start_streamlit_preview(app_directory, "test_preview")
             
             # Setup process behavior for stop
             if process_behavior:
@@ -226,7 +231,9 @@ st.write("Hello, World!")
              patch('os.path.exists') as mock_exists:
             
             # Setup mocks for start
-            mock_mkdtemp.return_value = "/tmp/test_dir"
+            app_directory = "/tmp/test_dir"
+            mock_mkdtemp.return_value = app_directory
+            
             mock_proc = Mock()
             mock_proc.terminate.return_value = None
             mock_proc.wait.return_value = None
@@ -242,7 +249,7 @@ st.write("Hello, World!")
             mock_exists.return_value = True
             
             # Start a preview
-            manager.start_streamlit_preview(sample_app_code, "test_preview")
+            manager.start_streamlit_preview(app_directory, "test_preview")
             
             # Test stop with cleanup behavior
             with patch('shutil.rmtree', side_effect=cleanup_behavior):
@@ -287,7 +294,6 @@ st.write("Hello, World!")
             assert preview is not None
             assert isinstance(preview, PreviewProcess)
             assert preview.port > 0
-            assert preview.tmpdir == "/tmp/test_dir"
             
             # Cleanup
             manager.stop_preview(preview_id)
@@ -297,17 +303,14 @@ st.write("Hello, World!")
     def test_preview_process_dataclass(self):
         """Test PreviewProcess dataclass."""
         proc = Mock()
-        tmpdir = "/tmp/test"
         port = 8080
         
         preview = PreviewProcess(
             proc=proc,
-            tmpdir=tmpdir,
             port=port
         )
         
         assert preview.proc == proc
-        assert preview.tmpdir == tmpdir
         assert preview.port == port
     
     def test_get_preview_manager_singleton(self):
@@ -348,7 +351,7 @@ st.write("Hello, World!")
             
             # Start multiple previews
             for preview_id in preview_ids:
-                success, _, port = manager.start_streamlit_preview(sample_app_code, preview_id)
+                success, _, port = manager.start_streeamlit_preview(sample_app_code, preview_id)
                 assert success is True
                 ports.append(port)
             

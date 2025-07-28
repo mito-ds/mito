@@ -3,7 +3,8 @@
 
 import re
 import json
-from typing import Dict, Tuple, Any
+import os
+from typing import Dict, Optional, Tuple, Any
 
 def extract_code_blocks(message_content: str) -> str:
     """
@@ -27,7 +28,7 @@ def extract_code_blocks(message_content: str) -> str:
     return '\n'.join(matches)
 
 
-def create_app_file(file_path: str, code: str) -> Tuple[bool, str]:
+def create_app_file(app_directory: str, code: str) -> Tuple[bool, Optional[str], str]:
     """
     Create app.py file and write code to it with error handling
 
@@ -40,13 +41,14 @@ def create_app_file(file_path: str, code: str) -> Tuple[bool, str]:
 
     """
     try:
-        with open(file_path+"/app.py", 'w') as f:
+        app_path = os.path.join(app_directory, "app.py")
+        with open(app_path, 'w') as f:
             f.write(code)
-        return True, f"Successfully created {file_path}"
+        return True, app_path, f"Successfully created {app_directory}"
     except IOError as e:
-        return False, f"Error creating file: {str(e)}"
+        return False, None, f"Error creating file: {str(e)}"
     except Exception as e:
-        return False, f"Unexpected error: {str(e)}"
+        return False, None, f"Unexpected error: {str(e)}"
 
 
 def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict[str, Any]:
