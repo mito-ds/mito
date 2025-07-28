@@ -118,7 +118,8 @@ class StreamlitPreviewHandler(APIHandler):
                 return
             
             # Start streamlit preview
-            success, message, port = self.preview_manager.start_streamlit_preview(resolved_notebook_path, preview_id)
+            resolved_app_directory = os.path.dirname(resolved_notebook_path)
+            success, message, port = self.preview_manager.start_streamlit_preview(resolved_app_directory, preview_id)
             
             if not success:
                 self.set_status(500)
