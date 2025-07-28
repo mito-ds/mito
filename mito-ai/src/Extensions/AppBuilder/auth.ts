@@ -13,12 +13,21 @@ const client_id = '6ara3u3l8sss738hrhbq1qtiqf'
 const active_domain = domain_dev
 
 const currentUrl: string = window.location.href;
+let redirectUrl: string;
+
+if (currentUrl.includes('localhost')) {
+    redirectUrl = 'http://localhost:8888/lab';
+} else if (currentUrl.includes('trymito')) {
+    redirectUrl = 'https://launch.trymito.io';
+} else {
+    redirectUrl = currentUrl;
+}
 console.log("currentUrl: ", currentUrl)
 
 // AWS Cognito configuration
 const COGNITO_CONFIG = {
-    SIGNUP_URL: `${active_domain}/signup?client_id=${client_id}&response_type=code&scope=email+openid+profile&redirect_uri=${currentUrl}`,
-    SIGNIN_URL: `${active_domain}/login?client_id=${client_id}&response_type=code&scope=email+openid+profile&redirect_uri=${currentUrl}`,
+    SIGNUP_URL: `${active_domain}/signup?client_id=${client_id}&response_type=code&scope=email+openid+profile&redirect_uri=${redirectUrl}`,
+    SIGNIN_URL: `${active_domain}/login?client_id=${client_id}&response_type=code&scope=email+openid+profile&redirect_uri=${redirectUrl}`,
     JWT_COOKIE_NAME: 'mito-auth-token',
     JWT_COOKIE_EXPIRY_HOURS: 1
 };
