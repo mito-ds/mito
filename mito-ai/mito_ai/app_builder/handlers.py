@@ -13,6 +13,7 @@ from mito_ai.utils.websocket_base import BaseWebSocketHandler
 from mito_ai.app_builder.models import (
     BuildAppReply,
     AppBuilderError,
+    BuildAppRequest,
     ErrorMessage,
     MessageType
 )
@@ -74,7 +75,10 @@ class AppBuilderHandler(BaseWebSocketHandler):
             
             if message_type == MessageType.BUILD_APP.value:
                 # Handle build app request
-                await self._handle_build_app(parsed_message)
+                print(f"Parsed message: {parsed_message}")
+                build_app_request = BuildAppRequest(**parsed_message)
+                print(f"Build app request: {build_app_request}")
+                await self._handle_build_app(build_app_request)
             else:
                 self.log.error(f"Unknown message type: {message_type}")
                 error = AppBuilderError(
@@ -98,25 +102,24 @@ class AppBuilderHandler(BaseWebSocketHandler):
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"App builder handler processed in {latency_ms} ms.")
     
-    async def _handle_build_app(self, message: dict) -> None:
+    async def _handle_build_app(self, message: BuildAppRequest) -> None:
         """Handle a build app request.
         
         Args:
             message: The parsed message.
         """
-        message_id = message.get('message_id', '')  # Default to empty string if not present
-        notebook_path = message.get('notebook_path')
-        app_path = message.get('app_path')
-        jwt_token = message.get('jwt_token', '')  # Extract JWT token from request, default to empty string
+        message_id = message.message_id
+        notebook_path = message.notebook_path
+        jwt_token = message.jwt_token
 
         if not message_id:
             self.log.error("Missing message_id in request")
             return
         
-        if not app_path:
+        if not notebook_path:
             error = AppBuilderError(
                 error_type="InvalidRequest",
-                title="Missing 'path' parameter"
+                title="Missing 'notebook_path' parameter"
             )
             self.reply(BuildAppReply(
                 parent_id=message_id,
@@ -149,8 +152,9 @@ class AppBuilderHandler(BaseWebSocketHandler):
 
         try:
 
-            success_flag, result_message = await streamlit_handler(str(notebook_path) if notebook_path else "", app_path)
-            if not success_flag:
+            notebook_path = str(notebook_path) if notebook_path else ""
+            success_flag, app_path, result_message = await streamlit_handler(notebook_path)
+            if not success_flag or app_path is None:
                 raise Exception(result_message)
 
             deploy_url = await self._deploy_app(app_path, jwt_token)

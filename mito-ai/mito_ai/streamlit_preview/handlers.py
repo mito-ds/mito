@@ -109,15 +109,6 @@ class StreamlitPreviewHandler(APIHandler):
             # Generate preview ID
             preview_id = str(uuid.uuid4())
             
-            # Create temporary directory for the app. This temp directory is automatically deleted 
-            # when the handler request is done. We first put the streamlit app code in this temp directory, 
-            # then read it back out and start the streamlit app with the code. 
-            # TODO: Consider not using a temp directory if we want to let users's edit the app code!
-            # We could implement this by first registering a temp directory with the manager, using that
-            # directory to create the app.py file and then using that same directory within the manager to 
-            # start the streamlit app. The directory would not get deleted until the streamlit app is stopped.
-            
-            
             # Generate streamlit code using existing handler
             success, app_path, message = await streamlit_handler(resolved_notebook_path)
             
@@ -127,7 +118,7 @@ class StreamlitPreviewHandler(APIHandler):
                 return
             
             # Start streamlit preview
-            success, message, port = self.preview_manager.start_streamlit_preview(app_directory, preview_id)
+            success, message, port = self.preview_manager.start_streamlit_preview(resolved_notebook_path, preview_id)
             
             if not success:
                 self.set_status(500)

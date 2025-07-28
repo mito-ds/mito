@@ -15,9 +15,9 @@ export interface IAppBuilderRequest {
 }
 
 export interface IBuildAppRequest extends IAppBuilderRequest {
-    type: 'build-app'
-    path: string
-    jwt_token?: string
+  type: 'build-app'
+  notebook_path: string
+  jwt_token?: string
 }
 
 /**
@@ -60,7 +60,7 @@ export interface IBuildAppReply {
    * Url of deployed app
    */
   url: string;
-  
+
   /**
    * Error information.
    */
