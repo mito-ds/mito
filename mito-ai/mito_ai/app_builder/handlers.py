@@ -127,27 +127,25 @@ class AppBuilderHandler(BaseWebSocketHandler):
             return
 
         # Validate JWT token if provided
-        if jwt_token and jwt_token != 'placeholder-jwt-token':
-            self.log.info(f"Validating JWT token: {jwt_token[:20]}...")
-            is_valid = self._validate_jwt_token(jwt_token)
-            if not is_valid:
-                self.log.error("JWT token validation failed")
-                error = AppBuilderError(
-                    error_type="Unauthorized",
-                    title="Invalid authentication token",
-                    hint="Please sign in again to deploy your app."
-                )
-                self.reply(BuildAppReply(
-                    parent_id=message_id,
-                    url="",
-                    error=error
-                ))
-                return
-            else:
-                self.log.info("JWT token validation successful")
+        token_preview = jwt_token[:20] if jwt_token else "No token provided"
+        self.log.info(f"Validating JWT token: {token_preview}...")
+        is_valid = self._validate_jwt_token(jwt_token) if jwt_token else False
+        if not is_valid or not jwt_token:
+            self.log.error("JWT token validation failed")
+            error = AppBuilderError(
+                error_type="Unauthorized",
+                title="Invalid authentication token",
+                hint="Please sign in again to deploy your app."
+            )
+            self.reply(BuildAppReply(
+                parent_id=message_id,
+                url="",
+                error=error
+            ))
+            return
         else:
-            self.log.warning("No JWT token provided or using placeholder token")
-
+            self.log.info("JWT token validation successful")
+            
         try:
 
             notebook_path = str(notebook_path) if notebook_path else ""
