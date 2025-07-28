@@ -74,12 +74,6 @@ class StreamlitPreviewManager:
                 cwd=app_directory
             )
             
-            # Add this to see what's happening
-            import threading
-            def log_output(pipe, prefix):
-                for line in pipe:
-                    print(f"{prefix}: {line.strip()}")
-            
             # Wait for app to be ready
             ready = self._wait_for_app_ready(port)
             if not ready:

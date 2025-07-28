@@ -182,7 +182,7 @@ class TestStreamlitHandler:
         mock_generator_class.assert_called_once_with(mock_notebook_data)
         mock_generator.generate_streamlit_code.assert_called_once()
         mock_validator.assert_called_once_with("import streamlit\nst.title('Test')")
-        mock_create_file.assert_called_once_with("/path/to/app", "import streamlit\nst.title('Test')")
+        mock_create_file.assert_called_once_with("/path/to", "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -193,18 +193,19 @@ class TestStreamlitHandler:
         # Mock notebook parsing
         mock_notebook_data: dict = {"cells": []}
         mock_parse.return_value = mock_notebook_data
-        
+    
         # Mock code generation
         mock_generator = AsyncMock()
         mock_generator.generate_streamlit_code.return_value = "import streamlit\nst.title('Test')"
         mock_generator.correct_error_in_generation.return_value = "import streamlit\nst.title('Fixed')"
         mock_generator_class.return_value = mock_generator
-        
-        # Mock validation (always errors)
-        mock_validator.return_value = (True, None, "Persistent error")
-        
+    
+        # Mock validation (always errors) - FIX: Return only 2 values
+        mock_validator.return_value = (True, "Persistent error")
+    
         result = await streamlit_handler("/path/to/notebook.ipynb")
         
+        # Verify the result indicates failure
         assert result[0] is False
         assert "Error generating streamlit code by agent" in result[2]
         

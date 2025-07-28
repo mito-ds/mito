@@ -51,7 +51,7 @@ class TestCreateAppFile:
         file_path = str(tmp_path)
         code = "import streamlit\nst.title('Test')"
         
-        success, message = create_app_file(file_path, code)
+        success, app_path, message = create_app_file(file_path, code)
         
         assert success is True
         assert "Successfully created" in message
@@ -69,7 +69,7 @@ class TestCreateAppFile:
         file_path = "/nonexistent/path/that/should/fail"
         code = "import streamlit"
         
-        success, message = create_app_file(file_path, code)
+        success, app_path, message = create_app_file(file_path, code)
         
         assert success is False
         assert "Error creating file" in message
@@ -80,7 +80,7 @@ class TestCreateAppFile:
         file_path = "/tmp/test"
         code = "import streamlit"
         
-        success, message = create_app_file(file_path, code)
+        success, app_path, message = create_app_file(file_path, code)
         
         assert success is False
         assert "Unexpected error" in message
@@ -90,7 +90,7 @@ class TestCreateAppFile:
         file_path = str(tmp_path)
         code = ""
         
-        success, message = create_app_file(file_path, code)
+        success, app_path, message = create_app_file(file_path, code)
         
         assert success is True
         assert "Successfully created" in message
