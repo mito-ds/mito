@@ -44,7 +44,7 @@ export type AgentResponse = {
   type: 'cell_update' | 'get_cell_output' | 'finished_task'
   message: string,
   cell_update?: CellUpdate,
-  cell_id?: string,
+  get_cell_output_cell_id?: string,
   next_steps?: string[],
   analysis_assumptions?: string[]
 }
