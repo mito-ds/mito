@@ -274,7 +274,7 @@ describe('ChatMessage Component', () => {
                 (window as any).__chatInputCallbacks.onSave('Updated message content');
             });
 
-            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'user');
+            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', undefined);
         });
 
         it('switches to edit mode when user message is double-clicked', () => {
@@ -301,7 +301,7 @@ describe('ChatMessage Component', () => {
                 (window as any).__chatInputCallbacks.onSave('Updated message content');
             });
 
-            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'user');
+            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', undefined);
         });
 
         it('shows code action buttons for the last AI message with code', () => {
