@@ -25,7 +25,6 @@ import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
-import { IDisplayOptimizedChatItem } from '../ChatHistoryManager';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
@@ -36,7 +35,6 @@ import SelectedContextContainer from '../../../components/SelectedContextContain
 interface IChatMessageProps {
     app: JupyterFrontEnd;
     message: OpenAI.Chat.ChatCompletionMessageParam
-    messageType: IDisplayOptimizedChatItem['type']
     codeCellID: string | undefined
     agentResponse: AgentResponse | undefined
     messageIndex: number
@@ -62,7 +60,6 @@ interface IChatMessageProps {
 const ChatMessage: React.FC<IChatMessageProps> = ({
     app,
     message,
-    messageType,
     promptType,
     agentResponse,
     messageIndex,

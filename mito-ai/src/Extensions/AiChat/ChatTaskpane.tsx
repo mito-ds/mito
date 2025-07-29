@@ -1406,7 +1406,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 key={index}
                                 message={displayOptimizedChat.message}
                                 promptType={displayOptimizedChat.promptType}
-                                messageType={displayOptimizedChat.type}
                                 agentResponse={displayOptimizedChat.agentResponse}
                                 codeCellID={displayOptimizedChat.codeCellID}
                                 mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
