@@ -19,7 +19,7 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
-import { ChatMessageType, PromptType } from '../ChatHistoryManager';
+import { PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
@@ -51,7 +51,7 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, additionalContext?: Array<{ type: string, value: string }>) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
@@ -101,9 +101,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     const handleSave = (
         content: string,
         _index?: number,
-        _additionalContext?: Array<{ type: string, value: string }>
+        additionalContext?: Array<{ type: string, value: string }>
     ): void => {
-        onUpdateMessage(messageIndex, content, messageType);
+        onUpdateMessage(messageIndex, content, additionalContext);
         setIsEditing(false);
     };
 
