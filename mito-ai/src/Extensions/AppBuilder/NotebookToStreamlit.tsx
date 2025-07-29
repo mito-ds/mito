@@ -10,7 +10,7 @@ import { saveFileWithKernel } from './fileUtils';
 import { IAppBuilderService } from './AppBuilderPlugin';
 import { UUID } from '@lumino/coreutils';
 import { deployAppNotification } from './DeployAppNotification';
-import { IBuildAppReply } from '../../websockets/appBuilder/appBuilderModels';
+import { IBuildAppReply, IBuildAppRequest } from '../../websockets/appBuilder/appBuilderModels';
 import { checkAuthenticationAndRedirect, getJWTToken } from './auth';
 
 /* 
@@ -35,8 +35,6 @@ export const convertNotebookToStreamlit = async (
 
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
-  // Get full path to folder
-  const pathToFolder = PathExt.dirname(notebookPath);
   console.log('Notebook path:', notebookPath);
   console.log('Notebook name:', notebookName);
   console.log('Current working directory info:', notebookPanel.context);
@@ -56,11 +54,10 @@ export const convertNotebookToStreamlit = async (
       // Get JWT token for authentication
       const jwtToken = getJWTToken();
       
-      const response: IBuildAppReply = await appBuilderService.client.sendMessage({
+      const response: IBuildAppReply = await appBuilderService.client.sendMessage<IBuildAppRequest, IBuildAppReply>({
         type: 'build-app',
         message_id: UUID.uuid4(),
         notebook_path: notebookPath,
-        app_path: pathToFolder,
         jwt_token: jwtToken || appBuilderService.client.serverSettings.token
       });
       

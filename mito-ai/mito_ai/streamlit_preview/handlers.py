@@ -109,48 +109,29 @@ class StreamlitPreviewHandler(APIHandler):
             # Generate preview ID
             preview_id = str(uuid.uuid4())
             
-            # Create temporary directory for the app. This temp directory is automatically deleted 
-            # when the handler request is done. We first put the streamlit app code in this temp directory, 
-            # then read it back out and start the streamlit app with the code. 
-            # TODO: Consider not using a temp directory if we want to let users's edit the app code!
-            # We could implement this by first registering a temp directory with the manager, using that
-            # directory to create the app.py file and then using that same directory within the manager to 
-            # start the streamlit app. The directory would not get deleted until the streamlit app is stopped.
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                # Generate streamlit code using existing handler
-                success, message = await streamlit_handler(resolved_notebook_path, tmp_dir)
-                
-                if not success:
-                    self.set_status(500)
-                    self.finish({"error": f'Failed to generate streamlit code: {message}'})
-                    return
-                
-                # Read the generated app.py
-                app_path = f"{tmp_dir}/app.py"
-                try:
-                    with open(app_path, 'r') as f:
-                        app_code = f.read()
-                except FileNotFoundError:
-                    self.set_status(500)
-                    self.finish({"error": 'Generated app.py file not found'})
-                    return
-                
-                # Start streamlit preview
-                success, message, port = self.preview_manager.start_streamlit_preview(
-                    app_code, preview_id
-                )
-                
-                if not success:
-                    self.set_status(500)
-                    self.finish({"error": f'Failed to start preview: {message}'})
-                    return
-                
-                # Return success response - APIHandler automatically handles JSON serialization
-                self.finish({
-                    'id': preview_id,
-                    'port': port,
-                    'url': f'http://localhost:{port}'
-                })
+            # Generate streamlit code using existing handler
+            success, app_path, message = await streamlit_handler(resolved_notebook_path)
+            
+            if not success or app_path is None:
+                self.set_status(500)
+                self.finish({"error": f'Failed to generate streamlit code: {message}'})
+                return
+            
+            # Start streamlit preview
+            resolved_app_directory = os.path.dirname(resolved_notebook_path)
+            success, message, port = self.preview_manager.start_streamlit_preview(resolved_app_directory, preview_id)
+            
+            if not success:
+                self.set_status(500)
+                self.finish({"error": f'Failed to start preview: {message}'})
+                return
+            
+            # Return success response - APIHandler automatically handles JSON serialization
+            self.finish({
+                'id': preview_id,
+                'port': port,
+                'url': f'http://localhost:{port}'
+            })
                 
         except Exception as e:
             print(f"Error in streamlit preview handler: {e}")

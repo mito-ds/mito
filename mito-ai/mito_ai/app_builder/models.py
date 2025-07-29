@@ -65,7 +65,7 @@ class BuildAppRequest:
     message_id: str
     
     # Path to the app file.
-    path: str
+    notebook_path: str
     
     # JWT token for authorization.
     jwt_token: Optional[str] = None

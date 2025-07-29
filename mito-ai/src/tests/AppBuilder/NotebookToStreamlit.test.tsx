@@ -126,7 +126,6 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             type: 'build-app',
             message_id: 'test-uuid-123',
             notebook_path: 'test_notebook.ipynb',
-            app_path: '',
             jwt_token: 'test-jwt-token'
         });
 
@@ -144,7 +143,6 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             type: 'build-app',
             message_id: 'test-uuid-123',
             notebook_path: 'test_notebook.ipynb',
-            app_path: '',
             jwt_token: 'test-server-token'
         });
     });
@@ -209,7 +207,6 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             type: 'build-app',
             message_id: 'test-uuid-123',
             notebook_path: 'folder/subfolder/my_notebook.ipynb',
-            app_path: 'folder/subfolder',
             jwt_token: 'test-jwt-token'
         });
     });

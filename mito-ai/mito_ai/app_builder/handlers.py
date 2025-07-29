@@ -13,6 +13,7 @@ from mito_ai.utils.websocket_base import BaseWebSocketHandler
 from mito_ai.app_builder.models import (
     BuildAppReply,
     AppBuilderError,
+    BuildAppRequest,
     ErrorMessage,
     MessageType
 )
@@ -74,7 +75,8 @@ class AppBuilderHandler(BaseWebSocketHandler):
             
             if message_type == MessageType.BUILD_APP.value:
                 # Handle build app request
-                await self._handle_build_app(parsed_message)
+                build_app_request = BuildAppRequest(**parsed_message)
+                await self._handle_build_app(build_app_request)
             else:
                 self.log.error(f"Unknown message type: {message_type}")
                 error = AppBuilderError(
@@ -98,25 +100,24 @@ class AppBuilderHandler(BaseWebSocketHandler):
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"App builder handler processed in {latency_ms} ms.")
     
-    async def _handle_build_app(self, message: dict) -> None:
+    async def _handle_build_app(self, message: BuildAppRequest) -> None:
         """Handle a build app request.
         
         Args:
             message: The parsed message.
         """
-        message_id = message.get('message_id', '')  # Default to empty string if not present
-        notebook_path = message.get('notebook_path')
-        app_path = message.get('app_path')
-        jwt_token = message.get('jwt_token', '')  # Extract JWT token from request, default to empty string
+        message_id = message.message_id
+        notebook_path = message.notebook_path
+        jwt_token = message.jwt_token
 
         if not message_id:
             self.log.error("Missing message_id in request")
             return
         
-        if not app_path:
+        if not notebook_path:
             error = AppBuilderError(
                 error_type="InvalidRequest",
-                title="Missing 'path' parameter"
+                title="Missing 'notebook_path' parameter"
             )
             self.reply(BuildAppReply(
                 parent_id=message_id,
@@ -126,31 +127,30 @@ class AppBuilderHandler(BaseWebSocketHandler):
             return
 
         # Validate JWT token if provided
-        if jwt_token and jwt_token != 'placeholder-jwt-token':
-            self.log.info(f"Validating JWT token: {jwt_token[:20]}...")
-            is_valid = self._validate_jwt_token(jwt_token)
-            if not is_valid:
-                self.log.error("JWT token validation failed")
-                error = AppBuilderError(
-                    error_type="Unauthorized",
-                    title="Invalid authentication token",
-                    hint="Please sign in again to deploy your app."
-                )
-                self.reply(BuildAppReply(
-                    parent_id=message_id,
-                    url="",
-                    error=error
-                ))
-                return
-            else:
-                self.log.info("JWT token validation successful")
+        token_preview = jwt_token[:20] if jwt_token else "No token provided"
+        self.log.info(f"Validating JWT token: {token_preview}...")
+        is_valid = self._validate_jwt_token(jwt_token) if jwt_token else False
+        if not is_valid or not jwt_token:
+            self.log.error("JWT token validation failed")
+            error = AppBuilderError(
+                error_type="Unauthorized",
+                title="Invalid authentication token",
+                hint="Please sign in again to deploy your app."
+            )
+            self.reply(BuildAppReply(
+                parent_id=message_id,
+                url="",
+                error=error
+            ))
+            return
         else:
-            self.log.warning("No JWT token provided or using placeholder token")
-
+            self.log.info("JWT token validation successful")
+            
         try:
 
-            success_flag, result_message = await streamlit_handler(str(notebook_path) if notebook_path else "", app_path)
-            if not success_flag:
+            notebook_path = str(notebook_path) if notebook_path else ""
+            success_flag, app_path, result_message = await streamlit_handler(notebook_path)
+            if not success_flag or app_path is None:
                 raise Exception(result_message)
 
             deploy_url = await self._deploy_app(app_path, jwt_token)
