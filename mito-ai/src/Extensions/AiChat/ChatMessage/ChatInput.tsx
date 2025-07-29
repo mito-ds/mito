@@ -24,7 +24,7 @@ interface ChatInputProps {
     app: JupyterFrontEnd;
     initialContent: string;
     placeholder: string;
-    onSave: (content: string, index?: number, selectedRules?: Array<{type: string, value: string}>) => void;
+    onSave: (content: string, index?: number, additionalContext?: Array<{type: string, value: string}>) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;

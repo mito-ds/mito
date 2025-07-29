@@ -101,7 +101,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     const handleSave = (
         content: string,
         _index?: number,
-        _selectedRules?: Array<{ type: string, value: string }>,
         _additionalContext?: Array<{ type: string, value: string }>
     ): void => {
         onUpdateMessage(messageIndex, content, messageType);
