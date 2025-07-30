@@ -12,10 +12,10 @@ interface RevertQuestionnaireProps {
 
 const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy }) => {
     const CHOICES = [
-        'placeholder option 1',
-        'placeholder option 2',
-        'placeholder option 3',
-        'placeholder option 4'
+        'The output didn’t run or gave the wrong result.',
+        'The code didn’t match my intent.',
+        'The code works, but it’s not readable or easy to follow.',
+        'I realized I wanted to do something else.'
     ]
 
     const handleButtonClick = (choice: string) => {
