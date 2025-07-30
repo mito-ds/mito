@@ -96,3 +96,13 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
         raise json.JSONDecodeError(f"Invalid JSON in notebook file: {str(e)}", e.doc if hasattr(e, 'doc') else '', e.pos if hasattr(e, 'pos') else 0)
     except Exception as e:
         raise Exception(f"Error processing notebook: {str(e)}")
+
+def get_existing_streamlit_app_code(app_path: str) -> Optional[str]:
+    """
+    Get the existing streamlit app code from the app.py file
+    """
+    app_path = os.path.join(app_path, "app.py")
+    if not os.path.exists(app_path):
+        return None
+    with open(app_path, 'r') as f:
+        return f.read()

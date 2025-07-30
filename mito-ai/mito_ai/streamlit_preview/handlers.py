@@ -105,6 +105,7 @@ class StreamlitPreviewHandler(APIHandler):
             
             # Resolve the notebook path to find the actual file
             resolved_notebook_path = self._resolve_notebook_path(notebook_path)
+            resolved_app_directory = os.path.dirname(resolved_notebook_path)
             
             # Generate preview ID
             preview_id = str(uuid.uuid4())
@@ -118,7 +119,6 @@ class StreamlitPreviewHandler(APIHandler):
                 return
             
             # Start streamlit preview
-            resolved_app_directory = os.path.dirname(resolved_notebook_path)
             success, message, port = self.preview_manager.start_streamlit_preview(resolved_app_directory, preview_id)
             
             if not success:

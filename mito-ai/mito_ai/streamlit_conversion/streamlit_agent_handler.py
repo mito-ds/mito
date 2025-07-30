@@ -9,7 +9,7 @@ from typing import List, Optional, Tuple, cast
 from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import streamlit_code_validator
-from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, parse_jupyter_notebook_to_extract_required_content
+from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, get_existing_streamlit_app_code, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
@@ -17,14 +17,52 @@ from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_
 STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
 class StreamlitCodeGeneration:
-    def __init__(self, notebook: dict) -> None:
+    def __init__(self, notebook: dict, existing_streamlit_app_code: Optional[str]) -> None:
+        preservation_prompt = ""
+        if existing_streamlit_app_code:
+            preservation_prompt = f"""
+Update this existing Streamlit app to incorporate the changes from the updated notebook while preserving its structure.
+
+CONTEXT:
+- I have an existing Streamlit app that was generated from a Jupyter notebook
+- The notebook has been updated with new/modified/deleted content
+- I need the app updated to reflect the notebook changes WITHOUT changing the app's structure
+
+PRESERVE COMPLETELY:
+- Overall layout (tabs, columns, sidebar usage)
+- Page structure and organization  
+- All user input components (sliders, selectboxes, text inputs, etc.)
+- Tab names and order
+- Section headings and organization
+- Any custom styling or configuration
+- Cache decorators and performance optimizations
+- Error handling and edge cases
+- Remove any code from the streamlit app that is no longer included in the notebook. For example, if a graph was deleted from the notebook, remove the graph code from the streamlit app as well.
+
+CRITICAL RULES:
+1. If unsure where to place new content, add it to the most relevant existing section or create a new section if necessary.
+2. Maintain all existing Streamlit-specific features (session state, layouts, etc.) unless the notebook explicitly requires a change.
+3. Keep all user-facing text and labels unchanged unless the notebook explicitly changes them.
+4. RETURN THE COMPLETE STREAMLIT APP CODE WITH THE CHANGES INCORPORATED. THE CODE YOU RETURN SHOULD BE THE COMPLETE, RUNNABLE STREAMLIT APP CODE. AS SOON AS YOU RETURN THE CODE, IT WILL BE EXECUTED AS A STREAMLIT APP SO DO NOT EXPECT ANY ADDITIONAL POST-PROCESSING TO OCCUR.
+
+Basically, your job is to incorporate the changes from the updated notebook into the existing streamlit app, so you can share the updated app with your colleagues. You want to maintain as much visual and structural consistency as possible since your colleagues are already familiar with the existing app.
+
+EXISTING STREAMLIT APP:
+```python
+{existing_streamlit_app_code}
+
+
+"""
+
 
         self.messages: List[MessageParam] = [
             cast(MessageParam, {
                 "role": "user",
                 "content": [{
                     "type": "text",
-                    "text": f"Here is my jupyter notebook content that I want to convert into a Streamlit dashboard - {notebook}"
+                    "text": f"""{preservation_prompt} Here is the jupyter notebook content that I want to convert into the Streamlit dashboard: 
+                    
+{notebook}"""
                 }]
             })
         ]
@@ -98,7 +136,9 @@ class StreamlitCodeGeneration:
 async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
     """Handler function for streamlit code generation and validation"""
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
-    streamlit_code_generator = StreamlitCodeGeneration(notebook_code)
+    app_path = os.path.dirname(notebook_path)
+    existing_streamlit_app_code = get_existing_streamlit_app_code(app_path)
+    streamlit_code_generator = StreamlitCodeGeneration(notebook_code, existing_streamlit_app_code)
     streamlit_code = await streamlit_code_generator.generate_streamlit_code()
     has_validation_error, error = streamlit_code_validator(streamlit_code)
     
