@@ -101,6 +101,7 @@ import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import { getFirstMessageFromCookie } from './FirstMessage';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
+import RevertQuestionnaire from './ChatMessage/RevertQuestionnaire';
 import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
 
@@ -210,6 +211,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
+
+    // Track if revert questionnaire should be shown
+    const [showRevertQuestionnaire, setShowRevertQuestionnaire] = useState<boolean>(false);
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -1445,7 +1449,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 text="Revert changes"
                                 icon={UndoIcon}
                                 title="Revert changes"
-                                onClick={() => restoreCheckpoint(app, notebookTracker, setHasCheckpoint, getDuplicateChatHistoryManager, setChatHistoryManager)}
+                                onClick={() => {
+                                    restoreCheckpoint(app, notebookTracker, setHasCheckpoint, getDuplicateChatHistoryManager, setChatHistoryManager)
+                                    setShowRevertQuestionnaire(true)
+                                }}
                                 variant="gray"
                                 width="fit-contents"
                                 iconPosition="left"
@@ -1455,6 +1462,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             </p>
                         </div>
                     )}
+                {/* Revert questionnaire - shows when user clicks revert button */}
+                {!showRevertQuestionnaire && (
+                    <RevertQuestionnaire />
+                )}
             </div>
             {displayOptimizedChatHistory.length === 0 && (
                 <div className="suggestions-container">
