@@ -5,6 +5,7 @@
 
 import React from 'react';
 import TextButton from '../../../components/TextButton';
+import { logEvent } from '../../../restAPI/RestAPI';
 
 interface RevertQuestionnaireProps {
     onDestroy: () => void;
@@ -19,8 +20,7 @@ const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy }) 
     ]
 
     const handleButtonClick = (choice: string) => {
-        console.log('Selected choice:', choice);
-        // Add your logic here for handling the button click
+        void logEvent('mito_ai_revert_questionnaire_choice', { 'reason': choice });
         onDestroy(); // Destroy the component when any button is clicked
     };
 

@@ -1463,7 +1463,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         </div>
                     )}
                 {/* Revert questionnaire - shows when user clicks revert button */}
-                {!showRevertQuestionnaire && (
+                {showRevertQuestionnaire && (
                     <RevertQuestionnaire onDestroy={() => setShowRevertQuestionnaire(false)} />
                 )}
             </div>
