@@ -107,7 +107,7 @@ describe('ChatHistoryManager', () => {
         });
     });
 
-    describe('Core Message Management', () => {
+    describe('Low-Level Message Utilities', () => {
         it('should add chat message from history', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
@@ -194,6 +194,59 @@ describe('ChatHistoryManager', () => {
             const duplicateHistory = duplicateManager.getDisplayOptimizedHistory();
 
             expect(duplicateHistory).toEqual(originalHistory);
+        });
+    });
+
+    describe('High-Level Chat Workflows', () => {
+        it('should add chat input message with metadata', async () => {
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+
+            const metadata = await manager.addChatInputMessage('Test input', 'thread-123');
+
+            expect(metadata.promptType).toBe('chat');
+            expect(metadata.input).toBe('Test input');
+            expect(metadata.threadId).toBe('thread-123');
+
+            const history = manager.getDisplayOptimizedHistory();
+            expect(history).toHaveLength(1);
+            expect(history[0]?.message.content).toContain('Test input');
+        });
+
+        it('should add agent execution message', () => {
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+
+            const metadata = manager.addAgentExecutionMessage('thread-123', 'Execute this');
+
+            expect(metadata.promptType).toBe('agent:execution');
+            expect(metadata.input).toBe('Execute this');
+            expect(metadata.threadId).toBe('thread-123');
+        });
+
+        it('should add smart debug message', () => {
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+
+            const metadata = manager.addSmartDebugMessage('thread-123', 'Error message');
+
+            expect(metadata.promptType).toBe('smartDebug');
+            expect(metadata.errorMessage).toBe('Error message');
+        });
+
+        it('should add agent smart debug message', () => {
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+
+            const metadata = manager.addAgentSmartDebugMessage('thread-123', 'Agent error');
+
+            expect(metadata.promptType).toBe('agent:autoErrorFixup');
+            expect(metadata.errorMessage).toBe('Agent error');
+        });
+
+        it('should add explain code message', () => {
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+
+            const metadata = manager.addExplainCodeMessage('thread-123');
+
+            expect(metadata.promptType).toBe('codeExplain');
+            expect(metadata.threadId).toBe('thread-123');
         });
     });
 
@@ -363,4 +416,5 @@ describe('ChatHistoryManager', () => {
             expect(history[2]?.agentResponse?.analysis_assumptions).toEqual(['assumption2']);
         });
     });
+
 }); 
