@@ -7,6 +7,7 @@ import { INotebookTracker } from "@jupyterlab/notebook";
 import { getAIOptimizedCells } from "./notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { ChatHistoryManager } from "../Extensions/AiChat/ChatHistoryManager";
+import { logEvent } from "../restAPI/RestAPI";
 
 
 export const createCheckpoint = async (app: JupyterFrontEnd, setHasCheckpoint: (hasCheckpoint: boolean) => void): Promise<void> => {
@@ -58,6 +59,9 @@ export const restoreCheckpoint =  async (
         false
     )
     setChatHistoryManager(newChatHistoryManager);           
+
+    // Log the checkpoint restoration
+    void logEvent('mito_ai_checkpoint_restored', {});
     
     // Restart the run all
     await app.commands.execute("notebook:restart-run-all")
