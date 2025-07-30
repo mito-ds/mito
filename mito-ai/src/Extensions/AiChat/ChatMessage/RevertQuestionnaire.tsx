@@ -19,7 +19,7 @@ const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy }) 
         'I realized I wanted to do something else.'
     ]
 
-    const handleButtonClick = (choice: string) => {
+    const handleButtonClick = (choice: string): void => {
         void logEvent('mito_ai_revert_questionnaire_choice', { 'reason': choice });
         onDestroy(); // Destroy the component when any button is clicked
     };

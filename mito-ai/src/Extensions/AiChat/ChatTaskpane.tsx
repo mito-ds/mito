@@ -1450,7 +1450,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 icon={UndoIcon}
                                 title="Revert changes"
                                 onClick={() => {
-                                    restoreCheckpoint(app, notebookTracker, setHasCheckpoint, getDuplicateChatHistoryManager, setChatHistoryManager)
+                                    void restoreCheckpoint(app, notebookTracker, setHasCheckpoint, getDuplicateChatHistoryManager, setChatHistoryManager)
                                     setShowRevertQuestionnaire(true)
                                 }}
                                 variant="gray"
