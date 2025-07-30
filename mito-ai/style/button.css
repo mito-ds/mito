@@ -68,3 +68,8 @@
   font-size: 12px;
   padding: 2px 5px;
 }
+
+.revert-questionnaire-button {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+} 

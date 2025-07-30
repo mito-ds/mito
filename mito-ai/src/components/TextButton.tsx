@@ -17,12 +17,13 @@ export interface ButtonProps {
     variant: 'green' | 'red' | 'gray' | 'purple';
     width: 'block' | 'fit-contents';
     textAlign?: 'left' | 'center' | 'right';
+    className?: string;
 }
 
 // Text Button is just the basic Button Props, nothing else. 
 interface TextButtonProps extends ButtonProps {}
 
-const TextButton: React.FC<TextButtonProps> = ({ text, onClick, title, variant, width, action, textAlign = 'center' }) => {
+const TextButton: React.FC<TextButtonProps> = ({ text, onClick, title, variant, width, action, textAlign = 'center', className }) => {
 
     if (action) {
         return (
@@ -32,7 +33,8 @@ const TextButton: React.FC<TextButtonProps> = ({ text, onClick, title, variant, 
                     "button-base",
                     `button-${variant}`,
                     `button-width-${width}`,
-                    `text-align-${textAlign}`
+                    `text-align-${textAlign}`,
+                    className
                 )} onClick={onClick} title={title}>
                     {text}
                 </button>
@@ -46,7 +48,8 @@ const TextButton: React.FC<TextButtonProps> = ({ text, onClick, title, variant, 
             "button-base",
             `button-${variant}`,
             `button-width-${width}`,
-            `text-align-${textAlign}`
+            `text-align-${textAlign}`,
+            className
         )} onClick={onClick} title={title}>
             {text}
         </button>
