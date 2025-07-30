@@ -1464,7 +1464,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     )}
                 {/* Revert questionnaire - shows when user clicks revert button */}
                 {!showRevertQuestionnaire && (
-                    <RevertQuestionnaire />
+                    <RevertQuestionnaire onDestroy={() => setShowRevertQuestionnaire(false)} />
                 )}
             </div>
             {displayOptimizedChatHistory.length === 0 && (

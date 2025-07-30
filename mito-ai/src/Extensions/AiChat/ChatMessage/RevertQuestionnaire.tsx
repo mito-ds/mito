@@ -6,8 +6,11 @@
 import React from 'react';
 import TextButton from '../../../components/TextButton';
 
+interface RevertQuestionnaireProps {
+    onDestroy: () => void;
+}
 
-const RevertQuestionnaire: React.FC = () => {
+const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy }) => {
     const CHOICES = [
         'placeholder option 1',
         'placeholder option 2',
@@ -18,6 +21,7 @@ const RevertQuestionnaire: React.FC = () => {
     const handleButtonClick = (choice: string) => {
         console.log('Selected choice:', choice);
         // Add your logic here for handling the button click
+        onDestroy(); // Destroy the component when any button is clicked
     };
 
     return (
@@ -25,14 +29,14 @@ const RevertQuestionnaire: React.FC = () => {
             <p>What went wrong?</p>
             {CHOICES.map((choice) => (
                 <>
-                <TextButton
-                    text={choice}
-                    onClick={() => handleButtonClick(choice)}
-                    title={choice}
-                    variant='gray'
-                    width='block'
-                />
-                <br />
+                    <TextButton
+                        text={choice}
+                        onClick={() => handleButtonClick(choice)}
+                        title={choice}
+                        variant='gray'
+                        width='block'
+                    />
+                    <br />
                 </>
             ))}
         </div>
