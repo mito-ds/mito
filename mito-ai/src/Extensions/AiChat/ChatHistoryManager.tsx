@@ -339,14 +339,12 @@ export class ChatHistoryManager {
     }
 
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
-        const deduplicatedAgentResponse = this.deduplicateAssumptions(agentResponse);
-
-        let content = deduplicatedAgentResponse.message
-        if (deduplicatedAgentResponse.type === 'cell_update') {
+        let content = agentResponse.message
+        if (agentResponse.type === 'cell_update') {
             // For cell_update messages, we want to display the code the agent wrote along with 
             // the message it sent. For all other agent responses, we ignore all other fields
             // and just display the message.
-            const code = deduplicatedAgentResponse.cell_update?.code
+            const code = agentResponse.cell_update?.code
             const codeWithMarkdownFormatting = addMarkdownCodeFormatting(code)
 
             if (codeWithMarkdownFormatting !== undefined) {
@@ -364,7 +362,7 @@ export class ChatHistoryManager {
                 message: aiMessage, 
                 type: 'openai message',
                 promptType: 'agent:execution',
-                agentResponse: deduplicatedAgentResponse
+                agentResponse: this.deduplicateAssumptions(agentResponse)
             }
         );
     }
