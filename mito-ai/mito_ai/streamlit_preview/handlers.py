@@ -4,6 +4,7 @@
 import os
 import tempfile
 import uuid
+from mito_ai.streamlit_conversion.streamlit_utils import MITO_APP_CONFIG_FOLDER_NAME
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
@@ -107,8 +108,8 @@ class StreamlitPreviewHandler(APIHandler):
             # Resolve the notebook path to find the actual file
             # Create all of the necessary files and folders to support the preview
             resolved_notebook_path = self._resolve_notebook_path(notebook_path)
-            resolved_app_directory = os.path.dirname(resolved_notebook_path)
-            mito_app_config_directory_path = os.path.join(resolved_app_directory, "mito_app_config")
+            resolved_notebook_directory = os.path.dirname(resolved_notebook_path)
+            mito_app_config_directory_path = os.path.join(resolved_notebook_directory, MITO_APP_CONFIG_FOLDER_NAME)
             os.makedirs(mito_app_config_directory_path, exist_ok=True)       
             
             # Generate streamlit code using existing handler
@@ -121,7 +122,7 @@ class StreamlitPreviewHandler(APIHandler):
             
             # Start streamlit preview
             preview_id = str(uuid.uuid4())
-            success, message, port = self.preview_manager.start_streamlit_preview(resolved_app_directory, preview_id)
+            success, message, port = self.preview_manager.start_streamlit_preview(resolved_notebook_directory, preview_id)
             
             if not success:
                 self.set_status(500)

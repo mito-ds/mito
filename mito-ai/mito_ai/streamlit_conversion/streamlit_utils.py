@@ -9,13 +9,14 @@ import difflib
 import shutil
 from typing import Dict, List, Optional, Tuple, Any
 
+MITO_APP_CONFIG_FOLDER_NAME = "mito_app_config"
 NOTEBOOK_CHECKPOINT_FILE_NAME = "notebook_checkpoint.ipynb"
 
 @dataclass
 class NotebookCellContent:
     id: str
     cell_type: str
-    source: str
+    source: List[str]
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -153,14 +154,10 @@ def generate_notebook_diffs(old_cells: List[NotebookCellContent], new_cells: Lis
     old_cells_id_dict: Dict[str, NotebookCellContent] = {}
     new_cells_id_dict: Dict[str, NotebookCellContent] = {}
     
-    print('old cells')
     for cell in old_cells:
-        print(cell)
         old_cells_id_dict[cell.id] = cell
     
-    print('new cells')
     for cell in new_cells:
-        print(cell)
         new_cells_id_dict[cell.id] = cell
         
     diffs = []
@@ -181,19 +178,15 @@ def generate_notebook_diffs(old_cells: List[NotebookCellContent], new_cells: Lis
     # Filter out None values before joining
     diffs = [diff for diff in diffs if diff is not None]
     
-    diff = "NOTEBOOK CELL CHANGES:\n\n"
-    diff += '\n\n'.join(diffs)
+    if len(diffs) == 0:
+        return "No changes to the notebook. Return the existing streamlit app."
     
-    print(diff)
-    return diff
+    return '\n'.join(diffs)
 
 def generate_cell_diffs(old_cell: Optional[NotebookCellContent], new_cell: Optional[NotebookCellContent]) -> Optional[str]:
     """
     Generate the diffs between two cells
     """    
-    print('GENERATING CELL DIFFS')
-    print(old_cell)
-    print(new_cell)
     diffs = list(difflib.unified_diff(
         old_cell.source if old_cell else [],
         new_cell.source if new_cell else [],
@@ -205,12 +198,17 @@ def generate_cell_diffs(old_cell: Optional[NotebookCellContent], new_cell: Optio
     if len(diffs) == 0:
         return None
     
-    diff = "NOTEBOOK CELL CHANGES:\n\n"
-    diff += ''.join(diffs)
-    return diff
+    return '\n'.join(diffs)
 
 def get_notebook_content_string(notebook_content: List[NotebookCellContent]) -> str:
     """
     Get the content of the notebook as a string
-    """
-    return json.dumps([cell.to_dict() for cell in notebook_content])
+    """    
+    notebook_content_string = ""
+    for cell in notebook_content:
+        notebook_content_string += f"## Cell ID: {cell.id} Cell Type: {cell.cell_type}\n"
+        
+        source = ''.join(cell.source)
+        notebook_content_string += source + "\n\n"
+    
+    return notebook_content_string

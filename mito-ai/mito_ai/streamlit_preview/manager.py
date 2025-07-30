@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import time
 import threading
+from mito_ai.streamlit_conversion.streamlit_utils import MITO_APP_CONFIG_FOLDER_NAME
 import requests
 from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
@@ -53,8 +54,11 @@ class StreamlitPreviewManager:
             port = self.get_free_port()
             
             # Start streamlit process
+            # The app.py file lives in the mito_app_config folder, but we want to run the app from the notebook's directory so 
+            # all of the relative paths referenced from the notebook are still valid. 
+            relative_path_to_app = os.path.join(MITO_APP_CONFIG_FOLDER_NAME, "app.py")
             cmd = [
-                "streamlit", "run", 'app.py', # Since we run this command from the app_directory, we always just run app.py 
+                "streamlit", "run", relative_path_to_app,
                 "--server.port", str(port),
                 "--server.headless", "true",
                 "--server.address", "localhost",
@@ -72,6 +76,7 @@ class StreamlitPreviewManager:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
+                # This must always be the notebook's directory!
                 cwd=app_directory
             )
             

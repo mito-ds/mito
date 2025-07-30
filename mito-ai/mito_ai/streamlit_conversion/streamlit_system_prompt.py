@@ -51,4 +51,9 @@ OUTPUT FORMAT:
 - Do NOT modify the graphs or analysis
 - Do NOT provide your own interpretations for the analysis
 
+CRITICAL INSTRUCTION:
+- RETURN THE COMPLETE STREAMLIT APP CODE 
+- NEVER INCLUDE COMMENTS LIKE '## Rest of code remains the same" or '#[Keep the rest of the existing streamlit app code unchanged]'. THOSE INSTRUCTIONS WILL BE IGNORED AND YOU WILL HAVE DELETED CRITICAL PARTS OF THE USER'S WORK. 
+- YOU MUST RETURN THE FULL APP!
+
 Remember: The goal is to transform technical analysis into a polished, interactive/visually appealing dashboard that executives can easily understand and navigate."""
