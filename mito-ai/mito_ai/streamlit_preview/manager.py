@@ -59,6 +59,7 @@ class StreamlitPreviewManager:
                 "--server.headless", "true",
                 "--server.address", "localhost",
                 "--server.enableXsrfProtection", "false",
+                "--server.runOnSave", "true",  # auto-reload when app.py is saved
                 "--logger.level", "error"
             ]
             
