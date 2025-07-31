@@ -1452,8 +1452,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 title="Revert changes"
                                 onClick={() => {
                                     void restoreCheckpoint(app, notebookTracker, setHasCheckpoint)
-                                    setNextSteps([])
-                                    setDisplayedNextStepsIfAvailable(false)
                                     setShowRevertQuestionnaire(true)
                                 }}
                                 variant="gray"
