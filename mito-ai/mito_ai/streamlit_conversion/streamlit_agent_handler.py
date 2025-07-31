@@ -9,13 +9,17 @@ from anthropic.types import MessageParam
 from typing import List, Optional, Tuple, cast
 
 from mito_ai.logger import get_logger
-from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
+from mito_ai.streamlit_conversion.agent_utils import get_response_from_agent
+from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_messsage import get_streamlit_app_creation_message
+from mito_ai.streamlit_conversion.prompts.streamlit_app_update_message import get_streamlit_app_update_message
+from mito_ai.streamlit_conversion.prompts.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import (
     streamlit_code_validator,
 )
 from mito_ai.streamlit_conversion.streamlit_utils import (
     extract_code_blocks,
     create_app_file,
+    extract_ndiff_blocks,
     generate_notebook_diffs,
     get_existing_streamlit_app_code,
     get_notebook_content_string,
@@ -35,73 +39,15 @@ STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
 
 class StreamlitCodeGeneration:
-    def __init__(
-        self,
-        notebook_content_string: str,
-        existing_streamlit_app_code: Optional[str],
-        notebook_diffs: Optional[str],
-    ) -> None:
-        preservation_prompt = ""
-        print("EXISTING STREAMLIT APP CODE", existing_streamlit_app_code is not None)
-                
-        if existing_streamlit_app_code is not None:
-            preservation_prompt = f"""
-Update this existing Streamlit app to incorporate the changes from the updated notebook while preserving its structure.
 
-YOUR JOB:
-- I have an existing Streamlit app that was generated from a Jupyter notebook
-- The notebook has been updated with new/modified/deleted content
-- I need the app updated to reflect the notebook changes WITHOUT changing the app's structure
-
-HOW TO USE THE NOTEBOOK CHANGES:
-The "CHANGES MADE TO THE NOTEBOOK" section below shows which cells were added, deleted, or modified.
-- DELETED CELLS: Remove any outputs, visualizations, or code from the streamlit app that came from these cells
-- ADDED CELLS: Look at these cells in the updated notebook and add their outputs to the most appropriate existing section or create a new section if necessary.
-- MODIFIED CELLS: Compare the old vs new content in the notebook to determine what changed. Here are some examples of what could have changed:
-  * If a visualization/output was commented out → Remove it from the streamlit app
-  * If parameters changed (colors, titles, plot types) → Update them in the streamlit app
-  * If new outputs were added within the cell → Add them to the streamlit app
-  * If outputs were removed from the cell → Remove them from the streamlit app
-
-PRESERVE THE EXISTING APP'S STRUCTURE:
-- Overall layout (tabs, columns, sidebar usage)
-- Page structure and organization  
-- All user input components (sliders, selectboxes, text inputs, etc.)
-- Tab names and order
-- Section headings and organization
-- Any custom styling or configuration
-- Cache decorators and performance optimizations
-- Error handling and edge cases
-
-CRITICAL RULES:
-1. The streamlit app should mirror the outputs from the notebook - if something is deleted or commented out in the notebook, it should NOT appear in the app
-2. If unsure where to place new content, add it to the most relevant existing section
-3. Maintain all existing Streamlit-specific features (session state, layouts, etc.)
-4. Keep all user-facing text and labels unchanged unless the notebook explicitly changes them
-5. RETURN THE COMPLETE STREAMLIT APP CODE WITH THE CHANGES INCORPORATED. NEVER INCLUDE COMMENTS LIKE '## Rest of code remains the same" or '#[Keep the rest of the existing streamlit app code unchanged]'. THOSE INSTRUCTIONS WILL BE IGNORED AND YOU WILL HAVE DELETED CRITICAL PARTS OF THE USER'S WORK. YOU MUST RETURN THE FULL APP!
-
-Basically, your job is to incorporate the changes from the updated notebook into the existing streamlit app, so you can share the updated app with your colleagues. You want to maintain as much visual and structural consistency as possible since your colleagues are already familiar with the existing app.
-
-===============================================
-
-EXISTING STREAMLIT APP:
-{existing_streamlit_app_code}
-
-===============================================
-
-CHANGES MADE TO THE NOTEBOOK SINCE THE STREAMLIT APP WAS CREATED:
-{notebook_diffs}
-
-===============================================
-
-UPDATED NOTEBOOK CONTENT:
-{notebook_content_string}
-
-===============================================
-
-"""
-
-        self.messages: List[MessageParam] = [
+    @property
+    def log(self) -> logging.Logger:
+        """Use Mito AI logger."""
+        return get_logger()
+    
+    async def generate_new_streamlit_app(self, notebook_content_string: str) -> str:
+        """Generate a new streamlit app from the notebook content"""
+        messages = [
             cast(
                 MessageParam,
                 {
@@ -109,46 +55,49 @@ UPDATED NOTEBOOK CONTENT:
                     "content": [
                         {
                             "type": "text",
-                            "text": f"""{preservation_prompt} Here is the jupyter notebook content that I want to convert into the Streamlit dashboard: 
-                    
-{notebook_content_string}
-""",
+                            "text": get_streamlit_app_creation_message(notebook_content_string),
                         }
                     ],
                 },
             )
         ]
-
-        pprint.pprint(self.messages)
-
-    @property
-    def log(self) -> logging.Logger:
-        """Use Mito AI logger."""
-        return get_logger()
-
-    async def get_response_from_agent(
-        self, message_to_agent: List[MessageParam]
+        
+        agent_response = await get_response_from_agent(messages)
+        return extract_code_blocks(agent_response)
+    
+    
+    async def update_existing_streamlit_app(
+        self, 
+        notebook_content_string: str, 
+        existing_streamlit_app_code: str, 
+        notebook_diffs: List[str]
     ) -> str:
-        """Gets the streaming response from the agent using the mito server"""
-        model = STREAMLIT_AI_MODEL
-        max_tokens = 8192  # 64_000
-        temperature = 0
+        """Update an existing streamlit app to incorporate the changes from the updated notebook"""
+        
+        
+        for notebook_diff in notebook_diffs:
+            messages = [cast(
+                    MessageParam,
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": get_streamlit_app_update_message(existing_streamlit_app_code, notebook_diff)
+                            }
+                        ],
+                    },
+                )
+            ]
+            
+            agent_response = await get_response_from_agent(messages)
+            ndiff_blocks = extract_ndiff_blocks(agent_response)
+            existing_streamlit_app_code = apply_patch_to_text(existing_streamlit_app_code, ndiff_blocks)
+            
+            
 
-        self.log.info("Getting response from agent...")
-        accumulated_response = ""
-        async for stream_chunk in stream_anthropic_completion_from_mito_server(
-            model=model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            system=streamlit_system_prompt,
-            messages=message_to_agent,
-            stream=True,
-            message_type=MessageType.STREAMLIT_CONVERSION,
-            reply_fn=None,
-            message_id="",
-        ):
-            accumulated_response += stream_chunk
-        return accumulated_response
+            
+        return extract_code_blocks(agent_response)
 
     def add_agent_response_to_context(self, agent_response: str) -> None:
         """Add the agent's response to the history"""
@@ -161,14 +110,6 @@ UPDATED NOTEBOOK CONTENT:
                 },
             )
         )
-
-    async def generate_streamlit_code(self) -> str:
-        """Send a query to the agent, get its response and parse the code"""
-        agent_response = await self.get_response_from_agent(self.messages)
-
-        converted_code = extract_code_blocks(agent_response)
-        self.add_agent_response_to_context(converted_code)
-        return converted_code
 
     async def correct_error_in_generation(self, error: str) -> str:
         """If errors are present, send it back to the agent to get corrections in code"""
@@ -186,7 +127,7 @@ UPDATED NOTEBOOK CONTENT:
                 },
             )
         )
-        agent_response = await self.get_response_from_agent(self.messages)
+        agent_response = await get_response_from_agent(self.messages)
         converted_code = extract_code_blocks(agent_response)
         self.add_agent_response_to_context(converted_code)
 
@@ -207,20 +148,41 @@ async def streamlit_handler(
 
     existing_streamlit_app_code = get_existing_streamlit_app_code(app_config_path)
     print(7)
-    if checkpointed_notebook_code:
-        notebook_diffs = generate_notebook_diffs(
-            checkpointed_notebook_code, current_notebook_code
-        )
-    else:
-        notebook_diffs = None
-    print(8)
+    
     current_notebook_content_string = get_notebook_content_string(current_notebook_code)
-    print(9)
+    streamlit_code_generator = StreamlitCodeGeneration()
 
-    streamlit_code_generator = StreamlitCodeGeneration(
-        current_notebook_content_string, existing_streamlit_app_code, notebook_diffs
-    )
-    streamlit_code = await streamlit_code_generator.generate_streamlit_code()
+
+    #########################################################
+    
+    # Generate the streamlit code 
+    
+    #########################################################
+    
+    streamlit_code = ''    
+    if checkpointed_notebook_code and existing_streamlit_app_code:
+        notebook_diffs = generate_notebook_diffs(checkpointed_notebook_code, current_notebook_code)
+        
+
+        # Update the existing streamlit app
+        
+    else:
+        
+        streamlit_code = await streamlit_code_generator.generate_new_streamlit_app(current_notebook_content_string)
+    
+    
+    
+    
+
+    #########################################################
+    
+    # Validate the streamlit code 
+    
+    #########################################################
+
+    
+    
+    
     print(10)
     has_validation_error, error = streamlit_code_validator(streamlit_code)
     print(11)

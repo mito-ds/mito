@@ -47,6 +47,15 @@ def extract_code_blocks(message_content: str) -> str:
     return '\n'.join(matches)
 
 
+def extract_ndiff_blocks(message_content: str) -> str:
+    """
+    Extract all ndiff blocks from Claude's response.
+    """
+    pattern = r'```ndiff\n(.*?)```'
+    matches = re.findall(pattern, message_content, re.DOTALL)
+    return '\n'.join(matches)
+
+
 def create_app_file(app_directory: str, code: str) -> Tuple[bool, Optional[str], str]:
     """
     Create app.py file and write code to it with error handling
@@ -148,7 +157,7 @@ def save_notebook_as_checkpoint(notebook_path: str, app_config_path: str) -> Non
     except Exception as e:
         print(f"Error saving notebook as checkpoint: {str(e)}")
 
-def generate_notebook_diffs(old_cells: List[NotebookCellContent], new_cells: List[NotebookCellContent]) -> str:
+def generate_notebook_diffs(old_cells: List[NotebookCellContent], new_cells: List[NotebookCellContent]) -> List[str]:
     
     # Convert cell dictionaries to comparable formats
     old_cells_id_dict: Dict[str, NotebookCellContent] = {}
@@ -179,9 +188,9 @@ def generate_notebook_diffs(old_cells: List[NotebookCellContent], new_cells: Lis
     diffs = [diff for diff in diffs if diff is not None]
     
     if len(diffs) == 0:
-        return "No changes to the notebook. Return the existing streamlit app."
+        return []
     
-    return '\n'.join(diffs)
+    return diffs
 
 def generate_cell_diffs(old_cell: Optional[NotebookCellContent], new_cell: Optional[NotebookCellContent]) -> Optional[str]:
     """
