@@ -82,3 +82,20 @@
 .context-button:hover {
   background-color: var(--jp-layout-color3);
 }
+
+/* Disabled state styles */
+.chat-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--jp-layout-color2);
+}
+
+.context-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--jp-layout-color2);
+}
+
+.context-button:disabled:hover {
+  background-color: var(--jp-layout-color2);
+}

@@ -86,6 +86,19 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             }
         });
 
+        commands.addCommand('toolbar-button:preview-as-streamlit', {
+            label: 'Preview App',
+            caption: 'Preview as Streamlit',
+            className: 'text-button-mito-ai button-base button-purple button-small',
+            execute: async () => {
+                void app.commands.execute('mito-ai:preview-as-streamlit');
+            },
+            isEnabled: () => {
+                // TODO: We should check if there is an open notebook
+                return true;
+            }
+        });
+
         // Check if the beta mode is enabled. After checking, tell Jupyter to 
         // re-evaluate convert-to-streamlit visibility now that we have had the 
         // opportunity to set the mito-ai:beta-mode-enabled command if beta mode is enabled.

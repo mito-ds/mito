@@ -132,6 +132,7 @@ interface ICellStateBeforeDiff {
 }
 
 export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
+export type AgentExecutionStatus = 'working' | 'stopping' | 'idle'
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
@@ -194,7 +195,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         2. stopping: the agent is stopping after it has received ai response it is waiting on
         3. idle: the agent is idle
     */
-    const [agentExecutionStatus, setAgentExecutionStatus] = useState<'working' | 'stopping' | 'idle'>('idle')
+    const [agentExecutionStatus, setAgentExecutionStatus] = useState<AgentExecutionStatus>('idle')
 
     // We use a ref to always access the most up-to-date value during a function's execution. Refs immediately reflect changes, 
     // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
@@ -1005,7 +1006,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentResponse.type === 'get_cell_output') {
                 // Mark that we should send the cell output to the agent 
                 // in the next loop iteration
-                sendCellIDOutput = agentResponse.cell_id
+                sendCellIDOutput = agentResponse.get_cell_output_cell_id
             }
         }
 
@@ -1495,6 +1496,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     notebookTracker={notebookTracker}
                     renderMimeRegistry={renderMimeRegistry}
                     agentModeEnabled={agentModeEnabled}
+                    agentExecutionStatus={agentExecutionStatus}
                 />
             </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (

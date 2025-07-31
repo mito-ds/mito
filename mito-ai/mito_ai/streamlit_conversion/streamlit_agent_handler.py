@@ -2,8 +2,9 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import logging
+import os
 from anthropic.types import MessageParam
-from typing import List, Tuple, cast
+from typing import List, Optional, Tuple, cast
 
 from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
@@ -11,6 +12,7 @@ from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import streaml
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
+from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
 
 STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
@@ -93,20 +95,34 @@ class StreamlitCodeGeneration:
         return converted_code
 
 
-async def streamlit_handler(notebook_path: str, app_path: str) -> Tuple[bool, str]:
+async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
     """Handler function for streamlit code generation and validation"""
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code_generator = StreamlitCodeGeneration(notebook_code)
     streamlit_code = await streamlit_code_generator.generate_streamlit_code()
     has_validation_error, error = streamlit_code_validator(streamlit_code)
+    
+    
     tries = 0
     while has_validation_error and tries < 5:
         streamlit_code = await streamlit_code_generator.correct_error_in_generation(error)
         has_validation_error, error = streamlit_code_validator(streamlit_code)
+        
+        if has_validation_error:
+            # TODO: We can't easily get the key type here, so for the beta release
+            # we are just defaulting to the mito server key since that is by far the most common.
+            log_streamlit_app_creation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
         tries+=1
 
     if has_validation_error:
-        return False, "Error generating streamlit code by agent"
-
-    success_flag, message = create_app_file(app_path, streamlit_code)
-    return success_flag, message
+        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
+        return False, None, "Error generating streamlit code by agent"
+    
+    app_directory = os.path.dirname(notebook_path)
+    success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
+    
+    if not success_flag:
+        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, message)
+    
+    log_streamlit_app_creation_success('mito_server_key', MessageType.STREAMLIT_CONVERSION)
+    return success_flag, app_path, message

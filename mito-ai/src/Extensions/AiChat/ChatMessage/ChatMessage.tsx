@@ -167,8 +167,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     // very quickly for users. 
     let isCodeComplete = false;
 
-    console.log(messageContentParts)
-
     return (
         <div className={classNames(
             "message",
