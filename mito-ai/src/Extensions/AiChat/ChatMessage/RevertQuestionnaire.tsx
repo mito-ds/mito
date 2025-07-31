@@ -6,12 +6,15 @@
 import React from 'react';
 import TextButton from '../../../components/TextButton';
 import { logEvent } from '../../../restAPI/RestAPI';
+import { ChatHistoryManager } from '../ChatHistoryManager';
 
 interface RevertQuestionnaireProps {
     onDestroy: () => void;
+    getDuplicateChatHistoryManager: () => ChatHistoryManager;
+    setChatHistoryManager: (chatHistoryManager: ChatHistoryManager) => void;
 }
 
-const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy }) => {
+const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy, getDuplicateChatHistoryManager, setChatHistoryManager }) => {
     const CHOICES = [
         'The output didn’t run or gave the wrong result.',
         'The code didn’t match my intent.',
@@ -20,12 +23,24 @@ const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy }) 
     ]
 
     const handleButtonClick = (choice: string): void => {
+        // Log the event
         void logEvent('mito_ai_revert_questionnaire_choice', { 'reason': choice });
-        onDestroy(); // Destroy the component when any button is clicked
+
+        // Add a message to the chat history
+        const newChatHistoryManager = getDuplicateChatHistoryManager();
+        newChatHistoryManager.addAIMessageFromResponse(
+            "I've reverted all previous changes.",
+            "chat",
+            false
+        )
+        setChatHistoryManager(newChatHistoryManager);
+
+        // Destroy the component (set showRevertQuestionnaire to false)
+        onDestroy();
     };
 
     return (
-        <div>
+        <div className='message'>
             <p>What went wrong?</p>
             {CHOICES.map((choice) => (
                 <>

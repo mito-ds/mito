@@ -15,28 +15,19 @@ jest.mock('../../utils/notebook', () => ({
 // Import the real functions to test
 import { restoreCheckpoint } from '../../utils/checkpoint';
 import { getAIOptimizedCells } from '../../utils/notebook';
-import { ChatHistoryManager } from '../../Extensions/AiChat/ChatHistoryManager';
-
-// Mock the ChatHistoryManager
-const mockAddAIMessageFromResponse = jest.fn();
-const mockChatHistoryManager = {
-    addAIMessageFromResponse: mockAddAIMessageFromResponse
-} as unknown as ChatHistoryManager;
-const mockGetDuplicateChatHistoryManager = jest.fn(() => mockChatHistoryManager);
 
 describe('restoreCheckpoint Function', () => {
     let mockApp: JupyterFrontEnd;
     let mockNotebookTracker: INotebookTracker;
     let mockSetHasCheckpoint: jest.Mock;
-    let mockSetChatHistoryManager: jest.Mock;
     let mockExecute: jest.Mock;
 
     beforeEach(() => {
         jest.clearAllMocks();
-        
+
         // Create mock execute function
         mockExecute = jest.fn().mockResolvedValue(undefined);
-        
+
         // Create mock app with commands.execute
         mockApp = {
             commands: {
@@ -49,7 +40,6 @@ describe('restoreCheckpoint Function', () => {
 
         // Create mock functions
         mockSetHasCheckpoint = jest.fn();
-        mockSetChatHistoryManager = jest.fn();
     });
 
     afterEach(() => {
@@ -69,8 +59,6 @@ describe('restoreCheckpoint Function', () => {
                 mockApp,
                 mockNotebookTracker,
                 mockSetHasCheckpoint,
-                mockGetDuplicateChatHistoryManager,
-                mockSetChatHistoryManager
             );
 
             // Verify that the docmanager:restore-checkpoint command was executed
@@ -83,8 +71,6 @@ describe('restoreCheckpoint Function', () => {
 
             // Verify that no state updates occurred (user canceled)
             expect(mockSetHasCheckpoint).not.toHaveBeenCalled();
-            expect(mockGetDuplicateChatHistoryManager).not.toHaveBeenCalled();
-            expect(mockSetChatHistoryManager).not.toHaveBeenCalled();
 
             // Verify that restart-run-all was not executed
             expect(mockExecute).not.toHaveBeenCalledWith("notebook:restart-run-all");
@@ -111,8 +97,6 @@ describe('restoreCheckpoint Function', () => {
                 mockApp,
                 mockNotebookTracker,
                 mockSetHasCheckpoint,
-                mockGetDuplicateChatHistoryManager,
-                mockSetChatHistoryManager
             );
 
             // Verify that the docmanager:restore-checkpoint command was executed
@@ -125,15 +109,6 @@ describe('restoreCheckpoint Function', () => {
             // Verify that state updates occurred (user confirmed)
             expect(mockSetHasCheckpoint).toHaveBeenCalledWith(false);
             expect(mockSetHasCheckpoint).toHaveBeenCalledTimes(1);
-
-            // Verify that chat history was updated
-            expect(mockGetDuplicateChatHistoryManager).toHaveBeenCalledTimes(1);
-            expect(mockAddAIMessageFromResponse).toHaveBeenCalledWith(
-                "I've reverted all previous changes",
-                "chat",
-                false
-            );
-            expect(mockSetChatHistoryManager).toHaveBeenCalledTimes(1);
 
             // Verify that restart-run-all was executed
             expect(mockExecute).toHaveBeenCalledWith("notebook:restart-run-all");
@@ -153,8 +128,6 @@ describe('restoreCheckpoint Function', () => {
                 mockApp,
                 mockNotebookTracker,
                 mockSetHasCheckpoint,
-                mockGetDuplicateChatHistoryManager,
-                mockSetChatHistoryManager
             );
 
             // Verify the order of command executions
@@ -177,8 +150,6 @@ describe('restoreCheckpoint Function', () => {
                 mockApp,
                 mockNotebookTracker,
                 mockSetHasCheckpoint,
-                mockGetDuplicateChatHistoryManager,
-                mockSetChatHistoryManager
             )).rejects.toThrow('Restore checkpoint failed');
 
             // Verify that getAIOptimizedCells was called once before the error
@@ -205,13 +176,10 @@ describe('restoreCheckpoint Function', () => {
                 mockApp,
                 mockNotebookTracker,
                 mockSetHasCheckpoint,
-                mockGetDuplicateChatHistoryManager,
-                mockSetChatHistoryManager
             )).rejects.toThrow('Restart failed');
 
             // Verify that restoration state updates still occurred
             expect(mockSetHasCheckpoint).toHaveBeenCalledWith(false);
-            expect(mockSetChatHistoryManager).toHaveBeenCalledTimes(1);
         });
     });
 });

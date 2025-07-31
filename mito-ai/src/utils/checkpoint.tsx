@@ -6,7 +6,6 @@
 import { INotebookTracker } from "@jupyterlab/notebook";
 import { getAIOptimizedCells } from "./notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
-import { ChatHistoryManager } from "../Extensions/AiChat/ChatHistoryManager";
 import { logEvent } from "../restAPI/RestAPI";
 
 
@@ -30,8 +29,6 @@ export const restoreCheckpoint =  async (
     app: JupyterFrontEnd, 
     notebookTracker: INotebookTracker, 
     setHasCheckpoint: (hasCheckpoint: boolean) => void, 
-    getDuplicateChatHistoryManager: () => ChatHistoryManager, 
-    setChatHistoryManager: (chatHistoryManager: ChatHistoryManager) => void
 ): Promise<void> => {    
     // Get the notebook state before attempting restoration
     const notebookStateBefore = getNotebookStateHash(notebookTracker);
@@ -50,15 +47,6 @@ export const restoreCheckpoint =  async (
     
     // The restoration was successful, so update the state
     setHasCheckpoint(false)
-
-    // Add a message to the chat history
-    const newChatHistoryManager = getDuplicateChatHistoryManager();
-    newChatHistoryManager.addAIMessageFromResponse(
-        "I've reverted all previous changes",
-        "chat",
-        false
-    )
-    setChatHistoryManager(newChatHistoryManager);           
 
     // Log the checkpoint restoration
     void logEvent('mito_ai_checkpoint_restored', {});
