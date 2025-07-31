@@ -48,7 +48,7 @@ const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy, ge
                         text={choice}
                         onClick={() => handleButtonClick(choice)}
                         title={choice}
-                        variant='purple'
+                        variant='gray'
                         width='block'
                         textAlign='left'
                         className="revert-questionnaire-button"
