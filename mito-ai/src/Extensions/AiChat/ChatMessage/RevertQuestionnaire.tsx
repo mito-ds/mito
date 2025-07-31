@@ -7,6 +7,7 @@ import React from 'react';
 import TextButton from '../../../components/TextButton';
 import { logEvent } from '../../../restAPI/RestAPI';
 import { ChatHistoryManager } from '../ChatHistoryManager';
+import '../../../../style/RevertQuestionnaire.css';
 
 interface RevertQuestionnaireProps {
     onDestroy: () => void;
@@ -40,8 +41,8 @@ const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy, ge
     };
 
     return (
-        <div className='message'>
-            <p>What went wrong?</p>
+        <div className='message revert-questionnaire-message'>
+            <p className='revert-questionnaire-message-text'>What went wrong?</p>
             {CHOICES.map((choice) => (
                 <>
                     <TextButton

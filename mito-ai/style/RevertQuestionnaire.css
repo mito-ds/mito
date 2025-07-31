@@ -1,0 +1,23 @@
+.revert-questionnaire-message {
+    background-color: var(--purple-400);
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
+
+.revert-questionnaire-message-text {
+    color: var(--grey-900);
+}
+
+.revert-questionnaire-button {
+    border: 1px solid var(--purple-600);
+    background-color: var(--purple-300);
+    color: var(--grey-900) !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 12px !important;
+    overflow: hidden;
+}
+
+.revert-questionnaire-button:hover {
+    background-color: var(--purple-500);
+}
