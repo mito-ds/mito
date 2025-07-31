@@ -317,12 +317,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
                     onChange={handleInputChange}
                     onKeyDown={(e) => {
-                        // If agent is working or stopping, prevent all input
-                        if (agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') {
-                            e.preventDefault();
-                            return;
-                        }
-
                         // If dropdown is visible, only handle escape to close it
                         if (isDropdownVisible) {
                             if (e.key === 'Escape') {
