@@ -1452,8 +1452,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 title="Revert changes"
                                 onClick={() => {
                                     void restoreCheckpoint(app, notebookTracker, setHasCheckpoint)
+                                    setHasCheckpoint(false)
                                     setShowRevertQuestionnaire(true)
-                                    // Scroll to bottom when questionnaire is shown
                                     scrollToDiv(chatMessagesRef);
                                 }}
                                 variant="gray"
