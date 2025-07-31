@@ -19,6 +19,7 @@ import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import DatabaseButton from '../../../components/DatabaseButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { AgentExecutionStatus } from '../ChatTaskpane';
 
 interface ChatInputProps {
     app: JupyterFrontEnd;
@@ -32,6 +33,7 @@ interface ChatInputProps {
     renderMimeRegistry: IRenderMimeRegistry;
     displayActiveCellCode?: boolean;
     agentModeEnabled: boolean;
+    agentExecutionStatus?: AgentExecutionStatus;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -57,6 +59,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     renderMimeRegistry,
     displayActiveCellCode = true,
     agentModeEnabled = false,
+    agentExecutionStatus = 'idle',
 }) => {
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
@@ -311,8 +314,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     className={classNames("message", "message-user", 'chat-input', {"agent-mode": agentModeEnabled})}
                     placeholder={placeholder}
                     value={input}
+                    disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
                     onChange={handleInputChange}
                     onKeyDown={(e) => {
+                        // If agent is working or stopping, prevent all input
+                        if (agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') {
+                            e.preventDefault();
+                            return;
+                        }
+
                         // If dropdown is visible, only handle escape to close it
                         if (isDropdownVisible) {
                             if (e.key === 'Escape') {
