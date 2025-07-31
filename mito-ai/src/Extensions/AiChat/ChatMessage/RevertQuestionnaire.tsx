@@ -53,7 +53,6 @@ const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy, ge
                         textAlign='left'
                         className="revert-questionnaire-button"
                     />
-                    <br />
                 </>
             ))}
         </div>
