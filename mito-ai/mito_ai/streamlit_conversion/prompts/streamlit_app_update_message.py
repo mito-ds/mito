@@ -1,68 +1,74 @@
 def get_streamlit_app_update_message(existing_streamlit_app_code: str, notebook_diff: str) -> str:
+  
+    existing_streamlit_app_code_with_line_numbers = ""
+    for i, line in enumerate(existing_streamlit_app_code.split('\n'), 1):
+        existing_streamlit_app_code_with_line_numbers += f"{i:3d}: {line}\n"
     
-    return f"""Update this existing Streamlit app to incorporate the changes from the updated notebook while preserving its structure.
+    return f"""You've already created the first draft of a Streamlit app representation of a Jupyter notebook. Since then, the user has made a some changes to the notebook and asked you to make the corresponding changes to the Streamlit app in order to keep the Streamlit app in sync with the notebook. 
 
-YOUR JOB:
-- I have an existing Streamlit app that was generated from a Jupyter notebook
-- The notebook has been updated with new/modified/deleted content
-- I need the app updated to reflect the notebook changes WITHOUT changing the app's structure
+IMPORTANT CONTEXT:
+The notebook has been updated. Cells may have been modified, added and deleted. 
 
-HOW TO USE THE NOTEBOOK CHANGES:
-The "CHANGES MADE TO THE NOTEBOOK" section below shows which cells were added, deleted, or modified.
-- DELETED CELLS: Remove any outputs, visualizations, or code from the streamlit app that came from these cells
-- ADDED CELLS: Look at these cells in the updated notebook and add their outputs to the most appropriate existing section or create a new section if necessary.
-- MODIFIED CELLS: Compare the old vs new content in the notebook to determine what changed. Here are some examples of what could have changed:
-  * If a visualization/output was commented out → Remove it from the streamlit app
-  * If parameters changed (colors, titles, plot types) → Update them in the streamlit app
-  * If new outputs were added within the cell → Add them to the streamlit app
-  * If outputs were removed from the cell → Remove them from the streamlit app
+UNDERSTANDING THE DIFFS:
+Cells that are completely deleted from the notebookare shown as:
+--- Cell [id] (old)
++++ Cell None (new)
 
-PRESERVE THE EXISTING APP'S STRUCTURE:
-- Overall layout (tabs, columns, sidebar usage)
-- Page structure and organization  
-- All user input components (sliders, selectboxes, text inputs, etc.)
-- Tab names and order
-- Section headings and organization
-- Any custom styling or configuration
-- Cache decorators and performance optimizations
-- Error handling and edge cases
+Cells that are newly added to the notebook are shown as:
+--- Cell None (old)
++++ Cell [id] (new)
+
+Cells that are modified in the notebook are shown as:
+--- Cell [id] (old)
++++ Cell [id] (new)
+
+YOUR JOB: 
+Your job is to incorporate the changes that the user shared with you into the existing streamlit app. To do this, you will respond with a unified diff (git-style patch) that shows the changes that need to be made to the streamlit app. The user will apply those changes to the streamlit app for you. 
+
+GUIDELINES FOR UPDATING THE STREAMLIT APP:
+- If a cell was deleted, remove all of the corresponding code from the streamlit app. This might include removing entire sections of code, or removing entire pages/tabs.
+- If a cell was added, add the corresponding code to the streamlit app. Follow the existing app structure to figure out where to add this code. In some cases, you might decide to add the code to an existing section, or if there is no existing part of the app that is relevant, you might decide to add the code to a new section.
+- If a cell was modifiied, update the corresponding code in the streamlit app. 
 
 CRITICAL RULES:
 1. The streamlit app should mirror the outputs from the notebook - if something is deleted or commented out in the notebook, it should NOT appear in the app
 2. If unsure where to place new content, add it to the most relevant existing section
 3. Maintain all existing Streamlit-specific features (session state, layouts, etc.)
 4. Keep all user-facing text and labels unchanged unless the notebook explicitly changes them
-5. RETURN THE CHANGES **ONLY** AS A Python `difflib.ndiff` PATCH:
-  - Each line must begin with:
-       "  " for an unchanged line  
-       "- " for a line to delete  
-       "+ " for a line to insert  
-  - Do **not** wrap the patch in a code block and add **no** extra commentary.
-  - The patch must allow `difflib.restore(patch_lines, which="+")` to recreate the full updated Streamlit app in memory.
-  - If there are **no changes**, return an empty string.
+5. The streamlit app code that the user shared with you is shown below. You will be applying changes to this version of the streamlit app. 
+6. To make it easier for you to specify the changes you want to make, the streamlit app code is displayed to you with line numbers. However, you should not include the line numbers in your response. 
+
+
+RESPONSE FORMAT: Return the changes you want to make to the streamlit app as a **unified diff (git-style patch)**:
+- Begin with a ````unified_diff` header and a ```` end header.
+- Then, include the standard header lines `--- a/app.py` and `+++ b/app.py`.
+- Show only the modified hunks; each hunk must start with an `@@` header with line numbers.
+- Within each hunk:
+  * Unchanged context lines start with a single space.
+  * Removed lines start with `-`.
+  * Added   lines start with `+`.
+- If there are **no changes**, return an empty string.
+- Do not include the line numbers in your response. 
 
 <Example Response>
-```ndiff
-  import streamlit as st
-  import pandas as pd
-- st.title("Streamlit App")
-+ st.title("Sales Dashboard")
+```unified_diff
+--- a/app.py
++++ b/app.py
+@@ -1,3 +1,3 @@
+ import streamlit as st
+ import pandas as pd
+-st.title("Placeholder Title")
++st.title("Sales Dashboard")
 ```
 </Example Response>
 
-Your actual answer must consist **only** of lines beginning with `"  "`, `"- "`, or `"+ "``.
-Do not add markdown fences, headings, or extra commentary.
-
-Basically, your job is to incorporate the changes from the updated notebook into the existing streamlit app, so you can share the updated app with your colleagues. You want to maintain as much visual and structural consistency as possible since your colleagues are already familiar with the existing app.
+Your actual answer must consist **only** of valid unified-diff block.
 
 ===============================================
-
 EXISTING STREAMLIT APP:
-{existing_streamlit_app_code}
+{existing_streamlit_app_code_with_line_numbers}
 
 ===============================================
-
-Update the existing streamlit app to incorporate the following changes: 
+NOTEBOOK CHANGES:
 {notebook_diff}
-
 """

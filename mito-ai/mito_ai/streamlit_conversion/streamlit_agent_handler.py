@@ -9,7 +9,7 @@ from anthropic.types import MessageParam
 from typing import List, Optional, Tuple, cast
 
 from mito_ai.logger import get_logger
-from mito_ai.streamlit_conversion.agent_utils import get_response_from_agent
+from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, get_response_from_agent
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_messsage import get_streamlit_app_creation_message
 from mito_ai.streamlit_conversion.prompts.streamlit_app_update_message import get_streamlit_app_update_message
 from mito_ai.streamlit_conversion.prompts.streamlit_system_prompt import streamlit_system_prompt
@@ -34,8 +34,6 @@ from mito_ai.utils.telemetry_utils import (
     log_streamlit_app_creation_retry,
     log_streamlit_app_creation_success,
 )
-
-STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
 
 class StreamlitCodeGeneration:
@@ -75,6 +73,7 @@ class StreamlitCodeGeneration:
         """Update an existing streamlit app to incorporate the changes from the updated notebook"""
         
         
+        updated_streamlit_app_code = existing_streamlit_app_code
         for notebook_diff in notebook_diffs:
             messages = [cast(
                     MessageParam,
@@ -83,7 +82,7 @@ class StreamlitCodeGeneration:
                         "content": [
                             {
                                 "type": "text",
-                                "text": get_streamlit_app_update_message(existing_streamlit_app_code, notebook_diff)
+                                "text": get_streamlit_app_update_message(updated_streamlit_app_code, notebook_diff)
                             }
                         ],
                     },
@@ -91,29 +90,21 @@ class StreamlitCodeGeneration:
             ]
             
             agent_response = await get_response_from_agent(messages)
+            print("agent_response")
+            print(agent_response)
             ndiff_blocks = extract_ndiff_blocks(agent_response)
-            existing_streamlit_app_code = apply_patch_to_text(existing_streamlit_app_code, ndiff_blocks)
+            print("ndiff_blocks")
+            print(ndiff_blocks)
+            updated_streamlit_app_code = apply_patch_to_text(updated_streamlit_app_code, ndiff_blocks)
             
             
+        return existing_streamlit_app_code
 
-            
-        return extract_code_blocks(agent_response)
-
-    def add_agent_response_to_context(self, agent_response: str) -> None:
-        """Add the agent's response to the history"""
-        self.messages.append(
-            cast(
-                MessageParam,
-                {
-                    "role": "assistant",
-                    "content": [{"type": "text", "text": agent_response}],
-                },
-            )
-        )
 
     async def correct_error_in_generation(self, error: str) -> str:
         """If errors are present, send it back to the agent to get corrections in code"""
-        self.messages.append(
+        
+        messages = [
             cast(
                 MessageParam,
                 {
@@ -126,10 +117,9 @@ class StreamlitCodeGeneration:
                     ],
                 },
             )
-        )
-        agent_response = await get_response_from_agent(self.messages)
+        ]
+        agent_response = await get_response_from_agent(messages)
         converted_code = extract_code_blocks(agent_response)
-        self.add_agent_response_to_context(converted_code)
 
         return converted_code
 
@@ -162,6 +152,11 @@ async def streamlit_handler(
     streamlit_code = ''    
     if checkpointed_notebook_code and existing_streamlit_app_code:
         notebook_diffs = generate_notebook_diffs(checkpointed_notebook_code, current_notebook_code)
+        streamlit_code = await streamlit_code_generator.update_existing_streamlit_app(
+            current_notebook_content_string,
+            existing_streamlit_app_code,
+            notebook_diffs
+        )
         
 
         # Update the existing streamlit app

@@ -190,6 +190,8 @@ def generate_notebook_diffs(old_cells: List[NotebookCellContent], new_cells: Lis
     if len(diffs) == 0:
         return []
     
+    print("FOUND THESE DIFFS")
+    print(diffs)
     return diffs
 
 def generate_cell_diffs(old_cell: Optional[NotebookCellContent], new_cell: Optional[NotebookCellContent]) -> Optional[str]:
