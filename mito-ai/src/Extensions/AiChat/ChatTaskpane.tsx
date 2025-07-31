@@ -1108,6 +1108,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         rejectAICode()
         setNextSteps([])
+        setShowRevertQuestionnaire(false);
     }
 
     const rejectAICode = (): void => {
@@ -1522,6 +1523,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 setAgentModeEnabled(!isLeftSelected);
                                 // Clear agent checkpoint when switching modes
                                 setHasCheckpoint(false);
+                                setShowRevertQuestionnaire(false);
                                 // Focus the chat input directly
                                 const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                 if (chatInput) {
