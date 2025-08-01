@@ -104,6 +104,8 @@ def clean_directory_check(notebook_path):
 async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
     """Handler function for streamlit code generation and validation"""
 
+    if not os.path.isabs(notebook_path):
+        notebook_path = os.path.join(os.getcwd(), notebook_path)
     clean_directory_check(notebook_path)
 
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
