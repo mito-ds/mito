@@ -43,7 +43,7 @@ def get_df_names_ipython() -> List[str]:
 
 def get_df_names_streamlit_or_dash() -> List[str]:
     # Get dataframes defined in any calling frames above this one
-    import inspect
+    import inspect    
     import streamlit as st
     import pandas as pd
 
