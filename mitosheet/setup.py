@@ -103,13 +103,13 @@ setup_args = dict(
             'setuptools==68.0.0'
         ],
         'streamlit': [
-            'streamlit>=1.24,<1.32',
+            'streamlit>=1.24',
         ],
         'optional_feature_dependencies': [
             # According to this documentation (https://github.com/snowflakedb/snowflake-connector-python),
             # snowflake-connect-python requires at least Python 3.7
             'snowflake-connector-python[pandas]; python_version>="3.7"',
-            'streamlit>=1.24,<1.32',
+            'streamlit>=1.24',
             'dash>=2.9',
             "flask"
         ]
