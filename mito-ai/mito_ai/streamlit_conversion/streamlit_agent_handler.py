@@ -94,9 +94,18 @@ class StreamlitCodeGeneration:
 
         return converted_code
 
+def clean_directory_check(notebook_path):
+    dir_path = os.path.dirname(notebook_path)
+    file_count = len([f for f in os.listdir(dir_path)
+                      if os.path.isfile(os.path.join(dir_path, f))])
+    if file_count > 10:
+        raise ValueError(f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")
 
 async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
     """Handler function for streamlit code generation and validation"""
+
+    clean_directory_check(notebook_path)
+
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code_generator = StreamlitCodeGeneration(notebook_code)
     streamlit_code = await streamlit_code_generator.generate_streamlit_code()
