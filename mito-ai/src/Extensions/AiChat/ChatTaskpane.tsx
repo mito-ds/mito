@@ -676,13 +676,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleUpdateMessage = async (
         messageIndex: number,
         newContent: string,
+        additionalContext?: Array<{type: string, value: string}>
     ): Promise<void> => {
 
         // Then send the new message to replace it
         if (agentModeEnabled) {
-            await startAgentExecution(newContent, messageIndex)
+            await startAgentExecution(newContent, messageIndex, additionalContext)
         } else {
-            await sendChatInputMessage(newContent, messageIndex)
+            await sendChatInputMessage(newContent, messageIndex, additionalContext)
         }
     };
 
@@ -1406,7 +1407,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 key={index}
                                 message={displayOptimizedChat.message}
                                 promptType={displayOptimizedChat.promptType}
-                                messageType={displayOptimizedChat.type}
                                 agentResponse={displayOptimizedChat.agentResponse}
                                 codeCellID={displayOptimizedChat.codeCellID}
                                 mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
