@@ -17,10 +17,10 @@ interface RevertQuestionnaireProps {
 
 const RevertQuestionnaire: React.FC<RevertQuestionnaireProps> = ({ onDestroy, getDuplicateChatHistoryManager, setChatHistoryManager }) => {
     const CHOICES = [
-        'The output didn’t run or gave the wrong result.',
-        'The code didn’t match my intent.',
-        'The code works, but it’s not readable or easy to follow.',
-        'I realized I wanted to do something else.'
+        'AI misunderstood me',
+        'Code was buggy/incorrect',
+        'Code was low quality',
+        'I changed my mind about what I wanted'
     ]
 
     const handleButtonClick = (choice: string): void => {
