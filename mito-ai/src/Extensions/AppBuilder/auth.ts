@@ -15,6 +15,8 @@ const active_domain = domain_dev
 const currentUrl: string = window.location.href;
 let redirectUrl: string;
 
+// As of now we only support localhost:8888 because we have only allowed this redirect url on AWS conito
+// We can modify the redirect to include other ports in the future
 if (currentUrl.includes('localhost')) {
     redirectUrl = 'http://localhost:8888/lab';
 } else if (currentUrl.includes('trymito')) {
