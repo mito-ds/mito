@@ -76,7 +76,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_db_urls(base_url))  # type: ignore
     handlers.extend(get_settings_urls(base_url))  # type: ignore
     handlers.extend(get_rules_urls(base_url))  # type: ignore
-    handlers.extend(get_log_urls(base_url))  # type: ignore
+    handlers.extend(get_log_urls(base_url, open_ai_provider.key_type))  # type: ignore
     handlers.extend(get_auth_urls(base_url))  # type: ignore
     handlers.extend(get_streamlit_preview_urls(base_url))  # type: ignore
     

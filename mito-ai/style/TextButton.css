@@ -8,3 +8,15 @@
   align-items: center;
   justify-content: space-around;
 }
+
+.text-align-left {
+  justify-content: flex-start;
+}
+
+.text-align-center {
+  justify-content: space-around;
+}
+
+.text-align-right {
+  justify-content: flex-end;
+}
