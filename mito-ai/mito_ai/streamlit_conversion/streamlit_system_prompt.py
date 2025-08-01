@@ -34,7 +34,6 @@ st.markdown(\"\"\"
     <style>
         #MainMenu {visibility: hidden;}
         .stAppDeployButton {display:none;}
-        .stAppHeader {display:none;}
         footer {visibility: hidden;}
         .stMainBlockContainer {padding: 2rem 1rem 2rem 1rem;}
     </style>
