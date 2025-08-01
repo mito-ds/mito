@@ -82,7 +82,7 @@ setup_args = dict(
         'pandas>=2.0.0',
         'analytics-python',
         # Graphing libraries
-        'plotly>=4.14.3,<6.0.0',
+        'plotly>=4.14.3',
         'chardet>=3.0.4',
         # For XLSX, reading - we don't fix so works on all python versions
         'openpyxl',
