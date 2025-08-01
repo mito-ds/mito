@@ -7,6 +7,7 @@ from anthropic.types import MessageParam
 from typing import List, Optional, Tuple, cast
 
 from mito_ai.logger import get_logger
+from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import streamlit_code_validator
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, parse_jupyter_notebook_to_extract_required_content
@@ -24,7 +25,7 @@ class StreamlitCodeGeneration:
                 "role": "user",
                 "content": [{
                     "type": "text",
-                    "text": f"Here is my jupyter notebook content that I want to convert into a Streamlit dashboard - {notebook}"
+                    "text": get_streamlit_app_creation_prompt(notebook)
                 }]
             })
         ]
@@ -68,9 +69,22 @@ class StreamlitCodeGeneration:
             })
         )
 
-    async def generate_streamlit_code(self) -> str:
+    async def generate_streamlit_code(self, notebook: dict) -> str:
         """Send a query to the agent, get its response and parse the code"""
-        agent_response = await self.get_response_from_agent(self.messages)
+        
+        messages: List[MessageParam] = [
+            cast(MessageParam, {
+                "role": "user",
+                "content": [{
+                    "type": "text",
+                    "text": get_streamlit_app_creation_prompt(notebook)
+                }]
+            })
+        ]
+        
+        agent_response = await self.get_response_from_agent(messages)
+        
+        
 
         converted_code = extract_code_blocks(agent_response)
         self.add_agent_response_to_context(converted_code)
