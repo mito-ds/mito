@@ -153,11 +153,12 @@ class AppBuilderHandler(BaseWebSocketHandler):
             app_path = os.path.join(app_directory, "app.py")
             if os.path.exists(app_path):
                 success_flag = True
+                result_message = "Could not find app.py to deploy"
             else:
                 success_flag, app_path, result_message = await streamlit_handler(notebook_path)
 
             if not success_flag or app_path is None:
-                raise Exception("Could not find app.py to deploy")
+                raise Exception(result_message)
 
             deploy_url = await self._deploy_app(app_path, jwt_token)
 
