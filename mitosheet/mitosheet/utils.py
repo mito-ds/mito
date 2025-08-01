@@ -638,7 +638,7 @@ def is_snowflake_connector_python_installed() -> bool:
         return False
     
 def is_streamlit_installed() -> bool:
-    try:
+    try:        
         import streamlit
         return True
     except ImportError:

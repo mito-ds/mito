@@ -25,7 +25,7 @@ interface ChatInputProps {
     app: JupyterFrontEnd;
     initialContent: string;
     placeholder: string;
-    onSave: (content: string, index?: number, selectedRules?: Array<{type: string, value: string}>) => void;
+    onSave: (content: string, index?: number, additionalContext?: Array<{type: string, value: string}>) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -225,6 +225,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setIsDropdownFromButton(false);
     };
 
+    const mapAdditionalContext = (): Array<{type: string, value: string}> => {
+        return additionalContext.map(context => {
+            if (context.type === 'db') {
+                return {
+                    type: context.type,
+                    value: context.value
+                };
+            }
+            return context;
+        });
+    };
+
     // Update the expandedVariables arr when the variable manager changes
     useEffect(() => {
         const expandedVariables: ExpandedVariable[] = [
@@ -331,7 +343,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
-                            onSave(input, undefined, additionalContext.map(ctx => ctx.type === 'db' ? {type: ctx.type, value: ctx.value} : ctx))
+                            onSave(input, undefined, mapAdditionalContext())
 
                             // Reset
                             setInput('')
@@ -361,7 +373,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => onSave(input, undefined, additionalContext.map(ctx => ctx.type === 'db' ? {type: ctx.type, value: ctx.value} : ctx))}>Save</button>
+                    <button onClick={() => onSave(input, undefined, mapAdditionalContext())}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

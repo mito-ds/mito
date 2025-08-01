@@ -1,0 +1,97 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.revert-questionnaire-message {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 16px;
+    margin: 8px 8px;
+    border-radius: 12px;
+    background-color: var(--chat-user-message-background-color);
+    border: 1px solid var(--jp-border-color2);
+    box-sizing: border-box;
+    width: calc(100% - 16px);
+    max-width: calc(100vw - 32px);
+}
+
+.revert-questionnaire-message-text {
+    font-size: 12px;
+    color: var(--jp-ui-font-color1);
+    margin-bottom: 20px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+.revert-questionnaire-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 20px;
+    color: var(--jp-ui-font-color2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 6px;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    min-height: 36px;
+    max-width: 100%;
+}
+
+.revert-questionnaire-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--jp-brand-color3) 0%, rgba(var(--jp-brand-color1), 0.1) 100%);
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.revert-questionnaire-button:hover {
+    background: var(--jp-layout-color2);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(var(--jp-brand-color1), 0.15);
+    border-color: var(--jp-brand-color1);
+}
+
+.revert-questionnaire-button:hover::before {
+    opacity: 1;
+}
+
+.revert-questionnaire-button:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+.revert-questionnaire-button::after {
+    content: '→';
+    color: var(--jp-brand-color1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateX(-4px);
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.revert-questionnaire-button:hover::after {
+    opacity: 1;
+    transform: translateX(0);
+}
