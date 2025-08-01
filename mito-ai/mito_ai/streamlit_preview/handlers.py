@@ -4,6 +4,7 @@
 import os
 import tempfile
 import uuid
+from mito_ai.streamlit_conversion.streamlit_utils import MITO_APP_CONFIG_FOLDER_NAME
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
@@ -103,23 +104,25 @@ class StreamlitPreviewHandler(APIHandler):
                 self.finish({"error": 'Missing notebook_path parameter'})
                 return
             
+            print(1)
             # Resolve the notebook path to find the actual file
+            # Create all of the necessary files and folders to support the preview
             resolved_notebook_path = self._resolve_notebook_path(notebook_path)
-            
-            # Generate preview ID
-            preview_id = str(uuid.uuid4())
+            resolved_notebook_directory = os.path.dirname(resolved_notebook_path)
+            mito_app_config_directory_path = os.path.join(resolved_notebook_directory, MITO_APP_CONFIG_FOLDER_NAME)
+            os.makedirs(mito_app_config_directory_path, exist_ok=True)       
             
             # Generate streamlit code using existing handler
-            success, app_path, message = await streamlit_handler(resolved_notebook_path)
-            
+            success, app_path, message = await streamlit_handler(resolved_notebook_path, mito_app_config_directory_path)
+            print(3)
             if not success or app_path is None:
                 self.set_status(500)
                 self.finish({"error": f'Failed to generate streamlit code: {message}'})
                 return
             
             # Start streamlit preview
-            resolved_app_directory = os.path.dirname(resolved_notebook_path)
-            success, message, port = self.preview_manager.start_streamlit_preview(resolved_app_directory, preview_id)
+            preview_id = str(uuid.uuid4())
+            success, message, port = self.preview_manager.start_streamlit_preview(resolved_notebook_directory, preview_id)
             
             if not success:
                 self.set_status(500)
@@ -134,7 +137,7 @@ class StreamlitPreviewHandler(APIHandler):
             })
                 
         except Exception as e:
-            print(f"Error in streamlit preview handler: {e}")
+            print(f"Error in streamlit preview handler: {e.with_traceback(e.__traceback__)}")
             self.set_status(500)
             self.finish({"error": f'Internal server error: {str(e)}'})
     
