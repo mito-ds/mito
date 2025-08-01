@@ -7,7 +7,9 @@ from anthropic.types import MessageParam
 from typing import List, Optional, Tuple, cast
 
 from mito_ai.logger import get_logger
+from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
+from mito_ai.streamlit_conversion.prompts.streamlit_converstion_todo_prompt import get_streamlit_conversion_todo_prompt
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import streamlit_code_validator
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, parse_jupyter_notebook_to_extract_required_content
@@ -83,11 +85,27 @@ class StreamlitCodeGeneration:
         ]
         
         agent_response = await self.get_response_from_agent(messages)
-        
-        
 
         converted_code = extract_code_blocks(agent_response)
         self.add_agent_response_to_context(converted_code)
+        
+        # Extract the TODOs from the agent's response
+        todo_placeholders = extract_todo_placeholders(agent_response)
+
+        for todo_placeholder in todo_placeholders:
+            todo_prompt = get_streamlit_conversion_todo_prompt(todo_placeholder)
+            todo_messages: List[MessageParam] = [
+                cast(MessageParam, {
+                    "role": "user",
+                    "content": [{
+                        "type": "text",
+                        "text": todo_prompt
+                    }]
+                })
+            ]
+            todo_response = await self.get_response_from_agent(todo_messages)
+            converted_code += todo_response
+        
         return converted_code
 
 
@@ -113,7 +131,7 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
     """Handler function for streamlit code generation and validation"""
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code_generator = StreamlitCodeGeneration(notebook_code)
-    streamlit_code = await streamlit_code_generator.generate_streamlit_code()
+    streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
     has_validation_error, error = streamlit_code_validator(streamlit_code)
     
     

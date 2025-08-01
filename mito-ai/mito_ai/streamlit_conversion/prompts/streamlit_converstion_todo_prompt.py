@@ -10,5 +10,4 @@ Your next job is to fix the following TODO:
 
 {todo_placeholder}
 
-
 """

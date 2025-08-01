@@ -25,12 +25,12 @@ IMPORTANT:
 - Only use placeholders when absolutely necessary. Add all of the content directly as much as possible.
 
 <Example>
-If the notebook has a list of 50 violation codes, you would write:
+If the notebook has a list of dictionaries with 50 entries, you would write:
 
-violation_data_list = [
-    {{'LAW_TITLE': 'TBTA', 'LAW_CODE': '10208B', 'DESCRIPTION': 'BICYCLE FAILED TO OBEY SIGNS - TBTA'}},
-    {{'LAW_TITLE': 'VTL', 'LAW_CODE': '1111D1C', 'DESCRIPTION': 'RED LIGHT VIOLATION - BICYCLE'}},
-    # MITO_TODO_PLACEHOLDER: Add remaining 48 violation entries from notebook cell 3
+data_list = [
+    {'id': 1, 'name': 'Item A', 'category': 'Type 1', 'value': 100},
+    {'id': 2, 'name': 'Item B', 'category': 'Type 2', 'value': 200},
+    # MITO_TODO_PLACEHOLDER: Add remaining entries from notebook
 ]
 </Example>
 
