@@ -147,11 +147,17 @@ class AppBuilderHandler(BaseWebSocketHandler):
             self.log.info("JWT token validation successful")
             
         try:
-
             notebook_path = str(notebook_path) if notebook_path else ""
-            success_flag, app_path, result_message = await streamlit_handler(notebook_path)
+
+            app_directory = os.path.dirname(notebook_path)
+            app_path = os.path.join(app_directory, "app.py")
+            if os.path.exists(app_path):
+                success_flag = True
+            else:
+                success_flag, app_path, result_message = await streamlit_handler(notebook_path)
+
             if not success_flag or app_path is None:
-                raise Exception(result_message)
+                raise Exception("Could not find app.py to deploy")
 
             deploy_url = await self._deploy_app(app_path, jwt_token)
 
