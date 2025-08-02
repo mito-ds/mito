@@ -5,6 +5,7 @@
 
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { PathExt } from '@jupyterlab/coreutils';
+import { Notification } from '@jupyterlab/apputils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 import { IAppBuilderService } from './AppBuilderPlugin';
@@ -60,12 +61,17 @@ export const convertNotebookToStreamlit = async (
         notebook_path: notebookPath,
         jwt_token: jwtToken || appBuilderService.client.serverSettings.token
       });
-      
-      console.log("App deployment response:", response);
 
-      const url = response.url;
-      deployAppNotification(url);
-
+      if (response.error) {
+        Notification.emit(response.error.title, 'error', {
+            autoClose: false
+        });
+      }
+      else{
+        console.log("App deployment response:", response);
+        const url = response.url;
+        deployAppNotification(url);
+      }
     } catch (error) {
       // TODO: Do something with the error
       console.error("Error deploying app:", error);

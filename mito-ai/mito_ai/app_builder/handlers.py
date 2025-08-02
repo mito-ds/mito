@@ -147,9 +147,15 @@ class AppBuilderHandler(BaseWebSocketHandler):
             self.log.info("JWT token validation successful")
             
         try:
-
             notebook_path = str(notebook_path) if notebook_path else ""
-            success_flag, app_path, result_message = await streamlit_handler(notebook_path)
+
+            app_directory = os.path.dirname(notebook_path)
+            app_path = os.path.join(app_directory, "app.py")
+            if os.path.exists(app_path):
+                success_flag = True
+            else:
+                success_flag, app_path, result_message = await streamlit_handler(notebook_path)
+
             if not success_flag or app_path is None:
                 raise Exception(result_message)
 
@@ -271,12 +277,11 @@ class AppBuilderHandler(BaseWebSocketHandler):
         except requests.exceptions.RequestException as e:
             self.log.error(f"Error during API request: {e}")
             if hasattr(e, 'response') and e.response is not None:
-                try:
-                    error_detail = e.response.json()
-                    self.log.error(f"Server error details: {error_detail}")
-                except:
-                    self.log.error(f"Server response: {e.response.text}")
-            raise Exception(f"Deployment failed: {str(e)}")
+                error_detail = e.response.json()
+                self.log.error(f"Server error details: {error_detail}")
+                if 'error' in error_detail:
+                    raise Exception(error_detail['error'])
+                raise
         except Exception as e:
             self.log.error(f"Error during deployment: {str(e)}")
             raise
