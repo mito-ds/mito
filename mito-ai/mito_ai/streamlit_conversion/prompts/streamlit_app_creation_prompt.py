@@ -4,15 +4,15 @@ def get_streamlit_app_creation_prompt(notebook: dict) -> str:
     """
     return f"""Convert the following Jupyter notebook into a Streamlit application.
 
-GOAL: Create a complete, runnable Streamlit app that accurately represents the notebook.
+GOAL: Create a complete, runnable Streamlit app that accurately represents the notebook. It must completely convert the notebook. 
 
 TODO PLACEHOLDER RULES:
-When you encounter large content that would make the response too long or complex, use # MITO_TODO_PLACEHOLDER as a marker for future completion.
-
-Only use # MITO_TODO_PLACEHOLDER for:
-1. Large data structures (>20 lines) that would make the code unwieldy
-2. Complex visualizations requiring significant adaptation
-3. Large markdown cells (>15 lines) that would make the code unwieldy
+If you decide to leave any TODOs, you must mark them with # MITO_TODO_PLACEHOLDER. You should use # MITO_TODO_PLACEHOLDER instead of comments like the following: 
+- # ... (include all mappings from the notebook)
+- # ... (include all violation codes from the notebook)
+- # Fill in the rest of the code here
+- # TODO: Add more code here
+- # TODO: Add the visualization code here
 
 For each TODO, use this exact format:
 # MITO_TODO_PLACEHOLDER: <specific description of what needs to be added>
@@ -27,10 +27,10 @@ IMPORTANT:
 <Example>
 If the notebook has a list of dictionaries with 50 entries, you would write:
 
-data_list = [
-    {'id': 1, 'name': 'Item A', 'category': 'Type 1', 'value': 100},
-    {'id': 2, 'name': 'Item B', 'category': 'Type 2', 'value': 200},
-    # MITO_TODO_PLACEHOLDER: Add remaining entries from notebook
+data = [
+    {{'id': 1, 'name': 'Item A', 'category': 'Type 1', 'value': 100}},
+    {{'id': 2, 'name': 'Item B', 'category': 'Type 2', 'value': 200}},
+    # MITO_TODO_PLACEHOLDER: Add remaining entries from the data list
 ]
 </Example>
 

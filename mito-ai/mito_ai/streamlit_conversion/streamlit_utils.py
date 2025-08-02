@@ -27,6 +27,17 @@ def extract_code_blocks(message_content: str) -> str:
     # Concatenate with single newlines
     return '\n'.join(matches)
 
+def extract_ndiff_blocks(message_content: str) -> str:
+    """
+    Extract all ndiff blocks from Claude's response.
+    """
+    if "```ndiff" not in message_content:
+        return message_content
+    
+    pattern = r'```ndiff\n(.*?)```'
+    matches = re.findall(pattern, message_content, re.DOTALL)
+    return '\n'.join(matches)
+
 
 def create_app_file(app_directory: str, code: str) -> Tuple[bool, Optional[str], str]:
     """

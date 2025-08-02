@@ -7,12 +7,12 @@ from anthropic.types import MessageParam
 from typing import List, Optional, Tuple, cast
 
 from mito_ai.logger import get_logger
-from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders
+from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_converstion_todo_prompt import get_streamlit_conversion_todo_prompt
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import streamlit_code_validator
-from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, parse_jupyter_notebook_to_extract_required_content
+from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_ndiff_blocks, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
@@ -91,9 +91,10 @@ class StreamlitCodeGeneration:
         
         # Extract the TODOs from the agent's response
         todo_placeholders = extract_todo_placeholders(agent_response)
-
+        
         for todo_placeholder in todo_placeholders:
-            todo_prompt = get_streamlit_conversion_todo_prompt(todo_placeholder)
+            print(f"\n\nConverting TODO: {todo_placeholder}")
+            todo_prompt = get_streamlit_conversion_todo_prompt(notebook, converted_code, todo_placeholder)
             todo_messages: List[MessageParam] = [
                 cast(MessageParam, {
                     "role": "user",
@@ -104,7 +105,15 @@ class StreamlitCodeGeneration:
                 })
             ]
             todo_response = await self.get_response_from_agent(todo_messages)
-            converted_code += todo_response
+            
+            print(f"\n\nTodo response: {todo_response}")
+            
+            exctracted_diff = extract_ndiff_blocks(todo_response)
+            fixed_diff = fix_diff_headers(exctracted_diff)
+            
+            converted_code = apply_patch_to_text(converted_code, fixed_diff)
+            
+            print(f"\n\nConverted code: {converted_code}")
         
         return converted_code
 
