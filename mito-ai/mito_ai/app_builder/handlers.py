@@ -277,12 +277,11 @@ class AppBuilderHandler(BaseWebSocketHandler):
         except requests.exceptions.RequestException as e:
             self.log.error(f"Error during API request: {e}")
             if hasattr(e, 'response') and e.response is not None:
-                try:
-                    error_detail = e.response.json()
-                    self.log.error(f"Server error details: {error_detail}")
-                except:
-                    self.log.error(f"Server response: {e.response.text}")
-            raise Exception(f"Deployment failed: {str(e)}")
+                error_detail = e.response.json()
+                self.log.error(f"Server error details: {error_detail}")
+                if 'error' in error_detail:
+                    raise Exception(error_detail['error'])
+                raise
         except Exception as e:
             self.log.error(f"Error during deployment: {str(e)}")
             raise
