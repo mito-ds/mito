@@ -79,13 +79,8 @@ def apply_patch_to_text(text: str, diff: str) -> str:
 
 def fix_diff_headers(diff: str) -> str:
     """
-    Fix the hunk headers in a unified diff by recalculating line counts.
-    
-    Args:
-        diff: The unified diff string with potentially incorrect hunk headers
-        
-    Returns:
-        The diff with corrected hunk headers
+    The AI is generally not very good at counting the number of lines in the diff. If the hunk header has
+    an incorrect count, then the patch will fail. So instead we just calculate the counts ourselves, its deterministic.
     """
     lines = diff.split('\n')
     

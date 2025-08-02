@@ -20,18 +20,6 @@ from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_
 STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
 class StreamlitCodeGeneration:
-    def __init__(self, notebook: dict) -> None:
-
-        self.messages: List[MessageParam] = [
-            cast(MessageParam, {
-                "role": "user",
-                "content": [{
-                    "type": "text",
-                    "text": get_streamlit_app_creation_prompt(notebook)
-                }]
-            })
-        ]
-
     @property
     def log(self) -> logging.Logger:
         """Use Mito AI logger."""
@@ -59,18 +47,6 @@ class StreamlitCodeGeneration:
             accumulated_response += stream_chunk
         return accumulated_response
 
-    def add_agent_response_to_context(self, agent_response: str) -> None:
-        """Add the agent's response to the history"""
-        self.messages.append(
-            cast(MessageParam, {
-                "role": "assistant",
-                "content": [{
-                    "type": "text",
-                    "text": agent_response
-                }]
-            })
-        )
-
     async def generate_streamlit_code(self, notebook: dict) -> str:
         """Send a query to the agent, get its response and parse the code"""
         
@@ -87,7 +63,6 @@ class StreamlitCodeGeneration:
         agent_response = await self.get_response_from_agent(messages)
 
         converted_code = extract_code_blocks(agent_response)
-        self.add_agent_response_to_context(converted_code)
         
         # Extract the TODOs from the agent's response
         todo_placeholders = extract_todo_placeholders(agent_response)
@@ -118,20 +93,19 @@ class StreamlitCodeGeneration:
         return converted_code
 
 
-    async def correct_error_in_generation(self, error: str) -> str:
+    async def correct_error_in_generation(self, error: str, streamlit_app_code: str) -> str:
         """If errors are present, send it back to the agent to get corrections in code"""
-        self.messages.append(
+        messages: List[MessageParam] = [
             cast(MessageParam, {
                 "role": "user",
                 "content": [{
                     "type": "text",
-                    "text": f"When I run the streamlit app code, I get the following error: {error}\nPlease return the FULL Streamlit app code with the error corrected"
+                    "text": f"When I run the streamlit app code, I get the following error: {error}\nPlease return the FULL Streamlit app code with the error corrected:\n\n\n\n {streamlit_app_code}"
                 }]
             })
-        )
-        agent_response = await self.get_response_from_agent(self.messages)
+        ]
+        agent_response = await self.get_response_from_agent(messages)
         converted_code = extract_code_blocks(agent_response)
-        self.add_agent_response_to_context(converted_code)
 
         return converted_code
 
@@ -139,14 +113,14 @@ class StreamlitCodeGeneration:
 async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
     """Handler function for streamlit code generation and validation"""
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
-    streamlit_code_generator = StreamlitCodeGeneration(notebook_code)
+    streamlit_code_generator = StreamlitCodeGeneration()
     streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
     has_validation_error, error = streamlit_code_validator(streamlit_code)
     
     
     tries = 0
     while has_validation_error and tries < 5:
-        streamlit_code = await streamlit_code_generator.correct_error_in_generation(error)
+        streamlit_code = await streamlit_code_generator.correct_error_in_generation(error, streamlit_code)
         has_validation_error, error = streamlit_code_validator(streamlit_code)
         
         if has_validation_error:

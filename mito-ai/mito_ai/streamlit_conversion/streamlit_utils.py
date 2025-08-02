@@ -19,7 +19,6 @@ def extract_code_blocks(message_content: str) -> str:
     if "```python" not in message_content:
         return message_content
 
-    # return message_content.split('```python\n')[1].split('\n```')[0]
     # Use regex to find all Python code blocks
     pattern = r'```python\n(.*?)```'
     matches = re.findall(pattern, message_content, re.DOTALL)
