@@ -12,7 +12,7 @@ from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import g
 from mito_ai.streamlit_conversion.prompts.streamlit_converstion_todo_prompt import get_streamlit_conversion_todo_prompt
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import streamlit_code_validator
-from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_ndiff_blocks, parse_jupyter_notebook_to_extract_required_content
+from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
@@ -83,7 +83,7 @@ class StreamlitCodeGeneration:
             
             print(f"\n\nTodo response: {todo_response}")
             
-            exctracted_diff = extract_ndiff_blocks(todo_response)
+            exctracted_diff = extract_unified_diff_blocks(todo_response)
             fixed_diff = fix_diff_headers(exctracted_diff)
             
             converted_code = apply_patch_to_text(converted_code, fixed_diff)

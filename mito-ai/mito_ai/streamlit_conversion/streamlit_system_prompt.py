@@ -14,6 +14,7 @@ TASK REQUIREMENTS:
 STREAMLIT IMPLEMENTATION GUIDELINES:
 - Use appropriate Streamlit components (st.title, st.header, st.subheader, st.markdown, etc.)
 - Display all visualizations using st.pyplot(), st.plotly_chart(), or st.altair_chart() as appropriate
+- Do not convert database connections into Streamlit's secret.toml format. If the user inlined their database credentials, are importing from an environment variable, or reading from a connections file, assume that same approach will work in the streamlit app.
 - Show dataframes and tables using st.dataframe() or st.table()
 - Include all text explanations and insights from markdown cells
 - Add interactive elements where beneficial (filters, selectors, etc.)

@@ -26,14 +26,14 @@ def extract_code_blocks(message_content: str) -> str:
     # Concatenate with single newlines
     return '\n'.join(matches)
 
-def extract_ndiff_blocks(message_content: str) -> str:
+def extract_unified_diff_blocks(message_content: str) -> str:
     """
-    Extract all ndiff blocks from Claude's response.
+    Extract all unified_diff blocks from Claude's response.
     """
-    if "```ndiff" not in message_content:
+    if "```unified_diff" not in message_content:
         return message_content
     
-    pattern = r'```ndiff\n(.*?)```'
+    pattern = r'```unified_diff\n(.*?)```'
     matches = re.findall(pattern, message_content, re.DOTALL)
     return '\n'.join(matches)
 
