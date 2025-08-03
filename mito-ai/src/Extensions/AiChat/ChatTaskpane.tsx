@@ -338,6 +338,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Clear next steps when starting a new chat
         setNextSteps([])
 
+        // Get rid of the revert questionaire if its open
+        setShowRevertQuestionnaire(false);
+
         // Clear agent checkpoint when starting new chat
         setHasCheckpoint(false)
 
