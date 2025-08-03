@@ -6,12 +6,14 @@ from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.app_builder.handlers import AppBuilderHandler
+from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
 from mito_ai.log.urls import get_log_urls
 from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
 from mito_ai.settings.urls import get_settings_urls
 from mito_ai.rules.urls import get_rules_urls
 from mito_ai.auth.urls import get_auth_urls
+from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
 try:
     from _version import __version__
 except ImportError:
@@ -59,6 +61,11 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             {}
         ),
         (
+            url_path_join(base_url, "mito-ai", "streamlit-preview"),
+            StreamlitPreviewHandler,
+            {}
+        ),
+        (
             url_path_join(base_url, "mito-ai", "version-check"),
             VersionCheckHandler,
             {},
@@ -69,8 +76,9 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_db_urls(base_url))  # type: ignore
     handlers.extend(get_settings_urls(base_url))  # type: ignore
     handlers.extend(get_rules_urls(base_url))  # type: ignore
-    handlers.extend(get_log_urls(base_url))  # type: ignore
+    handlers.extend(get_log_urls(base_url, open_ai_provider.key_type))  # type: ignore
     handlers.extend(get_auth_urls(base_url))  # type: ignore
+    handlers.extend(get_streamlit_preview_urls(base_url))  # type: ignore
     
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")

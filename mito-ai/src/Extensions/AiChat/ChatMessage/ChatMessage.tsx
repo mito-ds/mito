@@ -19,13 +19,12 @@ import PencilIcon from '../../../icons/Pencil';
 import ChatInput from './ChatInput';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { CodeReviewStatus } from '../ChatTaskpane';
-import { ChatMessageType, PromptType } from '../ChatHistoryManager';
+import { PromptType } from '../ChatHistoryManager';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CopyIcon from '../../../icons/CopyIcon';
 import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
-import { IDisplayOptimizedChatItem } from '../ChatHistoryManager';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
@@ -36,7 +35,6 @@ import SelectedContextContainer from '../../../components/SelectedContextContain
 interface IChatMessageProps {
     app: JupyterFrontEnd;
     message: OpenAI.Chat.ChatCompletionMessageParam
-    messageType: IDisplayOptimizedChatItem['type']
     codeCellID: string | undefined
     agentResponse: AgentResponse | undefined
     messageIndex: number
@@ -51,7 +49,7 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, messageType: ChatMessageType) => void
+    onUpdateMessage: (messageIndex: number, newContent: string, additionalContext?: Array<{ type: string, value: string }>) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
@@ -62,7 +60,6 @@ interface IChatMessageProps {
 const ChatMessage: React.FC<IChatMessageProps> = ({
     app,
     message,
-    messageType,
     promptType,
     agentResponse,
     messageIndex,
@@ -101,10 +98,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     const handleSave = (
         content: string,
         _index?: number,
-        _selectedRules?: Array<{ type: string, value: string }>,
-        _additionalContext?: Array<{ type: string, value: string }>
+        additionalContext?: Array<{ type: string, value: string }>
     ): void => {
-        onUpdateMessage(messageIndex, content, messageType);
+        onUpdateMessage(messageIndex, content, additionalContext);
         setIsEditing(false);
     };
 
@@ -166,8 +162,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     // Users end up applying the code in the middle of streaming and it gets very confusing
     // very quickly for users. 
     let isCodeComplete = false;
-
-    console.log(messageContentParts)
 
     return (
         <div className={classNames(

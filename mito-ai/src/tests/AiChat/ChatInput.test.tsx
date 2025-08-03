@@ -12,6 +12,7 @@ import React from 'react';
 import ChatInput from '../../Extensions/AiChat/ChatMessage/ChatInput';
 import { Variable } from '../../Extensions/ContextManager/VariableInspector';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { AgentExecutionStatus } from '../../Extensions/AiChat/ChatTaskpane';
 
 // Add import for RestAPI to mock getRules
 // import * as RestAPI from '../../RestAPI'; Jest will use the mock below
@@ -106,6 +107,7 @@ const createMockProps = (overrides = {}) => ({
     } as unknown as IRenderMimeRegistry,
     displayActiveCellCode: true,
     agentModeEnabled: false,
+    agentExecutionStatus: 'idle' as AgentExecutionStatus,
     ...overrides
 });
 
@@ -281,6 +283,81 @@ describe('ChatInput Component', () => {
             
             // Verify onSave was still not called
             expect(onSaveMock).not.toHaveBeenCalled();
+        });
+
+        it('prevents typing when agent is working', () => {
+            // Clear and re-render with agent working status
+            document.body.innerHTML = '';
+            renderChatInput({ agentExecutionStatus: 'working' });
+            
+            const workingTextarea = screen.getByRole('textbox');
+            
+            // Verify the textarea is disabled
+            expect(workingTextarea).toBeDisabled();
+            
+            // Try to press Enter key
+            const enterEvent = createEvent.keyDown(workingTextarea, { 
+                key: 'Enter', 
+                code: 'Enter' 
+            });
+            
+            fireEvent(workingTextarea, enterEvent);
+            
+            // Verify preventDefault was called (input was blocked)
+            expect(enterEvent.defaultPrevented).toBe(true);
+            
+            // Verify onSave was not called
+            expect(onSaveMock).not.toHaveBeenCalled();
+        });
+
+        it('prevents typing when agent is stopping', () => {
+            // Clear and re-render with agent stopping status
+            document.body.innerHTML = '';
+            renderChatInput({ agentExecutionStatus: 'stopping' });
+            
+            const stoppingTextarea = screen.getByRole('textbox');
+            
+            // Verify the textarea is disabled
+            expect(stoppingTextarea).toBeDisabled();
+            
+            // Try to press Enter key
+            const enterEvent = createEvent.keyDown(stoppingTextarea, { 
+                key: 'Enter', 
+                code: 'Enter' 
+            });
+            
+            fireEvent(stoppingTextarea, enterEvent);
+            
+            // Verify preventDefault was called (input was blocked)
+            expect(enterEvent.defaultPrevented).toBe(true);
+            
+            // Verify onSave was not called
+            expect(onSaveMock).not.toHaveBeenCalled();
+        });
+
+        it('allows typing when agent is idle', () => {
+            // Clear and re-render with agent idle status
+            document.body.innerHTML = '';
+            const idleSaveMock = jest.fn();
+            renderChatInput({ agentExecutionStatus: 'idle', onSave: idleSaveMock });
+            
+            const idleTextarea = screen.getByRole('textbox');
+            
+            // Verify the textarea is enabled
+            expect(idleTextarea).not.toBeDisabled();
+            
+            // Type in the textarea
+            const testMessage = 'This should be typed';
+            typeInTextarea(idleTextarea, testMessage);
+            
+            // Verify the textarea value contains the typed text
+            expect(idleTextarea).toHaveValue(testMessage);
+            
+            // Press Enter key
+            fireEvent.keyDown(idleTextarea, { key: 'Enter', code: 'Enter' });
+            
+            // Verify onSave was called
+            expect(idleSaveMock).toHaveBeenCalledWith(testMessage, undefined, []);
         });
     });
 

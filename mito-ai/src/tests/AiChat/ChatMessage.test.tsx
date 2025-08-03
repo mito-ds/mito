@@ -274,7 +274,7 @@ describe('ChatMessage Component', () => {
                 (window as any).__chatInputCallbacks.onSave('Updated message content');
             });
 
-            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'user');
+            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', undefined);
         });
 
         it('switches to edit mode when user message is double-clicked', () => {
@@ -301,7 +301,66 @@ describe('ChatMessage Component', () => {
                 (window as any).__chatInputCallbacks.onSave('Updated message content');
             });
 
-            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', 'user');
+            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', undefined);
+        });
+
+        it('passes additionalContext when editing a message with context', () => {
+            const updateMessageMock = jest.fn();
+            const mockAdditionalContext = [
+                { type: 'variable', value: 'df' },
+                { type: 'file', value: 'data.csv' }
+            ];
+
+            renderChatMessage({
+                message: createMockMessage('user', 'Hello, can you help me with pandas?'),
+                onUpdateMessage: updateMessageMock,
+                additionalContext: mockAdditionalContext
+            });
+
+            // Find the message text element
+            const messageText = screen.getByText('Hello, can you help me with pandas?');
+
+            // Double-click the message to trigger edit mode
+            act(() => {
+                fireEvent.dblClick(messageText);
+            });
+
+            // Should show the ChatInput component for editing
+            expect(screen.getByTestId('chat-input')).toBeInTheDocument();
+
+            // Simulate saving the edited message with additional context
+            act(() => {
+                (window as any).__chatInputCallbacks.onSave('Updated message content', undefined, mockAdditionalContext);
+            });
+
+            // Verify that onUpdateMessage was called with the additional context
+            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', mockAdditionalContext);
+        });
+
+        it('displays additionalContext containers in user messages', () => {
+            const mockAdditionalContext = [
+                { type: 'variable', value: 'df' },
+                { type: 'file', value: 'data.csv' },
+                { type: 'rule', value: 'Use pandas for data manipulation' }
+            ];
+
+            renderChatMessage({
+                message: createMockMessage('user', 'Hello, can you help me with pandas?\n```python\nimport pandas as pd\n```'),
+                additionalContext: mockAdditionalContext
+            });
+
+            // Check that the message content is displayed
+            expect(screen.getByText('Hello, can you help me with pandas?')).toBeInTheDocument();
+
+            // Check that SelectedContextContainer components are rendered for each context item
+            // The SelectedContextContainer renders the title as text content
+            expect(screen.getByText('Variable: df')).toBeInTheDocument();
+            expect(screen.getByText('File: data.csv')).toBeInTheDocument();
+            expect(screen.getByText('Rule: Use pandas for data manipulation')).toBeInTheDocument();
+
+            // Check that the containers have the correct test IDs
+            const contextContainers = screen.getAllByTestId('selected-context-container');
+            expect(contextContainers).toHaveLength(3);
         });
 
         it('shows code action buttons for the last AI message with code', () => {

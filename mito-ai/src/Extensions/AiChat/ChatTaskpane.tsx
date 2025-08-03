@@ -101,6 +101,7 @@ import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import { getFirstMessageFromCookie } from './FirstMessage';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
+import RevertQuestionnaire from './ChatMessage/RevertQuestionnaire';
 import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
 
@@ -132,6 +133,7 @@ interface ICellStateBeforeDiff {
 }
 
 export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
+export type AgentExecutionStatus = 'working' | 'stopping' | 'idle'
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
@@ -194,7 +196,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         2. stopping: the agent is stopping after it has received ai response it is waiting on
         3. idle: the agent is idle
     */
-    const [agentExecutionStatus, setAgentExecutionStatus] = useState<'working' | 'stopping' | 'idle'>('idle')
+    const [agentExecutionStatus, setAgentExecutionStatus] = useState<AgentExecutionStatus>('idle')
 
     // We use a ref to always access the most up-to-date value during a function's execution. Refs immediately reflect changes, 
     // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
@@ -210,6 +212,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
+
+    // Track if revert questionnaire should be shown
+    const [showRevertQuestionnaire, setShowRevertQuestionnaire] = useState<boolean>(false);
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -332,6 +337,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Clear next steps when starting a new chat
         setNextSteps([])
+
+        // Get rid of the revert questionaire if its open
+        setShowRevertQuestionnaire(false);
 
         // Clear agent checkpoint when starting new chat
         setHasCheckpoint(false)
@@ -675,13 +683,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const handleUpdateMessage = async (
         messageIndex: number,
         newContent: string,
+        additionalContext?: Array<{type: string, value: string}>
     ): Promise<void> => {
 
         // Then send the new message to replace it
         if (agentModeEnabled) {
-            await startAgentExecution(newContent, messageIndex)
+            await startAgentExecution(newContent, messageIndex, additionalContext)
         } else {
-            await sendChatInputMessage(newContent, messageIndex)
+            await sendChatInputMessage(newContent, messageIndex, additionalContext)
         }
     };
 
@@ -1005,7 +1014,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentResponse.type === 'get_cell_output') {
                 // Mark that we should send the cell output to the agent 
                 // in the next loop iteration
-                sendCellIDOutput = agentResponse.cell_id
+                sendCellIDOutput = agentResponse.get_cell_output_cell_id
             }
         }
 
@@ -1104,6 +1113,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         rejectAICode()
         setNextSteps([])
+        setShowRevertQuestionnaire(false);
     }
 
     const rejectAICode = (): void => {
@@ -1405,7 +1415,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 key={index}
                                 message={displayOptimizedChat.message}
                                 promptType={displayOptimizedChat.promptType}
-                                messageType={displayOptimizedChat.type}
                                 agentResponse={displayOptimizedChat.agentResponse}
                                 codeCellID={displayOptimizedChat.codeCellID}
                                 mitoAIConnectionError={displayOptimizedChat.type === 'connection error'}
@@ -1445,7 +1454,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 text="Revert changes"
                                 icon={UndoIcon}
                                 title="Revert changes"
-                                onClick={() => restoreCheckpoint(app, notebookTracker, setHasCheckpoint, getDuplicateChatHistoryManager, setChatHistoryManager)}
+                                onClick={() => {
+                                    void restoreCheckpoint(app, notebookTracker, setHasCheckpoint)
+                                    setDisplayedNextStepsIfAvailable(false)
+                                    setHasCheckpoint(false)
+                                    setShowRevertQuestionnaire(true)
+                                    scrollToDiv(chatMessagesRef);
+                                }}
                                 variant="gray"
                                 width="fit-contents"
                                 iconPosition="left"
@@ -1455,6 +1470,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             </p>
                         </div>
                     )}
+                {/* Revert questionnaire - shows when user clicks revert button */}
+                {showRevertQuestionnaire && (
+                    <RevertQuestionnaire 
+                        onDestroy={() => setShowRevertQuestionnaire(false)} 
+                        getDuplicateChatHistoryManager={getDuplicateChatHistoryManager}
+                        setChatHistoryManager={setChatHistoryManager}
+                    />
+                )}
             </div>
             {displayOptimizedChatHistory.length === 0 && (
                 <div className="suggestions-container">
@@ -1495,6 +1518,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     notebookTracker={notebookTracker}
                     renderMimeRegistry={renderMimeRegistry}
                     agentModeEnabled={agentModeEnabled}
+                    agentExecutionStatus={agentExecutionStatus}
                 />
             </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
@@ -1511,6 +1535,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 setAgentModeEnabled(!isLeftSelected);
                                 // Clear agent checkpoint when switching modes
                                 setHasCheckpoint(false);
+                                setShowRevertQuestionnaire(false);
                                 // Focus the chat input directly
                                 const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                 if (chatInput) {

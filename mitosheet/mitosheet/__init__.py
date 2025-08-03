@@ -16,6 +16,12 @@ If running the mitosheet.sheet() call does not work, try restarting your Jupyter
 If it still does not work, please email jake@sagacollab.com
 """
 
+# Suppress Streamlit ScriptRunContext warnings that occur when mitosheet is imported
+# outside of a proper Streamlit script execution context
+import warnings
+warnings.filterwarnings("ignore", message=r".*missing ScriptRunContext.*")
+warnings.filterwarnings("ignore", message=r".*bare mode.*")
+
 # Public interface we want users to rely on
 from mitosheet.mito_backend import sheet
 from mitosheet._version import __version__

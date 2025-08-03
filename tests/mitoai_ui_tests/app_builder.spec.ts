@@ -10,6 +10,20 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 
 test.describe('App Builder Integration Test', () => {
+  test.skip('Preview as Streamlit', async ({ page }) => {
+    const notebookCode = 'x = 10'
+    await createAndRunNotebookWithCells(page, [notebookCode]);
+    await waitForIdle(page);
+
+    // Use the correct selector for JupyterLab toolbar buttons
+    await page.locator('.jp-ToolbarButtonComponent-label').filter({ hasText: 'Preview App' }).click();
+    await page.waitForTimeout(1000);
+
+    // Wait for the tab to appear
+    await page.locator('.lm-TabBar-tabLabel').getByText('App Preview').waitFor({ state: 'visible', timeout: 20000 });
+  });
+
+
   test.skip('Convert notebook to Streamlit and run the app', async ({ page }) => {
 
     const notebookCode = 'x = 10'

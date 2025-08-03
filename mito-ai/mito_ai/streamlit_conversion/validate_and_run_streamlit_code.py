@@ -42,6 +42,7 @@ class StreamlitValidator:
         self.temp_dir = tempfile.mkdtemp()
         if self.temp_dir is None:
             raise RuntimeError("Failed to create temporary directory")
+        
         app_path = os.path.join(self.temp_dir, "app.py")
 
         with open(app_path, 'w') as f:
