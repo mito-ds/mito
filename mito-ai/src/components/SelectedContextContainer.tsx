@@ -29,6 +29,9 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ tit
         case 'db':
             icon = <DatabaseIcon />;
             break;
+        case 'active_cell':
+            icon = <CodeIcon />;
+            break;
     }
 
     return (

@@ -271,6 +271,22 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
         activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
 
+    // Automatically add active cell context when in Chat mode and there's active cell code
+    useEffect(() => {
+        if (!agentModeEnabled && activeCellCode && activeCellCode.trim().length > 0) {
+            // Check if active cell context is already present
+            const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
+            
+            if (!hasActiveCellContext) {
+                setAdditionalContext(prev => [...prev, { 
+                    type: 'active_cell', 
+                    value: 'Active Cell',
+                    display: 'Active Cell'
+                }]);
+            }
+        }
+    }, [agentModeEnabled, activeCellCode, additionalContext]);
+
             return (
             <div 
                 className={classNames("chat-input-container")}
