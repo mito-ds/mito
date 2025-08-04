@@ -47,12 +47,12 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
 
     const handleClick = () => {
         if (type === 'active_cell' && notebookTracker && activeCellID) {
-            // First scroll to the cell
+            // Find the cell 
             const cell = getCellByID(notebookTracker, activeCellID);
             if (cell) {
                 // Scroll to the cell
                 void notebookTracker.currentWidget?.content.scrollToCell(cell, 'center');
-                // Wait for scroll to complete, then highlight the entire cell
+                // Highlight the cell
                 setTimeout(() => {
                     highlightCodeCell(notebookTracker, activeCellID);
                 }, 500);
