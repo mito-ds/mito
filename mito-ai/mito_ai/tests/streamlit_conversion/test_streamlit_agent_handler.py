@@ -17,8 +17,15 @@ class TestStreamlitCodeGeneration:
     """Test cases for StreamlitCodeGeneration class"""
 
     @pytest.mark.asyncio
-    async def test_init(self):
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
+    async def test_init(self, mock_stream):
         """Test StreamlitCodeGeneration initialization"""
+        # Mock the async generator
+        async def mock_async_gen():
+            yield "Here's your code:\n```python\nimport streamlit\nst.title('Test')\n```"
+
+        mock_stream.return_value = mock_async_gen()
+        
         notebook_data: dict = {"cells": [{"cell_type": "code", "source": ["import pandas"]}]}
         streamlit_code_handler = StreamlitCodeGeneration()
         
