@@ -8,7 +8,7 @@ import { classNames } from '../../../utils/classNames';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../ContextManager/VariableInspector';
-import { getActiveCellID } from '../../../utils/notebook';
+import { getActiveCellID, getActiveCellCode } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
@@ -59,6 +59,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
+    const activeCellCode = getActiveCellCode(notebookTracker) || '';
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
@@ -261,7 +262,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     // Automatically add active cell context when in Chat mode and there's active cell code
     useEffect(() => {
-        if (!agentModeEnabled) {
+        if (!agentModeEnabled && activeCellCode && activeCellCode.trim().length > 0) {
             // Check if active cell context is already present
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
             
@@ -272,8 +273,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     display: 'Active Cell'
                 }]);
             }
+        } else if (agentModeEnabled) {
+            // Remove active cell context when in agent mode
+            const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
+            if (hasActiveCellContext) {
+                setAdditionalContext(prev => prev.filter(context => context.type !== 'active_cell'));
+            }
         }
-    }, [agentModeEnabled, additionalContext]);
+    }, [agentModeEnabled, additionalContext, activeCellCode]);
 
             return (
             <div 
