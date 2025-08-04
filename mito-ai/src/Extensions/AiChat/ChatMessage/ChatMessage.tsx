@@ -133,8 +133,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 isEditing={isEditing}
                 contextManager={contextManager}
                 notebookTracker={notebookTracker}
-                renderMimeRegistry={renderMimeRegistry}
-                displayActiveCellCode={true}
                 agentModeEnabled={false}
             />
         );

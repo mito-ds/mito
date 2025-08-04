@@ -8,10 +8,8 @@ import { classNames } from '../../../utils/classNames';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../ContextManager/VariableInspector';
-import { getActiveCellID, getCellCodeByID } from '../../../utils/notebook';
+import { getActiveCellID } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import PythonCode from './PythonCode';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
@@ -30,8 +28,6 @@ interface ChatInputProps {
     isEditing: boolean;
     contextManager?: IContextManager;
     notebookTracker: INotebookTracker;
-    renderMimeRegistry: IRenderMimeRegistry;
-    displayActiveCellCode?: boolean;
     agentModeEnabled: boolean;
     agentExecutionStatus?: AgentExecutionStatus;
 }
@@ -56,15 +52,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
     isEditing,
     contextManager,
     notebookTracker,
-    renderMimeRegistry,
-    displayActiveCellCode = true,
     agentModeEnabled = false,
     agentExecutionStatus = 'idle',
 }) => {
     const [input, setInput] = useState(initialContent);
     const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
-    const [isFocused, setIsFocused] = useState(false);
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
@@ -266,14 +259,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setExpandedVariables(expandedVariables);
     }, [contextManager?.variables, contextManager?.files]);
 
-    // If there are more than 8 lines, show the first 8 lines and add a "..."
-    const activeCellCode = getCellCodeByID(notebookTracker, activeCellID) || ''
-    const activeCellCodePreview = activeCellCode.split('\n').slice(0, 8).join('\n') + (
-        activeCellCode.split('\n').length > 8 ? '\n\n# Rest of active cell code...' : '')
-
     // Automatically add active cell context when in Chat mode and there's active cell code
     useEffect(() => {
-        if (!agentModeEnabled && activeCellCode && activeCellCode.trim().length > 0) {
+        if (!agentModeEnabled) {
             // Check if active cell context is already present
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
             
@@ -285,28 +273,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 }]);
             }
         }
-    }, [agentModeEnabled, activeCellCode, additionalContext]);
+    }, [agentModeEnabled, additionalContext]);
 
             return (
             <div 
                 className={classNames("chat-input-container")}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => {
-                    setIsFocused(false)
-                }}
             >
-                {/* Show the active cell preview if the text area has focus or the user has started typing */}
-                {displayActiveCellCode && activeCellCodePreview.length > 0 && !agentModeEnabled
-                    && (isFocused || input.length > 0)
-                    && <div className='active-cell-preview-container' data-testid='active-cell-preview-container'>
-                        <div className='code-block-container'>
-                            <PythonCode
-                                code={activeCellCodePreview}
-                                renderMimeRegistry={renderMimeRegistry}
-                            />
-                        </div>
-                    </div>
-                }
                 <div className='context-container'>
                     <DatabaseButton app={app} />
                     <button 
@@ -366,7 +338,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             // Reset
                             setInput('')
                             setAdditionalContext([])
-                            setIsFocused(false)
                         }
                         // Escape key cancels editing
                         if (e.key === 'Escape') {

@@ -1516,7 +1516,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     isEditing={false}
                     contextManager={contextManager}
                     notebookTracker={notebookTracker}
-                    renderMimeRegistry={renderMimeRegistry}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecutionStatus}
                 />
