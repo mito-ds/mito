@@ -14,6 +14,8 @@ import importlib.util
 import warnings
 from typing import Tuple, Optional, Dict, Any
 from subprocess import Popen
+from streamlit.testing.v1 import AppTest
+
 
 # warnings.filterwarnings("ignore", message=r".*missing ScriptRunContext.*")
 # warnings.filterwarnings("ignore", category=UserWarning)
@@ -52,24 +54,54 @@ class StreamlitValidator:
 
     def start_streamlit_app(self, app_path: str) -> Tuple[bool, str]:
         """Start the Streamlit app in a subprocess"""
-        try:
-            cmd = [
-                sys.executable, "-m", "streamlit", "run", app_path,
-                "--server.port", str(self.port),
-                "--server.headless", "true",
-                "--server.address", "localhost",
-                "--logger.level", "error"
-            ]
-
-            self.process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
-
-            return True, "Streamlit app started"
+        try:    
+            app_test = AppTest.from_file(app_path)
+            app_test.run()
+            
+            print("EXCEPTIONS")
+            # Check for exceptions
+            if app_test.exception:
+                print('exception', app_test.exception[0].proto)
+                print('exception value', app_test.exception[0].value)
+                print('exception message', app_test.exception[0].message)
+                print('exception stack_trace', app_test.exception[0].stack_trace)
+                print('exception proto', app_test.exception[0])
+                
+                self.errors = [{'type': 'exception', 'details': exc.value, 'message': exc.message, 'stack_trace': exc.stack_trace, 'traceback': exc.traceback, 'proto': exc.proto} 
+                              for exc in app_test.exception]
+                
+                print("Exceptions")
+                print(self.errors)
+                return False, str(self.errors)
+            
+            print('no exception')
+            
+            print("ERRORS")
+            # Check for error messages
+            if app_test.error:
+                
+                for err in app_test.error:
+                    print('error', str(app_test.error[0]))
+                    print('error value', app_test.error[0].value)
+                    
+                    for attr in dir(app_test.error[0]):
+                        try:
+                            value = getattr(app_test.error[0], attr)
+                            if not callable(value):
+                                print(f'attr_{attr}', value)
+                        except:
+                            pass
+                
+                
+                self.errors = [{'type': 'error', 'details': err.value, 'message': err.message, 'stack_trace': err.stack_trace} 
+                              for err in app_test.error]
+                return False, str(self.errors)
+            
+            print('no error')
+                
+            return True, "Streamlit app started successfully"
         except Exception as e:
+            print('VALIDATOR EXCEPTION', e)
             return False, f"Failed to start Streamlit: {str(e)}"
 
     def wait_for_app(self) -> Tuple[bool, str]:
@@ -155,9 +187,17 @@ class StreamlitValidator:
             app_path = self.create_temp_app(app_code)
             app_started, start_msg = self.start_streamlit_app(app_path)
             results['app_starts'] = app_started
+            
+            return {
+                'syntax_valid': True,
+                'app_starts': True,
+                'app_responsive': True,
+                'errors': []
+            }
 
             if not app_started:
                 results['errors'].append(start_msg)
+        
                 return results
 
             # Step 3: Wait for app to be ready

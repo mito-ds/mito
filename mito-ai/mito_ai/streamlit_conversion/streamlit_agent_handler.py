@@ -115,8 +115,15 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code_generator = StreamlitCodeGeneration()
     streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
-    has_validation_error, error = streamlit_code_validator(streamlit_code)
+    streamlit_code = f"""
+import streamlit as st
+
+x = [1,2,3]
+x[5]
+"""
     
+    has_validation_error, error = streamlit_code_validator(streamlit_code)
+
     
     tries = 0
     while has_validation_error and tries < 5:
