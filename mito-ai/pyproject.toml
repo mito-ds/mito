@@ -42,10 +42,11 @@ dependencies = [
     "unidiff",
     # Mito App Dependencies
     "pipreqs",
+    "streamlit",
     # LLM Dependencies
     "openai>=1.0.0",
     "google-genai",
-    "anthropic"
+    "anthropic",
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
