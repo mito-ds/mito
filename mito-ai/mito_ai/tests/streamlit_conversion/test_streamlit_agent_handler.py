@@ -5,7 +5,8 @@ import pytest
 from unittest.mock import patch, AsyncMock
 from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     StreamlitCodeGeneration,
-    streamlit_handler
+    streamlit_handler,
+    clean_directory_check
 )
 from typing import cast
 
@@ -285,3 +286,72 @@ class TestStreamlitHandler:
         
         with pytest.raises(Exception, match="Generation failed"):
             await streamlit_handler("/path/to/notebook.ipynb")
+
+    @pytest.mark.asyncio
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.streamlit_code_validator')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
+    async def test_streamlit_handler_too_many_files_in_directory(self, mock_clean_directory, mock_create_file, mock_validator, mock_generator_class, mock_parse):
+        """Test streamlit handler when there are too many files in the directory"""
+        # Mock clean directory check to raise ValueError (simulating >10 files)
+        mock_clean_directory.side_effect = ValueError("Too many files in directory: 10 allowed but 15 present. Create a new directory and retry")
+        
+        # The function should raise the ValueError before any other processing
+        with pytest.raises(ValueError, match="Too many files in directory: 10 allowed but 15 present. Create a new directory and retry"):
+            await streamlit_handler("/path/to/notebook.ipynb")
+        
+        # Verify that clean_directory_check was called
+        mock_clean_directory.assert_called_once_with("/path/to/notebook.ipynb")
+        
+        # Verify that no other functions were called since the error occurred early
+        mock_parse.assert_not_called()
+        mock_generator_class.assert_not_called()
+        mock_validator.assert_not_called()
+        mock_create_file.assert_not_called()
+
+
+class TestCleanDirectoryCheck:
+    """Test cases for clean_directory_check function"""
+
+    @patch('os.listdir')
+    @patch('os.path.isfile')
+    @patch('os.path.join')
+    def test_clean_directory_check_under_limit(self, mock_join, mock_isfile, mock_listdir):
+        """Test clean_directory_check when directory has 10 or fewer files"""
+        # Mock directory with 8 files
+        mock_listdir.return_value = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 
+                                   'file5.txt', 'file6.txt', 'file7.txt', 'file8.txt']
+        mock_isfile.return_value = True
+        mock_join.return_value = '/path/to/file'
+        
+        # Should not raise any exception
+        clean_directory_check('/path/to/notebook.ipynb')
+        
+        # Verify calls
+        mock_listdir.assert_called_once_with('/path/to')
+        assert mock_isfile.call_count == 8
+        assert mock_join.call_count == 8
+
+    @patch('os.listdir')
+    @patch('os.path.isfile')
+    @patch('os.path.join')
+    def test_clean_directory_check_over_limit(self, mock_join, mock_isfile, mock_listdir):
+        """Test clean_directory_check when directory has more than 10 files"""
+        # Mock directory with 15 files
+        mock_listdir.return_value = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 
+                                   'file5.txt', 'file6.txt', 'file7.txt', 'file8.txt',
+                                   'file9.txt', 'file10.txt', 'file11.txt', 'file12.txt',
+                                   'file13.txt', 'file14.txt', 'file15.txt']
+        mock_isfile.return_value = True
+        mock_join.return_value = '/path/to/file'
+        
+        # Should raise ValueError
+        with pytest.raises(ValueError, match="Too many files in directory: 10 allowed but 15 present. Create a new directory and retry"):
+            clean_directory_check('/path/to/notebook.ipynb')
+        
+        # Verify calls
+        mock_listdir.assert_called_once_with('/path/to')
+        assert mock_isfile.call_count == 15
+        assert mock_join.call_count == 15
