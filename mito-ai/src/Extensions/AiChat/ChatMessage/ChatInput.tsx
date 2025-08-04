@@ -305,8 +305,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             title={context.type === 'db' && context.display ? context.display : context.value}
                             type={context.type}
                             onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
-                            notebookTracker={context.type === 'active_cell' ? notebookTracker : undefined}
-                            activeCellID={context.type === 'active_cell' ? activeCellID : undefined}
+                            notebookTracker={notebookTracker}
+                            activeCellID={activeCellID}
                         />
                     ))}  
                 </div>
