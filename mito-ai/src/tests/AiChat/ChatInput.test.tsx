@@ -65,7 +65,8 @@ const createMockCell = (code: string, cellId: string) => ({
 // Mock notebook utils
 jest.mock('../../utils/notebook', () => ({
     getActiveCellID: jest.fn((id) => id === EMPTY_CELL_ID ? EMPTY_CELL_ID : TEST_CELL_ID),
-    getCellCodeByID: jest.fn((id) => id === EMPTY_CELL_ID ? '' : TEST_CELL_CODE)
+    getCellCodeByID: jest.fn((id) => id === EMPTY_CELL_ID ? '' : TEST_CELL_CODE),
+    getActiveCellCode: jest.fn(() => TEST_CELL_CODE)
 }));
 
 // Base props for ChatInput component
@@ -123,7 +124,6 @@ const typeInTextarea = (textarea: HTMLElement, value: string) => {
 
 describe('ChatInput Component', () => {
     let textarea: HTMLElement;
-    let defaultProps: ReturnType<typeof createMockProps>;
     let onSaveMock: jest.Mock;
 
     beforeEach(() => {
@@ -132,106 +132,12 @@ describe('ChatInput Component', () => {
         
         // Create fresh mocks for each test
         onSaveMock = jest.fn();
-        defaultProps = createMockProps({ onSave: onSaveMock });
         
         // Render with default props
         renderChatInput({ onSave: onSaveMock });
         
         // Get the textarea element that's used in most tests
         textarea = screen.getByRole('textbox');
-    });
-
-    describe('Active Cell Preview', () => {
-        it('shows preview when input has content', () => {
-            expect(textarea).toBeInTheDocument();
-
-            // Initially, preview should not be visible
-            expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
-
-            // Type in textarea
-            typeInTextarea(textarea, 'test input');
-
-            // Preview should become visible
-            expect(screen.getByTestId('active-cell-preview-container')).toBeInTheDocument();
-            
-            // Verify that the active cell code content is displayed
-            // The mock cell has TEST_CELL_CODE = 'print("Hello World")'
-            const pythonCodeElement = screen.getByTestId('python-code');
-            expect(pythonCodeElement).toHaveTextContent('print("Hello World")');
-        });
-
-        it('does not show preview for empty cells', () => {
-            // Clear and re-render with custom props
-            document.body.innerHTML = '';
-            
-            // Mock getCellCodeByID to return empty string for this test
-            const { getCellCodeByID } = require('../../utils/notebook');
-            getCellCodeByID.mockImplementation(() => '');
-            
-            const props = {
-                displayActiveCellCode: true,
-                notebookTracker: {
-                    ...defaultProps.notebookTracker,
-                    activeCell: createMockCell('', EMPTY_CELL_ID) as unknown as CodeCell
-                }
-            };
-
-            renderChatInput(props);
-            
-            const textarea = screen.getByRole('textbox');
-            expect(textarea).toBeInTheDocument();
-
-            // Type in textarea
-            typeInTextarea(textarea, 'test input');
-
-            // Preview should not be visible for empty cells
-            expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
-        });
-
-        it('does not show preview when agent mode is enabled', () => {
-            renderChatInput({ agentModeEnabled: true });
-
-            // Type in textarea
-            typeInTextarea(textarea, 'test input');
-
-            // Preview should not be visible
-            expect(screen.queryByTestId('active-cell-preview-container')).not.toBeInTheDocument();
-        });
-
-        it('updates preview when active cell code changes', () => {
-            // Clear and re-render to ensure clean state
-            document.body.innerHTML = '';
-            
-            // Mock getCellCodeByID to return initial code
-            const { getCellCodeByID } = require('../../utils/notebook');
-            getCellCodeByID.mockImplementation(() => TEST_CELL_CODE);
-            
-            renderChatInput();
-            const textarea = screen.getByRole('textbox');
-            
-            // Type in textarea to show preview
-            typeInTextarea(textarea, 'test input');
-            
-            // Verify initial preview shows the original code
-            const pythonCodeElement = screen.getByTestId('python-code');
-            expect(pythonCodeElement).toHaveTextContent(TEST_CELL_CODE);
-            
-            // Update the mock to return new code and re-render
-            const newCellCode = 'print("goodbye")';
-            getCellCodeByID.mockImplementation(() => newCellCode);
-            
-            // Re-render the component to simulate the active cell change
-            document.body.innerHTML = '';
-            renderChatInput();
-            
-            // Type in textarea again to show preview
-            const newTextarea = screen.getByRole('textbox');
-            typeInTextarea(newTextarea, 'test input');
-            
-            // Verify the preview now shows the new code
-            const updatedPythonCodeElement = screen.getByTestId('python-code');
-            expect(updatedPythonCodeElement).toHaveTextContent(newCellCode);
-        });
     });
 
     describe('Keyboard Interactions', () => {
@@ -245,7 +151,9 @@ describe('ChatInput Component', () => {
             fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter' });
             
             // Verify onSave was called with the input content
-            expect(onSaveMock).toHaveBeenCalledWith(testMessage, undefined, []);
+            expect(onSaveMock).toHaveBeenCalledWith(testMessage, undefined, [
+                { type: 'active_cell', value: 'Active Cell', display: 'Active Cell' }
+            ]);
             
             // Verify the input was cleared
             expect(textarea).toHaveValue('');
@@ -357,7 +265,9 @@ describe('ChatInput Component', () => {
             fireEvent.keyDown(idleTextarea, { key: 'Enter', code: 'Enter' });
             
             // Verify onSave was called
-            expect(idleSaveMock).toHaveBeenCalledWith(testMessage, undefined, []);
+            expect(idleSaveMock).toHaveBeenCalledWith(testMessage, undefined, [
+                { type: 'active_cell', value: 'Active Cell', display: 'Active Cell' }
+            ]);
         });
     });
 
@@ -402,7 +312,9 @@ describe('ChatInput Component', () => {
             fireEvent.click(saveButton);
             
             // Verify onSave was called with the updated content
-            expect(editSaveMock).toHaveBeenCalledWith(updatedContent, undefined, []);
+            expect(editSaveMock).toHaveBeenCalledWith(updatedContent, undefined, [
+                { type: 'active_cell', value: 'Active Cell', display: 'Active Cell' }
+            ]);
         });
 
         it('calls onCancel when Cancel button is clicked', () => {
@@ -576,11 +488,17 @@ describe('ChatInput Component', () => {
             expect(textarea).toHaveValue('Data Analysis');
             
             // Wait for the SelectedContextContainer to appear
-            const selectedContextContainer = await screen.findByTestId('selected-context-container');
-            expect(selectedContextContainer).toBeInTheDocument();
+            const selectedContextContainers = await screen.findAllByTestId('selected-context-container');
+            expect(selectedContextContainers.length).toBeGreaterThan(0);
+            
+            // Find the container with the specific rule text
+            const dataAnalysisContainer = selectedContextContainers.find(container => 
+                within(container).queryByText('Data Analysis', {exact: false})
+            );
+            expect(dataAnalysisContainer).toBeInTheDocument();
 
             // Then, look for the rule text *within* that container
-            const ruleTextInContainer = within(selectedContextContainer).getByText('Data Analysis', {exact: false});
+            const ruleTextInContainer = within(dataAnalysisContainer!).getByText('Data Analysis', {exact: false});
             expect(ruleTextInContainer).toBeInTheDocument();
             
             // Look for the container by its class instead of data-testid as an alternative
@@ -611,15 +529,21 @@ describe('ChatInput Component', () => {
             });
             
             // SelectedContextContainer should be displayed with the selected rule
-            const selectedContextContainer = await screen.findByTestId('selected-context-container');
-            expect(selectedContextContainer).toBeInTheDocument();
+            const selectedContextContainers = await screen.findAllByTestId('selected-context-container');
+            expect(selectedContextContainers.length).toBeGreaterThan(0);
+            
+            // Find the container with the specific rule text
+            const machineLearningContainer = selectedContextContainers.find(container => 
+                within(container).queryByText('Machine Learning', {exact: false})
+            );
+            expect(machineLearningContainer).toBeInTheDocument();
 
             // And it should be in the chat input
             const selectedRule = within(textarea).getByText('Machine Learning');
             expect(selectedRule).toBeInTheDocument();
             
             // Check that the rule container has a remove button
-            const removeButton = selectedContextContainer.querySelector('.icon');
+            const removeButton = machineLearningContainer!.querySelector('.icon');
             expect(removeButton).toBeInTheDocument();
             
             // Click the remove button
@@ -629,8 +553,19 @@ describe('ChatInput Component', () => {
                 }
             });
             
-            // After removing, the SelectedContextContainer should not be in the document
-            expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
+            // After removing, the Machine Learning SelectedContextContainer should not be in the document
+            // but the Active Cell context should still be there
+            const remainingContainers = screen.getAllByTestId('selected-context-container');
+            const removedMachineLearningContainer = remainingContainers.find(container => 
+                within(container).queryByText('Machine Learning', {exact: false})
+            );
+            expect(removedMachineLearningContainer).toBeUndefined();
+            
+            // Verify that the Active Cell context is still there
+            const activeCellContainer = remainingContainers.find(container => 
+                within(container).queryByText('Active Cell', {exact: false})
+            );
+            expect(activeCellContainer).toBeInTheDocument();
         });
     });
 
@@ -717,6 +652,40 @@ describe('ChatInput Component', () => {
             expect(screen.queryByText('Data Analysis')).not.toBeInTheDocument();
             expect(screen.queryByText('Visualization')).not.toBeInTheDocument();
             expect(screen.queryByText('Machine Learning')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Active Cell Context', () => {
+        beforeEach(() => {
+            // Clear the DOM between tests
+            document.body.innerHTML = '';
+        });
+
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('shows active cell context automatically in Chat mode when there is active cell code', () => {
+            renderChatInput();
+            
+            // Should show the active cell context container
+            const activeCellContainer = screen.getByText('Active Cell');
+            expect(activeCellContainer).toBeInTheDocument();
+            
+            // Should be inside a SelectedContextContainer
+            const selectedContextContainer = screen.getByTestId('selected-context-container');
+            expect(selectedContextContainer).toBeInTheDocument();
+            expect(within(selectedContextContainer).getByText('Active Cell')).toBeInTheDocument();
+        });
+
+        it('does not show active cell context in Agent mode', () => {
+            renderChatInput({ agentModeEnabled: true });
+            
+            // Should not show the active cell context container
+            expect(screen.queryByText('Active Cell')).not.toBeInTheDocument();
+            
+            // Should not have any SelectedContextContainer
+            expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
         });
     });
 });
