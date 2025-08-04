@@ -8,14 +8,25 @@ import '../../style/SelectedContextContainer.css';
 import RuleIcon from '../icons/RuleIcon';
 import CodeIcon from '../icons/CodeIcon';
 import DatabaseIcon from '../icons/DatabaseIcon';
+import { highlightCodeCell, getCellByID } from '../utils/notebook';
 
 interface SelectedContextContainerProps {
     title: string;
     type: string;
     onRemove: () => void;
+    onClick?: () => void;
+    notebookTracker?: any;
+    activeCellID?: string;
 }
 
-const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ title, type, onRemove }) => {
+const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
+    title,
+    type,
+    onRemove,
+    onClick,
+    notebookTracker,
+    activeCellID
+}) => {
     const [isHovered, setIsHovered] = useState(false);
 
     let icon = <RuleIcon />;
@@ -34,19 +45,41 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({ tit
             break;
     }
 
+    const handleClick = () => {
+        if (type === 'active_cell' && notebookTracker && activeCellID) {
+            // First scroll to the cell
+            const cell = getCellByID(notebookTracker, activeCellID);
+            if (cell) {
+                // Scroll to the cell
+                void notebookTracker.currentWidget?.content.scrollToCell(cell, 'center');
+                // Wait for scroll to complete, then highlight the entire cell
+                setTimeout(() => {
+                    highlightCodeCell(notebookTracker, activeCellID);
+                }, 500);
+            }
+        } else if (onClick) {
+            // Call the custom onClick handler for other context types
+            onClick();
+        }
+    };
+
     return (
         <button
             className="selected-context-container"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={handleClick}
             data-testid="selected-context-container"
         >
             <div
                 className={`icon`}
-                onClick={() => onRemove()}
+                onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering the button's onClick
+                    onRemove();
+                }}
                 title={isHovered ? "Remove rule" : "Selected rule"}
             >
-                {isHovered ? (
+                {isHovered && type !== 'active_cell' ? (
                     <span className="remove-icon">X</span>
                 ) : (
                     <span className="icon">{icon}</span>
