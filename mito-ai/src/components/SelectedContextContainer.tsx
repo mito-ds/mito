@@ -46,17 +46,21 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
     }
 
     const handleClick = (): void => {
-        if (type === 'active_cell' && notebookTracker && activeCellID) {
-            // Find the cell 
-            const cell = getCellByID(notebookTracker, activeCellID);
-            if (cell) {
-                // Scroll to the cell
-                void notebookTracker.currentWidget?.content.scrollToCell(cell, 'center');
-                // Highlight the cell
-                setTimeout(() => {
-                    highlightCodeCell(notebookTracker, activeCellID);
-                }, 500);
+        if (type === 'active_cell') {
+            // Handle active cell context click
+            if (notebookTracker && activeCellID) {
+                // Find the cell 
+                const cell = getCellByID(notebookTracker, activeCellID);
+                if (cell) {
+                    // Scroll to the cell
+                    void notebookTracker.currentWidget?.content.scrollToCell(cell, 'center');
+                    // Highlight the cell
+                    setTimeout(() => {
+                        highlightCodeCell(notebookTracker, activeCellID);
+                    }, 500);
+                }
             }
+            // If notebookTracker or activeCellID are not available, do nothing
         } else if (onClick) {
             // Call the custom onClick handler for other context types
             onClick();
