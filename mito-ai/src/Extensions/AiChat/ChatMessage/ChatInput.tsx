@@ -23,7 +23,7 @@ interface ChatInputProps {
     app: JupyterFrontEnd;
     initialContent: string;
     placeholder: string;
-    onSave: (content: string, index?: number, additionalContext?: Array<{type: string, value: string}>) => void;
+    onSave: (content: string, index?: number, additionalContext?: Array<{ type: string, value: string }>) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -72,19 +72,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }, 100);
 
     useEffect(() => {
-        const activeCellChangedListener = (): void => { 
+        const activeCellChangedListener = (): void => {
             const newActiveCellID = getActiveCellID(notebookTracker);
             debouncedSetActiveCellID(newActiveCellID);
         };
 
         // Connect the listener once when the component mounts
         notebookTracker.activeCellChanged.connect(activeCellChangedListener);
-    
+
         // Cleanup: disconnect the listener when the component unmounts
         return () => {
             notebookTracker.activeCellChanged.disconnect(activeCellChangedListener);
         };
-    
+
     }, [notebookTracker, activeCellID, debouncedSetActiveCellID]);
 
     // TextAreas cannot automatically adjust their height based on the content that they contain, 
@@ -95,7 +95,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
         textarea.style.minHeight = 'auto';
         textarea.style.height = !textarea.value || resetHeight
-            ? '80px' 
+            ? '80px'
             : `${Math.max(80, textarea.scrollHeight)}px`;
     };
 
@@ -129,7 +129,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             // When triggered by "Add Context" button, add to SelectedContextContainer
             if (option.type === 'variable') {
                 // For variables, we'll add them as a special context type
-                const contextName = option.variable.parent_df 
+                const contextName = option.variable.parent_df
                     ? `${option.variable.parent_df}.${option.variable.variable_name}`
                     : option.variable.variable_name;
                 setAdditionalContext(prev => [...prev, { type: 'variable', value: contextName }]);
@@ -140,15 +140,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
             } else if (option.type === 'db') {
                 setAdditionalContext(prev => [
                     ...prev,
-                    { 
-                        type: 'db', 
-                        value: option.variable.value, 
-                        display: option.variable.variable_name 
+                    {
+                        type: 'db',
+                        value: option.variable.value,
+                        display: option.variable.variable_name
                     }
                 ]);
             }
             setDropdownVisible(false);
-            
+
             // Use setTimeout to ensure this happens after React's state update cycle
             setTimeout(() => {
                 textAreaRef.current?.focus();
@@ -168,7 +168,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         let contextChatRepresentation: string = ''
 
         if (option.type === 'variable') {
-            
+
             if (option.variable.parent_df) {
                 contextChatRepresentation = `\`${option.variable.variable_name}\``
             } else {
@@ -219,7 +219,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setIsDropdownFromButton(false);
     };
 
-    const mapAdditionalContext = (): Array<{type: string, value: string}> => {
+    const mapAdditionalContext = (): Array<{ type: string, value: string }> => {
         return additionalContext.map(context => {
             if (context.type === 'db') {
                 return {
@@ -265,10 +265,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
         if (!agentModeEnabled) {
             // Check if active cell context is already present
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
-            
+
             if (!hasActiveCellContext) {
-                setAdditionalContext(prev => [...prev, { 
-                    type: 'active_cell', 
+                setAdditionalContext(prev => [...prev, {
+                    type: 'active_cell',
                     value: 'Active Cell',
                     display: 'Active Cell'
                 }]);
@@ -282,35 +282,35 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     }, [agentModeEnabled, additionalContext, activeCellCode]);
 
-            return (
-            <div 
-                className={classNames("chat-input-container")}
-            >
-                <div className='context-container'>
-                    <DatabaseButton app={app} />
-                    <button 
-                        className="context-button"
-                        onClick={() => {
-                            setDropdownVisible(true);
-                            setDropdownFilter('');
-                            setIsDropdownFromButton(true);
-                            textAreaRef.current?.focus();
-                        }}
-                    >
-                        ＠ Add Context
-                    </button>    
-                    {additionalContext.map((context, index) => (
-                        <SelectedContextContainer
-                            key={`${context.type}-${context.value}-${index}`}
-                            title={context.type === 'db' && context.display ? context.display : context.value}
-                            type={context.type}
-                            onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
-                            notebookTracker={notebookTracker}
-                            activeCellID={activeCellID}
-                        />
-                    ))}  
-                </div>
-            
+    return (
+        <div
+            className={classNames("chat-input-container")}
+        >
+            <div className='context-container'>
+                <DatabaseButton app={app} />
+                <button
+                    className="context-button"
+                    onClick={() => {
+                        setDropdownVisible(true);
+                        setDropdownFilter('');
+                        setIsDropdownFromButton(true);
+                        textAreaRef.current?.focus();
+                    }}
+                >
+                    ＠ Add Context
+                </button>
+                {additionalContext.map((context, index) => (
+                    <SelectedContextContainer
+                        key={`${context.type}-${context.value}-${index}`}
+                        title={context.type === 'db' && context.display ? context.display : context.value}
+                        type={context.type}
+                        onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
+                        notebookTracker={notebookTracker}
+                        activeCellID={activeCellID}
+                    />
+                ))}
+            </div>
+
             {/* 
                 Create a relative container for the text area and the dropdown so that when we 
                 render the dropdown, it is relative to the text area instead of the entire 
@@ -320,7 +320,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <div className='chat-input-text-area-container'>
                 <textarea
                     ref={textAreaRef}
-                    className={classNames("message", "message-user", 'chat-input', {"agent-mode": agentModeEnabled})}
+                    className={classNames("message", "message-user", 'chat-input', { "agent-mode": agentModeEnabled })}
                     placeholder={placeholder}
                     value={input}
                     disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
@@ -355,7 +355,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         }
                     }}
                 />
-                {isDropdownVisible  && (
+                {isDropdownVisible && (
                     <ChatDropdown
                         options={expandedVariables}
                         onSelect={handleOptionSelect}
@@ -366,7 +366,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     />
                 )}
             </div>
-            
+
             {isEditing &&
                 <div className="message-edit-buttons">
                     <button onClick={() => onSave(input, undefined, mapAdditionalContext())}>Save</button>
