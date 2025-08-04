@@ -28,6 +28,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
     "jinja2>=3.0.3",
@@ -38,6 +39,7 @@ dependencies = [
     "pydantic",
     "requests>=2.25.0",
     "SQLAlchemy",
+    "unidiff",
     # Mito App Dependencies
     "pipreqs",
     # LLM Dependencies
