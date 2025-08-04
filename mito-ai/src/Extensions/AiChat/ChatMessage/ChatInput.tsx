@@ -262,7 +262,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     // Automatically add active cell context when in Chat mode and there's active cell code
     useEffect(() => {
-        if (!agentModeEnabled && activeCellCode && activeCellCode.trim().length > 0) {
+        if (!agentModeEnabled) {
             // Check if active cell context is already present
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
             
