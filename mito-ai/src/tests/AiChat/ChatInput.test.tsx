@@ -654,4 +654,52 @@ describe('ChatInput Component', () => {
             expect(screen.queryByText('Machine Learning')).not.toBeInTheDocument();
         });
     });
+
+    describe('Active Cell Context', () => {
+        beforeEach(() => {
+            // Clear the DOM between tests
+            document.body.innerHTML = '';
+        });
+
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('shows active cell context automatically in Chat mode when there is active cell code', () => {
+            renderChatInput();
+            
+            // Should show the active cell context container
+            const activeCellContainer = screen.getByText('Active Cell');
+            expect(activeCellContainer).toBeInTheDocument();
+            
+            // Should be inside a SelectedContextContainer
+            const selectedContextContainer = screen.getByTestId('selected-context-container');
+            expect(selectedContextContainer).toBeInTheDocument();
+            expect(within(selectedContextContainer).getByText('Active Cell')).toBeInTheDocument();
+        });
+
+        it('does not show active cell context in Agent mode', () => {
+            renderChatInput({ agentModeEnabled: true });
+            
+            // Should not show the active cell context container
+            expect(screen.queryByText('Active Cell')).not.toBeInTheDocument();
+            
+            // Should not have any SelectedContextContainer
+            expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
+        });
+
+        it('does not show active cell context when there is no active cell code', () => {
+            // Mock getActiveCellCode to return empty string
+            const { getActiveCellCode } = require('../../utils/notebook');
+            getActiveCellCode.mockImplementation(() => '');
+            
+            renderChatInput();
+            
+            // Should not show the active cell context container
+            expect(screen.queryByText('Active Cell')).not.toBeInTheDocument();
+            
+            // Should not have any SelectedContextContainer
+            expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
+        });
+    });
 });
