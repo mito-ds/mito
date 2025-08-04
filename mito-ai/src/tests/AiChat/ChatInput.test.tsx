@@ -245,7 +245,9 @@ describe('ChatInput Component', () => {
             fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter' });
             
             // Verify onSave was called with the input content
-            expect(onSaveMock).toHaveBeenCalledWith(testMessage, undefined, []);
+            expect(onSaveMock).toHaveBeenCalledWith(testMessage, undefined, [
+                { type: 'active_cell', value: 'Active Cell', display: 'Active Cell' }
+            ]);
             
             // Verify the input was cleared
             expect(textarea).toHaveValue('');
@@ -357,7 +359,9 @@ describe('ChatInput Component', () => {
             fireEvent.keyDown(idleTextarea, { key: 'Enter', code: 'Enter' });
             
             // Verify onSave was called
-            expect(idleSaveMock).toHaveBeenCalledWith(testMessage, undefined, []);
+            expect(idleSaveMock).toHaveBeenCalledWith(testMessage, undefined, [
+                { type: 'active_cell', value: 'Active Cell', display: 'Active Cell' }
+            ]);
         });
     });
 
@@ -402,7 +406,9 @@ describe('ChatInput Component', () => {
             fireEvent.click(saveButton);
             
             // Verify onSave was called with the updated content
-            expect(editSaveMock).toHaveBeenCalledWith(updatedContent, undefined, []);
+            expect(editSaveMock).toHaveBeenCalledWith(updatedContent, undefined, [
+                { type: 'active_cell', value: 'Active Cell', display: 'Active Cell' }
+            ]);
         });
 
         it('calls onCancel when Cancel button is clicked', () => {
@@ -576,11 +582,17 @@ describe('ChatInput Component', () => {
             expect(textarea).toHaveValue('Data Analysis');
             
             // Wait for the SelectedContextContainer to appear
-            const selectedContextContainer = await screen.findByTestId('selected-context-container');
-            expect(selectedContextContainer).toBeInTheDocument();
+            const selectedContextContainers = await screen.findAllByTestId('selected-context-container');
+            expect(selectedContextContainers.length).toBeGreaterThan(0);
+            
+            // Find the container with the specific rule text
+            const dataAnalysisContainer = selectedContextContainers.find(container => 
+                within(container).queryByText('Data Analysis', {exact: false})
+            );
+            expect(dataAnalysisContainer).toBeInTheDocument();
 
             // Then, look for the rule text *within* that container
-            const ruleTextInContainer = within(selectedContextContainer).getByText('Data Analysis', {exact: false});
+            const ruleTextInContainer = within(dataAnalysisContainer!).getByText('Data Analysis', {exact: false});
             expect(ruleTextInContainer).toBeInTheDocument();
             
             // Look for the container by its class instead of data-testid as an alternative
@@ -611,15 +623,21 @@ describe('ChatInput Component', () => {
             });
             
             // SelectedContextContainer should be displayed with the selected rule
-            const selectedContextContainer = await screen.findByTestId('selected-context-container');
-            expect(selectedContextContainer).toBeInTheDocument();
+            const selectedContextContainers = await screen.findAllByTestId('selected-context-container');
+            expect(selectedContextContainers.length).toBeGreaterThan(0);
+            
+            // Find the container with the specific rule text
+            const machineLearningContainer = selectedContextContainers.find(container => 
+                within(container).queryByText('Machine Learning', {exact: false})
+            );
+            expect(machineLearningContainer).toBeInTheDocument();
 
             // And it should be in the chat input
             const selectedRule = within(textarea).getByText('Machine Learning');
             expect(selectedRule).toBeInTheDocument();
             
             // Check that the rule container has a remove button
-            const removeButton = selectedContextContainer.querySelector('.icon');
+            const removeButton = machineLearningContainer!.querySelector('.icon');
             expect(removeButton).toBeInTheDocument();
             
             // Click the remove button
@@ -629,8 +647,19 @@ describe('ChatInput Component', () => {
                 }
             });
             
-            // After removing, the SelectedContextContainer should not be in the document
-            expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
+            // After removing, the Machine Learning SelectedContextContainer should not be in the document
+            // but the Active Cell context should still be there
+            const remainingContainers = screen.getAllByTestId('selected-context-container');
+            const removedMachineLearningContainer = remainingContainers.find(container => 
+                within(container).queryByText('Machine Learning', {exact: false})
+            );
+            expect(removedMachineLearningContainer).toBeUndefined();
+            
+            // Verify that the Active Cell context is still there
+            const activeCellContainer = remainingContainers.find(container => 
+                within(container).queryByText('Active Cell', {exact: false})
+            );
+            expect(activeCellContainer).toBeInTheDocument();
         });
     });
 
