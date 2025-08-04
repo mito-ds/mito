@@ -11,7 +11,7 @@ from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extrac
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_converstion_todo_prompt import get_streamlit_conversion_todo_prompt
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
-from mito_ai.streamlit_conversion.validate_and_run_streamlit_code import streamlit_code_validator
+from mito_ai.streamlit_conversion.validate_streamlit_app import streamlit_code_validator
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
@@ -115,16 +115,9 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code_generator = StreamlitCodeGeneration()
     streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
-    streamlit_code = f"""
-import streamlit as st
-
-x = [1,2,3]
-x[5]
-"""
+    
     
     has_validation_error, error = streamlit_code_validator(streamlit_code)
-
-    
     tries = 0
     while has_validation_error and tries < 5:
         streamlit_code = await streamlit_code_generator.correct_error_in_generation(error, streamlit_code)
