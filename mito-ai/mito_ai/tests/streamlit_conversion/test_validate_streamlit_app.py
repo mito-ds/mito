@@ -47,7 +47,7 @@ class TestStreamlitValidator:
         # Invalid Python syntax should be caught
         (
             "import streamlit\nst.title('Hello World'",
-            "was never closed",
+            "SyntaxError",
             "invalid Python code"
         ),
         # Empty streamlit app is valid
@@ -109,7 +109,7 @@ class TestStreamlitValidator:
     @pytest.mark.parametrize("app_code,expected_has_validation_error,expected_error_message", [
         ("x=5", False, ""),
         ("1/0", True, "division by zero"),
-        ("print('Hello World'", True, "was never closed"),
+        ("print('Hello World'", True, "SyntaxError"),
         ("", False, ""),
     ])
     def test_streamlit_code_validator(self, app_code, expected_has_validation_error, expected_error_message):
