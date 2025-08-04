@@ -6,7 +6,7 @@ import tempfile
 import uuid
 import tornado
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
+from mito_ai.streamlit_conversion.create_new_streamlit_app import create_new_streamlit_app_code
 from mito_ai.streamlit_preview.manager import get_preview_manager
 from mito_ai.utils.create import initialize_user
 
@@ -110,11 +110,11 @@ class StreamlitPreviewHandler(APIHandler):
             preview_id = str(uuid.uuid4())
             
             # Generate streamlit code using existing handler
-            success, app_path, message = await streamlit_handler(resolved_notebook_path)
+            app_path = await create_new_streamlit_app_code(resolved_notebook_path)
             
-            if not success or app_path is None:
+            if app_path is None:
                 self.set_status(500)
-                self.finish({"error": f'Failed to generate streamlit code: {message}'})
+                self.finish({"error": f'Failed to generate streamlit code'})
                 return
             
             # Start streamlit preview
