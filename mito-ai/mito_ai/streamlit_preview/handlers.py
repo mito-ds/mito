@@ -136,7 +136,7 @@ class StreamlitPreviewHandler(APIHandler):
         except Exception as e:
             print(f"Error in streamlit preview handler: {e}")
             self.set_status(500)
-            self.finish({"error": f'Internal server error: {str(e)}'})
+            self.finish({"error": str(e)})
     
     @tornado.web.authenticated
     def delete(self, preview_id: str) -> None:
