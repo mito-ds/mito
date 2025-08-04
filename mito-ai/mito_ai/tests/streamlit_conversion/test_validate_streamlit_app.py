@@ -6,7 +6,7 @@ import tempfile
 from unittest.mock import patch, MagicMock
 from mito_ai.streamlit_conversion.validate_streamlit_app import (
     StreamlitValidator,
-    streamlit_code_validator
+    validate_app
 )
 import pytest
 
@@ -114,7 +114,7 @@ class TestStreamlitValidator:
     ])
     def test_streamlit_code_validator(self, app_code, expected_has_validation_error, expected_error_message):
 
-        has_validation_error, error_message = streamlit_code_validator(app_code)
+        has_validation_error, error_message = validate_app(app_code)
         
         assert has_validation_error == expected_has_validation_error
         assert expected_error_message in error_message

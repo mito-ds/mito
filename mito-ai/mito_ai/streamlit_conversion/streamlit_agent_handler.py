@@ -11,7 +11,7 @@ from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extrac
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_converstion_todo_prompt import get_streamlit_conversion_todo_prompt
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
-from mito_ai.streamlit_conversion.validate_streamlit_app import streamlit_code_validator
+from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
@@ -68,7 +68,7 @@ class StreamlitCodeGeneration:
         todo_placeholders = extract_todo_placeholders(agent_response)
         
         for todo_placeholder in todo_placeholders:
-            print(f"\n\nConverting TODO: {todo_placeholder}")
+            print(f"Processing AI TODO: {todo_placeholder}")
             todo_prompt = get_streamlit_conversion_todo_prompt(notebook, converted_code, todo_placeholder)
             todo_messages: List[MessageParam] = [
                 cast(MessageParam, {
@@ -81,15 +81,11 @@ class StreamlitCodeGeneration:
             ]
             todo_response = await self.get_response_from_agent(todo_messages)
             
-            print(f"\n\nTodo response: {todo_response}")
-            
+            # Apply the diff to the streamlit app
             exctracted_diff = extract_unified_diff_blocks(todo_response)
             fixed_diff = fix_diff_headers(exctracted_diff)
-            
             converted_code = apply_patch_to_text(converted_code, fixed_diff)
-            
-            print(f"\n\nConverted code: {converted_code}")
-        
+                    
         return converted_code
 
 
@@ -117,11 +113,11 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
     streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
     
     
-    has_validation_error, error = streamlit_code_validator(streamlit_code)
+    has_validation_error, error = validate_app(streamlit_code)
     tries = 0
     while has_validation_error and tries < 5:
         streamlit_code = await streamlit_code_generator.correct_error_in_generation(error, streamlit_code)
-        has_validation_error, error = streamlit_code_validator(streamlit_code)
+        has_validation_error, error = validate_app(streamlit_code)
         
         if has_validation_error:
             # TODO: We can't easily get the key type here, so for the beta release

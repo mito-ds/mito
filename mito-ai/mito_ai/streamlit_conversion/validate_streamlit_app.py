@@ -23,7 +23,6 @@ warnings.filterwarnings("ignore", message=".*bare mode.*")
 
 class StreamlitValidator:
     def __init__(self, port: int = 8501) -> None:
-        self.port = port
         self.temp_dir: Optional[str] = None
 
     def get_syntax_error(self, app_code: str) -> Optional[str]:
@@ -71,7 +70,7 @@ class StreamlitValidator:
             shutil.rmtree(self.temp_dir)
             self.temp_dir = None
 
-    def validate_app(self, app_code: str) -> List[Dict[str, Any]]:
+    def _validate_app(self, app_code: str) -> List[Dict[str, Any]]:
         """Complete validation pipeline"""
         errors: List[Dict[str, Any]] = []
 
@@ -98,13 +97,13 @@ class StreamlitValidator:
 
         return errors
 
-def streamlit_code_validator(app_code: str) -> Tuple[bool, str]:
+def validate_app(app_code: str) -> Tuple[bool, str]:
     """Convenience function to validate Streamlit code"""
     has_validation_error: bool = False
     error_message: str = ""
 
     validator = StreamlitValidator()
-    errors = validator.validate_app(app_code)
+    errors = validator._validate_app(app_code)
 
     if errors:
         has_validation_error = True
