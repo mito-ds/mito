@@ -155,7 +155,8 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.streamlit_code_validator')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
-    async def test_streamlit_handler_success(self, mock_create_file, mock_validator, mock_generator_class, mock_parse):
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
+    async def test_streamlit_handler_success(self, mock_clean_directory, mock_create_file, mock_validator, mock_generator_class, mock_parse):
         """Test successful streamlit handler execution"""
         # Mock notebook parsing
         mock_notebook_data: dict = {"cells": [{"cell_type": "code", "source": ["import pandas"]}]}
@@ -170,7 +171,10 @@ class TestStreamlitHandler:
         mock_validator.return_value = (False, "")
         
         # Mock file creation
-        mock_create_file.return_value = (True, "/path/to/app", "File created successfully")
+        mock_create_file.return_value = (True, "/path/to/app.py", "File created successfully")
+        
+        # Mock clean directory check (no-op)
+        mock_clean_directory.return_value = None
         
         result = await streamlit_handler("/path/to/notebook.ipynb")
         
@@ -179,6 +183,7 @@ class TestStreamlitHandler:
         
         # Verify calls
         mock_parse.assert_called_once_with("/path/to/notebook.ipynb")
+        mock_clean_directory.assert_called_once_with("/path/to/notebook.ipynb")
         mock_generator_class.assert_called_once_with(mock_notebook_data)
         mock_generator.generate_streamlit_code.assert_called_once()
         mock_validator.assert_called_once_with("import streamlit\nst.title('Test')")
@@ -188,7 +193,8 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.streamlit_code_validator')
-    async def test_streamlit_handler_max_retries_exceeded(self, mock_validator, mock_generator_class, mock_parse):
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
+    async def test_streamlit_handler_max_retries_exceeded(self, mock_clean_directory, mock_validator, mock_generator_class, mock_parse):
         """Test streamlit handler when max retries are exceeded"""
         # Mock notebook parsing
         mock_notebook_data: dict = {"cells": []}
@@ -202,6 +208,9 @@ class TestStreamlitHandler:
     
         # Mock validation (always errors) - FIX: Return only 2 values
         mock_validator.return_value = (True, "Persistent error")
+        
+        # Mock clean directory check (no-op)
+        mock_clean_directory.return_value = None
     
         result = await streamlit_handler("/path/to/notebook.ipynb")
         
@@ -217,7 +226,8 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.streamlit_code_validator')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
-    async def test_streamlit_handler_file_creation_failure(self, mock_create_file, mock_validator, mock_generator_class, mock_parse):
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
+    async def test_streamlit_handler_file_creation_failure(self, mock_clean_directory, mock_create_file, mock_validator, mock_generator_class, mock_parse):
         """Test streamlit handler when file creation fails"""
         # Mock notebook parsing
         mock_notebook_data: dict = {"cells": []}
@@ -234,6 +244,9 @@ class TestStreamlitHandler:
         # Mock file creation failure
         mock_create_file.return_value = (False, None, "Permission denied")
         
+        # Mock clean directory check (no-op)
+        mock_clean_directory.return_value = None
+        
         result = await streamlit_handler("/path/to/notebook.ipynb")
         
         assert result[0] is False
@@ -241,8 +254,12 @@ class TestStreamlitHandler:
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
-    async def test_streamlit_handler_parse_notebook_exception(self, mock_parse):
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
+    async def test_streamlit_handler_parse_notebook_exception(self, mock_clean_directory, mock_parse):
         """Test streamlit handler when notebook parsing fails"""
+        # Mock clean directory check (no-op)
+        mock_clean_directory.return_value = None
+        
         mock_parse.side_effect = FileNotFoundError("Notebook not found")
         
         with pytest.raises(FileNotFoundError, match="Notebook not found"):
@@ -251,7 +268,8 @@ class TestStreamlitHandler:
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
-    async def test_streamlit_handler_generation_exception(self, mock_generator_class, mock_parse):
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
+    async def test_streamlit_handler_generation_exception(self, mock_clean_directory, mock_generator_class, mock_parse):
         """Test streamlit handler when code generation fails"""
         # Mock notebook parsing
         mock_notebook_data: dict = {"cells": []}
@@ -261,6 +279,9 @@ class TestStreamlitHandler:
         mock_generator = AsyncMock()
         mock_generator.generate_streamlit_code.side_effect = Exception("Generation failed")
         mock_generator_class.return_value = mock_generator
+        
+        # Mock clean directory check (no-op)
+        mock_clean_directory.return_value = None
         
         with pytest.raises(Exception, match="Generation failed"):
             await streamlit_handler("/path/to/notebook.ipynb")
