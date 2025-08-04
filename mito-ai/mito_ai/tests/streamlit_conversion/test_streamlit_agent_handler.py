@@ -16,20 +16,17 @@ pytest_plugins = ('pytest_asyncio',)
 class TestStreamlitCodeGeneration:
     """Test cases for StreamlitCodeGeneration class"""
 
-    def test_init(self):
+    @pytest.mark.asyncio
+    async def test_init(self):
         """Test StreamlitCodeGeneration initialization"""
         notebook_data: dict = {"cells": [{"cell_type": "code", "source": ["import pandas"]}]}
-        generator = StreamlitCodeGeneration(notebook_data)
+        streamlit_code_handler = StreamlitCodeGeneration()
         
-        assert len(generator.messages) == 1
-        assert generator.messages[0]["role"] == "user"
-        # Access content properly as a list and cast to expected type
-        content_list = cast(list, generator.messages[0]["content"])
-        assert isinstance(content_list, list)
-        assert len(content_list) > 0
-        content_item = cast(dict, content_list[0])
-        assert content_item["type"] == "text"
-        assert "jupyter notebook content" in content_item["text"]
+        streamlit_code = await streamlit_code_handler.generate_streamlit_code(notebook_data)
+        
+        assert streamlit_code is not None
+        assert len(streamlit_code) > 0
+        assert "import streamlit" in streamlit_code
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
@@ -48,9 +45,9 @@ class TestStreamlitCodeGeneration:
         mock_stream.return_value = mock_async_gen()
         
         notebook_data: dict = {"cells": []}
-        generator = StreamlitCodeGeneration(notebook_data)
+        streamlit_code_handler = StreamlitCodeGeneration()
         
-        result = await generator.get_response_from_agent(generator.messages)
+        result = await streamlit_code_handler.generate_streamlit_code(notebook_data)
         
         assert result == expected_result
         mock_stream.assert_called_once()
@@ -63,28 +60,10 @@ class TestStreamlitCodeGeneration:
         mock_stream.side_effect = Exception("API Error")
         
         notebook_data: dict = {"cells": []}
-        generator = StreamlitCodeGeneration(notebook_data)
+        streamlit_code_handler = StreamlitCodeGeneration()
         
         with pytest.raises(Exception, match="API Error"):
-            await generator.get_response_from_agent(generator.messages)
-
-    def test_add_agent_response_to_context(self):
-        """Test adding agent response to message history"""
-        notebook_data: dict = {"cells": []}
-        generator = StreamlitCodeGeneration(notebook_data)
-        
-        initial_count = len(generator.messages)
-        generator.add_agent_response_to_context("Test response")
-        
-        assert len(generator.messages) == initial_count + 1
-        assert generator.messages[-1]["role"] == "assistant"
-        # Access content properly as a list and cast to expected type
-        content_list = cast(list, generator.messages[-1]["content"])
-        assert isinstance(content_list, list)
-        assert len(content_list) > 0
-        content_item = cast(dict, content_list[0])
-        assert content_item["type"] == "text"
-        assert content_item["text"] == "Test response"
+            await streamlit_code_handler.generate_streamlit_code(notebook_data)
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
@@ -99,16 +78,12 @@ class TestStreamlitCodeGeneration:
         mock_stream.return_value = mock_async_gen()
         
         notebook_data: dict = {"cells": []}
-        generator = StreamlitCodeGeneration(notebook_data)
+        streamlit_code_handler = StreamlitCodeGeneration()
         
-        result = await generator.generate_streamlit_code()
+        result = await streamlit_code_handler.generate_streamlit_code(notebook_data)
         
         expected_code = "import streamlit\nst.title('Hello')\n"
         assert result == expected_code
-        
-        # Check that response was added to context
-        assert len(generator.messages) == 2
-        assert generator.messages[-1]["role"] == "assistant"
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
@@ -122,17 +97,12 @@ class TestStreamlitCodeGeneration:
         mock_stream.return_value = mock_async_gen()
 
         notebook_data: dict = {"cells": []}
-        generator = StreamlitCodeGeneration(notebook_data)
+        streamlit_code_handler = StreamlitCodeGeneration()
 
-        result = await generator.correct_error_in_generation("ImportError: No module named 'pandas'")
+        result = await streamlit_code_handler.correct_error_in_generation("ImportError: No module named 'pandas'", "import streamlit\nst.title('Test')")
 
         expected_code = "import streamlit\nst.title('Fixed')\n"
         assert result == expected_code
-
-        # Check that error message and response were added to context
-        assert len(generator.messages) == 3
-        assert generator.messages[-2]["role"] == "user"
-        assert generator.messages[-1]["role"] == "assistant"
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
@@ -140,11 +110,10 @@ class TestStreamlitCodeGeneration:
         """Test exception handling in error correction"""
         mock_stream.side_effect = Exception("API Error")
         
-        notebook_data: dict = {"cells": []}
-        generator = StreamlitCodeGeneration(notebook_data)
+        streamlit_code_handler = StreamlitCodeGeneration()
         
         with pytest.raises(Exception, match="API Error"):
-            await generator.correct_error_in_generation("Some error")
+            await streamlit_code_handler.correct_error_in_generation("Some error", "import streamlit\nst.title('Test')")
 
 
 class TestStreamlitHandler:
@@ -179,7 +148,7 @@ class TestStreamlitHandler:
         
         # Verify calls
         mock_parse.assert_called_once_with("/path/to/notebook.ipynb")
-        mock_generator_class.assert_called_once_with(mock_notebook_data)
+        mock_generator_class.assert_called_once_with()
         mock_generator.generate_streamlit_code.assert_called_once()
         mock_validator.assert_called_once_with("import streamlit\nst.title('Test')")
         mock_create_file.assert_called_once_with("/path/to", "import streamlit\nst.title('Test')")
