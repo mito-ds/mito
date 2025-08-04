@@ -45,7 +45,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             break;
     }
 
-    const handleClick = () => {
+    const handleClick = (): void => {
         if (type === 'active_cell' && notebookTracker && activeCellID) {
             // Find the cell 
             const cell = getCellByID(notebookTracker, activeCellID);
