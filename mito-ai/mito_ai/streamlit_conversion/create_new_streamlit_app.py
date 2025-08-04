@@ -16,10 +16,14 @@ async def create_new_streamlit_app_code(notebook_path: str) -> Optional[str]:
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code = await _create_new_streamlit_app_code(notebook_code)
     
+    print('streamlit_code', streamlit_code)
+    
     # Validate the streamlit app code
-    has_validation_error, app_path = await validate_streamlit_app_code(streamlit_code, notebook_path)
+    success, app_path = await validate_streamlit_app_code(streamlit_code, notebook_path)
+    
+    print("HERE", success, app_path)
    
-    if has_validation_error:
+    if not success:
         # TODO: Let errors bubble up
         return None
     
