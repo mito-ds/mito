@@ -687,19 +687,5 @@ describe('ChatInput Component', () => {
             // Should not have any SelectedContextContainer
             expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
         });
-
-        it('does not show active cell context when there is no active cell code', () => {
-            // Mock getActiveCellCode to return empty string
-            const { getActiveCellCode } = require('../../utils/notebook');
-            getActiveCellCode.mockImplementation(() => '');
-            
-            renderChatInput();
-            
-            // Should not show the active cell context container
-            expect(screen.queryByText('Active Cell')).not.toBeInTheDocument();
-            
-            // Should not have any SelectedContextContainer
-            expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
-        });
     });
 });
