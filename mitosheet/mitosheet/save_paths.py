@@ -15,7 +15,7 @@ except ImportError:
 MITO_CONFIG_KEY_HOME_FOLDER = 'MITO_CONFIG_HOME_FOLDER'
 
 if MITOSHEET_HELPER_4C2A:
-    HOME_FOLDER = 'opt/app-root/.config'
+    HOME_FOLDER = os.path.expanduser('~/.config')
 elif MITO_CONFIG_KEY_HOME_FOLDER in os.environ:
     HOME_FOLDER = os.path.expanduser(os.environ[MITO_CONFIG_KEY_HOME_FOLDER])
 else:
