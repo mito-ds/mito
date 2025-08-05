@@ -4,7 +4,7 @@
 import logging
 import os
 from anthropic.types import MessageParam
-from typing import List, Optional, Tuple, cast
+from typing import List, Tuple, cast
 
 from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
@@ -101,7 +101,7 @@ def clean_directory_check(notebook_path: str) -> None:
     if file_count > 10:
         raise ValueError(f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")
 
-async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
+async def streamlit_handler(notebook_path: str) -> Tuple[bool, str, str]:
     """Handler function for streamlit code generation and validation"""
 
     if not os.path.isabs(notebook_path):
@@ -127,7 +127,7 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
 
     if has_validation_error:
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
-        return False, None, "Error generating streamlit code by agent"
+        return False, '', "Error generating streamlit code by agent"
     
     app_directory = os.path.dirname(notebook_path)
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)

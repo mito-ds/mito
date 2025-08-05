@@ -151,13 +151,11 @@ class AppBuilderHandler(BaseWebSocketHandler):
 
             app_directory = os.path.dirname(notebook_path)
             app_path = os.path.join(app_directory, "app.py")
-            if os.path.exists(app_path):
-                success_flag = True
-            else:
-                success_flag, app_path, result_message = await streamlit_handler(notebook_path)
 
-            if not success_flag or app_path is None:
-                raise Exception(result_message)
+            if not os.path.exists(app_path):
+                success_flag, app_path, result_message = await streamlit_handler(notebook_path)
+                if not success_flag or not app_path:
+                    raise Exception(result_message)
 
             deploy_url = await self._deploy_app(app_path, jwt_token)
 
@@ -285,6 +283,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
         except Exception as e:
             self.log.error(f"Error during deployment: {str(e)}")
             raise
+        raise RuntimeError("Unexpected error in _deploy_app")
 
     async def _upload_app_to_s3(self, app_path: str, presigned_url: str) -> requests.Response:
         """Upload the app to S3 using the presigned URL."""
