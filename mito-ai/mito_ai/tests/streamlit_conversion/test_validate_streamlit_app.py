@@ -13,29 +13,6 @@ import pytest
 
 class TestStreamlitValidator:
     """Test cases for StreamlitValidator class"""
-    
-    @pytest.mark.parametrize("code", [
-        ("import streamlit\nst.title('Hello World')"),
-        ("")
-    ])
-    def test_create_temp_app(self, code):
-        """Test creating temporary app file"""
-        validator = StreamlitValidator()
-        
-        app_path = validator.create_temp_app(code)
-        
-        assert validator.temp_dir is not None
-        assert os.path.exists(validator.temp_dir)
-        assert app_path.endswith("app.py")
-        assert os.path.exists(app_path)
-        
-        # Check file content
-        with open(app_path, 'r') as f:
-            content = f.read()
-        assert content == code
-        
-        # Cleanup
-        validator.cleanup()
 
     @pytest.mark.parametrize("code,expected_error,test_description", [
         # Valid Python code should return no error
@@ -78,20 +55,40 @@ class TestStreamlitValidator:
         """Test getting runtime errors"""
         validator = StreamlitValidator()
         
-        # Create a temporary app file
-        with tempfile.TemporaryDirectory() as temp_dir:
-            app_path = os.path.join(temp_dir, "app.py")
-            with open(app_path, "w") as f:
-                f.write(app_code)
+        errors = validator.get_runtime_errors(app_code, '/app.py')
+        
+        if expected_error is None:
+            assert errors is None
+        else:
+            errors_str = str(errors)
+            assert expected_error in errors_str
                 
-            errors = validator.get_runtime_errors(app_path)
-            
-            if expected_error is None:
-                assert errors is None
-            else:
-                errors_str = str(errors)
-                assert expected_error in errors_str
+    def test_get_runtime_errors_with_relative_path(self):
+        """Test getting runtime errors"""
+        
+        app_code ="""
+import streamlit as st
+import pandas as pd
 
+df=pd.read_csv('data.csv')
+"""
+        # Create a temporary csv file in the directory temp/data.csv
+        with tempfile.TemporaryDirectory() as temp_dir:
+            directory = 'app_directory'
+            csv_path = os.path.join(temp_dir, directory, "data.csv")
+            
+            os.makedirs(os.path.join(temp_dir, directory), exist_ok=True)
+            app_path = os.path.join(temp_dir, directory, "app.py")
+            
+            # Create the file if it doesn't exist
+            with open(csv_path, "w") as f:
+                f.write("name,age\nJohn,25\nJane,30")
+               
+            validator = StreamlitValidator() 
+            errors = validator.get_runtime_errors(app_code, app_path)
+            assert errors is None
+            
+            
     @patch('subprocess.Popen')
     def test_cleanup_with_process(self, mock_popen):
         """Test cleanup with running process"""
@@ -114,7 +111,7 @@ class TestStreamlitValidator:
     ])
     def test_streamlit_code_validator(self, app_code, expected_has_validation_error, expected_error_message):
 
-        has_validation_error, error_message = validate_app(app_code)
+        has_validation_error, error_message = validate_app(app_code, '/app.py')
         
         assert has_validation_error == expected_has_validation_error
         assert expected_error_message in error_message

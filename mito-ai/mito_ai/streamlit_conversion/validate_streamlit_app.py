@@ -13,6 +13,7 @@ import importlib.util
 import warnings
 from typing import List, Tuple, Optional, Dict, Any
 from streamlit.testing.v1 import AppTest
+from contextlib import contextmanager
 
 
 # warnings.filterwarnings("ignore", message=r".*missing ScriptRunContext.*")
@@ -34,35 +35,42 @@ class StreamlitValidator:
             error_msg = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
             return error_msg
 
-    def create_temp_app(self, app_code: str) -> str:
-        """Create a temporary Streamlit app file"""
-        self.temp_dir = tempfile.mkdtemp()
-        if self.temp_dir is None:
-            raise RuntimeError("Failed to create temporary directory")
-        
-        app_path = os.path.join(self.temp_dir, "app.py")
-
-        with open(app_path, 'w') as f:
-            f.write(app_code)
-
-        return app_path
-
-    def get_runtime_errors(self, app_path: str) -> Optional[List[Dict[str, Any]]]:
+    def get_runtime_errors(self, app_code: str, app_path: str) -> Optional[List[Dict[str, Any]]]:
         """Start the Streamlit app in a subprocess"""  
-        app_test = AppTest.from_file(app_path, default_timeout=30)
-        app_test.run()
         
-        # Check for exceptions
-        if app_test.exception:
-            errors = [{'type': 'exception', 'details': exc.value, 'message': exc.message, 'stack_trace': exc.stack_trace} for exc in app_test.exception]
-            return errors
-                    
-        # Check for error messages
-        if app_test.error:
-            errors = [{'type': 'error', 'details': err.value} for err in app_test.error]
-            return  errors
+        directory = os.path.dirname(app_path)
+        
+        @contextmanager
+        def change_working_directory(path):
+            """
+            Context manager to temporarily change working directory
+            so that relative paths are still valid when we run the app
+            """
+            if path == '':
+                yield
             
-        return None
+            original_cwd = os.getcwd()
+            try:
+                os.chdir(path)
+                yield
+            finally:
+                os.chdir(original_cwd)
+        
+        with change_working_directory(directory):
+            app_test = AppTest.from_string(app_code, default_timeout=30)
+            app_test.run()
+            
+            # Check for exceptions
+            if app_test.exception:
+                errors = [{'type': 'exception', 'details': exc.value, 'message': exc.message, 'stack_trace': exc.stack_trace} for exc in app_test.exception]
+                return errors
+                    
+            # Check for error messages
+            if app_test.error:
+                errors = [{'type': 'error', 'details': err.value} for err in app_test.error]
+                return errors
+            
+            return None
 
     def cleanup(self) -> None:
         """Clean up the temporary files"""
@@ -70,7 +78,7 @@ class StreamlitValidator:
             shutil.rmtree(self.temp_dir)
             self.temp_dir = None
 
-    def _validate_app(self, app_code: str) -> List[Dict[str, Any]]:
+    def _validate_app(self, app_code: str, app_path: str) -> List[Dict[str, Any]]:
         """Complete validation pipeline"""
         errors: List[Dict[str, Any]] = []
 
@@ -80,9 +88,7 @@ class StreamlitValidator:
             if syntax_error:
                 errors.append({'type': 'syntax', 'details': syntax_error})
 
-            # Step 2: Create and start app
-            app_path = self.create_temp_app(app_code)
-            runtime_errors = self.get_runtime_errors(app_path)
+            runtime_errors = self.get_runtime_errors(app_code, app_path)
             
             print('Found Runtime Errors', runtime_errors)
             
@@ -97,13 +103,13 @@ class StreamlitValidator:
 
         return errors
 
-def validate_app(app_code: str) -> Tuple[bool, str]:
+def validate_app(app_code: str, notebook_path: str) -> Tuple[bool, str]:
     """Convenience function to validate Streamlit code"""
     has_validation_error: bool = False
     error_message: str = ""
 
     validator = StreamlitValidator()
-    errors = validator._validate_app(app_code)
+    errors = validator._validate_app(app_code, notebook_path)
 
     if errors:
         has_validation_error = True

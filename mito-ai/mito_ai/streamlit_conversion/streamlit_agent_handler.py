@@ -113,11 +113,11 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
     streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
     
     
-    has_validation_error, error = validate_app(streamlit_code)
+    has_validation_error, error = validate_app(streamlit_code, notebook_path)
     tries = 0
     while has_validation_error and tries < 5:
         streamlit_code = await streamlit_code_generator.correct_error_in_generation(error, streamlit_code)
-        has_validation_error, error = validate_app(streamlit_code)
+        has_validation_error, error = validate_app(streamlit_code, notebook_path)
         
         if has_validation_error:
             # TODO: We can't easily get the key type here, so for the beta release
