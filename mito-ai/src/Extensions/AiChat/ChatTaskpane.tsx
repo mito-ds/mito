@@ -1011,7 +1011,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
 
-            if (agentResponse.type === 'get_cell_output') {
+            if (agentResponse.type === 'get_cell_output' && agentResponse.get_cell_output_cell_id !== null && agentResponse.get_cell_output_cell_id !== undefined) {
                 // Mark that we should send the cell output to the agent 
                 // in the next loop iteration
                 sendCellIDOutput = agentResponse.get_cell_output_cell_id
