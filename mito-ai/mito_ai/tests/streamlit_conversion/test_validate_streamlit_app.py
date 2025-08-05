@@ -111,9 +111,10 @@ df=pd.read_csv('data.csv')
     ])
     def test_streamlit_code_validator(self, app_code, expected_has_validation_error, expected_error_message):
 
-        has_validation_error, error_message = validate_app(app_code, '/app.py')
+        has_validation_error, errors = validate_app(app_code, '/app.py')
+        
         
         assert has_validation_error == expected_has_validation_error
-        assert expected_error_message in error_message
+        assert expected_error_message in str(errors)
         
     

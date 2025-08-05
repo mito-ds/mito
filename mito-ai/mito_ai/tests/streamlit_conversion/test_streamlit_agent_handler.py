@@ -96,7 +96,15 @@ class TestStreamlitCodeGeneration:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
     async def test_correct_error_in_generation_success(self, mock_stream):
         """Test successful error correction"""
-        mock_response = "Here's the corrected code:\n```python\nimport streamlit\nst.title('Fixed')\n```"
+        mock_response = """```unified_diff
+--- a/app.py
++++ b/app.py
+@@ -1,1 +1,1 @@
+-import streamlit
+-st.title('Test')
++import streamlit
++st.title('Fixed')
+```"""
         async def mock_async_gen():
             for item in [mock_response]:
                 yield item
@@ -176,8 +184,8 @@ class TestStreamlitHandler:
         mock_generator.correct_error_in_generation.return_value = "import streamlit\nst.title('Fixed')"
         mock_generator_class.return_value = mock_generator
     
-        # Mock validation (always errors) - FIX: Return only 2 values
-        mock_validator.return_value = (True, "Persistent error")
+        # Mock validation (always errors) - Return list of errors as expected by validate_app
+        mock_validator.return_value = (True, ["Persistent error"])
     
         result = await streamlit_handler("/path/to/notebook.ipynb")
         
