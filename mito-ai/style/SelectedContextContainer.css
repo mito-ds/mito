@@ -52,4 +52,5 @@
   justify-content: center;
   width: 12px;
   max-height: 14px;
+  color: var(--jp-content-font-color3);
 }
