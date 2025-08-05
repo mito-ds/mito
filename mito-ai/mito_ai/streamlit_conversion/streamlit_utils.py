@@ -5,6 +5,7 @@ import re
 import json
 import os
 from typing import Dict, Optional, Tuple, Any
+from pathlib import Path
 
 def extract_code_blocks(message_content: str) -> str:
     """
@@ -109,8 +110,14 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
 
 
 def clean_directory_check(notebook_path: str) -> None:
-    dir_path = os.path.dirname(notebook_path)
-    
-    file_count = len([f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))])
+    # pathlib handles the cross OS path conversion automatically
+    path = Path(notebook_path).resolve()
+    dir_path = path.parent
+
+    if not dir_path.exists():
+        raise ValueError(f"Directory does not exist: {dir_path}")
+
+    file_count = len([f for f in dir_path.iterdir() if f.is_file()])
     if file_count > 10:
-        raise ValueError(f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")
+        raise ValueError(
+            f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")
