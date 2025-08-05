@@ -119,9 +119,6 @@ class StreamlitCodeGeneration:
 async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
     """Handler function for streamlit code generation and validation"""
 
-    if not os.path.isabs(notebook_path):
-        notebook_path = os.path.join(os.getcwd(), notebook_path)
-    
     clean_directory_check(notebook_path)
 
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
@@ -146,7 +143,12 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
         return False, '', "Error generating streamlit code by agent"
     
-    app_directory = os.path.dirname(notebook_path)
+    # Convert to absolute path for directory calculation
+    absolute_notebook_path = notebook_path
+    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
+        absolute_notebook_path = os.path.join(os.getcwd(), notebook_path)
+    
+    app_directory = os.path.dirname(absolute_notebook_path)
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
     
     if not success_flag:

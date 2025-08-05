@@ -67,7 +67,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
     Read a Jupyter notebook and filter cells to keep only cell_type and source fields.
 
     Args:
-        notebook_path (str): Absolute path to the .ipynb file
+        notebook_path (str): Path to the .ipynb file (can be relative or absolute)
 
     Returns:
         dict: Filtered notebook dictionary with only cell_type and source in cells
@@ -77,6 +77,11 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
         json.JSONDecodeError: If the file is not valid JSON
         KeyError: If the notebook doesn't have the expected structure
     """
+    # Convert to absolute path if it's not already absolute
+    # Handle both Unix-style absolute paths (starting with /) and Windows-style absolute paths
+    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
+        notebook_path = os.path.join(os.getcwd(), notebook_path)
+    
     try:
         # Read the notebook file
         with open(notebook_path, 'r', encoding='utf-8') as f:
@@ -110,6 +115,11 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
 
 
 def clean_directory_check(notebook_path: str) -> None:
+    # Convert to absolute path if it's not already absolute
+    # Handle both Unix-style absolute paths (starting with /) and Windows-style absolute paths
+    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
+        notebook_path = os.path.join(os.getcwd(), notebook_path)
+    
     # pathlib handles the cross OS path conversion automatically
     path = Path(notebook_path).resolve()
     dir_path = path.parent

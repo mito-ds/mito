@@ -105,6 +105,11 @@ class StreamlitValidator:
 
 def validate_app(app_code: str, notebook_path: str) -> Tuple[bool, List[str]]:
     """Convenience function to validate Streamlit code"""
+    # Convert to absolute path if it's not already absolute
+    # Handle both Unix-style absolute paths (starting with /) and Windows-style absolute paths
+    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
+        notebook_path = os.path.join(os.getcwd(), notebook_path)
+    
     validator = StreamlitValidator()
     errors = validator._validate_app(app_code, notebook_path)
     
