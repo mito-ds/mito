@@ -13,10 +13,11 @@ from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt impo
 from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
-from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check, extract_code_blocks, create_app_file, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
+from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
+from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
 
 STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
@@ -88,6 +89,7 @@ class StreamlitCodeGeneration:
             converted_code = apply_patch_to_text(converted_code, fixed_diff)
                     
         return converted_code
+
 
     async def correct_error_in_generation(self, error: str, streamlit_app_code: str) -> str:
         """If errors are present, send it back to the agent to get corrections in code"""

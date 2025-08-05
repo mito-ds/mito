@@ -110,7 +110,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
 
 def clean_directory_check(notebook_path: str) -> None:
     dir_path = os.path.dirname(notebook_path)
-    file_count = len([f for f in os.listdir(dir_path)
-                      if os.path.isfile(os.path.join(dir_path, f))])
+    
+    file_count = len([f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))])
     if file_count > 10:
         raise ValueError(f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")

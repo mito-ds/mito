@@ -137,6 +137,8 @@ class StreamlitPreviewHandler(APIHandler):
         except Exception as e:
             print(f"Error in streamlit preview handler: {e}")
             self.set_status(500)
+            
+            # Respond with the error
             self.finish({"error": str(e)})
     
     @tornado.web.authenticated
