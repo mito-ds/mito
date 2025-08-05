@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import ModelSelector, { DEFAULT_MODEL } from '../../components/ModelSelector';
+import ModelSelector, { CLAUDE_OPUS_MODEL_NAME, DEFAULT_MODEL } from '../../components/ModelSelector';
 
 
 describe('ModelSelector', () => {
@@ -32,7 +32,7 @@ describe('ModelSelector', () => {
 
     // Verify onConfigChange was called with correct model
     expect(mockOnConfigChange).toHaveBeenCalledWith({
-      model: 'claude-opus-4-20250514'
+      model: CLAUDE_OPUS_MODEL_NAME
     });
   });
 
