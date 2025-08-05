@@ -19,12 +19,22 @@ def extract_code_blocks(message_content: str) -> str:
     if "```python" not in message_content:
         return message_content
 
-    # return message_content.split('```python\n')[1].split('\n```')[0]
     # Use regex to find all Python code blocks
     pattern = r'```python\n(.*?)```'
     matches = re.findall(pattern, message_content, re.DOTALL)
 
     # Concatenate with single newlines
+    return '\n'.join(matches)
+
+def extract_unified_diff_blocks(message_content: str) -> str:
+    """
+    Extract all unified_diff blocks from Claude's response.
+    """
+    if "```unified_diff" not in message_content:
+        return message_content
+    
+    pattern = r'```unified_diff\n(.*?)```'
+    matches = re.findall(pattern, message_content, re.DOTALL)
     return '\n'.join(matches)
 
 
@@ -96,3 +106,11 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
         raise json.JSONDecodeError(f"Invalid JSON in notebook file: {str(e)}", e.doc if hasattr(e, 'doc') else '', e.pos if hasattr(e, 'pos') else 0)
     except Exception as e:
         raise Exception(f"Error processing notebook: {str(e)}")
+
+
+def clean_directory_check(notebook_path: str) -> None:
+    dir_path = os.path.dirname(notebook_path)
+    file_count = len([f for f in os.listdir(dir_path)
+                      if os.path.isfile(os.path.join(dir_path, f))])
+    if file_count > 10:
+        raise ValueError(f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")
