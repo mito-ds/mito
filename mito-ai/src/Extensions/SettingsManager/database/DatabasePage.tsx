@@ -101,12 +101,15 @@ export const DatabasePage = (): JSX.Element => {
             <div className="settings-header">
                 <h2>Database Connections</h2>
                 <div className="header-buttons">
-                    <button
-                        className="button-base button-gray"
-                        onClick={() => setShowVideoModal(true)}
-                    >
-                        <b>Quick Start</b>
-                    </button>
+                    {/* Show the getting started button if there are no connections */}
+                    {Object.keys(connections).length > 0 && (
+                        <button
+                            className="button-base button-gray"
+                            onClick={() => setShowVideoModal(true)}
+                        >
+                            <b>Getting Started</b>
+                        </button>
+                    )}
                     <button
                         className="button-base button-purple"
                         onClick={() => setShowModal(true)}
@@ -150,7 +153,7 @@ export const DatabasePage = (): JSX.Element => {
                 <div className="modal-overlay" onClick={() => setShowVideoModal(false)}>
                     <div className="modal-content video-modal" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h3>Quick Start Guide</h3>
+                            <h3>Getting Started</h3>
                             <button
                                 className="modal-close-button"
                                 onClick={() => setShowVideoModal(false)}
