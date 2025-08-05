@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from mito_ai.streamlit_conversion.prompts.prompt_constants import MITO_TODO_PLACEHOLDER, unified_diff_instrucrions
 from mito_ai.streamlit_conversion.prompts.prompt_utils import add_line_numbers_to_code
 

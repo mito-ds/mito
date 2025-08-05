@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 streamlit_system_prompt = """You are a code conversion specialist who converts Jupyter notebooks into Streamlit applications with ABSOLUTE FIDELITY.
 
 ROLE AND EXPERTISE:
