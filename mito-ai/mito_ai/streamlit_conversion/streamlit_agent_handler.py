@@ -4,7 +4,7 @@
 import logging
 import os
 from anthropic.types import MessageParam
-from typing import List, Tuple, cast
+from typing import List, Tuple, cast, Union
 
 from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
@@ -101,7 +101,7 @@ def clean_directory_check(notebook_path: str) -> None:
     if file_count > 10:
         raise ValueError(f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")
 
-async def streamlit_handler(notebook_path: str) -> Tuple[bool, str, str]:
+async def streamlit_handler(notebook_path: str) -> Tuple[bool, Union[str, None], str]:
     """Handler function for streamlit code generation and validation"""
 
     if not os.path.isabs(notebook_path):
