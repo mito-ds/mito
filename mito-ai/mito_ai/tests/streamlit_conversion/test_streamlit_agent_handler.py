@@ -2,13 +2,12 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch, AsyncMock, MagicMock
 from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     StreamlitCodeGeneration,
-    streamlit_handler,
-    clean_directory_check
+    streamlit_handler
 )
-from typing import cast
+from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
 
 # Add this line to enable async support
 pytest_plugins = ('pytest_asyncio',)
@@ -294,43 +293,61 @@ class TestStreamlitHandler:
 class TestCleanDirectoryCheck:
     """Test cases for clean_directory_check function"""
 
-    @patch('os.listdir')
-    @patch('os.path.isfile')
-    @patch('os.path.join')
-    def test_clean_directory_check_under_limit(self, mock_join, mock_isfile, mock_listdir):
+    @patch('mito_ai.streamlit_conversion.streamlit_utils.Path')
+    def test_clean_directory_check_under_limit(self, mock_path):
         """Test clean_directory_check when directory has 10 or fewer files"""
-        # Mock directory with 8 files
-        mock_listdir.return_value = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 
-                                   'file5.txt', 'file6.txt', 'file7.txt', 'file8.txt']
-        mock_isfile.return_value = True
-        mock_join.return_value = '/path/to/file'
+        # Mock the Path class and its methods
+        mock_path_instance = mock_path.return_value
+        mock_path_instance.resolve.return_value = mock_path_instance
+        mock_path_instance.parent = mock_path_instance
+        
+        # Mock directory existence check
+        mock_path_instance.exists.return_value = True
+        
+        # Mock directory contents with 8 files
+        mock_files = []
+        for i in range(8):
+            mock_file = MagicMock()
+            mock_file.is_file.return_value = True
+            mock_files.append(mock_file)
+        
+        mock_path_instance.iterdir.return_value = mock_files
         
         # Should not raise any exception
         clean_directory_check('/path/to/notebook.ipynb')
         
         # Verify calls
-        mock_listdir.assert_called_once_with('/path/to')
-        assert mock_isfile.call_count == 8
-        assert mock_join.call_count == 8
+        mock_path.assert_called_once_with('/path/to/notebook.ipynb')
+        mock_path_instance.resolve.assert_called_once()
+        mock_path_instance.exists.assert_called_once()
+        mock_path_instance.iterdir.assert_called_once()
 
-    @patch('os.listdir')
-    @patch('os.path.isfile')
-    @patch('os.path.join')
-    def test_clean_directory_check_over_limit(self, mock_join, mock_isfile, mock_listdir):
+    @patch('mito_ai.streamlit_conversion.streamlit_utils.Path')
+    def test_clean_directory_check_over_limit(self, mock_path):
         """Test clean_directory_check when directory has more than 10 files"""
-        # Mock directory with 15 files
-        mock_listdir.return_value = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 
-                                   'file5.txt', 'file6.txt', 'file7.txt', 'file8.txt',
-                                   'file9.txt', 'file10.txt', 'file11.txt', 'file12.txt',
-                                   'file13.txt', 'file14.txt', 'file15.txt']
-        mock_isfile.return_value = True
-        mock_join.return_value = '/path/to/file'
+        # Mock the Path class and its methods
+        mock_path_instance = mock_path.return_value
+        mock_path_instance.resolve.return_value = mock_path_instance
+        mock_path_instance.parent = mock_path_instance
+        
+        # Mock directory existence check
+        mock_path_instance.exists.return_value = True
+        
+        # Mock directory contents with 15 files
+        mock_files = []
+        for i in range(15):
+            mock_file = MagicMock()
+            mock_file.is_file.return_value = True
+            mock_files.append(mock_file)
+        
+        mock_path_instance.iterdir.return_value = mock_files
         
         # Should raise ValueError
         with pytest.raises(ValueError, match="Too many files in directory: 10 allowed but 15 present. Create a new directory and retry"):
             clean_directory_check('/path/to/notebook.ipynb')
         
         # Verify calls
-        mock_listdir.assert_called_once_with('/path/to')
-        assert mock_isfile.call_count == 15
-        assert mock_join.call_count == 15
+        mock_path.assert_called_once_with('/path/to/notebook.ipynb')
+        mock_path_instance.resolve.assert_called_once()
+        mock_path_instance.exists.assert_called_once()
+        mock_path_instance.iterdir.assert_called_once()
