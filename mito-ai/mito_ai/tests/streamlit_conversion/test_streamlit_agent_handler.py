@@ -2,7 +2,6 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-import os
 from unittest.mock import patch, AsyncMock, MagicMock
 from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     StreamlitCodeGeneration,
@@ -141,43 +140,37 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
-    async def test_streamlit_handler_success(self, mock_clean_directory, mock_create_file, mock_validator,
-                                             mock_generator_class, mock_parse):
+    async def test_streamlit_handler_success(self, mock_clean_directory, mock_create_file, mock_validator, mock_generator_class, mock_parse):
         """Test successful streamlit handler execution"""
-        test_path = "/path/to/notebook.ipynb"
-        expected_absolute_path = os.path.abspath(test_path)
-        expected_directory = os.path.dirname(expected_absolute_path)
-
         # Mock notebook parsing
         mock_notebook_data: dict = {"cells": [{"cell_type": "code", "source": ["import pandas"]}]}
         mock_parse.return_value = mock_notebook_data
-
+        
         # Mock code generation
         mock_generator = AsyncMock()
         mock_generator.generate_streamlit_code.return_value = "import streamlit\nst.title('Test')"
         mock_generator_class.return_value = mock_generator
-
+        
         # Mock validation (no errors)
         mock_validator.return_value = (False, "")
-
+        
         # Mock file creation
         mock_create_file.return_value = (True, "/path/to/app.py", "File created successfully")
-
+        
         # Mock clean directory check (no-op)
         mock_clean_directory.return_value = None
-
-        result = await streamlit_handler(test_path)
-
+        
+        result = await streamlit_handler("/path/to/notebook.ipynb")
+        
         assert result[0] is True
         assert "File created successfully" in result[2]
-
-        # Verify calls with expected absolute paths
-        mock_parse.assert_called_once_with(expected_absolute_path)
-        mock_clean_directory.assert_called_once_with(expected_absolute_path)
+        
+        # Verify calls
+        mock_parse.assert_called_once_with("/path/to/notebook.ipynb")
         mock_generator_class.assert_called_once_with()
         mock_generator.generate_streamlit_code.assert_called_once()
-        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", expected_absolute_path)
-        mock_create_file.assert_called_once_with(expected_directory, "import streamlit\nst.title('Test')")
+        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", "/path/to/notebook.ipynb")
+        mock_create_file.assert_called_once_with("/path/to", "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -278,24 +271,18 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
-    async def test_streamlit_handler_too_many_files_in_directory(self, mock_clean_directory, mock_create_file,
-                                                                 mock_validator, mock_generator_class, mock_parse):
+    async def test_streamlit_handler_too_many_files_in_directory(self, mock_clean_directory, mock_create_file, mock_validator, mock_generator_class, mock_parse):
         """Test streamlit handler when there are too many files in the directory"""
-        test_path = "/path/to/notebook.ipynb"
-        expected_absolute_path = os.path.abspath(test_path)
-
         # Mock clean directory check to raise ValueError (simulating >10 files)
-        mock_clean_directory.side_effect = ValueError(
-            "Too many files in directory: 10 allowed but 15 present. Create a new directory and retry")
-
+        mock_clean_directory.side_effect = ValueError("Too many files in directory: 10 allowed but 15 present. Create a new directory and retry")
+        
         # The function should raise the ValueError before any other processing
-        with pytest.raises(ValueError,
-                           match="Too many files in directory: 10 allowed but 15 present. Create a new directory and retry"):
-            await streamlit_handler(test_path)
-
-        # Verify that clean_directory_check was called with the absolute path
-        mock_clean_directory.assert_called_once_with(expected_absolute_path)
-
+        with pytest.raises(ValueError, match="Too many files in directory: 10 allowed but 15 present. Create a new directory and retry"):
+            await streamlit_handler("/path/to/notebook.ipynb")
+        
+        # Verify that clean_directory_check was called
+        mock_clean_directory.assert_called_once_with("/path/to/notebook.ipynb")
+        
         # Verify that no other functions were called since the error occurred early
         mock_parse.assert_not_called()
         mock_generator_class.assert_not_called()
