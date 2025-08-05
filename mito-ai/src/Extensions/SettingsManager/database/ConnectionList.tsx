@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { DBConnections, databaseConfigs } from './model';
+import { GettingStartedVideo } from './GettingStartedVideo';
 
 interface ConnectionListProps {
     connections: DBConnections;
@@ -34,17 +35,7 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
             <div className="no-connections-container">
                 <p>No database connections found.</p>
                 <div className="video-tutorial">
-                    <div className="video-container">
-                        <iframe
-                            width="560"
-                            height="315"
-                            src="https://www.youtube.com/embed/sJgphOrmZb4?rel=0"
-                            title="How to connect to your database with Mito"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        ></iframe>
-                    </div>
+                    <GettingStartedVideo width="560" height="315" />
                 </div>
             </div>
         );

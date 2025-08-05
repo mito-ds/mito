@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { DBConnections, DBConnection } from './model';
 import { ConnectionList } from './ConnectionList';
 import { ConnectionForm } from './ConnectionForm';
+import { GettingStartedVideo } from './GettingStartedVideo';
 import { requestAPI } from '../../../restAPI/utils';
 import '../../../../style/DatabasePage.css';
 
@@ -161,17 +162,7 @@ export const DatabasePage = (): JSX.Element => {
                                 ✕
                             </button>
                         </div>
-                        <div className="video-container">
-                            <iframe
-                                width="100%"
-                                height="400"
-                                src="https://www.youtube.com/embed/sJgphOrmZb4?rel=0"
-                                title="How to connect to your database with Mito"
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                            ></iframe>
-                        </div>
+                        <GettingStartedVideo />
                     </div>
                 </div>
             )}
