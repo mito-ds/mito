@@ -1,11 +1,11 @@
 from typing import List
 import re
 from unidiff import PatchSet
-
+from mito_ai.streamlit_conversion.prompts.prompt_constants import MITO_TODO_PLACEHOLDER
 
 def extract_todo_placeholders(agent_response: str) -> List[str]:
     """Extract TODO placeholders from the agent's response"""
-    return [line.strip() for line in agent_response.split('\n') if '# MITO_TODO_PLACEHOLDER' in line]
+    return [line.strip() for line in agent_response.split('\n') if MITO_TODO_PLACEHOLDER in line]
 
 
 def apply_patch_to_text(text: str, diff: str) -> str:

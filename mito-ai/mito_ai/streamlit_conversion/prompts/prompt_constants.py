@@ -1,3 +1,4 @@
+MITO_TODO_PLACEHOLDER = "# MITO_TODO_PLACEHOLDER"
 
 unified_diff_instrucrions = f"""
 RESPONSE FORMAT: Return the changes you want to make to the streamlit app as a **unified diff (git-style patch)**:
@@ -24,7 +25,7 @@ In the example below, assume that the line of code `data_list = [` is on line 57
  data_list = [
      {{'id': 1, 'name': 'Item A', 'category': 'Type 1', 'value': 100}},
      {{'id': 2, 'name': 'Item B', 'category': 'Type 2', 'value': 200}},
--    # MITO_TODO_PLACEHOLDER: Add remaining entries from notebook
+-    {MITO_TODO_PLACEHOLDER}: Add remaining entries from notebook
 +    {{'id': 3, 'name': 'Item C', 'category': 'Type 3', 'value': 300}},
 +    {{'id': 4, 'name': 'Item D', 'category': 'Type 4', 'value': 400}},
 +    {{'id': 5, 'name': 'Item E', 'category': 'Type 5', 'value': 500}},
