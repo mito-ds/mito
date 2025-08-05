@@ -5,8 +5,9 @@ import os
 import tempfile
 from unittest.mock import patch, MagicMock
 from mito_ai.streamlit_conversion.validate_streamlit_app import (
-    StreamlitValidator,
-    validate_app
+    get_app_errors,
+    get_runtime_errors,
+    get_syntax_error
 )
 import pytest
 
@@ -36,9 +37,8 @@ class TestStreamlitValidator:
     ])
     def test_validate_syntax(self, code, expected_error, test_description):
         """Test syntax validation with various code inputs"""
-        validator = StreamlitValidator()
         
-        error = validator.get_syntax_error(code)
+        error = get_syntax_error(code)
         
         if expected_error is None:
             assert error is None, f"Expected no error for {test_description}"
@@ -53,9 +53,8 @@ class TestStreamlitValidator:
     ])
     def test_get_runtime_errors(self, app_code, expected_error):
         """Test getting runtime errors"""
-        validator = StreamlitValidator()
         
-        errors = validator.get_runtime_errors(app_code, '/app.py')
+        errors = get_runtime_errors(app_code, '/app.py')
         
         if expected_error is None:
             assert errors is None
@@ -84,24 +83,8 @@ df=pd.read_csv('data.csv')
             with open(csv_path, "w") as f:
                 f.write("name,age\nJohn,25\nJane,30")
                
-            validator = StreamlitValidator() 
-            errors = validator.get_runtime_errors(app_code, app_path)
+            errors = get_runtime_errors(app_code, app_path)
             assert errors is None
-            
-            
-    @patch('subprocess.Popen')
-    def test_cleanup_with_process(self, mock_popen):
-        """Test cleanup with running process"""
-        validator = StreamlitValidator()
-        validator.temp_dir = "/tmp/test_dir"
-        
-        # Mock directory exists
-        with patch('os.path.exists', return_value=True):
-            with patch('shutil.rmtree') as mock_rmtree:
-                validator.cleanup()
-                
-                mock_rmtree.assert_called_once()
-
 
     @pytest.mark.parametrize("app_code,expected_has_validation_error,expected_error_message", [
         ("x=5", False, ""),
@@ -111,8 +94,7 @@ df=pd.read_csv('data.csv')
     ])
     def test_streamlit_code_validator(self, app_code, expected_has_validation_error, expected_error_message):
 
-        has_validation_error, errors = validate_app(app_code, '/app.py')
-        
+        has_validation_error, errors = get_app_errors(app_code, '/app.py')
         
         assert has_validation_error == expected_has_validation_error
         assert expected_error_message in str(errors)

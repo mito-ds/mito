@@ -1,30 +1,32 @@
+import os
 from typing import List, Optional, cast
 
 from mito_ai.completions.models import MessageType
+from mito_ai.streamlit_conversion.llm_utils import get_response_from_agent
 from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
-from mito_ai.streamlit_conversion.streamlit_agent_handler import get_response_from_agent, validate_streamlit_app_code
-from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
+from mito_ai.streamlit_conversion.streamlit_utils import create_app_file, extract_code_blocks, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers
-from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_success
+from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_success
 from anthropic.types import MessageParam
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
-
-
+from mito_ai.streamlit_conversion.validate_streamlit_app import fix_errors_in_streamlit_app_code
 
 async def create_new_streamlit_app_code(notebook_path: str) -> Optional[str]:
     """Create a new streamlit app code from a notebook"""
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code = await _create_new_streamlit_app_code(notebook_code)
     
-    print('streamlit_code', streamlit_code)
-    
     # Validate the streamlit app code
-    success, app_path = await validate_streamlit_app_code(streamlit_code, notebook_path)
+    success, streamlit_code = await fix_errors_in_streamlit_app_code(streamlit_code, notebook_path)
     
-    print("HERE", success, app_path)
-   
     if not success:
-        # TODO: Let errors bubble up
+        return None
+    
+    app_directory = os.path.dirname(notebook_path)
+    success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
+
+    if not success_flag:
+        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, message)
         return None
     
     log_streamlit_app_creation_success('mito_server_key', MessageType.STREAMLIT_CONVERSION)
