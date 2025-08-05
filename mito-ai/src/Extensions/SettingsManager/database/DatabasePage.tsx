@@ -15,6 +15,7 @@ export const DatabasePage = (): JSX.Element => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
     const [formData, setFormData] = useState<DBConnection>({
         type: 'snowflake',
         username: '',
@@ -99,12 +100,20 @@ export const DatabasePage = (): JSX.Element => {
         <div className="db-connections">
             <div className="settings-header">
                 <h2>Database Connections</h2>
-                <button
-                    className="button-base button-purple"
-                    onClick={() => setShowModal(true)}
-                >
-                    <b>＋ Add Connection</b>
-                </button>
+                <div className="header-buttons">
+                    <button
+                        className="button-base button-gray"
+                        onClick={() => setShowVideoModal(true)}
+                    >
+                        <b>Quick Start</b>
+                    </button>
+                    <button
+                        className="button-base button-purple"
+                        onClick={() => setShowModal(true)}
+                    >
+                        <b>＋ Add Connection</b>
+                    </button>
+                </div>
             </div>
 
             <ConnectionList
@@ -133,6 +142,33 @@ export const DatabasePage = (): JSX.Element => {
                             onSubmit={handleSubmit}
                             onClose={() => setShowModal(false)}
                         />
+                    </div>
+                </div>
+            )}
+
+            {showVideoModal && (
+                <div className="modal-overlay" onClick={() => setShowVideoModal(false)}>
+                    <div className="modal-content video-modal" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Quick Start Guide</h3>
+                            <button
+                                className="modal-close-button"
+                                onClick={() => setShowVideoModal(false)}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="video-container">
+                            <iframe
+                                width="100%"
+                                height="400"
+                                src="https://www.youtube.com/embed/sJgphOrmZb4?rel=0"
+                                title="How to connect to your database with Mito"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
             )}
