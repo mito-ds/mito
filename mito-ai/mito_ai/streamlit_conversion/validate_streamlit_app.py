@@ -11,7 +11,7 @@ import traceback
 import ast
 import importlib.util
 import warnings
-from typing import List, Tuple, Optional, Dict, Any
+from typing import List, Tuple, Optional, Dict, Any, Generator
 from streamlit.testing.v1 import AppTest
 from contextlib import contextmanager
 
@@ -41,7 +41,7 @@ class StreamlitValidator:
         directory = os.path.dirname(app_path)
         
         @contextmanager
-        def change_working_directory(path):
+        def change_working_directory(path: str) -> Generator[None, Any, None]:
             """
             Context manager to temporarily change working directory
             so that relative paths are still valid when we run the app
@@ -109,4 +109,5 @@ def validate_app(app_code: str, notebook_path: str) -> Tuple[bool, List[str]]:
     errors = validator._validate_app(app_code, notebook_path)
     
     has_validation_error = len(errors) > 0
-    return has_validation_error, errors
+    stringified_errors = [str(error) for error in errors]
+    return has_validation_error, stringified_errors
