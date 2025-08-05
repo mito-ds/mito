@@ -163,6 +163,9 @@ export const DatabasePage = (): JSX.Element => {
                             </button>
                         </div>
                         <GettingStartedVideo />
+                        <div className="video-description">
+                            <p>Still have questions? Check out our <a href="https://docs.trymito.io/mito-ai/database-connectors" target="_blank" rel="noopener noreferrer">documentation</a> for more information.</p>
+                        </div>
                     </div>
                 </div>
             )}
