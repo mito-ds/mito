@@ -5,7 +5,9 @@
 
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import ModelSelector, { CLAUDE_OPUS_DISPLAY_NAME, CLAUDE_OPUS_MODEL_NAME, DEFAULT_MODEL } from '../../components/ModelSelector';
+import ModelSelector from '../../components/ModelSelector';
+import { DEFAULT_MODEL } from '../../components/ModelSelector';
+import { CLAUDE_OPUS_DISPLAY_NAME, CLAUDE_OPUS_MODEL_NAME } from '../../utils/models';
 
 
 describe('ModelSelector', () => {

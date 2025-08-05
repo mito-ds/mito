@@ -36,7 +36,7 @@ import IconButton from '../../components/IconButton';
 import LoadingCircle from '../../components/LoadingCircle';
 import LoadingDots from '../../components/LoadingDots';
 import { DEFAULT_MODEL } from '../../components/ModelSelector';
-import ModelSelector from "../../components/ModelSelector";
+import ModelSelector from '../../components/ModelSelector';
 import NextStepsPills from '../../components/NextStepsPills';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import ToggleButton from '../../components/ToggleButton';

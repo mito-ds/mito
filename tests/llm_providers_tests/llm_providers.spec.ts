@@ -24,7 +24,7 @@ import {
   clearMitoAIChatInput,
   selectModel
 } from '../mitoai_ui_tests/utils';
-import { CLAUDE_OPUS_DISPLAY_NAME } from '../../mito-ai/src/components/ModelSelector';
+import { CLAUDE_OPUS_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 
 // Define test configurations for different models
 const modelConfigs = [

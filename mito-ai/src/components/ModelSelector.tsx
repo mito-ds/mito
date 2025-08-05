@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../style/ModelSelector.css';
 import NucleausIcon from '../icons/NucleausIcon';
+import { CLAUDE_OPUS_DISPLAY_NAME, CLAUDE_OPUS_MODEL_NAME } from '../utils/models';
 
 interface ModelConfig {
   model: string;
@@ -15,9 +16,6 @@ interface ModelMapping {
   displayName: string;
   fullName: string;
 }
-
-export const CLAUDE_OPUS_DISPLAY_NAME = 'Claude 4.1 Opus';
-export const CLAUDE_OPUS_MODEL_NAME = 'claude-opus-4-1-20250805'
 
 const MODEL_MAPPINGS: ModelMapping[] = [
   { displayName: 'GPT 4.1', fullName: 'gpt-4.1' },
