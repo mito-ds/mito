@@ -7,7 +7,7 @@ def get_streamlit_error_correction_prompt(error: str, streamlit_app_code: str) -
     
     return f"""You've created a Streamlit app, but it has an error in it when you try to run it.
 
-Your job is to fix the error now.
+Your job is to fix the error now. Only fix the specific error that you are instructed to fix now. Do not fix other error that that you anticipate. You will be asked to fix other errors later.
 
 {unified_diff_instrucrions}
 
