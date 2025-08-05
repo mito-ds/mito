@@ -28,7 +28,7 @@ def extract_code_blocks(message_content: str) -> str:
     return '\n'.join(matches)
 
 
-def create_app_file(app_directory: str, code: str) -> Tuple[bool, Optional[str], str]:
+def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
     """
     Create app.py file and write code to it with error handling
 
@@ -46,9 +46,9 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, Optional[str],
             f.write(code)
         return True, app_path, f"Successfully created {app_directory}"
     except IOError as e:
-        return False, None, f"Error creating file: {str(e)}"
+        return False, '', f"Error creating file: {str(e)}"
     except Exception as e:
-        return False, None, f"Unexpected error: {str(e)}"
+        return False, '', f"Unexpected error: {str(e)}"
 
 
 def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict[str, Any]:
