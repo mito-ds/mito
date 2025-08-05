@@ -19,12 +19,22 @@ def extract_code_blocks(message_content: str) -> str:
     if "```python" not in message_content:
         return message_content
 
-    # return message_content.split('```python\n')[1].split('\n```')[0]
     # Use regex to find all Python code blocks
     pattern = r'```python\n(.*?)```'
     matches = re.findall(pattern, message_content, re.DOTALL)
 
     # Concatenate with single newlines
+    return '\n'.join(matches)
+
+def extract_unified_diff_blocks(message_content: str) -> str:
+    """
+    Extract all unified_diff blocks from Claude's response.
+    """
+    if "```unified_diff" not in message_content:
+        return message_content
+    
+    pattern = r'```unified_diff\n(.*?)```'
+    matches = re.findall(pattern, message_content, re.DOTALL)
     return '\n'.join(matches)
 
 
