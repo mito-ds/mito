@@ -30,7 +30,24 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
     }
 
     if (Object.keys(connections).length === 0) {
-        return <p>No database connections found.</p>;
+        return (
+            <div className="no-connections-container">
+                <p>No database connections found.</p>
+                <div className="video-tutorial">
+                    <div className="video-container">
+                        <iframe
+                            width="560"
+                            height="315"
+                            src="https://www.youtube.com/embed/sJgphOrmZb4?rel=0"
+                            title="How to connect to your database with Mito"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
