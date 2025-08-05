@@ -1,28 +1,5 @@
 
-
-
-def get_streamlit_conversion_todo_prompt(notebook: dict, existing_streamlit_app_code: str, todo_placeholder: str) -> str:
-  
-    existing_streamlit_app_code_with_line_numbers = ""
-    for i, line in enumerate(existing_streamlit_app_code.split('\n'), 1):
-        existing_streamlit_app_code_with_line_numbers += f"{i:3d}: {line}\n"
-    
-    return f"""You've already created the first draft of a Streamlit app representation of a Jupyter notebook, but you left yourself some TODOs. 
-
-**CRITICAL COMPLETION REQUIREMENT:**
-You have ONE and ONLY ONE opportunity to complete this TODO. If you do not finish the entire task completely, the application will be broken and unusable. This is your final chance to get it right.
-
-**COMPLETION RULES:**
-1. **NEVER leave partial work** - If the TODO asks for a list with 100 items, provide ALL 100 items
-2. **NEVER use placeholders** - This is your only opportunity to fulfill this TODO, so do not leave yourself another TODO.
-3. **NEVER assume "good enough"** - Complete the task to 100% satisfaction
-4. **If the task seems large, that's exactly why it needs to be done now** - This is your only chance
-
-**HOW TO DETERMINE IF TASK IS COMPLETE:**
-- If building a list/dictionary: Include ALL items that should be in the final data structure
-- If creating functions: Implement ALL required functionality
-- If processing data: Handle ALL cases and edge cases
-
+unified_diff_instrucrions = f"""
 RESPONSE FORMAT: Return the changes you want to make to the streamlit app as a **unified diff (git-style patch)**:
 - Begin with a ````unified_diff` header and a ```` end header.
 - Then, include the standard header lines `--- a/app.py` and `+++ b/app.py`.
@@ -75,20 +52,4 @@ In the example below, assume that the line of code `data_list = [` is on line 57
 </Example Response>
 
 Your response must consist **only** of valid unified-diff block.
-
-===============================================
-
-Input Notebook that you are converting into the Streamlit app:
-{notebook}
-
-===============================================
-
-EXISTING STREAMLIT APP:
-{existing_streamlit_app_code_with_line_numbers}
-
-===============================================
-
-Please make the changes for this TODO:
-{todo_placeholder}
-
 """

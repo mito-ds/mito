@@ -129,7 +129,7 @@ class TestStreamlitHandler:
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.streamlit_code_validator')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
     async def test_streamlit_handler_success(self, mock_create_file, mock_validator, mock_generator_class, mock_parse):
         """Test successful streamlit handler execution"""
@@ -157,13 +157,13 @@ class TestStreamlitHandler:
         mock_parse.assert_called_once_with("/path/to/notebook.ipynb")
         mock_generator_class.assert_called_once_with()
         mock_generator.generate_streamlit_code.assert_called_once()
-        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')")
+        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", "/path/to/notebook.ipynb")
         mock_create_file.assert_called_once_with("/path/to", "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.streamlit_code_validator')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     async def test_streamlit_handler_max_retries_exceeded(self, mock_validator, mock_generator_class, mock_parse):
         """Test streamlit handler when max retries are exceeded"""
         # Mock notebook parsing
@@ -191,7 +191,7 @@ class TestStreamlitHandler:
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.StreamlitCodeGeneration')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.streamlit_code_validator')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
     async def test_streamlit_handler_file_creation_failure(self, mock_create_file, mock_validator, mock_generator_class, mock_parse):
         """Test streamlit handler when file creation fails"""
