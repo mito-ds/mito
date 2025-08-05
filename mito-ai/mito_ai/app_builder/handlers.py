@@ -4,7 +4,7 @@
 import os
 import time
 import logging
-from typing import Any, Union
+from typing import Any, Union, Optional
 import zipfile
 import tempfile
 from mito_ai.utils.create import initialize_user
@@ -153,9 +153,10 @@ class AppBuilderHandler(BaseWebSocketHandler):
             app_path = os.path.join(app_directory, "app.py")
 
             if not os.path.exists(app_path):
-                success_flag, app_path, result_message = await streamlit_handler(notebook_path)
-                if not success_flag or not app_path:
+                success_flag, app_path_result, result_message = await streamlit_handler(notebook_path)
+                if not success_flag or app_path_result is None:
                     raise Exception(result_message)
+                app_path = app_path_result
 
             deploy_url = await self._deploy_app(app_path, jwt_token)
 
