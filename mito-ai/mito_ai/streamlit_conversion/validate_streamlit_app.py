@@ -103,22 +103,10 @@ class StreamlitValidator:
 
         return errors
 
-def validate_app(app_code: str, notebook_path: str) -> Tuple[bool, str]:
+def validate_app(app_code: str, notebook_path: str) -> Tuple[bool, List[str]]:
     """Convenience function to validate Streamlit code"""
-    has_validation_error: bool = False
-    error_message: str = ""
-
     validator = StreamlitValidator()
     errors = validator._validate_app(app_code, notebook_path)
-
-    if errors:
-        has_validation_error = True
-        error_message = "Errors found: "
-        for error in errors:
-            error_message += str(error) + "\n"
-            
-        print(f"App Validation Failed with errors: {error_message}")
-    else:
-        print("✓ App validatino passed")
     
-    return has_validation_error, error_message
+    has_validation_error = len(errors) > 0
+    return has_validation_error, errors

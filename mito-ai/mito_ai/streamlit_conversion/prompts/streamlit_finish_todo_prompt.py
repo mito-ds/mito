@@ -19,7 +19,7 @@ You have ONE and ONLY ONE opportunity to complete this TODO. If you do not finis
 **HOW TO DETERMINE IF TASK IS COMPLETE:**
 - If building a list/dictionary: Include ALL items that should be in the final data structure
 - If creating functions: Implement ALL required functionality
-- If processing data: Handle ALL cases and edge cases
+- If converting a visualization: Copy over ALL of the visualization code from the notebook, including all styling and formatting.
 
 {unified_diff_instrucrions}
 

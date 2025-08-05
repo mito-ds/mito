@@ -1,0 +1,25 @@
+from mito_ai.streamlit_conversion.prompts.prompt_constants import unified_diff_instrucrions
+from mito_ai.streamlit_conversion.prompts.prompt_utils import add_line_numbers_to_code
+
+def get_streamlit_error_correction_prompt(error: str, streamlit_app_code: str) -> str:
+    
+    existing_streamlit_app_code_with_line_numbers = add_line_numbers_to_code(streamlit_app_code)
+    
+    return f"""You've created a Streamlit app, but it has an error in it when you try to run it.
+
+Your job is to fix the error now.
+
+{unified_diff_instrucrions}
+
+===============================================
+
+EXISTING STREAMLIT APP:
+{existing_streamlit_app_code_with_line_numbers}
+
+===============================================
+
+Please create a unified diff that corrects this error. Please keep your fix concise:
+{error}
+
+"""
+

@@ -9,7 +9,8 @@ from typing import List, Optional, Tuple, cast
 from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
-from mito_ai.streamlit_conversion.prompts.finish_todo_prompt import get_finish_todo_prompt
+from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
+from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
@@ -96,14 +97,22 @@ class StreamlitCodeGeneration:
                 "role": "user",
                 "content": [{
                     "type": "text",
-                    "text": f"When I run the streamlit app code, I get the following error: {error}\nPlease return the FULL Streamlit app code with the error corrected:\n\n\n\n {streamlit_app_code}"
+                    "text": get_streamlit_error_correction_prompt(error, streamlit_app_code)
                 }]
             })
         ]
         agent_response = await self.get_response_from_agent(messages)
-        converted_code = extract_code_blocks(agent_response)
+        
+        # Apply the diff to the streamlit app
+        exctracted_diff = extract_unified_diff_blocks(agent_response)
+        
+        print(f"\n\nExtracted diff: {exctracted_diff}")
+        fixed_diff = fix_diff_headers(exctracted_diff)
+        streamlit_app_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
+        
+        print("\n\nUpdated app code: ", streamlit_app_code)
 
-        return converted_code
+        return streamlit_app_code
 
 
 async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
@@ -112,12 +121,13 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
     streamlit_code_generator = StreamlitCodeGeneration()
     streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
     
-    
-    has_validation_error, error = validate_app(streamlit_code, notebook_path)
+    has_validation_error, errors = validate_app(streamlit_code, notebook_path)
     tries = 0
     while has_validation_error and tries < 5:
-        streamlit_code = await streamlit_code_generator.correct_error_in_generation(error, streamlit_code)
-        has_validation_error, error = validate_app(streamlit_code, notebook_path)
+        for error in errors:
+            streamlit_code = await streamlit_code_generator.correct_error_in_generation(error, streamlit_code)
+        
+        has_validation_error, errors = validate_app(streamlit_code, notebook_path)
         
         if has_validation_error:
             # TODO: We can't easily get the key type here, so for the beta release
