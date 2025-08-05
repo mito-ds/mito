@@ -1,10 +1,10 @@
 from typing import List, Optional, cast
 
 from mito_ai.completions.models import MessageType
+from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
 from mito_ai.streamlit_conversion.streamlit_agent_handler import get_response_from_agent, validate_streamlit_app_code
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers
-from mito_ai.streamlit_conversion.prompts.streamlit_converstion_todo_prompt import get_streamlit_conversion_todo_prompt
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_success
 from anthropic.types import MessageParam
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
@@ -54,7 +54,7 @@ async def _create_new_streamlit_app_code(notebook: dict) -> str:
     
     for todo_placeholder in todo_placeholders:
         print(f"Processing AI TODO: {todo_placeholder}")
-        todo_prompt = get_streamlit_conversion_todo_prompt(notebook, converted_code, todo_placeholder)
+        todo_prompt = get_finish_todo_prompt(notebook, converted_code, todo_placeholder)
         todo_messages: List[MessageParam] = [
             cast(MessageParam, {
                 "role": "user",
