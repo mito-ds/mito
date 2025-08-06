@@ -115,4 +115,30 @@
 .confirmation-buttons {
     display: flex;
     gap: 8px;
+}
+
+/* No connections container styles */
+.no-connections-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.no-connections-container p {
+    font-size: 1.1em;
+    color: var(--jp-ui-font-color2);
+    margin-bottom: 32px;
+    margin-top: 0;
+}
+
+.video-container iframe {
+    border-radius: 8px;
+    display: block;
+    border: 4px solid var(--purple-500);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 } 
