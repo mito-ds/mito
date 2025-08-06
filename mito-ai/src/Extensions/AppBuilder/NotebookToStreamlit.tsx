@@ -22,6 +22,7 @@ export const convertNotebookToStreamlit = async (
   appBuilderService?: IAppBuilderService,
 ): Promise<void> => {
   // Check authentication before proceeding with deployment
+  localStorage.setItem('trigger_deploy_after_login', 'true');
   const isAuthenticated = await checkAuthenticationAndRedirect();
   if (!isAuthenticated) {
     console.log('User not authenticated, redirected to signup');
