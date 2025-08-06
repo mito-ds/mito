@@ -23,7 +23,7 @@ from mito_ai.constants import MITO_ANTHROPIC_URL
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
 
-timeout = 30
+timeout = 60
 max_retries = 1
 
 FAST_ANTHROPIC_MODEL = "claude-3-5-haiku-latest"
