@@ -12,7 +12,7 @@ import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { IChatTracker } from '../AiChat/token';
 import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
-import { previewAsStreamlit } from '../../commands';
+import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 
 /**
  * Interface for the streamlit preview response.
@@ -31,26 +31,66 @@ export interface StreamlitPreviewRequest {
 }
 
 /**
- * Simple HTML widget for displaying iframe content.
+ * Simple HTML widget for displaying iframe content with a custom toolbar.
  */
 class IFrameWidget extends Widget {
+  private iframe: HTMLIFrameElement;
+  private toolbar: HTMLElement;
+
   constructor(url: string) {
     super();
     this.addClass('jp-iframe-widget');
     
-    const iframe = document.createElement('iframe');
-    iframe.src = url;
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
+    // Create toolbar container
+    this.toolbar = document.createElement('div');
+    this.toolbar.className = 'jp-StreamlitPreview-toolbar';
+    this.toolbar.style.cssText = `
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      background-color: var(--jp-layout-color1);
+      border-bottom: 1px solid var(--jp-border-color1);
+      gap: 8px;
+    `;
     
-    this.node.appendChild(iframe);
+    // Create hello world button
+    const helloButton = document.createElement('button');
+    helloButton.textContent = 'Hello World';
+    helloButton.className = 'text-button-mito-ai button-base button-purple button-small';
+    helloButton.style.cssText = `
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 5px;
+      background-color: var(--purple-300);
+      color: var(--purple-700);
+      white-space: nowrap;
+    `;
+    helloButton.addEventListener('click', () => {
+      console.log('hello world');
+    });
+    
+    // Add button to toolbar
+    this.toolbar.appendChild(helloButton);
+    
+    // Create iframe
+    this.iframe = document.createElement('iframe');
+    this.iframe.src = url;
+    this.iframe.style.cssText = `
+      width: 100%;
+      height: calc(100% - 40px);
+      border: none;
+    `;
+    
+    // Add toolbar and iframe to widget
+    this.node.appendChild(this.toolbar);
+    this.node.appendChild(this.iframe);
   }
   
   setUrl(url: string): void {
-    const iframe = this.node.querySelector('iframe') as HTMLIFrameElement;
-    if (iframe) {
-      iframe.src = url;
+    if (this.iframe) {
+      this.iframe.src = url;
     }
   }
 }
@@ -70,7 +110,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
     console.log('mito-ai: StreamlitPreviewPlugin activated');
 
     // Add command to command palette
-    app.commands.addCommand(previewAsStreamlit, {
+    app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async () => {
@@ -80,7 +120,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
 
     // Add to command palette
     palette.addItem({
-      command: previewAsStreamlit,
+      command: COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT,
       category: 'Mito AI'
     });
   }
