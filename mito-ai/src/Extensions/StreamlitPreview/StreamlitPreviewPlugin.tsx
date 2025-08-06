@@ -22,10 +22,9 @@ import ReactDOM from 'react-dom';
 interface UpdateAppDropdownProps {
   onSubmit: (message: string) => void;
   onClose: () => void;
-  previewId: string;
 }
 
-const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose, previewId }) => {
+const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose }) => {
   const [message, setMessage] = React.useState('');
 
   const handleSubmit = () => {
@@ -144,16 +143,9 @@ export interface StreamlitPreviewResponse {
 }
 
 /**
- * Interface for the streamlit preview request.
- */
-export interface StreamlitPreviewRequest {
-  notebook_path: string;
-}
-
-/**
  * Show the update app dropdown.
  */
-function showUpdateAppDropdown(buttonElement: HTMLElement, previewId: string): void {
+function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string): void {
   // Remove any existing dropdown
   const existingDropdown = document.querySelector('.update-app-dropdown');
   if (existingDropdown) {
@@ -177,10 +169,9 @@ function showUpdateAppDropdown(buttonElement: HTMLElement, previewId: string): v
   // Render the React component
   ReactDOM.render(
     <UpdateAppDropdown
-      previewId={previewId}
       onSubmit={async (message) => {
         try {
-          await updateStreamlitPreview(previewId, message);
+          void updateStreamlitPreview(notebookPath, message);
           console.log('Update App Message sent successfully:', message);
         } catch (error) {
           console.error('Error updating app:', error);
@@ -306,7 +297,7 @@ async function previewNotebookAsStreamlit(
     const updateButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-purple button-small',
       onClick: (): void => {
-        showUpdateAppDropdown(updateButton.node, previewData.id);
+        showUpdateAppDropdown(updateButton.node, notebookPath);
       },
       tooltip: 'Update the Streamlit app',
       label: 'Update App',

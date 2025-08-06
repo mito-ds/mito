@@ -4,11 +4,14 @@
 import os
 import tempfile
 import uuid
+from mito_ai.streamlit_conversion.update_streamlit_app import update_streamlit_app
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_conversion.create_new_streamlit_app import create_new_streamlit_app_file
+from mito_ai.streamlit_conversion.update_streamlit_app import update_streamlit_app
 from mito_ai.streamlit_preview.manager import get_preview_manager
 from mito_ai.utils.create import initialize_user
+
 
 
 class StreamlitPreviewHandler(APIHandler):
@@ -164,11 +167,12 @@ class StreamlitPreviewHandler(APIHandler):
             
             
     @tornado.web.authenticated
-    async def put(self, preview_id: str) -> None:
+    async def put(self) -> None:
         """Update a streamlit preview.
         
         Expected JSON body:
         {
+            "notebook_path": "path/to/notebook.ipynb",
             "user_update_prompt": "User's update description"
         }
         
@@ -186,20 +190,23 @@ class StreamlitPreviewHandler(APIHandler):
                 self.finish({"error": 'Invalid or missing JSON body'})
                 return
 
+            notebook_path = body.get('notebook_path')
             user_update_prompt = body.get('user_update_prompt')
-
+            
+            if not notebook_path:
+                self.set_status(400)
+                self.finish({"error": 'Missing notebook_path parameter'})
+                return
+            
             if not user_update_prompt:
                 self.set_status(400)
                 self.finish({"error": 'Missing user_update_prompt parameter'})
                 return
             
-            if not preview_id:
-                self.set_status(400)
-                self.finish({"error": 'Missing preview_id parameter'})
-                return
+            await update_streamlit_app(notebook_path, user_update_prompt)
             
             # For now, just print the update prompt
-            print(f"Update App Request - Preview ID: {preview_id}")
+            print(f"Update App Request - Notebook Path: {notebook_path}")
             print(f"User Update Prompt: {user_update_prompt}")
             
             # Return success response

@@ -131,3 +131,16 @@ def clean_directory_check(notebook_path: str) -> None:
     if file_count > 10:
         raise ValueError(
             f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")
+
+
+def get_streamlit_app_code(app_path: str) -> Optional[str]:
+    """
+    Get the code from the streamlit app file
+    """
+    try:
+        with open(app_path, 'r') as f:
+            return f.read()
+    except FileNotFoundError:
+        return None
+    except Exception as e:
+        return None
