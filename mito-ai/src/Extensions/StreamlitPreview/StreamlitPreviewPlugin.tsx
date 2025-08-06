@@ -5,7 +5,7 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { ICommandPalette } from '@jupyterlab/apputils';
+import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
@@ -31,66 +31,26 @@ export interface StreamlitPreviewRequest {
 }
 
 /**
- * Simple HTML widget for displaying iframe content with a custom toolbar.
+ * Simple HTML widget for displaying iframe content.
  */
 class IFrameWidget extends Widget {
-  private iframe: HTMLIFrameElement;
-  private toolbar: HTMLElement;
-
   constructor(url: string) {
     super();
     this.addClass('jp-iframe-widget');
     
-    // Create toolbar container
-    this.toolbar = document.createElement('div');
-    this.toolbar.className = 'jp-StreamlitPreview-toolbar';
-    this.toolbar.style.cssText = `
-      display: flex;
-      align-items: center;
-      padding: 8px 12px;
-      background-color: var(--jp-layout-color1);
-      border-bottom: 1px solid var(--jp-border-color1);
-      gap: 8px;
-    `;
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
     
-    // Create hello world button
-    const helloButton = document.createElement('button');
-    helloButton.textContent = 'Hello World';
-    helloButton.className = 'text-button-mito-ai button-base button-purple button-small';
-    helloButton.style.cssText = `
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-      padding: 2px 5px;
-      background-color: var(--purple-300);
-      color: var(--purple-700);
-      white-space: nowrap;
-    `;
-    helloButton.addEventListener('click', () => {
-      console.log('hello world');
-    });
-    
-    // Add button to toolbar
-    this.toolbar.appendChild(helloButton);
-    
-    // Create iframe
-    this.iframe = document.createElement('iframe');
-    this.iframe.src = url;
-    this.iframe.style.cssText = `
-      width: 100%;
-      height: calc(100% - 40px);
-      border: none;
-    `;
-    
-    // Add toolbar and iframe to widget
-    this.node.appendChild(this.toolbar);
-    this.node.appendChild(this.iframe);
+    this.node.appendChild(iframe);
   }
   
   setUrl(url: string): void {
-    if (this.iframe) {
-      this.iframe.src = url;
+    const iframe = this.node.querySelector('iframe') as HTMLIFrameElement;
+    if (iframe) {
+      iframe.src = url;
     }
   }
 }
@@ -162,6 +122,19 @@ async function previewNotebookAsStreamlit(
     const widget = new MainAreaWidget({ content: iframeWidget });
     widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
+
+    // Add toolbar button to the MainAreaWidget's toolbar
+    const helloButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-purple button-small',
+      onClick: (): void => {
+        console.log('hello world');
+      },
+      tooltip: 'Click to log hello world',
+      label: 'Hello World',
+    });
+    
+    // Insert the button into the toolbar
+    widget.toolbar.insertAfter('spacer', 'hello-world-button', helloButton);
 
     // Handle widget disposal
     widget.disposed.connect(() => {
