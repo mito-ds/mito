@@ -14,6 +14,7 @@ import warnings
 from typing import List, Tuple, Optional, Dict, Any, Generator
 from streamlit.testing.v1 import AppTest
 from contextlib import contextmanager
+from mito_ai.streamlit_conversion.streamlit_utils import resolve_notebook_path
 
 
 # warnings.filterwarnings("ignore", message=r".*missing ScriptRunContext.*")
@@ -105,6 +106,8 @@ class StreamlitValidator:
 
 def validate_app(app_code: str, notebook_path: str) -> Tuple[bool, List[str]]:
     """Convenience function to validate Streamlit code"""
+    notebook_path = resolve_notebook_path(notebook_path)
+    
     validator = StreamlitValidator()
     errors = validator._validate_app(app_code, notebook_path)
     

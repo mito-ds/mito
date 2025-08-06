@@ -5,6 +5,7 @@ import re
 import json
 import os
 from typing import Dict, Optional, Tuple, Any
+from pathlib import Path
 
 def extract_code_blocks(message_content: str) -> str:
     """
@@ -38,7 +39,7 @@ def extract_unified_diff_blocks(message_content: str) -> str:
     return '\n'.join(matches)
 
 
-def create_app_file(app_directory: str, code: str) -> Tuple[bool, Optional[str], str]:
+def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
     """
     Create app.py file and write code to it with error handling
 
@@ -56,9 +57,9 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, Optional[str],
             f.write(code)
         return True, app_path, f"Successfully created {app_directory}"
     except IOError as e:
-        return False, None, f"Error creating file: {str(e)}"
+        return False, '', f"Error creating file: {str(e)}"
     except Exception as e:
-        return False, None, f"Unexpected error: {str(e)}"
+        return False, '', f"Unexpected error: {str(e)}"
 
 
 def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict[str, Any]:
@@ -66,7 +67,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
     Read a Jupyter notebook and filter cells to keep only cell_type and source fields.
 
     Args:
-        notebook_path (str): Absolute path to the .ipynb file
+        notebook_path (str): Path to the .ipynb file (can be relative or absolute)
 
     Returns:
         dict: Filtered notebook dictionary with only cell_type and source in cells
@@ -76,6 +77,11 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
         json.JSONDecodeError: If the file is not valid JSON
         KeyError: If the notebook doesn't have the expected structure
     """
+    # Convert to absolute path if it's not already absolute
+    # Handle both Unix-style absolute paths (starting with /) and Windows-style absolute paths
+    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
+        notebook_path = os.path.join(os.getcwd(), notebook_path)
+    
     try:
         # Read the notebook file
         with open(notebook_path, 'r', encoding='utf-8') as f:
@@ -106,3 +112,25 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
         raise json.JSONDecodeError(f"Invalid JSON in notebook file: {str(e)}", e.doc if hasattr(e, 'doc') else '', e.pos if hasattr(e, 'pos') else 0)
     except Exception as e:
         raise Exception(f"Error processing notebook: {str(e)}")
+
+
+def resolve_notebook_path(notebook_path:str) -> str:
+    # Convert to absolute path if it's not already absolute
+    # Handle both Unix-style absolute paths (starting with /) and Windows-style absolute paths
+    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
+        notebook_path = os.path.join(os.getcwd(), notebook_path)
+    return notebook_path
+
+def clean_directory_check(notebook_path: str) -> None:
+    notebook_path = resolve_notebook_path(notebook_path)
+    # pathlib handles the cross OS path conversion automatically
+    path = Path(notebook_path).resolve()
+    dir_path = path.parent
+
+    if not dir_path.exists():
+        raise ValueError(f"Directory does not exist: {dir_path}")
+
+    file_count = len([f for f in dir_path.iterdir() if f.is_file()])
+    if file_count > 10:
+        raise ValueError(
+            f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")

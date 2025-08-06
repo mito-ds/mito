@@ -113,7 +113,6 @@ df=pd.read_csv('data.csv')
 
         has_validation_error, errors = validate_app(app_code, '/app.py')
         
-        
         assert has_validation_error == expected_has_validation_error
         assert expected_error_message in str(errors)
         

@@ -4,7 +4,7 @@
 import logging
 import os
 from anthropic.types import MessageParam
-from typing import List, Optional, Tuple, cast
+from typing import List, Optional, Tuple, cast, Union
 
 from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers
@@ -17,6 +17,7 @@ from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, cr
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
+from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
 
 STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
@@ -117,6 +118,9 @@ class StreamlitCodeGeneration:
 
 async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
     """Handler function for streamlit code generation and validation"""
+
+    clean_directory_check(notebook_path)
+
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code_generator = StreamlitCodeGeneration()
     streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
@@ -137,9 +141,14 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
 
     if has_validation_error:
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
-        return False, None, "Error generating streamlit code by agent"
+        return False, '', "Error generating streamlit code by agent"
     
-    app_directory = os.path.dirname(notebook_path)
+    # Convert to absolute path for directory calculation
+    absolute_notebook_path = notebook_path
+    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
+        absolute_notebook_path = os.path.join(os.getcwd(), notebook_path)
+    
+    app_directory = os.path.dirname(absolute_notebook_path)
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
     
     if not success_flag:
