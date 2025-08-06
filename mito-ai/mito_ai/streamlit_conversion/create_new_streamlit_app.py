@@ -15,7 +15,14 @@ from mito_ai.streamlit_conversion.validate_streamlit_app import fix_errors_in_st
 async def create_new_streamlit_app_file(notebook_path: str) -> Optional[str]:
     """Create a new streamlit app code from a notebook"""
     
-    # TODO: Add a check to see if the app already exists
+    # Convert to absolute path for directory calculation
+    absolute_notebook_path = resolve_notebook_path(notebook_path)
+    
+    # If the app already exists, just use it.
+    app_path = os.path.join(os.path.dirname(absolute_notebook_path), "app.py")
+    if os.path.exists(app_path):
+        return app_path
+    
     clean_directory_check(notebook_path)
     
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
@@ -26,9 +33,6 @@ async def create_new_streamlit_app_file(notebook_path: str) -> Optional[str]:
     
     if not success:
         return None
-    
-    # Convert to absolute path for directory calculation
-    absolute_notebook_path = resolve_notebook_path(notebook_path)
     
     app_directory = os.path.dirname(absolute_notebook_path)
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
