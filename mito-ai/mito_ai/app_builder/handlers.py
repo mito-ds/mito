@@ -4,7 +4,7 @@
 import os
 import time
 import logging
-from typing import Any, Union
+from typing import Any, Union, Optional
 import zipfile
 import tempfile
 from mito_ai.utils.create import initialize_user
@@ -17,7 +17,7 @@ from mito_ai.app_builder.models import (
     ErrorMessage,
     MessageType
 )
-from mito_ai.streamlit_conversion.create_new_streamlit_app import create_new_streamlit_app_code
+from mito_ai.streamlit_conversion.create_new_streamlit_app import create_new_streamlit_app_file
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
@@ -147,11 +147,12 @@ class AppBuilderHandler(BaseWebSocketHandler):
             self.log.info("JWT token validation successful")
             
         try:
-
             notebook_path = str(notebook_path) if notebook_path else ""
-            app_path = await create_new_streamlit_app_code(notebook_path)
+
+            app_path = await create_new_streamlit_app_file(notebook_path)
             if app_path is None:
-                raise Exception("Failed to create streamlit app code")
+                if app_path is None:
+                    raise Exception("Failed to create streamlit app code")
 
             deploy_url = await self._deploy_app(app_path, jwt_token)
 
@@ -271,15 +272,15 @@ class AppBuilderHandler(BaseWebSocketHandler):
         except requests.exceptions.RequestException as e:
             self.log.error(f"Error during API request: {e}")
             if hasattr(e, 'response') and e.response is not None:
-                try:
-                    error_detail = e.response.json()
-                    self.log.error(f"Server error details: {error_detail}")
-                except:
-                    self.log.error(f"Server response: {e.response.text}")
-            raise Exception(f"Deployment failed: {str(e)}")
+                error_detail = e.response.json()
+                self.log.error(f"Server error details: {error_detail}")
+                if 'error' in error_detail:
+                    raise Exception(error_detail['error'])
+                raise
         except Exception as e:
             self.log.error(f"Error during deployment: {str(e)}")
             raise
+        raise RuntimeError("Unexpected error in _deploy_app")
 
     async def _upload_app_to_s3(self, app_path: str, presigned_url: str) -> requests.Response:
         """Upload the app to S3 using the presigned URL."""

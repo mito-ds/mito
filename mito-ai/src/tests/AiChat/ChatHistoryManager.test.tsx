@@ -412,7 +412,7 @@ describe('ChatHistoryManager', () => {
 
             // Check that responses are handled correctly
             expect(history[0]?.agentResponse?.analysis_assumptions).toEqual(['assumption1']);
-            expect(history[1]?.agentResponse?.analysis_assumptions).toEqual([]);
+            expect(history[1]?.agentResponse?.analysis_assumptions).toEqual(undefined);
             expect(history[2]?.agentResponse?.analysis_assumptions).toEqual(['assumption2']);
         });
     });

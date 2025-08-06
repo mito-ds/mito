@@ -84,7 +84,9 @@ export class ChatHistoryManager {
     }
 
     private deduplicateAssumptions(agentResponse: AgentResponse): AgentResponse {
-        if (!agentResponse.analysis_assumptions?.length) {
+
+        // If there are no assumptions, return the original response
+        if (agentResponse?.analysis_assumptions === undefined || agentResponse?.analysis_assumptions === null) {
             return agentResponse;
         }
 
