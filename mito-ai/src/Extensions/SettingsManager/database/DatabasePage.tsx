@@ -102,7 +102,7 @@ export const DatabasePage = (): JSX.Element => {
             <div className="settings-header">
                 <h2>Database Connections</h2>
                 <div className="header-buttons">
-                    {/* Show the getting started button if there are no connections */}
+                    {/* Show the getting started button if there are connections */}
                     {Object.keys(connections).length > 0 && (
                         <button
                             className="button-base button-gray"
