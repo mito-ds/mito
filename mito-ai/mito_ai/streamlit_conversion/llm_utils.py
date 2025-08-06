@@ -2,7 +2,7 @@ from anthropic.types import MessageParam
 from typing import List
 
 from mito_ai.completions.models import MessageType
-from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
+from mito_ai.streamlit_conversion.prompts.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 
 STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
