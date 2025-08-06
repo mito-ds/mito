@@ -133,3 +133,14 @@ export const stopStreamlitPreview = async (previewId: string): Promise<void> => 
         throw new Error(response.error.message);
     }
 }
+
+export const updateStreamlitPreview = async (previewId: string, userUpdatePrompt: string): Promise<void> => {
+    const response = await requestAPI<void>(`streamlit-preview/${previewId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ user_update_prompt: userUpdatePrompt }),
+    })
+    
+    if (response.error) {
+        throw new Error(response.error.message);
+    }
+}

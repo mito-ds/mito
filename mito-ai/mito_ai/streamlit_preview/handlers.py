@@ -161,3 +161,55 @@ class StreamlitPreviewHandler(APIHandler):
         except Exception as e:
             self.set_status(500)
             self.finish({"error": f'Internal server error: {str(e)}'})
+            
+            
+    @tornado.web.authenticated
+    async def put(self, preview_id: str) -> None:
+        """Update a streamlit preview.
+        
+        Expected JSON body:
+        {
+            "user_update_prompt": "User's update description"
+        }
+        
+        Returns:
+        {
+            "success": true,
+            "message": "Update applied successfully"
+        }
+        """
+        try:
+            # Parse request body
+            body = self.get_json_body()
+            if body is None:
+                self.set_status(400)
+                self.finish({"error": 'Invalid or missing JSON body'})
+                return
+
+            user_update_prompt = body.get('user_update_prompt')
+
+            if not user_update_prompt:
+                self.set_status(400)
+                self.finish({"error": 'Missing user_update_prompt parameter'})
+                return
+            
+            if not preview_id:
+                self.set_status(400)
+                self.finish({"error": 'Missing preview_id parameter'})
+                return
+            
+            # For now, just print the update prompt
+            print(f"Update App Request - Preview ID: {preview_id}")
+            print(f"User Update Prompt: {user_update_prompt}")
+            
+            # Return success response
+            self.finish({
+                'success': True,
+                'message': 'Update request received successfully'
+            })
+                
+        except Exception as e:
+            print(f"Error in streamlit preview update handler: {e}")
+            self.set_status(500)
+            self.finish({"error": str(e)})
+            

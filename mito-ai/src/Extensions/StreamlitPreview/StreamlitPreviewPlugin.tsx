@@ -11,7 +11,7 @@ import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { IChatTracker } from '../AiChat/token';
-import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
+import { startStreamlitPreview, stopStreamlitPreview, updateStreamlitPreview } from '../../restAPI/RestAPI';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -22,9 +22,10 @@ import ReactDOM from 'react-dom';
 interface UpdateAppDropdownProps {
   onSubmit: (message: string) => void;
   onClose: () => void;
+  previewId: string;
 }
 
-const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose }) => {
+const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose, previewId }) => {
   const [message, setMessage] = React.useState('');
 
   const handleSubmit = () => {
@@ -152,7 +153,7 @@ export interface StreamlitPreviewRequest {
 /**
  * Show the update app dropdown.
  */
-function showUpdateAppDropdown(buttonElement: HTMLElement): void {
+function showUpdateAppDropdown(buttonElement: HTMLElement, previewId: string): void {
   // Remove any existing dropdown
   const existingDropdown = document.querySelector('.update-app-dropdown');
   if (existingDropdown) {
@@ -176,8 +177,14 @@ function showUpdateAppDropdown(buttonElement: HTMLElement): void {
   // Render the React component
   ReactDOM.render(
     <UpdateAppDropdown
-      onSubmit={(message) => {
-        console.log('Update App Message:', message);
+      previewId={previewId}
+      onSubmit={async (message) => {
+        try {
+          await updateStreamlitPreview(previewId, message);
+          console.log('Update App Message sent successfully:', message);
+        } catch (error) {
+          console.error('Error updating app:', error);
+        }
         dropdownContainer.remove();
       }}
       onClose={() => {
@@ -299,7 +306,7 @@ async function previewNotebookAsStreamlit(
     const updateButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-purple button-small',
       onClick: (): void => {
-        showUpdateAppDropdown(updateButton.node);
+        showUpdateAppDropdown(updateButton.node, previewData.id);
       },
       tooltip: 'Update the Streamlit app',
       label: 'Update App',
