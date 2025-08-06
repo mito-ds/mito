@@ -135,10 +135,16 @@
     margin-top: 0;
 }
 
+.video-tutorial {
+    border-radius: 8px;
+    display: block;
+    border: 1px solid var(--purple-500);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 12px;
+}
+
 .video-container iframe {
     border-radius: 8px;
     display: block;
-    border: 4px solid var(--purple-500);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 } 
