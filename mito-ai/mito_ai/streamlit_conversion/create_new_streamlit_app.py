@@ -19,7 +19,7 @@ async def create_new_streamlit_app_file(notebook_path: str) -> Optional[str]:
     clean_directory_check(notebook_path)
     
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
-    streamlit_code = await _create_new_streamlit_app_code(notebook_code)
+    streamlit_code = await create_new_streamlit_app_code(notebook_code)
     
     # Validate the streamlit app code
     success, streamlit_code = await fix_errors_in_streamlit_app_code(streamlit_code, notebook_path)
@@ -42,9 +42,10 @@ async def create_new_streamlit_app_file(notebook_path: str) -> Optional[str]:
     return app_path
 
 
-async def _create_new_streamlit_app_code(notebook: dict) -> str:
+async def create_new_streamlit_app_code(notebook: dict) -> str:
     """Send a query to the agent, get its response and parse the code"""
     
+    print('Creating new streamlit app code...')
     messages: List[MessageParam] = [
         cast(MessageParam, {
             "role": "user",

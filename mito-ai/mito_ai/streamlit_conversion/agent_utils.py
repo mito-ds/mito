@@ -43,9 +43,8 @@ def apply_patch_to_text(text: str, diff: str) -> str:
 
     # We expect a single-file patch (what the prompt asks the model to emit)
     if len(patch) != 1:
-        raise ValueError(
-            f"Expected a patch for exactly one file, got {len(patch)} files."
-        )
+        print(f"Expected a patch for exactly one file, got {len(patch)} files. Returning original text.")
+        return text
 
     file_patch = patch[0]
 
