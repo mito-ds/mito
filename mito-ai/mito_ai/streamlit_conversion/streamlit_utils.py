@@ -114,12 +114,15 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
         raise Exception(f"Error processing notebook: {str(e)}")
 
 
-def clean_directory_check(notebook_path: str) -> None:
+def resolve_notebook_path(notebook_path:str) -> str:
     # Convert to absolute path if it's not already absolute
     # Handle both Unix-style absolute paths (starting with /) and Windows-style absolute paths
     if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
         notebook_path = os.path.join(os.getcwd(), notebook_path)
-    
+    return notebook_path
+
+def clean_directory_check(notebook_path: str) -> None:
+    notebook_path = resolve_notebook_path(notebook_path)
     # pathlib handles the cross OS path conversion automatically
     path = Path(notebook_path).resolve()
     dir_path = path.parent
