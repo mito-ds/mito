@@ -52,9 +52,11 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
     return (
         <div className="chat-message-alert-container">
             <div className="chat-message-alert">
-                {content}
+                <div className="alert-error-message">
+                    {content}
+                </div>
             </div>
-            <div className="chat-message-alert-actions">
+            <div>
                 <p className="alert-actions-title">If this issue persists, we recommend:</p>
                 <ul className="alert-actions-list">
                     <li>Restarting JupyterLab completely</li>

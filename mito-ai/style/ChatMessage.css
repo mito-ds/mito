@@ -143,11 +143,11 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background-color: var(--purple-300);
+  background-color: var(--red-300);
   border-radius: 5px;
   padding: 10px;
-  border: 1px solid var(--purple-500);
-  color: var(--grey-900);
+  border: 1px solid var(--red-900);
+  color: var(--red-900);
 }
 
 .chat-message-alert a {
@@ -155,10 +155,13 @@
   text-decoration: underline;
 }
 
-.chat-message-alert-actions {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--grey-300);
+/* New style for the main error message */
+.alert-error-message {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--red-900);
+  margin-bottom: 8px;
 }
 
 .alert-actions-header {
@@ -166,19 +169,22 @@
 }
 
 .alert-actions-title {
-  font-weight: 600;
+  font-weight: 500;
   margin: 0 0 8px 0;
-  color: var(--grey-900);
+  color: var(--red-900);
+  font-size: 13px;
 }
 
 .alert-actions-list {
   margin: 0;
   padding-left: 16px;
-  color: var(--grey-700);
+  color: var(--red-800);
 }
 
 .alert-actions-list li {
   margin-bottom: 4px;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .alert-action-item {
@@ -186,7 +192,7 @@
   align-items: flex-start;
   gap: 8px;
   padding: 8px 0;
-  color: var(--grey-800);
+  color: var(--red-800);
   font-size: 13px;
   line-height: 1.4;
 }
@@ -210,13 +216,14 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--purple-700);
+  color: var(--red-900);
   font-size: 12px;
   font-family: inherit;
+  text-decoration: underline;
 }
 
 .toggle-button:hover {
-  color: var(--purple-600);
+  color: var(--red-900);
 }
 
 .toggle-text {
@@ -226,7 +233,7 @@
 }
 
 .toggle-button:hover .toggle-text {
-  text-decoration-color: var(--purple-700);
+  text-decoration-color: var(--red-900);
 }
 
 .toggle-caret {
@@ -268,11 +275,4 @@
   margin: 0;
   padding-left: 16px;
   font-size: 12px;
-}
-
-.details-content code {
-  background-color: var(--grey-200);
-  padding: 1px 3px;
-  border-radius: 2px;
-  font-size: 11px;
 }
