@@ -294,6 +294,7 @@ def log_event_processed(event: Dict[str, Any], steps_manager: StepsManagerType, 
     edit error that was thrown during the processing of the event, then edit_error
     should be set to that error.
     """
+    return None
 
     # We choose to log the event type, as it is the best high-level item for our logs
     # and we append a _failed if the event failed in doing this.

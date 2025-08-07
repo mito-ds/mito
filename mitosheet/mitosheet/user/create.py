@@ -44,6 +44,7 @@ def is_user_json_exists_and_valid_json() -> bool:
 
 
 def try_create_user_json_file() -> None:
+    return None
     # Create the mito folder if it does not exist
     if not os.path.exists(MITO_FOLDER):
         os.makedirs(MITO_FOLDER, exist_ok=True)

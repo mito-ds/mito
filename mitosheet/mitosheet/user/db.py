@@ -40,6 +40,7 @@ def set_user_json_object(user_json_object: Dict[str, Any]) -> None:
     """
     Updates the value of a specific feild in user.json
     """
+    return None
     with open(USER_JSON_PATH, 'w+') as f:
         f.write(json.dumps(user_json_object))
 
@@ -47,6 +48,7 @@ def set_user_field(field: str, value: Any) -> None:
     """
     Updates the value of a specific feild in user.json
     """
+    return None
     with open(USER_JSON_PATH, 'r') as user_file_old:
         old_user_json = json.load(user_file_old)
         old_user_json[field] = value

@@ -195,6 +195,7 @@ def write_save_analysis_file(steps_manager: StepsManagerType, analysis_name: Opt
     date steps, but we save them all, as they will play back validly
     as they were valid when they were added.
     """
+    return None
 
     if not os.path.exists(MITO_FOLDER):
         os.mkdir(MITO_FOLDER)
