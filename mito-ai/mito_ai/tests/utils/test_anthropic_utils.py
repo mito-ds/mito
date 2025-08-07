@@ -5,7 +5,7 @@ import pytest
 import anthropic
 from typing import List, Dict, Any, Tuple, Union, cast
 from anthropic.types import MessageParam, ToolUnionParam, ToolParam
-from mito_ai.utils.anthropic_utils import _prepare_anthropic_request_data_and_headers
+from mito_ai.utils.anthropic_utils import ANTHROPIC_TIMEOUT, _prepare_anthropic_request_data_and_headers
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
@@ -52,7 +52,7 @@ def test_basic_request_preparation():
     )
 
     assert headers == {"Content-Type": "application/json"}
-    assert data["timeout"] == 30
+    assert data["timeout"] == ANTHROPIC_TIMEOUT
     assert data["max_retries"] == 1
     assert data["email"] == "test@example.com"
     assert data["user_id"] == "test_user_id"
