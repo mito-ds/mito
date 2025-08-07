@@ -196,9 +196,5 @@ def get_open_ai_completion_function_params(
                 "strict": True
             }
         }
-    
-    # o3-mini will error if we try setting the temperature
-    if not model.startswith("o3"):
-        completion_function_params["temperature"] = 0.0
 
     return completion_function_params

@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../style/ModelSelector.css';
 import NucleausIcon from '../icons/NucleausIcon';
-import { CLAUDE_OPUS_DISPLAY_NAME, CLAUDE_OPUS_MODEL_NAME } from '../utils/models';
+import { CLAUDE_OPUS_DISPLAY_NAME, CLAUDE_OPUS_MODEL_NAME, CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME, GPT_DISPLAY_NAME, GPT_MODEL_NAME } from '../utils/models';
 
 interface ModelConfig {
   model: string;
@@ -18,16 +18,17 @@ interface ModelMapping {
 }
 
 const MODEL_MAPPINGS: ModelMapping[] = [
+  { displayName: GPT_DISPLAY_NAME, fullName: GPT_MODEL_NAME },
   { displayName: 'GPT 4.1', fullName: 'gpt-4.1' },
   { displayName: CLAUDE_OPUS_DISPLAY_NAME, fullName: CLAUDE_OPUS_MODEL_NAME },
-  { displayName: 'Claude 4 Sonnet', fullName: 'claude-sonnet-4-20250514' },
+  { displayName: CLAUDE_SONNET_DISPLAY_NAME, fullName: CLAUDE_SONNET_MODEL_NAME },
   { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25' }
 ];
 
 const ALL_MODEL_DISPLAY_NAMES = MODEL_MAPPINGS.map(mapping => mapping.displayName);
 
 // Maximum length for displayed model name before truncating
-export const DEFAULT_MODEL = 'Claude 4 Sonnet';
+export const DEFAULT_MODEL = CLAUDE_SONNET_DISPLAY_NAME;
 
 interface ModelSelectorProps {
   onConfigChange: (config: ModelConfig) => void;

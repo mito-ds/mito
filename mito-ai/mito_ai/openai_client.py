@@ -35,7 +35,7 @@ from mito_ai.utils.telemetry_utils import (
     USER_KEY,
 )
 
-OPENAI_MODEL_FALLBACK = "gpt-4.1"
+OPENAI_MODEL_FALLBACK = "gpt-5"
 
 class OpenAIClient(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
