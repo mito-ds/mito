@@ -17,8 +17,9 @@ import {
     waitForAgentToFinish,
     startNewMitoAIChat
 } from './utils';
+import { GPT_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 
-const MODEL = 'GPT 4.1';
+const MODEL = GPT_DISPLAY_NAME
 
 test.describe.parallel("Agent mode basic functionality", () => {
 
