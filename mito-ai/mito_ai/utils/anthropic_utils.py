@@ -23,7 +23,7 @@ from mito_ai.constants import MITO_ANTHROPIC_URL
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
 
-timeout = 30
+ANTHROPIC_TIMEOUT = 60
 max_retries = 1
 
 FAST_ANTHROPIC_MODEL = "claude-3-5-haiku-latest"
@@ -63,7 +63,7 @@ def _prepare_anthropic_request_data_and_headers(
         inner_data["stream"] = stream
     # Compose the outer data dict
     data = {
-        "timeout": timeout,
+        "timeout": ANTHROPIC_TIMEOUT,
         "max_retries": max_retries,
         "email": __user_email,
         "user_id": __user_id,
@@ -90,7 +90,7 @@ async def get_anthropic_completion_from_mito_server(
         MITO_ANTHROPIC_URL, 
         headers, 
         data, 
-        timeout, 
+        ANTHROPIC_TIMEOUT, 
         max_retries, 
         message_type, 
         provider_name="Claude"
@@ -118,7 +118,7 @@ async def stream_anthropic_completion_from_mito_server(
         url=MITO_ANTHROPIC_URL,
         headers=headers,
         data=data,
-        timeout=timeout,
+        timeout=ANTHROPIC_TIMEOUT,
         max_retries=max_retries,
         message_type=message_type,
         reply_fn=actual_reply_fn,

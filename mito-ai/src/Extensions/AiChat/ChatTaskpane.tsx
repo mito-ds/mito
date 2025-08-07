@@ -36,7 +36,7 @@ import IconButton from '../../components/IconButton';
 import LoadingCircle from '../../components/LoadingCircle';
 import LoadingDots from '../../components/LoadingDots';
 import { DEFAULT_MODEL } from '../../components/ModelSelector';
-import ModelSelector from "../../components/ModelSelector";
+import ModelSelector from '../../components/ModelSelector';
 import NextStepsPills from '../../components/NextStepsPills';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import ToggleButton from '../../components/ToggleButton';
@@ -1011,7 +1011,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             }
 
-            if (agentResponse.type === 'get_cell_output') {
+            if (agentResponse.type === 'get_cell_output' && agentResponse.get_cell_output_cell_id !== null && agentResponse.get_cell_output_cell_id !== undefined) {
                 // Mark that we should send the cell output to the agent 
                 // in the next loop iteration
                 sendCellIDOutput = agentResponse.get_cell_output_cell_id
@@ -1516,7 +1516,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     isEditing={false}
                     contextManager={contextManager}
                     notebookTracker={notebookTracker}
-                    renderMimeRegistry={renderMimeRegistry}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecutionStatus}
                 />

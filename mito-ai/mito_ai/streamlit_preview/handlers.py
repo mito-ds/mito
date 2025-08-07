@@ -70,8 +70,8 @@ class StreamlitPreviewHandler(APIHandler):
         
         # If still not found, return the original path (will cause a clear error)
         # This ensures we get a meaningful error message rather than a generic "file not found"
-        return notebook_path
-    
+        return os.path.join(os.getcwd(), notebook_path)
+
     @tornado.web.authenticated
     async def post(self) -> None:
         """Start a new streamlit preview.
@@ -97,7 +97,7 @@ class StreamlitPreviewHandler(APIHandler):
                 return
 
             notebook_path = body.get('notebook_path')
-            
+
             if not notebook_path:
                 self.set_status(400)
                 self.finish({"error": 'Missing notebook_path parameter'})
@@ -110,6 +110,7 @@ class StreamlitPreviewHandler(APIHandler):
             preview_id = str(uuid.uuid4())
             
             # Generate streamlit code using existing handler
+            print('notebook_path', notebook_path)
             success, app_path, message = await streamlit_handler(resolved_notebook_path)
             
             if not success or app_path is None:
@@ -136,7 +137,9 @@ class StreamlitPreviewHandler(APIHandler):
         except Exception as e:
             print(f"Error in streamlit preview handler: {e}")
             self.set_status(500)
-            self.finish({"error": f'Internal server error: {str(e)}'})
+            
+            # Respond with the error
+            self.finish({"error": str(e)})
     
     @tornado.web.authenticated
     def delete(self, preview_id: str) -> None:

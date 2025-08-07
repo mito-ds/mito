@@ -11,6 +11,19 @@ import { deployAppNotification } from '../../Extensions/AppBuilder/DeployAppNoti
 
 // Mock the dependencies
 jest.mock('@jupyterlab/notebook');
+jest.mock('@jupyterlab/coreutils', () => ({
+    PathExt: {
+        basename: jest.fn().mockImplementation((path: string, ext: string) => {
+            const basename = path.split('/').pop() || path;
+            return ext ? basename.replace(ext, '') : basename;
+        })
+    }
+}));
+jest.mock('@jupyterlab/apputils', () => ({
+    Notification: {
+        emit: jest.fn()
+    }
+}));
 jest.mock('../../Extensions/AppBuilder/fileUtils', () => ({
     saveFileWithKernel: jest.fn().mockResolvedValue(undefined)
 }));
@@ -20,6 +33,9 @@ jest.mock('../../Extensions/AppBuilder/auth', () => ({
 }));
 jest.mock('../../Extensions/AppBuilder/DeployAppNotification', () => ({
     deployAppNotification: jest.fn()
+}));
+jest.mock('../../Extensions/AppBuilder/requirementsUtils', () => ({
+    generateRequirementsTxt: jest.fn().mockResolvedValue('streamlit>=1.28.0\npandas>=1.5.0')
 }));
 jest.mock('@lumino/coreutils', () => ({
     UUID: {

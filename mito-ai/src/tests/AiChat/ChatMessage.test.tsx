@@ -353,10 +353,10 @@ describe('ChatMessage Component', () => {
             expect(screen.getByText('Hello, can you help me with pandas?')).toBeInTheDocument();
 
             // Check that SelectedContextContainer components are rendered for each context item
-            // The SelectedContextContainer renders the title as text content
-            expect(screen.getByText('Variable: df')).toBeInTheDocument();
-            expect(screen.getByText('File: data.csv')).toBeInTheDocument();
-            expect(screen.getByText('Rule: Use pandas for data manipulation')).toBeInTheDocument();
+            // The SelectedContextContainer renders the value as text content
+            expect(screen.getByText('df')).toBeInTheDocument();
+            expect(screen.getByText('data.csv')).toBeInTheDocument();
+            expect(screen.getByText('Use pandas for data manipulation')).toBeInTheDocument();
 
             // Check that the containers have the correct test IDs
             const contextContainers = screen.getAllByTestId('selected-context-container');

@@ -76,7 +76,7 @@ const Home: NextPage = () => {
               </div>
             </div>
 
-            <AIInputField autoLaunchJupyterLab={true} />
+            {/* <AIInputField autoLaunchJupyterLab={true} /> */}
           </section>
 
           <LogoSection></LogoSection>

@@ -3,6 +3,28 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.header-buttons .button-base {
+    min-width: 120px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+}
+
 .connections-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -93,4 +115,36 @@
 .confirmation-buttons {
     display: flex;
     gap: 8px;
+}
+
+/* No connections container styles */
+.no-connections-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.no-connections-container p {
+    font-size: 1.1em;
+    color: var(--jp-ui-font-color2);
+    margin-bottom: 32px;
+    margin-top: 0;
+}
+
+.video-tutorial {
+    border-radius: 8px;
+    display: block;
+    border: 1px solid var(--purple-500);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 12px;
+}
+
+.video-container iframe {
+    border-radius: 8px;
+    display: block;
 } 

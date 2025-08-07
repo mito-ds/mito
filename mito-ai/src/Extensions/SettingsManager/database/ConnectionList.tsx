@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { DBConnections, databaseConfigs } from './model';
+import { GettingStartedVideo } from './GettingStartedVideo';
 
 interface ConnectionListProps {
     connections: DBConnections;
@@ -30,7 +31,14 @@ export const ConnectionList: React.FC<ConnectionListProps> = ({
     }
 
     if (Object.keys(connections).length === 0) {
-        return <p>No database connections found.</p>;
+        return (
+            <div className="no-connections-container">
+                <p>No database connections found.</p>
+                <div className="video-tutorial">
+                    <GettingStartedVideo width="560" height="315" />
+                </div>
+            </div>
+        );
     }
 
     return (
