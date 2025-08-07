@@ -135,7 +135,7 @@
 }
 
 /* On compact screens, show only the icon */
-@container (max-width: 300px) {
+@container (max-width: 260px) {
 
   /* Shift the dropdown to the left to help prevent right-edge overflow */
   .model-options {
