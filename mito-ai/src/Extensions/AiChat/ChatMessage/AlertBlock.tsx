@@ -22,8 +22,6 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
         logEvent('alert_block_displayed', { 'type': mitoAIConnectionErrorType, 'error': content });
     }, []);
 
-
-
     if (mitoAIConnectionErrorType === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
         return (
             <div className="chat-message-alert">
@@ -53,7 +51,7 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
         <div className="chat-message-alert-container">
             <div className="chat-message-alert">
                 <div className="alert-error-message">
-                    {content}
+                    &#9888; {content}
                 </div>
             </div>
             <div>

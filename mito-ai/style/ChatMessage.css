@@ -223,23 +223,14 @@
 }
 
 .toggle-button:hover {
-  color: var(--red-900);
-}
-
-.toggle-text {
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  transition: text-decoration-color 0.2s ease;
-}
-
-.toggle-button:hover .toggle-text {
-  text-decoration-color: var(--red-900);
+  color: var(--red-800);
 }
 
 .toggle-caret {
   font-size: 10px;
   transition: transform 0.2s ease;
   display: inline-block;
+  text-decoration: none !important;
 }
 
 .toggle-caret.open {
@@ -264,15 +255,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.details-content p {
-  margin: 0 0 8px 0;
-  font-size: 12px;
-}
-
-.details-content ul {
-  margin: 0;
-  padding-left: 16px;
-  font-size: 12px;
 }
