@@ -76,7 +76,7 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
                         {showEmailDetails && (
                             <div className="details-content">
                                 <li>A screenshot of your entire Jupyter window</li>
-                                <li>A screenshot of your browser's console. You can access this by right clicking on this error message, clicking "Inspect", and then clicking the "Console" tab. Then find the red error message at the bottom of the console and screenshot it.</li>
+                                <li>A screenshot of your browser&apos;s console. You can access this by right clicking on this error message, clicking &quot;Inspect&quot;, and then clicking the &quot;Console&quot; tab. Then find the red error message at the bottom of the console and screenshot it.</li>
                                 <li>Your `pip list` output</li>
                             </div>
                         )}
