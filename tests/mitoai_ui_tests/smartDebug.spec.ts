@@ -16,9 +16,9 @@ import {
     startNewMitoAIChat,
     turnOnAgentMode,
 } from './utils';
-import { GPT_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
+import { CLAUDE_SONNET_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 
-const MODEL = GPT_DISPLAY_NAME
+const MODEL = CLAUDE_SONNET_DISPLAY_NAME
 
 test.describe.parallel('Smart Debug tests', () => {
 
