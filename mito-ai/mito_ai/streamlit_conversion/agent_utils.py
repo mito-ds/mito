@@ -43,27 +43,28 @@ def apply_patch_to_text(text: str, diff: str) -> str:
 
     # We expect a single-file patch (what the prompt asks the model to emit)
     if len(patch) != 1:
-        raise ValueError(
-            f"Expected a patch for exactly one file, got {len(patch)} files."
-        )
+        print(f"Expected a patch for exactly one file, got {len(patch)} files. Returning original text.")
+        return text
 
     file_patch = patch[0]
 
     original_lines = text.splitlines(keepends=True)
     result_lines: List[str] = []
 
-    cursor = 0  # index in original_lines (0-based)
+    cursor = 1  # index in original_lines (1-based to match unified diff)
 
     for hunk in file_patch:
         # Copy unchanged lines before this hunk
-        while cursor < hunk.source_start - 1:
-            result_lines.append(original_lines[cursor])
+        while cursor < hunk.source_start:
+            if cursor <= len(original_lines):
+                result_lines.append(original_lines[cursor - 1])  # Convert to 0-based for array access
             cursor += 1
 
         # Apply hunk line-by-line
         for line in hunk:
             if line.is_context:
-                result_lines.append(original_lines[cursor])
+                if cursor <= len(original_lines):
+                    result_lines.append(original_lines[cursor - 1])  # Convert to 0-based for array access
                 cursor += 1
             elif line.is_removed:
                 cursor += 1  # Skip this line from the original
@@ -75,7 +76,9 @@ def apply_patch_to_text(text: str, diff: str) -> str:
                 result_lines.append(val)
 
     # Copy any remaining lines after the last hunk
-    result_lines.extend(original_lines[cursor:])
+    while cursor <= len(original_lines):
+        result_lines.append(original_lines[cursor - 1])  # Convert to 0-based for array access
+        cursor += 1
 
     return "".join(result_lines)
 

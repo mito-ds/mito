@@ -60,7 +60,7 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
         return False, '', f"Error creating file: {str(e)}"
     except Exception as e:
         return False, '', f"Unexpected error: {str(e)}"
-
+    
 
 def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict[str, Any]:
     """
@@ -77,10 +77,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
         json.JSONDecodeError: If the file is not valid JSON
         KeyError: If the notebook doesn't have the expected structure
     """
-    # Convert to absolute path if it's not already absolute
-    # Handle both Unix-style absolute paths (starting with /) and Windows-style absolute paths
-    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
-        notebook_path = os.path.join(os.getcwd(), notebook_path)
+    notebook_path = resolve_notebook_path(notebook_path)
     
     try:
         # Read the notebook file
@@ -134,3 +131,16 @@ def clean_directory_check(notebook_path: str) -> None:
     if file_count > 10:
         raise ValueError(
             f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")
+
+
+def get_streamlit_app_code(app_path: str) -> Optional[str]:
+    """
+    Get the code from the streamlit app file
+    """
+    try:
+        with open(app_path, 'r') as f:
+            return f.read()
+    except FileNotFoundError:
+        return None
+    except Exception as e:
+        return None

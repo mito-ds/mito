@@ -5,14 +5,133 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { ICommandPalette } from '@jupyterlab/apputils';
+import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { IChatTracker } from '../AiChat/token';
-import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
-import { previewAsStreamlit } from '../../commands';
+import { startStreamlitPreview, stopStreamlitPreview, updateStreamlitPreview } from '../../restAPI/RestAPI';
+import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+/**
+ * React component for the update app dropdown.
+ */
+interface UpdateAppDropdownProps {
+  onSubmit: (message: string) => void;
+  onClose: () => void;
+}
+
+const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose }) => {
+  const [message, setMessage] = React.useState('');
+
+  const handleSubmit = () => {
+    if (message.trim()) {
+      onSubmit(message);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    } else if (e.key === 'Enter' && e.ctrlKey) {
+      handleSubmit();
+    }
+  };
+
+  return (
+    <div 
+      style={{
+        position: 'absolute',
+        top: '100%',
+        left: '0',
+        zIndex: 1000,
+        backgroundColor: 'var(--jp-layout-color1)',
+        border: '1px solid var(--jp-border-color1)',
+        borderRadius: '3px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+        minWidth: '300px',
+        maxWidth: '500px'
+      }}
+      onKeyDown={handleKeyDown}
+    >
+      <div style={{ padding: '12px' }}>
+        <label 
+          htmlFor="update-description" 
+          style={{ 
+            display: 'block', 
+            marginBottom: '8px', 
+            fontWeight: '500',
+            color: 'var(--jp-ui-font-color1)',
+            fontSize: 'var(--jp-ui-font-size1)'
+          }}
+        >
+          Describe the update you want:
+        </label>
+        <textarea
+          id="update-description"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Enter your update description here... (Ctrl+Enter to submit)"
+          style={{
+            width: '100%',
+            minHeight: '100px',
+            padding: '8px',
+            border: '1px solid var(--jp-border-color1)',
+            borderRadius: '3px',
+            fontFamily: 'var(--jp-ui-font-family)',
+            fontSize: 'var(--jp-ui-font-size1)',
+            resize: 'vertical',
+            boxSizing: 'border-box',
+            backgroundColor: 'var(--jp-input-background)',
+            color: 'var(--jp-ui-font-color1)'
+          }}
+          autoFocus
+        />
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          gap: '8px', 
+          marginTop: '12px' 
+        }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '4px 8px',
+              border: '1px solid var(--jp-border-color1)',
+              borderRadius: '3px',
+              backgroundColor: 'var(--jp-layout-color1)',
+              color: 'var(--jp-ui-font-color1)',
+              cursor: 'pointer',
+              fontFamily: 'var(--jp-ui-font-family)',
+              fontSize: 'var(--jp-ui-font-size0)'
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!message.trim()}
+            style={{
+              padding: '4px 8px',
+              border: 'none',
+              borderRadius: '3px',
+              backgroundColor: message.trim() ? 'var(--jp-accent-color1)' : 'var(--jp-layout-color2)',
+              color: message.trim() ? 'var(--jp-ui-font-color0)' : 'var(--jp-ui-font-color2)',
+              cursor: message.trim() ? 'pointer' : 'not-allowed',
+              fontFamily: 'var(--jp-ui-font-family)',
+              fontSize: 'var(--jp-ui-font-size0)'
+            }}
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 /**
  * Interface for the streamlit preview response.
@@ -24,10 +143,61 @@ export interface StreamlitPreviewResponse {
 }
 
 /**
- * Interface for the streamlit preview request.
+ * Show the update app dropdown.
  */
-export interface StreamlitPreviewRequest {
-  notebook_path: string;
+function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string): void {
+  // Remove any existing dropdown
+  const existingDropdown = document.querySelector('.update-app-dropdown');
+  if (existingDropdown) {
+    existingDropdown.remove();
+  }
+
+  // Create dropdown container
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.className = 'update-app-dropdown';
+  dropdownContainer.style.position = 'absolute';
+  dropdownContainer.style.zIndex = '1000';
+
+  // Position the dropdown below the button
+  const buttonRect = buttonElement.getBoundingClientRect();
+  dropdownContainer.style.top = `${buttonRect.bottom + 4}px`;
+  dropdownContainer.style.left = `${buttonRect.left}px`;
+
+  // Add to document
+  document.body.appendChild(dropdownContainer);
+
+  // Render the React component
+  ReactDOM.render(
+    <UpdateAppDropdown
+      onSubmit={async (message) => {
+        try {
+          void updateStreamlitPreview(notebookPath, message);
+          console.log('Update App Message sent successfully:', message);
+        } catch (error) {
+          console.error('Error updating app:', error);
+        }
+        dropdownContainer.remove();
+      }}
+      onClose={() => {
+        dropdownContainer.remove();
+      }}
+    />,
+    dropdownContainer
+  );
+
+  // Close dropdown when clicking outside
+  const handleClickOutside = (event: MouseEvent) => {
+    if (!dropdownContainer.contains(event.target as Node) && 
+        !buttonElement.contains(event.target as Node)) {
+      dropdownContainer.remove();
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+  };
+
+  // Add click outside listener after a small delay to avoid immediate closure
+  setTimeout(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+  }, 100);
 }
 
 /**
@@ -70,7 +240,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
     console.log('mito-ai: StreamlitPreviewPlugin activated');
 
     // Add command to command palette
-    app.commands.addCommand(previewAsStreamlit, {
+    app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async () => {
@@ -80,7 +250,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
 
     // Add to command palette
     palette.addItem({
-      command: previewAsStreamlit,
+      command: COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT,
       category: 'Mito AI'
     });
   }
@@ -122,6 +292,19 @@ async function previewNotebookAsStreamlit(
     const widget = new MainAreaWidget({ content: iframeWidget });
     widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
+
+    // Add toolbar button to the MainAreaWidget's toolbar
+    const updateButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-purple button-small',
+      onClick: (): void => {
+        showUpdateAppDropdown(updateButton.node, notebookPath);
+      },
+      tooltip: 'Update the Streamlit app',
+      label: 'Update App',
+    });
+    
+    // Insert the button into the toolbar
+    widget.toolbar.insertAfter('spacer', 'update-app-button', updateButton);
 
     // Handle widget disposal
     widget.disposed.connect(() => {

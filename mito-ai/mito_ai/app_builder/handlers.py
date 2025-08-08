@@ -17,7 +17,7 @@ from mito_ai.app_builder.models import (
     ErrorMessage,
     MessageType
 )
-from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
+from mito_ai.streamlit_conversion.create_new_streamlit_app import create_new_streamlit_app_file
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
@@ -149,14 +149,10 @@ class AppBuilderHandler(BaseWebSocketHandler):
         try:
             notebook_path = str(notebook_path) if notebook_path else ""
 
-            app_directory = os.path.dirname(notebook_path)
-            app_path = os.path.join(app_directory, "app.py")
-
-            if not os.path.exists(app_path):
-                success_flag, app_path_result, result_message = await streamlit_handler(notebook_path)
-                if not success_flag or app_path_result is None:
-                    raise Exception(result_message)
-                app_path = app_path_result
+            app_path = await create_new_streamlit_app_file(notebook_path)
+            if app_path is None:
+                if app_path is None:
+                    raise Exception("Failed to create streamlit app code")
 
             deploy_url = await self._deploy_app(app_path, jwt_token)
 

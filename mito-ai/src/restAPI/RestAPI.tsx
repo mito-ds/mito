@@ -124,6 +124,20 @@ export const startStreamlitPreview = async (notebookPath: string): Promise<Strea
     return response.data!;
 }
 
+export const updateStreamlitPreview = async (notebookPath: string, userUpdatePrompt: string): Promise<void> => {
+    const response = await requestAPI<void>('streamlit-preview', {
+        method: 'PUT',
+        body: JSON.stringify({ 
+            notebook_path: notebookPath,
+            user_update_prompt: userUpdatePrompt 
+        }),
+    })
+    
+    if (response.error) {
+        throw new Error(response.error.message);
+    }
+}
+
 export const stopStreamlitPreview = async (previewId: string): Promise<void> => {
     const response = await requestAPI<void>(`streamlit-preview/${previewId}`, {
         method: 'DELETE',

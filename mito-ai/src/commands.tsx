@@ -21,4 +21,4 @@ export const COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE = `toolbar-button:reject-c
 export const COMMAND_MITO_AI_BETA_MODE_ENABLED = `${MITO_AI}:beta-mode-enabled`
 
 // Streamlit commands
-export const previewAsStreamlit = 'mito-ai:preview-as-streamlit';
+export const COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT = 'mito-ai:preview-as-streamlit';

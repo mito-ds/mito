@@ -4,11 +4,14 @@
 import os
 import tempfile
 import uuid
+from mito_ai.streamlit_conversion.update_streamlit_app import update_streamlit_app
 import tornado
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
+from mito_ai.streamlit_conversion.create_new_streamlit_app import create_new_streamlit_app_file
+from mito_ai.streamlit_conversion.update_streamlit_app import update_streamlit_app
 from mito_ai.streamlit_preview.manager import get_preview_manager
 from mito_ai.utils.create import initialize_user
+
 
 
 class StreamlitPreviewHandler(APIHandler):
@@ -110,12 +113,11 @@ class StreamlitPreviewHandler(APIHandler):
             preview_id = str(uuid.uuid4())
             
             # Generate streamlit code using existing handler
-            print('notebook_path', notebook_path)
-            success, app_path, message = await streamlit_handler(resolved_notebook_path)
+            app_path = await create_new_streamlit_app_file(resolved_notebook_path)
             
-            if not success or app_path is None:
+            if app_path is None:
                 self.set_status(500)
-                self.finish({"error": f'Failed to generate streamlit code: {message}'})
+                self.finish({"error": f'Failed to generate streamlit code'})
                 return
             
             # Start streamlit preview
@@ -162,3 +164,59 @@ class StreamlitPreviewHandler(APIHandler):
         except Exception as e:
             self.set_status(500)
             self.finish({"error": f'Internal server error: {str(e)}'})
+            
+            
+    @tornado.web.authenticated
+    async def put(self) -> None:
+        """Update a streamlit preview.
+        
+        Expected JSON body:
+        {
+            "notebook_path": "path/to/notebook.ipynb",
+            "user_update_prompt": "User's update description"
+        }
+        
+        Returns:
+        {
+            "success": true,
+            "message": "Update applied successfully"
+        }
+        """
+        try:
+            # Parse request body
+            body = self.get_json_body()
+            if body is None:
+                self.set_status(400)
+                self.finish({"error": 'Invalid or missing JSON body'})
+                return
+
+            notebook_path = body.get('notebook_path')
+            user_update_prompt = body.get('user_update_prompt')
+            
+            if not notebook_path:
+                self.set_status(400)
+                self.finish({"error": 'Missing notebook_path parameter'})
+                return
+            
+            if not user_update_prompt:
+                self.set_status(400)
+                self.finish({"error": 'Missing user_update_prompt parameter'})
+                return
+            
+            await update_streamlit_app(notebook_path, user_update_prompt)
+            
+            # For now, just print the update prompt
+            print(f"Update App Request - Notebook Path: {notebook_path}")
+            print(f"User Update Prompt: {user_update_prompt}")
+            
+            # Return success response
+            self.finish({
+                'success': True,
+                'message': 'Update request received successfully'
+            })
+                
+        except Exception as e:
+            print(f"Error in streamlit preview update handler: {e}")
+            self.set_status(500)
+            self.finish({"error": str(e)})
+            
