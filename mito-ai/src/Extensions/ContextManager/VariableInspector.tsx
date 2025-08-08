@@ -34,7 +34,10 @@ def get_dataframe_structure(df, sample_size=5):
             # Handle None and NaN (convert to None, which maps to null in JSON)
             return None
         elif not isinstance(value, (str, int, float, bool, type(None))):
-            return str(value)[:50] + "..."
+            value_str = str(value)
+            if len(value_str) > 50:
+                return value_str[:50] + "..."
+            return value_str
         elif isinstance(value, str) and len(value) > 50:
             # Truncate strings longer than 50 characters
             return value[:50] + "..."
