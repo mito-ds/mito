@@ -4,10 +4,11 @@
  */
 
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { INotebookTracker, NotebookActions } from "@jupyterlab/notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
 import { COMMAND_MITO_AI_SEND_AGENT_MESSAGE, COMMAND_MITO_AI_OPEN_CHAT } from "../../commands";
+import { getAIOptimizedCells, getNotebookName } from "../../utils/notebook";
 import '../../../style/NotebookFooter.css';
 import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
@@ -18,15 +19,51 @@ interface NotebookFooterProps {
     app: JupyterFrontEnd;
 }
 
-const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) => {
-    const notebook = notebookTracker.currentWidget?.content
+// Track footer state per notebook
+const notebookFooterStates = new Map<string, boolean>();
 
+const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) => {
+    const notebook = notebookTracker.currentWidget?.content;
+    const notebookName = getNotebookName(notebookTracker);
+    
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isVisible, setIsVisible] = useState(true); // Start visible
+
+    // Hide footer when any cell gets content
+    useEffect(() => {
+        if (!notebook) return;
+
+        const handleCellChange = () => {
+            const cells = getAIOptimizedCells(notebookTracker);
+            const hasContent = cells.some(cell => 
+                cell.cell_type === 'code' && cell.code.trim().length > 0
+            );
+            
+            if (hasContent) {
+                setIsVisible(false);
+                notebookFooterStates.set(notebookName, false);
+            }
+        };
+
+        // Check initial state
+        handleCellChange();
+
+        // Listen for future changes
+        notebook.model?.cells.changed.connect(handleCellChange);
+        
+        return () => {
+            notebook.model?.cells.changed.disconnect(handleCellChange);
+        };
+    }, [notebook, notebookTracker, notebookName]);
 
     // If the notebook is not loaded yet, don't render anything
-    // This must come after the useEffects
     if (notebook === undefined || notebook.model === null) {
+        return null;
+    }
+
+    // Don't render if footer should not be visible
+    if (!isVisible) {
         return null;
     }
 
