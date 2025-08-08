@@ -19,7 +19,7 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
 
     // The first time this AlertBlock is rendered, log the error type
     useEffect(() => {
-        logEvent('alert_block_displayed', { 'type': mitoAIConnectionErrorType, 'error': content });
+        void logEvent('alert_block_displayed', { 'type': mitoAIConnectionErrorType, 'error': content });
     }, []);
 
     if (mitoAIConnectionErrorType === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
