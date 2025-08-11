@@ -3,25 +3,11 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { Amplify } from 'aws-amplify';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { configureAmplify } from './aws-config';
 
-
-Amplify.configure({
-  Auth: {
-    Cognito: {
-      userPoolId: 'us-east-1_Kk0f9mOfx',
-      userPoolClientId: '6ara3u3l8sss738hrhbq1qtiqf',
-
-      loginWith: {
-        email: true,
-        username: false,
-      }
-    },
-  }
-});
-
-console.log('Amplify configuration loaded successfully');
+// Ensure Amplify is configured before any auth operations
+configureAmplify();
 
 /**
  * Get JWT token from cookies
