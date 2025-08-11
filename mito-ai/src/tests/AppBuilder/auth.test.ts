@@ -4,53 +4,94 @@
  */
 
 import {
-    isUserAuthenticated,
     getJWTToken,
-    setJWTToken,
-    removeJWTToken,
+    getAuthHeaders,
 } from '../../Extensions/AppBuilder/auth';
 
-// Mock document.cookie for testing
-const mockCookie = {
-    get: () => '',
-    set: (value: string) => {
-        mockCookie.get = () => value;
+// Mock AWS Amplify for testing
+jest.mock('aws-amplify', () => ({
+    Amplify: {
+        configure: jest.fn(),
     },
-    clear: () => {
-        mockCookie.get = () => '';
-    }
-};
+    fetchAuthSession: jest.fn(),
+}));
 
-Object.defineProperty(document, 'cookie', {
-    get: () => mockCookie.get(),
-    set: (value: string) => mockCookie.set(value),
-    configurable: true
-});
+import { fetchAuthSession } from 'aws-amplify/auth';
+
+// Mock fetchAuthSession
+const mockFetchAuthSession = fetchAuthSession as jest.MockedFunction<typeof fetchAuthSession>;
 
 describe('Authentication Utilities', () => {
     beforeEach(() => {
-        mockCookie.clear();
+        jest.clearAllMocks();
     });
 
-    test('should return false when no JWT token is present', () => {
-        expect(isUserAuthenticated()).toBe(false);
+    describe('getJWTToken', () => {
+        test('should return empty string when no session exists', async () => {
+            mockFetchAuthSession.mockRejectedValue(new Error('No session'));
+            
+            const result = await getJWTToken();
+            expect(result).toBe('');
+        });
+
+        test('should return empty string when session has no tokens', async () => {
+            mockFetchAuthSession.mockResolvedValue({
+                tokens: {}
+            } as any);
+            
+            const result = await getJWTToken();
+            expect(result).toBe('');
+        });
+
+        test('should return access token when available', async () => {
+            mockFetchAuthSession.mockResolvedValue({
+                tokens: {
+                    accessToken: 'valid-token-123'
+                }
+            } as any);
+            
+            const result = await getJWTToken();
+            expect(result).toBe('valid-token-123');
+        });
+
+        test('should return empty string on error', async () => {
+            mockFetchAuthSession.mockRejectedValue(new Error('Network error'));
+            
+            const result = await getJWTToken();
+            expect(result).toBe('');
+        });
     });
 
-    test('should return true when JWT token is present', () => {
-        setJWTToken('test-token');
-        expect(isUserAuthenticated()).toBe(true);
-    });
+    describe('getAuthHeaders', () => {
+        test('should return empty object when no token available', async () => {
+            mockFetchAuthSession.mockRejectedValue(new Error('No session'));
+            
+            const result = await getAuthHeaders();
+            expect(result).toEqual({});
+        });
 
-    test('should get JWT token from cookies', () => {
-        setJWTToken('test-token');
-        expect(getJWTToken()).toBe('test-token');
-    });
+        test('should return authorization header when token available', async () => {
+            mockFetchAuthSession.mockResolvedValue({
+                tokens: {
+                    accessToken: 'valid-token-123'
+                }
+            } as any);
+            
+            const result = await getAuthHeaders();
+            expect(result).toEqual({
+                'Authorization': 'Bearer valid-token-123'
+            });
+        });
 
-    test('should remove JWT token from cookies', () => {
-        setJWTToken('test-token');
-        expect(getJWTToken()).toBe('test-token');
-
-        removeJWTToken();
-        expect(getJWTToken()).toBeNull();
+        test('should return empty object when token is empty string', async () => {
+            mockFetchAuthSession.mockResolvedValue({
+                tokens: {
+                    accessToken: ''
+                }
+            } as any);
+            
+            const result = await getAuthHeaders();
+            expect(result).toEqual({});
+        });
     });
 });
