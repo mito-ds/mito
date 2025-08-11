@@ -1,4 +1,4 @@
-// auth-popup.tsx - Simple authentication popup
+// auth-popup.tsx - Simple authentication popup with CSS-based requirements
 import React from 'react';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
@@ -12,8 +12,6 @@ interface AuthPopupProps {
   onClose: () => void;
   onSuccess: (user: any) => void;
 }
-
-// Using Mito's modal styling classes
 
 export const AuthPopup: React.FC<AuthPopupProps> = ({
   isOpen,
@@ -58,7 +56,8 @@ export const AuthPopup: React.FC<AuthPopupProps> = ({
               password: {
                 order: 3,
                 placeholder: 'Enter your password',
-                label: 'Password *'
+                label: 'Password *',
+                required: true
               },
               confirm_password: {
                 order: 4,
@@ -80,22 +79,40 @@ export const AuthPopup: React.FC<AuthPopupProps> = ({
               }, 0);
             }
 
-            return (
-              <div style={{ padding: '20px', textAlign: 'center' }}>
-                <p style={{ color: 'var(--jp-ui-font-color1)', marginBottom: '16px' }}>
-                  Welcome! You're now signed in and ready to deploy your app.
-                </p>
-                <TextButton
-                  text="Sign Out"
-                  onClick={signOut}
-                  title="Sign out of your account"
-                  variant="red"
-                  width="fit-contents"
-                />
-              </div>
-            );
+            // If user is signed in, show the welcome message
+            if (user) {
+              return (
+                <div style={{ padding: '20px', textAlign: 'center' }}>
+                  <p style={{ color: 'var(--jp-ui-font-color1)', marginBottom: '16px' }}>
+                    Welcome! You're now signed in and ready to deploy your app.
+                  </p>
+                  <TextButton
+                    text="Sign Out"
+                    onClick={signOut}
+                    title="Sign out of your account"
+                    variant="red"
+                    width="fit-contents"
+                  />
+                </div>
+              );
+            }
+
+            // If user is not signed in, don't render anything here
+            return <div style={{ display: 'none' }} />;
           }}
         </Authenticator>
+
+        {/* Password Requirements Display - shown via CSS when sign-up tab is active */}
+        <div className="password-requirements">
+          <p>Password Requirements:</p>
+          <ul>
+            <li>At least 8 characters long</li>
+            <li>Contains at least one uppercase letter</li>
+            <li>Contains at least one lowercase letter</li>
+            <li>Contains at least one number</li>
+            <li>Contains at least one special character</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

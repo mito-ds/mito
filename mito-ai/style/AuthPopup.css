@@ -301,3 +301,33 @@
   text-align: center !important;
   max-width: 50% !important;
 }
+
+/* Add this to your AuthPopup.css file */
+
+/* Hide password requirements by default */
+.password-requirements {
+  display: none;
+  padding: 16px 20px;
+  background-color: var(--jp-layout-color2);
+  border-top: 1px solid var(--jp-border-color1);
+  font-size: 13px;
+}
+
+/* Show password requirements when sign-up form is present */
+.modal-content:has([data-amplify-authenticator-signup]) .password-requirements {
+  display: block;
+}
+
+/* Style the requirements content */
+.password-requirements p {
+  margin: 0 0 8px 0;
+  font-weight: bold;
+  color: var(--jp-ui-font-color1);
+}
+
+.password-requirements ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--jp-ui-font-color2);
+  font-size: 12px;
+}
