@@ -331,3 +331,110 @@
   color: var(--jp-ui-font-color2);
   font-size: 12px;
 }
+
+/* Success message styling */
+.auth-success-message {
+  padding: 32px 24px;
+  text-align: center;
+  background: var(--jp-layout-color0);
+  border-radius: 8px;
+}
+
+.success-icon {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.success-title {
+  color: var(--jp-ui-font-color1);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  font-family: var(--jp-ui-font-family);
+}
+
+.success-description {
+  color: var(--jp-ui-font-color1);
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  font-family: var(--jp-ui-font-family);
+  line-height: 1.5;
+}
+
+.success-timer {
+  color: var(--jp-ui-font-color2);
+  font-size: 14px;
+  margin: 0 0 24px 0;
+  font-family: var(--jp-ui-font-family);
+  font-style: italic;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Progress bar animation */
+@keyframes progressFill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Welcome message container styling */
+.welcome-message-container {
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 8px;
+  padding: 32px 24px;
+  margin: 16px 0;
+  background-color: var(--jp-layout-color0);
+  text-align: center;
+}
+
+/* Welcome message title */
+.welcome-message-title {
+  color: var(--jp-ui-font-color1);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  font-family: var(--jp-ui-font-family);
+}
+
+/* Welcome message description */
+.welcome-message-description {
+  color: var(--jp-ui-font-color1);
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  font-family: var(--jp-ui-font-family);
+  line-height: 1.5;
+}
+
+/* Progress bar container */
+.progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background-color: var(--jp-border-color1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+/* Progress bar fill with CSS animation */
+.progress-bar-fill {
+  width: 0%;
+  height: 100%;
+  background-color: var(--purple-500);
+  border-radius: 2px;
+  animation: progressFill 3s linear forwards;
+}
+
+/* Progress bar timer text */
+.progress-bar-timer {
+  color: var(--jp-ui-font-color2);
+  font-size: 14px;
+  margin: 0;
+  font-family: var(--jp-ui-font-family);
+  font-style: italic;
+}
