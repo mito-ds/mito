@@ -23,6 +23,8 @@ def get_model_provider(model: str) -> Union[str, None]:
         return 'ollama'
     elif model_lower.startswith('gpt'):
         return 'openai'
+    elif model_lower.startswith('jumpstart-dft-deepseek'):
+        return 'aws_sagemaker'
 
     return None
 

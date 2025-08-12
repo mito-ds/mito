@@ -15,6 +15,7 @@ from mito_ai.enterprise.utils import is_azure_openai_configured
 from mito_ai.gemini_client import GeminiClient
 from mito_ai.openai_client import OpenAIClient
 from mito_ai.anthropic_client import AnthropicClient
+from mito_ai.aws_sagemaker_client import AWSSageMakerClient
 from mito_ai.logger import get_logger
 from mito_ai.completions.models import (
     AICapabilities,
@@ -87,9 +88,10 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self._openai_client:
             return self._openai_client.capabilities
         
+        # Default to AWS SageMaker capabilities
         return AICapabilities(
-            configuration={"model": "<dynamic>"},
-            provider="Mito server",
+            configuration={"model": "jumpstart-dft-deepseek-llm-r1-disti-20250811-175834"},
+            provider="AWS SageMaker",
         )
 
     @property
@@ -100,7 +102,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             return "gemini"
         if self._openai_client:
             return self._openai_client.key_type
-        return MITO_SERVER_KEY
+        return "aws_sagemaker"
 
     async def request_completions(
         self,
@@ -141,6 +143,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                         model=model,
                         response_format_info=response_format_info
                     )
+                elif model_type == "aws_sagemaker":
+                    aws_client = AWSSageMakerClient()
+                    completion = await aws_client.request_completions(messages, model, response_format_info, message_type)
                 else:
                     raise ValueError(f"No AI provider configured for model: {model}")
                 
@@ -245,6 +250,15 @@ This attribute is observed by the websocket provider to push the error to the cl
                     reply_fn=reply_fn,
                     user_input=user_input,
                     response_format_info=response_format_info
+                )
+            elif model_type == "aws_sagemaker":
+                aws_client = AWSSageMakerClient()
+                accumulated_response = await aws_client.stream_completions(
+                    messages=messages,
+                    model=model,
+                    message_id=message_id,
+                    message_type=message_type,
+                    reply_fn=reply_fn
                 )
             else:
                 raise ValueError(f"No AI provider configured for model: {model}")

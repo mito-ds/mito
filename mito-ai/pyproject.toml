@@ -47,6 +47,7 @@ dependencies = [
     "openai>=1.0.0",
     "google-genai",
     "anthropic",
+    "boto3",
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
