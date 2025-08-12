@@ -5,7 +5,6 @@ import '@aws-amplify/ui-react/styles.css';
 import '../../../style/ConnectionForm.css';
 import '../../../style/button.css';
 import '../../../style/AuthPopup.css';
-import TextButton from '../../components/TextButton';
 
 interface AuthPopupProps {
   isOpen: boolean;
@@ -20,6 +19,15 @@ export const AuthPopup: React.FC<AuthPopupProps> = ({
 }) => {
   // Track if we've already called onSuccess to prevent infinite loops
   const hasCalledOnSuccess = React.useRef(false);
+  // Track if we should show progress bar
+  const [showProgress, setShowProgress] = React.useState(false);
+
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      setShowProgress(false);
+    };
+  }, []);
 
   if (!isOpen) return null;
 
@@ -68,31 +76,43 @@ export const AuthPopup: React.FC<AuthPopupProps> = ({
           }}
         >
           {({ signOut, user }) => {
-            // Call onSuccess when user is authenticated, but only once
+            // Call onSuccess when user is authenticated, but only once and with delay
             if (user && !hasCalledOnSuccess.current) {
-              // Use setTimeout to avoid calling onSuccess during render
+              // Show the progress bar
+              setShowProgress(true);
+
+              // Give users time to see the success message before calling onSuccess
               setTimeout(() => {
                 if (!hasCalledOnSuccess.current) {
                   hasCalledOnSuccess.current = true;
                   onSuccess(user);
                 }
-              }, 0);
+              }, 3000); // 3 second delay
             }
 
             // If user is signed in, show the welcome message
             if (user) {
               return (
-                <div style={{ padding: '20px', textAlign: 'center' }}>
-                  <p style={{ color: 'var(--jp-ui-font-color1)', marginBottom: '16px' }}>
-                    Welcome! You're now signed in and ready to deploy your app.
+                <div className="welcome-message-container">
+                  <p className="welcome-message-title">
+                    Welcome to mito!
                   </p>
-                  <TextButton
-                    text="Sign Out"
-                    onClick={signOut}
-                    title="Sign out of your account"
-                    variant="red"
-                    width="fit-contents"
-                  />
+
+                  <p className="welcome-message-description">
+                    You're all set to deploy your app.
+                  </p>
+
+                  {/* Progress bar container */}
+                  {showProgress && (
+                    <div className="progress-bar-container">
+                      {/* Progress bar fill with CSS animation */}
+                      <div className="progress-bar-fill" />
+                    </div>
+                  )}
+
+                  <p className="progress-bar-timer">
+                    Closing automatically in a few seconds...
+                  </p>
                 </div>
               );
             }
