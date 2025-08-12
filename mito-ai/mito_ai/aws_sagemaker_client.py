@@ -22,7 +22,7 @@ from mito_ai.logger import get_logger
 class AWSSageMakerClient:
     """AWS SageMaker client for DeepSeek model completions."""
     
-    def __init__(self, region_name: str = "us-east-2", endpoint_name: str = "jumpstart-dft-deepseek-llm-r1-disti-20250811-175834"):
+    def __init__(self, region_name: str = "us-east-2", endpoint_name: str = "jumpstart-dft-deepseek-llm-r1-disti-20250812-014510"):
         """
         Initialize the AWS SageMaker client.
         

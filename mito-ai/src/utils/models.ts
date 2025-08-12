@@ -13,4 +13,4 @@ export const GPT_DISPLAY_NAME = 'GPT 5 (max)';
 export const GPT_MODEL_NAME = 'gpt-5';
 
 export const AWS_DEEPSEEK_DISPLAY_NAME = 'Mito distilled DeepSeek (AWS)';
-export const AWS_DEEPSEEK_MODEL_NAME = 'jumpstart-dft-deepseek-llm-r1-disti-20250811-175834';
+export const AWS_DEEPSEEK_MODEL_NAME = 'jumpstart-dft-deepseek-llm-r1-disti-20250812-014510';
