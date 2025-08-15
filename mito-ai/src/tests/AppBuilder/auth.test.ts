@@ -3,23 +3,23 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+// Mock AWS Amplify auth module before importing the functions under test
+const mockFetchAuthSession = jest.fn();
+
+jest.mock('aws-amplify/auth', () => ({
+    fetchAuthSession: mockFetchAuthSession,
+}));
+
+// Mock the aws-config module to avoid actual Amplify configuration
+jest.mock('../../Extensions/AppBuilder/aws-config', () => ({
+    configureAmplify: jest.fn(),
+}));
+
+// Now import the functions after mocking
 import {
     getJWTToken,
     getAuthHeaders,
 } from '../../Extensions/AppBuilder/auth';
-
-// Mock AWS Amplify for testing
-jest.mock('aws-amplify', () => ({
-    Amplify: {
-        configure: jest.fn(),
-    },
-    fetchAuthSession: jest.fn(),
-}));
-
-import { fetchAuthSession } from 'aws-amplify/auth';
-
-// Mock fetchAuthSession
-const mockFetchAuthSession = fetchAuthSession as jest.MockedFunction<typeof fetchAuthSession>;
 
 describe('Authentication Utilities', () => {
     beforeEach(() => {
