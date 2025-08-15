@@ -1,0 +1,440 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Auth popup specific styling to integrate AWS Amplify with Mito theme */
+.modal-content .amplify-authenticator {
+  --amplify-colors-font-primary: var(--jp-ui-font-color1);
+  --amplify-colors-font-secondary: var(--jp-ui-font-color2);
+  --amplify-colors-background-primary: var(--jp-layout-color0);
+  --amplify-colors-background-secondary: var(--jp-layout-color1);
+  --amplify-colors-border-primary: var(--jp-border-color1);
+  --amplify-colors-brand-primary-10: var(--purple-700);
+  --amplify-colors-brand-primary-80: var(--purple-500);
+  --amplify-colors-brand-primary-90: var(--purple-400);
+  --amplify-colors-brand-primary-100: var(--purple-300);
+  --amplify-radii-small: 4px;
+  --amplify-radii-medium: 4px;
+  --amplify-space-small: 8px;
+  --amplify-space-medium: 12px;
+  --amplify-space-large: 16px;
+  --amplify-font-sizes-small: 14px;
+  --amplify-font-sizes-medium: 14px;
+  
+  /* Remove the blue top border on active tabs */
+  --amplify-components-tabs-item-active-border-width: 0;
+  --amplify-components-tabs-item-border-width: 0;
+  
+  /* Ensure active tab bottom border uses purple */
+  --amplify-components-tabs-item-active-border-color: var(--purple-500);
+  --amplify-components-tabs-item-active-color: var(--purple-700);
+}
+
+/* Ensure modal content has adequate width for auth form */
+.modal-content:has(.amplify-authenticator) {
+  width: 480px;
+  max-width: 90vw;
+  min-width: 400px;
+}
+
+/* Style the authenticator container */
+.modal-content .amplify-authenticator__modal {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Constrain authenticator content within modal bounds */
+.modal-content .amplify-authenticator {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Specifically target the data-amplify-container to prevent overflow */
+.modal-content [data-amplify-container] {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+
+
+/* Constrain the tabs container */
+.modal-content .amplify-tabs {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Ensure form fields don't overflow */
+.modal-content .amplify-field,
+.modal-content .amplify-field__group {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Align form elements with Mito styling */
+.modal-content .amplify-field__label {
+  color: var(--jp-ui-font-color1) !important;
+  font-weight: 500 !important;
+}
+
+.modal-content .amplify-input,
+.modal-content .amplify-select {
+  background: var(--jp-layout-color0) !important;
+  border: 1px solid var(--jp-border-color1) !important;
+  color: var(--jp-ui-font-color1) !important;
+  border-radius: 4px !important;
+}
+
+.modal-content .amplify-input:focus,
+.modal-content .amplify-select:focus {
+  border-color: var(--purple-500) !important;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1) !important;
+}
+
+
+
+/* Style Amplify buttons to match Mito theme */
+.modal-content .amplify-button--primary {
+  background-color: var(--purple-400) !important;
+  color: var(--purple-700) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.modal-content .amplify-button--primary:hover {
+  background-color: var(--purple-500) !important;
+}
+
+.modal-content .amplify-button--link {
+  color: var(--purple-600) !important;
+  text-decoration: none !important;
+}
+
+.modal-content .amplify-button--link:hover {
+  color: var(--purple-700) !important;
+  text-decoration: underline !important;
+}
+
+/* Error and success message styling */
+.modal-content .amplify-alert--error {
+  background-color: var(--red-300) !important;
+  color: var(--red-900) !important;
+  border: 1px solid var(--red-400) !important;
+  border-radius: 4px !important;
+}
+
+.modal-content .amplify-alert--info {
+  background-color: var(--purple-300) !important;
+  color: var(--purple-700) !important;
+  border: 1px solid var(--purple-400) !important;
+  border-radius: 4px !important;
+}
+
+/* Tab styling for sign in/sign up tabs */
+.modal-content .amplify-tabs__item {
+  color: var(--jp-ui-font-color2) !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+.modal-content .amplify-tabs__item[data-state="active"] {
+  color: var(--purple-700) !important;
+  border-bottom-color: var(--purple-500) !important;
+}
+
+/* Ensure inactive tabs don't have purple styling */
+.modal-content .amplify-tabs__item[data-state="inactive"] {
+  color: var(--jp-ui-font-color2) !important;
+  border-bottom: 2px solid transparent !important;
+}
+
+
+
+.modal-content .amplify-tabs__item:hover {
+  color: var(--jp-ui-font-color1) !important;
+}
+
+/* Override any default blue tab styling from Amplify */
+.modal-content .amplify-tabs__list {
+  border-bottom: 1px solid var(--jp-border-color1) !important;
+}
+
+.modal-content .amplify-tabs__item[data-state="active"]:after,
+.modal-content .amplify-tabs__item[aria-selected="true"]:after {
+  background-color: var(--purple-500) !important;
+  border-color: var(--purple-500) !important;
+}
+
+/* Override any Amplify default blue colors */
+.modal-content .amplify-tabs [data-amplify-color-mode] .amplify-tabs__item[data-state="active"] {
+  color: var(--purple-700) !important;
+  border-bottom-color: var(--purple-500) !important;
+}
+
+.modal-content .amplify-tabs [data-amplify-color-mode] .amplify-tabs__item[aria-selected="true"] {
+  color: var(--purple-700) !important;
+  border-bottom-color: var(--purple-500) !important;
+}
+
+/* Additional selectors to ensure default active state on initial load */
+.modal-content .amplify-tabs__item[aria-selected="true"] {
+  color: var(--purple-700) !important;
+  border-bottom: 2px solid var(--purple-500) !important;
+}
+
+
+
+/* Loading spinner colors */
+.modal-content .amplify-loader {
+  border-top-color: var(--purple-500) !important;
+}
+
+/* Additional purple color overrides for any remaining blue elements */
+.modal-content .amplify-tabs__item[data-state="active"] *,
+.modal-content .amplify-tabs__item[aria-selected="true"] * {
+  color: var(--purple-700) !important;
+}
+
+/* Override focus states to use purple */
+.modal-content .amplify-tabs__item:focus,
+.modal-content .amplify-tabs__item:focus-visible {
+  border-bottom-color: var(--purple-500) !important;
+  outline-color: var(--purple-500) !important;
+}
+
+/* Ensure any nested tab content uses purple theme */
+.modal-content [data-amplify-authenticator] [data-amplify-router] .amplify-tabs__item[data-state="active"] {
+  color: var(--purple-700) !important;
+  border-bottom-color: var(--purple-500) !important;
+}
+
+/* Remove any top borders, outlines, or blue styling from tabs */
+.modal-content .amplify-tabs__item {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  outline: none !important;
+}
+
+.modal-content .amplify-tabs__item[data-state="active"],
+.modal-content .amplify-tabs__item[aria-selected="true"] {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove any pseudo-element borders that might create blue lines */
+.modal-content .amplify-tabs__item:before,
+.modal-content .amplify-tabs__item:after,
+.modal-content .amplify-tabs__item[data-state="active"]:before,
+.modal-content .amplify-tabs__item[aria-selected="true"]:before {
+  display: none !important;
+  border: none !important;
+  background: none !important;
+}
+
+
+
+/* Additional containment rules for better layout */
+.modal-content .amplify-authenticator * {
+  box-sizing: border-box !important;
+}
+
+/* Prevent any Amplify containers from overflowing */
+.modal-content [data-amplify-authenticator],
+.modal-content [data-amplify-router],
+.modal-content [data-amplify-authenticator-signin],
+.modal-content [data-amplify-authenticator-signup] {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Remove any default margins or padding that might cause overflow */
+.modal-content [data-amplify-container] * {
+  max-width: 100% !important;
+}
+
+/* Ensure modal content itself doesn't allow horizontal scroll */
+.modal-content:has(.amplify-authenticator) {
+  overflow-x: hidden !important;
+}
+
+/* Target main Amplify containers but not inputs */
+.modal-content div[data-amplify-container] {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure tab panels fit within bounds */
+.modal-content .amplify-tabs__panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  padding: 16px !important;
+}
+
+/* Ensure tab list doesn't overflow */
+.modal-content .amplify-tabs__list {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  justify-content: space-around !important;
+}
+
+.modal-content .amplify-tabs__item {
+  flex: 1 !important;
+  text-align: center !important;
+  max-width: 50% !important;
+}
+
+/* Add this to your AuthPopup.css file */
+
+/* Hide password requirements by default */
+.password-requirements {
+  display: none;
+  padding: 16px 20px;
+  background-color: var(--jp-layout-color2);
+  border-top: 1px solid var(--jp-border-color1);
+  font-size: 13px;
+}
+
+/* Show password requirements when sign-up form is present */
+.modal-content:has([data-amplify-authenticator-signup]) .password-requirements {
+  display: block;
+}
+
+/* Style the requirements content */
+.password-requirements p {
+  margin: 0 0 8px 0;
+  font-weight: bold;
+  color: var(--jp-ui-font-color1);
+}
+
+.password-requirements ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--jp-ui-font-color2);
+  font-size: 12px;
+}
+
+/* Success message styling */
+.auth-success-message {
+  padding: 32px 24px;
+  text-align: center;
+  background: var(--jp-layout-color0);
+  border-radius: 8px;
+}
+
+.success-icon {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.success-title {
+  color: var(--jp-ui-font-color1);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  font-family: var(--jp-ui-font-family);
+}
+
+.success-description {
+  color: var(--jp-ui-font-color1);
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  font-family: var(--jp-ui-font-family);
+  line-height: 1.5;
+}
+
+.success-timer {
+  color: var(--jp-ui-font-color2);
+  font-size: 14px;
+  margin: 0 0 24px 0;
+  font-family: var(--jp-ui-font-family);
+  font-style: italic;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Progress bar animation */
+@keyframes progressFill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Welcome message container styling */
+.welcome-message-container {
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 8px;
+  padding: 32px 24px;
+  margin: 16px 0;
+  background-color: var(--jp-layout-color0);
+  text-align: center;
+}
+
+/* Welcome message title */
+.welcome-message-title {
+  color: var(--jp-ui-font-color1);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  font-family: var(--jp-ui-font-family);
+}
+
+/* Welcome message description */
+.welcome-message-description {
+  color: var(--jp-ui-font-color1);
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  font-family: var(--jp-ui-font-family);
+  line-height: 1.5;
+}
+
+/* Progress bar container */
+.progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background-color: var(--jp-border-color1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+/* Progress bar fill with CSS animation */
+.progress-bar-fill {
+  width: 0%;
+  height: 100%;
+  background-color: var(--purple-500);
+  border-radius: 2px;
+  animation: progressFill 3s linear forwards;
+}
+
+/* Progress bar timer text */
+.progress-bar-timer {
+  color: var(--jp-ui-font-color2);
+  font-size: 14px;
+  margin: 0;
+  font-family: var(--jp-ui-font-family);
+  font-style: italic;
+}
