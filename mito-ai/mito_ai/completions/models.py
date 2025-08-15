@@ -29,7 +29,7 @@ class CellUpdate(BaseModel):
 # for now and rely on the AI to respond with the correct types, following the format
 # that we show it in the system prompt.
 class AgentResponse(BaseModel):
-    type: Literal['cell_update', 'get_cell_output', 'finished_task']
+    type: Literal['cell_update', 'get_cell_output', 'run_all_cells', 'finished_task']
     message: str
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]

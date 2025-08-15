@@ -1,0 +1,23 @@
+.run-all-cells-container {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 8px 0;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #f8f9fa;
+}
+
+.run-all-cells-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    font-size: 14px;
+}
+
+.run-all-cells-content svg {
+    width: 16px;
+    height: 16px;
+    color: #c0c9cf;
+}

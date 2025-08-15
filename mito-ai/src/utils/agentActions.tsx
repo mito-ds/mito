@@ -112,24 +112,31 @@ export const retryIfExecutionError = async (
         await sendAgentSmartDebugMessage(errorMessage)
         const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
 
-        // TODO: We expect that the agent responds with a cell_update if they are prompted to fix an error. 
-        // But we are not enforcing that right now. We can fix this by setting the response_format for agent:smartDebug
-        // to only allow cell_updates and then we can return the agentResponse from sendAgentSmartDebugMessage so 
-        // typescript knows what type it is. 
-        if (aiDisplayOptimizedChatItem?.agentResponse?.type !== 'cell_update' || aiDisplayOptimizedChatItem?.agentResponse?.cell_update === undefined) {
+        // Handle different response types from the agent when fixing errors
+        const agentResponse = aiDisplayOptimizedChatItem?.agentResponse;
+        
+        if (!agentResponse) {
             return 'failure'
         }
 
-        const cellUpdate = aiDisplayOptimizedChatItem.agentResponse.cell_update
-        
-        if (cellUpdate !== undefined && cellUpdate !== null) {
-            await acceptAndRunCellUpdate(
-                cellUpdate, 
-                notebookTracker, 
-                app,
-                previewAICodeToActiveCell, 
-                acceptAICode
-            )
+        if (agentResponse.type === 'cell_update') {
+            const cellUpdate = agentResponse.cell_update
+            
+            if (cellUpdate !== undefined && cellUpdate !== null) {
+                await acceptAndRunCellUpdate(
+                    cellUpdate, 
+                    notebookTracker, 
+                    app,
+                    previewAICodeToActiveCell, 
+                    acceptAICode
+                )
+            }
+        } else if (agentResponse.type === 'run_all_cells') {
+            // Execute runAllCells to fix NameError issues
+            await runAllCells(app, notebookTracker);
+        } else {
+            // Agent responded with an unexpected type for error fixing
+            return 'failure'
         }
 
         attempts++;
@@ -141,5 +148,16 @@ export const retryIfExecutionError = async (
     }
 
     return 'success'
+}
+
+export const runAllCells = async (
+    app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker
+): Promise<void> => {
+    await app.commands.execute("notebook:run-all-cells");
+    
+    // Give the execution some time to complete and update variables
+    // This ensures that the variable manager has time to update the state
+    await sleep(2000);
 }
 

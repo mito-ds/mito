@@ -41,7 +41,7 @@ export type CellUpdateNew = {
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'finished_task'
+  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task'
   message: string,
   cell_update?: CellUpdate | null | undefined
   get_cell_output_cell_id?: string | null | undefined

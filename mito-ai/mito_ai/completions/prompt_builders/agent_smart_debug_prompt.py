@@ -54,6 +54,14 @@ ERROR CORRECTION:
 - Reuse as much of the existing code as possible.
 - DO NOT ADD TEMPORARY COMMENTS like '# Fixed the typo here' or '# Added this line to fix the error'
 - If you encounter a ModuleNotFoundError, you can install the package by adding the the following line to the top of the code cell: `!pip install <package_name> --quiet`.
+- If you encounter a NameError, you can use the RUN_ALL_CELLS tool to run all cells from the top of the notebook to the bottom to bring the variable into scope.
+    RUN_ALL_CELLS:
+    When you want to execute all cells in the notebook from top to bottom, respond with this format:
+    {{
+        type: 'run_all_cells',
+        message: str
+    }}
+    Note that if the name error persists even after using run_all_cells, it means that the variable is not defined in the notebook and you should not reuse this tool. Additionally, this tool could also be used to refresh the notebook state.
 
 <Example>
 
