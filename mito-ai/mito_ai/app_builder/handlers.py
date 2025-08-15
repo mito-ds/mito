@@ -156,9 +156,8 @@ class AppBuilderHandler(BaseWebSocketHandler):
                 success_flag, app_path_result, result_message = await streamlit_handler(notebook_path)
                 if not success_flag or app_path_result is None:
                     raise Exception(result_message)
-                app_path = app_path_result
 
-            deploy_url = await self._deploy_app(app_path, jwt_token)
+            deploy_url = await self._deploy_app(app_directory, jwt_token)
 
             # Send the response
             self.reply(BuildAppReply(
