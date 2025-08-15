@@ -75,7 +75,7 @@ export const AuthPopup: React.FC<AuthPopupProps> = ({
             }
           }}
         >
-          {({ signOut, user }) => {
+          {({ user }) => {
             // Call onSuccess when user is authenticated, but only once and with delay
             if (user && !hasCalledOnSuccess.current) {
               // Show the progress bar
@@ -99,7 +99,7 @@ export const AuthPopup: React.FC<AuthPopupProps> = ({
                   </p>
 
                   <p className="welcome-message-description">
-                    You're all set to deploy your app.
+                    You&apos;re all set to deploy your app.
                   </p>
 
                   {/* Progress bar container */}

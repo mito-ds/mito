@@ -12,7 +12,7 @@ const userPoolClientIdDev = '6ara3u3l8sss738hrhbq1qtiqf'
 const userPoolId = userPoolIdDev
 const userPoolClientId = userPoolClientIdDev
 
-export const configureAmplify = () => {
+export const configureAmplify = (): void => {
   Amplify.configure({
     Auth: {
       Cognito: {
