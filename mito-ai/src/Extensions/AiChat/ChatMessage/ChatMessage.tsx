@@ -28,7 +28,8 @@ import TextButton from '../../../components/TextButton';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
-import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI';
+import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI'
+import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 
@@ -301,6 +302,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             }
             {agentResponse?.type === 'get_cell_output' &&
                 <GetCellOutputToolUI />
+            }
+            {agentResponse?.type === 'run_all_cells' &&
+                <RunAllCellsToolUI />
             }
         </div>
     )

@@ -47,7 +47,7 @@ import MitoLogo from '../../icons/MitoLogo';
 import UndoIcon from '../../icons/UndoIcon';
 
 // Internal imports - Utils
-import { acceptAndRunCellUpdate, retryIfExecutionError } from '../../utils/agentActions';
+import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../utils/agentActions';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
 import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
@@ -1015,6 +1015,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // Mark that we should send the cell output to the agent 
                 // in the next loop iteration
                 sendCellIDOutput = agentResponse.get_cell_output_cell_id
+            }
+
+            if (agentResponse.type === 'run_all_cells') {
+                await runAllCells(app, notebookTracker)
             }
         }
 
