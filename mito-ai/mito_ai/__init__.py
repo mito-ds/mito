@@ -14,6 +14,8 @@ from mito_ai.settings.urls import get_settings_urls
 from mito_ai.rules.urls import get_rules_urls
 from mito_ai.auth.urls import get_auth_urls
 from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
+from mito_ai.app_manager.handlers import AppManagerHandler
+
 try:
     from _version import __version__
 except ImportError:
@@ -69,6 +71,11 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             url_path_join(base_url, "mito-ai", "version-check"),
             VersionCheckHandler,
             {},
+        ),
+        (
+            url_path_join(base_url, "mito-ai", "app-manager"),
+            AppManagerHandler,
+            {}
         )
     ]
     
