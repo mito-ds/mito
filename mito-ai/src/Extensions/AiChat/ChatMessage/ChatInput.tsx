@@ -315,7 +315,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 {additionalContext.map((context, index) => (
                     <SelectedContextContainer
                         key={`${context.type}-${context.value}-${index}`}
-                        title={context.type === 'db' && context.display ? context.display : context.value}
+                        title={context.display || context.value}
                         type={context.type}
                         onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
                         notebookTracker={notebookTracker}
