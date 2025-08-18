@@ -7,6 +7,7 @@ import React, { useRef } from 'react';
 import IconButton from './IconButton';
 import DatabaseOutlineIcon from '../icons/DatabaseOutlineIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { requestAPI } from '../restAPI/utils';
 
 interface AttachFileButtonProps {
     app: JupyterFrontEnd;
@@ -69,18 +70,23 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ app }) => {
         reader.readAsDataURL(file);
     };
 
-    const prepareForUpload = (fileInfo: FileInfo): void => {
-        // For now, just log the file info
-        // This is where we would prepare the data for the upload endpoint
-        console.log('File prepared for upload:', {
+    const prepareForUpload = async (fileInfo: FileInfo): Promise<void> => {
+        // Upload file to backend
+        const uploadData = {
             filename: fileInfo.name,
-            size: fileInfo.size,
-            type: fileInfo.type,
-            contentLength: fileInfo.content?.length || 0
+            content: fileInfo.content
+        };
+
+        const resp = await requestAPI<{ success: boolean; filename: string; path: string }>('upload', {
+            method: 'POST',
+            body: JSON.stringify(uploadData)
         });
 
-        // TODO: Implement actual upload logic here
-        // uploadFile(fileInfo);
+        if (resp.error) {
+            console.error('Upload failed:', resp.error.message);
+        } else if (resp.data) {
+            console.log('File uploaded successfully:', resp.data);
+        }
     };
 
     const formatFileSize = (bytes: number): string => {
