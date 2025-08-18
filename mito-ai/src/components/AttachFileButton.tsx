@@ -5,7 +5,7 @@
 
 import React, { useRef } from 'react';
 import IconButton from './IconButton';
-import DatabaseOutlineIcon from '../icons/DatabaseOutlineIcon';
+import PaperClipIcon from '../icons/PaperClipIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { requestAPI } from '../restAPI/utils';
 
@@ -110,7 +110,7 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ app }) => {
 
             {/* File upload button */}
             <IconButton
-                icon={<DatabaseOutlineIcon />}
+                icon={<PaperClipIcon />}
                 title='Attach File'
                 onClick={handleClick}
                 className='icon-button-hover'
