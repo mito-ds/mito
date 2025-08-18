@@ -81,6 +81,10 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
             // which will update the context manager.
             onFileUploaded(fileInfo.name);
         }
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     return (
