@@ -36,10 +36,10 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ app }) => {
         if (!file) return;
 
         // Read and process the file
-        readAndDisplayFile(file);
+        readFile(file);
     };
 
-    const readAndDisplayFile = (file: File): void => {
+    const readFile = (file: File): void => {
         const reader = new FileReader();
 
         reader.onload = (e) => {
@@ -50,16 +50,7 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ app }) => {
                 type: file.type,
                 content: content
             };
-
-            console.log('File selected successfully:', {
-                filename: fileInfo.name,
-                size: formatFileSize(fileInfo.size),
-                type: fileInfo.type,
-                contentLength: fileInfo.content?.length || 0
-            });
-
-            // Prepare for upload (we'll implement this later)
-            prepareForUpload(fileInfo);
+            uploadFile(fileInfo);
         };
 
         reader.onerror = () => {
@@ -70,7 +61,7 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ app }) => {
         reader.readAsDataURL(file);
     };
 
-    const prepareForUpload = async (fileInfo: FileInfo): Promise<void> => {
+    const uploadFile = async (fileInfo: FileInfo): Promise<void> => {
         // Upload file to backend
         const uploadData = {
             filename: fileInfo.name,
@@ -87,14 +78,6 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ app }) => {
         } else if (resp.data) {
             console.log('File uploaded successfully:', resp.data);
         }
-    };
-
-    const formatFileSize = (bytes: number): string => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
     return (
