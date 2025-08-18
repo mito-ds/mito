@@ -15,6 +15,7 @@ import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
+import AttachFileButton from '../../../components/AttachFileButton';
 import DatabaseButton from '../../../components/DatabaseButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { AgentExecutionStatus } from '../ChatTaskpane';
@@ -288,6 +289,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
+                <AttachFileButton app={app} />
                 <button
                     className="context-button"
                     onClick={() => {
