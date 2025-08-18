@@ -49,7 +49,7 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
                 type: file.type,
                 content: content
             };
-            uploadFile(fileInfo);
+            void uploadFile(fileInfo);
         };
 
         reader.onerror = () => {
