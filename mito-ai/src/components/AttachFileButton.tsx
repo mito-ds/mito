@@ -6,11 +6,10 @@
 import React, { useRef } from 'react';
 import IconButton from './IconButton';
 import PaperClipIcon from '../icons/PaperClipIcon';
-import { JupyterFrontEnd } from '@jupyterlab/application';
 import { requestAPI } from '../restAPI/utils';
 
 interface AttachFileButtonProps {
-    app: JupyterFrontEnd;
+    onFileUploaded: (fileName: string) => void;
 }
 
 interface FileInfo {
@@ -20,7 +19,7 @@ interface FileInfo {
     content?: string;
 }
 
-const AttachFileButton: React.FC<AttachFileButtonProps> = ({ app }) => {
+const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleClick = (): void => {
@@ -77,6 +76,10 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ app }) => {
             console.error('Upload failed:', resp.error.message);
         } else if (resp.data) {
             console.log('File uploaded successfully:', resp.data);
+
+            // Notify the parent component that the file was uploaded, 
+            // which will update the context manager.
+            onFileUploaded(fileInfo.name);
         }
     };
 

@@ -66,6 +66,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
+    const handleFileUploaded = (fileName: string): void => {
+        // Add the uploaded file to the additional context
+        setAdditionalContext(prev => [
+            ...prev, {
+                type: 'file',
+                value: "uploads/" + fileName,
+                display: fileName
+            }
+        ]);
+    };
+
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
     const debouncedSetActiveCellID = useDebouncedFunction((newID: string | undefined) => {
@@ -289,7 +300,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
-                <AttachFileButton app={app} />
+                <AttachFileButton onFileUploaded={handleFileUploaded} />
                 <button
                     className="context-button"
                     onClick={() => {
