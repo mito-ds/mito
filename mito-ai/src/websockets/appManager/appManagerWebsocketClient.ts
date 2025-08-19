@@ -52,25 +52,50 @@ export class AppManagerWebsocketClient extends BaseWebsocketClient<IAppManagerRe
    * Get message ID from request (required by BaseWebsocketClient)
    */
   protected getMessageId(request: IAppManagerRequest): string {
-    // Generate a simple ID since we don't have message_id in the request
-    return Math.random().toString(36).substring(7);
+    return `${request.type}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
   }
 
   /**
    * Process a message received from the websocket.
+   * Routes responses to the appropriate pending requests.
    */
   protected _onMessage(message: IManageAppReply): void {
-    /**
-     * Emit the message to interested parties.
-     */
+    // Emit the message to stream listeners
     this._messages.emit(message);
 
-    /**
-     * For simple app management, we don't need complex message tracking.
-     * Just emit any errors through the stream if needed.
-     */
-    if (message.error) {
-      console.error('App manager error:', message.error.title);
+    // Handle promise resolution for pending requests
+    const messageId = (message as any).message_id;
+    
+    if (messageId && this._pendingRepliesMap.has(messageId)) {
+      const pendingReply = this._pendingRepliesMap.get(messageId);
+      if (pendingReply) {
+        this._pendingRepliesMap.delete(messageId);
+        
+        if (message.error) {
+          pendingReply.reject(new Error(message.error.title || 'Server error'));
+        } else {
+          pendingReply.resolve(message as any);
+        }
+      }
+    } else {
+      // If no message_id, check if this is a response to a single pending request
+      if (this._pendingRepliesMap.size === 1 && !messageId) {
+        const entries = Array.from(this._pendingRepliesMap.entries());
+        if (entries.length > 0) {
+          const entry = entries[0];
+          if (entry) {
+            const [pendingId, pendingReply] = entry;
+            
+            this._pendingRepliesMap.delete(pendingId);
+            
+            if (message.error) {
+              pendingReply.reject(new Error(message.error.title || 'Server error'));
+            } else {
+              pendingReply.resolve(message as any);
+            }
+          }
+        }
+      }
     }
   }
 }
