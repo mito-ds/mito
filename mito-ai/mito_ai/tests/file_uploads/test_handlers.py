@@ -2,7 +2,6 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import json
-import base64
 import os
 import tempfile
 import pytest
@@ -67,37 +66,25 @@ def _create_post_side_effect():
 
     def side_effect(self):
         try:
-            data = json.loads(self.request.body.decode("utf-8"))
-            filename = data.get("filename")
-            content = data.get("content")
-
-            if not filename or not content:
+            # Get the uploaded file from multipart form data
+            if "file" not in self.request.files:
                 self.set_status(400)
-                self.write({"error": "Missing filename or content"})
+                self.write({"error": "No file uploaded"})
                 self.finish()
                 return
 
-            # Extract base64 content from data URL format
-            if "," in content:
-                base64_content = content.split(",")[1]
-            else:
-                base64_content = content
+            uploaded_file = self.request.files["file"][0]
+            filename = uploaded_file["filename"]
+            file_data = uploaded_file["body"]
 
-            # Convert base64 to binary
-            file_data = base64.b64decode(base64_content)
-
-            # Save file to root directory
+            # Save file to current working directory
             with open(filename, "wb") as f:
                 f.write(file_data)
 
-            # Return success response
+            # Return success response (same format as before)
             self.write({"success": True, "filename": filename, "path": filename})
             self.finish()
 
-        except json.JSONDecodeError:
-            self.set_status(400)
-            self.write({"error": "Invalid JSON in request body"})
-            self.finish()
         except Exception as e:
             self.set_status(500)
             self.write({"error": f"Failed to save file: {str(e)}"})
@@ -107,15 +94,14 @@ def _create_post_side_effect():
 
 
 def test_successful_file_upload(mocked_handler, temp_dir):
-    """Test successful file upload with valid filename and base64 content."""
+    """Test successful file upload with valid filename and file data."""
     # Prepare test data
     filename = "test.txt"
     content = "Hello, World!"
-    base64_content = base64.b64encode(content.encode("utf-8")).decode("utf-8")
+    file_data = content.encode("utf-8")
 
-    # Mock request body
-    request_data = {"filename": filename, "content": base64_content}
-    mocked_handler.request.body = json.dumps(request_data).encode("utf-8")
+    # Mock multipart form data
+    mocked_handler.request.files = {"file": [{"filename": filename, "body": file_data}]}
 
     # Patch the post method to avoid initialization issues
     with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
@@ -137,17 +123,14 @@ def test_successful_file_upload(mocked_handler, temp_dir):
         assert f.read() == content
 
 
-def test_successful_file_upload_with_data_url(mocked_handler, temp_dir):
-    """Test successful file upload with data URL prefix."""
-    # Prepare test data with data URL prefix
-    filename = "test.txt"
-    content = "Hello, World!"
-    base64_content = base64.b64encode(content.encode("utf-8")).decode("utf-8")
-    data_url_content = f"data:text/plain;base64,{base64_content}"
+def test_successful_file_upload_binary_data(mocked_handler, temp_dir):
+    """Test successful file upload with binary data."""
+    # Prepare test data
+    filename = "test.bin"
+    content = b"\x00\x01\x02\x03\x04\x05"  # Binary data
 
-    # Mock request body
-    request_data = {"filename": filename, "content": data_url_content}
-    mocked_handler.request.body = json.dumps(request_data).encode("utf-8")
+    # Mock multipart form data
+    mocked_handler.request.files = {"file": [{"filename": filename, "body": content}]}
 
     # Patch the post method to avoid initialization issues
     with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
@@ -163,15 +146,14 @@ def test_successful_file_upload_with_data_url(mocked_handler, temp_dir):
 
     # Verify file was actually written
     assert os.path.exists(filename)
-    with open(filename, "r") as f:
+    with open(filename, "rb") as f:
         assert f.read() == content
 
 
-def test_missing_filename(mocked_handler, temp_dir):
-    """Test request with content but no filename."""
-    # Mock request body without filename
-    request_data = {"content": "base64content"}
-    mocked_handler.request.body = json.dumps(request_data).encode("utf-8")
+def test_no_file_uploaded(mocked_handler, temp_dir):
+    """Test request with no file uploaded."""
+    # Mock empty files
+    mocked_handler.request.files = {}
 
     # Patch the post method to avoid initialization issues
     with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
@@ -183,15 +165,16 @@ def test_missing_filename(mocked_handler, temp_dir):
     # Verify error response
     response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
     assert "error" in response_body
-    assert response_body["error"] == "Missing filename or content"
+    assert response_body["error"] == "No file uploaded"
     assert mocked_handler._status_code == 400
 
 
-def test_missing_content(mocked_handler, temp_dir):
-    """Test request with filename but no content."""
-    # Mock request body without content
-    request_data = {"filename": "test.txt"}
-    mocked_handler.request.body = json.dumps(request_data).encode("utf-8")
+def test_file_key_not_present(mocked_handler, temp_dir):
+    """Test request with files but no 'file' key."""
+    # Mock files with wrong key
+    mocked_handler.request.files = {
+        "wrong_key": [{"filename": "test.txt", "body": b"content"}]
+    }
 
     # Patch the post method to avoid initialization issues
     with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
@@ -203,26 +186,7 @@ def test_missing_content(mocked_handler, temp_dir):
     # Verify error response
     response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
     assert "error" in response_body
-    assert response_body["error"] == "Missing filename or content"
-    assert mocked_handler._status_code == 400
-
-
-def test_invalid_json(mocked_handler, temp_dir):
-    """Test request with invalid JSON in body."""
-    # Mock request body with invalid JSON
-    mocked_handler.request.body = b"invalid json content"
-
-    # Patch the post method to avoid initialization issues
-    with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
-        mock_post.side_effect = _create_post_side_effect()
-
-        # Call the post method
-        FileUploadHandler.post(mocked_handler)
-
-    # Verify error response
-    response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
-    assert "error" in response_body
-    assert response_body["error"] == "Invalid JSON in request body"
+    assert response_body["error"] == "No file uploaded"
     assert mocked_handler._status_code == 400
 
 
@@ -231,11 +195,10 @@ def test_file_writing_verification(mocked_handler, temp_dir):
     # Prepare test data
     filename = "test_file.txt"
     content = "This is test content with special chars: !@#$%^&*()"
-    base64_content = base64.b64encode(content.encode("utf-8")).decode("utf-8")
+    file_data = content.encode("utf-8")
 
-    # Mock request body
-    request_data = {"filename": filename, "content": base64_content}
-    mocked_handler.request.body = json.dumps(request_data).encode("utf-8")
+    # Mock multipart form data
+    mocked_handler.request.files = {"file": [{"filename": filename, "body": file_data}]}
 
     # Patch the post method to avoid initialization issues
     with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
@@ -253,3 +216,32 @@ def test_file_writing_verification(mocked_handler, temp_dir):
     # Verify file size
     file_size = os.path.getsize(filename)
     assert file_size == len(content.encode("utf-8"))
+
+
+def test_large_file_upload(mocked_handler, temp_dir):
+    """Test upload of a large file to ensure no memory issues."""
+    # Prepare test data - 1MB of data
+    filename = "large_file.bin"
+    content = b"x" * (1024 * 1024)  # 1MB of data
+
+    # Mock multipart form data
+    mocked_handler.request.files = {"file": [{"filename": filename, "body": content}]}
+
+    # Patch the post method to avoid initialization issues
+    with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
+        mock_post.side_effect = _create_post_side_effect()
+
+        # Call the post method
+        FileUploadHandler.post(mocked_handler)
+
+    # Verify response
+    response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
+    assert response_body["success"] is True
+    assert mocked_handler._status_code == 200
+
+    # Verify file was actually written
+    assert os.path.exists(filename)
+    with open(filename, "rb") as f:
+        file_content = f.read()
+        assert file_content == content
+        assert len(file_content) == 1024 * 1024  # 1MB
