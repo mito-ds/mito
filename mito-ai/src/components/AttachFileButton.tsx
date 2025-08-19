@@ -12,13 +12,6 @@ interface AttachFileButtonProps {
     onFileUploaded: (fileName: string) => void;
 }
 
-interface FileInfo {
-    name: string;
-    size: number;
-    type: string;
-    content?: string;
-}
-
 const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -34,42 +27,19 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
         const file = files[0];
         if (!file) return;
 
-        // Read and process the file
-        readFile(file);
+        // Upload file directly
+        void uploadFile(file);
     };
 
-    const readFile = (file: File): void => {
-        const reader = new FileReader();
+    const uploadFile = async (file: File): Promise<void> => {
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('file', file);
 
-        reader.onload = (e) => {
-            const content = e.target?.result as string;
-            const fileInfo: FileInfo = {
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                content: content
-            };
-            void uploadFile(fileInfo);
-        };
-
-        reader.onerror = () => {
-            console.error(`Error reading file "${file.name}"`);
-        };
-
-        // Read as base64 for now
-        reader.readAsDataURL(file);
-    };
-
-    const uploadFile = async (fileInfo: FileInfo): Promise<void> => {
-        // Upload file to backend
-        const uploadData = {
-            filename: fileInfo.name,
-            content: fileInfo.content
-        };
-
+        // Upload file to backend using FormData
         const resp = await requestAPI<{ success: boolean; filename: string; path: string }>('upload', {
             method: 'POST',
-            body: JSON.stringify(uploadData)
+            body: formData
         });
 
         if (resp.error) {
@@ -79,7 +49,7 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
 
             // Notify the parent component that the file was uploaded, 
             // which will update the context manager.
-            onFileUploaded(fileInfo.name);
+            onFileUploaded(file.name);
         }
 
         if (fileInputRef.current) {

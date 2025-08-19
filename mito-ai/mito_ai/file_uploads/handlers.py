@@ -1,52 +1,34 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import json
-import base64
-import os
 import tornado
-from typing import Any
 from jupyter_server.base.handlers import APIHandler
 
 
 class FileUploadHandler(APIHandler):
     @tornado.web.authenticated
     def post(self) -> None:
-        """Handle file upload with base64 content."""
+        """Handle file upload with multipart form data."""
         try:
-            # Parse JSON request body
-            data = json.loads(self.request.body.decode("utf-8"))
-            filename = data.get("filename")
-            content = data.get("content")
-
-            if not filename or not content:
+            # Get the uploaded file from multipart form data
+            if "file" not in self.request.files:
                 self.set_status(400)
-                self.write({"error": "Missing filename or content"})
+                self.write({"error": "No file uploaded"})
                 self.finish()
                 return
 
-            # Extract base64 content from data URL format
-            # Remove data URL prefix (e.g., "data:text/plain;base64,")
-            if "," in content:
-                base64_content = content.split(",")[1]
-            else:
-                base64_content = content
+            uploaded_file = self.request.files["file"][0]
+            filename = uploaded_file["filename"]
+            file_data = uploaded_file["body"]
 
-            # Convert base64 to binary
-            file_data = base64.b64decode(base64_content)
-
-            # Save file to root directory
+            # Save file to current working directory
             with open(filename, "wb") as f:
                 f.write(file_data)
 
-            # Return success response
+            # Return success response (same format as before)
             self.write({"success": True, "filename": filename, "path": filename})
             self.finish()
 
-        except json.JSONDecodeError:
-            self.set_status(400)
-            self.write({"error": "Invalid JSON in request body"})
-            self.finish()
         except Exception as e:
             self.set_status(500)
             self.write({"error": f"Failed to save file: {str(e)}"})
