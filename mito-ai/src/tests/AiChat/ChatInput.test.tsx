@@ -735,6 +735,74 @@ describe('ChatInput Component', () => {
                 })
             });
         });
+
+        it('handles file upload failure gracefully and logs error to console', async () => {
+            // Import the mocked requestAPI
+            const { requestAPI } = require('../../restAPI/utils');
+            
+            // Mock console.error to spy on it
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+            
+            // Setup the mock to return an error
+            (requestAPI as jest.Mock).mockResolvedValue({
+                data: null,
+                error: { message: 'Upload failed: Server error' }
+            });
+            
+            // Mock the FileReader
+            const mockFileReader = {
+                readAsDataURL: jest.fn(),
+                onload: null as any,
+                result: 'data:text/csv;base64,dGVzdA=='
+            };
+            global.FileReader = jest.fn(() => mockFileReader) as any;
+            
+            renderChatInput();
+            
+            // Find the attach file button (paper clip icon)
+            const attachFileButton = screen.getByTitle('Attach File');
+            
+            // Create a mock file
+            const mockFile = new File(['test content'], 'test.csv', { type: 'text/csv' });
+            
+            // Simulate file selection
+            await act(async () => {
+                fireEvent.click(attachFileButton);
+                
+                // Trigger the file input change event
+                const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+                fireEvent.change(fileInput, { target: { files: [mockFile] } });
+            });
+            
+            // Simulate FileReader completion
+            await act(async () => {
+                mockFileReader.onload({ target: { result: 'data:text/csv;base64,dGVzdA==' } });
+            });
+            
+            // Wait for the upload to complete
+            await act(async () => {
+                // Wait for any async operations to complete
+                await new Promise(resolve => setTimeout(resolve, 0));
+            });
+            
+            // Verify the error was logged to console
+            expect(consoleSpy).toHaveBeenCalledWith('Upload failed:', 'Upload failed: Server error');
+            
+            // Verify the file does NOT appear in the additional context (since upload failed)
+            expect(screen.queryByText('test.csv')).not.toBeInTheDocument();
+            
+            // Verify the requestAPI was still called (attempt was made)
+            expect(requestAPI).toHaveBeenCalledWith('upload', {
+                method: 'POST',
+                body: JSON.stringify({
+                    filename: 'test.csv',
+                    content: 'data:text/csv;base64,dGVzdA=='
+                })
+            });
+            
+            // Clean up the spy
+            consoleSpy.mockRestore();
+        });
     });
 
     describe('Active Cell Context', () => {
