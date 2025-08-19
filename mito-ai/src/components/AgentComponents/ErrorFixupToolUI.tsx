@@ -111,6 +111,7 @@ const GroupedErrorsAndFixes: React.FC<IErrorFixupToolUIProps> = ({
                             codeReviewStatus="chatPreview"
                             agentModeEnabled={true}
                             isErrorFixup={true}
+                            isRunAllCells={messageItem.agentResponse?.type === 'run_all_cells'}
                         />
                     );
                 })}

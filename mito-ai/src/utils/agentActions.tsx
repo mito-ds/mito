@@ -93,6 +93,8 @@ export const retryIfExecutionError = async (
     // attempt to ensure we don't say "third attempt" over and over again.
     const MAX_RETRIES = 3;
     let attempts = 0;
+    let runAllCellsAttempts = 0;
+    const MAX_RUN_ALL_CELLS_ATTEMPTS = 2; // Only allow two run_all_cells attempt per error cycle
 
     while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
 
@@ -132,8 +134,20 @@ export const retryIfExecutionError = async (
                 )
             }
         } else if (agentResponse.type === 'run_all_cells') {
+            // Prevent infinite loops by limiting run_all_cells attempts
+            if (runAllCellsAttempts >= MAX_RUN_ALL_CELLS_ATTEMPTS) {
+                console.log('Maximum run_all_cells attempts reached, treating as failure');
+                return 'failure';
+            }
+            
+            runAllCellsAttempts++;
             // Execute runAllCells to fix NameError issues
-            await runAllCells(app, notebookTracker);
+            const result = await runAllCells(app, notebookTracker);
+            if (!result.success) {
+                // If run_all_cells resulted in an error, we should continue with error handling
+                // The error will be caught in the main loop
+                console.log('Error after running all cells:', result.errorMessage);
+            }
         } else {
             // Agent responded with an unexpected type for error fixing
             return 'failure'
@@ -153,11 +167,38 @@ export const retryIfExecutionError = async (
 export const runAllCells = async (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker
-): Promise<void> => {
+): Promise<{ success: boolean; errorMessage?: string; errorCellId?: string }> => {
     await app.commands.execute("notebook:run-all-cells");
     
     // Give the execution some time to complete and update variables
     // This ensures that the variable manager has time to update the state
     await sleep(2000);
+    
+    // Check all cells for errors after execution
+    const notebook = notebookTracker.currentWidget?.content;
+    if (!notebook) {
+        return { success: false, errorMessage: "No active notebook found" };
+    }
+    
+    // Iterate through all cells to find any with errors
+    for (let i = 0; i < notebook.widgets.length; i++) {
+        const cell = notebook.widgets[i];
+        if (cell && cell.model.type === 'code') {
+            const codeCell = cell as CodeCell;
+            if (didCellExecutionError(codeCell)) {
+                const errorOutput = codeCell.model.outputs?.toJSON().find(output => output.output_type === "error");
+                if (errorOutput) {
+                    const errorMessage = getFullErrorMessageFromTraceback(errorOutput.traceback as string[]);
+                    return { 
+                        success: false, 
+                        errorMessage: errorMessage,
+                        errorCellId: codeCell.model.id
+                    };
+                }
+            }
+        }
+    }
+    
+    return { success: true };
 }
 

@@ -29,7 +29,6 @@ import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
 import { AgentResponse } from '../../../websockets/completions/CompletionModels';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI'
-import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 
@@ -187,7 +186,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 ) : (
                                     <AssistantCodeBlock
                                         code={messagePart}
-                                        codeSummary={agentResponse?.cell_update?.code_summary ?? undefined}
+                                        codeSummary={agentResponse?.cell_update?.code_summary ?? 
+                                            (agentResponse?.type === 'run_all_cells' ? 'Running all cells' : undefined)}
                                         isCodeComplete={isCodeComplete}
                                         renderMimeRegistry={renderMimeRegistry}
                                         previewAICode={previewAICode}
@@ -196,6 +196,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         isLastAiMessage={isLastAiMessage}
                                         codeReviewStatus={codeReviewStatus}
                                         agentModeEnabled={agentModeEnabled}
+                                        isRunAllCells={agentResponse?.type === 'run_all_cells'}
                                     />
                                 )}
 
@@ -303,8 +304,20 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             {agentResponse?.type === 'get_cell_output' &&
                 <GetCellOutputToolUI />
             }
-            {agentResponse?.type === 'run_all_cells' &&
-                <RunAllCellsToolUI />
+            {agentResponse?.type === 'run_all_cells' && agentModeEnabled &&
+                <AssistantCodeBlock
+                    code=""
+                    codeSummary={agentResponse.message}
+                    isCodeComplete={true}
+                    renderMimeRegistry={renderMimeRegistry}
+                    previewAICode={previewAICode}
+                    acceptAICode={acceptAICode}
+                    rejectAICode={rejectAICode}
+                    isLastAiMessage={isLastAiMessage}
+                    codeReviewStatus={codeReviewStatus}
+                    agentModeEnabled={agentModeEnabled}
+                    isRunAllCells={true}
+                />
             }
         </div>
     )

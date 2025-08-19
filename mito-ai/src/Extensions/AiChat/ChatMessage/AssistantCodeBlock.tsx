@@ -11,6 +11,7 @@ import '../../../../style/CodeBlock.css'
 import '../../../../style/AgentComponentHeader.css'
 import { CodeReviewStatus } from '../ChatTaskpane';
 import CodeIcon from '../../../icons/CodeIcon';
+import PlayButtonIcon from '../../../icons/PlayButtonIcon';
 import CodeBlockToolbar from './CodeBlockToolbar';
 import AgentComponentHeader from '../../../components/AgentComponents/AgentComponentHeader';
 
@@ -26,6 +27,7 @@ interface IAssistantCodeBlockProps {
     codeReviewStatus: CodeReviewStatus;
     agentModeEnabled: boolean;
     isErrorFixup?: boolean;
+    isRunAllCells?: boolean;
 }
 
 const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
@@ -39,12 +41,30 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     isLastAiMessage,
     codeReviewStatus,
     agentModeEnabled,
-    isErrorFixup
+    isErrorFixup,
+    isRunAllCells
 }) => {
     const [isCodeExpanded, setIsCodeExpanded] = useState(false);
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
 
     if (agentModeEnabled) {
+        // Handle run_all_cells display
+        if (isRunAllCells) {
+            return (
+                <div className={classNames('code-block-container', 'agent-mode')}>
+                    <AgentComponentHeader
+                        icon={<PlayButtonIcon />}
+                        text={codeSummary ?? 'Running all cells in the notebook'}
+                        onClick={() => {}} // No expand/collapse for run_all_cells
+                        isExpanded={false}
+                        displayBorder={!isErrorFixup}
+                        className={isErrorFixup ? 'error-fixup' : undefined}
+                    />
+                </div>
+            );
+        }
+
+        // Handle regular code blocks
         return (
             <div className={classNames('code-block-container', 'agent-mode', {
                 'agent-mode-collapsed': !isCodeExpanded,

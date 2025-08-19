@@ -219,6 +219,8 @@ Important information:
 1. Use this tool when you encounter a NameError. For example, if you get an error like "NameError: name 'prompts_df' is not defined", you should use this tool to run all cells from the top of the notebook to the bottom to bring the variable into scope.
 2. Note that if the name error persists even after using run_all_cells, it means that the variable is not defined in the notebook and you should not reuse this tool.
 3. Additionally, this tool could also be used to refresh the notebook state.
+4. If running all cells results in an error, the system will automatically handle the error through the normal error fixing process.
+5. Do not use this tool repeatedly if it continues to produce errors - instead, focus on fixing the specific error that occurred.
 ====
 
 TOOL: FINISHED_TASK

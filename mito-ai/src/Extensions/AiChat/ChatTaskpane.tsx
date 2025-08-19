@@ -1018,7 +1018,39 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'run_all_cells') {
-                await runAllCells(app, notebookTracker)
+                const result = await runAllCells(app, notebookTracker)
+                
+                // If run_all_cells resulted in an error, handle it through the error fixup process
+                if (!result.success && result.errorMessage && result.errorCellId) {
+                    // Set the error cell as active so the error retry logic can work with it
+                    setActiveCellByID(notebookTracker, result.errorCellId)
+                    
+                    const status = await retryIfExecutionError(
+                        notebookTracker,
+                        app,
+                        getDuplicateChatHistoryManager,
+                        addAIMessageFromResponseAndUpdateState,
+                        sendAgentSmartDebugMessage,
+                        previewAICodeToActiveCell,
+                        acceptAICode,
+                        shouldContinueAgentExecution,
+                        finalizeAgentStop,
+                        chatHistoryManagerRef
+                    )
+
+                    if (status === 'interupted') {
+                        break;
+                    }
+
+                    if (status === 'failure') {
+                        addAIMessageFromResponseAndUpdateState(
+                            "I apologize, but I encountered an error while running all cells and was unable to fix it after multiple attempts. You may want to check the notebook for errors.",
+                            'agent:execution',
+                            chatHistoryManager
+                        )
+                        break;
+                    }
+                }
             }
         }
 
