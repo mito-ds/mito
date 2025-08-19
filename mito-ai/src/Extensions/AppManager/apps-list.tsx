@@ -19,10 +19,13 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
   React.useEffect(() => {
     const loadApps = async () => {
       try {
+        console.log('[AppsList] Starting to load apps...');
         setLoading(true);
         setError(null);
 
+        console.log('[AppsList] Calling fetchUserApps...');
         const response: GetAppsResponse = await fetchUserApps(appManagerService);
+        console.log('[AppsList] fetchUserApps response:', response);
 
         if (response.success) {
           setApps(response.apps);
@@ -31,6 +34,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
           setApps([]);
         }
       } catch (err) {
+        console.error('[AppsList] Error loading apps:', err);
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         setApps([]);
       } finally {
@@ -38,6 +42,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
       }
     };
 
+    console.log('[AppsList] Component mounted, calling loadApps...');
     loadApps();
   }, [appManagerService]); // Add appManagerService to dependency array
 
