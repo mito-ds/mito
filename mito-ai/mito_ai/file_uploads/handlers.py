@@ -35,18 +35,12 @@ class FileUploadHandler(APIHandler):
             # Convert base64 to binary
             file_data = base64.b64decode(base64_content)
 
-            # Create uploads directory if it doesn't exist
-            upload_dir = "./uploads"
-            if not os.path.exists(upload_dir):
-                os.makedirs(upload_dir)
-
-            # Save file
-            file_path = os.path.join(upload_dir, filename)
-            with open(file_path, "wb") as f:
+            # Save file to root directory
+            with open(filename, "wb") as f:
                 f.write(file_data)
 
             # Return success response
-            self.write({"success": True, "filename": filename, "path": file_path})
+            self.write({"success": True, "filename": filename, "path": filename})
             self.finish()
 
         except json.JSONDecodeError:

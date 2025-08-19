@@ -71,7 +71,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setAdditionalContext(prev => [
             ...prev, {
                 type: 'file',
-                value: "uploads/" + fileName,
+                value: fileName,
                 display: fileName
             }
         ]);

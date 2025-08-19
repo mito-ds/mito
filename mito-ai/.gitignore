@@ -10,7 +10,6 @@ node_modules/
 mito_ai/labextension
 .vscode/
 sample_data/
-uploads/
 
 # Integration tests
 ui-tests/test-results/
