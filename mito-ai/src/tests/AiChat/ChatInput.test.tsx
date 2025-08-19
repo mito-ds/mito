@@ -24,6 +24,11 @@ jest.mock('../../restAPI/RestAPI', () => ({
   getDatabaseConnections: jest.fn().mockResolvedValue({})
 }));
 
+// Mock the requestAPI function
+jest.mock('../../restAPI/utils', () => ({
+  requestAPI: jest.fn()
+}));
+
 // Mock the PythonCode component
 jest.mock('../../Extensions/AiChat/ChatMessage/PythonCode', () => {
     return {
@@ -652,6 +657,83 @@ describe('ChatInput Component', () => {
             expect(screen.queryByText('Data Analysis')).not.toBeInTheDocument();
             expect(screen.queryByText('Visualization')).not.toBeInTheDocument();
             expect(screen.queryByText('Machine Learning')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Attach File Button', () => {
+        beforeEach(() => {
+            // Clear the DOM between tests
+            document.body.innerHTML = '';
+        });
+
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('adds uploaded file to additional context', async () => {
+            // Import the mocked requestAPI
+            const { requestAPI } = require('../../restAPI/utils');
+            
+            // Mock the file upload API response
+            const mockUploadResponse = {
+                success: true,
+                filename: 'test.csv',
+                path: '/uploads/test.csv'
+            };
+            
+            // Setup the mock to return success
+            (requestAPI as jest.Mock).mockResolvedValue({
+                data: mockUploadResponse,
+                error: null
+            });
+            
+            // Mock the FileReader
+            const mockFileReader = {
+                readAsDataURL: jest.fn(),
+                onload: null as any,
+                result: 'data:text/csv;base64,dGVzdA=='
+            };
+            global.FileReader = jest.fn(() => mockFileReader) as any;
+            
+            renderChatInput();
+            
+            // Find the attach file button (paper clip icon)
+            const attachFileButton = screen.getByTitle('Attach File');
+            
+            // Create a mock file
+            const mockFile = new File(['test content'], 'test.csv', { type: 'text/csv' });
+            
+            // Simulate file selection
+            await act(async () => {
+                fireEvent.click(attachFileButton);
+                
+                // Trigger the file input change event
+                const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+                fireEvent.change(fileInput, { target: { files: [mockFile] } });
+            });
+            
+            // Simulate FileReader completion
+            await act(async () => {
+                mockFileReader.onload({ target: { result: 'data:text/csv;base64,dGVzdA==' } });
+            });
+            
+            // Wait for the upload to complete
+            await act(async () => {
+                // Wait for any async operations to complete
+                await new Promise(resolve => setTimeout(resolve, 0));
+            });
+            
+            // Verify the file appears in the additional context
+            expect(screen.getByText('test.csv')).toBeInTheDocument();
+            
+            // Verify the requestAPI was called with the correct parameters
+            expect(requestAPI).toHaveBeenCalledWith('upload', {
+                method: 'POST',
+                body: JSON.stringify({
+                    filename: 'test.csv',
+                    content: 'data:text/csv;base64,dGVzdA=='
+                })
+            });
         });
     });
 
