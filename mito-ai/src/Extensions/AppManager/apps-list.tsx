@@ -4,6 +4,7 @@ import { copyIcon } from '@jupyterlab/ui-components';
 import { logoutAndClearJWTTokens } from '../AppBuilder/auth';
 import { fetchUserApps, GetAppsResponse, App } from './list-apps-api';
 import { IAppManagerService } from './ManageAppsPlugin';
+import '../../../style/apps-list.css';
 
 // Add props interface to receive the appManagerService
 interface AppsListProps {
@@ -91,35 +92,16 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
   };
 
   return (
-    <div style={{ padding: '16px', fontSize: '13px', fontFamily: 'var(--jp-ui-font-family)' }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '16px'
-      }}>
-        <h3 style={{
-          margin: '0',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          color: 'var(--jp-ui-font-color1)'
-        }}>
+    <div className="apps-list-container">
+      <div className="apps-list-header">
+        <h3 className="apps-list-title">
           Your Apps
         </h3>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="apps-list-actions">
           <button
             onClick={refreshApps}
             disabled={loading}
-            style={{
-              padding: '4px 8px',
-              fontSize: '11px',
-              backgroundColor: 'transparent',
-              color: 'var(--jp-ui-font-color2)',
-              border: '1px solid var(--jp-border-color2)',
-              borderRadius: '3px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontWeight: 'normal'
-            }}
+            className="apps-list-button"
             title="Refresh apps"
           >
             {loading ? 'Loading...' : 'Refresh'}
@@ -129,16 +111,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
               console.log('Logout clicked');
               logoutAndClearJWTTokens();
             }}
-            style={{
-              padding: '4px 8px',
-              fontSize: '11px',
-              backgroundColor: 'transparent',
-              color: 'var(--jp-ui-font-color2)',
-              border: '1px solid var(--jp-border-color2)',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              fontWeight: 'normal'
-            }}
+            className="apps-list-button"
             title="Logout"
           >
             Logout
@@ -147,145 +120,57 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
       </div>
 
       {loading ? (
-        <div style={{
-          color: 'var(--jp-ui-font-color2)',
-          textAlign: 'center',
-          padding: '20px 0'
-        }}>
+        <div className="apps-list-loading">
           Loading apps...
         </div>
       ) : error ? (
-        <div style={{
-          color: '#f44336',
-          textAlign: 'center',
-          padding: '20px 0',
-          backgroundColor: 'var(--jp-layout-color1)',
-          border: '1px solid #f44336',
-          borderRadius: '4px'
-        }}>
+        <div className="apps-list-error">
           Error: {error}
-          <div style={{ marginTop: '8px' }}>
+          <div className="apps-list-error-actions">
             <button
               onClick={refreshApps}
-              style={{
-                padding: '4px 8px',
-                fontSize: '11px',
-                backgroundColor: 'var(--jp-brand-color1)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer'
-              }}
+              className="apps-list-button primary"
             >
               Try Again
             </button>
           </div>
         </div>
       ) : apps.length === 0 ? (
-        <div style={{
-          color: 'var(--jp-ui-font-color2)',
-          textAlign: 'center',
-          padding: '20px 0'
-        }}>
+        <div className="apps-list-empty">
           No apps deployed yet
         </div>
       ) : (
         <div>
           {apps.map((app) => (
-            <div
-              key={app.id}
-              style={{
-                border: '1px solid var(--jp-border-color1)',
-                borderRadius: '4px',
-                padding: '12px',
-                marginBottom: '8px',
-                backgroundColor: 'var(--jp-layout-color0)'
-              }}
-            >
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                marginBottom: '8px'
-              }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{
-                    fontWeight: 'bold',
-                    color: 'var(--jp-ui-font-color1)',
-                    marginBottom: '4px'
-                  }}>
+            <div key={app.id} className="app-item">
+              <div className="app-item-header">
+                <div className="app-item-content">
+                  <div className="app-item-name">
                     {app.name}
                   </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginBottom: '4px'
-                  }}>
+                  <div className="app-item-status-container">
                     <span
-                      style={{
-                        display: 'inline-block',
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        backgroundColor: getStatusColor(app.status),
-                        marginRight: '6px'
-                      }}
+                      className="app-item-status-indicator"
+                      style={{ backgroundColor: getStatusColor(app.status) }}
                     />
-                    <span style={{
-                      color: 'var(--jp-ui-font-color2)',
-                      fontSize: '12px'
-                    }}>
+                    <span className="app-item-status-text">
                       {getStatusText(app.status)}
                     </span>
                   </div>
-                  <div style={{
-                    color: 'var(--jp-ui-font-color2)',
-                    fontSize: '11px'
-                  }}>
+                  <div className="app-item-created">
                     Created: {app.createdAt}
                   </div>
                 </div>
               </div>
 
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: 'var(--jp-layout-color1)',
-                border: '1px solid var(--jp-border-color2)',
-                borderRadius: '3px',
-                padding: '6px 8px'
-              }}>
-                <div style={{
-                  flex: 1,
-                  color: 'var(--jp-ui-font-color1)',
-                  fontSize: '11px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  fontFamily: 'var(--jp-code-font-family)'
-                }}>
+              <div className="app-item-url-container">
+                <div className="app-item-url">
                   {app.url}
                 </div>
                 <button
                   onClick={() => copyToClipboard(app.url, app.name)}
-                  style={{
-                    border: 'none',
-                    background: 'transparent',
-                    cursor: 'pointer',
-                    padding: '2px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginLeft: '8px',
-                    borderRadius: '2px'
-                  }}
+                  className="app-item-copy-button"
                   title={`Copy URL for ${app.name}`}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--jp-layout-color2)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
                 >
                   <copyIcon.react
                     width="14px"

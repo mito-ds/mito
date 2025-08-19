@@ -1,0 +1,301 @@
+/* ManageAppsWidget Styles */
+
+.manage-apps-widget {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--jp-layout-color0);
+  color: var(--jp-ui-font-color0);
+  font-family: var(--jp-ui-font-family);
+}
+
+.manage-apps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--jp-border-color1);
+  background: var(--jp-layout-color1);
+}
+
+.manage-apps-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--jp-ui-font-color0);
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-count {
+  font-size: 12px;
+  color: var(--jp-ui-font-color2);
+  background: var(--jp-layout-color2);
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.manage-apps-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+  color: var(--jp-ui-font-color2);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--jp-ui-font-color1);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* AppCard Styles */
+.app-card {
+  background: var(--jp-layout-color1);
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.app-card:hover {
+  border-color: var(--jp-accent-color1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.app-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.app-visibility {
+  display: flex;
+  align-items: center;
+}
+
+.visibility-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.visibility-badge.public {
+  background: var(--jp-success-color3);
+  color: var(--jp-success-color0);
+}
+
+.visibility-badge.private {
+  background: var(--jp-ui-font-color3);
+  color: var(--jp-ui-font-color1);
+}
+
+.app-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.copy-button {
+  padding: 6px;
+  background: transparent;
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.copy-button:hover {
+  background: var(--jp-layout-color2);
+  border-color: var(--jp-accent-color1);
+}
+
+.copy-icon {
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.copy-icon.copied {
+  color: var(--jp-success-color1);
+  transform: scale(1.1);
+}
+
+.app-card-content {
+  margin-bottom: 16px;
+}
+
+.app-name {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--jp-ui-font-color0);
+}
+
+.app-description {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: var(--jp-ui-font-color2);
+  line-height: 1.4;
+}
+
+.app-url {
+  margin-bottom: 16px;
+}
+
+.url-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--jp-ui-font-color2);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.url-container {
+  position: relative;
+}
+
+.url-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 4px;
+  background: var(--jp-layout-color0);
+  color: var(--jp-ui-font-color0);
+  font-size: 12px;
+  font-family: monospace;
+  cursor: text;
+}
+
+.url-input:focus {
+  outline: none;
+  border-color: var(--jp-accent-color1);
+}
+
+.app-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.meta-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.meta-label {
+  color: var(--jp-ui-font-color2);
+}
+
+.meta-value {
+  color: var(--jp-ui-font-color1);
+  font-weight: 500;
+}
+
+.meta-value.status-running {
+  color: var(--jp-success-color1);
+}
+
+.app-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.open-app-button {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 14px;
+  background: var(--jp-accent-color1);
+  color: var(--jp-ui-inverse-font-color0);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.open-app-button:hover {
+  background: var(--jp-accent-color2);
+}
+
+.button-icon {
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .apps-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .manage-apps-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .header-info {
+    align-self: flex-end;
+  }
+}
+
+/* JupyterLab Theme Integration */
+.jp-ReactWidget.manage-apps-widget-container {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Dark theme adjustments */
+[data-jp-theme-light="false"] .app-card {
+  background: var(--jp-layout-color1);
+  border-color: var(--jp-border-color1);
+}
+
+[data-jp-theme-light="false"] .url-input {
+  background: var(--jp-layout-color0);
+  color: var(--jp-ui-font-color0);
+}
+
