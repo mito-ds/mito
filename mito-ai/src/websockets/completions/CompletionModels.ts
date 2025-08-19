@@ -138,6 +138,7 @@ export interface IFetchHistoryMetadata {
 
 export interface IStartNewChatMetadata {
   promptType: 'start_new_chat'
+  mode?: 'chat' | 'agent'
 }
 
 export interface IGetThreadsMetadata {
@@ -376,6 +377,31 @@ export interface IChatThreadMetadataItem {
    * Last interaction timestamp.
    */
   last_interaction_ts: number;
+
+  /**
+   * Chat mode - either 'chat' or 'agent'.
+   */
+  mode: 'chat' | 'agent';
+}
+
+/**
+ * Session state stored in localStorage for refresh persistence.
+ */
+export interface IChatSessionState {
+  /**
+   * Currently active thread ID.
+   */
+  activeThreadId?: string;
+
+  /**
+   * Current chat mode.
+   */
+  currentMode: 'chat' | 'agent';
+
+  /**
+   * Timestamp when the state was last saved.
+   */
+  lastSaved: number;
 }
 
 /**

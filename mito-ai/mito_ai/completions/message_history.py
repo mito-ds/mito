@@ -6,7 +6,7 @@ import time
 import json
 import uuid
 from threading import Lock
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Literal
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import CompletionRequest, ChatThreadMetadata, MessageType, ThreadID
@@ -65,6 +65,7 @@ class ChatThread:
         name: str,
         ai_optimized_history: List[ChatCompletionMessageParam] = [],
         display_history: List[ChatCompletionMessageParam] = [],
+        mode: Literal['chat', 'agent'] = 'agent',
     ):
         self.thread_id = thread_id
         self.creation_ts = creation_ts
@@ -72,6 +73,7 @@ class ChatThread:
         self.name = name  # short name for the thread
         self.ai_optimized_history: List[ChatCompletionMessageParam] = ai_optimized_history or []
         self.display_history: List[ChatCompletionMessageParam] = display_history or []
+        self.mode: Literal['chat', 'agent'] = mode
         self.chat_history_version = CHAT_HISTORY_VERSION
 
 class GlobalMessageHistory:
@@ -156,7 +158,7 @@ class GlobalMessageHistory:
         # Load existing threads from disk on startup
         self._load_all_threads_from_disk()
 
-    def create_new_thread(self) -> ThreadID:
+    def create_new_thread(self, mode: Literal['chat', 'agent'] = 'agent') -> ThreadID:
         """
         Creates a new empty chat thread and saves it immediately.
         """
@@ -168,6 +170,7 @@ class GlobalMessageHistory:
                 creation_ts=now,
                 last_interaction_ts=now,
                 name=NEW_CHAT_NAME,  # we'll fill this in once we have at least user & assistant messages
+                mode=mode,
             )
             self._chat_threads[thread_id] = new_thread
             self._save_thread_to_disk(new_thread)
@@ -189,6 +192,8 @@ class GlobalMessageHistory:
                     # Check version
                     file_version = data.get("chat_history_version", 0)
                     if file_version == CHAT_HISTORY_VERSION:
+                        # Handle backward compatibility for mode field
+                        mode = data.get("mode", self._detect_mode_from_history(data.get("display_history", [])))
                         thread = ChatThread(
                             thread_id=ThreadID(data["thread_id"]),
                             creation_ts=data["creation_ts"],
@@ -196,6 +201,7 @@ class GlobalMessageHistory:
                             name=data["name"],
                             ai_optimized_history=data.get("ai_optimized_history", []),
                             display_history=data.get("display_history", []),
+                            mode=mode,
                         )
                         self._chat_threads[thread.thread_id] = thread
                     else:
@@ -208,6 +214,26 @@ class GlobalMessageHistory:
             except Exception as e:
                 print(f"Error loading chat thread from {path}: {e}")
     
+    def _detect_mode_from_history(self, display_history: List[ChatCompletionMessageParam]) -> Literal['chat', 'agent']:
+        """
+        Analyzes the display history to detect if this is an agent or chat thread.
+        Looks for structured agent responses with 'type' field.
+        """
+        for message in display_history:
+            if message.get('role') == 'assistant':
+                try:
+                    content = message.get('content')
+                    if content and isinstance(content, str):
+                        parsed_content = json.loads(content)
+                        if isinstance(parsed_content, dict) and 'type' in parsed_content:
+                            # Found an agent response
+                            return 'agent'
+                except (json.JSONDecodeError, TypeError):
+                    # Not JSON or not a dict, continue checking
+                    continue
+        # Default to chat if no agent responses found
+        return 'chat'
+
     def _save_thread_to_disk(self, thread: ChatThread) -> None:
         """
         Saves the given ChatThread to a JSON file `<thread_id>.json` in `self._chats_dir`.
@@ -375,6 +401,7 @@ class GlobalMessageHistory:
           - name
           - creation_ts
           - last_interaction_ts
+          - mode
         The list is sorted by last_interaction_ts (newest first).
         """
         with self._lock:
@@ -385,6 +412,7 @@ class GlobalMessageHistory:
                     name=thread.name,
                     creation_ts=thread.creation_ts,
                     last_interaction_ts=thread.last_interaction_ts,
+                    mode=thread.mode,
                 ))
             threads.sort(key=lambda x: x.last_interaction_ts, reverse=True)
 

@@ -136,7 +136,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Clear history if the type is "start_new_chat"
         if type == MessageType.START_NEW_CHAT:
-            thread_id = message_history.create_new_thread()
+            # Extract mode from metadata, default to 'agent' if not provided
+            mode = metadata_dict.get('mode', 'agent')
+            thread_id = message_history.create_new_thread(mode=mode)
             
             reply = StartNewChatReply(
                 parent_id=parsed_message.get("message_id"),

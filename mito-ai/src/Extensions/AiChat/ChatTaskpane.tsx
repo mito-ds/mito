@@ -29,6 +29,9 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
 } from '../../commands';
 
+// Internal imports - Utils
+import { loadSessionState, updateSessionActiveThread, updateSessionMode } from '../../utils/sessionState';
+
 // Internal imports - Components
 import GroupedErrorsAndFixes from '../../components/AgentComponents/ErrorFixupToolUI';
 import DropdownMenu from '../../components/DropdownMenu';
@@ -166,7 +169,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         so that we can access the most up-to-date value during a function's execution.
         Without it, we would always use the initial value of agentModeEnabled.
     */
-    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(true)
+    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(() => {
+        // Try to restore mode from session state, default to agent if not found
+        const sessionState = loadSessionState();
+        if (sessionState && sessionState.currentMode) {
+            return sessionState.currentMode === 'agent';
+        }
+        return true; // Default to agent mode
+    })
     const agentModeEnabledRef = useRef<boolean>(agentModeEnabled);
     useEffect(() => {
         // Update the ref whenever agentModeEnabled state changes
@@ -270,25 +280,35 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Create a fresh ChatHistoryManager and add the initial messages
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
 
-        // Each thread only contains agent or chat messages. For now, we enforce this by clearing the chat 
-        // when the user switches mode. When the user reloads a chat, we want to put them back into the same
-        // chat mode so that we use the correct system message and preserve this one-type of message invariant.
-        let isAgentChat: boolean = false
+        // Find the thread metadata to get the correct mode
+        const threadMetadata = chatThreads.find(thread => thread.thread_id === threadId);
+        let isAgentChat: boolean = threadMetadata?.mode === 'agent';
+
+        // If we don't have thread metadata (shouldn't happen), fall back to detection
+        if (!threadMetadata) {
+            console.warn(`Thread metadata not found for thread ${threadId}, falling back to mode detection`);
+            isAgentChat = false;
+        }
 
         // Add messages to the ChatHistoryManager
         chatHistoryResponse.items.forEach(item => {
             try {
                 // If the user sent a message in agent:execution mode, the ai response will be a JSON object which we need to parse. 
-                // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
                 const chatHistoryItem = JSON.parse(item.content as string);
                 if (Object.prototype.hasOwnProperty.call(chatHistoryItem, 'type')) {
                     // If it is a structured output with 'type', then it is an AgentResponse and we should handle it as such
                     const agentResponse: AgentResponse = chatHistoryItem
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                    isAgentChat = true
+                    // If we didn't have metadata, detect from messages as fallback
+                    if (!threadMetadata) {
+                        isAgentChat = true;
+                    }
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
-                    isAgentChat = false
+                    // Only override if we're in fallback mode and this is the last message
+                    if (!threadMetadata) {
+                        isAgentChat = false;
+                    }
                 }
             } catch {
                 newChatHistoryManager.addChatMessageFromHistory(item);
@@ -299,6 +319,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentModeEnabled(isAgentChat)
         setChatHistoryManager(newChatHistoryManager);
         activeThreadIdRef.current = threadId;
+        
+        // Update session state
+        updateSessionActiveThread(threadId, isAgentChat ? 'agent' : 'chat');
     };
 
     const deleteThread = async (threadId: string): Promise<void> => {
@@ -328,7 +351,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     };
 
-    const startNewChat = async (): Promise<ChatHistoryManager> => {
+    const startNewChat = async (mode?: 'chat' | 'agent'): Promise<ChatHistoryManager> => {
 
         // If current thread is empty and we already have an active thread id, do not create a new thread.
         if (chatHistoryManagerRef.current.getDisplayOptimizedHistory().length === 0 && activeThreadIdRef.current !== '') {
@@ -351,19 +374,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
         setChatHistoryManager(newChatHistoryManager);
 
+        // Use provided mode or current agent mode state
+        const chatMode = mode || (agentModeEnabled ? 'agent' : 'chat');
+
         // Notify the backend to request a new chat thread and get its ID
         try {
             const response = await websocketClient.sendMessage<ICompletionRequest, IStartNewChatReply>({
                 type: 'start_new_chat',
                 message_id: UUID.uuid4(),
                 metadata: {
-                    promptType: 'start_new_chat'
+                    promptType: 'start_new_chat',
+                    mode: chatMode
                 },
                 stream: false,
             });
 
             // Set the new thread ID as active
             activeThreadIdRef.current = response.thread_id;
+            
+            // Update session state
+            updateSessionActiveThread(response.thread_id, chatMode);
         } catch (error) {
             console.error('Error starting new chat:', error);
         }
@@ -401,11 +431,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 setChatThreads(chatThreadsResponse.threads);
 
-                // 2. If threads exist, load the latest thread; otherwise, start a new chat.
-                if (chatThreadsResponse.threads.length > 0) {
+                // 2. Try to restore session state, otherwise load latest thread or start new chat
+                const sessionState = loadSessionState();
+                if (sessionState?.activeThreadId && chatThreadsResponse.threads.length > 0) {
+                    // Try to restore the previous active thread
+                    const savedThread = chatThreadsResponse.threads.find(thread => thread.thread_id === sessionState.activeThreadId);
+                    if (savedThread) {
+                        await fetchChatHistoryAndSetActiveThread(savedThread.thread_id);
+                    } else {
+                        // Saved thread not found, load latest thread
+                        const latestThread = chatThreadsResponse.threads[0]!;
+                        await fetchChatHistoryAndSetActiveThread(latestThread.thread_id);
+                    }
+                } else if (chatThreadsResponse.threads.length > 0) {
+                    // No session state, load latest thread
                     const latestThread = chatThreadsResponse.threads[0]!;
                     await fetchChatHistoryAndSetActiveThread(latestThread.thread_id);
                 } else {
+                    // No threads exist, start new chat with current mode
                     await startNewChat();
                 }
 
@@ -513,7 +556,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
         // Check if user is in agent mode and switch to chat mode if needed
         if (agentModeEnabledRef.current) {
-            await startNewChat();
+            await startNewChat('chat');
             setAgentModeEnabled(false);
             // Clear agent checkpoint when switching modes
             setHasCheckpoint(false);
@@ -1187,7 +1230,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                     // If its not already in agent mode, start a new chat in agent mode
                     if (!agentModeEnabledRef.current) {
-                        await startNewChat();
+                        await startNewChat('agent');
                         setAgentModeEnabled(true);
                     }
 
@@ -1530,8 +1573,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             rightTooltip="Agent mode writes and executes code until it's finished your request."
                             isLeftSelected={!agentModeEnabled}
                             onChange={async (isLeftSelected) => {
-                                await startNewChat(); // TODO: delete thread instead of starting new chat
+                                const newMode = isLeftSelected ? 'chat' : 'agent';
+                                await startNewChat(newMode); // TODO: delete thread instead of starting new chat
                                 setAgentModeEnabled(!isLeftSelected);
+                                // Update session state with new mode
+                                updateSessionMode(newMode);
                                 // Clear agent checkpoint when switching modes
                                 setHasCheckpoint(false);
                                 setShowRevertQuestionnaire(false);

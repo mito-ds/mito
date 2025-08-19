@@ -332,6 +332,14 @@ class FetchHistoryReply:
     type: Literal["reply"] = "reply"
 
 @dataclass(frozen=True)
+class StartNewChatMetadata:
+    """
+    Metadata for starting a new chat thread.
+    """
+    promptType: Literal['start_new_chat']
+    mode: Optional[Literal['chat', 'agent']] = None
+
+@dataclass(frozen=True)
 class ChatThreadMetadata:
     """
     Chat thread item.
@@ -344,6 +352,8 @@ class ChatThreadMetadata:
     creation_ts: float
 
     last_interaction_ts: float
+
+    mode: Literal['chat', 'agent']
 
 @dataclass(frozen=True)
 class StartNewChatReply:
