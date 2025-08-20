@@ -11,3 +11,6 @@ export const CLAUDE_SONNET_MODEL_NAME = 'claude-sonnet-4-20250514';
 
 export const GPT_DISPLAY_NAME = 'GPT 5 (max)';
 export const GPT_MODEL_NAME = 'gpt-5';
+
+export const QWEN_CODER_DISPLAY_NAME = 'Qwen 3 Coder';
+export const QWEN_CODER_MODEL_NAME = 'qwen-3-coder-480b';
