@@ -15,6 +15,7 @@ from mito_ai.app_manager.models import (
     ErrorMessage,
     MessageType
 )
+from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 from mito_ai.logger import get_logger
 import requests
 
@@ -87,37 +88,23 @@ class AppManagerHandler(BaseWebSocketHandler):
     async def _handle_manage_app(self, request: ManageAppRequest) -> None:
         """Handle a manage app request with hardcoded data."""
         try:
-            # Hardcoded app data for testing
-            hardcoded_apps = [
-                App(
-                    app_name="Sales Dashboard",
-                    url="https://sales-dashboard.streamlit.app",
-                    status="running",
-                    created_at="2023-12-01T10:30:00Z"
-                ),
-                App(
-                    app_name="Data Analysis Tool",
-                    url="https://data-analysis.streamlit.app",
-                    status="stopped",
-                    created_at="2023-11-28T14:20:00Z"
-                ),
-                App(
-                    app_name="ML Model Predictor",
-                    url="https://ml-predictor.streamlit.app",
-                    status="deploying",
-                    created_at="2023-12-03T09:15:00Z"
-                ),
-                App(
-                    app_name="Financial Report Generator",
-                    url="https://finance-reports.streamlit.app",
-                    status="running",
-                    created_at="2023-11-25T16:45:00Z"
-                )
-            ]
+            jwt_token = request.jwt_token
+            headers = {}
+            if jwt_token and jwt_token != 'placeholder-jwt-token':
+                headers['Authorization'] = f'Bearer {jwt_token}'
+            else:
+                self.log.warning("No JWT token provided for API request")
+                return
+
+            manage_apps_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/manage-apps",
+                                        headers=headers)
+            manage_apps_response.raise_for_status()
+
+            apps_data = manage_apps_response.json()
 
             # Create successful response
             reply = ManageAppReply(
-                apps=hardcoded_apps,
+                apps=apps_data,
                 message_id=request.message_id
             )
 
