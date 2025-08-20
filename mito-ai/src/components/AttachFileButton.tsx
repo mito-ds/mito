@@ -45,29 +45,84 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
         console.log(`Splitting file into ${totalChunks} chunks of ${(CHUNK_SIZE / (1024 * 1024)).toFixed(2)}MB each`);
 
-        for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-            const start = chunkIndex * CHUNK_SIZE;
-            const end = Math.min(start + CHUNK_SIZE, file.size);
-            const chunk = file.slice(start, end);
-            
-            console.log(`Chunk ${chunkIndex + 1}/${totalChunks}:`, {
-                chunkNumber: chunkIndex + 1,
-                totalChunks: totalChunks,
-                chunkSize: chunk.size,
-                chunkSizeMB: (chunk.size / (1024 * 1024)).toFixed(2),
-                startByte: start,
-                endByte: end,
-                fileName: file.name,
-                originalFileSize: file.size,
-                originalFileSizeMB: (file.size / (1024 * 1024)).toFixed(2)
-            });
+        try {
+            for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                const start = chunkIndex * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.slice(start, end);
+
+                console.log(`Uploading chunk ${chunkIndex + 1}/${totalChunks}:`, {
+                    chunkNumber: chunkIndex + 1,
+                    totalChunks: totalChunks,
+                    chunkSize: chunk.size,
+                    chunkSizeMB: (chunk.size / (1024 * 1024)).toFixed(2),
+                    startByte: start,
+                    endByte: end,
+                    fileName: file.name,
+                    originalFileSize: file.size,
+                    originalFileSizeMB: (file.size / (1024 * 1024)).toFixed(2)
+                });
+
+                // Upload chunk to backend
+                const success = await uploadChunk(chunk, file.name, chunkIndex + 1, totalChunks);
+                if (!success) {
+                    console.error(`Failed to upload chunk ${chunkIndex + 1}`);
+                    return;
+                }
+            }
+
+            console.log(`Successfully uploaded all ${totalChunks} chunks for file: ${file.name}`);
+
+            // Notify the parent component that the file was uploaded
+            onFileUploaded(file.name);
+
+        } catch (error) {
+            console.error('Error uploading chunks:', error);
         }
 
-        console.log(`Finished processing ${totalChunks} chunks for file: ${file.name}`);
-        
         // Clear the file input
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
+        }
+    };
+
+    const uploadChunk = async (chunk: Blob, filename: string, chunkNumber: number, totalChunks: number): Promise<boolean> => {
+        try {
+            // Create FormData for chunk upload
+            const formData = new FormData();
+            formData.append('file', chunk, filename);
+            formData.append('chunk_number', chunkNumber.toString());
+            formData.append('total_chunks', totalChunks.toString());
+
+            // Upload chunk to backend
+            const resp = await requestAPI<{
+                success: boolean;
+                filename?: string;
+                path?: string;
+                chunk_received?: boolean;
+                chunk_complete?: boolean;
+                chunk_number?: number;
+                total_chunks?: number;
+            }>('upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (resp.error) {
+                console.error(`Chunk ${chunkNumber} upload failed:`, resp.error.message);
+                return false;
+            } else if (resp.data) {
+                if (resp.data.chunk_complete) {
+                    console.log(`All chunks uploaded successfully. File reconstructed: ${resp.data.filename}`);
+                } else if (resp.data.chunk_received) {
+                    console.log(`Chunk ${resp.data.chunk_number}/${resp.data.total_chunks} uploaded successfully`);
+                }
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error(`Error uploading chunk ${chunkNumber}:`, error);
+            return false;
         }
     };
 
