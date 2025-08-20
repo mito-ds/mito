@@ -33,10 +33,12 @@ def handler():
     request.connection = Mock()
 
     handler = FileUploadHandler(app, request)
-    handler.write = Mock()
-    handler.finish = Mock()
-    handler.set_status = Mock()
-    handler.get_argument = Mock()
+
+    # Mock methods properly to avoid mypy errors
+    handler.write = Mock()  # type: ignore
+    handler.finish = Mock()  # type: ignore
+    handler.set_status = Mock()  # type: ignore
+    handler.get_argument = Mock()  # type: ignore
 
     # Mock authentication for Jupyter server
     handler._jupyter_current_user = "test_user"  # type: ignore
