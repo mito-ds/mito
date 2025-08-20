@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import IconButton from './IconButton';
 import PaperClipIcon from '../icons/PaperClipIcon';
 import { requestAPI } from '../restAPI/utils';
@@ -14,12 +14,16 @@ interface AttachFileButtonProps {
 
 const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     // Constants for file handling
     const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
     const CHUNK_SIZE = 50 * 1024 * 1024; // 50MB chunks
 
     const handleClick = (): void => {
+        // Don't allow clicks if uploading
+        if (isUploading) return;
+
         // Trigger the hidden file input
         fileInputRef.current?.click();
     };
@@ -42,6 +46,7 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
     };
 
     const handleLargeFile = async (file: File): Promise<void> => {
+        setIsUploading(true);
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
         console.log(`Splitting file into ${totalChunks} chunks of ${(CHUNK_SIZE / (1024 * 1024)).toFixed(2)}MB each`);
 
@@ -67,6 +72,7 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
                 const success = await uploadChunk(chunk, file.name, chunkIndex + 1, totalChunks);
                 if (!success) {
                     console.error(`Failed to upload chunk ${chunkIndex + 1}`);
+                    setIsUploading(false);
                     return;
                 }
             }
@@ -78,6 +84,8 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
 
         } catch (error) {
             console.error('Error uploading chunks:', error);
+        } finally {
+            setIsUploading(false);
         }
 
         // Clear the file input
@@ -127,24 +135,32 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
     };
 
     const uploadFile = async (file: File): Promise<void> => {
-        // Create FormData for file upload
-        const formData = new FormData();
-        formData.append('file', file);
+        setIsUploading(true);
 
-        // Upload file to backend using FormData
-        const resp = await requestAPI<{ success: boolean; filename: string; path: string }>('upload', {
-            method: 'POST',
-            body: formData
-        });
+        try {
+            // Create FormData for file upload
+            const formData = new FormData();
+            formData.append('file', file);
 
-        if (resp.error) {
-            console.error('Upload failed:', resp.error.message);
-        } else if (resp.data) {
-            console.log('File uploaded successfully:', resp.data);
+            // Upload file to backend using FormData
+            const resp = await requestAPI<{ success: boolean; filename: string; path: string }>('upload', {
+                method: 'POST',
+                body: formData
+            });
 
-            // Notify the parent component that the file was uploaded, 
-            // which will update the context manager.
-            onFileUploaded(file.name);
+            if (resp.error) {
+                console.error('Upload failed:', resp.error.message);
+            } else if (resp.data) {
+                console.log('File uploaded successfully:', resp.data);
+
+                // Notify the parent component that the file was uploaded, 
+                // which will update the context manager.
+                onFileUploaded(file.name);
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        } finally {
+            setIsUploading(false);
         }
 
         if (fileInputRef.current) {
@@ -166,11 +182,13 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
             {/* File upload button */}
             <IconButton
                 icon={<PaperClipIcon />}
-                title='Attach File'
+                title={isUploading ? 'Uploading...' : 'Attach File'}
                 onClick={handleClick}
                 className='icon-button-hover'
+                disabled={isUploading}
                 style={{
-                    height: 'var(--chat-context-button-height)'
+                    opacity: isUploading ? 0.5 : 1,
+                    cursor: isUploading ? 'not-allowed' : 'pointer'
                 }}
             />
         </div>

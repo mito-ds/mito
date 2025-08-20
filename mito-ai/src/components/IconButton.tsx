@@ -15,12 +15,13 @@ interface IconButtonProps {
     style?: React.CSSProperties;
     notificationDotType?: 'success' | 'warning' | 'danger' | null;
     className?: string;
+    disabled?: boolean;
 }
 
-const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, style, notificationDotType = null, className }) => {
+const IconButton: React.FC<IconButtonProps> = ({ icon, onClick, title, style, notificationDotType = null, className, disabled = false }) => {
 
     return (
-        <button className={classNames("icon-button", className)} onClick={onClick} title={title} style={style}>
+        <button className={classNames("icon-button", className)} onClick={onClick} title={title} style={style} disabled={disabled}>
             {icon}
             {notificationDotType && <div className={`notification-dot notification-dot-${notificationDotType}`}></div>}
         </button>
