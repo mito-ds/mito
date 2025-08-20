@@ -11,11 +11,8 @@ class FileUploadHandler(APIHandler):
     def post(self) -> None:
         """Handle file upload with multipart form data."""
         try:
-            # Get the uploaded file from multipart form data
-            if "file" not in self.request.files:
-                self.set_status(400)
-                self.write({"error": "No file uploaded"})
-                self.finish()
+            # Validate request has file
+            if not self._validate_file_upload():
                 return
 
             uploaded_file = self.request.files["file"][0]
@@ -27,63 +24,97 @@ class FileUploadHandler(APIHandler):
             total_chunks = self.get_argument("total_chunks", None)
 
             if chunk_number and total_chunks:
-                # Handle chunked upload
-                chunk_number = int(chunk_number)
-                total_chunks = int(total_chunks)
-
-                # Save chunk to temporary file
-                chunk_filename = f"{filename}.part{chunk_number}"
-                with open(chunk_filename, "wb") as f:
-                    f.write(file_data)
-
-                # Check if all chunks are received
-                all_chunks_received = True
-                for i in range(1, total_chunks + 1):
-                    if not os.path.exists(f"{filename}.part{i}"):
-                        all_chunks_received = False
-                        break
-
-                if all_chunks_received:
-                    # Combine all chunks into final file
-                    with open(filename, "wb") as final_file:
-                        for i in range(1, total_chunks + 1):
-                            chunk_filename = f"{filename}.part{i}"
-                            with open(chunk_filename, "rb") as chunk_file:
-                                final_file.write(chunk_file.read())
-                            # Clean up chunk file
-                            os.remove(chunk_filename)
-
-                    # Return success response
-                    self.write(
-                        {
-                            "success": True,
-                            "filename": filename,
-                            "path": filename,
-                            "chunk_complete": True,
-                        }
-                    )
-                else:
-                    # Return chunk received response
-                    self.write(
-                        {
-                            "success": True,
-                            "chunk_received": True,
-                            "chunk_number": chunk_number,
-                            "total_chunks": total_chunks,
-                        }
-                    )
-
+                self._handle_chunked_upload(
+                    filename, file_data, chunk_number, total_chunks
+                )
             else:
-                # Handle regular (non-chunked) upload
-                with open(filename, "wb") as f:
-                    f.write(file_data)
-
-                # Return success response (same format as before)
-                self.write({"success": True, "filename": filename, "path": filename})
+                self._handle_regular_upload(filename, file_data)
 
             self.finish()
 
         except Exception as e:
-            self.set_status(500)
-            self.write({"error": f"Failed to save file: {str(e)}"})
-            self.finish()
+            self._handle_error(f"Failed to save file: {str(e)}")
+
+    def _validate_file_upload(self) -> bool:
+        """Validate that a file was uploaded in the request."""
+        if "file" not in self.request.files:
+            self._handle_error("No file uploaded", status_code=400)
+            return False
+        return True
+
+    def _handle_chunked_upload(
+        self, filename: str, file_data: bytes, chunk_number: str, total_chunks: str
+    ) -> None:
+        """Handle chunked file upload."""
+        chunk_num = int(chunk_number)
+        total_chunks_num = int(total_chunks)
+
+        # Save chunk to temporary file
+        self._save_chunk(filename, file_data, chunk_num)
+
+        # Check if all chunks are received and reconstruct if complete
+        if self._are_all_chunks_received(filename, total_chunks_num):
+            self._reconstruct_file(filename, total_chunks_num)
+            self._send_chunk_complete_response(filename)
+        else:
+            self._send_chunk_received_response(chunk_num, total_chunks_num)
+
+    def _handle_regular_upload(self, filename: str, file_data: bytes) -> None:
+        """Handle regular (non-chunked) file upload."""
+        with open(filename, "wb") as f:
+            f.write(file_data)
+
+        self.write({"success": True, "filename": filename, "path": filename})
+
+    def _save_chunk(self, filename: str, file_data: bytes, chunk_number: int) -> None:
+        """Save a chunk to a temporary file."""
+        chunk_filename = f"{filename}.part{chunk_number}"
+        with open(chunk_filename, "wb") as f:
+            f.write(file_data)
+
+    def _are_all_chunks_received(self, filename: str, total_chunks: int) -> bool:
+        """Check if all chunks for a file have been received."""
+        for i in range(1, total_chunks + 1):
+            if not os.path.exists(f"{filename}.part{i}"):
+                return False
+        return True
+
+    def _reconstruct_file(self, filename: str, total_chunks: int) -> None:
+        """Reconstruct the final file from all chunks and clean up temporary files."""
+        with open(filename, "wb") as final_file:
+            for i in range(1, total_chunks + 1):
+                chunk_filename = f"{filename}.part{i}"
+                with open(chunk_filename, "rb") as chunk_file:
+                    final_file.write(chunk_file.read())
+                # Clean up chunk file
+                os.remove(chunk_filename)
+
+    def _send_chunk_complete_response(self, filename: str) -> None:
+        """Send response indicating all chunks have been processed and file is complete."""
+        self.write(
+            {
+                "success": True,
+                "filename": filename,
+                "path": filename,
+                "chunk_complete": True,
+            }
+        )
+
+    def _send_chunk_received_response(
+        self, chunk_number: int, total_chunks: int
+    ) -> None:
+        """Send response indicating a chunk was received but file is not yet complete."""
+        self.write(
+            {
+                "success": True,
+                "chunk_received": True,
+                "chunk_number": chunk_number,
+                "total_chunks": total_chunks,
+            }
+        )
+
+    def _handle_error(self, error_message: str, status_code: int = 500) -> None:
+        """Handle errors and send appropriate error response."""
+        self.set_status(status_code)
+        self.write({"error": error_message})
+        self.finish()
