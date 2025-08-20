@@ -1,11 +1,10 @@
-# Copyright (c) Saga Inc.
-# Distributed under the terms of the GNU Affero General Public License v3.0 License.
-
-import json
 import os
 import tempfile
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, patch
+import tornado.web
+from tornado.httputil import HTTPServerRequest
+from tornado.web import Application
 
 from mito_ai.file_uploads.handlers import FileUploadHandler
 
@@ -16,432 +15,205 @@ def temp_dir():
     temp_dir = tempfile.mkdtemp()
     original_cwd = os.getcwd()
     os.chdir(temp_dir)
-
     yield temp_dir
-
-    # Cleanup
     os.chdir(original_cwd)
+    # Clean up temporary files
     for file in os.listdir(temp_dir):
-        file_path = os.path.join(temp_dir, file)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+        os.remove(os.path.join(temp_dir, file))
     os.rmdir(temp_dir)
 
 
 @pytest.fixture
-def mocked_handler():
-    """Create a mocked FileUploadHandler instance for testing."""
-    # Create a mock handler without calling __init__
-    handler = MagicMock(spec=FileUploadHandler)
-    handler._status_code = 200
-    handler._write_buffer = []
+def handler():
+    """Create a FileUploadHandler instance for testing."""
+    app = Application()
+    request = HTTPServerRequest(method="POST", uri="/upload")
 
-    def mock_write(chunk) -> None:
-        # Handle both string and dict inputs
-        if isinstance(chunk, dict):
-            encoded_chunk = json.dumps(chunk).encode("utf-8")
-        else:
-            encoded_chunk = chunk.encode("utf-8") if isinstance(chunk, str) else chunk
-        handler._write_buffer.append(encoded_chunk)
+    # Mock the connection to avoid Tornado's assertion
+    request.connection = Mock()
 
-    def mock_set_status(status_code: int) -> None:
-        handler._status_code = status_code
+    handler = FileUploadHandler(app, request)
+    handler.write = Mock()
+    handler.finish = Mock()
+    handler.set_status = Mock()
+    handler.get_argument = Mock()
 
-    def mock_finish() -> None:
-        pass
-
-    # Set up the mock methods
-    handler.write = mock_write
-    handler.set_status = mock_set_status
-    handler.finish = mock_finish
-
-    # Mock the request object
-    handler.request = MagicMock()
+    # Mock authentication for Jupyter server
+    handler._jupyter_current_user = "test_user"  # type: ignore
 
     return handler
 
 
-def _create_post_side_effect():
-    """Create the side effect function that simulates the actual post method logic."""
-
-    def side_effect(self):
-        try:
-            # Get the uploaded file from multipart form data
-            if "file" not in self.request.files:
-                self.set_status(400)
-                self.write({"error": "No file uploaded"})
-                self.finish()
-                return
-
-            uploaded_file = self.request.files["file"][0]
-            filename = uploaded_file["filename"]
-            file_data = uploaded_file["body"]
-
-            # Save file to current working directory
-            with open(filename, "wb") as f:
-                f.write(file_data)
-
-            # Return success response (same format as before)
-            self.write({"success": True, "filename": filename, "path": filename})
-            self.finish()
-
-        except Exception as e:
-            self.set_status(500)
-            self.write({"error": f"Failed to save file: {str(e)}"})
-            self.finish()
-
-    return side_effect
+def test_validate_file_upload_success(handler):
+    """Test successful file upload validation."""
+    handler.request.files = {"file": [Mock(filename="test.csv", body=b"data")]}  # type: ignore
+    result = handler._validate_file_upload()
+    assert result is True
 
 
-def _create_chunked_post_side_effect():
-    """Create the side effect function that simulates the chunked upload logic."""
-
-    def side_effect(self):
-        try:
-            # Get the uploaded file from multipart form data
-            if "file" not in self.request.files:
-                self.set_status(400)
-                self.write({"error": "No file uploaded"})
-                self.finish()
-                return
-
-            uploaded_file = self.request.files["file"][0]
-            filename = uploaded_file["filename"]
-            file_data = uploaded_file["body"]
-
-            # Check if this is a chunked upload
-            chunk_number = self.get_argument("chunk_number", None)
-            total_chunks = self.get_argument("total_chunks", None)
-
-            if chunk_number and total_chunks:
-                # Handle chunked upload
-                chunk_number = int(chunk_number)
-                total_chunks = int(total_chunks)
-
-                # Save chunk to temporary file
-                chunk_filename = f"{filename}.part{chunk_number}"
-                with open(chunk_filename, "wb") as f:
-                    f.write(file_data)
-
-                # Check if all chunks are received
-                all_chunks_received = True
-                for i in range(1, total_chunks + 1):
-                    if not os.path.exists(f"{filename}.part{i}"):
-                        all_chunks_received = False
-                        break
-
-                if all_chunks_received:
-                    # Combine all chunks into final file
-                    with open(filename, "wb") as final_file:
-                        for i in range(1, total_chunks + 1):
-                            chunk_filename = f"{filename}.part{i}"
-                            with open(chunk_filename, "rb") as chunk_file:
-                                final_file.write(chunk_file.read())
-                            # Clean up chunk file
-                            os.remove(chunk_filename)
-
-                    # Return success response
-                    self.write(
-                        {
-                            "success": True,
-                            "filename": filename,
-                            "path": filename,
-                            "chunk_complete": True,
-                        }
-                    )
-                else:
-                    # Return chunk received response
-                    self.write(
-                        {
-                            "success": True,
-                            "chunk_received": True,
-                            "chunk_number": chunk_number,
-                            "total_chunks": total_chunks,
-                        }
-                    )
-
-            else:
-                # Handle regular (non-chunked) upload
-                with open(filename, "wb") as f:
-                    f.write(file_data)
-
-                # Return success response (same format as before)
-                self.write({"success": True, "filename": filename, "path": filename})
-
-            self.finish()
-
-        except Exception as e:
-            self.set_status(500)
-            self.write({"error": f"Failed to save file: {str(e)}"})
-            self.finish()
-
-    return side_effect
+def test_validate_file_upload_failure(handler):
+    """Test file upload validation when no file is present."""
+    handler.request.files = {}  # type: ignore
+    result = handler._validate_file_upload()
+    assert result is False
+    handler.set_status.assert_called_with(400)
 
 
-def test_successful_file_upload(mocked_handler, temp_dir):
-    """Test successful file upload with valid filename and file data."""
-    # Prepare test data
-    filename = "test.txt"
-    content = "Hello, World!"
-    file_data = content.encode("utf-8")
+def test_regular_upload_success(handler, temp_dir):
+    """Test successful regular (non-chunked) file upload."""
+    filename = "test.csv"
+    file_data = b"test,data\n1,2"
 
-    # Mock multipart form data
-    mocked_handler.request.files = {"file": [{"filename": filename, "body": file_data}]}
+    handler._handle_regular_upload(filename, file_data)
 
-    # Patch the post method to avoid initialization issues
-    with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
-        mock_post.side_effect = _create_post_side_effect()
-
-        # Call the post method
-        FileUploadHandler.post(mocked_handler)
-
-    # Verify response
-    response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
-    assert response_body["success"] is True
-    assert response_body["filename"] == filename
-    assert response_body["path"] == filename
-    assert mocked_handler._status_code == 200
-
-    # Verify file was actually written
-    assert os.path.exists(filename)
-    with open(filename, "r") as f:
-        assert f.read() == content
-
-
-def test_successful_file_upload_binary_data(mocked_handler, temp_dir):
-    """Test successful file upload with binary data."""
-    # Prepare test data
-    filename = "test.bin"
-    content = b"\x00\x01\x02\x03\x04\x05"  # Binary data
-
-    # Mock multipart form data
-    mocked_handler.request.files = {"file": [{"filename": filename, "body": content}]}
-
-    # Patch the post method to avoid initialization issues
-    with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
-        mock_post.side_effect = _create_post_side_effect()
-
-        # Call the post method
-        FileUploadHandler.post(mocked_handler)
-
-    # Verify response
-    response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
-    assert response_body["success"] is True
-    assert mocked_handler._status_code == 200
-
-    # Verify file was actually written
-    assert os.path.exists(filename)
+    # Verify file was written
     with open(filename, "rb") as f:
-        assert f.read() == content
+        content = f.read()
+    assert content == file_data
+
+    # Verify response
+    handler.write.assert_called_with(
+        {"success": True, "filename": filename, "path": filename}
+    )
 
 
-def test_no_file_uploaded(mocked_handler, temp_dir):
-    """Test request with no file uploaded."""
-    # Mock empty files
-    mocked_handler.request.files = {}
+def test_chunked_upload_first_chunk(handler, temp_dir):
+    """Test handling first chunk of a chunked upload."""
+    filename = "large_file.csv"
+    file_data = b"chunk1_data"
+    chunk_number = "1"
+    total_chunks = "3"
 
-    # Patch the post method to avoid initialization issues
-    with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
-        mock_post.side_effect = _create_post_side_effect()
-
-        # Call the post method
-        FileUploadHandler.post(mocked_handler)
-
-    # Verify error response
-    response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
-    assert "error" in response_body
-    assert response_body["error"] == "No file uploaded"
-    assert mocked_handler._status_code == 400
-
-
-def test_file_key_not_present(mocked_handler, temp_dir):
-    """Test request with files but no 'file' key."""
-    # Mock files with wrong key
-    mocked_handler.request.files = {
-        "wrong_key": [{"filename": "test.txt", "body": b"content"}]
-    }
-
-    # Patch the post method to avoid initialization issues
-    with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
-        mock_post.side_effect = _create_post_side_effect()
-
-        # Call the post method
-        FileUploadHandler.post(mocked_handler)
-
-    # Verify error response
-    response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
-    assert "error" in response_body
-    assert response_body["error"] == "No file uploaded"
-    assert mocked_handler._status_code == 400
-
-
-def test_file_writing_verification(mocked_handler, temp_dir):
-    """Test that file is actually written to disk with correct content."""
-    # Prepare test data
-    filename = "test_file.txt"
-    content = "This is test content with special chars: !@#$%^&*()"
-    file_data = content.encode("utf-8")
-
-    # Mock multipart form data
-    mocked_handler.request.files = {"file": [{"filename": filename, "body": file_data}]}
-
-    # Patch the post method to avoid initialization issues
-    with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
-        mock_post.side_effect = _create_post_side_effect()
-
-        # Call the post method
-        FileUploadHandler.post(mocked_handler)
-
-    # Verify file exists and has correct content
-    assert os.path.exists(filename)
-    with open(filename, "r", encoding="utf-8") as f:
-        file_content = f.read()
-        assert file_content == content
-
-    # Verify file size
-    file_size = os.path.getsize(filename)
-    assert file_size == len(content.encode("utf-8"))
-
-
-def test_chunked_upload_intermediate_chunk(mocked_handler, temp_dir):
-    """Test uploading an intermediate chunk (not the final chunk)."""
-    filename = "test_file.bin"
-    chunk_number = 2
-    total_chunks = 3
-    chunk_data = b"chunk_2_content" * 1000  # Some test data
-
-    # Mock multipart form data
-    mocked_handler.request.files = {
-        "file": [{"filename": filename, "body": chunk_data}]
-    }
-
-    # Mock the arguments for chunk metadata
-    def mock_get_argument(name, default=None):
-        if name == "chunk_number":
-            return str(chunk_number)
-        elif name == "total_chunks":
-            return str(total_chunks)
-        return default
-
-    mocked_handler.get_argument = mock_get_argument
-
-    # Patch the post method to use the actual chunked upload logic
-    with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
-        mock_post.side_effect = _create_chunked_post_side_effect()
-
-        # Call the post method
-        FileUploadHandler.post(mocked_handler)
-
-    # Verify response for intermediate chunk
-    response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
-    assert response_body["success"] is True
-    assert response_body["chunk_received"] is True
-    assert response_body["chunk_number"] == chunk_number
-    assert response_body["total_chunks"] == total_chunks
+    handler._handle_chunked_upload(filename, file_data, chunk_number, total_chunks)
 
     # Verify chunk file was created
-    chunk_filename = f"{filename}.part{chunk_number}"
-    assert os.path.exists(chunk_filename)
+    assert os.path.exists(f"{filename}.part1")
 
-    # Verify chunk content
-    with open(chunk_filename, "rb") as f:
-        assert f.read() == chunk_data
+    # Verify response indicates chunk received but not complete
+    handler.write.assert_called_with(
+        {
+            "success": True,
+            "chunk_received": True,
+            "chunk_number": 1,
+            "total_chunks": 3,
+        }
+    )
 
 
-def test_chunked_upload_final_chunk_completes_file(mocked_handler, temp_dir):
-    """Test uploading the final chunk triggers file reconstruction."""
-    filename = "test_file.bin"
+def test_chunked_upload_completion(handler, temp_dir):
+    """Test completing a chunked upload when all chunks are received."""
+    filename = "large_file.csv"
     total_chunks = 2
 
-    # Create and save first chunk manually
-    chunk1_data = b"chunk_1_content" * 1000
-    chunk1_filename = f"{filename}.part1"
-    with open(chunk1_filename, "wb") as f:
-        f.write(chunk1_data)
+    # Create chunk files manually
+    with open(f"{filename}.part1", "wb") as f:
+        f.write(b"chunk1_data")
+    with open(f"{filename}.part2", "wb") as f:
+        f.write(b"chunk2_data")
 
-    # Upload final chunk
-    chunk2_data = b"chunk_2_content" * 1000
-    mocked_handler.request.files = {
-        "file": [{"filename": filename, "body": chunk2_data}]
-    }
+    # Process final chunk
+    handler._handle_chunked_upload(filename, b"chunk2_data", "2", str(total_chunks))
 
-    # Mock the arguments for chunk metadata
-    def mock_get_argument(name, default=None):
-        if name == "chunk_number":
-            return "2"
-        elif name == "total_chunks":
-            return str(total_chunks)
-        return default
-
-    mocked_handler.get_argument = mock_get_argument
-
-    # Patch the post method to use the actual chunked upload logic
-    with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
-        mock_post.side_effect = _create_chunked_post_side_effect()
-
-        # Call the post method
-        FileUploadHandler.post(mocked_handler)
-
-    # Verify final response
-    response_body = json.loads(mocked_handler._write_buffer[0].decode("utf-8"))
-    assert response_body["success"] is True
-    assert response_body["chunk_complete"] is True
-    assert response_body["filename"] == filename
-    assert response_body["path"] == filename
-
-    # Verify final file was reconstructed
+    # Verify final file was created
     assert os.path.exists(filename)
     with open(filename, "rb") as f:
-        final_content = f.read()
-        expected_content = chunk1_data + chunk2_data
-        assert final_content == expected_content
+        content = f.read()
+    assert content == b"chunk1_datachunk2_data"
 
-    # Verify temporary chunk files were cleaned up
-    assert not os.path.exists(chunk1_filename)
+    # Verify chunk files were cleaned up
+    assert not os.path.exists(f"{filename}.part1")
     assert not os.path.exists(f"{filename}.part2")
 
-
-def test_chunked_upload_file_reconstruction_integrity(mocked_handler, temp_dir):
-    """Test that file reconstruction maintains data integrity."""
-    filename = "integrity_test.bin"
-    total_chunks = 3
-
-    # Create test chunks with distinct content
-    chunks = []
-    for i in range(total_chunks):
-        chunk_content = f"chunk_{i+1}_unique_content_".encode("utf-8") + b"x" * 1000
-        chunks.append(chunk_content)
-
-    # Upload all chunks
-    for chunk_number in range(1, total_chunks + 1):
-        # Reset handler for each chunk
-        mocked_handler._write_buffer = []
-        mocked_handler._status_code = 200
-
-        chunk_data = chunks[chunk_number - 1]
-        mocked_handler.request.files = {
-            "file": [{"filename": filename, "body": chunk_data}]
+    # Verify completion response
+    handler.write.assert_called_with(
+        {
+            "success": True,
+            "filename": filename,
+            "path": filename,
+            "chunk_complete": True,
         }
+    )
 
-        # Mock the arguments for chunk metadata
-        def mock_get_argument(name, default=None):
-            if name == "chunk_number":
-                return str(chunk_number)
-            elif name == "total_chunks":
-                return str(total_chunks)
-            return default
 
-        mocked_handler.get_argument = mock_get_argument
+def test_error_handling(handler):
+    """Test error handling in upload process."""
+    error_message = "Test error message"
+    status_code = 500
 
-        # Patch the post method to use the actual chunked upload logic
-        with patch.object(FileUploadHandler, "post", autospec=True) as mock_post:
-            mock_post.side_effect = _create_chunked_post_side_effect()
-            FileUploadHandler.post(mocked_handler)
+    handler._handle_error(error_message, status_code)
 
-    # Verify final file integrity
-    assert os.path.exists(filename)
-    with open(filename, "rb") as f:
-        final_content = f.read()
-        expected_content = b"".join(chunks)
-        assert final_content == expected_content
-        assert len(final_content) == sum(len(chunk) for chunk in chunks)
+    handler.set_status.assert_called_with(status_code)
+    handler.write.assert_called_with({"error": error_message})
+    handler.finish.assert_called_once()
+
+
+@patch("mito_ai.file_uploads.handlers.FileUploadHandler._validate_file_upload")
+def test_post_method_regular_upload(mock_validate, handler):
+    """Test POST method for regular upload."""
+    mock_validate.return_value = True
+    handler.request.files = {"file": [Mock(filename="test.csv", body=b"data")]}  # type: ignore
+    handler.get_argument.return_value = None  # No chunk parameters
+
+    handler.post()
+
+    mock_validate.assert_called_once()
+    handler.finish.assert_called_once()
+
+
+@patch("mito_ai.file_uploads.handlers.FileUploadHandler._validate_file_upload")
+def test_post_method_chunked_upload(mock_validate, handler):
+    """Test POST method for chunked upload."""
+    mock_validate.return_value = True
+    handler.request.files = {"file": [Mock(filename="test.csv", body=b"data")]}  # type: ignore
+    handler.get_argument.side_effect = lambda name, default=None: {
+        "chunk_number": "1",
+        "total_chunks": "3",
+    }.get(name, default)
+
+    handler.post()
+
+    mock_validate.assert_called_once()
+    handler.finish.assert_called_once()
+
+
+def test_are_all_chunks_received_true(handler, temp_dir):
+    """Test that all chunks are detected when present."""
+    filename = "test.csv"
+    total_chunks = 2
+
+    # Create chunk files
+    with open(f"{filename}.part1", "wb") as f:
+        f.write(b"chunk1")
+    with open(f"{filename}.part2", "wb") as f:
+        f.write(b"chunk2")
+
+    result = handler._are_all_chunks_received(filename, total_chunks)
+    assert result is True
+
+
+def test_are_all_chunks_received_false(handler, temp_dir):
+    """Test that missing chunks are detected."""
+    filename = "test.csv"
+    total_chunks = 2
+
+    # Create only one chunk file
+    with open(f"{filename}.part1", "wb") as f:
+        f.write(b"chunk1")
+
+    result = handler._are_all_chunks_received(filename, total_chunks)
+    assert result is False
+
+
+def test_save_chunk(handler, temp_dir):
+    """Test saving individual chunks."""
+    filename = "test.csv"
+    file_data = b"chunk_data"
+    chunk_number = 1
+
+    handler._save_chunk(filename, file_data, chunk_number)
+
+    chunk_filename = f"{filename}.part{chunk_number}"
+    assert os.path.exists(chunk_filename)
+    with open(chunk_filename, "rb") as f:
+        content = f.read()
+    assert content == file_data
