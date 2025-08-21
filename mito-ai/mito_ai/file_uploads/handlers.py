@@ -4,7 +4,7 @@
 import os
 import tornado
 from jupyter_server.base.handlers import APIHandler
-
+from mito_ai.utils.telemetry_utils import log_file_upload_failure
 
 class FileUploadHandler(APIHandler):
     @tornado.web.authenticated
@@ -135,6 +135,7 @@ class FileUploadHandler(APIHandler):
 
     def _handle_error(self, error_message: str, status_code: int = 500) -> None:
         """Handle errors and send appropriate error response."""
+        log_file_upload_failure(error_message)
         self.set_status(status_code)
         self.write({"error": error_message})
         self.finish()
