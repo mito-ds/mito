@@ -99,7 +99,7 @@ const GroupedErrorsAndFixes: React.FC<IErrorFixupToolUIProps> = ({
                     }
                     if (messageItem.agentResponse?.type === 'run_all_cells') {
                         return (
-                            <RunAllCellsToolUI inErrorFixup={true}/>
+                            <RunAllCellsToolUI key={`run-all-cells-${index}`} inErrorFixup={true}/>
                         );
                     }
                     return (
