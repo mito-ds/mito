@@ -31,6 +31,7 @@ import { AgentResponse } from '../../../websockets/completions/CompletionModels'
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI'
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
+import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
 
 interface IChatMessageProps {
     app: JupyterFrontEnd;
@@ -196,7 +197,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         isLastAiMessage={isLastAiMessage}
                                         codeReviewStatus={codeReviewStatus}
                                         agentModeEnabled={agentModeEnabled}
-                                        isRunAllCells={agentResponse?.type === 'run_all_cells'}
                                     />
                                 )}
 
@@ -305,19 +305,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 <GetCellOutputToolUI />
             }
             {agentResponse?.type === 'run_all_cells' && agentModeEnabled &&
-                <AssistantCodeBlock
-                    code=""
-                    codeSummary={agentResponse.message}
-                    isCodeComplete={true}
-                    renderMimeRegistry={renderMimeRegistry}
-                    previewAICode={previewAICode}
-                    acceptAICode={acceptAICode}
-                    rejectAICode={rejectAICode}
-                    isLastAiMessage={isLastAiMessage}
-                    codeReviewStatus={codeReviewStatus}
-                    agentModeEnabled={agentModeEnabled}
-                    isRunAllCells={true}
-                />
+                <RunAllCellsToolUI />
             }
         </div>
     )
