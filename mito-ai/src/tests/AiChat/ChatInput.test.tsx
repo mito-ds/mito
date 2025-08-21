@@ -39,6 +39,18 @@ jest.mock('../../Extensions/AiChat/ChatMessage/PythonCode', () => {
     };
 });
 
+// Mock the DatabaseButton component to avoid act() warnings
+jest.mock('../../components/DatabaseButton', () => {
+    return {
+        __esModule: true,
+        default: jest.fn(() => (
+            <button className="icon-button icon-button-hover" title="Add Database">
+                <div className="notification-dot notification-dot-warning" />
+            </button>
+        ))
+    };
+});
+
 // Mock data for test cases
 const TEST_CELL_CODE = 'print("Hello World")';
 const EMPTY_CELL_ID = 'empty-cell-id';
@@ -101,6 +113,9 @@ const createMockProps = (overrides = {}) => ({
             content: {
                 activeCell: createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell,
                 widgets: [createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell]
+            },
+            context: {
+                path: '/test/notebook.ipynb'
             }
         }
     } as unknown as INotebookTracker,
