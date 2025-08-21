@@ -14,6 +14,7 @@ from mito_ai.settings.urls import get_settings_urls
 from mito_ai.rules.urls import get_rules_urls
 from mito_ai.auth.urls import get_auth_urls
 from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
+from mito_ai.file_uploads.urls import get_file_uploads_urls
 
 # Sometimes matplotlib figures do not show up in the notebook with this warning: 
 # UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
@@ -87,6 +88,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_log_urls(base_url, open_ai_provider.key_type))  # type: ignore
     handlers.extend(get_auth_urls(base_url))  # type: ignore
     handlers.extend(get_streamlit_preview_urls(base_url))  # type: ignore
-    
+    handlers.extend(get_file_uploads_urls(base_url)) # type: ignore
+
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")
