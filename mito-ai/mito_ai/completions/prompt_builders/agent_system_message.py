@@ -206,6 +206,23 @@ Important information:
 ===='''
 }
 
+TOOL: RUN_ALL_CELLS
+
+When you want to execute all cells in the notebook from top to bottom, respond with this format:
+
+{{
+    type: 'run_all_cells',
+    message: str
+}}
+
+Important information:
+1. Use this tool when you encounter a NameError. For example, if you get an error like "NameError: name 'prompts_df' is not defined", you should use this tool to run all cells from the top of the notebook to the bottom to bring the variable into scope.
+2. Note that if the name error persists even after using run_all_cells, it means that the variable is not defined in the notebook and you should not reuse this tool.
+3. Additionally, this tool could also be used to refresh the notebook state.
+4. If running all cells results in an error, the system will automatically handle the error through the normal error fixing process.
+5. Do not use this tool repeatedly if it continues to produce errors - instead, focus on fixing the specific error that occurred.
+====
+
 TOOL: FINISHED_TASK
 
 When you have completed the user's task, respond with a message in this format:
