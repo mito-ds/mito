@@ -41,25 +41,42 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
         fileInputRef.current?.click();
     };
 
-    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
         const files = event.target.files;
         if (!files || files.length === 0) return;
 
         const file = files[0];
         if (!file) return;
 
-        // Check file size and handle accordingly
-        if (file.size > MAX_FILE_SIZE) {
-            console.log(`File ${file.name} is larger than 100MB (${(file.size / (1024 * 1024)).toFixed(2)}MB). Splitting into chunks...`);
-            void handleLargeFile(file);
-        } else {
-            // Upload file directly for files <= 100MB
-            void uploadFile(file);
+        // Don't allow new uploads if already uploading
+        if (isUploading) return;
+
+        setIsUploading(true);
+
+        try {
+            // Check file size and handle accordingly
+            if (file.size > MAX_FILE_SIZE) {
+                console.log(`File ${file.name} is larger than 100MB (${(file.size / (1024 * 1024)).toFixed(2)}MB). Splitting into chunks...`);
+                await handleLargeFile(file);
+            } else {
+                // Upload file directly for files <= 100MB
+                await uploadFile(file);
+            }
+        } catch (error) {
+            Notification.emit(`Upload failed: ${error}`, "error", {
+                autoClose: 5 * 1000 // 5 seconds
+            });
+            console.error('Error during file upload:', error);
+        } finally {
+            setIsUploading(false);
+            // Clear the file input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
         }
     };
 
     const handleLargeFile = async (file: File): Promise<void> => {
-        setIsUploading(true);
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
         console.log(`Splitting file into ${totalChunks} chunks of ${(CHUNK_SIZE / (1024 * 1024)).toFixed(2)}MB each`);
 
@@ -67,60 +84,43 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
         const notebookPanel = notebookTracker.currentWidget;
         if (!notebookPanel) {
             console.error('No notebook is currently active');
-            setIsUploading(false);
-            return;
+            throw new Error('No notebook is currently active');
         }
 
         const notebookPath = notebookPanel.context.path;
         const notebookDir = getNotebookDirectory(notebookPath);
 
-        try {
-            for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-                const start = chunkIndex * CHUNK_SIZE;
-                const end = Math.min(start + CHUNK_SIZE, file.size);
-                const chunk = file.slice(start, end);
+        for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+            const start = chunkIndex * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, file.size);
+            const chunk = file.slice(start, end);
 
-                console.log(`Uploading chunk ${chunkIndex + 1}/${totalChunks}:`, {
-                    chunkNumber: chunkIndex + 1,
-                    totalChunks: totalChunks,
-                    chunkSize: chunk.size,
-                    chunkSizeMB: (chunk.size / (1024 * 1024)).toFixed(2),
-                    startByte: start,
-                    endByte: end,
-                    fileName: file.name,
-                    originalFileSize: file.size,
-                    originalFileSizeMB: (file.size / (1024 * 1024)).toFixed(2)
-                });
+            console.log(`Uploading chunk ${chunkIndex + 1}/${totalChunks}:`, {
+                chunkNumber: chunkIndex + 1,
+                totalChunks: totalChunks,
+                chunkSize: chunk.size,
+                chunkSizeMB: (chunk.size / (1024 * 1024)).toFixed(2),
+                startByte: start,
+                endByte: end,
+                fileName: file.name,
+                originalFileSize: file.size,
+                originalFileSizeMB: (file.size / (1024 * 1024)).toFixed(2)
+            });
 
-                // Upload chunk to backend
-                const success = await uploadChunk(
-                    chunk, file.name, chunkIndex + 1, totalChunks, notebookDir
-                );
-                if (!success) {
-                    console.error(`Failed to upload chunk ${chunkIndex + 1}`);
-                    setIsUploading(false);
-                    return;
-                }
+            // Upload chunk to backend
+            const success = await uploadChunk(
+                chunk, file.name, chunkIndex + 1, totalChunks, notebookDir
+            );
+            if (!success) {
+                console.error(`Failed to upload chunk ${chunkIndex + 1}`);
+                throw new Error(`Failed to upload chunk ${chunkIndex + 1}`);
             }
-
-            console.log(`Successfully uploaded all ${totalChunks} chunks for file: ${file.name}`);
-
-            // Notify the parent component that the file was uploaded
-            onFileUploaded(file.name);
-
-        } catch (error) {
-            Notification.emit(`Upload failed: ${error}`, "error", {
-                autoClose: 5 * 1000 // 5 seconds
-            });    
-            console.error('Error uploading chunks:', error);
-        } finally {
-            setIsUploading(false);
         }
 
-        // Clear the file input
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
+        console.log(`Successfully uploaded all ${totalChunks} chunks for file: ${file.name}`);
+
+        // Notify the parent component that the file was uploaded
+        onFileUploaded(file.name);
     };
 
     const uploadChunk = async (chunk: Blob, filename: string, chunkNumber: number, totalChunks: number, notebookDir: string): Promise<boolean> => {
@@ -171,54 +171,39 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
     };
 
     const uploadFile = async (file: File): Promise<void> => {
-        setIsUploading(true);
-
         // Get notebook directory path
         const notebookPanel = notebookTracker.currentWidget;
         if (!notebookPanel) {
             console.error('No notebook is currently active');
-            setIsUploading(false);
-            return;
+            throw new Error('No notebook is currently active');
         }
 
         const notebookPath = notebookPanel.context.path;
         const notebookDir = getNotebookDirectory(notebookPath);
 
-        try {
-            // Create FormData for file upload
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('notebook_dir', notebookDir);
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('notebook_dir', notebookDir);
 
-            // Upload file to backend using FormData
-            const resp = await requestAPI<{ success: boolean; filename: string; path: string }>('upload', {
-                method: 'POST',
-                body: formData
-            });
+        // Upload file to backend using FormData
+        const resp = await requestAPI<{ success: boolean; filename: string; path: string }>('upload', {
+            method: 'POST',
+            body: formData
+        });
 
-            if (resp.error) {
-                Notification.emit(`Upload failed: ${resp.error.message}`, "error", {
-                    autoClose: 5 * 1000 // 5 seconds
-                });
-                console.error('Upload failed:', resp.error.message);
-            } else if (resp.data) {
-                console.log('File uploaded successfully:', resp.data);
-
-                // Notify the parent component that the file was uploaded, 
-                // which will update the context manager.
-                onFileUploaded(file.name);
-            }
-        } catch (error) {
-            Notification.emit(`Upload failed: ${error}`, "error", {
+        if (resp.error) {
+            Notification.emit(`Upload failed: ${resp.error.message}`, "error", {
                 autoClose: 5 * 1000 // 5 seconds
             });
-            console.error('Error uploading file:', error);
-        } finally {
-            setIsUploading(false);
-        }
+            console.error('Upload failed:', resp.error.message);
+            throw new Error(resp.error.message);
+        } else if (resp.data) {
+            console.log('File uploaded successfully:', resp.data);
 
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+            // Notify the parent component that the file was uploaded, 
+            // which will update the context manager.
+            onFileUploaded(file.name);
         }
     };
 
