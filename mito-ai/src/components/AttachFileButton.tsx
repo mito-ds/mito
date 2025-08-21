@@ -10,6 +10,10 @@ import { requestAPI } from '../restAPI/utils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Notification } from '@jupyterlab/apputils';
 
+// Constants for file handling
+const CHUNKED_UPLOAD_SIZE_CUTOFF = 25 * 1024 * 1024; // 25MB cutoff for chunked uploads
+const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
+
 interface AttachFileButtonProps {
     onFileUploaded: (fileName: string) => void;
     notebookTracker: INotebookTracker;
@@ -18,10 +22,6 @@ interface AttachFileButtonProps {
 const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, notebookTracker }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
-
-    // Constants for file handling
-    const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
-    const CHUNK_SIZE = 50 * 1024 * 1024; // 50MB chunks
 
     // Helper function to get notebook directory from notebook path
     const getNotebookDirectory = (notebookPath: string): string => {
@@ -55,11 +55,11 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
 
         try {
             // Check file size and handle accordingly
-            if (file.size > MAX_FILE_SIZE) {
-                console.log(`File ${file.name} is larger than 100MB (${(file.size / (1024 * 1024)).toFixed(2)}MB). Splitting into chunks...`);
+            if (file.size > CHUNKED_UPLOAD_SIZE_CUTOFF) {
+                console.log(`File ${file.name} is larger than 25MB (${(file.size / (1024 * 1024)).toFixed(2)}MB). Splitting into chunks...`);
                 await handleLargeFile(file);
             } else {
-                // Upload file directly for files <= 100MB
+                // Upload file directly for files <= 25MB
                 await uploadFile(file);
             }
         } catch (error) {
