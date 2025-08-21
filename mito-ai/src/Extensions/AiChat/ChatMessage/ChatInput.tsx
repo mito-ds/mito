@@ -300,7 +300,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
-                <AttachFileButton onFileUploaded={handleFileUploaded} />
+                <AttachFileButton onFileUploaded={handleFileUploaded} notebookTracker={notebookTracker} />
                 <button
                     className="context-button"
                     onClick={() => {

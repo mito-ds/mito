@@ -7,18 +7,30 @@ import React, { useRef, useState } from 'react';
 import IconButton from './IconButton';
 import PaperClipIcon from '../icons/PaperClipIcon';
 import { requestAPI } from '../restAPI/utils';
+import { INotebookTracker } from '@jupyterlab/notebook';
 
 interface AttachFileButtonProps {
     onFileUploaded: (fileName: string) => void;
+    notebookTracker: INotebookTracker;
 }
 
-const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) => {
+const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, notebookTracker }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
 
     // Constants for file handling
     const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
     const CHUNK_SIZE = 50 * 1024 * 1024; // 50MB chunks
+
+    // Helper function to get notebook directory from notebook path
+    const getNotebookDirectory = (notebookPath: string): string => {
+        const lastSlashIndex = notebookPath.lastIndexOf('/');
+        if (lastSlashIndex === -1) {
+            // No directory, just filename (root directory)
+            return '.';
+        }
+        return notebookPath.substring(0, lastSlashIndex);
+    };
 
     const handleClick = (): void => {
         // Don't allow clicks if uploading
@@ -50,6 +62,17 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
         console.log(`Splitting file into ${totalChunks} chunks of ${(CHUNK_SIZE / (1024 * 1024)).toFixed(2)}MB each`);
 
+        // Get notebook directory path
+        const notebookPanel = notebookTracker.currentWidget;
+        if (!notebookPanel) {
+            console.error('No notebook is currently active');
+            setIsUploading(false);
+            return;
+        }
+
+        const notebookPath = notebookPanel.context.path;
+        const notebookDir = getNotebookDirectory(notebookPath);
+
         try {
             for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
                 const start = chunkIndex * CHUNK_SIZE;
@@ -69,7 +92,9 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
                 });
 
                 // Upload chunk to backend
-                const success = await uploadChunk(chunk, file.name, chunkIndex + 1, totalChunks);
+                const success = await uploadChunk(
+                    chunk, file.name, chunkIndex + 1, totalChunks, notebookDir
+                );
                 if (!success) {
                     console.error(`Failed to upload chunk ${chunkIndex + 1}`);
                     setIsUploading(false);
@@ -94,13 +119,14 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
         }
     };
 
-    const uploadChunk = async (chunk: Blob, filename: string, chunkNumber: number, totalChunks: number): Promise<boolean> => {
+    const uploadChunk = async (chunk: Blob, filename: string, chunkNumber: number, totalChunks: number, notebookDir: string): Promise<boolean> => {
         try {
             // Create FormData for chunk upload
             const formData = new FormData();
             formData.append('file', chunk, filename);
             formData.append('chunk_number', chunkNumber.toString());
             formData.append('total_chunks', totalChunks.toString());
+            formData.append('notebook_dir', notebookDir);
 
             // Upload chunk to backend
             const resp = await requestAPI<{
@@ -137,10 +163,22 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded }) =
     const uploadFile = async (file: File): Promise<void> => {
         setIsUploading(true);
 
+        // Get notebook directory path
+        const notebookPanel = notebookTracker.currentWidget;
+        if (!notebookPanel) {
+            console.error('No notebook is currently active');
+            setIsUploading(false);
+            return;
+        }
+
+        const notebookPath = notebookPanel.context.path;
+        const notebookDir = getNotebookDirectory(notebookPath);
+
         try {
             // Create FormData for file upload
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('notebook_dir', notebookDir);
 
             // Upload file to backend using FormData
             const resp = await requestAPI<{ success: boolean; filename: string; path: string }>('upload', {
