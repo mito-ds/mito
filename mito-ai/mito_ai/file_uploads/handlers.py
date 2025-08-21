@@ -4,6 +4,7 @@
 import os
 import tempfile
 import tornado
+from typing import Dict, Any
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.telemetry_utils import log_file_upload_failure
 
@@ -12,9 +13,9 @@ class FileUploadHandler(APIHandler):
     # Class-level dictionary to store temporary directories for each file upload
     # This persists across handler instances since Tornado recreates handlers per request
     # Key: filename, Value: dict with temp_dir, total_chunks, received_chunks
-    _temp_dirs = {}
+    _temp_dirs: Dict[str, Dict[str, Any]] = {}
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
     @tornado.web.authenticated
@@ -209,7 +210,7 @@ class FileUploadHandler(APIHandler):
         self.write({"error": error_message})
         self.finish()
 
-    def on_finish(self):
+    def on_finish(self) -> None:
         """Clean up any remaining temporary directories when the handler is finished."""
         super().on_finish()
         # Note: We don't clean up here anymore since we want to preserve state across requests
