@@ -17,7 +17,12 @@
   white-space: pre !important;
 }
 
-.code-block-python-code .jp-RenderedHTMLCommon > *:last-child {
+.code-block-python-code .jp-RenderedHTMLCommon {
+  /* Remove default Jupyter padding */
+  padding-right: 0px !important;
+}
+
+.code-block-python-code .jp-RenderedHTMLCommon>*:last-child {
   /* 
         Remove the default Jupyter ending margin 
         so that the rendered code is flush with the bottom
