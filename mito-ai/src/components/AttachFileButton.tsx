@@ -8,6 +8,7 @@ import IconButton from './IconButton';
 import PaperClipIcon from '../icons/PaperClipIcon';
 import { requestAPI } from '../restAPI/utils';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { Notification } from '@jupyterlab/apputils';
 
 interface AttachFileButtonProps {
     onFileUploaded: (fileName: string) => void;
@@ -108,6 +109,9 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
             onFileUploaded(file.name);
 
         } catch (error) {
+            Notification.emit(`Upload failed: ${error}`, "error", {
+                autoClose: 5 * 1000 // 5 seconds
+            });    
             console.error('Error uploading chunks:', error);
         } finally {
             setIsUploading(false);
@@ -143,6 +147,9 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
             });
 
             if (resp.error) {
+                Notification.emit(`Upload failed: ${resp.error.message}`, "error", {
+                    autoClose: 5 * 1000 // 5 seconds
+                });
                 console.error(`Chunk ${chunkNumber} upload failed:`, resp.error.message);
                 return false;
             } else if (resp.data) {
@@ -155,6 +162,9 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
             }
             return false;
         } catch (error) {
+            Notification.emit(`Upload failed: ${error}`, "error", {
+                autoClose: 5 * 1000 // 5 seconds
+            });
             console.error(`Error uploading chunk ${chunkNumber}:`, error);
             return false;
         }
@@ -187,6 +197,9 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
             });
 
             if (resp.error) {
+                Notification.emit(`Upload failed: ${resp.error.message}`, "error", {
+                    autoClose: 5 * 1000 // 5 seconds
+                });
                 console.error('Upload failed:', resp.error.message);
             } else if (resp.data) {
                 console.log('File uploaded successfully:', resp.data);
@@ -196,6 +209,9 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
                 onFileUploaded(file.name);
             }
         } catch (error) {
+            Notification.emit(`Upload failed: ${error}`, "error", {
+                autoClose: 5 * 1000 // 5 seconds
+            });
             console.error('Error uploading file:', error);
         } finally {
             setIsUploading(false);
