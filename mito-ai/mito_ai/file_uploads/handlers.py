@@ -2,11 +2,21 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import os
+import tempfile
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.telemetry_utils import log_file_upload_failure
 
+
 class FileUploadHandler(APIHandler):
+    # Class-level dictionary to store temporary directories for each file upload
+    # This persists across handler instances since Tornado recreates handlers per request
+    # Key: filename, Value: dict with temp_dir, total_chunks, received_chunks
+    _temp_dirs = {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     @tornado.web.authenticated
     def post(self) -> None:
         """Handle file upload with multipart form data."""
@@ -58,10 +68,10 @@ class FileUploadHandler(APIHandler):
         total_chunks_num = int(total_chunks)
 
         # Save chunk to temporary file
-        self._save_chunk(filename, file_data, chunk_num, notebook_dir)
+        self._save_chunk(filename, file_data, chunk_num, total_chunks_num)
 
         # Check if all chunks are received and reconstruct if complete
-        if self._are_all_chunks_received(filename, total_chunks_num, notebook_dir):
+        if self._are_all_chunks_received(filename, total_chunks_num):
             self._reconstruct_file(filename, total_chunks_num, notebook_dir)
             self._send_chunk_complete_response(filename, notebook_dir)
         else:
@@ -78,35 +88,94 @@ class FileUploadHandler(APIHandler):
         self.write({"success": True, "filename": filename, "path": file_path})
 
     def _save_chunk(
-        self, filename: str, file_data: bytes, chunk_number: int, notebook_dir: str
+        self, filename: str, file_data: bytes, chunk_number: int, total_chunks: int
     ) -> None:
         """Save a chunk to a temporary file."""
-        chunk_filename = os.path.join(notebook_dir, f"{filename}.part{chunk_number}")
+        print(f"DEBUG: Saving chunk {chunk_number}/{total_chunks} for file {filename}")
+
+        # Initialize temporary directory for this file if it doesn't exist
+        if filename not in self._temp_dirs:
+            temp_dir = tempfile.mkdtemp(prefix=f"mito_upload_{filename}_")
+            self._temp_dirs[filename] = {
+                "temp_dir": temp_dir,
+                "total_chunks": total_chunks,
+                "received_chunks": set(),
+            }
+            print(f"DEBUG: Created temp dir {temp_dir} for file {filename}")
+
+        # Save the chunk to the temporary directory
+        chunk_filename = os.path.join(
+            self._temp_dirs[filename]["temp_dir"], f"chunk_{chunk_number}"
+        )
         with open(chunk_filename, "wb") as f:
             f.write(file_data)
 
-    def _are_all_chunks_received(
-        self, filename: str, total_chunks: int, notebook_dir: str
-    ) -> bool:
+        # Mark this chunk as received
+        self._temp_dirs[filename]["received_chunks"].add(chunk_number)
+        print(
+            f"DEBUG: Saved chunk {chunk_number}, total received: {len(self._temp_dirs[filename]['received_chunks'])}/{total_chunks}"
+        )
+
+    def _are_all_chunks_received(self, filename: str, total_chunks: int) -> bool:
         """Check if all chunks for a file have been received."""
-        for i in range(1, total_chunks + 1):
-            chunk_filename = os.path.join(notebook_dir, f"{filename}.part{i}")
-            if not os.path.exists(chunk_filename):
-                return False
-        return True
+        if filename not in self._temp_dirs:
+            print(f"DEBUG: No temp dir found for {filename}")
+            return False
+
+        received_chunks = self._temp_dirs[filename]["received_chunks"]
+        is_complete = len(received_chunks) == total_chunks
+        print(
+            f"DEBUG: Checking completion for {filename}: {len(received_chunks)}/{total_chunks} chunks received, complete: {is_complete}"
+        )
+        return is_complete
 
     def _reconstruct_file(
         self, filename: str, total_chunks: int, notebook_dir: str
     ) -> None:
-        """Reconstruct the final file from all chunks and clean up temporary files."""
+        """Reconstruct the final file from all chunks and clean up temporary directory."""
+        print(f"DEBUG: Starting reconstruction for {filename}")
+
+        if filename not in self._temp_dirs:
+            raise ValueError(f"No temporary directory found for file: {filename}")
+
+        temp_dir = self._temp_dirs[filename]["temp_dir"]
         file_path = os.path.join(notebook_dir, filename)
-        with open(file_path, "wb") as final_file:
-            for i in range(1, total_chunks + 1):
-                chunk_filename = os.path.join(notebook_dir, f"{filename}.part{i}")
-                with open(chunk_filename, "rb") as chunk_file:
-                    final_file.write(chunk_file.read())
-                # Clean up chunk file
-                os.remove(chunk_filename)
+
+        print(f"DEBUG: Reconstructing from {temp_dir} to {file_path}")
+
+        try:
+            # Reconstruct the file from chunks
+            with open(file_path, "wb") as final_file:
+                for i in range(1, total_chunks + 1):
+                    chunk_filename = os.path.join(temp_dir, f"chunk_{i}")
+                    print(f"DEBUG: Reading chunk {i} from {chunk_filename}")
+                    with open(chunk_filename, "rb") as chunk_file:
+                        chunk_data = chunk_file.read()
+                        final_file.write(chunk_data)
+                        print(f"DEBUG: Wrote {len(chunk_data)} bytes from chunk {i}")
+
+            print(f"DEBUG: Successfully reconstructed {filename}")
+        finally:
+            # Clean up the temporary directory
+            print(f"DEBUG: Cleaning up temp dir for {filename}")
+            self._cleanup_temp_dir(filename)
+
+    def _cleanup_temp_dir(self, filename: str) -> None:
+        """Clean up the temporary directory for a file."""
+        if filename in self._temp_dirs:
+            temp_dir = self._temp_dirs[filename]["temp_dir"]
+            try:
+                import shutil
+
+                shutil.rmtree(temp_dir)
+            except Exception as e:
+                # Log the error but don't fail the upload
+                print(
+                    f"Warning: Failed to clean up temporary directory {temp_dir}: {e}"
+                )
+            finally:
+                # Remove from tracking dictionary
+                del self._temp_dirs[filename]
 
     def _send_chunk_complete_response(self, filename: str, notebook_dir: str) -> None:
         """Send response indicating all chunks have been processed and file is complete."""
@@ -139,3 +208,9 @@ class FileUploadHandler(APIHandler):
         self.set_status(status_code)
         self.write({"error": error_message})
         self.finish()
+
+    def on_finish(self):
+        """Clean up any remaining temporary directories when the handler is finished."""
+        super().on_finish()
+        # Note: We don't clean up here anymore since we want to preserve state across requests
+        # The cleanup happens when the file is fully reconstructed
