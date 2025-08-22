@@ -18,7 +18,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
 
   // Fetch apps on component mount
   React.useEffect(() => {
-    const loadApps = async () => {
+    const loadApps = async (): Promise<void> => {
       try {
         console.log('[AppsList] Starting to load apps...');
         setLoading(true);
@@ -44,11 +44,11 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
     };
 
     console.log('[AppsList] Component mounted, calling loadApps...');
-    loadApps();
+    void loadApps();
   }, [appManagerService]); // Add appManagerService to dependency array
 
   // Refresh function that can be called manually
-  const refreshApps = async () => {
+  const refreshApps = async (): Promise<void> => {
     const response = await fetchUserApps(appManagerService);
     if (response.success) {
       setApps(response.apps);
@@ -58,7 +58,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
     }
   };
 
-  const copyToClipboard = async (url: string, appName: string) => {
+  const copyToClipboard = async (url: string, appName: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(url);
       console.log(`Copied URL for ${appName}: ${url}`);
@@ -74,7 +74,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case 'running':
         return '#4caf50'; 
@@ -91,7 +91,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string): string => {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
@@ -113,7 +113,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
           <button
             onClick={() => {
               console.log('Logout clicked');
-              logoutAndClearJWTTokens();
+              void logoutAndClearJWTTokens();
             }}
             className="apps-list-button"
             title="Logout"
