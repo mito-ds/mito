@@ -80,7 +80,7 @@ describe('ManageAppsPlugin', () => {
 
   describe('Plugin Activation', () => {
     test('should activate successfully', () => {
-      const result = ManageAppsPlugin.activate(mockApp);
+      const result = ManageAppsPlugin.activate(mockApp) as IAppManagerService;
       
       expect(result).toBeDefined();
       expect(result).toHaveProperty('client');
@@ -117,7 +117,7 @@ describe('ManageAppsPlugin', () => {
         addClass: jest.fn()
       };
       
-      (ReactWidget as jest.Mock).mockReturnValue(mockWidget);
+      (ReactWidget as unknown as jest.Mock).mockReturnValue(mockWidget);
       
       ManageAppsPlugin.activate(mockApp);
       
@@ -130,7 +130,7 @@ describe('ManageAppsPlugin', () => {
     let service: IAppManagerService;
 
     beforeEach(() => {
-      service = ManageAppsPlugin.activate(mockApp);
+      service = ManageAppsPlugin.activate(mockApp) as IAppManagerService;
     });
 
     test('should implement IAppManagerService interface', () => {
@@ -167,14 +167,14 @@ describe('ManageAppsPlugin', () => {
 
   describe('ManageAppsWidget', () => {
     test('should render AppsList component', () => {
-      const service = ManageAppsPlugin.activate(mockApp);
+      const service = ManageAppsPlugin.activate(mockApp) as IAppManagerService;
       const { getByTestId } = render(React.createElement(service.client as any));
       
       expect(getByTestId('apps-list')).toBeInTheDocument();
     });
 
     test('should pass appManagerService to AppsList', () => {
-      const service = ManageAppsPlugin.activate(mockApp);
+      const service = ManageAppsPlugin.activate(mockApp) as IAppManagerService;
       const { getByTestId } = render(React.createElement(service.client as any));
       
       const appsList = getByTestId('apps-list');

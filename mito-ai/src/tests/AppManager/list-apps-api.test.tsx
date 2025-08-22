@@ -150,9 +150,10 @@ describe('list-apps-api', () => {
 
         const result = await fetchUserApps(mockAppManagerService);
 
-        expect(result.apps[0].status).toBe('running');
-        expect(result.apps[1].status).toBe('stopped');
-        expect(result.apps[2].status).toBe('deploying');
+        expect(result.apps).toHaveLength(3);
+        expect(result.apps[0]!.status).toBe('running');
+        expect(result.apps[1]!.status).toBe('stopped');
+        expect(result.apps[2]!.status).toBe('deploying');
       });
     });
 
@@ -232,10 +233,11 @@ describe('list-apps-api', () => {
           .mockReturnValueOnce('uuid-1')
           .mockReturnValueOnce('uuid-2');
 
-        const result = await fetchUserApps(mockAppManagerService);
+          const result = await fetchUserApps(mockAppManagerService);
 
-        expect(result.apps[0].id).toBe('uuid-1');
-        expect(result.apps[1].id).toBe('uuid-2');
+          expect(result.apps).toHaveLength(2);
+          expect(result.apps[0]!.id).toBe('uuid-1');
+          expect(result.apps[1]!.id).toBe('uuid-2');
       });
     });
   });
