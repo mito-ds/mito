@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { DBConnections, DBConnection } from './model';
 import { ConnectionList } from './ConnectionList';
 import { ConnectionForm } from './ConnectionForm';
+import { GettingStartedVideo } from './GettingStartedVideo';
 import { requestAPI } from '../../../restAPI/utils';
 import '../../../../style/DatabasePage.css';
 
@@ -15,6 +16,7 @@ export const DatabasePage = (): JSX.Element => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [showVideoModal, setShowVideoModal] = useState(false);
     const [formData, setFormData] = useState<DBConnection>({
         type: 'snowflake',
         username: '',
@@ -99,12 +101,23 @@ export const DatabasePage = (): JSX.Element => {
         <div className="db-connections">
             <div className="settings-header">
                 <h2>Database Connections</h2>
-                <button
-                    className="button-base button-purple"
-                    onClick={() => setShowModal(true)}
-                >
-                    <b>＋ Add Connection</b>
-                </button>
+                <div className="header-buttons">
+                    {/* Show the getting started button if there are connections */}
+                    {Object.keys(connections).length > 0 && (
+                        <button
+                            className="button-base button-gray"
+                            onClick={() => setShowVideoModal(true)}
+                        >
+                            <b>Getting Started</b>
+                        </button>
+                    )}
+                    <button
+                        className="button-base button-purple"
+                        onClick={() => setShowModal(true)}
+                    >
+                        <b>＋ Add Connection</b>
+                    </button>
+                </div>
             </div>
 
             <ConnectionList
@@ -133,6 +146,26 @@ export const DatabasePage = (): JSX.Element => {
                             onSubmit={handleSubmit}
                             onClose={() => setShowModal(false)}
                         />
+                    </div>
+                </div>
+            )}
+
+            {showVideoModal && (
+                <div className="modal-overlay" onClick={() => setShowVideoModal(false)}>
+                    <div className="modal-content video-modal" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Getting Started</h3>
+                            <button
+                                className="modal-close-button"
+                                onClick={() => setShowVideoModal(false)}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <GettingStartedVideo />
+                        <div className="video-description">
+                            <p>Still have questions? Check out our <a href="https://docs.trymito.io/mito-ai/database-connectors" target="_blank" rel="noopener noreferrer">documentation</a> for more information.</p>
+                        </div>
                     </div>
                 </div>
             )}

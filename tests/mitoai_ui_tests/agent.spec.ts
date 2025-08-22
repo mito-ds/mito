@@ -17,8 +17,9 @@ import {
     waitForAgentToFinish,
     startNewMitoAIChat
 } from './utils';
+import { CLAUDE_SONNET_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 
-const MODEL = 'GPT 4.1';
+const MODEL = CLAUDE_SONNET_DISPLAY_NAME;
 
 test.describe.parallel("Agent mode basic functionality", () => {
 

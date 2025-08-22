@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 // auth-popup.tsx - Simple authentication popup with CSS-based requirements
 import React from 'react';
 import { Authenticator } from '@aws-amplify/ui-react';

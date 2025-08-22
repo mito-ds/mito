@@ -15,6 +15,7 @@ import AlertIcon from '../../icons/AlertIcon';
 import AgentComponentHeader from './AgentComponentHeader';
 import '../../../style/ErrorFixupToolUI.css';
 import '../../../style/AgentComponentHeader.css';
+import RunAllCellsToolUI from './RunAllCellsToolUI';
 
 interface IErrorFixupToolUIProps {
     messages: GroupedErrorMessages;
@@ -96,11 +97,16 @@ const GroupedErrorsAndFixes: React.FC<IErrorFixupToolUIProps> = ({
                             />
                         );
                     }
+                    if (messageItem.agentResponse?.type === 'run_all_cells') {
+                        return (
+                            <RunAllCellsToolUI key={`run-all-cells-${index}`} inErrorFixup={true}/>
+                        );
+                    }
                     return (
                         <AssistantCodeBlock
                             key={`assistant-${index}`}
                             code={messageItem.message.content as string}
-                            codeSummary={messageItem.agentResponse?.cell_update?.code_summary ?? undefined}
+                            codeSummary={messageItem.agentResponse?.cell_update?.code_summary ?? 'Fixing error'}
                             isCodeComplete={true}
                             renderMimeRegistry={renderMimeRegistry}
                             previewAICode={() => { }}

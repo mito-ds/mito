@@ -337,6 +337,9 @@ def log_db_connection_success(connection_type: str, schema: Dict[str, Any]) -> N
         },
     )
 
+def log_file_upload_failure(error: str) -> None:
+    log("mito_ai_file_upload_failure", params={"error_message": error})
+
 def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
     log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
     

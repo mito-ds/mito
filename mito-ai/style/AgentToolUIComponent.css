@@ -3,22 +3,28 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.get-cell-output-container {
+.agent-tool-ui-container {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: start;
     background-color: transparent;
     padding: 10px;
-    border-radius: 5px;
-    border: 1px solid var(--jp-cell-editor-border-color);
-    margin: 10px 0;
     color: var(--jp-ui-font-color2);
 }
 
-.get-cell-output-content {
+.agent-tool-ui-container:not(.agent-tool-ui-error-fixup) {
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid var(--jp-cell-editor-border-color);
+}
+
+.agent-tool-ui-container:not(.agent-tool-ui-error-fixup) .agent-tool-ui-content {
+    margin-left: 5px;
+}
+
+.agent-tool-ui-content {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-left: 5px;
 } 

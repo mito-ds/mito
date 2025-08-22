@@ -5,14 +5,14 @@
 
 import React from 'react';
 import MagnifyingGlassIcon from '../../icons/MagnifyingGlassIcon';
-import '../../../style/GetCellOutputToolUI.css';
+import '../../../style/AgentToolUIComponent.css';
 
 
 const GetCellOutputToolUI: React.FC = () => {
 
     return (
-        <div className="get-cell-output-container">
-            <div className="get-cell-output-content">
+        <div className="agent-tool-ui-container">
+            <div className="agent-tool-ui-content">
                 <MagnifyingGlassIcon />
                 <span>Taking a look at the cell output</span>
             </div>

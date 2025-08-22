@@ -24,6 +24,9 @@ import {
   clearMitoAIChatInput,
   selectModel
 } from '../mitoai_ui_tests/utils';
+import { GPT_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
+
+const MODEL = GPT_DISPLAY_NAME
 
 test.describe.serial('Azure OpenAI Integration Tests', () => {
   test('chat mode basic functionality with Azure OpenAI', async ({ page }) => {
@@ -32,7 +35,7 @@ test.describe.serial('Azure OpenAI Integration Tests', () => {
     await waitForIdle(page);
 
     // Switch to GPT 4.1 model (which should use Azure when configured)
-    await selectModel(page, 'GPT 4.1');
+    await selectModel(page, MODEL);
 
     // Start a new chat
     await clickOnMitoAIChatTab(page);
@@ -54,7 +57,7 @@ test.describe.serial('Azure OpenAI Integration Tests', () => {
     // Verify the code was added to the notebook
     const code = await getCodeFromCell(page, 0);
     const codeLower = code.toLowerCase();
-    expect(codeLower).toContain('print');
+    expect(codeLower).toContain('print'); 
     expect(codeLower).toContain('hello');
     expect(codeLower).toContain('world');
   });
@@ -65,7 +68,7 @@ test.describe.serial('Azure OpenAI Integration Tests', () => {
     await waitForIdle(page);
 
     // Switch to GPT 4.1 model (which should use Azure when configured)
-    await selectModel(page, 'GPT 4.1');
+    await selectModel(page, MODEL);
 
     // Start a new chat and switch to agent mode
     await clickOnMitoAIChatTab(page);
@@ -90,7 +93,7 @@ test.describe.serial('Azure OpenAI Integration Tests', () => {
     await waitForIdle(page);
 
     // Switch to GPT 4.1 model (which should use Azure when configured)
-    await selectModel(page, 'GPT 4.1');
+    await selectModel(page, MODEL);
 
     // Check the status button
     await page.getByRole('button', { name: 'Mito AI', exact: true }).click();
