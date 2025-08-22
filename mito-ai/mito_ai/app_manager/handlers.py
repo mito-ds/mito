@@ -107,8 +107,6 @@ class AppManagerHandler(BaseWebSocketHandler):
                 apps=apps_data,
                 message_id=request.message_id
             )
-
-            self.log.info(f"Returning {len(apps_data)} hardcoded apps with message_id: {request.message_id}")
             self.reply(reply)
 
         except Exception as e:
