@@ -15,6 +15,7 @@ from mito_ai.enterprise.utils import is_azure_openai_configured
 from mito_ai.gemini_client import GeminiClient
 from mito_ai.openai_client import OpenAIClient
 from mito_ai.anthropic_client import AnthropicClient
+from mito_ai.cerebras_client import CerebrasClient
 from mito_ai.logger import get_logger
 from mito_ai.completions.models import (
     AICapabilities,
@@ -84,6 +85,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                 configuration={"model": "<dynamic>"},
                 provider="Gemini",
             )
+        if constants.CEREBRAS_API_KEY and not self.api_key:
+            return AICapabilities(
+                configuration={"model": "<dynamic>"},
+                provider="Cerebras",
+            )
         if self._openai_client:
             return self._openai_client.capabilities
         
@@ -98,6 +104,8 @@ This attribute is observed by the websocket provider to push the error to the cl
             return "claude"
         if constants.GEMINI_API_KEY and not self.api_key:
             return "gemini"
+        if constants.CEREBRAS_API_KEY and not self.api_key:
+            return "cerebras"
         if self._openai_client:
             return self._openai_client.key_type
         return MITO_SERVER_KEY
@@ -132,6 +140,10 @@ This attribute is observed by the websocket provider to push the error to the cl
                     gemini_client = GeminiClient(api_key=api_key)
                     messages_for_gemini = [dict(m) for m in messages]
                     completion = await gemini_client.request_completions(messages_for_gemini, model, response_format_info, message_type)
+                elif model_type == "cerebras":
+                    api_key = constants.CEREBRAS_API_KEY
+                    cerebras_client = CerebrasClient(api_key=api_key)
+                    completion = await cerebras_client.request_completions(messages, model, response_format_info, message_type)
                 elif model_type == "openai":
                     if not self._openai_client:
                         raise RuntimeError("OpenAI client is not initialized.")
@@ -228,6 +240,16 @@ This attribute is observed by the websocket provider to push the error to the cl
                 messages_for_gemini = [dict(m) for m in messages]
                 accumulated_response = await gemini_client.stream_completions(
                     messages=messages_for_gemini,
+                    model=model,
+                    message_id=message_id,
+                    reply_fn=reply_fn,
+                    message_type=message_type
+                )
+            elif model_type == "cerebras":
+                api_key = constants.CEREBRAS_API_KEY
+                cerebras_client = CerebrasClient(api_key=api_key)
+                accumulated_response = await cerebras_client.stream_completions(
+                    messages=messages,
                     model=model,
                     message_id=message_id,
                     reply_fn=reply_fn,
