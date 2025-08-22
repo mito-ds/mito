@@ -253,6 +253,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     const fetchChatHistoryAndSetActiveThread = async (threadId: string): Promise<void> => {
+
+        console.log("FETCHING CHAT HISTORY FOR THREAD", threadId)
         const metadata: IFetchHistoryMetadata = {
             promptType: "fetch_history",
             thread_id: threadId
@@ -277,6 +279,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Add messages to the ChatHistoryManager
         chatHistoryResponse.items.forEach(item => {
+            console.log('item', item)
+
+            // Refresh bug is that whenever I refresh the browser, it goes to the last edited chat, not the last opened chat..
+            // But if the last opened chat, was an agent chat, then it is correct.
+
             try {
                 // If the user sent a message in agent:execution mode, the ai response will be a JSON object which we need to parse. 
                 // TODO: We need to save the full metadata in the message_history.json so we don't have to do these hacky workarounds!
@@ -286,12 +293,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     const agentResponse: AgentResponse = chatHistoryItem
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                     isAgentChat = true
+                    console.log('agent')
                 } else {
                     newChatHistoryManager.addChatMessageFromHistory(item);
                     isAgentChat = false
+                    console.log('chat')
                 }
             } catch {
                 newChatHistoryManager.addChatMessageFromHistory(item);
+                console.log('error')
             }
         });
 

@@ -251,7 +251,15 @@ class GlobalMessageHistory:
         with self._lock:
             if thread_id not in self._chat_threads:
                 return []
-            return self._chat_threads[thread_id].display_history
+            
+            thread = self._chat_threads[thread_id]
+            display_history = thread.display_history
+            
+            # When we get a thread, update it's last interaction time so that if the 
+            # user refreshes their browser, this chat will re-appear as the last opened chat.
+            self._update_last_interaction(thread)
+            self._save_thread_to_disk(thread)
+            return display_history
 
     async def append_message(
         self, 
