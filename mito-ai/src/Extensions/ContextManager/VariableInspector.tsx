@@ -146,7 +146,6 @@ export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVa
             if (KernelMessage.isStreamMsg(msg)) {
                 if (msg.content.name === 'stdout') {
                     try {
-                        console.log("VARIABLES", msg.content.text)
                         setVariables(JSON.parse(msg.content.text))
                     } catch (e) {
                         console.log("Error parsing variables", e)
