@@ -2,9 +2,7 @@
 
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-# app_manager/models.py - Updated models
-
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional
 
@@ -18,7 +16,7 @@ class ManageAppRequest:
     """Request to manage apps."""
     type: str = "manage-app"
     jwt_token: Optional[str] = None
-    message_id: Optional[str] = None  # Add this field
+    message_id: Optional[str] = None  
 
 @dataclass(frozen=True)
 class App:
@@ -47,13 +45,9 @@ class AppManagerError:
 class ManageAppReply:
     """Reply to a manage app request."""
     type: str = "manage-app"
-    apps: List[App] = None  # type: ignore
+    apps: List[App] = field(default_factory=list)
     error: Optional[AppManagerError] = None
-    message_id: Optional[str] = None  # Add this field
-
-    def __post_init__(self) -> None:
-        if self.apps is None:
-            object.__setattr__(self, 'apps', [])
+    message_id: Optional[str] = None  
 
 @dataclass(frozen=True)
 class ErrorMessage:
@@ -61,4 +55,4 @@ class ErrorMessage:
     error_type: str
     title: str
     traceback: Optional[str] = None
-    message_id: Optional[str] = None  # Add this field
+    message_id: Optional[str] = None 
