@@ -7,7 +7,7 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { AppsList } from '../../Extensions/AppManager/apps-list';
 import { IAppManagerService } from '../../Extensions/AppManager/ManageAppsPlugin';
-import { App, GetAppsResponse } from '../../Extensions/AppManager/list-apps-api';
+import { AppMetadata, GetAppsResponse } from '../../Extensions/AppManager/list-apps-api';
 
 // Mock the auth module
 jest.mock('../../Extensions/AppBuilder/auth', () => ({
@@ -43,23 +43,20 @@ const createMockAppManagerService = (): IAppManagerService => ({
 });
 
 // Mock data
-const mockApps: App[] = [
+const mockApps: AppMetadata[] = [
   {
-    id: '1',
     name: 'Test App 1',
     url: 'https://test1.example.com',
     status: 'running',
     createdAt: '2024-01-01T00:00:00Z'
   },
   {
-    id: '2',
     name: 'Test App 2',
     url: 'https://test2.example.com',
     status: 'stopped',
     createdAt: '2024-01-02T00:00:00Z'
   },
   {
-    id: '3',
     name: 'Test App 3',
     url: 'https://test3.example.com',
     status: 'deploying',
@@ -235,7 +232,6 @@ describe('AppsList Component', () => {
     test('should handle apps with missing optional fields', async () => {
       const incompleteApps = [
         {
-          id: '1',
           name: 'Incomplete App',
           url: 'https://incomplete.example.com',
           status: 'running' as const,
@@ -258,7 +254,6 @@ describe('AppsList Component', () => {
 
     test('should handle very long URLs gracefully', async () => {
       const longUrlApp = {
-        id: '1',
         name: 'Long URL App',
         url: 'https://very-long-subdomain-name-that-might-cause-layout-issues.example.com/very/deep/path/with/many/segments',
         status: 'running' as const,

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { copyIcon } from '@jupyterlab/ui-components';
 import { logoutAndClearJWTTokens } from '../AppBuilder/auth';
-import { fetchUserApps, GetAppsResponse, App } from './list-apps-api';
+import { fetchUserApps, GetAppsResponse, AppMetadata } from './list-apps-api';
 import { IAppManagerService } from './ManageAppsPlugin';
 import '../../../style/apps-list.css';
 
@@ -12,7 +12,7 @@ interface AppsListProps {
 }
 
 export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
-  const [apps, setApps] = React.useState<App[]>([]);
+  const [apps, setApps] = React.useState<AppMetadata[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -146,7 +146,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
       ) : (
         <div>
           {apps.map((app) => (
-            <div key={app.id} className="app-item">
+            <div key={app.name} className="app-item">
               <div className="app-item-header">
                 <div className="app-item-content">
                   <div className="app-item-name">

@@ -12,15 +12,7 @@ jest.mock('../../Extensions/AppBuilder/auth', () => ({
   getJWTToken: jest.fn()
 }));
 
-// Mock the UUID module
-jest.mock('@lumino/coreutils', () => ({
-  UUID: {
-    uuid4: jest.fn()
-  }
-}));
-
 const { getJWTToken } = require('../../Extensions/AppBuilder/auth');
-const { UUID } = require('@lumino/coreutils');
 
 describe('list-apps-api', () => {
   let mockAppManagerService: IAppManagerService;
@@ -41,9 +33,6 @@ describe('list-apps-api', () => {
     mockAppManagerService = {
       client: mockWebsocketClient
     } as any;
-
-    // Mock UUID generation
-    UUID.uuid4.mockReturnValue('mock-uuid-123');
   });
 
   describe('fetchUserApps', () => {
@@ -86,7 +75,6 @@ describe('list-apps-api', () => {
 
         // Verify data transformation
         expect(result.apps[0]).toEqual({
-          id: 'mock-uuid-123',
           name: 'Test App 1',
           url: 'https://test1.example.com',
           status: 'running',
@@ -94,7 +82,6 @@ describe('list-apps-api', () => {
         });
 
         expect(result.apps[1]).toEqual({
-          id: 'mock-uuid-123',
           name: 'Test App 2',
           url: 'https://test2.example.com',
           status: 'stopped',
@@ -205,7 +192,7 @@ describe('list-apps-api', () => {
     });
 
     describe('Data transformation', () => {
-      test('should generate unique UUIDs for each app', async () => {
+      test('should transform app data correctly', async () => {
         getJWTToken.mockResolvedValue('valid-jwt-token');
 
         const mockWebsocketResponse: IManageAppReply = {
@@ -228,16 +215,11 @@ describe('list-apps-api', () => {
 
         mockWebsocketClient.sendMessage.mockResolvedValue(mockWebsocketResponse);
 
-        // Mock different UUIDs for each call
-        UUID.uuid4
-          .mockReturnValueOnce('uuid-1')
-          .mockReturnValueOnce('uuid-2');
+        const result = await fetchUserApps(mockAppManagerService);
 
-          const result = await fetchUserApps(mockAppManagerService);
-
-          expect(result.apps).toHaveLength(2);
-          expect(result.apps[0]!.id).toBe('uuid-1');
-          expect(result.apps[1]!.id).toBe('uuid-2');
+        expect(result.apps).toHaveLength(2);
+        expect(result.apps[0]!.name).toBe('App 1');
+        expect(result.apps[1]!.name).toBe('App 2');
       });
     });
   });

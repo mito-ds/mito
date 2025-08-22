@@ -2,13 +2,11 @@
 
 import { IManageAppReply, IManageAppRequest } from '../../websockets/appManager/appManagerModels';
 import { getJWTToken } from '../AppBuilder/auth';
-import { UUID } from '@lumino/coreutils';
 
 // Import the actual service interface from the plugin
 import { IAppManagerService } from './ManageAppsPlugin';
 
-export interface App {
-  id: string;
+export interface AppMetadata {
   name: string;
   url: string;
   status: 'running' | 'stopped' | 'deploying';
@@ -16,7 +14,7 @@ export interface App {
 }
 
 export interface GetAppsResponse {
-  apps: App[];
+  apps: AppMetadata[];
   success: boolean;
   message?: string;
 }
@@ -50,8 +48,7 @@ export const fetchUserApps = async (
       }
 
       // Transform the response to match expected format
-      const apps: App[] = (response.apps || []).map(app => ({
-        id: UUID.uuid4(), // Generate ID since not provided in response
+      const apps: AppMetadata[] = (response.apps || []).map(app => ({
         name: app.app_name,
         url: app.url,
         status: (app.status?.toLowerCase() as 'running' | 'stopped' | 'deploying') || 'stopped',
