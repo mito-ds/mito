@@ -51,7 +51,7 @@ class ManageAppReply:
     error: Optional[AppManagerError] = None
     message_id: Optional[str] = None  # Add this field
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.apps is None:
             object.__setattr__(self, 'apps', [])
 
