@@ -3,9 +3,9 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { fetchUserApps, App, GetAppsResponse } from '../../Extensions/AppManager/list-apps-api';
+import { fetchUserApps } from '../../Extensions/AppManager/list-apps-api';
 import { IAppManagerService } from '../../Extensions/AppManager/ManageAppsPlugin';
-import { IManageAppReply, IManageAppRequest } from '../../websockets/appManager/appManagerModels';
+import { IManageAppReply } from '../../websockets/appManager/appManagerModels';
 
 // Mock the auth module
 jest.mock('../../Extensions/AppBuilder/auth', () => ({
