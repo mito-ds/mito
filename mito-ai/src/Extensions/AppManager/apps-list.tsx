@@ -77,13 +77,17 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'running':
-        return '#4caf50';
-      case 'stopped':
+        return '#4caf50'; 
+      case 'error':
         return '#f44336';
       case 'deploying':
+        return '#2196f3';
+      case 'stopped':
+        return '#9e9e9e';
+      case 'processing':
         return '#ff9800';
       default:
-        return '#757575';
+        return '#9e9e9e';
     }
   };
 
