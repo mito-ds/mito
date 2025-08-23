@@ -45,9 +45,8 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
 
     console.log('[AppsList] Component mounted, calling loadApps...');
     void loadApps();
-  }, [appManagerService]); // Add appManagerService to dependency array
+  }, [appManagerService]);
 
-  // Refresh function that can be called manually
   const refreshApps = async (): Promise<void> => {
     const response = await fetchUserApps(appManagerService);
     if (response.success) {
