@@ -11,10 +11,12 @@ import { getJWTToken } from '../AppBuilder/auth';
 // Import the actual service interface from the plugin
 import { IAppManagerService } from './ManageAppsPlugin';
 
+export type AppStatus = 'active' | 'deploying' | 'error' | 'shut down';
+
 export interface AppMetadata {
   name: string;
   url: string;
-  status: 'running' | 'stopped' | 'deploying';
+  status: AppStatus;
   createdAt: string;
 }
 
@@ -40,7 +42,7 @@ export const fetchUserApps = async (
     // Create the request message with proper typing
     const request: IManageAppRequest = {
       type: 'manage-app',
-      jwt_token: jwtToken || appManagerService.client.serverSettings?.token
+      jwt_token: jwtToken
     };
 
     // Using websocket service with correct message structure and proper typing
@@ -55,7 +57,7 @@ export const fetchUserApps = async (
     const apps: AppMetadata[] = (response.apps || []).map(app => ({
       name: app.app_name,
       url: app.url,
-      status: (app.status?.toLowerCase() as 'running' | 'stopped' | 'deploying') || 'stopped',
+      status: (app.status?.toLowerCase() as 'active' | 'shut down' | 'deploying' | 'error'),
       createdAt: app.created_at
     }));
 

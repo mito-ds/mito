@@ -47,13 +47,13 @@ const mockApps: AppMetadata[] = [
   {
     name: 'Test App 1',
     url: 'https://test1.example.com',
-    status: 'running',
+    status: 'active',
     createdAt: '2024-01-01T00:00:00Z'
   },
   {
     name: 'Test App 2',
     url: 'https://test2.example.com',
-    status: 'stopped',
+    status: 'shut down',
     createdAt: '2024-01-02T00:00:00Z'
   },
   {
@@ -178,8 +178,8 @@ describe('AppsList Component', () => {
       render(<AppsList appManagerService={mockAppManagerService} />);
       
       await waitFor(() => {
-        expect(screen.getByText('Running')).toBeInTheDocument();
-        expect(screen.getByText('Stopped')).toBeInTheDocument();
+        expect(screen.getByText('Active')).toBeInTheDocument();
+        expect(screen.getByText('Shut down')).toBeInTheDocument();
         expect(screen.getByText('Deploying')).toBeInTheDocument();
       });
     });
@@ -234,7 +234,7 @@ describe('AppsList Component', () => {
         {
           name: 'Incomplete App',
           url: 'https://incomplete.example.com',
-          status: 'running' as const,
+          status: 'active' as const,
           createdAt: '2024-01-01T00:00:00Z'
         }
       ];
@@ -256,7 +256,7 @@ describe('AppsList Component', () => {
       const longUrlApp = {
         name: 'Long URL App',
         url: 'https://very-long-subdomain-name-that-might-cause-layout-issues.example.com/very/deep/path/with/many/segments',
-        status: 'running' as const,
+        status: 'active' as const,
         createdAt: '2024-01-01T00:00:00Z'
       };
       

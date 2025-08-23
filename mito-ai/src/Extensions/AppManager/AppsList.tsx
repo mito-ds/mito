@@ -7,7 +7,7 @@
 import * as React from 'react';
 import { copyIcon } from '@jupyterlab/ui-components';
 import { logoutAndClearJWTTokens } from '../AppBuilder/auth';
-import { fetchUserApps, GetAppsResponse, AppMetadata } from './ListAppsAPI';
+import { fetchUserApps, GetAppsResponse, AppMetadata, AppStatus } from './ListAppsAPI';
 import { IAppManagerService } from './ManageAppsPlugin';
 import '../../../style/AppsList.css';
 
@@ -78,18 +78,16 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
     }
   };
 
-  const getStatusColor = (status: string): string => {
+  const getStatusColor = (status: AppStatus): string => {
     switch (status) {
-      case 'running':
+      case 'active':
         return '#4caf50'; 
       case 'error':
         return '#f44336';
       case 'deploying':
         return '#2196f3';
-      case 'stopped':
+      case 'shut down':
         return '#9e9e9e';
-      case 'processing':
-        return '#ff9800';
       default:
         return '#9e9e9e';
     }
