@@ -33,6 +33,11 @@
   border-radius: 3px;
   cursor: pointer;
   font-weight: normal;
+  transition: background-color 0.2s ease;
+}
+
+.apps-list-button:hover {
+  background-color: var(--jp-layout-color2);
 }
 
 .apps-list-button:disabled {
