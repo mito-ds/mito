@@ -45,68 +45,25 @@ export const logoutAndClearJWTTokens = async (): Promise<void> => {
     try {
         // Sign out from AWS Cognito using Amplify
         await signOut();
-
+        console.log('User logged out successfully');
+    } catch (error) {
+        console.error('Error during logout:', error);
+        throw error;
+    } finally{
         // Remove all keys that start with common Amplify prefixes
         const keysToRemove: string[] = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key && (
-                key.startsWith('aws-amplify-') ||
-                key.startsWith('amplify-') ||
-                key.startsWith('CognitoIdentityServiceProvider.') ||
-                key.includes('LastAuthUser') ||
-                key.includes('clockDrift') ||
-                key.includes('userData')
+                key.startsWith('CognitoIdentityServiceProvider.')
             )) {
                 keysToRemove.push(key);
             }
         }
-
         // Remove all identified keys
         keysToRemove.forEach(key => {
             localStorage.removeItem(key);
         });
-
-        // Also clear sessionStorage items if any
-        const sessionKeysToRemove: string[] = [];
-        for (let i = 0; i < sessionStorage.length; i++) {
-            const key = sessionStorage.key(i);
-            if (key && (
-                key.startsWith('aws-amplify-') ||
-                key.startsWith('amplify-') ||
-                key.startsWith('CognitoIdentityServiceProvider.')
-            )) {
-                sessionKeysToRemove.push(key);
-            }
-        }
-
-        sessionKeysToRemove.forEach(key => {
-            sessionStorage.removeItem(key);
-        });
-
-        console.log('User logged out successfully and storage cleared');
-    } catch (error) {
-        console.error('Error during logout:', error);
-
-        // Even if signOut fails, try to clear storage as fallback
-        try {
-            const allKeys: string[] = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && (
-                    key.startsWith('aws-amplify-') ||
-                    key.startsWith('amplify-') ||
-                    key.startsWith('CognitoIdentityServiceProvider.')
-                )) {
-                    allKeys.push(key);
-                }
-            }
-            allKeys.forEach(key => localStorage.removeItem(key));
-            console.log('Storage cleared as fallback');
-        } catch (storageError) {
-            console.error('Error clearing storage:', storageError);
-        }
-
-        throw error;
+        console.log('Auth tokens cleared successfully');
     }
 };
