@@ -15,7 +15,7 @@ jest.mock('../../websockets/appManager/appManagerWebsocketClient');
 const MockAppManagerWebsocketClient = AppManagerWebsocketClient as jest.MockedClass<typeof AppManagerWebsocketClient>;
 
 // Mock the AppsList component
-jest.mock('../../Extensions/AppManager/apps-list', () => ({
+jest.mock('../../Extensions/AppManager/AppsList', () => ({
   AppsList: ({ appManagerService }: { appManagerService: IAppManagerService }) => (
     <div data-testid="apps-list" data-service-token={appManagerService.client.serverSettings?.token}>
       Mock AppsList Component

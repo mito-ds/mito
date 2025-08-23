@@ -14,13 +14,6 @@ jest.mock('../../Extensions/AppBuilder/auth', () => ({
   logoutAndClearJWTTokens: jest.fn()
 }));
 
-// Mock the copyToClipboard utility
-const mockCopyToClipboard = jest.fn();
-jest.mock('../../../utils/copyToClipboard', () => ({
-  __esModule: true,
-  default: mockCopyToClipboard
-}));
-
 // Mock the copyIcon
 jest.mock('@jupyterlab/ui-components', () => ({
   copyIcon: {
@@ -205,10 +198,16 @@ describe('AppsList Component', () => {
   describe('User Interactions', () => {
     beforeEach(() => {
       mockFetchUserApps.mockResolvedValue(mockSuccessResponse);
-      mockCopyToClipboard.mockResolvedValue(true);
+      
+      // Mock the clipboard API
+      Object.assign(navigator, {
+        clipboard: {
+          writeText: jest.fn().mockResolvedValue(undefined)
+        }
+      });
     });
 
-    test('should call copyToClipboard when copy button is clicked', async () => {
+    test('should call navigator.clipboard.writeText when copy button is clicked', async () => {
       render(<AppsList appManagerService={mockAppManagerService} />);
       
       await waitFor(() => {
@@ -218,12 +217,35 @@ describe('AppsList Component', () => {
       const copyButton = screen.getByTestId('copy-icon');
       fireEvent.click(copyButton);
       
-      expect(mockCopyToClipboard).toHaveBeenCalledWith(
-        'https://test1.example.com',
-        'Test App 1'
-      );
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://test1.example.com');
     });
 
+    test('should handle clipboard API failure gracefully', async () => {
+      // Mock clipboard API to fail
+      Object.assign(navigator, {
+        clipboard: {
+          writeText: jest.fn().mockRejectedValue(new Error('Clipboard API not available'))
+        }
+      });
+
+      // Mock document.execCommand for fallback
+      const mockExecCommand = jest.fn().mockReturnValue(true);
+      Object.assign(document, {
+        execCommand: mockExecCommand
+      });
+
+      render(<AppsList appManagerService={mockAppManagerService} />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('Test App 1')).toBeInTheDocument();
+      });
+      
+      const copyButton = screen.getByTestId('copy-icon');
+      fireEvent.click(copyButton);
+      
+      // Should fall back to document.execCommand
+      expect(mockExecCommand).toHaveBeenCalledWith('copy');
+    });
   });
   
 
