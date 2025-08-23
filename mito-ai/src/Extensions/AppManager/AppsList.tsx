@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 //app-list.tsx
 import * as React from 'react';
 import { copyIcon } from '@jupyterlab/ui-components';
