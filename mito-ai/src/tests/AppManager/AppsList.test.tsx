@@ -11,7 +11,15 @@ import { AppMetadata, GetAppsResponse } from '../../Extensions/AppManager/ListAp
 
 // Mock the auth module
 jest.mock('../../Extensions/AppBuilder/auth', () => ({
-  logoutAndClearJWTTokens: jest.fn()
+  logoutAndClearJWTTokens: jest.fn(),
+  getJWTToken: jest.fn().mockResolvedValue('mock-jwt-token')
+}));
+
+// Mock the ListAppsAPI module
+jest.mock('../../Extensions/AppManager/ListAppsAPI', () => ({
+  fetchUserApps: jest.fn(),
+  isGetAppsSuccess: jest.fn(),
+  isGetAppsFailure: jest.fn()
 }));
 
 // Mock the copyIcon
@@ -70,18 +78,21 @@ const mockErrorResponse: GetAppsResponse = {
 describe('AppsList Component', () => {
   let mockAppManagerService: IAppManagerService;
   let mockFetchUserApps: jest.MockedFunction<typeof import('../../Extensions/AppManager/ListAppsAPI').fetchUserApps>;
+  let mockIsGetAppsSuccess: jest.MockedFunction<typeof import('../../Extensions/AppManager/ListAppsAPI').isGetAppsSuccess>;
+  let mockIsGetAppsFailure: jest.MockedFunction<typeof import('../../Extensions/AppManager/ListAppsAPI').isGetAppsFailure>;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockAppManagerService = createMockAppManagerService();
     
-    // Mock the fetchUserApps function
-    jest.doMock('../../Extensions/AppManager/ListAppsAPI', () => ({
-      fetchUserApps: jest.fn()
-    }));
-    
     const apiModule = require('../../Extensions/AppManager/ListAppsAPI');
     mockFetchUserApps = apiModule.fetchUserApps as jest.MockedFunction<typeof apiModule.fetchUserApps>;
+    mockIsGetAppsSuccess = apiModule.isGetAppsSuccess as jest.MockedFunction<typeof apiModule.isGetAppsSuccess>;
+    mockIsGetAppsFailure = apiModule.isGetAppsFailure as jest.MockedFunction<typeof apiModule.isGetAppsFailure>;
+    
+    // Set up default mock implementations
+    mockIsGetAppsSuccess.mockImplementation((response: any) => response.success === true);
+    mockIsGetAppsFailure.mockImplementation((response: any) => response.success === false);
   });
 
   describe('Rendering States', () => {
