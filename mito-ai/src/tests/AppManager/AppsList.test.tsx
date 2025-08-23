@@ -5,9 +5,9 @@
 
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { AppsList } from '../../Extensions/AppManager/apps-list';
+import { AppsList } from '../../Extensions/AppManager/AppsList';
 import { IAppManagerService } from '../../Extensions/AppManager/ManageAppsPlugin';
-import { AppMetadata, GetAppsResponse } from '../../Extensions/AppManager/list-apps-api';
+import { AppMetadata, GetAppsResponse } from '../../Extensions/AppManager/ListAppsAPI';
 
 // Mock the auth module
 jest.mock('../../Extensions/AppBuilder/auth', () => ({
@@ -77,18 +77,18 @@ const mockErrorResponse: GetAppsResponse = {
 
 describe('AppsList Component', () => {
   let mockAppManagerService: IAppManagerService;
-  let mockFetchUserApps: jest.MockedFunction<typeof import('../../Extensions/AppManager/list-apps-api').fetchUserApps>;
+  let mockFetchUserApps: jest.MockedFunction<typeof import('../../Extensions/AppManager/ListAppsAPI').fetchUserApps>;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockAppManagerService = createMockAppManagerService();
     
     // Mock the fetchUserApps function
-    jest.doMock('../../Extensions/AppManager/list-apps-api', () => ({
+    jest.doMock('../../Extensions/AppManager/ListAppsAPI', () => ({
       fetchUserApps: jest.fn()
     }));
     
-    const apiModule = require('../../Extensions/AppManager/list-apps-api');
+    const apiModule = require('../../Extensions/AppManager/ListAppsAPI');
     mockFetchUserApps = apiModule.fetchUserApps as jest.MockedFunction<typeof apiModule.fetchUserApps>;
   });
 

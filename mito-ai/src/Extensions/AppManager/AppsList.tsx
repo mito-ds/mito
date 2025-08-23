@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { copyIcon } from '@jupyterlab/ui-components';
 import { logoutAndClearJWTTokens } from '../AppBuilder/auth';
-import { fetchUserApps, GetAppsResponse, AppMetadata } from './list-apps-api';
+import { fetchUserApps, GetAppsResponse, AppMetadata } from './ListAppsAPI';
 import { IAppManagerService } from './ManageAppsPlugin';
-import '../../../style/apps-list.css';
+import '../../../style/AppsList.css';
 
 // Add props interface to receive the appManagerService
 interface AppsListProps {

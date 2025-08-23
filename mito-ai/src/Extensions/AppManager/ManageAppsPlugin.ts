@@ -6,7 +6,7 @@ import {
 import { ReactWidget } from '@jupyterlab/apputils';
 import { Token } from '@lumino/coreutils';
 import * as React from 'react';
-import { AppsList } from './apps-list';
+import { AppsList } from './AppsList';
 import { AppManagerWebsocketClient } from '../../websockets/appManager/appManagerWebsocketClient';
 
 /**

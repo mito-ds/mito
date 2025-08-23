@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { fetchUserApps } from '../../Extensions/AppManager/list-apps-api';
+import { fetchUserApps } from '../../Extensions/AppManager/ListAppsAPI';
 import { IAppManagerService } from '../../Extensions/AppManager/ManageAppsPlugin';
 import { IManageAppReply } from '../../websockets/appManager/appManagerModels';
 
