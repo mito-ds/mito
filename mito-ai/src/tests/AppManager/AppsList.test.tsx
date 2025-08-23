@@ -225,8 +225,12 @@ describe('AppsList Component', () => {
         expect(screen.getByText('Test App 1')).toBeInTheDocument();
       });
       
-      const copyButton = screen.getByTestId('copy-icon');
-      fireEvent.click(copyButton);
+      // Get the first copy button (for Test App 1)
+      const copyButtons = screen.getAllByTestId('copy-icon');
+      expect(copyButtons).toHaveLength(3); // Should have 3 copy buttons for 3 apps
+      const firstCopyButton = copyButtons[0]!;
+      expect(firstCopyButton).toBeInTheDocument();
+      fireEvent.click(firstCopyButton);
       
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://test1.example.com');
     });
@@ -251,8 +255,12 @@ describe('AppsList Component', () => {
         expect(screen.getByText('Test App 1')).toBeInTheDocument();
       });
       
-      const copyButton = screen.getByTestId('copy-icon');
-      fireEvent.click(copyButton);
+      // Get the first copy button (for Test App 1)
+      const copyButtons = screen.getAllByTestId('copy-icon');
+      expect(copyButtons).toHaveLength(3); // Should have 3 copy buttons for 3 apps
+      const firstCopyButton = copyButtons[0]!;
+      expect(firstCopyButton).toBeInTheDocument();
+      fireEvent.click(firstCopyButton);
       
       // Should fall back to document.execCommand
       expect(mockExecCommand).toHaveBeenCalledWith('copy');

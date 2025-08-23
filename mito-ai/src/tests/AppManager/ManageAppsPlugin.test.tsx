@@ -131,6 +131,11 @@ describe('ManageAppsPlugin', () => {
 
     beforeEach(() => {
       service = ManageAppsPlugin.activate(mockApp) as IAppManagerService;
+      
+      // Ensure the mock websocket client has the required methods
+      if (service.client && !service.client.initialize) {
+        service.client.initialize = jest.fn().mockResolvedValue(undefined);
+      }
     });
 
     test('should implement IAppManagerService interface', () => {
@@ -143,15 +148,22 @@ describe('ManageAppsPlugin', () => {
     });
 
     test('should initialize websocket connection', () => {
-      expect(service.client.initialize).toHaveBeenCalled();
+      // Add the initialize method to the mock if it doesn't exist
+      if (!service.client.initialize) {
+        service.client.initialize = jest.fn().mockResolvedValue(undefined);
+      }
+      expect((service.client.initialize as jest.Mock)).toHaveBeenCalled();
     });
 
     test('should handle websocket initialization errors gracefully', () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       const mockError = new Error('Connection failed');
       
-      // Mock the initialize method to throw an error
-      service.client.initialize = jest.fn().mockRejectedValue(mockError);
+      // Ensure the initialize method exists and mock it to throw an error
+      if (!service.client.initialize) {
+        service.client.initialize = jest.fn();
+      }
+      (service.client.initialize as jest.Mock).mockRejectedValue(mockError);
       
       // Re-activate to trigger the error
       ManageAppsPlugin.activate(mockApp);
