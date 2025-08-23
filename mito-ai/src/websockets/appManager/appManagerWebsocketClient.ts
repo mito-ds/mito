@@ -63,39 +63,41 @@ export class AppManagerWebsocketClient extends BaseWebsocketClient<IAppManagerRe
     // Emit the message to stream listeners
     this._messages.emit(message);
 
-    // Handle promise resolution for pending requests
+    // Determine which pending request this message belongs to
+    let pendingId: string | null = null;
+    let pendingReply: any = null;
+
     const messageId = (message as any).message_id;
-    
+
+    // First, try to match by message_id
     if (messageId && this._pendingRepliesMap.has(messageId)) {
-      const pendingReply = this._pendingRepliesMap.get(messageId);
-      if (pendingReply) {
-        this._pendingRepliesMap.delete(messageId);
-        
-        if (message.error) {
-          pendingReply.reject(new Error(message.error.title || 'Server error'));
-        } else {
-          pendingReply.resolve(message as any);
+      pendingId = messageId;
+      pendingReply = this._pendingRepliesMap.get(messageId);
+    }
+    // If no message_id, check if this is a response to a single pending request
+    else if (this._pendingRepliesMap.size === 1 && !messageId) {
+      const entries = Array.from(this._pendingRepliesMap.entries());
+      if (entries.length > 0) {
+        const entry = entries[0];
+        if (entry) {
+          pendingId = entry[0];
+          pendingReply = entry[1];
         }
       }
+    }
+
+    // Guard clause - exit if we couldn't find a matching pending request
+    if (!pendingId || !pendingReply) {
+      return;
+    }
+
+    // Common cleanup and resolution logic
+    this._pendingRepliesMap.delete(pendingId);
+
+    if (message.error) {
+      pendingReply.reject(new Error(message.error.title || 'Server error'));
     } else {
-      // If no message_id, check if this is a response to a single pending request
-      if (this._pendingRepliesMap.size === 1 && !messageId) {
-        const entries = Array.from(this._pendingRepliesMap.entries());
-        if (entries.length > 0) {
-          const entry = entries[0];
-          if (entry) {
-            const [pendingId, pendingReply] = entry;
-            
-            this._pendingRepliesMap.delete(pendingId);
-            
-            if (message.error) {
-              pendingReply.reject(new Error(message.error.title || 'Server error'));
-            } else {
-              pendingReply.resolve(message as any);
-            }
-          }
-        }
-      }
+      pendingReply.resolve(message as any);
     }
   }
 }
