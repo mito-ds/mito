@@ -14,9 +14,10 @@ from mito_ai.settings.urls import get_settings_urls
 from mito_ai.rules.urls import get_rules_urls
 from mito_ai.auth.urls import get_auth_urls
 from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
+from mito_ai.app_manager.handlers import AppManagerHandler
 from mito_ai.file_uploads.urls import get_file_uploads_urls
 
-# Sometimes matplotlib figures do not show up in the notebook with this warning: 
+# Sometimes matplotlib figures do not show up in the notebook with this warning:
 # UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
 # I believe that streamlit is reconfiguring the matplotlib settings and this is happening as a result.
 # For now, we just set the backend to inline, so that the figures show up again
@@ -78,6 +79,11 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             url_path_join(base_url, "mito-ai", "version-check"),
             VersionCheckHandler,
             {},
+        ),
+        (
+            url_path_join(base_url, "mito-ai", "app-manager"),
+            AppManagerHandler,
+            {}
         )
     ]
     
