@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { fetchUserApps } from '../../Extensions/AppManager/ListAppsAPI';
+import { fetchUserApps, isGetAppsSuccess, isGetAppsFailure } from '../../Extensions/AppManager/ListAppsAPI';
 import { IAppManagerService } from '../../Extensions/AppManager/ManageAppsPlugin';
 import { IManageAppReply } from '../../websockets/appManager/appManagerModels';
 
@@ -23,10 +23,7 @@ describe('list-apps-api', () => {
     
     // Mock the websocket client
     mockWebsocketClient = {
-      sendMessage: jest.fn(),
-      serverSettings: {
-        token: 'mock-server-token'
-      }
+      sendMessage: jest.fn()
     };
 
     // Mock the app manager service
@@ -64,28 +61,31 @@ describe('list-apps-api', () => {
         const result = await fetchUserApps(mockAppManagerService);
 
         expect(result.success).toBe(true);
-        expect(result.apps).toHaveLength(2);
-        expect(result.message).toBeUndefined();
+        expect(isGetAppsSuccess(result)).toBe(true);
+        
+        if (isGetAppsSuccess(result)) {
+          expect(result.apps).toHaveLength(2);
+
+          // Verify data transformation
+          expect(result.apps[0]).toEqual({
+            name: 'Test App 1',
+            url: 'https://test1.example.com',
+            status: 'running',
+            createdAt: '2024-01-01T00:00:00Z'
+          });
+
+          expect(result.apps[1]).toEqual({
+            name: 'Test App 2',
+            url: 'https://test2.example.com',
+            status: 'stopped',
+            createdAt: '2024-01-02T00:00:00Z'
+          });
+        }
 
         // Verify the request was made correctly
         expect(mockWebsocketClient.sendMessage).toHaveBeenCalledWith({
           type: 'manage-app',
           jwt_token: mockJWTToken
-        });
-
-        // Verify data transformation
-        expect(result.apps[0]).toEqual({
-          name: 'Test App 1',
-          url: 'https://test1.example.com',
-          status: 'running',
-          createdAt: '2024-01-01T00:00:00Z'
-        });
-
-        expect(result.apps[1]).toEqual({
-          name: 'Test App 2',
-          url: 'https://test2.example.com',
-          status: 'stopped',
-          createdAt: '2024-01-02T00:00:00Z'
         });
       });
 
@@ -102,8 +102,11 @@ describe('list-apps-api', () => {
         const result = await fetchUserApps(mockAppManagerService);
 
         expect(result.success).toBe(true);
-        expect(result.apps).toHaveLength(0);
-        expect(result.message).toBeUndefined();
+        expect(isGetAppsSuccess(result)).toBe(true);
+        
+        if (isGetAppsSuccess(result)) {
+          expect(result.apps).toHaveLength(0);
+        }
       });
 
       test('should handle different app statuses correctly', async () => {
@@ -137,23 +140,30 @@ describe('list-apps-api', () => {
 
         const result = await fetchUserApps(mockAppManagerService);
 
-        expect(result.apps).toHaveLength(3);
-        expect(result.apps[0]!.status).toBe('running');
-        expect(result.apps[1]!.status).toBe('stopped');
-        expect(result.apps[2]!.status).toBe('deploying');
+        expect(result.success).toBe(true);
+        expect(isGetAppsSuccess(result)).toBe(true);
+        
+        if (isGetAppsSuccess(result)) {
+          expect(result.apps).toHaveLength(3);
+          expect(result.apps[0]!.status).toBe('running');
+          expect(result.apps[1]!.status).toBe('stopped');
+          expect(result.apps[2]!.status).toBe('deploying');
+        }
       });
     });
 
     describe('Error handling', () => {
       test('should return error when user is not authenticated', async () => {
         getJWTToken.mockResolvedValue(null);
-        mockWebsocketClient.serverSettings = { token: null };
 
         const result = await fetchUserApps(mockAppManagerService);
 
         expect(result.success).toBe(false);
-        expect(result.apps).toHaveLength(0);
-        expect(result.message).toBe('User not authenticated');
+        expect(isGetAppsFailure(result)).toBe(true);
+        
+        if (isGetAppsFailure(result)) {
+          expect(result.errorMessage).toBe('User not authenticated');
+        }
       });
 
       test('should handle websocket errors', async () => {
@@ -165,8 +175,11 @@ describe('list-apps-api', () => {
         const result = await fetchUserApps(mockAppManagerService);
 
         expect(result.success).toBe(false);
-        expect(result.apps).toHaveLength(0);
-        expect(result.message).toBe('WebSocket connection failed');
+        expect(isGetAppsFailure(result)).toBe(true);
+        
+        if (isGetAppsFailure(result)) {
+          expect(result.errorMessage).toBe('WebSocket connection failed');
+        }
       });
 
       test('should handle websocket response with error field', async () => {
@@ -186,8 +199,11 @@ describe('list-apps-api', () => {
         const result = await fetchUserApps(mockAppManagerService);
 
         expect(result.success).toBe(false);
-        expect(result.apps).toHaveLength(0);
-        expect(result.message).toBe('Error: Failed to fetch apps from backend');
+        expect(isGetAppsFailure(result)).toBe(true);
+        
+        if (isGetAppsFailure(result)) {
+          expect(result.errorMessage).toBe('Failed to fetch apps from backend');
+        }
       });
     });
 
@@ -217,9 +233,14 @@ describe('list-apps-api', () => {
 
         const result = await fetchUserApps(mockAppManagerService);
 
-        expect(result.apps).toHaveLength(2);
-        expect(result.apps[0]!.name).toBe('App 1');
-        expect(result.apps[1]!.name).toBe('App 2');
+        expect(result.success).toBe(true);
+        expect(isGetAppsSuccess(result)).toBe(true);
+        
+        if (isGetAppsSuccess(result)) {
+          expect(result.apps).toHaveLength(2);
+          expect(result.apps[0]!.name).toBe('App 1');
+          expect(result.apps[1]!.name).toBe('App 2');
+        }
       });
     });
   });

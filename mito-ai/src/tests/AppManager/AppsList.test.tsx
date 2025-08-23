@@ -70,9 +70,8 @@ const mockSuccessResponse: GetAppsResponse = {
 };
 
 const mockErrorResponse: GetAppsResponse = {
-  apps: [],
   success: false,
-  message: 'Failed to load apps'
+  errorMessage: 'Failed to load apps'
 };
 
 describe('AppsList Component', () => {

@@ -7,7 +7,7 @@
 import * as React from 'react';
 import { copyIcon } from '@jupyterlab/ui-components';
 import { logoutAndClearJWTTokens } from '../AppBuilder/auth';
-import { fetchUserApps, GetAppsResponse, AppMetadata, AppStatus } from './ListAppsAPI';
+import { fetchUserApps, GetAppsResponse, AppMetadata, isGetAppsSuccess, AppStatus } from './ListAppsAPI';
 import { IAppManagerService } from './ManageAppsPlugin';
 import '../../../style/AppsList.css';
 
@@ -33,10 +33,10 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
         const response: GetAppsResponse = await fetchUserApps(appManagerService);
         console.log('[AppsList] fetchUserApps response:', response);
 
-        if (response.success) {
+        if (isGetAppsSuccess(response)) {
           setApps(response.apps);
         } else {
-          setError(response.message || 'Failed to load apps');
+          setError(response.errorMessage || 'Failed to load apps');
           setApps([]);
         }
       } catch (err) {
@@ -54,11 +54,11 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
 
   const refreshApps = async (): Promise<void> => {
     const response = await fetchUserApps(appManagerService);
-    if (response.success) {
+    if (isGetAppsSuccess(response)) {
       setApps(response.apps);
       setError(null);
     } else {
-      setError(response.message || 'Failed to refresh apps');
+      setError(response.errorMessage || 'Failed to refresh apps');
     }
   };
 

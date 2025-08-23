@@ -20,11 +20,26 @@ export interface AppMetadata {
   createdAt: string;
 }
 
-export interface GetAppsResponse {
+export interface GetAppsSuccess {
+  success: true;
   apps: AppMetadata[];
-  success: boolean;
-  message?: string;
 }
+
+export interface GetAppsFailure {
+  success: false;
+  errorMessage: string;
+}
+
+export type GetAppsResponse = GetAppsSuccess | GetAppsFailure;
+
+// Type guards for working with the discriminated union
+export const isGetAppsSuccess = (response: GetAppsResponse): response is GetAppsSuccess => {
+  return response.success === true;
+};
+
+export const isGetAppsFailure = (response: GetAppsResponse): response is GetAppsFailure => {
+  return response.success === false;
+};
 
 export const fetchUserApps = async (
   appManagerService: IAppManagerService
@@ -33,9 +48,8 @@ export const fetchUserApps = async (
     const jwtToken = await getJWTToken();
     if (!jwtToken) {
       return {
-        apps: [],
         success: false,
-        message: 'User not authenticated'
+        errorMessage: 'User not authenticated'
       };
     }
 
@@ -50,30 +64,30 @@ export const fetchUserApps = async (
 
     // Check if the response indicates an error
     if (response.error) {
-      throw new Error(`Error: ${response.error.title || 'Failed to fetch apps'}`);
+      return {
+        success: false,
+        errorMessage: response.error.title || 'Failed to fetch apps'
+      };
     }
 
     // Transform the response to match expected format
     const apps: AppMetadata[] = (response.apps || []).map(app => ({
       name: app.app_name,
       url: app.url,
-      status: (app.status?.toLowerCase() as 'active' | 'shut down' | 'deploying' | 'error'),
+      status: (app.status?.toLowerCase() as AppStatus),
       createdAt: app.created_at
     }));
 
-    const data: GetAppsResponse = {
-      apps,
-      success: !response.error,
-      message: undefined // No message field available in response
+    return {
+      success: true,
+      apps
     };
 
-    return data;
   } catch (error) {
     console.error('Error fetching apps:', error);
     return {
-      apps: [],
       success: false,
-      message: error instanceof Error ? error.message : 'Failed to fetch apps'
+      errorMessage: error instanceof Error ? error.message : 'Failed to fetch apps'
     };
   }
 };
