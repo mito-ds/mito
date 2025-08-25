@@ -386,7 +386,7 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_bullets_container}> 
                   <PlanBullet>
                     <p>
-                      50 AI Completions per month
+                      150 AI Completions per month
                     </p>
                   </PlanBullet>
                   <PlanBullet>
