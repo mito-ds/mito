@@ -16,12 +16,16 @@ from mito_ai.auth.urls import get_auth_urls
 from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
 from mito_ai.file_uploads.urls import get_file_uploads_urls
 
-# Sometimes matplotlib figures do not show up in the notebook with this warning: 
-# UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
-# I believe that streamlit is reconfiguring the matplotlib settings and this is happening as a result.
-# For now, we just set the backend to inline, so that the figures show up again
+# Force Matplotlib to use the Jupyter inline backend.
+# Background: importing Streamlit sets os.environ["MPLBACKEND"] = "Agg" very early.
+# In a Jupyter kernel, that selects a non‑interactive canvas and can trigger:
+#   "UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown"
+# which prevents figures from rendering in notebook outputs.
+# We preempt this by selecting the canonical Jupyter inline backend BEFORE any
+# Matplotlib import, so figures render inline reliably. This must run very early.
+# See: https://github.com/streamlit/streamlit/issues/9640
 import os
-os.environ['MPLBACKEND'] = 'inline'
+os.environ["MPLBACKEND"] = "module://matplotlib_inline.backend_inline"
 
 try:
     from _version import __version__
