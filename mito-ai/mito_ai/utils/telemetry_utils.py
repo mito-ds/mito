@@ -337,6 +337,28 @@ def log_db_connection_success(connection_type: str, schema: Dict[str, Any]) -> N
         },
     )
 
+def log_db_connection_error(connection_type: str, error_message: str) -> None:
+    log(
+        "mito_ai_db_connection_error", 
+        params={
+            "connection_type": connection_type, 
+            "error_message": error_message,
+        }
+    )
+
+def log_file_upload_attempt(
+    filename: str, file_extension: str, is_chunked: bool, total_chunks: int
+) -> None:
+    log(
+        "mito_ai_file_upload_attempt",
+        params={
+            "filename": filename,
+            "file_extension": file_extension,
+            "is_chunked": is_chunked,
+            "total_chunks": total_chunks,
+        },
+    )
+
 def log_file_upload_failure(error: str) -> None:
     log("mito_ai_file_upload_failure", params={"error_message": error})
 
@@ -349,15 +371,7 @@ def log_ai_completion_error(key_type: Literal['mito_server_key', 'user_key'], me
 def log_mito_server_free_tier_limit_reached(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType) -> None:
     log(MITO_SERVER_FREE_TIER_LIMIT_REACHED, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type)
 
-def log_db_connection_error(connection_type: str, error_message: str) -> None:
-    log(
-        "mito_ai_db_connection_error", 
-        params={
-            "connection_type": connection_type, 
-            "error_message": error_message,
-        }
-    )
-    
+
 #################################
 # Streamlit Conversion
 #################################

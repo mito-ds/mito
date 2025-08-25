@@ -6,13 +6,13 @@ import tempfile
 import tornado
 from typing import Dict, Any
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.utils.telemetry_utils import log_file_upload_failure
+from mito_ai.utils.telemetry_utils import log_file_upload_attempt, log_file_upload_failure
 
 
 class FileUploadHandler(APIHandler):
     # Class-level dictionary to store temporary directories for each file upload
     # This persists across handler instances since Tornado recreates handlers per request
-    # Key: filename, Value: dict with temp_dir, total_chunks, received_chunks
+    # Key: filename, Value: dict with temp_dir, total_chunks, received_chunks, logged_upload
     _temp_dirs: Dict[str, Dict[str, Any]] = {}
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -42,6 +42,9 @@ class FileUploadHandler(APIHandler):
                     filename, file_data, chunk_number, total_chunks, notebook_dir
                 )
             else:
+                # Log the file upload attempt for regular (non-chunked) uploads
+                file_extension = filename.split(".")[-1].lower()
+                log_file_upload_attempt(filename, file_extension, False, 0)
                 self._handle_regular_upload(filename, file_data, notebook_dir)
 
             self.finish()
@@ -67,6 +70,11 @@ class FileUploadHandler(APIHandler):
         """Handle chunked file upload."""
         chunk_num = int(chunk_number)
         total_chunks_num = int(total_chunks)
+
+        # Log the file upload attempt only for the first chunk
+        if chunk_num == 1:
+            file_extension = filename.split(".")[-1].lower()
+            log_file_upload_attempt(filename, file_extension, True, total_chunks_num)
 
         # Save chunk to temporary file
         self._save_chunk(filename, file_data, chunk_num, total_chunks_num)
