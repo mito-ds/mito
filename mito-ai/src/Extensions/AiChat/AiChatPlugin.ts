@@ -18,7 +18,7 @@ import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { setRenameUntitledFileOnSave } from './jupyterSettingsManager';
+import { setDefaultWindowingMode, setRenameUntitledFileOnSave } from './jupyterSettingsManager';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 
 // The Widget Rank determins where the ChatIcon is displayed
@@ -150,6 +150,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
 
     // Update jupyter settings to work best with mito-ai
     void setRenameUntitledFileOnSave(settingRegistry, documentManager);
+    void setDefaultWindowingMode(settingRegistry)
 
     // By returning a tracker token, we can require the token in other 
     // plugins. This allows us to force plugin load order. For example, 

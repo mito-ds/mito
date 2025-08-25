@@ -8,6 +8,8 @@ import { IDocumentManager } from "@jupyterlab/docmanager";
 
 // Document manager plugin ID
 const DOCMANAGER_PLUGIN_ID = '@jupyterlab/docmanager-extension:plugin';
+const NOTEBOOK_PLUGIN_ID = '@jupyterlab/notebook-extension:tracker'
+
 
 // Set renameUntitledFileOnSave to false when the extension loads
 export const setRenameUntitledFileOnSave = async (settingRegistry: ISettingRegistry, _documentManager: IDocumentManager): Promise<void> => {
@@ -17,6 +19,18 @@ export const setRenameUntitledFileOnSave = async (settingRegistry: ISettingRegis
     try {
         await settingRegistry.set(DOCMANAGER_PLUGIN_ID, 'renameUntitledFileOnSave', false);
     } catch (error) {
-        console.error('Failed to set renameUntitledFileOnSave setting:', error);
+        console.error('[mito-ai jupyter settings manager] Failed to set renameUntitledFileOnSave setting:', error);
     }
 };
+
+
+export const setDefaultWindowingMode = async (settingRegistry: ISettingRegistry): Promise<void> => {
+
+    try {
+        await settingRegistry.set(NOTEBOOK_PLUGIN_ID, 'windowingMode', 'defer');
+    } catch (error) {
+        console.log('[mito-ai jupyter settings manager] Failed to set windowingMode to defer', error);
+    }
+}
+
+
