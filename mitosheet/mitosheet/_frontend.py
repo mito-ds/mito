@@ -9,5 +9,5 @@ Information about the frontend package of the widgets.
 
 from mitosheet._version import __version__, get_package_json
 
-module_name = get_package_json()['name']
+module_name = 'mitosheet'
 module_version = '^' + __version__

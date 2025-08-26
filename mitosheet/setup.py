@@ -14,7 +14,17 @@ from typing import List, Tuple
 from setuptools import find_packages, setup
 
 HERE = Path(__file__).parent.resolve()
-package_json = json.loads(open('package.json').read())
+try:
+    with open(HERE / "package.json", "r", encoding="utf-8") as fh:
+        package_json = json.load(fh)
+except FileNotFoundError:
+    from mitosheet._version import __version__
+    package_json = {
+        "version": __version__,
+        "homepage": "",
+        "author": {"name": "", "email": ""},
+        "description": ""
+    }
 lab_path = Path(HERE, 'mitosheet', 'labextension')
 
 data_files_spec = [
@@ -78,7 +88,6 @@ setup_args = dict(
     package_data             = {'': ['*.js', '*.css', '*.html']},
     data_files               = data_files,
     install_requires=[        
-        "jupyterlab~=4.0",
         'pandas>=2.0.0',
         'analytics-python',
         # Graphing libraries
@@ -86,7 +95,8 @@ setup_args = dict(
         'chardet>=3.0.4',
         # For XLSX, reading - we don't fix so works on all python versions
         'openpyxl',
-        'packaging'
+        'packaging',
+        'ipython'
     ],
     extras_require = {
         'test': [
@@ -96,6 +106,7 @@ setup_args = dict(
             'types-requests',
             'mypy',
             'pytest_httpserver',
+            
         ],
         'deploy': [
             'wheel==0.42.0', 

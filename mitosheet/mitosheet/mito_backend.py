@@ -40,6 +40,7 @@ from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_r
 from mitosheet.utils import get_new_id
 from mitosheet.step_performers.utils.user_defined_function_utils import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
+from importlib.resources import files
 
 class MitoBackend():
     """
@@ -307,10 +308,8 @@ class MitoBackend():
 
         return False
 
-with open(os.path.normpath(os.path.join(__file__, '..', 'mito_frontend.js'))) as f:
-    js_code_from_file = f.read()
-with open(os.path.normpath(os.path.join(__file__, '..', 'mito_frontend.css'))) as f:
-    css_code_from_file = f.read()
+js_code_from_file = (files('mitosheet') / 'mito_frontend.js').read_text()
+css_code_from_file = (files('mitosheet') / 'mito_frontend.css').read_text()
 
 
 def get_mito_backend(

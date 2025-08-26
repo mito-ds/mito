@@ -25,6 +25,7 @@ def get_package_json() -> Dict[str, Any]:
     Thus, this function handles each case, to make sure we can get the current version 
     of the mitosheet package correctly.
     """
+    return {}
     lab_extension_folder = os.path.join(Path(__file__).parent, 'labextension')
 
     try:
@@ -45,6 +46,6 @@ def get_package_json() -> Dict[str, Any]:
 
 package_json = get_package_json()
 
-__version__ = package_json['version']
+__version__ = '0.2.1'
 
-package_name = package_json['name']
+package_name = 'mitosheet'

@@ -231,15 +231,35 @@ try:
     import streamlit.components.v1 as components
     import streamlit as st
 
-    parent_dir = os.path.dirname(os.path.abspath(__file__))
+    import tempfile
+    from pathlib import Path
+    from importlib.resources import files
+    from mitosheet._version import __version__
 
-    mito_build_dir = os.path.join(parent_dir, "mitoBuild")
+    def _extract_resource_tree(package: str, resource_dir: str) -> str:
+        src = files(package) / resource_dir
+        dest = Path(tempfile.gettempdir()) / f"mitosheet_{__version__}_{resource_dir}"
+        if dest.exists():
+            return str(dest)
+        dest.mkdir(parents=True, exist_ok=True)
+        def _copy_tree(s, d: Path):
+            for item in s.iterdir():
+                tgt = d / item.name
+                if item.is_dir():
+                    tgt.mkdir(parents=True, exist_ok=True)
+                    _copy_tree(item, tgt)
+                else:
+                    tgt.parent.mkdir(parents=True, exist_ok=True)
+                    tgt.write_bytes(item.read_bytes())
+        _copy_tree(src, dest)
+        return str(dest)
+
+    mito_build_dir = _extract_resource_tree('mitosheet.streamlit.v1', 'mitoBuild')
     _mito_component_func = components.declare_component("my_component", path=mito_build_dir)
 
-    message_passer_build_dr = os.path.join(parent_dir, "messagingBuild")
+    message_passer_build_dr = _extract_resource_tree('mitosheet.streamlit.v1', 'messagingBuild')
     _message_passer_component_func = components.declare_component("message-passer", path=message_passer_build_dr)
-
-
+    
     def get_session_id() -> Optional[str]:
         """
         This returns the session id for the current script run. Notably, this is different
