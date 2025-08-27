@@ -253,6 +253,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     const fetchChatHistoryAndSetActiveThread = async (threadId: string): Promise<void> => {
+
         const metadata: IFetchHistoryMetadata = {
             promptType: "fetch_history",
             thread_id: threadId

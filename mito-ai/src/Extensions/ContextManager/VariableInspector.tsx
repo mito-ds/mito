@@ -98,10 +98,17 @@ def structured_globals():
 
             else:
 
+                max_value_length = 4000 # This is roughly 1000 tokens in the LLM
+                truncated_value = str(repr(v))  # Force to string
+
+                if len(truncated_value) > max_value_length:
+                    split_length = max_value_length // 2
+                    truncated_value = truncated_value[:split_length] + '... <middle of value truncated> ...' + truncated_value[-split_length:]
+
                 new_variable = {
                     "variable_name": k,
                     "type": str(type(v)),
-                    "value": repr(v)
+                    "value": truncated_value
                 }
 
                 try:

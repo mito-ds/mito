@@ -7,9 +7,9 @@ from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.message_history_utils import trim_sections_from_message_content, trim_old_messages
 from mito_ai.completions.prompt_builders.chat_prompt import create_chat_prompt
 from mito_ai.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
-from mito_ai.completions.prompt_builders.agent_smart_debug_prompt import (
-    create_agent_smart_debug_prompt,
-)
+from mito_ai.completions.prompt_builders.agent_smart_debug_prompt import create_agent_smart_debug_prompt
+from unittest.mock import Mock, patch
+from mito_ai.completions.message_history import GlobalMessageHistory, ChatThread
 from mito_ai.completions.prompt_builders.smart_debug_prompt import create_error_prompt
 from mito_ai.completions.prompt_builders.explain_code_prompt import create_explain_code_prompt
 from mito_ai.completions.models import (
@@ -26,6 +26,9 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     CONTENT_REMOVED_PLACEHOLDER,
 )
+
+
+
 
 # Standard test data for multiple tests
 TEST_VARIABLES = ["'df': pd.DataFrame({'col1': [1, 2, 3], 'col2': [4, 5, 6]})"]
@@ -387,3 +390,53 @@ def test_trim_mixed_content_messages() -> None:
     # Verify that the recent messages are untouched
     assert trimmed_messages[1] == message_list[1]
     assert trimmed_messages[2] == message_list[2]
+
+
+def test_get_display_history_calls_update_last_interaction() -> None:
+    """Test that get_display_history calls _update_last_interaction when retrieving a thread."""
+    
+    # Create a mock thread
+    thread_id = ThreadID("test-thread-id")
+    mock_thread = Mock(spec=ChatThread)
+    mock_thread.display_history = [{"role": "user", "content": "test message"}]
+    mock_thread.last_interaction_ts = 1234567890.0
+    
+    # Create message history instance and add the mock thread
+    message_history = GlobalMessageHistory()
+    message_history._chat_threads = {thread_id: mock_thread}
+    
+    # Mock the _update_last_interaction method
+    with patch.object(message_history, '_update_last_interaction') as mock_update:
+        with patch.object(message_history, '_save_thread_to_disk') as mock_save:
+            # Call get_display_history
+            result = message_history.get_display_history(thread_id)
+            
+            # Verify _update_last_interaction was called with the thread
+            mock_update.assert_called_once_with(mock_thread)
+            
+            # Verify _save_thread_to_disk was also called
+            mock_save.assert_called_once_with(mock_thread)
+            
+            # Verify the result is correct
+            assert result == [{"role": "user", "content": "test message"}]
+
+
+def test_get_display_history_returns_empty_for_nonexistent_thread() -> None:
+    """Test that get_display_history returns empty list for non-existent thread."""
+    from mito_ai.completions.message_history import GlobalMessageHistory
+    from mito_ai.completions.models import ThreadID
+    
+    message_history = GlobalMessageHistory()
+    thread_id = ThreadID("nonexistent-thread-id")
+    
+    # Mock the methods to ensure they're not called
+    with patch.object(message_history, '_update_last_interaction') as mock_update:
+        with patch.object(message_history, '_save_thread_to_disk') as mock_save:
+            result = message_history.get_display_history(thread_id)
+            
+            # Verify methods were not called since thread doesn't exist
+            mock_update.assert_not_called()
+            mock_save.assert_not_called()
+            
+            # Verify empty result
+            assert result == []
