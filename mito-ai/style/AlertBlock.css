@@ -162,3 +162,12 @@
     transform: translateY(0);
   }
 }
+
+.secondary-option-link {
+    color: var(--purple-700) !important;
+    text-decoration: underline !important;
+}
+
+.secondary-option-link:hover {
+    color: var(--purple-600) !important;
+}
