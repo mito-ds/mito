@@ -12,7 +12,9 @@ import { IAppBuilderService } from './AppBuilderPlugin';
 import { UUID } from '@lumino/coreutils';
 import { deployAppNotification } from './DeployAppNotification';
 import { IBuildAppReply, IBuildAppRequest } from '../../websockets/appBuilder/appBuilderModels';
-import { checkAuthenticationAndRedirect, getJWTToken } from './auth';
+import {getJWTToken } from './auth';
+import { showAuthenticationPopup } from './authPopupUtils';
+
 
 /* 
 This function generates a requirements.txt file that lists the dependencies for the streamlit app
@@ -21,12 +23,29 @@ export const convertNotebookToStreamlit = async (
   notebookTracker: INotebookTracker,
   appBuilderService?: IAppBuilderService,
 ): Promise<void> => {
-  // Check authentication before proceeding with deployment
-  const isAuthenticated = await checkAuthenticationAndRedirect();
-  if (!isAuthenticated) {
+
+  let jwtToken = await getJWTToken();
+  if (!jwtToken) {
+    // No token found, show authentication popup
     console.log('User not authenticated, redirected to signup');
-    return;
+    try {
+      const user = await showAuthenticationPopup();
+      console.log('User authenticated successfully:', user);
+      // Try to get the JWT token again after successful authentication
+      jwtToken = await getJWTToken();
+      if (!jwtToken) {
+        console.error('JWT token still not available after authentication');
+        Notification.emit('Authentication failed - JWT token not found', 'error', {
+          autoClose: false
+        });
+        return;
+      }
+    } catch (error) {
+      console.log('Authentication cancelled or failed:', error);
+      return; // Exit early if authentication was cancelled
+    }
   }
+
 
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
@@ -52,9 +71,7 @@ export const convertNotebookToStreamlit = async (
     try {
       console.log("Sending request to deploy the app");
       
-      // Get JWT token for authentication
-      const jwtToken = getJWTToken();
-      
+      // Use the JWT token that was already obtained or refreshed above
       const response: IBuildAppReply = await appBuilderService.client.sendMessage<IBuildAppRequest, IBuildAppReply>({
         type: 'build-app',
         message_id: UUID.uuid4(),

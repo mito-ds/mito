@@ -33,6 +33,10 @@ jest.mock('../../Extensions/AiChat/ChatMessage/CodeBlockToolbar', () => {
 // Mock copyToClipboard utility
 jest.mock('../../utils/copyToClipboard', () => jest.fn());
 
+
+
+
+
 // Create base props for the component
 const createMockProps = (overrides = {}) => ({
     code: '```python\nline1\nline2\nline3\nline4\nline5\n```',
@@ -45,6 +49,8 @@ const createMockProps = (overrides = {}) => ({
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
     agentModeEnabled: false,
     codeSummary: SAMPLE_CODE_SUMMARY,
+    isErrorFixup: false,
+    isRunAllCells: false,
     ...overrides
 });
 
@@ -188,6 +194,35 @@ describe('AssistantCodeBlock Component', () => {
             expect(screen.queryByTestId('chat-input')).not.toBeInTheDocument();
             expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
             expect(screen.queryByRole('textarea')).not.toBeInTheDocument();
+        });
+    });
+
+    describe('Run All Cells Mode', () => {
+        it('displays run all cells UI when isRunAllCells is true', () => {
+            const props = createMockProps({
+                agentModeEnabled: true,
+                isRunAllCells: true,
+                codeSummary: 'Running all cells'
+            });
+            render(<AssistantCodeBlock {...props} />);
+
+            // Should show the run all cells text
+            expect(screen.getByText('Running all cells')).toBeInTheDocument();
+            // Should not show code content
+            expect(screen.queryByTestId('python-code')).not.toBeInTheDocument();
+        });
+
+        it('does not show run all cells UI when isRunAllCells is false', () => {
+            const props = createMockProps({
+                agentModeEnabled: true,
+                isRunAllCells: false,
+                codeSummary: 'Generated code'
+            });
+            render(<AssistantCodeBlock {...props} />);
+
+            // Should show regular code UI, not run all cells
+            expect(screen.getByText('Generated code')).toBeInTheDocument();
+            expect(screen.queryByText('Running all cells')).not.toBeInTheDocument();
         });
     });
 });

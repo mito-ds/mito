@@ -26,6 +26,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitThis": true,
+    "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
     "target": "ES2018",
     "types": [

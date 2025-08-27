@@ -39,12 +39,14 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     isLastAiMessage,
     codeReviewStatus,
     agentModeEnabled,
-    isErrorFixup
+    isErrorFixup,
 }) => {
     const [isCodeExpanded, setIsCodeExpanded] = useState(false);
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
 
     if (agentModeEnabled) {
+
+        // Handle regular code blocks
         return (
             <div className={classNames('code-block-container', 'agent-mode', {
                 'agent-mode-collapsed': !isCodeExpanded,

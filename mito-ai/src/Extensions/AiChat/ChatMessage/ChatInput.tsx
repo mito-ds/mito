@@ -15,6 +15,7 @@ import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
+import AttachFileButton from '../../../components/AttachFileButton';
 import DatabaseButton from '../../../components/DatabaseButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { AgentExecutionStatus } from '../ChatTaskpane';
@@ -64,6 +65,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [dropdownFilter, setDropdownFilter] = useState('');
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
+
+    const handleFileUploaded = (fileName: string): void => {
+        // Add the uploaded file to the additional context
+        setAdditionalContext(prev => [
+            ...prev, {
+                type: 'file',
+                value: fileName,
+                display: fileName
+            }
+        ]);
+    };
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
@@ -288,6 +300,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
+                <AttachFileButton onFileUploaded={handleFileUploaded} notebookTracker={notebookTracker} />
                 <button
                     className="context-button"
                     onClick={() => {
@@ -302,7 +315,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 {additionalContext.map((context, index) => (
                     <SelectedContextContainer
                         key={`${context.type}-${context.value}-${index}`}
-                        title={context.type === 'db' && context.display ? context.display : context.value}
+                        title={context.display || context.value}
                         type={context.type}
                         onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
                         notebookTracker={notebookTracker}

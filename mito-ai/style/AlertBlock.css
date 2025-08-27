@@ -1,0 +1,174 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Base alert container styles */
+.chat-message-alert-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 5px;
+  padding: 10px;
+  border: 1px solid;
+}
+
+/* Red variant for errors */
+.chat-message-alert-container.error {
+  background-color: var(--red-300);
+  border-color: var(--red-900);
+  color: var(--red-900);
+}
+
+/* Purple variant for upgrades/CTAs */
+.chat-message-alert-container.upgrade {
+  background-color: var(--purple-300);
+  color: var(--grey-900);
+}
+
+.chat-message-alert a {
+  color: var(--purple-700) !important;
+  text-decoration: underline;
+}
+
+/* Error message styles - red variant */
+.alert-error-message {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.chat-message-alert-container.error .alert-error-message {
+  color: var(--red-900);
+}
+
+.alert-actions-header {
+  margin-bottom: 12px;
+}
+
+.alert-actions-title {
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  font-size: 13px;
+}
+
+.chat-message-alert-container.error .alert-actions-title {
+  color: var(--red-900);
+}
+
+.alert-actions-list {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.chat-message-alert-container.error .alert-actions-list {
+  color: var(--red-800);
+}
+
+.chat-message-alert-container.upgrade .alert-actions-list {
+  color: var(--purple-800);
+}
+
+.alert-actions-list li {
+  margin-bottom: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.alert-action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.chat-message-alert-container.error .alert-action-item {
+  color: var(--red-800);
+}
+
+.chat-message-alert-container.upgrade .alert-action-item {
+  color: var(--purple-800);
+}
+
+.action-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.details-toggle {
+  display: inline-flex;
+  align-items: center;
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  text-decoration: underline;
+}
+
+.chat-message-alert-container.error .toggle-button {
+  color: var(--red-900);
+}
+
+.toggle-button:hover {
+  text-decoration: none;
+}
+
+.chat-message-alert-container.error .toggle-button:hover {
+  color: var(--red-800);
+}
+
+.chat-message-alert-container.upgrade .toggle-button:hover {
+  color: var(--purple-800);
+}
+
+.toggle-caret {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+  display: inline-block;
+  text-decoration: none !important;
+}
+
+.toggle-caret.open {
+  transform: rotate(180deg);
+}
+
+.details-content {
+  margin-top: 8px;
+  margin-left: 16px;
+  padding: 8px;
+  background-color: var(--grey-100);
+  border-radius: 4px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.secondary-option-link {
+    color: var(--purple-700) !important;
+    text-decoration: underline !important;
+}
+
+.secondary-option-link:hover {
+    color: var(--purple-600) !important;
+}
