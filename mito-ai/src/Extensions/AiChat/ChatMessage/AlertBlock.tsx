@@ -8,6 +8,10 @@ import TextButton from '../../../components/TextButton';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../../utils/errors';
 import { STRIPE_PAYMENT_LINK } from '../../../utils/stripe';
 import { logEvent } from '../../../restAPI/RestAPI';
+import '../../../../style/AlertBlock.css';
+
+// Add calendly link constant
+const CALENDLY_LINK = 'https://calendly.com/your-calendly-link'; // Replace with actual calendly link
 
 interface IAlertBlockProps {
     content: string;
@@ -24,36 +28,77 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
 
     if (mitoAIConnectionErrorType === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
         return (
-            <div className="chat-message-alert-container">
+            <div className="chat-message-alert-container upgrade">
                 <div className="chat-message-alert">
                     <div className="alert-error-message">
                        Free Trial Limit Reached
                     </div>
                 </div>
                 <div>
-                    <p className="alert-actions-title">You&apos;ve used up your free trial of Mito AI for this month. To continue using Mito AI now, upgrade to <a href="https://www.trymito.io/plans" target="_blank" rel="noreferrer">Mito Pro</a> and get access to:</p>
-                    <ul className="alert-actions-list">
-                        <li>Unlimited AI Chat and Agent</li>
-                        <li>All Mito Spreadsheet Pro features</li>
-                        <li>Dedicated support team</li>
-                    </ul>
-                    <p>
-                        Or supply your own Open AI Key to continue using the basic version of Mito AI. 
+                    <p className="alert-actions-title">
+                        You&apos;ve used up your free trial of Mito AI for this month.
                     </p>
-                    <TextButton
-                        title="Upgrade to Pro"
-                        text="Upgrade to Pro"
-                        action={STRIPE_PAYMENT_LINK}
-                        variant="purple"
-                        width="block"
-                    />
+                    <div>
+                        <p className="alert-actions-title" style={{ marginBottom: '8px' }}>
+                            Mito Pro includes:
+                        </p>
+                        <ul className="alert-actions-list">
+                            <li>Unlimited AI Chat and Agent</li>
+                            <li>All Mito Spreadsheet Pro features</li>
+                            <li>Dedicated support team</li>
+                        </ul>
+                    </div>
+                    
+                    <div style={{ marginTop: '20px' }}>
+                        <p className="alert-actions-title" style={{ marginBottom: '16px' }}>
+                            Choose how you&apos;d like to continue:
+                        </p>
+                        
+                        <div style={{ 
+                            display: 'flex', 
+                            gap: '8px', 
+                            marginBottom: '16px',
+                            justifyContent: 'center'
+                        }}>
+                            <div style={{ flex: 1, maxWidth: '200px' }}>
+                                <TextButton
+                                    title="Upgrade to Pro"
+                                    text="Upgrade to Pro"
+                                    action={STRIPE_PAYMENT_LINK}
+                                    variant="dark-purple"
+                                    width="block"
+                                />
+                            </div>
+                            <div style={{ flex: 1, maxWidth: '200px' }}>
+                                <TextButton
+                                    title="Schedule Call to Extend Trial"
+                                    text="Schedule Call to Extend Trial"
+                                    action={CALENDLY_LINK}
+                                    variant="dark-purple"
+                                    width="block"
+                                />
+                            </div>
+                        </div>
+                        
+                        <div style={{ textAlign: 'center' }}>
+                            <p style={{ margin: 0, fontStyle: 'italic' }}>
+                                Or continue with your own{' '}
+                                <a href="https://docs.trymito.io/mito-ai/configuring-ai-provider-keys" 
+                                   target="_blank" 
+                                   rel="noreferrer"
+                                   style={{ fontStyle: 'italic' }}>
+                                    API key
+                                </a>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="chat-message-alert-container">
+        <div className="chat-message-alert-container error">
             <div className="chat-message-alert">
                 <div className="alert-error-message">
                     &#9888; {content}

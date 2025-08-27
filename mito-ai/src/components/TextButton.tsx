@@ -14,7 +14,7 @@ export interface ButtonProps {
     onClick?: () => void;
     action?: string;
     title: string;
-    variant: 'green' | 'red' | 'gray' | 'purple';
+    variant: 'green' | 'red' | 'gray' | 'purple' | 'dark-purple';
     width: 'block' | 'fit-contents';
     textAlign?: 'left' | 'center' | 'right';
     className?: string;
