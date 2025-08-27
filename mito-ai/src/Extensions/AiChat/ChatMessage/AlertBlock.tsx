@@ -24,27 +24,32 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
 
     if (mitoAIConnectionErrorType === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
         return (
-            <div className="chat-message-alert">
-                <p>
-                    You&apos;ve used up your free trial of Mito AI for this month. To continue using Mito AI now, upgrade to <a href="https://www.trymito.io/plans" target="_blank" rel="noreferrer">Mito Pro</a> and get access to:
-                </p>
-                <ul>
-                    <li>Unlimited AI Chat and Agent</li>
-                    <li>Unlimited AI Autocompletes</li>
-                    <li>All Mito Spreadsheet Pro features</li>
-                </ul>
-                <p>
-                    Or supply your own Open AI Key to continue using the basic version of Mito AI. 
-                </p>
-                <TextButton
-                    title="Upgrade to Pro"
-                    text="Upgrade to Pro"
-                    action={STRIPE_PAYMENT_LINK}
-                    variant="purple"
-                    width="block"
-                />
+            <div className="chat-message-alert-container">
+                <div className="chat-message-alert">
+                    <div className="alert-error-message">
+                       Free Trial Limit Reached
+                    </div>
+                </div>
+                <div>
+                    <p className="alert-actions-title">You&apos;ve used up your free trial of Mito AI for this month. To continue using Mito AI now, upgrade to <a href="https://www.trymito.io/plans" target="_blank" rel="noreferrer">Mito Pro</a> and get access to:</p>
+                    <ul className="alert-actions-list">
+                        <li>Unlimited AI Chat and Agent</li>
+                        <li>All Mito Spreadsheet Pro features</li>
+                        <li>Dedicated support team</li>
+                    </ul>
+                    <p>
+                        Or supply your own Open AI Key to continue using the basic version of Mito AI. 
+                    </p>
+                    <TextButton
+                        title="Upgrade to Pro"
+                        text="Upgrade to Pro"
+                        action={STRIPE_PAYMENT_LINK}
+                        variant="purple"
+                        width="block"
+                    />
+                </div>
             </div>
-        );
+        )
     }
 
     return (
