@@ -10,7 +10,7 @@ import { logEvent } from '../../../restAPI/RestAPI';
 import '../../../../style/AlertBlock.css';
 
 // Add calendly link constant
-const CALENDLY_LINK = 'https://calendly.com/your-calendly-link'; // Replace with actual calendly link
+const CALENDLY_LINK = 'https://calendly.com/jake_from_mito/mito-meeting'
 
 interface IAlertBlockProps {
     content: string;
@@ -62,14 +62,24 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
                         {' '} for unlimited AI access and dedicated support
                     </li>
                     <li>
-                        <a 
-                            href={CALENDLY_LINK}
-                            target="_blank"
-                            rel="noreferrer"
+                        <button 
+                            onClick={() => {
+                                window.open(CALENDLY_LINK, '_blank');
+                            }}
                             className="secondary-option-link"
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                font: 'inherit',
+                                color: 'var(--purple-700)',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                transition: 'color 0.2s ease'
+                            }}
                         >
                             Schedule a call with our founders
-                        </a>
+                        </button>
                         {' '} to get 3 free months of Mito Pro
                     </li>
                     <li>
