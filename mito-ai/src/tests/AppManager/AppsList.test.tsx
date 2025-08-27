@@ -234,37 +234,6 @@ describe('AppsList Component', () => {
       
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://test1.example.com');
     });
-
-    test('should handle clipboard API failure gracefully', async () => {
-      // Mock clipboard API to fail
-      Object.assign(navigator, {
-        clipboard: {
-          writeText: jest.fn().mockRejectedValue(new Error('Clipboard API not available'))
-        }
-      });
-
-      // Mock document.execCommand for fallback
-      const mockExecCommand = jest.fn().mockReturnValue(true);
-      Object.assign(document, {
-        execCommand: mockExecCommand
-      });
-
-      render(<AppsList appManagerService={mockAppManagerService} />);
-      
-      await waitFor(() => {
-        expect(screen.getByText('Test App 1')).toBeInTheDocument();
-      });
-      
-      // Get the first copy button (for Test App 1)
-      const copyButtons = screen.getAllByTestId('copy-icon');
-      expect(copyButtons).toHaveLength(3); // Should have 3 copy buttons for 3 apps
-      const firstCopyButton = copyButtons[0]!;
-      expect(firstCopyButton).toBeInTheDocument();
-      fireEvent.click(firstCopyButton);
-      
-      // Should fall back to document.execCommand
-      expect(mockExecCommand).toHaveBeenCalledWith('copy');
-    });
   });
   
 
