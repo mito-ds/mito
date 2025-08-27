@@ -4,10 +4,13 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import TextButton from '../../../components/TextButton';
 import { FREE_TIER_LIMIT_REACHED_ERROR_TITLE } from '../../../utils/errors';
 import { STRIPE_PAYMENT_LINK } from '../../../utils/stripe';
 import { logEvent } from '../../../restAPI/RestAPI';
+import '../../../../style/AlertBlock.css';
+
+// Add calendly link constant
+const CALENDLY_LINK = 'https://calendly.com/jake_from_mito/mito-meeting'
 
 interface IAlertBlockProps {
     content: string;
@@ -24,31 +27,79 @@ const AlertBlock: React.FC<IAlertBlockProps> = ({ content, mitoAIConnectionError
 
     if (mitoAIConnectionErrorType === FREE_TIER_LIMIT_REACHED_ERROR_TITLE) {
         return (
-            <div className="chat-message-alert">
-                <p>
-                    You&apos;ve used up your free trial of Mito AI for this month. To continue using Mito AI now, upgrade to <a href="https://www.trymito.io/plans" target="_blank" rel="noreferrer">Mito Pro</a> and get access to:
+            <div className="chat-message-alert-container upgrade">
+                <div className="chat-message-alert">
+                    <div className="alert-error-message">
+                       Free Trial Limit Reached
+                    </div>
+                </div>
+                <p className="alert-actions-title">
+                    You&apos;ve used up your free trial of Mito AI for this month.
                 </p>
-                <ul>
-                    <li>Unlimited AI Chat and Agent</li>
-                    <li>Unlimited AI Autocompletes</li>
-                    <li>All Mito Spreadsheet Pro features</li>
-                </ul>
-                <p>
-                    Or supply your own Open AI Key to continue using the basic version of Mito AI. 
+                <p className="alert-actions-title" style={{marginTop: '0px', marginBottom: '5px'}}>
+                    Choose how you&apos;d like to continue:
                 </p>
-                <TextButton
-                    title="Upgrade to Pro"
-                    text="Upgrade to Pro"
-                    action={STRIPE_PAYMENT_LINK}
-                    variant="purple"
-                    width="block"
-                />
+                <ol style={{ margin: '0', paddingLeft: '20px' }}>
+                    <li>
+                        <form action={STRIPE_PAYMENT_LINK} method="POST" target="_blank" style={{ display: 'inline' }}>
+                            <button 
+                                type="submit"
+                                className="secondary-option-link"
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    padding: 0,
+                                    font: 'inherit',
+                                    color: 'var(--purple-700)',
+                                    textDecoration: 'underline',
+                                    cursor: 'pointer',
+                                    transition: 'color 0.2s ease'
+                                }}
+                            >
+                                Upgrade to Mito Pro
+                            </button>
+                        </form>
+                        {' '} for unlimited AI access and dedicated support
+                    </li>
+                    <li>
+                        <button 
+                            onClick={() => {
+                                window.open(CALENDLY_LINK, '_blank');
+                            }}
+                            className="secondary-option-link"
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                font: 'inherit',
+                                color: 'var(--purple-700)',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                transition: 'color 0.2s ease'
+                            }}
+                        >
+                            Schedule a call with our founders
+                        </button>
+                        {' '} to get 3 free months of Mito Pro
+                    </li>
+                    <li>
+                        <a 
+                            href="https://docs.trymito.io/mito-ai/configuring-ai-provider-keys"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="secondary-option-link"
+                        >
+                            Use your own API keys
+                        </a>
+                        {' '} to continue using Mito AI
+                    </li>
+                </ol>
             </div>
-        );
+        )
     }
 
     return (
-        <div className="chat-message-alert-container">
+        <div className="chat-message-alert-container error">
             <div className="chat-message-alert">
                 <div className="alert-error-message">
                     &#9888; {content}
