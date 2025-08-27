@@ -11,6 +11,7 @@ from tornado.httpclient import HTTPResponse
 from mito_ai.constants import MITO_GEMINI_URL
 from mito_ai.utils.utils import _create_http_client
 
+MITO_ERROR_MARKER = "MITO_ERROR_MARKER:"
 
 class ProviderCompletionException(Exception):
     """Custom exception for Mito server errors that converts well to CompletionError."""
@@ -178,6 +179,12 @@ async def stream_response_from_mito_server(
                 processed_chunk = chunk
                 if chunk_processor:
                     processed_chunk = chunk_processor(chunk)
+
+                # Check if this chunk contains an error marker
+                if processed_chunk.startswith(MITO_ERROR_MARKER):
+                    error_message = processed_chunk[len(MITO_ERROR_MARKER):]
+                    print(f"Detected error in {provider_name} stream: {error_message}")
+                    raise ProviderCompletionException(error_message, provider_name=provider_name)
 
                 if reply_fn is not None and message_id is not None:
                     # Send the chunk directly to the frontend
