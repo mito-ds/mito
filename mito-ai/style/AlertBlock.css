@@ -23,6 +23,7 @@
 /* Purple variant for upgrades/CTAs */
 .chat-message-alert-container.upgrade {
   background-color: var(--purple-300);
+  color: var(--grey-900);
 }
 
 .chat-message-alert a {
