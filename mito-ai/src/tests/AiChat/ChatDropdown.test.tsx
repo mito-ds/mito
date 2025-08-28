@@ -13,7 +13,11 @@ import { ExpandedVariable } from '../../Extensions/AiChat/ChatMessage/ChatInput'
 jest.mock('../../restAPI/RestAPI', () => ({
   ...jest.requireActual('../../restAPI/RestAPI'), // Import and retain default behavior
   getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']),
-  getDatabaseConnections: jest.fn().mockResolvedValue({})
+  getDatabaseConnections: jest.fn().mockResolvedValue({
+    'conn-1': { alias: 'production_db', database: 'prod_data', type: 'postgres' },
+    'conn-2': { alias: 'analytics_db', database: 'analytics', type: 'snowflake' },
+    'conn-3': { alias: 'test_db', database: 'test_data', type: 'mysql' }
+  })
 }));
 
 // Helper function to create mock variables
@@ -96,18 +100,21 @@ describe('ChatDropdown Component', () => {
 
             // Verify all list items are rendered (not counting spans or other elements with similar test IDs)
             const options = screen.getAllByTestId(/^chat-dropdown-item-(?!type|name)/);
-            // Expect 5 variables + 3 mocked rules
-            expect(options).toHaveLength(defaultProps.options.length + 3);
+            // Expect 5 variables + 3 mocked rules + 3 database connections, but limited by maxDropdownItems (10)
+            expect(options).toHaveLength(10);
 
             // Check individual items in the correct order
             expect(screen.getByTestId('chat-dropdown-item-Data Analysis')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-Visualization')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-Machine Learning')).toBeInTheDocument();
+            expect(screen.getByTestId('chat-dropdown-item-production_db')).toBeInTheDocument();
+            expect(screen.getByTestId('chat-dropdown-item-analytics_db')).toBeInTheDocument();
+            expect(screen.getByTestId('chat-dropdown-item-test_db')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-column')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-df')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-series')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-number')).toBeInTheDocument();
-            expect(screen.getByTestId('chat-dropdown-item-text')).toBeInTheDocument();
+            // Note: 'text' variable is not in the first 10 items due to maxDropdownItems limit
         });
 
         it('displays the correct shortened types', async () => {
@@ -123,7 +130,8 @@ describe('ChatDropdown Component', () => {
             expect(screen.getByTestId('chat-dropdown-item-type-df').textContent).toBe('df');
             expect(screen.getByTestId('chat-dropdown-item-type-series').textContent).toBe('s');
             expect(screen.getByTestId('chat-dropdown-item-type-number').textContent).toBe('int');
-            expect(screen.getByTestId('chat-dropdown-item-type-text').textContent).toBe('str');
+            // Note: 'text' variable is no longer in the first 10 items due to database connections
+            // so we can't test it in this basic rendering test
         });
 
         it('displays "No variables found" when no options match', async () => {
@@ -168,6 +176,36 @@ describe('ChatDropdown Component', () => {
 
             // 'df' should still match
             expect(screen.getByTestId('chat-dropdown-item-df')).toBeInTheDocument();
+        });
+
+        it('filters database connections by alias', async () => {
+            // Re-render with database search
+            renderChatDropdown({ filterText: 'production' });
+
+            // Wait for database connections to be loaded and filtered
+            await waitFor(() => {
+                expect(screen.queryByText('Data Analysis')).not.toBeInTheDocument();
+            });
+
+            // Should find database by alias
+            expect(screen.getByTestId('chat-dropdown-item-production_db')).toBeInTheDocument();
+            expect(screen.queryByTestId('chat-dropdown-item-analytics_db')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('chat-dropdown-item-test_db')).not.toBeInTheDocument();
+        });
+
+        it('filters database connections by type', async () => {
+            // Re-render with database type search
+            renderChatDropdown({ filterText: 'postgres' });
+
+            // Wait for database connections to be loaded and filtered
+            await waitFor(() => {
+                expect(screen.queryByText('Data Analysis')).not.toBeInTheDocument();
+            });
+
+            // Should find database by type
+            expect(screen.getByTestId('chat-dropdown-item-production_db')).toBeInTheDocument();
+            expect(screen.queryByTestId('chat-dropdown-item-analytics_db')).not.toBeInTheDocument();
+            expect(screen.queryByTestId('chat-dropdown-item-test_db')).not.toBeInTheDocument();
         });
     });
 
@@ -257,6 +295,18 @@ describe('ChatDropdown Component', () => {
             fireEvent.keyDown(document, { key: 'ArrowDown' });
             expect(screen.getByTestId('chat-dropdown-item-Machine Learning')).toHaveClass('selected');
 
+            // Press down again to select the first database (production_db)
+            fireEvent.keyDown(document, { key: 'ArrowDown' });
+            expect(screen.getByTestId('chat-dropdown-item-production_db')).toHaveClass('selected');
+
+            // Press down again to select the second database (analytics_db)
+            fireEvent.keyDown(document, { key: 'ArrowDown' });
+            expect(screen.getByTestId('chat-dropdown-item-analytics_db')).toHaveClass('selected');
+
+            // Press down again to select the third database (test_db)
+            fireEvent.keyDown(document, { key: 'ArrowDown' });
+            expect(screen.getByTestId('chat-dropdown-item-test_db')).toHaveClass('selected');
+
             // Press down again to select the first variable (column)
             fireEvent.keyDown(document, { key: 'ArrowDown' });
             expect(screen.getByTestId('chat-dropdown-item-column')).toHaveClass('selected');
@@ -304,8 +354,8 @@ describe('ChatDropdown Component', () => {
 
             // Press up arrow when first item is selected to go to the last item
             fireEvent.keyDown(document, { key: 'ArrowUp' });
-            // The last item should be the last variable (text)
-            expect(screen.getByTestId('chat-dropdown-item-text')).toHaveClass('selected');
+            // The last item should be the last variable (number)
+            expect(screen.getByTestId('chat-dropdown-item-number')).toHaveClass('selected');
 
             // Press down arrow when last item is selected to go to the first item
             fireEvent.keyDown(document, { key: 'ArrowDown' });
