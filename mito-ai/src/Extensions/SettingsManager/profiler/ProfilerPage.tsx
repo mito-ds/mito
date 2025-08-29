@@ -40,6 +40,8 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
                 <h2>Profiler</h2>
             </div>
 
+            <p style={{ color: 'red' }}>The profiler is a tool for debugging Mito AI internally.</p>
+
             <h3>Context Manager</h3>
 
             <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
@@ -61,11 +63,9 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
                 <div className="settings-option">
                     <pre style={{
                         overflowY: 'auto',
-                        // border: '1px solid #ccc',
                         padding: '10px',
                         marginTop: '10px',
                         // backgroundColor: '#f5f5f5',
-                        // fontSize: '12px'
                     }}>
                         {JSON.stringify({
                             variables: contextManager.variables,
