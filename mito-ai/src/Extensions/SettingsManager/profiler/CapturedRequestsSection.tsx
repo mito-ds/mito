@@ -10,7 +10,7 @@ export const CapturedRequestsSection = (): JSX.Element => {
 
     // Listen for captured completion requests
     useEffect(() => {
-        const handleCapturedRequest = (event: CustomEvent) => {
+        const handleCapturedRequest = (event: CustomEvent): void => {
             setCapturedRequests(prev => [event.detail, ...prev]);
         };
 
