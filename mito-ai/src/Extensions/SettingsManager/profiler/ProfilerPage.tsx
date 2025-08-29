@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
+import '../../../../style/ProfilerPage.css';
 
 interface ProfilerPageProps {
     contextManager: IContextManager;
@@ -78,11 +79,11 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
                 <h2>Profiler</h2>
             </div>
 
-            <p style={{ color: 'red' }}>The profiler is a tool for debugging Mito AI internally.</p>
+            <p className="profiler-warning">The profiler is a tool for debugging Mito AI internally.</p>
 
             <h3>Context Manager</h3>
 
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+            <div className="profiler-button-container">
                 <button
                     className="button-base"
                     onClick={handleRefreshContextManager}
@@ -99,12 +100,7 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
 
             {showContents && (
                 <div className="settings-option">
-                    <pre style={{
-                        overflowY: 'auto',
-                        padding: '10px',
-                        marginTop: '10px',
-                        // backgroundColor: '#f5f5f5',
-                    }}>
+                    <pre className="json-container">
                         {JSON.stringify({
                             variables: contextManager.variables,
                             files: contextManager.files
@@ -116,34 +112,29 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
             <h3>Captured Completion Requests</h3>
 
             <button
-                className="button-base"
+                className="button-base profiler-clear-button"
                 onClick={clearCapturedRequests}
             >
                 Clear Captured Requests
             </button>
 
             {capturedRequests.length === 0 ? (
-                <p style={{ color: '#666', fontStyle: 'italic' }}>
+                <p className="profiler-no-requests">
                     No requests captured yet. Send a message in the AI chat to see captured requests here.
                 </p>
             ) : (
                 capturedRequests.map((captured, index) => (
-                    <div key={index} style={{ marginBottom: '20px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                    <div key={index} className="profiler-request-container">
+                        <div className="profiler-request-header">
                             <h4>Request {capturedRequests.length - index} - {captured.timestamp}</h4>
                             <button
-                                className="button-base"
+                                className="button-base profiler-copy-button"
                                 onClick={() => copyRequestToClipboard(captured.request)}
-                                style={{ fontSize: '12px', padding: '4px 8px' }}
                             >
                                 Copy
                             </button>
                         </div>
-                        <pre style={{
-                            overflowY: 'auto',
-                            padding: '10px',
-                            marginTop: '10px',
-                        }}>
+                        <pre className="json-container">
                             {JSON.stringify(captured.request, null, 2)}
                         </pre>
                     </div>
