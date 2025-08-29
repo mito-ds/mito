@@ -20,6 +20,20 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
         setTimeout(() => setShowContents(true), 0);
     };
 
+    const handleCopyToClipboard = async (): Promise<void> => {
+        const jsonContent = JSON.stringify({
+            variables: contextManager.variables,
+            files: contextManager.files
+        }, null, 2);
+
+        try {
+            await navigator.clipboard.writeText(jsonContent);
+            console.log('Context Manager contents copied to clipboard');
+        } catch (err) {
+            console.error('Failed to copy to clipboard:', err);
+        }
+    };
+
     return (
         <div>
             <div className="settings-header">
@@ -28,12 +42,20 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
 
             <h3>Context Manager</h3>
 
-            <button
-                className="button-base"
-                onClick={handleRefreshContextManager}
-            >
-                Refresh
-            </button>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                <button
+                    className="button-base"
+                    onClick={handleRefreshContextManager}
+                >
+                    Refresh
+                </button>
+                <button
+                    className="button-base"
+                    onClick={handleCopyToClipboard}
+                >
+                    Copy
+                </button>
+            </div>
 
             {showContents && (
                 <div className="settings-option">
