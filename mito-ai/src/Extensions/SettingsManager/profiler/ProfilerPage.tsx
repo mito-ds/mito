@@ -79,7 +79,7 @@ export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element
                 <h2>Profiler</h2>
             </div>
 
-            <p className="profiler-warning">The profiler is a tool for debugging Mito AI internally.</p>
+            <p className="profiler-warning">For internal debugging only.</p>
 
             <h3>Context Manager</h3>
 
