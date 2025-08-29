@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 
 interface ProfilerPageProps {
@@ -12,28 +12,46 @@ interface ProfilerPageProps {
 
 export const ProfilerPage = ({ contextManager }: ProfilerPageProps): JSX.Element => {
 
-    const handleLogContextManager = (): void => {
-        console.log('ContextManager contents:');
-        console.log('Variables:', contextManager.variables);
-        console.log('Files:', contextManager.files);
+    const [showContents, setShowContents] = useState<boolean>(true);
+
+    const handleRefreshContextManager = (): void => {
+        // Force a re-render by toggling the state
+        setShowContents(false);
+        setTimeout(() => setShowContents(true), 0);
     };
-    
+
     return (
         <div>
             <div className="settings-header">
                 <h2>Profiler</h2>
             </div>
-            <div className="settings-option">
-                <button 
-                    className="button-base" 
-                    onClick={handleLogContextManager}
-                >
-                    Log Context Manager Contents
-                </button>
-                <p className="settings-option-description">
-                    Click to console log the current variables and files from the ContextManager.
-                </p>
-            </div>
+
+            <h3>Context Manager</h3>
+
+            <button
+                className="button-base"
+                onClick={handleRefreshContextManager}
+            >
+                Refresh
+            </button>
+
+            {showContents && (
+                <div className="settings-option">
+                    <pre style={{
+                        overflowY: 'auto',
+                        // border: '1px solid #ccc',
+                        padding: '10px',
+                        marginTop: '10px',
+                        // backgroundColor: '#f5f5f5',
+                        // fontSize: '12px'
+                    }}>
+                        {JSON.stringify({
+                            variables: contextManager.variables,
+                            files: contextManager.files
+                        }, null, 2)}
+                    </pre>
+                </div>
+            )}
         </div>
     );
 };
