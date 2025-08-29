@@ -22,13 +22,13 @@ const TABS_CONFIG = (contextManager: IContextManager) => ({
         label: 'General',
         component: GeneralPage
     },
-    profiler: {
-        label: 'Profiler',
-        component: () => <ProfilerPage contextManager={contextManager} />
-    },
     rules: {
         label: 'Rules',
         component: RulesPage
+    },
+    profiler: {
+        label: 'Profiler',
+        component: () => <ProfilerPage contextManager={contextManager} />
     },
     support: {
         label: 'Support',
