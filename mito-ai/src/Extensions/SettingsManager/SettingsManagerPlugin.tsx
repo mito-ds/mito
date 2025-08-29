@@ -6,6 +6,7 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
 import { SettingsWidget } from './SettingsWidget';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 
 export const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
 
@@ -16,7 +17,7 @@ const SettingsManagerPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     id: 'mito-ai:settings-manager',
     description: 'Mito AI settings manager',
     autoStart: true,
-    requires: [ICommandPalette],
+    requires: [ICommandPalette, IContextManager],
     optional: [ILayoutRestorer],
     activate: _activate
 }
@@ -24,11 +25,12 @@ const SettingsManagerPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
 function _activate(
     app: JupyterFrontEnd,
     palette: ICommandPalette,
+    contextManager: IContextManager,
     restorer: ILayoutRestorer | null
 ): WidgetTracker {
     // Create a widget creator function
     const newWidget = (): MainAreaWidget => {
-        const content = new SettingsWidget();
+        const content = new SettingsWidget(contextManager);
         const widget = new MainAreaWidget({ content });
         widget.id = 'mito-ai-settings';
         widget.title.label = 'Mito AI Settings';

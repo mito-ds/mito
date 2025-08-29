@@ -9,9 +9,11 @@ import { DatabasePage } from './database/DatabasePage';
 import { SupportPage } from './support/SupportPage';
 import { GeneralPage } from './general/GeneralPage';
 import { RulesPage } from './rules/RulesPage';
+import { ProfilerPage } from './profiler/ProfilerPage';
+import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import '../../../style/SettingsWidget.css';
 
-const TABS_CONFIG = {
+const TABS_CONFIG = (contextManager: IContextManager) => ({
     database: {
         label: 'Database',
         component: DatabasePage
@@ -19,6 +21,10 @@ const TABS_CONFIG = {
     general: {
         label: 'General',
         component: GeneralPage
+    },
+    profiler: {
+        label: 'Profiler',
+        component: () => <ProfilerPage contextManager={contextManager} />
     },
     rules: {
         label: 'Rules',
@@ -29,13 +35,18 @@ const TABS_CONFIG = {
         component: SupportPage
     },
 
-} as const;
+}) as const;
 
-const App = (): JSX.Element => {
-    const [activeTab, setActiveTab] = useState<keyof typeof TABS_CONFIG>('database');
+interface AppProps {
+    contextManager: IContextManager;
+}
+
+const App = ({ contextManager }: AppProps): JSX.Element => {
+    const [activeTab, setActiveTab] = useState<keyof ReturnType<typeof TABS_CONFIG>>('database');
+    const tabsConfig = TABS_CONFIG(contextManager);
 
     const renderContent = (): JSX.Element => {
-        const TabComponent = TABS_CONFIG[activeTab].component;
+        const TabComponent = tabsConfig[activeTab].component;
         return <TabComponent />;
     };
 
@@ -45,11 +56,11 @@ const App = (): JSX.Element => {
                 <div className="settings-sidebar">
                     <nav>
                         <ul>
-                            {Object.entries(TABS_CONFIG).map(([key, { label }]) => (
+                            {Object.entries(tabsConfig).map(([key, { label }]) => (
                                 <li
                                     key={key}
                                     className={activeTab === key ? 'active' : ''}
-                                    onClick={() => setActiveTab(key as keyof typeof TABS_CONFIG)}
+                                    onClick={() => setActiveTab(key as keyof ReturnType<typeof TABS_CONFIG>)}
                                 >
                                     {label}
                                 </li>
@@ -66,12 +77,15 @@ const App = (): JSX.Element => {
 };
 
 export class SettingsWidget extends ReactWidget {
-    constructor() {
+    private contextManager: IContextManager;
+
+    constructor(contextManager: IContextManager) {
         super();
+        this.contextManager = contextManager;
         this.addClass('jp-ReactWidget');
     }
 
     render(): JSX.Element {
-        return <App />;
+        return <App contextManager={this.contextManager} />;
     }
 }
