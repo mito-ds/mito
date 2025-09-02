@@ -66,7 +66,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
-    const handleFileUpload = (file: File) => {
+    const handleFileUpload = (file: File): void => {
         if (file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = () => {
