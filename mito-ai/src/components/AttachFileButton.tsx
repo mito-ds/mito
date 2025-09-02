@@ -15,7 +15,7 @@ const CHUNKED_UPLOAD_SIZE_CUTOFF = 25 * 1024 * 1024; // 25MB cutoff for chunked 
 const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks
 
 interface AttachFileButtonProps {
-    onFileUploaded: (fileName: string, fileType?: string, fileValue?: string) => void;
+    onFileUploaded: (file: File) => void;
     notebookTracker: INotebookTracker;
 }
 
@@ -54,22 +54,8 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
         setIsUploading(true);
 
         try {
-            if (file.type.startsWith('image/')) {
-                // If the file is an image, we don't need to upload it,
-                // instead we want to base64 encode it and pass that to the parent component.
-                // This will allow us to send the encoded image to the backend, and then to the LLM
-                // in a way that the LLM can "see" the image.
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const base64String = reader.result as string;
-                    const base64Data = base64String.split(',')[1]; // Remove data URL prefix
-                    onFileUploaded(file.name, file.type, base64Data);
-                };
-                reader.readAsDataURL(file);
-                setIsUploading(false);
-                return;
-            } else if (file.size > CHUNKED_UPLOAD_SIZE_CUTOFF) {
-                // Chunked upload for large files
+            // Check file size and handle accordingly
+            if (file.size > CHUNKED_UPLOAD_SIZE_CUTOFF) {
                 console.log(`File ${file.name} is larger than 25MB (${(file.size / (1024 * 1024)).toFixed(2)}MB). Splitting into chunks...`);
                 await handleLargeFile(file);
             } else {
@@ -134,7 +120,7 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
         console.log(`Successfully uploaded all ${totalChunks} chunks for file: ${file.name}`);
 
         // Notify the parent component that the file was uploaded
-        onFileUploaded(file.name);
+        onFileUploaded(file);
     };
 
     const uploadChunk = async (chunk: Blob, filename: string, chunkNumber: number, totalChunks: number, notebookDir: string): Promise<boolean> => {
@@ -217,7 +203,7 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
 
             // Notify the parent component that the file was uploaded, 
             // which will update the context manager.
-            onFileUploaded(file.name);
+            onFileUploaded(file);
         }
     };
 

@@ -66,15 +66,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
-    const handleFileUploaded = (fileName: string, fileType?: string, fileValue?: string): void => {
-        // Add the uploaded file to the additional context
-        setAdditionalContext(prev => [
-            ...prev, {
-                type: fileType || 'file',
-                value: fileValue || fileName,
-                display: fileName
-            }
-        ]);
+    const handleFileUpload = (file: File) => {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64String = reader.result as string;
+                const base64Data = base64String.split(',')[1]; // Remove data URL prefix
+                // Add the uploaded file to the additional context
+                setAdditionalContext(prev => [
+                    ...prev, {
+                        type: file.type || 'image',
+                        value: base64Data || '',
+                        display: file.name
+                    }
+                ]);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Add the uploaded file to the additional context
+            setAdditionalContext(prev => [
+                ...prev, {
+                    type: 'file',
+                    value: file.name,
+                    display: file.name
+                }
+            ]);
+        }
     };
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
@@ -300,7 +317,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
-                <AttachFileButton onFileUploaded={handleFileUploaded} notebookTracker={notebookTracker} />
+                <AttachFileButton onFileUploaded={handleFileUpload} notebookTracker={notebookTracker} />
                 <button
                     className="context-button"
                     onClick={() => {
