@@ -5,13 +5,14 @@
 
 import { JupyterFrontEnd } from "@jupyterlab/application"
 import { CodeCell } from "@jupyterlab/cells"
-import { INotebookTracker } from "@jupyterlab/notebook"
+import { INotebookTracker, NotebookActions } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
 import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID, getActiveCellID, scrollToCell } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
+import { getCellByID } from "./notebook"
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
@@ -30,13 +31,21 @@ export const acceptAndRunCellUpdate = async (
         setActiveCellByID(notebookTracker, cellUpdate.id)
     }
 
+    // Temporarily get the active cell ID here. Note, this needs to change for background work.
+    const cellID = getActiveCellID(notebookTracker)
+    
+    if (cellID === undefined) {
+        return;
+    }
+
     // The target cell should now be the active cell
-    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode, cellUpdate.cell_type)
+    await acceptAndRunCode(app, notebookTracker, cellID, previewAICodeToActiveCell, acceptAICode, cellUpdate.cell_type)
 }
 
 export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
+    cellID: string,
     previewAICodeToActiveCell: () => void,
     acceptAICode: () => void,
     cellType: 'code' | 'markdown'
@@ -46,6 +55,14 @@ export const acceptAndRunCode = async (
         so make sure that correct cell is active before calling 
         this function
     */
+
+    const notebook = notebookTracker.currentWidget?.content;
+    const cell = getCellByID(notebookTracker, cellID);
+
+    if (notebook === undefined || cell === undefined) {
+        return;
+    }
+
     previewAICodeToActiveCell()
     acceptAICode()
 
@@ -60,7 +77,7 @@ export const acceptAndRunCode = async (
     // Note that it is important that we just run the cell and don't run and advance the cell. 
     // We rely on the active cell remaining the same after running the cell in order to get the output
     // of the cell to send to the agent. This is changeable in the future, but for now its an invariant we rely on.
-    await app.commands.execute("notebook:run-cell");
+    NotebookActions.runCells(notebook, [cell]);
 
     // Scroll to the bottom of the active cell to show the output
     const activeCellID = getActiveCellID(notebookTracker);
