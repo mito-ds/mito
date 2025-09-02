@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookActions, NotebookPanel } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
@@ -12,8 +12,12 @@ import { WindowedList } from '@jupyterlab/ui-components';
 const INCLUDE_CELL_IN_APP = 'include-cell-in-app'
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
-    const notebook = notebookTracker.currentWidget?.content;
-    const activeCell = notebook?.activeCell;
+    const notebookPanel = notebookTracker.currentWidget;
+    return getActiveCellInNotebookPanel(notebookPanel)
+}
+
+export const getActiveCellInNotebookPanel = (notebookPanel: NotebookPanel | null): Cell | undefined => {
+    const activeCell = notebookPanel?.content.activeCell;
     return activeCell || undefined
 }
 
@@ -74,7 +78,12 @@ export const getIncludeCellInApp = (notebookTracker: INotebookTracker, cellID: s
 }
 
 export const getActiveCellID = (notebookTracker: INotebookTracker): string | undefined => {
-    return getActiveCell(notebookTracker)?.model.id
+    const notebookPanel = notebookTracker.currentWidget;
+    return getActiveCellIDInNotebookPanel(notebookPanel)
+}
+
+export const getActiveCellIDInNotebookPanel = (notebookPanel: NotebookPanel | null): string | undefined => {
+    return getActiveCellInNotebookPanel(notebookPanel)?.model.id
 }
 
 export const getActiveCellCode = (notebookTracker: INotebookTracker): string | undefined => {
@@ -147,7 +156,13 @@ export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeC
 }
 
 export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {
-    const cellList = notebookTracker.currentWidget?.model?.cells
+    const notebookPanel = notebookTracker.currentWidget
+    return getCellIndexByIDInNotebookPanel(notebookPanel, cellID)
+}
+
+export const getCellIndexByIDInNotebookPanel = (notebookPanel: NotebookPanel | null, cellID: string | undefined): number | undefined => {
+
+    const cellList = notebookPanel?.model?.cells
 
     if (cellList === undefined) {
         return undefined
@@ -167,9 +182,13 @@ export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: stri
 }
 
 export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
-    const cellIndex = getCellIndexByID(notebookTracker, cellID)
     const notebookPanel = notebookTracker.currentWidget
-    if (notebookPanel !== undefined && notebookPanel !== null && cellIndex !== undefined) {
+    setActiveCellByIDInNotebookPanel(notebookPanel, cellID)
+}
+
+export const setActiveCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | null, cellID: string | undefined): void => {
+    const cellIndex = getCellIndexByIDInNotebookPanel(notebookPanel, cellID)
+    if (cellIndex !== undefined && notebookPanel !== null) {
         notebookPanel.content.activeCellIndex = cellIndex
     }
 }
@@ -179,13 +198,25 @@ export const writeCodeToCellByID = (
     code: string | undefined,
     codeCellID: string,
 ): void => {
-    if (code === undefined) {
+    const notebookPanel = notebookTracker.currentWidget
+    writeCodeToCellByIDInNotebookPanel(notebookPanel, code, codeCellID)
+}
+
+export const writeCodeToCellByIDInNotebookPanel = (
+    notebookPanel: NotebookPanel | null,
+    code: string | undefined,
+    codeCellID: string | undefined,
+): void => {
+    if (code === undefined || codeCellID === undefined) {
+        console.log('Code is undefined')
         return;
     }
 
     const codeMirrorValidCode = removeMarkdownCodeFormatting(code);
-    const notebook = notebookTracker.currentWidget?.content;
+    const notebook = notebookPanel?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+
+    console.log('Cell is', cell)
 
     if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;
@@ -220,12 +251,14 @@ export const getAIOptimizedCells = (
     return cells
 }
 
-export function createCodeCellAtIndexAndActivate(notebookTracker: INotebookTracker, index: number): void {
+
+
+export function createCodeCellAtIndexAndActivate(notebookPanel: NotebookPanel, index: number): void {
     /* 
         Create a new code cell at index and make it the active cell.
     */
 
-    const notebook = notebookTracker.currentWidget?.content
+    const notebook = notebookPanel.content
     if (notebook === undefined) {
         return;
     }

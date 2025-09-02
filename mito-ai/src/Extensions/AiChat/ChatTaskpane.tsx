@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { NotebookPanel } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { INotebookTracker } from '@jupyterlab/notebook';
@@ -60,6 +61,7 @@ import {
     highlightCodeCell,
     scrollToCell,
     setActiveCellByID,
+    setActiveCellByIDInNotebookPanel,
     writeCodeToCellByID,
 } from '../../utils/notebook';
 import { scrollToDiv } from '../../utils/scroll';
@@ -197,6 +199,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         3. idle: the agent is idle
     */
     const [agentExecutionStatus, setAgentExecutionStatus] = useState<AgentExecutionStatus>('idle')
+    const agentTargetNotebookPanelRef = useRef<NotebookPanel | null>(null)
 
     // We use a ref to always access the most up-to-date value during a function's execution. Refs immediately reflect changes, 
     // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
@@ -598,6 +601,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendCellIDOutput: string | undefined = undefined,
         additionalContext?: Array<{type: string, value: string}>
     ): Promise<void> => {
+
+        // TODO: We need to update the get_cell_output tool to use the target notebook. Note that this should
+        // still work because we are currently only sending the base64encoded outputs to the agent which should
+        // still be available, but if we move to something like the currentNode then idk if this would work.. 
+
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -895,6 +903,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
+        agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
@@ -910,6 +919,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
+
+            console.log('targetNotebookPanelRef.current', agentTargetNotebookPanelRef.current)
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
                 finalizeAgentStop()
@@ -952,6 +963,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             const agentResponse = aiDisplayOptimizedChatItem?.agentResponse
 
+            console.log('Agent response is', agentResponse)
+
+            if (agentTargetNotebookPanelRef.current === null) {
+                // If the agent target notebook panel is not set, we don't know where to run the code so we stop
+                isAgentFinished = true
+                break;
+            }
+
             if (agentResponse === undefined) {
                 // If the agent response is undefined, we need to send a message to the agent
                 isAgentFinished = true
@@ -974,20 +993,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // Run the code and handle any errors
                 await acceptAndRunCellUpdate(
                     agentResponse.cell_update,
-                    notebookTracker,
-                    app,
-                    previewAICodeToActiveCell,
-                    acceptAICode
+                    agentTargetNotebookPanelRef.current,
                 )
 
                 const status = await retryIfExecutionError(
-                    notebookTracker,
+                    agentTargetNotebookPanelRef.current,
                     app,
-                    getDuplicateChatHistoryManager,
-                    addAIMessageFromResponseAndUpdateState,
                     sendAgentSmartDebugMessage,
-                    previewAICodeToActiveCell,
-                    acceptAICode,
                     shouldContinueAgentExecution,
                     finalizeAgentStop,
                     chatHistoryManagerRef
@@ -1019,21 +1031,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'run_all_cells') {
-                const result = await runAllCells(app, notebookTracker)
+                const result = await runAllCells(app, agentTargetNotebookPanelRef.current)
                 
                 // If run_all_cells resulted in an error, handle it through the error fixup process
                 if (!result.success && result.errorMessage && result.errorCellId) {
                     // Set the error cell as active so the error retry logic can work with it
-                    setActiveCellByID(notebookTracker, result.errorCellId)
+                    setActiveCellByIDInNotebookPanel(agentTargetNotebookPanelRef.current, result.errorCellId)
                     
                     const status = await retryIfExecutionError(
-                        notebookTracker,
+                        agentTargetNotebookPanelRef.current,
                         app,
-                        getDuplicateChatHistoryManager,
-                        addAIMessageFromResponseAndUpdateState,
                         sendAgentSmartDebugMessage,
-                        previewAICodeToActiveCell,
-                        acceptAICode,
                         shouldContinueAgentExecution,
                         finalizeAgentStop,
                         chatHistoryManagerRef
