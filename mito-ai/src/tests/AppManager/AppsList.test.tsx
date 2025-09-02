@@ -49,19 +49,19 @@ const mockApps: AppMetadata[] = [
     name: 'Test App 1',
     url: 'https://test1.example.com',
     status: 'active',
-    createdAt: '2024-01-01T00:00:00Z'
+    lastDeployedAt: '2024-01-01T00:00:00Z'
   },
   {
     name: 'Test App 2',
     url: 'https://test2.example.com',
     status: 'shut down',
-    createdAt: '2024-01-02T00:00:00Z'
+    lastDeployedAt: '2024-01-02T00:00:00Z'
   },
   {
     name: 'Test App 3',
     url: 'https://test3.example.com',
     status: 'deploying',
-    createdAt: '2024-01-03T00:00:00Z'
+    lastDeployedAt: '2024-01-03T00:00:00Z'
   }
 ];
 
@@ -191,8 +191,8 @@ describe('AppsList Component', () => {
       render(<AppsList appManagerService={mockAppManagerService} />);
       
       await waitFor(() => {
-        expect(screen.getByText('Created: 2024-01-01T00:00:00Z')).toBeInTheDocument();
-        expect(screen.getByText('Created: 2024-01-02T00:00:00Z')).toBeInTheDocument();
+        expect(screen.getByText('Last deployed: 2024-01-01T00:00:00Z')).toBeInTheDocument();
+        expect(screen.getByText('Last deployed: 2024-01-02T00:00:00Z')).toBeInTheDocument();
       });
     });
 
@@ -244,7 +244,7 @@ describe('AppsList Component', () => {
           name: 'Incomplete App',
           url: 'https://incomplete.example.com',
           status: 'active' as const,
-          createdAt: '2024-01-01T00:00:00Z'
+          lastDeployedAt: '2024-01-01T00:00:00Z'
         }
       ];
       
@@ -266,7 +266,7 @@ describe('AppsList Component', () => {
         name: 'Long URL App',
         url: 'https://very-long-subdomain-name-that-might-cause-layout-issues.example.com/very/deep/path/with/many/segments',
         status: 'active' as const,
-        createdAt: '2024-01-01T00:00:00Z'
+        lastDeployedAt: '2024-01-01T00:00:00Z'
       };
       
       mockFetchUserApps.mockResolvedValue({
