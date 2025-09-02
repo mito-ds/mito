@@ -6,7 +6,7 @@
 import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
+import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByIDActiveNotebook } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
@@ -207,7 +207,7 @@ export class ChatHistoryManager {
     addSmartDebugMessage(activeThreadId: string, errorMessage: string): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
-        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID) || ''
+        const activeCellCode = getCellCodeByIDActiveNotebook(this.notebookTracker, activeCellID) || ''
 
         const smartDebugMetadata: ISmartDebugMetadata = {
             promptType: 'smartDebug',
@@ -262,7 +262,7 @@ export class ChatHistoryManager {
     addExplainCodeMessage(activeThreadId: string): ICodeExplainMetadata {
 
         const activeCellID = getActiveCellID(this.notebookTracker)
-        const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
+        const activeCellCode = getCellCodeByIDActiveNotebook(this.notebookTracker, activeCellID)
 
         const codeExplainMetadata: ICodeExplainMetadata = {
             promptType: 'codeExplain',

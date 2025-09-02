@@ -5,15 +5,38 @@
 
 import { JupyterFrontEnd } from "@jupyterlab/application"
 import { CodeCell } from "@jupyterlab/cells"
-import { INotebookTracker } from "@jupyterlab/notebook"
+import { INotebookTracker, Notebook } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID, getActiveCellID, scrollToCell } from "./notebook"
+import { createCodeCellAtIndexAndActivate, didCellExecutionError, setActiveCellByID, setActiveCellByIDActiveNotebook, getActiveCellID, scrollToCell } from "./notebook"
 import { ChatHistoryManager, PromptType } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
 
 export const acceptAndRunCellUpdate = async (
+    cellUpdate: CellUpdate,
+    notebookTracker: INotebookTracker,
+    notebook: Notebook,
+    app: JupyterFrontEnd,
+    previewAICodeToActiveCell: () => void,
+    acceptAICode: () => void
+): Promise<void> => {
+
+    // If the cellUpdate is creating a new code cell, insert it 
+    // before previewing and accepting the code. 
+    if (cellUpdate.type === 'new' ) {
+        // For now, keep using the active notebook for creating cells
+        // TODO: Add support for creating cells in specific notebook
+        createCodeCellAtIndexAndActivate(notebookTracker, cellUpdate.index)
+    } else {
+        setActiveCellByID(notebook, cellUpdate.id)
+    }
+
+    // The target cell should now be the active cell
+    await acceptAndRunCode(app, notebookTracker, notebook, previewAICodeToActiveCell, acceptAICode, cellUpdate.cell_type)
+}
+
+export const acceptAndRunCellUpdateActiveNotebook = async (
     cellUpdate: CellUpdate,
     notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
@@ -27,16 +50,22 @@ export const acceptAndRunCellUpdate = async (
         // makes the cell the active cell
         createCodeCellAtIndexAndActivate(notebookTracker, cellUpdate.index)
     } else {
-        setActiveCellByID(notebookTracker, cellUpdate.id)
+        setActiveCellByIDActiveNotebook(notebookTracker, cellUpdate.id)
+    }
+
+    const notebook = notebookTracker.currentWidget?.content;
+    if (!notebook) {
+        return;
     }
 
     // The target cell should now be the active cell
-    await acceptAndRunCode(app, notebookTracker, previewAICodeToActiveCell, acceptAICode, cellUpdate.cell_type)
+    await acceptAndRunCode(app, notebookTracker, notebook, previewAICodeToActiveCell, acceptAICode, cellUpdate.cell_type)
 }
 
 export const acceptAndRunCode = async (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
+    notebook: Notebook,
     previewAICodeToActiveCell: () => void,
     acceptAICode: () => void,
     cellType: 'code' | 'markdown'
@@ -62,10 +91,14 @@ export const acceptAndRunCode = async (
     // of the cell to send to the agent. This is changeable in the future, but for now its an invariant we rely on.
     await app.commands.execute("notebook:run-cell");
 
-    // Scroll to the bottom of the active cell to show the output
-    const activeCellID = getActiveCellID(notebookTracker);
-    if (activeCellID) {
-        scrollToCell(notebookTracker, activeCellID, undefined, 'end');
+    // Only scroll if the target notebook is the active notebook
+    const isTargetNotebookActive = notebookTracker.currentWidget?.content === notebook;
+    if (isTargetNotebookActive) {
+        // Scroll to the bottom of the active cell to show the output
+        const activeCellID = getActiveCellID(notebookTracker);
+        if (activeCellID) {
+            scrollToCell(notebookTracker, notebook, activeCellID, undefined, 'end', true);
+        }
     }
 
     // By sleeping here, we make sure that this function returns after the variable manager
@@ -76,6 +109,7 @@ export const acceptAndRunCode = async (
 
 export const retryIfExecutionError = async (
     notebookTracker: INotebookTracker, 
+    notebook: Notebook,
     app: JupyterFrontEnd,
     getDuplicateChatHistoryManager: () => ChatHistoryManager,
     addAIMessageFromResponseAndUpdateState: (messageContent: string, promptType: PromptType, chatHistoryManager: ChatHistoryManager, mitoAIConnectionError?: boolean, mitoAIConnectionErrorType?: string | null) => void,
@@ -87,7 +121,7 @@ export const retryIfExecutionError = async (
     chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>
 ): Promise<'success' | 'failure' | 'interupted'> => {
 
-    const cell = notebookTracker.currentWidget?.content?.activeCell as CodeCell;
+    const cell = notebook?.activeCell as CodeCell;
 
     // Note: If you update the max retries, update the message we display on each failure
     // attempt to ensure we don't say "third attempt" over and over again.
@@ -127,7 +161,8 @@ export const retryIfExecutionError = async (
             if (cellUpdate !== undefined && cellUpdate !== null) {
                 await acceptAndRunCellUpdate(
                     cellUpdate, 
-                    notebookTracker, 
+                    notebookTracker,
+                    notebook,
                     app,
                     previewAICodeToActiveCell, 
                     acceptAICode
@@ -142,7 +177,7 @@ export const retryIfExecutionError = async (
             
             runAllCellsAttempts++;
             // Execute runAllCells to fix NameError issues
-            const result = await runAllCells(app, notebookTracker);
+            const result = await runAllCells(app, notebook);
             if (!result.success) {
                 // If run_all_cells resulted in an error, we should continue with error handling
                 // The error will be caught in the main loop
@@ -164,9 +199,42 @@ export const retryIfExecutionError = async (
     return 'success'
 }
 
+export const retryIfExecutionErrorActiveNotebook = async (
+    notebookTracker: INotebookTracker, 
+    app: JupyterFrontEnd,
+    getDuplicateChatHistoryManager: () => ChatHistoryManager,
+    addAIMessageFromResponseAndUpdateState: (messageContent: string, promptType: PromptType, chatHistoryManager: ChatHistoryManager, mitoAIConnectionError?: boolean, mitoAIConnectionErrorType?: string | null) => void,
+    sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>,
+    previewAICodeToActiveCell: () => void,
+    acceptAICode: () => void,
+    shouldContinueAgentExecution: MutableRefObject<boolean>,
+    finalizeAgentStop: () => void,
+    chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>
+): Promise<'success' | 'failure' | 'interupted'> => {
+
+    const notebook = notebookTracker.currentWidget?.content;
+    if (!notebook) {
+        return 'failure';
+    }
+
+    return retryIfExecutionError(
+        notebookTracker,
+        notebook,
+        app,
+        getDuplicateChatHistoryManager,
+        addAIMessageFromResponseAndUpdateState,
+        sendAgentSmartDebugMessage,
+        previewAICodeToActiveCell,
+        acceptAICode,
+        shouldContinueAgentExecution,
+        finalizeAgentStop,
+        chatHistoryManagerRef
+    );
+}
+
 export const runAllCells = async (
     app: JupyterFrontEnd,
-    notebookTracker: INotebookTracker
+    notebook: Notebook
 ): Promise<{ success: boolean; errorMessage?: string; errorCellId?: string }> => {
     await app.commands.execute("notebook:run-all-cells");
     
@@ -174,10 +242,8 @@ export const runAllCells = async (
     // This ensures that the variable manager has time to update the state
     await sleep(2000);
     
-    // Check all cells for errors after execution
-    const notebook = notebookTracker.currentWidget?.content;
     if (!notebook) {
-        return { success: false, errorMessage: "No active notebook found" };
+        return { success: false, errorMessage: "No notebook provided" };
     }
     
     // Iterate through all cells to find any with errors
@@ -200,5 +266,18 @@ export const runAllCells = async (
     }
     
     return { success: true };
+}
+
+export const runAllCellsActiveNotebook = async (
+    app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker
+): Promise<{ success: boolean; errorMessage?: string; errorCellId?: string }> => {
+    // Check all cells for errors after execution
+    const notebook = notebookTracker.currentWidget?.content;
+    if (!notebook) {
+        return { success: false, errorMessage: "No active notebook found" };
+    }
+    
+    return runAllCells(app, notebook);
 }
 

@@ -4,7 +4,7 @@
  */
 
 import { INotebookTracker } from "@jupyterlab/notebook"
-import { getActiveCellOutput, getCellIndexByID, scrollToCell } from "../../utils/notebook"
+import { getActiveCellOutput, getCellIndexByIDActiveNotebook, scrollToCellActiveNotebook } from "../../utils/notebook"
 import { logEvent } from "../../restAPI/RestAPI"
 
 
@@ -14,7 +14,7 @@ export const getBase64EncodedCellOutput = async (notebookTracker: INotebookTrack
     }
 
     // Check if the cell id is part of the notebook
-    const cellIndex = getCellIndexByID(notebookTracker, cellID)
+    const cellIndex = getCellIndexByIDActiveNotebook(notebookTracker, cellID)
     
     if (cellIndex === undefined) {
         // Log that the cell id is not part of the notebook
@@ -23,7 +23,7 @@ export const getBase64EncodedCellOutput = async (notebookTracker: INotebookTrack
         return undefined
     } 
 
-    scrollToCell(notebookTracker, cellID, 0)
+    scrollToCellActiveNotebook(notebookTracker, cellID, 0)
     
     const activeCellOutput = await getActiveCellOutput(notebookTracker)
     if (activeCellOutput !== undefined) {

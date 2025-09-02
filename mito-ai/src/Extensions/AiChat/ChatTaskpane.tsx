@@ -12,7 +12,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeCell } from '@jupyterlab/cells';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, Notebook } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { addIcon, historyIcon, deleteIcon, settingsIcon } from '@jupyterlab/ui-components';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
@@ -55,12 +55,14 @@ import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/c
 import {
     getActiveCellID,
     getActiveCellOutput,
-    getCellByID,
-    getCellCodeByID,
-    highlightCodeCell,
-    scrollToCell,
+    getCellByIDActiveNotebook,
+    getCellCodeByIDActiveNotebook,
+    highlightCodeCellActiveNotebook,
+    scrollToCellActiveNotebook,
     setActiveCellByID,
+    setActiveCellByIDActiveNotebook,
     writeCodeToCellByID,
+    writeCodeToCellByIDActiveNotebook,
 } from '../../utils/notebook';
 import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
@@ -215,6 +217,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Track if revert questionnaire should be shown
     const [showRevertQuestionnaire, setShowRevertQuestionnaire] = useState<boolean>(false);
+
+    // Track which notebook the agent should be working on during execution
+    // This is captured when startAgentExecution is called to ensure changes are always
+    // applied to the correct notebook even if the user switches to a different one
+    const agentTargetNotebookRef = useRef<Notebook | undefined>(undefined);
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -892,9 +899,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         );
         // Reset agent to idle state
         setAgentExecutionStatus('idle');
+        // Clear the target notebook since agent execution is finished
+        agentTargetNotebookRef.current = undefined;
     }
 
     const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
+        // Capture the target notebook at the start of execution
+        const notebook = notebookTracker.currentWidget?.content;
+        if (!notebook) {
+            addAIMessageFromResponseAndUpdateState(
+                "Unable to start agent execution: no active notebook found.",
+                'agent:execution',
+                getDuplicateChatHistoryManager()
+            );
+            return;
+        }
+        agentTargetNotebookRef.current = notebook;
+
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
@@ -915,6 +936,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 finalizeAgentStop()
                 break;
             }
+
+            // The notebook reference should remain stable throughout execution
+            // If there are issues with the notebook being unavailable, they'll be caught
+            // by the individual operations (like writeCodeToCellByID) and handled appropriately
 
             // Only the first message sent to the Agent should contain the user's input.
             // All other messages only contain updated information about the state of the notebook.
@@ -975,19 +1000,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 await acceptAndRunCellUpdate(
                     agentResponse.cell_update,
                     notebookTracker,
+                    notebook,
                     app,
-                    previewAICodeToActiveCell,
-                    acceptAICode
+                    () => previewAICodeToSpecificNotebook(notebook),
+                    () => acceptAICodeForSpecificNotebook(notebook)
                 )
 
                 const status = await retryIfExecutionError(
                     notebookTracker,
+                    notebook,
                     app,
                     getDuplicateChatHistoryManager,
                     addAIMessageFromResponseAndUpdateState,
                     sendAgentSmartDebugMessage,
-                    previewAICodeToActiveCell,
-                    acceptAICode,
+                    () => previewAICodeToSpecificNotebook(notebook),
+                    () => acceptAICodeForSpecificNotebook(notebook),
                     shouldContinueAgentExecution,
                     finalizeAgentStop,
                     chatHistoryManagerRef
@@ -1019,21 +1046,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'run_all_cells') {
-                const result = await runAllCells(app, notebookTracker)
+                const result = await runAllCells(app, notebook)
                 
                 // If run_all_cells resulted in an error, handle it through the error fixup process
                 if (!result.success && result.errorMessage && result.errorCellId) {
                     // Set the error cell as active so the error retry logic can work with it
-                    setActiveCellByID(notebookTracker, result.errorCellId)
+                    setActiveCellByID(notebook, result.errorCellId)
                     
                     const status = await retryIfExecutionError(
                         notebookTracker,
+                        notebook,
                         app,
                         getDuplicateChatHistoryManager,
                         addAIMessageFromResponseAndUpdateState,
                         sendAgentSmartDebugMessage,
-                        previewAICodeToActiveCell,
-                        acceptAICode,
+                        () => previewAICodeToSpecificNotebook(notebook),
+                        () => acceptAICodeForSpecificNotebook(notebook),
                         shouldContinueAgentExecution,
                         finalizeAgentStop,
                         chatHistoryManagerRef
@@ -1064,6 +1092,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         setAgentExecutionStatus('idle')
+        // Clear the target notebook since agent execution is finished  
+        agentTargetNotebookRef.current = undefined;
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined, updateCellID: string): void => {
@@ -1071,7 +1101,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        const updateCellCode = getCellCodeByID(notebookTracker, updateCellID)
+        const updateCellCode = getCellCodeByIDActiveNotebook(notebookTracker, updateCellID)
 
         if (updateCellID === undefined || updateCellCode === undefined) {
             return
@@ -1089,11 +1119,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Temporarily write the unified code string to the active cell so we can display
         // the code diffs to the user
-        writeCodeToCellByID(notebookTracker, unifiedCodeString, updateCellID)
+        writeCodeToCellByIDActiveNotebook(notebookTracker, unifiedCodeString, updateCellID)
         updateCodeCellsExtensions(unifiedDiffs)
 
         // Briefly highlight the code cell to draw the user's attention to it
-        highlightCodeCell(notebookTracker, updateCellID)
+        highlightCodeCellActiveNotebook(notebookTracker, updateCellID)
     }
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
@@ -1108,7 +1138,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             return
         }
 
-        scrollToCell(notebookTracker, activeCellID, undefined, 'end')
+        scrollToCellActiveNotebook(notebookTracker, activeCellID, undefined, 'end')
         updateCodeDiffStripes(lastAIDisplayMessage.message, activeCellID)
         updateCellToolbarButtons()
     }
@@ -1133,12 +1163,65 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, targetCellID)
 
         // Focus on the active cell after the code is written
-        const targetCell = getCellByID(notebookTracker, targetCellID)
+        const targetCell = getCellByIDActiveNotebook(notebookTracker, targetCellID)
         if (targetCell) {
             // Make the target cell the active cell
-            setActiveCellByID(notebookTracker, targetCellID)
+            setActiveCellByIDActiveNotebook(notebookTracker, targetCellID)
             // Focus on the active cell
             targetCell.activate();
+        }
+    }
+
+    // Agent-specific versions that work with a specific notebook instead of the active one
+    const previewAICodeToSpecificNotebook = (targetNotebook: Notebook): void => {
+        setCodeReviewStatus('codeCellPreview')
+
+        const activeCellID = targetNotebook.activeCell?.model.id
+        const lastAIDisplayMessage = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem()
+
+        if (activeCellID === undefined || lastAIDisplayMessage === undefined) {
+            return
+        }
+
+        // Only scroll/highlight if the target notebook is the active one
+        const isTargetNotebookActive = notebookTracker.currentWidget?.content === targetNotebook;
+        if (isTargetNotebookActive) {
+            scrollToCellActiveNotebook(notebookTracker, activeCellID, undefined, 'end')
+        }
+        
+        updateCodeDiffStripes(lastAIDisplayMessage.message, activeCellID)
+        updateCellToolbarButtons()
+    }
+
+    const acceptAICodeForSpecificNotebook = (targetNotebook: Notebook): void => {
+        const latestChatHistoryManager = chatHistoryManagerRef.current;
+        const lastAIMessage = latestChatHistoryManager.getLastAIDisplayOptimizedChatItem()
+
+        if (!lastAIMessage || !cellStateBeforeDiff.current) {
+            return
+        }
+
+        const aiGeneratedCode = getCodeBlockFromMessage(lastAIMessage.message);
+        if (!aiGeneratedCode) {
+            return
+        }
+
+        setCodeReviewStatus('applied')
+
+        const targetCellID = cellStateBeforeDiff.current.codeCellID
+        // Write to the specific notebook instead of active notebook
+        writeCodeToCellAndTurnOffDiffsForSpecificNotebook(aiGeneratedCode, targetCellID, targetNotebook)
+
+        // Only focus if this is the active notebook
+        const isTargetNotebookActive = notebookTracker.currentWidget?.content === targetNotebook;
+        if (isTargetNotebookActive) {
+            const targetCell = getCellByIDActiveNotebook(notebookTracker, targetCellID)
+            if (targetCell) {
+                // Make the target cell the active cell
+                setActiveCellByIDActiveNotebook(notebookTracker, targetCellID)
+                // Focus on the active cell
+                targetCell.activate();
+            }
         }
     }
 
@@ -1168,7 +1251,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         cellStateBeforeDiff.current = undefined
 
         if (codeCellID !== undefined) {
-            writeCodeToCellByID(notebookTracker, code, codeCellID)
+            writeCodeToCellByIDActiveNotebook(notebookTracker, code, codeCellID)
+            updateCellToolbarButtons()
+        }
+    }
+
+    const writeCodeToCellAndTurnOffDiffsForSpecificNotebook = (code: string, codeCellID: string | undefined, targetNotebook: Notebook): void => {
+        updateCodeCellsExtensions(undefined)
+        cellStateBeforeDiff.current = undefined
+
+        if (codeCellID !== undefined) {
+            writeCodeToCellByID(targetNotebook, code, codeCellID)
             updateCellToolbarButtons()
         }
     }

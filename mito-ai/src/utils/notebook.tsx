@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookActions, Notebook } from '@jupyterlab/notebook';
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
@@ -17,13 +17,20 @@ export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefin
     return activeCell || undefined
 }
 
-export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): Cell | undefined => {
+export const getCellByID = (notebook: Notebook, cellID: string | undefined): Cell | undefined => {
     if (cellID === undefined) {
         return undefined
     }   
 
+    return notebook.widgets.find(cell => cell.model.id === cellID);
+}
+
+export const getCellByIDActiveNotebook = (notebookTracker: INotebookTracker, cellID: string | undefined): Cell | undefined => {
     const notebook = notebookTracker.currentWidget?.content;
-    return notebook?.widgets.find(cell => cell.model.id === cellID);
+    if (!notebook) {
+        return undefined;
+    }
+    return getCellByID(notebook, cellID);
 }
 
 export const toggleActiveCellIncludeInAppMetadata = (notebookTracker: INotebookTracker): void => {
@@ -37,7 +44,7 @@ export const toggleIncludeCellInAppMetadata = (notebookTracker: INotebookTracker
         return;
     }
 
-    const cell = getCellByID(notebookTracker, cellID);
+    const cell = getCellByIDActiveNotebook(notebookTracker, cellID);
     if (!cell) {
         return undefined;
     }
@@ -61,7 +68,7 @@ export const getIncludeCellInApp = (notebookTracker: INotebookTracker, cellID: s
     /* 
     Checks the cell metadata tag to see if the user has marked that this cell should not be included in the app.
     */
-    const cell = getCellByID(notebookTracker, cellID);
+    const cell = getCellByIDActiveNotebook(notebookTracker, cellID);
     if (!cell) {
         return false;
     }
@@ -82,8 +89,13 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
     return activeCell?.model.sharedModel.source
 }
 
-export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: string | undefined): string | undefined => {
-    const cell = getCellByID(notebookTracker, codeCellID)
+export const getCellCodeByID = (notebook: Notebook, codeCellID: string | undefined): string | undefined => {
+    const cell = getCellByID(notebook, codeCellID);
+    return cell?.model.sharedModel.source
+}
+
+export const getCellCodeByIDActiveNotebook = (notebookTracker: INotebookTracker, codeCellID: string | undefined): string | undefined => {
+    const cell = getCellByIDActiveNotebook(notebookTracker, codeCellID);
     return cell?.model.sharedModel.source
 }
 
@@ -146,8 +158,8 @@ export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeC
     return undefined;
 }
 
-export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {
-    const cellList = notebookTracker.currentWidget?.model?.cells
+export const getCellIndexByID = (notebook: Notebook, cellID: string | undefined): number | undefined => {
+    const cellList = notebook.model?.cells
 
     if (cellList === undefined) {
         return undefined
@@ -166,8 +178,23 @@ export const getCellIndexByID = (notebookTracker: INotebookTracker, cellID: stri
     return undefined
 }
 
-export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
-    const cellIndex = getCellIndexByID(notebookTracker, cellID)
+export const getCellIndexByIDActiveNotebook = (notebookTracker: INotebookTracker, cellID: string | undefined): number | undefined => {
+    const notebook = notebookTracker.currentWidget?.content;
+    if (!notebook) {
+        return undefined;
+    }
+    return getCellIndexByID(notebook, cellID);
+}
+
+export const setActiveCellByID = (notebook: Notebook, cellID: string | undefined): void => {
+    const cellIndex = getCellIndexByID(notebook, cellID)
+    if (cellIndex !== undefined) {
+        notebook.activeCellIndex = cellIndex
+    }
+}
+
+export const setActiveCellByIDActiveNotebook = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
+    const cellIndex = getCellIndexByIDActiveNotebook(notebookTracker, cellID)
     const notebookPanel = notebookTracker.currentWidget
     if (notebookPanel !== undefined && notebookPanel !== null && cellIndex !== undefined) {
         notebookPanel.content.activeCellIndex = cellIndex
@@ -175,7 +202,7 @@ export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: str
 }
 
 export const writeCodeToCellByID = (
-    notebookTracker: INotebookTracker,
+    notebook: Notebook,
     code: string | undefined,
     codeCellID: string,
 ): void => {
@@ -184,12 +211,23 @@ export const writeCodeToCellByID = (
     }
 
     const codeMirrorValidCode = removeMarkdownCodeFormatting(code);
-    const notebook = notebookTracker.currentWidget?.content;
-    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    const cell = notebook.widgets.find(cell => cell.model.id === codeCellID);
 
     if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;
     }
+}
+
+export const writeCodeToCellByIDActiveNotebook = (
+    notebookTracker: INotebookTracker,
+    code: string | undefined,
+    codeCellID: string,
+): void => {
+    const notebook = notebookTracker.currentWidget?.content;
+    if (!notebook) {
+        return;
+    }
+    writeCodeToCellByID(notebook, code, codeCellID);
 }
 
 export const getAIOptimizedCells = (
@@ -256,12 +294,16 @@ export const getNotebookName = (notebookTracker: INotebookTracker): string => {
     return notebook?.title.label || 'Untitled'
 }
 
-export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID: string): void => {
+export const highlightCodeCell = (notebook: Notebook, codeCellID: string, shouldHighlight: boolean = true): void => {
     /*
         Briefly highlights a code cell, to draw the user's attention to it.
+        Only highlights if shouldHighlight is true (i.e., when the notebook is the active one).
     */
-    const notebook = notebookTracker.currentWidget?.content;
-    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    if (!shouldHighlight) {
+        return;
+    }
+
+    const cell = notebook.widgets.find(cell => cell.model.id === codeCellID);
     if (cell) {
         const cellElement = cell.node;
         const originalBackground = cellElement.style.background;
@@ -275,6 +317,17 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
             cellElement.style.background = originalBackground;
         }, 500);
     }
+}
+
+export const highlightCodeCellActiveNotebook = (notebookTracker: INotebookTracker, codeCellID: string): void => {
+    /*
+        Briefly highlights a code cell, to draw the user's attention to it.
+    */
+    const notebook = notebookTracker.currentWidget?.content;
+    if (!notebook) {
+        return;
+    }
+    highlightCodeCell(notebook, codeCellID, true);
 }
 
 export const highlightLinesOfCodeInCodeCell = (
@@ -295,7 +348,7 @@ export const highlightLinesOfCodeInCodeCell = (
             endLine: The 0-indexed end line number to highlight (inclusive).
     */
     // Get the cell with the given ID
-    const cell = getCellByID(notebookTracker, codeCellID);
+    const cell = getCellByIDActiveNotebook(notebookTracker, codeCellID);;
     if (!cell) {
         return;
     }
@@ -356,7 +409,7 @@ export const scrollToAndHighlightCell = (
 ): void => {
 
     // Scroll to the cell
-    scrollToCell(notebookTracker, cellID, startLine, position);
+    scrollToCellActiveNotebook(notebookTracker, cellID, startLine, position);
 
     // Wait for the scroll animation to complete before highlighting the lines
     // The default smooth scroll takes about 300-500ms to complete
@@ -374,21 +427,27 @@ export const scrollToAndHighlightCell = (
 }
 
 export const scrollToCell = (
-    notebookTracker: INotebookTracker, 
+    notebookTracker: INotebookTracker,
+    notebook: Notebook,
     cellID: string, 
     startLine: number | undefined,
-    position: WindowedList.BaseScrollToAlignment = 'center'
+    position: WindowedList.BaseScrollToAlignment = 'center',
+    shouldScroll: boolean = true
 ): void => {
 
+    if (!shouldScroll) {
+        return;
+    }
+
     // Get the cell
-    const cell = getCellByID(notebookTracker, cellID);
+    const cell = getCellByID(notebook, cellID);
     if (!cell) {
         return;
     }
 
     // If line numbers are provided, figure out what position to scroll to 
     // based on the start line's position in the cell
-    const code = getCellCodeByID(notebookTracker, cellID);
+    const code = getCellCodeByID(notebook, cellID);
 
     startLine = startLine || 0;
     const relativeLinePosition = startLine / (code?.split('\n').length || 1);
@@ -398,7 +457,38 @@ export const scrollToCell = (
 
     // If the cell is not the active cell, the scrolling does not work. 
     // It scrolls to the cell and then flashes back to the active cell.
-    setActiveCellByID(notebookTracker, cellID);
+    setActiveCellByID(notebook, cellID);
+
+    // Use the new JupyterLab scrollToCell method instead of DOM node scrollIntoView
+    void notebook.scrollToCell(cell, position);
+}
+
+export const scrollToCellActiveNotebook = (
+    notebookTracker: INotebookTracker, 
+    cellID: string, 
+    startLine: number | undefined,
+    position: WindowedList.BaseScrollToAlignment = 'center'
+): void => {
+
+    // Get the cell
+    const cell = getCellByIDActiveNotebook(notebookTracker, cellID);
+    if (!cell) {
+        return;
+    }
+
+    // If line numbers are provided, figure out what position to scroll to 
+    // based on the start line's position in the cell
+    const code = getCellCodeByIDActiveNotebook(notebookTracker, cellID);
+
+    startLine = startLine || 0;
+    const relativeLinePosition = startLine / (code?.split('\n').length || 1);
+
+    // These positions must be of type BaseScrollToAlignment defined in @jupyterlab/ui-components
+    position = relativeLinePosition < 0.5 ? 'start' : 'end';
+
+    // If the cell is not the active cell, the scrolling does not work. 
+    // It scrolls to the cell and then flashes back to the active cell.
+    setActiveCellByIDActiveNotebook(notebookTracker, cellID);
 
     // Use the new JupyterLab scrollToCell method instead of DOM node scrollIntoView
     void notebookTracker.currentWidget?.content.scrollToCell(cell, position);
