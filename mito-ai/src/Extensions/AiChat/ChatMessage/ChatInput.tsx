@@ -249,15 +249,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
     };
 
     const mapAdditionalContext = (): Array<{ type: string, value: string }> => {
-        return additionalContext.map(context => {
-            if (context.type === 'db') {
-                return {
-                    type: context.type,
-                    value: context.value
-                };
+        const result: Array<{ type: string, value: string }> = [];
+
+        additionalContext.forEach(contextItem => {
+            if (contextItem.type === 'db') {
+                result.push({
+                    type: contextItem.type,
+                    value: contextItem.value
+                });
+            } else if (contextItem.type.startsWith('image/')) {
+                // If the user uploaded an image, we:
+                // 1. Keep the original context item. This is the base64 encoded image 
+                //    that will be processed in ChatTaskpane.tsx.
+                // 2. Add a second item to the additionalContext array, which will
+                //    have the image's filename, and be used in the prompt.
+                result.push(contextItem);
+                const fileName = contextItem.display || contextItem.value.split('/').pop() || 'image';
+                result.push({
+                    type: 'img',
+                    value: fileName
+                });
+            } else {
+                result.push(contextItem);
             }
-            return context;
         });
+
+        return result;
     };
 
     // Update the expandedVariables arr when the variable manager changes
