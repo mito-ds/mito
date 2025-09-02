@@ -56,7 +56,9 @@ export const acceptAndRunCode = async (
         this function
     */
 
-    const notebook = notebookTracker.currentWidget?.content;
+    const currentWidget = notebookTracker.currentWidget;
+    const notebook = currentWidget?.content;
+    const context = currentWidget?.context;
     const cell = getCellByID(notebookTracker, cellID);
 
     if (notebook === undefined || cell === undefined) {
@@ -77,8 +79,7 @@ export const acceptAndRunCode = async (
     // Note that it is important that we just run the cell and don't run and advance the cell. 
     // We rely on the active cell remaining the same after running the cell in order to get the output
     // of the cell to send to the agent. This is changeable in the future, but for now its an invariant we rely on.
-    NotebookActions.runCells(notebook, [cell]);
-
+    NotebookActions.runCells(notebook, [cell], context?.sessionContext);
     // Scroll to the bottom of the active cell to show the output
     const activeCellID = getActiveCellID(notebookTracker);
     if (activeCellID) {
