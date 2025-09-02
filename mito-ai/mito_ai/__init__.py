@@ -14,6 +14,7 @@ from mito_ai.settings.urls import get_settings_urls
 from mito_ai.rules.urls import get_rules_urls
 from mito_ai.auth.urls import get_auth_urls
 from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
+from mito_ai.app_manager.handlers import AppManagerHandler
 from mito_ai.file_uploads.urls import get_file_uploads_urls
 
 # Force Matplotlib to use the Jupyter inline backend.
@@ -24,6 +25,7 @@ from mito_ai.file_uploads.urls import get_file_uploads_urls
 # We preempt this by selecting the canonical Jupyter inline backend BEFORE any
 # Matplotlib import, so figures render inline reliably. This must run very early.
 # See: https://github.com/streamlit/streamlit/issues/9640
+
 import os
 os.environ["MPLBACKEND"] = "module://matplotlib_inline.backend_inline"
 
@@ -82,6 +84,11 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             url_path_join(base_url, "mito-ai", "version-check"),
             VersionCheckHandler,
             {},
+        ),
+        (
+            url_path_join(base_url, "mito-ai", "app-manager"),
+            AppManagerHandler,
+            {}
         )
     ]
     
