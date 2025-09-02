@@ -75,6 +75,7 @@ export interface IChatMessageMetadata {
   activeCellCode: string;
   activeCellId: string;
   base64EncodedActiveCellOutput?: string;
+  base64EncodedUploadedImage?: string;
   input: string;
   index?: number;
   threadId: string;
@@ -85,6 +86,7 @@ export interface IAgentExecutionMetadata {
   promptType: 'agent:execution'
   aiOptimizedCells: AIOptimizedCell[]
   base64EncodedActiveCellOutput?: string;
+  base64EncodedUploadedImage?: string;
   variables?: Variable[];
   files?: File[];
   input: string;

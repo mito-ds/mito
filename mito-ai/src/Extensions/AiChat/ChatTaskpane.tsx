@@ -614,6 +614,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
+        // If the user has uploaded an image, we need to move the (base64 encoded) image 
+        // out of the additionalContext array and into agentExecutionMetadata.
+        additionalContext?.map((context) => {
+            if (context.type.startsWith('image/')) {
+                agentExecutionMetadata.base64EncodedUploadedImage = context.value
+            }
+        })
+        // Remove images from the additionalContext array.
+        additionalContext = additionalContext?.filter(c => !c.type.startsWith('image/'))
+
         agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutput(notebookTracker, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
@@ -669,6 +679,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (activeCellOutput !== undefined) {
             chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
         }
+
+        // If the user has uploaded an image, we need to move the (base64 encoded) image 
+        // out of the additionalContext array and into chatMessageMetadata.
+        additionalContext?.map((context) => {
+            if (context.type.startsWith('image/')) {
+                chatMessageMetadata.base64EncodedUploadedImage = context.value
+            }
+        })
+        // Remove images from the additionalContext array.
+        additionalContext = additionalContext?.filter(c => !c.type.startsWith('image/'))
 
         const completionRequest: IChatCompletionRequest = {
             type: 'chat',

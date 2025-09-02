@@ -62,10 +62,25 @@ async def append_agent_system_message(
         thread_id=thread_id
     )
     
-def create_ai_optimized_message(text: str, base64EncodedActiveCellOutput: Optional[str] = None) -> ChatCompletionMessageParam:
+def create_ai_optimized_message(
+    text: str, 
+    base64EncodedActiveCellOutput: Optional[str] = None, 
+    base64EncodedUploadedImage: Optional[str] = None
+) -> ChatCompletionMessageParam:
 
     message_content: Union[str, List[Dict[str, Any]]]
-    if base64EncodedActiveCellOutput is not None and base64EncodedActiveCellOutput != '':
+    if base64EncodedUploadedImage is not None and base64EncodedUploadedImage != '':
+       message_content = [
+            {
+                "type": "text",
+                "text": text,
+            },
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{base64EncodedUploadedImage}"},
+            }
+       ]
+    elif base64EncodedActiveCellOutput is not None and base64EncodedActiveCellOutput != '':
        message_content = [
             {
                 "type": "text",

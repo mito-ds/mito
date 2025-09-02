@@ -47,7 +47,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
-        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput, metadata.base64EncodedUploadedImage)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, model, provider, metadata.threadId)
         
@@ -109,8 +109,11 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
+        print("HERE in stream_completion")
+        print(len(metadata.base64EncodedUploadedImage or '')) 
         # Add the prompt to the message history
-        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput)
+        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput, metadata.base64EncodedUploadedImage)
+        print(new_ai_optimized_message)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, model, provider, metadata.threadId)
         
