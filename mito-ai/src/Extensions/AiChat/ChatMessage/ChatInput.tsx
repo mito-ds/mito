@@ -66,12 +66,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
-    const handleFileUploaded = (fileName: string): void => {
+    const handleFileUploaded = (fileName: string, fileType?: string, fileValue?: string): void => {
         // Add the uploaded file to the additional context
         setAdditionalContext(prev => [
             ...prev, {
-                type: 'file',
-                value: fileName,
+                type: fileType || 'file',
+                value: fileValue || fileName,
                 display: fileName
             }
         ]);
