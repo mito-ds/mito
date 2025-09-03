@@ -55,7 +55,6 @@ import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
 import {
     getActiveCellID,
-    getActiveCellOutput,
     getCellByID,
     getCellCodeByID,
     highlightCodeCell,
@@ -64,6 +63,7 @@ import {
     setActiveCellByIDInNotebookPanel,
     writeCodeToCellByID,
 } from '../../utils/notebook';
+import { getActiveCellOutput } from '../../utils/cellOutput';
 import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';

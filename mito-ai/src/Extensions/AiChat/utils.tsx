@@ -4,7 +4,8 @@
  */
 
 import { INotebookTracker, NotebookPanel } from "@jupyterlab/notebook"
-import { getCellIndexByIDInNotebookPanel, getCellOutputByIDInNotebook } from "../../utils/notebook"
+import { getCellIndexByIDInNotebookPanel } from "../../utils/notebook"
+import { getCellOutputByIDInNotebook } from "../../utils/cellOutput"
 import { logEvent } from "../../restAPI/RestAPI"
 
 export const getBase64EncodedCellOutput = async (notebookTracker: INotebookTracker, cellID: string | undefined): Promise<string | undefined> => {

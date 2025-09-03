@@ -5,7 +5,8 @@
 
 import { INotebookTracker } from "@jupyterlab/notebook"
 import { getBase64EncodedCellOutput } from "../../Extensions/AiChat/utils"
-import { getCellIndexByID, scrollToCell, getActiveCellOutput } from "../../utils/notebook"
+import { getCellIndexByID, scrollToCell } from "../../utils/notebook"
+import { getActiveCellOutput } from "../../utils/cellOutput"
 import { logEvent } from "../../restAPI/RestAPI"
 
 // Mock the dependencies
