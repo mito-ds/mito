@@ -66,6 +66,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
+import { extractImagesFromContext, getBase64EncodedCellOutput } from './utils';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -109,7 +110,6 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import { getBase64EncodedCellOutput } from './utils';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -614,15 +614,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        // If the user has uploaded an image, we need to move the (base64 encoded) image 
-        // out of the additionalContext array and into agentExecutionMetadata.
-        additionalContext?.map((context) => {
-            if (context.type.startsWith('image/')) {
-                agentExecutionMetadata.base64EncodedUploadedImage = context.value
-            }
-        })
-        // Remove images from the additionalContext array.
-        additionalContext = additionalContext?.filter(c => !c.type.startsWith('image/'))
+        // Extract images from additionalContext and update agentExecutionMetadata
+        additionalContext = extractImagesFromContext(additionalContext, agentExecutionMetadata)
 
         agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutput(notebookTracker, sendCellIDOutput)
 
@@ -680,15 +673,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
         }
 
-        // If the user has uploaded an image, we need to move the (base64 encoded) image 
-        // out of the additionalContext array and into chatMessageMetadata.
-        additionalContext?.map((context) => {
-            if (context.type.startsWith('image/')) {
-                chatMessageMetadata.base64EncodedUploadedImage = context.value
-            }
-        })
-        // Remove images from the additionalContext array.
-        additionalContext = additionalContext?.filter(c => !c.type.startsWith('image/'))
+        // Extract images from additionalContext and update chatMessageMetadata
+        additionalContext = extractImagesFromContext(additionalContext, chatMessageMetadata)
 
         const completionRequest: IChatCompletionRequest = {
             type: 'chat',
