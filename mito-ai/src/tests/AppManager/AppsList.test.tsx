@@ -191,8 +191,8 @@ describe('AppsList Component', () => {
       render(<AppsList appManagerService={mockAppManagerService} />);
       
       await waitFor(() => {
-        expect(screen.getByText('Last deployed at: 2024-01-01 00:00')).toBeInTheDocument();
-        expect(screen.getByText('Last deployed at: 2024-01-02 00:00')).toBeInTheDocument();
+        expect(screen.getByText('Last Deployed at: 2024-01-01 00:00')).toBeInTheDocument();
+        expect(screen.getByText('Last Deployed at: 2024-01-02 00:00')).toBeInTheDocument();
       });
     });
 
