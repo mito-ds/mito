@@ -11,12 +11,11 @@ interface ContextManagerSectionProps {
 }
 
 export const ContextManagerSection = ({ contextManager }: ContextManagerSectionProps): JSX.Element => {
-    const [showContents, setShowContents] = useState<boolean>(true);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const handleRefreshContextManager = (): void => {
         // Force a re-render by toggling the state
-        setShowContents(false);
-        setTimeout(() => setShowContents(true), 0);
+        setRefreshKey(prev => prev + 1);
     };
 
     const copyContextManagerToClipboard = async (): Promise<void> => {
@@ -52,7 +51,7 @@ export const ContextManagerSection = ({ contextManager }: ContextManagerSectionP
                 </button>
             </div>
 
-            {showContents && (
+            {refreshKey > 0 && (
                 <div className="settings-option">
                     <pre className="json-container">
                         {JSON.stringify({
