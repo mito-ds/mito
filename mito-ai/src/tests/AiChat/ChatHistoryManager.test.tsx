@@ -5,7 +5,7 @@
 
 import { ChatHistoryManager, IDisplayOptimizedChatItem } from '../../Extensions/AiChat/ChatHistoryManager';
 import { IContextManager } from '../../Extensions/ContextManager/ContextManagerPlugin';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 
 // Mock the notebook utilities
 jest.mock('../../utils/notebook', () => ({
@@ -23,6 +23,7 @@ jest.mock('../../utils/user', () => ({
 describe('ChatHistoryManager', () => {
     let mockContextManager: IContextManager;
     let mockNotebookTracker: INotebookTracker;
+    let mockNotebookPanel: NotebookPanel;
 
     beforeEach(() => {
         // Reset all mocks
@@ -30,11 +31,18 @@ describe('ChatHistoryManager', () => {
 
         // Create mock context manager
         mockContextManager = {
-            variables: [],
-            files: [],
-            setVariables: jest.fn(),
-            setFiles: jest.fn()
+            getNotebookContext: jest.fn(),
+            getActiveNotebookContext: jest.fn(),
+            updateNotebookVariables: jest.fn(),
+            updateNotebookFiles: jest.fn()
         } as IContextManager;
+
+        // Create mock notebook panel
+        mockNotebookPanel = {
+            context: {
+                sessionContext: { name: 'test-notebook' }
+            }
+        } as NotebookPanel;
 
         // Create mock notebook tracker
         mockNotebookTracker = {} as INotebookTracker;
@@ -215,7 +223,7 @@ describe('ChatHistoryManager', () => {
         it('should add agent execution message', () => {
             const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
 
-            const metadata = manager.addAgentExecutionMessage('thread-123', 'Execute this');
+            const metadata = manager.addAgentExecutionMessage('thread-123', mockNotebookPanel, 'Execute this');
 
             expect(metadata.promptType).toBe('agent:execution');
             expect(metadata.input).toBe('Execute this');
@@ -234,7 +242,7 @@ describe('ChatHistoryManager', () => {
         it('should add agent smart debug message', () => {
             const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
 
-            const metadata = manager.addAgentSmartDebugMessage('thread-123', 'Agent error');
+            const metadata = manager.addAgentSmartDebugMessage('thread-123', 'Agent error', mockNotebookPanel);
 
             expect(metadata.promptType).toBe('agent:autoErrorFixup');
             expect(metadata.errorMessage).toBe('Agent error');

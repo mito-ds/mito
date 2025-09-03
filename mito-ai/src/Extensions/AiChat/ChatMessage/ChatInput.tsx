@@ -245,13 +245,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     // Update the expandedVariables arr when the variable manager changes
     useEffect(() => {
+        const activeNotebookContext = contextManager?.getActiveNotebookContext();
         const expandedVariables: ExpandedVariable[] = [
             // Add base variables (excluding DataFrames)
-            ...(contextManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
+            ...(activeNotebookContext?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
             // Add DataFrames
-            ...(contextManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
+            ...(activeNotebookContext?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
             // Add series with parent DataFrame references
-            ...(contextManager?.variables
+            ...(activeNotebookContext?.variables
                 .filter((variable) => variable.type === "pd.DataFrame")
                 .flatMap((df) =>
                     Object.entries(df.value).map(([seriesName, _]) => ({
@@ -262,7 +263,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     }))
                 ) || []),
             // Add files
-            ...(contextManager?.files.map(file => ({
+            ...(activeNotebookContext?.files.map(file => ({
                 variable_name: file.file_name,
                 type: file.file_name.split('.').pop()?.toLowerCase() || '',
                 value: file.file_name,
@@ -270,7 +271,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             })) || [])
         ];
         setExpandedVariables(expandedVariables);
-    }, [contextManager?.variables, contextManager?.files]);
+    }, [contextManager]);
 
     // Automatically add active cell context when in Chat mode and there's active cell code
     useEffect(() => {

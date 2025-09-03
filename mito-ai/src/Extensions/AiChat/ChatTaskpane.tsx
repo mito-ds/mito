@@ -547,6 +547,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
+        if (agentTargetNotebookPanelRef.current === null) {
+            return
+        }
+
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -555,7 +559,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(activeThreadIdRef.current, errorMessage)
+        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(
+            activeThreadIdRef.current, 
+            errorMessage,
+            agentTargetNotebookPanelRef.current
+        )
         setChatHistoryManager(newChatHistoryManager);
         setLoadingAIResponse(true);
 
@@ -609,6 +617,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
+        if (agentTargetNotebookPanelRef.current === null) {
+            return
+        }
+
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
 
@@ -617,7 +629,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             newChatHistoryManager.dropMessagesStartingAtIndex(messageIndex)
         }
 
-        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(activeThreadIdRef.current, input, additionalContext)
+        const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(
+            activeThreadIdRef.current, 
+            agentTargetNotebookPanelRef.current,
+            input,
+            additionalContext
+        )
         if (messageIndex !== undefined) {
             agentExecutionMetadata.index = messageIndex
         }
