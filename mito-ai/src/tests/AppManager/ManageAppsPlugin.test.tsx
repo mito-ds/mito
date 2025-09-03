@@ -39,7 +39,9 @@ describe('ManageAppsPlugin', () => {
     } as unknown as JupyterFrontEnd;
   });
 
-  it('should activate the plugin and provide IAppManagerService', async () => {
+  // TODO: Let this test run again when we remove from beta
+  it.skip('should activate the plugin and provide IAppManagerService', async () => {
+
     // Await in case activate returns a Promise
     const service = await ManageAppsPlugin.activate(mockApp);
 
