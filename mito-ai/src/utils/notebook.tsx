@@ -102,22 +102,30 @@ export const getActiveCellOutput = async (notebookTracker: INotebookTracker): Pr
 }
 
 export const getCellOutputByID = async (notebookTracker: INotebookTracker, codeCellID: string | undefined): Promise<string | undefined> => {
+    const notebookPanel = notebookTracker.currentWidget
+    return getCellOutputByIDInNotebook(notebookPanel, codeCellID)
+}
+
+export const getCellOutputByIDInNotebook = async (notebookPanel: NotebookPanel | null, codeCellID: string | undefined): Promise<string | undefined> => {
     // TODO: There is a bug where if the cell is not actually rendered on the screen, 
     // then the output is not captured. This is pretty unlikely to happen currently because
     // the agent scrolls to the cell.
 
-    if (codeCellID === undefined) {
+    if (codeCellID === undefined || notebookPanel === null) {
         return undefined
     }
 
-    const notebook = notebookTracker.currentWidget?.content;
-    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    const cell = notebookPanel.content.widgets.find(cell => cell.model.id === codeCellID);
 
     if (!(cell instanceof CodeCell)) {
         return undefined;
     }
     
+
     const outputNode = cell.outputArea?.node;
+    console.log('outputNode', outputNode)
+
+    
     if (!outputNode) return undefined;
 
     // Find the top-level Jupyter image output div

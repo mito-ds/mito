@@ -107,7 +107,6 @@ export class ContextManager implements IContextManager {
             // TODO: Check if there is a race condition where we might end up fetching variables before the 
             // code is executed. I don't think this is the case because the kernel runs in one thread I believe.
             if (msg.header.msg_type === 'execute_input') {
-                console.log('msg: ', msg)
                 const kernelID = getKernelID(notebookPanel);
 
                 await fetchVariablesAndUpdateState(notebookPanel, (variables) => {

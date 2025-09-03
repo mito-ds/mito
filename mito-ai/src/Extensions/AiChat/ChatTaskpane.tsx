@@ -111,7 +111,7 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import { getBase64EncodedCellOutput } from './utils';
+import { getBase64EncodedCellOutputInNotebook } from './utils';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -639,7 +639,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutput(notebookTracker, sendCellIDOutput)
+        console.log('1', agentTargetNotebookPanelRef.current.context.path)
+        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingAIResponse(true);
@@ -921,6 +922,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
+        console.log('0', agentTargetNotebookPanelRef.current?.context.path)
+
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
@@ -979,8 +982,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             const agentResponse = aiDisplayOptimizedChatItem?.agentResponse
-
-            console.log('Agent response is', agentResponse)
 
             if (agentTargetNotebookPanelRef.current === null) {
                 // If the agent target notebook panel is not set, we don't know where to run the code so we stop
@@ -1106,7 +1107,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const aiGeneratedCode = getCodeBlockFromMessage(aiMessage);
         const aiGeneratedCodeCleaned = removeMarkdownCodeFormatting(aiGeneratedCode || '');
         const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(updateCellCode, aiGeneratedCodeCleaned)
-
 
         // Store the code cell ID where we write the code diffs so that we can
         // accept or reject the code diffs to the correct cell
