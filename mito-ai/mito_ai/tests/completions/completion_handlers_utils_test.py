@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from mito_ai.completions.completion_handlers.utils import create_ai_optimized_message
 
 
