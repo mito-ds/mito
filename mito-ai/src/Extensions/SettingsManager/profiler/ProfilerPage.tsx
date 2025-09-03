@@ -13,7 +13,9 @@ interface ProfilerPageProps {
     contextManager: IContextManager;
 }
 
-// Simple event system for capturing completion requests
+// Simple event system for capturing completion requests.
+// These events are usually variables that are not stored in the context manager,
+// and are created dynamically. So we capture them before they are sent to the backend.
 export const captureCompletionRequest = (request: any): void => {
     const event = new CustomEvent('mito-ai-capture-request', {
         detail: {
