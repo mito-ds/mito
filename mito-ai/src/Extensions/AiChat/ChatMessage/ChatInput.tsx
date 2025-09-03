@@ -57,7 +57,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     agentExecutionStatus = 'idle',
 }) => {
     const [input, setInput] = useState(initialContent);
-    const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const activeCellCode = getActiveCellCode(notebookTracker) || '';
@@ -243,9 +242,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
         });
     };
 
-    // Update the expandedVariables arr when the variable manager changes
-    useEffect(() => {
+    const getExpandedVarialbes = (): ExpandedVariable[] => {
         const activeNotebookContext = contextManager?.getActiveNotebookContext();
+        console.log('Active notebook context: ', activeNotebookContext)
         const expandedVariables: ExpandedVariable[] = [
             // Add base variables (excluding DataFrames)
             ...(activeNotebookContext?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
@@ -270,8 +269,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 file_name: file.file_name
             })) || [])
         ];
-        setExpandedVariables(expandedVariables);
-    }, [contextManager]);
+        return expandedVariables;
+    }
+
+
 
     // Automatically add active cell context when in Chat mode and there's active cell code
     useEffect(() => {
@@ -371,7 +372,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 />
                 {isDropdownVisible && (
                     <ChatDropdown
-                        options={expandedVariables}
+                        options={getExpandedVarialbes()}
                         onSelect={handleOptionSelect}
                         filterText={dropdownFilter}
                         isDropdownFromButton={isDropdownFromButton}

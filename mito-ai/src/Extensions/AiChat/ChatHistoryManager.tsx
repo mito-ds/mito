@@ -10,6 +10,7 @@ import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByI
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
+import { getKernelID } from "../../utils/kernel";
 
 export type PromptType = 
     'chat' | 
@@ -168,7 +169,8 @@ export class ChatHistoryManager {
 
         const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
 
-        const notebookContext = this.contextManager.getNotebookContext(notebookPanel.context.sessionContext.name || '');
+        const kernelID = getKernelID(notebookPanel);
+        const notebookContext = this.contextManager.getNotebookContext(kernelID);
         const agentExecutionMetadata: IAgentExecutionMetadata = {
             promptType: 'agent:execution',
             variables: notebookContext?.variables || [],
@@ -244,7 +246,8 @@ export class ChatHistoryManager {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getActiveCellCode(this.notebookTracker)
 
-        const notebookContext = this.contextManager.getNotebookContext(notebookPanel.context.sessionContext.name || '');
+        const kernelID = getKernelID(notebookPanel);
+        const notebookContext = this.contextManager.getNotebookContext(kernelID);
         const agentSmartDebugMetadata: IAgentSmartDebugMetadata = {
             promptType: 'agent:autoErrorFixup',
             aiOptimizedCells: getAIOptimizedCells(this.notebookTracker),

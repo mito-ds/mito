@@ -29,9 +29,8 @@ export const acceptAndRunCellUpdate = async (
         setActiveCellByIDInNotebookPanel(notebookPanel, cellUpdate.id)
     }
 
-        // Note: we are still using the active cell. I believe that changing the active cell in one notebook will
+    // Note: we are still using the active cell. I believe that changing the active cell in one notebook will
     // not effect the active cell in other notebooks so this should be totally fine! 
-
 
     const notebook = notebookPanel.content;
     const context = notebookPanel.context;
