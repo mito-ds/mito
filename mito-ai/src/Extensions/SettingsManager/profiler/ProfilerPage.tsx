@@ -7,6 +7,7 @@ import React from 'react';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import { ContextManagerSection } from './ContextManagerSection';
 import { CapturedRequestsSection } from './CapturedRequestsSection';
+import { EVENT_NAMES } from '../../../utils/constants';
 import '../../../../style/ProfilerPage.css';
 
 interface ProfilerPageProps {
@@ -17,7 +18,7 @@ interface ProfilerPageProps {
 // These events are usually variables that are not stored in the context manager,
 // and are created dynamically. So we capture them before they are sent to the backend.
 export const captureCompletionRequest = (request: any): void => {
-    const event = new CustomEvent('mito-ai-capture-request', {
+    const event = new CustomEvent(EVENT_NAMES.MITO_AI_CAPTURE_REQUEST, {
         detail: {
             request,
         }

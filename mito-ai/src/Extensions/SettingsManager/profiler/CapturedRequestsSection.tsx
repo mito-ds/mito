@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { EVENT_NAMES } from '../../../utils/constants';
 
 export const CapturedRequestsSection = (): JSX.Element => {
     const [capturedRequests, setCapturedRequests] = useState<any[]>([]);
@@ -14,10 +15,10 @@ export const CapturedRequestsSection = (): JSX.Element => {
             setCapturedRequests(prev => [event.detail, ...prev]);
         };
 
-        window.addEventListener('mito-ai-capture-request', handleCapturedRequest as EventListener);
+        window.addEventListener(EVENT_NAMES.MITO_AI_CAPTURE_REQUEST, handleCapturedRequest as EventListener);
 
         return () => {
-            window.removeEventListener('mito-ai-capture-request', handleCapturedRequest as EventListener);
+            window.removeEventListener(EVENT_NAMES.MITO_AI_CAPTURE_REQUEST, handleCapturedRequest as EventListener);
         };
     }, []);
 
