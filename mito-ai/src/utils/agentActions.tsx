@@ -12,16 +12,17 @@ import { createCodeCellAtIndexAndActivate, didCellExecutionError, getActiveCellI
 import { ChatHistoryManager } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
+import { scrollToCell } from "./notebook"
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
     notebookPanel: NotebookPanel,
 ): Promise<void> => {
 
-    console.log('Actually used notebook panel', notebookPanel)
-
     // If the cellUpdate is creating a new code cell, insert it 
-    // before previewing and accepting the code. 
+    // before previewing and accepting the code. It is safe to do this 
+    // in the background agent because it does not effect the active cell 
+    // in other notebooks.
     if (cellUpdate.type === 'new' ) {
         // makes the cell the active cell
         createCodeCellAtIndexAndActivate(notebookPanel, cellUpdate.index)
@@ -29,13 +30,8 @@ export const acceptAndRunCellUpdate = async (
         setActiveCellByIDInNotebookPanel(notebookPanel, cellUpdate.id)
     }
 
-    // Note: we are still using the active cell. I believe that changing the active cell in one notebook will
-    // not effect the active cell in other notebooks so this should be totally fine! 
-
     const notebook = notebookPanel.content;
     const context = notebookPanel.context;
-
-    console.log('Notebook is', notebook)
 
     if (notebook === undefined) {
         return;
@@ -59,21 +55,11 @@ export const acceptAndRunCellUpdate = async (
     await NotebookActions.run(notebook, context?.sessionContext);
     
     // Scroll to the bottom of the active cell to show the output
-    // TODO: Fix this after addressing higher areas of uncertainty 
-    // const activeCellID = getActiveCellIDInNotebookPanel(notebookPanel);
-    // if (activeCellID) {
-    //     scrollToCell(notebookTracker, activeCellID, undefined, 'end');
-    // }
-
-    // TODO: Bring this part back for background agent after figuring out bigger issues.
-    // Focus on the active cell after the code is written
-    // const targetCell = getCellByID(notebookTracker, targetCellID)
-    // if (targetCell) {
-    //     // Make the target cell the active cell
-    //     setActiveCellByID(notebookTracker, targetCellID)
-    //     // Focus on the active cell
-    //     targetCell.activate();
-    // }
+    // as long as we are not operating in background agent mode.
+    const activeCellID = getActiveCellIDInNotebookPanel(notebookPanel);
+    if (activeCellID) {
+        scrollToCell(notebookPanel, activeCellID, undefined, 'end');
+    }
 
     // By sleeping here, we make sure that this function returns after the variable manager
     // has updated the state of the variables. This ensures that on the next Ai message

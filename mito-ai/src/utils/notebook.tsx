@@ -22,12 +22,16 @@ export const getActiveCellInNotebookPanel = (notebookPanel: NotebookPanel | null
 }
 
 export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): Cell | undefined => {
+    const notebook = notebookTracker.currentWidget
+    return getCellByIDInNotebookPanel(notebook, cellID)
+}
+
+export const getCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | null, cellID: string | undefined): Cell | undefined => {
     if (cellID === undefined) {
         return undefined
     }   
 
-    const notebook = notebookTracker.currentWidget?.content;
-    return notebook?.widgets.find(cell => cell.model.id === cellID);
+    return notebookPanel?.content.widgets.find(cell => cell.model.id === cellID);
 }
 
 export const toggleActiveCellIncludeInAppMetadata = (notebookTracker: INotebookTracker): void => {
@@ -92,7 +96,12 @@ export const getActiveCellCode = (notebookTracker: INotebookTracker): string | u
 }
 
 export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: string | undefined): string | undefined => {
-    const cell = getCellByID(notebookTracker, codeCellID)
+    const notebookPanel = notebookTracker.currentWidget
+    return getCellCodeByIDInNotebookPanel(notebookPanel, codeCellID)
+}
+
+export const getCellCodeByIDInNotebookPanel = (notebookPanel: NotebookPanel | null, codeCellID: string | undefined): string | undefined => {
+    const cell = getCellByIDInNotebookPanel(notebookPanel, codeCellID)
     return cell?.model.sharedModel.source
 }
 
@@ -319,7 +328,7 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
 }
 
 export const highlightLinesOfCodeInCodeCell = (
-    notebookTracker: INotebookTracker, 
+    notebookPanel: NotebookPanel, 
     codeCellID: string, 
     startLine: number | undefined, 
     endLine: number | undefined
@@ -336,7 +345,7 @@ export const highlightLinesOfCodeInCodeCell = (
             endLine: The 0-indexed end line number to highlight (inclusive).
     */
     // Get the cell with the given ID
-    const cell = getCellByID(notebookTracker, codeCellID);
+    const cell = getCellByIDInNotebookPanel(notebookPanel, codeCellID);
     if (!cell) {
         return;
     }
@@ -389,15 +398,19 @@ export const highlightLinesOfCodeInCodeCell = (
 }
 
 export const scrollToAndHighlightCell = (
-    notebookTracker: INotebookTracker, 
+    notebookPanel: NotebookPanel | null, 
     cellID: string, 
     startLine: number | undefined,
     endLine?: number,
     position: WindowedList.BaseScrollToAlignment = 'center'
 ): void => {
 
+    if (notebookPanel === null) {
+        return;
+    }
+
     // Scroll to the cell
-    scrollToCell(notebookTracker, cellID, startLine, position);
+    scrollToCell(notebookPanel, cellID, startLine, position);
 
     // Wait for the scroll animation to complete before highlighting the lines
     // The default smooth scroll takes about 300-500ms to complete
@@ -406,30 +419,30 @@ export const scrollToAndHighlightCell = (
         if (startLine !== undefined) {
             // If no end line was provided, then we just highlight the single line 
             endLine = endLine || startLine;
-            highlightLinesOfCodeInCodeCell(notebookTracker, cellID, startLine, endLine);
+            highlightLinesOfCodeInCodeCell(notebookPanel, cellID, startLine, endLine);
         } else {
             // If no start line was provided, then we just highlight the entire cell
-            highlightLinesOfCodeInCodeCell(notebookTracker, cellID, undefined, undefined);
+            highlightLinesOfCodeInCodeCell(notebookPanel, cellID, undefined, undefined);
         }
     }, 500);
 }
 
 export const scrollToCell = (
-    notebookTracker: INotebookTracker, 
+    notebookPanel: NotebookPanel | null, 
     cellID: string, 
     startLine: number | undefined,
     position: WindowedList.BaseScrollToAlignment = 'center'
 ): void => {
 
     // Get the cell
-    const cell = getCellByID(notebookTracker, cellID);
-    if (!cell) {
+    const cell = getCellByIDInNotebookPanel(notebookPanel, cellID);
+    if (!cell || notebookPanel === null) {
         return;
     }
 
     // If line numbers are provided, figure out what position to scroll to 
     // based on the start line's position in the cell
-    const code = getCellCodeByID(notebookTracker, cellID);
+    const code = getCellCodeByIDInNotebookPanel(notebookPanel, cellID);
 
     startLine = startLine || 0;
     const relativeLinePosition = startLine / (code?.split('\n').length || 1);
@@ -439,8 +452,8 @@ export const scrollToCell = (
 
     // If the cell is not the active cell, the scrolling does not work. 
     // It scrolls to the cell and then flashes back to the active cell.
-    setActiveCellByID(notebookTracker, cellID);
+    setActiveCellByIDInNotebookPanel(notebookPanel, cellID);
 
     // Use the new JupyterLab scrollToCell method instead of DOM node scrollIntoView
-    void notebookTracker.currentWidget?.content.scrollToCell(cell, position);
+    void notebookPanel.content.scrollToCell(cell, position);
 }
