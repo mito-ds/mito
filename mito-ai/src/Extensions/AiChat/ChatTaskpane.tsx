@@ -66,6 +66,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
+import { extractImagesFromContext, getBase64EncodedCellOutput } from './utils';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -109,7 +110,6 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import { getBase64EncodedCellOutput } from './utils';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -614,6 +614,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
+        // Extract images from additionalContext and update agentExecutionMetadata
+        additionalContext = extractImagesFromContext(additionalContext, agentExecutionMetadata)
+
         agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutput(notebookTracker, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
@@ -669,6 +672,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (activeCellOutput !== undefined) {
             chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
         }
+
+        // Extract images from additionalContext and update chatMessageMetadata
+        additionalContext = extractImagesFromContext(additionalContext, chatMessageMetadata)
 
         const completionRequest: IChatCompletionRequest = {
             type: 'chat',

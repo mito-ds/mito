@@ -8,6 +8,7 @@ import '../../style/SelectedContextContainer.css';
 import RuleIcon from '../icons/RuleIcon';
 import CodeIcon from '../icons/CodeIcon';
 import DatabaseIcon from '../icons/DatabaseIcon';
+import PhotoIcon from '../icons/PhotoIcon';
 import { highlightCodeCell, getCellByID } from '../utils/notebook';
 
 interface SelectedContextContainerProps {
@@ -30,19 +31,17 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
     const [isHovered, setIsHovered] = useState(false);
 
     let icon = <RuleIcon />;
-    switch (type) {
-        case 'rule':
-            icon = <RuleIcon />;
-            break;
-        case 'variable':
-            icon = <CodeIcon />;
-            break;
-        case 'db':
-            icon = <DatabaseIcon />;
-            break;
-        case 'active_cell':
-            icon = <CodeIcon />;
-            break;
+
+    if (type.startsWith('image/')) {
+        icon = <PhotoIcon />;
+    } else if (type === 'rule') {
+        icon = <RuleIcon />;
+    } else if (type === 'variable') {
+        icon = <CodeIcon />;
+    } else if (type === 'db') {
+        icon = <DatabaseIcon />;
+    } else if (type === 'active_cell') {
+        icon = <CodeIcon />;
     }
 
     const handleClick = (): void => {

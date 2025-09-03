@@ -66,15 +66,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
-    const handleFileUploaded = (fileName: string): void => {
-        // Add the uploaded file to the additional context
-        setAdditionalContext(prev => [
-            ...prev, {
-                type: 'file',
-                value: fileName,
-                display: fileName
-            }
-        ]);
+    const handleFileUpload = (file: File): void => {
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64String = reader.result as string;
+                const base64Data = base64String.split(',')[1]; // Remove data URL prefix
+                // Add the uploaded file to the additional context
+                setAdditionalContext(prev => [
+                    ...prev, {
+                        type: file.type || 'image',
+                        value: base64Data || '',
+                        display: file.name
+                    }
+                ]);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Add the uploaded file to the additional context
+            setAdditionalContext(prev => [
+                ...prev, {
+                    type: 'file',
+                    value: file.name,
+                    display: file.name
+                }
+            ]);
+        }
     };
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
@@ -232,15 +249,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
     };
 
     const mapAdditionalContext = (): Array<{ type: string, value: string }> => {
-        return additionalContext.map(context => {
-            if (context.type === 'db') {
-                return {
-                    type: context.type,
-                    value: context.value
-                };
+        const result: Array<{ type: string, value: string }> = [];
+
+        additionalContext.forEach(contextItem => {
+            if (contextItem.type === 'db') {
+                result.push({
+                    type: contextItem.type,
+                    value: contextItem.value
+                });
+            } else if (contextItem.type.startsWith('image/')) {
+                // If the user uploaded an image, we:
+                // 1. Keep the original context item. This is the base64 encoded image 
+                //    that will be processed in ChatTaskpane.tsx.
+                // 2. Add a second item to the additionalContext array, which will
+                //    have the image's filename, and be used in the prompt.
+                result.push(contextItem);
+                const fileName = contextItem.display || contextItem.value.split('/').pop() || 'image';
+                result.push({
+                    type: 'img',
+                    value: fileName
+                });
+            } else {
+                result.push(contextItem);
             }
-            return context;
         });
+
+        return result;
     };
 
     // Update the expandedVariables arr when the variable manager changes
@@ -300,7 +334,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
-                <AttachFileButton onFileUploaded={handleFileUploaded} notebookTracker={notebookTracker} />
+                <AttachFileButton onFileUploaded={handleFileUpload} notebookTracker={notebookTracker} />
                 <button
                     className="context-button"
                     onClick={() => {
