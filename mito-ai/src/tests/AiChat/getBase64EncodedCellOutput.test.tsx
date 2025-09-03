@@ -3,47 +3,56 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { INotebookTracker } from "@jupyterlab/notebook"
+import { INotebookTracker, NotebookPanel } from "@jupyterlab/notebook"
 import { getBase64EncodedCellOutput } from "../../Extensions/AiChat/utils"
-import { getCellIndexByID, scrollToCell } from "../../utils/notebook"
-import { getActiveCellOutput } from "../../utils/cellOutput"
+import { getCellIndexByIDInNotebookPanel } from "../../utils/notebook"
+import { getCellOutputByIDInNotebook } from "../../utils/cellOutput"
 import { logEvent } from "../../restAPI/RestAPI"
 
 // Mock the dependencies
 jest.mock("../../utils/notebook")
+jest.mock("../../utils/cellOutput")
 jest.mock("../../restAPI/RestAPI")
 
-const mockGetCellIndexByID = getCellIndexByID as jest.MockedFunction<typeof getCellIndexByID>
-const mockScrollToCell = scrollToCell as jest.MockedFunction<typeof scrollToCell>
-const mockGetActiveCellOutput = getActiveCellOutput as jest.MockedFunction<typeof getActiveCellOutput>
+const mockGetCellIndexByIDInNotebookPanel = getCellIndexByIDInNotebookPanel as jest.MockedFunction<typeof getCellIndexByIDInNotebookPanel>
+const mockGetCellOutputByIDInNotebook = getCellOutputByIDInNotebook as jest.MockedFunction<typeof getCellOutputByIDInNotebook>
 const mockLogEvent = logEvent as jest.MockedFunction<typeof logEvent>
 
 describe('getBase64EncodedCellOutput', () => {
     let mockNotebookTracker: INotebookTracker
+    let mockNotebookPanel: NotebookPanel
 
     beforeEach(() => {
         // Reset all mocks before each test
         jest.clearAllMocks()
         
+        // Create a mock notebook panel with proper structure
+        mockNotebookPanel = {
+            context: {
+                path: '/test/notebook.ipynb'
+            }
+        } as unknown as NotebookPanel
+        
         // Create a mock notebook tracker
-        mockNotebookTracker = {} as INotebookTracker
+        mockNotebookTracker = {
+            currentWidget: mockNotebookPanel
+        } as unknown as INotebookTracker
     })
 
     describe('when cell ID does not exist in the notebook', () => {
-        it('should call logEvent with correct parameter and not call getActiveCellOutput', async () => {
+        it('should call logEvent with correct parameter and not call getCellOutputByIDInNotebook', async () => {
             // Arrange
             const nonExistentCellID = 'non-existent-cell-id'
-            mockGetCellIndexByID.mockReturnValue(undefined)
+            mockGetCellIndexByIDInNotebookPanel.mockReturnValue(undefined)
 
             // Act
             const result = await getBase64EncodedCellOutput(mockNotebookTracker, nonExistentCellID)
 
             // Assert
             expect(result).toBeUndefined()
-            expect(mockGetCellIndexByID).toHaveBeenCalledWith(mockNotebookTracker, nonExistentCellID)
+            expect(mockGetCellIndexByIDInNotebookPanel).toHaveBeenCalledWith(mockNotebookPanel, nonExistentCellID)
             expect(mockLogEvent).toHaveBeenCalledWith('get_cell_output_requested_non_existent_cell')
-            expect(mockScrollToCell).not.toHaveBeenCalled()
-            expect(mockGetActiveCellOutput).not.toHaveBeenCalled()
+            expect(mockGetCellOutputByIDInNotebook).not.toHaveBeenCalled()
         })
     })
 
@@ -54,44 +63,41 @@ describe('getBase64EncodedCellOutput', () => {
 
             // Assert
             expect(result).toBeUndefined()
-            expect(mockGetCellIndexByID).not.toHaveBeenCalled()
+            expect(mockGetCellIndexByIDInNotebookPanel).not.toHaveBeenCalled()
             expect(mockLogEvent).not.toHaveBeenCalled()
-            expect(mockScrollToCell).not.toHaveBeenCalled()
-            expect(mockGetActiveCellOutput).not.toHaveBeenCalled()
+            expect(mockGetCellOutputByIDInNotebook).not.toHaveBeenCalled()
         })
     })
 
     describe('when cell ID exists in the notebook', () => {
-        it('should call scrollToCell and getActiveCellOutput', async () => {
+        it('should call getCellOutputByIDInNotebook', async () => {
             // Arrange
             const existingCellID = 'existing-cell-id'
-            mockGetCellIndexByID.mockReturnValue(0)
-            mockGetActiveCellOutput.mockResolvedValue('base64-encoded-output')
+            mockGetCellIndexByIDInNotebookPanel.mockReturnValue(0)
+            mockGetCellOutputByIDInNotebook.mockResolvedValue('base64-encoded-output')
 
             // Act
             const result = await getBase64EncodedCellOutput(mockNotebookTracker, existingCellID)
 
             // Assert
             expect(result).toBe('base64-encoded-output')
-            expect(mockGetCellIndexByID).toHaveBeenCalledWith(mockNotebookTracker, existingCellID)
-            expect(mockScrollToCell).toHaveBeenCalledWith(mockNotebookTracker, existingCellID, 0)
-            expect(mockGetActiveCellOutput).toHaveBeenCalledWith(mockNotebookTracker)
+            expect(mockGetCellIndexByIDInNotebookPanel).toHaveBeenCalledWith(mockNotebookPanel, existingCellID)
+            expect(mockGetCellOutputByIDInNotebook).toHaveBeenCalledWith(mockNotebookPanel, existingCellID)
             expect(mockLogEvent).not.toHaveBeenCalled()
         })
 
-        it('should return undefined when getActiveCellOutput returns undefined', async () => {
+        it('should return undefined when getCellOutputByIDInNotebook returns undefined', async () => {
             // Arrange
             const existingCellID = 'existing-cell-id'
-            mockGetCellIndexByID.mockReturnValue(0)
-            mockGetActiveCellOutput.mockResolvedValue(undefined)
+            mockGetCellIndexByIDInNotebookPanel.mockReturnValue(0)
+            mockGetCellOutputByIDInNotebook.mockResolvedValue(undefined)
 
             // Act
             const result = await getBase64EncodedCellOutput(mockNotebookTracker, existingCellID)
 
             // Assert
             expect(result).toBeUndefined()
-            expect(mockScrollToCell).toHaveBeenCalledWith(mockNotebookTracker, existingCellID, 0)
-            expect(mockGetActiveCellOutput).toHaveBeenCalledWith(mockNotebookTracker)
+            expect(mockGetCellOutputByIDInNotebook).toHaveBeenCalledWith(mockNotebookPanel, existingCellID)
             expect(mockLogEvent).not.toHaveBeenCalled()
         })
     })

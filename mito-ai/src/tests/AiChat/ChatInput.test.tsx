@@ -99,7 +99,10 @@ const createMockProps = (overrides = {}) => ({
     isEditing: false,
     contextManager: {
         getNotebookContext: jest.fn(),
-        getActiveNotebookContext: jest.fn(),
+        getActiveNotebookContext: jest.fn().mockReturnValue({
+            variables: MOCK_VARIABLES,
+            files: []
+        }),
         updateNotebookVariables: jest.fn(),
         updateNotebookFiles: jest.fn()
     },
