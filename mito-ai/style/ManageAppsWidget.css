@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* ManageAppsWidget Styles - This file is currently unused */
+
+/* Basic container structure - kept for potential future use */
+.manage-apps-widget {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--jp-layout-color0);
+  color: var(--jp-ui-font-color0);
+  font-family: var(--jp-ui-font-family);
+}

@@ -1,0 +1,165 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* apps-list.css */
+.apps-list-container {
+  padding: 16px;
+  font-size: 13px;
+  font-family: var(--jp-ui-font-family);
+}
+
+.apps-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.apps-list-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--jp-ui-font-color1);
+}
+
+.apps-list-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.apps-list-button {
+  padding: 4px 8px;
+  font-size: 11px;
+  background-color: transparent;
+  color: var(--jp-ui-font-color2);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: normal;
+  transition: background-color 0.2s ease;
+}
+
+.apps-list-button:hover {
+  background-color: var(--jp-layout-color2);
+}
+
+.apps-list-button:disabled {
+  cursor: not-allowed;
+}
+
+.apps-list-button.primary {
+  background-color: var(--jp-brand-color1);
+  color: white;
+  border: none;
+}
+
+.apps-list-loading {
+  color: var(--jp-ui-font-color2);
+  text-align: center;
+  padding: 20px 0;
+}
+
+.apps-list-error {
+  color: #f44336;
+  text-align: center;
+  padding: 20px 0;
+  background-color: var(--jp-layout-color1);
+  border: 1px solid #f44336;
+  border-radius: 4px;
+}
+
+.apps-list-error-actions {
+  margin-top: 8px;
+}
+
+.apps-list-empty {
+  color: var(--jp-ui-font-color2);
+  text-align: center;
+  padding: 20px 0;
+}
+
+.app-item {
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background-color: var(--jp-layout-color0);
+}
+
+.app-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.app-item-content {
+  flex: 1;
+}
+
+.app-item-name {
+  font-weight: bold;
+  color: var(--jp-ui-font-color1);
+  margin-bottom: 4px;
+}
+
+.app-item-status-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.app-item-status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.app-item-status-text {
+  color: var(--jp-ui-font-color2);
+  font-size: 12px;
+}
+
+.app-item-created {
+  color: var(--jp-ui-font-color2);
+  font-size: 11px;
+}
+
+.app-item-url-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--jp-layout-color1);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 3px;
+  padding: 6px 8px;
+}
+
+.app-item-url {
+  flex: 1;
+  color: var(--jp-ui-font-color1);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--jp-code-font-family);
+}
+
+.app-item-copy-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  border-radius: 2px;
+}
+
+.app-item-copy-button:hover {
+  background-color: var(--jp-layout-color2);
+}

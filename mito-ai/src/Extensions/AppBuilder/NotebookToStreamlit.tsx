@@ -76,7 +76,7 @@ export const convertNotebookToStreamlit = async (
         type: 'build-app',
         message_id: UUID.uuid4(),
         notebook_path: notebookPath,
-        jwt_token: jwtToken || appBuilderService.client.serverSettings.token
+        jwt_token: jwtToken
       });
 
       if (response.error) {
