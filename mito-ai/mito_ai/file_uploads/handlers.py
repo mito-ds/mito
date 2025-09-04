@@ -35,13 +35,9 @@ def _check_image_size_limit(file_data: bytes, filename: str) -> None:
         return
 
     file_size_mb = len(file_data) / (1024 * 1024)  # Convert bytes to MB
-    truncated_filename = filename[0:5]
-    file_extension = filename.split(".")[-1]
 
     if file_size_mb > MAX_IMAGE_SIZE_MB:
-        raise ValueError(
-            f"{truncated_filename}[...].{file_extension} exceeds the 3MB limit for image uploads."
-        )
+        raise ValueError("Image exceeded 3MB limit.")
 
 
 class FileUploadHandler(APIHandler):
@@ -85,7 +81,7 @@ class FileUploadHandler(APIHandler):
             self.finish()
 
         except Exception as e:
-            self._handle_error(f"Failed to save file: {str(e)}")
+            self._handle_error(str(e))
 
     def _validate_file_upload(self) -> bool:
         """Validate that a file was uploaded in the request."""
