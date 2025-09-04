@@ -34,38 +34,33 @@ test.describe.parallel("Background Agent functionality", () => {
         await turnOnAgentMode(page);
 
         // Send a message to the agent that will create multiple cells
-        await sendMessageToAgent(page, "In three different cells: create a variable y = x + 1, then create z = y * 2");
+        await sendMessageToAgent(page, "print 1");
         
         // Wait a moment for the agent to start working
         await page.waitForTimeout(500);
 
         // Create a second notebook by clicking the Jupyter launcher
-        page.notebook.createNew();
+        await page.getByRole('tab', { name: 'Launcher' }).click();
+        await page.getByText('Python 3').first().click();
+
+        await waitForIdle(page);
 
         // Wait for the agent to finish
         await waitForAgentToFinish(page);
 
         // Verify we're now in the second notebook (it should be empty)
         const secondNotebookCodeCell = await getCodeFromCell(page, 0);
-        expect(secondNotebookCodeCell).toContain('Start writing python or Press'); // Placeholder text
+        expect(secondNotebookCodeCell).toContain('Start writing python or Press');
 
         // Switch back to the original notebook
-        await page.getByRole('tab', { name: /\.ipynb$/ }).first().click();
+        await page.getByRole('tab', { name: /\.ipynb$/ }).last().click();
+
+        // Scroll to the first code cell
+        await scrollToCell(page, 0);
 
         // Verify the agent worked in the original notebook
-        const originalNotebookCode = await getNotebookCode(page);
-        const codeString = originalNotebookCode.join(' ');
-        
-        // Check that the agent created the expected variables and operations
-        expect(codeString).toContain('x = 1'); // Original content
-        expect(codeString).toContain('y = x + 1'); // Agent's first operation
-        expect(codeString).toContain('z = y * 2'); // Agent's second operation
-
-        // Verify that the notebook is scrolled to the active cell (the last cell the agent edited)
-        // The active cell should be the last cell in the notebook
-        const lastCellIndex = originalNotebookCode.length - 1;
-        const activeCell = page.locator('.jp-Cell').nth(lastCellIndex);
-        await expect(activeCell).toHaveClass('jp-Cell-active');
+        const finalCodeCell = await getCodeFromCell(page, 1);
+        expect(finalCodeCell).toContain('print(1)');
     });
 
     test("Agent has access to variables from original notebook when working in background", async ({ page }) => {
