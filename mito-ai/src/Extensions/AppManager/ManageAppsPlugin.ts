@@ -13,6 +13,7 @@ import { Token } from '@lumino/coreutils';
 import * as React from 'react';
 import { AppsList } from './AppsList';
 import { AppManagerWebsocketClient } from '../../websockets/appManager/appManagerWebsocketClient';
+import { getSetting } from '../../restAPI/RestAPI';
 
 /**
  * The token for the AppManager service.
@@ -89,9 +90,16 @@ const ManageAppsPlugin: JupyterFrontEndPlugin<IAppManagerService> = {
     widget.title.label = 'Manage apps';
     widget.id = 'manage-apps-widget';
 
-    // Add to right sidebar
-    app.shell.add(widget, 'right');
-
+    // For now, only show the manage apps widget if beta mode is enabled
+    getSetting('beta_mode').then(value => {
+      if (value === 'true') {
+        // Add to right sidebar
+        app.shell.add(widget, 'right');
+      }
+    }).catch(error => {
+        console.error('Error checking beta mode:', error);
+    });
+      
     // Return the service so other plugins can use it
     return appManagerService;
   }

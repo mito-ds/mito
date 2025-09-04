@@ -68,6 +68,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
+import { extractImagesFromContext, getBase64EncodedCellOutput } from './utils';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -96,6 +97,7 @@ import {
 // Internal imports - Extensions
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPage';
 
 // Internal imports - Chat components
 import CTACarousel from './CTACarousel';
@@ -111,7 +113,6 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import { getBase64EncodedCellOutputInNotebook } from './utils';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -639,7 +640,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
+        // Extract images from additionalContext and update agentExecutionMetadata
+        additionalContext = extractImagesFromContext(additionalContext, agentExecutionMetadata)
+
+        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutput(notebookTracker, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingAIResponse(true);
@@ -695,6 +699,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
         }
 
+        // Extract images from additionalContext and update chatMessageMetadata
+        additionalContext = extractImagesFromContext(additionalContext, chatMessageMetadata)
+
         const completionRequest: IChatCompletionRequest = {
             type: 'chat',
             message_id: UUID.uuid4(),
@@ -723,6 +730,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const _sendMessageAndSaveResponse = async (
         completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager
     ): Promise<boolean> => {
+        // Capture the completion request for debugging
+        captureCompletionRequest(completionRequest);
         if (completionRequest.stream) {
             // Reset the streaming response and set streaming state
             streamingContentRef.current = '';
