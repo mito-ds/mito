@@ -7,7 +7,7 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { Token } from '@lumino/coreutils';
-import { getVariables, Variable } from './VariableInspector';
+import { fetchVariablesAndUpdateState, Variable } from './VariableInspector';
 import { getFiles, File } from './FileInspector';
 import { KernelMessage } from '@jupyterlab/services';
 
@@ -110,8 +110,7 @@ export class ContextManager implements IContextManager {
             // to jupyter, we can update the available files even if they have not executed a kernel message.
             if (msg.header.msg_type === 'execute_input') {
 
-                const updatedVariables = await getVariables(notebookPanel);
-                this.updateNotebookVariables(notebookPanel.id, updatedVariables);
+                void fetchVariablesAndUpdateState(notebookPanel, this.updateNotebookVariables.bind(this, notebookPanel.id));
 
                 const updatedFiles = await getFiles(app, notebookPanel);
                 this.updateNotebookFiles(notebookPanel.id, updatedFiles);

@@ -125,8 +125,10 @@ def structured_globals():
 
 print(structured_globals())
 `
-// Function to fetch variables and sync with the frontend
-export function getVariables(notebookPanel: NotebookPanel): Variable[] {
+/* 
+Function to fetch variables and sync with the frontend
+*/
+export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVariables: (variables: Variable[]) => void): void {
     const kernel = notebookPanel.context.sessionContext.session?.kernel;
 
     if (kernel) {
@@ -142,11 +144,11 @@ export function getVariables(notebookPanel: NotebookPanel): Variable[] {
         // Listen for the output from the kernel
         future.onIOPub = (msg: KernelMessage.IMessage) => {
             // A 'stream' message represents standard output (stdout) or standard error (stderr) produced 
-            // during the execution of code in the kernel.
+            // during the execution of code in the kernel. 
             if (KernelMessage.isStreamMsg(msg)) {
                 if (msg.content.name === 'stdout') {
                     try {
-                        return JSON.parse(msg.content.text)
+                        setVariables(JSON.parse(msg.content.text))
                     } catch (e) {
                         console.log("Error parsing variables", e)
                     }
@@ -154,5 +156,4 @@ export function getVariables(notebookPanel: NotebookPanel): Variable[] {
             }
         };
     }
-    return [];
 }
