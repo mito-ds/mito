@@ -6,7 +6,7 @@
 import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
-import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
+import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCells, getAIOptimizedCellsInNotebookPanel, getCellCodeByID, getCellCodeByIDInNotebookPanel } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
@@ -167,10 +167,10 @@ export class ChatHistoryManager {
         additionalContext?: Array<{type: string, value: string}>
     ): IAgentExecutionMetadata {
 
-        const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
-
+        const aiOptimizedCells = getAIOptimizedCellsInNotebookPanel(notebookPanel)
         const kernelID = getKernelID(notebookPanel);
         const notebookContext = this.contextManager.getNotebookContext(kernelID);
+
         const agentExecutionMetadata: IAgentExecutionMetadata = {
             promptType: 'agent:execution',
             variables: notebookContext?.variables || [],
@@ -243,8 +243,8 @@ export class ChatHistoryManager {
 
     addAgentSmartDebugMessage(activeThreadId: string, errorMessage: string, notebookPanel: NotebookPanel): IAgentSmartDebugMetadata {
 
-        const activeCellID = getActiveCellID(this.notebookTracker)
-        const activeCellCode = getActiveCellCode(this.notebookTracker)
+        const activeCellID = getActiveCellIDInNotebookPanel(notebookPanel)
+        const activeCellCode = getCellCodeByIDInNotebookPanel(notebookPanel, activeCellID)
 
         const kernelID = getKernelID(notebookPanel);
         const notebookContext = this.contextManager.getNotebookContext(kernelID);

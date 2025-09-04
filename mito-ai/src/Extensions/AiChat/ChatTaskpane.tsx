@@ -639,7 +639,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        console.log('1', agentTargetNotebookPanelRef.current.context.path)
         agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)

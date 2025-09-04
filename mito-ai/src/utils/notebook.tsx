@@ -124,10 +124,14 @@ export const writeCodeToCellByIDInNotebookPanel = (
 export const getAIOptimizedCells = (
     notebookTracker: INotebookTracker
 ): AIOptimizedCell[] => {
+    const notebookPanel = notebookTracker.currentWidget
+    return getAIOptimizedCellsInNotebookPanel(notebookPanel)
+}
 
-    const cellList = notebookTracker.currentWidget?.model?.cells
-
-    if (cellList == undefined) {
+export const getAIOptimizedCellsInNotebookPanel = (notebookPanel: NotebookPanel | null): AIOptimizedCell[] => {
+    const cellList = notebookPanel?.model?.cells
+    
+    if (cellList == undefined || cellList == null) {
         return []
     }
 
