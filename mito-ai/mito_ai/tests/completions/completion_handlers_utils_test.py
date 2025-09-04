@@ -15,7 +15,7 @@ def test_text_only_message():
 def test_message_with_uploaded_image():
     """Test scenario where the user uploads an image"""
     result = create_ai_optimized_message(
-        text="Analyze this", base64EncodedUploadedImage="image_data"
+        text="Analyze this", additional_context=[{"type": "image/png", "value": "image_data"}]
     )
 
     assert result["role"] == "user"
@@ -40,7 +40,7 @@ def test_message_with_uploaded_image_and_active_cell_output():
     """Test scenario where the user uploads an image and the active cell has an output"""
     result = create_ai_optimized_message(
         text="Analyze this",
-        base64EncodedUploadedImage="image_data",
+        additional_context=[{"type": "image/png", "value": "image_data"}],
         base64EncodedActiveCellOutput="cell_output_data",
     )
 
