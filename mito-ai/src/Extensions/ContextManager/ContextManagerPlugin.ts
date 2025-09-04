@@ -89,9 +89,9 @@ export class ContextManager implements IContextManager {
         const updatedFiles = await getFiles(app, notebookPanel);
         this.updateNotebookFiles(notebookPanel.id, updatedFiles);
     
-        // Listen for kernel refresh events
+        // Listen for kernel restart or shut down events and clear the variables for this notebook
         notebookPanel.context.sessionContext.statusChanged.connect((sender, status) => {
-            if (status === 'restarting' || status === 'terminating') {
+            if (status === 'restarting' || status === 'terminating' || status === 'unknown') {
                 // Clear the variables for this specific notebook, but don't clear the files 
                 // as they have not changed.
                 this.updateNotebookVariables(notebookPanel.id, []); // Clear variables for this specific notebook

@@ -68,7 +68,7 @@ describe('ContextManager', () => {
     });
 
     describe('Kernel Refresh', () => {
-        it('clears variables when kernel is refreshed', () => {
+        it('clears variables when kernel is restarting', () => {
             // Get the callback that was registered for status changes
             const statusChangedCallback = mockSessionContext.statusChanged.connect.mock.calls[0][0];
 
@@ -78,6 +78,38 @@ describe('ContextManager', () => {
 
             // Simulate kernel refresh by calling the callback with 'restarting' status
             statusChangedCallback({}, 'restarting');
+
+            // Verify that variables were cleared
+            const updatedContext = contextManager.getNotebookContext(mockNotebookId);
+            expect(updatedContext?.variables).toEqual([]);
+        });
+
+        it('clears variables when kernel is terminating', () => {
+            // Get the callback that was registered for status changes
+            const statusChangedCallback = mockSessionContext.statusChanged.connect.mock.calls[0][0];
+
+            // Verify that variables are not empty
+            const context = contextManager.getNotebookContext(mockNotebookId);
+            expect(context?.variables).toEqual(MOCK_VARIABLES);
+
+            // Simulate kernel refresh by calling the callback with 'terminating' status
+            statusChangedCallback({}, 'terminating');
+
+            // Verify that variables were cleared
+            const updatedContext = contextManager.getNotebookContext(mockNotebookId);
+            expect(updatedContext?.variables).toEqual([]);
+        });
+
+        it('clears variables when kernel is unknown', () => {
+            // Get the callback that was registered for status changes
+            const statusChangedCallback = mockSessionContext.statusChanged.connect.mock.calls[0][0];
+
+            // Verify that variables are not empty
+            const context = contextManager.getNotebookContext(mockNotebookId);
+            expect(context?.variables).toEqual(MOCK_VARIABLES);
+
+            // Simulate kernel refresh by calling the callback with 'unknown' status
+            statusChangedCallback({}, 'unknown');
 
             // Verify that variables were cleared
             const updatedContext = contextManager.getNotebookContext(mockNotebookId);
