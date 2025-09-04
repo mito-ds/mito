@@ -38,7 +38,7 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
     selected_variables = [context["value"] for context in additional_context if context.get("type") == "variable"]
     selected_files = [context["value"] for context in additional_context if context.get("type") == "file"]
     selected_db_connections = [context["value"] for context in additional_context if context.get("type") == "db"]
-    selected_images = [context["value"] for context in additional_context if context.get("type") == "img"]
+    selected_images = [context["value"] for context in additional_context if context.get("type", "").startswith("image/")]
 
     # STEP 2: Create a list of strings (instructions) for each context type
     context_parts = []
@@ -68,5 +68,4 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
         )
 
     # STEP 3: Combine into a single string
-
     return "\n\n".join(context_parts)
