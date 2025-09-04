@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import base64
 from typing import Optional, Union, List, Dict, Any, cast
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import ThreadID
@@ -75,16 +76,37 @@ async def append_agent_system_message(
     )
 
 
+def extract_and_encode_images_from_additional_context(
+    additional_context: List[Dict[str, str]] | None,
+) -> List[str]:
+    encoded_images = []
+
+    for context in additional_context or []:
+        if context["type"].startswith("image/"):
+            try:
+                with open(context["value"], "rb") as image_file:
+                    image_data = image_file.read()
+                    base64_encoded = base64.b64encode(image_data).decode("utf-8")
+                    encoded_images.append(f"data:{context['type']};base64,{base64_encoded}")
+            except (FileNotFoundError, IOError) as e:
+                print(f"Error reading image file {context['value']}: {e}")
+                continue
+
+    return encoded_images
+
+
 def create_ai_optimized_message(
     text: str,
     base64EncodedActiveCellOutput: Optional[str] = None,
-    base64EncodedUploadedImage: Optional[str] = None,
+    additional_context: List[Dict[str, str]] | None = None,
 ) -> ChatCompletionMessageParam:
 
     message_content: Union[str, List[Dict[str, Any]]]
-    has_uploaded_image = (
-        base64EncodedUploadedImage is not None and base64EncodedUploadedImage != ""
+    encoded_images = extract_and_encode_images_from_additional_context(
+        additional_context
     )
+
+    has_uploaded_image = len(encoded_images) > 0
     has_active_cell_output = (
         base64EncodedActiveCellOutput is not None
         and base64EncodedActiveCellOutput != ""
@@ -103,7 +125,7 @@ def create_ai_optimized_message(
                 {
                     "type": "image_url",
                     "image_url": {
-                        "url": f"data:image/png;base64,{base64EncodedUploadedImage}"
+                        "url": encoded_images[0]
                     },
                 }
             )
