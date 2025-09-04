@@ -120,12 +120,12 @@ def create_ai_optimized_message(
             }
         ]
 
-        if has_uploaded_image:
+        for img in encoded_images:
             message_content.append(
                 {
                     "type": "image_url",
                     "image_url": {
-                        "url": encoded_images[0]
+                        "url": img
                     },
                 }
             )
