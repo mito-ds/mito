@@ -45,13 +45,13 @@ describe('list-apps-api', () => {
               app_name: 'Test App 1',
               url: 'https://test1.example.com',
               status: 'running',
-              created_at: '2024-01-01T00:00:00Z'
+              last_deployed_at: '2024-01-01 00:00'
             },
             {
               app_name: 'Test App 2',
               url: 'https://test2.example.com',
               status: 'stopped',
-              created_at: '2024-01-02T00:00:00Z'
+              last_deployed_at: '2024-02-01 00:00'
             }
           ]
         };
@@ -71,14 +71,14 @@ describe('list-apps-api', () => {
             name: 'Test App 1',
             url: 'https://test1.example.com',
             status: 'running',
-            createdAt: '2024-01-01T00:00:00Z'
+            lastDeployedAt: '2024-01-01 00:00'
           });
 
           expect(result.apps[1]).toEqual({
             name: 'Test App 2',
             url: 'https://test2.example.com',
             status: 'stopped',
-            createdAt: '2024-01-02T00:00:00Z'
+            lastDeployedAt: '2024-02-01 00:00'
           });
         }
 
@@ -119,19 +119,19 @@ describe('list-apps-api', () => {
               app_name: 'Running App',
               url: 'https://running.example.com',
               status: 'RUNNING',
-              created_at: '2024-01-01T00:00:00Z'
+              last_deployed_at: '2024-01-01 00:00'
             },
             {
               app_name: 'Stopped App',
               url: 'https://stopped.example.com',
               status: 'STOPPED',
-              created_at: '2024-01-02T00:00:00Z'
+              last_deployed_at: '2024-01-02 00:00'
             },
             {
               app_name: 'Deploying App',
               url: 'https://deploying.example.com',
               status: 'DEPLOYING',
-              created_at: '2024-01-03T00:00:00Z'
+              last_deployed_at: '2024-01-03 00:00'
             }
           ]
         };
@@ -218,13 +218,13 @@ describe('list-apps-api', () => {
               app_name: 'App 1',
               url: 'https://app1.example.com',
               status: 'running',
-              created_at: '2024-01-01T00:00:00Z'
+              last_deployed_at: '2024-01-01 00:00'
             },
             {
               app_name: 'App 2',
               url: 'https://app2.example.com',
               status: 'stopped',
-              created_at: '2024-01-02T00:00:00Z'
+              last_deployed_at: '2024-01-02 00:00'
             }
           ]
         };

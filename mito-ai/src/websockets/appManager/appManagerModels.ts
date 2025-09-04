@@ -50,7 +50,7 @@ export interface IManageAppReply {
     app_name: string;
     url: string;
     status: string;
-    created_at: string;
+    last_deployed_at: string;
   }>;
 
   /**

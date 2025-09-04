@@ -1,5 +1,4 @@
 # Copyright (c) Saga Inc.
-
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from dataclasses import dataclass, field
@@ -24,7 +23,7 @@ class App:
     app_name: str
     url: str
     status: str
-    created_at: str
+    last_deployed_at: str
 
 @dataclass(frozen=True)
 class AppManagerError:
