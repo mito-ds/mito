@@ -37,7 +37,7 @@ def _check_image_size_limit(file_data: bytes, filename: str) -> None:
     file_size_mb = len(file_data) / (1024 * 1024)  # Convert bytes to MB
 
     if file_size_mb > MAX_IMAGE_SIZE_MB:
-        raise ValueError("Image exceeded 3MB limit.")
+        raise ValueError(f"Image exceeded {MAX_IMAGE_SIZE_MB}MB limit.")
 
 
 class FileUploadHandler(APIHandler):

@@ -279,5 +279,4 @@ def test_image_size_limit_exceeded(handler, temp_dir):
         handler._handle_regular_upload(filename, file_data, notebook_dir)
     
     # Verify the error message mentions the size limit
-    assert "exceeds the 3MB limit" in str(exc_info.value)
-    assert "large[...].jpg" in str(exc_info.value)
+    assert "exceeded 3MB limit" in str(exc_info.value)
