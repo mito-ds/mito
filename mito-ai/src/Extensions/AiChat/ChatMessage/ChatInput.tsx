@@ -70,6 +70,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
         let uploadType: string;
 
         if (file.type.startsWith('image/')) {
+            // If the file is an image, we want to preserve the file type.
+            // The type is used to display the image icon in the SelectedContextContainer,
+            // and is used to encode the image on the backend.
             uploadType = file.type;
         } else {
             uploadType = 'file';
