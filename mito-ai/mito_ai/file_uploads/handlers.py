@@ -6,7 +6,40 @@ import tempfile
 import tornado
 from typing import Dict, Any
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.utils.telemetry_utils import log_file_upload_attempt, log_file_upload_failure
+from mito_ai.utils.telemetry_utils import (
+    log_file_upload_attempt,
+    log_file_upload_failure,
+)
+
+MAX_IMAGE_SIZE_MB = 3
+
+
+def _is_image_file(filename: str) -> bool:
+    image_extensions = {
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+        ".bmp",
+        ".tiff",
+        ".tif",
+        ".webp",
+        ".svg",
+    }
+    file_extension = os.path.splitext(filename)[1].lower()
+    return file_extension in image_extensions
+
+
+def _check_image_size_limit(file_data: bytes, filename: str) -> None:
+    if _is_image_file(filename):
+        file_size_mb = len(file_data) / (1024 * 1024)  # Convert bytes to MB
+        truncated_filename = filename[0:5]
+        file_extension = filename.split(".")[-1]
+
+        if file_size_mb > MAX_IMAGE_SIZE_MB:
+            raise ValueError(
+                f"{truncated_filename}[...].{file_extension} exceeds the 3MB limit."
+            )
 
 
 class FileUploadHandler(APIHandler):
@@ -90,6 +123,9 @@ class FileUploadHandler(APIHandler):
         self, filename: str, file_data: bytes, notebook_dir: str
     ) -> None:
         """Handle regular (non-chunked) file upload."""
+        # Check image file size limit before saving
+        _check_image_size_limit(file_data, filename)
+
         file_path = os.path.join(notebook_dir, filename)
         with open(file_path, "wb") as f:
             f.write(file_data)
@@ -153,15 +189,22 @@ class FileUploadHandler(APIHandler):
         print(f"DEBUG: Reconstructing from {temp_dir} to {file_path}")
 
         try:
-            # Reconstruct the file from chunks
+            # First, read all chunks to check total file size for images
+            all_file_data = b""
+            for i in range(1, total_chunks + 1):
+                chunk_filename = os.path.join(temp_dir, f"chunk_{i}")
+                print(f"DEBUG: Reading chunk {i} from {chunk_filename}")
+                with open(chunk_filename, "rb") as chunk_file:
+                    chunk_data = chunk_file.read()
+                    all_file_data += chunk_data
+                    print(f"DEBUG: Read {len(chunk_data)} bytes from chunk {i}")
+
+            # Check image file size limit before saving
+            _check_image_size_limit(all_file_data, filename)
+
+            # Write the complete file
             with open(file_path, "wb") as final_file:
-                for i in range(1, total_chunks + 1):
-                    chunk_filename = os.path.join(temp_dir, f"chunk_{i}")
-                    print(f"DEBUG: Reading chunk {i} from {chunk_filename}")
-                    with open(chunk_filename, "rb") as chunk_file:
-                        chunk_data = chunk_file.read()
-                        final_file.write(chunk_data)
-                        print(f"DEBUG: Wrote {len(chunk_data)} bytes from chunk {i}")
+                final_file.write(all_file_data)
 
             print(f"DEBUG: Successfully reconstructed {filename}")
         finally:
