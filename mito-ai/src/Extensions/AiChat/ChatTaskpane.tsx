@@ -35,7 +35,7 @@ import GroupedErrorsAndFixes from '../../components/AgentComponents/ErrorFixupTo
 import DropdownMenu from '../../components/DropdownMenu';
 import IconButton from '../../components/IconButton';
 import LoadingCircle from '../../components/LoadingCircle';
-import LoadingDots from '../../components/LoadingDots';
+
 import { DEFAULT_MODEL } from '../../components/ModelSelector';
 import ModelSelector from '../../components/ModelSelector';
 import NextStepsPills from '../../components/NextStepsPills';
@@ -113,6 +113,7 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
+import LoadingDots from '../../components/LoadingDots';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -1575,7 +1576,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     app={app}
                     initialContent={''}
                     placeholder={
-                        agentExecutionStatus === 'working' ? 'Agent is working...' :
+                        agentExecutionStatus === 'working' ? `Agent is editing ${agentTargetNotebookPanelRef.current?.context.path.split('/').pop()}` :
                             agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
                                 agentModeEnabled ? 'Ask agent to do anything' :
                                     displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
