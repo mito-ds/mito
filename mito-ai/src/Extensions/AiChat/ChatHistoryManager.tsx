@@ -247,7 +247,7 @@ export class ChatHistoryManager {
         const notebookContext = this.contextManager.getNotebookContext(notebookPanel.id);
         const agentSmartDebugMetadata: IAgentSmartDebugMetadata = {
             promptType: 'agent:autoErrorFixup',
-            aiOptimizedCells: getAIOptimizedCells(this.notebookTracker),
+            aiOptimizedCells: getAIOptimizedCellsInNotebookPanel(notebookPanel),
             variables: notebookContext?.variables || [],
             files: notebookContext?.files || [],
             errorMessage: errorMessage,

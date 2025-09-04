@@ -68,7 +68,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
-import { extractImagesFromContext, getBase64EncodedCellOutput } from './utils';
+import { extractImagesFromContext, getBase64EncodedCellOutputInNotebook } from './utils';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -615,7 +615,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
-        if (agentTargetNotebookPanelRef.current === null) {
+        const agentTargetNotebookPanel = agentTargetNotebookPanelRef.current
+
+        if (agentTargetNotebookPanel === null) {
             return
         }
 
@@ -629,7 +631,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(
             activeThreadIdRef.current, 
-            agentTargetNotebookPanelRef.current,
+            agentTargetNotebookPanel,
             input,
             additionalContext
         )
@@ -640,7 +642,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Extract images from additionalContext and update agentExecutionMetadata
         additionalContext = extractImagesFromContext(additionalContext, agentExecutionMetadata)
 
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutput(notebookTracker, sendCellIDOutput)
+        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanel, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingAIResponse(true);
