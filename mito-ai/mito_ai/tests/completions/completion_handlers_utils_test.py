@@ -47,6 +47,31 @@ def test_message_with_uploaded_image():
         assert result["content"][1]["type"] == "image_url"
 
 
+def test_message_with_multiple_uploaded_images():
+    """Test scenario where the user uploads multiple images"""
+    with temporary_image_file(suffix=".png", content=b"image1_data") as temp_file1:
+        with temporary_image_file(suffix=".jpg", content=b"image2_data") as temp_file2:
+            result = create_ai_optimized_message(
+                text="Analyze these images",
+                additional_context=[
+                    {"type": "image/png", "value": temp_file1},
+                    {"type": "image/jpeg", "value": temp_file2},
+                ],
+            )
+
+            assert result["role"] == "user"
+            assert isinstance(result["content"], list)
+            assert len(result["content"]) == 3  # text + 2 images
+            assert result["content"][0]["type"] == "text"
+            assert result["content"][0]["text"] == "Analyze these images"
+            assert result["content"][1]["type"] == "image_url"
+            assert result["content"][2]["type"] == "image_url"
+            
+            # Verify the image URLs are properly formatted
+            assert result["content"][1]["image_url"]["url"].startswith("data:image/png;base64,")
+            assert result["content"][2]["image_url"]["url"].startswith("data:image/jpeg;base64,")
+
+
 def test_message_with_active_cell_output():
     """Test scenario where the active cell has an output"""
     result = create_ai_optimized_message(
