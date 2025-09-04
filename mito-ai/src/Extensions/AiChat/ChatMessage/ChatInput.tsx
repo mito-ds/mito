@@ -278,7 +278,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     const getExpandedVarialbes = (): ExpandedVariable[] => {
         const activeNotebookContext = contextManager?.getActiveNotebookContext();
-        console.log('Active notebook context: ', activeNotebookContext)
         const expandedVariables: ExpandedVariable[] = [
             // Add base variables (excluding DataFrames)
             ...(activeNotebookContext?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),

@@ -7,10 +7,9 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { Token } from '@lumino/coreutils';
-import { fetchVariablesAndUpdateState, Variable } from './VariableInspector';
-import { fetchFilesAndUpdateState, File } from './FileInspector';
+import { getVariables, Variable } from './VariableInspector';
+import { getFiles, File } from './FileInspector';
 import { KernelMessage } from '@jupyterlab/services';
-import { getKernelID } from '../../utils/kernel';
 
 // The provides field in JupyterLab's JupyterFrontEndPlugin expects a token 
 // that can be used to look up the service in the dependency injection system,
@@ -55,47 +54,48 @@ export class ContextManager implements IContextManager {
         const activeNotebook = this.notebookTracker.currentWidget;
         if (!activeNotebook) return undefined;
         
-        const kernelID = getKernelID(activeNotebook);
-        return this.getNotebookContext(kernelID);
+        return this.getNotebookContext(activeNotebook.id);
     }
 
-    updateNotebookVariables(kernelID: string, variables: Variable[]): void {
-        const context = this.notebookContexts.get(kernelID) || { variables: [], files: [] };
+    updateNotebookVariables(notebookID: string, variables: Variable[]): void {
+        const context = this.notebookContexts.get(notebookID) || { variables: [], files: [] };
         context.variables = variables;
 
-        this.notebookContexts.set(kernelID, context);
+        this.notebookContexts.set(notebookID, context);
     }
 
-    updateNotebookFiles(kernelID: string, files: File[]): void {
-        const context = this.notebookContexts.get(kernelID) || { variables: [], files: [] };
+    updateNotebookFiles(notebookID: string, files: File[]): void {
+        const context = this.notebookContexts.get(notebookID) || { variables: [], files: [] };
         context.files = files;
-        this.notebookContexts.set(kernelID, context);
+        this.notebookContexts.set(notebookID, context);
     }
 
-    private _startKernelListener = async (app: JupyterFrontEnd, notebookTracker: INotebookTracker, notebookPanel: NotebookPanel | null) => {
+    private _startKernelListener = async (app: JupyterFrontEnd, notebookPanel: NotebookPanel | null) => {
         if (notebookPanel === null) {
             return;
         }
-    
-        const kernelID = getKernelID(notebookPanel);
         
         // Initialize context for this notebook if it doesn't exist
-        if (!this.notebookContexts.has(kernelID)) {
-            this.notebookContexts.set(kernelID, { variables: [], files: [] });
+        if (!this.notebookContexts.has(notebookPanel.id)) {
+            this.notebookContexts.set(notebookPanel.id, { variables: [], files: [] });
         }
+
+        // As soon as the notebook is opened, fetch the files since these are not related to the kernel, 
+        // but to the notebook itself. This is useful so we can tell the agent which files are available 
+        // or let the user select a file from the dropdown menu before the kernel is started.
+        // We use the notebookPanel.id to identify the notebook because we might need to access
+        // NotebookContext even before the kernel is started. For example, to figure out 
+        // which files are available.
+        const updatedFiles = await getFiles(app, notebookPanel);
+        this.updateNotebookFiles(notebookPanel.id, updatedFiles);
     
         // Listen for kernel refresh events
         notebookPanel.context.sessionContext.statusChanged.connect((sender, status) => {
-            if (status === 'restarting') {
-                this.updateNotebookVariables(kernelID, []); // Clear variables for this specific notebook
+            if (status === 'restarting' || status === 'terminating') {
+                // Clear the variables for this specific notebook, but don't clear the files 
+                // as they have not changed.
+                this.updateNotebookVariables(notebookPanel.id, []); // Clear variables for this specific notebook
             }
-        });
-    
-        // As soon as the notebook is opened, fetch the files so we don't have to wait for the first message.
-        // TODO: There is a bug here where the files are not attatched on the first load of the notebook because 
-        // the kernelID is not set yet.
-        await fetchFilesAndUpdateState(app, notebookTracker, (files) => {
-            this.updateNotebookFiles(kernelID, files);
         });
     
         // Listen to kernel messages
@@ -106,15 +106,15 @@ export class ContextManager implements IContextManager {
             // from the kernel when a code cell prints a value to the output cell, which is not what we want.
             // TODO: Check if there is a race condition where we might end up fetching variables before the 
             // code is executed. I don't think this is the case because the kernel runs in one thread I believe.
+            // TODO: Eventually we should create a document manager listener so if the user uploads a new file
+            // to jupyter, we can update the available files even if they have not executed a kernel message.
             if (msg.header.msg_type === 'execute_input') {
-                const kernelID = getKernelID(notebookPanel);
 
-                await fetchVariablesAndUpdateState(notebookPanel, (variables) => {
-                    this.updateNotebookVariables(kernelID, variables);
-                });
-                await fetchFilesAndUpdateState(app, notebookTracker, (files) => {
-                    this.updateNotebookFiles(kernelID, files);
-                });
+                const updatedVariables = await getVariables(notebookPanel);
+                this.updateNotebookVariables(notebookPanel.id, updatedVariables);
+
+                const updatedFiles = await getFiles(app, notebookPanel);
+                this.updateNotebookFiles(notebookPanel.id, updatedFiles);
             }
         });
     }
@@ -124,11 +124,11 @@ export class ContextManager implements IContextManager {
 
         // Start the kernel listener for the currently active notebook
         const notebookPanel = notebookTracker.currentWidget;
-        this._startKernelListener(app, notebookTracker, notebookPanel);
+        this._startKernelListener(app, notebookPanel);
 
         // Update the kernel listener whenever the active notebook changes
         notebookTracker.currentChanged.connect(async (_, notebookPanel) => {
-            this._startKernelListener(app, notebookTracker, notebookPanel);
+            this._startKernelListener(app, notebookPanel);
         });
     }
 }

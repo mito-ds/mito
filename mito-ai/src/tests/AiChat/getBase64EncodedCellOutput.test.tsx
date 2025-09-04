@@ -21,6 +21,7 @@ const mockLogEvent = logEvent as jest.MockedFunction<typeof logEvent>
 describe('getBase64EncodedCellOutput', () => {
     let mockNotebookTracker: INotebookTracker
     let mockNotebookPanel: NotebookPanel
+    const mockNotebookId = '/test/notebook.ipynb';
 
     beforeEach(() => {
         // Reset all mocks before each test
@@ -28,6 +29,7 @@ describe('getBase64EncodedCellOutput', () => {
         
         // Create a mock notebook panel with proper structure
         mockNotebookPanel = {
+            id: mockNotebookId,
             context: {
                 path: '/test/notebook.ipynb'
             }

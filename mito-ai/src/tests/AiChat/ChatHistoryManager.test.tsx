@@ -11,8 +11,11 @@ import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 jest.mock('../../utils/notebook', () => ({
     getActiveCellCode: jest.fn(() => 'test code'),
     getActiveCellID: jest.fn(() => 'test-cell-id'),
+    getActiveCellIDInNotebookPanel: jest.fn(() => 'test-cell-id'),
     getAIOptimizedCells: jest.fn(() => []),
-    getCellCodeByID: jest.fn(() => 'test code')
+    getAIOptimizedCellsInNotebookPanel: jest.fn(() => []),
+    getCellCodeByID: jest.fn(() => 'test code'),
+    getCellCodeByIDInNotebookPanel: jest.fn(() => 'test code')
 }));
 
 // Mock the user utilities
@@ -24,6 +27,7 @@ describe('ChatHistoryManager', () => {
     let mockContextManager: IContextManager;
     let mockNotebookTracker: INotebookTracker;
     let mockNotebookPanel: NotebookPanel;
+    const mockNotebookId = '/test/notebook.ipynb';
 
     beforeEach(() => {
         // Reset all mocks
@@ -39,6 +43,7 @@ describe('ChatHistoryManager', () => {
 
         // Create mock notebook panel
         mockNotebookPanel = {
+            id: mockNotebookId,
             context: {
                 sessionContext: { name: 'test-notebook' }
             }

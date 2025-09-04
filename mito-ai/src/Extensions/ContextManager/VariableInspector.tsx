@@ -126,7 +126,7 @@ def structured_globals():
 print(structured_globals())
 `
 // Function to fetch variables and sync with the frontend
-export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVariables: (variables: Variable[]) => void): void {
+export function getVariables(notebookPanel: NotebookPanel): Variable[] {
     const kernel = notebookPanel.context.sessionContext.session?.kernel;
 
     if (kernel) {
@@ -146,7 +146,7 @@ export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVa
             if (KernelMessage.isStreamMsg(msg)) {
                 if (msg.content.name === 'stdout') {
                     try {
-                        setVariables(JSON.parse(msg.content.text))
+                        return JSON.parse(msg.content.text)
                     } catch (e) {
                         console.log("Error parsing variables", e)
                     }
@@ -154,4 +154,5 @@ export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVa
             }
         };
     }
+    return [];
 }

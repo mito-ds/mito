@@ -14,6 +14,10 @@ const MOCK_VARIABLES: Variable[] = [
     { variable_name: 'y', type: "<class 'float'>", value: 3.14 }
 ];
 
+jest.mock('../../Extensions/ContextManager/FileInspector', () => ({
+    getFiles: jest.fn().mockResolvedValue([])
+}));
+
 describe('ContextManager', () => {
     let contextManager: ContextManager;
     let mockApp: JupyterFrontEnd;
@@ -21,7 +25,6 @@ describe('ContextManager', () => {
     let mockSessionContext: any;
     let currentChangedCallback: any;
     const mockNotebookId = '/test/notebook.ipynb';
-    const mockKernelId = 'test-kernel-id-123';
 
     beforeEach(() => {
         // Create mock session context with session ID
@@ -29,13 +32,11 @@ describe('ContextManager', () => {
             statusChanged: {
                 connect: jest.fn()
             },
-            session: {
-                id: mockKernelId
-            }
         };
 
         // Create mock notebook panel
         const mockNotebookPanel = {
+            id: mockNotebookId,
             context: {
                 sessionContext: mockSessionContext,
                 path: mockNotebookId
@@ -60,7 +61,7 @@ describe('ContextManager', () => {
         contextManager = new ContextManager(mockApp, mockNotebookTracker);
 
         // Set initial variables for the test notebook using kernel ID
-        contextManager.updateNotebookVariables(mockKernelId, MOCK_VARIABLES);
+        contextManager.updateNotebookVariables(mockNotebookId, MOCK_VARIABLES);
 
         // Trigger the currentChanged event to set up the kernel listener
         currentChangedCallback(mockNotebookTracker, mockNotebookPanel);
@@ -72,14 +73,14 @@ describe('ContextManager', () => {
             const statusChangedCallback = mockSessionContext.statusChanged.connect.mock.calls[0][0];
 
             // Verify that variables are not empty
-            const context = contextManager.getNotebookContext(mockKernelId);
+            const context = contextManager.getNotebookContext(mockNotebookId);
             expect(context?.variables).toEqual(MOCK_VARIABLES);
 
             // Simulate kernel refresh by calling the callback with 'restarting' status
             statusChangedCallback({}, 'restarting');
 
             // Verify that variables were cleared
-            const updatedContext = contextManager.getNotebookContext(mockKernelId);
+            const updatedContext = contextManager.getNotebookContext(mockNotebookId);
             expect(updatedContext?.variables).toEqual([]);
         });
 
@@ -91,14 +92,14 @@ describe('ContextManager', () => {
             statusChangedCallback({}, 'idle');
 
             // Verify that variables were not cleared
-            const context = contextManager.getNotebookContext(mockKernelId);
+            const context = contextManager.getNotebookContext(mockNotebookId);
             expect(context?.variables).toEqual(MOCK_VARIABLES);
         });
     });
 
     describe('Notebook Context Management', () => {
         it('can get context for a specific notebook', () => {
-            const context = contextManager.getNotebookContext(mockKernelId);
+            const context = contextManager.getNotebookContext(mockNotebookId);
             expect(context).toBeDefined();
             expect(context?.variables).toEqual(MOCK_VARIABLES);
         });
@@ -110,9 +111,9 @@ describe('ContextManager', () => {
 
         it('can update variables for a specific notebook', () => {
             const newVariables: Variable[] = [{ variable_name: 'z', type: "<class 'str'>", value: 'test' }];
-            contextManager.updateNotebookVariables(mockKernelId, newVariables);
+            contextManager.updateNotebookVariables(mockNotebookId, newVariables);
             
-            const context = contextManager.getNotebookContext(mockKernelId);
+            const context = contextManager.getNotebookContext(mockNotebookId);
             expect(context?.variables).toEqual(newVariables);
         });
 
