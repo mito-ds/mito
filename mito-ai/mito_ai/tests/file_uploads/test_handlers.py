@@ -265,3 +265,19 @@ def test_save_chunk(handler, temp_dir):
 
         # Clean up
         del handler._temp_dirs[filename]
+
+
+def test_image_size_limit_exceeded(handler, temp_dir):
+    """Test that image uploads exceeding 3MB are rejected."""
+    filename = "large_image.jpg"
+    # Create 5MB of data (5 * 1024 * 1024 bytes)
+    file_data = b"x" * (5 * 1024 * 1024)
+    notebook_dir = temp_dir
+
+    # The _handle_regular_upload should raise a ValueError for oversized images
+    with pytest.raises(ValueError) as exc_info:
+        handler._handle_regular_upload(filename, file_data, notebook_dir)
+    
+    # Verify the error message mentions the size limit
+    assert "exceeds the 3MB limit" in str(exc_info.value)
+    assert "large[...].jpg" in str(exc_info.value)
