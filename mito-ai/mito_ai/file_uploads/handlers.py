@@ -38,7 +38,7 @@ def _check_image_size_limit(file_data: bytes, filename: str) -> None:
 
         if file_size_mb > MAX_IMAGE_SIZE_MB:
             raise ValueError(
-                f"{truncated_filename}[...].{file_extension} exceeds the 3MB limit."
+                f"{truncated_filename}[...].{file_extension} exceeds the 3MB limit for image uploads."
             )
 
 
