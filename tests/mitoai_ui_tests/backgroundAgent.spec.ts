@@ -24,7 +24,7 @@ const MODEL = CLAUDE_SONNET_DISPLAY_NAME;
 
 test.describe.parallel("Background Agent functionality", () => {
 
-    test.only("Agent continues working in original notebook when user switches to different notebook", async ({ page }) => {
+    test("Agent continues working in original notebook when user switches to different notebook", async ({ page }) => {
         // Create the first notebook with some initial content
         await createAndRunNotebookWithCells(page, ['x = 1']);
         await waitForIdle(page);
@@ -42,7 +42,6 @@ test.describe.parallel("Background Agent functionality", () => {
         // Create a second notebook by clicking the Jupyter launcher
         await page.getByRole('tab', { name: 'Launcher' }).click();
         await page.getByText('Python 3').first().click();
-
         await waitForIdle(page);
 
         // Wait for the agent to finish
@@ -81,26 +80,27 @@ test.describe.parallel("Background Agent functionality", () => {
         // Wait a moment for the agent to start working
         await page.waitForTimeout(500);
 
-        // Switch to a different notebook
-        await page.getByRole('button', { name: 'New Launcher' }).click();
-        await page.locator('.jp-LauncherCard-icon').first().click();
+        // Create a second notebook by clicking the Jupyter launcher
+        await page.getByRole('tab', { name: 'Launcher' }).click();
+        await page.getByText('Python 3').first().click();
         await waitForIdle(page);
 
         // Wait for the agent to finish
         await waitForAgentToFinish(page);
 
-        const codeString = await getNotebookCode(page);
-        const codeStringString = codeString.join('');
-        expect(codeStringString).toBe('');
+        // Verify we're now in the second notebook (it should be empty)
+        const secondNotebookCodeCell = await getCodeFromCell(page, 0);
+        expect(secondNotebookCodeCell).toContain('Start writing python or Press');
 
         // Switch back to the original notebook
-        const originalNotebookTab = page.locator('.jp-NotebookPanel-title').first();
-        await originalNotebookTab.click();
+        await page.getByRole('tab', { name: /\.ipynb$/ }).last().click();
+
+        // Scroll to the first code cell
+        await scrollToCell(page, 0);
 
         // Verify the agent worked in the original notebook
-        const originalNotebookCode = await getNotebookCode(page);
-        const originalNotebookCodeString = originalNotebookCode.join('');
-        expect(originalNotebookCodeString).toContain('meta_stock_prices.csv');
+        const firstCodeCell = await getCodeFromCell(page, 0);
+        expect(firstCodeCell).toContain('meta_stock_prices.csv');
 
         // Check that the agent never used the run_all_cells tool 
         // by looking at the content in the chat taskpane
