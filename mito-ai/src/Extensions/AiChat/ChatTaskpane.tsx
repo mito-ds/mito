@@ -929,7 +929,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
-        console.log('0', agentTargetNotebookPanelRef.current?.context.path)
 
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
@@ -947,7 +946,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
 
-            console.log('targetNotebookPanelRef.current', agentTargetNotebookPanelRef.current)
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
                 finalizeAgentStop()
@@ -1251,9 +1249,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.addCommand(COMMAND_MITO_AI_SEND_AGENT_MESSAGE, {
             execute: async (args?: ReadonlyPartialJSONObject) => {
                 if (args?.input) {
-                    // Make sure we're in agent mode 
-                    console.log('Setting agent mode to true')
-
                     // If its not already in agent mode, start a new chat in agent mode
                     if (!agentModeEnabledRef.current) {
                         await startNewChat();
