@@ -157,7 +157,7 @@ export const runAllCells = async (
 ): Promise<{ success: boolean; errorMessage?: string; errorCellId?: string }> => {
     const notebook = notebookPanel.content;
     const sessionContext = notebookPanel.context?.sessionContext;
-    NotebookActions.runAll(notebook, sessionContext);
+    await NotebookActions.runAll(notebook, sessionContext);
     
     // Give the execution some time to complete and update variables
     // This ensures that the variable manager has time to update the state

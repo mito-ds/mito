@@ -70,7 +70,7 @@ export class ContextManager implements IContextManager {
         this.notebookContexts.set(notebookID, context);
     }
 
-    private _startKernelListener = async (app: JupyterFrontEnd, notebookPanel: NotebookPanel | null) => {
+    private _startKernelListener = async (app: JupyterFrontEnd, notebookPanel: NotebookPanel | null): Promise<void> => {
         if (notebookPanel === null) {
             return;
         }
@@ -124,11 +124,11 @@ export class ContextManager implements IContextManager {
 
         // Start the kernel listener for the currently active notebook
         const notebookPanel = notebookTracker.currentWidget;
-        this._startKernelListener(app, notebookPanel);
+        void this._startKernelListener(app, notebookPanel);
 
         // Update the kernel listener whenever the active notebook changes
         notebookTracker.currentChanged.connect(async (_, notebookPanel) => {
-            this._startKernelListener(app, notebookPanel);
+            void this._startKernelListener(app, notebookPanel);
         });
     }
 }
