@@ -612,10 +612,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         additionalContext?: Array<{type: string, value: string}>
     ): Promise<void> => {
 
-        // TODO: We need to update the get_cell_output tool to use the target notebook. Note that this should
-        // still work because we are currently only sending the base64encoded outputs to the agent which should
-        // still be available, but if we move to something like the currentNode then idk if this would work.. 
-
         // Step 0: reset the state for a new message
         resetForNewMessage()
 

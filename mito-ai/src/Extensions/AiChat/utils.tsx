@@ -14,7 +14,6 @@ export const getBase64EncodedCellOutput = async (notebookTracker: INotebookTrack
 }
 
 export const getBase64EncodedCellOutputInNotebook = async (notebookPanel: NotebookPanel | null, cellID: string | undefined): Promise<string | undefined> => {
-    console.log("HERE!!!")
     if (cellID === undefined || notebookPanel === null) {
         return undefined
     }
@@ -29,11 +28,8 @@ export const getBase64EncodedCellOutputInNotebook = async (notebookPanel: Notebo
     
     const activeCellOutput = await getCellOutputByIDInNotebook(notebookPanel, cellID)
     if (activeCellOutput !== undefined) {
-        console.log('activeCellOutput', activeCellOutput)
         return activeCellOutput
     } 
-
-    console.log('activeCellOutput', activeCellOutput)
     
     return undefined
 }
