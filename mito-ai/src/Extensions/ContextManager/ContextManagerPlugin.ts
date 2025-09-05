@@ -5,80 +5,129 @@
 
 // src/ContextManager.ts
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { Token } from '@lumino/coreutils';
 import { fetchVariablesAndUpdateState, Variable } from './VariableInspector';
-import { fetchFilesAndUpdateState, File } from './FileInspector';
+import { getFiles, File } from './FileInspector';
 import { KernelMessage } from '@jupyterlab/services';
-
 
 // The provides field in JupyterLab's JupyterFrontEndPlugin expects a token 
 // that can be used to look up the service in the dependency injection system,
 // so we define a new token for the ContextManager
 export const IContextManager = new Token<IContextManager>('mito-ai:IContextManager');
 
-export interface IContextManager {
+export interface NotebookContext {
     variables: Variable[];
-    setVariables: (newVars: Variable[]) => void;
     files: File[];
-    setFiles: (newFiles: File[]) => void;
+}
+
+export interface IContextManager {
+    // Get context for a specific notebook
+    getNotebookContext(notebookId: string): NotebookContext | undefined;
+    
+    // Get context for the currently active notebook
+    getActiveNotebookContext(): NotebookContext | undefined;
+    
+    // Update variables for a specific notebook
+    updateNotebookVariables(notebookId: string, variables: Variable[]): void;
+    
+    // Update files for a specific notebook
+    updateNotebookFiles(notebookId: string, files: File[]): void;
 }
 
 export class ContextManager implements IContextManager {
-    private _variables: Variable[] = [];
-    private _files: File[] = [];
+    private notebookContexts: Map<string, NotebookContext> = new Map();
+    private notebookTracker: INotebookTracker;
 
     constructor(app: JupyterFrontEnd, notebookTracker: INotebookTracker) {
+        this.notebookTracker = notebookTracker;
+        
         // Setup the kernel listener to update context as kernel messages are received
         this.setupKernelListener(app, notebookTracker); 
     }
 
-    get variables(): Variable[] {
-        return this._variables;
+    getNotebookContext(notebookId: string): NotebookContext | undefined {
+        return this.notebookContexts.get(notebookId);
     }
 
-    setVariables(newVars: Variable[]): void {
-        this._variables = newVars;
+    getActiveNotebookContext(): NotebookContext | undefined {
+        const activeNotebook = this.notebookTracker.currentWidget;
+        if (!activeNotebook) return undefined;
+        
+        return this.getNotebookContext(activeNotebook.id);
     }
 
-    get files(): File[] {
-        return this._files;
+    updateNotebookVariables(notebookID: string, variables: Variable[]): void {
+        const context = this.notebookContexts.get(notebookID) || { variables: [], files: [] };
+        context.variables = variables;
+
+        this.notebookContexts.set(notebookID, context);
     }
 
-    setFiles(newFiles: File[]): void {
-        this._files = newFiles;
+    updateNotebookFiles(notebookID: string, files: File[]): void {
+        const context = this.notebookContexts.get(notebookID) || { variables: [], files: [] };
+        context.files = files;
+        this.notebookContexts.set(notebookID, context);
+    }
+
+    private _startKernelListener = async (app: JupyterFrontEnd, notebookPanel: NotebookPanel | null): Promise<void> => {
+        if (notebookPanel === null) {
+            return;
+        }
+        
+        // Initialize context for this notebook if it doesn't exist
+        if (!this.notebookContexts.has(notebookPanel.id)) {
+            this.notebookContexts.set(notebookPanel.id, { variables: [], files: [] });
+        }
+
+        // As soon as the notebook is opened, fetch the files since these are not related to the kernel, 
+        // but to the notebook itself. This is useful so we can tell the agent which files are available 
+        // or let the user select a file from the dropdown menu before the kernel is started.
+        // We use the notebookPanel.id to identify the notebook because we might need to access
+        // NotebookContext even before the kernel is started. For example, to figure out 
+        // which files are available.
+        const updatedFiles = await getFiles(app, notebookPanel);
+        this.updateNotebookFiles(notebookPanel.id, updatedFiles);
+    
+        // Listen for kernel restart or shut down events and clear the variables for this notebook
+        notebookPanel.context.sessionContext.statusChanged.connect((sender, status) => {
+            if (status === 'restarting' || status === 'terminating' || status === 'unknown') {
+                // Clear the variables for this specific notebook, but don't clear the files 
+                // as they have not changed.
+                this.updateNotebookVariables(notebookPanel.id, []); // Clear variables for this specific notebook
+            }
+        });
+    
+        // Listen to kernel messages
+        notebookPanel.context.sessionContext.iopubMessage.connect(async (sender, msg: KernelMessage.IMessage) => {
+    
+            // Watch for execute_input messages, which indicate is a request to execute code. 
+            // Previosuly, we watched for 'execute_result' messages, but these are only returned
+            // from the kernel when a code cell prints a value to the output cell, which is not what we want.
+            // TODO: Check if there is a race condition where we might end up fetching variables before the 
+            // code is executed. I don't think this is the case because the kernel runs in one thread I believe.
+            // TODO: Eventually we should create a document manager listener so if the user uploads a new file
+            // to jupyter, we can update the available files even if they have not executed a kernel message.
+            if (msg.header.msg_type === 'execute_input') {
+
+                void fetchVariablesAndUpdateState(notebookPanel, this.updateNotebookVariables.bind(this, notebookPanel.id));
+
+                const updatedFiles = await getFiles(app, notebookPanel);
+                this.updateNotebookFiles(notebookPanel.id, updatedFiles);
+            }
+        });
     }
 
     // Setup kernel execution listener
     private setupKernelListener(app: JupyterFrontEnd, notebookTracker: INotebookTracker): void {
-        notebookTracker.currentChanged.connect(async (tracker, notebookPanel) => {
-            if (!notebookPanel) {
-                return;
-            }
 
-            // Listen for kernel refresh events
-            notebookPanel.context.sessionContext.statusChanged.connect((sender, status) => {
-                if (status === 'restarting') {
-                    this.setVariables([]); // Clear variables on kernel refresh
-                }
-            });
+        // Start the kernel listener for the currently active notebook
+        const notebookPanel = notebookTracker.currentWidget;
+        void this._startKernelListener(app, notebookPanel);
 
-            // As soon as the notebook is opened, fetch the files so we don't have to wait for the first message.
-            await fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
-
-            // Listen to kernel messages
-            notebookPanel.context.sessionContext.iopubMessage.connect(async (sender, msg: KernelMessage.IMessage) => {
-
-                // Watch for execute_input messages, which indicate is a request to execute code. 
-                // Previosuly, we watched for 'execute_result' messages, but these are only returned
-                // from the kernel when a code cell prints a value to the output cell, which is not what we want.
-                // TODO: Check if there is a race condition where we might end up fetching variables before the 
-                // code is executed. I don't think this is the case because the kernel runs in one thread I believe.
-                if (msg.header.msg_type === 'execute_input') {
-                    await fetchVariablesAndUpdateState(notebookPanel, this.setVariables.bind(this));
-                    await fetchFilesAndUpdateState(app, notebookTracker, this.setFiles.bind(this));
-                }
-            });
+        // Update the kernel listener whenever the active notebook changes
+        notebookTracker.currentChanged.connect(async (_, notebookPanel) => {
+            void this._startKernelListener(app, notebookPanel);
         });
     }
 }

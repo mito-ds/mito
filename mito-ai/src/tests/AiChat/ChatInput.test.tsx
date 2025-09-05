@@ -98,10 +98,13 @@ const createMockProps = (overrides = {}) => ({
     onSave: jest.fn(),
     isEditing: false,
     contextManager: {
-        variables: MOCK_VARIABLES,
-        setVariables: jest.fn(),
-        files: [],
-        setFiles: jest.fn()
+        getNotebookContext: jest.fn(),
+        getActiveNotebookContext: jest.fn().mockReturnValue({
+            variables: MOCK_VARIABLES,
+            files: []
+        }),
+        updateNotebookVariables: jest.fn(),
+        updateNotebookFiles: jest.fn()
     },
     notebookTracker: {
         activeCellChanged: {

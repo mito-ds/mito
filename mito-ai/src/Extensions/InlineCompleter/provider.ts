@@ -202,10 +202,11 @@ export class MitoAIInlineCompleter
       const prefix = this._getPrefix(request);
       const suffix = this._getSuffix(request);
 
+      const activeNotebookContext = this._contextManager.getActiveNotebookContext();
       const metadata: IInlineCompleterMetadata = {
         promptType: 'inline_completion',
-        variables: this._contextManager.variables,
-        files: this._contextManager.files,
+        variables: activeNotebookContext?.variables || [],
+        files: activeNotebookContext?.files || [],
         prefix: prefix,
         suffix: suffix
       }

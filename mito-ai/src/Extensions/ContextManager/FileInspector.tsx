@@ -5,7 +5,7 @@
 
 import { PathExt } from '@jupyterlab/coreutils';
 import { JupyterFrontEnd } from "@jupyterlab/application";
-import { INotebookTracker } from "@jupyterlab/notebook";
+import { NotebookPanel } from "@jupyterlab/notebook";
 
 
 export type File = {
@@ -16,23 +16,13 @@ export type File = {
 /* 
     Fetches all files in the current directory and updates the state of the files.
 */
-export const fetchFilesAndUpdateState = async (
+export const getFiles = async (
     app: JupyterFrontEnd, 
-    notebookTracker: INotebookTracker, 
-    setFiles: (files: File[]) => void
-): Promise<void> => {
+    notebookPanel: NotebookPanel, 
+): Promise<File[]> => {
     
     const fileManager = app.serviceManager.contents;
-    
-    // Get the current notebook
-    const currentNotebook = notebookTracker.currentWidget;
-    if (!currentNotebook) {
-        return;
-    }
-    
-    
-    // Get the directory path using PathExt.dirname from @jupyterlab/coreutils
-    const relativeNotebookPath = currentNotebook.context.path;
+    const relativeNotebookPath = notebookPanel.context.path;
     const relativeDirectoryPath = PathExt.dirname(relativeNotebookPath);
 
     try {
@@ -53,15 +43,15 @@ export const fetchFilesAndUpdateState = async (
             }));
 
             // Update the state of the files
-            setFiles(files);
+            return files;
         } else {
             // If the contents are not a directory, set the files to an empty array
-            setFiles([]);
+            return [];
         }
         
     } catch (error) {
         console.error('Error listing directory contents:', error);
-        return;
+        return [];
     }
 };
 
