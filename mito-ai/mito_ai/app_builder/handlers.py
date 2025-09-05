@@ -148,7 +148,6 @@ class AppBuilderHandler(BaseWebSocketHandler):
             
         try:
             notebook_path = str(notebook_path) if notebook_path else ""
-            print('HERE 1')
 
             app_directory = os.path.dirname(notebook_path)
             app_path = os.path.join(app_directory, "app.py")
