@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { INotebookTracker, NotebookPanel } from "@jupyterlab/notebook"
 import { CodeCell } from "@jupyterlab/cells"
 import { getActiveCellID } from "./notebook"
