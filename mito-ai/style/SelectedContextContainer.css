@@ -28,13 +28,23 @@
 
   font-size: 12px;
   height: 20px;
-  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
 
   border: 1px solid var(--jp-border-color1);
   cursor: pointer;
 }
 
-.selected-context-container .long-text,
+.selected-context-container:hover {
+  background-color: var(--jp-layout-color3);
+}
+
+.selected-context-container:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--jp-layout-color2);
+}
+
 .selected-context-container .rule-name {
   margin-left: 6px;
   color: var(--jp-content-font-color1);

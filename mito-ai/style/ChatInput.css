@@ -99,9 +99,3 @@
 .context-button:disabled:hover {
   background-color: var(--jp-layout-color2);
 }
-
-.context-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
