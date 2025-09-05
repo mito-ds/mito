@@ -77,7 +77,7 @@ async def append_agent_system_message(
 
 
 def extract_and_encode_images_from_additional_context(
-    additional_context: List[Dict[str, str]] | None,
+    additional_context: Optional[List[Dict[str, str]]],
 ) -> List[str]:
     encoded_images = []
 
@@ -98,7 +98,7 @@ def extract_and_encode_images_from_additional_context(
 def create_ai_optimized_message(
     text: str,
     base64EncodedActiveCellOutput: Optional[str] = None,
-    additional_context: List[Dict[str, str]] | None = None,
+    additional_context: Optional[List[Dict[str, str]]] = None,
 ) -> ChatCompletionMessageParam:
 
     message_content: Union[str, List[Dict[str, Any]]]
