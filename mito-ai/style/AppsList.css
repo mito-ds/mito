@@ -124,7 +124,7 @@
   font-size: 12px;
 }
 
-.app-item-created {
+.app-item-last-deployed {
   color: var(--jp-ui-font-color2);
   font-size: 11px;
 }
