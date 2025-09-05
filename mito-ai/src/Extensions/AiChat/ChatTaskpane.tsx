@@ -66,6 +66,7 @@ import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
+import { getBase64EncodedCellOutput } from './utils';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -94,6 +95,7 @@ import {
 // Internal imports - Extensions
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPage';
 
 // Internal imports - Chat components
 import CTACarousel from './CTACarousel';
@@ -109,7 +111,6 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
-import { getBase64EncodedCellOutput } from './utils';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
@@ -698,6 +699,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const _sendMessageAndSaveResponse = async (
         completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager
     ): Promise<boolean> => {
+        // Capture the completion request for debugging
+        captureCompletionRequest(completionRequest);
         if (completionRequest.stream) {
             // Reset the streaming response and set streaming state
             streamingContentRef.current = '';

@@ -66,13 +66,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
-    const handleFileUploaded = (fileName: string): void => {
+    const handleFileUpload = (file: File): void => {
+        let uploadType: string;
+
+        if (file.type.startsWith('image/')) {
+            // If the file is an image, we want to preserve the file type.
+            // The type is used to display the image icon in the SelectedContextContainer,
+            // and is used to encode the image on the backend.
+            uploadType = file.type;
+        } else {
+            uploadType = 'file';
+        }
+
         // Add the uploaded file to the additional context
         setAdditionalContext(prev => [
             ...prev, {
-                type: 'file',
-                value: fileName,
-                display: fileName
+                type: uploadType,
+                value: file.name,
+                display: file.name
             }
         ]);
     };
@@ -232,15 +243,20 @@ const ChatInput: React.FC<ChatInputProps> = ({
     };
 
     const mapAdditionalContext = (): Array<{ type: string, value: string }> => {
-        return additionalContext.map(context => {
-            if (context.type === 'db') {
-                return {
-                    type: context.type,
-                    value: context.value
-                };
+        const result: Array<{ type: string, value: string }> = [];
+
+        additionalContext.forEach(contextItem => {
+            if (contextItem.type === 'db') {
+                result.push({
+                    type: contextItem.type,
+                    value: contextItem.value
+                });
+            } else {
+                result.push(contextItem);
             }
-            return context;
         });
+
+        return result;
     };
 
     // Update the expandedVariables arr when the variable manager changes
@@ -300,7 +316,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
-                <AttachFileButton onFileUploaded={handleFileUploaded} notebookTracker={notebookTracker} />
+                <AttachFileButton onFileUploaded={handleFileUpload} notebookTracker={notebookTracker} />
                 <button
                     className="context-button"
                     onClick={() => {

@@ -46,7 +46,7 @@ from mito_ai.completions.completion_handlers.agent_execution_handler import get_
 from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 from mito_ai.utils.telemetry_utils import identify
 
-FALLBACK_MODEL = "gpt-5"  # Default model to use for safety
+FALLBACK_MODEL = "gpt-4.1"  # Default model to use for safety
 
 # The GlobalMessageHistory is responsible for updating the message histories stored in the .mito/ai-chats directory.
 # We create one GlobalMessageHistory per backend server instance instead of one per websocket connection so that the

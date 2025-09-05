@@ -142,7 +142,8 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         } else if (option.type === 'file') {
             return option.file.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase());
         } else if (option.type === 'db') {
-            return option.variable.value.toLowerCase().includes(effectiveFilterText.toLowerCase());
+            return option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) ||
+                   option.variable.value.toLowerCase().includes(effectiveFilterText.toLowerCase());
         } else {
             return option.rule.toLowerCase().includes(effectiveFilterText.toLowerCase());
         }
