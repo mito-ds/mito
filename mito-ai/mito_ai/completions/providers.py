@@ -123,6 +123,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Retry loop
         for attempt in range(max_retries + 1):
             try:
+                raise ValueError("Test error")
                 if model_type == "claude":
                     api_key = constants.CLAUDE_API_KEY
                     anthropic_client = AnthropicClient(api_key=api_key)
@@ -160,7 +161,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 # If we hit a free tier limit, then raise an exception right away without retrying.
                 self.log.exception(f"Error during request_completions: {e}")
                 self.last_error = CompletionError.from_exception(e)
-                log_ai_completion_error('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', message_type, e)
+                log_ai_completion_error('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', thread_id, message_type, e)
                 raise
 
             except BaseException as e:
@@ -169,14 +170,14 @@ This attribute is observed by the websocket provider to push the error to the cl
                     # Exponential backoff: wait 2^attempt seconds
                     wait_time = 2 ** attempt
                     self.log.info(f"Retrying request_completions after {wait_time}s (attempt {attempt + 1}/{max_retries + 1}): {str(e)}")
-                    log_ai_completion_retry('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', message_type, e)
+                    log_ai_completion_retry('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', thread_id, message_type, e)
                     await asyncio.sleep(wait_time)
                     continue
                 else:
                     # Final failure after all retries - set error state and raise
                     self.log.exception(f"Error during request_completions after {attempt + 1} attempts: {e}")
                     self.last_error = CompletionError.from_exception(e)
-                    log_ai_completion_error('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', message_type, e)
+                    log_ai_completion_error('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', thread_id, message_type, e)
                     raise
         
         # This should never be reached due to the raise in the except block,
@@ -264,14 +265,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         except BaseException as e:
             self.log.exception(f"Error during stream_completions: {e}")
             self.last_error = CompletionError.from_exception(e)
-            log(
-                MITO_AI_COMPLETION_ERROR,
-                params={
-                    KEY_TYPE_PARAM: self.key_type,
-                    'message_type': message_type.value,
-                },
-                error=e
-            )
+            log_ai_completion_error('user_key' if self.key_type != MITO_SERVER_KEY else 'mito_server_key', thread_id, message_type, e)
+
             # Send error message to client before raising
             reply_fn(CompletionStreamChunk(
                 parent_id=message_id,
