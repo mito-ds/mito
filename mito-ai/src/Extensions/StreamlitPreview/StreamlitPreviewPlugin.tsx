@@ -15,6 +15,7 @@ import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
 import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon } from '../../icons';
+import '../../../style/StreamlitPreviewPlugin.css';
 
 /**
  * Interface for the streamlit preview response.
@@ -131,34 +132,7 @@ async function previewNotebookAsStreamlit(
       icon: DeployLabIcon,
       iconClass: 'mito-ai-deploy-icon'
     });
-    
-    // Add custom styling for better icon alignment
-    const style = document.createElement('style');
-    style.textContent = `
-      .mito-deploy-button {
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        padding: 4px 8px !important;
-        color: var(--jp-ui-font-color2) !important;
-      }
-      .mito-deploy-button .mito-ai-deploy-icon {
-        display: flex !important;
-        align-items: center !important;
-        height: 10px !important;
-        width: 10px !important;
-        font-size: 12px !important;
-      }
-      .mito-deploy-button::slotted(svg),
-      .mito-deploy-button svg {
-        width: 12px !important;
-        height: 12px !important;
-        max-width: 12px !important;
-        max-height: 12px !important;
-        margin-right: 4px !important;
-      }
-    `;
-    document.head.appendChild(style);
+
     
     // Insert the button into the toolbar
     widget.toolbar.insertAfter('spacer', 'deploy-app-button', deployButton);
