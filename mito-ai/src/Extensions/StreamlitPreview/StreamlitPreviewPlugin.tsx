@@ -5,14 +5,14 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { ICommandPalette } from '@jupyterlab/apputils';
+import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { IChatTracker } from '../AiChat/token';
 import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
-import { previewAsStreamlit } from '../../commands';
+import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 
 /**
  * Interface for the streamlit preview response.
@@ -21,13 +21,6 @@ export interface StreamlitPreviewResponse {
   id: string;
   port: number;
   url: string;
-}
-
-/**
- * Interface for the streamlit preview request.
- */
-export interface StreamlitPreviewRequest {
-  notebook_path: string;
 }
 
 /**
@@ -70,7 +63,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
     console.log('mito-ai: StreamlitPreviewPlugin activated');
 
     // Add command to command palette
-    app.commands.addCommand(previewAsStreamlit, {
+    app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async () => {
@@ -80,7 +73,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
 
     // Add to command palette
     palette.addItem({
-      command: previewAsStreamlit,
+      command: COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT,
       category: 'Mito AI'
     });
   }
@@ -122,6 +115,19 @@ async function previewNotebookAsStreamlit(
     const widget = new MainAreaWidget({ content: iframeWidget });
     widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
+
+    // Add toolbar button to the MainAreaWidget's toolbar
+    const updateButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-purple button-small',
+      onClick: (): void => {
+        console.log('Update App Button clicked');
+      },
+      tooltip: 'Update the Streamlit app',
+      label: 'Update App',
+    });
+    
+    // Insert the button into the toolbar
+    widget.toolbar.insertAfter('spacer', 'update-app-button', updateButton);
 
     // Handle widget disposal
     widget.disposed.connect(() => {
