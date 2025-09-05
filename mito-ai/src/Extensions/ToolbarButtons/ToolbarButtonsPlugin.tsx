@@ -8,7 +8,6 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLabIcon } from '../../icons';
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
-import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
 import { getSetting } from '../../restAPI/RestAPI';
 
 const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
@@ -19,8 +18,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     description: 'Adds an "explain code cell with AI" button to the cell toolbar',
     autoStart: true,
     requires: [INotebookTracker],
-    optional: [IAppBuilderService],
-    activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker, appBuilderService?: IAppBuilderService) => {
+    activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
         const { commands } = app;
 
         // Important: To add a button to the cell toolbar, the command must start with "toolbar-button:"
