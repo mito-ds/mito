@@ -10,8 +10,9 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
-import { IChatTracker } from '../AiChat/token';
 import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
+import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
+import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 
 /**
@@ -54,11 +55,12 @@ class IFrameWidget extends Widget {
 const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito-ai:streamlit-preview',
   autoStart: true,
-  requires: [INotebookTracker, ICommandPalette, IChatTracker],
+  requires: [INotebookTracker, ICommandPalette, IAppBuilderService],
   activate: (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
-    palette: ICommandPalette
+    palette: ICommandPalette,
+    appBuilderService: IAppBuilderService
   ) => {
     console.log('mito-ai: StreamlitPreviewPlugin activated');
 
@@ -67,7 +69,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async () => {
-        await previewNotebookAsStreamlit(app, notebookTracker);
+        await previewNotebookAsStreamlit(app, notebookTracker, appBuilderService);
       }
     });
 
@@ -84,7 +86,8 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
  */
 async function previewNotebookAsStreamlit(
   app: JupyterFrontEnd,
-  notebookTracker: INotebookTracker
+  notebookTracker: INotebookTracker,
+  appBuilderService: IAppBuilderService
 ): Promise<void> {
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
@@ -117,17 +120,17 @@ async function previewNotebookAsStreamlit(
     widget.title.closable = true;
 
     // Add toolbar button to the MainAreaWidget's toolbar
-    const updateButton = new ToolbarButton({
+    const deployButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-purple button-small',
       onClick: (): void => {
-        console.log('Update App Button clicked');
+        void convertNotebookToStreamlit(notebookTracker, appBuilderService);
       },
-      tooltip: 'Update the Streamlit app',
-      label: 'Update App',
+      tooltip: 'Deploy Streamlit App',
+      label: 'Deploy App'
     });
     
     // Insert the button into the toolbar
-    widget.toolbar.insertAfter('spacer', 'update-app-button', updateButton);
+    widget.toolbar.insertAfter('spacer', 'deploy-app-button', deployButton);
 
     // Handle widget disposal
     widget.disposed.connect(() => {

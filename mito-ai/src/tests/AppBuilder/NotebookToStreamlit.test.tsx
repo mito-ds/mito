@@ -205,15 +205,6 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
         expect(saveFileWithKernel).not.toHaveBeenCalled();
     });
 
-    test('should handle case when AppBuilderService is not provided', async () => {
-        (getJWTToken as jest.Mock).mockResolvedValue('test-jwt-token');
-
-        await convertNotebookToStreamlit(mockNotebookTracker, undefined);
-
-        expect(console.warn).toHaveBeenCalledWith('AppBuilderService not provided - app will not be deployed');
-        expect(saveFileWithKernel).toHaveBeenCalled();
-    });
-
     test('should use server token as fallback when JWT token is not available', async () => {
         (getJWTToken as jest.Mock)
             .mockResolvedValueOnce('') // First call returns empty string

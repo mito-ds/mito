@@ -21,7 +21,7 @@ This function generates a requirements.txt file that lists the dependencies for 
 */
 export const convertNotebookToStreamlit = async (
   notebookTracker: INotebookTracker,
-  appBuilderService?: IAppBuilderService,
+  appBuilderService: IAppBuilderService,
 ): Promise<void> => {
 
   let jwtToken = await getJWTToken();
@@ -67,33 +67,28 @@ export const convertNotebookToStreamlit = async (
   await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
 
   // After building the files, we need to send a request to the backend to deploy the app
-  if (appBuilderService) {
-    try {
-      console.log("Sending request to deploy the app");
-      
-      // Use the JWT token that was already obtained or refreshed above
-      const response: IBuildAppReply = await appBuilderService.client.sendMessage<IBuildAppRequest, IBuildAppReply>({
-        type: 'build-app',
-        message_id: UUID.uuid4(),
-        notebook_path: notebookPath,
-        jwt_token: jwtToken
-      });
+  try {
+    console.log("Sending request to deploy the app");
+    
+    // Use the JWT token that was already obtained or refreshed above
+    const response: IBuildAppReply = await appBuilderService.client.sendMessage<IBuildAppRequest, IBuildAppReply>({
+      type: 'build-app',
+      message_id: UUID.uuid4(),
+      notebook_path: notebookPath,
+      jwt_token: jwtToken
+    });
 
-      if (response.error) {
-        Notification.emit(response.error.title, 'error', {
-            autoClose: false
-        });
-      }
-      else{
-        console.log("App deployment response:", response);
-        const url = response.url;
-        deployAppNotification(url);
-      }
-    } catch (error) {
-      // TODO: Do something with the error
-      console.error("Error deploying app:", error);
+    if (response.error) {
+      Notification.emit(response.error.title, 'error', {
+          autoClose: false
+      });
+    } else {
+      console.log("App deployment response:", response);
+      const url = response.url;
+      deployAppNotification(url);
     }
-  } else {
-    console.warn("AppBuilderService not provided - app will not be deployed");
+  } catch (error) {
+    // TODO: Do something with the error
+    console.error("Error deploying app:", error);
   }
 };
