@@ -123,7 +123,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Retry loop
         for attempt in range(max_retries + 1):
             try:
-                raise ValueError("Test error")
                 if model_type == "claude":
                     api_key = constants.CLAUDE_API_KEY
                     anthropic_client = AnthropicClient(api_key=api_key)
