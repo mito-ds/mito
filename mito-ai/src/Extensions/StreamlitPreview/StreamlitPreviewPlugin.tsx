@@ -140,6 +140,7 @@ async function previewNotebookAsStreamlit(
         align-items: center !important;
         gap: 6px !important;
         padding: 4px 8px !important;
+        color: var(--jp-ui-font-color2) !important;
       }
       .mito-deploy-button .mito-ai-deploy-icon {
         display: flex !important;
