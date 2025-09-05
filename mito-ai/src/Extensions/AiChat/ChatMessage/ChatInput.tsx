@@ -57,7 +57,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     agentExecutionStatus = 'idle',
 }) => {
     const [input, setInput] = useState(initialContent);
-    const [expandedVariables, setExpandedVariables] = useState<ExpandedVariable[]>([]);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
     const [activeCellID, setActiveCellID] = useState<string | undefined>(getActiveCellID(notebookTracker));
     const activeCellCode = getActiveCellCode(notebookTracker) || '';
@@ -259,15 +258,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
         return result;
     };
 
-    // Update the expandedVariables arr when the variable manager changes
-    useEffect(() => {
+    const getExpandedVarialbes = (): ExpandedVariable[] => {
+        const activeNotebookContext = contextManager?.getActiveNotebookContext();
         const expandedVariables: ExpandedVariable[] = [
             // Add base variables (excluding DataFrames)
-            ...(contextManager?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
+            ...(activeNotebookContext?.variables.filter(variable => variable.type !== "pd.DataFrame") || []),
             // Add DataFrames
-            ...(contextManager?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
+            ...(activeNotebookContext?.variables.filter((variable) => variable.type === "pd.DataFrame") || []),
             // Add series with parent DataFrame references
-            ...(contextManager?.variables
+            ...(activeNotebookContext?.variables
                 .filter((variable) => variable.type === "pd.DataFrame")
                 .flatMap((df) =>
                     Object.entries(df.value).map(([seriesName, _]) => ({
@@ -278,15 +277,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     }))
                 ) || []),
             // Add files
-            ...(contextManager?.files.map(file => ({
+            ...(activeNotebookContext?.files.map(file => ({
                 variable_name: file.file_name,
                 type: file.file_name.split('.').pop()?.toLowerCase() || '',
                 value: file.file_name,
                 file_name: file.file_name
             })) || [])
         ];
-        setExpandedVariables(expandedVariables);
-    }, [contextManager?.variables, contextManager?.files]);
+        return expandedVariables;
+    }
+
+
 
     // Automatically add active cell context when in Chat mode and there's active cell code
     useEffect(() => {
@@ -386,7 +387,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 />
                 {isDropdownVisible && (
                     <ChatDropdown
-                        options={expandedVariables}
+                        options={getExpandedVarialbes()}
                         onSelect={handleOptionSelect}
                         filterText={dropdownFilter}
                         isDropdownFromButton={isDropdownFromButton}

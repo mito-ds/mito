@@ -18,10 +18,12 @@ export const ContextManagerSection = ({ contextManager }: ContextManagerSectionP
         setRefreshKey(prev => prev + 1);
     };
 
+    const activeNotebookContext = contextManager.getActiveNotebookContext();
+
     const copyContextManagerToClipboard = async (): Promise<void> => {
         const jsonContent = JSON.stringify({
-            variables: contextManager.variables,
-            files: contextManager.files
+            variables: activeNotebookContext?.variables,
+            files: activeNotebookContext?.files
         }, null, 2);
 
         try {
@@ -55,8 +57,8 @@ export const ContextManagerSection = ({ contextManager }: ContextManagerSectionP
                 <div className="settings-option">
                     <pre className="json-container">
                         {JSON.stringify({
-                            variables: contextManager.variables,
-                            files: contextManager.files
+                            variables: activeNotebookContext?.variables,
+                            files: activeNotebookContext?.files
                         }, null, 2)}
                     </pre>
                 </div>

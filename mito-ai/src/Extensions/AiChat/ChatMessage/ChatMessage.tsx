@@ -200,7 +200,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                     />
                                 )}
 
-                                {isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' &&
+                                {!agentModeEnabled && isLastAiMessage && isCodeComplete && codeReviewStatus === 'chatPreview' &&
                                     <div className='chat-message-buttons'>
                                         <TextAndIconButton
                                             onClick={() => { previewAICode() }}
@@ -220,7 +220,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         />
                                     </div>
                                 }
-                                {isLastAiMessage && isCodeComplete && codeReviewStatus === 'codeCellPreview' &&
+                                {!agentModeEnabled && isLastAiMessage && isCodeComplete && codeReviewStatus === 'codeCellPreview' &&
                                     <div className='chat-message-buttons'>
                                         <TextButton
                                             onClick={() => { acceptAICode() }}
