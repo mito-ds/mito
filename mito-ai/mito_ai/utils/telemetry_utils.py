@@ -362,11 +362,16 @@ def log_file_upload_attempt(
 def log_file_upload_failure(error: str) -> None:
     log("mito_ai_file_upload_failure", params={"error_message": error})
 
-def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
-    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
+def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], thread_id: str, message_type: MessageType, error: BaseException) -> None:
+    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, thread_id=thread_id, key_type=key_type, error=error)
     
-def log_ai_completion_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
-    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
+def log_ai_completion_error(
+    key_type: Literal['mito_server_key', 'user_key'],
+    thread_id: str,
+    message_type: MessageType, 
+    error: BaseException
+) -> None:
+    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, thread_id=thread_id, key_type=key_type, error=error)
     
 def log_mito_server_free_tier_limit_reached(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType) -> None:
     log(MITO_SERVER_FREE_TIER_LIMIT_REACHED, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type)
