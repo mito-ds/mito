@@ -9,6 +9,7 @@
   align-items: center;
   gap: 4px;
   padding: 8px 10px;
+  overflow-x: hidden;
 }
 
 /* Consistent spacing for all children of context container */
@@ -31,12 +32,9 @@
 
   border: 1px solid var(--jp-border-color1);
   cursor: pointer;
-
-  &:hover {
-    background-color: var(--jp-layout-color3);
-  }
 }
 
+.selected-context-container .long-text,
 .selected-context-container .rule-name {
   margin-left: 6px;
   color: var(--jp-content-font-color1);
