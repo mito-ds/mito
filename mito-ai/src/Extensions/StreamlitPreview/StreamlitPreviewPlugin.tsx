@@ -5,14 +5,17 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { ICommandPalette } from '@jupyterlab/apputils';
+import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
-import { IChatTracker } from '../AiChat/token';
 import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
-import { previewAsStreamlit } from '../../commands';
+import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
+import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
+import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
+import { DeployLabIcon } from '../../icons';
+import '../../../style/StreamlitPreviewPlugin.css';
 
 /**
  * Interface for the streamlit preview response.
@@ -21,13 +24,6 @@ export interface StreamlitPreviewResponse {
   id: string;
   port: number;
   url: string;
-}
-
-/**
- * Interface for the streamlit preview request.
- */
-export interface StreamlitPreviewRequest {
-  notebook_path: string;
 }
 
 /**
@@ -61,26 +57,27 @@ class IFrameWidget extends Widget {
 const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito-ai:streamlit-preview',
   autoStart: true,
-  requires: [INotebookTracker, ICommandPalette, IChatTracker],
+  requires: [INotebookTracker, ICommandPalette, IAppBuilderService],
   activate: (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
-    palette: ICommandPalette
+    palette: ICommandPalette,
+    appBuilderService: IAppBuilderService
   ) => {
     console.log('mito-ai: StreamlitPreviewPlugin activated');
 
     // Add command to command palette
-    app.commands.addCommand(previewAsStreamlit, {
+    app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async () => {
-        await previewNotebookAsStreamlit(app, notebookTracker);
+        await previewNotebookAsStreamlit(app, notebookTracker, appBuilderService);
       }
     });
 
     // Add to command palette
     palette.addItem({
-      command: previewAsStreamlit,
+      command: COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT,
       category: 'Mito AI'
     });
   }
@@ -91,7 +88,8 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
  */
 async function previewNotebookAsStreamlit(
   app: JupyterFrontEnd,
-  notebookTracker: INotebookTracker
+  notebookTracker: INotebookTracker,
+  appBuilderService: IAppBuilderService
 ): Promise<void> {
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
@@ -122,6 +120,22 @@ async function previewNotebookAsStreamlit(
     const widget = new MainAreaWidget({ content: iframeWidget });
     widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
+
+    // Add toolbar button to the MainAreaWidget's toolbar
+    const deployButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+      onClick: (): void => {
+        void convertNotebookToStreamlit(notebookTracker, appBuilderService);
+      },
+      tooltip: 'Deploy Streamlit App',
+      label: 'Deploy App',
+      icon: DeployLabIcon,
+      iconClass: 'mito-ai-deploy-icon'
+    });
+
+    
+    // Insert the button into the toolbar
+    widget.toolbar.insertAfter('spacer', 'deploy-app-button', deployButton);
 
     // Handle widget disposal
     widget.disposed.connect(() => {

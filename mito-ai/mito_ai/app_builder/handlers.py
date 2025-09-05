@@ -152,6 +152,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
             app_directory = os.path.dirname(notebook_path)
             app_path = os.path.join(app_directory, "app.py")
 
+            # I think we can remove this part
             if not os.path.exists(app_path):
                 success_flag, app_path_result, result_message = await streamlit_handler(notebook_path)
                 if not success_flag or app_path_result is None:

@@ -8,8 +8,6 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLabIcon } from '../../icons';
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/cellMetadata';
-import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
-import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
 import { getSetting } from '../../restAPI/RestAPI';
 
 const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
@@ -20,8 +18,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
     description: 'Adds an "explain code cell with AI" button to the cell toolbar',
     autoStart: true,
     requires: [INotebookTracker],
-    optional: [IAppBuilderService],
-    activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker, appBuilderService?: IAppBuilderService) => {
+    activate: (app: JupyterFrontEnd, notebookTracker: INotebookTracker) => {
         const { commands } = app;
 
         // Important: To add a button to the cell toolbar, the command must start with "toolbar-button:"
@@ -72,20 +69,6 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             }
         });
 
-        commands.addCommand('toolbar-button:convert-to-streamlit', {
-            label: 'Deploy App',
-            caption: 'Convert to Streamlit',
-            className: 'text-button-mito-ai button-base button-purple button-small',
-            execute: async () => {
-                void convertNotebookToStreamlit(notebookTracker, appBuilderService);
-            },
-            isVisible: () => {
-                // Default to hidden, will be updated after async check since we are not allowed to 
-                // use async commands in isVisible.
-                return app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
-            }
-        });
-
         commands.addCommand('toolbar-button:preview-as-streamlit', {
             label: 'Preview App',
             caption: 'Preview as Streamlit',
@@ -104,7 +87,6 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
         getSetting('beta_mode').then(value => {
             if (value === 'true') {
                 commands.addCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED, { execute: () => { /* no-op */ } });
-                commands.notifyCommandChanged('toolbar-button:convert-to-streamlit');
                 commands.notifyCommandChanged('toolbar-button:toggle-include-cell-in-app');
                 commands.notifyCommandChanged('toolbar-button:preview-as-streamlit');
             }
