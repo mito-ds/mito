@@ -7,7 +7,7 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLabIcon } from '../../icons';
-import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/notebook';
+import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/cellMetadata';
 import { getSetting } from '../../restAPI/RestAPI';
 
 const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
