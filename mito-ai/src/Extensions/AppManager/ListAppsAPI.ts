@@ -17,7 +17,7 @@ export interface AppMetadata {
   name: string;
   url: string;
   status: AppStatus;
-  createdAt: string;
+  lastDeployedAt: string;
 }
 
 export interface GetAppsSuccess {
@@ -75,7 +75,7 @@ export const fetchUserApps = async (
       name: app.app_name,
       url: app.url,
       status: (app.status?.toLowerCase() as AppStatus),
-      createdAt: app.created_at
+      lastDeployedAt: app.last_deployed_at
     }));
 
     return {

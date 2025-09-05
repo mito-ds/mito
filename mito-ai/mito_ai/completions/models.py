@@ -83,7 +83,6 @@ class ChatMessageMetadata():
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     base64EncodedActiveCellOutput: Optional[str] = None
-    base64EncodedUploadedImage: Optional[str] = None
     index: Optional[int] = None
     stream: bool = False
     additionalContext: Optional[List[Dict[str, str]]] = None
@@ -97,7 +96,6 @@ class AgentExecutionMetadata():
     aiOptimizedCells: List[AIOptimizedCell]
     isChromeBrowser: bool
     base64EncodedActiveCellOutput: Optional[str] = None
-    base64EncodedUploadedImage: Optional[str] = None
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     index: Optional[int] = None

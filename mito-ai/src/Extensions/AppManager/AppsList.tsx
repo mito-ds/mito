@@ -163,8 +163,8 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
                       {getStatusText(app.status)}
                     </span>
                   </div>
-                  <div className="app-item-created">
-                    Created: {app.createdAt}
+                  <div className="app-item-last-deployed">
+                    Last Deployed at: {app.lastDeployedAt}
                   </div>
                 </div>
               </div>

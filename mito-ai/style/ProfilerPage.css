@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.profiler-warning {
+    color: red;
+}
+
+.profiler-button-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.json-container {
+    overflow-y: auto;
+    padding: 10px;
+    background-color: var(--jp-input-background);
+}
+
+.profiler-clear-button {
+    margin-bottom: 10px;
+}
+
+.profiler-no-requests {
+    color: #666;
+    font-style: italic;
+}
+
+.profiler-request-container {
+    margin-bottom: 20px;
+}
+
+.profiler-request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.profiler-copy-button {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+

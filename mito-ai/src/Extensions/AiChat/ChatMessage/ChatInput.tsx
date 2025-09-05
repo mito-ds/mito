@@ -67,31 +67,25 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
 
     const handleFileUpload = (file: File): void => {
+        let uploadType: string;
+
         if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64String = reader.result as string;
-                const base64Data = base64String.split(',')[1]; // Remove data URL prefix
-                // Add the uploaded file to the additional context
-                setAdditionalContext(prev => [
-                    ...prev, {
-                        type: file.type || 'image',
-                        value: base64Data || '',
-                        display: file.name
-                    }
-                ]);
-            };
-            reader.readAsDataURL(file);
+            // If the file is an image, we want to preserve the file type.
+            // The type is used to display the image icon in the SelectedContextContainer,
+            // and is used to encode the image on the backend.
+            uploadType = file.type;
         } else {
-            // Add the uploaded file to the additional context
-            setAdditionalContext(prev => [
-                ...prev, {
-                    type: 'file',
-                    value: file.name,
-                    display: file.name
-                }
-            ]);
+            uploadType = 'file';
         }
+
+        // Add the uploaded file to the additional context
+        setAdditionalContext(prev => [
+            ...prev, {
+                type: uploadType,
+                value: file.name,
+                display: file.name
+            }
+        ]);
     };
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
@@ -256,18 +250,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 result.push({
                     type: contextItem.type,
                     value: contextItem.value
-                });
-            } else if (contextItem.type.startsWith('image/')) {
-                // If the user uploaded an image, we:
-                // 1. Keep the original context item. This is the base64 encoded image 
-                //    that will be processed in ChatTaskpane.tsx.
-                // 2. Add a second item to the additionalContext array, which will
-                //    have the image's filename, and be used in the prompt.
-                result.push(contextItem);
-                const fileName = contextItem.display || contextItem.value.split('/').pop() || 'image';
-                result.push({
-                    type: 'img',
-                    value: fileName
                 });
             } else {
                 result.push(contextItem);

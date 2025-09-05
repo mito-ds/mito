@@ -6,7 +6,38 @@ import tempfile
 import tornado
 from typing import Dict, Any
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.utils.telemetry_utils import log_file_upload_attempt, log_file_upload_failure
+from mito_ai.utils.telemetry_utils import (
+    log_file_upload_attempt,
+    log_file_upload_failure,
+)
+
+MAX_IMAGE_SIZE_MB = 3
+
+
+def _is_image_file(filename: str) -> bool:
+    image_extensions = {
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+        ".bmp",
+        ".tiff",
+        ".tif",
+        ".webp",
+        ".svg",
+    }
+    file_extension = os.path.splitext(filename)[1].lower()
+    return file_extension in image_extensions
+
+
+def _check_image_size_limit(file_data: bytes, filename: str) -> None:
+    if not _is_image_file(filename):
+        return
+
+    file_size_mb = len(file_data) / (1024 * 1024)  # Convert bytes to MB
+
+    if file_size_mb > MAX_IMAGE_SIZE_MB:
+        raise ValueError(f"Image exceeded {MAX_IMAGE_SIZE_MB}MB limit.")
 
 
 class FileUploadHandler(APIHandler):
@@ -50,7 +81,7 @@ class FileUploadHandler(APIHandler):
             self.finish()
 
         except Exception as e:
-            self._handle_error(f"Failed to save file: {str(e)}")
+            self._handle_error(str(e))
 
     def _validate_file_upload(self) -> bool:
         """Validate that a file was uploaded in the request."""
@@ -90,6 +121,9 @@ class FileUploadHandler(APIHandler):
         self, filename: str, file_data: bytes, notebook_dir: str
     ) -> None:
         """Handle regular (non-chunked) file upload."""
+        # Check image file size limit before saving
+        _check_image_size_limit(file_data, filename)
+
         file_path = os.path.join(notebook_dir, filename)
         with open(file_path, "wb") as f:
             f.write(file_data)
@@ -100,8 +134,6 @@ class FileUploadHandler(APIHandler):
         self, filename: str, file_data: bytes, chunk_number: int, total_chunks: int
     ) -> None:
         """Save a chunk to a temporary file."""
-        print(f"DEBUG: Saving chunk {chunk_number}/{total_chunks} for file {filename}")
-
         # Initialize temporary directory for this file if it doesn't exist
         if filename not in self._temp_dirs:
             temp_dir = tempfile.mkdtemp(prefix=f"mito_upload_{filename}_")
@@ -110,7 +142,6 @@ class FileUploadHandler(APIHandler):
                 "total_chunks": total_chunks,
                 "received_chunks": set(),
             }
-            print(f"DEBUG: Created temp dir {temp_dir} for file {filename}")
 
         # Save the chunk to the temporary directory
         chunk_filename = os.path.join(
@@ -121,28 +152,20 @@ class FileUploadHandler(APIHandler):
 
         # Mark this chunk as received
         self._temp_dirs[filename]["received_chunks"].add(chunk_number)
-        print(
-            f"DEBUG: Saved chunk {chunk_number}, total received: {len(self._temp_dirs[filename]['received_chunks'])}/{total_chunks}"
-        )
 
     def _are_all_chunks_received(self, filename: str, total_chunks: int) -> bool:
         """Check if all chunks for a file have been received."""
         if filename not in self._temp_dirs:
-            print(f"DEBUG: No temp dir found for {filename}")
             return False
 
         received_chunks = self._temp_dirs[filename]["received_chunks"]
         is_complete = len(received_chunks) == total_chunks
-        print(
-            f"DEBUG: Checking completion for {filename}: {len(received_chunks)}/{total_chunks} chunks received, complete: {is_complete}"
-        )
         return is_complete
 
     def _reconstruct_file(
         self, filename: str, total_chunks: int, notebook_dir: str
     ) -> None:
         """Reconstruct the final file from all chunks and clean up temporary directory."""
-        print(f"DEBUG: Starting reconstruction for {filename}")
 
         if filename not in self._temp_dirs:
             raise ValueError(f"No temporary directory found for file: {filename}")
@@ -150,23 +173,23 @@ class FileUploadHandler(APIHandler):
         temp_dir = self._temp_dirs[filename]["temp_dir"]
         file_path = os.path.join(notebook_dir, filename)
 
-        print(f"DEBUG: Reconstructing from {temp_dir} to {file_path}")
-
         try:
-            # Reconstruct the file from chunks
-            with open(file_path, "wb") as final_file:
-                for i in range(1, total_chunks + 1):
-                    chunk_filename = os.path.join(temp_dir, f"chunk_{i}")
-                    print(f"DEBUG: Reading chunk {i} from {chunk_filename}")
-                    with open(chunk_filename, "rb") as chunk_file:
-                        chunk_data = chunk_file.read()
-                        final_file.write(chunk_data)
-                        print(f"DEBUG: Wrote {len(chunk_data)} bytes from chunk {i}")
+            # First, read all chunks to check total file size for images
+            all_file_data = b""
+            for i in range(1, total_chunks + 1):
+                chunk_filename = os.path.join(temp_dir, f"chunk_{i}")
+                with open(chunk_filename, "rb") as chunk_file:
+                    chunk_data = chunk_file.read()
+                    all_file_data += chunk_data
 
-            print(f"DEBUG: Successfully reconstructed {filename}")
+            # Check image file size limit before saving
+            _check_image_size_limit(all_file_data, filename)
+
+            # Write the complete file
+            with open(file_path, "wb") as final_file:
+                final_file.write(all_file_data)
         finally:
             # Clean up the temporary directory
-            print(f"DEBUG: Cleaning up temp dir for {filename}")
             self._cleanup_temp_dir(filename)
 
     def _cleanup_temp_dir(self, filename: str) -> None:

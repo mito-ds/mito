@@ -197,7 +197,6 @@ const AttachFileButton: React.FC<AttachFileButtonProps> = ({ onFileUploaded, not
                 autoClose: 5 * 1000 // 5 seconds
             });
             console.error('Upload failed:', resp.error.message);
-            throw new Error(resp.error.message);
         } else if (resp.data) {
             console.log('File uploaded successfully:', resp.data);
 

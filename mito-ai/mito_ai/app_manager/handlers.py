@@ -17,6 +17,7 @@ from mito_ai.app_manager.models import (
 )
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 from mito_ai.logger import get_logger
+from mito_ai.app_manager.utils import convert_utc_to_local_time
 import requests
 
 
@@ -101,6 +102,10 @@ class AppManagerHandler(BaseWebSocketHandler):
             manage_apps_response.raise_for_status()
 
             apps_data = manage_apps_response.json()
+
+            for app in apps_data:
+                if 'last_deployed_at' in app:
+                    app['last_deployed_at'] = convert_utc_to_local_time(app['last_deployed_at'])
 
             # Create successful response
             reply = ManageAppReply(
