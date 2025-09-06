@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-export interface IAppBuilderRequest {
+export interface IAppDeployRequest {
   /**
    * The type of the message.
    */
@@ -14,8 +14,8 @@ export interface IAppBuilderRequest {
   message_id: string;
 }
 
-export interface IBuildAppRequest extends IAppBuilderRequest {
-  type: 'build-app'
+export interface IDeployAppRequest extends IAppDeployRequest {
+  type: 'deploy-app'
   notebook_path: string
   jwt_token?: string
 }
@@ -23,7 +23,7 @@ export interface IBuildAppRequest extends IAppBuilderRequest {
 /**
  * Completion error type.
  */
-export type AppBuilderError = {
+export type AppDeployError = {
   /**
    * The type of the error.
    */
@@ -45,11 +45,11 @@ export type AppBuilderError = {
 /**
  * Response for fetching chat threads.
  */
-export interface IBuildAppReply {
+export interface IDeployAppReply {
   /**
    * The type of the message.
    */
-  type: 'build-app';
+  type: 'deploy-app';
 
   /**
    * The parent message ID.
@@ -64,5 +64,5 @@ export interface IBuildAppReply {
   /**
    * Error information.
    */
-  error?: AppBuilderError;
+  error?: AppDeployError;
 }

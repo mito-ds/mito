@@ -6,7 +6,7 @@
 // list-apps-api.ts - Backend API function
 
 import { IManageAppReply, IManageAppRequest } from '../../websockets/appManager/appManagerModels';
-import { getJWTToken } from '../AppBuilder/auth';
+import { getJWTToken } from '../AppDeploy/auth';
 
 // Import the actual service interface from the plugin
 import { IAppManagerService } from './ManageAppsPlugin';

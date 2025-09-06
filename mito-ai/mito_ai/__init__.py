@@ -5,7 +5,7 @@ from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
 from mito_ai.completions.providers import OpenAIProvider
-from mito_ai.app_builder.handlers import AppBuilderHandler
+from mito_ai.app_deploy.handlers import AppDeployHandler
 from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
 from mito_ai.log.urls import get_log_urls
 from mito_ai.version_check import VersionCheckHandler
@@ -71,8 +71,8 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             {"llm": open_ai_provider},
         ),
         (
-            url_path_join(base_url, "mito-ai", "app-builder"),
-            AppBuilderHandler,
+            url_path_join(base_url, "mito-ai", "app-deploy"),
+            AppDeployHandler,
             {}
         ),
         (

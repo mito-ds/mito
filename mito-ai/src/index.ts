@@ -7,8 +7,8 @@ import AiChatPlugin from './Extensions/AiChat/AiChatPlugin';
 import ContextManagerPlugin from './Extensions/ContextManager/ContextManagerPlugin';
 import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRendererPlugin';
 import ToolbarButtonsPlugin from './Extensions/ToolbarButtons/ToolbarButtonsPlugin';
-import AppBuilderPlugin from './Extensions/AppBuilder/AppBuilderPlugin';
-import StreamlitPreviewPlugin from './Extensions/StreamlitPreview/StreamlitPreviewPlugin';
+import AppDeployPlugin from './Extensions/AppDeploy/AppDeployPlugin';
+import StreamlitPreviewPlugin from './Extensions/AppPreview/StreamlitPreviewPlugin';
 import { emptyCellPlaceholder } from './Extensions/emptyCell/EmptyCellPlugin';
 import { statusItem } from './Extensions/status';
 import SettingsManagerPlugin from './Extensions/SettingsManager/SettingsManagerPlugin';
@@ -22,7 +22,7 @@ export default [
   AiChatPlugin,
   ErrorMimeRendererPlugin,
   ContextManagerPlugin,
-  AppBuilderPlugin,
+  AppDeployPlugin,
   StreamlitPreviewPlugin,
   ToolbarButtonsPlugin,
   emptyCellPlaceholder,

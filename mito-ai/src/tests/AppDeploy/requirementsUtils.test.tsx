@@ -4,7 +4,7 @@
  */
 
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { generateRequirementsTxt } from '../../Extensions/AppBuilder/requirementsUtils';
+import { generateRequirementsTxt } from '../../Extensions/AppDeploy/requirementsUtils';
 
 // Mock the dependencies
 jest.mock('@jupyterlab/notebook');
