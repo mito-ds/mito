@@ -4,7 +4,6 @@
  */
 
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { PathExt } from '@jupyterlab/coreutils';
 import { Notification } from '@jupyterlab/apputils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
@@ -17,9 +16,10 @@ import { showAuthenticationPopup } from './authPopupUtils';
 
 
 /* 
-This function generates a requirements.txt file that lists the dependencies for the streamlit app
+This function generates the requirements.txt file needed to host the streamlit app, 
+and deploys it! 
 */
-export const convertNotebookToStreamlit = async (
+export const deployStreamlitApp = async (
   notebookTracker: INotebookTracker,
   appBuilderService: IAppBuilderService,
 ): Promise<void> => {
@@ -46,7 +46,6 @@ export const convertNotebookToStreamlit = async (
     }
   }
 
-
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
     console.error('No notebook is currently active');
@@ -54,13 +53,8 @@ export const convertNotebookToStreamlit = async (
   }
 
   const notebookPath = notebookPanel.context.path;
-  const notebookName = PathExt.basename(notebookPath, '.ipynb');
-  console.log('Notebook path:', notebookPath);
-  console.log('Notebook name:', notebookName);
-  console.log('Current working directory info:', notebookPanel.context);
 
   // Build the requirements.txt file
-  console.debug("Building requirements.txt file")
   const requirementsContent = await generateRequirementsTxt(notebookTracker);
 
   // Save the files to the current directory

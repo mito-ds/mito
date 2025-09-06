@@ -4,7 +4,7 @@
  */
 
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { convertNotebookToStreamlit } from '../../Extensions/AppBuilder/NotebookToStreamlit';
+import { deployStreamlitApp } from '../../Extensions/AppBuilder/NotebookToStreamlit';
 import { saveFileWithKernel } from '../../Extensions/AppBuilder/fileUtils';
 import { getJWTToken } from '../../Extensions/AppBuilder/auth';
 import { deployAppNotification } from '../../Extensions/AppBuilder/DeployAppNotification';
@@ -100,7 +100,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
     test('should proceed when JWT token is available', async () => {
         (getJWTToken as jest.Mock).mockResolvedValue('test-jwt-token');
 
-        await convertNotebookToStreamlit(mockNotebookTracker, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTracker, mockAppBuilderService);
 
         expect(getJWTToken).toHaveBeenCalled();
         expect(saveFileWithKernel).toHaveBeenCalled();
@@ -112,7 +112,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             .mockResolvedValueOnce('test-jwt-token'); // Second call returns token
         (showAuthenticationPopup as jest.Mock).mockResolvedValue({ userId: 'test-user' });
 
-        await convertNotebookToStreamlit(mockNotebookTracker, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTracker, mockAppBuilderService);
 
         expect(showAuthenticationPopup).toHaveBeenCalled();
         expect(getJWTToken).toHaveBeenCalledTimes(2);
@@ -123,7 +123,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
         (getJWTToken as jest.Mock).mockResolvedValue('');
         (showAuthenticationPopup as jest.Mock).mockRejectedValue(new Error('Auth failed'));
 
-        await convertNotebookToStreamlit(mockNotebookTracker, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTracker, mockAppBuilderService);
 
         expect(showAuthenticationPopup).toHaveBeenCalled();
         // Function returns early when authentication fails, so no deployment
@@ -137,7 +137,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             .mockResolvedValueOnce(''); // Second call also returns empty string
         (showAuthenticationPopup as jest.Mock).mockResolvedValue({ userId: 'test-user' });
 
-        await convertNotebookToStreamlit(mockNotebookTracker, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTracker, mockAppBuilderService);
 
         expect(showAuthenticationPopup).toHaveBeenCalled();
         expect(getJWTToken).toHaveBeenCalledTimes(2);
@@ -149,7 +149,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
     test('should proceed with deployment when authentication is successful', async () => {
         (getJWTToken as jest.Mock).mockResolvedValue('test-jwt-token');
 
-        await convertNotebookToStreamlit(mockNotebookTracker, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTracker, mockAppBuilderService);
 
         expect(mockAppBuilderService.client.sendMessage).toHaveBeenCalledWith({
             type: 'build-app',
@@ -163,7 +163,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
         (getJWTToken as jest.Mock).mockResolvedValue('test-jwt-token');
         mockAppBuilderService.client.sendMessage.mockRejectedValue(new Error('Deployment failed'));
 
-        await convertNotebookToStreamlit(mockNotebookTracker, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTracker, mockAppBuilderService);
 
         expect(console.error).toHaveBeenCalledWith('Error deploying app:', expect.any(Error));
     });
@@ -174,7 +174,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             url: 'https://test-app.streamlit.app'
         });
 
-        await convertNotebookToStreamlit(mockNotebookTracker, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTracker, mockAppBuilderService);
 
         expect(deployAppNotification).toHaveBeenCalledWith('https://test-app.streamlit.app');
     });
@@ -188,7 +188,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             }
         });
 
-        await convertNotebookToStreamlit(mockNotebookTracker, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTracker, mockAppBuilderService);
 
         expect(deployAppNotification).not.toHaveBeenCalled();
     });
@@ -199,7 +199,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             currentWidget: null
         } as any;
 
-        await convertNotebookToStreamlit(mockNotebookTrackerNoWidget, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTrackerNoWidget, mockAppBuilderService);
 
         expect(console.error).toHaveBeenCalledWith('No notebook is currently active');
         expect(saveFileWithKernel).not.toHaveBeenCalled();
@@ -211,7 +211,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             .mockResolvedValueOnce(''); // Second call also returns empty string
         (showAuthenticationPopup as jest.Mock).mockRejectedValue(new Error('Auth failed'));
 
-        await convertNotebookToStreamlit(mockNotebookTracker, mockAppBuilderService);
+        await deployStreamlitApp(mockNotebookTracker, mockAppBuilderService);
 
         // Function returns early when authentication fails, so no deployment
         expect(saveFileWithKernel).not.toHaveBeenCalled();

@@ -11,7 +11,7 @@ import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
-import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
+import { deployStreamlitApp } from '../AppBuilder/NotebookToStreamlit';
 import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon } from '../../icons';
@@ -89,7 +89,8 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
 async function previewNotebookAsStreamlit(
   app: JupyterFrontEnd,
   notebookTracker: INotebookTracker,
-  appBuilderService: IAppBuilderService
+  appBuilderService: IAppBuilderService,
+  force_recreate: boolean = false
 ): Promise<void> {
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
@@ -111,7 +112,7 @@ async function previewNotebookAsStreamlit(
   );
 
   try {
-    const previewData = await startStreamlitPreview(notebookPath);
+    const previewData = await startStreamlitPreview(notebookPath, force_recreate);
 
     // Create iframe widget
     const iframeWidget = new IFrameWidget(previewData.url);
@@ -125,7 +126,7 @@ async function previewNotebookAsStreamlit(
     const deployButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: (): void => {
-        void convertNotebookToStreamlit(notebookTracker, appBuilderService);
+        void deployStreamlitApp(notebookTracker, appBuilderService);
       },
       tooltip: 'Deploy Streamlit App',
       label: 'Deploy App',
@@ -133,8 +134,20 @@ async function previewNotebookAsStreamlit(
       iconClass: 'mito-ai-deploy-icon'
     });
 
+    // Add toolbar button to the MainAreaWidget's toolbar
+    const refreshButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+      onClick: (): void => {
+        void previewNotebookAsStreamlit(app, notebookTracker, appBuilderService, true);
+      },
+      tooltip: 'Refresh Streamlit App',
+      label: 'Refresh App',
+      icon: DeployLabIcon,
+      iconClass: 'mito-ai-deploy-icon'
+    });
     
     // Insert the button into the toolbar
+    widget.toolbar.insertAfter('spacer', 'refresh-app-button', refreshButton);
     widget.toolbar.insertAfter('spacer', 'deploy-app-button', deployButton);
 
     // Handle widget disposal
