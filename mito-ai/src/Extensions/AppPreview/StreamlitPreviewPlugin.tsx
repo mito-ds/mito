@@ -90,7 +90,6 @@ async function previewNotebookAsStreamlit(
   app: JupyterFrontEnd,
   notebookTracker: INotebookTracker,
   appDeployService: IAppDeployService,
-  force_recreate: boolean = false
 ): Promise<void> {
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
@@ -112,7 +111,7 @@ async function previewNotebookAsStreamlit(
   );
 
   try {
-    const previewData = await startStreamlitPreview(notebookPath, force_recreate);
+    const previewData = await startStreamlitPreview(notebookPath);
 
     // Create iframe widget
     const iframeWidget = new IFrameWidget(previewData.url);
@@ -138,7 +137,7 @@ async function previewNotebookAsStreamlit(
     const refreshButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: (): void => {
-        void previewNotebookAsStreamlit(app, notebookTracker, appDeployService, true);
+        void startStreamlitPreview(notebookPath, true);
       },
       tooltip: 'Refresh Streamlit App',
       label: 'Refresh App',
