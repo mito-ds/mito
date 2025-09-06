@@ -114,6 +114,10 @@ async function previewNotebookAsStreamlit(
     const previewData = await startStreamlitPreview(notebookPath);
 
     // Create iframe widget
+    // TODO: Instead of having this widget creation code in the previewNotebookAsStreamlit function, 
+    // I wonder if we can make it part of the StreamlitPreviewPlugin. What we want is the following: 
+    // a react component that takes the app, notebookTracker, and appDeployService as a prop and is 
+    // already set up with this layout. Each time it opens, we're just deciding which notebook to display.
     const iframeWidget = new IFrameWidget(previewData.url);
 
     // Create main area widget
