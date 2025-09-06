@@ -7,6 +7,7 @@ import logging
 from typing import Any, Union, Optional
 import zipfile
 import tempfile
+from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
@@ -150,14 +151,22 @@ class AppBuilderHandler(BaseWebSocketHandler):
             notebook_path = str(notebook_path) if notebook_path else ""
 
             app_directory = os.path.dirname(notebook_path)
-            app_path = os.path.join(app_directory, "app.py")
-
-            # I think we can remove this part
-            if not os.path.exists(app_path):
-                success_flag, app_path_result, result_message = await streamlit_handler(notebook_path)
-                if not success_flag or app_path_result is None:
-                    raise Exception(result_message)
-
+            
+            # Check if the app.py file exists
+            app_path = get_app_path(app_directory)
+            if app_path is None:
+                error = AppBuilderError(
+                    error_type="AppNotFound",
+                    title="App not found",
+                    hint="Please make sure the app.py file exists in the same directory as the notebook."
+                )
+                self.reply(BuildAppReply(
+                    parent_id=message_id,
+                    url="",
+                    error=error
+                ))
+                
+            # Finally, deploy the app
             deploy_url = await self._deploy_app(app_directory, jwt_token)
 
             # Send the response

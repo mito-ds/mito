@@ -11,7 +11,7 @@ import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
-import { deployStreamlitApp } from '../AppBuilder/NotebookToStreamlit';
+import { deployStreamlitApp } from '../AppBuilder/DeployStreamlitApp';
 import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon } from '../../icons';

@@ -4,7 +4,7 @@
  */
 
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { deployStreamlitApp } from '../../Extensions/AppBuilder/NotebookToStreamlit';
+import { deployStreamlitApp } from '../../Extensions/AppBuilder/DeployStreamlitApp';
 import { saveFileWithKernel } from '../../Extensions/AppBuilder/fileUtils';
 import { getJWTToken } from '../../Extensions/AppBuilder/auth';
 import { deployAppNotification } from '../../Extensions/AppBuilder/DeployAppNotification';
