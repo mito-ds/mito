@@ -5,7 +5,7 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { Token } from '@lumino/coreutils';
-import { AppDeployWebsocketClient } from '../../websockets/appDeploy/AppDeployWebsocketClient';
+import { AppDeployWebsocketClient } from '../../websockets/appDeploy/appDeployWebsocketClient';
 
 /**
  * The token for the AppDeploy service.
