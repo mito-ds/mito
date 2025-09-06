@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import threading
 import requests
+import json
 from unittest.mock import Mock, patch, MagicMock
 from typing import Any
 
@@ -17,6 +18,8 @@ from mito_ai.streamlit_preview.manager import (
     PreviewProcess, 
     get_preview_manager
 )
+from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
+from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 
 
 class TestStreamlitPreviewManager:
@@ -299,4 +302,4 @@ st.write("Hello, World!")
             # Verify they're gone
             for preview_id in preview_ids:
                 assert manager.get_preview(preview_id) is None
-    
+
