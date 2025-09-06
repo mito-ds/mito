@@ -58,6 +58,7 @@ class AppDeployHandler(BaseWebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
+        
         start = time.time()
         
         # Convert bytes to string if needed
@@ -110,7 +111,7 @@ class AppDeployHandler(BaseWebSocketHandler):
         message_id = message.message_id
         notebook_path = message.notebook_path
         jwt_token = message.jwt_token
-
+        
         if not message_id:
             self.log.error("Missing message_id in request")
             return
@@ -165,7 +166,7 @@ class AppDeployHandler(BaseWebSocketHandler):
                     url="",
                     error=error
                 ))
-                
+            
             # Finally, deploy the app
             deploy_url = await self._deploy_app(app_directory, jwt_token)
 
