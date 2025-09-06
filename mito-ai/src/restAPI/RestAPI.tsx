@@ -24,7 +24,7 @@ export const logEvent = async (logEvent: string, params?: Record<string, any>): 
 }
 
 
-import { StreamlitPreviewResponse } from "../Extensions/StreamlitPreview/StreamlitPreviewPlugin";
+import { StreamlitPreviewResponse } from "../Extensions/AppPreview/StreamlitPreviewPlugin";
 /************************************
 
 SETTINGS ENDPOINTS

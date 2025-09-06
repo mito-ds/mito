@@ -5,22 +5,22 @@
 
 import { type IStream } from '@lumino/signaling';
 import type {
-  IBuildAppReply,
-  IAppBuilderRequest
-} from './appBuilderModels';
+  IDeployAppReply,
+  IAppDeployRequest
+} from './appDeployModels';
 import { BaseWebsocketClient, IBaseWebsocketClientOptions } from '../BaseWebsocketClient';
 
 /**
  * The instantiation options for the app builder client.
  */
-export interface IAppBuilderWebsocketClientOptions extends IBaseWebsocketClientOptions {}
+export interface IAppDeployWebsocketClientOptions extends IBaseWebsocketClientOptions {}
 
 /**
  * Mito AI app builder client
  *
  * It communicates with the backend over a WebSocket for app building functionality.
  */
-export class AppBuilderWebsocketClient extends BaseWebsocketClient<IAppBuilderRequest, IBuildAppReply> {
+export class AppDeployWebsocketClient extends BaseWebsocketClient<IAppDeployRequest, IDeployAppReply> {
   /**
    * The service URL for the websocket endpoint.
    */
@@ -29,35 +29,35 @@ export class AppBuilderWebsocketClient extends BaseWebsocketClient<IAppBuilderRe
   /**
    * Create a new app builder client.
    */
-  constructor(options: IAppBuilderWebsocketClientOptions = {}) {
+  constructor(options: IAppDeployWebsocketClientOptions = {}) {
     super(options);
   }
 
   /**
    * App builder messages stream.
    */
-  get messages(): IStream<AppBuilderWebsocketClient, IBuildAppReply> {
-    return this._messages as unknown as IStream<AppBuilderWebsocketClient, IBuildAppReply>;
+  get messages(): IStream<AppDeployWebsocketClient, IDeployAppReply> {
+    return this._messages as unknown as IStream<AppDeployWebsocketClient, IDeployAppReply>;
   }
 
   /**
    * Stream of connection status events
    */
-  get connectionStatus(): IStream<AppBuilderWebsocketClient, 'connected' | 'disconnected'> {
-    return this._connectionStatus as unknown as IStream<AppBuilderWebsocketClient, 'connected' | 'disconnected'>;
+  get connectionStatus(): IStream<AppDeployWebsocketClient, 'connected' | 'disconnected'> {
+    return this._connectionStatus as unknown as IStream<AppDeployWebsocketClient, 'connected' | 'disconnected'>;
   }
 
   /**
    * Extract the message ID from a request message.
    */
-  protected getMessageId(message: IAppBuilderRequest): string {
+  protected getMessageId(message: IAppDeployRequest): string {
     return message.message_id;
   }
 
   /**
    * Process a message received from the websocket.
    */
-  protected _onMessage(message: IBuildAppReply): void {
+  protected _onMessage(message: IDeployAppReply): void {
     /**
      * Emit unconditionally the message to interested parties.
      */

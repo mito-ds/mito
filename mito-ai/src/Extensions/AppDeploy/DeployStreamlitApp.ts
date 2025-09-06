@@ -7,10 +7,10 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { Notification } from '@jupyterlab/apputils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
-import { IAppBuilderService } from './AppBuilderPlugin';
+import { IAppDeployService } from './AppDeployPlugin';
 import { UUID } from '@lumino/coreutils';
 import { deployAppNotification } from './DeployAppNotification';
-import { IBuildAppReply, IBuildAppRequest } from '../../websockets/appBuilder/appBuilderModels';
+import { IDeployAppReply, IDeployAppRequest } from '../../websockets/appDeploy/appDeployModels';
 import {getJWTToken } from './auth';
 import { showAuthenticationPopup } from './authPopupUtils';
 
@@ -21,7 +21,7 @@ and deploys it!
 */
 export const deployStreamlitApp = async (
   notebookTracker: INotebookTracker,
-  appBuilderService: IAppBuilderService,
+  appDeployService: IAppDeployService,
 ): Promise<void> => {
 
   let jwtToken = await getJWTToken();
@@ -65,8 +65,8 @@ export const deployStreamlitApp = async (
     console.log("Sending request to deploy the app");
     
     // Use the JWT token that was already obtained or refreshed above
-    const response: IBuildAppReply = await appBuilderService.client.sendMessage<IBuildAppRequest, IBuildAppReply>({
-      type: 'build-app',
+    const response: IDeployAppReply = await appDeployService.client.sendMessage<IDeployAppRequest, IDeployAppReply>({
+      type: 'deploy-app',
       message_id: UUID.uuid4(),
       notebook_path: notebookPath,
       jwt_token: jwtToken

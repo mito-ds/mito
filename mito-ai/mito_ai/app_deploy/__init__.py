@@ -3,4 +3,4 @@
 
 """App builder module for Mito AI."""
 
-from .handlers import AppBuilderHandler 
+from .handlers import AppDeployHandler 

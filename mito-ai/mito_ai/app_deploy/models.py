@@ -7,13 +7,13 @@ from typing import Literal, Optional
 
 
 class MessageType(str, Enum):
-    """Types of app builder messages."""
-    BUILD_APP = "build-app"
+    """Types of app deploy messages."""
+    DEPLOY_APP = "deploy-app"
 
 
 @dataclass(frozen=True)
-class AppBuilderError:
-    """Error information for app builder operations."""
+class AppDeployError:
+    """Error information for app deploy operations."""
     
     # Error type.
     error_type: str
@@ -28,7 +28,7 @@ class AppBuilderError:
     hint: Optional[str] = None
     
     @classmethod
-    def from_exception(cls, e: Exception, hint: Optional[str] = None) -> "AppBuilderError":
+    def from_exception(cls, e: Exception, hint: Optional[str] = None) -> "AppDeployError":
         """Create an error from an exception.
 
         Args:
@@ -47,7 +47,7 @@ class AppBuilderError:
 
 
 @dataclass(frozen=True)
-class ErrorMessage(AppBuilderError):
+class ErrorMessage(AppDeployError):
     """Error message."""
     
     # Message type.
@@ -55,11 +55,11 @@ class ErrorMessage(AppBuilderError):
 
 
 @dataclass(frozen=True)
-class BuildAppRequest:
-    """Request to build an app."""
+class DeployAppRequest:
+    """Request to deploy an app."""
     
     # Request type.
-    type: Literal["build-app"]
+    type: Literal["deploy-app"]
     
     # Message ID.
     message_id: str
@@ -72,8 +72,8 @@ class BuildAppRequest:
 
 
 @dataclass(frozen=True)
-class BuildAppReply:
-    """Reply to a build app request."""
+class DeployAppReply:
+    """Reply to a deplpy app request."""
     
     # ID of the request message this is replying to.
     parent_id: str
@@ -82,7 +82,7 @@ class BuildAppReply:
     url: str
     
     # Optional error information.
-    error: Optional[AppBuilderError] = None
+    error: Optional[AppDeployError] = None
     
     # Type of reply.
-    type: Literal["build-app"] = "build-app" 
+    type: Literal["deploy-app"] = "deploy-app" 
