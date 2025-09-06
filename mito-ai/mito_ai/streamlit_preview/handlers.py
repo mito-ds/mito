@@ -4,6 +4,7 @@
 import os
 import tempfile
 import uuid
+from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
@@ -109,14 +110,16 @@ class StreamlitPreviewHandler(APIHandler):
             # Generate preview ID
             preview_id = str(uuid.uuid4())
             
-            # Generate streamlit code using existing handler
-            print('notebook_path', notebook_path)
-            success, app_path, message = await streamlit_handler(resolved_notebook_path)
-            
-            if not success or app_path is None:
-                self.set_status(500)
-                self.finish({"error": f'Failed to generate streamlit code: {message}'})
-                return
+            # Check if the app already exists 
+            app_path = get_app_path(os.path.dirname(resolved_notebook_path))
+            if app_path is None:
+                print('[Mito AI] App path not found, generating streamlit code')
+                success, app_path, message = await streamlit_handler(resolved_notebook_path)
+                
+                if not success or app_path is None:
+                    self.set_status(500)
+                    self.finish({"error": f'Failed to generate streamlit code: {message}'})
+                    return
             
             # Start streamlit preview
             resolved_app_directory = os.path.dirname(resolved_notebook_path)

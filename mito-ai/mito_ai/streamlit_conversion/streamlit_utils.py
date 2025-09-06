@@ -60,7 +60,17 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
         return False, '', f"Error creating file: {str(e)}"
     except Exception as e:
         return False, '', f"Unexpected error: {str(e)}"
+    
 
+def get_app_path(app_directory: str) -> Optional[str]:
+    """
+    Check if the app.py file exists in the given directory.
+    """
+    app_path = os.path.join(app_directory, "app.py")
+    if not os.path.exists(app_path):
+        return None
+    return app_path
+    
 
 def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict[str, Any]:
     """
