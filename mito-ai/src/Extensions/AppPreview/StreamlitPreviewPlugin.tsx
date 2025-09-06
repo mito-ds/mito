@@ -10,12 +10,13 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
-import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
+import { stopStreamlitPreview } from '../../restAPI/RestAPI';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
+import { startStreamlitPreviewAndNotify } from './utils';
 
 /**
  * Interface for the streamlit preview response.
@@ -103,15 +104,11 @@ async function previewNotebookAsStreamlit(
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
 
-  // Show building notification
-  const notificationId = Notification.emit(
-    'Building App Preview...',
-    'in-progress',
-    { autoClose: false }
-  );
+  let globalNotificationId: string | undefined;
 
   try {
-    const previewData = await startStreamlitPreview(notebookPath);
+    const { previewData, notificationId } = await startStreamlitPreviewAndNotify(notebookPath);
+    globalNotificationId = notificationId;
 
     // Create iframe widget
     // TODO: Instead of having this widget creation code in the previewNotebookAsStreamlit function, 
@@ -141,7 +138,7 @@ async function previewNotebookAsStreamlit(
     const refreshButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: (): void => {
-        void startStreamlitPreview(notebookPath, true);
+        void startStreamlitPreviewAndNotify(notebookPath, true);
       },
       tooltip: 'Refresh Streamlit App',
       label: 'Refresh App',
@@ -165,24 +162,18 @@ async function previewNotebookAsStreamlit(
       ref: notebookPanel.id
     });
 
-    // Update notification to success
-    Notification.update({
-      id: notificationId,
-      message: 'Streamlit preview started successfully!',
-      type: 'default',
-      autoClose: false
-    });
-
   } catch (error) {
     console.error('Error starting streamlit preview:', error);
     
     // Update notification to error
-    Notification.update({
-      id: notificationId,
-      message: `Failed to start preview: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      type: 'error',
-      autoClose: false
-    });
+    if (globalNotificationId) {
+      Notification.update({
+        id: globalNotificationId,
+        message: `Failed to start preview: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        type: 'error',
+        autoClose: false
+      });
+    }
   }
 }
 
