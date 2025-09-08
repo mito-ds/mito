@@ -10,6 +10,7 @@ import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, get
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
+import { validateAndCorrectAgentResponse } from "./validationUtils";
 
 export type PromptType = 
     'chat' | 
@@ -75,6 +76,12 @@ export class ChatHistoryManager {
     private initializeAssumptionsFromHistory(): void {
         this._allAssumptions.clear();
         this.displayOptimizedChatHistory.forEach(item => {
+            // Validate the agent response if it exists
+            if (item.agentResponse !== undefined) {
+                item.agentResponse = validateAndCorrectAgentResponse(item.agentResponse)
+            }
+
+            // Process the assumptions
             if (item.agentResponse?.analysis_assumptions) {
                 item.agentResponse.analysis_assumptions.forEach(assumption => {
                     this._allAssumptions.add(assumption);
@@ -205,11 +212,6 @@ export class ChatHistoryManager {
 
         return agentExecutionMetadata
     }
-
-    dropMessagesStartingAtIndex(index: number): void {
-        this.displayOptimizedChatHistory.splice(index)
-    }
-
 
     addSmartDebugMessage(activeThreadId: string, errorMessage: string): ISmartDebugMetadata {
     
@@ -351,6 +353,7 @@ export class ChatHistoryManager {
     }
 
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
+        agentResponse = validateAndCorrectAgentResponse(agentResponse)
         let content = agentResponse.message
         if (agentResponse.type === 'cell_update') {
             // For cell_update messages, we want to display the code the agent wrote along with 
@@ -402,6 +405,10 @@ export class ChatHistoryManager {
         }
 
         return this.displayOptimizedChatHistory[lastAIMessagesIndex]
+    }
+
+    dropMessagesStartingAtIndex(index: number): void {
+        this.displayOptimizedChatHistory.splice(index)
     }
 }
 
