@@ -12,7 +12,6 @@ interface ChatDropdownProps {
     options: ExpandedVariable[];
     onSelect: (option: ChatDropdownOption) => void;
     filterText: string;
-    maxDropdownItems?: number;
     position?: 'above' | 'below';
     isDropdownFromButton?: boolean;
     onFilterChange?: (filterText: string) => void;
@@ -66,7 +65,6 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     options,
     onSelect,
     filterText,
-    maxDropdownItems = 10,
     isDropdownFromButton = false,
     onFilterChange,
     onClose,
@@ -151,7 +149,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
             })),
     ];
 
-    const searchFilteredOptions = allOptions.filter((option) => {
+    let searchFilteredOptions = allOptions.filter((option) => {
         if (option.type === 'variable') {
             return option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) &&
                 option.variable.type !== "<class 'module'>" &&
@@ -168,9 +166,9 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
 
     // If user is searching (has filter text), show all matches
     // Otherwise, show only 3 of each type by default
-    const filteredOptions = effectiveFilterText.trim() === ''
-        ? limitOptionsByType(searchFilteredOptions, 3)
-        : searchFilteredOptions.slice(0, maxDropdownItems);
+    if (effectiveFilterText.trim() === '') { 
+        searchFilteredOptions = limitOptionsByType(searchFilteredOptions, 3);
+    }
 
     useEffect(() => {
         setSelectedIndex(0);
@@ -182,21 +180,21 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
             case 'Down':
                 event.preventDefault();
                 setSelectedIndex((prev) =>
-                    prev < filteredOptions.length - 1 ? prev + 1 : 0
+                    prev < searchFilteredOptions.length - 1 ? prev + 1 : 0
                 );
                 break;
             case 'ArrowUp':
             case 'Up':
                 event.preventDefault();
                 setSelectedIndex((prev) =>
-                    prev > 0 ? prev - 1 : filteredOptions.length - 1
+                    prev > 0 ? prev - 1 : searchFilteredOptions.length - 1
                 );
                 break;
             case 'Enter':
             case 'Return':
             case 'Tab': {
                 event.preventDefault();
-                const selectedOption = filteredOptions[selectedIndex];
+                const selectedOption = searchFilteredOptions[selectedIndex];
                 if (selectedOption !== undefined) {
                     if (selectedOption.type === 'variable') {
                         onSelect(selectedOption);
@@ -212,7 +210,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     useEffect(() => {
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [filteredOptions, selectedIndex]);
+    }, [searchFilteredOptions, selectedIndex]);
 
     // Handle click outside to close dropdown
     useEffect(() => {
@@ -268,11 +266,11 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                 </div>
             )}
             <ul className="chat-dropdown-list" data-testid="chat-dropdown-list">
-                {filteredOptions.length === 0 && (
+                {searchFilteredOptions.length === 0 && (
                     <li className="chat-dropdown-item" data-testid="chat-dropdown-empty-item">No variables found</li>
                 )}
 
-                {filteredOptions.map((option, index) => {
+                {searchFilteredOptions.map((option, index) => {
                     switch (option.type) {
                         case 'variable': {
                             const uniqueKey = option.variable.parent_df
