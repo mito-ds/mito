@@ -76,6 +76,12 @@ export class ChatHistoryManager {
     private initializeAssumptionsFromHistory(): void {
         this._allAssumptions.clear();
         this.displayOptimizedChatHistory.forEach(item => {
+            // Validate the agent response if it exists
+            if (item.agentResponse !== undefined) {
+                item.agentResponse = validateAndCorrectAgentResponse(item.agentResponse)
+            }
+
+            // Process the assumptions
             if (item.agentResponse?.analysis_assumptions) {
                 item.agentResponse.analysis_assumptions.forEach(assumption => {
                     this._allAssumptions.add(assumption);
