@@ -140,8 +140,8 @@ async function previewNotebookAsStreamlit(
       onClick: (): void => {
         void startStreamlitPreviewAndNotify(notebookPath, true);
       },
-      tooltip: 'Refresh Streamlit App',
-      label: 'Refresh App',
+      tooltip: 'Rebuild Streamlit App',
+      label: 'Rebuild App',
       icon: DeployLabIcon,
       iconClass: 'mito-ai-deploy-icon'
     });
