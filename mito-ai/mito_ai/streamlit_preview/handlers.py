@@ -97,6 +97,9 @@ class StreamlitPreviewHandler(APIHandler):
                 return
 
             # Start preview
+            # TODO: There's a bug here where when the user rebuilds and already running app. Instead of 
+            # creating a new process, we should update the existing process. The app displayed to the user 
+            # does update, but that's just because of hot reloading when we overwrite the app.py file. 
             preview_id = str(uuid.uuid4())
             resolved_app_directory = os.path.dirname(resolved_notebook_path)
             success, message, port = self.preview_manager.start_streamlit_preview(resolved_app_directory, preview_id)
