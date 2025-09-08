@@ -4,24 +4,24 @@
  */
 
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { PathExt } from '@jupyterlab/coreutils';
 import { Notification } from '@jupyterlab/apputils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
-import { IAppBuilderService } from './AppBuilderPlugin';
+import { IAppDeployService } from './AppDeployPlugin';
 import { UUID } from '@lumino/coreutils';
 import { deployAppNotification } from './DeployAppNotification';
-import { IBuildAppReply, IBuildAppRequest } from '../../websockets/appBuilder/appBuilderModels';
+import { IDeployAppReply, IDeployAppRequest } from '../../websockets/appDeploy/appDeployModels';
 import {getJWTToken } from './auth';
 import { showAuthenticationPopup } from './authPopupUtils';
 
 
 /* 
-This function generates a requirements.txt file that lists the dependencies for the streamlit app
+This function generates the requirements.txt file needed to host the streamlit app, 
+and deploys it! 
 */
-export const convertNotebookToStreamlit = async (
+export const deployStreamlitApp = async (
   notebookTracker: INotebookTracker,
-  appBuilderService: IAppBuilderService,
+  appDeployService: IAppDeployService,
 ): Promise<void> => {
 
   let jwtToken = await getJWTToken();
@@ -46,7 +46,6 @@ export const convertNotebookToStreamlit = async (
     }
   }
 
-
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
     console.error('No notebook is currently active');
@@ -54,13 +53,8 @@ export const convertNotebookToStreamlit = async (
   }
 
   const notebookPath = notebookPanel.context.path;
-  const notebookName = PathExt.basename(notebookPath, '.ipynb');
-  console.log('Notebook path:', notebookPath);
-  console.log('Notebook name:', notebookName);
-  console.log('Current working directory info:', notebookPanel.context);
 
   // Build the requirements.txt file
-  console.debug("Building requirements.txt file")
   const requirementsContent = await generateRequirementsTxt(notebookTracker);
 
   // Save the files to the current directory
@@ -71,8 +65,8 @@ export const convertNotebookToStreamlit = async (
     console.log("Sending request to deploy the app");
     
     // Use the JWT token that was already obtained or refreshed above
-    const response: IBuildAppReply = await appBuilderService.client.sendMessage<IBuildAppRequest, IBuildAppReply>({
-      type: 'build-app',
+    const response: IDeployAppReply = await appDeployService.client.sendMessage<IDeployAppRequest, IDeployAppReply>({
+      type: 'deploy-app',
       message_id: UUID.uuid4(),
       notebook_path: notebookPath,
       jwt_token: jwtToken

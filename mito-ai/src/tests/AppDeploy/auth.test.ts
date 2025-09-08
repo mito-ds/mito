@@ -11,7 +11,7 @@ jest.mock('aws-amplify/auth', () => ({
 }));
 
 // Mock the aws-config module to avoid actual Amplify configuration
-jest.mock('../../Extensions/AppBuilder/aws-config', () => ({
+jest.mock('../../Extensions/AppDeploy/aws-config', () => ({
     configureAmplify: jest.fn(),
 }));
 
@@ -19,7 +19,7 @@ jest.mock('../../Extensions/AppBuilder/aws-config', () => ({
 import {
     getJWTToken,
     getAuthHeaders,
-} from '../../Extensions/AppBuilder/auth';
+} from '../../Extensions/AppDeploy/auth';
 
 describe('Authentication Utilities', () => {
     beforeEach(() => {

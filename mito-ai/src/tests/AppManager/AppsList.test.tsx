@@ -10,7 +10,7 @@ import { IAppManagerService } from '../../Extensions/AppManager/ManageAppsPlugin
 import { AppMetadata, GetAppsResponse } from '../../Extensions/AppManager/ListAppsAPI';
 
 // Mock the auth module
-jest.mock('../../Extensions/AppBuilder/auth', () => ({
+jest.mock('../../Extensions/AppDeploy/auth', () => ({
   logoutAndClearJWTTokens: jest.fn(),
   getJWTToken: jest.fn().mockResolvedValue('mock-jwt-token')
 }));

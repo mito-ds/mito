@@ -10,12 +10,13 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
-import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
-import { convertNotebookToStreamlit } from '../AppBuilder/NotebookToStreamlit';
-import { IAppBuilderService } from '../AppBuilder/AppBuilderPlugin';
+import { stopStreamlitPreview } from '../../restAPI/RestAPI';
+import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
+import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
+import { startStreamlitPreviewAndNotify } from './utils';
 
 /**
  * Interface for the streamlit preview response.
@@ -57,12 +58,12 @@ class IFrameWidget extends Widget {
 const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito-ai:streamlit-preview',
   autoStart: true,
-  requires: [INotebookTracker, ICommandPalette, IAppBuilderService],
+  requires: [INotebookTracker, ICommandPalette, IAppDeployService],
   activate: (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
     palette: ICommandPalette,
-    appBuilderService: IAppBuilderService
+    appDeployService: IAppDeployService
   ) => {
     console.log('mito-ai: StreamlitPreviewPlugin activated');
 
@@ -71,7 +72,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async () => {
-        await previewNotebookAsStreamlit(app, notebookTracker, appBuilderService);
+        await previewNotebookAsStreamlit(app, notebookTracker, appDeployService);
       }
     });
 
@@ -89,7 +90,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
 async function previewNotebookAsStreamlit(
   app: JupyterFrontEnd,
   notebookTracker: INotebookTracker,
-  appBuilderService: IAppBuilderService
+  appDeployService: IAppDeployService,
 ): Promise<void> {
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
@@ -103,17 +104,17 @@ async function previewNotebookAsStreamlit(
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
 
-  // Show building notification
-  const notificationId = Notification.emit(
-    'Building App Preview...',
-    'in-progress',
-    { autoClose: false }
-  );
+  let globalNotificationId: string | undefined;
 
   try {
-    const previewData = await startStreamlitPreview(notebookPath);
+    const { previewData, notificationId } = await startStreamlitPreviewAndNotify(notebookPath);
+    globalNotificationId = notificationId;
 
     // Create iframe widget
+    // TODO: Instead of having this widget creation code in the previewNotebookAsStreamlit function, 
+    // I wonder if we can make it part of the StreamlitPreviewPlugin. What we want is the following: 
+    // a react component that takes the app, notebookTracker, and appDeployService as a prop and is 
+    // already set up with this layout. Each time it opens, we're just deciding which notebook to display.
     const iframeWidget = new IFrameWidget(previewData.url);
 
     // Create main area widget
@@ -125,7 +126,7 @@ async function previewNotebookAsStreamlit(
     const deployButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: (): void => {
-        void convertNotebookToStreamlit(notebookTracker, appBuilderService);
+        void deployStreamlitApp(notebookTracker, appDeployService);
       },
       tooltip: 'Deploy Streamlit App',
       label: 'Deploy App',
@@ -133,8 +134,20 @@ async function previewNotebookAsStreamlit(
       iconClass: 'mito-ai-deploy-icon'
     });
 
+    // Add toolbar button to the MainAreaWidget's toolbar
+    const refreshButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+      onClick: (): void => {
+        void startStreamlitPreviewAndNotify(notebookPath, true);
+      },
+      tooltip: 'Rebuild Streamlit App',
+      label: 'Rebuild App',
+      icon: DeployLabIcon,
+      iconClass: 'mito-ai-deploy-icon'
+    });
     
     // Insert the button into the toolbar
+    widget.toolbar.insertAfter('spacer', 'refresh-app-button', refreshButton);
     widget.toolbar.insertAfter('spacer', 'deploy-app-button', deployButton);
 
     // Handle widget disposal
@@ -149,24 +162,18 @@ async function previewNotebookAsStreamlit(
       ref: notebookPanel.id
     });
 
-    // Update notification to success
-    Notification.update({
-      id: notificationId,
-      message: 'Streamlit preview started successfully!',
-      type: 'default',
-      autoClose: false
-    });
-
   } catch (error) {
     console.error('Error starting streamlit preview:', error);
     
     // Update notification to error
-    Notification.update({
-      id: notificationId,
-      message: `Failed to start preview: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      type: 'error',
-      autoClose: false
-    });
+    if (globalNotificationId) {
+      Notification.update({
+        id: globalNotificationId,
+        message: `Failed to start preview: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        type: 'error',
+        autoClose: false
+      });
+    }
   }
 }
 
