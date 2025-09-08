@@ -44,21 +44,29 @@ export type ChatDropdownOption =
     | ChatDropdownFileOption
     | ChatDropdownDatabaseOption;
 
-const limitOptionsByType = (options: ChatDropdownOption[], maxPerType: number): ChatDropdownOption[] => {
+const priortizeByType = (options: ChatDropdownOption[], maxPerType: number): ChatDropdownOption[] => {
+    /* 
+    Makes sure that some of each type are displayed at the top of the dropdown so 
+    users can easily see what types of options are available to them.
+    */
     const typeCounts: Record<string, number> = {};
-    const result: ChatDropdownOption[] = [];
+    const prioritizedOptions: ChatDropdownOption[] = [];
+    const extraOptions: ChatDropdownOption[] = [];
 
     for (const option of options) {
         const type = option.type;
         const currentCount = typeCounts[type] || 0;
 
         if (currentCount < maxPerType) {
-            result.push(option);
+            prioritizedOptions.push(option);
             typeCounts[type] = currentCount + 1;
+        } else {
+            extraOptions.push(option);
         }
     }
 
-    return result;
+    // Return prioritized options first, then extras at the bottom
+    return [...prioritizedOptions, ...extraOptions];
 };
 
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
@@ -167,7 +175,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     // If user is searching (has filter text), show all matches
     // Otherwise, show only 3 of each type by default
     if (effectiveFilterText.trim() === '') { 
-        searchFilteredOptions = limitOptionsByType(searchFilteredOptions, 3);
+        searchFilteredOptions = priortizeByType(searchFilteredOptions, 3);
     }
 
     useEffect(() => {

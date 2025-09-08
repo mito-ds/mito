@@ -57,7 +57,6 @@ const createMockProps = (overrides = {}) => ({
     options: createMockVariables(),
     onSelect: jest.fn(),
     filterText: '',
-    maxDropdownItems: 10,
     ...overrides
 });
 
@@ -85,7 +84,7 @@ describe('ChatDropdown Component', () => {
     });
 
     describe('Rendering', () => {
-        it('renders the dropdown with limited options by default (3 per type)', async () => {
+        it('renders the dropdown with max 3 of each type at the top', async () => {
             // Render with default props
             renderChatDropdown({ onSelect: onSelectMock });
 
@@ -100,10 +99,10 @@ describe('ChatDropdown Component', () => {
 
             // Verify all list items are rendered (not counting spans or other elements with similar test IDs)
             const options = screen.getAllByTestId(/^chat-dropdown-item-(?!type|name)/);
-            // Expect 3 rules + 3 database connections + 3 variables (limited to 3 per type)
-            expect(options).toHaveLength(9);
+            // Expect 3 rules + 3 database connections + 5 variables (all variables are shown, extras moved to bottom)
+            expect(options).toHaveLength(11);
 
-            // Check individual items in the correct order - only first 3 of each type
+            // Check individual items in the correct order - first 3 of each type at top, then extras at bottom
             expect(screen.getByTestId('chat-dropdown-item-Data Analysis')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-Visualization')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-Machine Learning')).toBeInTheDocument();
@@ -113,8 +112,17 @@ describe('ChatDropdown Component', () => {
             expect(screen.getByTestId('chat-dropdown-item-column')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-df')).toBeInTheDocument();
             expect(screen.getByTestId('chat-dropdown-item-series')).toBeInTheDocument();
-            // Note: 'number' and 'text' variables are not shown due to 3-per-type limit
+            
+            // Verify that 'number' and 'text' variables are at the bottom of the list
+            expect(screen.queryByTestId('chat-dropdown-item-number')).toBeInTheDocument();
+            expect(screen.queryByTestId('chat-dropdown-item-text')).toBeInTheDocument();
+            const numberItem = screen.getByTestId('chat-dropdown-item-number');
+            const textItem = screen.getByTestId('chat-dropdown-item-text');
+            expect(options[options.length - 2]).toBe(numberItem);
+            expect(options[options.length - 1]).toBe(textItem);
         });
+
+        
 
         it('displays the correct shortened types', async () => {
             // Render with default props
@@ -276,31 +284,6 @@ describe('ChatDropdown Component', () => {
                 variable: defaultProps.options.find(v => v.variable_name === 'column')
             });
         });
-
-        it('limits the number of displayed options to maxDropdownItems when searching', async () => {
-            // Create options that exceed the max
-            const manyOptions = Array.from({ length: 15 }, (_, i) => ({
-                variable_name: `var${i}`,
-                type: '<class \'int\'>',
-                value: i
-            }));
-
-            // Re-render with more options, a lower max, and search text
-            renderChatDropdown({
-                options: manyOptions,
-                maxDropdownItems: 5,
-                filterText: 'var' // This triggers search mode
-            });
-
-            // Wait for options to be rendered (rules might also load)
-            await waitFor(() => {
-                expect(screen.getAllByRole('listitem').length).toBe(5);
-            });
-
-            // Only 5 options should be displayed (count only list items)
-            const options = screen.getAllByRole('listitem');
-            expect(options).toHaveLength(5);
-        });
     });
 
     describe('Keyboard Navigation', () => {
@@ -386,7 +369,7 @@ describe('ChatDropdown Component', () => {
             // Press up arrow when first item is selected to go to the last item
             fireEvent.keyDown(document, { key: 'ArrowUp' });
             // The last item should be the last variable (series) due to 3-per-type limit
-            expect(screen.getByTestId('chat-dropdown-item-series')).toHaveClass('selected');
+            expect(screen.getByTestId('chat-dropdown-item-text')).toHaveClass('selected');
 
             // Press down arrow when last item is selected to go to the first item
             fireEvent.keyDown(document, { key: 'ArrowDown' });
