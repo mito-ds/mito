@@ -10,6 +10,7 @@ import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, get
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
+import { validateAndCorrectAgentResponse } from "./validationUtils";
 
 export type PromptType = 
     'chat' | 
@@ -206,11 +207,6 @@ export class ChatHistoryManager {
         return agentExecutionMetadata
     }
 
-    dropMessagesStartingAtIndex(index: number): void {
-        this.displayOptimizedChatHistory.splice(index)
-    }
-
-
     addSmartDebugMessage(activeThreadId: string, errorMessage: string): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
@@ -351,6 +347,7 @@ export class ChatHistoryManager {
     }
 
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
+        agentResponse = validateAndCorrectAgentResponse(agentResponse)
         let content = agentResponse.message
         if (agentResponse.type === 'cell_update') {
             // For cell_update messages, we want to display the code the agent wrote along with 
@@ -402,6 +399,10 @@ export class ChatHistoryManager {
         }
 
         return this.displayOptimizedChatHistory[lastAIMessagesIndex]
+    }
+
+    dropMessagesStartingAtIndex(index: number): void {
+        this.displayOptimizedChatHistory.splice(index)
     }
 }
 
