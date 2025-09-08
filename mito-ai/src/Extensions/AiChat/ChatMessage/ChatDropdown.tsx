@@ -45,6 +45,23 @@ export type ChatDropdownOption =
     | ChatDropdownFileOption
     | ChatDropdownDatabaseOption;
 
+const limitOptionsByType = (options: ChatDropdownOption[], maxPerType: number): ChatDropdownOption[] => {
+    const typeCounts: Record<string, number> = {};
+    const result: ChatDropdownOption[] = [];
+
+    for (const option of options) {
+        const type = option.type;
+        const currentCount = typeCounts[type] || 0;
+
+        if (currentCount < maxPerType) {
+            result.push(option);
+            typeCounts[type] = currentCount + 1;
+        }
+    }
+
+    return result;
+};
+
 const ChatDropdown: React.FC<ChatDropdownProps> = ({
     options,
     onSelect,
@@ -134,7 +151,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
             })),
     ];
 
-    const filteredOptions = allOptions.filter((option) => {
+    const searchFilteredOptions = allOptions.filter((option) => {
         if (option.type === 'variable') {
             return option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) &&
                 option.variable.type !== "<class 'module'>" &&
@@ -143,11 +160,17 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
             return option.file.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase());
         } else if (option.type === 'db') {
             return option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) ||
-                   option.variable.value.toLowerCase().includes(effectiveFilterText.toLowerCase());
+                option.variable.value.toLowerCase().includes(effectiveFilterText.toLowerCase());
         } else {
             return option.rule.toLowerCase().includes(effectiveFilterText.toLowerCase());
         }
-    }).slice(0, maxDropdownItems);
+    });
+
+    // If user is searching (has filter text), show all matches
+    // Otherwise, show only 3 of each type by default
+    const filteredOptions = effectiveFilterText.trim() === ''
+        ? limitOptionsByType(searchFilteredOptions, 3)
+        : searchFilteredOptions.slice(0, maxDropdownItems);
 
     useEffect(() => {
         setSelectedIndex(0);
