@@ -24,9 +24,9 @@ import {
   clearMitoAIChatInput,
   selectModel
 } from '../mitoai_ui_tests/utils';
-import { GPT_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
+import { GPT_4_1_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 
-const MODEL = GPT_DISPLAY_NAME
+const MODEL = GPT_4_1_DISPLAY_NAME
 
 test.describe.serial('Azure OpenAI Integration Tests', () => {
   test('chat mode basic functionality with Azure OpenAI', async ({ page }) => {
