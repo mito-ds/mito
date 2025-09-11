@@ -19,6 +19,8 @@ def get_model_provider(model: str) -> Union[str, None]:
         return 'claude'
     elif model_lower.startswith('gemini'):
         return 'gemini'
+    elif model_lower.startswith('qwen'):
+        return 'cerebras'
     elif model_lower.startswith('ollama'):
         return 'ollama'
     elif model_lower.startswith('gpt'):
