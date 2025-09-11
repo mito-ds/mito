@@ -24,14 +24,13 @@ import {
   clearMitoAIChatInput,
   selectModel
 } from '../mitoai_ui_tests/utils';
-import { CLAUDE_OPUS_DISPLAY_NAME, GPT_DISPLAY_NAME, GPT_MODEL_NAME } from '../../mito-ai/src/utils/models';
+import { GPT_4_1_DISPLAY_NAME, GPT_4_1_MODEL_NAME } from '../../mito-ai/src/utils/models';
 
 // Define test configurations for different models
 const modelConfigs = [
   { name: 'Claude 4 Sonnet', provider: 'Anthropic Claude 4 Sonnet' },
-  { name: CLAUDE_OPUS_DISPLAY_NAME, provider: 'Anthropic Claude 4 Opus' },
   { name: 'Gemini 2.5 Pro', provider: 'Gemini Gemini 2.5 Pro' },
-  { name: GPT_DISPLAY_NAME, provider: GPT_MODEL_NAME }
+  { name: GPT_4_1_DISPLAY_NAME, provider: GPT_4_1_MODEL_NAME }
 ];
 
 // Run tests for each model configuration
