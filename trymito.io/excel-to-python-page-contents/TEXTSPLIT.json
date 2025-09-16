@@ -1,0 +1,97 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "TEXTSPLIT"
+    ],
+    "functionNameShort": "TEXTSPLIT",
+    "functionNameLong": "Text Split",
+    "relatedFunctions": [
+        "TEXTBEFORE",
+        "TEXTAFTER",
+        "TEXTJOIN"
+    ],
+    "purpose": "Split text strings by column or row using delimiters.",
+    "titleCardParagraphs": [
+        "Excel's TEXTSPLIT function: Split text strings by column or row using delimiters. This guide explains how to replicate Excel's TEXTSPLIT functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The TEXTSPLIT function in Excel helps you split text strings by column or row using delimiters..",
+            "=TEXTSPLIT(text, col_delimiter, [row_delimiter])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text to split.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "col_delimiter",
+                "description": "Delimiter for columns.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "row_delimiter",
+                "description": "(Optional) Delimiter for rows.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=TEXTSPLIT(\"a,b,c\", \",\")",
+                "description": "Split by comma.",
+                "result": "['a','b','c']"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the TEXTSPLIT function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Split column into multiple columns",
+                "shortTitle": "str.split expand",
+                "paragraphs": [
+                    "Use `.str.split(',', expand=True)` to split into multiple columns."
+                ],
+                "codeLines": [
+                    "df[['A','B','C']] = df['col'].str.split(',', expand=True)"
+                ]
+            },
+            {
+                "title": "Split into lists",
+                "shortTitle": "list split",
+                "paragraphs": [
+                    "Return list of strings instead of new columns."
+                ],
+                "codeLines": [
+                    "df['split'] = df['col'].str.split(',')"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using TEXTSPLIT in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Not using expand",
+                "shortTitle": "expand param",
+                "paragraphs": [
+                    "If you forget `expand=True`, you\u2019ll get lists instead of new columns."
+                ],
+                "codeLines": [
+                    "df['col'].str.split(',')"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = TEXTSPLIT(...)"
+        ]
+    }
+}

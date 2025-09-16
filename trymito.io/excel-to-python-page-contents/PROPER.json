@@ -1,0 +1,76 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "PROPER"
+    ],
+    "functionNameShort": "PROPER",
+    "functionNameLong": "Proper Case",
+    "relatedFunctions": [
+        "UPPER",
+        "LOWER"
+    ],
+    "purpose": "Capitalize the first letter of each word.",
+    "titleCardParagraphs": [
+        "Excel's PROPER function: Capitalize the first letter of each word. This guide explains how to replicate Excel's PROPER functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The PROPER function in Excel helps you capitalize the first letter of each word..",
+            "=PROPER(text)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "Text to convert.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=PROPER(\"hello world\")",
+                "description": "Capitalize each word.",
+                "result": "Hello World"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the PROPER function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "str.title",
+                "shortTitle": "title case",
+                "paragraphs": [
+                    "Use `.str.title()` to capitalize words."
+                ],
+                "codeLines": [
+                    "df['col'] = df['col'].str.title()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using PROPER in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Acronyms",
+                "shortTitle": "All caps words",
+                "paragraphs": [
+                    "PROPER may incorrectly lowercase acronyms."
+                ],
+                "codeLines": [
+                    "'NASA'.title()  # 'Nasa'"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = PROPER(...)"
+        ]
+    }
+}

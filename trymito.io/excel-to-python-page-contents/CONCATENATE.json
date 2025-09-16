@@ -1,0 +1,81 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "CONCATENATE"
+    ],
+    "functionNameShort": "CONCATENATE",
+    "functionNameLong": "Concatenate",
+    "relatedFunctions": [
+        "TEXTJOIN",
+        "CONCAT"
+    ],
+    "purpose": "Combine multiple text strings into one.",
+    "titleCardParagraphs": [
+        "Excel's CONCATENATE function: Combine multiple text strings into one. This guide explains how to replicate Excel's CONCATENATE functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The CONCATENATE function in Excel helps you combine multiple text strings into one..",
+            "=CONCATENATE(text1, [text2], \u2026)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text1",
+                "description": "First text item.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "text2",
+                "description": "(Optional) Additional text items.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=CONCATENATE(\"Hello\", \" \", \"World\")",
+                "description": "Combine 'Hello' and 'World'.",
+                "result": "Hello World"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the CONCATENATE function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "String concatenation",
+                "shortTitle": "Series +",
+                "paragraphs": [
+                    "Use + operator to concatenate strings."
+                ],
+                "codeLines": [
+                    "df['full'] = df['first'] + ' ' + df['last']"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using CONCATENATE in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Type mismatch",
+                "shortTitle": "Non-string values",
+                "paragraphs": [
+                    "Convert non-strings before concatenating."
+                ],
+                "codeLines": [
+                    "df['A'].astype(str) + df['B'].astype(str)"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = CONCATENATE(...)"
+        ]
+    }
+}

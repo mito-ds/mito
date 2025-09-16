@@ -1,0 +1,76 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "ISTEXT"
+    ],
+    "functionNameShort": "ISTEXT",
+    "functionNameLong": "Is Text",
+    "relatedFunctions": [
+        "ISNUMBER",
+        "ISBLANK"
+    ],
+    "purpose": "Check whether a value is text.",
+    "titleCardParagraphs": [
+        "Excel's ISTEXT function: Check whether a value is text. This guide explains how to replicate Excel's ISTEXT functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The ISTEXT function in Excel helps you check whether a value is text..",
+            "=ISTEXT(value)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "value",
+                "description": "Value to check.",
+                "dataType": "any"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=ISTEXT(\"Hello\")",
+                "description": "Check if 'Hello' is text.",
+                "result": "TRUE"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the ISTEXT function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Check dtype",
+                "shortTitle": "apply isinstance",
+                "paragraphs": [
+                    "Check if each element is str."
+                ],
+                "codeLines": [
+                    "df['is_text'] = df['col'].apply(lambda x: isinstance(x, str))"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using ISTEXT in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Mixed types",
+                "shortTitle": "object dtype",
+                "paragraphs": [
+                    "Object dtype may include numbers and strings."
+                ],
+                "codeLines": [
+                    "df['col'].map(type)"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = ISTEXT(...)"
+        ]
+    }
+}

@@ -1,0 +1,99 @@
+{
+    "slug": [
+        "functions",
+        "array",
+        "FILTER"
+    ],
+    "functionNameShort": "FILTER",
+    "functionNameLong": "Filter",
+    "relatedFunctions": [
+        "SORT",
+        "UNIQUE"
+    ],
+    "purpose": "Filter a range of data based on criteria you define.",
+    "titleCardParagraphs": [
+        "Excel's FILTER function extracts data matching a condition."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The FILTER function returns an array filtered down based on a Boolean condition.",
+            "=FILTER(array, include, [if_empty])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "array",
+                "description": "The range to filter.",
+                "dataType": "range/array"
+            },
+            {
+                "parameter": "include",
+                "description": "Boolean array of conditions.",
+                "dataType": "boolean array"
+            },
+            {
+                "parameter": "if_empty",
+                "description": "Optional value if nothing found.",
+                "dataType": "any"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=FILTER(A2:C10, C2:C10>100)",
+                "description": "Filter rows where column C > 100.",
+                "result": "Filtered rows"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, FILTER is done via boolean indexing."
+        ],
+        "codeSections": [
+            {
+                "title": "Basic filter",
+                "shortTitle": "Boolean indexing",
+                "paragraphs": [
+                    "Filter rows where column 'C' > 100."
+                ],
+                "codeLines": [
+                    "filtered = df[df['C'] > 100]"
+                ]
+            },
+            {
+                "title": "Multiple conditions",
+                "shortTitle": "AND/OR",
+                "paragraphs": [
+                    "Use `&` and `|` for multiple conditions."
+                ],
+                "codeLines": [
+                    "filtered = df[(df['C'] > 100) & (df['D'] == 'X')]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Be careful with operator precedence and NaN values."
+        ],
+        "codeSections": [
+            {
+                "title": "Using and/or instead of &/|",
+                "shortTitle": "Logical operators",
+                "paragraphs": [
+                    "In pandas, use `&` and `|` instead of `and`/`or`."
+                ],
+                "codeLines": [
+                    "# Incorrect",
+                    "df[(df['C'] > 100) and (df['D'] == 'X')]",
+                    "# Correct",
+                    "df[(df['C'] > 100) & (df['D'] == 'X')]"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df_filtered = FILTER(df, df['C'] > 100)"
+        ]
+    }
+}

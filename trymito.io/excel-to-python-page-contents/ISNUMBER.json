@@ -1,0 +1,76 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "ISNUMBER"
+    ],
+    "functionNameShort": "ISNUMBER",
+    "functionNameLong": "Is Number",
+    "relatedFunctions": [
+        "ISTEXT",
+        "ISBLANK"
+    ],
+    "purpose": "Check whether a value is numeric.",
+    "titleCardParagraphs": [
+        "Excel's ISNUMBER function: Check whether a value is numeric. This guide explains how to replicate Excel's ISNUMBER functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The ISNUMBER function in Excel helps you check whether a value is numeric..",
+            "=ISNUMBER(value)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "value",
+                "description": "Value to check.",
+                "dataType": "any"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=ISNUMBER(123)",
+                "description": "Check if 123 is a number.",
+                "result": "TRUE"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the ISNUMBER function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Check numeric",
+                "shortTitle": "isinstance int/float",
+                "paragraphs": [
+                    "Use isinstance for numbers."
+                ],
+                "codeLines": [
+                    "df['is_num'] = df['col'].apply(lambda x: isinstance(x, (int,float)))"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using ISNUMBER in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Strings of numbers",
+                "shortTitle": "numeric text",
+                "paragraphs": [
+                    "'123' is text, not number."
+                ],
+                "codeLines": [
+                    "df['col'].apply(lambda x: str(x).isdigit())"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = ISNUMBER(...)"
+        ]
+    }
+}

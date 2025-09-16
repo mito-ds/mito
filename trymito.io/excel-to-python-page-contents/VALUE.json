@@ -1,0 +1,76 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "VALUE"
+    ],
+    "functionNameShort": "VALUE",
+    "functionNameLong": "Value",
+    "relatedFunctions": [
+        "TEXT",
+        "NUMBERVALUE"
+    ],
+    "purpose": "Convert text representing a number into a numeric value.",
+    "titleCardParagraphs": [
+        "Excel's VALUE function: Convert text representing a number into a numeric value. This guide explains how to replicate Excel's VALUE functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The VALUE function in Excel helps you convert text representing a number into a numeric value..",
+            "=VALUE(text)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "Text to convert.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=VALUE(\"123\")",
+                "description": "Convert string '123' to number.",
+                "result": "123"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the VALUE function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Convert strings to numeric",
+                "shortTitle": "to_numeric",
+                "paragraphs": [
+                    "Use `pd.to_numeric` to convert strings."
+                ],
+                "codeLines": [
+                    "df['num'] = pd.to_numeric(df['str_col'])"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using VALUE in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Non-numeric text",
+                "shortTitle": "Conversion error",
+                "paragraphs": [
+                    "Non-numeric strings cause errors."
+                ],
+                "codeLines": [
+                    "pd.to_numeric(df['str_col'], errors='coerce')"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = VALUE(...)"
+        ]
+    }
+}

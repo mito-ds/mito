@@ -1,0 +1,161 @@
+{
+    "slug": [
+        "functions",
+        "lookup",
+        "XLOOKUP"
+    ],
+    "functionNameShort": "XLOOKUP",
+    "functionNameLong": "XLOOKUP",
+    "relatedFunctions": [
+        "VLOOKUP",
+        "HLOOKUP",
+        "INDEX",
+        "MATCH"
+    ],
+    "purpose": "Search a range or array and return a corresponding item based on a match.",
+    "titleCardParagraphs": [
+        "Excel's XLOOKUP function is a modern replacement for older lookup functions like VLOOKUP and HLOOKUP. It allows you to search for a value in a range or array and return a corresponding value from another range or array."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The XLOOKUP function searches a range or array, finds the right value, and returns the associated result. Unlike VLOOKUP, it does not require sorted data and can search left-to-right or right-to-left.",
+            "=XLOOKUP(lookup_value, lookup_array, return_array, [if_not_found], [match_mode], [search_mode])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "lookup_value",
+                "description": "The value to search for.",
+                "dataType": "any"
+            },
+            {
+                "parameter": "lookup_array",
+                "description": "The array or range to search.",
+                "dataType": "range/array"
+            },
+            {
+                "parameter": "return_array",
+                "description": "The array or range to return a result from.",
+                "dataType": "range/array"
+            },
+            {
+                "parameter": "if_not_found",
+                "description": "(Optional) Value returned if no match is found.",
+                "dataType": "any"
+            },
+            {
+                "parameter": "match_mode",
+                "description": "(Optional) 0 = exact match (default), -1 = exact or next smaller, 1 = exact or next larger, 2 = wildcard match.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "search_mode",
+                "description": "(Optional) 1 = search first-to-last (default), -1 = search last-to-first.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=XLOOKUP(1001, A2:A10, B2:B10)",
+                "description": "Find employee name in column B where ID in column A is 1001.",
+                "result": "Employee name associated with ID 1001"
+            },
+            {
+                "formula": "=XLOOKUP(\"Widget\", C2:C50, D2:D50, \"Not found\")",
+                "description": "Find the price of 'Widget' in column D where product name in column C matches.",
+                "result": "Price of Widget or 'Not found'"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To replicate Excel's XLOOKUP in pandas, you can use boolean indexing, the `map` method, or `merge` for more complex lookups. Here are several approaches:"
+        ],
+        "codeSections": [
+            {
+                "title": "Basic lookup with map",
+                "shortTitle": "map lookup",
+                "paragraphs": [
+                    "If you want to replace IDs with corresponding names, use a dictionary and the pandas `map` method:"
+                ],
+                "codeLines": [
+                    "id_to_name = dict(zip(df['ID'], df['Name']))",
+                    "df['EmployeeName'] = df['ID'].map(id_to_name)"
+                ]
+            },
+            {
+                "title": "Lookup with merge",
+                "shortTitle": "merge lookup",
+                "paragraphs": [
+                    "For table-style lookups, use `merge` to join on a key column. This is equivalent to XLOOKUP across two arrays."
+                ],
+                "codeLines": [
+                    "lookup_table = pd.DataFrame({'ID': [1001, 1002], 'Name': ['Alice', 'Bob']})",
+                    "df = df.merge(lookup_table, on='ID', how='left')"
+                ]
+            },
+            {
+                "title": "Handling 'if_not_found'",
+                "shortTitle": "default value",
+                "paragraphs": [
+                    "XLOOKUP allows you to return a custom value if nothing is found. In pandas, you can handle missing values with `fillna`:"
+                ],
+                "codeLines": [
+                    "df['EmployeeName'] = df['ID'].map(id_to_name).fillna('Not found')"
+                ]
+            },
+            {
+                "title": "Approximate match",
+                "shortTitle": "nearest match",
+                "paragraphs": [
+                    "For approximate matches, pandas does not have a built-in, but you can simulate by using `searchsorted` on a sorted array:"
+                ],
+                "codeLines": [
+                    "import numpy as np",
+                    "values = np.array([10, 20, 30, 40])",
+                    "targets = np.array(['A','B','C','D'])",
+                    "x = 25",
+                    "idx = values.searchsorted(x, side='left')",
+                    "approx_match = targets[idx] if idx < len(values) else None"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Here are common mistakes when replicating XLOOKUP behavior in pandas:"
+        ],
+        "codeSections": [
+            {
+                "title": "Not handling missing values",
+                "shortTitle": "Missing values",
+                "paragraphs": [
+                    "If the lookup value is not found, pandas returns NaN by default. This differs from Excel, where you can specify an `if_not_found` value."
+                ],
+                "codeLines": [
+                    "# NaN returned if not found",
+                    "df['Result'] = df['Key'].map(mapping)",
+                    "",
+                    "# Provide default",
+                    "df['Result'] = df['Key'].map(mapping).fillna('Not found')"
+                ]
+            },
+            {
+                "title": "Mismatched data types",
+                "shortTitle": "Type mismatch",
+                "paragraphs": [
+                    "Ensure both lookup column and key values have the same type. If one is string and the other is integer, lookups will fail."
+                ],
+                "codeLines": [
+                    "df['ID'] = df['ID'].astype(str)",
+                    "mapping = {'1001': 'Alice'}",
+                    "df['Name'] = df['ID'].map(mapping)"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['EmployeeName'] = XLOOKUP(df['ID'], df['Lookup_IDs'], df['Names'])"
+        ]
+    }
+}

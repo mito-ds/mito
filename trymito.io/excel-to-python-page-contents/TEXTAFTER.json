@@ -1,0 +1,86 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "TEXTAFTER"
+    ],
+    "functionNameShort": "TEXTAFTER",
+    "functionNameLong": "Text After",
+    "relatedFunctions": [
+        "TEXTBEFORE",
+        "TEXTSPLIT"
+    ],
+    "purpose": "Return text that occurs after a given delimiter.",
+    "titleCardParagraphs": [
+        "Excel's TEXTAFTER function: Return text that occurs after a given delimiter. This guide explains how to replicate Excel's TEXTAFTER functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The TEXTAFTER function in Excel helps you return text that occurs after a given delimiter..",
+            "=TEXTAFTER(text, delimiter, [instance_num])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text to parse.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "delimiter",
+                "description": "The delimiter to search for.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "instance_num",
+                "description": "(Optional) Which occurrence to use.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=TEXTAFTER(\"abc@xyz.com\",\"@\")",
+                "description": "Return substring after '@'.",
+                "result": "xyz.com"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the TEXTAFTER function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Use str.split with n=1",
+                "shortTitle": "split once",
+                "paragraphs": [
+                    "Split string and return the second part."
+                ],
+                "codeLines": [
+                    "df['after'] = df['email'].str.split('@').str[1]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using TEXTAFTER in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Missing delimiter",
+                "shortTitle": "No match",
+                "paragraphs": [
+                    "If delimiter not found, Excel errors; pandas gives NaN."
+                ],
+                "codeLines": [
+                    "df['col'].str.split('@').str[1]  # may produce NaN"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = TEXTAFTER(...)"
+        ]
+    }
+}

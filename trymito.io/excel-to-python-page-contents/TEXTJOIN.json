@@ -1,0 +1,90 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "TEXTJOIN"
+    ],
+    "functionNameShort": "TEXTJOIN",
+    "functionNameLong": "Text Join",
+    "relatedFunctions": [
+        "CONCATENATE"
+    ],
+    "purpose": "Concatenate a range or list of text values with a delimiter.",
+    "titleCardParagraphs": [
+        "Excel's TEXTJOIN function: Concatenate a range or list of text values with a delimiter. This guide explains how to replicate Excel's TEXTJOIN functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The TEXTJOIN function in Excel helps you concatenate a range or list of text values with a delimiter..",
+            "=TEXTJOIN(delimiter, ignore_empty, text1, [text2], \u2026)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "delimiter",
+                "description": "Delimiter to insert between texts.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "ignore_empty",
+                "description": "TRUE to ignore empty cells.",
+                "dataType": "boolean"
+            },
+            {
+                "parameter": "text1",
+                "description": "First text item.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "text2",
+                "description": "(Optional) Additional text items.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=TEXTJOIN(\",\", TRUE, A1:A3)",
+                "description": "Join A1:A3 with commas.",
+                "result": "a,b,c"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the TEXTJOIN function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Join with delimiter",
+                "shortTitle": "str.join",
+                "paragraphs": [
+                    "Join values from a list-like column."
+                ],
+                "codeLines": [
+                    "joined = ','.join(df['col'].dropna().astype(str))"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using TEXTJOIN in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "NaN values",
+                "shortTitle": "missing values",
+                "paragraphs": [
+                    "Need to handle NaNs before joining."
+                ],
+                "codeLines": [
+                    "','.join(df['col'].fillna('').astype(str))"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = TEXTJOIN(...)"
+        ]
+    }
+}

@@ -1,0 +1,86 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "TEXTBEFORE"
+    ],
+    "functionNameShort": "TEXTBEFORE",
+    "functionNameLong": "Text Before",
+    "relatedFunctions": [
+        "TEXTAFTER",
+        "TEXTSPLIT"
+    ],
+    "purpose": "Return text that occurs before a given delimiter.",
+    "titleCardParagraphs": [
+        "Excel's TEXTBEFORE function: Return text that occurs before a given delimiter. This guide explains how to replicate Excel's TEXTBEFORE functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The TEXTBEFORE function in Excel helps you return text that occurs before a given delimiter..",
+            "=TEXTBEFORE(text, delimiter, [instance_num])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text",
+                "description": "The text to parse.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "delimiter",
+                "description": "The delimiter to search for.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "instance_num",
+                "description": "(Optional) Which occurrence to use.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=TEXTBEFORE(\"abc@xyz.com\",\"@\")",
+                "description": "Return substring before '@'.",
+                "result": "abc"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the TEXTBEFORE function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Split before delimiter",
+                "shortTitle": "split once",
+                "paragraphs": [
+                    "Split string and return the first part."
+                ],
+                "codeLines": [
+                    "df['before'] = df['email'].str.split('@').str[0]"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using TEXTBEFORE in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Multiple delimiters",
+                "shortTitle": "first match",
+                "paragraphs": [
+                    "Pandas split uses the first delimiter unless regex configured."
+                ],
+                "codeLines": [
+                    "df['col'].str.split('-').str[0]"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = TEXTBEFORE(...)"
+        ]
+    }
+}

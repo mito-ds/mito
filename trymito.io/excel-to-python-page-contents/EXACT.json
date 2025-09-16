@@ -1,0 +1,81 @@
+{
+    "slug": [
+        "functions",
+        "text",
+        "EXACT"
+    ],
+    "functionNameShort": "EXACT",
+    "functionNameLong": "Exact Match",
+    "relatedFunctions": [
+        "=",
+        "IF"
+    ],
+    "purpose": "Check if two text strings are exactly the same.",
+    "titleCardParagraphs": [
+        "Excel's EXACT function: Check if two text strings are exactly the same. This guide explains how to replicate Excel's EXACT functionality in Python using pandas."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The EXACT function in Excel helps you check if two text strings are exactly the same..",
+            "=EXACT(text1, text2)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "text1",
+                "description": "First text string.",
+                "dataType": "string"
+            },
+            {
+                "parameter": "text2",
+                "description": "Second text string.",
+                "dataType": "string"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=EXACT(\"Hello\",\"hello\")",
+                "description": "Check case-sensitive equality.",
+                "result": "FALSE"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "To mimic the EXACT function from Excel in pandas, here are common implementations:"
+        ],
+        "codeSections": [
+            {
+                "title": "Case-sensitive comparison",
+                "shortTitle": "== operator",
+                "paragraphs": [
+                    "Use == to compare two Series."
+                ],
+                "codeLines": [
+                    "df['equal'] = df['A'] == df['B']"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "These are common mistakes (and solutions) you might run into while using EXACT in Python."
+        ],
+        "codeSections": [
+            {
+                "title": "Case insensitivity",
+                "shortTitle": "lower/upper",
+                "paragraphs": [
+                    "EXACT is case-sensitive; convert if needed."
+                ],
+                "codeLines": [
+                    "df['A'].str.lower() == df['B'].str.lower()"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df['Result'] = EXACT(...)"
+        ]
+    }
+}

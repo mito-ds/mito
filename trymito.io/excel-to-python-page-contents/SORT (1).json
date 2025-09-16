@@ -1,0 +1,101 @@
+{
+    "slug": [
+        "functions",
+        "array",
+        "SORT"
+    ],
+    "functionNameShort": "SORT",
+    "functionNameLong": "Sort",
+    "relatedFunctions": [
+        "SORTBY",
+        "FILTER"
+    ],
+    "purpose": "Sort the contents of a range or array.",
+    "titleCardParagraphs": [
+        "Excel's SORT function sorts a range based on criteria."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "SORT reorders a range based on column or row criteria.",
+            "=SORT(array, [sort_index], [sort_order], [by_col])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "array",
+                "description": "Range to sort.",
+                "dataType": "range/array"
+            },
+            {
+                "parameter": "sort_index",
+                "description": "Column or row to sort by.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "sort_order",
+                "description": "1=ascending, -1=descending.",
+                "dataType": "number"
+            },
+            {
+                "parameter": "by_col",
+                "description": "TRUE=sort by column, FALSE=by row.",
+                "dataType": "boolean"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=SORT(A2:B10, 2, -1)",
+                "description": "Sort by column 2 descending.",
+                "result": "Sorted range"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, sorting is done with `.sort_values()`."
+        ],
+        "codeSections": [
+            {
+                "title": "Sort ascending",
+                "shortTitle": "Ascending",
+                "paragraphs": [
+                    "Sort by column 'B' ascending."
+                ],
+                "codeLines": [
+                    "df_sorted = df.sort_values(by='B', ascending=True)"
+                ]
+            },
+            {
+                "title": "Sort descending",
+                "shortTitle": "Descending",
+                "paragraphs": [
+                    "Sort by column 'B' descending."
+                ],
+                "codeLines": [
+                    "df_sorted = df.sort_values(by='B', ascending=False)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Sorting mixed types can cause errors."
+        ],
+        "codeSections": [
+            {
+                "title": "Sorting mixed types",
+                "shortTitle": "Mixed types",
+                "paragraphs": [
+                    "Ensure column has consistent type."
+                ],
+                "codeLines": [
+                    "df['B'] = df['B'].astype(str)"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df_sorted = SORT(df, 'B')"
+        ]
+    }
+}

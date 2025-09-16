@@ -1,0 +1,75 @@
+{
+    "slug": [
+        "functions",
+        "array",
+        "SORTBY"
+    ],
+    "functionNameShort": "SORTBY",
+    "functionNameLong": "Sort By",
+    "relatedFunctions": [
+        "SORT",
+        "FILTER"
+    ],
+    "purpose": "Sort the contents of a range based on values in another range.",
+    "titleCardParagraphs": [
+        "Excel's SORTBY sorts based on another array's values."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "SORTBY sorts one array using the sort order of another.",
+            "=SORTBY(array, by_array1, [sort_order1], ...)"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "array",
+                "description": "Range to sort.",
+                "dataType": "range/array"
+            },
+            {
+                "parameter": "by_array1",
+                "description": "Array to sort by.",
+                "dataType": "range/array"
+            },
+            {
+                "parameter": "sort_order1",
+                "description": "1=ascending, -1=descending.",
+                "dataType": "number"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=SORTBY(A2:C10, C2:C10, -1)",
+                "description": "Sort A2:C10 by column C descending.",
+                "result": "Sorted range"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, SORTBY is done with `.sort_values()` on a secondary column."
+        ],
+        "codeSections": [
+            {
+                "title": "Sort by another column",
+                "shortTitle": "Secondary column",
+                "paragraphs": [
+                    "Sort df by values in column 'C'."
+                ],
+                "codeLines": [
+                    "df_sorted = df.sort_values(by='C', ascending=False)"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Ensure the sort column exists in the DataFrame."
+        ],
+        "codeSections": []
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "df_sorted = SORTBY(df, df['C'])"
+        ]
+    }
+}

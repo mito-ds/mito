@@ -1,0 +1,96 @@
+{
+    "slug": [
+        "functions",
+        "array",
+        "UNIQUE"
+    ],
+    "functionNameShort": "UNIQUE",
+    "functionNameLong": "Unique",
+    "relatedFunctions": [
+        "SORT",
+        "FILTER"
+    ],
+    "purpose": "Return a list of unique values from a range or array.",
+    "titleCardParagraphs": [
+        "Excel's UNIQUE function returns distinct values from a range."
+    ],
+    "excelExplanation": {
+        "paragraphs": [
+            "The UNIQUE function returns unique values from a range.",
+            "=UNIQUE(array, [by_col], [exactly_once])"
+        ],
+        "syntaxTable": [
+            {
+                "parameter": "array",
+                "description": "Range to get unique values from.",
+                "dataType": "range/array"
+            },
+            {
+                "parameter": "by_col",
+                "description": "TRUE=by columns, FALSE=by rows.",
+                "dataType": "boolean"
+            },
+            {
+                "parameter": "exactly_once",
+                "description": "Return values that occur once only.",
+                "dataType": "boolean"
+            }
+        ],
+        "examplesTable": [
+            {
+                "formula": "=UNIQUE(A2:A20)",
+                "description": "Return unique values from A2:A20.",
+                "result": "Unique list"
+            }
+        ]
+    },
+    "equivalentCode": {
+        "introParagraphs": [
+            "In pandas, use `.unique()` or `.drop_duplicates()`."
+        ],
+        "codeSections": [
+            {
+                "title": "Unique values from a column",
+                "shortTitle": "Series unique",
+                "paragraphs": [
+                    "Get unique values from column 'A'."
+                ],
+                "codeLines": [
+                    "unique_vals = df['A'].unique()"
+                ]
+            },
+            {
+                "title": "Drop duplicate rows",
+                "shortTitle": "Drop duplicates",
+                "paragraphs": [
+                    "Remove duplicate rows from DataFrame."
+                ],
+                "codeLines": [
+                    "df_unique = df.drop_duplicates()"
+                ]
+            }
+        ]
+    },
+    "commonMistakes": {
+        "introParagraphs": [
+            "Be mindful of case sensitivity and whitespace."
+        ],
+        "codeSections": [
+            {
+                "title": "Case sensitivity",
+                "shortTitle": "Upper vs lower",
+                "paragraphs": [
+                    "Excel may treat 'a' and 'A' as same, pandas does not unless standardized."
+                ],
+                "codeLines": [
+                    "df['A'] = df['A'].str.lower()"
+                ]
+            }
+        ]
+    },
+    "mitoCTA": {
+        "codeLines": [
+            "unique_vals = UNIQUE(df['A'])"
+        ]
+    }
+}
