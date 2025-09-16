@@ -5,7 +5,6 @@
 
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
 import Prism from 'prismjs';
 import { useEffect } from 'react';
@@ -15,19 +14,14 @@ import CaseStudies from '../components/CaseStudies/CaseStudies';
 import FAQCard from '../components/FAQCard/FAQCard';
 import Footer from '../components/Footer/Footer';
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
-import InstallInstructions from '../components/InstallInstructions/InstallInstructions';
 import LogoSection from '../components/LogoSection/LogoSection';
-import StreamlitAppGallery from '../components/StreamlitAppGallery/StreamlitAppGallery';
-import AIInputField from '../components/AIInputField/AIInputField';
 import homeStyles from '../styles/Home.module.css';
 import pageStyles from '../styles/Page.module.css';
-import textImageSplitStyles from '../styles/TextImageSplit.module.css';
 import titleStyles from '../styles/Title.module.css';
 import { classNames } from '../utils/classNames';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
-import spreadsheetAutomationStyles from '../styles/SpreadsheetAutomation.module.css';
 
 const Home: NextPage = () => {
 
@@ -83,15 +77,6 @@ const Home: NextPage = () => {
 
           <section>
             <FeatureSquares />
-          </section>
-
-          <section className={pageStyles.background_card} >
-            {/* So that we can scroll to the correct location on the page, and 
-              because we have a fixed header taking up some space, we scroll 
-              to this anchor tag. See here: https://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header
-            */}
-            <a className="anchor" id='installation'></a>
-            <InstallInstructions/>
           </section>
 
           <section>

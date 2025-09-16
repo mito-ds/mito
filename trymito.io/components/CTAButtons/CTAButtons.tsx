@@ -4,9 +4,9 @@
  */
 
 import Link from 'next/link';
-import { MITO_INSTALLATION_DOCS_LINK } from '../Header/Header';
 import TextButton from '../Buttons/TextButton/TextButton';
 import ctaButtons from './CTAButtons.module.css'
+import textButtonStyles from '../Buttons/TextButton/TextButton.module.css'
 import { classNames } from '../../utils/classNames';
 
 const JUPYTERLITE_MITO_LINK = 'https://mito-ds.github.io/mitolite/lab?path=mito.ipynb';
@@ -36,24 +36,13 @@ const CTAButtons = (props: {
         > 
 
             {props.variant === 'download' && 
-                <>
-                    <div className={'only-on-desktop'}>
-                        <TextButton 
-                            text={props.ctaText || 'Install Mito for Jupyter'}
-                            href={MITO_INSTALLATION_DOCS_LINK}
-                            className={props.textButtonClassName}
-                            variant='purple'
-                        />
-                    </div>
-                    <div className={classNames('only-on-mobile-block')}>
-                        <TextButton 
-                            text={props.ctaText || 'Install Mito'}
-                            href={MITO_INSTALLATION_DOCS_LINK}
-                            className={props.textButtonClassName}
-                            variant='purple'
-                        />
-                    </div>
-                </>
+                <div>
+                    <Link href='/downloads'>
+                        <a className={classNames(textButtonStyles.text_button, textButtonStyles.purple, textButtonStyles.large)}>
+                            Download Mito
+                        </a>
+                    </Link>
+                </div>
             }
             {props.variant === 'scroll-to-install' && 
                 <TextButton 

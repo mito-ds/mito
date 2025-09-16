@@ -173,11 +173,11 @@ const Header = (): JSX.Element => {
                 text='Github'
               />              
               <TranslucentButton
-                href={MITO_INSTALLATION_DOCS_LINK}
                 className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER}
+                variant='downloads'
               >
                 <>
-                  Install
+                  Download
                 </>
               </TranslucentButton>
           </div>
