@@ -155,6 +155,9 @@ class CompletionRequest:
     # Whether to stream the response (if supported by the model).
     stream: bool = False
     
+    # Environment information from the client
+    environment: Optional[Dict[str, any]] = None
+    
     
 @dataclass(frozen=True)
 class AICapabilities:

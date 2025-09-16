@@ -104,7 +104,7 @@ def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     
     return bool(telemetry)
 
-def identify(key_type: Optional[str] = None) -> None:
+def identify(key_type: Optional[str] = None, is_electron: Optional[bool] = None) -> None:
     """
     Helper function for identifying a user. We just take
     their python version, mito version, and email.
@@ -122,6 +122,7 @@ def identify(key_type: Optional[str] = None) -> None:
         'is_pro': is_pro(),
         'is_jupyterhub': 'True' if 'JUPYTERHUB_API_URL' in os.environ else 'False',
         'is_mito_jupyterhub': 'True' if os.getenv('MITO_JUPYTERHUB') is not None else 'False',
+        'is_mito_desktop': 'True' if is_electron else 'False',
         IS_DEV_MODE_PARAM: is_dev_mode(),
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
