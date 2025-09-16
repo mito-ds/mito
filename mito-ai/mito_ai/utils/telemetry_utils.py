@@ -104,7 +104,7 @@ def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     
     return bool(telemetry)
 
-def identify(key_type: Optional[str] = None) -> None:
+def identify(key_type: Optional[str] = None, is_electron: Optional[bool] = None) -> None:
     """
     Helper function for identifying a user. We just take
     their python version, mito version, and email.
@@ -125,6 +125,11 @@ def identify(key_type: Optional[str] = None) -> None:
         IS_DEV_MODE_PARAM: is_dev_mode(),
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
+    
+    if is_electron is not None:
+        # Only update field when we get info from the client. Don't default to False.
+        # becase we are only sending this info to the first completion_handler identify call.
+        params['is_mito_desktop'] = is_electron
 
     if not is_running_test():
         # TODO: If the user is in JupyterLite, we need to do some extra work.

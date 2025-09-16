@@ -171,6 +171,12 @@ export interface ICompletionRequest {
    * Whether to stream the completion or not.
    */
   stream: boolean;
+  /**
+   * Environment information from the client
+   */
+  environment?: {
+    isElectron: boolean;
+  };
 }
 
 export interface IUpdateModelConfigRequest extends ICompletionRequest {
