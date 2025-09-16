@@ -122,10 +122,14 @@ def identify(key_type: Optional[str] = None, is_electron: Optional[bool] = None)
         'is_pro': is_pro(),
         'is_jupyterhub': 'True' if 'JUPYTERHUB_API_URL' in os.environ else 'False',
         'is_mito_jupyterhub': 'True' if os.getenv('MITO_JUPYTERHUB') is not None else 'False',
-        'is_mito_desktop': 'True' if is_electron else 'False',
         IS_DEV_MODE_PARAM: is_dev_mode(),
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
+    
+    if is_electron is not None:
+        # Only update field when we get info from the client. Don't default to False.
+        # becase we are only sending this info to the first completion_handler identify call.
+        params['is_mito_desktop'] = is_electron
 
     if not is_running_test():
         # TODO: If the user is in JupyterLite, we need to do some extra work.
