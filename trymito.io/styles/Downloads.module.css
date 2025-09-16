@@ -4,7 +4,7 @@
  */
 
 .main_small {
-    min-height: 75vh !important;
+    min-height: 100vh !important;
 }
 
 .page_header {
@@ -12,7 +12,6 @@
   padding: 0.5rem 0 1.5rem 0;
   max-width: 60rem;
   margin: 0 auto;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .page_title {
@@ -51,6 +50,7 @@
   margin-left: auto;
   margin-right: auto;
   text-align: left;
+  width: 80%;
 }
 
 .versions_title {
@@ -179,6 +179,10 @@
 
 .download_option:hover .download_arrow {
   opacity: 0.8;
+}
+
+.install_instructions_container {
+    margin-top: 4rem;
 }
 
 

@@ -13,6 +13,7 @@ import TextButton from '../components/Buttons/TextButton/TextButton';
 import pageStyles from '../styles/Page.module.css';
 import downloadsStyles from '../styles/Downloads.module.css';
 import { classNames } from '../utils/classNames';
+import InstallInstructions from '../components/InstallInstructions/InstallInstructions';
 
 const Downloads: NextPage = () => {
   return (
@@ -97,6 +98,9 @@ const Downloads: NextPage = () => {
               </div>
             </div>
           </section>
+          <div className={downloadsStyles.install_instructions_container}>
+            <InstallInstructions/>
+          </div>
         </main>
         <Footer />
       </div>
