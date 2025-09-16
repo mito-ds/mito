@@ -3,7 +3,7 @@
 
 import traceback
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional, NewType, Dict
+from typing import List, Literal, Optional, NewType, Dict, Any
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
 from pydantic import BaseModel
@@ -156,7 +156,7 @@ class CompletionRequest:
     stream: bool = False
     
     # Environment information from the client
-    environment: Optional[Dict[str, any]] = None
+    environment: Optional[Dict[str, Any]] = None
     
     
 @dataclass(frozen=True)
