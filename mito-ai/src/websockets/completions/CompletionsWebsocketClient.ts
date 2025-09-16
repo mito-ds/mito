@@ -120,7 +120,6 @@ export class CompletionWebsocketClient extends BaseWebsocketClient<ICompletionRe
       ...message,
       environment: {
         isElectron: this.isElectron,
-        userAgent: navigator.userAgent
       }
     };
     
