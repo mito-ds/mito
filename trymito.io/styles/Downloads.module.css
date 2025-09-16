@@ -185,6 +185,40 @@
     margin-top: 4rem;
 }
 
+.download_option_content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.chip_badge {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+.architecture_text {
+  font-size: 0.75rem !important;
+  font-weight: 200 !important;
+  color: var(--color-text-secondary) !important;
+}
+
+.download_option_content span:first-child {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Remove the conflicting ::after rule */
+.download_option_content span:first-child::after {
+  display: none;
+}
+
 
 /* Desktop Styles */
 @media only screen and (min-width: 50em) {
