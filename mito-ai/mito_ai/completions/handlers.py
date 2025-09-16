@@ -133,11 +133,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             # Extract environment information from the message
             environment = parsed_message.get('environment', {})
             if environment:
-                is_electron = environment.get('isElectron', False)
+                is_electron = environment.get('isElectron', None)
                 if is_electron is not None:
                     if is_electron != self.is_electron:
                         # If the is_electron status is different, log it
-                        identify(is_electron=is_electron)
+                        identify(key_type=self._llm.key_type, is_electron=is_electron)
                     
                     self.is_electron = is_electron
 
