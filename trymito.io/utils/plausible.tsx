@@ -42,3 +42,8 @@ export const PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG = 'plausible-event-name
 
 // The user clicked on a try online/JupyterHub CTA
 export const PLAUSIBLE_JUPYTERHUB_CTA_PRESSED_LOCATION_MITO_VS_CHATGPT_PAGE = 'plausible-event-name=jupyterhub_cta_pressed+location_mito_vs_chatgpt_page'
+
+// The user clicked on a Mito Desktop Downloader
+export const PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_MACOS = 'plausible-event-name=mito_desktop_downloader+macos'
+export const PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_WINDOWS = 'plausible-event-name=mito_desktop_downloader+windows'
+export const PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_LINUX = 'plausible-event-name=mito_desktop_downloader+linux'

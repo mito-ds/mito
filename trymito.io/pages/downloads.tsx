@@ -12,6 +12,16 @@ import pageStyles from '../styles/Page.module.css';
 import downloadsStyles from '../styles/Downloads.module.css';
 import { classNames } from '../utils/classNames';
 import InstallInstructions from '../components/InstallInstructions/InstallInstructions';
+import { PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_LINUX, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_MACOS, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_WINDOWS } from '../utils/plausible';
+
+// GitHub Releases download URLs
+const DOWNLOAD_URLS = {
+  macos_arm64: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-macos-arm64.dmg',
+  macos_x64: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-macos-x64.dmg',
+  windows_x64: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-windows-x64.exe',
+  linux_rpm: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-linux.rpm',
+  linux_deb: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-linux.deb',
+};
 
 const Downloads: NextPage = () => {
     return (
@@ -52,21 +62,20 @@ const Downloads: NextPage = () => {
                                     <span className={downloadsStyles.platform_name}>macOS</span>
                                 </div>
                                 <div className={downloadsStyles.download_options}>
-                                    <a href="#" className={downloadsStyles.download_option}>
+                                    <a href={DOWNLOAD_URLS.macos_arm64} className={classNames(downloadsStyles.download_option, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_MACOS)} download>
                                         <div className={downloadsStyles.download_option_content}>
                                             <span>Mac <span className={downloadsStyles.architecture_text}>(arm64)</span></span>
                                             <span className={downloadsStyles.chip_badge}>M series chips</span>
                                         </div>
                                         <Image src="/downloads/download-arrow.svg" alt="Download" width={16} height={16} className={downloadsStyles.download_arrow} />
                                     </a>
-                                    <a href="#" className={downloadsStyles.download_option}>
+                                    <a href={DOWNLOAD_URLS.macos_x64} className={classNames(downloadsStyles.download_option, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_MACOS)} download>
                                         <div className={downloadsStyles.download_option_content}>
                                             <span>Mac <span className={downloadsStyles.architecture_text}>(x64)</span></span>
                                             <span className={downloadsStyles.chip_badge}>Intel chips</span>
                                         </div>
                                         <Image src="/downloads/download-arrow.svg" alt="Download" width={16} height={16} className={downloadsStyles.download_arrow} />
                                     </a>
-
                                 </div>
                             </div>
 
@@ -77,7 +86,7 @@ const Downloads: NextPage = () => {
                                     <span className={downloadsStyles.platform_name}>Windows</span>
                                 </div>
                                 <div className={downloadsStyles.download_options}>
-                                    <a href="#" className={downloadsStyles.download_option}>
+                                    <a href={DOWNLOAD_URLS.windows_x64} className={classNames(downloadsStyles.download_option, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_WINDOWS)} download>
                                         <div className={downloadsStyles.download_option_content}>
                                             <span>Windows <span className={downloadsStyles.architecture_text}>(x64)</span></span>
                                             <span className={downloadsStyles.chip_badge}>Universal Windows</span>
@@ -94,14 +103,14 @@ const Downloads: NextPage = () => {
                                     <span className={downloadsStyles.platform_name}>Linux</span>
                                 </div>
                                 <div className={downloadsStyles.download_options}>
-                                    <a href="#" className={downloadsStyles.download_option}>
+                                    <a href={DOWNLOAD_URLS.linux_rpm} className={classNames(downloadsStyles.download_option, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_LINUX)} download>
                                         <div className={downloadsStyles.download_option_content}>
                                             <span>Fedora <span className={downloadsStyles.architecture_text}>(.rpm)</span></span>
                                             <span className={downloadsStyles.chip_badge}>Red Hat family</span>
                                         </div>
                                         <Image src="/downloads/download-arrow.svg" alt="Download" width={16} height={16} className={downloadsStyles.download_arrow} />
                                     </a>
-                                    <a href="#" className={downloadsStyles.download_option}>
+                                    <a href={DOWNLOAD_URLS.linux_deb} className={classNames(downloadsStyles.download_option, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_LINUX)} download>
                                         <div className={downloadsStyles.download_option_content}>
                                             <span>Debian <span className={downloadsStyles.architecture_text}>(.deb)</span></span>
                                             <span className={downloadsStyles.chip_badge}>Debian family</span>
