@@ -62,7 +62,7 @@ const Downloads: NextPage = () => {
                                     <span className={downloadsStyles.platform_name}>macOS</span>
                                 </div>
                                 <div className={downloadsStyles.download_options}>
-                                    <a href={DOWNLOAD_URLS.macos_arm64} className={downloadsStyles.download_option} download>
+                                    <a href={DOWNLOAD_URLS.macos_arm64} className={classNames(downloadsStyles.download_option, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_MACOS)} download>
                                         <div className={downloadsStyles.download_option_content}>
                                             <span>Mac <span className={downloadsStyles.architecture_text}>(arm64)</span></span>
                                             <span className={downloadsStyles.chip_badge}>M series chips</span>
