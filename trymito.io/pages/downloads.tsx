@@ -16,11 +16,11 @@ import { PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_LINUX, PLAUSIBLE_MITO_DESKTOP_DOWNLOA
 
 // GitHub Releases download URLs
 const DOWNLOAD_URLS = {
-  macos_arm64: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-macos-arm64.dmg',
-  macos_x64: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-macos-x64.dmg',
-  windows_x64: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-windows-x64.exe',
-  linux_rpm: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-linux.rpm',
-  linux_deb: 'https://github.com/mito-ai/mito-desktop/releases/latest/download/mito-desktop-linux.deb',
+  macos_arm64: 'https://github.com/mito-ds/mito-desktop/releases/latest/download/Mito-Setup-macOS-arm64.dmg',
+  macos_x64: 'https://github.com/mito-ds/mito-desktop/releases/latest/download/Mito-Setup-macOS-x64.dmg',
+  windows_x64: 'https://github.com/mito-ds/mito-desktop/releases/latest/download/Mito-Setup-Windows-x64.exe',
+  linux_rpm: 'https://github.com/mito-ds/mito-desktop/releases/latest/download/Mito-Setup-Fedora-x64.rpm',
+  linux_deb: 'https://github.com/mito-ds/mito-desktop/releases/latest/download/Mito-Setup-Debian-x64.deb',
 };
 
 const Downloads: NextPage = () => {
@@ -62,7 +62,7 @@ const Downloads: NextPage = () => {
                                     <span className={downloadsStyles.platform_name}>macOS</span>
                                 </div>
                                 <div className={downloadsStyles.download_options}>
-                                    <a href={DOWNLOAD_URLS.macos_arm64} className={classNames(downloadsStyles.download_option, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_MACOS)} download>
+                                    <a href={DOWNLOAD_URLS.macos_arm64} className={downloadsStyles.download_option} download>
                                         <div className={downloadsStyles.download_option_content}>
                                             <span>Mac <span className={downloadsStyles.architecture_text}>(arm64)</span></span>
                                             <span className={downloadsStyles.chip_badge}>M series chips</span>
