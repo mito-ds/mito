@@ -8,6 +8,7 @@ from typing import List, Optional
 class MessageType(str, Enum):
     """Types of app manager messages."""
     MANAGE_APP = "manage-app"
+    CHECK_APP_STATUS = "check-app-status"
 
 
 @dataclass(frozen=True)
@@ -47,6 +48,20 @@ class ManageAppReply:
     apps: List[App] = field(default_factory=list)
     error: Optional[AppManagerError] = None
     message_id: Optional[str] = None  
+
+@dataclass(frozen=True)
+class CheckAppStatusRequest:
+    """Request to check app status."""
+    app_url: str
+    type: str = "check-app-status"
+    jwt_token: Optional[str] = None
+
+@dataclass(frozen=True)
+class CheckAppStatusReply:
+    """Reply to a check app status request."""
+    is_accessible: bool
+    type: str = "check-app-status"
+    error: Optional[AppManagerError] = None
 
 @dataclass(frozen=True)
 class ErrorMessage:
