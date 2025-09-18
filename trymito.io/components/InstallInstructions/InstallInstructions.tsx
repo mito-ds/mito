@@ -34,31 +34,13 @@ const InstallInstructions = (props: {}): JSX.Element => {
 
     return (
         <>
-            <h2 style={{textAlign: 'center'}}>
-                Install <span className='text-highlight'><a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">open-source</a></span> Mito <br/>
-                in two simple steps
-            </h2>
+            <p style={{textAlign: 'center'}}>
+                Or install open-source Mito in an existing Python environment
+            </p>
             <div className={installInstructions.install_instructions_container}>
                 <CodeBlock prefix='$ ' paddingRight='7rem' className={PLAUSIBLE_COPIED_PIP_INSTALL_COMMAND}>
-                    pip install mitosheet
+                    pip install mito-ai mitosheet
                 </CodeBlock>
-                <CodeBlock prefix='$ ' paddingRight='7rem'>
-                    pip install mito-ai
-                </CodeBlock>
-                <div className={classNames('text-primary', ctaButtons.pro_cta_text)}>
-                    Then, check out our {" "}
-                    <Link href={CREATE_MITOSHEET_DOCS_LINK}>
-                        <a className={ctaButtons.cta_subbutton} target="_blank" rel="noreferrer">
-                            documentation
-                        </a>
-                    </Link>
-                    {" "}and {" "} 
-                    <Link href={DISCORD_LINK}>
-                        <a className={ctaButtons.cta_subbutton} target="_blank" rel="noreferrer">
-                            discord.
-                        </a>
-                    </Link>
-                </div>
             </div>
         </>
     )
