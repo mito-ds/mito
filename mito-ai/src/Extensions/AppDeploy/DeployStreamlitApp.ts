@@ -8,6 +8,7 @@ import { Notification } from '@jupyterlab/apputils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
 import { IAppDeployService } from './AppDeployPlugin';
+import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { UUID } from '@lumino/coreutils';
 import { deployAppNotification } from './DeployAppNotification';
 import { IDeployAppReply, IDeployAppRequest } from '../../websockets/appDeploy/appDeployModels';
@@ -22,6 +23,7 @@ and deploys it!
 export const deployStreamlitApp = async (
   notebookTracker: INotebookTracker,
   appDeployService: IAppDeployService,
+  appManagerService: IAppManagerService,
 ): Promise<void> => {
 
   let jwtToken = await getJWTToken();
@@ -79,7 +81,7 @@ export const deployStreamlitApp = async (
     } else {
       console.log("App deployment response:", response);
       const url = response.url;
-      deployAppNotification(url);
+      deployAppNotification(url, appManagerService);
     }
   } catch (error) {
     // TODO: Do something with the error
