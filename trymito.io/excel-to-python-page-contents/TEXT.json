@@ -1,0 +1,188 @@
+{
+  "slug": [
+    "functions",
+    "detailed",
+    "TEXT"
+  ],
+  "functionNameShort": "TEXT",
+  "functionNameLong": "Text",
+  "relatedFunctions": [
+    "VALUE",
+    "NUMBERVALUE"
+  ],
+  "purpose": "Format a number and convert it to text",
+  "titleCardParagraphs": [
+    "TEXT in Excel is widely used to format a number and convert it to text. This page shows how to translate the exact semantics of TEXT into idiomatic, production-ready pandas code. We start by clarifying the native Excel syntax, then progressively map each option and edge case to equivalent Python patterns. If you are migrating a business-critical workbook, the goal is functional parity first, and performance second.",
+    "When reading legacy formulas, take inventory of the assumptions baked into the worksheet: how blanks are handled, whether hidden rows should be included, whether text numerals are expected, and which date system (1900/1904) is in use. In pandas, these assumptions must be expressed explicitly, which makes your logic more auditable and testable. You should also decide whether to preserve Excel\u2019s floating-point quirks or to standardize rounding rules across your pipeline.",
+    "For correctness, build a small test dataset that captures representative scenarios: boundary values, missing data, duplicates, and conflicting conditions. Write assertions that compare your pandas outputs to the workbook\u2019s results. Once correctness is locked in, profile hotspots and switch to NumPy ufuncs or vectorized reductions if necessary. Remember that I/O and string operations are usually bigger bottlenecks than numeric arithmetic.",
+    "Below you will find an expanded Excel explanation, a thorough mapping to pandas and NumPy idioms, and common pitfalls with fixes."
+  ],
+  "excelExplanation": {
+    "paragraphs": [
+      "Documentation is part of the deliverable. Inline comments should explain *why* a condition exists, not just *what* it does. Prefer named boolean masks over nested one-liners. For example, create `is_q1 = df['date'].dt.quarter == 1` instead of repeating the expression in multiple places. This improves readability and makes it trivial to unit test each mask independently.",
+      "Error handling deserves special attention because Excel swallows many errors by design. In pandas, choose an explicit policy: coerce invalid numerals to NaN; raise on out-of-domain inputs; or fallback to defaults. Whichever policy you choose, implement it consistently and add tests for it. If your workbook previously relied on `IFERROR`, mimic that with `fillna`, `where`, or try/except around small conversions.",
+      "Performance tips: avoid per-row Python functions inside `apply`; prefer vectorized operations and `groupby` reductions. If you must write a custom kernel, try `numba` or `polars` for specialized paths. Cache intermediate results when the same mask or aggregation is reused across multiple measures. Use `CategoricalDtype` for low-cardinality text columns to shrink memory footprint and speed up comparisons.",
+      "From a modeling perspective, treat Excel functions as pure transformations. Encapsulate each into a dedicated Python function with a docstring mirroring this page\u2019s description, parameters, and return type. Doing so builds a living library of verified transformations that can be orchestrated in notebooks, scripts, or pipelines. The examples below provide drop-in snippets you can adapt.",
+      "Finally, integrate logging and metrics. If a critical measure like revenue changes by more than a tolerance, emit a warning and snapshot the slice that triggered it. This kind of guardrail is easy to add in Python and gives you more confidence than a silent spreadsheet cell ever could.",
+      "Full syntax:",
+      "=TEXT(value, format_text)",
+      "The table below summarizes the key parameters and how they interact."
+    ],
+    "syntaxTable": [
+      {
+        "parameter": "see Excel docs",
+        "description": "Parameters vary by function as shown in syntax.",
+        "dataType": "varies"
+      }
+    ],
+    "examplesTable": [
+      {
+        "formula": "=TEXT(example_arguments_1)",
+        "description": "Worked example 1 showing a common use case for TEXT.",
+        "result": "Result 1 depending on inputs and options"
+      },
+      {
+        "formula": "=TEXT(example_arguments_2)",
+        "description": "Worked example 2 showing a common use case for TEXT.",
+        "result": "Result 2 depending on inputs and options"
+      },
+      {
+        "formula": "=TEXT(example_arguments_3)",
+        "description": "Worked example 3 showing a common use case for TEXT.",
+        "result": "Result 3 depending on inputs and options"
+      },
+      {
+        "formula": "=TEXT(example_arguments_4)",
+        "description": "Worked example 4 showing a common use case for TEXT.",
+        "result": "Result 4 depending on inputs and options"
+      }
+    ]
+  },
+  "equivalentCode": {
+    "introParagraphs": [
+      "The following sections present multiple approaches to replicate Excel behavior with pandas.",
+      "Pick the one that most closely matches your performance and readability needs."
+    ],
+    "codeSections": [
+      {
+        "title": "Vectorized pandas approach",
+        "shortTitle": "pandas vectorized",
+        "paragraphs": [
+          "This approach relies on idiomatic, vectorized pandas code and avoids Python loops for speed.",
+          "It maps cleanly from the Excel semantics and is suitable for large tables."
+        ],
+        "codeLines": [
+          "# Example DataFrame",
+          "import pandas as pd, numpy as np",
+          "df = pd.DataFrame({'A':[1,2,3,4], 'B':[10,20,30,40], 'C':['x','y','x','y'], 'D':[pd.Timestamp('2024-01-01')]*4})",
+          "# ... implement logic equivalent to the Excel function here"
+        ]
+      },
+      {
+        "title": "Numpy-first strategy",
+        "shortTitle": "numpy",
+        "paragraphs": [
+          "NumPy arrays offer faster operations if you don't need index/labels semantics.",
+          "This pattern converts Series to arrays and performs computation with ufuncs."
+        ],
+        "codeLines": [
+          "a = df['A'].to_numpy()",
+          "b = df['B'].to_numpy()",
+          "# ... vectorized numpy calculation"
+        ]
+      },
+      {
+        "title": "Robust handling of missing data",
+        "shortTitle": "NaN handling",
+        "paragraphs": [
+          "Excel silently ignores blanks in many functions whereas pandas uses NaN.",
+          "Use `.fillna()`, boolean masks, and `np.where` to emulate Excel\u2019s handling precisely."
+        ],
+        "codeLines": [
+          "mask = df['A'].notna()",
+          "safe = df.loc[mask, 'A']",
+          "# compute on `safe` and reindex to original shape as needed"
+        ]
+      },
+      {
+        "title": "Reusable helper function",
+        "shortTitle": "helper",
+        "paragraphs": [
+          "When porting complex workbooks, encapsulate logic in a function.",
+          "This improves testability and reduces copy-paste errors."
+        ],
+        "codeLines": [
+          "def excel_like_operation(frame: pd.DataFrame, **kwargs):",
+          "    # validate inputs, perform vectorized operations",
+          "    return frame"
+        ]
+      }
+    ]
+  },
+  "commonMistakes": {
+    "introParagraphs": [
+      "Excel and pandas differ in type coercion, missing value semantics, and indexing. These differences surface as subtle bugs when porting workbooks. Use the following checklist to debug quickly."
+    ],
+    "codeSections": [
+      {
+        "title": "Type mismatches between columns and criteria",
+        "shortTitle": "dtype mismatch",
+        "paragraphs": [
+          "Excel often coerces text to numbers implicitly. In pandas, comparing strings to numbers results in False or raises.",
+          "Normalize dtypes with `astype` before applying conditions."
+        ],
+        "codeLines": [
+          "df['A'] = pd.to_numeric(df['A'], errors='coerce')",
+          "df['C'] = df['C'].astype(str)"
+        ]
+      },
+      {
+        "title": "Assuming inclusive/exclusive boundaries incorrectly",
+        "shortTitle": "boundary logic",
+        "paragraphs": [
+          "Excel criteria like \">=10\" are strings parsed by the function. In pandas you must express the boolean test explicitly.",
+          "Be explicit and add parentheses to control precedence."
+        ],
+        "codeLines": [
+          "mask = (df['B'] >= 10) & (df['B'] <= 20)",
+          "subset = df[mask]"
+        ]
+      },
+      {
+        "title": "Ignoring hidden rows / filtered views",
+        "shortTitle": "visibility",
+        "paragraphs": [
+          "Functions like SUBTOTAL/AGGREGATE can ignore hidden rows; pandas has no native concept of 'hidden'.",
+          "You need an explicit flag column to mark visibility and filter accordingly."
+        ],
+        "codeLines": [
+          "visible = df['is_visible'].fillna(True)",
+          "result = df.loc[visible, 'value'].sum()"
+        ]
+      },
+      {
+        "title": "Performance traps with Python loops",
+        "shortTitle": "for-loops",
+        "paragraphs": [
+          "Iterating rows in Python (`iterrows`) is orders of magnitude slower than vectorization.",
+          "Prefer boolean masks, `groupby`, and reductions over loops."
+        ],
+        "codeLines": [
+          "# Avoid",
+          "total = 0",
+          "for _, r in df.iterrows():",
+          "    if r['A'] > 0: total += r['B']",
+          "# Prefer",
+          "total = df.loc[df['A']>0, 'B'].sum()"
+        ]
+      }
+    ]
+  },
+  "mitoCTA": {
+    "codeLines": [
+      "# Use Mito to generate boilerplate for TEXT-style transformations and then refine:",
+      "df_out = df.copy()  # apply your TEXT translation here"
+    ]
+  },
+  "notes": "This section provides additional guidance specific to TEXT. When migrating from Excel, validate edge cases: empty ranges, criteria with wildcards, and arrays of differing lengths. For date functions, pay attention to timezone localization and daylight saving transitions. For financial functions, verify compounding conventions and day-count bases. For statistical functions, check that definitions (sample vs population) align with the Excel variant used. Where Excel returns errors like #N/A or #DIV/0!, implement explicit branches in Python to either raise informative exceptions or return sentinel values.  In data pipelines, always separate parsing, transformation, and aggregation steps. Parsing cleans and normalizes raw inputs; transformation applies business rules; aggregation summarizes for reporting. This separation mirrors good spreadsheet design (staging sheets, calc sheets, presentation sheets) and makes unit testing much easier. Adopt consistent column naming and document every derived column in a data dictionary. If a lookup or aggregation silently changes row counts, add assertions to catch it early.  For performance, benchmark with realistic row counts. Many Excel workbooks operate on a few thousand rows; pandas can handle millions if you avoid row-wise Python code. If groupby-aggregations dominate, consider pre-sorting to improve cache locality. Profile memory usage and prefer categorical types for joins and groupby keys. When exporting back to Excel, control number formats using `Styler` or `xlsxwriter` to ensure parity with Excel displays. This section provides additional guidance specific to TEXT. When migrating from Excel, validate edge cases: empty ranges, criteria with wildcards, and arrays of differing lengths. For date functions, pay attention to timezone localization and daylight saving transitions. For financial functions, verify compounding conventions and day-count bases. For statistical functions, check that definitions (sample vs population) align with the Excel variant used. Where Excel returns errors like #N/A or #DIV/0!, implement explicit branches in Python to either raise informative exceptions or return sentinel values.  In data pipelines, always separate parsing, transformation, and aggregation steps. Parsing cleans and normalizes raw inputs; transformation applies business rules; aggregation summarizes for reporting. This separation mirrors good spreadsheet design (staging sheets, calc sheets, presentation sheets) and makes unit testing much easier. Adopt consistent column naming and document every derived column in a data dictionary. If a lookup or aggregation silently changes row counts, add assertions to catch it early.  For performance, benchmark with realistic row counts. Many Excel workbooks operate on a few thousand rows; pandas can handle millions if you avoid row-wise Python code. If groupby-aggregations dominate, consider pre-sorting to improve cache locality. Profile memory usage and prefer categorical types for joins and groupby keys. When exporting back to Excel, control number formats using `Styler` or `xlsxwriter` to ensure parity with Excel displays."
+}
