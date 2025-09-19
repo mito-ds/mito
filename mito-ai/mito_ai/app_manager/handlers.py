@@ -144,7 +144,7 @@ class AppManagerHandler(BaseWebSocketHandler):
         self.log.info("In check app status")
         try:
             # Make a HEAD request to check if the app URL is accessible
-            response = requests.head(request.app_url, timeout=10)
+            response = requests.head(request.app_url, timeout=10, verify=False)
             self.log.debug(f"Is app accessible: {response.status_code}")
             is_accessible = response.status_code==200
 
