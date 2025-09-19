@@ -5,7 +5,6 @@
 
 import type { IAppManagerService } from './ManageAppsPlugin';
 import type { ICheckAppStatusRequest, ICheckAppStatusReply } from '../../websockets/appManager/appManagerModels';
-import { getJWTToken } from '../AppDeploy/auth';
 
 /**
  * Check if an app URL is accessible through the backend.
@@ -14,19 +13,12 @@ export const checkAppStatus = async (
   appUrl: string,
   appManagerService: IAppManagerService
 ): Promise<boolean> => {
-  console.log("In checkappSttaus")
   try {
-    const jwtToken = await getJWTToken();
-    if (!jwtToken) {
-      console.error('User not authenticated');
-      return false;
-    }
 
     // Create the request message with proper typing
     const request: ICheckAppStatusRequest = {
       type: 'check-app-status',
-      app_url: appUrl,
-      jwt_token: jwtToken
+      app_url: appUrl
     };
 
     // Using websocket service

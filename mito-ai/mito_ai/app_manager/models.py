@@ -15,8 +15,7 @@ class MessageType(str, Enum):
 class ManageAppRequest:
     """Request to manage apps."""
     type: str = "manage-app"
-    jwt_token: Optional[str] = None
-    message_id: Optional[str] = None  
+    message_id: Optional[str] = None
 
 @dataclass(frozen=True)
 class App:

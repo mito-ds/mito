@@ -19,7 +19,6 @@ export interface IManageAppRequest extends IAppManagerRequest {
 export interface ICheckAppStatusRequest extends IAppManagerRequest {
   type: 'check-app-status';
   app_url: string;
-  jwt_token?: string;
 }
 
 /**
