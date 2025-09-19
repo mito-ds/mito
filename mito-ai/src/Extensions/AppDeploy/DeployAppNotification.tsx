@@ -36,7 +36,7 @@ export const deployAppNotification = (url: string, appManagerService: IAppManage
         setTimeout(() => {
             const isLastStep = i === deploymentSteps.length - 1;
             if (isLastStep) {
-            const checkUrlAndUpdate = async () => {
+            const checkUrlAndUpdate = async (): Promise<void> => {
                 if (retryCount < 0) {
                   console.log("Retries done")
                   Notification.update({
@@ -74,13 +74,13 @@ export const deployAppNotification = (url: string, appManagerService: IAppManage
                       // Retry after 30s
                       console.log("In retry for url to be up")
                       retryCount = retryCount - 1;
-                      setTimeout(checkUrlAndUpdate, 30000);
+                      setTimeout(() => void checkUrlAndUpdate(), 30000);
                   }
                 } catch (error) {
                   // Retry after 30s
                   console.error("Error checking app status:", error);
                   retryCount = retryCount - 1;
-                  setTimeout(checkUrlAndUpdate, 30000);
+                  setTimeout(() => void checkUrlAndUpdate(), 30000);
               }
             };
 
