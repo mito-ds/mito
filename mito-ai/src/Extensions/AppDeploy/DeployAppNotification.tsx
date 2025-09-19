@@ -84,7 +84,7 @@ export const deployAppNotification = (url: string, appManagerService: IAppManage
               }
             };
 
-            checkUrlAndUpdate();
+            void checkUrlAndUpdate();
           } else{
             // Regular intermediate step
             Notification.update({
