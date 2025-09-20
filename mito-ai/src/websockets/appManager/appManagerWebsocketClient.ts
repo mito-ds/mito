@@ -7,6 +7,7 @@
 import { type IStream } from '@lumino/signaling';
 import type {
   IManageAppReply,
+  ICheckAppStatusReply,
   IAppManagerRequest
 } from './appManagerModels';
 import { BaseWebsocketClient, IBaseWebsocketClientOptions } from '../BaseWebsocketClient';
@@ -21,7 +22,7 @@ export interface IAppManagerWebsocketClientOptions extends IBaseWebsocketClientO
  *
  * It communicates with the backend over a WebSocket for app managing functionality.
  */
-export class AppManagerWebsocketClient extends BaseWebsocketClient<IAppManagerRequest, IManageAppReply> {
+export class AppManagerWebsocketClient extends BaseWebsocketClient<IAppManagerRequest, IManageAppReply | ICheckAppStatusReply> {
   /**
    * The service URL for the websocket endpoint.
    */
@@ -37,8 +38,8 @@ export class AppManagerWebsocketClient extends BaseWebsocketClient<IAppManagerRe
   /**
    * App manager messages stream.
    */
-  get messages(): IStream<AppManagerWebsocketClient, IManageAppReply> {
-    return this._messages as unknown as IStream<AppManagerWebsocketClient, IManageAppReply>;
+  get messages(): IStream<AppManagerWebsocketClient, IManageAppReply | ICheckAppStatusReply> {
+    return this._messages as unknown as IStream<AppManagerWebsocketClient, IManageAppReply | ICheckAppStatusReply>;
   }
 
   /**
@@ -59,7 +60,7 @@ export class AppManagerWebsocketClient extends BaseWebsocketClient<IAppManagerRe
    * Process a message received from the websocket.
    * Routes responses to the appropriate pending requests.
    */
-  protected _onMessage(message: IManageAppReply): void {
+  protected _onMessage(message: IManageAppReply | ICheckAppStatusReply): void {
     // Emit the message to stream listeners
     this._messages.emit(message);
 

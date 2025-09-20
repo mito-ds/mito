@@ -13,6 +13,7 @@ import { Widget } from '@lumino/widgets';
 import { stopStreamlitPreview } from '../../restAPI/RestAPI';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
+import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
@@ -58,12 +59,13 @@ class IFrameWidget extends Widget {
 const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito-ai:streamlit-preview',
   autoStart: true,
-  requires: [INotebookTracker, ICommandPalette, IAppDeployService],
+  requires: [INotebookTracker, ICommandPalette, IAppDeployService, IAppManagerService],
   activate: (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
     palette: ICommandPalette,
-    appDeployService: IAppDeployService
+    appDeployService: IAppDeployService,
+    appManagerService: IAppManagerService
   ) => {
     console.log('mito-ai: StreamlitPreviewPlugin activated');
 
@@ -72,7 +74,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async () => {
-        await previewNotebookAsStreamlit(app, notebookTracker, appDeployService);
+        await previewNotebookAsStreamlit(app, notebookTracker, appDeployService, appManagerService);
       }
     });
 
@@ -91,6 +93,7 @@ async function previewNotebookAsStreamlit(
   app: JupyterFrontEnd,
   notebookTracker: INotebookTracker,
   appDeployService: IAppDeployService,
+  appManagerService: IAppManagerService,
 ): Promise<void> {
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
@@ -126,7 +129,7 @@ async function previewNotebookAsStreamlit(
     const deployButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: (): void => {
-        void deployStreamlitApp(notebookTracker, appDeployService);
+        void deployStreamlitApp(notebookTracker, appDeployService, appManagerService);
       },
       tooltip: 'Deploy Streamlit App',
       label: 'Deploy App',

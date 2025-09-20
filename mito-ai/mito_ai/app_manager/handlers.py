@@ -12,6 +12,8 @@ from mito_ai.app_manager.models import (
     AppManagerError,
     ManageAppRequest,
     ManageAppReply,
+    CheckAppStatusRequest,
+    CheckAppStatusReply,
     ErrorMessage,
     MessageType
 )
@@ -57,6 +59,10 @@ class AppManagerHandler(BaseWebSocketHandler):
                 # Handle manage app request
                 manage_app_request = ManageAppRequest(**parsed_message)
                 await self._handle_manage_app(manage_app_request)
+            elif message_type == MessageType.CHECK_APP_STATUS.value:
+                # Handle check app status request
+                check_status_request = CheckAppStatusRequest(**parsed_message)
+                await self._handle_check_app_status(check_status_request)
             else:
                 self.log.error(f"Unknown message type: {message_type}")
                 error_response = ErrorMessage(
@@ -130,5 +136,32 @@ class AppManagerHandler(BaseWebSocketHandler):
                 apps=[],
                 error=error,
                 message_id=request.message_id
+            )
+            self.reply(error_reply)
+
+    async def _handle_check_app_status(self, request: CheckAppStatusRequest) -> None:
+        """Handle a check app status request."""
+        self.log.info("In check app status")
+        try:
+            # Make a HEAD request to check if the app URL is accessible
+            response = requests.head(request.app_url, timeout=10, verify=False)
+            self.log.debug(f"Is app accessible: {response.status_code}")
+            is_accessible = response.status_code==200
+
+            # Create successful response
+            reply = CheckAppStatusReply(
+                is_accessible=is_accessible
+            )
+
+            self.reply(reply)
+
+        except Exception as e:
+            self.log.error(f"Error checking app status: {e}", exc_info=e)
+            error = AppManagerError.from_exception(e)
+
+            # Return error response
+            error_reply = CheckAppStatusReply(
+                is_accessible=False,
+                error=error
             )
             self.reply(error_reply)
