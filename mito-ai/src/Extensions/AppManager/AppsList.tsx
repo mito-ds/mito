@@ -6,7 +6,7 @@
 //app-list.tsx
 import * as React from 'react';
 import { copyIcon } from '@jupyterlab/ui-components';
-import { logoutAndClearJWTTokens } from '../AppBuilder/auth';
+import { logoutAndClearJWTTokens } from '../AppDeploy/auth';
 import { fetchUserApps, GetAppsResponse, AppMetadata, isGetAppsSuccess, AppStatus } from './ListAppsAPI';
 import { IAppManagerService } from './ManageAppsPlugin';
 import '../../../style/AppsList.css';

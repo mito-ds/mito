@@ -7,7 +7,7 @@ import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import ModelSelector from '../../components/ModelSelector';
 import { DEFAULT_MODEL } from '../../components/ModelSelector';
-import { CLAUDE_OPUS_DISPLAY_NAME, CLAUDE_OPUS_MODEL_NAME } from '../../utils/models';
+import { GPT_4_1_DISPLAY_NAME, GPT_4_1_MODEL_NAME } from '../../utils/models';
 
 
 describe('ModelSelector', () => {
@@ -29,12 +29,12 @@ describe('ModelSelector', () => {
     fireEvent.click(dropdown);
 
     // Select a model (Claude 4 Opus)
-    const modelOption = screen.getByText(CLAUDE_OPUS_DISPLAY_NAME);
+    const modelOption = screen.getByText(GPT_4_1_DISPLAY_NAME);
     fireEvent.click(modelOption);
 
     // Verify onConfigChange was called with correct model
     expect(mockOnConfigChange).toHaveBeenCalledWith({
-      model: CLAUDE_OPUS_MODEL_NAME
+      model: GPT_4_1_MODEL_NAME
     });
   });
 

@@ -7,13 +7,14 @@ import logging
 from typing import Any, Union, Optional
 import zipfile
 import tempfile
+from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
-from mito_ai.app_builder.models import (
-    BuildAppReply,
-    AppBuilderError,
-    BuildAppRequest,
+from mito_ai.app_deploy.models import (
+    DeployAppReply,
+    AppDeployError,
+    DeployAppRequest,
     ErrorMessage,
     MessageType
 )
@@ -23,8 +24,8 @@ from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
 
 
-class AppBuilderHandler(BaseWebSocketHandler):
-    """Handler for app building requests."""
+class AppDeployHandler(BaseWebSocketHandler):
+    """Handler for app deploy requests."""
     
     def initialize(self) -> None:
         """Initialize the WebSocket handler."""
@@ -57,6 +58,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
         Args:
             message: The message received on the WebSocket.
         """
+        
         start = time.time()
         
         # Convert bytes to string if needed
@@ -73,13 +75,13 @@ class AppBuilderHandler(BaseWebSocketHandler):
             parsed_message = self.parse_message(message)
             message_type = parsed_message.get('type')
             
-            if message_type == MessageType.BUILD_APP.value:
+            if message_type == MessageType.DEPLOY_APP.value:
                 # Handle build app request
-                build_app_request = BuildAppRequest(**parsed_message)
-                await self._handle_build_app(build_app_request)
+                deploy_app_request = DeployAppRequest(**parsed_message)
+                await self._handle_deploy_app(deploy_app_request)
             else:
                 self.log.error(f"Unknown message type: {message_type}")
-                error = AppBuilderError(
+                error = AppDeployError(
                     error_type="InvalidRequest",
                     title=f"Unknown message type: {message_type}"
                 )
@@ -87,11 +89,11 @@ class AppBuilderHandler(BaseWebSocketHandler):
                 
         except ValueError as e:
             self.log.error("Invalid app builder request", exc_info=e)
-            error = AppBuilderError.from_exception(e)
+            error = AppDeployError.from_exception(e)
             self.reply(ErrorMessage(**error.__dict__))
         except Exception as e:
             self.log.error("Error handling app builder message", exc_info=e)
-            error = AppBuilderError.from_exception(
+            error = AppDeployError.from_exception(
                 e, 
                 hint="An error occurred while building the app. Please check the logs for details."
             )
@@ -100,7 +102,7 @@ class AppBuilderHandler(BaseWebSocketHandler):
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"App builder handler processed in {latency_ms} ms.")
     
-    async def _handle_build_app(self, message: BuildAppRequest) -> None:
+    async def _handle_deploy_app(self, message: DeployAppRequest) -> None:
         """Handle a build app request.
         
         Args:
@@ -109,17 +111,17 @@ class AppBuilderHandler(BaseWebSocketHandler):
         message_id = message.message_id
         notebook_path = message.notebook_path
         jwt_token = message.jwt_token
-
+        
         if not message_id:
             self.log.error("Missing message_id in request")
             return
         
         if not notebook_path:
-            error = AppBuilderError(
+            error = AppDeployError(
                 error_type="InvalidRequest",
                 title="Missing 'notebook_path' parameter"
             )
-            self.reply(BuildAppReply(
+            self.reply(DeployAppReply(
                 parent_id=message_id,
                 url="",
                 error=error
@@ -132,12 +134,12 @@ class AppBuilderHandler(BaseWebSocketHandler):
         is_valid = self._validate_jwt_token(jwt_token) if jwt_token else False
         if not is_valid or not jwt_token:
             self.log.error("JWT token validation failed")
-            error = AppBuilderError(
+            error = AppDeployError(
                 error_type="Unauthorized",
                 title="Invalid authentication token",
                 hint="Please sign in again to deploy your app."
             )
-            self.reply(BuildAppReply(
+            self.reply(DeployAppReply(
                 parent_id=message_id,
                 url="",
                 error=error
@@ -150,25 +152,34 @@ class AppBuilderHandler(BaseWebSocketHandler):
             notebook_path = str(notebook_path) if notebook_path else ""
 
             app_directory = os.path.dirname(notebook_path)
-            app_path = os.path.join(app_directory, "app.py")
-
-            if not os.path.exists(app_path):
-                success_flag, app_path_result, result_message = await streamlit_handler(notebook_path)
-                if not success_flag or app_path_result is None:
-                    raise Exception(result_message)
-
+            
+            # Check if the app.py file exists
+            app_path = get_app_path(app_directory)
+            if app_path is None:
+                error = AppDeployError(
+                    error_type="AppNotFound",
+                    title="App not found",
+                    hint="Please make sure the app.py file exists in the same directory as the notebook."
+                )
+                self.reply(DeployAppReply(
+                    parent_id=message_id,
+                    url="",
+                    error=error
+                ))
+            
+            # Finally, deploy the app
             deploy_url = await self._deploy_app(app_directory, jwt_token)
 
             # Send the response
-            self.reply(BuildAppReply(
+            self.reply(DeployAppReply(
                 parent_id=message_id,
                 url=deploy_url
             ))
             
         except Exception as e:
             self.log.error(f"Error building app: {e}", exc_info=e)
-            error = AppBuilderError.from_exception(e)
-            self.reply(BuildAppReply(
+            error = AppDeployError.from_exception(e)
+            self.reply(DeployAppReply(
                 parent_id=message_id,
                 url="",
                 error=error

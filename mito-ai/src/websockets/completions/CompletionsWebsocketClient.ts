@@ -10,6 +10,7 @@ import type {
 } from './CompletionModels';
 import { BaseWebsocketClient, IBaseWebsocketClientOptions } from '../BaseWebsocketClient';
 import { IStream } from '@lumino/signaling';
+import { isElectronBasedFrontend } from '../../utils/user';
 
 /**
  * The instantiation options for the inline completion client.
@@ -26,12 +27,15 @@ export class CompletionWebsocketClient extends BaseWebsocketClient<ICompletionRe
    * The service URL for the websocket endpoint.
    */
   protected readonly SERVICE_URL = 'mito-ai/completions';
+  
+  public readonly isElectron: boolean;
 
   /**
    * Create a new completion client.
    */
   constructor(options: ICompletionWebsocketClientOptions = {}) {
     super(options);
+    this.isElectron = isElectronBasedFrontend()
   }
 
   /**
@@ -107,5 +111,18 @@ export class CompletionWebsocketClient extends BaseWebsocketClient<ICompletionRe
       }
       // default: /* no-op */
     }
+  }
+
+  // Override sendMessage to automatically add environment info
+  sendMessage<T extends ICompletionRequest, R extends CompleterMessage>(message: T): Promise<R> {
+    // Add environment info to all messages
+    const messageWithEnvironment = {
+      ...message,
+      environment: {
+        isElectron: this.isElectron,
+      }
+    };
+    
+    return super.sendMessage(messageWithEnvironment);
   }
 }

@@ -17,3 +17,13 @@ export const getOperatingSystem = (): OperatingSystem => {
 export const isChromeBasedBrowser = (): boolean => {
     return /chrome/i.test(navigator.userAgent) && !/edge|edg/i.test(navigator.userAgent);
 }
+
+
+export const isElectronBasedFrontend = (): boolean => {
+    /* 
+    Checks if the user is using an Electron-based browser.
+    This tells us that they are using Mito Desktop or JupyterLab Desktop.
+    */
+    const userAgent = navigator.userAgent.toLowerCase();
+    return userAgent.includes('electron')
+}

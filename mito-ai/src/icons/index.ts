@@ -9,6 +9,7 @@ import NucleusIcon from '../../src/icons/NucleusIcon.svg';
 import OpenIndicatorIcon from '../../src/icons/OpenIndicatorIcon.svg';
 import AppBuilderExcludeCellIcon from '../../src/icons/AppBuilderExcludeCellIcon.svg';
 import AppBuilderIncludeCellIcon from '../../src/icons/AppBuilderIncludeCellIcon.svg';
+import DeployIcon from '../../src/icons/App/DeployIcon.svg';
 
 export const lightBulbLabIcon = new LabIcon({
   name: 'lightbulb-icon',
@@ -33,4 +34,9 @@ export const AppBuilderExcludeCellLabIcon = new LabIcon({
 export const AppBuilderIncludeCellLabIcon = new LabIcon({
   name: 'app-builder-include-cell-icon',
   svgstr: AppBuilderIncludeCellIcon
+});
+
+export const DeployLabIcon = new LabIcon({
+  name: 'deploy-icon',
+  svgstr: DeployIcon
 });

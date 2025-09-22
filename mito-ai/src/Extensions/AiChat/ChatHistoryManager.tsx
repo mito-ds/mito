@@ -5,11 +5,12 @@
 
 import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { getActiveCellCode, getActiveCellID, getAIOptimizedCells, getCellCodeByID } from "../../utils/notebook";
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCellsInNotebookPanel, getCellCodeByID, getCellCodeByIDInNotebookPanel } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
+import { validateAndCorrectAgentResponse } from "./validationUtils";
 
 export type PromptType = 
     'chat' | 
@@ -75,6 +76,12 @@ export class ChatHistoryManager {
     private initializeAssumptionsFromHistory(): void {
         this._allAssumptions.clear();
         this.displayOptimizedChatHistory.forEach(item => {
+            // Validate the agent response if it exists
+            if (item.agentResponse !== undefined) {
+                item.agentResponse = validateAndCorrectAgentResponse(item.agentResponse)
+            }
+
+            // Process the assumptions
             if (item.agentResponse?.analysis_assumptions) {
                 item.agentResponse.analysis_assumptions.forEach(assumption => {
                     this._allAssumptions.add(assumption);
@@ -133,10 +140,11 @@ export class ChatHistoryManager {
         const activeCellCode = getActiveCellCode(this.notebookTracker) || ''
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
 
+        const activeNotebookContext = this.contextManager.getActiveNotebookContext();
         const chatMessageMetadata: IChatMessageMetadata = {
             promptType: 'chat',
-            variables: this.contextManager.variables,
-            files: this.contextManager.files,
+            variables: activeNotebookContext?.variables || [],
+            files: activeNotebookContext?.files || [],
             activeCellCode: activeCellCode,
             activeCellId: activeCellID,
             input: input,
@@ -158,14 +166,20 @@ export class ChatHistoryManager {
         return chatMessageMetadata
     }
 
-    addAgentExecutionMessage(activeThreadId: string, input?: string, additionalContext?: Array<{type: string, value: string}>): IAgentExecutionMetadata {
+    addAgentExecutionMessage(
+        activeThreadId: string, 
+        notebookPanel: NotebookPanel,
+        input?: string, 
+        additionalContext?: Array<{type: string, value: string}>
+    ): IAgentExecutionMetadata {
 
-        const aiOptimizedCells = getAIOptimizedCells(this.notebookTracker)
+        const aiOptimizedCells = getAIOptimizedCellsInNotebookPanel(notebookPanel)
+        const notebookContext = this.contextManager.getNotebookContext(notebookPanel.id);
 
         const agentExecutionMetadata: IAgentExecutionMetadata = {
             promptType: 'agent:execution',
-            variables: this.contextManager.variables,
-            files: this.contextManager.files,
+            variables: notebookContext?.variables || [],
+            files: notebookContext?.files || [],
             aiOptimizedCells: aiOptimizedCells,
             input: input || '',
             threadId: activeThreadId,
@@ -199,20 +213,16 @@ export class ChatHistoryManager {
         return agentExecutionMetadata
     }
 
-    dropMessagesStartingAtIndex(index: number): void {
-        this.displayOptimizedChatHistory.splice(index)
-    }
-
-
     addSmartDebugMessage(activeThreadId: string, errorMessage: string): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID) || ''
 
+        const activeNotebookContext = this.contextManager.getActiveNotebookContext();
         const smartDebugMetadata: ISmartDebugMetadata = {
             promptType: 'smartDebug',
-            variables: this.contextManager.variables,
-            files: this.contextManager.files,
+            variables: activeNotebookContext?.variables || [],
+            files: activeNotebookContext?.files || [],
             activeCellCode: activeCellCode,
             activeCellId: activeCellID,
             errorMessage: errorMessage,
@@ -231,16 +241,17 @@ export class ChatHistoryManager {
         return smartDebugMetadata
     }
 
-    addAgentSmartDebugMessage(activeThreadId: string, errorMessage: string): IAgentSmartDebugMetadata {
+    addAgentSmartDebugMessage(activeThreadId: string, errorMessage: string, notebookPanel: NotebookPanel): IAgentSmartDebugMetadata {
 
-        const activeCellID = getActiveCellID(this.notebookTracker)
-        const activeCellCode = getActiveCellCode(this.notebookTracker)
+        const activeCellID = getActiveCellIDInNotebookPanel(notebookPanel)
+        const activeCellCode = getCellCodeByIDInNotebookPanel(notebookPanel, activeCellID)
 
+        const notebookContext = this.contextManager.getNotebookContext(notebookPanel.id);
         const agentSmartDebugMetadata: IAgentSmartDebugMetadata = {
             promptType: 'agent:autoErrorFixup',
-            aiOptimizedCells: getAIOptimizedCells(this.notebookTracker),
-            variables: this.contextManager.variables,
-            files: this.contextManager.files,
+            aiOptimizedCells: getAIOptimizedCellsInNotebookPanel(notebookPanel),
+            variables: notebookContext?.variables || [],
+            files: notebookContext?.files || [],
             errorMessage: errorMessage,
             error_message_producing_code_cell_id: activeCellID || '',
             threadId: activeThreadId,
@@ -264,9 +275,10 @@ export class ChatHistoryManager {
         const activeCellID = getActiveCellID(this.notebookTracker)
         const activeCellCode = getCellCodeByID(this.notebookTracker, activeCellID)
 
+        const activeNotebookContext = this.contextManager.getActiveNotebookContext();
         const codeExplainMetadata: ICodeExplainMetadata = {
             promptType: 'codeExplain',
-            variables: this.contextManager.variables,
+            variables: activeNotebookContext?.variables || [],
             activeCellCode,
             threadId: activeThreadId
         }
@@ -341,6 +353,7 @@ export class ChatHistoryManager {
     }
 
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
+        agentResponse = validateAndCorrectAgentResponse(agentResponse)
         let content = agentResponse.message
         if (agentResponse.type === 'cell_update') {
             // For cell_update messages, we want to display the code the agent wrote along with 
@@ -392,6 +405,10 @@ export class ChatHistoryManager {
         }
 
         return this.displayOptimizedChatHistory[lastAIMessagesIndex]
+    }
+
+    dropMessagesStartingAtIndex(index: number): void {
+        this.displayOptimizedChatHistory.splice(index)
     }
 }
 

@@ -1,0 +1,34 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mito-deploy-button {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 4px 8px !important;
+    color: var(--jp-ui-font-color1) !important;
+    background-color: var(--jp-layout-color2) !important;
+}
+
+.mito-deploy-button:hover {
+    background-color: var(--jp-layout-color3) !important;
+}
+
+.mito-deploy-button .mito-ai-deploy-icon {
+    display: flex !important;
+    align-items: center !important;
+    height: 10px !important;
+    width: 10px !important;
+    font-size: 12px !important;
+}
+
+.mito-deploy-button::slotted(svg),
+.mito-deploy-button svg {
+    width: 12px !important;
+    height: 12px !important;
+    max-width: 12px !important;
+    max-height: 12px !important;
+    margin-right: 4px !important;
+}

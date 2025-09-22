@@ -38,7 +38,7 @@ export const Citation: React.FC<CitationProps> = ({ citationIndex, cellId, line,
     const lineEnd = typeof line === 'number' ? line : line.end;
 
     // Scroll to the cell and highlight the lines
-    scrollToAndHighlightCell(notebookTracker, cellId, lineStart, lineEnd);
+    scrollToAndHighlightCell(notebookTracker.currentWidget, cellId, lineStart, lineEnd);
   };
 
   return (

@@ -16,6 +16,11 @@ export interface IManageAppRequest extends IAppManagerRequest {
   jwt_token?: string;
 }
 
+export interface ICheckAppStatusRequest extends IAppManagerRequest {
+  type: 'check-app-status';
+  app_url: string;
+}
+
 /**
  * Completion error type.
  */
@@ -52,6 +57,26 @@ export interface IManageAppReply {
     status: string;
     last_deployed_at: string;
   }>;
+
+  /**
+   * Error information.
+   */
+  error?: AppManagerError;
+}
+
+/**
+ * Response for checking app status.
+ */
+export interface ICheckAppStatusReply {
+  /**
+   * The type of the message.
+   */
+  type: 'check-app-status';
+
+  /**
+   * Whether the app is accessible.
+   */
+  is_accessible: boolean;
 
   /**
    * Error information.

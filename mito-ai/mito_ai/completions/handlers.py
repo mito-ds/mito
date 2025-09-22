@@ -67,6 +67,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self._llm = llm
         self.is_pro = is_pro()
         self._selected_model = FALLBACK_MODEL
+        self.is_electron = False
         identify(llm.key_type)
         
     @property
@@ -128,6 +129,18 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             parsed_message = json.loads(message)
             metadata_dict = parsed_message.get('metadata', {})
             type: MessageType = MessageType(parsed_message.get('type'))
+            
+            # Extract environment information from the message
+            environment = parsed_message.get('environment', {})
+            if environment:
+                is_electron = environment.get('isElectron', None)
+                if is_electron is not None:
+                    if is_electron != self.is_electron:
+                        # If the is_electron status is different, log it
+                        identify(key_type=self._llm.key_type, is_electron=is_electron)
+                    
+                    self.is_electron = is_electron
+
         except ValueError as e:
             self.log.error("Invalid completion request.", exc_info=e)
             return

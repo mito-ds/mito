@@ -125,7 +125,9 @@ def structured_globals():
 
 print(structured_globals())
 `
-// Function to fetch variables and sync with the frontend
+/* 
+Function to fetch variables and sync with the frontend
+*/
 export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVariables: (variables: Variable[]) => void): void {
     const kernel = notebookPanel.context.sessionContext.session?.kernel;
 
@@ -142,7 +144,7 @@ export function fetchVariablesAndUpdateState(notebookPanel: NotebookPanel, setVa
         // Listen for the output from the kernel
         future.onIOPub = (msg: KernelMessage.IMessage) => {
             // A 'stream' message represents standard output (stdout) or standard error (stderr) produced 
-            // during the execution of code in the kernel.
+            // during the execution of code in the kernel. 
             if (KernelMessage.isStreamMsg(msg)) {
                 if (msg.content.name === 'stdout') {
                     try {

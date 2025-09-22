@@ -9,6 +9,7 @@
   align-items: center;
   gap: 4px;
   padding: 8px 10px;
+  overflow-x: hidden;
 }
 
 /* Consistent spacing for all children of context container */
@@ -27,14 +28,15 @@
 
   font-size: 12px;
   height: 20px;
-  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
 
   border: 1px solid var(--jp-border-color1);
   cursor: pointer;
+}
 
-  &:hover {
-    background-color: var(--jp-layout-color3);
-  }
+.selected-context-container:hover {
+  background-color: var(--jp-layout-color3);
 }
 
 .selected-context-container .rule-name {

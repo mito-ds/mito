@@ -8,11 +8,11 @@ import { IAppManagerService } from '../../Extensions/AppManager/ManageAppsPlugin
 import { IManageAppReply } from '../../websockets/appManager/appManagerModels';
 
 // Mock the auth module
-jest.mock('../../Extensions/AppBuilder/auth', () => ({
+jest.mock('../../Extensions/AppDeploy/auth', () => ({
   getJWTToken: jest.fn()
 }));
 
-const { getJWTToken } = require('../../Extensions/AppBuilder/auth');
+const { getJWTToken } = require('../../Extensions/AppDeploy/auth');
 
 describe('list-apps-api', () => {
   let mockAppManagerService: IAppManagerService;

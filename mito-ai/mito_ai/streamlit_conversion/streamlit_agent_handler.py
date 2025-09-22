@@ -4,7 +4,7 @@
 import logging
 import os
 from anthropic.types import MessageParam
-from typing import List, Optional, Tuple, cast, Union
+from typing import List, Optional, Tuple, cast
 
 from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers

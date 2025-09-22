@@ -31,11 +31,6 @@
           "name": "preview-app",
           "command": "toolbar-button:preview-as-streamlit",
           "rank": 1000
-        },
-        {
-          "name": "convert-to-streamlit",
-          "command": "toolbar-button:convert-to-streamlit",
-          "rank": 1001
         }
       ]
     }

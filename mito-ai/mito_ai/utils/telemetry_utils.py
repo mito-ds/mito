@@ -104,7 +104,7 @@ def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     
     return bool(telemetry)
 
-def identify(key_type: Optional[str] = None) -> None:
+def identify(key_type: Optional[str] = None, is_electron: Optional[bool] = None) -> None:
     """
     Helper function for identifying a user. We just take
     their python version, mito version, and email.
@@ -125,6 +125,11 @@ def identify(key_type: Optional[str] = None) -> None:
         IS_DEV_MODE_PARAM: is_dev_mode(),
         UJ_FEEDBACKS_V2: feedbacks_v2
     }
+    
+    if is_electron is not None:
+        # Only update field when we get info from the client. Don't default to False.
+        # becase we are only sending this info to the first completion_handler identify call.
+        params['is_mito_desktop'] = is_electron
 
     if not is_running_test():
         # TODO: If the user is in JupyterLite, we need to do some extra work.
@@ -362,11 +367,16 @@ def log_file_upload_attempt(
 def log_file_upload_failure(error: str) -> None:
     log("mito_ai_file_upload_failure", params={"error_message": error})
 
-def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
-    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
+def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], thread_id: str, message_type: MessageType, error: BaseException) -> None:
+    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, thread_id=thread_id, key_type=key_type, error=error)
     
-def log_ai_completion_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: BaseException) -> None:
-    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type, error=error)
+def log_ai_completion_error(
+    key_type: Literal['mito_server_key', 'user_key'],
+    thread_id: str,
+    message_type: MessageType, 
+    error: BaseException
+) -> None:
+    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, thread_id=thread_id, key_type=key_type, error=error)
     
 def log_mito_server_free_tier_limit_reached(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType) -> None:
     log(MITO_SERVER_FREE_TIER_LIMIT_REACHED, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type)
