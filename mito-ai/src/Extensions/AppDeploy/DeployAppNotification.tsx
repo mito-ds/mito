@@ -7,32 +7,29 @@ import { Notification } from '@jupyterlab/apputils';
 import { checkAppStatus } from '../AppManager/CheckAppStatusAPI';
 import type { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 
-export const deployAppNotification = (url: string, appManagerService: IAppManagerService): void => {
+export const deployAppNotification = (url: string, appManagerService: IAppManagerService, notificationId: string): void => {
     // Total deployment time in milliseconds (3 minutes = 180000ms)
     const totalDeploymentTime = 180000;
     
     // Create an array of deployment steps
     const deploymentSteps = [
-        "Step 1/7: Preparing your app...",
-        "Step 2/7: Assembling clouds...",
-        "Step 3/7: Building your app...",
-        "Step 4/7: Configuring network settings...",
-        "Step 5/7: Adding final touches...",
-        "Step 6/7: Running security checks...",
+        "Step 2/7: Preparing your app...",
+        "Step 3/7: Assembling clouds...",
+        "Step 4/7: Building your app...",
+        "Step 5/7: Configuring network settings...",
+        "Step 6/7: Adding final touches...",
+        "Step 7/7: Running security checks...",
         "Deployment complete! Your app is ready."
     ];
     
     // Create initial "in progress" notification to get notificaiton id
-    const notificationId = Notification.emit(deploymentSteps[0]!, 'in-progress', {
-        autoClose: false
-    });
-    
+
     // Calculate time between steps (evenly distribute throughout the total deployment time)
     const stepInterval = totalDeploymentTime / (deploymentSteps.length - 1);
     let retryCount = 5;
     
     // Update message at each step interval
-    for (let i = 1; i < deploymentSteps.length; i++) {
+    for (let i = 0; i < deploymentSteps.length; i++) {
         setTimeout(() => {
             const isLastStep = i === deploymentSteps.length - 1;
             if (isLastStep) {

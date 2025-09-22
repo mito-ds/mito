@@ -48,6 +48,10 @@ export const deployStreamlitApp = async (
     }
   }
 
+  const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
+        autoClose: false
+    });
+
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
     console.error('No notebook is currently active');
@@ -75,13 +79,16 @@ export const deployStreamlitApp = async (
     });
 
     if (response.error) {
-      Notification.emit(response.error.title, 'error', {
-          autoClose: false
-      });
+      Notification.update({
+                id: notificationId,
+                message: response.error.title,
+                type: 'error',
+                autoClose: false
+            });
     } else {
       console.log("App deployment response:", response);
       const url = response.url;
-      deployAppNotification(url, appManagerService);
+      deployAppNotification(url, appManagerService, notificationId);
     }
   } catch (error) {
     // TODO: Do something with the error
