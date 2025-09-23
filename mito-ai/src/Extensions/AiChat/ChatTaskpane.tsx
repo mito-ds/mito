@@ -902,22 +902,35 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const markAgentForStopping = (): void => {
-        // Signal that the agent should stop after current task
+        // 1. Immediately disconnect any active stream handlers
+        if (streamHandlerRef.current) {
+            websocketClient.stream.disconnect(streamHandlerRef.current, null);
+            streamHandlerRef.current = null;
+        }
+        
+        // 2. Clear streaming content
+        streamingContentRef.current = '';
+        
+        // 3. Signal that the agent should stop immediately
         shouldContinueAgentExecution.current = false;
-        // Update UI to show stopping state
-        setAgentExecutionStatus('stopping');
-    }
-
-    const finalizeAgentStop = (): void => {
-        // Notify user that agent has been stopped
-        shouldContinueAgentExecution.current = false;
+        
+        // 4. Update UI to show immediate stop (not "stopping")
+        setAgentExecutionStatus('idle');
+        setLoadingAIResponse(false);
+        
+        // 5. Add immediate feedback message
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         addAIMessageFromResponseAndUpdateState(
-            "Agent execution stopped. You can continue the conversation or start a new one.",
+            "Agent execution stopped.",
             'chat',
             newChatHistoryManager
         );
-        // Reset agent to idle state
+    }
+
+    const finalizeAgentStop = (): void => {
+        // This function is now handled by markAgentForStopping for immediate feedback
+        // Keeping it for backward compatibility with existing code that calls it
+        shouldContinueAgentExecution.current = false;
         setAgentExecutionStatus('idle');
     }
 
