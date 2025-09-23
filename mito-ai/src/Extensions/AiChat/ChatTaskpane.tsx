@@ -209,6 +209,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
+    
+    // Track active requests for cancellation
+    const activeRequestControllerRef = useRef<AbortController | null>(null);
 
     // State for managing next steps from responses
     // If the user hides the next steps, we keep them hidden until they re-open them
@@ -723,6 +726,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const _sendMessageAndSaveResponse = async (
         completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager
     ): Promise<boolean> => {
+        // Create AbortController for this request
+        const abortController = new AbortController();
+        activeRequestControllerRef.current = abortController;
+        
         // Capture the completion request for debugging
         captureCompletionRequest(completionRequest);
         if (completionRequest.stream) {
@@ -789,7 +796,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             websocketClient.stream.connect(streamHandler, null);
 
             try {
+                // Check if request was aborted before making the call
+                if (abortController.signal.aborted) {
+                    throw new Error('Request aborted');
+                }
+                
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
+                
+                // Check if request was aborted after receiving response
+                if (abortController.signal.aborted) {
+                    throw new Error('Request aborted');
+                }
+                
                 const content = aiResponse.items[0]?.content ?? '';
 
                 if (
@@ -801,6 +819,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                 }
             } catch (error) {
+                // Check if this was an abort error
+                if ((error as any).message === 'Request aborted') {
+                    // Don't show error message for aborted requests
+                    return false;
+                }
+                
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).title ? (error as any).title : `${error}`,
                     'chat',
@@ -818,7 +842,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // NON-STREAMING RESPONSES
             // Once we move everything to streaming, we can remove everything in this else block
             try {
+                // Check if request was aborted before making the call
+                if (abortController.signal.aborted) {
+                    throw new Error('Request aborted');
+                }
+                
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
+                
+                // Check if request was aborted after receiving response
+                if (abortController.signal.aborted) {
+                    throw new Error('Request aborted');
+                }
 
                 if (aiResponse.error) {
 
@@ -864,6 +898,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     }
                 }
             } catch (error) {
+                // Check if this was an abort error
+                if ((error as any).message === 'Request aborted') {
+                    // Don't show error message for aborted requests
+                    return false;
+                }
+                
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).title ? (error as any).title : `${error}`,
                     'chat',
@@ -881,6 +921,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 setCodeReviewStatus('chatPreview');
                 setLoadingAIResponse(false);
             }
+        }
+
+        // Clean up AbortController
+        if (activeRequestControllerRef.current === abortController) {
+            activeRequestControllerRef.current = null;
         }
 
         return true
@@ -902,23 +947,29 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const markAgentForStopping = async (): Promise<void> => {
-        // 1. Immediately disconnect any active stream handlers
+        // 1. Immediately abort any ongoing requests
+        if (activeRequestControllerRef.current) {
+            activeRequestControllerRef.current.abort();
+            activeRequestControllerRef.current = null;
+        }
+        
+        // 2. Disconnect any active stream handlers
         if (streamHandlerRef.current) {
             websocketClient.stream.disconnect(streamHandlerRef.current, null);
             streamHandlerRef.current = null;
         }
         
-        // 2. Clear streaming content
+        // 3. Clear streaming content
         streamingContentRef.current = '';
         
-        // 3. Signal that the agent should stop immediately
+        // 4. Signal that the agent should stop immediately
         shouldContinueAgentExecution.current = false;
         
-        // 4. Update UI to show immediate stop (not "stopping")
+        // 5. Update UI to show immediate stop (not "stopping")
         setAgentExecutionStatus('idle');
         setLoadingAIResponse(false);
         
-        // 5. Send stop message to backend
+        // 6. Send stop message to backend
         try {
             await websocketClient.sendMessage({
                 type: "stop_agent",
@@ -932,7 +983,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             console.error('Failed to send stop agent message to backend:', error);
         }
         
-        // 6. Add immediate feedback message
+        // 7. Add immediate feedback message
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         addAIMessageFromResponseAndUpdateState(
             "Agent execution stopped.",
