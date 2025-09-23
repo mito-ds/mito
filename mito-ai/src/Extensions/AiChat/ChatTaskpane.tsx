@@ -901,7 +901,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(chatHistoryManager)
     }
 
-    const markAgentForStopping = (): void => {
+    const markAgentForStopping = async (): Promise<void> => {
         // 1. Immediately disconnect any active stream handlers
         if (streamHandlerRef.current) {
             websocketClient.stream.disconnect(streamHandlerRef.current, null);
@@ -918,7 +918,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentExecutionStatus('idle');
         setLoadingAIResponse(false);
         
-        // 5. Add immediate feedback message
+        // 5. Send stop message to backend
+        try {
+            await websocketClient.sendMessage({
+                type: "stop_agent",
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: "stop_agent"
+                },
+                stream: false
+            });
+        } catch (error) {
+            console.error('Failed to send stop agent message to backend:', error);
+        }
+        
+        // 6. Add immediate feedback message
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         addAIMessageFromResponseAndUpdateState(
             "Agent execution stopped.",
@@ -1644,7 +1658,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
                 <button
                     className="button-base button-red stop-agent-button"
-                    onClick={markAgentForStopping}
+                    onClick={() => void markAgentForStopping()}
                     disabled={agentExecutionStatus === 'stopping'}
                     data-testid="stop-agent-button"
                 >
