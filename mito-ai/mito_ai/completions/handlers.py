@@ -239,6 +239,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 )
             else:
                 self.log.info("Trying to stop agent, but no thread ID available")
+            return
 
         try:
             # Get completion based on message type
