@@ -327,6 +327,39 @@ class GlobalMessageHistory:
             self._update_last_interaction(thread)
             self._save_thread_to_disk(thread)
 
+    def remove_last_message(self, thread_id: ThreadID, new_message: Optional[ChatCompletionMessageParam] = None) -> bool:
+        """
+        Removes the last message from both ai_optimized_history and display_history 
+        for the given thread. 
+        Returns True if a message was removed, False if the thread was empty or doesn't exist.
+        """
+        with self._lock:
+            if thread_id not in self._chat_threads:
+                return False
+            
+            thread = self._chat_threads[thread_id]
+            
+            # Check if there are any messages to remove
+            if not thread.ai_optimized_history and not thread.display_history:
+                return False
+            
+            # Remove last message from both histories
+            if thread.ai_optimized_history:
+                thread.ai_optimized_history.pop()
+            if thread.display_history:
+                thread.display_history.pop()
+
+            # If a new message is provided, add it to both histories
+            if new_message:
+                thread.ai_optimized_history.append(new_message)
+                thread.display_history.append(new_message)
+            
+            # Update and save
+            self._update_last_interaction(thread)
+            self._save_thread_to_disk(thread)
+            
+            return True
+
     def delete_thread(self, thread_id: ThreadID) -> bool:
         """
         Deletes a chat thread by its ID. Removes both the in-memory entry and the JSON file.

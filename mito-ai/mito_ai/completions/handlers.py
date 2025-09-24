@@ -222,6 +222,38 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 )
                 self.reply(reply)
             return
+
+        if type == MessageType.STOP_AGENT:
+            print("Stop agent")
+            
+            # Get the current message ID
+            current_message_id = parsed_message.get('message_id')
+            print(f"Current message ID: {current_message_id}")
+            
+            # Get the thread_id from metadata if available, otherwise use the newest thread
+            thread_id = metadata_dict.get('thread_id')
+            if not thread_id:
+                # Get the newest thread ID
+                thread_id = message_history._get_newest_thread_id()
+            
+            if thread_id:
+                # Get the display history for the thread
+                display_history = message_history.get_display_history(thread_id)
+                print(f"Thread ID: {thread_id}")
+                new_message = {"role": "Assistant", "content": "Agent stopped by user."}
+                was_rm = message_history.remove_last_message(thread_id, new_message)
+                print(f"Was removed: {was_rm}")
+
+                if display_history:
+                    # Get the last message from the history
+                    last_message = display_history[-1]
+                    print(f"Last message role: {last_message.get('role', 'unknown')}")
+                    print(f"Last message content: {last_message.get('content', 'no content')}")
+                    print(f"Last message ID: {current_message_id}")
+                else:
+                    print("No message history found")
+            else:
+                print("No thread ID available")
         
         try:
             # Get completion based on message type
