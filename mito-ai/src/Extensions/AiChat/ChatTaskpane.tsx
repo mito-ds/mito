@@ -986,7 +986,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // 7. Add immediate feedback message
         const newChatHistoryManager = getDuplicateChatHistoryManager();
         addAIMessageFromResponseAndUpdateState(
-            "Agent execution stopped.",
+            "Agent stopped by user.",
             'chat',
             newChatHistoryManager
         );
