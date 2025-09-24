@@ -29,7 +29,7 @@
   resize: none;
   width: 100%;
   padding: 10px;
-  overflow-y: hidden;
+  overflow-y: auto;
   box-sizing: border-box;
   flex-shrink: 0 !important;
   background-color: var(--chat-user-message-background-color);

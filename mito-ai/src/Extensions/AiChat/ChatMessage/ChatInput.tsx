@@ -116,9 +116,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
         if (!textarea) return;
 
         textarea.style.minHeight = 'auto';
+        const maxHeight = 350;
         textarea.style.height = !textarea.value || resetHeight
             ? '80px'
-            : `${Math.max(80, textarea.scrollHeight)}px`;
+            : `${Math.min(maxHeight, Math.max(80, textarea.scrollHeight))}px`;
     };
 
     useEffect(() => {
