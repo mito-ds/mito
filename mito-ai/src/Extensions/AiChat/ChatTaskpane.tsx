@@ -968,8 +968,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // 5. Update UI to show immediate stop (not "stopping")
         setAgentExecutionStatus('idle');
         setLoadingAIResponse(false);
-        
-        // 6. Send stop message to backend
+
+        // 6. Add immediate feedback message
+        const newChatHistoryManager = getDuplicateChatHistoryManager();
+        addAIMessageFromResponseAndUpdateState(
+            "Agent stopped by user.",
+            'chat',
+            newChatHistoryManager
+        );
+
+        // 7. Send stop message to backend
         try {
             await websocketClient.sendMessage({
                 type: "stop_agent",
@@ -983,14 +991,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         } catch (error) {
             console.error('Failed to send stop agent message to backend:', error);
         }
-        
-        // 7. Add immediate feedback message
-        const newChatHistoryManager = getDuplicateChatHistoryManager();
-        addAIMessageFromResponseAndUpdateState(
-            "Agent stopped by user.",
-            'chat',
-            newChatHistoryManager
-        );
     }
 
     const finalizeAgentStop = (): void => {

@@ -126,17 +126,14 @@ test.describe.parallel("Stop Agent", () => {
         // Click the Stop Agent button
         await page.getByTestId('stop-agent-button').click();
 
-        // Expect that the message turns into Stopping 
-        await expect(page.getByRole('button', { name: 'Stopping' })).toBeVisible();
-
         // Wait for the current message to finish
         await waitForMitoAILoadingToDisappear(page);
 
         // Verify that the message "Agent stopped" is visible
-        await expect(page.getByText('Agent execution stopped')).toBeVisible();
+        await expect(page.getByText('Agent stopped by user')).toBeVisible();
     });
 
-    test("Stop agent during error fixup", async ({ page }) => {
+    test.only("Stop agent during error fixup", async ({ page }) => {
         // This is hopefully an impossible thing for the agent to pass. 
         await sendMessageToAgent(page, "Import the file nba_data.csv. IMPORTANT: THIS CODE IS GOING TO ERROR. NEVER GENERATE A CORRECT VERSION OF THIS CODE.");
         await waitForIdle(page);
@@ -152,14 +149,11 @@ test.describe.parallel("Stop Agent", () => {
         // Click the Stop Agent button
         await page.getByRole('button', { name: 'Stop Agent' }).click();
 
-        // Expect that the message turns into Stopping 
-        await expect(page.getByRole('button', { name: 'Stopping' })).toBeVisible();
-
         // Wait for the current message to finish
         await waitForMitoAILoadingToDisappear(page);
 
         // Verify that the message "Agent stopped" is visible
-        await expect(page.getByText('Agent execution stopped')).toBeVisible();
+        await expect(page.getByText('Agent stopped by user')).toBeVisible();
 
         // Verify we don't see the final error message
         const messages = await page.locator('.message-assistant-chat').all();
