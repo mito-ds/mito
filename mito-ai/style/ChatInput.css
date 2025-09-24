@@ -18,6 +18,10 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.chat-input-container.editing {
+  margin-top: 0;
+}
+
 .chat-input-text-area-container {
   position: relative;
   height: min-content;

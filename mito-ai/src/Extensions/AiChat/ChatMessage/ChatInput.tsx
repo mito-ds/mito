@@ -313,7 +313,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div
-            className={classNames("chat-input-container")}
+            className={classNames("chat-input-container", { "editing": isEditing })}
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
