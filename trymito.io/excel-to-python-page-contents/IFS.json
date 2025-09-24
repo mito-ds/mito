@@ -1,0 +1,168 @@
+{
+  "slug": [
+    "functions",
+    "conditional",
+    "IFS"
+  ],
+  "functionNameShort": "IFS",
+  "functionNameLong": "IFS",
+  "relatedFunctions": [
+    "IF",
+    "SWITCH"
+  ],
+  "purpose": "Evaluate multiple conditions and return value for first TRUE",
+  "titleCardParagraphs": [
+    "Excel's IFS function: Evaluate multiple conditions and return value for first TRUE.",
+    "This guide explains in depth how to replicate Excel's IFS functionality in Python using pandas and numpy.",
+    "We will cover syntax, multiple examples, edge cases, performance considerations, common mistakes, and best practices."
+  ],
+  "excelExplanation": {
+    "paragraphs": [
+      "The IFS function in Excel allows users to evaluate multiple conditions and return value for first true.",
+      "Syntax and parameters are flexible, allowing for optional arguments and different modes of operation.",
+      "=IFS(condition1, value1, [condition2, value2], \u2026)",
+      "Excel formulas can be combined with other functions, making this versatile in reporting and analysis."
+    ],
+    "syntaxTable": [
+      {
+        "parameter": "condition1",
+        "description": "Logical test",
+        "dataType": "boolean"
+      }
+    ],
+    "examplesTable": [
+      {
+        "formula": "=IFS(A1>90,\"A\",A1>80,\"B\")",
+        "description": "Grade based on score",
+        "result": "A or B"
+      },
+      {
+        "formula": "=IFS(...)",
+        "description": "Another common example of IFS in practice.",
+        "result": "Result depending on context"
+      }
+    ]
+  },
+  "equivalentCode": {
+    "introParagraphs": [
+      "To mimic Excel's IFS in pandas, you can use several approaches depending on context.",
+      "Below are multiple strategies, each with pros and cons.",
+      "These code examples also illustrate performance differences and how to handle missing data."
+    ],
+    "codeSections": [
+      {
+        "title": "Basic usage in pandas",
+        "shortTitle": "basic",
+        "paragraphs": [
+          "Simple equivalent of IFS using core pandas methods.",
+          "Useful for small datasets and straightforward logic."
+        ],
+        "codeLines": [
+          "import numpy as np, pandas as pd",
+          "df = pd.DataFrame({'Score':[95,85,72,60,40]})",
+          "conditions = [df['Score']>90, df['Score']>80, df['Score']>70]",
+          "choices = ['A','B','C']",
+          "df['Grade'] = np.select(conditions, choices, default='F')",
+          "print(df)"
+        ]
+      },
+      {
+        "title": "Alternative using numpy",
+        "shortTitle": "numpy",
+        "paragraphs": [
+          "For performance-sensitive tasks, numpy can be faster than pandas.",
+          "This approach is vectorized and avoids Python loops."
+        ],
+        "codeLines": [
+          "import numpy as np, pandas as pd",
+          "s = pd.Series([95,85,72,60,40])",
+          "grade = np.where(s>90,'A', np.where(s>80,'B', np.where(s>70,'C','F')))",
+          "print(grade)"
+        ]
+      },
+      {
+        "title": "Advanced usage",
+        "shortTitle": "advanced",
+        "paragraphs": [
+          "For complex business logic, combine pandas, numpy, and custom functions.",
+          "This is useful when porting long Excel formulas into maintainable Python code."
+        ],
+        "codeLines": [
+          "import pandas as pd",
+          "bins = [-float('inf'),70,80,90,float('inf')]",
+          "labels = ['F','C','B','A']",
+          "df = pd.DataFrame({'Score':[95,85,72,60,40]})",
+          "df['Grade'] = pd.cut(df['Score'], bins=bins, labels=labels, right=True)",
+          "print(df)"
+        ]
+      }
+    ]
+  },
+  "commonMistakes": {
+    "introParagraphs": [
+      "Here are common mistakes when replicating Excel logic in pandas:",
+      "These include indexing errors, type mismatches, handling NaN values, and misinterpreting Excel defaults.",
+      "We provide at least three examples for clarity."
+    ],
+    "codeSections": [
+      {
+        "title": "Indexing differences",
+        "shortTitle": "0 vs 1 based",
+        "paragraphs": [
+          "Excel uses 1-based indexing, pandas uses 0-based."
+        ],
+        "codeLines": [
+          "# Excel is 1-based, pandas iloc is 0-based:",
+          "import pandas as pd",
+          "df = pd.DataFrame({'A':[10,20], 'B':[30,40]})",
+          "excel_row, excel_col = 2, 2  # B2",
+          "value = df.iloc[excel_row-1, excel_col-1]",
+          "print(value)"
+        ]
+      },
+      {
+        "title": "Type coercion issues",
+        "shortTitle": "types",
+        "paragraphs": [
+          "Excel coerces types differently than pandas."
+        ],
+        "codeLines": [
+          "import pandas as pd",
+          "df = pd.DataFrame({'num':['10','20','x']})",
+          "df['num_num'] = pd.to_numeric(df['num'], errors='coerce')",
+          "print(df)"
+        ]
+      },
+      {
+        "title": "NA handling",
+        "shortTitle": "NaN",
+        "paragraphs": [
+          "Excel ignores blanks, pandas uses NaN."
+        ],
+        "codeLines": [
+          "import pandas as pd",
+          "df = pd.DataFrame({'A':[1,None,3]})",
+          "print(df['A'].fillna(0))  # Excel often treats blanks as 0 in some functions"
+        ]
+      },
+      {
+        "title": "Performance assumptions",
+        "shortTitle": "large data",
+        "paragraphs": [
+          "Excel is fine with small datasets, pandas/numpy scale better for large data."
+        ],
+        "codeLines": [
+          "import pandas as pd",
+          "df = pd.DataFrame({'A': range(1_000)})",
+          "# Avoid row-wise loops:",
+          "total_loop = 0",
+          "for _, r in df.iterrows():",
+          "    total_loop += r['A']",
+          "# Prefer vectorization:",
+          "total_vec = df['A'].sum()",
+          "print(total_vec)"
+        ]
+      }
+    ]
+  }
+}
