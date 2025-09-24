@@ -795,18 +795,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Connect the handler
             websocketClient.stream.connect(streamHandler, null);
 
-            try {
-                // Check if request was aborted before making the call
-                if (abortController.signal.aborted) {
-                    throw new Error('Request aborted');
-                }
-                
+            try {                
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
-                
-                // Check if request was aborted after receiving response
-                if (abortController.signal.aborted) {
-                    throw new Error('Request aborted');
-                }
                 
                 const content = aiResponse.items[0]?.content ?? '';
 
@@ -819,12 +809,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                 }
             } catch (error) {
-                // Check if this was an abort error
-                if ((error as any).message === 'Request aborted') {
-                    // Don't show error message for aborted requests
-                    return false;
-                }
-                
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).title ? (error as any).title : `${error}`,
                     'chat',
