@@ -192,6 +192,7 @@ export interface IUpdateModelConfigMetadata {
 
 export interface IStopAgentMetadata {
   promptType: 'stop_agent'
+  threadId: string
 }
 
 export interface IChatCompletionRequest extends ICompletionRequest {

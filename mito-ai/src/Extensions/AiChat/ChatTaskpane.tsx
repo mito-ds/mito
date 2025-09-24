@@ -975,7 +975,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 type: "stop_agent",
                 message_id: UUID.uuid4(),
                 metadata: {
-                    promptType: "stop_agent"
+                    promptType: "stop_agent",
+                    threadId: activeThreadIdRef.current
                 },
                 stream: false
             });
