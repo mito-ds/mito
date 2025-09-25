@@ -795,7 +795,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Connect the handler
             websocketClient.stream.connect(streamHandler, null);
 
-            try {                
+            try {
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
                 
                 const content = aiResponse.items[0]?.content ?? '';
