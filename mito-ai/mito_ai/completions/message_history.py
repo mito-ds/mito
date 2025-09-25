@@ -152,9 +152,6 @@ class GlobalMessageHistory:
 
         # In-memory cache of all chat threads loaded from disk
         self._chat_threads: Dict[ThreadID, ChatThread] = {}
-        
-        # Set of thread IDs to ignore for message appending
-        self._thread_ids_to_ignore: set[ThreadID] = set()
 
         # Load existing threads from disk on startup
         self._load_all_threads_from_disk()
