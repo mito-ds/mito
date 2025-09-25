@@ -226,10 +226,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if type == MessageType.STOP_AGENT:
             # Get the thread_id from metadata if available, otherwise use the newest thread
             thread_id_to_stop = metadata_dict.get('threadId')
-
-            if not thread_id_to_stop:
-                # Get the newest thread ID
-                thread_id_to_stop = message_history._get_newest_thread_id()
             
             if thread_id_to_stop:
                 self.log.info(f"Stopping agent, thread ID: {thread_id_to_stop}")
