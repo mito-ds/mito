@@ -22,7 +22,8 @@ jest.mock('@jupyterlab/coreutils', () => ({
 }));
 jest.mock('@jupyterlab/apputils', () => ({
     Notification: {
-        emit: jest.fn()
+        emit: jest.fn().mockReturnValue('test-notification-id'),
+        update: jest.fn()
     }
 }));
 jest.mock('../../Extensions/AppDeploy/fileUtils', () => ({
@@ -186,7 +187,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
 
         await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
 
-        expect(deployAppNotification).toHaveBeenCalledWith('https://test-app.streamlit.app', mockAppManagerService);
+        expect(deployAppNotification).toHaveBeenCalledWith('https://test-app.streamlit.app', mockAppManagerService, 'test-notification-id');
     });
 
     test('should handle deployment response with error', async () => {
