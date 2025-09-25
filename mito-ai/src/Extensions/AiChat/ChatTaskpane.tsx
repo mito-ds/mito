@@ -930,39 +930,43 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(chatHistoryManager)
     }
 
-    const markAgentForStopping = async (): Promise<void> => {
-        // 1. Immediately abort any ongoing requests
-        if (activeRequestControllerRef.current) {
-            activeRequestControllerRef.current.abort();
-            activeRequestControllerRef.current = null;
-        }
+    const markAgentForStopping = async (reason: 'userStop' | 'naturalConclusion' = 'naturalConclusion',): Promise<void> => {
+        if (reason === 'naturalConclusion') {
+            shouldContinueAgentExecution.current = false;
+            setAgentExecutionStatus('idle');
+            setLoadingAIResponse(false);
+        } else if (reason === 'userStop') {
+            // 1. Immediately abort any ongoing requests
+            if (activeRequestControllerRef.current) {
+                activeRequestControllerRef.current.abort();
+                activeRequestControllerRef.current = null;
+            }
+            
+            // 2. Disconnect any active stream handlers
+            if (streamHandlerRef.current) {
+                websocketClient.stream.disconnect(streamHandlerRef.current, null);
+                streamHandlerRef.current = null;
+            }
+            
+            // 3. Clear streaming content
+            streamingContentRef.current = '';
+            
+            // 4. Signal that the agent should stop immediately
+            shouldContinueAgentExecution.current = false;
+            
+            // 5. Update UI to show immediate stop (not "stopping")
+            setAgentExecutionStatus('idle');
+            setLoadingAIResponse(false);
         
-        // 2. Disconnect any active stream handlers
-        if (streamHandlerRef.current) {
-            websocketClient.stream.disconnect(streamHandlerRef.current, null);
-            streamHandlerRef.current = null;
-        }
-        
-        // 3. Clear streaming content
-        streamingContentRef.current = '';
-        
-        // 4. Signal that the agent should stop immediately
-        shouldContinueAgentExecution.current = false;
-        
-        // 5. Update UI to show immediate stop (not "stopping")
-        setAgentExecutionStatus('idle');
-        setLoadingAIResponse(false);
+            // 6. Add appropriate feedback message based on reason
+            const newChatHistoryManager = getDuplicateChatHistoryManager();
+            addAIMessageFromResponseAndUpdateState(
+                "Agent stopped by user.",
+                'chat',
+                newChatHistoryManager
+            );
 
-        // 6. Add immediate feedback message
-        const newChatHistoryManager = getDuplicateChatHistoryManager();
-        addAIMessageFromResponseAndUpdateState(
-            "Agent stopped by user.",
-            'chat',
-            newChatHistoryManager
-        );
-
-        // 7. Send stop message to backend
-        try {
+            // 7. Send stop message to backend
             await websocketClient.sendMessage({
                 type: "stop_agent",
                 message_id: UUID.uuid4(),
@@ -972,17 +976,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 },
                 stream: false
             });
-        } catch (error) {
-            console.error('Failed to send stop agent message to backend:', error);
         }
+        return;
     }
 
-    const finalizeAgentStop = (): void => {
-        // This function is now handled by markAgentForStopping for immediate feedback
-        // Keeping it for backward compatibility with existing code that calls it
-        shouldContinueAgentExecution.current = false;
-        setAgentExecutionStatus('idle');
-    }
 
     const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
@@ -1005,7 +1002,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
-                finalizeAgentStop()
+                await markAgentForStopping()
                 break;
             }
 
@@ -1037,7 +1034,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             'agent:execution',
                             chatHistoryManager
                         );
-                        finalizeAgentStop()
+                        await markAgentForStopping()
                         break;
                     }
                 }
@@ -1047,24 +1044,28 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (agentTargetNotebookPanelRef.current === null) {
                 // If the agent target notebook panel is not set, we don't know where to run the code so we stop
+                await markAgentForStopping();
                 isAgentFinished = true
                 break;
             }
 
             if (agentResponse === undefined) {
                 // If the agent response is undefined, we need to send a message to the agent
+                await markAgentForStopping();
                 isAgentFinished = true
                 break;
             }
 
             if (agentResponse.type === 'finished_task') {
                 // If the agent told us that it is finished, we can stop
+                await markAgentForStopping();
                 isAgentFinished = true
                 break;
             }
 
             if (agentResponse.type === 'cell_update' && (agentResponse.cell_update === undefined || agentResponse.cell_update === null)) {
                 // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
+                await markAgentForStopping();
                 isAgentFinished = true
                 break;
             }
@@ -1081,7 +1082,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     app,
                     sendAgentSmartDebugMessage,
                     shouldContinueAgentExecution,
-                    finalizeAgentStop,
+                    markAgentForStopping,
                     chatHistoryManagerRef
                 )
 
@@ -1123,7 +1124,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         app,
                         sendAgentSmartDebugMessage,
                         shouldContinueAgentExecution,
-                        finalizeAgentStop,
+                        markAgentForStopping,
                         chatHistoryManagerRef
                     )
 
@@ -1151,7 +1152,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             )
         }
 
-        setAgentExecutionStatus('idle')
+        // Use markAgentForStopping for natural conclusion to ensure consistent cleanup
+        await markAgentForStopping();
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined, updateCellID: string): void => {
@@ -1694,7 +1696,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
                 <button
                     className="button-base button-red stop-agent-button"
-                    onClick={() => void markAgentForStopping()}
+                    onClick={() => void markAgentForStopping('userStop')}
                     disabled={agentExecutionStatus === 'stopping'}
                     data-testid="stop-agent-button"
                 >
