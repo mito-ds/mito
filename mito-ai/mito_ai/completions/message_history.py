@@ -304,9 +304,14 @@ class GlobalMessageHistory:
         # Check if this thread is in the ignore list
         with self._lock:
             if thread_id in self._thread_ids_to_ignore:
-                # Remove the thread ID from the ignore list and return without appending
-                self._thread_ids_to_ignore.remove(thread_id)
-                return
+                # Only ignore assistant messages, not user messages
+                if ai_optimized_message.get("role") == "assistant":
+                    # Remove the thread ID from the ignore list and return without appending
+                    self._thread_ids_to_ignore.remove(thread_id)
+                    return
+                else:
+                    # For user messages, just remove from ignore list but continue processing
+                    self._thread_ids_to_ignore.remove(thread_id)
 
         # Add messages and check if naming is needed while holding the lock
         name_gen_input = None
