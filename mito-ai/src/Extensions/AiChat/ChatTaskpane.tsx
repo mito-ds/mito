@@ -931,34 +931,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const markAgentForStopping = async (reason: 'userStop' | 'naturalConclusion' = 'naturalConclusion',): Promise<void> => {
-        if (reason === 'naturalConclusion') {
-            shouldContinueAgentExecution.current = false;
-            setAgentExecutionStatus('idle');
-            setLoadingAIResponse(false);
-        } else if (reason === 'userStop') {
-            // 1. Immediately abort any ongoing requests
+        // Signal that the agent should stop immediately
+        shouldContinueAgentExecution.current = false;
+        // Update state/UI
+        setAgentExecutionStatus('idle');
+        setLoadingAIResponse(false);
+
+        if (reason === 'userStop') {
+            // Immediately abort any ongoing requests
             if (activeRequestControllerRef.current) {
                 activeRequestControllerRef.current.abort();
                 activeRequestControllerRef.current = null;
             }
-            
-            // 2. Disconnect any active stream handlers
-            if (streamHandlerRef.current) {
-                websocketClient.stream.disconnect(streamHandlerRef.current, null);
-                streamHandlerRef.current = null;
-            }
-            
-            // 3. Clear streaming content
-            streamingContentRef.current = '';
-            
-            // 4. Signal that the agent should stop immediately
-            shouldContinueAgentExecution.current = false;
-            
-            // 5. Update UI to show immediate stop (not "stopping")
-            setAgentExecutionStatus('idle');
-            setLoadingAIResponse(false);
-        
-            // 6. Add appropriate feedback message based on reason
+
+            // Add feedback message based on reason
             const newChatHistoryManager = getDuplicateChatHistoryManager();
             addAIMessageFromResponseAndUpdateState(
                 "Agent stopped by user.",
@@ -966,7 +952,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 newChatHistoryManager
             );
 
-            // 7. Send stop message to backend
+            // Send stop message to backend
             await websocketClient.sendMessage({
                 type: "stop_agent",
                 message_id: UUID.uuid4(),
