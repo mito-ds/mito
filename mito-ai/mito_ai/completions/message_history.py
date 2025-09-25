@@ -248,7 +248,7 @@ class GlobalMessageHistory:
             self._thread_ids_to_ignore.add(thread_id)
 
             # Add a message to the thread to indicate that the user has stopped the conversation
-            message = {
+            message: ChatCompletionMessageParam = {
                 "role": "assistant",
                 "content": "The user has stopped the conversation.",
             }
