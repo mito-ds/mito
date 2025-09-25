@@ -233,10 +233,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             
             if thread_id_to_stop:
                 self.log.info(f"Stopping agent, thread ID: {thread_id_to_stop}")
-                message_history.remove_last_message(
-                    thread_id_to_stop, 
-                    {"role": "assistant", "content": "Agent stopped by user."}
-                )
+                message_history.add_thread_id_to_ignore_list(thread_id_to_stop)
             else:
                 self.log.info("Trying to stop agent, but no thread ID available")
             return
