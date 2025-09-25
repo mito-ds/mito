@@ -13,13 +13,37 @@ const TranslucentButton = (props: {
     href?: string;
     onClick?: () => void
     className?: string
+    variant?: 'install' | 'downloads'
 }): JSX.Element => {
 
-    if (props.href !== undefined) {
+    const getHref = () => {
+        if (props.href) {
+            return props.href;
+        }
+        if (props.variant === 'downloads') {
+            return '/downloads';
+        }
+        return undefined;
+    };
+
+    const href = getHref();
+
+    if (href !== undefined) {
+        // Use Next.js Link for internal navigation (downloads variant)
+        if (props.variant === 'downloads') {
+            return (
+                <Link href={href}>
+                    <a className={classNames(props.className, translucentButtonStyles.translucent_button)}>
+                        {props.children}
+                    </a>
+                </Link>
+            )
+        }
+        // Use regular anchor for external links
         return (
             <a 
                 className={classNames(props.className, translucentButtonStyles.translucent_button)}
-                href={props.href}
+                href={href}
                 target="_blank"
                 rel="noreferrer"
             >

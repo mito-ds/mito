@@ -18,6 +18,10 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.chat-input-container.editing {
+  margin-top: 0;
+}
+
 .chat-input-text-area-container {
   position: relative;
   height: min-content;
@@ -29,7 +33,7 @@
   resize: none;
   width: 100%;
   padding: 10px;
-  overflow-y: hidden;
+  overflow-y: auto;
   box-sizing: border-box;
   flex-shrink: 0 !important;
   background-color: var(--chat-user-message-background-color);

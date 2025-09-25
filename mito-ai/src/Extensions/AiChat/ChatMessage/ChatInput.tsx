@@ -116,9 +116,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
         if (!textarea) return;
 
         textarea.style.minHeight = 'auto';
+        const maxHeight = 350;
         textarea.style.height = !textarea.value || resetHeight
             ? '80px'
-            : `${Math.max(80, textarea.scrollHeight)}px`;
+            : `${Math.min(maxHeight, Math.max(80, textarea.scrollHeight))}px`;
     };
 
     useEffect(() => {
@@ -313,7 +314,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div
-            className={classNames("chat-input-container")}
+            className={classNames("chat-input-container", { "editing": isEditing })}
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />

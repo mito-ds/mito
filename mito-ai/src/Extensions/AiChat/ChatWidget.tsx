@@ -12,7 +12,7 @@ import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../../../src/icons/ChatIcon.svg';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { getOperatingSystem, type OperatingSystem } from '../../utils/user';
+import { getOperatingSystem, OperatingSystem } from '../../utils/user';
 import type { IChatWidget as IChatWidget } from './token';
 import { Signal, type ISignal } from '@lumino/signaling';
 import type {
@@ -43,7 +43,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
     super();
     // Create the websocket client
     this.websocketClient = new CompletionWebsocketClient({
-      serverSettings: options.app.serviceManager.serverSettings
+      serverSettings: options.app.serviceManager.serverSettings,
     });
 
     this.websocketClient.messages.connect(this.onMessage, this);
