@@ -244,7 +244,22 @@ class GlobalMessageHistory:
         when append_message is called, and the thread ID will be removed from the ignore list.
         """
         with self._lock:
+            # Add thread to ignore list
             self._thread_ids_to_ignore.add(thread_id)
+
+            # Add a message to the thread to indicate that the user has stopped the conversation
+            message = {
+                "role": "assistant",
+                "content": "The user has stopped the conversation.",
+            }
+
+            thread = self._chat_threads[thread_id]
+            
+            thread.ai_optimized_history.append(message)
+            thread.display_history.append(message)
+            
+            self._update_last_interaction(thread)
+            self._save_thread_to_disk(thread)
 
     def get_ai_optimized_history(self, thread_id: ThreadID) -> List[ChatCompletionMessageParam]:
         """
