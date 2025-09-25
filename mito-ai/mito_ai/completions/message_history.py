@@ -238,29 +238,6 @@ class GlobalMessageHistory:
     def _update_last_interaction(self, thread: ChatThread) -> None:
         thread.last_interaction_ts = time.time()
 
-    def add_thread_id_to_ignore_list(self, thread_id: ThreadID) -> None:
-        """
-        Adds a thread ID to the ignore list. Messages for this thread will be ignored
-        when append_message is called, and the thread ID will be removed from the ignore list.
-        """
-        with self._lock:
-            # Add thread to ignore list
-            self._thread_ids_to_ignore.add(thread_id)
-
-            # Add a message to the thread to indicate that the user has stopped the conversation
-            message: ChatCompletionMessageParam = {
-                "role": "assistant",
-                "content": "The user has stopped the conversation.",
-            }
-
-            thread = self._chat_threads[thread_id]
-            
-            thread.ai_optimized_history.append(message)
-            thread.display_history.append(message)
-            
-            self._update_last_interaction(thread)
-            self._save_thread_to_disk(thread)
-
     def get_ai_optimized_history(self, thread_id: ThreadID) -> List[ChatCompletionMessageParam]:
         """
         Returns the AI-optimized message history for the specified thread or the newest thread if not specified.
@@ -300,18 +277,6 @@ class GlobalMessageHistory:
         If there are no threads yet, create one.
         We also detect if we should set a short name for the thread.
         """
-
-        # Check if this thread is in the ignore list
-        with self._lock:
-            if thread_id in self._thread_ids_to_ignore:
-                # Only ignore assistant messages, not user messages
-                if ai_optimized_message.get("role") == "assistant":
-                    # Remove the thread ID from the ignore list and return without appending
-                    self._thread_ids_to_ignore.remove(thread_id)
-                    return
-                else:
-                    # For user messages, just remove from ignore list but continue processing
-                    self._thread_ids_to_ignore.remove(thread_id)
 
         # Add messages and check if naming is needed while holding the lock
         name_gen_input = None

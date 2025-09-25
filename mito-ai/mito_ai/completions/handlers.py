@@ -229,7 +229,23 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             
             if thread_id_to_stop:
                 self.log.info(f"Stopping agent, thread ID: {thread_id_to_stop}")
-                message_history.add_thread_id_to_ignore_list(thread_id_to_stop)
+                
+                ai_optimized_message = {
+                    "role": "assistant",
+                    "content": "The user made the following request: Stop processing my last request. I want to change it. Please answer my future requests without going back and finising my previous request."
+                }
+                display_optimized_message = {
+                    "role": "assistant",
+                    "content": "Agent interupted by user "
+                }
+                
+                await message_history.append_message(
+                    ai_optimized_message=ai_optimized_message,
+                    display_message=display_optimized_message,
+                    model=self._selected_model,
+                    llm_provider=self._llm,
+                    thread_id=thread_id_to_stop
+                )
             else:
                 self.log.info("Trying to stop agent, but no thread ID available")
             return
