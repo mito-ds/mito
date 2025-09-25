@@ -62,7 +62,7 @@ with tempfile.TemporaryDirectory() as temp_dir:
     try:
         # Run pipreqs on the temporary directory
         generate_req_in_file = subprocess.run(
-            ['pipreqs', '--savepath', 'requirements.in', '--force', temp_dir],
+            ['pipreqs', '--encoding=utf-8', '--savepath', 'requirements.in', '--force', temp_dir],
             capture_output=True, 
             text=True
         )
