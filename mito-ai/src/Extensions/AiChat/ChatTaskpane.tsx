@@ -1651,6 +1651,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     notebookTracker={notebookTracker}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecutionStatus}
+                    disabled={isSignedUp === false}
                 />
             </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
