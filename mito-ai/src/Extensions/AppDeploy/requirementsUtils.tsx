@@ -22,73 +22,78 @@ export const generateRequirementsTxt = async (
     // Use the kernel to execute Python code using pipreqs
     const session = notebookPanel.sessionContext.session;
     if (session) {
-      // Collect all code in the notebook to analyze with pipreqs
-      const notebook = notebookPanel.content;
-      let codeContent = '';
+      const appPyPath = `app.py`;
 
-    // Gather all code cells content
-    notebook.widgets.forEach(cell => {
-      if (cell.model.type === 'code') {
-        const source = cell.model.sharedModel.source;
-        // Filter out lines that start with shell commands
-        const filteredLines = source.split('\n').filter(line => {
-          const trimmed = line.trim();
-          return !trimmed.startsWith('!') && !trimmed.startsWith('%');
-        });
-
-        if (filteredLines.length > 0) {
-          codeContent += filteredLines.join('\n') + '\n\n';
-        }
-      }
-    });
-
-      // Create Python code to run pipreqs on a temporary directory
+      // Create Python code to run pipreqs on the app.py file
       const pythonCode = `
 import subprocess
 import os
-import tempfile
 
-# Create a temporary directory for pipreqs to analyze
-with tempfile.TemporaryDirectory() as temp_dir:
-    # Save the notebook code to a temporary Python file
-    temp_file = os.path.join(temp_dir, "notebook_code.py")
-    with open(temp_file, "w") as f:
-        f.write("""${codeContent.replace(/\\/g, '\\\\').replace(/"""/g, '\\"\\"\\"')}""")
-    
-    # Make sure pipreqs is installed. Then
-    # 1. Create a requirements.in file
-    # 2. From the requirements.in file, generate the requirements.txt file with the canonical PyPI name of the packages
-    # and the versions as they exist on the user's terminal
-    try:
-        # Run pipreqs on the temporary directory
-        generate_req_in_file = subprocess.run(
-            ['pipreqs', '--encoding=utf-8', '--savepath', 'requirements.in', '--force', temp_dir],
-            capture_output=True, 
-            text=True
-        )
+# Check if app.py exists in the notebook directory
+app_py_path = os.path.join(os.getcwd(), "${appPyPath}")
+if not os.path.exists(app_py_path):
+    print(f"Error: app.py not found at {app_py_path}")
+    exit(1)
 
-        print("Log: ", generate_req_in_file.stderr)
+# Make sure pipreqs is installed. Then
+# 1. Create a requirements.in file
+# 2. From the requirements.in file, generate the requirements.txt file with the canonical PyPI name of the packages
+# and the versions as they exist on the user's terminal
+try:
+    # Run pipreqs on the directory containing app.py
+    notebook_dir = os.path.dirname(app_py_path)
+    generate_req_in_file = subprocess.run(
+        ['pipreqs', '--encoding=utf-8', '--savepath', 'requirements.in', '--force', notebook_dir],
+        capture_output=True, 
+        text=True
+    )
 
-        command_for_generating_req_txt_file = r"""
-        cat requirements.in | while read line; do \\
-        pkg=$(echo $line | cut -d'=' -f1 | tr -d '[:space:]'); \\
-        version=$(pip show "$pkg" 2>/dev/null | grep -i '^Version:' | awk '{print $2}'); \\
-        name=$(pip show "$pkg" 2>/dev/null | grep -i '^Name:' | awk '{print $2}'); \\
-        if [[ -n "$name" && -n "$version" ]]; then echo "$name==$version"; else echo "$line"; fi; \\
-        done"""
+    print("Log: ", generate_req_in_file.stderr)
 
-        generate_req_txt_file = subprocess.run(
-            command_for_generating_req_txt_file,
-            shell=True,
-            executable="/bin/bash",
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        print(generate_req_txt_file.stdout)
+    # Read requirements.in and process each line
+    requirements_in_path = os.path.join(notebook_dir, 'requirements.in')
+    if os.path.exists(requirements_in_path):
+        with open(requirements_in_path, 'r') as f:
+            lines = f.readlines()
+        
+        processed_requirements = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Extract package name (everything before =)
+            pkg_name = line.split('=')[0].strip()
+            
+            # Get package info using pip show
+            try:
+                result = subprocess.run(['pip', 'show', pkg_name], 
+                                      capture_output=True, text=True, check=True)
+                output = result.stdout
+                
+                # Parse the output to get Name and Version
+                name = None
+                version = None
+                for output_line in output.split('\\n'):
+                    if output_line.startswith('Name:'):
+                        name = output_line.split(':', 1)[1].strip()
+                    elif output_line.startswith('Version:'):
+                        version = output_line.split(':', 1)[1].strip()
+                
+                if name and version:
+                    processed_requirements.append(f"{name}=={version}")
+                else:
+                    processed_requirements.append(line)
+            except subprocess.CalledProcessError:
+                # If pip show fails, use the original line
+                processed_requirements.append(line)
+        
+        # Print the processed requirements
+        for req in processed_requirements:
+            print(req)
 
-    except Exception as e:
-        print(f"Error running pipreqs: {e}")
+except Exception as e:
+    print(f"Error running pipreqs: {e}")
 `;
 
       const kernel = session.kernel
@@ -114,6 +119,7 @@ with tempfile.TemporaryDirectory() as temp_dir:
           if (text.startsWith('Log: ')) {
             console.error(text);
           } else {
+            console.log('Found dependencies:\n', text);
             resultText += text;
           }
         }
