@@ -18,7 +18,6 @@ def extract_code_blocks(message_content: str) -> str:
         str: Removes the ```python``` part to be able to parse the code
     """
     if "```python" not in message_content:
-        # If no python code blocks found, return empty string instead of the entire message
         return message_content
 
     # Use regex to find all Python code blocks
