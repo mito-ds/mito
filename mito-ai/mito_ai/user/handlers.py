@@ -4,7 +4,7 @@
 import json
 import tornado
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.utils.db import get_user_field
+from mito_ai.utils.db import get_user_field, set_user_field
 
 
 class UserHandler(APIHandler):
@@ -18,3 +18,14 @@ class UserHandler(APIHandler):
             self.finish(json.dumps({"error": f"User field with key '{key}' not found"}))
         else:
             self.finish(json.dumps({"key": key, "value": value}))
+
+    @tornado.web.authenticated
+    def put(self, key: str) -> None:
+        data = json.loads(self.request.body)
+        if "value" not in data:
+            self.set_status(400)
+            self.finish(json.dumps({"error": "Value is required"}))
+            return
+            
+        set_user_field(key, data["value"])
+        self.finish(json.dumps({"status": "updated", "key": key, "value": data["value"]}))
