@@ -52,19 +52,35 @@ class StreamlitCodeGeneration:
     async def generate_streamlit_code(self, notebook: dict) -> str:
         """Send a query to the agent, get its response and parse the code"""
         
+        # Debug: Print the notebook content being sent to AI
+        print(f"DEBUG: Notebook content type: {type(notebook)}")
+        print(f"DEBUG: Notebook content preview: {str(notebook)[:500]}...")
+        
+        prompt_text = get_streamlit_app_creation_prompt(notebook)
+        print(f"DEBUG: Prompt text length: {len(prompt_text)}")
+        print(f"DEBUG: Prompt text preview: {prompt_text[:500]}...")
+        
         messages: List[MessageParam] = [
             cast(MessageParam, {
                 "role": "user",
                 "content": [{
                     "type": "text",
-                    "text": get_streamlit_app_creation_prompt(notebook)
+                    "text": prompt_text
                 }]
             })
         ]
         
         agent_response = await self.get_response_from_agent(messages)
+        
+        # Debug: Print the raw agent response
+        print(f"DEBUG: Raw agent response length: {len(agent_response)}")
+        print(f"DEBUG: Raw agent response preview: {agent_response[:500]}...")
 
         converted_code = extract_code_blocks(agent_response)
+        
+        # Debug: Print the extracted code
+        print(f"DEBUG: Extracted code length: {len(converted_code)}")
+        print(f"DEBUG: Extracted code preview: {converted_code[:500]}...")
         
         # Extract the TODOs from the agent's response
         todo_placeholders = extract_todo_placeholders(agent_response)
@@ -123,7 +139,11 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
 
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code_generator = StreamlitCodeGeneration()
+
+    print('GENERATING STREAMLIT CODE')
     streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
+
+    print("GENERATED STREAMLIT CODE")
     
     has_validation_error, errors = validate_app(streamlit_code, notebook_path)
     tries = 0
@@ -139,6 +159,8 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
             log_streamlit_app_creation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
         tries+=1
 
+    print('TEST HERE', has_validation_error)
+    print(errors)
     if has_validation_error:
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
         return False, '', "Error generating streamlit code by agent"
@@ -149,6 +171,11 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
         absolute_notebook_path = os.path.join(os.getcwd(), notebook_path)
     
     app_directory = os.path.dirname(absolute_notebook_path)
+    
+    # Debug: Print the final streamlit code before creating file
+    print(f"DEBUG: Final streamlit code length: {len(streamlit_code)}")
+    print(f"DEBUG: Final streamlit code preview: {streamlit_code[:500]}...")
+    
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
     
     if not success_flag:

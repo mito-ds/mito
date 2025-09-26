@@ -82,15 +82,22 @@ class StreamlitPreviewHandler(APIHandler):
         try:
             # Parse and validate request
             body = self.get_json_body()
+            print(1)
             is_valid, error_msg, notebook_path, force_recreate = validate_request_body(body)
             if not is_valid or notebook_path is None:
                 self.set_status(400)
                 self.finish({"error": error_msg})
                 return
 
+            print(2)
+
             # Ensure app exists
             resolved_notebook_path = self._resolve_notebook_path(notebook_path)
+
+            print(3)
             success, error_msg = await ensure_app_exists(resolved_notebook_path, force_recreate)
+
+            print(4)
             if not success:
                 self.set_status(500)
                 self.finish({"error": error_msg})
@@ -104,10 +111,13 @@ class StreamlitPreviewHandler(APIHandler):
             resolved_app_directory = os.path.dirname(resolved_notebook_path)
             success, message, port = self.preview_manager.start_streamlit_preview(resolved_app_directory, preview_id)
 
+            print(5)
             if not success:
                 self.set_status(500)
                 self.finish({"error": f"Failed to start preview: {message}"})
                 return
+
+            print(6)
 
             # Return success response
             self.finish({"id": preview_id, "port": port, "url": f"http://localhost:{port}"})
