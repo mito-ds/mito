@@ -1522,7 +1522,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         <div style={{ margin: '0 auto 8px', display: 'block', textAlign: 'center' }}>
                             <MitoLogo width="60" height="30" />
                         </div>
-                        <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
+                        <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>
+                            {userEmail === "" || userEmail === undefined ? "Sign Up for Mito" : "Data Copilot"}
+                        </span>
                         {userEmail === "" || userEmail === undefined ? <SignUpForm /> : <CTACarousel app={app} />}
                     </div>
                 }
