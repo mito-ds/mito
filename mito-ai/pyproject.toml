@@ -46,7 +46,7 @@ dependencies = [
     # LLM Dependencies
     "openai>=1.0.0",
     "google-genai",
-    "anthropic",
+    "anthropic>=0.6.81",
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
