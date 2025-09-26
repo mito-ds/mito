@@ -62,25 +62,36 @@ class StreamlitValidator:
             # we don't run into issues with non-ASCII characters on Windows.
             # We use utf-8 encoding when writing the app.py file so this validation
             # code mirrors the actual file. 
+
+            # Note: Since the AppTest.from_file tries to open the file, we need to first close the file
+            # by exiting the context manager and using the delete=False flag so that the file still exists.
+            # Windows can't open the same file twice at the same time. We cleanup at the end.
             with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
                 f.write(app_code)
                 temp_path = f.name
 
-            # Run Streamlit test from file with UTF-8 encoding
-            app_test = AppTest.from_file(temp_path, default_timeout=30)
-            app_test.run()
-            
-            # Check for exceptions
-            if app_test.exception:
-                errors = [{'type': 'exception', 'details': exc.value, 'message': exc.message, 'stack_trace': exc.stack_trace} for exc in app_test.exception]
-                return errors
-                    
-            # Check for error messages
-            if app_test.error:
-                errors = [{'type': 'error', 'details': err.value} for err in app_test.error]
-                return errors
-            
-            return None
+            try:
+                # Run Streamlit test from file with UTF-8 encoding
+                app_test = AppTest.from_file(temp_path, default_timeout=30)
+                app_test.run()
+                
+                # Check for exceptions
+                if app_test.exception:
+                    errors = [{'type': 'exception', 'details': exc.value, 'message': exc.message, 'stack_trace': exc.stack_trace} for exc in app_test.exception]
+                    return errors
+                        
+                # Check for error messages
+                if app_test.error:
+                    errors = [{'type': 'error', 'details': err.value} for err in app_test.error]
+                    return errors
+                
+                return None
+            finally:
+                # Clean up the temporary file
+                try:
+                    os.unlink(temp_path)
+                except OSError:
+                    pass  # File might already be deleted
 
     def cleanup(self) -> None:
         """Clean up the temporary files"""

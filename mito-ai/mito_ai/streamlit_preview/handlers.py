@@ -112,7 +112,6 @@ class StreamlitPreviewHandler(APIHandler):
                 self.finish({"error": f"Failed to start preview: {message}"})
                 return
 
-
             # Return success response
             self.finish({"id": preview_id, "port": port, "url": f"http://localhost:{port}"})
 
