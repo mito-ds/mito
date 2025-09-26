@@ -477,7 +477,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [chatHistoryManager]);
 
     // Function to refresh user email
-    const refreshUserEmail = async () => {
+    const refreshUserEmail = async (): Promise<void> => {
         try {
             const email = await getUserKey('user_email');
             setIsSignedUp(email !== "" && email !== undefined);

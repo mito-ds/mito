@@ -15,7 +15,7 @@ interface SignUpFormProps {
 const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
     const [email, setEmail] = useState<string>('');
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         try {
             await setUserKey('user_email', email);
