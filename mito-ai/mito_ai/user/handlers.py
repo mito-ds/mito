@@ -10,7 +10,7 @@ from mito_ai.utils.db import get_user_field
 class UserHandler(APIHandler):
     """Handler for operations on a specific user"""
 
-    # @tornado.web.authenticated
+    @tornado.web.authenticated
     def get(self, key: str) -> None:
         value = get_user_field(key)
         if value is None:
