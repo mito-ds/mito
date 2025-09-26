@@ -150,7 +150,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     websocketClient,
 }) => {
 
-    const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
+    const [isSignedUp, setIsSignedUp] = useState<boolean>(false);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
@@ -480,7 +480,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const refreshUserEmail = async () => {
         try {
             const email = await getUserKey('user_email');
-            setUserEmail(email);
+            setIsSignedUp(email !== "" && email !== undefined);
         } catch (error) {
             console.error('Failed to get user email:', error);
         }
@@ -1524,12 +1524,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             <MitoLogo width="60" height="30" />
                         </div>
                         <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>
-                            {userEmail === "" || userEmail === undefined 
-                                ? "Sign Up for Mito" 
-                                : "Data Copilot"
+                            {isSignedUp === false ? "Sign Up for Mito" : "Data Copilot"
                             }
                         </span>
-                        {userEmail === "" || userEmail === undefined 
+                        {isSignedUp === false 
                             ? <SignUpForm onSignUpSuccess={refreshUserEmail} /> 
                             : <CTACarousel app={app} />
                         }
