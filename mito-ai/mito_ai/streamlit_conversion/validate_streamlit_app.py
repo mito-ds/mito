@@ -25,7 +25,7 @@ warnings.filterwarnings("ignore", message=".*bare mode.*")
 
 class StreamlitValidator:
     def __init__(self, port: int = 8501) -> None:
-        self.temp_dir: Optional[str] = None
+        pass
 
     def get_syntax_error(self, app_code: str) -> Optional[str]:
         """Check if the Python code has valid syntax"""
@@ -93,12 +93,6 @@ class StreamlitValidator:
                 except OSError:
                     pass  # File might already be deleted
 
-    def cleanup(self) -> None:
-        """Clean up the temporary files"""
-        if self.temp_dir and os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
-            self.temp_dir = None
-
     def _validate_app(self, app_code: str, app_path: str) -> List[Dict[str, Any]]:
         """Complete validation pipeline"""
         errors: List[Dict[str, Any]] = []
@@ -116,9 +110,6 @@ class StreamlitValidator:
             
         except Exception as e:
             errors.append({'type': 'validation', 'details': str(e)})
-
-        finally:
-            self.cleanup()
 
         return errors
 
