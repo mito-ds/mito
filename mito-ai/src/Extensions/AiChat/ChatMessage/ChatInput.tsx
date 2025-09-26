@@ -357,7 +357,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     className={classNames("message", "message-user", 'chat-input', { "agent-mode": agentModeEnabled })}
                     placeholder={placeholder}
                     value={input}
-                    disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
+                    disabled={disabled || agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
                     onChange={handleInputChange}
                     onKeyDown={(e) => {
                         // If dropdown is visible, only handle escape to close it
