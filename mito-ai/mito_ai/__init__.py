@@ -16,6 +16,7 @@ from mito_ai.auth.urls import get_auth_urls
 from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
 from mito_ai.app_manager.handlers import AppManagerHandler
 from mito_ai.file_uploads.urls import get_file_uploads_urls
+from mito_ai.user.urls import get_user_urls
 
 # Force Matplotlib to use the Jupyter inline backend.
 # Background: importing Streamlit sets os.environ["MPLBACKEND"] = "Agg" very early.
@@ -100,6 +101,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_auth_urls(base_url))  # type: ignore
     handlers.extend(get_streamlit_preview_urls(base_url))  # type: ignore
     handlers.extend(get_file_uploads_urls(base_url)) # type: ignore
+    handlers.extend(get_user_urls(base_url)) # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")

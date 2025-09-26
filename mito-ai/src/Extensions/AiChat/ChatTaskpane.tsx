@@ -69,6 +69,7 @@ import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../uti
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
+import { getUserKey } from '../../restAPI/RestAPI';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -101,6 +102,7 @@ import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPa
 
 // Internal imports - Chat components
 import CTACarousel from './CTACarousel';
+import SignUpForm from './SignUpForm';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import { getFirstMessageFromCookie } from './FirstMessage';
 import ChatInput from './ChatMessage/ChatInput';
@@ -148,6 +150,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     websocketClient,
 }) => {
 
+    const [isSignedUp, setIsSignedUp] = useState<boolean>(false);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
@@ -472,6 +475,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef.current = chatHistoryManager;
 
     }, [chatHistoryManager]);
+
+    // Function to refresh user email
+    const refreshUserEmail = async (): Promise<void> => {
+        try {
+            const email = await getUserKey('user_email');
+            setIsSignedUp(email !== "" && email !== undefined);
+        } catch (error) {
+            console.error('Failed to get user email:', error);
+        }
+    };
+
+    // Get user email when the component first mounts
+    useEffect(() => {
+        void refreshUserEmail();
+    }, []);
 
     // Scroll to bottom whenever chat history updates, but only if in follow mode
     useEffect(() => {
@@ -1505,8 +1523,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         <div style={{ margin: '0 auto 8px', display: 'block', textAlign: 'center' }}>
                             <MitoLogo width="60" height="30" />
                         </div>
-                        <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
-                        <CTACarousel app={app} />
+                        <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>
+                            {isSignedUp === false ? "Sign Up for Mito" : "Data Copilot"
+                            }
+                        </span>
+                        {isSignedUp === false 
+                            ? <SignUpForm onSignUpSuccess={refreshUserEmail} /> 
+                            : <CTACarousel app={app} />
+                        }
                     </div>
                 }
                 {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
@@ -1598,6 +1622,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 void sendChatInputMessage(prompt);
                             }
                         }}
+                        disabled={isSignedUp === false}
                     />
                 </div>
             )}
@@ -1627,6 +1652,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     notebookTracker={notebookTracker}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecutionStatus}
+                    disabled={isSignedUp === false}
                 />
             </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
@@ -1650,6 +1676,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                     chatInput.focus();
                                 }
                             }}
+                            disabled={isSignedUp === false}
                         />
                         <ModelSelector onConfigChange={(config) => {
                             // Just update the backend

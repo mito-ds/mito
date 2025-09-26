@@ -28,10 +28,12 @@ const DEFAULT_SUGGESTION_OPTIONS: SuggestionOption[] = [
 
 interface ScrollableSuggestionsProps {
     onSelectSuggestion: (prompt: string) => void;
+    disabled?: boolean;
 }
 
 const ScrollableSuggestions: React.FC<ScrollableSuggestionsProps> = ({  
-    onSelectSuggestion 
+    onSelectSuggestion,
+    disabled = false,
 }) => {
     const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +78,7 @@ const ScrollableSuggestions: React.FC<ScrollableSuggestionsProps> = ({
     }, [DEFAULT_SUGGESTION_OPTIONS.length]); // Re-apply when options change
 
     return (
-        <div className="chat-suggestions" ref={suggestionsRef}>
+        <div className="chat-suggestions" ref={suggestionsRef} style={{ pointerEvents: disabled ? 'none' : 'auto', opacity: disabled ? 0.5 : 1 }}>
             {DEFAULT_SUGGESTION_OPTIONS.map((opt) => (
                 <button
                     key={opt.display}

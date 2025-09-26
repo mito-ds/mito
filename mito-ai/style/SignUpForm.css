@@ -1,0 +1,19 @@
+.signup-form-message {
+    font-size: 14px;
+    color: var(--jp-ui-font-color1);
+}
+
+.signup-form-input {
+    padding: 8px 12px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: var(--jp-border-radius);
+    width: 200px;
+    margin-right: 8px;
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.signup-form-button {
+    height: 36px;
+    box-sizing: border-box;
+}
