@@ -69,6 +69,7 @@ import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../uti
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
+import { getUserKey } from '../../restAPI/RestAPI';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -148,6 +149,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     websocketClient,
 }) => {
 
+    const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
@@ -472,6 +474,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef.current = chatHistoryManager;
 
     }, [chatHistoryManager]);
+
+    // Get user email when the component first mounts
+    useEffect(() => {
+        const getUserEmail = async () => {
+            try {
+                const userEmail = await getUserKey('user_email');
+                setUserEmail(userEmail);
+                console.log('User email:', userEmail);
+            } catch (error) {
+                console.error('Failed to get user email:', error);
+            }
+        };
+
+        void getUserEmail();
+    }, []);
 
     // Scroll to bottom whenever chat history updates, but only if in follow mode
     useEffect(() => {

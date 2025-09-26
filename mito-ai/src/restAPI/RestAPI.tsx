@@ -3,6 +3,10 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import { requestAPI } from "./utils";
+import { StreamlitPreviewResponse } from "../Extensions/AppPreview/StreamlitPreviewPlugin";
+
+
 /************************************
 
 LOG ENDPOINTS
@@ -24,14 +28,12 @@ export const logEvent = async (logEvent: string, params?: Record<string, any>): 
 }
 
 
-import { StreamlitPreviewResponse } from "../Extensions/AppPreview/StreamlitPreviewPlugin";
 /************************************
 
 SETTINGS ENDPOINTS
 
 ************************************/
 
-import { requestAPI } from "./utils";
 
 export const getSetting = async (settingsKey: string): Promise<string | undefined> => {
 
@@ -132,4 +134,19 @@ export const stopStreamlitPreview = async (previewId: string): Promise<void> => 
     if (response.error) {
         throw new Error(response.error.message);
     }
+}
+
+/************************************
+
+USER ENDPOINTS
+
+************************************/
+
+export const getUserKey = async (key: string): Promise<string | undefined> => {
+    const resp = await requestAPI<{key: string, value: string}>(`user/${key}`)
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.value;
 }
