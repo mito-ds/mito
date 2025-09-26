@@ -102,6 +102,7 @@ import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPa
 
 // Internal imports - Chat components
 import CTACarousel from './CTACarousel';
+import SignUpForm from './SignUpForm';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import { getFirstMessageFromCookie } from './FirstMessage';
 import ChatInput from './ChatMessage/ChatInput';
@@ -479,9 +480,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     useEffect(() => {
         const getUserEmail = async () => {
             try {
-                const userEmail = await getUserKey('user_email');
-                setUserEmail(userEmail);
-                console.log('User email:', userEmail);
+                const email = await getUserKey('user_email');
+                setUserEmail(email);
             } catch (error) {
                 console.error('Failed to get user email:', error);
             }
@@ -1523,7 +1523,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             <MitoLogo width="60" height="30" />
                         </div>
                         <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
-                        <CTACarousel app={app} />
+                        {userEmail === "" || userEmail === undefined ? <SignUpForm /> : <CTACarousel app={app} />}
                     </div>
                 }
                 {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
