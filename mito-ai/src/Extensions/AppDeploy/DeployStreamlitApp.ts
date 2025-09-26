@@ -14,6 +14,7 @@ import { deployAppNotification } from './DeployAppNotification';
 import { IDeployAppReply, IDeployAppRequest } from '../../websockets/appDeploy/appDeployModels';
 import {getJWTToken } from './auth';
 import { showAuthenticationPopup } from './authPopupUtils';
+import { fileSelectorPopup } from './FilesSelectorUtils';
 
 
 /* 
@@ -47,6 +48,13 @@ export const deployStreamlitApp = async (
       return; // Exit early if authentication was cancelled
     }
   }
+
+  try{
+    fileSelectorPopup();
+  }catch (error) {
+      console.log('File selection failed:', error);
+      return;
+    }
 
   const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
         autoClose: false
