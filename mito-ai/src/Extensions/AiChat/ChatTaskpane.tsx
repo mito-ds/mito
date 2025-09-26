@@ -1622,6 +1622,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 void sendChatInputMessage(prompt);
                             }
                         }}
+                        disabled={isSignedUp === false}
                     />
                 </div>
             )}
@@ -1675,6 +1676,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                     chatInput.focus();
                                 }
                             }}
+                            disabled={isSignedUp === false}
                         />
                         <ModelSelector onConfigChange={(config) => {
                             // Just update the backend
