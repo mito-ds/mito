@@ -9,19 +9,28 @@ import '../../../style/CTACarousel.css';
 // import '../../../style/SignUpForm.css';
 
 
-const SignUpForm: React.FC = () => {
+interface SignUpFormProps {
+    onSignUpSuccess?: () => void;
+}
+
+const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
     const [email, setEmail] = useState<string>('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        void setUserKey('user_email', email);
+        try {
+            await setUserKey('user_email', email);
+            onSignUpSuccess?.();
+        } catch (error) {
+            console.error('Failed to set user email:', error);
+        }
     };
 
     return (
         <div className="cta-carousel">
             <div className="">
                 <div className="" data-testid="">
-                    Get started with Mito, no credit card required, just an email. 
+                    Get started with Mito, no credit card required, just an email.
                 </div>
                 <form onSubmit={handleSubmit} style={{ marginTop: '15px' }}>
                     <input

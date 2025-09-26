@@ -476,18 +476,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     }, [chatHistoryManager]);
 
+    // Function to refresh user email
+    const refreshUserEmail = async () => {
+        try {
+            const email = await getUserKey('user_email');
+            setUserEmail(email);
+        } catch (error) {
+            console.error('Failed to get user email:', error);
+        }
+    };
+
     // Get user email when the component first mounts
     useEffect(() => {
-        const getUserEmail = async () => {
-            try {
-                const email = await getUserKey('user_email');
-                setUserEmail(email);
-            } catch (error) {
-                console.error('Failed to get user email:', error);
-            }
-        };
-
-        void getUserEmail();
+        void refreshUserEmail();
     }, []);
 
     // Scroll to bottom whenever chat history updates, but only if in follow mode
@@ -1523,9 +1524,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             <MitoLogo width="60" height="30" />
                         </div>
                         <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>
-                            {userEmail === "" || userEmail === undefined ? "Sign Up for Mito" : "Data Copilot"}
+                            {userEmail === "" || userEmail === undefined 
+                                ? "Sign Up for Mito" 
+                                : "Data Copilot"
+                            }
                         </span>
-                        {userEmail === "" || userEmail === undefined ? <SignUpForm /> : <CTACarousel app={app} />}
+                        {userEmail === "" || userEmail === undefined 
+                            ? <SignUpForm onSignUpSuccess={refreshUserEmail} /> 
+                            : <CTACarousel app={app} />
+                        }
                     </div>
                 }
                 {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
