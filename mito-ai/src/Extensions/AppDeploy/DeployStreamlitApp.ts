@@ -57,8 +57,8 @@ export const deployStreamlitApp = async (
     }
 
   const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
-        autoClose: false
-    });
+    autoClose: false
+  });
 
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
@@ -74,6 +74,7 @@ export const deployStreamlitApp = async (
   // Save the files to the current directory
   await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
 
+
   // After building the files, we need to send a request to the backend to deploy the app
   try {
     console.log("Sending request to deploy the app");
@@ -88,11 +89,11 @@ export const deployStreamlitApp = async (
 
     if (response.error) {
       Notification.update({
-                id: notificationId,
-                message: response.error.title,
-                type: 'error',
-                autoClose: false
-            });
+        id: notificationId,
+        message: response.error.title,
+        type: 'error',
+        autoClose: false
+      });
     } else {
       console.log("App deployment response:", response);
       const url = response.url;

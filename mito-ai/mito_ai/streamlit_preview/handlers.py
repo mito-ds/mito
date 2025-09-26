@@ -88,9 +88,12 @@ class StreamlitPreviewHandler(APIHandler):
                 self.finish({"error": error_msg})
                 return
 
+
             # Ensure app exists
             resolved_notebook_path = self._resolve_notebook_path(notebook_path)
+
             success, error_msg = await ensure_app_exists(resolved_notebook_path, force_recreate)
+
             if not success:
                 self.set_status(500)
                 self.finish({"error": error_msg})

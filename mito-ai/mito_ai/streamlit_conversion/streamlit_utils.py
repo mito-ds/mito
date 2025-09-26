@@ -25,7 +25,8 @@ def extract_code_blocks(message_content: str) -> str:
     matches = re.findall(pattern, message_content, re.DOTALL)
 
     # Concatenate with single newlines
-    return '\n'.join(matches)
+    result = '\n'.join(matches)
+    return result
 
 def extract_unified_diff_blocks(message_content: str) -> str:
     """
@@ -53,8 +54,10 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
     """
     try:
         app_path = os.path.join(app_directory, "app.py")
-        with open(app_path, 'w') as f:
+
+        with open(app_path, 'w', encoding='utf-8') as f:
             f.write(code)
+        
         return True, app_path, f"Successfully created {app_directory}"
     except IOError as e:
         return False, '', f"Error creating file: {str(e)}"
