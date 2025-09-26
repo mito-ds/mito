@@ -5,8 +5,9 @@ from typing import Any, List, Tuple
 from jupyter_server.utils import url_path_join
 from mito_ai.user.handlers import UserHandler
 
+
 def get_user_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
-    """Get all settings related URL patterns.
+    """Get all user related URL patterns.
 
     Args:
         base_url: The base URL for the Jupyter server
