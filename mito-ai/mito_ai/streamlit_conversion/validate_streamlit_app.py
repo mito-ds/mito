@@ -25,7 +25,7 @@ warnings.filterwarnings("ignore", message=".*bare mode.*")
 
 class StreamlitValidator:
     def __init__(self, port: int = 8501) -> None:
-        self.temp_dir: Optional[str] = None
+        pass
 
     def get_syntax_error(self, app_code: str) -> Optional[str]:
         """Check if the Python code has valid syntax"""
@@ -58,26 +58,40 @@ class StreamlitValidator:
                 os.chdir(original_cwd)
         
         with change_working_directory(directory):
-            app_test = AppTest.from_string(app_code, default_timeout=30)
-            app_test.run()
-            
-            # Check for exceptions
-            if app_test.exception:
-                errors = [{'type': 'exception', 'details': exc.value, 'message': exc.message, 'stack_trace': exc.stack_trace} for exc in app_test.exception]
-                return errors
-                    
-            # Check for error messages
-            if app_test.error:
-                errors = [{'type': 'error', 'details': err.value} for err in app_test.error]
-                return errors
-            
-            return None
+            # Create a temporary file that uses UTF-8 encoding so 
+            # we don't run into issues with non-ASCII characters on Windows.
+            # We use utf-8 encoding when writing the app.py file so this validation
+            # code mirrors the actual file. 
 
-    def cleanup(self) -> None:
-        """Clean up the temporary files"""
-        if self.temp_dir and os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
-            self.temp_dir = None
+            # Note: Since the AppTest.from_file tries to open the file, we need to first close the file
+            # by exiting the context manager and using the delete=False flag so that the file still exists.
+            # Windows can't open the same file twice at the same time. We cleanup at the end.
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+                f.write(app_code)
+                temp_path = f.name
+
+            try:
+                # Run Streamlit test from file with UTF-8 encoding
+                app_test = AppTest.from_file(temp_path, default_timeout=30)
+                app_test.run()
+                
+                # Check for exceptions
+                if app_test.exception:
+                    errors = [{'type': 'exception', 'details': exc.value, 'message': exc.message, 'stack_trace': exc.stack_trace} for exc in app_test.exception]
+                    return errors
+                        
+                # Check for error messages
+                if app_test.error:
+                    errors = [{'type': 'error', 'details': err.value} for err in app_test.error]
+                    return errors
+                
+                return None
+            finally:
+                # Clean up the temporary file
+                try:
+                    os.unlink(temp_path)
+                except OSError:
+                    pass  # File might already be deleted
 
     def _validate_app(self, app_code: str, app_path: str) -> List[Dict[str, Any]]:
         """Complete validation pipeline"""
@@ -91,16 +105,11 @@ class StreamlitValidator:
 
             runtime_errors = self.get_runtime_errors(app_code, app_path)
             
-            print('Found Runtime Errors', runtime_errors)
-            
             if runtime_errors:
                 errors.extend(runtime_errors)
             
         except Exception as e:
             errors.append({'type': 'validation', 'details': str(e)})
-
-        finally:
-            self.cleanup()
 
         return errors
 

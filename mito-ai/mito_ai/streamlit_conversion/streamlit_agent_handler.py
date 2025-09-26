@@ -52,18 +52,19 @@ class StreamlitCodeGeneration:
     async def generate_streamlit_code(self, notebook: dict) -> str:
         """Send a query to the agent, get its response and parse the code"""
         
+        prompt_text = get_streamlit_app_creation_prompt(notebook)
+        
         messages: List[MessageParam] = [
             cast(MessageParam, {
                 "role": "user",
                 "content": [{
                     "type": "text",
-                    "text": get_streamlit_app_creation_prompt(notebook)
+                    "text": prompt_text
                 }]
             })
         ]
         
         agent_response = await self.get_response_from_agent(messages)
-
         converted_code = extract_code_blocks(agent_response)
         
         # Extract the TODOs from the agent's response
@@ -123,6 +124,7 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
 
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     streamlit_code_generator = StreamlitCodeGeneration()
+
     streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
     
     has_validation_error, errors = validate_app(streamlit_code, notebook_path)
@@ -149,6 +151,7 @@ async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], st
         absolute_notebook_path = os.path.join(os.getcwd(), notebook_path)
     
     app_directory = os.path.dirname(absolute_notebook_path)
+    
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
     
     if not success_flag:

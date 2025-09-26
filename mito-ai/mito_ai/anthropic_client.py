@@ -52,12 +52,12 @@ def extract_and_parse_anthropic_json_response(response: Message) -> Union[object
 
 
 def get_anthropic_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) -> Tuple[
-    Union[str, anthropic.NotGiven], List[MessageParam]]:
+    Union[str, anthropic.Omit], List[MessageParam]]:
     """
     Convert a list of OpenAI messages to a list of Anthropic messages.
     """
     
-    system_prompt: Union[str, anthropic.NotGiven] = anthropic.NotGiven()
+    system_prompt: Union[str, anthropic.Omit] = anthropic.Omit()
     anthropic_messages: List[MessageParam] = []
 
     for message in messages:
@@ -205,7 +205,6 @@ class AnthropicClient:
                     messages=anthropic_messages,
                     stream=True
                 )
-
 
                 for chunk in stream:
                     if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
