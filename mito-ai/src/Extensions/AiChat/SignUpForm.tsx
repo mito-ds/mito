@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { setUserKey } from '../../restAPI/RestAPI';
 import '../../../style/CTACarousel.css';
 // import '../../../style/SignUpForm.css';
 
@@ -13,7 +14,7 @@ const SignUpForm: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Email submitted:', email);
+        void setUserKey('user_email', email);
     };
 
     return (

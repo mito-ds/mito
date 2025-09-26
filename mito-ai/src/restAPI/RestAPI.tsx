@@ -150,3 +150,14 @@ export const getUserKey = async (key: string): Promise<string | undefined> => {
 
     return resp.data?.value;
 }
+
+export const setUserKey = async (key: string, value: string): Promise<string> => {
+    const resp = await requestAPI<string>(`user/${key}`, {
+        method: 'PUT',
+        body: JSON.stringify({ value: value }),
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data || '';
+}
