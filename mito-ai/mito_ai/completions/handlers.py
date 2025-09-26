@@ -14,6 +14,7 @@ import tornado.web
 from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
+from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.logger import get_logger
 from mito_ai.completions.models import (
@@ -228,11 +229,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             if thread_id_to_stop:
                 self.log.info(f"Stopping agent, thread ID: {thread_id_to_stop}")
                 
-                ai_optimized_message = {
+                ai_optimized_message: ChatCompletionMessageParam = {
                     "role": "assistant",
                     "content": "The user made the following request: Stop processing my last request. I want to change it. Please answer my future requests without going back and finising my previous request."
                 }
-                display_optimized_message = {
+                display_optimized_message: ChatCompletionMessageParam = {
                     "role": "assistant",
                     "content": "Agent interupted by user "
                 }
