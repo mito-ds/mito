@@ -4,7 +4,7 @@
 import json
 import tornado
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.user.utils import get_user_field
+from mito_ai.utils.db import get_user_field
 
 
 class UserHandler(APIHandler):
