@@ -19,8 +19,6 @@ def extract_code_blocks(message_content: str) -> str:
     """
     if "```python" not in message_content:
         # If no python code blocks found, return empty string instead of the entire message
-        print(f"DEBUG: No python code blocks found in response. Response length: {len(message_content)}")
-        print(f"DEBUG: Response preview: {message_content[:200]}...")
         return message_content
 
     # Use regex to find all Python code blocks
@@ -29,7 +27,6 @@ def extract_code_blocks(message_content: str) -> str:
 
     # Concatenate with single newlines
     result = '\n'.join(matches)
-    print(f"DEBUG: Extracted {len(matches)} code blocks, total length: {len(result)}")
     return result
 
 def extract_unified_diff_blocks(message_content: str) -> str:
@@ -58,20 +55,9 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
     """
     try:
         app_path = os.path.join(app_directory, "app.py")
-        
-        # Debug: Print what we're about to write
-        print(f"DEBUG: Creating app.py at {app_path}")
-        print(f"DEBUG: Code to write length: {len(code)}")
-        print(f"DEBUG: Code to write preview: {code[:200]}...")
-        
+
         with open(app_path, 'w', encoding='utf-8') as f:
             f.write(code)
-            
-        # Debug: Verify what was written
-        with open(app_path, 'r', encoding='utf-8') as f:
-            written_content = f.read()
-        print(f"DEBUG: Written content length: {len(written_content)}")
-        print(f"DEBUG: Written content preview: {written_content[:200]}...")
         
         return True, app_path, f"Successfully created {app_directory}"
     except IOError as e:
@@ -130,13 +116,6 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
 
         # Update the notebook data with filtered cells
         notebook_data['cells'] = filtered_cells
-
-        # Debug: Check for unicode characters in the notebook
-        notebook_str = str(notebook_data)
-        unicode_chars = [char for char in notebook_str if ord(char) > 127]
-        if unicode_chars:
-            print(f"DEBUG: Found {len(unicode_chars)} unicode characters in notebook")
-            print(f"DEBUG: Unicode chars: {unicode_chars[:10]}...")  # Show first 10 unicode chars
 
         return notebook_data
 

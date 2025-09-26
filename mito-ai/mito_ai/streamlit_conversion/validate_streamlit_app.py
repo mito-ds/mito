@@ -38,10 +38,6 @@ class StreamlitValidator:
 
     def get_runtime_errors(self, app_code: str, app_path: str) -> Optional[List[Dict[str, Any]]]:
         """Start the Streamlit app in a subprocess"""  
-
-
-        print('G1')
-        print('app path', app_path)
         
         directory = os.path.dirname(app_path)
         
@@ -51,7 +47,6 @@ class StreamlitValidator:
             Context manager to temporarily change working directory
             so that relative paths are still valid when we run the app
             """
-            print('change working directory')
             if path == '':
                 yield
             
@@ -63,24 +58,17 @@ class StreamlitValidator:
                 os.chdir(original_cwd)
         
         with change_working_directory(directory):
-            print('G2')
-            # Create a temporary file
+            # Create a temporary file that uses UTF-8 encoding so 
+            # we don't run into issues with non-ASCII characters on Windows.
+            # We use utf-8 encoding when writing the app.py file so this validation
+            # code mirrors the actual file. 
             with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
                 f.write(app_code)
                 temp_path = f.name
 
-            print("G2.5")
-            # Run Streamlit test from file
+            # Run Streamlit test from file with UTF-8 encoding
             app_test = AppTest.from_file(temp_path, default_timeout=30)
-            print('G3!')
-            try:
-                app_test.run()
-            except Exception as e:
-                print("APP RUN FAILED", e)
-            print('G4')
-
-            print(f'APP TEST EXCEPTION', app_test.exception)
-            print('APP TEST ERROR', app_test.error)
+            app_test.run()
             
             # Check for exceptions
             if app_test.exception:
@@ -106,15 +94,11 @@ class StreamlitValidator:
 
         try:
             # Step 1: Check syntax
-            print("VALIDATION 1")
             syntax_error = self.get_syntax_error(app_code)
             if syntax_error:
                 errors.append({'type': 'syntax', 'details': syntax_error})
 
-            print("VALIDATION 2")
             runtime_errors = self.get_runtime_errors(app_code, app_path)
-            
-            print('Found Runtime Errors', runtime_errors)
             
             if runtime_errors:
                 errors.extend(runtime_errors)
@@ -133,8 +117,6 @@ def validate_app(app_code: str, notebook_path: str) -> Tuple[bool, List[str]]:
     
     validator = StreamlitValidator()
     errors = validator._validate_app(app_code, notebook_path)
-
-    print("VALIDATE APP", errors)
     
     has_validation_error = len(errors) > 0
     stringified_errors = [str(error) for error in errors]
