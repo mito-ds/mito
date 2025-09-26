@@ -209,6 +209,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
+    
+    // Track active requests for cancellation
+    const activeRequestControllerRef = useRef<AbortController | null>(null);
 
     // State for managing next steps from responses
     // If the user hides the next steps, we keep them hidden until they re-open them
@@ -723,6 +726,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const _sendMessageAndSaveResponse = async (
         completionRequest: ICompletionRequest, newChatHistoryManager: ChatHistoryManager
     ): Promise<boolean> => {
+        // Create AbortController for this request
+        const abortController = new AbortController();
+        activeRequestControllerRef.current = abortController;
+        
         // Capture the completion request for debugging
         captureCompletionRequest(completionRequest);
         if (completionRequest.stream) {
@@ -790,6 +797,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             try {
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
+                
                 const content = aiResponse.items[0]?.content ?? '';
 
                 if (
@@ -818,7 +826,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // NON-STREAMING RESPONSES
             // Once we move everything to streaming, we can remove everything in this else block
             try {
+                // Check if request was aborted before making the call
+                if (abortController.signal.aborted) {
+                    throw new Error('Request aborted');
+                }
+                
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
+                
+                // Check if request was aborted after receiving response
+                if (abortController.signal.aborted) {
+                    throw new Error('Request aborted');
+                }
 
                 if (aiResponse.error) {
 
@@ -864,6 +882,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     }
                 }
             } catch (error) {
+                // Check if this was an abort error
+                if ((error as any).message === 'Request aborted') {
+                    // Don't show error message for aborted requests
+                    return false;
+                }
+                
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).title ? (error as any).title : `${error}`,
                     'chat',
@@ -881,6 +905,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 setCodeReviewStatus('chatPreview');
                 setLoadingAIResponse(false);
             }
+        }
+
+        // Clean up AbortController
+        if (activeRequestControllerRef.current === abortController) {
+            activeRequestControllerRef.current = null;
         }
 
         return true
@@ -901,25 +930,42 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(chatHistoryManager)
     }
 
-    const markAgentForStopping = (): void => {
-        // Signal that the agent should stop after current task
+    const markAgentForStopping = async (reason: 'userStop' | 'naturalConclusion' = 'naturalConclusion',): Promise<void> => {
+        // Signal that the agent should stop immediately
         shouldContinueAgentExecution.current = false;
-        // Update UI to show stopping state
-        setAgentExecutionStatus('stopping');
+        // Update state/UI
+        setAgentExecutionStatus('idle');
+        setLoadingAIResponse(false);
+
+        if (reason === 'userStop') {
+            // Immediately abort any ongoing requests
+            if (activeRequestControllerRef.current) {
+                activeRequestControllerRef.current.abort();
+                activeRequestControllerRef.current = null;
+            }
+
+            // Add feedback message based on reason
+            const newChatHistoryManager = getDuplicateChatHistoryManager();
+            addAIMessageFromResponseAndUpdateState(
+                "Agent stopped by user.",
+                'chat',
+                newChatHistoryManager
+            );
+
+            // Send stop message to backend
+            await websocketClient.sendMessage({
+                type: "stop_agent",
+                message_id: UUID.uuid4(),
+                metadata: {
+                    promptType: "stop_agent",
+                    threadId: activeThreadIdRef.current
+                },
+                stream: false
+            });
+        }
+        return;
     }
 
-    const finalizeAgentStop = (): void => {
-        // Notify user that agent has been stopped
-        shouldContinueAgentExecution.current = false;
-        const newChatHistoryManager = getDuplicateChatHistoryManager();
-        addAIMessageFromResponseAndUpdateState(
-            "Agent execution stopped. You can continue the conversation or start a new one.",
-            'chat',
-            newChatHistoryManager
-        );
-        // Reset agent to idle state
-        setAgentExecutionStatus('idle');
-    }
 
     const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
@@ -942,7 +988,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
-                finalizeAgentStop()
+                await markAgentForStopping()
                 break;
             }
 
@@ -974,7 +1020,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             'agent:execution',
                             chatHistoryManager
                         );
-                        finalizeAgentStop()
+                        await markAgentForStopping()
                         break;
                     }
                 }
@@ -984,24 +1030,28 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (agentTargetNotebookPanelRef.current === null) {
                 // If the agent target notebook panel is not set, we don't know where to run the code so we stop
+                await markAgentForStopping();
                 isAgentFinished = true
                 break;
             }
 
             if (agentResponse === undefined) {
                 // If the agent response is undefined, we need to send a message to the agent
+                await markAgentForStopping();
                 isAgentFinished = true
                 break;
             }
 
             if (agentResponse.type === 'finished_task') {
                 // If the agent told us that it is finished, we can stop
+                await markAgentForStopping();
                 isAgentFinished = true
                 break;
             }
 
             if (agentResponse.type === 'cell_update' && (agentResponse.cell_update === undefined || agentResponse.cell_update === null)) {
                 // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
+                await markAgentForStopping();
                 isAgentFinished = true
                 break;
             }
@@ -1018,7 +1068,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     app,
                     sendAgentSmartDebugMessage,
                     shouldContinueAgentExecution,
-                    finalizeAgentStop,
+                    markAgentForStopping,
                     chatHistoryManagerRef
                 )
 
@@ -1060,7 +1110,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         app,
                         sendAgentSmartDebugMessage,
                         shouldContinueAgentExecution,
-                        finalizeAgentStop,
+                        markAgentForStopping,
                         chatHistoryManagerRef
                     )
 
@@ -1088,7 +1138,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             )
         }
 
-        setAgentExecutionStatus('idle')
+        // Use markAgentForStopping for natural conclusion to ensure consistent cleanup
+        await markAgentForStopping();
     }
 
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined, updateCellID: string): void => {
@@ -1631,7 +1682,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
                 <button
                     className="button-base button-red stop-agent-button"
-                    onClick={markAgentForStopping}
+                    onClick={() => void markAgentForStopping('userStop')}
                     disabled={agentExecutionStatus === 'stopping'}
                     data-testid="stop-agent-button"
                 >
