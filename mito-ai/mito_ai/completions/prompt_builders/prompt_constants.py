@@ -125,6 +125,20 @@ If the user has requested data that you believe is stored in the database:
 connections[connection_name]["username"]
 ```
 
+- When connecting to a Microsoft SQL Server (MSSQL) database, use the following format:
+
+```
+import urllib.parse
+
+encoded_password = urllib.parse.quote_plus(password) 
+conn_str = f"mssql+pyodbc://username:encoded_password@host:port/database?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
+```
+
+- Always URL-encode passwords for MSSQL connections to handle special characters properly.
+- Include the port number in MSSQL connection strings.
+- Use "ODBC+Driver+18+for+SQL+Server" (with plus signs) in the driver parameter.
+- Always include "TrustServerCertificate=yes" for MSSQL connections to avoid SSL certificate issues.
+
 - When connecting to an Oracle database, use the following format:
 ```
 conn_str = f"oracle+oracledb://username:password@host:port?service_name=service_name"
