@@ -49,24 +49,24 @@ export const deployStreamlitApp = async (
     }
   }
 
-  try{
-    fileSelectorPopup();
-  }catch (error) {
-      console.log('File selection failed:', error);
-      return;
-    }
-
-  const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
-    autoClose: false
-  });
-
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
     console.error('No notebook is currently active');
     return;
   }
-
   const notebookPath = notebookPanel.context.path;
+
+
+  try{
+    fileSelectorPopup(notebookPath);
+  }catch (error) {
+      console.log('File selection failed:', error);
+      return;
+  }
+
+  const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
+    autoClose: false
+  });
 
   // Build the requirements.txt file
   const requirementsContent = await generateRequirementsTxt(notebookTracker);
@@ -78,7 +78,7 @@ export const deployStreamlitApp = async (
   // After building the files, we need to send a request to the backend to deploy the app
   try {
     console.log("Sending request to deploy the app");
-    
+
     // Use the JWT token that was already obtained or refreshed above
     const response: IDeployAppReply = await appDeployService.client.sendMessage<IDeployAppRequest, IDeployAppReply>({
       type: 'deploy-app',
