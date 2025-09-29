@@ -111,10 +111,18 @@ STREAMLIT PREVIEW ENDPOINTS
 ************************************/
 
 
-export const startStreamlitPreview = async (notebookPath: string, force_recreate: boolean = false): Promise<StreamlitPreviewResponse> => {
+export const startStreamlitPreview = async(
+    notebookPath: string, 
+    force_recreate: boolean = false,
+    edit_prompt: string = ''
+): Promise<StreamlitPreviewResponse> => {
     const response = await requestAPI<StreamlitPreviewResponse>('streamlit-preview', {
         method: 'POST',
-        body: JSON.stringify({ notebook_path: notebookPath, force_recreate: force_recreate }),
+        body: JSON.stringify({ 
+            notebook_path: notebookPath, 
+            force_recreate: force_recreate,
+            edit_prompt: edit_prompt
+        })
     })
     
     if (response.error) {
@@ -132,17 +140,4 @@ export const stopStreamlitPreview = async (previewId: string): Promise<void> => 
     if (response.error) {
         throw new Error(response.error.message);
     }
-}
-
-export const updateStreamlitPreview = async (notebookPath: string, message: string): Promise<StreamlitPreviewResponse> => {
-    const response = await requestAPI<StreamlitPreviewResponse>('streamlit-preview/update', {
-        method: 'POST',
-        body: JSON.stringify({ notebook_path: notebookPath, message: message }),
-    })
-    
-    if (response.error) {
-        throw new Error(response.error.message);
-    }
-
-    return response.data!;
 }

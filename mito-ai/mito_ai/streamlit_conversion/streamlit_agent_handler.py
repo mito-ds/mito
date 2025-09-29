@@ -21,117 +21,109 @@ from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
 
 STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
-class StreamlitCodeGeneration:
-    @property
-    def log(self) -> logging.Logger:
-        """Use Mito AI logger."""
-        return get_logger()
 
-    async def get_response_from_agent(self, message_to_agent: List[MessageParam]) -> str:
-        """Gets the streaming response from the agent using the mito server"""
-        model = STREAMLIT_AI_MODEL
-        max_tokens = 8192 # 64_000
-        temperature = 0.2
+async def get_response_from_agent(message_to_agent: List[MessageParam]) -> str:
+    """Gets the streaming response from the agent using the mito server"""
+    model = STREAMLIT_AI_MODEL
+    max_tokens = 8192 # 64_000
+    temperature = 0.2
 
-        self.log.info("Getting response from agent...")
-        accumulated_response = ""
-        async for stream_chunk in stream_anthropic_completion_from_mito_server(
-            model = model,
-            max_tokens = max_tokens,
-            temperature = temperature,
-            system = streamlit_system_prompt,
-            messages = message_to_agent,
-            stream=True,
-            message_type=MessageType.STREAMLIT_CONVERSION,
-            reply_fn=None,
-            message_id=""
-        ):
-            accumulated_response += stream_chunk
-        return accumulated_response
+    accumulated_response = ""
+    async for stream_chunk in stream_anthropic_completion_from_mito_server(
+        model = model,
+        max_tokens = max_tokens,
+        temperature = temperature,
+        system = streamlit_system_prompt,
+        messages = message_to_agent,
+        stream=True,
+        message_type=MessageType.STREAMLIT_CONVERSION,
+        reply_fn=None,
+        message_id=""
+    ):
+        accumulated_response += stream_chunk
+    return accumulated_response
 
-    async def generate_streamlit_code(self, notebook: dict) -> str:
-        """Send a query to the agent, get its response and parse the code"""
-        
-        prompt_text = get_streamlit_app_creation_prompt(notebook)
-        
-        messages: List[MessageParam] = [
+async def generate_streamlit_code(notebook: dict) -> str:
+    """Send a query to the agent, get its response and parse the code"""
+    
+    prompt_text = get_streamlit_app_creation_prompt(notebook)
+    
+    messages: List[MessageParam] = [
+        cast(MessageParam, {
+            "role": "user",
+            "content": [{
+                "type": "text",
+                "text": prompt_text
+            }]
+        })
+    ]
+    
+    agent_response = await get_response_from_agent(messages)
+    converted_code = extract_code_blocks(agent_response)
+    
+    # Extract the TODOs from the agent's response
+    todo_placeholders = extract_todo_placeholders(agent_response)
+    
+    for todo_placeholder in todo_placeholders:
+        print(f"Processing AI TODO: {todo_placeholder}")
+        todo_prompt = get_finish_todo_prompt(notebook, converted_code, todo_placeholder)
+        todo_messages: List[MessageParam] = [
             cast(MessageParam, {
                 "role": "user",
                 "content": [{
                     "type": "text",
-                    "text": prompt_text
+                    "text": todo_prompt
                 }]
             })
         ]
-        
-        agent_response = await self.get_response_from_agent(messages)
-        converted_code = extract_code_blocks(agent_response)
-        
-        # Extract the TODOs from the agent's response
-        todo_placeholders = extract_todo_placeholders(agent_response)
-        
-        for todo_placeholder in todo_placeholders:
-            print(f"Processing AI TODO: {todo_placeholder}")
-            todo_prompt = get_finish_todo_prompt(notebook, converted_code, todo_placeholder)
-            todo_messages: List[MessageParam] = [
-                cast(MessageParam, {
-                    "role": "user",
-                    "content": [{
-                        "type": "text",
-                        "text": todo_prompt
-                    }]
-                })
-            ]
-            todo_response = await self.get_response_from_agent(todo_messages)
-            
-            # Apply the diff to the streamlit app
-            exctracted_diff = extract_unified_diff_blocks(todo_response)
-            fixed_diff = fix_diff_headers(exctracted_diff)
-            converted_code = apply_patch_to_text(converted_code, fixed_diff)
-                    
-        return converted_code
-
-
-    async def correct_error_in_generation(self, error: str, streamlit_app_code: str) -> str:
-        """If errors are present, send it back to the agent to get corrections in code"""
-        messages: List[MessageParam] = [
-            cast(MessageParam, {
-                "role": "user",
-                "content": [{
-                    "type": "text",
-                    "text": get_streamlit_error_correction_prompt(error, streamlit_app_code)
-                }]
-            })
-        ]
-        agent_response = await self.get_response_from_agent(messages)
+        todo_response = await get_response_from_agent(todo_messages)
         
         # Apply the diff to the streamlit app
-        exctracted_diff = extract_unified_diff_blocks(agent_response)
-        
-        print(f"\n\nExtracted diff: {exctracted_diff}")
+        exctracted_diff = extract_unified_diff_blocks(todo_response)
         fixed_diff = fix_diff_headers(exctracted_diff)
-        streamlit_app_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
-        
-        print("\n\nUpdated app code: ", streamlit_app_code)
-
-        return streamlit_app_code
+        converted_code = apply_patch_to_text(converted_code, fixed_diff)
+                
+    return converted_code
 
 
-async def streamlit_handler(notebook_path: str) -> Tuple[bool, Optional[str], str]:
+async def correct_error_in_generation(error: str, streamlit_app_code: str) -> str:
+    """If errors are present, send it back to the agent to get corrections in code"""
+    messages: List[MessageParam] = [
+        cast(MessageParam, {
+            "role": "user",
+            "content": [{
+                "type": "text",
+                "text": get_streamlit_error_correction_prompt(error, streamlit_app_code)
+            }]
+        })
+    ]
+    agent_response = await get_response_from_agent(messages)
+    
+    # Apply the diff to the streamlit app
+    exctracted_diff = extract_unified_diff_blocks(agent_response)
+    
+    print(f"\n\nExtracted diff: {exctracted_diff}")
+    fixed_diff = fix_diff_headers(exctracted_diff)
+    streamlit_app_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
+    
+    print("\n\nUpdated app code: ", streamlit_app_code)
+
+    return streamlit_app_code
+
+async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[bool, Optional[str], str]:
     """Handler function for streamlit code generation and validation"""
 
     clean_directory_check(notebook_path)
 
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
-    streamlit_code_generator = StreamlitCodeGeneration()
 
-    streamlit_code = await streamlit_code_generator.generate_streamlit_code(notebook_code)
+    streamlit_code = await generate_streamlit_code(notebook_code)
     
     has_validation_error, errors = validate_app(streamlit_code, notebook_path)
     tries = 0
     while has_validation_error and tries < 5:
         for error in errors:
-            streamlit_code = await streamlit_code_generator.correct_error_in_generation(error, streamlit_code)
+            streamlit_code = await correct_error_in_generation(error, streamlit_code)
         
         has_validation_error, errors = validate_app(streamlit_code, notebook_path)
         

@@ -10,7 +10,7 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
-import { stopStreamlitPreview } from '../../restAPI/RestAPI';
+import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
@@ -85,7 +85,7 @@ function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string)
     <UpdateAppDropdown
       onSubmit={async (message) => {
         try {
-          //void updateStreamlitPreview(notebookPath, message);
+          void startStreamlitPreview(notebookPath, true, message);
           console.log('Update App Message sent successfully:', message);
         } catch (error) {
           console.error('Error updating app:', error);
