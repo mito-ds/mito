@@ -125,6 +125,12 @@ If the user has requested data that you believe is stored in the database:
 connections[connection_name]["username"]
 ```
 
+- The user may colloquially ask for a "list of x", always assume they want a pandas DataFrame. 
+- When working with dataframes created from an SQL query, ALWAYS use lowercase column names. 
+- If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
+
+## Additional MSSQL Rules
+
 - When connecting to a Microsoft SQL Server (MSSQL) database, use the following format:
 
 ```
@@ -139,14 +145,12 @@ conn_str = f"mssql+pyodbc://username:encoded_password@host:port/database?driver=
 - Use "ODBC+Driver+18+for+SQL+Server" (with plus signs) in the driver parameter.
 - Always include "TrustServerCertificate=yes" for MSSQL connections to avoid SSL certificate issues.
 
+## Additional Oracle Rules
+
 - When connecting to an Oracle database, use the following format:
 ```
 conn_str = f"oracle+oracledb://username:password@host:port?service_name=service_name"
 ```
-
-- The user may colloquially ask for a "list of x", always assume they want a pandas DataFrame. 
-- When working with dataframes created from an SQL query, ALWAYS use lowercase column names. 
-- If you think the requested data is stored in the database, but you are unsure, then ask the user for clarification.
 
 Here is the schema:
 {schemas}
