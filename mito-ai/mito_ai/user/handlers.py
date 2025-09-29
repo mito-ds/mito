@@ -5,6 +5,7 @@ import json
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.db import get_user_field, set_user_field
+from mito_ai.utils.telemetry_utils import identify
 
 
 class UserHandler(APIHandler):
@@ -26,6 +27,7 @@ class UserHandler(APIHandler):
             self.set_status(400)
             self.finish(json.dumps({"error": "Value is required"}))
             return
-            
+
         set_user_field(key, data["value"])
+        identify() # Log the new user 
         self.finish(json.dumps({"status": "updated", "key": key, "value": data["value"]}))
