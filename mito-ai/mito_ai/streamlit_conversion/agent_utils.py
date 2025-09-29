@@ -47,38 +47,45 @@ def apply_patch_to_text(text: str, diff: str) -> str:
     # Parse the patch
     patch = PatchSet(diff.splitlines(keepends=True))
 
-    # We expect a single-file patch (what the prompt asks the model to emit)
-    if len(patch) != 1:
+    # We expect a single-file patch with a single hunk
+    if len(patch) == 0:
+        raise ValueError("No patches found in diff")
+    
+    if len(patch) > 1:
         raise ValueError(
             f"Expected a patch for exactly one file, got {len(patch)} files."
         )
 
     file_patch = patch[0]
+    
+    if len(file_patch) > 1:
+        raise ValueError(
+            f"Expected exactly one hunk, got {len(file_patch)} hunks."
+        )
 
+    # Apply the single hunk
     original_lines = text.splitlines(keepends=True)
     result_lines: List[str] = []
-
     cursor = 0  # index in original_lines (0-based)
 
-    for hunk in file_patch:
-        # Copy unchanged lines before this hunk
-        while cursor < hunk.source_start - 1:
-            result_lines.append(original_lines[cursor])
-            cursor += 1
+    hunk = file_patch[0]
+    
+    # Copy unchanged lines before this hunk
+    while cursor < hunk.source_start - 1:
+        result_lines.append(original_lines[cursor])
+        cursor += 1
 
-        # Apply hunk line-by-line
-        for line in hunk:
-            if line.is_context:
-                result_lines.append(original_lines[cursor])
-                cursor += 1
-            elif line.is_removed:
-                cursor += 1  # Skip this line from the original
-            elif line.is_added:
-                # Ensure added line ends with newline for consistency
-                val = line.value
-                if not val.endswith("\n"):
-                    val += "\n"
-                result_lines.append(val)
+    # Apply hunk line-by-line
+    for line in hunk:
+        if line.is_context:
+            # Use the line from the diff to preserve exact formatting
+            result_lines.append(line.value)
+            cursor += 1
+        elif line.is_removed:
+            cursor += 1  # Skip this line from the original
+        elif line.is_added:
+            # Use the line from the diff to preserve exact formatting
+            result_lines.append(line.value)
 
     # Copy any remaining lines after the last hunk
     result_lines.extend(original_lines[cursor:])
