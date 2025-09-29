@@ -91,7 +91,7 @@ class StreamlitPreviewHandler(APIHandler):
             # Ensure app exists
             resolved_notebook_path = self._resolve_notebook_path(notebook_path)
 
-            success, error_msg = await ensure_app_exists(resolved_notebook_path, force_recreate)
+            success, error_msg = await ensure_app_exists(resolved_notebook_path, force_recreate, edit_prompt)
 
             if not success:
                 self.set_status(500)
