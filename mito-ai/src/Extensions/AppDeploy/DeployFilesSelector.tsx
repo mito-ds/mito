@@ -47,12 +47,22 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
       fetch(apiPath)
         .then(res => res.json())
         .then(data => {
-          const entries = data.content.map((item: any) => ({
+          const entries: { name: string; type: string }[] = data.content.map((item: any) => ({
             name: item.name,
             type: item.type, // "file" or "directory"
           }));
           setItems(entries);
-          setSelectedItems(new Set()); // reset selection
+
+          // Pre-select default files
+          const defaultFiles = new Set<string>();
+          const alwaysSelected = ['requirements.txt', 'app.py'];
+          entries.forEach(entry => {
+            if (alwaysSelected.includes(entry.name)) {
+              defaultFiles.add(entry.name);
+            }
+          });
+          setSelectedItems(defaultFiles);
+
         })
         .catch(err => console.error('Error fetching files/dirs:', err));
     }
@@ -73,7 +83,9 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
   };
 
   const handleSubmit = () => {
-    onSubmit(Array.from(selectedItems));
+    const selectedPaths = Array.from(selectedItems);
+
+    onSubmit(selectedPaths);
     onClose();
   };
 
@@ -149,75 +161,3 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
     </div>
   );
 };
-
-
-// interface FileUploadPopupProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   onSubmit: (files: FileList) => void;
-// }
-//
-// export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
-//   isOpen,
-//   onClose,
-//   onSubmit
-// }) => {
-//   const [selectedFiles, setSelectedFiles] = React.useState<FileList | null>(null);
-//
-//   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     setSelectedFiles(event.target.files);
-//   };
-//
-//   const handleSubmit = () => {
-//     if (selectedFiles) {
-//       onSubmit(selectedFiles);
-//       onClose(); // close modal after submit
-//     }
-//   };
-//
-//   if (!isOpen) return null;
-//
-//   return (
-//     <div className="modal-overlay">
-//       <div className="modal-content">
-//         <div className="modal-header">
-//           <h3>Select Files to Upload</h3>
-//           <button
-//             onClick={onClose}
-//             className="modal-close-button"
-//             title="Close"
-//           >
-//             ×
-//           </button>
-//         </div>
-//
-//         <div className="modal-body">
-//           <input
-//             type="file"
-//             multiple
-//             onChange={handleFileChange}
-//             className="file-input"
-//           />
-//
-//           {selectedFiles && (
-//             <ul className="file-list">
-//               {Array.from(selectedFiles).map((file, index) => (
-//                 <li key={index}>{file.name}</li>
-//               ))}
-//             </ul>
-//           )}
-//         </div>
-//
-//         <div className="modal-footer">
-//           <button
-//             className="submit-button"
-//             onClick={handleSubmit}
-//             disabled={!selectedFiles}
-//           >
-//             Upload
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };

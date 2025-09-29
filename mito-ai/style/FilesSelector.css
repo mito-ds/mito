@@ -1,0 +1,54 @@
+
+.file-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.file-list li {
+  margin-bottom: 6px;
+}
+
+.modal-footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submit-button {
+  margin-top: 8px;
+  background-color: var(--purple-400) !important;
+  color: var(--purple-700) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.file-list input[type="checkbox"],
+.select-all input[type="checkbox"]{
+  transform: scale(1.3);
+  margin-right: 6px;
+  accent-color: var(--purple-500);
+}
+
+.file-list svg {
+  color: grey;
+  margin-right: 4px;]
+  vertical-align: middle;
+}
+
+.select-all label {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+.submit-button:hover {
+  background-color: var(--purple-500) !important;
+}

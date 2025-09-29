@@ -27,6 +27,7 @@ export const deployStreamlitApp = async (
   appManagerService: IAppManagerService,
 ): Promise<void> => {
 
+  let selectedFiles: string[] = [];
   let jwtToken = await getJWTToken();
   if (!jwtToken) {
     // No token found, show authentication popup
@@ -58,7 +59,7 @@ export const deployStreamlitApp = async (
 
 
   try{
-    fileSelectorPopup(notebookPath);
+    selectedFiles = await fileSelectorPopup(notebookPath);
   }catch (error) {
       console.log('File selection failed:', error);
       return;
@@ -84,7 +85,8 @@ export const deployStreamlitApp = async (
       type: 'deploy-app',
       message_id: UUID.uuid4(),
       notebook_path: notebookPath,
-      jwt_token: jwtToken
+      jwt_token: jwtToken,
+      selected_files: selectedFiles
     });
 
     if (response.error) {

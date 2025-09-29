@@ -4,7 +4,7 @@
 import os
 import time
 import logging
-from typing import Any, Union, Optional
+from typing import Any, Union, List
 import zipfile
 import tempfile
 from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
@@ -111,6 +111,7 @@ class AppDeployHandler(BaseWebSocketHandler):
         message_id = message.message_id
         notebook_path = message.notebook_path
         jwt_token = message.jwt_token
+        files_to_upload = message.selected_files
         
         if not message_id:
             self.log.error("Missing message_id in request")
@@ -168,7 +169,7 @@ class AppDeployHandler(BaseWebSocketHandler):
                 ))
             
             # Finally, deploy the app
-            deploy_url = await self._deploy_app(app_directory, jwt_token)
+            deploy_url = await self._deploy_app(app_directory, files_to_upload, jwt_token)
 
             # Send the response
             self.reply(DeployAppReply(
@@ -219,11 +220,12 @@ class AppDeployHandler(BaseWebSocketHandler):
             return False
 
 
-    async def _deploy_app(self, app_path: str, jwt_token: str = '') -> str:
+    async def _deploy_app(self, app_path: str, files_to_upload:List[str], jwt_token: str = '') -> str:
         """Deploy the app using pre-signed URLs.
         
         Args:
             app_path: Path to the app file.
+            files_to_upload: Files the user selected to upload for the app to run
             jwt_token: JWT token for authentication (optional)
 
         Returns:
@@ -264,10 +266,23 @@ class AppDeployHandler(BaseWebSocketHandler):
 
                 self.log.info("Zipping application files...")
                 with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                    for root, _, files in os.walk(app_path):
-                        for file in files:
-                            file_path = os.path.join(root, file)
-                            zipf.write(file_path, arcname=os.path.relpath(file_path, app_path))
+                    for rel_path in files_to_upload:  # relative to app_path
+                        abs_path = os.path.join(app_path, rel_path)
+
+                        if os.path.isfile(abs_path):
+                            # keep the rel_path so zip mirrors user’s structure
+                            zipf.write(abs_path, arcname=rel_path)
+
+                        elif os.path.isdir(abs_path):
+                            for root, _, files in os.walk(abs_path):
+                                for file in files:
+                                    file_abs = os.path.join(root, file)
+                                    # compute arcname relative to app_path, not filesystem root
+                                    arcname = os.path.relpath(file_abs, app_path)
+                                    zipf.write(file_abs, arcname=arcname)
+
+                        else:
+                            self.log.warning(f"Skipping missing file: {abs_path}")
 
                 upload_response = await self._upload_app_to_s3(temp_zip_path, presigned_url)
             except Exception as e:

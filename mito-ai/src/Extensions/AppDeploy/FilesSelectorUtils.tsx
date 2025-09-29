@@ -10,7 +10,7 @@ import { FileUploadPopup } from './DeployFilesSelector';
 /**
  * Shows a file selector popup
  */
-export const fileSelectorPopup = (notebookPath: string): Promise<any> => {
+export const fileSelectorPopup = (notebookPath: string): Promise<string[]> => {
   return new Promise<any>((resolve, reject) => {
 
     console.log("Starting file selector for:", notebookPath);
@@ -23,11 +23,11 @@ export const fileSelectorPopup = (notebookPath: string): Promise<any> => {
     // Create root
     const root = createRoot(popupContainer);
 
-    const handleSubmit = (user: any): void => {
+    const handleSubmit = (items: string[]): void => {
       // Clean up the popup
       root.unmount();
       document.body.removeChild(popupContainer);
-      resolve(user);
+      resolve(items);
     };
 
     const handleClose = (): void => {
