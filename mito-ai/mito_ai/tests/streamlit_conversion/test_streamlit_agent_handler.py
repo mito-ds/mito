@@ -5,7 +5,7 @@ import pytest
 from unittest.mock import patch, AsyncMock, MagicMock
 from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     get_response_from_agent,
-    generate_streamlit_code,
+    generate_new_streamlit_code,
     correct_error_in_generation,
     streamlit_handler
 )
@@ -86,7 +86,7 @@ class TestGenerateStreamlitCode:
         mock_stream.return_value = mock_async_gen()
         
         notebook_data: dict = {"cells": []}
-        result = await generate_streamlit_code(notebook_data)
+        result = await generate_new_streamlit_code(notebook_data)
         
         expected_code = "import streamlit\nst.title('Hello')\n"
         assert result == expected_code

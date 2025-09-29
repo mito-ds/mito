@@ -64,6 +64,13 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
     except Exception as e:
         return False, '', f"Unexpected error: {str(e)}"
     
+def get_app_code_from_file(app_directory: str) -> Optional[str]:
+    app_path = get_app_path(app_directory)
+    if app_path is None:
+        return None
+    with open(app_path, 'r', encoding='utf-8') as f:
+        return f.read()
+    
 
 def get_app_path(app_directory: str) -> Optional[str]:
     """
@@ -73,7 +80,6 @@ def get_app_path(app_directory: str) -> Optional[str]:
     if not os.path.exists(app_path):
         return None
     return app_path
-    
 
 def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict[str, Any]:
     """
@@ -115,8 +121,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
 
         # Update the notebook data with filtered cells
         notebook_data['cells'] = filtered_cells
-
-        return notebook_data
+        return notebook_data.get('cells', [])
 
     except FileNotFoundError:
         raise FileNotFoundError(f"Notebook file not found: {notebook_path}")

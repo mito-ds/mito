@@ -1,49 +1,25 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import logging
 import os
 from anthropic.types import MessageParam
 from typing import List, Optional, Tuple, cast
 
 from mito_ai.logger import get_logger
-from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers
+from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers, get_response_from_agent
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
+from mito_ai.streamlit_conversion.prompts.update_existing_app_prompt import get_update_existing_app_prompt
 from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
-from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, parse_jupyter_notebook_to_extract_required_content
-from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
+from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
 from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
 
-STREAMLIT_AI_MODEL = "claude-3-5-haiku-latest"
 
-
-async def get_response_from_agent(message_to_agent: List[MessageParam]) -> str:
-    """Gets the streaming response from the agent using the mito server"""
-    model = STREAMLIT_AI_MODEL
-    max_tokens = 8192 # 64_000
-    temperature = 0.2
-
-    accumulated_response = ""
-    async for stream_chunk in stream_anthropic_completion_from_mito_server(
-        model = model,
-        max_tokens = max_tokens,
-        temperature = temperature,
-        system = streamlit_system_prompt,
-        messages = message_to_agent,
-        stream=True,
-        message_type=MessageType.STREAMLIT_CONVERSION,
-        reply_fn=None,
-        message_id=""
-    ):
-        accumulated_response += stream_chunk
-    return accumulated_response
-
-async def generate_streamlit_code(notebook: dict) -> str:
+async def generate_new_streamlit_code(notebook: dict) -> str:
     """Send a query to the agent, get its response and parse the code"""
     
     prompt_text = get_streamlit_app_creation_prompt(notebook)
@@ -57,8 +33,9 @@ async def generate_streamlit_code(notebook: dict) -> str:
             }]
         })
     ]
-    
+    print("messages: ", messages)
     agent_response = await get_response_from_agent(messages)
+    print("agent response: ", agent_response)
     converted_code = extract_code_blocks(agent_response)
     
     # Extract the TODOs from the agent's response
@@ -83,6 +60,31 @@ async def generate_streamlit_code(notebook: dict) -> str:
         fixed_diff = fix_diff_headers(exctracted_diff)
         converted_code = apply_patch_to_text(converted_code, fixed_diff)
                 
+    return converted_code
+
+
+async def update_existing_streamlit_code(notebook: dict, streamlit_app_code: str, edit_prompt: str) -> str:
+    """Send a query to the agent, get its response and parse the code"""
+    prompt_text = get_update_existing_app_prompt(notebook, streamlit_app_code, edit_prompt)
+    
+    messages: List[MessageParam] = [
+        cast(MessageParam, {
+            "role": "user",
+            "content": [{
+                "type": "text",
+                "text": prompt_text
+            }]
+        })
+    ]
+    
+    agent_response = await get_response_from_agent(messages)
+    print("agent response: ", agent_response)
+    exctracted_diff = extract_unified_diff_blocks(agent_response)
+    print("exctracted diff: ", exctracted_diff)
+    fixed_diff = fix_diff_headers(exctracted_diff)
+    print("fixed diff: ", fixed_diff)
+    converted_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
+    print("converted code: ", converted_code)
     return converted_code
 
 
@@ -116,8 +118,16 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[
     clean_directory_check(notebook_path)
 
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
-
-    streamlit_code = await generate_streamlit_code(notebook_code)
+    
+    if edit_prompt != "":
+        app_directory = get_app_directory(notebook_path)
+        streamlit_code = get_app_code_from_file(app_directory)
+        print("starting streamlit code: ", streamlit_code)
+        streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, edit_prompt)
+    else:
+        print("generating new streamlit code")
+        streamlit_code = await generate_new_streamlit_code(notebook_code)    
+        print("generated streamlit code: ", streamlit_code)
     
     has_validation_error, errors = validate_app(streamlit_code, notebook_path)
     tries = 0
@@ -137,13 +147,7 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
         return False, '', "Error generating streamlit code by agent"
     
-    # Convert to absolute path for directory calculation
-    absolute_notebook_path = notebook_path
-    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
-        absolute_notebook_path = os.path.join(os.getcwd(), notebook_path)
-    
-    app_directory = os.path.dirname(absolute_notebook_path)
-    
+    app_directory = get_app_directory(notebook_path)
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
     
     if not success_flag:
@@ -151,3 +155,13 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[
     
     log_streamlit_app_creation_success('mito_server_key', MessageType.STREAMLIT_CONVERSION)
     return success_flag, app_path, message
+
+
+def get_app_directory(notebook_path: str) -> str:
+    # Convert to absolute path for directory calculation
+    absolute_notebook_path = notebook_path
+    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
+        absolute_notebook_path = os.path.join(os.getcwd(), notebook_path)
+    
+    app_directory = os.path.dirname(absolute_notebook_path)
+    return app_directory

@@ -7,7 +7,7 @@ from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
 
 
-def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str], bool]:
+def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str], bool, str]:
     """Validate the request body and extract notebook_path and force_recreate."""
     if body is None:
         return False, "Invalid or missing JSON body", None, False

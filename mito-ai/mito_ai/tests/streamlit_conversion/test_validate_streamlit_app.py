@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 from mito_ai.streamlit_conversion.validate_streamlit_app import (
     get_syntax_error,
     get_runtime_errors,
-    _validate_app,
+    check_for_errors,
     validate_app
 )
 import pytest

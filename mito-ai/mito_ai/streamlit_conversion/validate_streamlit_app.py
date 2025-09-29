@@ -89,7 +89,7 @@ def get_runtime_errors(app_code: str, app_path: str) -> Optional[List[Dict[str, 
             except OSError:
                 pass  # File might already be deleted
 
-def _validate_app(app_code: str, app_path: str) -> List[Dict[str, Any]]:
+def check_for_errors(app_code: str, app_path: str) -> List[Dict[str, Any]]:
     """Complete validation pipeline"""
     errors: List[Dict[str, Any]] = []
 
@@ -113,7 +113,7 @@ def validate_app(app_code: str, notebook_path: str) -> Tuple[bool, List[str]]:
     """Convenience function to validate Streamlit code"""
     notebook_path = resolve_notebook_path(notebook_path)
     
-    errors = _validate_app(app_code, notebook_path)
+    errors = check_for_errors(app_code, notebook_path)
     
     has_validation_error = len(errors) > 0
     stringified_errors = [str(error) for error in errors]

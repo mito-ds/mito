@@ -82,6 +82,7 @@ class StreamlitPreviewHandler(APIHandler):
         try:
             # Parse and validate request
             body = self.get_json_body()
+            print(f"Body: {body}")
             is_valid, error_msg, notebook_path, force_recreate, edit_prompt = validate_request_body(body)
             if not is_valid:
                 self.set_status(400)

@@ -110,6 +110,11 @@ async def stream_anthropic_completion_from_mito_server(
     data, headers = _prepare_anthropic_request_data_and_headers(
         model, max_tokens, temperature, system, messages, message_type, None, None, stream
     )
+    
+    
+    print("data: ", data)
+    print("headers: ", headers)
+    
     # Use the unified streaming function
     # If the reply_fn and message_id are empty, this function still handles those requests. This is particularly needed for the streamlit dashboard functionality
     actual_reply_fn = reply_fn if reply_fn is not None else (lambda x: None)
@@ -128,6 +133,10 @@ async def stream_anthropic_completion_from_mito_server(
     ):
         yield chunk
 
+
+    print("stream completed")
+    
+    
 def get_anthropic_completion_function_params(
     message_type: MessageType,
     model: str,
