@@ -216,7 +216,18 @@ export class ScreenshotTestUI {
       
     } catch (error) {
       console.error('[Screenshot Test] ✗ FAILED:', error);
-      this.showNotification(`❌ Screenshot failed: ${error}`, 'error');
+      
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage.includes('tainted') || errorMessage.includes('cross-origin')) {
+        this.showNotification(
+          '❌ Screenshot failed: Canvas is tainted by cross-origin content (external images/fonts). Try capturing a different region or use content without external resources.',
+          'error'
+        );
+        console.log('[Screenshot Test] Tip: The selected area contains external images or resources that cannot be captured due to browser security. Try selecting a region with only text or local content.');
+      } else {
+        this.showNotification(`❌ Screenshot failed: ${errorMessage}`, 'error');
+      }
     }
   }
   

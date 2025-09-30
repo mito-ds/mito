@@ -38,6 +38,10 @@ export async function captureElement(
 
   // Get all computed styles for the element and its children
   const clonedElement = element.cloneNode(true) as HTMLElement;
+  
+  // Remove external content that might taint the canvas
+  sanitizeExternalContent(clonedElement);
+  
   await inlineStyles(element, clonedElement);
 
   // Serialize DOM to SVG
@@ -71,7 +75,17 @@ export async function captureElement(
         
         URL.revokeObjectURL(url);
         
-        const dataUrl = canvas.toDataURL('image/png');
+        let dataUrl: string;
+        try {
+          dataUrl = canvas.toDataURL('image/png');
+        } catch (securityError) {
+          // Canvas is tainted (contains cross-origin content)
+          // Fall back to capturing without the problematic content
+          console.warn('[Canvas Screenshot] Canvas is tainted, trying fallback method...');
+          reject(new Error('Canvas tainted by cross-origin content. Try capturing a region without external images or use the html2canvas fallback.'));
+          return;
+        }
+        
         const endTime = performance.now();
         const duration = endTime - startTime;
         const sizeKB = Math.round((dataUrl.length * 0.75) / 1024); // Approximate size in KB
@@ -90,7 +104,58 @@ export async function captureElement(
       reject(new Error('Failed to load image from SVG'));
     };
     
+    // Set crossOrigin to try to avoid tainting (for images with CORS headers)
+    img.crossOrigin = 'anonymous';
     img.src = url;
+  });
+}
+
+/**
+ * Remove or replace external images to prevent canvas tainting
+ * This helps avoid CORS issues
+ */
+function sanitizeExternalContent(element: HTMLElement): void {
+  // Find all images
+  const images = element.querySelectorAll('img');
+  images.forEach((img) => {
+    // Check if image is from external origin
+    try {
+      const imgUrl = new URL(img.src);
+      const currentOrigin = window.location.origin;
+      
+      if (imgUrl.origin !== currentOrigin && !img.src.startsWith('data:')) {
+        // Replace with a placeholder or remove
+        console.warn(`[Canvas Screenshot] Removing external image: ${img.src}`);
+        img.style.display = 'none';
+        // Or replace with placeholder:
+        // img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
+      }
+    } catch (e) {
+      // Invalid URL, skip
+    }
+  });
+  
+  // Remove background images that might be external
+  const allElements = element.querySelectorAll('*');
+  allElements.forEach((el) => {
+    if (el instanceof HTMLElement) {
+      const bgImage = window.getComputedStyle(el).backgroundImage;
+      if (bgImage && bgImage !== 'none' && !bgImage.includes('data:')) {
+        // Check if it's an external URL
+        const urlMatch = bgImage.match(/url\(['"]?(.*?)['"]?\)/);
+        if (urlMatch && urlMatch[1]) {
+          try {
+            const bgUrl = new URL(urlMatch[1], window.location.href);
+            if (bgUrl.origin !== window.location.origin) {
+              console.warn(`[Canvas Screenshot] Removing external background image: ${urlMatch[1]}`);
+              el.style.backgroundImage = 'none';
+            }
+          } catch (e) {
+            // Keep it if we can't parse
+          }
+        }
+      }
+    }
   });
 }
 

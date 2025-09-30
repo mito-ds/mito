@@ -295,6 +295,10 @@
             canvas.height = captureHeight;
 
             const clonedElement = element.cloneNode(true);
+            
+            // Remove external content to prevent canvas tainting
+            sanitizeExternalContent(clonedElement);
+            
             await inlineStyles(element, clonedElement);
 
             const svgData = `
@@ -325,7 +329,15 @@
                         }
                         
                         URL.revokeObjectURL(url);
-                        const dataUrl = canvas.toDataURL('image/png');
+                        
+                        let dataUrl;
+                        try {
+                            dataUrl = canvas.toDataURL('image/png');
+                        } catch (securityError) {
+                            console.warn('[Canvas Screenshot] Canvas tainted by cross-origin content');
+                            reject(new Error('Canvas tainted by cross-origin content. The captured area contains external images or resources that cannot be exported.'));
+                            return;
+                        }
                         const duration = performance.now() - startTime;
                         
                         resolve({ dataUrl, duration });
@@ -338,7 +350,46 @@
                     URL.revokeObjectURL(url);
                     reject(new Error('Failed to load image'));
                 };
+                img.crossOrigin = 'anonymous';
                 img.src = url;
+            });
+        }
+
+        function sanitizeExternalContent(element) {
+            // Find all images
+            const images = element.querySelectorAll('img');
+            images.forEach((img) => {
+                try {
+                    const imgUrl = new URL(img.src);
+                    const currentOrigin = window.location.origin;
+                    
+                    if (imgUrl.origin !== currentOrigin && !img.src.startsWith('data:')) {
+                        console.warn('[Canvas Screenshot] Removing external image:', img.src);
+                        img.style.display = 'none';
+                    }
+                } catch (e) {
+                    // Invalid URL, skip
+                }
+            });
+            
+            // Remove background images that might be external
+            const allElements = element.querySelectorAll('*');
+            allElements.forEach((el) => {
+                const bgImage = window.getComputedStyle(el).backgroundImage;
+                if (bgImage && bgImage !== 'none' && !bgImage.includes('data:')) {
+                    const urlMatch = bgImage.match(/url\(['"]?(.*?)['"]?\)/);
+                    if (urlMatch && urlMatch[1]) {
+                        try {
+                            const bgUrl = new URL(urlMatch[1], window.location.href);
+                            if (bgUrl.origin !== window.location.origin) {
+                                console.warn('[Canvas Screenshot] Removing external background:', urlMatch[1]);
+                                el.style.backgroundImage = 'none';
+                            }
+                        } catch (e) {
+                            // Keep it
+                        }
+                    }
+                }
             });
         }
 
