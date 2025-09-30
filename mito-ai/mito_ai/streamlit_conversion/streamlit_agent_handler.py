@@ -4,7 +4,6 @@
 import os
 from anthropic.types import MessageParam
 from typing import List, Optional, Tuple, cast
-
 from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers, get_response_from_agent
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
@@ -82,13 +81,9 @@ async def update_existing_streamlit_code(notebook: dict, streamlit_app_code: str
     ]
     
     agent_response = await get_response_from_agent(messages)
-    print("\n\nagent response: ", agent_response)
     exctracted_diff = extract_unified_diff_blocks(agent_response)
-    print("\n\nexctracted diff: ", exctracted_diff)
     fixed_diff = fix_diff_headers(exctracted_diff)
-    print("\n\nfixed diff: ", fixed_diff)
     converted_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
-    print("\n\nconverted code: ", converted_code)
     return converted_code
 
 
@@ -107,12 +102,8 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
     
     # Apply the diff to the streamlit app
     exctracted_diff = extract_unified_diff_blocks(agent_response)
-    
-    print(f"\n\nExtracted diff: {exctracted_diff}")
     fixed_diff = fix_diff_headers(exctracted_diff)
     streamlit_app_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
-    
-    print("\n\nUpdated app code: ", streamlit_app_code)
 
     return streamlit_app_code
 
@@ -122,17 +113,21 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[
     clean_directory_check(notebook_path)
 
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
+    app_directory = get_app_directory(notebook_path)
     
     if edit_prompt != "":
-        app_directory = get_app_directory(notebook_path)
+        # If the user is editing an existing streamlit app, use the update function
         streamlit_code = get_app_code_from_file(app_directory)
-        print("starting streamlit code: ", streamlit_code)
+        
+        if streamlit_code is None:
+            return False, '', "Error updating existing streamlit app because app.py file was not found."
+        
         streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, edit_prompt)
     else:
-        print("generating new streamlit code")
-        streamlit_code = await generate_new_streamlit_code(notebook_code)    
-        print("generated streamlit code: ", streamlit_code)
-    
+        # Otherwise generate a new streamlit app
+        streamlit_code = await generate_new_streamlit_code(notebook_code)
+       
+    # Then, after creating/updating the app, validate that the new code runs 
     has_validation_error, errors = validate_app(streamlit_code, notebook_path)
     tries = 0
     while has_validation_error and tries < 5:
@@ -151,9 +146,8 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error, edit_prompt)
         return False, '', "Error generating streamlit code by agent"
     
-    app_directory = get_app_directory(notebook_path)
+    # Finally, update the app.py file with the new code
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
-    
     if not success_flag:
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, message, edit_prompt)
     

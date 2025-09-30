@@ -120,9 +120,6 @@ async def stream_anthropic_completion_from_mito_server(
         provider_name="Claude",
     ):
         yield chunk
-
-
-    print("stream completed")
     
     
 def get_anthropic_completion_function_params(
