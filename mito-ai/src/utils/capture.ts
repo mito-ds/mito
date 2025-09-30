@@ -36,24 +36,61 @@ export async function captureElement(
   canvas.width = captureWidth;
   canvas.height = captureHeight;
 
-  // Get all computed styles for the element and its children
-  const clonedElement = element.cloneNode(true) as HTMLElement;
+  // Use html2canvas from nodeToPng if available
+  try {
+    console.log('[Canvas Screenshot] Attempting to import html2canvas...');
+    const html2canvas = (await import('html2canvas')).default;
+    
+    console.log('[Canvas Screenshot] Using html2canvas for reliable capture...');
+    const tempCanvas = await html2canvas(element, {
+      backgroundColor: null,
+      scale: 1,
+      logging: false,
+      useCORS: true,
+      allowTaint: false,
+      width: fullWidth,
+      height: fullHeight
+    });
+    
+    // Draw to our canvas (potentially with selection)
+    if (selection) {
+      ctx.drawImage(
+        tempCanvas,
+        selection.x, selection.y, selection.width, selection.height,
+        0, 0, selection.width, selection.height
+      );
+    } else {
+      ctx.drawImage(tempCanvas, 0, 0);
+    }
+    
+    const dataUrl = canvas.toDataURL('image/png');
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    const sizeKB = Math.round((dataUrl.length * 0.75) / 1024);
+    
+    console.log(`[Canvas Screenshot] Capture completed in ${duration.toFixed(2)}ms, Size: ${sizeKB}KB`);
+    return dataUrl;
+    
+  } catch (importError) {
+    console.warn('[Canvas Screenshot] html2canvas not available, trying simple SVG approach:', importError);
+  }
   
-  // Remove external content that might taint the canvas
-  sanitizeExternalContent(clonedElement);
+  // Fallback: Simple SVG approach for basic content
+  console.log('[Canvas Screenshot] Trying simplified SVG approach...');
   
-  await inlineStyles(element, clonedElement);
-
-  // Serialize DOM to SVG
-  const svgData = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${fullWidth}" height="${fullHeight}">
-      <foreignObject width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml">
-          ${clonedElement.outerHTML}
-        </div>
-      </foreignObject>
-    </svg>
-  `;
+  const serializer = new XMLSerializer();
+  const elementClone = element.cloneNode(true) as HTMLElement;
+  
+  // Simplify the content
+  sanitizeExternalContent(elementClone);
+  
+  const htmlString = serializer.serializeToString(elementClone);
+  
+  const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${fullWidth}" height="${fullHeight}">
+  <foreignObject width="100%" height="100%">
+    ${htmlString}
+  </foreignObject>
+</svg>`;
 
   const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -101,7 +138,10 @@ export async function captureElement(
     
     img.onerror = (error) => {
       URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image from SVG'));
+      console.error('[Canvas Screenshot] SVG rendering failed. This usually means the content is too complex for SVG foreignObject.');
+      console.log('[Canvas Screenshot] Captured element:', element.tagName, element.className);
+      console.log('[Canvas Screenshot] SVG data (first 500 chars):', svgData.substring(0, 500));
+      reject(new Error('Failed to render SVG. The content may be too complex. Try installing html2canvas or selecting simpler content.'));
     };
     
     // Set crossOrigin to try to avoid tainting (for images with CORS headers)
