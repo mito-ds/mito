@@ -11,14 +11,14 @@ interface UpdateAppDropdownProps {
 const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose }) => {
     const [message, setMessage] = React.useState('');
 
-    const handleSubmit = () => {
+    const handleSubmit = (): void => {
         if (message.trim()) {
             onSubmit(message);
             onClose();
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
+    const handleKeyDown = (e: React.KeyboardEvent): void => {
         if (e.key === 'Escape') {
             onClose();
         }

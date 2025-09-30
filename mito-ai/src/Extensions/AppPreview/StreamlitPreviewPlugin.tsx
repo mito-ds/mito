@@ -19,9 +19,9 @@ import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
 import { startStreamlitPreviewAndNotify } from './utils';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import UpdateAppDropdown from './UpdateAppDropdown';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { createRoot } from 'react-dom/client';
 
 /**
  * Interface for the streamlit preview response.
@@ -105,7 +105,7 @@ function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string)
   document.body.appendChild(dropdownContainer);
 
   // Render the React component
-  ReactDOM.render(
+  createRoot(dropdownContainer).render(
     <UpdateAppDropdown
       onSubmit={async (message) => {
         try {
@@ -126,12 +126,11 @@ function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string)
       onClose={() => {
         dropdownContainer.remove();
       }}
-    />,
-    dropdownContainer
+    />
   );
 
   // Close dropdown when clicking outside
-  const handleClickOutside = (event: MouseEvent) => {
+  const handleClickOutside = (event: MouseEvent): void => {
     if (!dropdownContainer.contains(event.target as Node) && 
         !buttonElement.contains(event.target as Node)) {
       dropdownContainer.remove();
