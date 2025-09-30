@@ -28,7 +28,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
     return (
         <div className="signup-form-container">
             <div className="signup-form-message" data-testid="signup-form-message">
-                Get started with Mito, no credit card required, just an email.
+                To avoid abuse of our free AI credits, we ask that you login to use the AI features. No credit card required, just an email.
             </div>
             <form onSubmit={handleSubmit} style={{ marginTop: '15px' }}>
                 <input
