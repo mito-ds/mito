@@ -36,61 +36,43 @@ export async function captureElement(
   canvas.width = captureWidth;
   canvas.height = captureHeight;
 
-  // Use html2canvas from nodeToPng if available
-  try {
-    console.log('[Canvas Screenshot] Attempting to import html2canvas...');
-    const html2canvas = (await import('html2canvas')).default;
-    
-    console.log('[Canvas Screenshot] Using html2canvas for reliable capture...');
-    const tempCanvas = await html2canvas(element, {
-      backgroundColor: null,
-      scale: 1,
-      logging: false,
-      useCORS: true,
-      allowTaint: false,
-      width: fullWidth,
-      height: fullHeight
-    });
-    
-    // Draw to our canvas (potentially with selection)
-    if (selection) {
-      ctx.drawImage(
-        tempCanvas,
-        selection.x, selection.y, selection.width, selection.height,
-        0, 0, selection.width, selection.height
-      );
-    } else {
-      ctx.drawImage(tempCanvas, 0, 0);
-    }
-    
-    const dataUrl = canvas.toDataURL('image/png');
-    const endTime = performance.now();
-    const duration = endTime - startTime;
-    const sizeKB = Math.round((dataUrl.length * 0.75) / 1024);
-    
-    console.log(`[Canvas Screenshot] Capture completed in ${duration.toFixed(2)}ms, Size: ${sizeKB}KB`);
-    return dataUrl;
-    
-  } catch (importError) {
-    console.warn('[Canvas Screenshot] html2canvas not available, trying simple SVG approach:', importError);
-  }
+  console.log('[Canvas Screenshot] Preparing element for SVG capture...');
+  console.log('[Canvas Screenshot] Element:', element.tagName, element.className);
+  console.log('[Canvas Screenshot] Dimensions:', fullWidth, 'x', fullHeight);
   
-  // Fallback: Simple SVG approach for basic content
-  console.log('[Canvas Screenshot] Trying simplified SVG approach...');
-  
-  const serializer = new XMLSerializer();
+  // Clone and prepare the element
   const elementClone = element.cloneNode(true) as HTMLElement;
   
-  // Simplify the content
+  // Remove problematic content
   sanitizeExternalContent(elementClone);
+  cleanupForSVG(elementClone);
   
-  const htmlString = serializer.serializeToString(elementClone);
+  // Inline all styles to preserve appearance
+  await inlineStyles(element, elementClone);
+  
+  // Use XMLSerializer for proper escaping
+  const serializer = new XMLSerializer();
+  let htmlString: string;
+  
+  try {
+    htmlString = serializer.serializeToString(elementClone);
+  } catch (serializeError) {
+    console.warn('[Canvas Screenshot] XMLSerializer failed, using outerHTML:', serializeError);
+    htmlString = elementClone.outerHTML;
+  }
+  
+  // Escape special characters for SVG
+  htmlString = escapeHTMLForSVG(htmlString);
   
   const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${fullWidth}" height="${fullHeight}">
-  <foreignObject width="100%" height="100%">
-    ${htmlString}
+  <foreignObject x="0" y="0" width="${fullWidth}" height="${fullHeight}">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="width:${fullWidth}px;height:${fullHeight}px;">
+      ${htmlString}
+    </div>
   </foreignObject>
 </svg>`;
+
+  console.log('[Canvas Screenshot] SVG created, size:', svgData.length, 'bytes');
 
   const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -138,15 +120,93 @@ export async function captureElement(
     
     img.onerror = (error) => {
       URL.revokeObjectURL(url);
-      console.error('[Canvas Screenshot] SVG rendering failed. This usually means the content is too complex for SVG foreignObject.');
-      console.log('[Canvas Screenshot] Captured element:', element.tagName, element.className);
-      console.log('[Canvas Screenshot] SVG data (first 500 chars):', svgData.substring(0, 500));
-      reject(new Error('Failed to render SVG. The content may be too complex. Try installing html2canvas or selecting simpler content.'));
+      console.error('[Canvas Screenshot] SVG rendering failed.');
+      console.log('[Canvas Screenshot] Element type:', element.tagName);
+      console.log('[Canvas Screenshot] Element classes:', element.className);
+      console.log('[Canvas Screenshot] Element size:', fullWidth, 'x', fullHeight);
+      console.log('[Canvas Screenshot] SVG size:', svgData.length, 'bytes');
+      console.log('[Canvas Screenshot] SVG preview (first 1000 chars):', svgData.substring(0, 1000));
+      
+      // Try to identify the issue
+      if (svgData.length > 1000000) {
+        console.error('[Canvas Screenshot] SVG is very large (>1MB). This might cause rendering failure.');
+      }
+      
+      reject(new Error('Failed to render SVG foreignObject. The selected content may contain complex elements (SVG, canvas, video) or be too large. Try selecting simpler content or a smaller region.'));
     };
     
     // Set crossOrigin to try to avoid tainting (for images with CORS headers)
     img.crossOrigin = 'anonymous';
     img.src = url;
+  });
+}
+
+/**
+ * Escape HTML string for safe embedding in SVG foreignObject
+ */
+function escapeHTMLForSVG(html: string): string {
+  // Don't double-escape, just ensure it's properly formatted
+  return html
+    .replace(/&(?!(amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/g, '&amp;')  // Escape unescaped ampersands
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')  // Remove script tags
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');  // Remove iframes
+}
+
+/**
+ * Clean up element for SVG compatibility
+ * Remove elements that cause SVG foreignObject to fail
+ */
+function cleanupForSVG(element: HTMLElement): void {
+  // Remove script tags
+  const scripts = element.querySelectorAll('script');
+  scripts.forEach(script => script.remove());
+  
+  // Remove iframe tags
+  const iframes = element.querySelectorAll('iframe');
+  iframes.forEach(iframe => iframe.remove());
+  
+  // Remove SVG elements (they can cause issues in foreignObject)
+  const svgs = element.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    // Replace with a placeholder div
+    const placeholder = document.createElement('div');
+    placeholder.style.cssText = `
+      width: ${svg.getAttribute('width') || '100'}px;
+      height: ${svg.getAttribute('height') || '100'}px;
+      background: #f0f0f0;
+      display: inline-block;
+    `;
+    placeholder.textContent = '[SVG content]';
+    svg.parentNode?.replaceChild(placeholder, svg);
+  });
+  
+  // Remove canvas elements (they don't render in foreignObject)
+  const canvases = element.querySelectorAll('canvas');
+  canvases.forEach(canvas => {
+    const placeholder = document.createElement('div');
+    placeholder.style.cssText = `
+      width: ${canvas.width}px;
+      height: ${canvas.height}px;
+      background: #e0e0e0;
+      display: inline-block;
+    `;
+    placeholder.textContent = '[Canvas content]';
+    canvas.parentNode?.replaceChild(placeholder, canvas);
+  });
+  
+  // Remove video and audio elements
+  const media = element.querySelectorAll('video, audio');
+  media.forEach(el => el.remove());
+  
+  // Remove elements with display:none (they can cause issues)
+  const allElements = element.querySelectorAll('*');
+  allElements.forEach(el => {
+    if (el instanceof HTMLElement) {
+      const display = window.getComputedStyle(el).display;
+      if (display === 'none') {
+        el.remove();
+      }
+    }
   });
 }
 
