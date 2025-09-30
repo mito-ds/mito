@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { setUserKey } from '../../restAPI/RestAPI';
+import MitoLogo from '../../icons/MitoLogo';
 import '../../../style/SignUpForm.css';
 
 
@@ -27,6 +28,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
 
     return (
         <div className="signup-form-container">
+            <div className="signup-form-header-logo">
+                <MitoLogo width="60" height="30" />
+            </div>
+            <span className="signup-form-header">
+                Sign Up for Mito
+            </span>
             <div className="signup-form-message" data-testid="signup-form-message">
                 To avoid abuse of our free AI credits, we ask that you login to use the AI features. No credit card required, just an email.
             </div>

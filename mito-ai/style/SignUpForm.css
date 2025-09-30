@@ -1,3 +1,18 @@
+.signup-form-header {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: var(--jp-ui-font-color0);
+}
+
+.signup-form-header-logo {
+    margin: 0 auto 8px;
+    display: block;
+    text-align: center;
+}
+
 .signup-form-message {
     font-size: 14px;
     color: var(--jp-ui-font-color1);

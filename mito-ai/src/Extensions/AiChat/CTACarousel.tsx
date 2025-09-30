@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import MitoLogo from '../../icons/MitoLogo';
 import '../../../style/CTACarousel.css';
 
 interface CTACarouselProps {
@@ -44,6 +45,12 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app }) => {
 
     return (
         <div className="cta-carousel">
+            <div className="cta-logo-container">
+                <MitoLogo width="60" height="30" />
+            </div>
+            <span className="cta-title">
+                Data Copilot
+            </span>
             <div className="cta-carousel-container">
                 <div className="cta-message" data-testid="cta-message">
                     {currentMessage}

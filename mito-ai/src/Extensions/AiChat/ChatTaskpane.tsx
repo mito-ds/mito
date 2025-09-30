@@ -44,7 +44,6 @@ import ToggleButton from '../../components/ToggleButton';
 
 // Internal imports - Icons
 import { OpenIndicatorLabIcon } from '../../icons';
-import MitoLogo from '../../icons/MitoLogo';
 import UndoIcon from '../../icons/UndoIcon';
 
 // Internal imports - Utils
@@ -1520,13 +1519,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-messages" ref={chatMessagesRef}>
                 {displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
-                        <div style={{ margin: '0 auto 8px', display: 'block', textAlign: 'center' }}>
-                            <MitoLogo width="60" height="30" />
-                        </div>
-                        <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>
-                            {isSignedUp === false ? "Sign Up for Mito" : "Data Copilot"
-                            }
-                        </span>
                         {isSignedUp === false 
                             ? <SignUpForm onSignUpSuccess={refreshUserEmail} /> 
                             : <CTACarousel app={app} />
