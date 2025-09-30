@@ -58,7 +58,7 @@ const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose
                     id="update-description"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Enter your update description here... (Ctrl+Enter to submit)"
+                    placeholder="Enter your update description here..."
                     style={{
                         width: '100%',
                         minHeight: '100px',

@@ -15,12 +15,13 @@ import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
-import { DeployLabIcon } from '../../icons';
+import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
 import { startStreamlitPreviewAndNotify } from './utils';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import UpdateAppDropdown from './UpdateAppDropdown';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
 
 /**
  * Interface for the streamlit preview response.
@@ -53,6 +54,25 @@ class IFrameWidget extends Widget {
     if (iframe) {
       iframe.src = url;
     }
+  }
+}
+
+async function showRecreateAppConfirmation(app: JupyterFrontEnd): Promise<void> {
+  const result = await showDialog({
+    title: 'Recreate App',
+    body: 'This will recreate the app from scratch, discarding all your current edits. This action cannot be undone. Are you sure you want to continue?',    
+    buttons: [
+      Dialog.cancelButton({ label: 'Cancel' }),
+      Dialog.warnButton({ label: 'Recreate App' })
+    ],
+    defaultButton: 1
+  });
+
+  if (result.button.accept) {
+    console.log('Recreate app confirmed');
+    // Add your recreate app logic here
+  } else {
+    console.log('Recreate app cancelled');
   }
 }
 
@@ -186,7 +206,32 @@ async function previewNotebookAsStreamlit(
     widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
 
-    // Add toolbar button to the MainAreaWidget's toolbar
+
+    /* ******************************************************
+     * Create Streamlit App Toolbar Buttons
+     ****************************************************** */
+    const editAppButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+      onClick: (): void => {
+        showUpdateAppDropdown(editAppButton.node, notebookPath);
+      },
+      tooltip: 'Edit Streamlit App',
+      label: 'Edit App',
+      icon: EditLabIcon,
+      iconClass: 'mito-ai-deploy-icon'
+    });
+
+    const recreateAppButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+      onClick: async (): Promise<void> => {
+        await showRecreateAppConfirmation(app);
+      },
+      tooltip: 'Edit Streamlit App',
+      label: 'Recreate App',
+      icon: ResetCircleLabIcon,
+      iconClass: 'mito-ai-deploy-icon'
+    });
+
     const deployButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: (): void => {
@@ -197,22 +242,11 @@ async function previewNotebookAsStreamlit(
       icon: DeployLabIcon,
       iconClass: 'mito-ai-deploy-icon'
     });
-
-    // Add toolbar button to the MainAreaWidget's toolbar
-    const refreshButton = new ToolbarButton({
-      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
-      onClick: (): void => {
-        showUpdateAppDropdown(refreshButton.node, notebookPath);
-      },
-      tooltip: 'Rebuild Streamlit App',
-      label: 'Rebuild App',
-      icon: DeployLabIcon,
-      iconClass: 'mito-ai-deploy-icon'
-    });
     
     // Insert the button into the toolbar
-    widget.toolbar.insertAfter('spacer', 'refresh-app-button', refreshButton);
-    widget.toolbar.insertAfter('spacer', 'deploy-app-button', deployButton);
+    widget.toolbar.insertAfter('spacer', 'edit-app-button', editAppButton);
+    widget.toolbar.insertAfter('edit-app-button', 'recreate-app-button', recreateAppButton);
+    widget.toolbar.insertAfter('recreate-app-button', 'deploy-app-button', deployButton);
 
     // Handle widget disposal
     widget.disposed.connect(() => {

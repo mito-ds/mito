@@ -10,6 +10,8 @@ import OpenIndicatorIcon from '../../src/icons/OpenIndicatorIcon.svg';
 import AppBuilderExcludeCellIcon from '../../src/icons/AppBuilderExcludeCellIcon.svg';
 import AppBuilderIncludeCellIcon from '../../src/icons/AppBuilderIncludeCellIcon.svg';
 import DeployIcon from '../../src/icons/App/DeployIcon.svg';
+import PencilIcon from '../../src/icons/PencilIcon.svg';
+import ResetCircleIcon from '../../src/icons/ResetCircleIcon.svg';
 
 export const lightBulbLabIcon = new LabIcon({
   name: 'lightbulb-icon',
@@ -39,4 +41,14 @@ export const AppBuilderIncludeCellLabIcon = new LabIcon({
 export const DeployLabIcon = new LabIcon({
   name: 'deploy-icon',
   svgstr: DeployIcon
+});
+
+export const EditLabIcon = new LabIcon({
+  name: 'edit-icon',
+  svgstr: PencilIcon
+});
+
+export const ResetCircleLabIcon = new LabIcon({
+  name: 'reset-circle-icon',
+  svgstr: ResetCircleIcon
 });
