@@ -13,7 +13,18 @@
     box-sizing: border-box;
 }
 
+.signup-form-input:focus {
+    border-color: var(--purple-600);
+    outline: none;
+}
+
 .signup-form-button {
     height: 36px;
     box-sizing: border-box;
+    background-color: var(--purple-700);
+    color: white;
+}
+
+.signup-form-button:hover {
+    background-color: var(--purple-600);
 }

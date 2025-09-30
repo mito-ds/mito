@@ -41,7 +41,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
                 />
                 <button
                     type="submit"
-                    className="button-base button-purple signup-form-button"
+                    className="button-base signup-form-button"
                 >
                     Sign Up
                 </button>
