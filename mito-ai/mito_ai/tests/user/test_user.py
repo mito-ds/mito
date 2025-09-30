@@ -98,7 +98,7 @@ def test_put_user_with_mocked_data_success(
         assert response.status_code == 200
 
         response_json = response.json()
-        assert response_json["status"] == "updated"
+        assert response_json["status"] == "success"
         assert response_json["key"] == "user_email"
         assert response_json["value"] == "jdoe@mail.com"
 

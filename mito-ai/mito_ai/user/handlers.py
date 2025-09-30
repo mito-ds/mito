@@ -30,4 +30,4 @@ class UserHandler(APIHandler):
 
         set_user_field(key, data["value"])
         identify() # Log the new user 
-        self.finish(json.dumps({"status": "updated", "key": key, "value": data["value"]}))
+        self.finish(json.dumps({"status": "success", "key": key, "value": data["value"]}))
