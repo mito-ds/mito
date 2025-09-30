@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { INotebookTracker, NotebookActions } from "@jupyterlab/notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
@@ -12,23 +12,41 @@ import '../../../style/NotebookFooter.css';
 import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
+import { getUserKey } from '../../restAPI/RestAPI';
 
 interface NotebookFooterProps {
     notebookTracker: INotebookTracker;
     app: JupyterFrontEnd;
 }
 
-const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) => {
+const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app }) => {
     const notebook = notebookTracker.currentWidget?.content
 
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isSignedUp, setIsSignedUp] = useState(false);
 
     // If the notebook is not loaded yet, don't render anything
     // This must come after the useEffects
     if (notebook === undefined || notebook.model === null) {
         return null;
     }
+
+    useEffect(() => {
+        void getUserKey('user_email').then((email) => {
+            setIsSignedUp(email !== "" && email !== undefined);
+        });
+    }, []);
+
+    const getPlaceholder = (): string => {
+        if (isSignedUp) {
+            return 'What analysis can I help you with?';
+        } else if (isGenerating) {
+            return 'Generating notebook...';
+        } else {
+            return 'Sign up to use the AI features';
+        }
+    };
 
     const addCell = (cellType: 'code' | 'markdown' = 'code'): void => {
         if (notebook.widgets.length && notebook.widgets.length > 0) {
@@ -86,7 +104,7 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) =
 
     const handleKeyDown = (e: React.KeyboardEvent): void => {
         e.stopPropagation();
-        
+
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleInputSubmit();
@@ -113,14 +131,14 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) =
                         onKeyPress={handleKeyPress}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
-                        placeholder={isGenerating ? 'Generating notebook...' : 'What analysis can I help you with?'}
+                        placeholder={getPlaceholder()}
                         className="prompt-input"
                         autoComplete="off"
                         spellCheck={false}
-                        disabled={isGenerating}
+                        disabled={isGenerating || !isSignedUp}
                     />
                     <div className="input-icons-right">
-                        <button 
+                        <button
                             className="input-action-button"
                             onClick={handleInputSubmit}
                             onMouseDown={(e) => e.stopPropagation()}
