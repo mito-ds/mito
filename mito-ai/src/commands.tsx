@@ -22,3 +22,6 @@ export const COMMAND_MITO_AI_BETA_MODE_ENABLED = `${MITO_AI}:beta-mode-enabled`
 
 // Streamlit commands
 export const COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT = 'mito-ai:preview-as-streamlit';
+
+// Screenshot test command
+export const COMMAND_MITO_AI_TEST_SCREENSHOT = 'mito-ai:test-screenshot';

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Screenshot Test - Rectangle Selection Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .demo-area {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            cursor: crosshair;
+            min-height: 400px;
+        }
+
+        .demo-area.selecting {
+            cursor: crosshair;
+        }
+
+        .demo-content {
+            pointer-events: none;
+        }
+
+        .demo-content h2 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .demo-content p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .color-boxes {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .color-box {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .selection-rectangle {
+            position: absolute;
+            border: 2px solid #007bff;
+            background: rgba(0, 123, 255, 0.1);
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: background 0.2s;
+        }
+
+        .button:hover {
+            background: #0056b3;
+        }
+
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .button.secondary {
+            background: #6c757d;
+        }
+
+        .button.secondary:hover {
+            background: #545b62;
+        }
+
+        .metrics {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-family: monospace;
+        }
+
+        .metrics-row {
+            margin-bottom: 8px;
+        }
+
+        .metrics-label {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .metrics-value {
+            color: #007bff;
+        }
+
+        .screenshot-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .screenshot-preview h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .preview-image.visible {
+            display: block;
+        }
+
+        .status {
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ Canvas Screenshot Test - Rectangle Selection Demo</h1>
+            <div class="instructions">
+                <strong>How to use:</strong>
+                <ol style="margin-top: 10px; margin-left: 20px;">
+                    <li>Click "Enable Selection Mode" below</li>
+                    <li>Click and drag on the demo area to draw a rectangle</li>
+                    <li>Release to capture that region as a screenshot</li>
+                    <li>View the result, download it, or try again!</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="enableBtn" class="button">Enable Selection Mode</button>
+            <button id="resetBtn" class="button secondary" disabled>Reset</button>
+            <button id="captureFullBtn" class="button secondary">Capture Full Area</button>
+            
+            <div id="status"></div>
+            
+            <div id="metrics" class="metrics" style="display: none;">
+                <div class="metrics-row">
+                    <span class="metrics-label">Duration:</span>
+                    <span class="metrics-value" id="duration">-</span>
+                </div>
+                <div class="metrics-row">
+                    <span class="metrics-label">File Size:</span>
+                    <span class="metrics-value" id="fileSize">-</span>
+                </div>
+                <div class="metrics-row">
+                    <span class="metrics-label">Dimensions:</span>
+                    <span class="metrics-value" id="dimensions">-</span>
+                </div>
+                <div class="metrics-row">
+                    <span class="metrics-label">Performance:</span>
+                    <span class="metrics-value" id="performance">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="demoArea" class="demo-area">
+            <div class="demo-content">
+                <h2>Sample Content for Screenshot Testing</h2>
+                <p>This is a demo area with various content types. Try selecting different regions!</p>
+                <p><strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                
+                <div class="color-boxes">
+                    <div class="color-box" style="background: #ff6b6b;">Red</div>
+                    <div class="color-box" style="background: #4ecdc4;">Cyan</div>
+                    <div class="color-box" style="background: #45b7d1;">Blue</div>
+                    <div class="color-box" style="background: #f9ca24;">Yellow</div>
+                    <div class="color-box" style="background: #6c5ce7;">Purple</div>
+                </div>
+
+                <p style="margin-top: 20px;">Select any region above to test the screenshot capture. The captured image will appear below with performance metrics.</p>
+                
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Item one with some text</li>
+                    <li>Item two with <em>emphasis</em></li>
+                    <li>Item three with <a href="#" style="color: #007bff;">a link</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="screenshot-preview">
+            <h3>📸 Captured Screenshot</h3>
+            <img id="previewImage" class="preview-image" alt="Screenshot preview">
+            <p id="noScreenshot" style="color: #6c757d;">No screenshot captured yet. Draw a rectangle above to capture!</p>
+            <button id="downloadBtn" class="button" style="display: none; margin-top: 15px;">Download Screenshot</button>
+        </div>
+    </div>
+
+    <script>
+        // Canvas screenshot capture implementation
+        async function captureElement(element, selection) {
+            const startTime = performance.now();
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (!ctx) throw new Error('Cannot get canvas context');
+
+            const fullWidth = element.offsetWidth;
+            const fullHeight = element.offsetHeight;
+            const captureWidth = selection?.width || fullWidth;
+            const captureHeight = selection?.height || fullHeight;
+
+            canvas.width = captureWidth;
+            canvas.height = captureHeight;
+
+            const clonedElement = element.cloneNode(true);
+            await inlineStyles(element, clonedElement);
+
+            const svgData = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="${fullWidth}" height="${fullHeight}">
+                    <foreignObject width="100%" height="100%">
+                        <div xmlns="http://www.w3.org/1999/xhtml">
+                            ${clonedElement.outerHTML}
+                        </div>
+                    </foreignObject>
+                </svg>
+            `;
+
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const img = new Image();
+
+            return new Promise((resolve, reject) => {
+                img.onload = () => {
+                    try {
+                        if (selection) {
+                            ctx.drawImage(
+                                img,
+                                selection.x, selection.y, selection.width, selection.height,
+                                0, 0, selection.width, selection.height
+                            );
+                        } else {
+                            ctx.drawImage(img, 0, 0);
+                        }
+                        
+                        URL.revokeObjectURL(url);
+                        const dataUrl = canvas.toDataURL('image/png');
+                        const duration = performance.now() - startTime;
+                        
+                        resolve({ dataUrl, duration });
+                    } catch (error) {
+                        URL.revokeObjectURL(url);
+                        reject(error);
+                    }
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Failed to load image'));
+                };
+                img.src = url;
+            });
+        }
+
+        async function inlineStyles(source, target) {
+            const sourceStyle = window.getComputedStyle(source);
+            let cssText = '';
+            
+            for (let i = 0; i < sourceStyle.length; i++) {
+                const property = sourceStyle[i];
+                if (property) {
+                    const value = sourceStyle.getPropertyValue(property);
+                    if (value) {
+                        cssText += `${property}: ${value}; `;
+                    }
+                }
+            }
+            
+            target.style.cssText = cssText;
+            
+            const sourceChildren = Array.from(source.children);
+            const targetChildren = Array.from(target.children);
+            
+            for (let i = 0; i < sourceChildren.length; i++) {
+                if (sourceChildren[i] instanceof HTMLElement && targetChildren[i] instanceof HTMLElement) {
+                    await inlineStyles(sourceChildren[i], targetChildren[i]);
+                }
+            }
+        }
+
+        // UI Management
+        const demoArea = document.getElementById('demoArea');
+        const enableBtn = document.getElementById('enableBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const captureFullBtn = document.getElementById('captureFullBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const previewImage = document.getElementById('previewImage');
+        const noScreenshot = document.getElementById('noScreenshot');
+        const status = document.getElementById('status');
+        const metrics = document.getElementById('metrics');
+
+        let isSelecting = false;
+        let startX, startY, endX, endY;
+        let selectionRect = null;
+        let currentScreenshot = null;
+
+        enableBtn.addEventListener('click', () => {
+            isSelecting = true;
+            demoArea.classList.add('selecting');
+            enableBtn.disabled = true;
+            resetBtn.disabled = false;
+            showStatus('Selection mode enabled! Click and drag on the demo area.', 'info');
+        });
+
+        resetBtn.addEventListener('click', () => {
+            reset();
+        });
+
+        captureFullBtn.addEventListener('click', async () => {
+            try {
+                showStatus('Capturing full area...', 'info');
+                const result = await captureElement(demoArea);
+                handleCaptureResult(result, null);
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (currentScreenshot) {
+                const link = document.createElement('a');
+                link.download = `screenshot-${Date.now()}.png`;
+                link.href = currentScreenshot;
+                link.click();
+            }
+        });
+
+        demoArea.addEventListener('mousedown', (e) => {
+            if (!isSelecting) return;
+            
+            const rect = demoArea.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            
+            if (selectionRect) {
+                selectionRect.remove();
+            }
+            
+            selectionRect = document.createElement('div');
+            selectionRect.className = 'selection-rectangle';
+            demoArea.appendChild(selectionRect);
+        });
+
+        demoArea.addEventListener('mousemove', (e) => {
+            if (!isSelecting || !selectionRect) return;
+            
+            const rect = demoArea.getBoundingClientRect();
+            endX = e.clientX - rect.left;
+            endY = e.clientY - rect.top;
+            
+            const x = Math.min(startX, endX);
+            const y = Math.min(startY, endY);
+            const width = Math.abs(endX - startX);
+            const height = Math.abs(endY - startY);
+            
+            selectionRect.style.left = x + 'px';
+            selectionRect.style.top = y + 'px';
+            selectionRect.style.width = width + 'px';
+            selectionRect.style.height = height + 'px';
+        });
+
+        demoArea.addEventListener('mouseup', async (e) => {
+            if (!isSelecting || !selectionRect) return;
+            
+            const rect = demoArea.getBoundingClientRect();
+            endX = e.clientX - rect.left;
+            endY = e.clientY - rect.top;
+            
+            const x = Math.min(startX, endX);
+            const y = Math.min(startY, endY);
+            const width = Math.abs(endX - startX);
+            const height = Math.abs(endY - startY);
+            
+            if (width < 10 || height < 10) {
+                showStatus('Selection too small. Try again!', 'error');
+                selectionRect.remove();
+                selectionRect = null;
+                return;
+            }
+            
+            const selection = { x, y, width, height };
+            
+            try {
+                showStatus('Capturing screenshot...', 'info');
+                const result = await captureElement(demoArea, selection);
+                handleCaptureResult(result, selection);
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+            
+            if (selectionRect) {
+                selectionRect.remove();
+                selectionRect = null;
+            }
+        });
+
+        function handleCaptureResult(result, selection) {
+            const { dataUrl, duration } = result;
+            const sizeKB = Math.round((dataUrl.length * 0.75) / 1024);
+            
+            currentScreenshot = dataUrl;
+            previewImage.src = dataUrl;
+            previewImage.classList.add('visible');
+            noScreenshot.style.display = 'none';
+            downloadBtn.style.display = 'inline-block';
+            
+            const img = new Image();
+            img.onload = () => {
+                const dims = `${img.width} × ${img.height}px`;
+                const perf = duration < 500 ? '✅ PASS (<500ms)' : '⚠️ SLOW (>500ms)';
+                
+                document.getElementById('duration').textContent = duration.toFixed(2) + 'ms';
+                document.getElementById('fileSize').textContent = sizeKB + 'KB';
+                document.getElementById('dimensions').textContent = dims;
+                document.getElementById('performance').textContent = perf;
+                metrics.style.display = 'block';
+                
+                showStatus(`✅ Screenshot captured successfully! (${duration.toFixed(2)}ms, ${sizeKB}KB)`, 'success');
+            };
+            img.src = dataUrl;
+            
+            reset();
+        }
+
+        function reset() {
+            isSelecting = false;
+            demoArea.classList.remove('selecting');
+            enableBtn.disabled = false;
+            resetBtn.disabled = true;
+            if (selectionRect) {
+                selectionRect.remove();
+                selectionRect = null;
+            }
+        }
+
+        function showStatus(message, type) {
+            status.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+    </script>
+</body>
+</html>
