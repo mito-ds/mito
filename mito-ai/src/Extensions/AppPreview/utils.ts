@@ -24,7 +24,7 @@ export const startStreamlitPreviewAndNotify = async (notebookPath: string, force
     Notification.update({
       id: notificationId,
       message: 'Streamlit preview started successfully!',
-      type: 'default',
+      type: 'success',
       autoClose: 5 * 1000
     });
   

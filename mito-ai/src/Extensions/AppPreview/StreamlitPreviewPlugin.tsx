@@ -69,7 +69,14 @@ async function showRecreateAppConfirmation(notebookPath: string): Promise<void> 
   });
 
   if (result.button.accept) {
-    void startStreamlitPreview(notebookPath, true);
+    const notificationId = Notification.emit('Recreating app from scratch...', 'in-progress', { autoClose: false });
+    await startStreamlitPreview(notebookPath, true);
+    Notification.update({
+      id: notificationId,
+      message: 'App recreated successfully!',
+      type: 'success',
+      autoClose: 5 * 1000
+    });
   }
 }
 
@@ -102,7 +109,14 @@ function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string)
     <UpdateAppDropdown
       onSubmit={async (message) => {
         try {
-          void startStreamlitPreview(notebookPath, true, message);
+          const notificationId = Notification.emit('Updating app...', 'in-progress', { autoClose: false });
+          await startStreamlitPreview(notebookPath, true, message);
+          Notification.update({
+            id: notificationId,
+            message: 'App updated successfully!',
+            type: 'success',
+            autoClose: 5 * 1000
+          });
           console.log('Update App Message sent successfully:', message);
         } catch (error) {
           console.error('Error updating app:', error);

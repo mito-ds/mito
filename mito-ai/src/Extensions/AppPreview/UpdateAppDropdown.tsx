@@ -14,14 +14,13 @@ const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose
     const handleSubmit = () => {
         if (message.trim()) {
             onSubmit(message);
+            onClose();
         }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Escape') {
             onClose();
-        } else if (e.key === 'Enter' && e.ctrlKey) {
-            handleSubmit();
         }
     };
 
@@ -52,13 +51,13 @@ const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose
                         fontSize: 'var(--jp-ui-font-size1)'
                     }}
                 >
-                    Describe the update you want:
+                    How would you like to modify the app?
                 </label>
                 <textarea
                     id="update-description"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Enter your update description here..."
+                    placeholder="Describe your changes (e.g., Change the title, Remove a plot, etc.)"
                     style={{
                         width: '100%',
                         minHeight: '100px',
@@ -84,9 +83,9 @@ const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose
                         onClick={onClose}
                         style={{
                             padding: '4px 8px',
-                            border: '1px solid var(--jp-border-color1)',
+                            border: 'none',
                             borderRadius: '3px',
-                            backgroundColor: 'var(--jp-layout-color1)',
+                            backgroundColor: 'var(--jp-layout-color2)',
                             color: 'var(--jp-ui-font-color1)',
                             cursor: 'pointer',
                             fontFamily: 'var(--jp-ui-font-family)',
@@ -102,8 +101,8 @@ const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose
                             padding: '4px 8px',
                             border: 'none',
                             borderRadius: '3px',
-                            backgroundColor: message.trim() ? 'var(--jp-accent-color1)' : 'var(--jp-layout-color2)',
-                            color: message.trim() ? 'var(--jp-ui-font-color0)' : 'var(--jp-ui-font-color2)',
+                            backgroundColor: message.trim() ? 'var(--purple-300)' : 'var(--jp-layout-color2)',
+                            color: message.trim() ? 'var(--purple-700)' : 'var(--jp-ui-font-color2)',
                             cursor: message.trim() ? 'pointer' : 'not-allowed',
                             fontFamily: 'var(--jp-ui-font-family)',
                             fontSize: 'var(--jp-ui-font-size0)'
