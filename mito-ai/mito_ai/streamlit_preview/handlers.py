@@ -11,7 +11,12 @@ from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
 from mito_ai.streamlit_preview.manager import get_preview_manager
 from mito_ai.utils.create import initialize_user
+from mito_ai.streamlit_preview.screenshot_service import ScreenshotService
+from mito_ai.streamlit_preview.screenshot_types import CaptureRequest
 from typing import Tuple, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -141,3 +146,110 @@ class StreamlitPreviewHandler(APIHandler):
         except Exception as e:
             self.set_status(500)
             self.finish({"error": f"Internal server error: {str(e)}"})
+
+
+class StreamlitScreenshotHandler(APIHandler):
+    """
+    Handler for /mito-ai/streamlit-screenshot endpoint.
+    Receives viewport state and selection, returns PNG screenshot.
+    
+    This handler validates the request and delegates to ScreenshotService
+    which uses Playwright to capture the screenshot from localhost:8501.
+    """
+    
+    @tornado.web.authenticated
+    async def post(self) -> None:
+        """
+        POST /mito-ai/streamlit-screenshot
+        
+        Request body:
+        {
+            "scrollX": float,
+            "scrollY": float,
+            "viewportWidth": int,
+            "viewportHeight": int,
+            "selection": {
+                "x": float,
+                "y": float,
+                "width": float,
+                "height": float
+            }
+        }
+        
+        Returns: PNG image (image/png)
+        """
+        try:
+            # Parse request
+            data: CaptureRequest = self.get_json_body()
+            
+            # Validate request
+            self._validate_request(data)
+            
+            logger.info(f"Screenshot request: viewport={data['viewportWidth']}x{data['viewportHeight']}, "
+                       f"scroll=({data['scrollX']}, {data['scrollY']}), "
+                       f"selection={data['selection']}")
+            
+            # Get screenshot service
+            service = await ScreenshotService.get_instance()
+            
+            # Capture screenshot from localhost:8501
+            screenshot = await service.capture_screenshot(
+                scroll_x=data['scrollX'],
+                scroll_y=data['scrollY'],
+                viewport_width=data['viewportWidth'],
+                viewport_height=data['viewportHeight'],
+                selection=data['selection']
+            )
+            
+            # Return PNG
+            self.set_header('Content-Type', 'image/png')
+            self.set_header('Content-Length', len(screenshot))
+            self.finish(screenshot)
+            
+        except ValueError as e:
+            logger.error(f"Validation error: {e}")
+            self.set_status(400)
+            self.finish({'error': str(e)})
+        except Exception as e:
+            logger.error(f"Screenshot failed: {e}", exc_info=True)
+            self.set_status(500)
+            self.finish({'error': 'Screenshot capture failed'})
+    
+    def _validate_request(self, data: CaptureRequest) -> None:
+        """Validate request data"""
+        required_fields = ['scrollX', 'scrollY', 'viewportWidth', 'viewportHeight', 'selection']
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field: {field}")
+        
+        selection = data['selection']
+        if not all(k in selection for k in ['x', 'y', 'width', 'height']):
+            raise ValueError("Invalid selection object")
+        
+        if selection['width'] <= 0 or selection['height'] <= 0:
+            raise ValueError("Selection dimensions must be positive")
+        
+        if data['viewportWidth'] <= 0 or data['viewportHeight'] <= 0:
+            raise ValueError("Viewport dimensions must be positive")
+
+
+class StreamlitScreenshotHealthHandler(APIHandler):
+    """Health check endpoint for screenshot service"""
+    
+    @tornado.web.authenticated
+    async def get(self) -> None:
+        """GET /mito-ai/streamlit-screenshot-health"""
+        try:
+            service = await ScreenshotService.get_instance()
+            is_healthy = await service.health_check()
+            
+            if is_healthy:
+                self.finish({'status': 'healthy'})
+            else:
+                # Try to restart
+                await service.restart_browser()
+                self.finish({'status': 'restarted'})
+        except Exception as e:
+            logger.error(f"Health check failed: {e}")
+            self.set_status(503)
+            self.finish({'status': 'unhealthy', 'error': str(e)})
