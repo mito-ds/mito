@@ -4,7 +4,7 @@
 import re
 import json
 import os
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
 
 def extract_code_blocks(message_content: str) -> str:
@@ -81,7 +81,7 @@ def get_app_path(app_directory: str) -> Optional[str]:
         return None
     return app_path
 
-def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict[str, Any]:
+def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> List[Dict[str, Any]]:
     """
     Read a Jupyter notebook and filter cells to keep only cell_type and source fields.
 

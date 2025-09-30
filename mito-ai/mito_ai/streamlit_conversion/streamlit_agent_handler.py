@@ -16,6 +16,14 @@ from mito_ai.completions.models import MessageType
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
 from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
 
+def get_app_directory(notebook_path: str) -> str:
+    # Convert to absolute path for directory calculation
+    absolute_notebook_path = notebook_path
+    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
+        absolute_notebook_path = os.path.join(os.getcwd(), notebook_path)
+    
+    app_directory = os.path.dirname(absolute_notebook_path)
+    return app_directory
 
 async def generate_new_streamlit_code(notebook: dict) -> str:
     """Send a query to the agent, get its response and parse the code"""
@@ -140,24 +148,14 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[
         tries+=1
 
     if has_validation_error:
-        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
+        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error, edit_prompt)
         return False, '', "Error generating streamlit code by agent"
     
     app_directory = get_app_directory(notebook_path)
     success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
     
     if not success_flag:
-        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, message)
+        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, message, edit_prompt)
     
-    log_streamlit_app_creation_success('mito_server_key', MessageType.STREAMLIT_CONVERSION)
+    log_streamlit_app_creation_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
     return success_flag, app_path, message
-
-
-def get_app_directory(notebook_path: str) -> str:
-    # Convert to absolute path for directory calculation
-    absolute_notebook_path = notebook_path
-    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
-        absolute_notebook_path = os.path.join(os.getcwd(), notebook_path)
-    
-    app_directory = os.path.dirname(absolute_notebook_path)
-    return app_directory

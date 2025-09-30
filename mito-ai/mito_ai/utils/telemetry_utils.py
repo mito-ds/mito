@@ -386,10 +386,13 @@ def log_mito_server_free_tier_limit_reached(key_type: Literal['mito_server_key',
 # Streamlit Conversion
 #################################
 
-def log_streamlit_app_creation_success(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType) -> None:
+def log_streamlit_app_creation_success(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, edit_prompt: str) -> None:
     log(
         "mito_ai_streamlit_app_creation_success", 
-        key_type=key_type
+        key_type=key_type,
+        params={
+            "edit_prompt": edit_prompt,
+        }
     )
     
 def log_streamlit_app_creation_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str) -> None:
@@ -401,12 +404,12 @@ def log_streamlit_app_creation_retry(key_type: Literal['mito_server_key', 'user_
         key_type=key_type
     )
     
-def log_streamlit_app_creation_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str) -> None:
+def log_streamlit_app_creation_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str, edit_prompt: str) -> None:
     log(
         "mito_ai_streamlit_app_creation_error", 
         params={
             "error_message": error,
+            "edit_prompt": edit_prompt,
         },
         key_type=key_type
     )
-    

@@ -19,7 +19,7 @@ class TestGetResponseFromAgent:
     """Test cases for get_response_from_agent function"""
 
     @pytest.mark.asyncio
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
+    @patch('mito_ai.streamlit_conversion.agent_utils.stream_anthropic_completion_from_mito_server')
     async def test_get_response_from_agent_success(self, mock_stream):
         """Test get_response_from_agent with successful response"""
         # Mock the async generator
@@ -36,7 +36,7 @@ class TestGetResponseFromAgent:
         assert "import streamlit" in response
 
     @pytest.mark.asyncio
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
+    @patch('mito_ai.streamlit_conversion.agent_utils.stream_anthropic_completion_from_mito_server')
     @pytest.mark.parametrize("mock_items,expected_result", [
         (["Hello", " World", "!"], "Hello World!"),
         ([], ""),
@@ -59,7 +59,7 @@ class TestGetResponseFromAgent:
         
 
     @pytest.mark.asyncio
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
+    @patch('mito_ai.streamlit_conversion.agent_utils.stream_anthropic_completion_from_mito_server')
     async def test_get_response_from_agent_exception(self, mock_stream):
         """Test exception handling in get_response_from_agent"""
         mock_stream.side_effect = Exception("API Error")
@@ -71,11 +71,11 @@ class TestGetResponseFromAgent:
 
 
 class TestGenerateStreamlitCode:
-    """Test cases for generate_streamlit_code function"""
+    """Test cases for generate_new_streamlit_code function"""
 
     @pytest.mark.asyncio
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
-    async def test_generate_streamlit_code_success(self, mock_stream):
+    @patch('mito_ai.streamlit_conversion.agent_utils.stream_anthropic_completion_from_mito_server')
+    async def test_generate_new_streamlit_code_success(self, mock_stream):
         """Test successful streamlit code generation"""
         mock_response = "Here's your code:\n```python\nimport streamlit\nst.title('Hello')\n```"
 
@@ -96,7 +96,7 @@ class TestCorrectErrorInGeneration:
     """Test cases for correct_error_in_generation function"""
 
     @pytest.mark.asyncio
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
+    @patch('mito_ai.streamlit_conversion.agent_utils.stream_anthropic_completion_from_mito_server')
     async def test_correct_error_in_generation_success(self, mock_stream):
         """Test successful error correction"""
         mock_response = """```unified_diff
@@ -120,7 +120,7 @@ class TestCorrectErrorInGeneration:
         assert result == expected_code
 
     @pytest.mark.asyncio
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.stream_anthropic_completion_from_mito_server')
+    @patch('mito_ai.streamlit_conversion.agent_utils.stream_anthropic_completion_from_mito_server')
     async def test_correct_error_in_generation_exception(self, mock_stream):
         """Test exception handling in error correction"""
         mock_stream.side_effect = Exception("API Error")
@@ -134,7 +134,7 @@ class TestStreamlitHandler:
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_streamlit_code')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
@@ -169,7 +169,7 @@ class TestStreamlitHandler:
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_streamlit_code')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.correct_error_in_generation')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     async def test_streamlit_handler_max_retries_exceeded(self, mock_validator, mock_correct_error, mock_generate_code, mock_parse):
@@ -196,7 +196,7 @@ class TestStreamlitHandler:
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_streamlit_code')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
@@ -238,7 +238,7 @@ class TestStreamlitHandler:
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_streamlit_code')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
     async def test_streamlit_handler_generation_exception(self, mock_clean_directory, mock_generate_code, mock_parse):
         """Test streamlit handler when code generation fails"""
@@ -257,7 +257,7 @@ class TestStreamlitHandler:
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_streamlit_code')
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
