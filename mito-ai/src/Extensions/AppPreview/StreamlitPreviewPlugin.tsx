@@ -237,7 +237,7 @@ async function previewNotebookAsStreamlit(
       onClick: async (): Promise<void> => {
         await showRecreateAppConfirmation(notebookPath);
       },
-      tooltip: 'Edit Streamlit App',
+      tooltip: 'Recreate new App from scratch based on the current state of the notebook',
       label: 'Recreate App',
       icon: ResetCircleLabIcon,
       iconClass: 'mito-ai-deploy-icon'
