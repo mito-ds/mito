@@ -24,7 +24,7 @@ def get_app_directory(notebook_path: str) -> str:
     app_directory = os.path.dirname(absolute_notebook_path)
     return app_directory
 
-async def generate_new_streamlit_code(notebook: dict) -> str:
+async def generate_new_streamlit_code(notebook: List[dict]) -> str:
     """Send a query to the agent, get its response and parse the code"""
     
     prompt_text = get_streamlit_app_creation_prompt(notebook)
@@ -66,7 +66,7 @@ async def generate_new_streamlit_code(notebook: dict) -> str:
     return converted_code
 
 
-async def update_existing_streamlit_code(notebook: dict, streamlit_app_code: str, edit_prompt: str) -> str:
+async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_code: str, edit_prompt: str) -> str:
     """Send a query to the agent, get its response and parse the code"""
     prompt_text = get_update_existing_app_prompt(notebook, streamlit_app_code, edit_prompt)
     

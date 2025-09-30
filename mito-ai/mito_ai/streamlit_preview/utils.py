@@ -10,19 +10,19 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handl
 def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str], bool, str]:
     """Validate the request body and extract notebook_path and force_recreate."""
     if body is None:
-        return False, "Invalid or missing JSON body", None, False
+        return False, "Invalid or missing JSON body", None, False, ""
 
     notebook_path = body.get("notebook_path")
     if not notebook_path:
-        return False, "Missing notebook_path parameter", None, False
+        return False, "Missing notebook_path parameter", None, False, ""
 
     force_recreate = body.get("force_recreate", False)
     if not isinstance(force_recreate, bool):
-        return False, "force_recreate must be a boolean", None, False
+        return False, "force_recreate must be a boolean", None, False, ""
     
     edit_prompt = body.get("edit_prompt", "")
     if not isinstance(edit_prompt, str):
-        return False, "edit_prompt must be a string", None, False
+        return False, "edit_prompt must be a string", None, False, ""
 
     return True, "", notebook_path, force_recreate, edit_prompt
 

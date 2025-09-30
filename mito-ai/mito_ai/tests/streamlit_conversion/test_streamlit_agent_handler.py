@@ -1,6 +1,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import List
+from anthropic.types import MessageParam
 import pytest
 from unittest.mock import patch, AsyncMock, MagicMock
 from mito_ai.streamlit_conversion.streamlit_agent_handler import (
@@ -28,7 +30,7 @@ class TestGetResponseFromAgent:
 
         mock_stream.return_value = mock_async_gen()
         
-        messages = [{"role": "user", "content": [{"type": "text", "text": "test"}]}]
+        messages: List[MessageParam] = [{"role": "user", "content": [{"type": "text", "text": "test"}]}]
         response = await get_response_from_agent(messages)
         
         assert response is not None
@@ -51,7 +53,7 @@ class TestGetResponseFromAgent:
 
         mock_stream.return_value = mock_async_gen()
         
-        messages = [{"role": "user", "content": [{"type": "text", "text": "test"}]}]
+        messages: List[MessageParam] = [{"role": "user", "content": [{"type": "text", "text": "test"}]}]
         result = await get_response_from_agent(messages)
         
         assert result == expected_result
@@ -64,7 +66,7 @@ class TestGetResponseFromAgent:
         """Test exception handling in get_response_from_agent"""
         mock_stream.side_effect = Exception("API Error")
         
-        messages = [{"role": "user", "content": [{"type": "text", "text": "test"}]}]
+        messages: List[MessageParam] = [{"role": "user", "content": [{"type": "text", "text": "test"}]}]
         
         with pytest.raises(Exception, match="API Error"):
             await get_response_from_agent(messages)
@@ -85,7 +87,7 @@ class TestGenerateStreamlitCode:
 
         mock_stream.return_value = mock_async_gen()
         
-        notebook_data: dict = {"cells": []}
+        notebook_data: List[dict] = [{"cells": []}]
         result = await generate_new_streamlit_code(notebook_data)
         
         expected_code = "import streamlit\nst.title('Hello')\n"
@@ -141,7 +143,7 @@ class TestStreamlitHandler:
     async def test_streamlit_handler_success(self, mock_clean_directory, mock_create_file, mock_validator, mock_generate_code, mock_parse):
         """Test successful streamlit handler execution"""
         # Mock notebook parsing
-        mock_notebook_data: dict = {"cells": [{"cell_type": "code", "source": ["import pandas"]}]}
+        mock_notebook_data: List[dict] = [{"cells": [{"cell_type": "code", "source": ["import pandas"]}]}]
         mock_parse.return_value = mock_notebook_data
         
         # Mock code generation
@@ -175,7 +177,7 @@ class TestStreamlitHandler:
     async def test_streamlit_handler_max_retries_exceeded(self, mock_validator, mock_correct_error, mock_generate_code, mock_parse):
         """Test streamlit handler when max retries are exceeded"""
         # Mock notebook parsing
-        mock_notebook_data: dict = {"cells": []}
+        mock_notebook_data: List[dict] = [{"cells": []}]
         mock_parse.return_value = mock_notebook_data
     
         # Mock code generation
@@ -203,7 +205,7 @@ class TestStreamlitHandler:
     async def test_streamlit_handler_file_creation_failure(self, mock_clean_directory, mock_create_file, mock_validator, mock_generate_code, mock_parse):
         """Test streamlit handler when file creation fails"""
         # Mock notebook parsing
-        mock_notebook_data: dict = {"cells": []}
+        mock_notebook_data: List[dict] = [{"cells": []}]
         mock_parse.return_value = mock_notebook_data
         
         # Mock code generation
@@ -243,7 +245,7 @@ class TestStreamlitHandler:
     async def test_streamlit_handler_generation_exception(self, mock_clean_directory, mock_generate_code, mock_parse):
         """Test streamlit handler when code generation fails"""
         # Mock notebook parsing
-        mock_notebook_data: dict = {"cells": []}
+        mock_notebook_data: List[dict] = [{"cells": []}]
         mock_parse.return_value = mock_notebook_data
         
         # Mock code generation failure

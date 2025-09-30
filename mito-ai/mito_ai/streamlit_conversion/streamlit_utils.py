@@ -111,17 +111,15 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Li
             raise KeyError("Notebook does not contain 'cells' key")
 
         # Filter each cell to keep only cell_type and source
-        filtered_cells = []
+        filtered_cells: List[Dict[str, Any]] = []
         for cell in notebook_data['cells']:
-            filtered_cell = {
+            filtered_cell: Dict[str, Any] = {
                 'cell_type': cell.get('cell_type', ''),
                 'source': cell.get('source', [])
             }
             filtered_cells.append(filtered_cell)
-
-        # Update the notebook data with filtered cells
-        notebook_data['cells'] = filtered_cells
-        return notebook_data.get('cells', [])
+            
+        return filtered_cells
 
     except FileNotFoundError:
         raise FileNotFoundError(f"Notebook file not found: {notebook_path}")
