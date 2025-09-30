@@ -13,7 +13,7 @@ def get_update_existing_app_prompt(notebook: dict, streamlit_app_code: str, edit
     
     return f"""
 
-GOAL: Update the existing streamlit app according to the feedback provided by the user. Use the input notebook to help you understand what what code needs to be added, changed, or modified to fulfill the user's edit request.
+GOAL: You've previously created a first draft of the Streamlit app. Now the user reviewed it and provided feedback.Update the existing streamlit app according to the feedback provided by the user. Use the input notebook to help you understand what code needs to be added, changed, or modified to fulfill the user's edit request.
 
 **CRITICAL COMPLETION REQUIREMENT:**
 You have ONE and ONLY ONE opportunity to complete this edit request. If you do not finish the entire task completely, the application will be broken and unusable. This is your final chance to get it right.
