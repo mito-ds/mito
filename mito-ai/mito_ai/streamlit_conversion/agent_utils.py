@@ -47,7 +47,10 @@ def apply_patch_to_text(text: str, diff: str) -> str:
         return text
 
     # Parse the patch
+    print("HERE 1")
+    print("diff: ", diff)
     patch = PatchSet(diff.splitlines(keepends=True))
+    print("HERE 2")
 
     # We expect a single-file patch (what the prompt asks the model to emit)
     if len(patch) == 0:
@@ -95,11 +98,64 @@ def apply_patch_to_text(text: str, diff: str) -> str:
     return "".join(result_lines)
 
 
+def fix_context_lines(diff: str) -> str:
+    """
+    Fix context lines in unified diff to ensure they all start with a space character.
+    
+    In unified diffs, context lines (unchanged lines) must start with a single space ' ',
+    even if the line itself is empty. The AI sometimes generates diffs where empty
+    context lines are just blank lines without the leading space, which causes the
+    unidiff parser to fail.
+    
+    Args:
+        diff (str): The unified diff string
+        
+    Returns:
+        str: The corrected diff with proper context line formatting
+    """
+    lines = diff.split('\n')
+    corrected_lines = []
+    in_hunk = False
+    
+    for i, line in enumerate(lines):
+        # Check if we're entering a hunk
+        if line.startswith('@@'):
+            in_hunk = True
+            corrected_lines.append(line)
+            continue
+            
+        # Check if we're leaving a hunk (new file header)
+        if line.startswith('---') or line.startswith('+++'):
+            in_hunk = False
+            corrected_lines.append(line)
+            continue
+            
+        if in_hunk:
+            # We're inside a hunk
+            if line.startswith(' ') or line.startswith('-') or line.startswith('+'):
+                # Already has proper diff marker
+                corrected_lines.append(line)
+            elif line.strip() == '':
+                # Empty line should be a context line with leading space
+                corrected_lines.append(' ')
+            else:
+                # Line without diff marker - treat as context line
+                corrected_lines.append(' ' + line)
+        else:
+            # Outside hunk - keep as is
+            corrected_lines.append(line)
+    
+    return '\n'.join(corrected_lines)
+    
+
 def fix_diff_headers(diff: str) -> str:
     """
     The AI is generally not very good at counting the number of lines in the diff. If the hunk header has
     an incorrect count, then the patch will fail. So instead we just calculate the counts ourselves, its deterministic.
     """
+    # First fix context lines to ensure they have proper leading spaces
+    diff = fix_context_lines(diff)
+    
     lines = diff.split('\n')
     
     for i, line in enumerate(lines):

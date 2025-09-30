@@ -9,7 +9,7 @@ RESPONSE FORMAT: Return the changes you want to make to the streamlit app as a *
 - Then, include the standard header lines `--- a/app.py` and `+++ b/app.py`.
 - Show only the modified hunks; each hunk must start with an `@@` header with line numbers.
 - Within each hunk:
-  * Unchanged context lines start with a single space.
+  * Unchanged context lines start with a single space ` `.
   * Removed lines start with `-`.
   * Added lines start with `+`.
 - If there are **no changes**, return an empty string.
@@ -30,8 +30,7 @@ Use `@@ -START_LINE,1 +START_LINE,1 @@` where:
 
 Assume `data_list = [` is on line 57 of the original file:
 ```unified_diff
---- a/app.py
-+++ b/app.py
+--- a/app.py +++ b/app.py
 @@ -57,1 +57,1 @@
  data_list = [
 -    {{'id': 1, 'name': 'Old'}},
@@ -46,8 +45,7 @@ Line 5: import os
 Line 30: def process():
 
 ```unified_diff
---- a/app.py
-+++ b/app.py
+--- a/app.py +++ b/app.py
 @@ -5,1 +5,1 @@
  import os
 +import sys
@@ -62,8 +60,7 @@ Line 30: def process():
 In the example below, assume that the line of code `data_list = [` is on line 57 of the existing streamlit app.
 
 ```unified_diff
---- a/app.py
-+++ b/app.py
+--- a/app.py +++ b/app.py
 @@ -57,1 +57,1 @@
  data_list = [
      {{'id': 1, 'name': 'Item A', 'category': 'Type 1', 'value': 100}},
