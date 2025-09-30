@@ -57,7 +57,7 @@ class IFrameWidget extends Widget {
   }
 }
 
-async function showRecreateAppConfirmation(app: JupyterFrontEnd): Promise<void> {
+async function showRecreateAppConfirmation(notebookPath: string): Promise<void> {
   const result = await showDialog({
     title: 'Recreate App',
     body: 'This will recreate the app from scratch, discarding all your current edits. This action cannot be undone. Are you sure you want to continue?',    
@@ -69,10 +69,7 @@ async function showRecreateAppConfirmation(app: JupyterFrontEnd): Promise<void> 
   });
 
   if (result.button.accept) {
-    console.log('Recreate app confirmed');
-    // Add your recreate app logic here
-  } else {
-    console.log('Recreate app cancelled');
+    void startStreamlitPreview(notebookPath, true);
   }
 }
 
@@ -224,7 +221,7 @@ async function previewNotebookAsStreamlit(
     const recreateAppButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: async (): Promise<void> => {
-        await showRecreateAppConfirmation(app);
+        await showRecreateAppConfirmation(notebookPath);
       },
       tooltip: 'Edit Streamlit App',
       label: 'Recreate App',
