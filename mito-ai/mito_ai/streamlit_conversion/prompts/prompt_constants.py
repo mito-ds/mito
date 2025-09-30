@@ -15,9 +15,49 @@ RESPONSE FORMAT: Return the changes you want to make to the streamlit app as a *
 - If there are **no changes**, return an empty string.
 - Do not include the line numbers in your response.
 
-**IMPORTANT: For the hunk header, use `@@ -START_LINE,1 +START_LINE,1 @@` where we always use 1 as the count value. In a later step, the system will automatically calculate the correct counts.**
+**HUNK HEADER FORMAT:**
+Use `@@ -START_LINE,1 +START_LINE,1 @@` where:
+- START_LINE is the line number in the **original file** where this hunk begins
+- Always use `1` for both count values (the system will calculate correct counts later)
+- All line numbers must reference the **original file**, not the modified version
 
-<Example Response>
+**MULTIPLE HUNKS:**
+- If changes are separated by 5+ unchanged lines, create separate hunks
+- Each hunk needs its own `@@` header with the correct START_LINE for that section
+- Hunks must be in ascending order by line number
+
+<Example 1: Single change in middle of file>
+
+Assume `data_list = [` is on line 57 of the original file:
+```unified_diff
+--- a/app.py
++++ b/app.py
+@@ -57,1 +57,1 @@
+ data_list = [
+-    {{'id': 1, 'name': 'Old'}},
++    {{'id': 1, 'name': 'New'}},
++    {{'id': 2, 'name': 'Also New'}},
+</Example 1>
+
+<Example 2: Multiple separate changes>
+Assume the original file has:
+
+Line 5: import os
+Line 30: def process():
+
+```unified_diff
+--- a/app.py
++++ b/app.py
+@@ -5,1 +5,1 @@
+ import os
++import sys
+@@ -30,1 +30,1 @@
+-def process():
++def process_data():
+```
+</Example 2>
+
+<Example 3: Adding multiple entries to a list while respecting indentations>
 
 In the example below, assume that the line of code `data_list = [` is on line 57 of the existing streamlit app.
 

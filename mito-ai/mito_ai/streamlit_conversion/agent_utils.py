@@ -29,6 +29,8 @@ def apply_patch_to_text(text: str, diff: str) -> str:
     diff : str
         A unified diff that transforms *text* into the desired output.
         The diff must reference exactly one file (the Streamlit app).
+        NOTE: This assumes a custom format where BOTH -X,Y and +X,Y
+        reference the original file line numbers.
 
     Returns
     -------
@@ -47,45 +49,45 @@ def apply_patch_to_text(text: str, diff: str) -> str:
     # Parse the patch
     patch = PatchSet(diff.splitlines(keepends=True))
 
-    # We expect a single-file patch with a single hunk
+    # We expect a single-file patch (what the prompt asks the model to emit)
     if len(patch) == 0:
         raise ValueError("No patches found in diff")
     
-    if len(patch) > 1:
+    # Check that all patches are for the same file
+    file_names = set(p.source_file for p in patch)
+    if len(file_names) > 1:
         raise ValueError(
-            f"Expected a patch for exactly one file, got {len(patch)} files."
+            f"Expected patches for exactly one file, got files: {file_names}"
         )
 
-    file_patch = patch[0]
-    
-    if len(file_patch) > 1:
-        raise ValueError(
-            f"Expected exactly one hunk, got {len(file_patch)} hunks."
-        )
-
-    # Apply the single hunk
+    # Apply all hunks from all patches (they should all be for the same file)
     original_lines = text.splitlines(keepends=True)
     result_lines: List[str] = []
     cursor = 0  # index in original_lines (0-based)
 
-    hunk = file_patch[0]
-    
-    # Copy unchanged lines before this hunk
-    while cursor < hunk.source_start - 1:
-        result_lines.append(original_lines[cursor])
-        cursor += 1
+    # Process all hunks from all patches
+    for file_patch in patch:
+        for hunk in file_patch:
+            # Since hunks reference the original file, just convert to 0-based
+            hunk_start = hunk.source_start - 1
+            
+            # Copy unchanged lines before this hunk
+            while cursor < hunk_start:
+                if cursor < len(original_lines):
+                    result_lines.append(original_lines[cursor])
+                cursor += 1
 
-    # Apply hunk line-by-line
-    for line in hunk:
-        if line.is_context:
-            # Use the line from the diff to preserve exact formatting
-            result_lines.append(line.value)
-            cursor += 1
-        elif line.is_removed:
-            cursor += 1  # Skip this line from the original
-        elif line.is_added:
-            # Use the line from the diff to preserve exact formatting
-            result_lines.append(line.value)
+            # Apply hunk line-by-line
+            for line in hunk:
+                if line.is_context:
+                    # Use the line from the diff to preserve exact formatting
+                    result_lines.append(line.value)
+                    cursor += 1
+                elif line.is_removed:
+                    cursor += 1  # Skip this line from the original
+                elif line.is_added:
+                    # Use the line from the diff to preserve exact formatting
+                    result_lines.append(line.value)
 
     # Copy any remaining lines after the last hunk
     result_lines.extend(original_lines[cursor:])
@@ -112,13 +114,20 @@ def fix_diff_headers(diff: str) -> str:
                 old_count = 0
                 new_count = 0
                 
+                # Find the end of this hunk (next @@ line or end of file)
+                hunk_end = len(lines)
                 for j in range(i + 1, len(lines)):
-                    next_line = lines[j]
-                    if next_line.startswith('@@') or next_line.startswith('---'):
+                    if lines[j].startswith('@@'):
+                        hunk_end = j
                         break
-                    if next_line.startswith(' ') or next_line.startswith('-'):
+                
+                # Count lines in this hunk
+                for j in range(i + 1, hunk_end):
+                    hunk_line = lines[j]
+                    # Empty lines are treated as context lines
+                    if hunk_line == '' or hunk_line.startswith(' ') or hunk_line.startswith('-'):
                         old_count += 1
-                    if next_line.startswith(' ') or next_line.startswith('+'):
+                    if hunk_line == '' or hunk_line.startswith(' ') or hunk_line.startswith('+'):
                         new_count += 1
                 
                 # Replace the header with correct counts

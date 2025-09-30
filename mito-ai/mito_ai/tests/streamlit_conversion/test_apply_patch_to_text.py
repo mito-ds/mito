@@ -231,7 +231,7 @@ y = 10
         """--- a/app.py
 +++ b/app.py
 @@ -2,4 +2,4 @@
- 
+
  # This is a comment
 -st.title("Old Title")
 +st.title("New Title")
@@ -245,18 +245,105 @@ st.title("New Title")
 x = 5
 y = 10
 # Final comment"""
-    )
+    ),
+    
+    # Test case 11: Simple multiple hunks - title change and add footer
+    (
+        """import streamlit as st
+
+st.title("Old App")
+st.write("Hello World")""",
+        """--- a/app.py
++++ b/app.py
+@@ -3,1 +3,1 @@
+-st.title("Old App")
++st.title("New App")
+@@ -4,1 +4,3 @@
+ st.write("Hello World")
++
++st.write("Footer text")""",
+        """import streamlit as st
+
+st.title("New App")
+st.write("Hello World")
+
+st.write("Footer text")"""
+    ),
+    
+    # Test case 12: Simple multiple hunks - remove and add lines
+    (
+        """import streamlit as st
+st.write("Remove this")
+st.title("My App")""",
+        """--- a/app.py
++++ b/app.py
+@@ -2,1 +2,0 @@
+-st.write("Remove this")
+@@ -3,1 +3,2 @@
+ st.title("My App")
++st.write("Add this")""",
+        """import streamlit as st
+st.title("My App")
+st.write("Add this")"""
+    ),
+    
+    # Test case 13: Multiple hunks with context lines
+    (
+        """import streamlit as st
+
+st.title("Old Title")
+st.write("Some content")
+
+st.write("Old message")""",
+        """--- a/app.py
++++ b/app.py
+@@ -3,1 +3,1 @@
+-st.title("Old Title")
++st.title("New Title")
+@@ -6,1 +6,1 @@
+-st.write("Old message")
++st.write("New message")""",
+        """import streamlit as st
+
+st.title("New Title")
+st.write("Some content")
+
+st.write("New message")"""
+    ),
+    
+        # Test case 14: Multiple hunks - add imports and change content
+        (
+            """import streamlit as st
+
+st.title("My App")
+st.write("Hello")
+st.write("World")""",
+            """--- a/app.py
++++ b/app.py
+@@ -1,1 +1,3 @@
+ import streamlit as st
++import pandas as pd
++import numpy as np
+@@ -4,2 +4,2 @@
+ st.write("Hello")
+-st.write("World")
++st.write("World!")""",
+            """import streamlit as st
+import pandas as pd
+import numpy as np
+
+st.title("My App")
+st.write("Hello")
+st.write("World!")"""
+        )
 ])
 def test_apply_patch_to_text(original_text, diff, expected_result):
     """Test the apply_patch_to_text function with various diff scenarios."""
     result = apply_patch_to_text(original_text, diff)
-    assert result == expected_result, f"""
-Expected:
-{repr(expected_result)}
-
-Got:
-{repr(result)}
-
-Diff:
-{repr(diff)}
-"""
+    
+    print(f"Original text: {repr(original_text)}")
+    print(f"Diff: {repr(diff)}")
+    print(f"Expected result: {repr(expected_result)}")
+    print(f"Result: {repr(result)}")
+    
+    assert result == expected_result
