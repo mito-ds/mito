@@ -67,7 +67,7 @@ test.describe.parallel('User Signup', () => {
         }
     });
 
-    test.only('User can send message after signing up', async ({ page }) => {
+    test('User can send message after signing up', async ({ page }) => {
         // First, we should see the signup form
         await expect(page.locator('[data-testid="signup-form-message"]')).toBeVisible();
 
