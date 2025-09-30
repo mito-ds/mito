@@ -101,22 +101,7 @@ In the example below, assume that the line of code `data_list = [` is on line 57
 +    {{'id': 7, 'name': 'Item G', 'category': 'Type 7', 'value': 700}},
 +    {{'id': 8, 'name': 'Item H', 'category': 'Type 8', 'value': 800}},
 +    {{'id': 9, 'name': 'Item I', 'category': 'Type 9', 'value': 900}},
-+    {{'id': 10, 'name': 'Item J', 'category': 'Type 10', 'value': 1000}},
-+    {{'id': 11, 'name': 'Item K', 'category': 'Type 11', 'value': 1100}},
-+    {{'id': 12, 'name': 'Item L', 'category': 'Type 12', 'value': 1200}},
-+    {{'id': 13, 'name': 'Item M', 'category': 'Type 13', 'value': 1300}},
-+    {{'id': 14, 'name': 'Item N', 'category': 'Type 14', 'value': 1400}},
-+    {{'id': 15, 'name': 'Item O', 'category': 'Type 15', 'value': 1500}},
-+    {{'id': 16, 'name': 'Item P', 'category': 'Type 16', 'value': 1600}},
-+    {{'id': 17, 'name': 'Item Q', 'category': 'Type 17', 'value': 1700}},
-+    {{'id': 18, 'name': 'Item R', 'category': 'Type 18', 'value': 1800}},
-+    {{'id': 19, 'name': 'Item S', 'category': 'Type 19', 'value': 1900}},
-+    {{'id': 20, 'name': 'Item T', 'category': 'Type 20', 'value': 2000}},
-+    {{'id': 21, 'name': 'Item U', 'category': 'Type 21', 'value': 2100}},
-+    {{'id': 22, 'name': 'Item V', 'category': 'Type 22', 'value': 2200}},
-+    {{'id': 23, 'name': 'Item W', 'category': 'Type 23', 'value': 2300}},
-+    {{'id': 24, 'name': 'Item X', 'category': 'Type 24', 'value': 2400}},
-+    {{'id': 25, 'name': 'Item Y', 'category': 'Type 25', 'value': 2500}}
++    {{'id': 10, 'name': 'Item J', 'category': 'Type 10', 'value': 1000}}
 ```
 </Example Response>
 

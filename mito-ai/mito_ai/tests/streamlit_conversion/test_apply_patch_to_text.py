@@ -335,6 +335,25 @@ import numpy as np
 st.title("My App")
 st.write("Hello")
 st.write("World!")"""
+        ),
+        
+        # Test case 15: Add emoji to streamlit app title
+        (
+            """import streamlit as st
+
+st.title("My App")
+st.write("Welcome to my application")""",
+            """--- a/app.py
++++ b/app.py
+@@ -3,1 +3,1 @@
+-st.title("My App")
++st.title("🚀 My App")
+ 
+ st.write("Welcome to my application")""",
+            """import streamlit as st
+
+st.title("🚀 My App")
+st.write("Welcome to my application")"""
         )
 ])
 def test_apply_patch_to_text(original_text, diff, expected_result):

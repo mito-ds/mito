@@ -33,8 +33,21 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 -st.title("Simple Calculation")
 +st.title("Math Examples")"""
     ),
+        # Test case 3: Simple replacement with incorrect double digit counts (AI's typical mistake)
+    (
+        """--- a/app.py
++++ b/app.py
+@@ -11,12 +11,16 @@
+-st.title("Simple Calculation")
++st.title("Math Examples")""",
+        """--- a/app.py
++++ b/app.py
+@@ -11,1 +11,1 @@
+-st.title("Simple Calculation")
++st.title("Math Examples")"""
+    ),
     
-    # Test case 3: Multiple context lines with replacement
+    # Test case 4: Multiple context lines with replacement
     (
         """--- a/app.py
 +++ b/app.py
@@ -49,14 +62,14 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +++ b/app.py
 @@ -10,5 +10,5 @@
  \"\"\", unsafe_allow_html=True)
-
+ 
 -st.title("Simple Calculation")
 +st.title("Math Examples")
-
+ 
  x = 5"""
     ),
     
-    # Test case 4: Add lines (only + lines)
+    # Test case 5: Add lines (only + lines)
     (
         """--- a/app.py
 +++ b/app.py
@@ -72,7 +85,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +st.write("New content")"""
     ),
     
-    # Test case 5: Remove lines (only - lines)
+    # Test case 6: Remove lines (only - lines)
     (
         """--- a/app.py
 +++ b/app.py
@@ -88,7 +101,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 -st.write("Old content")"""
     ),
     
-    # Test case 6: Multiple hunks
+    # Test case 7: Multiple hunks
     (
         """--- a/app.py
 +++ b/app.py
@@ -112,7 +125,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +st.write("New message")"""
     ),
     
-    # Test case 7: Complex hunk with mixed context, additions, and removals
+    # Test case 8: Complex hunk with mixed context, additions, and removals
     (
         """--- a/app.py
 +++ b/app.py
@@ -129,22 +142,22 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +++ b/app.py
 @@ -8,6 +8,7 @@
  \"\"\", unsafe_allow_html=True)
-
+ 
 -st.title("Simple Calculation")
 +st.title("Math Examples")
 +st.subheader("Basic Operations")
-
+ 
  x = 5
  y = 10"""
     ),
     
-    # Test case 8: Empty diff
+    # Test case 9: Empty diff
     (
         "",
         ""
     ),
     
-    # Test case 9: No hunks (just file headers)
+    # Test case 10: No hunks (just file headers)
     (
         """--- a/app.py
 +++ b/app.py""",
@@ -152,7 +165,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +++ b/app.py"""
     ),
     
-    # Test case 10: Single line addition at end
+    # Test case 11: Single line addition at end
     (
         """--- a/app.py
 +++ b/app.py
@@ -166,7 +179,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +st.write("Footer")"""
     ),
     
-    # Test case 11: Single line removal
+    # Test case 12: Single line removal
     (
         """--- a/app.py
 +++ b/app.py
@@ -180,7 +193,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 -st.write("Footer")"""
     ),
     
-    # Test case 12: Multiple consecutive additions
+    # Test case 13: Multiple consecutive additions
     (
         """--- a/app.py
 +++ b/app.py
@@ -198,11 +211,11 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +import pandas as pd
 +import numpy as np
 +import matplotlib.pyplot as plt
-
+ 
  st.title("My App")"""
     ),
     
-    # Test case 13: Multiple consecutive removals
+    # Test case 14: Multiple consecutive removals
     (
         """--- a/app.py
 +++ b/app.py
@@ -211,7 +224,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 -import pandas as pd
 -import numpy as np
 -import matplotlib.pyplot as plt
-
+ 
  st.title("My App")""",
         """--- a/app.py
 +++ b/app.py
@@ -220,11 +233,11 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 -import pandas as pd
 -import numpy as np
 -import matplotlib.pyplot as plt
-
+ 
  st.title("My App")"""
     ),
     
-    # Test case 14: Edge case - hunk at very end of file
+    # Test case 15: Edge case - hunk at very end of file
     (
         """--- a/app.py
 +++ b/app.py
@@ -242,7 +255,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +st.write("Extra")"""
     ),
     
-    # Test case 15: Edge case - hunk at very beginning of file
+    # Test case 16: Edge case - hunk at very beginning of file
     (
         """--- a/app.py
 +++ b/app.py
@@ -258,11 +271,11 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 -import streamlit as st
 +import streamlit as st
 +import pandas as pd
-
+ 
  st.title("My App")"""
     ),
     
-    # Test case 16: Multiple hunks - real world example
+    # Test case 17: Multiple hunks - real world example
     (
         """--- a/app.py
 +++ b/app.py
@@ -295,10 +308,10 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
  # Display initial dataframe
  st.subheader("Meta Stock Prices Dataset")
 -st.dataframe(meta_stock_prices_df.head())
-
+ 
  # Create visualization
  st.subheader("Meta Stock Price and Major Acquisitions since 2012")
-
+ 
  # Matplotlib figure
  fig, ax = plt.subplots(figsize=(14,6))
  ax.plot(meta_stock_prices_df['date'], meta_stock_prices_df['close'], label='Meta Stock Price (Close)')
@@ -308,7 +321,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
  ax.set_ylabel('Closing Price ($)')
  ax.legend()
  plt.tight_layout()
-
+ 
  # Display the plot in Streamlit
  st.pyplot(fig)
 +
@@ -316,7 +329,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +st.dataframe(meta_stock_prices_df.head())"""
     ),
     
-    # Test case 17: Simple multiple hunks - title change and add footer
+    # Test case 18: Simple multiple hunks - title change and add footer
     (
         """--- a/app.py
 +++ b/app.py
@@ -340,7 +353,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +st.write("Footer text")"""
     ),
     
-    # Test case 18: Simple multiple hunks - remove and add lines
+    # Test case 19: Simple multiple hunks - remove and add lines
     (
         """--- a/app.py
 +++ b/app.py
@@ -362,7 +375,7 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +st.write("Add this")"""
     ),
     
-    # Test case 19: Multiple hunks with context lines
+    # Test case 20: Multiple hunks with context lines
     (
         """--- a/app.py
 +++ b/app.py
@@ -380,14 +393,32 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
 +++ b/app.py
 @@ -2,3 +2,3 @@
  import streamlit as st
-
+ 
 -st.title("Old Title")
 +st.title("New Title")
 @@ -6,3 +6,3 @@
  st.write("Some content")
-
+ 
 -st.write("Old message")
 +st.write("New message")"""
+    ),
+    
+    # Test case 21: Add emoji in newly added line
+    (
+        """--- a/app.py
++++ b/app.py
+@@ -2,1 +2,1 @@
+ import streamlit as st
+
++st.title("My App 🚀")
+ st.write("Welcome to the app!")""",
+        """--- a/app.py
++++ b/app.py
+@@ -2,3 +2,4 @@
+ import streamlit as st
+ 
++st.title("My App 🚀")
+ st.write("Welcome to the app!")"""
     )
 ])
 def test_fix_diff_headers(input_diff, expected_output):
