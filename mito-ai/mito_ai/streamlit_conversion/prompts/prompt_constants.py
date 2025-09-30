@@ -5,8 +5,26 @@ MITO_TODO_PLACEHOLDER = "# MITO_TODO_PLACEHOLDER"
 
 unified_diff_instrucrions = f"""
 RESPONSE FORMAT: Return the changes you want to make to the streamlit app as a **unified diff (git-style patch)**:
-- Begin with a ````unified_diff` header and a ```` end header.
-- Then, include the standard header lines `--- a/app.py` and `+++ b/app.py`.
+
+A unified diff looks is the following and tells the system which lines of code to add, remove, or modify:
+--- a/app.py
++++ b/app.py
+@@ -START_LINE,1 +START_LINE,1 @@
+ x = 1
+ -y = 2
+ +y = 3
+ 
+The components of the unified diff are the following:
+- `--- a/app.py` -> The original file. We will always use the file app.py
+- `+++ b/app.py` -> The modified file. We will always use the file app.py
+- `@@ -START_LINE,1 +START_LINE,1 @@` -> The hunk header
+- `x = 1` -> The original context line
+- `-y = 2` -> The removed line
+- `+y = 3` -> The added line
+
+When you create a unified diff, you must follow the following format:
+- Begin with a ```unified_diff marker and a ``` end marker.
+- Always, include the standard header lines `--- a/app.py` and `+++ b/app.py`.
 - Show only the modified hunks; each hunk must start with an `@@` header with line numbers.
 - Within each hunk:
   * Unchanged context lines start with a single space ` `.
@@ -20,6 +38,13 @@ Use `@@ -START_LINE,1 +START_LINE,1 @@` where:
 - START_LINE is the line number in the **original file** where this hunk begins
 - Always use `1` for both count values (the system will calculate correct counts later)
 - All line numbers must reference the **original file**, not the modified version
+- For example, if the hunk begins on line 12, use `@@ -12,1 +12,1 @@`
+
+**WRONG FORMATS (DO NOT USE):**
+`@@ -12:` -> This is wrong because it is using a colon, doesn't have the count value, and doesn't have both sets of start_line numbers and lines counts.
+`@@ -12,1` -> This is wrong because it doesn't have both sets of start_line numbers and lines counts.
+`@@ 12,1 12,1 @@` -> This is wrong because it doesn't use - and + before the start_line 
+`@@-12,1 +12,1@@` -> This is wrong because it doesn't have a space after the first @@ and doesn't have a space before the second @@.
 
 **MULTIPLE HUNKS:**
 - If changes are separated by 5+ unchanged lines, create separate hunks
@@ -30,7 +55,8 @@ Use `@@ -START_LINE,1 +START_LINE,1 @@` where:
 
 Assume `data_list = [` is on line 57 of the original file:
 ```unified_diff
---- a/app.py +++ b/app.py
+--- a/app.py 
++++ b/app.py
 @@ -57,1 +57,1 @@
  data_list = [
 -    {{'id': 1, 'name': 'Old'}},
@@ -45,7 +71,8 @@ Line 5: import os
 Line 30: def process():
 
 ```unified_diff
---- a/app.py +++ b/app.py
+--- a/app.py 
++++ b/app.py
 @@ -5,1 +5,1 @@
  import os
 +import sys
@@ -60,7 +87,8 @@ Line 30: def process():
 In the example below, assume that the line of code `data_list = [` is on line 57 of the existing streamlit app.
 
 ```unified_diff
---- a/app.py +++ b/app.py
+--- a/app.py 
++++ b/app.py
 @@ -57,1 +57,1 @@
  data_list = [
      {{'id': 1, 'name': 'Item A', 'category': 'Type 1', 'value': 100}},

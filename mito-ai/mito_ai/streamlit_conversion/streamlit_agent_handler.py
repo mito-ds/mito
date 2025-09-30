@@ -5,13 +5,11 @@ import os
 from anthropic.types import MessageParam
 from typing import List, Optional, Tuple, cast
 
-from mito_ai.logger import get_logger
 from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers, get_response_from_agent
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
 from mito_ai.streamlit_conversion.prompts.update_existing_app_prompt import get_update_existing_app_prompt
-from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.completions.models import MessageType
@@ -33,9 +31,7 @@ async def generate_new_streamlit_code(notebook: dict) -> str:
             }]
         })
     ]
-    print("messages: ", messages)
     agent_response = await get_response_from_agent(messages)
-    print("agent response: ", agent_response)
     converted_code = extract_code_blocks(agent_response)
     
     # Extract the TODOs from the agent's response
@@ -78,13 +74,13 @@ async def update_existing_streamlit_code(notebook: dict, streamlit_app_code: str
     ]
     
     agent_response = await get_response_from_agent(messages)
-    print("agent response: ", agent_response)
+    print("\n\nagent response: ", agent_response)
     exctracted_diff = extract_unified_diff_blocks(agent_response)
-    print("exctracted diff: ", exctracted_diff)
+    print("\n\nexctracted diff: ", exctracted_diff)
     fixed_diff = fix_diff_headers(exctracted_diff)
-    print("fixed diff: ", fixed_diff)
+    print("\n\nfixed diff: ", fixed_diff)
     converted_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
-    print("converted code: ", converted_code)
+    print("\n\nconverted code: ", converted_code)
     return converted_code
 
 
