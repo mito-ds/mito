@@ -27,12 +27,6 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSignedUp, setIsSignedUp] = useState(false);
 
-    // If the notebook is not loaded yet, don't render anything
-    // This must come after the useEffects
-    if (notebook === undefined || notebook.model === null) {
-        return null;
-    }
-
     // Function to refresh user email state
     const refreshUserEmail = async (): Promise<void> => {
         try {
@@ -60,6 +54,11 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
             userSignupEvents.signupSuccess.disconnect(handleSignupSuccess);
         };
     }, []);
+
+    // If the notebook is not loaded yet, don't render anything
+    if (notebook === undefined || notebook.model === null) {
+        return null;
+    }
 
     const getPlaceholder = (): string => {
         if (isSignedUp) {
