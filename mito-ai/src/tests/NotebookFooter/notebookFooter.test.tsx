@@ -43,6 +43,21 @@ jest.mock('../../components/LoadingCircle', () => {
     };
 });
 
+// Mock getUserKey function to return a valid email (simulating signed up user)
+jest.mock('../../restAPI/RestAPI', () => ({
+    getUserKey: jest.fn().mockResolvedValue('test@example.com')
+}));
+
+// Mock userSignupEvents
+jest.mock('../../utils/userSignupEvents', () => ({
+    userSignupEvents: {
+        signupSuccess: {
+            connect: jest.fn(),
+            disconnect: jest.fn()
+        }
+    }
+}));
+
 // Create mock notebook
 const createMockNotebook = (widgetCount = 3) => {
     const mockWidgets = Array(widgetCount).fill(null).map((_, index) => ({
@@ -95,9 +110,14 @@ const createMockProps = (overrides: any = {}) => {
 };
 
 // Helper function to render the component
-const renderNotebookFooter = (props = {}) => {
+const renderNotebookFooter = async (props = {}) => {
     cleanup();
-    return render(<NotebookFooter {...createMockProps(props)} />);
+    const result = render(<NotebookFooter {...createMockProps(props)} />);
+    // Wait for the component to finish loading the signup state
+    await waitFor(() => {
+        expect(screen.getByPlaceholderText(PLACEHOLDER_TEXT)).toBeInTheDocument();
+    });
+    return result;
 };
 
 const PLACEHOLDER_TEXT = 'What analysis can I help you with?';
@@ -113,8 +133,8 @@ describe('NotebookFooter Component', () => {
     });
 
     describe('Initial Rendering', () => {
-        it('renders the footer with correct initial state', () => {
-            renderNotebookFooter();
+        it('renders the footer with correct initial state', async () => {
+            await renderNotebookFooter();
 
             // Check for input field
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
@@ -137,8 +157,8 @@ describe('NotebookFooter Component', () => {
             expect(screen.getByText('✦')).toBeInTheDocument();
         });
 
-        it('renders icons for Python and Text buttons', () => {
-            renderNotebookFooter();
+        it('renders icons for Python and Text buttons', async () => {
+            await renderNotebookFooter();
 
             expect(screen.getByTestId('code-icon')).toBeInTheDocument();
             expect(screen.getByTestId('text-icon')).toBeInTheDocument();
@@ -146,8 +166,8 @@ describe('NotebookFooter Component', () => {
     });
 
     describe('Input Handling', () => {
-        it('updates input value when user types', () => {
-            renderNotebookFooter();
+        it('updates input value when user types', async () => {
+            await renderNotebookFooter();
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             
@@ -158,7 +178,7 @@ describe('NotebookFooter Component', () => {
 
         it('submits message when Enter key is pressed', async () => {
             const mockApp = createMockApp();
-            renderNotebookFooter({ app: mockApp });
+            await renderNotebookFooter({ app: mockApp });
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             
@@ -177,7 +197,7 @@ describe('NotebookFooter Component', () => {
 
         it('does not submit when Shift+Enter is pressed', async () => {
             const mockApp = createMockApp();
-            renderNotebookFooter({ app: mockApp });
+            await renderNotebookFooter({ app: mockApp });
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             
@@ -192,7 +212,7 @@ describe('NotebookFooter Component', () => {
 
         it('does not submit empty messages', async () => {
             const mockApp = createMockApp();
-            renderNotebookFooter({ app: mockApp });
+            await renderNotebookFooter({ app: mockApp });
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             
@@ -206,7 +226,7 @@ describe('NotebookFooter Component', () => {
 
         it('trims whitespace from messages before submitting', async () => {
             const mockApp = createMockApp();
-            renderNotebookFooter({ app: mockApp });
+            await renderNotebookFooter({ app: mockApp });
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             
@@ -223,7 +243,7 @@ describe('NotebookFooter Component', () => {
     describe('Submit Button', () => {
         it('submits message when submit button is clicked', async () => {
             const mockApp = createMockApp();
-            renderNotebookFooter({ app: mockApp });
+            await renderNotebookFooter({ app: mockApp });
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             const submitButton = screen.getByText('▶');
@@ -240,7 +260,7 @@ describe('NotebookFooter Component', () => {
 
         it('opens chat and sends agent message in correct order', async () => {
             const mockApp = createMockApp();
-            renderNotebookFooter({ app: mockApp });
+            await renderNotebookFooter({ app: mockApp });
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             
@@ -271,7 +291,7 @@ describe('NotebookFooter Component', () => {
                 }
             } as unknown as JupyterFrontEnd;
 
-            renderNotebookFooter({ app: mockApp });
+            await renderNotebookFooter({ app: mockApp });
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             
@@ -302,7 +322,7 @@ describe('NotebookFooter Component', () => {
 
         it('clears input value immediately when submitting', async () => {
             const mockApp = createMockApp();
-            renderNotebookFooter({ app: mockApp });
+            await renderNotebookFooter({ app: mockApp });
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             
@@ -329,7 +349,7 @@ describe('NotebookFooter Component', () => {
                 }
             } as unknown as JupyterFrontEnd;
 
-            renderNotebookFooter({ app: mockApp });
+            await renderNotebookFooter({ app: mockApp });
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
             
@@ -361,9 +381,9 @@ describe('NotebookFooter Component', () => {
     });
 
     describe('Cell Creation', () => {
-        it('creates a new code cell when Python button is clicked', () => {
+        it('creates a new code cell when Python button is clicked', async () => {
             const mockNotebook = createMockNotebook();
-            renderNotebookFooter({ notebook: mockNotebook });
+            await renderNotebookFooter({ notebook: mockNotebook });
 
             const pythonButton = screen.getByText('Python');
             
@@ -374,9 +394,9 @@ describe('NotebookFooter Component', () => {
             expect(NotebookActions.focusActiveCell).toHaveBeenCalledWith(mockNotebook);
         });
 
-        it('creates a new markdown cell when Text button is clicked', () => {
+        it('creates a new markdown cell when Text button is clicked', async () => {
             const mockNotebook = createMockNotebook();
-            renderNotebookFooter({ notebook: mockNotebook });
+            await renderNotebookFooter({ notebook: mockNotebook });
 
             const textButton = screen.getByText('Text');
             
@@ -388,9 +408,9 @@ describe('NotebookFooter Component', () => {
             expect(NotebookActions.focusActiveCell).toHaveBeenCalledWith(mockNotebook);
         });
 
-        it('sets active cell index before adding new cell when notebook has widgets', () => {
+        it('sets active cell index before adding new cell when notebook has widgets', async () => {
             const mockNotebook = createMockNotebook(5);
-            renderNotebookFooter({ notebook: mockNotebook });
+            await renderNotebookFooter({ notebook: mockNotebook });
 
             fireEvent.click(screen.getByText('Python'));
 
@@ -398,9 +418,9 @@ describe('NotebookFooter Component', () => {
             expect(mockNotebook.activeCellIndex).toBe(4); // length - 1
         });
 
-        it('handles empty notebook when adding cells', () => {
+        it('handles empty notebook when adding cells', async () => {
             const mockNotebook = createMockNotebook(0);
-            renderNotebookFooter({ notebook: mockNotebook });
+            await renderNotebookFooter({ notebook: mockNotebook });
 
             fireEvent.click(screen.getByText('Python'));
 
@@ -409,9 +429,9 @@ describe('NotebookFooter Component', () => {
             expect(NotebookActions.insertBelow).toHaveBeenCalledWith(mockNotebook);
         });
 
-        it('only changes cell type for markdown cells, not code cells', () => {
+        it('only changes cell type for markdown cells, not code cells', async () => {
             const mockNotebook = createMockNotebook();
-            renderNotebookFooter({ notebook: mockNotebook });
+            await renderNotebookFooter({ notebook: mockNotebook });
 
             // Click Python button (should not change cell type)
             fireEvent.click(screen.getByText('Python'));
@@ -426,22 +446,22 @@ describe('NotebookFooter Component', () => {
     });
 
     describe('Cell Count Updates', () => {
-        it('handles notebook without model gracefully', () => {
+        it('handles notebook without model gracefully', async () => {
             const mockNotebook = {
                 widgets: [{ id: 'cell-1' }],
                 model: null
             };
 
             // Should not throw an error
-            expect(() => {
-                renderNotebookFooter({ notebook: mockNotebook });
+            await expect(async () => {
+                await renderNotebookFooter({ notebook: mockNotebook });
             }).not.toThrow();
         });
     });
 
     describe('Event Handling', () => {
-        it('stops propagation on input events', () => {
-            renderNotebookFooter();
+        it('stops propagation on input events', async () => {
+            await renderNotebookFooter();
 
             const input = screen.getByPlaceholderText(PLACEHOLDER_TEXT);
 
@@ -461,8 +481,8 @@ describe('NotebookFooter Component', () => {
             stopPropagationSpy.mockRestore();
         });
 
-        it('stops propagation on button mouse down events', () => {
-            renderNotebookFooter();
+        it('stops propagation on button mouse down events', async () => {
+            await renderNotebookFooter();
 
             const submitButton = screen.getByText('▶');
             const pythonButton = screen.getByText('Python');

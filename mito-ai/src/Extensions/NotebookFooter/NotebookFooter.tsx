@@ -61,10 +61,10 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
     }
 
     const getPlaceholder = (): string => {
-        if (isSignedUp) {
-            return 'What analysis can I help you with?';
-        } else if (isGenerating) {
+        if (isGenerating) {
             return 'Generating notebook...';
+        } else if (isSignedUp) {
+            return 'What analysis can I help you with?';
         } else {
             return 'Sign up to use the AI features';
         }
