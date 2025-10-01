@@ -29,21 +29,23 @@ def crawl_db(conn_str: str, db_type: str) -> Dict[str, Any]:
             result = connection.execute(text(tables_query), {"schema": "public"})
             tables = [row[0] for row in result]
 
+            schema["tables"] = tables
+
             # For each table, get the column names and data types
-            for table in tables:
-                if db_type == "mysql":
-                    # For MySQL we have to use string formatting
-                    # since MySQL doesn't support parameter binding
-                    query = columns_query.format(table=table)
-                    columns = connection.execute(text(query))
-                else:
-                    # For other databases, use parameter binding
-                    columns = connection.execute(text(columns_query), {"table": table})
-                # Create a list of dictionaries with column name and type
-                column_info: List[ColumnInfo] = [
-                    {"name": row[0], "type": row[1]} for row in columns
-                ]
-                schema["tables"][table] = column_info
+            # for table in tables:
+            #     if db_type == "mysql":
+            #         # For MySQL we have to use string formatting
+            #         # since MySQL doesn't support parameter binding
+            #         query = columns_query.format(table=table)
+            #         columns = connection.execute(text(query))
+            #     else:
+            #         # For other databases, use parameter binding
+            #         columns = connection.execute(text(columns_query), {"table": table})
+            #     # Create a list of dictionaries with column name and type
+            #     column_info: List[ColumnInfo] = [
+            #         {"name": row[0], "type": row[1]} for row in columns
+            #     ]
+            #     schema["tables"][table] = column_info
 
         return {
             "schema": schema,
