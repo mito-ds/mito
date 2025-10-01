@@ -1468,6 +1468,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     return (
+        // We disable the chat taskpane if the user is not signed up AND there are no chat history items
         <div className={`chat-taskpane ${isSignedUp  || displayOptimizedChatHistory.length > 0 ? '' : 'disabled'}`}>
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-left">
