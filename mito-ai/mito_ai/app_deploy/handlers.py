@@ -5,13 +5,12 @@ import os
 import time
 import logging
 from typing import Any, Union, List
-import zipfile
 import tempfile
 from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
-from mito_ai.utils.app_deploy_utils import  add_files_to_zip
+from mito_ai.app_deploy.app_deploy_utils import  add_files_to_zip
 from mito_ai.app_deploy.models import (
     DeployAppReply,
     AppDeployError,
@@ -19,7 +18,6 @@ from mito_ai.app_deploy.models import (
     ErrorMessage,
     MessageType
 )
-from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
