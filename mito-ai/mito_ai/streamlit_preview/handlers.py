@@ -187,18 +187,19 @@ class StreamlitScreenshotHandler(APIHandler):
             
             logger.info(f"Screenshot request: viewport={data['viewportWidth']}x{data['viewportHeight']}, "
                        f"scroll=({data['scrollX']}, {data['scrollY']}), "
-                       f"selection={data['selection']}")
+                       f"selection={data['selection']}, port={data['streamlitPort']}")
             
             # Get screenshot service
             service = await ScreenshotService.get_instance()
             
-            # Capture screenshot from localhost:8501
+            # Capture screenshot from the specified Streamlit port
             screenshot = await service.capture_screenshot(
                 scroll_x=data['scrollX'],
                 scroll_y=data['scrollY'],
                 viewport_width=data['viewportWidth'],
                 viewport_height=data['viewportHeight'],
-                selection=data['selection']
+                selection=data['selection'],
+                streamlit_port=data['streamlitPort']
             )
             
             # Return PNG
@@ -217,7 +218,7 @@ class StreamlitScreenshotHandler(APIHandler):
     
     def _validate_request(self, data: CaptureRequest) -> None:
         """Validate request data"""
-        required_fields = ['scrollX', 'scrollY', 'viewportWidth', 'viewportHeight', 'selection']
+        required_fields = ['scrollX', 'scrollY', 'viewportWidth', 'viewportHeight', 'selection', 'streamlitPort']
         for field in required_fields:
             if field not in data:
                 raise ValueError(f"Missing required field: {field}")
@@ -231,6 +232,9 @@ class StreamlitScreenshotHandler(APIHandler):
         
         if data['viewportWidth'] <= 0 or data['viewportHeight'] <= 0:
             raise ValueError("Viewport dimensions must be positive")
+        
+        if data['streamlitPort'] <= 0 or data['streamlitPort'] > 65535:
+            raise ValueError("Invalid port number")
 
 
 class StreamlitScreenshotHealthHandler(APIHandler):

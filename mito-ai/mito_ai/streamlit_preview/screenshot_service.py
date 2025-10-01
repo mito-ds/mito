@@ -37,7 +37,6 @@ class ScreenshotService:
                 "Playwright is not installed. Install it with: pip install playwright && playwright install chromium"
             )
         
-        self.streamlit_url = "http://localhost:8501"
         self.browser_launch_args = {
             'headless': True,
             'args': [
@@ -77,12 +76,13 @@ class ScreenshotService:
         scroll_y: float,
         viewport_width: int,
         viewport_height: int,
-        selection: dict
+        selection: dict,
+        streamlit_port: int
     ) -> bytes:
         """
         Capture a screenshot of a specific region of the Streamlit app.
         
-        Opens the Streamlit app at localhost:8501, scrolls to match the user's
+        Opens the Streamlit app at the specified port, scrolls to match the user's
         view, and captures the selected region.
         
         Args:
@@ -91,6 +91,7 @@ class ScreenshotService:
             viewport_width: Width of the viewport in frontend
             viewport_height: Height of the viewport in frontend
             selection: Dictionary with x, y, width, height of selection
+            streamlit_port: Port where Streamlit app is running
             
         Returns:
             PNG screenshot as bytes
@@ -98,6 +99,7 @@ class ScreenshotService:
         if not self._browser:
             raise RuntimeError("Browser not initialized")
         
+        streamlit_url = f"http://localhost:{streamlit_port}"
         page = None
         try:
             # Create new page with matching viewport
@@ -107,8 +109,8 @@ class ScreenshotService:
             })
             
             # Navigate to Streamlit app (same URL as frontend iframe)
-            logger.info(f"Navigating to {self.streamlit_url}")
-            await page.goto(self.streamlit_url, wait_until='networkidle', timeout=10000)
+            logger.info(f"Navigating to {streamlit_url}")
+            await page.goto(streamlit_url, wait_until='networkidle', timeout=10000)
             
             # Wait for Streamlit to fully render
             await self._wait_for_streamlit_ready(page)

@@ -20,6 +20,7 @@ class CaptureRequest(TypedDict):
     viewportWidth: int
     viewportHeight: int
     selection: Rectangle
+    streamlitPort: int
 
 
 @dataclass

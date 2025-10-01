@@ -13,6 +13,7 @@ export interface CaptureState {
   viewportWidth: number;
   viewportHeight: number;
   selection: Rectangle;
+  streamlitPort: number;
 }
 
 /**
@@ -87,13 +88,36 @@ export class ScreenshotCapture {
       console.warn('Cannot access iframe scroll position (cross-origin)');
     }
 
+    // Extract port from iframe URL
+    const streamlitPort = this.extractPortFromUrl(iframe.src);
+
     return {
       scrollX: scrollX,
       scrollY: scrollY,
       viewportWidth: iframe.offsetWidth,
       viewportHeight: iframe.offsetHeight,
-      selection: selection
+      selection: selection,
+      streamlitPort: streamlitPort
     };
+  }
+
+  /**
+   * Extract port number from Streamlit URL
+   * e.g., "http://localhost:50244" -> 50244
+   */
+  private extractPortFromUrl(url: string): number {
+    try {
+      const urlObj = new URL(url);
+      const port = parseInt(urlObj.port, 10);
+      if (isNaN(port) || port <= 0) {
+        throw new Error('Invalid port');
+      }
+      return port;
+    } catch (e) {
+      console.error('Failed to extract port from URL:', url, e);
+      // Default to 8501 if extraction fails
+      return 8501;
+    }
   }
 
   /**
