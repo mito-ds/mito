@@ -4,9 +4,9 @@
 import os
 import zipfile
 import logging
-from typing import List
+from typing import List, Optional
 
-def add_files_to_zip(zip_path: str, base_path: str, files_to_add: List[str], logger: logging.Logger = None):
+def add_files_to_zip(zip_path: str, base_path: str, files_to_add: List[str], logger: Optional[logging.Logger] = None) -> None:
     """Create a zip file at zip_path and add the selected files/folders."""
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
         for rel_path in files_to_add:
