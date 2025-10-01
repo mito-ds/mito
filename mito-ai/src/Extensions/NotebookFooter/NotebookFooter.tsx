@@ -66,7 +66,7 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
         } else if (isSignedUp) {
             return 'What analysis can I help you with?';
         } else {
-            return 'Sign up to use the AI features';
+            return 'Sign up to use the AI features (see taskpane on the left)';
         }
     };
 
