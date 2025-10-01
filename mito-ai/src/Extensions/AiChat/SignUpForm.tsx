@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { setUserKey } from '../../restAPI/RestAPI';
 import MitoLogo from '../../icons/MitoLogo';
+import { userSignupEvents } from '../../utils/userSignupEvents';
 import '../../../style/SignUpForm.css';
 
 
@@ -21,6 +22,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
         try {
             await setUserKey('user_email', email);
             onSignUpSuccess?.();
+            // Emit signup success event for other components to listen to
+            userSignupEvents.emitSignupSuccess();
         } catch (error) {
             console.error('Failed to set user email:', error);
         }

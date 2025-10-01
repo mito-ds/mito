@@ -13,6 +13,7 @@ import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
 import { getUserKey } from '../../restAPI/RestAPI';
+import { userSignupEvents } from '../../utils/userSignupEvents';
 
 interface NotebookFooterProps {
     notebookTracker: INotebookTracker;
@@ -32,10 +33,32 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
         return null;
     }
 
-    useEffect(() => {
-        void getUserKey('user_email').then((email) => {
+    // Function to refresh user email state
+    const refreshUserEmail = async (): Promise<void> => {
+        try {
+            const email = await getUserKey('user_email');
             setIsSignedUp(email !== "" && email !== undefined);
-        });
+        } catch (error) {
+            console.error('Failed to get user email:', error);
+        }
+    };
+
+    useEffect(() => {
+        void refreshUserEmail();
+    }, []);
+
+    // Listen for signup success events from other components
+    useEffect(() => {
+        const handleSignupSuccess = (): void => {
+            void refreshUserEmail();
+        };
+
+        userSignupEvents.signupSuccess.connect(handleSignupSuccess);
+
+        // Cleanup the event listener when component unmounts
+        return () => {
+            userSignupEvents.signupSuccess.disconnect(handleSignupSuccess);
+        };
     }, []);
 
     const getPlaceholder = (): string => {
