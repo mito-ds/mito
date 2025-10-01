@@ -71,6 +71,20 @@ jest.mock('../../Extensions/AppDeploy/DeployFilesSelector', () => ({
     })
 }));
 
+// Mock the fileSelectorPopup function to return the expected files
+jest.mock('../../Extensions/AppDeploy/FilesSelectorUtils', () => ({
+    fileSelectorPopup: jest.fn().mockResolvedValue(['app.py', 'requirements.txt'])
+}));
+
+// Mock Notification.emit to return a predictable ID
+jest.mock('@jupyterlab/apputils', () => ({
+    Notification: {
+        emit: jest.fn().mockReturnValue('test-notification-id'),
+        update: jest.fn(),
+        dismiss: jest.fn()
+    }
+}));
+
 describe('NotebookToStreamlit Conversion and Deployment', () => {
     let mockNotebookTracker: jest.Mocked<INotebookTracker>;
     let mockNotebookPanel: any;
