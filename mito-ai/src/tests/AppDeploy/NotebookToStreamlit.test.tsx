@@ -3,6 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import React from 'react';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { deployStreamlitApp } from '../../Extensions/AppDeploy/DeployStreamlitApp';
 import { saveFileWithKernel } from '../../Extensions/AppDeploy/fileUtils';
@@ -45,6 +46,29 @@ jest.mock('@lumino/coreutils', () => ({
     UUID: {
         uuid4: jest.fn().mockReturnValue('test-uuid-123')
     }
+}));
+
+// Mock the DeployFilesSelector component to prevent fetch calls
+jest.mock('../../Extensions/AppDeploy/DeployFilesSelector', () => ({
+    FileUploadPopup: jest.fn().mockImplementation(({ onSubmit, onClose }) => {
+        // Simulate user selecting default files
+        const mockSelectedFiles = ['app.py', 'requirements.txt'];
+        
+        // Simulate the component behavior - call onSubmit with selected files
+        React.useEffect(() => {
+            // Use setTimeout to simulate async behavior
+            const timer = setTimeout(() => {
+                onSubmit(mockSelectedFiles);
+            }, 0);
+            
+            return () => clearTimeout(timer);
+        }, [onSubmit]);
+        
+        return React.createElement('div', { 
+            'data-testid': 'file-upload-popup',
+            onClick: () => onSubmit(mockSelectedFiles)
+        }, 'Mock File Upload Popup');
+    })
 }));
 
 describe('NotebookToStreamlit Conversion and Deployment', () => {
