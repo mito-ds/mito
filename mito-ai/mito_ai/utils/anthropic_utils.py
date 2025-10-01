@@ -1,23 +1,14 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import asyncio
-import json
-import time
 import anthropic
-from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable, cast
-
-from anthropic.types import MessageParam, Message, TextBlock, ToolUnionParam
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable
+from anthropic.types import MessageParam, ToolUnionParam
 from mito_ai.utils.mito_server_utils import get_response_from_mito_server, stream_response_from_mito_server
 from mito_ai.utils.provider_utils import does_message_require_fast_model
-from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
+from mito_ai.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
-from mito_ai.utils.utils import is_running_test
-from mito_ai.utils.server_limits import check_mito_server_quota
-from .utils import _create_http_client
-from tornado.httpclient import AsyncHTTPClient
 from mito_ai.constants import MITO_ANTHROPIC_URL
 
 __user_email: Optional[str] = None
@@ -50,7 +41,8 @@ def _prepare_anthropic_request_data_and_headers(
         "model": model,
         "max_tokens": max_tokens,
         "temperature": temperature,
-        "messages": messages
+        "messages": messages,
+        "betas": ["context-1m-2025-08-07"]
     }
     # Add system to inner_data only if it is not anthropic.Omit
     if not isinstance(system, anthropic.Omit):
