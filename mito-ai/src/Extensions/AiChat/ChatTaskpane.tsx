@@ -1470,7 +1470,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     return (
-        <div className="chat-taskpane">
+        <div className={`chat-taskpane ${isSignedUp ? '' : 'disabled'}`}>
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-left">
                     <IconButton
@@ -1614,7 +1614,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 void sendChatInputMessage(prompt);
                             }
                         }}
-                        disabled={isSignedUp === false}
                     />
                 </div>
             )}
@@ -1644,7 +1643,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     notebookTracker={notebookTracker}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecutionStatus}
-                    disabled={isSignedUp === false}
                 />
             </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
@@ -1668,7 +1666,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                     chatInput.focus();
                                 }
                             }}
-                            disabled={isSignedUp === false}
                         />
                         <ModelSelector onConfigChange={(config) => {
                             // Just update the backend

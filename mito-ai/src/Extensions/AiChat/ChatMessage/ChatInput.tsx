@@ -31,7 +31,6 @@ interface ChatInputProps {
     notebookTracker: INotebookTracker;
     agentModeEnabled: boolean;
     agentExecutionStatus?: AgentExecutionStatus;
-    disabled?: boolean;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -56,7 +55,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     notebookTracker,
     agentModeEnabled = false,
     agentExecutionStatus = 'idle',
-    disabled = false,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -317,7 +315,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
     return (
         <div
             className={classNames("chat-input-container", { "editing": isEditing })}
-            style={{ pointerEvents: disabled ? 'none' : 'auto', opacity: disabled ? 0.5 : 1 }}
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
@@ -357,7 +354,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     className={classNames("message", "message-user", 'chat-input', { "agent-mode": agentModeEnabled })}
                     placeholder={placeholder}
                     value={input}
-                    disabled={disabled || agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
+                    disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
                     onChange={handleInputChange}
                     onKeyDown={(e) => {
                         // If dropdown is visible, only handle escape to close it

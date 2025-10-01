@@ -17,7 +17,6 @@ export interface ToggleButtonProps {
     rightIcon?: React.FC<{ fill?: string; height?: string; width?: string; }>;
     isLeftSelected: boolean;
     onChange: (isLeftSelected: boolean) => void;
-    disabled?: boolean;
 }
 
 const ToggleButton: React.FC<ToggleButtonProps> = ({ 
@@ -29,12 +28,10 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
     rightIcon: RightIcon,
     isLeftSelected, 
     onChange, 
-    disabled = false,
 }) => {
     return (
         <div 
             className={classNames("toggle-button-container")} 
-            style={{ pointerEvents: disabled ? 'none' : 'auto', opacity: disabled ? 0.5 : 1 }}
         >
             <button 
                 className={classNames(
