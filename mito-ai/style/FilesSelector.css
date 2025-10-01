@@ -15,7 +15,7 @@
   justify-content: flex-end;
 }
 
-.submit-button {
+.files-selector-submit-button {
   margin-top: 8px;
   background-color: var(--purple-400) !important;
   color: var(--purple-700) !important;
@@ -28,6 +28,10 @@
   box-sizing: border-box !important;
 }
 
+.files-selector-submit-button:hover {
+  background-color: var(--purple-500) !important;
+}
+
 .file-list input[type="checkbox"],
 .select-all input[type="checkbox"]{
   transform: scale(1.3);
@@ -37,7 +41,7 @@
 
 .file-list svg {
   color: grey;
-  margin-right: 4px;]
+  margin-right: 4px;
   vertical-align: middle;
 }
 
@@ -46,11 +50,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-
-.submit-button:hover {
-  background-color: var(--purple-500) !important;
 }
 
 /* Modal header */
@@ -101,6 +100,6 @@
 }
 
 /* Select all section */
-.select-all {
+.files-selector-select-all {
   margin-bottom: 8px;
 }

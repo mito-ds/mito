@@ -3,37 +3,16 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-// file-upload-popup.tsx
-
 import React, { useEffect, useState } from 'react';
-// import { FaFile, FaFolder } from 'react-icons/fa';
-// import FolderIcon from '@mui/icons-material/Folder';
-// import DescriptionIcon from '@mui/icons-material/Description';
-// import XMarkIcon from '../../../src/icons/XMark';
-// import { LabIcon } from '@jupyterlab/ui-components';
-// import FileIconSvg from '../../../src/icons/File.svg';
-// import FolderIconSvg from '../../../src/icons/Folder.svg';
-
-import FolderIcon from '../../../src/icons/FolderIcon'
-import FileIcon from '../../../src/icons/FileIcon'
-
-
 import '../../../style/ConnectionForm.css';
 import '../../../style/button.css';
 import '../../../style/FilesSelector.css';
 
-// export const FileIcon = new LabIcon({
-//   name: 'mito_ai',
-//   svgstr: FileIconSvg
-// });
-// export const FileIconReact = FileIcon.react;
-//
-//
-// export const FolderIcon = new LabIcon({
-//   name: 'mito_ai',
-//   svgstr: FolderIconSvg
-// });
-// export const FolderIconReact = FolderIcon.react;
+import { fileIcon, folderIcon, closeIcon } from '@jupyterlab/ui-components';
+
+const FileIcon = fileIcon.react;
+const FolderIcon = folderIcon.react;
+const CloseIcon = closeIcon.react;
 
 interface FileUploadPopupProps {
   filePath: string,
@@ -59,32 +38,32 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
 
   const alwaysSelected = ['requirements.txt', 'app.py'];
   useEffect(() => {
-      const nbDir = getNotebookDir();
-      const apiPath = nbDir ? `/api/contents/${nbDir}` : '/api/contents/';
+    const nbDir = getNotebookDir();
+    const apiPath = nbDir ? `/api/contents/${nbDir}` : '/api/contents/';
 
-      fetch(apiPath)
-        .then(res => res.json())
-        .then(data => {
-          const entries: { name: string; type: string }[] = data.content.map((item: any) => ({
-            name: item.name,
-            type: item.type, // "file" or "directory"
-          }))
+    fetch(apiPath)
+      .then(res => res.json())
+      .then(data => {
+        const entries: { name: string; type: string }[] = data.content.map((item: any) => ({
+          name: item.name,
+          type: item.type, // "file" or "directory"
+        }))
           .sort((a: { name: string; type: string }, b: { name: string; type: string }) =>
             a.name.localeCompare(b.name)
-            );
-          setItems(entries);
+          );
+        setItems(entries);
 
-          // Pre-select default files
-          const defaultFiles = new Set<string>();
-          entries.forEach(entry => {
-            if (alwaysSelected.includes(entry.name)) {
-              defaultFiles.add(entry.name);
-            }
-          });
-          setSelectedItems(defaultFiles);
+        // Pre-select default files
+        const defaultFiles = new Set<string>();
+        entries.forEach(entry => {
+          if (alwaysSelected.includes(entry.name)) {
+            defaultFiles.add(entry.name);
+          }
+        });
+        setSelectedItems(defaultFiles);
 
-        })
-        .catch(err => console.error('Error fetching files/dirs:', err));
+      })
+      .catch(err => console.error('Error fetching files/dirs:', err));
   }, []);
 
   const handleCheckboxChange = (name: string): void => {
@@ -97,14 +76,14 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
   };
 
   const handleSelectAll = (checked: boolean): void => {
-  if (checked) {
-    // select all, nothing excluded
-    setSelectedItems(new Set(items.map(i => i.name)));
-  } else {
-    // keep only alwaysSelected
-    setSelectedItems(new Set(alwaysSelected));
-  }
-};
+    if (checked) {
+      // select all, nothing excluded
+      setSelectedItems(new Set(items.map(i => i.name)));
+    } else {
+      // keep only alwaysSelected
+      setSelectedItems(new Set(alwaysSelected));
+    }
+  };
 
 
   const handleSubmit = (): void => {
@@ -123,13 +102,13 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
         <div className="modal-header">
           <h3>Upload files Required for the App</h3>
           <button onClick={onClose} className="modal-close-button" title="Close">
-                x
+            <CloseIcon />
           </button>
         </div>
 
         <div className="modal-subheader">
           <p className="modal-subtext">
-              Select the files and/or directories that are required to render the app. For example, if your app reads data from a csv file, you must select it here.
+            Select the files and/or directories that are required to render the app. For example, if your app reads data from a csv file, you must select it here.
           </p>
         </div>
 
@@ -139,7 +118,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
           ) : (
             <>
               {/* Select All Checkbox */}
-              <div className="select-all">
+              <div className="files-selector-select-all">
                 <label className="checkbox-label">
                   <input
                     type="checkbox"
@@ -179,7 +158,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
 
         <div className="modal-footer">
           <button
-            className="submit-button"
+            className="files-selector-submit-button"
             onClick={handleSubmit}
             disabled={selectedItems.size === 0}
           >
