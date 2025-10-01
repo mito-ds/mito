@@ -41,7 +41,7 @@ describe('ModelSelector', () => {
   it('loads saved model from localStorage on mount', () => {
     // Set up localStorage with a saved model
     const savedConfig = {
-      model: 'claude-sonnet-4-20250514'
+      model: 'claude-sonnet-4-5-20250929'
     };
     localStorage.setItem('llmModelConfig', JSON.stringify(savedConfig));
 
