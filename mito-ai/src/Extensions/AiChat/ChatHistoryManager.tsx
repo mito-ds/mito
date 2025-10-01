@@ -85,6 +85,11 @@ export class ChatHistoryManager {
             // Process the assumptions
             if (item.agentResponse?.analysis_assumptions) {
                 item.agentResponse.analysis_assumptions.forEach(assumption => {
+                    // Sonnet 4.5 return empty string for assumptions instead of no assumptions sometimes
+                    if (assumption.trim() === '') {
+                        return;
+                    }
+
                     this._allAssumptions.add(assumption);
                 });
             }
@@ -99,7 +104,8 @@ export class ChatHistoryManager {
         }
 
         const newAssumptions = agentResponse.analysis_assumptions.filter(
-            assumption => !this._allAssumptions.has(assumption)
+            // We don't want to duplicate assumptions and sometimes sonnet 4.5 returns an empty string instead of no assumptions
+            assumption => !this._allAssumptions.has(assumption) && assumption.trim() !== ''
         );
         
         newAssumptions.forEach(assumption => this._allAssumptions.add(assumption));
