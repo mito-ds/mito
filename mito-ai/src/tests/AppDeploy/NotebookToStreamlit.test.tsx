@@ -190,7 +190,11 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             type: 'deploy-app',
             message_id: 'test-uuid-123',
             notebook_path: 'test_notebook.ipynb',
-            jwt_token: 'test-jwt-token'
+            jwt_token: 'test-jwt-token',
+            selected_files: [
+              "app.py",
+              "requirements.txt",
+            ]
         });
     });
 
