@@ -1627,13 +1627,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <ChatInput
                     app={app}
                     initialContent={''}
-                    placeholder={
-                        agentExecutionStatus === 'working' ? `Agent is editing ${agentTargetNotebookPanelRef.current?.context.path.split('/').pop()}` :
-                            agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
-                                agentModeEnabled ? 'Ask agent to do anything' :
-                                    displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                                        : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                    }
                     onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
                     onCancel={undefined}
                     isEditing={false}
@@ -1641,6 +1634,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     notebookTracker={notebookTracker}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecutionStatus}
+                    operatingSystem={operatingSystem}
+                    displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
+                    agentTargetNotebookPanelRef={agentTargetNotebookPanelRef}
+                    isSignedUp={isSignedUp}
                 />
             </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
