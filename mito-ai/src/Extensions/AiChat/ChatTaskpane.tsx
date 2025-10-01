@@ -48,6 +48,7 @@ import UndoIcon from '../../icons/UndoIcon';
 
 // Internal imports - Utils
 import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../utils/agentActions';
+import { classNames } from '../../utils/classNames';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
 import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
@@ -1469,7 +1470,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     return (
         // We disable the chat taskpane if the user is not signed up AND there are no chat history items
-        <div className={`chat-taskpane ${isSignedUp  || displayOptimizedChatHistory.length > 0 ? '' : 'disabled'}`}>
+        <div className={classNames('chat-taskpane', { 'disabled': !(isSignedUp || displayOptimizedChatHistory.length > 0) })}>
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-left">
                     <IconButton
