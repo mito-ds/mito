@@ -21,8 +21,7 @@ export const deployAppNotification = (url: string, appManagerService: IAppManage
         "Step 7/7: Running security checks...",
         "Deployment complete! Your app is ready."
     ];
-    
-    // Create initial "in progress" notification to get notificaiton id
+
 
     // Calculate time between steps (evenly distribute throughout the total deployment time)
     const stepInterval = totalDeploymentTime / (deploymentSteps.length - 1);

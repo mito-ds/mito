@@ -57,14 +57,6 @@ export const deployStreamlitApp = async (
   }
   const notebookPath = notebookPanel.context.path;
 
-
-  try{
-    selectedFiles = await fileSelectorPopup(notebookPath);
-  }catch (error) {
-      console.log('File selection failed:', error);
-      return;
-  }
-
   const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
     autoClose: false
   });
@@ -75,6 +67,17 @@ export const deployStreamlitApp = async (
   // Save the files to the current directory
   await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
 
+  try{
+    Notification.dismiss(notificationId);
+    selectedFiles = await fileSelectorPopup(notebookPath);
+  }catch (error) {
+      console.log('File selection failed:', error);
+      return;
+  }
+
+  const newNotificationId = Notification.emit("Step 2/7: Preparing your app...", 'in-progress', {
+      autoClose: false
+    });
 
   // After building the files, we need to send a request to the backend to deploy the app
   try {
@@ -91,7 +94,7 @@ export const deployStreamlitApp = async (
 
     if (response.error) {
       Notification.update({
-        id: notificationId,
+        id: newNotificationId,
         message: response.error.title,
         type: 'error',
         autoClose: false
@@ -99,7 +102,7 @@ export const deployStreamlitApp = async (
     } else {
       console.log("App deployment response:", response);
       const url = response.url;
-      deployAppNotification(url, appManagerService, notificationId);
+      deployAppNotification(url, appManagerService, newNotificationId);
     }
   } catch (error) {
     // TODO: Do something with the error
