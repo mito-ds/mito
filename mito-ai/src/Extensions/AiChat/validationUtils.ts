@@ -38,15 +38,20 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     
     // Correct analysis_assumptions - handle string to array conversion
     if (correctedResponse.analysis_assumptions !== undefined && correctedResponse.analysis_assumptions !== null) {
-        correctedResponse.analysis_assumptions = correctStringArray(correctedResponse.analysis_assumptions);
+        
+        let correctedAnalysisAssumptions = correctStringArray(correctedResponse.analysis_assumptions);
 
         // No empty strings in the assumptions
-        correctedResponse.analysis_assumptions = correctedResponse.analysis_assumptions?.filter(assumption => assumption.trim() !== '');
+        correctedAnalysisAssumptions = correctedResponse.analysis_assumptions?.filter(assumption => assumption.trim() !== '')
+        if (correctedAnalysisAssumptions.length === 0) {
+            correctedAnalysisAssumptions = undefined;
+        }
+
+        correctedResponse.analysis_assumptions = correctedAnalysisAssumptions;
     }
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 
     // not caused issues thus far.
-    
     return correctedResponse;
 }
 
