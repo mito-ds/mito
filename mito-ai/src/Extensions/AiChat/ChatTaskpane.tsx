@@ -68,7 +68,7 @@ import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../uti
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
-import { getUserKey } from '../../restAPI/RestAPI';
+import { getUserKey, logEvent } from '../../restAPI/RestAPI';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -382,9 +382,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         return newChatHistoryManager;
     }
 
+    // Main initialization effect - runs once on mount
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
-            try {
+            try {                
                 // Check for saved model preference in localStorage
                 const storedConfig = localStorage.getItem('llmModelConfig');
                 let initialModel = DEFAULT_MODEL;
@@ -446,7 +447,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         };
 
-        void initializeChatHistory();
+        void logEvent('opened_ai_chat_taskpane');
+        void initializeChatHistory(); 
+        void refreshUserEmail(); // Get user email when the component first mounts
 
     }, [websocketClient]);
 
@@ -484,11 +487,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             console.error('Failed to get user email:', error);
         }
     };
-
-    // Get user email when the component first mounts
-    useEffect(() => {
-        void refreshUserEmail();
-    }, []);
 
     // Scroll to bottom whenever chat history updates, but only if in follow mode
     useEffect(() => {
