@@ -52,3 +52,55 @@
 .submit-button:hover {
   background-color: var(--purple-500) !important;
 }
+
+/* Modal header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 1px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+
+.modal-subtext {
+  font-size: 0.7rem;
+  color: #555;
+  margin: 0;
+  font-style: italic;
+}
+
+.modal-subheader{
+  margin-bottom: 7px;
+}
+
+/* Checkbox label for spacing */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Scrollable file list */
+.file-list-scrollable {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+/* File list items */
+.file-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+/* Select all section */
+.select-all {
+  margin-bottom: 8px;
+}

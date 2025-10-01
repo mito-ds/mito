@@ -11,6 +11,7 @@ from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
+from mito_ai.utils.app_deploy_utils import  add_files_to_zip
 from mito_ai.app_deploy.models import (
     DeployAppReply,
     AppDeployError,
@@ -260,29 +261,12 @@ class AppDeployHandler(BaseWebSocketHandler):
             # Step 2: Create a zip file of the app.
             temp_zip_path = None
             try:
-                # Create temp file and close it before writing to avoid file handle conflicts
-                with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as temp_zip:
+                # Create temp file
+                with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as temp_zip:
                     temp_zip_path = temp_zip.name
 
                 self.log.info("Zipping application files...")
-                with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                    for rel_path in files_to_upload:  # relative to app_path
-                        abs_path = os.path.join(app_path, rel_path)
-
-                        if os.path.isfile(abs_path):
-                            # keep the rel_path so zip mirrors user’s structure
-                            zipf.write(abs_path, arcname=rel_path)
-
-                        elif os.path.isdir(abs_path):
-                            for root, _, files in os.walk(abs_path):
-                                for file in files:
-                                    file_abs = os.path.join(root, file)
-                                    # compute arcname relative to app_path, not filesystem root
-                                    arcname = os.path.relpath(file_abs, app_path)
-                                    zipf.write(file_abs, arcname=arcname)
-
-                        else:
-                            self.log.warning(f"Skipping missing file: {abs_path}")
+                add_files_to_zip(temp_zip_path, app_path, files_to_upload, self.log)
 
                 upload_response = await self._upload_app_to_s3(temp_zip_path, presigned_url)
             except Exception as e:

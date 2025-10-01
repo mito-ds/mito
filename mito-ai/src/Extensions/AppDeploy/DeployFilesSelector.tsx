@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 // import { FaFile, FaFolder } from 'react-icons/fa';
 import FolderIcon from '@mui/icons-material/Folder';
 import DescriptionIcon from '@mui/icons-material/Description';
-
+// import XMarkIcon from '../../../src/icons/XMark';
 
 import '../../../style/ConnectionForm.css';
 import '../../../style/button.css';
@@ -17,14 +17,12 @@ import '../../../style/FilesSelector.css';
 
 interface FileUploadPopupProps {
   filePath: string,
-  isOpen: boolean;
   onClose: () => void;
   onSubmit: (items: string[]) => void;
 }
 
 export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
   filePath,
-  isOpen,
   onClose,
   onSubmit
 }) => {
@@ -39,8 +37,8 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
     return parts.join('/');
   };
 
+  const alwaysSelected = ['requirements.txt', 'app.py'];
   useEffect(() => {
-    if (isOpen) {
       const nbDir = getNotebookDir();
       const apiPath = nbDir ? `/api/contents/${nbDir}` : '/api/contents/';
 
@@ -50,12 +48,14 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
           const entries: { name: string; type: string }[] = data.content.map((item: any) => ({
             name: item.name,
             type: item.type, // "file" or "directory"
-          }));
+          }))
+          .sort((a: { name: string; type: string }, b: { name: string; type: string }) =>
+            a.name.localeCompare(b.name)
+            );
           setItems(entries);
 
           // Pre-select default files
           const defaultFiles = new Set<string>();
-          const alwaysSelected = ['requirements.txt', 'app.py'];
           entries.forEach(entry => {
             if (alwaysSelected.includes(entry.name)) {
               defaultFiles.add(entry.name);
@@ -65,8 +65,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
 
         })
         .catch(err => console.error('Error fetching files/dirs:', err));
-    }
-  }, [isOpen]);
+  }, []);
 
   const handleCheckboxChange = (name: string) => {
     setSelectedItems(prev => {
@@ -78,9 +77,15 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
   };
 
   const handleSelectAll = (checked: boolean) => {
-    if (checked) setSelectedItems(new Set(items.map(i => i.name)));
-    else setSelectedItems(new Set());
-  };
+  if (checked) {
+    // select all, nothing excluded
+    setSelectedItems(new Set(items.map(i => i.name)));
+  } else {
+    // keep only alwaysSelected
+    setSelectedItems(new Set(alwaysSelected));
+  }
+};
+
 
   const handleSubmit = () => {
     const selectedPaths = Array.from(selectedItems);
@@ -89,8 +94,6 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
     onClose();
   };
 
-  if (!isOpen) return null;
-
   const allSelected = items.length > 0 && selectedItems.size === items.length;
   const partiallySelected = selectedItems.size > 0 && selectedItems.size < items.length;
 
@@ -98,10 +101,16 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h3>Select Files or Directories</h3>
+          <h3>Upload files Required for the App</h3>
           <button onClick={onClose} className="modal-close-button" title="Close">
-            ×
+                x
           </button>
+        </div>
+
+        <div className="modal-subheader">
+          <p className="modal-subtext">
+              Select the files and/or directories that are required to render the app. For example, if your app reads data from a csv file, you must select it here.
+          </p>
         </div>
 
         <div className="modal-body">
@@ -111,7 +120,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
             <>
               {/* Select All Checkbox */}
               <div className="select-all">
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <label className="checkbox-label">
                   <input
                     type="checkbox"
                     checked={allSelected}
@@ -126,17 +135,17 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
 
               {/* Scrollable file list */}
               <div
-                className="file-list-scrollable"
-                style={{ maxHeight: '300px', overflowY: 'auto', marginTop: '8px' }}
-              >
+                className="file-list-scrollable">
                 <ul className="file-list">
                   {items.map((item, index) => (
                     <li key={index}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <label className="checkbox-label">
                         <input
                           type="checkbox"
                           checked={selectedItems.has(item.name)}
                           onChange={() => handleCheckboxChange(item.name)}
+                          disabled={alwaysSelected.includes(item.name)}
+                          title={alwaysSelected.includes(item.name) ? "Required for deploying your app" : undefined}
                         />
                         {item.type === 'directory' ? <FolderIcon /> : <DescriptionIcon />} {item.name}
                       </label>
@@ -154,7 +163,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
             onClick={handleSubmit}
             disabled={selectedItems.size === 0}
           >
-            Select
+            Deploy App
           </button>
         </div>
       </div>

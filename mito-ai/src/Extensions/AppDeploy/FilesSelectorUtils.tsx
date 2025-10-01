@@ -41,7 +41,6 @@ export const fileSelectorPopup = (notebookPath: string): Promise<string[]> => {
     root.render(
       <FileUploadPopup
         filePath={notebookPath}
-        isOpen={true}
         onClose={handleClose}
         onSubmit={handleSubmit}
       />

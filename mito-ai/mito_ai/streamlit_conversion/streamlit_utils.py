@@ -142,8 +142,3 @@ def clean_directory_check(notebook_path: str) -> None:
 
     if not dir_path.exists():
         raise ValueError(f"Directory does not exist: {dir_path}")
-
-    file_count = len([f for f in dir_path.iterdir() if f.is_file()])
-    if file_count > 10:
-        raise ValueError(
-            f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")
