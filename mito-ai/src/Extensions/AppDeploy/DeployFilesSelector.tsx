@@ -30,7 +30,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
   // Figure out current notebook directory
-  const getNotebookDir = () => {
+  const getNotebookDir = (): string => {
     if (!filePath) return '';
     const parts = filePath.split('/');
     parts.pop(); // remove notebook filename
@@ -67,7 +67,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
         .catch(err => console.error('Error fetching files/dirs:', err));
   }, []);
 
-  const handleCheckboxChange = (name: string) => {
+  const handleCheckboxChange = (name: string): void => {
     setSelectedItems(prev => {
       const newSet = new Set(prev);
       if (newSet.has(name)) newSet.delete(name);
@@ -76,7 +76,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
     });
   };
 
-  const handleSelectAll = (checked: boolean) => {
+  const handleSelectAll = (checked: boolean): void => {
   if (checked) {
     // select all, nothing excluded
     setSelectedItems(new Set(items.map(i => i.name)));
@@ -87,7 +87,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
 };
 
 
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     const selectedPaths = Array.from(selectedItems);
 
     onSubmit(selectedPaths);
