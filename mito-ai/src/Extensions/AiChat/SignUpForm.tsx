@@ -38,7 +38,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
                 Sign Up for Mito
             </span>
             <div className="signup-form-message" data-testid="signup-form-message">
-                To avoid abuse of our free AI credits, we ask that you login to use the AI features. No credit card required, just an email.
+                To avoid abuse of our free AI credits, we ask that you login to use Mito AI. No credit card required, just an email.
             </div>
             <form onSubmit={handleSubmit} style={{ marginTop: '15px' }}>
                 <input
