@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 import zipfile
 import logging
 from mito_ai.app_deploy.app_deploy_utils import add_files_to_zip
