@@ -296,7 +296,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     const getPlaceholderText = (): string => {
         if (!isSignedUp && displayOptimizedChatHistoryLength === 0) {
-            return 'Sign up above to use the AI features';
+            return 'Sign up above to use Mito AI';
         } else if (agentExecutionStatus === 'working') {
             return `Agent is editing ${agentTargetNotebookPanelRef?.current?.context.path.split('/').pop()}`;
         } else if (agentExecutionStatus === 'stopping') {
