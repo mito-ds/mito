@@ -159,7 +159,7 @@ describe('validateAndCorrectAgentResponse', () => {
                 };
                 
                 const result = validateAndCorrectAgentResponse(response);
-                expect(result.next_steps).toBe(null);
+                expect(result.next_steps).toBe(undefined);
             });
         });
     });
@@ -215,7 +215,7 @@ describe('validateAndCorrectAgentResponse', () => {
                 };
                 
                 const result = validateAndCorrectAgentResponse(response);
-                expect(result.analysis_assumptions).toBe(null);
+                expect(result.analysis_assumptions).toBe(undefined);
             });
         });
     });
