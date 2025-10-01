@@ -7,13 +7,33 @@
 
 import React, { useEffect, useState } from 'react';
 // import { FaFile, FaFolder } from 'react-icons/fa';
-import FolderIcon from '@mui/icons-material/Folder';
-import DescriptionIcon from '@mui/icons-material/Description';
+// import FolderIcon from '@mui/icons-material/Folder';
+// import DescriptionIcon from '@mui/icons-material/Description';
 // import XMarkIcon from '../../../src/icons/XMark';
+// import { LabIcon } from '@jupyterlab/ui-components';
+// import FileIconSvg from '../../../src/icons/File.svg';
+// import FolderIconSvg from '../../../src/icons/Folder.svg';
+
+import FolderIcon from '../../../src/icons/FolderIcon'
+import FileIcon from '../../../src/icons/FileIcon'
+
 
 import '../../../style/ConnectionForm.css';
 import '../../../style/button.css';
 import '../../../style/FilesSelector.css';
+
+// export const FileIcon = new LabIcon({
+//   name: 'mito_ai',
+//   svgstr: FileIconSvg
+// });
+// export const FileIconReact = FileIcon.react;
+//
+//
+// export const FolderIcon = new LabIcon({
+//   name: 'mito_ai',
+//   svgstr: FolderIconSvg
+// });
+// export const FolderIconReact = FolderIcon.react;
 
 interface FileUploadPopupProps {
   filePath: string,
@@ -147,7 +167,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
                           disabled={alwaysSelected.includes(item.name)}
                           title={alwaysSelected.includes(item.name) ? "Required for deploying your app" : undefined}
                         />
-                        {item.type === 'directory' ? <FolderIcon /> : <DescriptionIcon />} {item.name}
+                        {item.type === 'directory' ? <FolderIcon /> : <FileIcon />} {item.name}
                       </label>
                     </li>
                   ))}
