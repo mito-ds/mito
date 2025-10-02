@@ -4,13 +4,13 @@
 import os
 import time
 import logging
-from typing import Any, Union, Optional
-import zipfile
+from typing import Any, Union, List
 import tempfile
 from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
+from mito_ai.app_deploy.app_deploy_utils import  add_files_to_zip
 from mito_ai.app_deploy.models import (
     DeployAppReply,
     AppDeployError,
@@ -18,7 +18,6 @@ from mito_ai.app_deploy.models import (
     ErrorMessage,
     MessageType
 )
-from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
@@ -111,6 +110,7 @@ class AppDeployHandler(BaseWebSocketHandler):
         message_id = message.message_id
         notebook_path = message.notebook_path
         jwt_token = message.jwt_token
+        files_to_upload = message.selected_files
         
         if not message_id:
             self.log.error("Missing message_id in request")
@@ -168,7 +168,7 @@ class AppDeployHandler(BaseWebSocketHandler):
                 ))
             
             # Finally, deploy the app
-            deploy_url = await self._deploy_app(app_directory, jwt_token)
+            deploy_url = await self._deploy_app(app_directory, files_to_upload, jwt_token)
 
             # Send the response
             self.reply(DeployAppReply(
@@ -219,11 +219,12 @@ class AppDeployHandler(BaseWebSocketHandler):
             return False
 
 
-    async def _deploy_app(self, app_path: str, jwt_token: str = '') -> str:
+    async def _deploy_app(self, app_path: str, files_to_upload:List[str], jwt_token: str = '') -> str:
         """Deploy the app using pre-signed URLs.
         
         Args:
             app_path: Path to the app file.
+            files_to_upload: Files the user selected to upload for the app to run
             jwt_token: JWT token for authentication (optional)
 
         Returns:
@@ -258,16 +259,12 @@ class AppDeployHandler(BaseWebSocketHandler):
             # Step 2: Create a zip file of the app.
             temp_zip_path = None
             try:
-                # Create temp file and close it before writing to avoid file handle conflicts
-                with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as temp_zip:
+                # Create temp file
+                with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as temp_zip:
                     temp_zip_path = temp_zip.name
 
                 self.log.info("Zipping application files...")
-                with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                    for root, _, files in os.walk(app_path):
-                        for file in files:
-                            file_path = os.path.join(root, file)
-                            zipf.write(file_path, arcname=os.path.relpath(file_path, app_path))
+                add_files_to_zip(temp_zip_path, app_path, files_to_upload, self.log)
 
                 upload_response = await self._upload_app_to_s3(temp_zip_path, presigned_url)
             except Exception as e:

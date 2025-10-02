@@ -3,7 +3,6 @@
 
 import anthropic
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable
-
 from anthropic.types import MessageParam, ToolUnionParam
 from mito_ai.utils.mito_server_utils import get_response_from_mito_server, stream_response_from_mito_server
 from mito_ai.utils.provider_utils import does_message_require_fast_model
@@ -42,7 +41,8 @@ def _prepare_anthropic_request_data_and_headers(
         "model": model,
         "max_tokens": max_tokens,
         "temperature": temperature,
-        "messages": messages
+        "messages": messages,
+        "betas": ["context-1m-2025-08-07"]
     }
     # Add system to inner_data only if it is not anthropic.Omit
     if not isinstance(system, anthropic.Omit):

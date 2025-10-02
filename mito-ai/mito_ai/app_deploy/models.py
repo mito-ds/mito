@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Literal, Optional
+from typing import Literal, Optional, List
 
 
 class MessageType(str, Enum):
@@ -66,6 +66,9 @@ class DeployAppRequest:
     
     # Path to the app file.
     notebook_path: str
+
+    # Files to be uploaded for the app to run
+    selected_files: List[str]
     
     # JWT token for authorization.
     jwt_token: Optional[str] = None

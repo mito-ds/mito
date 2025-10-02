@@ -38,12 +38,15 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     
     // Correct analysis_assumptions - handle string to array conversion
     if (correctedResponse.analysis_assumptions !== undefined && correctedResponse.analysis_assumptions !== null) {
+        
         correctedResponse.analysis_assumptions = correctStringArray(correctedResponse.analysis_assumptions);
+
+        // No empty strings in the assumptions
+        correctedResponse.analysis_assumptions = correctedResponse.analysis_assumptions?.filter(assumption => assumption.trim() !== '')
     }
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 
     // not caused issues thus far.
-    
     return correctedResponse;
 }
 
@@ -52,7 +55,7 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
  * Corrects a value to be a string array, handling various input formats.
  * Handles cases where the AI returns a string instead of an array of strings.
  */
-function correctStringArray(value: any): string[] | null {
+function correctStringArray(value: any): string[] | undefined {
     // If it's already a valid array of strings, return it
     if (Array.isArray(value)) {
         return value 
@@ -62,5 +65,5 @@ function correctStringArray(value: any): string[] | null {
         return [value];
     }
     
-    return null;
+    return undefined;
 }

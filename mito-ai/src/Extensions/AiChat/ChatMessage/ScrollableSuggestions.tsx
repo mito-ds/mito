@@ -31,7 +31,7 @@ interface ScrollableSuggestionsProps {
 }
 
 const ScrollableSuggestions: React.FC<ScrollableSuggestionsProps> = ({  
-    onSelectSuggestion 
+    onSelectSuggestion,
 }) => {
     const suggestionsRef = useRef<HTMLDivElement>(null);
 

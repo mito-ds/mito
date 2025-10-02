@@ -23,7 +23,6 @@ import { AgentExecutionStatus } from '../ChatTaskpane';
 interface ChatInputProps {
     app: JupyterFrontEnd;
     initialContent: string;
-    placeholder: string;
     onSave: (content: string, index?: number, additionalContext?: Array<{ type: string, value: string }>) => void;
     onCancel?: () => void;
     isEditing: boolean;
@@ -31,6 +30,10 @@ interface ChatInputProps {
     notebookTracker: INotebookTracker;
     agentModeEnabled: boolean;
     agentExecutionStatus?: AgentExecutionStatus;
+    operatingSystem?: string;
+    displayOptimizedChatHistoryLength?: number;
+    agentTargetNotebookPanelRef?: React.RefObject<any>;
+    isSignedUp?: boolean;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -47,7 +50,6 @@ interface ContextItem {
 const ChatInput: React.FC<ChatInputProps> = ({
     app,
     initialContent,
-    placeholder,
     onSave,
     onCancel,
     isEditing,
@@ -55,6 +57,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     notebookTracker,
     agentModeEnabled = false,
     agentExecutionStatus = 'idle',
+    operatingSystem = 'mac',
+    displayOptimizedChatHistoryLength = 0,
+    agentTargetNotebookPanelRef,
+    isSignedUp = true,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -288,7 +294,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
         return expandedVariables;
     }
 
-
+    const getPlaceholderText = (): string => {
+        if (!isSignedUp && displayOptimizedChatHistoryLength === 0) {
+            return 'Sign up above to use Mito AI';
+        } else if (agentExecutionStatus === 'working') {
+            return `Agent is editing ${agentTargetNotebookPanelRef?.current?.context.path.split('/').pop()}`;
+        } else if (agentExecutionStatus === 'stopping') {
+            return 'Agent is stopping...';
+        } else if (agentModeEnabled) {
+            return 'Ask agent to do anything';
+        } else if (isEditing) {
+            return 'Edit your message';
+        } else if (displayOptimizedChatHistoryLength < 2) {
+            return `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`;
+        } else {
+            return `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`;
+        }
+    };
 
     // Automatically add active cell context when in Chat mode and there's active cell code
     useEffect(() => {
@@ -352,7 +374,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <textarea
                     ref={textAreaRef}
                     className={classNames("message", "message-user", 'chat-input', { "agent-mode": agentModeEnabled })}
-                    placeholder={placeholder}
+                    placeholder={getPlaceholderText()}
                     value={input}
                     disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
                     onChange={handleInputChange}

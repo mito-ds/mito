@@ -1,0 +1,76 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.signup-form-header {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: var(--jp-ui-font-color0);
+}
+
+.signup-form-header-logo {
+    margin: 0 auto 8px;
+    display: block;
+    text-align: center;
+}
+
+.signup-form-message {
+    font-size: 14px;
+    color: var(--jp-ui-font-color1);
+}
+
+/* Form container to control layout */
+.signup-form-container form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.signup-form-input {
+    padding: 8px 12px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: var(--jp-border-radius);
+    flex: 2;
+    min-width: 200px;
+    margin-bottom: 0;
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.signup-form-input:focus {
+    border-color: var(--purple-600);
+    outline: none;
+}
+
+.signup-form-button {
+    height: 36px;
+    box-sizing: border-box;
+    background-color: var(--purple-700);
+    color: white;
+    flex: 1;
+}
+
+.signup-form-button:hover {
+    background-color: var(--purple-600);
+}
+
+/* When the form wraps, make button full width */
+@media (max-width: 300px) {
+    .signup-form-container form {
+        flex-direction: column;
+    }
+    
+    .signup-form-input {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    .signup-form-button {
+        width: 100%;
+    }
+}

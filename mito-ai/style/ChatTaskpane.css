@@ -29,6 +29,17 @@
   container-type: inline-size;
 }
 
+.chat-taskpane.disabled button:not(.signup-form-container):not(.signup-form-container *):not(.chat-taskpane-header-left):not(.chat-taskpane-header-left *) {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.chat-taskpane.disabled textarea:not(.signup-form-container):not(.signup-form-container *) {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .suggestions-container {
   max-width: 600px;
   margin: 0 auto;
