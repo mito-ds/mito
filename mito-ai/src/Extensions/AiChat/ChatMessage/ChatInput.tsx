@@ -303,14 +303,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
             return 'Agent is stopping...';
         } else if (agentModeEnabled) {
             return 'Ask agent to do anything';
+        } else if (isEditing) {
+            return 'Edit your message';
         } else if (displayOptimizedChatHistoryLength < 2) {
             return `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`;
         } else {
             return `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`;
         }
     };
-
-
 
     // Automatically add active cell context when in Chat mode and there's active cell code
     useEffect(() => {
