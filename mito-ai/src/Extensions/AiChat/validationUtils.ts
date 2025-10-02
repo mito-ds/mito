@@ -43,11 +43,6 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
 
         // No empty strings in the assumptions
         correctedAnalysisAssumptions = correctedResponse.analysis_assumptions?.filter(assumption => assumption.trim() !== '')
-        if (correctedAnalysisAssumptions.length === 0) {
-            correctedAnalysisAssumptions = undefined;
-        }
-
-        correctedResponse.analysis_assumptions = correctedAnalysisAssumptions;
     }
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 
