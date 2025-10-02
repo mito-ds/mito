@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import '@testing-library/jest-dom';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { AppsList } from '../../Extensions/AppManager/AppsList';
 import { IAppManagerService } from '../../Extensions/AppManager/ManageAppsPlugin';

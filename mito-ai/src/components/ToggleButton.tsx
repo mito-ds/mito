@@ -30,9 +30,9 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
     onChange, 
 }) => {
     return (
-        <div className={classNames(
-            "toggle-button-container",
-        )}>
+        <div 
+            className={classNames("toggle-button-container")} 
+        >
             <button 
                 className={classNames(
                     "toggle-button-half",
