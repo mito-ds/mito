@@ -73,7 +73,7 @@ export const retryIfExecutionError = async (
     app: JupyterFrontEnd,
     sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>,
     shouldContinueAgentExecution: MutableRefObject<boolean>,
-    finalizeAgentStop: () => void,
+    markAgentForStopping: () => Promise<void>,
     chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>
 ): Promise<'success' | 'failure' | 'interupted'> => {
 
@@ -89,7 +89,7 @@ export const retryIfExecutionError = async (
     while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
 
         if (!shouldContinueAgentExecution.current) {
-            finalizeAgentStop()
+            await markAgentForStopping()
             return 'interupted';
         }
 

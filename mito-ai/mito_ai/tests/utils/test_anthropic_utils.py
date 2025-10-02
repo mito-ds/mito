@@ -35,7 +35,7 @@ def test_basic_request_preparation():
     max_tokens = 100
     temperature = 0.7
     # Use NotGiven to ensure system is not included in inner_data
-    system = anthropic.NotGiven()
+    system = anthropic.Omit()
     messages: List[MessageParam] = [{"role": "user", "content": "Hello"}]
     message_type = MessageType.CHAT
 
@@ -106,7 +106,7 @@ def test_tools_and_tool_choice():
         model="claude-3-sonnet",
         max_tokens=100,
         temperature=0.7,
-        system=anthropic.NotGiven(),
+        system=anthropic.Omit(),
         messages=[{"role": "user", "content": "Hello"}],
         message_type=MessageType.CHAT,
         tools=tools,
@@ -124,7 +124,7 @@ def test_stream_parameter():
         model="claude-3-sonnet",
         max_tokens=100,
         temperature=0.7,
-        system=anthropic.NotGiven(),
+        system=anthropic.Omit(),
         messages=[{"role": "user", "content": "Hello"}],
         message_type=MessageType.CHAT,
         tools=None,
@@ -150,7 +150,7 @@ def test_missing_user_info(monkeypatch):
         model="claude-3-sonnet",
         max_tokens=100,
         temperature=0.7,
-        system=anthropic.NotGiven(),
+        system=anthropic.Omit(),
         messages=[{"role": "user", "content": "Hello"}],
         message_type=MessageType.CHAT,
         tools=None,

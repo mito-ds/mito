@@ -87,21 +87,6 @@ df=pd.read_csv('data.csv')
             validator = StreamlitValidator() 
             errors = validator.get_runtime_errors(app_code, app_path)
             assert errors is None
-            
-            
-    @patch('subprocess.Popen')
-    def test_cleanup_with_process(self, mock_popen):
-        """Test cleanup with running process"""
-        validator = StreamlitValidator()
-        validator.temp_dir = "/tmp/test_dir"
-        
-        # Mock directory exists
-        with patch('os.path.exists', return_value=True):
-            with patch('shutil.rmtree') as mock_rmtree:
-                validator.cleanup()
-                
-                mock_rmtree.assert_called_once()
-
 
     @pytest.mark.parametrize("app_code,expected_has_validation_error,expected_error_message", [
         ("x=5", False, ""),

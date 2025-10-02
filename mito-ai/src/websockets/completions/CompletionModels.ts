@@ -66,7 +66,8 @@ type CompletionRequestMetadata =
   IDeleteThreadMetadata |
   IAgentExecutionMetadata | 
   IAgentSmartDebugMetadata |
-  IUpdateModelConfigMetadata
+  IUpdateModelConfigMetadata |
+  IStopAgentMetadata
 
 export interface IChatMessageMetadata {
   promptType: 'chat'
@@ -189,6 +190,11 @@ export interface IUpdateModelConfigMetadata {
   model: string;
 }
 
+export interface IStopAgentMetadata {
+  promptType: 'stop_agent'
+  threadId: string
+}
+
 export interface IChatCompletionRequest extends ICompletionRequest {
   type: 'chat',
   metadata: IChatMessageMetadata
@@ -222,6 +228,11 @@ export interface IInlineCompleterCompletionRequest extends ICompletionRequest {
 export interface IFetchHistoryCompletionRequest extends ICompletionRequest {
   type: 'fetch_history'
   metadata: IFetchHistoryMetadata
+}
+
+export interface IStopAgentCompletionRequest extends ICompletionRequest {
+  type: 'stop_agent'
+  metadata: IStopAgentMetadata
 }
 
 /**

@@ -53,7 +53,7 @@ def test_no_system_instructions_only_content():
     ]
     system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
-    assert isinstance(system_prompt, anthropic.NotGiven)
+    assert isinstance(system_prompt, anthropic.Omit)
     assert len(anthropic_messages) == 2
     assert anthropic_messages[0]["role"] == "user"
     assert anthropic_messages[0]["content"] == "Hello!"
@@ -93,7 +93,7 @@ def test_empty_message_content():
     ]
     system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
-    assert isinstance(system_prompt, anthropic.NotGiven)
+    assert isinstance(system_prompt, anthropic.Omit)
     assert len(anthropic_messages) == 1  # Should skip the message with missing content
     assert anthropic_messages[0]["role"] == "assistant"
     assert anthropic_messages[0]["content"] == "Hi!"

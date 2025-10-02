@@ -14,6 +14,7 @@ import { deployAppNotification } from './DeployAppNotification';
 import { IDeployAppReply, IDeployAppRequest } from '../../websockets/appDeploy/appDeployModels';
 import {getJWTToken } from './auth';
 import { showAuthenticationPopup } from './authPopupUtils';
+import { fileSelectorPopup } from './FilesSelectorUtils';
 
 
 /* 
@@ -26,6 +27,7 @@ export const deployStreamlitApp = async (
   appManagerService: IAppManagerService,
 ): Promise<void> => {
 
+  let selectedFiles: string[] = [];
   let jwtToken = await getJWTToken();
   if (!jwtToken) {
     // No token found, show authentication popup
@@ -53,8 +55,11 @@ export const deployStreamlitApp = async (
     console.error('No notebook is currently active');
     return;
   }
-
   const notebookPath = notebookPanel.context.path;
+
+  const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
+    autoClose: false
+  });
 
   // Build the requirements.txt file
   const requirementsContent = await generateRequirementsTxt(notebookTracker);
@@ -62,26 +67,42 @@ export const deployStreamlitApp = async (
   // Save the files to the current directory
   await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
 
+  try{
+    Notification.dismiss(notificationId);
+    selectedFiles = await fileSelectorPopup(notebookPath);
+  }catch (error) {
+      console.log('File selection failed:', error);
+      return;
+  }
+
+  const newNotificationId = Notification.emit("Step 2/7: Preparing your app...", 'in-progress', {
+      autoClose: false
+    });
+
   // After building the files, we need to send a request to the backend to deploy the app
   try {
     console.log("Sending request to deploy the app");
-    
+
     // Use the JWT token that was already obtained or refreshed above
     const response: IDeployAppReply = await appDeployService.client.sendMessage<IDeployAppRequest, IDeployAppReply>({
       type: 'deploy-app',
       message_id: UUID.uuid4(),
       notebook_path: notebookPath,
-      jwt_token: jwtToken
+      jwt_token: jwtToken,
+      selected_files: selectedFiles
     });
 
     if (response.error) {
-      Notification.emit(response.error.title, 'error', {
-          autoClose: false
+      Notification.update({
+        id: newNotificationId,
+        message: response.error.title,
+        type: 'error',
+        autoClose: false
       });
     } else {
       console.log("App deployment response:", response);
       const url = response.url;
-      deployAppNotification(url, appManagerService);
+      deployAppNotification(url, appManagerService, newNotificationId);
     }
   } catch (error) {
     // TODO: Do something with the error

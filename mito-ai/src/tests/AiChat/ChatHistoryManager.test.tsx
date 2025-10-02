@@ -428,6 +428,25 @@ describe('ChatHistoryManager', () => {
             expect(history[1]?.agentResponse?.analysis_assumptions).toEqual(undefined);
             expect(history[2]?.agentResponse?.analysis_assumptions).toEqual(['assumption2']);
         });
-    });
 
+        it('should handle empty string assumptions', () => {
+            const chatHistoryManager = new ChatHistoryManager(
+                mockContextManager,
+                mockNotebookTracker
+            );
+
+            // Add first response with assumptions
+            const firstResponse = {
+                type: 'finished_task' as const,
+                message: 'First response',
+                analysis_assumptions: ['']
+            };
+            chatHistoryManager.addAIMessageFromAgentResponse(firstResponse);
+
+            const history = chatHistoryManager.getDisplayOptimizedHistory();
+
+            // Check that responses are handled correctly
+            expect(history[0]?.agentResponse?.analysis_assumptions).toEqual(undefined);
+        });
+    });
 }); 

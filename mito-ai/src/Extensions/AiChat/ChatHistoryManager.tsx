@@ -23,7 +23,8 @@ export type PromptType =
     'start_new_chat' |
     'get_threads' |
     'delete_thread' |
-    'update_model_config';
+    'update_model_config' |
+    'stop_agent';
 
 export type ChatMessageType = 'openai message' | 'connection error'
 

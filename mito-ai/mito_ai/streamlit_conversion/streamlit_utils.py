@@ -25,7 +25,8 @@ def extract_code_blocks(message_content: str) -> str:
     matches = re.findall(pattern, message_content, re.DOTALL)
 
     # Concatenate with single newlines
-    return '\n'.join(matches)
+    result = '\n'.join(matches)
+    return result
 
 def extract_unified_diff_blocks(message_content: str) -> str:
     """
@@ -53,8 +54,10 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
     """
     try:
         app_path = os.path.join(app_directory, "app.py")
-        with open(app_path, 'w') as f:
+
+        with open(app_path, 'w', encoding='utf-8') as f:
             f.write(code)
+        
         return True, app_path, f"Successfully created {app_directory}"
     except IOError as e:
         return False, '', f"Error creating file: {str(e)}"
@@ -139,8 +142,3 @@ def clean_directory_check(notebook_path: str) -> None:
 
     if not dir_path.exists():
         raise ValueError(f"Directory does not exist: {dir_path}")
-
-    file_count = len([f for f in dir_path.iterdir() if f.is_file()])
-    if file_count > 10:
-        raise ValueError(
-            f"Too many files in directory: 10 allowed but {file_count} present. Create a new directory and retry")

@@ -64,6 +64,7 @@ class MessageType(Enum):
     DELETE_THREAD = "delete_thread"
     UPDATE_MODEL_CONFIG = "update_model_config"
     STREAMLIT_CONVERSION = "streamlit_conversion"
+    STOP_AGENT = "stop_agent"
 
     
 @dataclass(frozen=True)
