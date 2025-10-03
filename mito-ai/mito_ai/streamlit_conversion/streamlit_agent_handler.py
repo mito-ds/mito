@@ -16,11 +16,10 @@ from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_
 from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
 
 def get_app_directory(notebook_path: str) -> str:
-    # Convert to absolute path for directory calculation
-    absolute_notebook_path = notebook_path
-    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
-        absolute_notebook_path = os.path.join(os.getcwd(), notebook_path)
+    # Make sure the path is absolute if it is not already
+    absolute_notebook_path = os.path.abspath(notebook_path)
     
+    # Get the directory of the notebook
     app_directory = os.path.dirname(absolute_notebook_path)
     return app_directory
 
@@ -83,6 +82,7 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
     agent_response = await get_response_from_agent(messages)
     exctracted_diff = extract_unified_diff_blocks(agent_response)
     fixed_diff = fix_diff_headers(exctracted_diff)
+    print(fixed_diff)
     converted_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
     return converted_code
 
