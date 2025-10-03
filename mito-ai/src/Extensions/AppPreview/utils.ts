@@ -11,6 +11,7 @@ import { Notification } from "@jupyterlab/apputils";
 export const startStreamlitPreviewAndNotify = async (
   notebookPath: string, 
   force_recreate: boolean = false,
+  edit_prompt: string = '',
   start_notification_message: string = 'Building App Preview...',
   success_notification_message: string = 'Streamlit preview started successfully!'
 ): Promise<StreamlitPreviewResponse | undefined> => {
@@ -22,7 +23,7 @@ export const startStreamlitPreviewAndNotify = async (
     );
     
     try {
-      const previewData = await startStreamlitPreview(notebookPath, force_recreate);
+      const previewData = await startStreamlitPreview(notebookPath, force_recreate, edit_prompt);
     
       // Update notification to success
       Notification.update({

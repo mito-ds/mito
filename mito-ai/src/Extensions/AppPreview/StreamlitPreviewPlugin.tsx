@@ -69,7 +69,7 @@ async function showRecreateAppConfirmation(notebookPath: string): Promise<void> 
   });
 
   if (result.button.accept) {
-    startStreamlitPreviewAndNotify(notebookPath, true, 'Recreating app from scratch...', 'App recreated successfully!');
+    startStreamlitPreviewAndNotify(notebookPath, true, undefined, 'Recreating app from scratch...', 'App recreated successfully!');
   }
 }
 
@@ -101,7 +101,7 @@ function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string)
   createRoot(dropdownContainer).render(
     <UpdateAppDropdown
       onSubmit={async (message) => {
-        await startStreamlitPreviewAndNotify(notebookPath, true, 'Updating app...', 'App updated successfully!');
+        await startStreamlitPreviewAndNotify(notebookPath, true, message, 'Updating app...', 'App updated successfully!');
         dropdownContainer.remove();
       }}
       onClose={() => {
