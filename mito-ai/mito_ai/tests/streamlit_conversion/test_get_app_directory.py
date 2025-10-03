@@ -45,7 +45,7 @@ class TestGetAppDirectory:
     @pytest.mark.skipif(sys.platform == "win32", reason="Unix-specific relative path tests")
     def test_unix_relative_paths(self, notebook_path, current_dir, expected_directory):
         """Test that Unix relative paths are correctly resolved using current working directory."""
-        with patch('os.getcwd', return_value=current_dir):
+        with patch('mito_ai.streamlit_conversion.streamlit_agent_handler.os.getcwd', return_value=current_dir):
             result = get_app_directory(notebook_path)
             assert result == expected_directory
 
@@ -60,7 +60,7 @@ class TestGetAppDirectory:
     @pytest.mark.skipif(sys.platform != "win32", reason="Windows-specific relative path tests")
     def test_windows_relative_paths(self, notebook_path, current_dir, expected_directory):
         """Test that Windows relative paths are correctly resolved using current working directory."""
-        with patch('os.getcwd', return_value=current_dir):
+        with patch('mito_ai.streamlit_conversion.streamlit_agent_handler.os.getcwd', return_value=current_dir):
             result = get_app_directory(notebook_path)
             assert result == expected_directory
 
