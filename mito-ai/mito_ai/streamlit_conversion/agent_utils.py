@@ -47,10 +47,7 @@ def apply_patch_to_text(text: str, diff: str) -> str:
         return text
 
     # Parse the patch
-    print("HERE 1")
-    print("diff: ", diff)
     patch = PatchSet(diff.splitlines(keepends=True))
-    print("HERE 2")
 
     # We expect a single-file patch (what the prompt asks the model to emit)
     if len(patch) == 0:
@@ -69,6 +66,8 @@ def apply_patch_to_text(text: str, diff: str) -> str:
     cursor = 0  # index in original_lines (0-based)
 
     # Process all hunks from all patches
+    # We only expect one patch file, but it always returns as a list 
+    # so we just iterate over it
     for file_patch in patch:
         for hunk in file_patch:
             # Since hunks reference the original file, just convert to 0-based

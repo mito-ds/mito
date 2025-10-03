@@ -1,4 +1,6 @@
 import React from 'react';
+import '../../../style/EditAppDropdown.css';
+import { classNames } from '../../utils/classNames';
 
 /**
  * React component for the update app dropdown.
@@ -24,32 +26,17 @@ const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose
         }
     };
 
+    const disabled = message.trim() === '';
+
     return (
         <div
-            style={{
-                position: 'absolute',
-                top: '100%',
-                left: '0',
-                zIndex: 1000,
-                backgroundColor: 'var(--jp-layout-color1)',
-                border: '1px solid var(--jp-border-color1)',
-                borderRadius: '3px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                minWidth: '300px',
-                maxWidth: '500px'
-            }}
+            className="update-app-dropdown"
             onKeyDown={handleKeyDown}
         >
-            <div style={{ padding: '12px' }}>
+            <div className="update-app-dropdown-content">
                 <label
                     htmlFor="update-description"
-                    style={{
-                        display: 'block',
-                        marginBottom: '8px',
-                        fontWeight: '500',
-                        color: 'var(--jp-ui-font-color1)',
-                        fontSize: 'var(--jp-ui-font-size1)'
-                    }}
+                    className="update-app-dropdown-label"
                 >
                     How would you like to modify the app?
                 </label>
@@ -58,55 +45,20 @@ const UpdateAppDropdown: React.FC<UpdateAppDropdownProps> = ({ onSubmit, onClose
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Describe your changes (e.g., Change the title, Remove a plot, etc.)"
-                    style={{
-                        width: '100%',
-                        minHeight: '100px',
-                        padding: '8px',
-                        border: '1px solid var(--jp-border-color1)',
-                        borderRadius: '3px',
-                        fontFamily: 'var(--jp-ui-font-family)',
-                        fontSize: 'var(--jp-ui-font-size1)',
-                        resize: 'vertical',
-                        boxSizing: 'border-box',
-                        backgroundColor: 'var(--jp-input-background)',
-                        color: 'var(--jp-ui-font-color1)'
-                    }}
+                    className="update-app-dropdown-textarea"
                     autoFocus
                 />
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    gap: '8px',
-                    marginTop: '12px'
-                }}>
+                <div className="update-app-dropdown-buttons">
                     <button
                         onClick={onClose}
-                        style={{
-                            padding: '4px 8px',
-                            border: 'none',
-                            borderRadius: '3px',
-                            backgroundColor: 'var(--jp-layout-color2)',
-                            color: 'var(--jp-ui-font-color1)',
-                            cursor: 'pointer',
-                            fontFamily: 'var(--jp-ui-font-family)',
-                            fontSize: 'var(--jp-ui-font-size0)'
-                        }}
+                        className={classNames("update-app-dropdown-button", "update-app-dropdown-button-cancel")}
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
-                        disabled={!message.trim()}
-                        style={{
-                            padding: '4px 8px',
-                            border: 'none',
-                            borderRadius: '3px',
-                            backgroundColor: message.trim() ? 'var(--purple-300)' : 'var(--jp-layout-color2)',
-                            color: message.trim() ? 'var(--purple-700)' : 'var(--jp-ui-font-color2)',
-                            cursor: message.trim() ? 'pointer' : 'not-allowed',
-                            fontFamily: 'var(--jp-ui-font-family)',
-                            fontSize: 'var(--jp-ui-font-size0)'
-                        }}
+                        disabled={disabled}
+                        className={classNames('update-app-dropdown-button', 'update-app-dropdown-button-submit', {'disabled': disabled})}
                     >
                         Submit
                     </button>

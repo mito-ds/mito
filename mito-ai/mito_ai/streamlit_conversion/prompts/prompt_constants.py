@@ -24,7 +24,7 @@ The components of the unified diff are the following:
 
 When you create a unified diff, you must follow the following format:
 - Begin with a ```unified_diff marker and a ``` end marker.
-- Always, include the standard header lines `--- a/app.py` and `+++ b/app.py`.
+- Always, include the standard header. On line 1: `--- a/app.py` and on line 2: `+++ b/app.py` like in the example above.
 - Show only the modified hunks; each hunk must start with an `@@` header with line numbers.
 - Within each hunk:
   * Unchanged context lines start with a single space ` `.

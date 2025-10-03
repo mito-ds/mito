@@ -10,7 +10,7 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
-import { startStreamlitPreview, stopStreamlitPreview } from '../../restAPI/RestAPI';
+import { stopStreamlitPreview } from '../../restAPI/RestAPI';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
@@ -69,14 +69,7 @@ async function showRecreateAppConfirmation(notebookPath: string): Promise<void> 
   });
 
   if (result.button.accept) {
-    const notificationId = Notification.emit('Recreating app from scratch...', 'in-progress', { autoClose: false });
-    await startStreamlitPreview(notebookPath, true);
-    Notification.update({
-      id: notificationId,
-      message: 'App recreated successfully!',
-      type: 'success',
-      autoClose: 5 * 1000
-    });
+    startStreamlitPreviewAndNotify(notebookPath, true, 'Recreating app from scratch...', 'App recreated successfully!');
   }
 }
 
@@ -108,19 +101,7 @@ function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string)
   createRoot(dropdownContainer).render(
     <UpdateAppDropdown
       onSubmit={async (message) => {
-        try {
-          const notificationId = Notification.emit('Updating app...', 'in-progress', { autoClose: false });
-          await startStreamlitPreview(notebookPath, true, message);
-          Notification.update({
-            id: notificationId,
-            message: 'App updated successfully!',
-            type: 'success',
-            autoClose: 5 * 1000
-          });
-          console.log('Update App Message sent successfully:', message);
-        } catch (error) {
-          console.error('Error updating app:', error);
-        }
+        await startStreamlitPreviewAndNotify(notebookPath, true, 'Updating app...', 'App updated successfully!');
         dropdownContainer.remove();
       }}
       onClose={() => {
@@ -198,11 +179,13 @@ async function previewNotebookAsStreamlit(
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
 
-  let globalNotificationId: string | undefined;
 
   try {
-    const { previewData, notificationId } = await startStreamlitPreviewAndNotify(notebookPath);
-    globalNotificationId = notificationId;
+    const previewData = await startStreamlitPreviewAndNotify(notebookPath);
+
+    if (previewData === undefined) {
+      return;
+    }
 
     // Create iframe widget
     // TODO: Instead of having this widget creation code in the previewNotebookAsStreamlit function, 
@@ -269,19 +252,9 @@ async function previewNotebookAsStreamlit(
       mode: 'split-right',
       ref: notebookPanel.id
     });
-
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error starting streamlit preview:', error);
-    
-    // Update notification to error
-    if (globalNotificationId) {
-      Notification.update({
-        id: globalNotificationId,
-        message: `Failed to start preview: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        type: 'error',
-        autoClose: false
-      });
-    }
   }
 }
 
