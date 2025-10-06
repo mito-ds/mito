@@ -2,39 +2,59 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import tornado
-from typing import List
+from typing import List, Any
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import ChatThreadMetadata
 
 
-class ThreadHandler(APIHandler):
+class ChatHistoryHandler(APIHandler):
     """
     Endpoints for working with chat history threads.
     """
 
-    # @tornado.web.authenticated
-    def get(self) -> None:
-        """Get all chat history threads."""
+    @tornado.web.authenticated
+    def get(self, *args: Any, **kwargs: Any) -> None:
+        """Get all chat history threads or a specific thread by ID."""
         try:
             # Get the global message history instance
             message_history = GlobalMessageHistory()
             
-            # Get the list of threads
-            threads: List[ChatThreadMetadata] = message_history.get_threads()
+            # Check if a specific thread ID is provided in the URL
+            thread_id = kwargs.get("thread_id")
             
-            # Convert to dict format for JSON serialization
-            threads_data = [
-                {
-                    "thread_id": thread.thread_id,
-                    "name": thread.name,
-                    "creation_ts": thread.creation_ts,
-                    "last_interaction_ts": thread.last_interaction_ts,
-                }
-                for thread in threads
-            ]
-            
-            self.finish({"threads": threads_data})
+            if thread_id:
+                # Get specific thread
+                if thread_id in message_history._chat_threads:
+                    thread = message_history._chat_threads[thread_id]
+                    thread_data = {
+                        "thread_id": thread.thread_id,
+                        "name": thread.name,
+                        "creation_ts": thread.creation_ts,
+                        "last_interaction_ts": thread.last_interaction_ts,
+                        "display_history": thread.display_history,
+                        "ai_optimized_history": thread.ai_optimized_history,
+                    }
+                    self.finish(thread_data)
+                else:
+                    self.set_status(404)
+                    self.finish({"error": f"Thread with ID {thread_id} not found"})
+            else:
+                # Get all threads
+                threads: List[ChatThreadMetadata] = message_history.get_threads()
+                
+                # Convert to dict format for JSON serialization
+                threads_data = [
+                    {
+                        "thread_id": thread.thread_id,
+                        "name": thread.name,
+                        "creation_ts": thread.creation_ts,
+                        "last_interaction_ts": thread.last_interaction_ts,
+                    }
+                    for thread in threads
+                ]
+                
+                self.finish({"threads": threads_data})
             
         except Exception as e:
             self.set_status(500)

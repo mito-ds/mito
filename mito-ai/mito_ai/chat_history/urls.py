@@ -3,7 +3,7 @@
 
 from typing import List, Tuple, Any
 from jupyter_server.utils import url_path_join
-from mito_ai.chat_history.handlers import ThreadHandler
+from mito_ai.chat_history.handlers import ChatHistoryHandler
 
 
 def get_chat_history_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
@@ -17,6 +17,14 @@ def get_chat_history_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
     """
     BASE_URL = base_url + "/mito-ai/chat-history"
     return [
-        (url_path_join(BASE_URL, "threads"), ThreadHandler, {}),
+        (
+            url_path_join(BASE_URL, "threads"),
+            ChatHistoryHandler,
+            {},
+        ),
+        (
+            url_path_join(BASE_URL, "threads", "(?P<thread_id>[^/]+)"),
+            ChatHistoryHandler,
+            {},
+        ),
     ]
-
