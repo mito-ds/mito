@@ -92,6 +92,33 @@ export const getRules = async(): Promise<string[]> => {
     return resp.data || [];
 }
 
+export const fetchGoogleDriveContent = async (url: string): Promise<{content: string, file_type: string, file_id: string}> => {
+    const resp = await requestAPI<{content: string, file_type: string, file_id: string}>(`rules`, {
+        method: 'POST',
+        body: JSON.stringify({
+            action: 'fetch_google_drive_content',
+            url: url
+        }),
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data!;
+}
+
+export const refreshGoogleDriveRules = async (): Promise<{success: string[], errors: Array<{rule: string, error: string}>}> => {
+    const resp = await requestAPI<{success: string[], errors: Array<{rule: string, error: string}>}>(`rules`, {
+        method: 'POST',
+        body: JSON.stringify({
+            action: 'refresh_google_drive_rules'
+        }),
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data!;
+}
+
 /************************************
 
 DATABASE ENDPOINTS

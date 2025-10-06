@@ -6,4 +6,7 @@
 export interface Rule {
     name: string;
     description: string;
+    googleDriveUrl?: string;
+    lastUpdated?: string;
+    isGoogleDriveRule?: boolean;
 }

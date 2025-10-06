@@ -3,32 +3,72 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.rules-form textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px 12px;
-    border: 1px solid var(--jp-border-color1);
-    border-radius: 4px;
-    background: var(--jp-layout-color0);
-    color: var(--jp-ui-font-color1);
-    font-size: 14px;
-    transition: border-color 0.2s;
-    font-family: var(--jp-ui-font-family);
-    resize: vertical;
-    min-height: 120px;
+.rules-form {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
-.rules-form textarea:focus {
-    outline: none;
-    border-color: var(--purple-500);
-    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+.rules-form .form-group {
+    margin-bottom: 24px;
+}
+
+.rules-form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
 }
 
 .rules-form .form-group sub {
     color: var(--jp-ui-font-color2);
     margin-top: 4px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
     display: block;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.rules-form input[type="text"],
+.rules-form input[type="url"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 6px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    font-family: var(--jp-ui-font-family);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.rules-form input[type="text"]:focus,
+.rules-form input[type="url"]:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.rules-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 6px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: var(--jp-ui-font-family);
+    resize: vertical;
+    min-height: 200px;
+    line-height: 1.5;
+}
+
+.rules-form textarea:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 /* Rules List Styling */
@@ -91,4 +131,148 @@
 .rules-list .empty-state p {
     margin: 0;
     font-size: 16px;
+}
+
+/* Form Select Dropdown */
+.form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 6px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    font-family: var(--jp-ui-font-family);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.form-select:hover {
+    border-color: var(--jp-border-color2);
+}
+
+/* Google Docs Section */
+.rules-form .google-docs-section {
+    background: var(--jp-layout-color2);
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 8px;
+    transition: all 0.2s;
+}
+
+.rules-form .google-docs-section:hover {
+    border-color: var(--jp-border-color2);
+}
+
+.google-docs-input-group {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.google-docs-input-group input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 6px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    font-family: var(--jp-ui-font-family);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.google-docs-input-group input:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.google-docs-input-group input.error {
+    border-color: var(--jp-error-color1);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.google-docs-input-group button {
+    white-space: nowrap;
+    padding: 10px 16px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.google-docs-input-group button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.google-docs-input-group button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.form-textarea[readonly] {
+    background-color: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color2);
+    cursor: not-allowed;
+}
+
+/* Form Actions */
+.rules-form .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--jp-border-color1);
+}
+
+.rules-form .form-actions button {
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rules-form .form-actions button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rules-form .form-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Error Messages */
+.rules-form .error {
+    color: var(--jp-error-color1);
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+    font-weight: 500;
+}
+
+/* Loading States */
+.rules-form .loading-spinner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }

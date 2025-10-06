@@ -8,6 +8,8 @@ import tornado
 import os
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rule, set_rules_file
+from mito_ai.rules.google_drive_service import GoogleDriveService
+from mito_ai.rules.rules_storage import RulesStorage
 
 
 class RulesHandler(APIHandler):
@@ -37,8 +39,64 @@ class RulesHandler(APIHandler):
             self.set_status(400)
             self.finish(json.dumps({"error": "Content is required"}))
             return
-            
-        set_rules_file(key, data['content'])
+        
+        # Check if this is a Google Drive rule
+        google_drive_url = data.get('google_drive_url')
+        
+        if google_drive_url:
+            # Use the new storage system for Google Drive rules
+            RulesStorage.set_rule(key, data['content'], google_drive_url)
+        else:
+            # Use the legacy system for regular rules
+            set_rules_file(key, data['content'])
+        
         self.finish(json.dumps({"status": "updated", "rules file ": key}))
+    
+    @tornado.web.authenticated
+    def post(self) -> None:
+        """Handle POST requests for Google Drive content fetching"""
+        data = json.loads(self.request.body)
+        
+        if 'action' not in data:
+            self.set_status(400)
+            self.finish(json.dumps({"error": "Action is required"}))
+            return
+        
+        if data['action'] == 'fetch_google_drive_content':
+            url = data.get('url')
+            if not url:
+                self.set_status(400)
+                self.finish(json.dumps({"error": "URL is required"}))
+                return
+            
+            # Validate URL
+            if not GoogleDriveService.is_valid_google_docs_url(url):
+                self.set_status(400)
+                self.finish(json.dumps({"error": "Invalid Google Docs URL"}))
+                return
+            
+            # Fetch content
+            result = GoogleDriveService.fetch_content(url)
+            
+            if result['success']:
+                self.finish(json.dumps({
+                    "success": True,
+                    "content": result['content'],
+                    "file_type": result['file_type'],
+                    "file_id": result['file_id']
+                }))
+            else:
+                self.set_status(400)
+                self.finish(json.dumps({
+                    "success": False,
+                    "error": result['error']
+                }))
+        elif data['action'] == 'refresh_google_drive_rules':
+            # Refresh all Google Drive rules
+            results = RulesStorage.refresh_google_drive_rules()
+            self.finish(json.dumps(results))
+        else:
+            self.set_status(400)
+            self.finish(json.dumps({"error": "Unknown action"}))
 
 
