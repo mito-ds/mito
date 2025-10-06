@@ -3,11 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.rules-form {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
 .rules-form .form-group {
     margin-bottom: 24px;
 }
@@ -62,6 +57,7 @@
     font-family: var(--jp-ui-font-family);
     resize: vertical;
     min-height: 200px;
+    max-height: 400px;
     line-height: 1.5;
 }
 
@@ -195,9 +191,9 @@
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
-.google-docs-input-group input.error {
-    border-color: var(--jp-error-color1);
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+.google-docs-input-group input.rule-validation-error {
+    border-color: var(--jp-error-color1) !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
 }
 
 .google-docs-input-group button {
@@ -212,15 +208,31 @@
     transition: all 0.2s;
 }
 
-.google-docs-input-group button:hover:not(:disabled) {
+.google-docs-input-group button:not(:disabled) {
+    background: var(--purple-500);
+    color: white;
+    border: 1px solid var(--purple-500);
+}
+
+.google-docs-input-group button:not(:disabled):hover {
+    background: var(--purple-600);
+    border-color: var(--purple-600);
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.3);
+}
+
+.google-docs-input-group button:not(:disabled):active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.3);
 }
 
 .google-docs-input-group button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+    background: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color2);
+    border-color: var(--jp-border-color1);
 }
 
 .form-textarea[readonly] {
@@ -262,12 +274,17 @@
 }
 
 /* Error Messages */
-.rules-form .error {
+.rules-form .rule-validation-error {
     color: var(--jp-error-color1);
     font-size: 12px;
     margin-top: 4px;
     display: block;
-    font-weight: 500;
+    font-weight: 400;
+    border-radius: 4px;
+    padding: 8px 0px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 /* Loading States */

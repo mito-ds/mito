@@ -121,7 +121,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                 <div className="form-group google-docs-section">
                     <label htmlFor="googleDriveUrl">Google Docs URL</label>
                     <sub>
-                        <span>Paste a public Google Docs link</span>
+                        <span>Paste a public Google Docs link. Then fetch the content to double check you selected the correct content.</span>
                     </sub>
                     <div className="google-docs-input-group">
                         <input
@@ -133,7 +133,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                             placeholder="https://docs.google.com/document/d/..."
                             className={classNames(
                                 "form-input",
-                                formData.googleDriveUrl && !isValidGoogleDocsUrl(formData.googleDriveUrl) ? "error" : ""
+                                formData.googleDriveUrl && !isValidGoogleDocsUrl(formData.googleDriveUrl) ? "rule-validation-error" : ""
                             )}
                         />
                         <button
@@ -153,7 +153,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                         </button>
                     </div>
                     {formData.googleDriveUrl && !isValidGoogleDocsUrl(formData.googleDriveUrl) && (
-                        <p className="error">Please enter a valid Google Docs URL</p>
+                        <p className="rule-validation-error">Please enter a valid Google Docs URL</p>
                     )}
                 </div>
             )}
@@ -162,7 +162,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                 <label htmlFor="description">Rule Content</label>
                 {ruleSource === 'google-docs' && (
                     <sub>
-                        <span>Content will be automatically fetched from Google Docs. You can edit it below if needed.</span>
+                        <span>Preview the rule content below. Then click the Add Rule button below.</span>
                     </sub>
                 )}
                 <textarea
@@ -171,7 +171,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                     value={formData.description}
                     onChange={onInputChange}
                     placeholder={ruleSource === 'google-docs' ? "Content will be fetched from Google Docs..." : "Enter or paste rule content here"}
-                    rows={30}
+                    rows={20}
                     required
                     className="form-textarea"
                     readOnly={ruleSource === 'google-docs' && !formData.description}
