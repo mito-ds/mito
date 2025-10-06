@@ -32,17 +32,17 @@ export const RulesForm: React.FC<RuleFormProps> = ({
 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isFetchingGoogleDocs, setIsFetchingGoogleDocs] = useState(false);
-    const [ruleSource, setRuleSource] = useState<'manual' | 'google-docs'>('manual');
+    const [ruleSource, setRuleSource] = useState<'manual' | 'google_doc'>('manual');
     
     const ruleSourceOptions = [
         { value: 'manual', label: 'Manual Entry' },
-        { value: 'google-docs', label: 'Google Docs Link' }
+        { value: 'google_doc', label: 'Google Docs Link' }
     ];
 
     // Set initial rule source based on existing data
     useEffect(() => {
         if (formData.ruleType === 'google_doc' || formData.googleDriveUrl) {
-            setRuleSource('google-docs');
+            setRuleSource('google_doc');
         } else {
             setRuleSource('manual');
         }
@@ -108,7 +108,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                     id="ruleSource"
                     name="ruleSource"
                     value={ruleSource}
-                    onChange={(e) => setRuleSource(e.target.value as 'manual' | 'google-docs')}
+                    onChange={(e) => setRuleSource(e.target.value as 'manual' | 'google_doc')}
                     className="form-select"
                 >
                     {ruleSourceOptions.map((option) => (
@@ -119,8 +119,8 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                 </select>
             </div>
 
-            {ruleSource === 'google-docs' && (
-                <div className="form-group google-docs-section">
+            {ruleSource === 'google_doc' && (
+                <div className="form-group google_doc-section">
                     <label htmlFor="googleDriveUrl">Google Docs URL</label>
                     <sub>
                         <span>Paste a public Google Docs link. Then fetch the content to double check you selected the correct content.</span>
@@ -162,7 +162,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
 
             <div className="form-group">
                 <label htmlFor="description">Rule Content</label>
-                {ruleSource === 'google-docs' && (
+                {ruleSource === 'google_doc' && (
                     <sub>
                         <span>Preview the rule content below. Then click the Add Rule button below.</span>
                     </sub>
@@ -172,13 +172,13 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                     name="description"
                     value={formData.description}
                     onChange={onInputChange}
-                    placeholder={ruleSource === 'google-docs' ? "Content will be fetched from Google Docs..." : "Enter or paste rule content here"}
+                    placeholder={ruleSource === 'google_doc' ? "Content will be fetched from Google Docs..." : "Enter or paste rule content here"}
                     rows={20}
                     required
                     className="form-textarea"
-                    readOnly={ruleSource === 'google-docs' && !formData.description}
+                    readOnly={ruleSource === 'google_doc' && !formData.description}
                 />
-                {ruleSource === 'google-docs' && formData.lastUpdated && (
+                {ruleSource === 'google_doc' && formData.lastUpdated && (
                     <sub>
                         <span>Last updated: {new Date(formData.lastUpdated).toLocaleString()}</span>
                     </sub>
