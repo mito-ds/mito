@@ -419,7 +419,32 @@ from mito_ai.streamlit_conversion.agent_utils import fix_diff_headers
  
 +st.title("My App 🚀")
  st.write("Welcome to the app!")"""
-    )
+    ),
+    
+    # Add missing file header component
+    (
+        """@@ -11,1 +11,1 @@
+-st.title("Simple Calculation")
++st.title("Math Examples")""",
+        """--- a/app.py
++++ b/app.py
+@@ -11,1 +11,1 @@
+-st.title("Simple Calculation")
++st.title("Math Examples")"""
+    ),
+    
+    # Correct invalid (single line) file header component
+    (
+        """--- a/app.py +++ b/app.py
+@@ -11,1 +11,1 @@
+-st.title("Simple Calculation")
++st.title("Math Examples")""",
+        """--- a/app.py
++++ b/app.py
+@@ -11,1 +11,1 @@
+-st.title("Simple Calculation")
++st.title("Math Examples")"""
+    ),
 ])
 def test_fix_diff_headers(input_diff, expected_output):
     """Test the fix_diff_headers function with various diff scenarios."""
