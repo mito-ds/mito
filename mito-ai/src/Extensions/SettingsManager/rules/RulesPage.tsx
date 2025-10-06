@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
-import { getRule, getRules, setRule, fetchGoogleDriveContent, refreshGoogleDriveRules } from '../../../restAPI/RestAPI';
+import { getRule, getRules, setRule, fetchGoogleDriveContent } from '../../../restAPI/RestAPI';
 import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
 
 export const RulesPage = (): JSX.Element => {
@@ -32,24 +32,8 @@ export const RulesPage = (): JSX.Element => {
         }
     };
 
-    const refreshGoogleDriveRulesOnLoad = async (): Promise<void> => {
-        try {
-            const results = await refreshGoogleDriveRules();
-            if (results.errors.length > 0) {
-                console.warn('Some Google Docs rules failed to refresh:', results.errors);
-            }
-            if (results.success.length > 0) {
-                console.log('Successfully refreshed Google Docs rules:', results.success);
-            }
-        } catch (err) {
-            console.warn('Failed to refresh Google Docs rules:', err);
-        }
-    };
-
     useEffect(() => {
         const initializeRules = async () => {
-            // First refresh Google Docs rules in the background
-            await refreshGoogleDriveRulesOnLoad();
             // Then fetch all rules
             await fetchRules();
         };
