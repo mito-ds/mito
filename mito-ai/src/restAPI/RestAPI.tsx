@@ -79,13 +79,22 @@ export const setRule = async(ruleName: string, ruleContent: string, ruleType: st
     return resp.data || '';
 }
 
-export const getRule = async(ruleName: string): Promise<string | undefined> => {
-    const resp = await requestAPI<{key: string, content: string}>(`rules/${ruleName}`)
+export const getRule = async(ruleName: string): Promise<{content: string, rule_type?: string, google_drive_url?: string, last_updated?: string} | undefined> => {
+    const resp = await requestAPI<{key: string, content: string, rule_type?: string, google_drive_url?: string, last_updated?: string}>(`rules/${ruleName}`)
     if (resp.error) {
         throw new Error(resp.error.message);
     }
 
-    return resp.data?.content;
+    if (!resp.data) {
+        return undefined;
+    }
+
+    return {
+        content: resp.data.content,
+        rule_type: resp.data.rule_type,
+        google_drive_url: resp.data.google_drive_url,
+        last_updated: resp.data.last_updated
+    };
 }
 
 export const getRules = async(): Promise<string[]> => {

@@ -70,14 +70,25 @@ export const RulesPage = (): JSX.Element => {
     };
 
     const handleRuleClick = async (rule: string): Promise<void> => {
-        const ruleContent = await getRule(rule);
-        setFormData({
-            name: stripFileEnding(rule),
-            description: ruleContent || '',
-            googleDriveUrl: '',
-            lastUpdated: '',
-            ruleType: 'manual'
-        });
+        const ruleData = await getRule(rule);
+        if (ruleData) {
+            const formDataToSet: Rule = {
+                name: stripFileEnding(rule),
+                description: ruleData.content || '',
+                googleDriveUrl: ruleData.google_drive_url || '',
+                lastUpdated: ruleData.last_updated || '',
+                ruleType: ruleData.rule_type === 'google_doc' ? 'google_doc' : 'manual'
+            };
+            setFormData(formDataToSet);
+        } else {
+            setFormData({
+                name: stripFileEnding(rule),
+                description: '',
+                googleDriveUrl: '',
+                lastUpdated: '',
+                ruleType: 'manual'
+            });
+        }
         setModalStatus('edit rule');
     };
 

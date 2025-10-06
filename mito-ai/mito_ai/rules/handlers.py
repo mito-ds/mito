@@ -7,7 +7,7 @@ from typing import Any, Final, Union
 import tornado
 import os
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rule, set_rules_file, set_rule_with_metadata, refresh_google_drive_rules
+from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rule, set_rules_file, set_rule_with_metadata, refresh_google_drive_rules, get_rule_metadata
 from mito_ai.rules.google_drive_service import GoogleDriveService
 
 
@@ -22,13 +22,29 @@ class RulesHandler(APIHandler):
             rules = get_all_rules()
             self.finish(json.dumps(rules))
         else:
-            # Key provided, return specific rule
+            # Key provided, return specific rule with metadata
             rule_content = get_rule(key)
             if rule_content is None:
                 self.set_status(404)
                 self.finish(json.dumps({"error": f"Rule with key '{key}' not found"}))
             else:
-                self.finish(json.dumps({"key": key, "content": rule_content}))
+                # Get rule metadata - strip .md extension if present
+                rule_name_for_metadata = key.replace('.md', '') if key.endswith('.md') else key
+                rule_metadata = get_rule_metadata(rule_name_for_metadata)
+                response_data = {
+                    "key": key, 
+                    "content": rule_content
+                }
+                
+                # Add metadata if available
+                if rule_metadata:
+                    response_data.update({
+                        "rule_type": rule_metadata.get("rule_type", "manual"),
+                        "google_drive_url": rule_metadata.get("google_drive_url"),
+                        "last_updated": rule_metadata.get("last_updated")
+                    })
+                
+                self.finish(json.dumps(response_data))
     
     @tornado.web.authenticated
     def put(self, key: str) -> None:
