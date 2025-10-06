@@ -7,13 +7,14 @@ import time
 from unittest.mock import patch, MagicMock
 from mito_ai.tests.conftest import TOKEN
 from mito_ai.completions.message_history import GlobalMessageHistory, ChatThread
+from mito_ai.completions.models import ThreadID
 
 
 @pytest.fixture
 def mock_chat_threads():
     """Fixture that creates mock chat threads for testing"""
-    thread_id_1 = "test-thread-1"
-    thread_id_2 = "test-thread-2"
+    thread_id_1 = ThreadID("test-thread-1")
+    thread_id_2 = ThreadID("test-thread-2")
 
     # Create mock threads with different timestamps
     thread_1 = ChatThread(
