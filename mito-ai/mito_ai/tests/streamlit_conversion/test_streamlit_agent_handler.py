@@ -4,6 +4,7 @@
 from typing import List
 from anthropic.types import MessageParam
 import pytest
+import os
 from unittest.mock import patch, AsyncMock, MagicMock
 from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     get_response_from_agent,
@@ -158,16 +159,20 @@ class TestStreamlitHandler:
         # Mock clean directory check (no-op)
         mock_clean_directory.return_value = None
         
-        result = await streamlit_handler("/path/to/notebook.ipynb")
+        # Use a relative path that will work cross-platform
+        notebook_path = "notebook.ipynb"
+        result = await streamlit_handler(notebook_path)
         
         assert result[0] is True
         assert "File created successfully" in result[2]
         
         # Verify calls
-        mock_parse.assert_called_once_with("/path/to/notebook.ipynb")
+        mock_parse.assert_called_once_with(notebook_path)
         mock_generate_code.assert_called_once_with(mock_notebook_data)
-        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", "/path/to/notebook.ipynb")
-        mock_create_file.assert_called_once_with("/path/to", "import streamlit\nst.title('Test')")
+        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", notebook_path)
+        # get_app_directory converts relative paths to absolute, so expect the absolute path directory
+        expected_app_dir = os.path.dirname(os.path.abspath(notebook_path))
+        mock_create_file.assert_called_once_with(expected_app_dir, "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -187,7 +192,7 @@ class TestStreamlitHandler:
         # Mock validation (always errors) - Return list of errors as expected by validate_app
         mock_validator.return_value = (True, ["Persistent error"])
     
-        result = await streamlit_handler("/notebook.ipynb")
+        result = await streamlit_handler("notebook.ipynb")
         
         # Verify the result indicates failure
         assert result[0] is False
@@ -220,7 +225,7 @@ class TestStreamlitHandler:
         # Mock clean directory check (no-op)
         mock_clean_directory.return_value = None
         
-        result = await streamlit_handler("/path/to/notebook.ipynb")
+        result = await streamlit_handler("notebook.ipynb")
         
         assert result[0] is False
         assert "Permission denied" in result[2]
@@ -236,7 +241,7 @@ class TestStreamlitHandler:
         mock_parse.side_effect = FileNotFoundError("Notebook not found")
         
         with pytest.raises(FileNotFoundError, match="Notebook not found"):
-            await streamlit_handler("/path/to/notebook.ipynb")
+            await streamlit_handler("notebook.ipynb")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -255,7 +260,7 @@ class TestStreamlitHandler:
         mock_clean_directory.return_value = None
         
         with pytest.raises(Exception, match="Generation failed"):
-            await streamlit_handler("/path/to/notebook.ipynb")
+            await streamlit_handler("notebook.ipynb")
 
 
 
