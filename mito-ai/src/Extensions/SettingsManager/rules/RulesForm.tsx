@@ -39,14 +39,14 @@ export const RulesForm: React.FC<RuleFormProps> = ({
         { value: 'google_doc', label: 'Google Docs Link' }
     ];
 
-    // Set initial rule source based on existing data
+    // Set initial rule source based on existing data (only on mount)
     useEffect(() => {
         if (formData.ruleType === 'google_doc' || formData.googleDriveUrl) {
             setRuleSource('google_doc');
         } else {
             setRuleSource('manual');
         }
-    }, [formData.ruleType, formData.googleDriveUrl]);
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
