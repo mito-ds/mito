@@ -151,6 +151,8 @@ def fix_diff_headers(diff: str) -> str:
     """
     The AI is generally not very good at counting the number of lines in the diff. If the hunk header has
     an incorrect count, then the patch will fail. So instead we just calculate the counts ourselves, its deterministic.
+    
+    If no header is provided at all, then there is nothing to fix.
     """
     # First fix context lines to ensure they have proper leading spaces
     diff = fix_context_lines(diff)
@@ -188,7 +190,26 @@ def fix_diff_headers(diff: str) -> str:
                 # Replace the header with correct counts
                 lines[i] = f"@@ -{old_start},{old_count} +{new_start},{new_count} @@"
     
-    return '\n'.join(lines)
+    corrected_diff = '\n'.join(lines)
+    corrected_diff = corrected_diff.lstrip()
+    
+    # If there is no diff, just return it without fixing file headers
+    if len(corrected_diff) == 0:
+        return corrected_diff
+    
+    # Remove known problametic file component headers that the AI sometimes returns
+    problamatic_file_header_components = ['--- a/app.py +++ b/app.py']
+    for problamatic_file_header_component in problamatic_file_header_components:
+        corrected_diff = corrected_diff.removeprefix(problamatic_file_header_component).lstrip()
+        
+    
+    # If the diff is missing the file component of the header, add it
+    valid_header_component = """--- a/app.py
++++ b/app.py"""
+    if not corrected_diff.startswith(valid_header_component):
+        corrected_diff = valid_header_component + '\n' + corrected_diff
+    
+    return corrected_diff
 
 
 async def get_response_from_agent(message_to_agent: List[MessageParam]) -> str:
