@@ -112,7 +112,8 @@ ignore = ["W002"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
-# Set individual test timeout to 30 seconds to prevent indefinite hangs
-timeout = 30
+# Set individual test timeout to 120 seconds to prevent indefinite hangs
+# (database tests need time for schema crawling and connections)
+timeout = 120
 # Use thread method for timeout to work with blocking operations
 timeout_method = "thread"

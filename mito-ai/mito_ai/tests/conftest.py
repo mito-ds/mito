@@ -25,6 +25,8 @@ def jp_server_config(token_fixture):
 @pytest.fixture
 def jp_serverapp(jp_server_config, tmp_path):
     """Create a Jupyter server instance for testing."""
+    import requests
+    
     app = ServerApp(config=jp_server_config)
     app.root_dir = str(tmp_path)
     app.initialize(argv=[])
@@ -37,8 +39,29 @@ def jp_serverapp(jp_server_config, tmp_path):
     server_thread.daemon = True  # This ensures the thread will be killed when the main program exits
     server_thread.start()
 
-    # Give the server a moment to start
-    time.sleep(1)
+    # Wait for server to be ready by checking its health
+    max_wait_time = 10  # seconds
+    start_time = time.time()
+    server_ready = False
+    
+    while time.time() - start_time < max_wait_time:
+        try:
+            # Try to connect to the server
+            response = requests.get(
+                f"{app.connection_url}/api/status",
+                timeout=1
+            )
+            if response.status_code == 200:
+                server_ready = True
+                break
+        except (requests.ConnectionError, requests.Timeout):
+            # Server not ready yet, wait a bit
+            time.sleep(0.2)
+    
+    if not server_ready:
+        print(f"Warning: Server may not be fully ready after {max_wait_time}s")
+    else:
+        print(f"Server ready after {time.time() - start_time:.2f}s")
 
     yield app
     

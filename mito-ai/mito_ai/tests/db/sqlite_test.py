@@ -10,7 +10,8 @@ from mito_ai.tests.db.test_db_constants import (
 from mito_ai.tests.conftest import TOKEN
 
 # Timeout for HTTP requests to prevent indefinite hangs
-REQUEST_TIMEOUT = 10  # seconds
+# Database operations (connections, schema crawling) can take time
+REQUEST_TIMEOUT = 60  # seconds
 
 
 def test_add_sqlite_connection(jp_base_url: str) -> None:

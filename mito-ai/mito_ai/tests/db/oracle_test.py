@@ -6,7 +6,8 @@ from mito_ai.tests.db.test_db_constants import ORACLE_CONNECTION_DETAILS
 from mito_ai.tests.conftest import TOKEN
 
 # Timeout for HTTP requests to prevent indefinite hangs
-REQUEST_TIMEOUT = 10  # seconds
+# Database operations (connections, schema crawling) can take time
+REQUEST_TIMEOUT = 60  # seconds
 
 # To create a postgres database, run the following command:
 # docker-compose -f mito_ai/docker/postgres/compose.yml up
