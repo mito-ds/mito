@@ -19,7 +19,7 @@ export const RulesPage = (): JSX.Element => {
         description: '',
         googleDriveUrl: '',
         lastUpdated: '',
-        isGoogleDriveRule: false
+        ruleType: 'manual'
     });
     const [formError, setFormError] = useState<string | null>(null);
 
@@ -73,16 +73,14 @@ export const RulesPage = (): JSX.Element => {
             setFormError(null);
         }
 
-        // For now, we'll use the legacy setRule function
-        // In a full implementation, you'd want to update the API to support the new metadata
-        await setRule(formData.name, formData.description);
+        await setRule(formData.name, formData.description, formData.ruleType, formData.googleDriveUrl);
         setModalStatus(undefined);
         setFormData({
             name: '',
             description: '',
             googleDriveUrl: '',
             lastUpdated: '',
-            isGoogleDriveRule: false
+            ruleType: 'manual'
         });
         void fetchRules();
     };
@@ -94,7 +92,7 @@ export const RulesPage = (): JSX.Element => {
             description: ruleContent || '',
             googleDriveUrl: '',
             lastUpdated: '',
-            isGoogleDriveRule: false
+            ruleType: 'manual'
         });
         setModalStatus('edit rule');
     };
@@ -110,7 +108,7 @@ export const RulesPage = (): JSX.Element => {
                 ...prev,
                 description: result.content,
                 lastUpdated: new Date().toISOString(),
-                isGoogleDriveRule: true
+                ruleType: 'google_doc'
             }));
         } catch (error) {
             setFormError(error instanceof Error ? error.message : 'Failed to fetch Google Docs content');
@@ -173,7 +171,7 @@ export const RulesPage = (): JSX.Element => {
                                     description: '',
                                     googleDriveUrl: '',
                                     lastUpdated: '',
-                                    isGoogleDriveRule: false
+                                    ruleType: 'manual'
                                 });
                             }}
                             isEditing={modalStatus === 'edit rule'}

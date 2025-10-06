@@ -7,9 +7,8 @@ from typing import Any, Final, Union
 import tornado
 import os
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rule, set_rules_file
+from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rule, set_rules_file, set_rule_with_metadata, refresh_google_drive_rules
 from mito_ai.rules.google_drive_service import GoogleDriveService
-from mito_ai.rules.rules_storage import RulesStorage
 
 
 class RulesHandler(APIHandler):
@@ -40,15 +39,10 @@ class RulesHandler(APIHandler):
             self.finish(json.dumps({"error": "Content is required"}))
             return
         
-        # Check if this is a Google Drive rule
+        # Use the enhanced storage system with metadata
+        rule_type = data.get('rule_type', 'manual')
         google_drive_url = data.get('google_drive_url')
-        
-        if google_drive_url:
-            # Use the new storage system for Google Drive rules
-            RulesStorage.set_rule(key, data['content'], google_drive_url)
-        else:
-            # Use the legacy system for regular rules
-            set_rules_file(key, data['content'])
+        set_rule_with_metadata(key, data['content'], rule_type, google_drive_url)
         
         self.finish(json.dumps({"status": "updated", "rules file ": key}))
     
@@ -93,7 +87,7 @@ class RulesHandler(APIHandler):
                 }))
         elif data['action'] == 'refresh_google_drive_rules':
             # Refresh all Google Drive rules
-            results = RulesStorage.refresh_google_drive_rules()
+            results = refresh_google_drive_rules()
             self.finish(json.dumps(results))
         else:
             self.set_status(400)

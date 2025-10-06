@@ -63,10 +63,14 @@ RULES ENDPOINTS
 
 ************************************/
 
-export const setRule = async(ruleName: string, ruleContent: string): Promise<string> => {
+export const setRule = async(ruleName: string, ruleContent: string, ruleType: string = 'manual', googleDriveUrl?: string): Promise<string> => {
     const resp = await requestAPI<string>(`rules/${ruleName}`, {
         method: 'PUT',
-        body: JSON.stringify({ content: ruleContent }),
+        body: JSON.stringify({ 
+            content: ruleContent,
+            rule_type: ruleType,
+            google_drive_url: googleDriveUrl || null
+        }),
     })
     if (resp.error) {
         throw new Error(resp.error.message);

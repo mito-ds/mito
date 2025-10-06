@@ -8,5 +8,5 @@ export interface Rule {
     description: string;
     googleDriveUrl?: string;
     lastUpdated?: string;
-    isGoogleDriveRule?: boolean;
+    ruleType: 'manual' | 'google_doc';
 }
