@@ -131,15 +131,15 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         result = parse_jupyter_notebook_to_extract_required_content(str(notebook_path))
         
         # Check that only cell_type and source are preserved
-        assert len(result['cells']) == 2
-        assert result['cells'][0]['cell_type'] == 'code'
-        assert result['cells'][0]['source'] == ["import pandas as pd\n", "df = pd.DataFrame()\n"]
-        assert 'metadata' not in result['cells'][0]
-        assert 'execution_count' not in result['cells'][0]
+        assert len(result) == 2
+        assert result[0]['cell_type'] == 'code'
+        assert result[0]['source'] == ["import pandas as pd\n", "df = pd.DataFrame()\n"]
+        assert 'metadata' not in result[0]
+        assert 'execution_count' not in result[0]
         
-        assert result['cells'][1]['cell_type'] == 'markdown'
-        assert result['cells'][1]['source'] == ["# Title\n", "Some text\n"]
-        assert 'metadata' not in result['cells'][1]
+        assert result[1]['cell_type'] == 'markdown'
+        assert result[1]['source'] == ["# Title\n", "Some text\n"]
+        assert 'metadata' not in result[1]
 
     def test_parse_notebook_file_not_found(self):
         """Test parsing non-existent notebook file"""
@@ -171,15 +171,15 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         
         result = parse_jupyter_notebook_to_extract_required_content(str(notebook_path))
         
-        assert len(result['cells']) == 3
-        assert result['cells'][0]['cell_type'] == 'code'
-        assert result['cells'][0]['source'] == []  # Default empty list
+        assert len(result) == 3
+        assert result[0]['cell_type'] == 'code'
+        assert result[0]['source'] == []  # Default empty list
         
-        assert result['cells'][1]['cell_type'] == ''  # Default empty string
-        assert result['cells'][1]['source'] == ["some text"]
+        assert result[1]['cell_type'] == ''  # Default empty string
+        assert result[1]['source'] == ["some text"]
         
-        assert result['cells'][2]['cell_type'] == 'markdown'
-        assert result['cells'][2]['source'] == ["# Title"]
+        assert result[2]['cell_type'] == 'markdown'
+        assert result[2]['source'] == ["# Title"]
 
     def test_parse_empty_notebook(self, tmp_path):
         """Test parsing notebook with empty cells list"""
@@ -193,4 +193,4 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         
         result = parse_jupyter_notebook_to_extract_required_content(str(notebook_path))
         
-        assert result['cells'] == []
+        assert result == []

@@ -5,14 +5,16 @@ import os
 import tempfile
 from unittest.mock import patch, MagicMock
 from mito_ai.streamlit_conversion.validate_streamlit_app import (
-    StreamlitValidator,
+    get_syntax_error,
+    get_runtime_errors,
+    check_for_errors,
     validate_app
 )
 import pytest
 
 
-class TestStreamlitValidator:
-    """Test cases for StreamlitValidator class"""
+class TestGetSyntaxError:
+    """Test cases for get_syntax_error function"""
 
     @pytest.mark.parametrize("code,expected_error,test_description", [
         # Valid Python code should return no error
@@ -34,11 +36,9 @@ class TestStreamlitValidator:
             "empty code"
         ),
     ])
-    def test_validate_syntax(self, code, expected_error, test_description):
+    def test_get_syntax_error(self, code, expected_error, test_description):
         """Test syntax validation with various code inputs"""
-        validator = StreamlitValidator()
-        
-        error = validator.get_syntax_error(code)
+        error = get_syntax_error(code)
         
         if expected_error is None:
             assert error is None, f"Expected no error for {test_description}"
@@ -46,6 +46,9 @@ class TestStreamlitValidator:
             assert error is not None, f"Expected error for {test_description}"
             assert expected_error in error, f"Expected '{expected_error}' in error for {test_description}"
         
+class TestGetRuntimeErrors:
+    """Test cases for get_runtime_errors function"""
+
     @pytest.mark.parametrize("app_code,expected_error", [
         ("x = 5", None),
         ("1/0", "division by zero"),
@@ -53,9 +56,7 @@ class TestStreamlitValidator:
     ])
     def test_get_runtime_errors(self, app_code, expected_error):
         """Test getting runtime errors"""
-        validator = StreamlitValidator()
-        
-        errors = validator.get_runtime_errors(app_code, '/app.py')
+        errors = get_runtime_errors(app_code, '/app.py')
         
         if expected_error is None:
             assert errors is None
@@ -84,9 +85,11 @@ df=pd.read_csv('data.csv')
             with open(csv_path, "w") as f:
                 f.write("name,age\nJohn,25\nJane,30")
                
-            validator = StreamlitValidator() 
-            errors = validator.get_runtime_errors(app_code, app_path)
+            errors = get_runtime_errors(app_code, app_path)
             assert errors is None
+
+class TestValidateApp:
+    """Test cases for validate_app function"""
 
     @pytest.mark.parametrize("app_code,expected_has_validation_error,expected_error_message", [
         ("x=5", False, ""),
@@ -94,8 +97,8 @@ df=pd.read_csv('data.csv')
         ("print('Hello World'", True, "SyntaxError"),
         ("", False, ""),
     ])
-    def test_streamlit_code_validator(self, app_code, expected_has_validation_error, expected_error_message):
-
+    def test_validate_app(self, app_code, expected_has_validation_error, expected_error_message):
+        """Test the validate_app function"""
         has_validation_error, errors = validate_app(app_code, '/app.py')
         
         assert has_validation_error == expected_has_validation_error

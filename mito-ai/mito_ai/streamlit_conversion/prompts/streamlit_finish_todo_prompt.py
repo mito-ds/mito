@@ -1,10 +1,11 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import List
 from mito_ai.streamlit_conversion.prompts.prompt_constants import MITO_TODO_PLACEHOLDER, unified_diff_instrucrions
 from mito_ai.streamlit_conversion.prompts.prompt_utils import add_line_numbers_to_code
 
-def get_finish_todo_prompt(notebook: dict, existing_streamlit_app_code: str, todo_placeholder: str) -> str:
+def get_finish_todo_prompt(notebook: List[dict], existing_streamlit_app_code: str, todo_placeholder: str) -> str:
   
     existing_streamlit_app_code_with_line_numbers = add_line_numbers_to_code(existing_streamlit_app_code)
     

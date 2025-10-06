@@ -7,22 +7,26 @@ from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
 
 
-def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str], bool]:
+def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str], bool, str]:
     """Validate the request body and extract notebook_path and force_recreate."""
     if body is None:
-        return False, "Invalid or missing JSON body", None, False
+        return False, "Invalid or missing JSON body", None, False, ""
 
     notebook_path = body.get("notebook_path")
     if not notebook_path:
-        return False, "Missing notebook_path parameter", None, False
+        return False, "Missing notebook_path parameter", None, False, ""
 
     force_recreate = body.get("force_recreate", False)
     if not isinstance(force_recreate, bool):
-        return False, "force_recreate must be a boolean", None, False
+        return False, "force_recreate must be a boolean", None, False, ""
+    
+    edit_prompt = body.get("edit_prompt", "")
+    if not isinstance(edit_prompt, str):
+        return False, "edit_prompt must be a string", None, False, ""
 
-    return True, "", notebook_path, force_recreate
+    return True, "", notebook_path, force_recreate, edit_prompt
 
-async def ensure_app_exists(resolved_notebook_path: str, force_recreate: bool = False) -> Tuple[bool, str]:
+async def ensure_app_exists(resolved_notebook_path: str, force_recreate: bool = False, edit_prompt: str = "") -> Tuple[bool, str]:
     """Ensure app.py exists, generating it if necessary or if force_recreate is True."""
     # Check if the app already exists
     app_path = get_app_path(os.path.dirname(resolved_notebook_path))
@@ -33,7 +37,7 @@ async def ensure_app_exists(resolved_notebook_path: str, force_recreate: bool = 
         else:
             print("[Mito AI] Force recreating streamlit app")
         
-        success, app_path, message = await streamlit_handler(resolved_notebook_path)
+        success, app_path, message = await streamlit_handler(resolved_notebook_path, edit_prompt)
 
         if not success or app_path is None:
             return False, f"Failed to generate streamlit code: {message}"
