@@ -145,6 +145,7 @@ async def stream_response_from_mito_server(
     
     # Execute the streaming request
     fetch_future = None
+    fetch_task = None
     try:
         fetch_future = http_client.fetch(
             url, 
@@ -222,15 +223,29 @@ async def stream_response_from_mito_server(
             ))
     except Exception as e:
         print(f"\n{provider_name} stream failed after {time.time() - start_time:.2f} seconds with error: {str(e)}")
-        # If an exception occurred, ensure the fetch future is awaited to properly clean up
-        if fetch_future:
-            try:
-                await fetch_future
-            except Exception:
-                pass
         raise
     finally:
-        # Clean up resources
+        # Clean up resources - ensure all tasks are properly awaited/cancelled
+        try:
+            # Cancel the fetch task if it's still running
+            if fetch_task and not fetch_task.done():
+                fetch_task.cancel()
+                try:
+                    await fetch_task
+                except asyncio.CancelledError:
+                    pass
+                except Exception:
+                    pass
+            
+            # If fetch_future exists and wasn't awaited, try to await it with a short timeout
+            if fetch_future and not fetch_complete:
+                try:
+                    await asyncio.wait_for(fetch_future, timeout=1.0)
+                except (asyncio.TimeoutError, asyncio.CancelledError, Exception):
+                    pass
+        except Exception as e:
+            print(f"Error during {provider_name} cleanup: {str(e)}")
+        
         try:
             # We always update the quota, even if there is an error
             update_mito_server_quota(message_type)

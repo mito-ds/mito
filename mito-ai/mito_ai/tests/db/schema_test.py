@@ -6,6 +6,9 @@ import requests
 from mito_ai.tests.db.test_db_constants import SNOWFLAKE
 from mito_ai.tests.conftest import TOKEN
 
+# Timeout for HTTP requests to prevent indefinite hangs
+REQUEST_TIMEOUT = 10  # seconds
+
 # --- GET SCHEMAS ---
 
 
@@ -15,6 +18,7 @@ def test_get_schemas_with_auth(jp_base_url: str) -> None:
         jp_base_url + f"/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
         json=SNOWFLAKE,
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
 
@@ -22,6 +26,7 @@ def test_get_schemas_with_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/db/schemas",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
     # Esnure that there is one scema dict in the response
@@ -35,6 +40,7 @@ def test_ensure_no_application_databases(jp_base_url: str, first_connection_id: 
     response = requests.get(
         jp_base_url + f"/mito-ai/db/schemas",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
 
     crawled_databases = response.json()[first_connection_id]["databases"].keys()
@@ -45,6 +51,7 @@ def test_ensure_no_application_databases(jp_base_url: str, first_connection_id: 
 def test_get_schemas_with_no_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/db/schemas",
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -53,6 +60,7 @@ def test_get_schemas_with_incorrect_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/db/schemas",
         headers={"Authorization": f"token incorrect-token"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -64,6 +72,7 @@ def test_delete_schema_with_auth(jp_base_url: str, first_connection_id: str) -> 
     response = requests.delete(
         jp_base_url + f"/mito-ai/db/schemas/{first_connection_id}",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
 
@@ -71,6 +80,7 @@ def test_delete_schema_with_auth(jp_base_url: str, first_connection_id: str) -> 
     response = requests.get(
         jp_base_url + f"/mito-ai/db/schemas",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
     assert len(response.json()) == 0
@@ -79,6 +89,7 @@ def test_delete_schema_with_auth(jp_base_url: str, first_connection_id: str) -> 
 def test_delete_schema_with_no_auth(jp_base_url: str, first_connection_id: str) -> None:
     response = requests.delete(
         jp_base_url + f"/mito-ai/db/schemas/{first_connection_id}",
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -89,5 +100,6 @@ def test_delete_schema_with_incorrect_auth(
     response = requests.delete(
         jp_base_url + f"/mito-ai/db/schemas/{first_connection_id}",
         headers={"Authorization": f"token incorrect-token"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden

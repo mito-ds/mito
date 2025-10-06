@@ -54,6 +54,7 @@ dynamic = ["version", "description", "authors", "urls", "keywords"]
 test = [
     "pytest==8.3.4",
     "pytest-asyncio==0.25.3",
+    "pytest-timeout>=2.1.0",
     "mypy>=1.8.0",
     "types-tornado>=5.1.1",
     "types-requests>=2.25.0",
@@ -111,3 +112,7 @@ ignore = ["W002"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
+# Set individual test timeout to 30 seconds to prevent indefinite hangs
+timeout = 30
+# Use thread method for timeout to work with blocking operations
+timeout_method = "thread"

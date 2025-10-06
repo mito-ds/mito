@@ -8,6 +8,9 @@ SETTINGS_VALUE = "yes"
 
 from mito_ai.tests.conftest import TOKEN
 
+# Timeout for HTTP requests to prevent indefinite hangs
+REQUEST_TIMEOUT = 10  # seconds
+
 # --- PUT SETTINGS ---
 
 
@@ -16,6 +19,7 @@ def test_put_settings_with_auth(jp_base_url: str) -> None:
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         headers={"Authorization": f"token {TOKEN}"},
         json={"value": SETTINGS_VALUE},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
 
@@ -29,6 +33,7 @@ def test_put_settings_with_no_auth(jp_base_url: str) -> None:
     response = requests.put(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         json={"value": SETTINGS_VALUE},
+        timeout=REQUEST_TIMEOUT,
     )
 
     assert response.status_code == 403  # Forbidden
@@ -39,6 +44,7 @@ def test_put_settings_with_incorrect_auth(jp_base_url: str) -> None:
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         headers={"Authorization": f"token incorrect-token"},
         json={"value": SETTINGS_VALUE},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -50,6 +56,7 @@ def test_get_settings_with_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
     assert response.json() == {"key": SETTINGS_KEY, "value": SETTINGS_VALUE}
@@ -58,6 +65,7 @@ def test_get_settings_with_auth(jp_base_url: str) -> None:
 def test_get_settings_with_no_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -66,5 +74,6 @@ def test_get_settings_with_incorrect_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/settings/{SETTINGS_KEY}",
         headers={"Authorization": f"token incorrect-token"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden

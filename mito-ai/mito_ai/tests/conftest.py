@@ -41,7 +41,17 @@ def jp_serverapp(jp_server_config, tmp_path):
     time.sleep(1)
 
     yield app
-    app.stop()
+    
+    # Properly stop the server and clean up resources
+    try:
+        app.stop()
+        # Wait for the server thread to finish with a timeout
+        server_thread.join(timeout=5.0)
+        if server_thread.is_alive():
+            # Thread didn't stop in time, but it's daemon so it will be killed
+            print("Warning: Server thread did not stop within timeout")
+    except Exception as e:
+        print(f"Error stopping server: {e}")
 
 @pytest.fixture
 def jp_base_url(jp_serverapp):

@@ -5,6 +5,9 @@ import requests
 from mito_ai.tests.db.test_db_constants import SNOWFLAKE
 from mito_ai.tests.conftest import TOKEN
 
+# Timeout for HTTP requests to prevent indefinite hangs
+REQUEST_TIMEOUT = 10  # seconds
+
 
 # --- ADD CONNECTION ---
 
@@ -14,6 +17,7 @@ def test_add_connection_with_auth(jp_base_url: str) -> None:
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
         json=SNOWFLAKE,
+        timeout=REQUEST_TIMEOUT,
     )
     if response.status_code != 200:
         print(f"Error response: {response.text}")
@@ -24,6 +28,7 @@ def test_add_connection_with_no_auth(jp_base_url: str) -> None:
     response = requests.post(
         jp_base_url + "/mito-ai/db/connections",
         json=SNOWFLAKE,
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -33,6 +38,7 @@ def test_add_connection_with_incorrect_auth(jp_base_url: str) -> None:
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token incorrect-token"},
         json=SNOWFLAKE,
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -44,6 +50,7 @@ def test_get_connections_with_auth(jp_base_url: str, first_connection_id: str) -
     response = requests.get(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
     # Ensure the response has the correct number of connections
@@ -53,7 +60,7 @@ def test_get_connections_with_auth(jp_base_url: str, first_connection_id: str) -
 
 
 def test_get_connections_with_no_auth(jp_base_url: str) -> None:
-    response = requests.get(jp_base_url + "/mito-ai/db/connections")
+    response = requests.get(jp_base_url + "/mito-ai/db/connections", timeout=REQUEST_TIMEOUT)
     assert response.status_code == 403  # Forbidden
 
 
@@ -61,6 +68,7 @@ def test_get_connections_with_incorrect_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token incorrect-token"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -71,6 +79,7 @@ def test_get_connections_with_incorrect_auth(jp_base_url: str) -> None:
 def test_delete_connection_with_no_auth(jp_base_url: str, first_connection_id: str) -> None:
     response = requests.delete(
         jp_base_url + f"/mito-ai/db/connections/{first_connection_id}",
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -81,6 +90,7 @@ def test_delete_connection_with_incorrect_auth(
     response = requests.delete(
         jp_base_url + f"/mito-ai/db/connections/{first_connection_id}",
         headers={"Authorization": f"token incorrect-token"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -91,6 +101,7 @@ def test_delete_connection_with_auth(
     response = requests.delete(
         jp_base_url + f"/mito-ai/db/connections/{first_connection_id}",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
 
@@ -98,5 +109,6 @@ def test_delete_connection_with_auth(
     response = requests.get(
         jp_base_url + f"/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert len(response.json()) == 0

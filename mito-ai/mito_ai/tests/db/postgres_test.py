@@ -5,6 +5,9 @@ import requests
 from mito_ai.tests.db.test_db_constants import POSTGRES_CONNECTION_DETAILS
 from mito_ai.tests.conftest import TOKEN
 
+# Timeout for HTTP requests to prevent indefinite hangs
+REQUEST_TIMEOUT = 10  # seconds
+
 # To create a postgres database, run the following command:
 # docker-compose -f mito_ai/docker/postgres/compose.yml up
 # and then, to delete the database, run the following command:
@@ -16,6 +19,7 @@ def test_add_postgres_connection(jp_base_url: str) -> None:
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
         json=POSTGRES_CONNECTION_DETAILS,
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
 
@@ -23,6 +27,7 @@ def test_add_postgres_connection(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/db/schemas",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
     # Esnure that there is one scema dict in the response

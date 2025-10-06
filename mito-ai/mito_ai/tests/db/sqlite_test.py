@@ -9,6 +9,9 @@ from mito_ai.tests.db.test_db_constants import (
 )
 from mito_ai.tests.conftest import TOKEN
 
+# Timeout for HTTP requests to prevent indefinite hangs
+REQUEST_TIMEOUT = 10  # seconds
+
 
 def test_add_sqlite_connection(jp_base_url: str) -> None:
     # Check for the sqlite database
@@ -18,6 +21,7 @@ def test_add_sqlite_connection(jp_base_url: str) -> None:
         jp_base_url + "/mito-ai/db/connections",
         headers={"Authorization": f"token {TOKEN}"},
         json=SQLITE_CONNECTION_DETAILS,
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
 
@@ -25,6 +29,7 @@ def test_add_sqlite_connection(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/db/schemas",
         headers={"Authorization": f"token {TOKEN}"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 200
     # Esnure that there is one scema dict in the response

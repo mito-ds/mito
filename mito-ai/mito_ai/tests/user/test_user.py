@@ -9,6 +9,9 @@ from unittest.mock import patch
 import pytest
 from mito_ai.tests.conftest import TOKEN
 
+# Timeout for HTTP requests to prevent indefinite hangs
+REQUEST_TIMEOUT = 10  # seconds
+
 
 @pytest.fixture
 def mock_user_json():
@@ -42,6 +45,7 @@ def test_get_user_with_mocked_data_success(
         response = requests.get(
             jp_base_url + f"/mito-ai/user/user_email",
             headers={"Authorization": f"token {TOKEN}"},
+            timeout=REQUEST_TIMEOUT,
         )
         assert response.status_code == 200
 
@@ -58,6 +62,7 @@ def test_get_user_with_mocked_data_not_found(
         response = requests.get(
             jp_base_url + "/mito-ai/user/non_existent_key",
             headers={"Authorization": f"token {TOKEN}"},
+            timeout=REQUEST_TIMEOUT,
         )
         assert response.status_code == 404
 
@@ -70,6 +75,7 @@ def test_get_user_with_mocked_data_not_found(
 def test_get_user_with_no_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/user/user_email",
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -78,6 +84,7 @@ def test_get_user_with_incorrect_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/user/user_email",
         headers={"Authorization": f"token incorrect-token"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -94,6 +101,7 @@ def test_put_user_with_mocked_data_success(
             jp_base_url + f"/mito-ai/user/user_email",
             headers={"Authorization": f"token {TOKEN}"},
             json={"value": "jdoe@mail.com"},
+            timeout=REQUEST_TIMEOUT,
         )
         assert response.status_code == 200
 
@@ -107,6 +115,7 @@ def test_put_user_with_no_auth(jp_base_url: str) -> None:
     response = requests.put(
         jp_base_url + f"/mito-ai/user/user_email",
         json={"value": "jdoe@mail.com"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
 
@@ -116,5 +125,6 @@ def test_put_user_with_incorrect_auth(jp_base_url: str) -> None:
         jp_base_url + f"/mito-ai/user/user_email",
         headers={"Authorization": f"token incorrect-token"},
         json={"value": "jdoe@mail.com"},
+        timeout=REQUEST_TIMEOUT,
     )
     assert response.status_code == 403  # Forbidden
