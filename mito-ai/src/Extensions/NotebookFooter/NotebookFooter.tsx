@@ -12,7 +12,7 @@ import '../../../style/NotebookFooter.css';
 import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
-import { getUserKey } from '../../restAPI/RestAPI';
+import { getUserKey, getChatHistoryThreads } from '../../restAPI/RestAPI';
 import { userSignupEvents } from '../../utils/userSignupEvents';
 
 interface NotebookFooterProps {
@@ -27,24 +27,47 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSignedUp, setIsSignedUp] = useState(false);
 
-    // Function to refresh user email state
-    const refreshUserEmail = async (): Promise<void> => {
+    // Function to check if user has chat history threads
+    const checkChatHistoryThreads = async (): Promise<boolean> => {
+        try {
+            const threads = await getChatHistoryThreads();
+            return threads.length > 0;
+        } catch (error) {
+            console.error('Failed to get chat history threads:', error);
+            return false;
+        }
+    };
+
+    // Function to refresh user signup state (check both email and chat threads)
+    const refreshUserSignupState = async (): Promise<void> => {
         try {
             const email = await getUserKey('user_email');
-            setIsSignedUp(email !== "" && email !== undefined);
+            const hasEmail = email !== "" && email !== undefined;
+            
+            // If user has email, they're signed up
+            if (hasEmail) {
+                setIsSignedUp(true);
+                return;
+            }
+            
+            // If no email, check if they have any chat history threads.
+            // Existing users will have a chat history, but no email,
+            // in this case, we consider them "signed up" and won't disable the footer. 
+            const hasThreads = await checkChatHistoryThreads();
+            setIsSignedUp(hasThreads);
         } catch (error) {
-            console.error('Failed to get user email:', error);
+            console.error('Failed to refresh user signup state:', error);
         }
     };
 
     useEffect(() => {
-        void refreshUserEmail();
+        void refreshUserSignupState();
     }, []);
 
     // Listen for signup success events from other components
     useEffect(() => {
         const handleSignupSuccess = (): void => {
-            void refreshUserEmail();
+            void refreshUserSignupState();
         };
 
         userSignupEvents.signupSuccess.connect(handleSignupSuccess);
