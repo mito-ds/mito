@@ -4,9 +4,10 @@
 from typing import List, Tuple, Any
 from jupyter_server.utils import url_path_join
 from mito_ai.chat_history.handlers import ChatHistoryHandler
+from mito_ai.completions.message_history import GlobalMessageHistory
 
 
-def get_chat_history_urls(base_url: str, message_history) -> List[Tuple[str, Any, dict]]:
+def get_chat_history_urls(base_url: str, message_history: GlobalMessageHistory) -> List[Tuple[str, Any, dict]]:
     """Get all chat history related URL patterns.
 
     Args:
