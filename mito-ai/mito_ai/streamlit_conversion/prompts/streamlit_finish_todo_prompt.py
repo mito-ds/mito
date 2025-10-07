@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
-from mito_ai.streamlit_conversion.prompts.prompt_constants import MITO_TODO_PLACEHOLDER, unified_diff_instrucrions
+from mito_ai.streamlit_conversion.prompts.prompt_constants import MITO_TODO_PLACEHOLDER, unified_diff_instructions
 from mito_ai.streamlit_conversion.prompts.prompt_utils import add_line_numbers_to_code
 
 def get_finish_todo_prompt(notebook: List[dict], existing_streamlit_app_code: str, todo_placeholder: str) -> str:
@@ -25,7 +25,7 @@ You have ONE and ONLY ONE opportunity to complete this TODO. If you do not finis
 - If creating functions: Implement ALL required functionality
 - If converting a visualization: Copy over ALL of the visualization code from the notebook, including all styling and formatting.
 
-{unified_diff_instrucrions}
+{unified_diff_instructions}
 
 ===============================================
 
