@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { getUserKey, getChatHistoryThreads } from '../restAPI/RestAPI';
+import { getUserKey, getChatHistoryThreads, getChatHistoryThread } from '../restAPI/RestAPI';
 
 export interface UserSignupState {
     isSignedUp: boolean;
@@ -21,32 +21,41 @@ export interface UserSignupState {
  */
 export const checkUserSignupState = async (): Promise<UserSignupState> => {
     try {
-        // Check if user has an email
-        const email = await getUserKey('user_email');
-        const hasEmail = email !== "" && email !== undefined;
+        // Check if user has an email address
+        const userEmail = await getUserKey('user_email');
+        const hasEmail = userEmail !== "" && userEmail !== undefined;
 
-        // If user has email, they're definitely signed up
         if (hasEmail) {
             return {
                 isSignedUp: true,
                 hasEmail: true,
-                hasChatHistory: false // We don't need to check this if they have email
+                hasChatHistory: false
             };
         }
 
-        // If no email, check if they have any chat history threads
-        // Existing users will have chat history but no email in some cases
-        const threads = await getChatHistoryThreads();
-        const hasChatHistory = threads.length > 0;
+        // Check for existing chat history threads
+        const chatThreads = await getChatHistoryThreads();
+        const hasThreads = chatThreads.length > 0;
+
+        if (!hasThreads) {
+            return {
+                isSignedUp: false,
+                hasEmail: false,
+                hasChatHistory: false
+            };
+        }
+
+        // Verify the first thread has actual content (not just default empty thread)
+        const firstThread = await getChatHistoryThread(chatThreads[0]!.thread_id);
+        const hasActualChatHistory = firstThread.display_history.length > 0;
 
         return {
-            isSignedUp: hasChatHistory,
+            isSignedUp: hasActualChatHistory,
             hasEmail: false,
-            hasChatHistory: hasChatHistory
+            hasChatHistory: hasActualChatHistory
         };
     } catch (error) {
         console.error('Failed to check user signup state:', error);
-        // If there's an error, assume user is not signed up
         return {
             isSignedUp: false,
             hasEmail: false,

@@ -69,7 +69,8 @@ import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../uti
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
-import { getUserKey, logEvent } from '../../restAPI/RestAPI';
+import { logEvent } from '../../restAPI/RestAPI';
+import { checkUserSignupState } from '../../utils/userSignupState';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -450,7 +451,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         void logEvent('opened_ai_chat_taskpane');
         void initializeChatHistory(); 
-        void refreshUserEmail(); // Get user email when the component first mounts
+        void refreshUserSignupState(); // Get user signup state when the component first mounts
 
     }, [websocketClient]);
 
@@ -479,23 +480,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     }, [chatHistoryManager]);
 
-    // Function to refresh user email
-    const refreshUserEmail = async (): Promise<void> => {
-        try {
-            const email = await getUserKey('user_email');
-            // Only set to false if user is actually not signed up (no email or empty email)
-            // Default is true, so we only need to update if they're not signed up
-            console.log('Email:', email);
-            if (email === "" || email === undefined) {
-                setIsSignedUp(false);
-            } else {
-                setIsSignedUp(true);
-            }
-        } catch (error) {
-            console.error('Failed to get user email:', error);
-            // If there's an error getting the email, assume user is not signed up
-            setIsSignedUp(false);
-        }
+    // Function to refresh user signup state using the shared helper
+    const refreshUserSignupState = async (): Promise<void> => {
+        const signupState = await checkUserSignupState();
+        setIsSignedUp(signupState.isSignedUp);
     };
 
     // Scroll to bottom whenever chat history updates, but only if in follow mode
@@ -1529,7 +1517,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 {displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
                         {isSignedUp === false 
-                            ? <SignUpForm onSignUpSuccess={refreshUserEmail} /> 
+                            ? <SignUpForm onSignUpSuccess={refreshUserSignupState} /> 
                             : <CTACarousel app={app} />
                         }
                     </div>
