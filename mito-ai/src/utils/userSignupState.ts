@@ -63,16 +63,3 @@ export const checkUserSignupState = async (): Promise<UserSignupState> => {
         };
     }
 };
-
-/**
- * Determines if a user should have access to Mito AI features based on:
- * 1. Being signed up (email or chat history), OR
- * 2. Having existing chat messages in the current session
- * 
- * This is used by components that need to consider both signup state
- * and current session activity.
- */
-export const shouldEnableMitoAI = async (currentChatHistoryLength: number = 0): Promise<boolean> => {
-    const signupState = await checkUserSignupState();
-    return signupState.isSignedUp || currentChatHistoryLength > 0;
-};
