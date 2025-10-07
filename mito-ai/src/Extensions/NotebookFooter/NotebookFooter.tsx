@@ -25,7 +25,7 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
 
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-    const [isSignedUp, setIsSignedUp] = useState(false);
+    const [isSignedUp, setIsSignedUp] = useState(true);
 
     // Function to check if user has chat history threads
     const checkChatHistoryThreads = async (): Promise<boolean> => {
@@ -43,20 +43,23 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
         try {
             const email = await getUserKey('user_email');
             const hasEmail = email !== "" && email !== undefined;
-            
-            // If user has email, they're signed up
+
+            // If user has email, they're signed up (keep default true)
             if (hasEmail) {
-                setIsSignedUp(true);
                 return;
             }
-            
+
             // If no email, check if they have any chat history threads.
             // Existing users will have a chat history, but no email,
             // in this case, we consider them "signed up" and won't disable the footer. 
             const hasThreads = await checkChatHistoryThreads();
-            setIsSignedUp(hasThreads);
+            if (!hasThreads) {
+                setIsSignedUp(false);
+            }
         } catch (error) {
             console.error('Failed to refresh user signup state:', error);
+            // If there's an error, assume user is not signed up
+            setIsSignedUp(false);
         }
     };
 
