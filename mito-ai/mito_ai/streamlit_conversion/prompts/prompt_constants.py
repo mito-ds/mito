@@ -3,7 +3,7 @@
 
 MITO_TODO_PLACEHOLDER = "# MITO_TODO_PLACEHOLDER"
 
-unified_diff_instrucrions = f"""
+unified_diff_instructions = f"""
 RESPONSE FORMAT: Return the changes you want to make to the streamlit app as a **unified diff (git-style patch)**:
 
 A unified diff looks is the following and tells the system which lines of code to add, remove, or modify:
@@ -32,6 +32,14 @@ When you create a unified diff, you must follow the following format:
   * Added lines start with `+`.
 - If there are **no changes**, return an empty string.
 - Do not include the line numbers in your response.
+
+**CRITICAL: INDENTATION HANDLING**
+When modifying indented code (like content inside tabs, functions, or loops), you MUST:
+- **Preserve exact indentation levels** in your added lines
+- **Show the complete indentation change** when moving code between indentation levels
+- **Include all whitespace** in your diff - indentation is part of the code structure
+- When unindenting code (removing tabs/context), show the original indented line with `-` and the unindented version with `+`
+- When indenting code (adding tabs/context), show the original unindented line with `-` and the indented version with `+`
 
 **HUNK HEADER FORMAT:**
 Use `@@ -START_LINE,1 +START_LINE,1 @@` where:
@@ -62,6 +70,7 @@ Assume `data_list = [` is on line 57 of the original file:
 -    {{'id': 1, 'name': 'Old'}},
 +    {{'id': 1, 'name': 'New'}},
 +    {{'id': 2, 'name': 'Also New'}},
+```
 </Example 1>
 
 <Example 2: Multiple separate changes>
@@ -103,7 +112,86 @@ In the example below, assume that the line of code `data_list = [` is on line 57
 +    {{'id': 9, 'name': 'Item I', 'category': 'Type 9', 'value': 900}},
 +    {{'id': 10, 'name': 'Item J', 'category': 'Type 10', 'value': 1000}}
 ```
-</Example Response>
+</Example 3>
+
+<Example 4: Consolidating tabs - removing tab structure and unindenting content>
+
+Assume the original file has tabs starting at line 10:
+```python
+tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
+
+with tab1:
+    st.header("A cat")
+    st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
+with tab2:
+    st.header("A dog")
+    st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
+with tab3:
+    st.header("An owl")
+    st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
+```
+
+To consolidate into a single screen without tabs:
+```unified_diff
+--- a/app.py 
++++ b/app.py
+@@ -10,1 +10,1 @@
+-tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
+-
+-with tab1:
+-    st.header("A cat")
+-    st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
+-with tab2:
+-    st.header("A dog")
+-    st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
+-with tab3:
+-    st.header("An owl")
+-    st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
++st.header("A cat")
++st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
++st.header("A dog")
++st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
++st.header("An owl")
++st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
+```
+</Example 4>
+
+<Example 5: Adding tab structure - indenting existing content>
+
+Assume the original file has content starting at line 10:
+```python
+st.header("A cat")
+st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
+st.header("A dog")
+st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
+st.header("An owl")
+st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
+```
+
+To add tab structure:
+```unified_diff
+--- a/app.py 
++++ b/app.py
+@@ -10,1 +10,1 @@
+-st.header("A cat")
+-st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
+-st.header("A dog")
+-st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
+-st.header("An owl")
+-st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
++tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
++
++with tab1:
++    st.header("A cat")
++    st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
++with tab2:
++    st.header("A dog")
++    st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
++with tab3:
++    st.header("An owl")
++    st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
+```
+</Example 5>
 
 Your response must consist **only** of valid unified-diff block.
 """
