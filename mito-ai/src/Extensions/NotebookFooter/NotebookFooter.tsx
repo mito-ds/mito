@@ -12,8 +12,8 @@ import '../../../style/NotebookFooter.css';
 import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
-import { getUserKey, getChatHistoryThreads } from '../../restAPI/RestAPI';
 import { userSignupEvents } from '../../utils/userSignupEvents';
+import { checkUserSignupState } from '../../utils/userSignupState';
 
 interface NotebookFooterProps {
     notebookTracker: INotebookTracker;
@@ -27,40 +27,10 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSignedUp, setIsSignedUp] = useState(true);
 
-    // Function to check if user has chat history threads
-    const checkChatHistoryThreads = async (): Promise<boolean> => {
-        try {
-            const threads = await getChatHistoryThreads();
-            return threads.length > 0;
-        } catch (error) {
-            console.error('Failed to get chat history threads:', error);
-            return false;
-        }
-    };
-
-    // Function to refresh user signup state (check both email and chat threads)
+    // Function to refresh user signup state using the shared helper
     const refreshUserSignupState = async (): Promise<void> => {
-        try {
-            const email = await getUserKey('user_email');
-            const hasEmail = email !== "" && email !== undefined;
-
-            // If user has email, they're signed up (keep default true)
-            if (hasEmail) {
-                return;
-            }
-
-            // If no email, check if they have any chat history threads.
-            // Existing users will have a chat history, but no email,
-            // in this case, we consider them "signed up" and won't disable the footer. 
-            const hasThreads = await checkChatHistoryThreads();
-            if (!hasThreads) {
-                setIsSignedUp(false);
-            }
-        } catch (error) {
-            console.error('Failed to refresh user signup state:', error);
-            // If there's an error, assume user is not signed up
-            setIsSignedUp(false);
-        }
+        const signupState = await checkUserSignupState();
+        setIsSignedUp(signupState.isSignedUp);
     };
 
     useEffect(() => {
