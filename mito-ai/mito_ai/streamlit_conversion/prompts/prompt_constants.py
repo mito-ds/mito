@@ -118,7 +118,7 @@ In the example below, assume that the line of code `data_list = [` is on line 57
 
 Assume the original file has tabs starting at line 10:
 ```python
-tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
+tab1, tab2 = st.tabs(["Cat", "Dog"])
 
 with tab1:
     st.header("A cat")
@@ -126,9 +126,6 @@ with tab1:
 with tab2:
     st.header("A dog")
     st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-with tab3:
-    st.header("An owl")
-    st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
 ```
 
 To consolidate into a single screen without tabs:
@@ -136,7 +133,7 @@ To consolidate into a single screen without tabs:
 --- a/app.py 
 +++ b/app.py
 @@ -10,1 +10,1 @@
--tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
+-tab1, tab2 = st.tabs(["Cat", "Dog"])
 -
 -with tab1:
 -    st.header("A cat")
@@ -144,15 +141,10 @@ To consolidate into a single screen without tabs:
 -with tab2:
 -    st.header("A dog")
 -    st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
--with tab3:
--    st.header("An owl")
--    st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
 +st.header("A cat")
 +st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
 +st.header("A dog")
 +st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-+st.header("An owl")
-+st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
 ```
 </Example 4>
 
@@ -164,8 +156,6 @@ st.header("A cat")
 st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
 st.header("A dog")
 st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-st.header("An owl")
-st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
 ```
 
 To add tab structure:
@@ -177,9 +167,7 @@ To add tab structure:
 -st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
 -st.header("A dog")
 -st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
--st.header("An owl")
--st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
-+tab1, tab2, tab3 = st.tabs(["Cat", "Dog", "Owl"])
++tab1, tab2 = st.tabs(["Cat", "Dog"])
 +
 +with tab1:
 +    st.header("A cat")
@@ -187,9 +175,6 @@ To add tab structure:
 +with tab2:
 +    st.header("A dog")
 +    st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-+with tab3:
-+    st.header("An owl")
-+    st.image("https://static.streamlit.io/examples/owl.jpg", width=200)
 ```
 </Example 5>
 
