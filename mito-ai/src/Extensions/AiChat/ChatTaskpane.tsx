@@ -485,8 +485,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             const email = await getUserKey('user_email');
             // Only set to false if user is actually not signed up (no email or empty email)
             // Default is true, so we only need to update if they're not signed up
+            console.log('Email:', email);
             if (email === "" || email === undefined) {
                 setIsSignedUp(false);
+            } else {
+                setIsSignedUp(true);
             }
         } catch (error) {
             console.error('Failed to get user email:', error);
