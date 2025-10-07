@@ -6,11 +6,12 @@ from jupyter_server.utils import url_path_join
 from mito_ai.chat_history.handlers import ChatHistoryHandler
 
 
-def get_chat_history_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
+def get_chat_history_urls(base_url: str, message_history) -> List[Tuple[str, Any, dict]]:
     """Get all chat history related URL patterns.
 
     Args:
         base_url: The base URL for the Jupyter server
+        message_history: The global message history instance
 
     Returns:
         List of (url_pattern, handler_class, handler_kwargs) tuples
@@ -20,11 +21,11 @@ def get_chat_history_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
         (
             url_path_join(BASE_URL, "threads"),
             ChatHistoryHandler,
-            {},
+            {"message_history": message_history},
         ),
         (
             url_path_join(BASE_URL, "threads", "(?P<thread_id>[^/]+)"),
             ChatHistoryHandler,
-            {},
+            {"message_history": message_history},
         ),
     ]

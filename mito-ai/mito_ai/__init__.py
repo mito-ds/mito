@@ -5,6 +5,7 @@ from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
 from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
 from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
 from mito_ai.log.urls import get_log_urls
@@ -64,13 +65,17 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     base_url = web_app.settings["base_url"]
 
     open_ai_provider = OpenAIProvider(config=server_app.config)
+    
+    # Create a single GlobalMessageHistory instance for the entire server
+    # This ensures thread-safe access to the .mito/ai-chats directory
+    global_message_history = GlobalMessageHistory()
 
     # WebSocket handlers
     handlers = [
         (
             url_path_join(base_url, "mito-ai", "completions"),
             CompletionHandler,
-            {"llm": open_ai_provider},
+            {"llm": open_ai_provider, "message_history": global_message_history},
         ),
         (
             url_path_join(base_url, "mito-ai", "app-deploy"),
@@ -103,7 +108,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_streamlit_preview_urls(base_url))  # type: ignore
     handlers.extend(get_file_uploads_urls(base_url)) # type: ignore
     handlers.extend(get_user_urls(base_url)) # type: ignore
-    handlers.extend(get_chat_history_urls(base_url)) # type: ignore
+    handlers.extend(get_chat_history_urls(base_url, global_message_history)) # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")
