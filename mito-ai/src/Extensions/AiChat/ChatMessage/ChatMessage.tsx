@@ -32,6 +32,8 @@ import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutp
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
+import CreateStreamlitAppToolUI from '../../../components/AgentComponents/CreateStreamlitAppToolUI';
+import EditStreamlitAppToolUI from '../../../components/AgentComponents/EditStreamlitAppToolUI';
 
 interface IChatMessageProps {
     app: JupyterFrontEnd;
@@ -305,6 +307,12 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             }
             {agentResponse?.type === 'run_all_cells' && agentModeEnabled &&
                 <RunAllCellsToolUI />
+            }
+            {agentResponse?.type === 'create_streamlit_app' && agentModeEnabled &&
+                <CreateStreamlitAppToolUI />
+            }
+            {agentResponse?.type === 'edit_streamlit_app' && agentModeEnabled &&
+                <EditStreamlitAppToolUI />
             }
         </div>
     )

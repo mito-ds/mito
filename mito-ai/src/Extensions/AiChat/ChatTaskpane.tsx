@@ -67,6 +67,7 @@ import { getActiveCellOutput } from '../../utils/cellOutput';
 import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
+import { startStreamlitPreviewAndNotify } from '../AppPreview/utils';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { getUserKey, logEvent } from '../../restAPI/RestAPI';
@@ -1142,6 +1143,79 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         )
                         break;
                     }
+                }
+            }
+
+            if (agentResponse.type === 'create_streamlit_app') {
+                try {
+                    const notebookPath = agentTargetNotebookPanelRef.current?.context.path;
+                    if (!notebookPath) {
+                        addAIMessageFromResponseAndUpdateState(
+                            "I couldn't find the current notebook path to create the Streamlit app.",
+                            'agent:execution',
+                            chatHistoryManager
+                        );
+                        break;
+                    }
+
+                    const previewData = await startStreamlitPreviewAndNotify(notebookPath, false, '', 'Creating Streamlit app...', 'Streamlit app created successfully!');
+                    
+                    if (previewData) {
+                        // The preview window will be opened automatically by the startStreamlitPreviewAndNotify function
+                        console.log('Streamlit app created successfully');
+                    }
+                } catch (error) {
+                    console.error('Error creating Streamlit app:', error);
+                    addAIMessageFromResponseAndUpdateState(
+                        `I encountered an error while creating the Streamlit app: ${error}`,
+                        'agent:execution',
+                        chatHistoryManager
+                    );
+                    break;
+                }
+            }
+
+            if (agentResponse.type === 'edit_streamlit_app') {
+                try {
+                    const notebookPath = agentTargetNotebookPanelRef.current?.context.path;
+                    if (!notebookPath) {
+                        addAIMessageFromResponseAndUpdateState(
+                            "I couldn't find the current notebook path to edit the Streamlit app.",
+                            'agent:execution',
+                            chatHistoryManager
+                        );
+                        break;
+                    }
+
+                    if (!agentResponse.edit_streamlit_app_prompt) {
+                        addAIMessageFromResponseAndUpdateState(
+                            "I need a description of the edit to make to the Streamlit app.",
+                            'agent:execution',
+                            chatHistoryManager
+                        );
+                        break;
+                    }
+
+                    const previewData = await startStreamlitPreviewAndNotify(
+                        notebookPath, 
+                        true, 
+                        agentResponse.edit_streamlit_app_prompt, 
+                        'Editing Streamlit app...', 
+                        'Streamlit app updated successfully!'
+                    );
+                    
+                    if (previewData) {
+                        // The preview window will be opened/updated automatically by the startStreamlitPreviewAndNotify function
+                        console.log('Streamlit app edited successfully');
+                    }
+                } catch (error) {
+                    console.error('Error editing Streamlit app:', error);
+                    addAIMessageFromResponseAndUpdateState(
+                        `I encountered an error while editing the Streamlit app: ${error}`,
+                        'agent:execution',
+                        chatHistoryManager
+                    );
+                    break;
                 }
             }
         }

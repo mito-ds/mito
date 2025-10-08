@@ -153,7 +153,6 @@ class StreamlitPreviewManager:
 # Global instance
 _preview_manager = StreamlitPreviewManager()
 
-
 def get_preview_manager() -> StreamlitPreviewManager:
     """Get the global preview manager instance."""
     return _preview_manager 

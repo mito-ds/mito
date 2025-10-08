@@ -17,7 +17,7 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     const correctedResponse: AgentResponse = { ...agentResponse };
     
     // Ensure type is valid. Default to finished_task if not valid.
-    const validTypes = ['cell_update', 'get_cell_output', 'run_all_cells', 'finished_task'];
+    const validTypes = ['cell_update', 'get_cell_output', 'run_all_cells', 'finished_task', 'create_streamlit_app', 'edit_streamlit_app'];
     correctedResponse.type = (correctedResponse.type && validTypes.includes(correctedResponse.type)) 
         ? correctedResponse.type 
         : 'finished_task';
@@ -44,6 +44,10 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
         // No empty strings in the assumptions
         correctedResponse.analysis_assumptions = correctedResponse.analysis_assumptions?.filter(assumption => assumption.trim() !== '')
     }
+
+    // Correct edit_streamlit_app_prompt - ensure it's a string when present
+    const editStreamlitAppPromptType = typeof correctedResponse.edit_streamlit_app_prompt;
+    correctedResponse.edit_streamlit_app_prompt = editStreamlitAppPromptType === 'string' ? correctedResponse.edit_streamlit_app_prompt : undefined;
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 
     // not caused issues thus far.

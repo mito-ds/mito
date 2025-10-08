@@ -41,12 +41,13 @@ export type CellUpdateNew = {
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task'
+  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app'
   message: string,
   cell_update?: CellUpdate | null | undefined
   get_cell_output_cell_id?: string | null | undefined
   next_steps?: string[] | null | undefined
   analysis_assumptions?: string[] | null | undefined
+  edit_streamlit_app_prompt?: string | null | undefined
 }
 
 /* 
