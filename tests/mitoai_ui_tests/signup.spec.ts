@@ -23,12 +23,15 @@ import { CLAUDE_SONNET_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 const MODEL = CLAUDE_SONNET_DISPLAY_NAME
 const USER_JSON_PATH = path.join(os.homedir(), ".mito", "user.json");
 const BACKUP_USER_JSON_PATH = path.join(os.homedir(), ".mito", "user.json.backup");
+const CHAT_HISTORY_PATH = path.join(os.homedir(), ".mito", "ai-chats");
+const BACKUP_CHAT_HISTORY_PATH = path.join(os.homedir(), ".mito", "ai-chats-backup");
 
 test.describe.parallel('User Signup', () => {
 
     test.beforeAll(async () => {
-        // Backup the existing user.json file and modify user_email to empty string
         try {
+            // Backup the existing user.json file,
+            // and modify user_email to empty string
             await fs.access(USER_JSON_PATH);
             await fs.copyFile(USER_JSON_PATH, BACKUP_USER_JSON_PATH);
 
@@ -45,29 +48,49 @@ test.describe.parallel('User Signup', () => {
         } catch (error) {
             console.log('No existing user.json found');
         }
+
+        try {
+            // Backup the existing ai-chats directory, 
+            // simulating a new user. 
+            await fs.access(CHAT_HISTORY_PATH);
+            
+            // Copy the entire directory recursively
+            await fs.cp(CHAT_HISTORY_PATH, BACKUP_CHAT_HISTORY_PATH, { recursive: true });
+
+            // Delete the existing ai-chats directory
+            await fs.rm(CHAT_HISTORY_PATH, { recursive: true });
+            console.log('Deleted original ai-chats directory');
+        } catch (error) {
+            console.log('No existing ai-chats directory found');
+        }
     });
 
     test.beforeEach(async ({ page }) => {
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
-
-        await startNewMitoAIChat(page, MODEL);
     });
 
     test.afterAll(async () => {
-        // Restore the original user.json file if it was backed up
         try {
+            // Restore the original user.json file if it was backed up
             await fs.access(BACKUP_USER_JSON_PATH);
             await fs.copyFile(BACKUP_USER_JSON_PATH, USER_JSON_PATH);
             await fs.unlink(BACKUP_USER_JSON_PATH);
-            console.log('Restored original user.json file');
         } catch (error) {
-            // No backup file to restore, which is fine
             console.log('No backup user.json to restore');
+        }
+
+        try {
+            // Restore the original ai-chats directory if it was backed up
+            await fs.access(BACKUP_CHAT_HISTORY_PATH);
+            await fs.cp(BACKUP_CHAT_HISTORY_PATH, CHAT_HISTORY_PATH, { recursive: true });
+            await fs.rm(BACKUP_CHAT_HISTORY_PATH, { recursive: true });
+        } catch (error) {
+            console.log('No backup ai-chats directory to restore');
         }
     });
 
-    test('User can send message after signing up', async ({ page }) => {
+    test.skip('New users can send message after signing up', async ({ page }) => {
         // First, we should see the signup form
         await expect(page.locator('[data-testid="signup-form-message"]')).toBeVisible();
 

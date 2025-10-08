@@ -169,3 +169,41 @@ export const setUserKey = async (key: string, value: string): Promise<string> =>
     }
     return resp.data || '';
 }
+
+/************************************
+
+CHAT HISTORY ENDPOINTS
+
+************************************/
+
+export interface ChatThreadMetadata {
+    thread_id: string;
+    name: string;
+    creation_ts: number;
+    last_interaction_ts: number;
+}
+
+export interface ChatThread {
+    thread_id: string;
+    name: string;
+    creation_ts: number;
+    last_interaction_ts: number;
+    display_history: Array<{role: string, content: string}>;
+    ai_optimized_history: Array<{role: string, content: string}>;
+}
+
+export const getChatHistoryThreads = async (): Promise<ChatThreadMetadata[]> => {
+    const resp = await requestAPI<{threads: ChatThreadMetadata[]}>('chat-history/threads')
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data?.threads || [];
+}
+
+export const getChatHistoryThread = async (threadId: string): Promise<ChatThread> => {
+    const resp = await requestAPI<ChatThread>(`chat-history/threads/${threadId}`)
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data!;
+}
