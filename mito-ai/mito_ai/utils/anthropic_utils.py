@@ -3,7 +3,7 @@
 
 import anthropic
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable
-from anthropic.types import MessageParam, ToolUnionParam
+from anthropic.types import MessageParam, TextBlockParam, ToolUnionParam
 from mito_ai.utils.mito_server_utils import get_response_from_mito_server, stream_response_from_mito_server
 from mito_ai.utils.provider_utils import does_message_require_fast_model
 from mito_ai.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk
@@ -23,7 +23,7 @@ def _prepare_anthropic_request_data_and_headers(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Union[str, anthropic.Omit],
+    system: Union[str, List[TextBlockParam], anthropic.Omit],
     messages: List[MessageParam],
     message_type: MessageType,
     tools: Optional[List[ToolUnionParam]],
@@ -92,7 +92,7 @@ async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Union[str, anthropic.Omit],
+    system: Union[str, List[TextBlockParam], anthropic.Omit],
     messages: List[MessageParam],
     stream: bool,
     message_type: MessageType,
@@ -127,13 +127,13 @@ def get_anthropic_completion_function_params(
     model: str,
     messages: List[MessageParam],
     max_tokens: int,
-    system: Union[str, anthropic.Omit],
+    system: Union[str, List[TextBlockParam], anthropic.Omit],
     temperature: float = 0.0,
     tools: Optional[List[ToolUnionParam]] = None,
     tool_choice: Optional[dict] = None,
     stream: Optional[bool] = None,
     response_format_info: Optional[ResponseFormatInfo] = None,
-) -> Dict[str, Any]:
+) -> Dict[str, Any]:    
     """
     Build the provider_data dict for Anthropic completions, mirroring the OpenAI approach.
     Only includes fields needed for the Anthropic API.

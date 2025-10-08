@@ -5,10 +5,9 @@ import json
 import anthropic
 from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
 
-from anthropic.types import Message, MessageParam
-from mito_ai.completions.models import CompletionError, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
+from anthropic.types import Message, MessageParam, TextBlockParam
+from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from mito_ai.constants import MESSAGE_HISTORY_TRIM_THRESHOLD
-from mito_ai.utils.mito_server_utils import ProviderCompletionException
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
@@ -164,7 +163,7 @@ def add_cache_control_to_message(message: MessageParam) -> MessageParam:
 
 
 def get_anthropic_system_prompt_and_messages_with_caching(messages: List[ChatCompletionMessageParam]) -> Tuple[
-    Union[str, anthropic.Omit], List[MessageParam]]:
+    Union[str, List[TextBlockParam], anthropic.Omit], List[MessageParam]]:
     """
     Convert a list of OpenAI messages to a list of Anthropic messages with caching applied.
     
@@ -182,15 +181,13 @@ def get_anthropic_system_prompt_and_messages_with_caching(messages: List[ChatCom
     
     # 1. Cache the system prompt always
     # If the system prompt is something like anthropic.Omit, we don't need to cache it
-    cached_system_prompt = system_prompt
+    cached_system_prompt: Union[str, List[TextBlockParam], anthropic.Omit] = system_prompt
     if isinstance(system_prompt, str):
-        cached_system_prompt = [
-            {
-                "type": "text",
-                "text": system_prompt,
-                "cache_control": {"type": "ephemeral"}
-            }
-        ]
+        cached_system_prompt = [{
+            "type": "text",
+            "text": system_prompt,
+            "cache_control": {"type": "ephemeral"}
+        }]
     
     # 2. Cache conversation history at the boundary where the messages are stable.
     # Messages are stable after they are more than MESSAGE_HISTORY_TRIM_THRESHOLD old.
