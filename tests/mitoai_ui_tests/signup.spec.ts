@@ -53,10 +53,12 @@ test.describe.parallel('User Signup', () => {
             // Backup the existing ai-chats directory, 
             // simulating a new user. 
             await fs.access(CHAT_HISTORY_PATH);
-            await fs.copyFile(CHAT_HISTORY_PATH, BACKUP_CHAT_HISTORY_PATH);
+            
+            // Copy the entire directory recursively
+            await fs.cp(CHAT_HISTORY_PATH, BACKUP_CHAT_HISTORY_PATH, { recursive: true });
 
             // Delete the existing ai-chats directory
-            await fs.rmdir(CHAT_HISTORY_PATH, { recursive: true });
+            await fs.rm(CHAT_HISTORY_PATH, { recursive: true });
             console.log('Deleted original ai-chats directory');
         } catch (error) {
             console.log('No existing ai-chats directory found');
@@ -66,8 +68,6 @@ test.describe.parallel('User Signup', () => {
     test.beforeEach(async ({ page }) => {
         await createAndRunNotebookWithCells(page, []);
         await waitForIdle(page);
-
-        // await startNewMitoAIChat(page, MODEL);
     });
 
     test.afterAll(async () => {
@@ -83,14 +83,14 @@ test.describe.parallel('User Signup', () => {
         try {
             // Restore the original ai-chats directory if it was backed up
             await fs.access(BACKUP_CHAT_HISTORY_PATH);
-            await fs.copyFile(BACKUP_CHAT_HISTORY_PATH, CHAT_HISTORY_PATH);
-            await fs.unlink(BACKUP_CHAT_HISTORY_PATH);
+            await fs.cp(BACKUP_CHAT_HISTORY_PATH, CHAT_HISTORY_PATH, { recursive: true });
+            await fs.rm(BACKUP_CHAT_HISTORY_PATH, { recursive: true });
         } catch (error) {
             console.log('No backup ai-chats directory to restore');
         }
     });
 
-    test('New users can send message after signing up', async ({ page }) => {
+    test.only('New users can send message after signing up', async ({ page }) => {
         // First, we should see the signup form
         await expect(page.locator('[data-testid="signup-form-message"]')).toBeVisible();
 
