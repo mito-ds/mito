@@ -7,6 +7,7 @@ from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
 
 from anthropic.types import Message, MessageParam
 from mito_ai.completions.models import CompletionError, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
+from mito_ai.constants import MESSAGE_HISTORY_TRIM_THRESHOLD
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
@@ -162,7 +163,7 @@ def add_cache_control_to_message(message: MessageParam) -> MessageParam:
         return message
 
 
-def get_anthropic_system_prompt_and_messages_with_caching(messages: List[ChatCompletionMessageParam], keep_recent: int = 3) -> Tuple[
+def get_anthropic_system_prompt_and_messages_with_caching(messages: List[ChatCompletionMessageParam]) -> Tuple[
     Union[str, anthropic.Omit], List[MessageParam]]:
     """
     Convert a list of OpenAI messages to a list of Anthropic messages with caching applied.
@@ -179,7 +180,9 @@ def get_anthropic_system_prompt_and_messages_with_caching(messages: List[ChatCom
     # Get the base system prompt and messages
     system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
     
-    # 1. Cache the system prompt (static content)
+    # 1. Cache the system prompt always
+    # If the system prompt is something like anthropic.Omit, we don't need to cache it
+    cached_system_prompt = system_prompt
     if isinstance(system_prompt, str):
         cached_system_prompt = [
             {
@@ -188,72 +191,25 @@ def get_anthropic_system_prompt_and_messages_with_caching(messages: List[ChatCom
                 "cache_control": {"type": "ephemeral"}
             }
         ]
-    else:
-        # If system_prompt is anthropic.Omit, keep it as is
-        cached_system_prompt = system_prompt
     
-    # 2. Cache conversation history at the keep_recent boundary
+    # 2. Cache conversation history at the boundary where the messages are stable.
+    # Messages are stable after they are more than MESSAGE_HISTORY_TRIM_THRESHOLD old.
+    # At this point, the messages are not edited anymore, so they will not invalidate the cache.
+    # If we included the messages before the boundary in the cache, then every time we send a new
+    # message, we would invalidate the cache and we would never get a cache hit except for the system prompt.
     messages_with_cache = []
     
     if len(anthropic_messages) > 0:
-        # Find the cache boundary: keep_recent messages from the end
-        cache_boundary = len(anthropic_messages) - keep_recent - 1
+        cache_boundary = len(anthropic_messages) - MESSAGE_HISTORY_TRIM_THRESHOLD - 1
         
         # Add all messages, but only add cache_control to the message at the boundary
         for i, msg in enumerate(anthropic_messages):
             if i == cache_boundary:
-                # This message is at the stable boundary - cache it
                 messages_with_cache.append(add_cache_control_to_message(msg))
             else:
-                # This message is either before the boundary (will be trimmed) or after (recent)
                 messages_with_cache.append(msg)
     
     return cached_system_prompt, messages_with_cache
-
-
-def track_cache_performance(response) -> dict:
-    """
-    Analyzes cache performance from API response.
-    Returns metrics about cache efficiency and cost savings.
-    """
-    usage = response.usage
-
-    # Handle None values for cache fields (some responses may not have cache info)
-    cache_read = usage.cache_read_input_tokens or 0
-    cache_write = usage.cache_creation_input_tokens or 0
-    regular_input = usage.input_tokens or 0
-    
-    # Calculate effective costs (relative to base input token price = 1.0)
-    cache_read_cost = cache_read * 0.1  # 10% of base
-    cache_write_cost = cache_write * 1.25  # 125% of base
-    regular_cost = regular_input * 1.0  # 100% of base
-    
-    total_cost_units = cache_read_cost + cache_write_cost + regular_cost
-    
-    # Calculate what it would have cost without caching
-    total_tokens = cache_read + cache_write + regular_input
-    cost_without_cache = total_tokens * 1.0
-    
-    savings_percent = ((cost_without_cache - total_cost_units) / cost_without_cache * 100) if cost_without_cache > 0 else 0
-    
-    metrics = {
-        "cache_read_tokens": cache_read,
-        "cache_write_tokens": cache_write,
-        "regular_input_tokens": regular_input,
-        "total_tokens": total_tokens,
-        "cost_savings_percent": round(savings_percent, 1),
-        "cache_hit": cache_read > 0
-    }
-    
-    # Log cache performance
-    if metrics["cache_hit"]:
-        print(f"✅ Cache hit! Saved {metrics['cost_savings_percent']}% on input costs")
-        print(f"   Read {metrics['cache_read_tokens']:,} tokens from cache")
-        print(f"   Wrote {metrics['cache_write_tokens']:,} new tokens to cache")
-    else:
-        print(f"❌ No cache hit - creating new cache with {metrics['cache_write_tokens']:,} tokens")
-    
-    return metrics
 
 
 class AnthropicClient:
@@ -280,7 +236,7 @@ class AnthropicClient:
         """
         Get a response from Claude or the Mito server that adheres to the AgentResponse format.
         """
-        anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages, keep_recent=3)
+        anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages)
         
         provider_data = get_anthropic_completion_function_params(
             message_type=message_type,
@@ -319,16 +275,12 @@ class AnthropicClient:
                 tool_choice=provider_data.get("tool_choice"),
                 message_type=message_type
             )
-            
-            print(response)
-            
-            # track_cache_performance(response)
             return response
 
     async def stream_completions(self, messages: List[ChatCompletionMessageParam], model: str, message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
-            anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages, keep_recent=3)
+            anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages)
             accumulated_response = ""
 
             if self.api_key:

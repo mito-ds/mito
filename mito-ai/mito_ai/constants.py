@@ -29,7 +29,7 @@ MITO_DEV_BASE_URL = "https://g5vwmogjg7gh7aktqezyrvcq6a0hyfnr.lambda-url.us-east
 MITO_LOCAL_BASE_URL = "http://127.0.0.1:8000/v2" # When you are running the mito completion server locally
 
 # Set ACTIVE_BASE_URL manually
-ACTIVE_BASE_URL = MITO_LOCAL_BASE_URL  # Change to MITO_DEV_BASE_URL for dev
+ACTIVE_BASE_URL = MITO_PROD_BASE_URL  # Change to MITO_DEV_BASE_URL for dev
 
 # Endpoint paths
 ANTHROPIC_PATH = "anthropic/completions"
@@ -58,3 +58,6 @@ COGNITO_CONFIG_DEV = {
 }
 
 ACTIVE_COGNITO_CONFIG = COGNITO_CONFIG_DEV # Change to COGNITO_CONFIG_DEV for dev
+
+
+MESSAGE_HISTORY_TRIM_THRESHOLD: int = 3

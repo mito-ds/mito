@@ -2,14 +2,14 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, get_anthropic_system_prompt_and_messages_with_caching, add_cache_control_to_message, track_cache_performance, extract_and_parse_anthropic_json_response, AnthropicClient
-from mito_ai.utils.anthropic_utils import get_anthropic_completion_function_params, FAST_ANTHROPIC_MODEL
+from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, get_anthropic_system_prompt_and_messages_with_caching, add_cache_control_to_message, extract_and_parse_anthropic_json_response, AnthropicClient
+from mito_ai.utils.anthropic_utils import FAST_ANTHROPIC_MODEL
 from anthropic.types import Message, TextBlock, ToolUseBlock, Usage, ToolUseBlock, Message, Usage, TextBlock
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
-from mito_ai.completions.models import MessageType, ResponseFormatInfo, AgentResponse
-from unittest.mock import MagicMock, patch
+from mito_ai.completions.models import MessageType
+from unittest.mock import patch
 import anthropic
-from typing import List, Dict, Any, cast, Union
+from typing import List, Dict, cast
 
 
 # Dummy base64 image (1x1 PNG)
