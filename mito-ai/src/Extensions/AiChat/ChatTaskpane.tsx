@@ -23,7 +23,6 @@ import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE,
-    COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT,
     COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_REJECT_LATEST_CODE,
     COMMAND_MITO_AI_SEND_AGENT_MESSAGE,
@@ -68,7 +67,7 @@ import { getActiveCellOutput } from '../../utils/cellOutput';
 import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
-import { startStreamlitPreviewAndNotify } from '../AppPreview/utils';
+import { streamlitAppPreviewPlugin } from '../AppPreview/StreamlitPreviewPlugin';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { getUserKey, logEvent } from '../../restAPI/RestAPI';
@@ -1160,10 +1159,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         break;
                     }
 
-                    const previewData = await startStreamlitPreviewAndNotify(notebookPath, false, '', 'Creating Streamlit app...', 'Streamlit app created successfully!');
-                    if (previewData) {
-                        await app.commands.execute(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, { previewData: previewData as any });
-                    }
+                    // Create new preview using the plugin
+                    // Note: Services will be handled internally by the plugin
+                    await streamlitAppPreviewPlugin.createNewPreview(
+                        app,
+                        notebookTracker,
+                        null, // appDeployService - will be handled internally
+                        null  // appManagerService - will be handled internally
+                    );
                 } catch (error) {
                     console.error('Error creating Streamlit app:', error);
                     addAIMessageFromResponseAndUpdateState(
@@ -1196,17 +1199,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         break;
                     }
 
-                    const previewData = await startStreamlitPreviewAndNotify(
-                        notebookPath, 
-                        true, 
-                        agentResponse.edit_streamlit_app_prompt, 
-                        'Editing Streamlit app...', 
-                        'Streamlit app updated successfully!'
-                    );
-                    
-                    if (previewData) {
-                        await app.commands.execute(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, { previewData: previewData as any });
+                    // Check if there's an active preview to edit
+                    if (!streamlitAppPreviewPlugin.hasActivePreview()) {
+                        // No active preview, create a new one first
+                        await streamlitAppPreviewPlugin.createNewPreview(
+                            app,
+                            notebookTracker,
+                            null, // appDeployService - will be handled internally
+                            null  // appManagerService - will be handled internally
+                        );
                     }
+
+                    // Edit the existing preview
+                    await streamlitAppPreviewPlugin.editExistingPreview(
+                        agentResponse.edit_streamlit_app_prompt,
+                        notebookPath
+                    );
                 } catch (error) {
                     console.error('Error editing Streamlit app:', error);
                     addAIMessageFromResponseAndUpdateState(

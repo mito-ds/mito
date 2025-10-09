@@ -12,7 +12,7 @@ import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChat
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
 import { validateAndCorrectAgentResponse } from "./validationUtils";
-import { APP_PREVIEW_TITLE } from "../AppPreview/StreamlitPreviewPlugin";
+import { streamlitAppPreviewPlugin } from "../AppPreview/StreamlitPreviewPlugin";
 
 export type PromptType = 
     'chat' | 
@@ -81,19 +81,8 @@ export class ChatHistoryManager {
     }
 
     private checkIfStreamlitAppIsOpen(): boolean {
-        // Check if there are any widgets with "App Preview" in the title
-        // TODO: This does not check if the streamlit app that is open is actually
-        // the one corresponding to the current notebook the agent is working on.
-        // If we want to support multiple streamlit apps at the same time, we need to 
-        // clean this up.
-        const widgets = this.app.shell.widgets('main');
-        for (const widget of widgets) {
-            if (widget.title.label.includes(APP_PREVIEW_TITLE)) {
-                return true;
-            }
-        }
-        console.log('Streamlit app is not open');
-        return false;
+        // Use the plugin to check if there's an active preview
+        return streamlitAppPreviewPlugin.hasActivePreview();
     }
 
     private initializeAssumptionsFromHistory(): void {
