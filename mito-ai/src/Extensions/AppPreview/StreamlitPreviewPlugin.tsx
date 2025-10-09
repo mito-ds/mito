@@ -22,6 +22,8 @@ import * as React from 'react';
 import UpdateAppDropdown from './UpdateAppDropdown';
 import { Dialog, showDialog } from '@jupyterlab/apputils';
 import { createRoot } from 'react-dom/client';
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
+
 
 /**
  * Interface for the streamlit preview response.
@@ -145,8 +147,9 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
-      execute: async () => {
-        await previewNotebookAsStreamlit(app, notebookTracker, appDeployService, appManagerService);
+      execute: async (args?: ReadonlyPartialJSONObject) => {
+        const previewData = args?.previewData as StreamlitPreviewResponse | undefined;
+        await previewNotebookAsStreamlit(app, notebookTracker, appDeployService, appManagerService, previewData);
       }
     });
 
@@ -166,6 +169,7 @@ async function previewNotebookAsStreamlit(
   notebookTracker: INotebookTracker,
   appDeployService: IAppDeployService,
   appManagerService: IAppManagerService,
+  previewData?: StreamlitPreviewResponse | undefined
 ): Promise<void> {
   const notebookPanel = notebookTracker.currentWidget;
   if (!notebookPanel) {
@@ -181,7 +185,9 @@ async function previewNotebookAsStreamlit(
 
 
   try {
-    const previewData = await startStreamlitPreviewAndNotify(notebookPath);
+    if (previewData === undefined) {
+      previewData = await startStreamlitPreviewAndNotify(notebookPath);
+    }
 
     if (previewData === undefined) {
       return;
@@ -244,7 +250,9 @@ async function previewNotebookAsStreamlit(
     // Handle widget disposal
     widget.disposed.connect(() => {
       console.log('Widget disposed, stopping preview');
-      void stopStreamlitPreview(previewData.id);
+      if (previewData) {
+        void stopStreamlitPreview(previewData.id);
+      }
     });
 
     // Add widget to main area with split-right mode

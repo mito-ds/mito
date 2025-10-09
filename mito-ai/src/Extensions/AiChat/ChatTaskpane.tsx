@@ -23,6 +23,7 @@ import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE,
+    COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT,
     COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_REJECT_LATEST_CODE,
     COMMAND_MITO_AI_SEND_AGENT_MESSAGE,
@@ -1159,10 +1160,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     }
 
                     const previewData = await startStreamlitPreviewAndNotify(notebookPath, false, '', 'Creating Streamlit app...', 'Streamlit app created successfully!');
-                    
                     if (previewData) {
-                        // The preview window will be opened automatically by the startStreamlitPreviewAndNotify function
-                        console.log('Streamlit app created successfully');
+                        await app.commands.execute(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, { previewData: previewData as any });
                     }
                 } catch (error) {
                     console.error('Error creating Streamlit app:', error);
@@ -1205,8 +1204,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     );
                     
                     if (previewData) {
-                        // The preview window will be opened/updated automatically by the startStreamlitPreviewAndNotify function
-                        console.log('Streamlit app edited successfully');
+                        await app.commands.execute(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, { previewData: previewData as any });
                     }
                 } catch (error) {
                     console.error('Error editing Streamlit app:', error);
@@ -1785,3 +1783,5 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 };
 
 export default ChatTaskpane;
+
+
