@@ -199,8 +199,6 @@ export class ChatHistoryManager {
 
         const aiOptimizedCells = getAIOptimizedCellsInNotebookPanel(notebookPanel)
         const notebookContext = this.contextManager.getNotebookContext(notebookPanel.id);
-
-        // Check if a Streamlit app is currently open by looking for widgets with "App Preview" in the title
         const streamlitAppIsOpen = this.checkIfStreamlitAppIsOpen();
 
         const agentExecutionMetadata: IAgentExecutionMetadata = {

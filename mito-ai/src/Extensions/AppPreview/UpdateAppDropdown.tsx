@@ -12,7 +12,10 @@ import { startStreamlitPreviewAndNotify } from './utils';
 /**
  * Show the update app dropdown.
  */
-export const showUpdateAppDropdown = (buttonElement: HTMLElement, notebookPath: string): void => {
+export const showUpdateAppDropdown = (
+    buttonElement: HTMLElement, 
+    notebookPath: string
+): void => {
     // Remove any existing dropdown
     const existingDropdown = document.querySelector('.update-app-dropdown');
     if (existingDropdown) {
@@ -37,6 +40,7 @@ export const showUpdateAppDropdown = (buttonElement: HTMLElement, notebookPath: 
     createRoot(dropdownContainer).render(
         <UpdateAppDropdown
             onSubmit={async (message) => {
+                // TODO: This needs to go through the preview plugin manager
                 await startStreamlitPreviewAndNotify(notebookPath, true, message, 'Updating app...', 'App updated successfully!');
                 dropdownContainer.remove();
             }}

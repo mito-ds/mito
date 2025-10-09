@@ -18,7 +18,6 @@ import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
 import { showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
-import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { showUpdateAppDropdown } from './UpdateAppDropdown';
 
 
@@ -48,10 +47,7 @@ export interface IStreamlitPreviewManager {
    */
   openAppPreview(
     app: JupyterFrontEnd,
-    notebookTracker: INotebookTracker,
-    appDeployService: IAppDeployService | null,
-    appManagerService: IAppManagerService | null,
-    previewData?: StreamlitPreviewResponse
+    notebookTracker: INotebookTracker
   ): Promise<MainAreaWidget>;
 
   /**
@@ -109,8 +105,8 @@ class IFrameWidget extends Widget {
  */
 class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   private currentPreview: MainAreaWidget | null = null;
-  private appDeployService: IAppDeployService | null = null;
-  private appManagerService: IAppManagerService | null = null;
+  private appDeployService: IAppDeployService;
+  private appManagerService: IAppManagerService;
 
   constructor(appDeployService: IAppDeployService, appManagerService: IAppManagerService) {
     this.appDeployService = appDeployService;
@@ -122,10 +118,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
    */
   async openAppPreview(
     app: JupyterFrontEnd,
-    notebookTracker: INotebookTracker,
-    appDeployService: IAppDeployService | null,
-    appManagerService: IAppManagerService | null,
-    previewData?: StreamlitPreviewResponse
+    notebookTracker: INotebookTracker
   ): Promise<MainAreaWidget> {
     // Close existing preview if any
     this.closeCurrentPreview();
@@ -141,30 +134,18 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const notebookPath = notebookPanel.context.path;
     const notebookName = PathExt.basename(notebookPath, '.ipynb');
 
-    let finalPreviewData = previewData;
-    if (finalPreviewData === undefined) {
-      finalPreviewData = await startStreamlitPreviewAndNotify(notebookPath);
-    }
+    const finalPreviewData = await startStreamlitPreviewAndNotify(notebookPath);
 
     if (finalPreviewData === undefined) {
       throw new Error('Failed to create Streamlit preview');
     }
-
-    // Get services if not provided
-    const deployService = appDeployService || this.appDeployService;
-    const managerService = appManagerService || this.appManagerService;
-
-    if (!deployService || !managerService) {
-      throw new Error('App services not available. Please ensure the StreamlitPreviewPlugin is properly initialized.');
-    }
-
     // Create the new preview widget
     const widget = this.createPreviewWidget(
       notebookTracker,
       notebookName,
       notebookPath,
-      deployService,
-      managerService,
+      this.appDeployService,
+      this.appManagerService,
       finalPreviewData
     );
 
@@ -324,16 +305,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<IStreamlitPreviewManager> = 
     app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
-      execute: async (args?: ReadonlyPartialJSONObject) => {
-        const previewData = args?.previewData as StreamlitPreviewResponse | undefined;
-        await streamlitPreviewManager.openAppPreview(
-          app,
-          notebookTracker,
-          appDeployService,
-          appManagerService,
-          previewData
-        )
-      }
+      execute: async () => {await streamlitPreviewManager.openAppPreview(app, notebookTracker)}
     });
 
     // Add to command palette

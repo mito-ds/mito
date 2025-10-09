@@ -649,7 +649,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
-        console.log('newChatHistoryManager', newChatHistoryManager)
 
         if (messageIndex !== undefined) {
             // Drop all of the messages starting at the message index
@@ -1165,13 +1164,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     }
 
                     // Create new preview using the service
-                    // Note: Services will be handled internally by the service
-                    await streamlitPreviewManager.openAppPreview(
-                        app,
-                        notebookTracker,
-                        null, // appDeployService - will be handled internally
-                        null  // appManagerService - will be handled internally
-                    );
+                    await streamlitPreviewManager.openAppPreview(app, notebookTracker);
                 } catch (error) {
                     console.error('Error creating Streamlit app:', error);
                     addAIMessageFromResponseAndUpdateState(
@@ -1207,12 +1200,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // Check if there's an active preview to edit
                     if (!streamlitPreviewManager.hasActivePreview()) {
                         // No active preview, create a new one first
-                        await streamlitPreviewManager.openAppPreview(
-                            app,
-                            notebookTracker,
-                            null, // appDeployService - will be handled internally
-                            null  // appManagerService - will be handled internally
-                        );
+                        await streamlitPreviewManager.openAppPreview(app, notebookTracker);
                     }
 
                     // Edit the existing preview

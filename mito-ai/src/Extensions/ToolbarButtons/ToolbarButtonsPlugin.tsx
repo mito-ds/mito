@@ -5,7 +5,7 @@
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
+import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE } from '../../commands';
 import { AppBuilderExcludeCellLabIcon, AppBuilderIncludeCellLabIcon, lightBulbLabIcon } from '../../icons';
 import { getActiveCellIncludeInApp, toggleActiveCellIncludeInAppMetadata } from '../../utils/cellMetadata';
 import { getSetting } from '../../restAPI/RestAPI';
@@ -74,7 +74,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             caption: 'Preview notebook as app and turn on App Mode',
             className: 'text-button-mito-ai button-base button-purple button-small',
             execute: async () => {
-                void app.commands.execute('mito-ai:preview-as-streamlit');
+                void app.commands.execute(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT);
             },
             isVisible: () => {
                 return app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
