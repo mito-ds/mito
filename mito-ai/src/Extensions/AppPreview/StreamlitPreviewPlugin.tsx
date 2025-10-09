@@ -9,6 +9,7 @@ import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
+import { Token } from '@lumino/coreutils';
 import { stopStreamlitPreview } from '../../restAPI/RestAPI';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
@@ -22,12 +23,59 @@ import { showUpdateAppDropdown } from './UpdateAppDropdown';
 
 
 /**
+ * The token for the StreamlitPreview service.
+ */
+export const IStreamlitPreviewManager = new Token<IStreamlitPreviewManager>(
+  'mito-ai:IStreamlitPreviewManager',
+  'Token for the StreamlitPreview service that manages app previews'
+);
+
+/**
  * Interface for the streamlit preview response.
  */
 export interface StreamlitPreviewResponse {
   id: string;
   port: number;
   url: string;
+}
+
+/**
+ * Interface for the StreamlitPreview service.
+ */
+export interface IStreamlitPreviewManager {
+  /**
+   * Create a new Streamlit app preview, replacing any existing preview.
+   */
+  openAppPreview(
+    app: JupyterFrontEnd,
+    notebookTracker: INotebookTracker,
+    appDeployService: IAppDeployService | null,
+    appManagerService: IAppManagerService | null,
+    previewData?: StreamlitPreviewResponse
+  ): Promise<MainAreaWidget>;
+
+  /**
+   * Edit the existing Streamlit app preview by updating the app.py file.
+   */
+  editExistingPreview(
+    editPrompt: string,
+    notebookPath: string
+  ): Promise<void>;
+
+  /**
+   * Close the current preview if one exists.
+   */
+  closeCurrentPreview(): void;
+
+  /**
+   * Check if there's an active preview.
+   */
+  hasActivePreview(): boolean;
+
+  /**
+   * Get the current preview widget.
+   */
+  getCurrentPreview(): MainAreaWidget | null;
 }
 
 /**
@@ -59,15 +107,12 @@ class IFrameWidget extends Widget {
  * Manages Streamlit app previews with a single-preview policy.
  * Ensures only one preview can be open at a time.
  */
-class StreamlitAppPreviewPlugin {
+class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   private currentPreview: MainAreaWidget | null = null;
   private appDeployService: IAppDeployService | null = null;
   private appManagerService: IAppManagerService | null = null;
 
-  /**
-   * Set the services for the plugin.
-   */
-  setServices(appDeployService: IAppDeployService, appManagerService: IAppManagerService): void {
+  constructor(appDeployService: IAppDeployService, appManagerService: IAppManagerService) {
     this.appDeployService = appDeployService;
     this.appManagerService = appManagerService;
   }
@@ -255,28 +300,25 @@ class StreamlitAppPreviewPlugin {
   }
 }
 
-// Global instance
-export const streamlitAppPreviewPlugin = new StreamlitAppPreviewPlugin();
-
-
 /**
  * The streamlit preview plugin.
  */
-const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
+const StreamlitPreviewPlugin: JupyterFrontEndPlugin<IStreamlitPreviewManager> = {
   id: 'mito-ai:streamlit-preview',
   autoStart: true,
   requires: [INotebookTracker, ICommandPalette, IAppDeployService, IAppManagerService],
+  provides: IStreamlitPreviewManager,
   activate: (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
     palette: ICommandPalette,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService
-  ) => {
+  ): IStreamlitPreviewManager => {
     console.log('mito-ai: StreamlitPreviewPlugin activated');
     
-    // Set services for the plugin
-    streamlitAppPreviewPlugin.setServices(appDeployService, appManagerService);
+    // Create the service instance
+    const streamlitPreviewManager = new StreamlitAppPreviewManager(appDeployService, appManagerService);
     
     // Add command to command palette
     app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
@@ -284,7 +326,7 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async (args?: ReadonlyPartialJSONObject) => {
         const previewData = args?.previewData as StreamlitPreviewResponse | undefined;
-        await streamlitAppPreviewPlugin.openAppPreview(
+        await streamlitPreviewManager.openAppPreview(
           app,
           notebookTracker,
           appDeployService,
@@ -299,6 +341,9 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
       command: COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT,
       category: 'Mito AI'
     });
+
+    // Return the service so other plugins can use it
+    return streamlitPreviewManager;
   }
 };
 

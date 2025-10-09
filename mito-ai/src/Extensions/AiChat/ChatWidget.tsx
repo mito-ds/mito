@@ -11,6 +11,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../../../src/icons/ChatIcon.svg';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
+import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getOperatingSystem, OperatingSystem } from '../../utils/user';
 import type { IChatWidget as IChatWidget } from './token';
@@ -37,6 +38,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
       notebookTracker: INotebookTracker;
       renderMimeRegistry: IRenderMimeRegistry;
       contextManager: IContextManager;
+      streamlitPreviewManager: IStreamlitPreviewManager;
       operatingSystem: OperatingSystem;
     }
   ) {
@@ -88,6 +90,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
         notebookTracker={this.options.notebookTracker}
         renderMimeRegistry={this.options.renderMimeRegistry}
         contextManager={this.options.contextManager}
+        streamlitPreviewManager={this.options.streamlitPreviewManager}
         operatingSystem={this.options.operatingSystem}
         websocketClient={this.websocketClient}
       />
@@ -114,6 +117,7 @@ export function buildChatWidget(
   notebookTracker: INotebookTracker,
   renderMimeRegistry: IRenderMimeRegistry,
   contextManager: IContextManager,
+  streamlitPreviewManager: IStreamlitPreviewManager,
 ): ChatWidget {
   // Get the operating system here so we don't have to do it each time the chat changes.
   // The operating system won't change, duh.
@@ -124,6 +128,7 @@ export function buildChatWidget(
     notebookTracker,
     renderMimeRegistry,
     contextManager,
+    streamlitPreviewManager: streamlitPreviewManager,
     operatingSystem
   });
   chatWidget.id = 'mito_ai';

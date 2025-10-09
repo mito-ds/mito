@@ -67,7 +67,7 @@ import { getActiveCellOutput } from '../../utils/cellOutput';
 import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
-import { streamlitAppPreviewPlugin } from '../AppPreview/StreamlitPreviewPlugin';
+import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { logEvent } from '../../restAPI/RestAPI';
@@ -121,8 +121,13 @@ import LoadingDots from '../../components/LoadingDots';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
-const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager, app: JupyterFrontEnd): ChatHistoryManager => {
-    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker, app)
+const getDefaultChatHistoryManager = (
+    notebookTracker: INotebookTracker, 
+    contextManager: IContextManager, 
+    app: JupyterFrontEnd, 
+    streamlitPreviewManager: IStreamlitPreviewManager
+): ChatHistoryManager => {
+    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker, app, streamlitPreviewManager)
     return chatHistoryManager
 }
 
@@ -130,6 +135,7 @@ interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     renderMimeRegistry: IRenderMimeRegistry
     contextManager: IContextManager
+    streamlitPreviewManager: IStreamlitPreviewManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
     websocketClient: CompletionWebsocketClient
@@ -147,13 +153,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     renderMimeRegistry,
     contextManager,
+    streamlitPreviewManager,
     app,
     operatingSystem,
     websocketClient,
 }) => {
 
     const [isSignedUp, setIsSignedUp] = useState<boolean>(true);
-    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager, app));
+    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
@@ -282,7 +289,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const chatHistoryResponse = await websocketClient.sendMessage<ICompletionRequest, IFetchHistoryReply>(fetchHistoryCompletionRequest);
 
         // Create a fresh ChatHistoryManager and add the initial messages
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager, app);
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager);
 
         // Each thread only contains agent or chat messages. For now, we enforce this by clearing the chat 
         // when the user switches mode. When the user reloads a chat, we want to put them back into the same
@@ -362,7 +369,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAutoScrollFollowMode(true);
 
         // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager, app);
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager);
         setChatHistoryManager(newChatHistoryManager);
 
         // Notify the backend to request a new chat thread and get its ID
@@ -434,7 +441,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
                     contextManager,
-                    app
+                    app,
+                    streamlitPreviewManager
                 );
                 addAIMessageFromResponseAndUpdateState(
                     (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,
@@ -1156,9 +1164,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         break;
                     }
 
-                    // Create new preview using the plugin
-                    // Note: Services will be handled internally by the plugin
-                    await streamlitAppPreviewPlugin.openAppPreview(
+                    // Create new preview using the service
+                    // Note: Services will be handled internally by the service
+                    await streamlitPreviewManager.openAppPreview(
                         app,
                         notebookTracker,
                         null, // appDeployService - will be handled internally
@@ -1197,9 +1205,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     }
 
                     // Check if there's an active preview to edit
-                    if (!streamlitAppPreviewPlugin.hasActivePreview()) {
+                    if (!streamlitPreviewManager.hasActivePreview()) {
                         // No active preview, create a new one first
-                        await streamlitAppPreviewPlugin.openAppPreview(
+                        await streamlitPreviewManager.openAppPreview(
                             app,
                             notebookTracker,
                             null, // appDeployService - will be handled internally
@@ -1208,7 +1216,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     }
 
                     // Edit the existing preview
-                    await streamlitAppPreviewPlugin.editExistingPreview(
+                    await streamlitPreviewManager.editExistingPreview(
                         agentResponse.edit_streamlit_app_prompt,
                         notebookPath
                     );
