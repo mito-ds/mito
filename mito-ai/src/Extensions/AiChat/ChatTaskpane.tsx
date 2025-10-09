@@ -10,10 +10,9 @@ import React, { useEffect, useRef, useState } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { NotebookPanel } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { addIcon, historyIcon, deleteIcon, settingsIcon } from '@jupyterlab/ui-components';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
@@ -1159,40 +1158,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'create_streamlit_app') {
-                const notebookPath = agentTargetNotebookPanelRef.current?.context.path;
-                if (!notebookPath) {
-                    addAIMessageFromResponseAndUpdateState(
-                        "I couldn't find the current notebook path to create the Streamlit app.",
-                        'agent:execution',
-                        chatHistoryManager
-                    );
-                    break;
-                }
-
                 // Create new preview using the service
-                // TODO: This should use the agentTargetNotebookPanel, not the current active notebook! 
-                // We should create a type for the TargetNotebookPanel
-                await streamlitPreviewManager.openAppPreview(app, notebookTracker);
+                await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
             }
 
             if (agentResponse.type === 'edit_streamlit_app' && agentResponse.edit_streamlit_app_prompt) {
-                const notebookPath = agentTargetNotebookPanelRef.current?.context.path;
-                if (!notebookPath) {
-                    addAIMessageFromResponseAndUpdateState(
-                        "I couldn't find the current notebook path to edit the Streamlit app.",
-                        'agent:execution',
-                        chatHistoryManager
-                    );
-                    break;
-                }
-
                 // Ensure there is an active preview to edit
                 if (!streamlitPreviewManager.hasActivePreview()) {
-                    await streamlitPreviewManager.openAppPreview(app, notebookTracker);
+                    await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
                 }
 
                 // Edit the existing preview
-                await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, notebookPath);
+                await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, agentTargetNotebookPanelRef.current);
             }
         }
 

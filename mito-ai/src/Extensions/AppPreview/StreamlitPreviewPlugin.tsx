@@ -4,7 +4,7 @@
  */
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
@@ -47,7 +47,7 @@ export interface IStreamlitPreviewManager {
    */
   openAppPreview(
     app: JupyterFrontEnd,
-    notebookTracker: INotebookTracker
+    notebookPanel: NotebookPanel
   ): Promise<MainAreaWidget>;
 
   /**
@@ -55,7 +55,7 @@ export interface IStreamlitPreviewManager {
    */
   editExistingPreview(
     editPrompt: string,
-    notebookPath: string
+    notebookPanel: NotebookPanel
   ): Promise<void>;
 
   /**
@@ -118,22 +118,15 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
    */
   async openAppPreview(
     app: JupyterFrontEnd,
-    notebookTracker: INotebookTracker
+    notebookPanel: NotebookPanel,
   ): Promise<MainAreaWidget> {
     // Close existing preview if any
     this.closeCurrentPreview();
-
-    const notebookPanel = notebookTracker.currentWidget;
-    if (!notebookPanel) {
-      throw new Error('No notebook is currently active');
-    }
 
     // First save the notebook to ensure the app is up to date
     await notebookPanel.context.save();
 
     const notebookPath = notebookPanel.context.path;
-    const notebookName = PathExt.basename(notebookPath, '.ipynb');
-
     const finalPreviewData = await startStreamlitPreviewAndNotify(notebookPath);
 
     if (finalPreviewData === undefined) {
@@ -141,8 +134,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     }
     // Create the new preview widget
     const widget = this.createPreviewWidget(
-      notebookTracker,
-      notebookName,
+      notebookPanel,
       notebookPath,
       this.appDeployService,
       this.appManagerService,
@@ -167,7 +159,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
    */
   async editExistingPreview(
     editPrompt: string,
-    notebookPath: string
+    notebookPanel: NotebookPanel
   ): Promise<void> {
     if (!this.currentPreview) {
       throw new Error('No active preview to edit');
@@ -175,7 +167,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
 
     // Update the app with the edit prompt
     await startStreamlitPreviewAndNotify(
-      notebookPath, 
+      notebookPanel.context.path, 
       true, // force_recreate
       editPrompt, 
       'Editing Streamlit app...', 
@@ -212,8 +204,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
    * Create a new preview widget with toolbar buttons.
    */
   private createPreviewWidget(
-    notebookTracker: INotebookTracker,
-    notebookName: string,
+    notebookPanel: NotebookPanel,
     notebookPath: string,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService,
@@ -223,6 +214,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
 
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
+    const notebookName = PathExt.basename(notebookPath, '.ipynb');
     widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
 
@@ -252,7 +244,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const deployButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: (): void => {
-        void deployStreamlitApp(notebookTracker, appDeployService, appManagerService);
+        void deployStreamlitApp(notebookPanel, appDeployService, appManagerService);
       },
       tooltip: 'Deploy Streamlit App',
       label: 'Deploy App',
@@ -305,7 +297,15 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<IStreamlitPreviewManager> = 
     app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
       label: 'Preview as Streamlit',
       caption: 'Convert current notebook to Streamlit app and preview it',
-      execute: async () => {await streamlitPreviewManager.openAppPreview(app, notebookTracker)}
+      execute: async () => {
+        // Instead of using the notebook tracker, we could pass the notebook panel directly, but this button
+        // is only used in the notebook toolbar, so its okay.
+        if (notebookTracker.currentWidget) {
+          await streamlitPreviewManager.openAppPreview(app, notebookTracker.currentWidget)
+        } else {
+          console.error('No notebook is currently active');
+        }
+      }
     });
 
     // Add to command palette

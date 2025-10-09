@@ -118,6 +118,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Li
             }
             filtered_cells.append(filtered_cell)
             
+        print(filtered_cells)
         return filtered_cells
 
     except FileNotFoundError:

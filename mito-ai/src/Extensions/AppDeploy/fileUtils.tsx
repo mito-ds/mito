@@ -3,18 +3,13 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { INotebookTracker } from "@jupyterlab/notebook";
+import { NotebookPanel } from "@jupyterlab/notebook";
 
 export const saveFileWithKernel = async (
-  notebookTracker: INotebookTracker,
+  notebookPanel: NotebookPanel,
   filePath: string,
   fileContent: string
 ): Promise<void> => {
-  const notebookPanel = notebookTracker.currentWidget;
-  if (!notebookPanel) {
-    console.error('No notebook is currently active');
-    return;
-  }
 
   try {
     // Use the kernel to execute Python code

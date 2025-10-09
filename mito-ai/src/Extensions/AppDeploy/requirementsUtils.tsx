@@ -3,17 +3,12 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { INotebookTracker } from "@jupyterlab/notebook";
+import { NotebookPanel } from "@jupyterlab/notebook";
 
 // Function to generate requirements.txt content using the kernel with pipreqs
 export const generateRequirementsTxt = async (
-  notebookTracker: INotebookTracker
+  notebookPanel: NotebookPanel
 ): Promise<string> => {
-  const notebookPanel = notebookTracker.currentWidget;
-  if (!notebookPanel) {
-    console.error('No notebook is currently active');
-    return '';
-  }
 
   // Initialize with fallback requirements in case kernel execution fails
   let requirementsContent = 'streamlit>=1.28.0'
