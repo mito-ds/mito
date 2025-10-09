@@ -22,6 +22,7 @@ STREAMLIT IMPLEMENTATION GUIDELINES:
 - Include all text explanations and insights from markdown cells
 - Add interactive elements where beneficial (filters, selectors, etc.)
 - Ensure professional styling and layout suitable for executives
+- Just create the streamlit app code, do not include a _main_ function block. The file will be run directly using `streamlit run app.py`.
 
 CRITICAL REQUIREMENTS:
 1. **PRESERVE ALL CODE EXACTLY**: Every line of code, every data structure, every import must be included in full
