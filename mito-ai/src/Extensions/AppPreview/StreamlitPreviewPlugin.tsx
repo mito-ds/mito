@@ -34,6 +34,8 @@ export interface StreamlitPreviewResponse {
   url: string;
 }
 
+export const APP_PREVIEW_TITLE = 'App Preview';
+
 /**
  * Simple HTML widget for displaying iframe content.
  */
@@ -202,7 +204,7 @@ async function previewNotebookAsStreamlit(
 
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
-    widget.title.label = `App Preview (${notebookName})`;
+    widget.title.label = `${APP_PREVIEW_TITLE} (${notebookName})`;
     widget.title.closable = true;
 
 

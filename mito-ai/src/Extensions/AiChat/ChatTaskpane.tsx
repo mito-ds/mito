@@ -121,8 +121,8 @@ import LoadingDots from '../../components/LoadingDots';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
-const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
-    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
+const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager, app: JupyterFrontEnd): ChatHistoryManager => {
+    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker, app)
     return chatHistoryManager
 }
 
@@ -153,7 +153,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 }) => {
 
     const [isSignedUp, setIsSignedUp] = useState<boolean>(false);
-    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
+    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager, app));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
@@ -282,7 +282,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const chatHistoryResponse = await websocketClient.sendMessage<ICompletionRequest, IFetchHistoryReply>(fetchHistoryCompletionRequest);
 
         // Create a fresh ChatHistoryManager and add the initial messages
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager, app);
 
         // Each thread only contains agent or chat messages. For now, we enforce this by clearing the chat 
         // when the user switches mode. When the user reloads a chat, we want to put them back into the same
@@ -362,7 +362,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAutoScrollFollowMode(true);
 
         // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager, app);
         setChatHistoryManager(newChatHistoryManager);
 
         // Notify the backend to request a new chat thread and get its ID
@@ -433,7 +433,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } catch (error: unknown) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
-                    contextManager
+                    contextManager,
+                    app
                 );
                 addAIMessageFromResponseAndUpdateState(
                     (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,

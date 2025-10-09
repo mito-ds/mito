@@ -236,7 +236,7 @@ When you want to create a new Streamlit app from the current notebook, respond w
 
 Important information:
 1. The message is a short summary of why you're creating the Streamlit app.
-2. Only use this tool when the user explicitly asks to create or preview a Streamlit app.
+2. Only use this tool when the user explicitly asks to create or preview a Streamlit app AND no Streamlit app is currently open.
 3. You should update the notebook first unless the user only asks for app creation.
 4. This will automatically open the preview window.
 5. This tool creates a new app from scratch - use EDIT_STREAMLIT_APP if you need to modify an existing app.

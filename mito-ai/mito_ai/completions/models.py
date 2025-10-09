@@ -102,6 +102,7 @@ class AgentExecutionMetadata():
     files: Optional[List[str]] = None
     index: Optional[int] = None
     additionalContext: Optional[List[Dict[str, str]]] = None
+    streamlitAppIsOpen: Optional[bool] = None
     
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():

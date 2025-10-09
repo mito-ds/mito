@@ -94,6 +94,7 @@ export interface IAgentExecutionMetadata {
   threadId: string;
   isChromeBrowser: boolean;
   additionalContext?: Array<{type: string, value: string}>;
+  streamlitAppIsOpen?: boolean;
 }
 
 export interface IAgentSmartDebugMetadata {

@@ -19,6 +19,7 @@ ACTIVE_CELL_ID_SECTION_HEADING = "The ID of the active code cell:"
 ACTIVE_CELL_OUTPUT_SECTION_HEADING = "Output of the active code cell:"
 GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING = "Output of the code cell you just applied the CELL_UPDATE to:"
 JUPYTER_NOTEBOOK_SECTION_HEADING = "Jupyter Notebook:"
+STREAMLIT_APP_STATUS_SECTION_HEADING = "Streamlit App Status:"
 
 # Placeholder text used when trimming content from messages
 CONTENT_REMOVED_PLACEHOLDER = "Content removed to save space" 

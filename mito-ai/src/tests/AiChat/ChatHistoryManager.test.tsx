@@ -6,6 +6,7 @@
 import { ChatHistoryManager, IDisplayOptimizedChatItem } from '../../Extensions/AiChat/ChatHistoryManager';
 import { IContextManager } from '../../Extensions/ContextManager/ContextManagerPlugin';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 // Mock the notebook utilities
 jest.mock('../../utils/notebook', () => ({
@@ -27,6 +28,7 @@ describe('ChatHistoryManager', () => {
     let mockContextManager: IContextManager;
     let mockNotebookTracker: INotebookTracker;
     let mockNotebookPanel: NotebookPanel;
+    let mockApp: JupyterFrontEnd;
     const mockNotebookId = '/test/notebook.ipynb';
 
     beforeEach(() => {
@@ -51,13 +53,21 @@ describe('ChatHistoryManager', () => {
 
         // Create mock notebook tracker
         mockNotebookTracker = {} as INotebookTracker;
+
+        // Create mock app
+        mockApp = {
+            shell: {
+                widgets: jest.fn(() => [])
+            }
+        } as unknown as JupyterFrontEnd;
     });
 
     describe('Constructor and Basic Functionality', () => {
         it('should initialize with empty history when no initial history is provided', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
-                mockNotebookTracker
+                mockNotebookTracker,
+                mockApp
             );
 
             const history = chatHistoryManager.getDisplayOptimizedHistory();
@@ -76,6 +86,7 @@ describe('ChatHistoryManager', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
                 mockNotebookTracker,
+                mockApp,
                 initialHistory
             );
 
@@ -100,6 +111,7 @@ describe('ChatHistoryManager', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
                 mockNotebookTracker,
+                mockApp,
                 initialHistory
             );
 
@@ -124,7 +136,8 @@ describe('ChatHistoryManager', () => {
         it('should add chat message from history', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
-                mockNotebookTracker
+                mockNotebookTracker,
+                mockApp
             );
 
             const message = { role: 'user' as const, content: 'Test message' };
@@ -140,7 +153,8 @@ describe('ChatHistoryManager', () => {
         it('should add AI message from response', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
-                mockNotebookTracker
+                mockNotebookTracker,
+                mockApp
             );
 
             chatHistoryManager.addAIMessageFromResponse('AI response content', 'chat');
@@ -158,7 +172,8 @@ describe('ChatHistoryManager', () => {
         it('should handle null message content gracefully', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
-                mockNotebookTracker
+                mockNotebookTracker,
+                mockApp
             );
 
             chatHistoryManager.addAIMessageFromResponse(null, 'chat');
@@ -170,7 +185,8 @@ describe('ChatHistoryManager', () => {
         it('should drop messages starting at specified index', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
-                mockNotebookTracker
+                mockNotebookTracker,
+                mockApp
             );
 
             // Add some messages
@@ -198,6 +214,7 @@ describe('ChatHistoryManager', () => {
             const originalManager = new ChatHistoryManager(
                 mockContextManager,
                 mockNotebookTracker,
+                mockApp,
                 initialHistory
             );
 
@@ -212,7 +229,7 @@ describe('ChatHistoryManager', () => {
 
     describe('High-Level Chat Workflows', () => {
         it('should add chat input message with metadata', async () => {
-            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker, mockApp);
 
             const metadata = await manager.addChatInputMessage('Test input', 'thread-123');
 
@@ -226,7 +243,7 @@ describe('ChatHistoryManager', () => {
         });
 
         it('should add agent execution message', () => {
-            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker, mockApp);
 
             const metadata = manager.addAgentExecutionMessage('thread-123', mockNotebookPanel, 'Execute this');
 
@@ -236,7 +253,7 @@ describe('ChatHistoryManager', () => {
         });
 
         it('should add smart debug message', () => {
-            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker, mockApp);
 
             const metadata = manager.addSmartDebugMessage('thread-123', 'Error message');
 
@@ -245,7 +262,7 @@ describe('ChatHistoryManager', () => {
         });
 
         it('should add agent smart debug message', () => {
-            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker, mockApp);
 
             const metadata = manager.addAgentSmartDebugMessage('thread-123', 'Agent error', mockNotebookPanel);
 
@@ -254,7 +271,7 @@ describe('ChatHistoryManager', () => {
         });
 
         it('should add explain code message', () => {
-            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker);
+            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker, mockApp);
 
             const metadata = manager.addExplainCodeMessage('thread-123');
 
@@ -292,6 +309,7 @@ describe('ChatHistoryManager', () => {
             const originalManager = new ChatHistoryManager(
                 mockContextManager,
                 mockNotebookTracker,
+                mockApp,
                 initialHistory
             );
 
@@ -318,7 +336,8 @@ describe('ChatHistoryManager', () => {
         it('should correctly deduplicate assumptions across multiple agent responses', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
-                mockNotebookTracker
+                mockNotebookTracker,
+                mockApp
             );
 
             // Add first agent response with assumptions
@@ -356,7 +375,8 @@ describe('ChatHistoryManager', () => {
         it('should handle agent responses without assumptions correctly', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
-                mockNotebookTracker
+                mockNotebookTracker,
+                mockApp
             );
 
             // Add first response with assumptions
@@ -394,7 +414,8 @@ describe('ChatHistoryManager', () => {
         it('should handle empty assumptions array correctly', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
-                mockNotebookTracker
+                mockNotebookTracker,
+                mockApp
             );
 
             // Add first response with assumptions
@@ -432,7 +453,8 @@ describe('ChatHistoryManager', () => {
         it('should handle empty string assumptions', () => {
             const chatHistoryManager = new ChatHistoryManager(
                 mockContextManager,
-                mockNotebookTracker
+                mockNotebookTracker,
+                mockApp
             );
 
             // Add first response with assumptions
