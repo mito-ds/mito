@@ -1158,7 +1158,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                     // Create new preview using the plugin
                     // Note: Services will be handled internally by the plugin
-                    await streamlitAppPreviewPlugin.createNewPreview(
+                    await streamlitAppPreviewPlugin.openAppPreview(
                         app,
                         notebookTracker,
                         null, // appDeployService - will be handled internally
@@ -1199,7 +1199,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // Check if there's an active preview to edit
                     if (!streamlitAppPreviewPlugin.hasActivePreview()) {
                         // No active preview, create a new one first
-                        await streamlitAppPreviewPlugin.createNewPreview(
+                        await streamlitAppPreviewPlugin.openAppPreview(
                             app,
                             notebookTracker,
                             null, // appDeployService - will be handled internally

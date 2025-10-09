@@ -8,7 +8,6 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
-import { Notification } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { stopStreamlitPreview } from '../../restAPI/RestAPI';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
@@ -17,12 +16,9 @@ import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
-import { startStreamlitPreviewAndNotify } from './utils';
-import * as React from 'react';
-import UpdateAppDropdown from './UpdateAppDropdown';
-import { Dialog, showDialog } from '@jupyterlab/apputils';
-import { createRoot } from 'react-dom/client';
+import { showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
+import { showUpdateAppDropdown } from './UpdateAppDropdown';
 
 
 /**
@@ -33,8 +29,6 @@ export interface StreamlitPreviewResponse {
   port: number;
   url: string;
 }
-
-export const APP_PREVIEW_TITLE = 'App Preview';
 
 /**
  * Simple HTML widget for displaying iframe content.
@@ -81,7 +75,7 @@ class StreamlitAppPreviewPlugin {
   /**
    * Create a new Streamlit app preview, replacing any existing preview.
    */
-  async createNewPreview(
+  async openAppPreview(
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
     appDeployService: IAppDeployService | null,
@@ -203,7 +197,7 @@ class StreamlitAppPreviewPlugin {
 
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
-    widget.title.label = `${APP_PREVIEW_TITLE} (${notebookName})`;
+    widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
 
     // Create toolbar buttons
@@ -264,73 +258,6 @@ class StreamlitAppPreviewPlugin {
 // Global instance
 export const streamlitAppPreviewPlugin = new StreamlitAppPreviewPlugin();
 
-async function showRecreateAppConfirmation(notebookPath: string): Promise<void> {
-  const result = await showDialog({
-    title: 'Recreate App',
-    body: 'This will recreate the app from scratch, discarding all your current edits. This action cannot be undone. Are you sure you want to continue?',
-    buttons: [
-      Dialog.cancelButton({ label: 'Cancel' }),
-      Dialog.warnButton({ label: 'Recreate App' })
-    ],
-    defaultButton: 1
-  });
-
-  if (result.button.accept) {
-    void startStreamlitPreviewAndNotify(notebookPath, true, undefined, 'Recreating app from scratch...', 'App recreated successfully!');
-  }
-}
-
-/**
- * Show the update app dropdown.
- */
-function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string): void {
-  // Remove any existing dropdown
-  const existingDropdown = document.querySelector('.update-app-dropdown');
-  if (existingDropdown) {
-    existingDropdown.remove();
-  }
-
-  // Create dropdown container
-  const dropdownContainer = document.createElement('div');
-  dropdownContainer.className = 'update-app-dropdown';
-  dropdownContainer.style.position = 'absolute';
-  dropdownContainer.style.zIndex = '1000';
-
-  // Position the dropdown below the button
-  const buttonRect = buttonElement.getBoundingClientRect();
-  dropdownContainer.style.top = `${buttonRect.bottom + 4}px`;
-  dropdownContainer.style.left = `${buttonRect.left}px`;
-
-  // Add to document
-  document.body.appendChild(dropdownContainer);
-
-  // Render the React component
-  createRoot(dropdownContainer).render(
-    <UpdateAppDropdown
-      onSubmit={async (message) => {
-        await startStreamlitPreviewAndNotify(notebookPath, true, message, 'Updating app...', 'App updated successfully!');
-        dropdownContainer.remove();
-      }}
-      onClose={() => {
-        dropdownContainer.remove();
-      }}
-    />
-  );
-
-  // Close dropdown when clicking outside
-  const handleClickOutside = (event: MouseEvent): void => {
-    if (!dropdownContainer.contains(event.target as Node) &&
-      !buttonElement.contains(event.target as Node)) {
-      dropdownContainer.remove();
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-  };
-
-  // Add click outside listener after a small delay to avoid immediate closure
-  setTimeout(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-  }, 100);
-}
 
 /**
  * The streamlit preview plugin.
@@ -357,7 +284,13 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
       caption: 'Convert current notebook to Streamlit app and preview it',
       execute: async (args?: ReadonlyPartialJSONObject) => {
         const previewData = args?.previewData as StreamlitPreviewResponse | undefined;
-        await previewNotebookAsStreamlit(app, notebookTracker, appDeployService, appManagerService, previewData);
+        await streamlitAppPreviewPlugin.openAppPreview(
+          app,
+          notebookTracker,
+          appDeployService,
+          appManagerService,
+          previewData
+        )
       }
     });
 
@@ -368,31 +301,5 @@ const StreamlitPreviewPlugin: JupyterFrontEndPlugin<void> = {
     });
   }
 };
-
-/**
- * Preview the current notebook as a Streamlit app.
- */
-async function previewNotebookAsStreamlit(
-  app: JupyterFrontEnd,
-  notebookTracker: INotebookTracker,
-  appDeployService: IAppDeployService,
-  appManagerService: IAppManagerService,
-  previewData?: StreamlitPreviewResponse | undefined
-): Promise<void> {
-  try {
-    await streamlitAppPreviewPlugin.createNewPreview(
-      app,
-      notebookTracker,
-      appDeployService,
-      appManagerService,
-      previewData
-    );
-  }
-  catch (error) {
-    console.error('Error creating Streamlit preview:', error);
-    Notification.error(`Failed to create Streamlit preview: ${error}`);
-  }
-}
-
 
 export default StreamlitPreviewPlugin; 
