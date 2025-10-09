@@ -5,16 +5,23 @@
 
 import React from 'react';
 import Pencil from '../../icons/Pencil';
+import ShimmerWrapper from './ShimmerWrapper';
 import '../../../style/AgentToolUIComponent.css';
 
-const EditStreamlitAppToolUI: React.FC = () => {
+interface EditStreamlitAppToolUIProps {
+    isRunning?: boolean;
+}
+
+const EditStreamlitAppToolUI: React.FC<EditStreamlitAppToolUIProps> = ({ isRunning = false }) => {
 
     return (
         <div className="agent-tool-ui-container">
-            <div className="agent-tool-ui-content">
-                <Pencil />
-                <span>Editing Streamlit app</span>
-            </div>
+            <ShimmerWrapper isActive={isRunning}>
+                <div className="agent-tool-ui-content">
+                    <Pencil />
+                    <span>Editing Streamlit app</span>
+                </div>
+            </ShimmerWrapper>
         </div>
     )
 }

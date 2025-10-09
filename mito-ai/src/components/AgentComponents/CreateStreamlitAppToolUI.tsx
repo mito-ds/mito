@@ -4,7 +4,12 @@
  */
 
 import React from 'react';
+import ShimmerWrapper from './ShimmerWrapper';
 import '../../../style/AgentToolUIComponent.css';
+
+interface CreateStreamlitAppToolUIProps {
+    isRunning?: boolean;
+}
 
 // Simple app icon component
 const AppIcon: React.FC = () => (
@@ -17,14 +22,16 @@ const AppIcon: React.FC = () => (
     </svg>
 );
 
-const CreateStreamlitAppToolUI: React.FC = () => {
+const CreateStreamlitAppToolUI: React.FC<CreateStreamlitAppToolUIProps> = ({ isRunning = false }) => {
 
     return (
         <div className="agent-tool-ui-container">
-            <div className="agent-tool-ui-content">
-                <AppIcon />
-                <span>Creating Streamlit app</span>
-            </div>
+            <ShimmerWrapper isActive={isRunning}>
+                <div className="agent-tool-ui-content">
+                    <AppIcon />
+                    <span>Creating Streamlit app</span>
+                </div>
+            </ShimmerWrapper>
         </div>
     )
 }

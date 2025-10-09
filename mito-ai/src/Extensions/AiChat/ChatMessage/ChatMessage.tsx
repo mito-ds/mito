@@ -309,10 +309,10 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 <RunAllCellsToolUI />
             }
             {agentResponse?.type === 'create_streamlit_app' && agentModeEnabled &&
-                <CreateStreamlitAppToolUI />
+                <CreateStreamlitAppToolUI isRunning={isLastMessage} />
             }
             {agentResponse?.type === 'edit_streamlit_app' && agentModeEnabled &&
-                <EditStreamlitAppToolUI />
+                <EditStreamlitAppToolUI isRunning={isLastMessage} />
             }
         </div>
     )
