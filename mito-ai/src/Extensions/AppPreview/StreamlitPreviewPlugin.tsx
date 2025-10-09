@@ -43,16 +43,16 @@ class IFrameWidget extends Widget {
   constructor(url: string) {
     super();
     this.addClass('jp-iframe-widget');
-    
+
     const iframe = document.createElement('iframe');
     iframe.src = url;
     iframe.style.width = '100%';
     iframe.style.height = '100%';
     iframe.style.border = 'none';
-    
+
     this.node.appendChild(iframe);
   }
-  
+
   setUrl(url: string): void {
     const iframe = this.node.querySelector('iframe') as HTMLIFrameElement;
     if (iframe) {
@@ -64,7 +64,7 @@ class IFrameWidget extends Widget {
 async function showRecreateAppConfirmation(notebookPath: string): Promise<void> {
   const result = await showDialog({
     title: 'Recreate App',
-    body: 'This will recreate the app from scratch, discarding all your current edits. This action cannot be undone. Are you sure you want to continue?',    
+    body: 'This will recreate the app from scratch, discarding all your current edits. This action cannot be undone. Are you sure you want to continue?',
     buttons: [
       Dialog.cancelButton({ label: 'Cancel' }),
       Dialog.warnButton({ label: 'Recreate App' })
@@ -116,8 +116,8 @@ function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string)
 
   // Close dropdown when clicking outside
   const handleClickOutside = (event: MouseEvent): void => {
-    if (!dropdownContainer.contains(event.target as Node) && 
-        !buttonElement.contains(event.target as Node)) {
+    if (!dropdownContainer.contains(event.target as Node) &&
+      !buttonElement.contains(event.target as Node)) {
       dropdownContainer.remove();
       document.removeEventListener('mousedown', handleClickOutside);
     }
@@ -185,7 +185,6 @@ async function previewNotebookAsStreamlit(
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
 
-
   try {
     if (previewData === undefined) {
       previewData = await startStreamlitPreviewAndNotify(notebookPath);
@@ -195,67 +194,14 @@ async function previewNotebookAsStreamlit(
       return;
     }
 
-    // Create iframe widget
-    // TODO: Instead of having this widget creation code in the previewNotebookAsStreamlit function, 
-    // I wonder if we can make it part of the StreamlitPreviewPlugin. What we want is the following: 
-    // a react component that takes the app, notebookTracker, and appDeployService as a prop and is 
-    // already set up with this layout. Each time it opens, we're just deciding which notebook to display.
-    const iframeWidget = new IFrameWidget(previewData.url);
-
-    // Create main area widget
-    const widget = new MainAreaWidget({ content: iframeWidget });
-    widget.title.label = `${APP_PREVIEW_TITLE} (${notebookName})`;
-    widget.title.closable = true;
-
-
-    /* ******************************************************
-     * Create Streamlit App Toolbar Buttons
-     ****************************************************** */
-    const editAppButton = new ToolbarButton({
-      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
-      onClick: (): void => {
-        showUpdateAppDropdown(editAppButton.node, notebookPath);
-      },
-      tooltip: 'Edit Streamlit App',
-      label: 'Edit App',
-      icon: EditLabIcon,
-      iconClass: 'mito-ai-deploy-icon'
-    });
-
-    const recreateAppButton = new ToolbarButton({
-      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
-      onClick: async (): Promise<void> => {
-        await showRecreateAppConfirmation(notebookPath);
-      },
-      tooltip: 'Recreate new App from scratch based on the current state of the notebook',
-      label: 'Recreate App',
-      icon: ResetCircleLabIcon,
-      iconClass: 'mito-ai-deploy-icon'
-    });
-
-    const deployButton = new ToolbarButton({
-      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
-      onClick: (): void => {
-        void deployStreamlitApp(notebookTracker, appDeployService, appManagerService);
-      },
-      tooltip: 'Deploy Streamlit App',
-      label: 'Deploy App',
-      icon: DeployLabIcon,
-      iconClass: 'mito-ai-deploy-icon'
-    });
-    
-    // Insert the button into the toolbar
-    widget.toolbar.insertAfter('spacer', 'edit-app-button', editAppButton);
-    widget.toolbar.insertAfter('edit-app-button', 'recreate-app-button', recreateAppButton);
-    widget.toolbar.insertAfter('recreate-app-button', 'deploy-app-button', deployButton);
-
-    // Handle widget disposal
-    widget.disposed.connect(() => {
-      console.log('Widget disposed, stopping preview');
-      if (previewData) {
-        void stopStreamlitPreview(previewData.id);
-      }
-    });
+    const widget = createNewStreamlitAppPreviewWidget(
+      notebookTracker,
+      notebookName,
+      notebookPath,
+      appDeployService,
+      appManagerService,
+      previewData
+    );
 
     // Add widget to main area with split-right mode
     app.shell.add(widget, 'main', {
@@ -266,6 +212,78 @@ async function previewNotebookAsStreamlit(
   catch (error) {
     console.error('Error starting streamlit preview:', error);
   }
+}
+
+const createNewStreamlitAppPreviewWidget = (
+  notebookTracker: INotebookTracker,
+  notebookName: string,
+  notebookPath: string,
+  appDeployService: IAppDeployService,
+  appManagerService: IAppManagerService,
+  previewData: StreamlitPreviewResponse,
+) => {
+  // TODO: Instead of having this widget creation code in the previewNotebookAsStreamlit function, 
+  // I wonder if we can make it part of the StreamlitPreviewPlugin. What we want is the following: 
+  // a react component that takes the app, notebookTracker, and appDeployService as a prop and is 
+  // already set up with this layout. Each time it opens, we're just deciding which notebook to display.
+  const iframeWidget = new IFrameWidget(previewData.url);
+
+  // Create main area widget
+  const widget = new MainAreaWidget({ content: iframeWidget });
+  widget.title.label = `${APP_PREVIEW_TITLE} (${notebookName})`;
+  widget.title.closable = true;
+
+
+  /* ******************************************************
+   * Create Streamlit App Toolbar Buttons
+   ****************************************************** */
+  const editAppButton = new ToolbarButton({
+    className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+    onClick: (): void => {
+      showUpdateAppDropdown(editAppButton.node, notebookPath);
+    },
+    tooltip: 'Edit Streamlit App',
+    label: 'Edit App',
+    icon: EditLabIcon,
+    iconClass: 'mito-ai-deploy-icon'
+  });
+
+  const recreateAppButton = new ToolbarButton({
+    className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+    onClick: async (): Promise<void> => {
+      await showRecreateAppConfirmation(notebookPath);
+    },
+    tooltip: 'Recreate new App from scratch based on the current state of the notebook',
+    label: 'Recreate App',
+    icon: ResetCircleLabIcon,
+    iconClass: 'mito-ai-deploy-icon'
+  });
+
+  const deployButton = new ToolbarButton({
+    className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+    onClick: (): void => {
+      void deployStreamlitApp(notebookTracker, appDeployService, appManagerService);
+    },
+    tooltip: 'Deploy Streamlit App',
+    label: 'Deploy App',
+    icon: DeployLabIcon,
+    iconClass: 'mito-ai-deploy-icon'
+  });
+
+  // Insert the button into the toolbar
+  widget.toolbar.insertAfter('spacer', 'edit-app-button', editAppButton);
+  widget.toolbar.insertAfter('edit-app-button', 'recreate-app-button', recreateAppButton);
+  widget.toolbar.insertAfter('recreate-app-button', 'deploy-app-button', deployButton);
+
+  // Handle widget disposal
+  widget.disposed.connect(() => {
+    console.log('Widget disposed, stopping preview');
+    if (previewData) {
+      void stopStreamlitPreview(previewData.id);
+    }
+  });
+
+  return widget;
 }
 
 export default StreamlitPreviewPlugin; 
