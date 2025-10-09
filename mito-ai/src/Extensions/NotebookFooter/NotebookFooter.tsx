@@ -12,8 +12,8 @@ import '../../../style/NotebookFooter.css';
 import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
-import { getUserKey } from '../../restAPI/RestAPI';
 import { userSignupEvents } from '../../utils/userSignupEvents';
+import { checkUserSignupState } from '../../utils/userSignupState';
 
 interface NotebookFooterProps {
     notebookTracker: INotebookTracker;
@@ -25,26 +25,22 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
 
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-    const [isSignedUp, setIsSignedUp] = useState(false);
+    const [isSignedUp, setIsSignedUp] = useState(true);
 
-    // Function to refresh user email state
-    const refreshUserEmail = async (): Promise<void> => {
-        try {
-            const email = await getUserKey('user_email');
-            setIsSignedUp(email !== "" && email !== undefined);
-        } catch (error) {
-            console.error('Failed to get user email:', error);
-        }
+    // Function to refresh user signup state using the shared helper
+    const refreshUserSignupState = async (): Promise<void> => {
+        const signupState = await checkUserSignupState();
+        setIsSignedUp(signupState.isSignedUp);
     };
 
     useEffect(() => {
-        void refreshUserEmail();
+        void refreshUserSignupState();
     }, []);
 
     // Listen for signup success events from other components
     useEffect(() => {
         const handleSignupSuccess = (): void => {
-            void refreshUserEmail();
+            void refreshUserSignupState();
         };
 
         userSignupEvents.signupSuccess.connect(handleSignupSuccess);

@@ -49,11 +49,8 @@ from mito_ai.utils.telemetry_utils import identify
 
 FALLBACK_MODEL = "gpt-4.1"  # Default model to use for safety
 
-# The GlobalMessageHistory is responsible for updating the message histories stored in the .mito/ai-chats directory.
-# We create one GlobalMessageHistory per backend server instance instead of one per websocket connection so that the
-# there is one manager of the locks for the .mito/ai-chats directory. This is my current understanding and it 
-# might be incorrect!
-message_history = GlobalMessageHistory()
+# The GlobalMessageHistory is now created in __init__.py and passed to handlers
+# to ensure there's only one instance managing the .mito/ai-chats directory locks
 
 # This handler is responsible for the mito_ai/completions endpoint.
 # It takes a message from the user, sends it to the OpenAI API, and returns the response.
@@ -62,10 +59,11 @@ message_history = GlobalMessageHistory()
 class CompletionHandler(JupyterHandler, WebSocketHandler):
     """Completion websocket handler."""
 
-    def initialize(self, llm: OpenAIProvider) -> None:
+    def initialize(self, llm: OpenAIProvider, message_history: GlobalMessageHistory) -> None:
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm
+        self._message_history = message_history
         self.is_pro = is_pro()
         self._selected_model = FALLBACK_MODEL
         self.is_electron = False
@@ -150,7 +148,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Clear history if the type is "start_new_chat"
         if type == MessageType.START_NEW_CHAT:
-            thread_id = message_history.create_new_thread()
+            thread_id = self._message_history.create_new_thread()
             
             reply = StartNewChatReply(
                 parent_id=parsed_message.get("message_id"),
@@ -161,7 +159,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Handle get_threads: return list of chat threads
         if type == MessageType.GET_THREADS:
-            threads = message_history.get_threads()
+            threads = self._message_history.get_threads()
             reply = FetchThreadsReply(
                 parent_id=parsed_message.get("message_id"),
                 threads=threads
@@ -173,7 +171,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if type == MessageType.DELETE_THREAD:
             thread_id_to_delete = metadata_dict.get('thread_id')
             if thread_id_to_delete:
-                is_thread_deleted = message_history.delete_thread(thread_id_to_delete)
+                is_thread_deleted = self._message_history.delete_thread(thread_id_to_delete)
                 reply = DeleteThreadReply(
                     parent_id=parsed_message.get("message_id"),
                     success=is_thread_deleted
@@ -189,7 +187,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             
             # If a thread_id is provided, use that thread's history; otherwise, use newest.
             thread_id = metadata_dict.get('thread_id')
-            display_history = message_history.get_display_history(thread_id)
+            display_history = self._message_history.get_display_history(thread_id)
             
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
@@ -238,7 +236,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     "content": "Agent interupted by user "
                 }
                 
-                await message_history.append_message(
+                await self._message_history.append_message(
                     ai_optimized_message=ai_optimized_message,
                     display_message=display_optimized_message,
                     model=self._selected_model,
@@ -266,7 +264,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     await stream_chat_completion(
                         chat_metadata, 
                         self._llm, 
-                        message_history, 
+                        self._message_history, 
                         message_id,
                         self.reply,
                         model
@@ -274,7 +272,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     return
                 else:
                     # Regular non-streaming completion
-                    completion = await get_chat_completion(chat_metadata, self._llm, message_history, model)
+                    completion = await get_chat_completion(chat_metadata, self._llm, self._message_history, model)
             elif type == MessageType.SMART_DEBUG:
                 smart_debug_metadata = SmartDebugMetadata(**metadata_dict)
                 # Handle streaming if requested and available
@@ -283,7 +281,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     await stream_smart_debug_completion(
                         smart_debug_metadata, 
                         self._llm, 
-                        message_history, 
+                        self._message_history, 
                         message_id,
                         self.reply,
                         model
@@ -291,7 +289,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     return
                 else:
                     # Regular non-streaming completion
-                    completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, message_history, model)
+                    completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, self._message_history, model)
             elif type == MessageType.CODE_EXPLAIN:
                 code_explain_metadata = CodeExplainMetadata(**metadata_dict)
 
@@ -301,7 +299,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     await stream_code_explain_completion(
                         code_explain_metadata, 
                         self._llm, 
-                        message_history,
+                        self._message_history,
                         message_id,
                         self.reply,
                         model
@@ -309,16 +307,16 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     return
                 else:
                     # Regular non-streaming completion
-                    completion = await get_code_explain_completion(code_explain_metadata, self._llm, message_history, model)
+                    completion = await get_code_explain_completion(code_explain_metadata, self._llm, self._message_history, model)
             elif type == MessageType.AGENT_EXECUTION:
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
-                completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, message_history, model)
+                completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, self._message_history, model)
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
                 agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
-                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, message_history, model)
+                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, self._message_history, model)
             elif type == MessageType.INLINE_COMPLETION:
                 inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
-                completion = await get_inline_completion(inline_completer_metadata, self._llm, message_history, model)
+                completion = await get_inline_completion(inline_completer_metadata, self._llm, self._message_history, model)
             else:
                 raise ValueError(f"Invalid message type: {type}")
             
