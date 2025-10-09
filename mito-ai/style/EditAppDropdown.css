@@ -1,0 +1,79 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* UpdateAppDropdown Styles */
+
+.update-app-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background-color: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    min-width: 300px;
+    max-width: 500px;
+}
+
+.update-app-dropdown-content {
+    padding: 12px;
+}
+
+.update-app-dropdown-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--jp-ui-font-color1);
+    font-size: var(--jp-ui-font-size1);
+}
+
+.update-app-dropdown-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 8px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 3px;
+    font-family: var(--jp-ui-font-family);
+    font-size: var(--jp-ui-font-size1);
+    resize: vertical;
+    box-sizing: border-box;
+    background-color: var(--jp-input-background);
+    color: var(--jp-ui-font-color1);
+}
+
+.update-app-dropdown-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.update-app-dropdown-button {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: var(--jp-ui-font-family);
+    font-size: var(--jp-ui-font-size0);
+}
+
+.update-app-dropdown-button-cancel {
+    background-color: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color1);
+}
+
+.update-app-dropdown-button-submit {
+    
+    background-color: var(--purple-300);
+    color: var(--purple-700);
+    cursor: pointer;
+}
+
+.update-app-dropdown-button-submit.disabled {
+    background-color: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color2);
+    cursor: not-allowed;
+}

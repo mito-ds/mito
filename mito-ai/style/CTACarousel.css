@@ -52,3 +52,17 @@
 .cta-carousel-button {
     margin-top: 8px;
 }
+
+.cta-logo-container {
+    margin: 0 auto 8px;
+    display: block;
+    text-align: center;
+}
+
+.cta-title {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 15px;
+}

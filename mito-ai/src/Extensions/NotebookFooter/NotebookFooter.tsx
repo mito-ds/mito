@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { INotebookTracker, NotebookActions } from "@jupyterlab/notebook";
 import { JupyterFrontEnd } from "@jupyterlab/application";
@@ -12,23 +12,59 @@ import '../../../style/NotebookFooter.css';
 import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
+import { userSignupEvents } from '../../utils/userSignupEvents';
+import { checkUserSignupState } from '../../utils/userSignupState';
 
 interface NotebookFooterProps {
     notebookTracker: INotebookTracker;
     app: JupyterFrontEnd;
 }
 
-const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) => {
+const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app }) => {
     const notebook = notebookTracker.currentWidget?.content
 
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isSignedUp, setIsSignedUp] = useState(true);
+
+    // Function to refresh user signup state using the shared helper
+    const refreshUserSignupState = async (): Promise<void> => {
+        const signupState = await checkUserSignupState();
+        setIsSignedUp(signupState.isSignedUp);
+    };
+
+    useEffect(() => {
+        void refreshUserSignupState();
+    }, []);
+
+    // Listen for signup success events from other components
+    useEffect(() => {
+        const handleSignupSuccess = (): void => {
+            void refreshUserSignupState();
+        };
+
+        userSignupEvents.signupSuccess.connect(handleSignupSuccess);
+
+        // Cleanup the event listener when component unmounts
+        return () => {
+            userSignupEvents.signupSuccess.disconnect(handleSignupSuccess);
+        };
+    }, []);
 
     // If the notebook is not loaded yet, don't render anything
-    // This must come after the useEffects
     if (notebook === undefined || notebook.model === null) {
         return null;
     }
+
+    const getPlaceholder = (): string => {
+        if (isGenerating) {
+            return 'Generating notebook...';
+        } else if (isSignedUp) {
+            return 'What analysis can I help you with?';
+        } else {
+            return 'Sign up to use Mito AI (see taskpane on the left)';
+        }
+    };
 
     const addCell = (cellType: 'code' | 'markdown' = 'code'): void => {
         if (notebook.widgets.length && notebook.widgets.length > 0) {
@@ -86,7 +122,7 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) =
 
     const handleKeyDown = (e: React.KeyboardEvent): void => {
         e.stopPropagation();
-        
+
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleInputSubmit();
@@ -113,14 +149,14 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({notebookTracker, app}) =
                         onKeyPress={handleKeyPress}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
-                        placeholder={isGenerating ? 'Generating notebook...' : 'What analysis can I help you with?'}
+                        placeholder={getPlaceholder()}
                         className="prompt-input"
                         autoComplete="off"
                         spellCheck={false}
-                        disabled={isGenerating}
+                        disabled={isGenerating || !isSignedUp}
                     />
                     <div className="input-icons-right">
-                        <button 
+                        <button
                             className="input-action-button"
                             onClick={handleInputSubmit}
                             onMouseDown={(e) => e.stopPropagation()}

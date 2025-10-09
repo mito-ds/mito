@@ -4,7 +4,7 @@
 import re
 import json
 import os
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
 
 def extract_code_blocks(message_content: str) -> str:
@@ -64,6 +64,13 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
     except Exception as e:
         return False, '', f"Unexpected error: {str(e)}"
     
+def get_app_code_from_file(app_directory: str) -> Optional[str]:
+    app_path = get_app_path(app_directory)
+    if app_path is None:
+        return None
+    with open(app_path, 'r', encoding='utf-8') as f:
+        return f.read()
+    
 
 def get_app_path(app_directory: str) -> Optional[str]:
     """
@@ -73,9 +80,8 @@ def get_app_path(app_directory: str) -> Optional[str]:
     if not os.path.exists(app_path):
         return None
     return app_path
-    
 
-def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Dict[str, Any]:
+def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> List[Dict[str, Any]]:
     """
     Read a Jupyter notebook and filter cells to keep only cell_type and source fields.
 
@@ -105,18 +111,15 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Di
             raise KeyError("Notebook does not contain 'cells' key")
 
         # Filter each cell to keep only cell_type and source
-        filtered_cells = []
+        filtered_cells: List[Dict[str, Any]] = []
         for cell in notebook_data['cells']:
-            filtered_cell = {
+            filtered_cell: Dict[str, Any] = {
                 'cell_type': cell.get('cell_type', ''),
                 'source': cell.get('source', [])
             }
             filtered_cells.append(filtered_cell)
-
-        # Update the notebook data with filtered cells
-        notebook_data['cells'] = filtered_cells
-
-        return notebook_data
+            
+        return filtered_cells
 
     except FileNotFoundError:
         raise FileNotFoundError(f"Notebook file not found: {notebook_path}")

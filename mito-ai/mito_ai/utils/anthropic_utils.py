@@ -3,7 +3,7 @@
 
 import anthropic
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable
-from anthropic.types import MessageParam, ToolUnionParam
+from anthropic.types import MessageParam, TextBlockParam, ToolUnionParam
 from mito_ai.utils.mito_server_utils import get_response_from_mito_server, stream_response_from_mito_server
 from mito_ai.utils.provider_utils import does_message_require_fast_model
 from mito_ai.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk
@@ -23,7 +23,7 @@ def _prepare_anthropic_request_data_and_headers(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Union[str, anthropic.Omit],
+    system: Union[str, List[TextBlockParam], anthropic.Omit],
     messages: List[MessageParam],
     message_type: MessageType,
     tools: Optional[List[ToolUnionParam]],
@@ -92,7 +92,7 @@ async def stream_anthropic_completion_from_mito_server(
     model: Union[str, None],
     max_tokens: int,
     temperature: float,
-    system: Union[str, anthropic.Omit],
+    system: Union[str, List[TextBlockParam], anthropic.Omit],
     messages: List[MessageParam],
     stream: bool,
     message_type: MessageType,
@@ -102,6 +102,7 @@ async def stream_anthropic_completion_from_mito_server(
     data, headers = _prepare_anthropic_request_data_and_headers(
         model, max_tokens, temperature, system, messages, message_type, None, None, stream
     )
+    
     # Use the unified streaming function
     # If the reply_fn and message_id are empty, this function still handles those requests. This is particularly needed for the streamlit dashboard functionality
     actual_reply_fn = reply_fn if reply_fn is not None else (lambda x: None)
@@ -119,19 +120,20 @@ async def stream_anthropic_completion_from_mito_server(
         provider_name="Claude",
     ):
         yield chunk
-
+    
+    
 def get_anthropic_completion_function_params(
     message_type: MessageType,
     model: str,
     messages: List[MessageParam],
     max_tokens: int,
-    system: Union[str, anthropic.Omit],
+    system: Union[str, List[TextBlockParam], anthropic.Omit],
     temperature: float = 0.0,
     tools: Optional[List[ToolUnionParam]] = None,
     tool_choice: Optional[dict] = None,
     stream: Optional[bool] = None,
     response_format_info: Optional[ResponseFormatInfo] = None,
-) -> Dict[str, Any]:
+) -> Dict[str, Any]:    
     """
     Build the provider_data dict for Anthropic completions, mirroring the OpenAI approach.
     Only includes fields needed for the Anthropic API.

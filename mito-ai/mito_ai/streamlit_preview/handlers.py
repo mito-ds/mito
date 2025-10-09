@@ -82,17 +82,16 @@ class StreamlitPreviewHandler(APIHandler):
         try:
             # Parse and validate request
             body = self.get_json_body()
-            is_valid, error_msg, notebook_path, force_recreate = validate_request_body(body)
-            if not is_valid or notebook_path is None:
+            is_valid, error_msg, notebook_path, force_recreate, edit_prompt = validate_request_body(body)
+            if not is_valid or not notebook_path:
                 self.set_status(400)
                 self.finish({"error": error_msg})
                 return
 
-
             # Ensure app exists
             resolved_notebook_path = self._resolve_notebook_path(notebook_path)
 
-            success, error_msg = await ensure_app_exists(resolved_notebook_path, force_recreate)
+            success, error_msg = await ensure_app_exists(resolved_notebook_path, force_recreate, edit_prompt)
 
             if not success:
                 self.set_status(500)

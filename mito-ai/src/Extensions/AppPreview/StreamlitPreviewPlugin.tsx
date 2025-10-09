@@ -15,9 +15,13 @@ import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
-import { DeployLabIcon } from '../../icons';
+import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
 import { startStreamlitPreviewAndNotify } from './utils';
+import * as React from 'react';
+import UpdateAppDropdown from './UpdateAppDropdown';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { createRoot } from 'react-dom/client';
 
 /**
  * Interface for the streamlit preview response.
@@ -51,6 +55,74 @@ class IFrameWidget extends Widget {
       iframe.src = url;
     }
   }
+}
+
+async function showRecreateAppConfirmation(notebookPath: string): Promise<void> {
+  const result = await showDialog({
+    title: 'Recreate App',
+    body: 'This will recreate the app from scratch, discarding all your current edits. This action cannot be undone. Are you sure you want to continue?',    
+    buttons: [
+      Dialog.cancelButton({ label: 'Cancel' }),
+      Dialog.warnButton({ label: 'Recreate App' })
+    ],
+    defaultButton: 1
+  });
+
+  if (result.button.accept) {
+    void startStreamlitPreviewAndNotify(notebookPath, true, undefined, 'Recreating app from scratch...', 'App recreated successfully!');
+  }
+}
+
+/**
+ * Show the update app dropdown.
+ */
+function showUpdateAppDropdown(buttonElement: HTMLElement, notebookPath: string): void {
+  // Remove any existing dropdown
+  const existingDropdown = document.querySelector('.update-app-dropdown');
+  if (existingDropdown) {
+    existingDropdown.remove();
+  }
+
+  // Create dropdown container
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.className = 'update-app-dropdown';
+  dropdownContainer.style.position = 'absolute';
+  dropdownContainer.style.zIndex = '1000';
+
+  // Position the dropdown below the button
+  const buttonRect = buttonElement.getBoundingClientRect();
+  dropdownContainer.style.top = `${buttonRect.bottom + 4}px`;
+  dropdownContainer.style.left = `${buttonRect.left}px`;
+
+  // Add to document
+  document.body.appendChild(dropdownContainer);
+
+  // Render the React component
+  createRoot(dropdownContainer).render(
+    <UpdateAppDropdown
+      onSubmit={async (message) => {
+        await startStreamlitPreviewAndNotify(notebookPath, true, message, 'Updating app...', 'App updated successfully!');
+        dropdownContainer.remove();
+      }}
+      onClose={() => {
+        dropdownContainer.remove();
+      }}
+    />
+  );
+
+  // Close dropdown when clicking outside
+  const handleClickOutside = (event: MouseEvent): void => {
+    if (!dropdownContainer.contains(event.target as Node) && 
+        !buttonElement.contains(event.target as Node)) {
+      dropdownContainer.remove();
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+  };
+
+  // Add click outside listener after a small delay to avoid immediate closure
+  setTimeout(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+  }, 100);
 }
 
 /**
@@ -107,11 +179,13 @@ async function previewNotebookAsStreamlit(
   const notebookPath = notebookPanel.context.path;
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
 
-  let globalNotificationId: string | undefined;
 
   try {
-    const { previewData, notificationId } = await startStreamlitPreviewAndNotify(notebookPath);
-    globalNotificationId = notificationId;
+    const previewData = await startStreamlitPreviewAndNotify(notebookPath);
+
+    if (previewData === undefined) {
+      return;
+    }
 
     // Create iframe widget
     // TODO: Instead of having this widget creation code in the previewNotebookAsStreamlit function, 
@@ -125,7 +199,32 @@ async function previewNotebookAsStreamlit(
     widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
 
-    // Add toolbar button to the MainAreaWidget's toolbar
+
+    /* ******************************************************
+     * Create Streamlit App Toolbar Buttons
+     ****************************************************** */
+    const editAppButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+      onClick: (): void => {
+        showUpdateAppDropdown(editAppButton.node, notebookPath);
+      },
+      tooltip: 'Edit Streamlit App',
+      label: 'Edit App',
+      icon: EditLabIcon,
+      iconClass: 'mito-ai-deploy-icon'
+    });
+
+    const recreateAppButton = new ToolbarButton({
+      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
+      onClick: async (): Promise<void> => {
+        await showRecreateAppConfirmation(notebookPath);
+      },
+      tooltip: 'Recreate new App from scratch based on the current state of the notebook',
+      label: 'Recreate App',
+      icon: ResetCircleLabIcon,
+      iconClass: 'mito-ai-deploy-icon'
+    });
+
     const deployButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: (): void => {
@@ -136,22 +235,11 @@ async function previewNotebookAsStreamlit(
       icon: DeployLabIcon,
       iconClass: 'mito-ai-deploy-icon'
     });
-
-    // Add toolbar button to the MainAreaWidget's toolbar
-    const refreshButton = new ToolbarButton({
-      className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
-      onClick: (): void => {
-        void startStreamlitPreviewAndNotify(notebookPath, true);
-      },
-      tooltip: 'Rebuild Streamlit App',
-      label: 'Rebuild App',
-      icon: DeployLabIcon,
-      iconClass: 'mito-ai-deploy-icon'
-    });
     
     // Insert the button into the toolbar
-    widget.toolbar.insertAfter('spacer', 'refresh-app-button', refreshButton);
-    widget.toolbar.insertAfter('spacer', 'deploy-app-button', deployButton);
+    widget.toolbar.insertAfter('spacer', 'edit-app-button', editAppButton);
+    widget.toolbar.insertAfter('edit-app-button', 'recreate-app-button', recreateAppButton);
+    widget.toolbar.insertAfter('recreate-app-button', 'deploy-app-button', deployButton);
 
     // Handle widget disposal
     widget.disposed.connect(() => {
@@ -164,19 +252,9 @@ async function previewNotebookAsStreamlit(
       mode: 'split-right',
       ref: notebookPanel.id
     });
-
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Error starting streamlit preview:', error);
-    
-    // Update notification to error
-    if (globalNotificationId) {
-      Notification.update({
-        id: globalNotificationId,
-        message: `Failed to start preview: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        type: 'error',
-        autoClose: false
-      });
-    }
   }
 }
 

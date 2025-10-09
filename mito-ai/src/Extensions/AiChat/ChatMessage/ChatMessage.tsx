@@ -128,7 +128,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             <ChatInput
                 app={app}
                 initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
-                placeholder={"Edit your message"}
                 onSave={handleSave}
                 onCancel={handleCancel}
                 isEditing={isEditing}

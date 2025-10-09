@@ -1,9 +1,10 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import List
 from mito_ai.streamlit_conversion.prompts.prompt_constants import MITO_TODO_PLACEHOLDER
 
-def get_streamlit_app_creation_prompt(notebook: dict) -> str:
+def get_streamlit_app_creation_prompt(notebook: List[dict]) -> str:
     """
     This prompt is used to create a streamlit app from a notebook.
     """

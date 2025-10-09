@@ -44,11 +44,11 @@ import ToggleButton from '../../components/ToggleButton';
 
 // Internal imports - Icons
 import { OpenIndicatorLabIcon } from '../../icons';
-import MitoLogo from '../../icons/MitoLogo';
 import UndoIcon from '../../icons/UndoIcon';
 
 // Internal imports - Utils
 import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../utils/agentActions';
+import { classNames } from '../../utils/classNames';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
 import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
@@ -69,6 +69,8 @@ import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../uti
 import { OperatingSystem } from '../../utils/user';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
+import { logEvent } from '../../restAPI/RestAPI';
+import { checkUserSignupState } from '../../utils/userSignupState';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -101,6 +103,7 @@ import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPa
 
 // Internal imports - Chat components
 import CTACarousel from './CTACarousel';
+import SignUpForm from './SignUpForm';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import { getFirstMessageFromCookie } from './FirstMessage';
 import ChatInput from './ChatMessage/ChatInput';
@@ -148,6 +151,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     websocketClient,
 }) => {
 
+    const [isSignedUp, setIsSignedUp] = useState<boolean>(true);
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
@@ -380,9 +384,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         return newChatHistoryManager;
     }
 
+    // Main initialization effect - runs once on mount
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
-            try {
+            try {                
                 // Check for saved model preference in localStorage
                 const storedConfig = localStorage.getItem('llmModelConfig');
                 let initialModel = DEFAULT_MODEL;
@@ -444,7 +449,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
         };
 
-        void initializeChatHistory();
+        void logEvent('opened_ai_chat_taskpane');
+        void initializeChatHistory(); 
+        void refreshUserSignupState(); // Get user signup state when the component first mounts
 
     }, [websocketClient]);
 
@@ -472,6 +479,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef.current = chatHistoryManager;
 
     }, [chatHistoryManager]);
+
+    // Function to refresh user signup state using the shared helper
+    const refreshUserSignupState = async (): Promise<void> => {
+        const signupState = await checkUserSignupState();
+        setIsSignedUp(signupState.isSignedUp);
+    };
 
     // Scroll to bottom whenever chat history updates, but only if in follow mode
     useEffect(() => {
@@ -1453,7 +1466,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     return (
-        <div className="chat-taskpane">
+        // We disable the chat taskpane if the user is not signed up AND there are no chat history items
+        <div className={classNames('chat-taskpane', { 'disabled': !(isSignedUp || displayOptimizedChatHistory.length > 0) })}>
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-left">
                     <IconButton
@@ -1502,11 +1516,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-messages" ref={chatMessagesRef}>
                 {displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
-                        <div style={{ margin: '0 auto 8px', display: 'block', textAlign: 'center' }}>
-                            <MitoLogo width="60" height="30" />
-                        </div>
-                        <span style={{ display: 'block', textAlign: 'center', fontWeight: 'bold', fontSize: '20px', marginBottom: '15px' }}>Data Copilot</span>
-                        <CTACarousel app={app} />
+                        {isSignedUp === false 
+                            ? <SignUpForm onSignUpSuccess={refreshUserSignupState} /> 
+                            : <CTACarousel app={app} />
+                        }
                     </div>
                 }
                 {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
@@ -1613,13 +1626,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <ChatInput
                     app={app}
                     initialContent={''}
-                    placeholder={
-                        agentExecutionStatus === 'working' ? `Agent is editing ${agentTargetNotebookPanelRef.current?.context.path.split('/').pop()}` :
-                            agentExecutionStatus === 'stopping' ? 'Agent is stopping...' :
-                                agentModeEnabled ? 'Ask agent to do anything' :
-                                    displayOptimizedChatHistory.length < 2 ? `Ask question (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                                        : `Ask followup (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}E), @ to mention`
-                    }
                     onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
                     onCancel={undefined}
                     isEditing={false}
@@ -1627,6 +1633,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     notebookTracker={notebookTracker}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecutionStatus}
+                    operatingSystem={operatingSystem}
+                    displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
+                    agentTargetNotebookPanelRef={agentTargetNotebookPanelRef}
+                    isSignedUp={isSignedUp}
                 />
             </div>
             {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
