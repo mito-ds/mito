@@ -1078,6 +1078,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 break;
             }
 
+            // TODO: If we created a validated type in the agent response validation function, then we woulnd't need to do these checks
+            if (agentResponse.type === 'edit_streamlit_app' && (agentResponse.edit_streamlit_app_prompt === undefined || agentResponse.edit_streamlit_app_prompt === null)) {
+                await markAgentForStopping();
+                isAgentFinished = true
+                break;
+            }
+
             if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
                 // Run the code and handle any errors
                 await acceptAndRunCellUpdate(
@@ -1152,71 +1159,40 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'create_streamlit_app') {
-                try {
-                    const notebookPath = agentTargetNotebookPanelRef.current?.context.path;
-                    if (!notebookPath) {
-                        addAIMessageFromResponseAndUpdateState(
-                            "I couldn't find the current notebook path to create the Streamlit app.",
-                            'agent:execution',
-                            chatHistoryManager
-                        );
-                        break;
-                    }
-
-                    // Create new preview using the service
-                    await streamlitPreviewManager.openAppPreview(app, notebookTracker);
-                } catch (error) {
-                    console.error('Error creating Streamlit app:', error);
+                const notebookPath = agentTargetNotebookPanelRef.current?.context.path;
+                if (!notebookPath) {
                     addAIMessageFromResponseAndUpdateState(
-                        `I encountered an error while creating the Streamlit app: ${error}`,
+                        "I couldn't find the current notebook path to create the Streamlit app.",
                         'agent:execution',
                         chatHistoryManager
                     );
                     break;
                 }
+
+                // Create new preview using the service
+                // TODO: This should use the agentTargetNotebookPanel, not the current active notebook! 
+                // We should create a type for the TargetNotebookPanel
+                await streamlitPreviewManager.openAppPreview(app, notebookTracker);
             }
 
-            if (agentResponse.type === 'edit_streamlit_app') {
-                try {
-                    const notebookPath = agentTargetNotebookPanelRef.current?.context.path;
-                    if (!notebookPath) {
-                        addAIMessageFromResponseAndUpdateState(
-                            "I couldn't find the current notebook path to edit the Streamlit app.",
-                            'agent:execution',
-                            chatHistoryManager
-                        );
-                        break;
-                    }
-
-                    if (!agentResponse.edit_streamlit_app_prompt) {
-                        addAIMessageFromResponseAndUpdateState(
-                            "I need a description of the edit to make to the Streamlit app.",
-                            'agent:execution',
-                            chatHistoryManager
-                        );
-                        break;
-                    }
-
-                    // Check if there's an active preview to edit
-                    if (!streamlitPreviewManager.hasActivePreview()) {
-                        // No active preview, create a new one first
-                        await streamlitPreviewManager.openAppPreview(app, notebookTracker);
-                    }
-
-                    // Edit the existing preview
-                    await streamlitPreviewManager.editExistingPreview(
-                        agentResponse.edit_streamlit_app_prompt,
-                        notebookPath
-                    );
-                } catch (error) {
-                    console.error('Error editing Streamlit app:', error);
+            if (agentResponse.type === 'edit_streamlit_app' && agentResponse.edit_streamlit_app_prompt) {
+                const notebookPath = agentTargetNotebookPanelRef.current?.context.path;
+                if (!notebookPath) {
                     addAIMessageFromResponseAndUpdateState(
-                        `I encountered an error while editing the Streamlit app: ${error}`,
+                        "I couldn't find the current notebook path to edit the Streamlit app.",
                         'agent:execution',
                         chatHistoryManager
                     );
                     break;
                 }
+
+                // Ensure there is an active preview to edit
+                if (!streamlitPreviewManager.hasActivePreview()) {
+                    await streamlitPreviewManager.openAppPreview(app, notebookTracker);
+                }
+
+                // Edit the existing preview
+                await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, notebookPath);
             }
         }
 
