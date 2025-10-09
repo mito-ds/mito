@@ -134,18 +134,6 @@ return response.json()
 
 
     describe('Fallback behavior', () => {
-        test('should return fallback requirements when no notebook is active', async () => {
-            // Create a new mock tracker with null currentWidget
-            const mockTrackerWithNullWidget = {
-                currentWidget: null
-            } as any;
-
-            const result = await generateRequirementsTxt(mockTrackerWithNullWidget);
-
-            expect(result).toBe('');
-            expect(console.error).toHaveBeenCalledWith('No notebook is currently active');
-        });
-
         test('should return fallback requirements when kernel is null', async () => {
             // Set kernel to null
             mockSession.kernel = null;

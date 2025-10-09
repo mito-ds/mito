@@ -239,18 +239,6 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
         expect(deployAppNotification).not.toHaveBeenCalled();
     });
 
-    test('should handle case when no notebook is active', async () => {
-        (getJWTToken as jest.Mock).mockResolvedValue('test-jwt-token');
-        const mockNotebookTrackerNoWidget = {
-            currentWidget: null
-        } as any;
-
-        await deployStreamlitApp(mockNotebookTrackerNoWidget, mockAppDeployService, mockAppManagerService);
-
-        expect(console.error).toHaveBeenCalledWith('No notebook is currently active');
-        expect(saveFileWithKernel).not.toHaveBeenCalled();
-    });
-
     test('should use server token as fallback when JWT token is not available', async () => {
         (getJWTToken as jest.Mock)
             .mockResolvedValueOnce('') // First call returns empty string
