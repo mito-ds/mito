@@ -3,6 +3,7 @@
 
 import re
 from typing import List
+from mito_ai.constants import MESSAGE_HISTORY_TRIM_THRESHOLD
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.prompt_builders.prompt_constants import (
     ACTIVE_CELL_ID_SECTION_HEADING,
@@ -43,18 +44,18 @@ def trim_sections_from_message_content(content: str) -> str:
     return content
 
 
-def trim_old_messages(messages: List[ChatCompletionMessageParam], keep_recent: int = 3) -> List[ChatCompletionMessageParam]:
+def trim_old_messages(messages: List[ChatCompletionMessageParam]) -> List[ChatCompletionMessageParam]:
     """
     Trims metadata sections from messages that are older than the specified number of recent messages.
     We do this in order to reduce the token count of the messages, which helps us stay under the token limit for the LLM.
     """
-    if len(messages) <= keep_recent:
+    if len(messages) <= MESSAGE_HISTORY_TRIM_THRESHOLD:
         return messages
         
     # Process all messages except the keep_recent most recent ones. 
     # Only trim user messages, which is where this metadata lives. 
     # We want to not edit the system messages, as they contain important information / examples.
-    for i in range(len(messages) - keep_recent):
+    for i in range(len(messages) - MESSAGE_HISTORY_TRIM_THRESHOLD):
         content = messages[i].get("content")
         
         is_user_message = messages[i].get("role") == "user"
