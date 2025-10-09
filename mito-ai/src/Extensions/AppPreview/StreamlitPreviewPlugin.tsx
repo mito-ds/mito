@@ -132,10 +132,10 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     if (finalPreviewData === undefined) {
       throw new Error('Failed to create Streamlit preview');
     }
+    
     // Create the new preview widget
     const widget = this.createPreviewWidget(
       notebookPanel,
-      notebookPath,
       this.appDeployService,
       this.appManagerService,
       finalPreviewData
@@ -164,6 +164,12 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     if (!this.currentPreview) {
       throw new Error('No active preview to edit');
     }
+
+    // First save the notebook to ensure the app is able
+    // to read the most up to date version of the notebook.
+    // Because we are parsing the notebook on the backend by reading 
+    // the file system, it only sees the last saved version of the notebook.
+    await notebookPanel.context.save();
 
     // Update the app with the edit prompt
     await startStreamlitPreviewAndNotify(
@@ -205,7 +211,6 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
    */
   private createPreviewWidget(
     notebookPanel: NotebookPanel,
-    notebookPath: string,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService,
     previewData: StreamlitPreviewResponse
@@ -214,6 +219,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
 
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
+    const notebookPath = notebookPanel.context.path;
     const notebookName = PathExt.basename(notebookPath, '.ipynb');
     widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
@@ -222,7 +228,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const editAppButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: (): void => {
-        showUpdateAppDropdown(editAppButton.node, notebookPath);
+        showUpdateAppDropdown(editAppButton.node, notebookPanel);
       },
       tooltip: 'Edit Streamlit App',
       label: 'Edit App',

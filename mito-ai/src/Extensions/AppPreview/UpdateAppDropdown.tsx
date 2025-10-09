@@ -8,19 +8,22 @@ import '../../../style/EditAppDropdown.css';
 import { classNames } from '../../utils/classNames';
 import { createRoot } from 'react-dom/client';
 import { startStreamlitPreviewAndNotify } from './utils';
+import { NotebookPanel } from '@jupyterlab/notebook';
 
 /**
  * Show the update app dropdown.
  */
 export const showUpdateAppDropdown = (
     buttonElement: HTMLElement, 
-    notebookPath: string
+    notebookPanel: NotebookPanel
 ): void => {
     // Remove any existing dropdown
     const existingDropdown = document.querySelector('.update-app-dropdown');
     if (existingDropdown) {
         existingDropdown.remove();
     }
+
+    const notebookPath = notebookPanel.context.path;
 
     // Create dropdown container
     const dropdownContainer = document.createElement('div');
@@ -40,7 +43,8 @@ export const showUpdateAppDropdown = (
     createRoot(dropdownContainer).render(
         <UpdateAppDropdown
             onSubmit={async (message) => {
-                // TODO: This needs to go through the preview plugin manager
+                // Save the notebook first to ensure app reads up to date version
+                await notebookPanel.context.save();
                 await startStreamlitPreviewAndNotify(notebookPath, true, message, 'Updating app...', 'App updated successfully!');
                 dropdownContainer.remove();
             }}
