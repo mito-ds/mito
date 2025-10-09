@@ -644,6 +644,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
+        console.log('newChatHistoryManager', newChatHistoryManager)
 
         if (messageIndex !== undefined) {
             // Drop all of the messages starting at the message index
@@ -962,11 +963,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 activeRequestControllerRef.current = null;
             }
 
-            // Add feedback message based on reason
             const newChatHistoryManager = getDuplicateChatHistoryManager();
             addAIMessageFromResponseAndUpdateState(
                 "Agent stopped by user.",
-                'chat',
+                'chat', // TODO: This probably should not be type 'chat' because that is reserved for a chat thread!
                 newChatHistoryManager
             );
 
