@@ -135,7 +135,8 @@ class TestParseJupyterNotebookToExtractRequiredContent:
 
     def test_parse_notebook_file_not_found(self):
         """Test parsing non-existent notebook file"""
-        with pytest.raises(FileNotFoundError, match="Notebook file not found"):
+        from mito_ai.utils.error_classes import StreamlitConversionError
+        with pytest.raises(StreamlitConversionError, match="Notebook file not found"):
             parse_jupyter_notebook_to_extract_required_content("/nonexistent/path/notebook.ipynb")
 
     def test_parse_notebook_with_missing_cell_fields(self, tmp_path):
