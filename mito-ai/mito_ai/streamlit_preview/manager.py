@@ -38,7 +38,7 @@ class StreamlitPreviewManager:
         
         return port
     
-    def start_streamlit_preview(self, app_directory: str, preview_id: str) -> str:
+    def start_streamlit_preview(self, app_directory: str, preview_id: str) -> int:
         """Start a streamlit preview process.
         
         Args:
@@ -81,7 +81,7 @@ class StreamlitPreviewManager:
             if not ready:
                 proc.terminate()
                 proc.wait()
-                return False, "Streamlit app failed to start", None
+                raise StreamlitPreviewError("Streamlit app failed to start as app is not ready", 500)
             
             # Register the process
             with self._lock:
