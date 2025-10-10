@@ -122,7 +122,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Li
     except FileNotFoundError:
         raise StreamlitConversionError(f"Notebook file not found: {notebook_path}", 404)
     except json.JSONDecodeError as e:
-        StreamlitConversionError(f"Invalid JSON in notebook file: {str(e)}", 400)
+        raise StreamlitConversionError(f"Invalid JSON in notebook file: {str(e)}", 400)
 
 
 def resolve_notebook_path(notebook_path:str) -> str:

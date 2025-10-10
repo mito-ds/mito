@@ -93,7 +93,7 @@ export const deployStreamlitApp = async (
     });
 
     if (response.error) {
-      let errorMsg = response.error;
+      const errorMsg = response.error;
       console.group('Deploy App Error:');
       console.error('Type:', errorMsg.error_type);
       console.error('Title:', errorMsg.title);

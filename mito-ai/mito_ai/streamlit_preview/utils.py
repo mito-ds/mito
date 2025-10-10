@@ -8,7 +8,7 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handl
 from mito_ai.utils.error_classes import StreamlitPreviewError
 
 
-def validate_request_body(body: Optional[dict]) -> Tuple[Optional[str], bool, str]:
+def validate_request_body(body: Optional[dict]) -> Tuple[str, bool, str]:
     """Validate the request body and extract notebook_path and force_recreate."""
     if body is None:
         raise StreamlitPreviewError("Invalid or missing JSON body", 400)
