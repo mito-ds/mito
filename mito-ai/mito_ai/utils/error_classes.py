@@ -9,8 +9,12 @@ class MitoAppError(Exception):
 
 class StreamlitPreviewError(MitoAppError):
     def __str__(self):
-        return f"[StreamlitPreviewError]: {self.message} (Error Code: {self.error_code})"
+        return f"[PreviewError]: {self.message} (Error Code: {self.error_code})"
 
 class StreamlitConversionError(MitoAppError):
     def __str__(self):
-        return f"[StreamlitConversionError]: {self.message} (Error Code: {self.error_code})"
+        return f"[ConversionError]: {self.message} (Error Code: {self.error_code})"
+
+class StreamlitDeploymentError(MitoAppError):
+    def __str__(self):
+        return f"[DeploymentError]: {self.message} (Error Code: {self.error_code})"

@@ -8,6 +8,7 @@ from typing import Any, Union, List
 import tempfile
 from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.utils.create import initialize_user
+from mito_ai.utils.error_classes import StreamlitDeploymentError
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
 from mito_ai.app_deploy.app_deploy_utils import  add_files_to_zip
@@ -175,9 +176,18 @@ class AppDeployHandler(BaseWebSocketHandler):
                 parent_id=message_id,
                 url=deploy_url
             ))
+
+        except StreamlitDeploymentError as e:
+            self.log.error(f"Error deploying app: {e}", exc_info=e)
+            error = AppDeployError.from_exception(e)
+            self.reply(DeployAppReply(
+                parent_id=message_id,
+                url="",
+                error=error
+            ))
             
         except Exception as e:
-            self.log.error(f"Error building app: {e}", exc_info=e)
+            self.log.error(f"Error deploying app: {e}", exc_info=e)
             error = AppDeployError.from_exception(e)
             self.reply(DeployAppReply(
                 parent_id=message_id,
@@ -285,9 +295,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             if hasattr(e, 'response') and e.response is not None:
                 error_detail = e.response.json()
                 self.log.error(f"Server error details: {error_detail}")
-                if 'error' in error_detail:
-                    raise Exception(error_detail['error'])
-                raise
+                raise StreamlitDeploymentError(error_detail['error'], 400)
         except Exception as e:
             self.log.error(f"Error during deployment: {str(e)}")
             raise

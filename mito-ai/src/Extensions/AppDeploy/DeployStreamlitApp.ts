@@ -93,9 +93,14 @@ export const deployStreamlitApp = async (
     });
 
     if (response.error) {
+      let errorMsg = response.error;
+      console.group('Deploy App Error:');
+      console.error('Type:', errorMsg.error_type);
+      console.error('Title:', errorMsg.title);
+      console.error('Hint:', errorMsg.hint);
       Notification.update({
         id: newNotificationId,
-        message: response.error.title,
+        message: String(errorMsg.title),
         type: 'error',
         autoClose: false
       });
@@ -107,5 +112,11 @@ export const deployStreamlitApp = async (
   } catch (error) {
     // TODO: Do something with the error
     console.error("Error deploying app:", error);
+    Notification.update({
+      id: newNotificationId,
+      message: String(error),
+      type: 'error',
+      autoClose: false
+    });
   }
 };
