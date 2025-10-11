@@ -17,10 +17,11 @@ from mito_ai.app_deploy.models import (
     AppDeployError,
     DeployAppRequest,
     ErrorMessage,
-    MessageType
 )
+from mito_ai.completions.models import MessageType
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
+from mito_ai.utils.telemetry_utils import log_streamlit_app_deployment_failure
 import requests
 import traceback
 
@@ -88,6 +89,7 @@ class AppDeployHandler(BaseWebSocketHandler):
 
         except StreamlitDeploymentError as e:
             self.log.error("Invalid app builder request", exc_info=e)
+            log_streamlit_app_deployment_failure('mito_server_key', MessageType.DEPLOY_APP, e.error.__dict__)
             self.reply(
                 DeployAppReply(
                         parent_id=e.message_id,
@@ -101,6 +103,7 @@ class AppDeployHandler(BaseWebSocketHandler):
                 e, 
                 hint="An error occurred while building the app. Please check the logs for details."
             )
+            log_streamlit_app_deployment_failure('mito_server_key', MessageType.DEPLOY_APP, error.__dict__)
             self.reply(ErrorMessage(**error.__dict__))
             
         latency_ms = round((time.time() - start) * 1000)

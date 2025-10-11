@@ -392,24 +392,47 @@ def log_streamlit_app_creation_success(key_type: Literal['mito_server_key', 'use
         key_type=key_type,
         params={
             "edit_prompt": edit_prompt,
+            "message_type": message_type
         }
     )
     
-def log_streamlit_app_creation_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str) -> None:
+def log_streamlit_app_validation_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str) -> None:
     log(
-        "mito_ai_streamlit_app_creation_retry", 
+        "log_streamlit_app_validation_retry",
         params={
             "error_message": error,
+            "message_type": message_type
         },
         key_type=key_type
     )
     
-def log_streamlit_app_creation_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str, edit_prompt: str) -> None:
+def log_streamlit_app_validation_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str, edit_prompt: str) -> None:
     log(
-        "mito_ai_streamlit_app_creation_error", 
+        "log_streamlit_app_validation_error",
         params={
             "error_message": error,
             "edit_prompt": edit_prompt,
+            "message_type": message_type
         },
         key_type=key_type
+    )
+
+def log_streamlit_app_deployment_failure(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: Dict) -> None:
+    log(
+        "mito_ai_streamlit_app_deployment_failure",
+        key_type=key_type,
+        params={
+            "error": error,
+            "message_type": message_type
+        }
+    )
+
+def log_streamlit_app_preview_failure(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: Dict) -> None:
+    log(
+        "mito_ai_streamlit_app_deployment_failure",
+        key_type=key_type,
+        params={
+            "error": error,
+            "message_type": message_type
+        }
     )

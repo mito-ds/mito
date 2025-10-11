@@ -8,8 +8,9 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_preview.manager import get_preview_manager
 from mito_ai.utils.error_classes import StreamlitPreviewError, StreamlitConversionError
-from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error
+from mito_ai.utils.telemetry_utils import log_streamlit_app_preview_failure
 from mito_ai.completions.models import MessageType
+import traceback
 
 
 class StreamlitPreviewHandler(APIHandler):
@@ -100,13 +101,16 @@ class StreamlitPreviewHandler(APIHandler):
         except (StreamlitPreviewError, StreamlitConversionError) as e:
             print(e)
             self.set_status(e.error_code)
-            await self.finish({"error": str(e)})
-            log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, str(e), edit_prompt)
+            error_message = {"error": str(e)}
+            await self.finish(error_message)
+            error_message["traceback"] = traceback.format_exc()
+            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message)
 
         except Exception as e:
             print(f"Exception in streamlit preview handler: {e}")
             self.set_status(500)
             await self.finish({"error": str(e)})
+            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, str(e))
 
     @tornado.web.authenticated
     def delete(self, preview_id: str) -> None:

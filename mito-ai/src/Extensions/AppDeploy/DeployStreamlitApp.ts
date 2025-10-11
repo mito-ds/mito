@@ -85,7 +85,7 @@ export const deployStreamlitApp = async (
 
     // Use the JWT token that was already obtained or refreshed above
     const response: IDeployAppReply = await appDeployService.client.sendMessage<IDeployAppRequest, IDeployAppReply>({
-      type: 'deploy-app',
+      type: 'deploy_app',
       message_id: UUID.uuid4(),
       notebook_path: notebookPath,
       jwt_token: jwtToken,

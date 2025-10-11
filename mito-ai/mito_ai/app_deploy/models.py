@@ -2,13 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from dataclasses import dataclass
-from enum import Enum
+import traceback
 from typing import Literal, Optional, List
-
-
-class MessageType(str, Enum):
-    """Types of app deploy messages."""
-    DEPLOY_APP = "deploy-app"
 
 
 @dataclass(frozen=True)
@@ -45,10 +40,11 @@ class AppDeployError:
         Returns:
             The app builder error.
         """
+        tb_str = "".join(traceback.format_exception(type(e), e, e.__traceback__))
         return cls(
             error_type=type(e).__name__,
             message=str(e),
-            traceback=getattr(e, "__traceback__", None) and str(e.__traceback__),
+            traceback=tb_str,
             hint=hint,
             error_code=error_code
         )
@@ -67,7 +63,7 @@ class DeployAppRequest:
     """Request to deploy an app."""
     
     # Request type.
-    type: Literal["deploy-app"]
+    type: Literal["deploy_app"]
     
     # Message ID.
     message_id: str
@@ -96,4 +92,4 @@ class DeployAppReply:
     error: Optional[AppDeployError] = None
     
     # Type of reply.
-    type: Literal["deploy-app"] = "deploy-app" 
+    type: Literal["deploy_app"] = "deploy_app"
