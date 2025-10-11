@@ -3,7 +3,7 @@
 
 import json
 import os
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal, Optional, List
 from mito_ai.utils.version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
 from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
 from mito_ai.utils.db import get_user_field
@@ -396,7 +396,7 @@ def log_streamlit_app_creation_success(key_type: Literal['mito_server_key', 'use
         }
     )
     
-def log_streamlit_app_validation_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str) -> None:
+def log_streamlit_app_validation_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: List[str]) -> None:
     log(
         "log_streamlit_app_validation_retry",
         params={
@@ -406,7 +406,7 @@ def log_streamlit_app_validation_retry(key_type: Literal['mito_server_key', 'use
         key_type=key_type
     )
     
-def log_streamlit_app_validation_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: str, edit_prompt: str) -> None:
+def log_streamlit_app_validation_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: List[str], edit_prompt: str) -> None:
     log(
         "log_streamlit_app_validation_error",
         params={

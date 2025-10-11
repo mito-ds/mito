@@ -140,11 +140,11 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> str:
         if has_validation_error:
             # TODO: We can't easily get the key type here, so for the beta release
             # we are just defaulting to the mito server key since that is by far the most common.
-            log_streamlit_app_validation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
+            log_streamlit_app_validation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, errors)
         tries+=1
 
     if has_validation_error:
-        log_streamlit_app_validation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error, edit_prompt)
+        log_streamlit_app_validation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, errors, edit_prompt)
         raise StreamlitConversionError("Streamlit agent failed generating code after max retries", 500)
     
     # Finally, update the app.py file with the new code
