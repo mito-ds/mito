@@ -60,7 +60,7 @@ def create_app_file(app_directory: str, code: str) -> str:
             f.write(code)
         return app_path
     except IOError as e:
-        raise StreamlitConversionError(f"Error creating file: {str(e)}", 500)
+        raise StreamlitConversionError(f"Error creating app file: {str(e)}", 500)
     
 def get_app_code_from_file(app_directory: str) -> Optional[str]:
     app_path = get_app_path(app_directory)

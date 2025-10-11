@@ -96,11 +96,15 @@ export const deployStreamlitApp = async (
       const errorMsg = response.error;
       console.group('Deploy App Error:');
       console.error('Type:', errorMsg.error_type);
-      console.error('Title:', errorMsg.title);
+      console.error('Title:', errorMsg.message);
       console.error('Hint:', errorMsg.hint);
+      let displayMessage = String(errorMsg.message)
+      if (errorMsg.hint){
+        displayMessage = displayMessage+"\n"+"Hint:"+String(errorMsg.hint)
+      }
       Notification.update({
         id: newNotificationId,
-        message: String(errorMsg.title),
+        message: displayMessage,
         type: 'error',
         autoClose: false
       });
@@ -110,7 +114,7 @@ export const deployStreamlitApp = async (
       deployAppNotification(url, appManagerService, newNotificationId);
     }
   } catch (error) {
-    // TODO: Do something with the error
+    // TODO: In the future, remove this if we dont see any connection errors that need to be caught
     console.error("Error deploying app:", error);
     Notification.update({
       id: newNotificationId,

@@ -19,7 +19,13 @@ class AppDeployError:
     error_type: str
     
     # Error title.
-    title: str
+    message: str
+
+    #ID of parent to resolve response
+    message_id: Optional[str] = "InvalidMessageID"
+
+    # Error code
+    error_code: Optional[int] = 500
     
     # Error traceback.
     traceback: Optional[str] = None
@@ -28,21 +34,23 @@ class AppDeployError:
     hint: Optional[str] = None
     
     @classmethod
-    def from_exception(cls, e: Exception, hint: Optional[str] = None) -> "AppDeployError":
+    def from_exception(cls, e: Exception, hint: Optional[str] = None, error_code: Optional[int] = 500) -> "AppDeployError":
         """Create an error from an exception.
 
         Args:
             e: The exception.
             hint: Optional hint to fix the error.
+            error_code: Optional error code which defaults to 500
 
         Returns:
             The app builder error.
         """
         return cls(
             error_type=type(e).__name__,
-            title=str(e),
+            message=str(e),
             traceback=getattr(e, "__traceback__", None) and str(e.__traceback__),
             hint=hint,
+            error_code=error_code
         )
 
 

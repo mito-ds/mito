@@ -32,7 +32,7 @@ export type AppDeployError = {
   /**
    * The title of the error.
    */
-  title: string;
+  message: string;
   /**
    * The traceback of the error.
    */

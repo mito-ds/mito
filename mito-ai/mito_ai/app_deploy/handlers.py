@@ -4,7 +4,7 @@
 import os
 import time
 import logging
-from typing import Any, Union, List
+from typing import Any, Union, List, Optional
 import tempfile
 from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.utils.create import initialize_user
@@ -22,6 +22,7 @@ from mito_ai.app_deploy.models import (
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
 import requests
+import traceback
 
 
 class AppDeployHandler(BaseWebSocketHandler):
@@ -68,29 +69,32 @@ class AppDeployHandler(BaseWebSocketHandler):
         self.log.debug("App builder message received: %s", message)
         
         try:
-            # Ensure message is a string before parsing
-            if not isinstance(message, str):
-                raise ValueError("Message must be a string")
-
             parsed_message = self.parse_message(message)
             message_type = parsed_message.get('type')
             
             if message_type == MessageType.DEPLOY_APP.value:
                 # Handle build app request
                 deploy_app_request = DeployAppRequest(**parsed_message)
-                await self._handle_deploy_app(deploy_app_request)
+                response = await self._handle_deploy_app(deploy_app_request)
+                self.reply(response)
             else:
                 self.log.error(f"Unknown message type: {message_type}")
                 error = AppDeployError(
                     error_type="InvalidRequest",
-                    title=f"Unknown message type: {message_type}"
+                    message=f"Unknown message type: {message_type}",
+                    error_code=400
                 )
-                self.reply(ErrorMessage(**error.__dict__))
-                
-        except ValueError as e:
+                raise StreamlitDeploymentError(error)
+
+        except StreamlitDeploymentError as e:
             self.log.error("Invalid app builder request", exc_info=e)
-            error = AppDeployError.from_exception(e)
-            self.reply(ErrorMessage(**error.__dict__))
+            self.reply(
+                DeployAppReply(
+                        parent_id=e.message_id,
+                        url="",
+                        error=ErrorMessage(**e.error.__dict__)
+                    )
+            )
         except Exception as e:
             self.log.error("Error handling app builder message", exc_info=e)
             error = AppDeployError.from_exception(
@@ -102,7 +106,7 @@ class AppDeployHandler(BaseWebSocketHandler):
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"App builder handler processed in {latency_ms} ms.")
     
-    async def _handle_deploy_app(self, message: DeployAppRequest) -> None:
+    async def _handle_deploy_app(self, message: DeployAppRequest) -> DeployAppReply:
         """Handle a build app request.
         
         Args:
@@ -115,19 +119,22 @@ class AppDeployHandler(BaseWebSocketHandler):
         
         if not message_id:
             self.log.error("Missing message_id in request")
-            return
-        
+            error = AppDeployError(
+                error_type="BadRequest",
+                message="Missing message_id in request",
+                error_code=400,
+                message_id=message_id
+            )
+            raise StreamlitDeploymentError(error)
+
         if not notebook_path:
             error = AppDeployError(
                 error_type="InvalidRequest",
-                title="Missing 'notebook_path' parameter"
+                message="Missing 'notebook_path' parameter",
+                error_code=400,
+                message_id=message_id
             )
-            self.reply(DeployAppReply(
-                parent_id=message_id,
-                url="",
-                error=error
-            ))
-            return
+            raise StreamlitDeploymentError(error)
 
         # Validate JWT token if provided
         token_preview = jwt_token[:20] if jwt_token else "No token provided"
@@ -137,64 +144,41 @@ class AppDeployHandler(BaseWebSocketHandler):
             self.log.error("JWT token validation failed")
             error = AppDeployError(
                 error_type="Unauthorized",
-                title="Invalid authentication token",
-                hint="Please sign in again to deploy your app."
+                message="Invalid authentication token",
+                hint="Please sign in again to deploy your app.",
+                error_code=401,
+                message_id=message_id
             )
-            self.reply(DeployAppReply(
-                parent_id=message_id,
-                url="",
-                error=error
-            ))
-            return
+            raise StreamlitDeploymentError(error)
         else:
             self.log.info("JWT token validation successful")
-            
-        try:
-            notebook_path = str(notebook_path) if notebook_path else ""
 
-            app_directory = os.path.dirname(notebook_path)
-            
-            # Check if the app.py file exists
-            app_path = get_app_path(app_directory)
-            if app_path is None:
-                error = AppDeployError(
-                    error_type="AppNotFound",
-                    title="App not found",
-                    hint="Please make sure the app.py file exists in the same directory as the notebook."
-                )
-                self.reply(DeployAppReply(
-                    parent_id=message_id,
-                    url="",
-                    error=error
-                ))
-            
+        notebook_path = str(notebook_path) if notebook_path else ""
+
+        app_directory = os.path.dirname(notebook_path)
+
+        # Check if the app.py file exists
+        app_path = get_app_path(app_directory)
+        if app_path is None:
+            error = AppDeployError(
+                error_type="AppNotFound",
+                message="App not found",
+                hint="Please make sure the app.py file exists in the same directory as the notebook.",
+                error_code=400,
+                message_id=message_id
+            )
+            raise StreamlitDeploymentError(error)
+
             # Finally, deploy the app
-            deploy_url = await self._deploy_app(app_directory, files_to_upload, jwt_token)
+        deploy_url = await self._deploy_app(app_directory, files_to_upload, message_id, jwt_token)
 
-            # Send the response
-            self.reply(DeployAppReply(
-                parent_id=message_id,
-                url=deploy_url
-            ))
+        # Send the response
+        return DeployAppReply(
+            parent_id=message_id,
+            url=deploy_url
+        )
 
-        except StreamlitDeploymentError as e:
-            self.log.error(f"Error deploying app: {e}", exc_info=e)
-            error = AppDeployError.from_exception(e)
-            self.reply(DeployAppReply(
-                parent_id=message_id,
-                url="",
-                error=error
-            ))
-            
-        except Exception as e:
-            self.log.error(f"Error deploying app: {e}", exc_info=e)
-            error = AppDeployError.from_exception(e)
-            self.reply(DeployAppReply(
-                parent_id=message_id,
-                url="",
-                error=error
-            ))
-    
+
     def _validate_jwt_token(self, token: str) -> bool:
         """Basic JWT token validation logic.
 
@@ -229,7 +213,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             return False
 
 
-    async def _deploy_app(self, app_path: str, files_to_upload:List[str], jwt_token: str = '') -> str:
+    async def _deploy_app(self, app_path: str, files_to_upload:List[str], message_id: str, jwt_token: str = '') -> Optional[Any]:
         """Deploy the app using pre-signed URLs.
         
         Args:
@@ -265,7 +249,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             expected_app_url = url_data['expected_app_url']
             
             self.log.info(f"Received pre-signed URL. App will be available at: {expected_app_url}")
-            
+
             # Step 2: Create a zip file of the app.
             temp_zip_path = None
             try:
@@ -279,7 +263,14 @@ class AppDeployHandler(BaseWebSocketHandler):
                 upload_response = await self._upload_app_to_s3(temp_zip_path, presigned_url)
             except Exception as e:
                 self.log.error(f"Error zipping app: {e}")
-                raise
+                error = AppDeployError(
+                    error_type="ZippingError",
+                    message=f"Error zipping app: {e}",
+                    traceback=traceback.format_exc(),
+                    error_code=500,
+                    message_id=message_id
+                )
+                raise StreamlitDeploymentError(error)
             finally:
                 # Clean up
                 if temp_zip_path is not None:
@@ -295,11 +286,24 @@ class AppDeployHandler(BaseWebSocketHandler):
             if hasattr(e, 'response') and e.response is not None:
                 error_detail = e.response.json()
                 self.log.error(f"Server error details: {error_detail}")
-                raise StreamlitDeploymentError(error_detail['error'], 400)
+                error = AppDeployError(
+                    error_type="APIException",
+                    message=str(error_detail['error']),
+                    traceback=traceback.format_exc(),
+                    error_code=500,
+                    message_id=message_id
+                )
+                raise StreamlitDeploymentError(error)
         except Exception as e:
             self.log.error(f"Error during deployment: {str(e)}")
-            raise
-        raise RuntimeError("Unexpected error in _deploy_app")
+            error = AppDeployError(
+                error_type="DeploymentException",
+                message=str(e),
+                traceback=traceback.format_exc(),
+                error_code=500,
+                message_id=message_id
+            )
+            raise StreamlitDeploymentError(error)
 
     async def _upload_app_to_s3(self, app_path: str, presigned_url: str) -> requests.Response:
         """Upload the app to S3 using the presigned URL."""

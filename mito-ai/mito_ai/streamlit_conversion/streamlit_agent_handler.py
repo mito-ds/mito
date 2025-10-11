@@ -121,7 +121,7 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> str:
         streamlit_code = get_app_code_from_file(app_directory)
         
         if streamlit_code is None:
-            raise(StreamlitPreviewError("Error updating existing streamlit app because app.py file was not found.", 404))
+            raise StreamlitConversionError("Error updating existing streamlit app because app.py file was not found.", 404)
         
         streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, edit_prompt)
     else:
@@ -145,7 +145,6 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> str:
 
     if has_validation_error:
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error, edit_prompt)
-        # return False, '', "Error generating streamlit code by agent"
         raise StreamlitConversionError("Streamlit agent failed generating code after max retries", 500)
     
     # Finally, update the app.py file with the new code

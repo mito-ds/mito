@@ -27,7 +27,7 @@ def validate_request_body(body: Optional[dict]) -> Tuple[str, bool, str]:
 
     return notebook_path, force_recreate, edit_prompt
 
-async def ensure_app_exists(resolved_notebook_path: str, force_recreate: bool = False, edit_prompt: str = "") -> bool:
+async def ensure_app_exists(resolved_notebook_path: str, force_recreate: bool = False, edit_prompt: str = "") -> None:
     """Ensure app.py exists, generating it if necessary or if force_recreate is True."""
     # Check if the app already exists
     app_path = get_app_path(os.path.dirname(resolved_notebook_path))
@@ -38,9 +38,4 @@ async def ensure_app_exists(resolved_notebook_path: str, force_recreate: bool = 
         else:
             print("[Mito AI] Force recreating streamlit app")
         
-        app_path = await streamlit_handler(resolved_notebook_path, edit_prompt)
-
-        if app_path is None:
-            raise StreamlitPreviewError(f"Failed to generate streamlit code: App file not created", 500)
-
-    return True
+        await streamlit_handler(resolved_notebook_path, edit_prompt)

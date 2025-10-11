@@ -7,7 +7,7 @@ from mito_ai.streamlit_preview.utils import ensure_app_exists, validate_request_
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_preview.manager import get_preview_manager
-from mito_ai.utils.error_classes import StreamlitPreviewError
+from mito_ai.utils.error_classes import StreamlitPreviewError, StreamlitConversionError
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error
 from mito_ai.completions.models import MessageType
 
@@ -84,7 +84,7 @@ class StreamlitPreviewHandler(APIHandler):
             # Ensure app exists
             resolved_notebook_path = self._resolve_notebook_path(notebook_path)
 
-            success = await ensure_app_exists(resolved_notebook_path, force_recreate, edit_prompt)
+            await ensure_app_exists(resolved_notebook_path, force_recreate, edit_prompt)
 
             # Start preview
             # TODO: There's a bug here where when the user rebuilds and already running app. Instead of 
@@ -97,7 +97,7 @@ class StreamlitPreviewHandler(APIHandler):
             # Return success response
             await self.finish({"id": preview_id, "port": port, "url": f"http://localhost:{port}"})
 
-        except StreamlitPreviewError as e:
+        except (StreamlitPreviewError, StreamlitConversionError) as e:
             print(e)
             self.set_status(e.error_code)
             await self.finish({"error": str(e)})

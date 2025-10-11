@@ -1,4 +1,6 @@
 
+from mito_ai.app_deploy.models import AppDeployError
+
 class MitoAppError(Exception):
     """Exception raised for custom error in the application."""
 
@@ -15,6 +17,24 @@ class StreamlitConversionError(MitoAppError):
     def __str__(self) -> str:
         return f"[ConversionError]: {self.message} (Error Code: {self.error_code})"
 
+
 class StreamlitDeploymentError(MitoAppError):
-    def __str__(self) -> str:
-        return f"[DeploymentError]: {self.message} (Error Code: {self.error_code})"
+    """Raised when a deployment operation fails."""
+
+    def __init__(self, error: AppDeployError):
+        self.error = error
+        self.error_type = error.error_type
+        self.message_id = getattr(error, "message_id", "ErrorMessageID")
+        self.error_code = getattr(error, "error_code", 500)
+        self.hint = getattr(error, "hint", "")
+        self.traceback = getattr(error, "traceback", "")
+        self.error_type = getattr(error, "error_type", "Error")
+        self.message = error.message
+        print(f"self_message: {self.message}")
+        super().__init__(self.message, self.error_code)
+
+    def _str__(self) -> str:
+        base = f"[DeploymentError]: {self.message} (Error Code: {self.error_code})"
+        if self.hint:
+            base += f"\nHint: {self.hint}"
+        return base
