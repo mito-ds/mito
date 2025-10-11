@@ -110,7 +110,7 @@ class StreamlitPreviewHandler(APIHandler):
             print(f"Exception in streamlit preview handler: {e}")
             self.set_status(500)
             await self.finish({"error": str(e)})
-            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, str(e))
+            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, {"error":str(e), "traceback": traceback.format_exc()})
 
     @tornado.web.authenticated
     def delete(self, preview_id: str) -> None:
