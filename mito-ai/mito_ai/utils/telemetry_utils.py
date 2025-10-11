@@ -422,7 +422,7 @@ def log_streamlit_app_deployment_failure(key_type: Literal['mito_server_key', 'u
         "mito_ai_streamlit_app_deployment_failure",
         key_type=key_type,
         params={
-            "error": error,
+            "error": error, # Contains all details in app_deploy.models.AppDeployError class
             "message_type": message_type
         }
     )
@@ -432,7 +432,7 @@ def log_streamlit_app_preview_failure(key_type: Literal['mito_server_key', 'user
         "mito_ai_streamlit_app_deployment_failure",
         key_type=key_type,
         params={
-            "error": error,
+            "error": error, # Contains both error message and traceback
             "message_type": message_type
         }
     )
