@@ -172,7 +172,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             )
             raise StreamlitDeploymentError(error)
 
-            # Finally, deploy the app
+        # Finally, deploy the app
         deploy_url = await self._deploy_app(app_directory, files_to_upload, message_id, jwt_token)
 
         # Send the response
@@ -216,7 +216,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             return False
 
 
-    async def _deploy_app(self, app_path: str, files_to_upload:List[str], message_id: str, jwt_token: str = '') -> Optional[Any]:
+    async def _deploy_app(self, app_path: str, files_to_upload:List[str], message_id: str, jwt_token: str = '') -> str:
         """Deploy the app using pre-signed URLs.
         
         Args:
@@ -282,7 +282,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             self.log.info(f"Upload successful! Status code: {upload_response.status_code}")
             
             self.log.info(f"Deployment initiated. App will be available at: {expected_app_url}")
-            return expected_app_url # type: ignore
+            return expected_app_url
             
         except requests.exceptions.RequestException as e:
             self.log.error(f"Error during API request: {e}")

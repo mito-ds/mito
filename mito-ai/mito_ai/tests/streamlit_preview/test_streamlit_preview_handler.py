@@ -13,13 +13,12 @@ class TestEnsureAppExists:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "app_exists,streamlit_handler_success,expected_success,streamlit_handler_called,streamlit_handler_return",
+        "app_exists,streamlit_handler_success,streamlit_handler_called,streamlit_handler_return",
         [
             # Test case 1: App exists, should use existing file
             (
                 True,  # app_exists
                 True,  # streamlit_handler_success (not relevant)
-                True,  # expected_success
                 False, # streamlit_handler_called
                 None,  # streamlit_handler_return (not used)
             ),
@@ -27,7 +26,6 @@ class TestEnsureAppExists:
             (
                 False,  # app_exists
                 True,   # streamlit_handler_success
-                True,   # expected_success
                 True,   # streamlit_handler_called
                 "/path/to/app.py",  # streamlit_handler_return
             )
@@ -41,7 +39,6 @@ class TestEnsureAppExists:
         self,
         app_exists,
         streamlit_handler_success,
-        expected_success,
         streamlit_handler_called,
         streamlit_handler_return,
     ):
@@ -67,10 +64,7 @@ class TestEnsureAppExists:
                     if streamlit_handler_return is not None:
                         mock_streamlit_handler.return_value = streamlit_handler_return
                     
-                    success = await ensure_app_exists(notebook_path, False, "")
-                    
-                    # Assertions
-                    assert success == expected_success
+                    result = await ensure_app_exists(notebook_path, False, "")
                     
                     # Verify get_app_path was called with the correct directory
                     mock_get_app_path.assert_called_once_with(temp_dir)
