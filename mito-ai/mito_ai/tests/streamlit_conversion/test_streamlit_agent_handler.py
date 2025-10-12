@@ -102,14 +102,12 @@ class TestCorrectErrorInGeneration:
     @patch('mito_ai.streamlit_conversion.agent_utils.stream_anthropic_completion_from_mito_server')
     async def test_correct_error_in_generation_success(self, mock_stream):
         """Test successful error correction"""
-        mock_response = """```unified_diff
---- a/app.py
-+++ b/app.py
-@@ -1,1 +1,1 @@
--import streamlit
--st.title('Test')
-+import streamlit
-+st.title('Fixed')
+        mock_response = """```search_replace
+>>>>>>> SEARCH
+st.title('Test')
+=======
+st.title('Fixed')
+<<<<<<< REPLACE
 ```"""
         async def mock_async_gen():
             for item in [mock_response]:
@@ -117,8 +115,8 @@ class TestCorrectErrorInGeneration:
 
         mock_stream.return_value = mock_async_gen()
 
-        result = await correct_error_in_generation("ImportError: No module named 'pandas'", "import streamlit\nst.title('Test')")
-
+        result = await correct_error_in_generation("ImportError: No module named 'pandas'", "import streamlit\nst.title('Test')\n")
+        
         expected_code = "import streamlit\nst.title('Fixed')\n"
         assert result == expected_code
 
