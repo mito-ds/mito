@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.streamlit_conversion.agent_utils import apply_search_replace
+from mito_ai.streamlit_conversion.search_replace_utils import apply_search_replace
 
 
 @pytest.mark.parametrize("original_text,search_replace_pairs,expected_result", [
