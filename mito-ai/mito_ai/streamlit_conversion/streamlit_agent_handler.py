@@ -82,6 +82,7 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
     search_replace_pairs = extract_search_replace_blocks(agent_response)
     print(f"Search/replace pairs: {search_replace_pairs}")
     converted_code = apply_search_replace(streamlit_app_code, search_replace_pairs)
+    print(f"Converted code: {converted_code}")
     return converted_code
 
 

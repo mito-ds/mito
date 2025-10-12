@@ -47,8 +47,10 @@ def apply_search_replace(text: str, search_replace_pairs: List[Tuple[str, str]])
         count = result.count(search_text)
         
         if count == 0:
+            print("Search Text Not Found: ", repr(search_text))
             raise ValueError(f"Search text not found: {repr(search_text)}")
         elif count > 1:
+            print("Search Text Found Multiple Times: ", repr(search_text))
             raise ValueError(f"Search text found {count} times (must be unique): {repr(search_text)}")
         
         # Perform the replacement

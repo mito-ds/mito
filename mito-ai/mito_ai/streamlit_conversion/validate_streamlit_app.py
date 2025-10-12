@@ -100,6 +100,7 @@ def check_for_errors(app_code: str, app_path: str) -> List[Dict[str, Any]]:
             errors.append({'type': 'syntax', 'details': syntax_error})
 
         runtime_errors = get_runtime_errors(app_code, app_path)
+        print(f"Runtime errors: {runtime_errors}")
         
         if runtime_errors:
             errors.extend(runtime_errors)

@@ -4,43 +4,60 @@
 MITO_TODO_PLACEHOLDER = "# MITO_TODO_PLACEHOLDER"
 
 search_replace_instructions = f"""
-RESPONSE FORMAT: Return the changes you want to make to the streamlit app using the **SEARCH_REPLACE format**:
+RESPONSE FORMAT: You can edit the existing code using the **SEARCH_REPLACE format** for exact string matching and replacement.
 
-The SEARCH_REPLACE format uses exact string matching to find and replace code blocks. It has the following structure:
-```
+**STRUCTURE:**
+```search_replace
 >>>>>>> SEARCH
-[exact code to find]
+[exact code currently in the file]
 =======
-[replacement code]
+[new code to replace it with]
 <<<<<<< REPLACE
 ```
 
-**KEY COMPONENTS:**
-- `>>>>>>> SEARCH` - Marks the beginning of the code to find
-- `=======` - Separator between search and replace code
-- `<<<<<<< REPLACE` - Marks the end of the replacement code
-- No line numbers needed - uses exact string matching
-- Include enough context to make the search unique
+**COMPONENTS:**
+```search_replace - This is the start of the search/replace block
+- `>>>>>>> SEARCH` - Exact text that EXISTS NOW in the file (7 chevrons)
+- `=======` - Separator (7 equals signs)  
+- `<<<<<<< REPLACE` - Replacement text (7 chevrons)
 
-**FORMAT REQUIREMENTS:**
-- Begin with a ```search_replace marker and end with ``` 
-- Include the exact code you want to find (including proper indentation)
-- Include the exact replacement code
-- If there are **no changes**, return an empty string
-- You can include multiple search/replace blocks in one response
+---
 
-**CRITICAL: EXACT MATCHING**
-- The search text must match **exactly** including all whitespace, indentation, and line breaks
-- Include enough surrounding context to make the match unique
-- Preserve exact indentation in both search and replace text
-- If the search text appears multiple times, include more context to make it unique
+**CRITICAL RULES - READ CAREFULLY:**
+
+1. **SEARCH = CURRENT STATE ONLY**
+   - The SEARCH block must contain ONLY code that currently exists in the file
+   - NEVER include new code, future code, or code you wish existed in the SEARCH block
+   - Copy exact text from the current file, character-for-character
+   
+2. **EXACT MATCHING REQUIRED**
+   - Every space, tab, newline must match perfectly
+   - Preserve exact indentation (spaces vs tabs)
+   - Include trailing newlines if present
+   - No approximations - even one character difference will fail
+
+3. **SIZE LIMITS**
+   - There are no size limits to each search/replace block, however, it is generally preferable to keep the SEARCH blocks small and focused on one change. 
+   - For large changes, use multiple smaller search/replace blocks
+
+4. **UNIQUENESS**
+   - Include enough context to make the SEARCH block unique
+   - If text appears multiple times, add surrounding lines
+   - Ensure there's only ONE match in the file
+
+5. **VERIFICATION CHECKLIST** (before generating each block):
+   ✓ Is every line in my SEARCH block currently in the file?
+   ✓ Did I copy the exact spacing and whitespace?
+   ✓ Will this match exactly once?
+
+---
 
 **MULTIPLE REPLACEMENTS:**
 - You can include multiple search/replace blocks in one response
 - Each block is independent and processed separately
 - Use separate ```search_replace blocks for each change
 
-<Example 1: Simple title change>
+<Example 1: Updating existing content>
 
 ```search_replace
 >>>>>>> SEARCH
@@ -64,7 +81,17 @@ st.write("This is a test app")
 ```
 </Example 2>
 
-<Example 3: Multiple replacements in one response>
+<Example 3: Deleting existing content>
+
+```search_replace
+>>>>>>> SEARCH
+st.write("Old message")
+=======
+<<<<<<< REPLACE
+```
+</Example 3>
+
+<Example 4: Multiple replacements in one response>
 
 ```search_replace
 >>>>>>> SEARCH
@@ -81,24 +108,24 @@ st.write("Old message")
 st.write("New message")
 <<<<<<< REPLACE
 ```
-</Example 3>
+</Example 4>
 
-<Example 4: Complex replacement with context>
+<Example 5: Using extra context to identify the correct code to replace>
 
 ```search_replace
 >>>>>>> SEARCH
 # This is a comment
-st.title("Old Title")
+st.write("Old message")
 # Another comment
 =======
 # This is a comment
-st.title("New Title")
+st.write("New message")
 # Another comment
 <<<<<<< REPLACE
 ```
-</Example 4>
+</Example 5>
 
-<Example 5: Adding multiple entries to a list>
+<Example 6: Search/replace while respecting whitespace and indentation>
 
 ```search_replace
 >>>>>>> SEARCH
@@ -115,9 +142,9 @@ data_list = [
 ]
 <<<<<<< REPLACE
 ```
-</Example 5>
+</Example 6>
 
-<Example 6: Tab structure changes>
+<Example 7: Tab structure changes>
 
 ```search_replace
 >>>>>>> SEARCH
@@ -136,7 +163,7 @@ st.header("A dog")
 st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
 <<<<<<< REPLACE
 ```
-</Example 6>
+</Example 7>
 
 Your response must consist **only** of valid search_replace blocks.
 """
