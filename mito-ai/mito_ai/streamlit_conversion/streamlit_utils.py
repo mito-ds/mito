@@ -28,61 +28,6 @@ def extract_code_blocks(message_content: str) -> str:
     result = '\n'.join(matches)
     return result
 
-def extract_unified_diff_blocks(message_content: str) -> str:
-    """
-    Extract all unified_diff blocks from Claude's response.
-    """
-    if "```unified_diff" not in message_content:
-        return message_content
-    
-    pattern = r'```unified_diff\n(.*?)```'
-    matches = re.findall(pattern, message_content, re.DOTALL)
-    return '\n'.join(matches)
-
-
-def extract_search_replace_blocks(message_content: str) -> List[Tuple[str, str]]:
-    """
-    Extract all search_replace blocks from Claude's response.
-    
-    Returns:
-        List of tuples (search_text, replace_text) for each search/replace block
-    """
-    if "```search_replace" not in message_content:
-        return []
-    
-    pattern = r'```search_replace\n(.*?)```'
-    matches = re.findall(pattern, message_content, re.DOTALL)
-    
-    search_replace_pairs = []
-    for match in matches:
-        # Split by the separator
-        if "=======" not in match:
-            continue
-            
-        parts = match.split("=======", 1)
-        if len(parts) != 2:
-            continue
-            
-        search_part = parts[0]
-        replace_part = parts[1]
-        
-        # Extract search text (after SEARCH marker)
-        if ">>>>>>> SEARCH" in search_part:
-            search_text = search_part.split(">>>>>>> SEARCH", 1)[1].strip()
-        else:
-            continue
-            
-        # Extract replace text (before REPLACE marker)
-        if "<<<<<<< REPLACE" in replace_part:
-            replace_text = replace_part.split("<<<<<<< REPLACE", 1)[0].strip()
-        else:
-            continue
-            
-        search_replace_pairs.append((search_text, replace_text))
-    
-    return search_replace_pairs
-
-
 def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
     """
     Create app.py file and write code to it with error handling
