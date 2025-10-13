@@ -18,7 +18,7 @@
 
 .upgrade-header-cta-circle-background {
     fill: none;
-    stroke: #E0E0E0;
+    stroke: var(--jp-inverse-layout-color3);
     stroke-width: 4;
 }
 

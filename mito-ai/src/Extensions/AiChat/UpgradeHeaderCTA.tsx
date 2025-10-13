@@ -9,6 +9,17 @@ import { getUserKey } from '../../restAPI/RestAPI';
 import '../../../style/UpgradeCTAHeader.css';
 // import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 
+const MAX_FREE_USAGE = 150;
+const SVG_SIZE = 18;
+const CIRCLE_RADIUS = 6.5;
+const CIRCLE_CENTER = SVG_SIZE / 2; // Center x and y coordinates
+
+const USAGE_COLORS = {
+    GREEN: '#5CB85C',
+    ORANGE: '#FFA500',
+    RED: '#DC3545',
+};
+
 interface UpgradeHeaderCTAProps {
     app: JupyterFrontEnd;
 }
@@ -29,28 +40,27 @@ const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
         fetchUsageCount();
     }, []);
 
-    const maxUsage = 150;
-    const percentage = (usageCount / maxUsage) * 100;
-    const radius = 6.5;
-    const circumference = 2 * Math.PI * radius;
+    // Calculate progress
+    const percentage = (usageCount / MAX_FREE_USAGE) * 100;
+    const circumference = 2 * Math.PI * CIRCLE_RADIUS;
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
-    // Color changes based on usage - green to red
+    // Determine color based on usage - green to red
     const getColor = () => {
-        if (percentage < 50) return '#5CB85C'; // Green
-        if (percentage < 80) return '#FFA500'; // Orange/Yellow
-        return '#DC3545'; // Red
+        if (percentage < 50) return USAGE_COLORS.GREEN;
+        if (percentage < 80) return USAGE_COLORS.ORANGE;
+        return USAGE_COLORS.RED;
     };
 
     return (
         <div className="upgrade-header-cta-container">
-            <svg className="upgrade-header-cta-svg" width="18" height="18">
+            <svg className="upgrade-header-cta-svg" width={SVG_SIZE} height={SVG_SIZE}>
                 {/* Background circle */}
                 <circle
                     className="upgrade-header-cta-circle-background"
-                    cx="9"
-                    cy="9"
-                    r={radius}
+                    cx={CIRCLE_CENTER}
+                    cy={CIRCLE_CENTER}
+                    r={CIRCLE_RADIUS}
                 />
                 {/* Progress circle */}
                 <circle
@@ -60,9 +70,9 @@ const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
                         strokeDasharray: circumference,
                         strokeDashoffset: strokeDashoffset,
                     }}
-                    cx="9"
-                    cy="9"
-                    r={radius}
+                    cx={CIRCLE_CENTER}
+                    cy={CIRCLE_CENTER}
+                    r={CIRCLE_RADIUS}
                 />
             </svg>
         </div>
