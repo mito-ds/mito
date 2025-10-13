@@ -112,15 +112,15 @@ st.write("New message")
 
 <Example 5: Using extra context to identify the correct code to replace>
 
+In the below example, assume that the code st.write("Old message") appears multiple times in the file, so we use extra context lines to identify the correct code to replace.
+
 ```search_replace
 >>>>>>> SEARCH
-# This is a comment
+# This is a unique comment
 st.write("Old message")
-# Another comment
 =======
-# This is a comment
+# This is a unique comment
 st.write("New message")
-# Another comment
 <<<<<<< REPLACE
 ```
 </Example 5>
