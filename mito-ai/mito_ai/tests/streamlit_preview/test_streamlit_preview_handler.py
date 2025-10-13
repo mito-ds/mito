@@ -63,8 +63,14 @@ class TestEnsureAppExists:
                     f.write("import streamlit as st\nst.write('Hello World')")
             
             # Mock get_app_path to return the appropriate value
-            with patch('mito_ai.streamlit_preview.utils.get_app_path') as mock_get_app_path:
+            with patch('mito_ai.streamlit_preview.utils.get_absolute_notebook_dir_path') as mock_get_dir_path, \
+                patch('mito_ai.streamlit_preview.utils.get_absolute_app_path') as mock_get_app_path, \
+                patch('mito_ai.streamlit_preview.utils.does_app_path_exists') as mock_app_exists:
+            
+                # Set up mocks
+                mock_get_dir_path.return_value = temp_dir
                 mock_get_app_path.return_value = app_path
+                mock_app_exists.return_value = app_exists
                 
                 # Mock streamlit_handler
                 with patch('mito_ai.streamlit_preview.utils.streamlit_handler') as mock_streamlit_handler:

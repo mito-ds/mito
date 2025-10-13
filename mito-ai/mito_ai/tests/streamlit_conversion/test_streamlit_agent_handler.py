@@ -157,19 +157,18 @@ class TestStreamlitHandler:
         
         
         # Use a relative path that will work cross-platform
-        notebook_path = "notebook.ipynb"
+        notebook_path = "absolute/path/to/notebook.ipynb"
         result = await streamlit_handler(notebook_path)
         
         assert result[0] is True
         assert "File created successfully" in result[2]
         
         # Verify calls
-        expected_absolute_path = get_absolute_notebook_path(notebook_path)
-        mock_parse.assert_called_once_with(expected_absolute_path)
+        mock_parse.assert_called_once_with(notebook_path)
         mock_generate_code.assert_called_once_with(mock_notebook_data)
-        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", expected_absolute_path)
-        # get_app_directory converts relative paths to absolute, so expect the absolute path directory
-        expected_app_dir = os.path.dirname(expected_absolute_path)
+        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", notebook_path)
+        
+        expected_app_dir = os.path.dirname(notebook_path)
         mock_create_file.assert_called_once_with(expected_app_dir, "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
