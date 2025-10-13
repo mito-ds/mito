@@ -22,12 +22,9 @@ export const SubscriptionPage = (): JSX.Element => {
     }, []);
 
     return (
-        <div className="subscription-page-container">
-            <div className="subscription-page-header">
-                <h2 className="subscription-page-title">Manage Subscription</h2>
-                <p className="subscription-page-subtitle">
-                    Track your usage and manage your plan
-                </p>
+        <div>
+            <div className="settings-header">
+                <h2>Manage Subscription</h2>
             </div>
 
             {isPro ? <ProCard /> : <FreeTierCard />}

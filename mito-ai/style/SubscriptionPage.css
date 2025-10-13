@@ -1,25 +1,5 @@
 /* Subscription Page Styles */
 
-.subscription-page-container {
-    padding: 20px;
-}
-
-.subscription-page-header {
-    margin-bottom: 24px;
-}
-
-.subscription-page-title {
-    margin: 0 0 8px 0;
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.subscription-page-subtitle {
-    margin: 0;
-    color: var(--jp-ui-font-color2);
-    font-size: 14px;
-}
-
 .subscription-page-card {
     background: var(--jp-layout-color1);
     border: 1px solid var(--jp-border-color2);
