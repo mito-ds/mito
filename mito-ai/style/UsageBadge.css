@@ -13,6 +13,7 @@
     border-radius: 12px;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    margin-bottom: 4px;
 }
 
 .usage-badge:hover {
