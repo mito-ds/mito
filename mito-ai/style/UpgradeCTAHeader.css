@@ -3,18 +3,32 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.upgrade-header-cta-container {
+.upgrade-header-cta-badge {
     position: relative;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
+    gap: 6px;
+    padding: 2px 8px 2px 2px;
+    background-color: var(--jp-layout-color2);
+    border-radius: 12px;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.upgrade-header-cta-badge:hover {
+    background-color: var(--jp-layout-color3);
 }
 
 .upgrade-header-cta-svg {
     transform: rotate(-90deg);
+    flex-shrink: 0;
+}
+
+.upgrade-header-cta-text {
+    font-size: 11px;
+    color: var(--jp-ui-font-color2);
+    white-space: nowrap;
+    line-height: 1;
 }
 
 .upgrade-header-cta-circle-background {

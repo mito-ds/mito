@@ -54,7 +54,7 @@ const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
 
     return (
         <div
-            className="upgrade-header-cta-container"
+            className="upgrade-header-cta-badge"
             onClick={() => {
                 void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
             }}
@@ -81,6 +81,9 @@ const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
                     r={CIRCLE_RADIUS}
                 />
             </svg>
+            <span className="upgrade-header-cta-text">
+                {usageCount}/{MAX_FREE_USAGE}
+            </span>
         </div>
     );
 };
