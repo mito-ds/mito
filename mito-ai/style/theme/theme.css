@@ -4,6 +4,7 @@
 |----------------------------------------------------------------------------*/
 
 @import './variables.css';
+@import './componentStyling.css';
 
 /* Set the default typography for monospace elements */
 .jp-ThemedContainer tt,
