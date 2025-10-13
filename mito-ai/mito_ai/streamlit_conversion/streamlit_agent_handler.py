@@ -112,7 +112,7 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: st
         streamlit_code = get_app_code_from_file(app_path)
         
         if streamlit_code is None:
-            return False, '', "Error updating existing streamlit app because app.py file was not found."
+            return False, "Error updating existing streamlit app because app.py file was not found."
         
         streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, edit_prompt)
     else:
