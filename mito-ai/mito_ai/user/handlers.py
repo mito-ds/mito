@@ -17,7 +17,7 @@ class UserHandler(APIHandler):
         if key == "is_pro":
             # Special case, since we don't store this key 
             # in the user.json file.
-            value = is_pro()
+            value = str(is_pro())
         else: 
             value = get_user_field(key)
 

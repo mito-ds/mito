@@ -16,8 +16,7 @@ export const SubscriptionPage = (): JSX.Element => {
     useEffect(() => {
         const fetchSettings = async (): Promise<void> => {
             const proStatus = await getUserKey('is_pro');
-            console.log('proStatus', proStatus);
-            setIsPro(true);
+            setIsPro(proStatus === 'True');
         };
         void fetchSettings();
     }, []);
@@ -27,7 +26,7 @@ export const SubscriptionPage = (): JSX.Element => {
             <div className="subscription-page-header">
                 <h2 className="subscription-page-title">Manage Subscription</h2>
                 <p className="subscription-page-subtitle">
-                    {isPro ? 'You are on the Pro plan' : 'Track your usage and manage your plan'}
+                    'Track your usage and manage your plan'
                 </p>
             </div>
 
