@@ -4,7 +4,6 @@
  */
 
 import React from 'react';
-import { INotebookTracker } from '@jupyterlab/notebook';
 import { deployStreamlitApp } from '../../Extensions/AppDeploy/DeployStreamlitApp';
 import { saveFileWithKernel } from '../../Extensions/AppDeploy/fileUtils';
 import { getJWTToken } from '../../Extensions/AppDeploy/auth';
@@ -86,7 +85,6 @@ jest.mock('@jupyterlab/apputils', () => ({
 }));
 
 describe('NotebookToStreamlit Conversion and Deployment', () => {
-    let mockNotebookTracker: jest.Mocked<INotebookTracker>;
     let mockNotebookPanel: any;
     let mockAppDeployService: any;
     let mockAppManagerService: any;
@@ -112,11 +110,6 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
                 }]
             }
         };
-
-        // Setup mock notebook tracker
-        mockNotebookTracker = {
-            currentWidget: mockNotebookPanel
-        } as any;
 
         // Setup mock app builder service
         mockAppDeployService = {
@@ -149,7 +142,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
     test('should proceed when JWT token is available', async () => {
         (getJWTToken as jest.Mock).mockResolvedValue('test-jwt-token');
 
-        await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
+        await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         expect(getJWTToken).toHaveBeenCalled();
         expect(saveFileWithKernel).toHaveBeenCalled();
@@ -161,7 +154,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             .mockResolvedValueOnce('test-jwt-token'); // Second call returns token
         (showAuthenticationPopup as jest.Mock).mockResolvedValue({ userId: 'test-user' });
 
-        await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
+        await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         expect(showAuthenticationPopup).toHaveBeenCalled();
         expect(getJWTToken).toHaveBeenCalledTimes(2);
@@ -172,7 +165,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
         (getJWTToken as jest.Mock).mockResolvedValue('');
         (showAuthenticationPopup as jest.Mock).mockRejectedValue(new Error('Auth failed'));
 
-        await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
+        await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         expect(showAuthenticationPopup).toHaveBeenCalled();
         // Function returns early when authentication fails, so no deployment
@@ -186,7 +179,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             .mockResolvedValueOnce(''); // Second call also returns empty string
         (showAuthenticationPopup as jest.Mock).mockResolvedValue({ userId: 'test-user' });
 
-        await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
+        await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         expect(showAuthenticationPopup).toHaveBeenCalled();
         expect(getJWTToken).toHaveBeenCalledTimes(2);
@@ -198,7 +191,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
     test('should proceed with deployment when authentication is successful', async () => {
         (getJWTToken as jest.Mock).mockResolvedValue('test-jwt-token');
 
-        await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
+        await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         expect(mockAppDeployService.client.sendMessage).toHaveBeenCalledWith({
             type: 'deploy_app',
@@ -216,7 +209,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
         (getJWTToken as jest.Mock).mockResolvedValue('test-jwt-token');
         mockAppDeployService.client.sendMessage.mockRejectedValue(new Error('Deployment failed'));
 
-        await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
+        await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         expect(console.error).toHaveBeenCalledWith('Error deploying app:', expect.any(Error));
     });
@@ -227,7 +220,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             url: 'https://test-app.streamlit.app'
         });
 
-        await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
+        await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         expect(deployAppNotification).toHaveBeenCalledWith('https://test-app.streamlit.app', mockAppManagerService, 'test-notification-id');
     });
@@ -241,21 +234,9 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             }
         });
 
-        await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
+        await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         expect(deployAppNotification).not.toHaveBeenCalled();
-    });
-
-    test('should handle case when no notebook is active', async () => {
-        (getJWTToken as jest.Mock).mockResolvedValue('test-jwt-token');
-        const mockNotebookTrackerNoWidget = {
-            currentWidget: null
-        } as any;
-
-        await deployStreamlitApp(mockNotebookTrackerNoWidget, mockAppDeployService, mockAppManagerService);
-
-        expect(console.error).toHaveBeenCalledWith('No notebook is currently active');
-        expect(saveFileWithKernel).not.toHaveBeenCalled();
     });
 
     test('should use server token as fallback when JWT token is not available', async () => {
@@ -264,7 +245,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             .mockResolvedValueOnce(''); // Second call also returns empty string
         (showAuthenticationPopup as jest.Mock).mockRejectedValue(new Error('Auth failed'));
 
-        await deployStreamlitApp(mockNotebookTracker, mockAppDeployService, mockAppManagerService);
+        await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         // Function returns early when authentication fails, so no deployment
         expect(saveFileWithKernel).not.toHaveBeenCalled();

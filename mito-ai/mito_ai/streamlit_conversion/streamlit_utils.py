@@ -69,7 +69,6 @@ def get_app_code_from_file(app_directory: str) -> Optional[str]:
     with open(app_path, 'r', encoding='utf-8') as f:
         return f.read()
     
-
 def get_app_path(app_directory: str) -> Optional[str]:
     """
     Check if the app.py file exists in the given directory.
