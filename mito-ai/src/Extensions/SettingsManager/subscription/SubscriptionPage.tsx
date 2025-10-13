@@ -91,7 +91,7 @@ export const SubscriptionPage = (): JSX.Element => {
                         </p>
                     ) : (
                         <p className="subscription-page-status-warning">
-                            ⚠️ You have reached your free usage limit. Upgrade to continue using Mito AI.
+                            You have reached your free usage limit. Upgrade to continue using Mito AI.
                         </p>
                     )}
                 </div>

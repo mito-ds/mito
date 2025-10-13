@@ -79,13 +79,9 @@
 }
 
 .subscription-page-status-warning {
-    margin: 0;
     font-size: 14px;
     color: var(--red-500);
     font-weight: 600;
-    padding: 12px;
-    background-color: var(--jp-error-color3);
-    border-radius: 4px;
 }
 
 .subscription-page-upgrade-link {
