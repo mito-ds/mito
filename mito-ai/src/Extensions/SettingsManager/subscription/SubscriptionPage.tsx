@@ -21,12 +21,12 @@ export const SubscriptionPage = (): JSX.Element => {
     const getNextResetDate = async (): Promise<string | null> => {
         const lastResetDate = await getUserKey('mito_ai_last_reset_date');
         if (!lastResetDate) return null;
-        
+
         // Parse the date and add one month
         const lastReset = new Date(lastResetDate);
         const nextReset = new Date(lastReset);
         nextReset.setMonth(nextReset.getMonth() + 1);
-        
+
         // Format the date before returning
         return nextReset.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
@@ -36,7 +36,7 @@ export const SubscriptionPage = (): JSX.Element => {
         const fetchSettings = async (): Promise<void> => {
             const count = await getAiMitoApiNumUsages();
             setUsageCount(count);
-            
+
             const nextReset = await getNextResetDate();
             setResetDate(nextReset);
         };
@@ -45,13 +45,6 @@ export const SubscriptionPage = (): JSX.Element => {
 
     const percentage = (usageCount / MAX_FREE_USAGE) * 100;
     const remainingUsage = MAX_FREE_USAGE - usageCount;
-
-    // Determine color class based on usage
-    const getUsageColorClass = () => {
-        if (percentage < 50) return 'usage-green';
-        if (percentage < 80) return 'usage-yellow';
-        return 'usage-red';
-    };
 
     return (
         <div className="subscription-page-container">
@@ -70,7 +63,7 @@ export const SubscriptionPage = (): JSX.Element => {
 
                     {/* Usage stats */}
                     <div className="subscription-page-usage-stats">
-                        <div className={`subscription-page-usage-count ${getUsageColorClass()}`}>
+                        <div className="subscription-page-usage-count">
                             {usageCount}
                         </div>
                         <div className="subscription-page-usage-details">
@@ -82,7 +75,7 @@ export const SubscriptionPage = (): JSX.Element => {
                     {/* Progress bar */}
                     <div className="subscription-page-progress-bar">
                         <div
-                            className={`subscription-page-progress-fill ${getUsageColorClass()}`}
+                            className="subscription-page-progress-fill"
                             style={{ width: `${Math.min(percentage, 100)}%` }}
                         />
                     </div>
@@ -104,7 +97,7 @@ export const SubscriptionPage = (): JSX.Element => {
                 </div>
 
                 {/* Upgrade button */}
-                <button className="subscription-page-upgrade-button">
+                <button className="button-base button-purple button-width-block">
                     Upgrade to Pro
                 </button>
             </div>

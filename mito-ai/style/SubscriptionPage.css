@@ -48,18 +48,7 @@
 .subscription-page-usage-count {
     font-size: 32px;
     font-weight: 700;
-}
-
-.subscription-page-usage-count.usage-green {
-    color: var(--green-500);
-}
-
-.subscription-page-usage-count.usage-yellow {
-    color: var(--yellow-600);
-}
-
-.subscription-page-usage-count.usage-red {
-    color: var(--red-500);
+    color: var(--purple-500);
 }
 
 .subscription-page-usage-details {
@@ -78,19 +67,8 @@
 
 .subscription-page-progress-fill {
     height: 100%;
+    background-color: var(--purple-500);
     transition: width 0.3s ease;
-}
-
-.subscription-page-progress-fill.usage-green {
-    background-color: var(--green-500);
-}
-
-.subscription-page-progress-fill.usage-yellow {
-    background-color: var(--yellow-600);
-}
-
-.subscription-page-progress-fill.usage-red {
-    background-color: var(--red-500);
 }
 
 .subscription-page-status-message {
@@ -108,21 +86,4 @@
     padding: 12px;
     background-color: var(--jp-error-color3);
     border-radius: 4px;
-}
-
-.subscription-page-upgrade-button {
-    width: 100%;
-    padding: 12px 24px;
-    background-color: var(--jp-brand-color1);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.subscription-page-upgrade-button:hover {
-    opacity: 0.9;
 }
