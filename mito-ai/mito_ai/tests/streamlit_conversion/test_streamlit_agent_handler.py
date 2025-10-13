@@ -150,20 +150,16 @@ class TestStreamlitHandler:
         # Mock validation (no errors)
         mock_validator.return_value = (False, "")
         
-        # Mock file creation
-        mock_create_file.return_value = "/path/to/app.py"
-        
         # Use a relative path that will work cross-platform
         notebook_path = AbsoluteNotebookPath("absolute/path/to/notebook.ipynb")
+        app_path = AbsoluteAppPath("absolute/path/to/app.py")
         await streamlit_handler(notebook_path)
         
         # Verify calls
         mock_parse.assert_called_once_with(notebook_path)
         mock_generate_code.assert_called_once_with(mock_notebook_data)
         mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", notebook_path)
-        
-        expected_app_dir = os.path.dirname(notebook_path)
-        mock_create_file.assert_called_once_with(expected_app_dir, "import streamlit\nst.title('Test')")
+        mock_create_file.assert_called_once_with(app_path, "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
