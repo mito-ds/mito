@@ -16,6 +16,17 @@
     padding: 0 !important;
 }
 
+/* Remove top border from tabs so there is no double border */
+.lm-DockPanel-tabBar .lm-TabBar-tab {
+    border-top: none !important;
+}
+
 .jp-InputArea-editor {
     border-radius: 3px !important;
+}
+
+.lm-MenuBar,
+#jp-top-bar,
+#jp-MainLogo {
+    background-color: var(--jp-layout-color2) !important;
 }
