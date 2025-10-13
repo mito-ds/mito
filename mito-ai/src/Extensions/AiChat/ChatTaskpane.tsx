@@ -103,6 +103,7 @@ import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPa
 
 // Internal imports - Chat components
 import CTACarousel from './CTACarousel';
+import UpgradeHeaderCTA from './UpgradeHeaderCTA';
 import SignUpForm from './SignUpForm';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import { getFirstMessageFromCookie } from './FirstMessage';
@@ -1477,6 +1478,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
                     />
+                    <UpgradeHeaderCTA app={app} />
                 </div>
                 <div className="chat-taskpane-header-right">
                     <IconButton
