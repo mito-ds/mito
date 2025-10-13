@@ -15,7 +15,7 @@ export interface IAppDeployRequest {
 }
 
 export interface IDeployAppRequest extends IAppDeployRequest {
-  type: 'deploy-app'
+  type: 'deploy_app'
   notebook_path: string,
   selected_files: string[],
   jwt_token?: string
@@ -32,7 +32,7 @@ export type AppDeployError = {
   /**
    * The title of the error.
    */
-  title: string;
+  message: string;
   /**
    * The traceback of the error.
    */
@@ -50,7 +50,7 @@ export interface IDeployAppReply {
   /**
    * The type of the message.
    */
-  type: 'deploy-app';
+  type: 'deploy_app';
 
   /**
    * The parent message ID.

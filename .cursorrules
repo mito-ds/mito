@@ -1,0 +1,5 @@
+# Cursor Rules for Mito Project
+
+## Virtual Environment
+- ALWAYS activate the virtual environment before running any Python commands: `cd mito-ai && source venv/bin/activate`
+- For other components: check for venv directories and activate appropriately

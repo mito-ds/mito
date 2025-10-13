@@ -2,13 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from dataclasses import dataclass
-from enum import Enum
+import traceback
 from typing import Literal, Optional, List
-
-
-class MessageType(str, Enum):
-    """Types of app deploy messages."""
-    DEPLOY_APP = "deploy-app"
 
 
 @dataclass(frozen=True)
@@ -19,7 +14,13 @@ class AppDeployError:
     error_type: str
     
     # Error title.
-    title: str
+    message: str
+
+    #ID of parent to resolve response
+    message_id: Optional[str] = "InvalidMessageID"
+
+    # Error code
+    error_code: Optional[int] = 500
     
     # Error traceback.
     traceback: Optional[str] = None
@@ -28,21 +29,24 @@ class AppDeployError:
     hint: Optional[str] = None
     
     @classmethod
-    def from_exception(cls, e: Exception, hint: Optional[str] = None) -> "AppDeployError":
+    def from_exception(cls, e: Exception, hint: Optional[str] = None, error_code: Optional[int] = 500) -> "AppDeployError":
         """Create an error from an exception.
 
         Args:
             e: The exception.
             hint: Optional hint to fix the error.
+            error_code: Optional error code which defaults to 500
 
         Returns:
             The app builder error.
         """
+        tb_str = "".join(traceback.format_exception(type(e), e, e.__traceback__))
         return cls(
             error_type=type(e).__name__,
-            title=str(e),
-            traceback=getattr(e, "__traceback__", None) and str(e.__traceback__),
+            message=str(e),
+            traceback=tb_str,
             hint=hint,
+            error_code=error_code
         )
 
 
@@ -59,7 +63,7 @@ class DeployAppRequest:
     """Request to deploy an app."""
     
     # Request type.
-    type: Literal["deploy-app"]
+    type: Literal["deploy_app"]
     
     # Message ID.
     message_id: str
@@ -88,4 +92,4 @@ class DeployAppReply:
     error: Optional[AppDeployError] = None
     
     # Type of reply.
-    type: Literal["deploy-app"] = "deploy-app" 
+    type: Literal["deploy_app"] = "deploy_app"

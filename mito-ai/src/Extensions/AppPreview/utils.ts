@@ -25,6 +25,7 @@ export const startStreamlitPreviewAndNotify = async (
   try {
     const previewData = await startStreamlitPreview(notebookPath, force_recreate, edit_prompt);
 
+<<<<<<< HEAD
     // Update notification to success
     Notification.update({
       id: notificationId,
@@ -32,6 +33,15 @@ export const startStreamlitPreviewAndNotify = async (
       type: 'success',
       autoClose: 5 * 1000
     });
+=======
+      // Display error notification
+      Notification.update({
+        id: notificationId,
+        message: String(error),
+        type: 'error',
+        autoClose: 5 * 1000
+      });
+>>>>>>> dev
 
     return previewData;
 

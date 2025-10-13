@@ -6,6 +6,8 @@ import json
 import os
 from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
+from mito_ai.utils.error_classes import StreamlitConversionError
+
 
 def extract_code_blocks(message_content: str) -> str:
     """
@@ -40,7 +42,7 @@ def extract_unified_diff_blocks(message_content: str) -> str:
     return '\n'.join(matches)
 
 
-def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
+def create_app_file(app_directory: str, code: str) -> str:
     """
     Create app.py file and write code to it with error handling
 
@@ -54,15 +56,11 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
     """
     try:
         app_path = os.path.join(app_directory, "app.py")
-
         with open(app_path, 'w', encoding='utf-8') as f:
             f.write(code)
-        
-        return True, app_path, f"Successfully created {app_directory}"
+        return app_path
     except IOError as e:
-        return False, '', f"Error creating file: {str(e)}"
-    except Exception as e:
-        return False, '', f"Unexpected error: {str(e)}"
+        raise StreamlitConversionError(f"Error creating app file: {str(e)}", 500)
     
 def get_app_code_from_file(app_directory: str) -> Optional[str]:
     app_path = get_app_path(app_directory)
@@ -107,7 +105,7 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Li
 
         # Check if 'cells' key exists
         if 'cells' not in notebook_data:
-            raise KeyError("Notebook does not contain 'cells' key")
+            raise StreamlitConversionError("Notebook does not contain 'cells' key", 400)
 
         # Filter each cell to keep only cell_type and source
         filtered_cells: List[Dict[str, Any]] = []
@@ -121,12 +119,9 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Li
         return filtered_cells
 
     except FileNotFoundError:
-        raise FileNotFoundError(f"Notebook file not found: {notebook_path}")
+        raise StreamlitConversionError(f"Notebook file not found: {notebook_path}", 404)
     except json.JSONDecodeError as e:
-        # JSONDecodeError requires msg, doc, pos
-        raise json.JSONDecodeError(f"Invalid JSON in notebook file: {str(e)}", e.doc if hasattr(e, 'doc') else '', e.pos if hasattr(e, 'pos') else 0)
-    except Exception as e:
-        raise Exception(f"Error processing notebook: {str(e)}")
+        raise StreamlitConversionError(f"Invalid JSON in notebook file: {str(e)}", 400)
 
 
 def resolve_notebook_path(notebook_path:str) -> str:
@@ -143,4 +138,4 @@ def clean_directory_check(notebook_path: str) -> None:
     dir_path = path.parent
 
     if not dir_path.exists():
-        raise ValueError(f"Directory does not exist: {dir_path}")
+        raise StreamlitConversionError(f"Directory does not exist: {dir_path}", 404)
