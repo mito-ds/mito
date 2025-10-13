@@ -18,8 +18,6 @@ from mito_ai.streamlit_preview.manager import (
     PreviewProcess, 
     get_preview_manager
 )
-from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
-from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 
 
 class TestStreamlitPreviewManager:

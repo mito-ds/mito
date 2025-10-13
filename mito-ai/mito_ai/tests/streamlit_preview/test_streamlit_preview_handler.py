@@ -4,8 +4,9 @@
 import pytest
 import os
 import tempfile
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch
 from mito_ai.streamlit_preview.utils import ensure_app_exists
+from mito_ai.path_utils import get_absolute_notebook_path
 
 
 class TestEnsureAppExists:
@@ -70,7 +71,8 @@ class TestEnsureAppExists:
                     if streamlit_handler_return is not None:
                         mock_streamlit_handler.return_value = streamlit_handler_return
                     
-                    success, error_msg = await ensure_app_exists(notebook_path, False, "")
+                    absolute_path = get_absolute_notebook_path(notebook_path)
+                    success, error_msg = await ensure_app_exists(absolute_path, False, "")
                     
                     # Assertions
                     assert success == expected_success
@@ -81,7 +83,7 @@ class TestEnsureAppExists:
                     
                     # Verify streamlit_handler was called or not called as expected
                     if streamlit_handler_called:
-                        mock_streamlit_handler.assert_called_once_with(notebook_path, "")
+                        mock_streamlit_handler.assert_called_once_with(absolute_path, "")
                     else:
                         mock_streamlit_handler.assert_not_called()
 

@@ -2,9 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import Tuple, Optional
-import os
-from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
+from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_app_path, get_absolute_notebook_dir_path, validate_notebook_path
 
 
 def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str], bool, str]:
@@ -16,6 +15,11 @@ def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str
     if not notebook_path:
         return False, "Missing notebook_path parameter", None, False, ""
 
+    # Validate the notebook path
+    is_valid, error_msg = validate_notebook_path(notebook_path)
+    if not is_valid:
+        return False, f"Invalid notebook path: {error_msg}", None, False, ""
+
     force_recreate = body.get("force_recreate", False)
     if not isinstance(force_recreate, bool):
         return False, "force_recreate must be a boolean", None, False, ""
@@ -26,18 +30,19 @@ def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str
 
     return True, "", notebook_path, force_recreate, edit_prompt
 
-async def ensure_app_exists(resolved_notebook_path: str, force_recreate: bool = False, edit_prompt: str = "") -> Tuple[bool, str]:
+async def ensure_app_exists(absolute_notebook_path: AbsoluteNotebookPath, force_recreate: bool = False, edit_prompt: str = "") -> Tuple[bool, str]:
     """Ensure app.py exists, generating it if necessary or if force_recreate is True."""
-    # Check if the app already exists
-    app_path = get_app_path(os.path.dirname(resolved_notebook_path))
+
+    absolute_notebook_dir_path = get_absolute_notebook_dir_path(absolute_notebook_path)
+    absolute_app_path = get_absolute_app_path(absolute_notebook_dir_path)
     
-    if app_path is None or force_recreate:
-        if app_path is None:
+    if absolute_app_path is None or force_recreate:
+        if absolute_app_path is None:
             print("[Mito AI] App path not found, generating streamlit code")
         else:
             print("[Mito AI] Force recreating streamlit app")
         
-        success, app_path, message = await streamlit_handler(resolved_notebook_path, edit_prompt)
+        success, app_path, message = await streamlit_handler(absolute_notebook_path, edit_prompt)
 
         if not success or app_path is None:
             return False, f"Failed to generate streamlit code: {message}"

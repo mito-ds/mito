@@ -12,7 +12,7 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     correct_error_in_generation,
     streamlit_handler
 )
-from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
+from mito_ai.path_utils import get_absolute_notebook_path
 
 # Add this line to enable async support
 pytest_plugins = ('pytest_asyncio',)
@@ -140,8 +140,7 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
-    async def test_streamlit_handler_success(self, mock_clean_directory, mock_create_file, mock_validator, mock_generate_code, mock_parse):
+    async def test_streamlit_handler_success(self, mock_create_file, mock_validator, mock_generate_code, mock_parse):
         """Test successful streamlit handler execution"""
         # Mock notebook parsing
         mock_notebook_data: List[dict] = [{"cells": [{"cell_type": "code", "source": ["import pandas"]}]}]
@@ -156,8 +155,6 @@ class TestStreamlitHandler:
         # Mock file creation
         mock_create_file.return_value = (True, "/path/to/app.py", "File created successfully")
         
-        # Mock clean directory check (no-op)
-        mock_clean_directory.return_value = None
         
         # Use a relative path that will work cross-platform
         notebook_path = "notebook.ipynb"
@@ -167,11 +164,12 @@ class TestStreamlitHandler:
         assert "File created successfully" in result[2]
         
         # Verify calls
-        mock_parse.assert_called_once_with(notebook_path)
+        expected_absolute_path = get_absolute_notebook_path(notebook_path)
+        mock_parse.assert_called_once_with(expected_absolute_path)
         mock_generate_code.assert_called_once_with(mock_notebook_data)
-        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", notebook_path)
+        mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", expected_absolute_path)
         # get_app_directory converts relative paths to absolute, so expect the absolute path directory
-        expected_app_dir = os.path.dirname(os.path.abspath(notebook_path))
+        expected_app_dir = os.path.dirname(expected_absolute_path)
         mock_create_file.assert_called_once_with(expected_app_dir, "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
@@ -206,8 +204,7 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
-    async def test_streamlit_handler_file_creation_failure(self, mock_clean_directory, mock_create_file, mock_validator, mock_generate_code, mock_parse):
+    async def test_streamlit_handler_file_creation_failure(self, mock_create_file, mock_validator, mock_generate_code, mock_parse):
         """Test streamlit handler when file creation fails"""
         # Mock notebook parsing
         mock_notebook_data: List[dict] = [{"cells": []}]
@@ -222,8 +219,6 @@ class TestStreamlitHandler:
         # Mock file creation failure
         mock_create_file.return_value = (False, None, "Permission denied")
         
-        # Mock clean directory check (no-op)
-        mock_clean_directory.return_value = None
         
         result = await streamlit_handler("notebook.ipynb")
         
@@ -232,11 +227,8 @@ class TestStreamlitHandler:
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
-    async def test_streamlit_handler_parse_notebook_exception(self, mock_clean_directory, mock_parse):
+    async def test_streamlit_handler_parse_notebook_exception(self, mock_parse):
         """Test streamlit handler when notebook parsing fails"""
-        # Mock clean directory check (no-op)
-        mock_clean_directory.return_value = None
         
         mock_parse.side_effect = FileNotFoundError("Notebook not found")
         
@@ -246,8 +238,7 @@ class TestStreamlitHandler:
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
-    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
-    async def test_streamlit_handler_generation_exception(self, mock_clean_directory, mock_generate_code, mock_parse):
+    async def test_streamlit_handler_generation_exception(self, mock_generate_code, mock_parse):
         """Test streamlit handler when code generation fails"""
         # Mock notebook parsing
         mock_notebook_data: List[dict] = [{"cells": []}]
@@ -256,8 +247,6 @@ class TestStreamlitHandler:
         # Mock code generation failure
         mock_generate_code.side_effect = Exception("Generation failed")
         
-        # Mock clean directory check (no-op)
-        mock_clean_directory.return_value = None
         
         with pytest.raises(Exception, match="Generation failed"):
             await streamlit_handler("notebook.ipynb")

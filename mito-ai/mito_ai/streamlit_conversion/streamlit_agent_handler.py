@@ -13,15 +13,7 @@ from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
-from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
-
-def get_app_directory(notebook_path: str) -> str:
-    # Make sure the path is absolute if it is not already
-    absolute_notebook_path = os.path.abspath(notebook_path)
-    
-    # Get the directory of the notebook
-    app_directory = os.path.dirname(absolute_notebook_path)
-    return app_directory
+from mito_ai.path_utils import get_absolute_notebook_path, get_absolute_notebook_dir_path, AbsoluteNotebookPath, AbsoluteNotebookDirPath
 
 async def generate_new_streamlit_code(notebook: List[dict]) -> str:
     """Send a query to the agent, get its response and parse the code"""
@@ -107,13 +99,12 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
 
     return streamlit_app_code
 
-async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[bool, Optional[str], str]:
+async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: str = "") -> Tuple[bool, Optional[str], str]:
     """Handler function for streamlit code generation and validation"""
 
-    clean_directory_check(notebook_path)
-
+    # Convert to absolute path for consistent handling
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
-    app_directory = get_app_directory(notebook_path)
+    app_directory = get_absolute_notebook_dir_path(notebook_path)
     
     if edit_prompt != "":
         # If the user is editing an existing streamlit app, use the update function

@@ -1,27 +1,17 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import sys
 import os
-import time
-import requests
 import tempfile
-import shutil
 import traceback
 import ast
-import importlib.util
 import warnings
 from typing import List, Tuple, Optional, Dict, Any, Generator
 from streamlit.testing.v1 import AppTest
 from contextlib import contextmanager
-from mito_ai.streamlit_conversion.streamlit_utils import resolve_notebook_path
-
-
-# warnings.filterwarnings("ignore", message=r".*missing ScriptRunContext.*")
-# warnings.filterwarnings("ignore", category=UserWarning)
+from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_dir_path
 
 warnings.filterwarnings("ignore", message=".*bare mode.*")
-
 
 def get_syntax_error(app_code: str) -> Optional[str]:
     """Check if the Python code has valid syntax"""
@@ -32,10 +22,10 @@ def get_syntax_error(app_code: str) -> Optional[str]:
         error_msg = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         return error_msg
 
-def get_runtime_errors(app_code: str, app_path: str) -> Optional[List[Dict[str, Any]]]:
+def get_runtime_errors(app_code: str, app_path: AbsoluteNotebookPath) -> Optional[List[Dict[str, Any]]]:
     """Start the Streamlit app in a subprocess"""  
     
-    directory = os.path.dirname(app_path)
+    directory = get_absolute_notebook_dir_path(app_path)
     
     @contextmanager
     def change_working_directory(path: str) -> Generator[None, Any, None]:
@@ -89,7 +79,7 @@ def get_runtime_errors(app_code: str, app_path: str) -> Optional[List[Dict[str, 
             except OSError:
                 pass  # File might already be deleted
 
-def check_for_errors(app_code: str, app_path: str) -> List[Dict[str, Any]]:
+def check_for_errors(app_code: str, app_path: AbsoluteNotebookPath) -> List[Dict[str, Any]]:
     """Complete validation pipeline"""
     errors: List[Dict[str, Any]] = []
 
@@ -109,10 +99,8 @@ def check_for_errors(app_code: str, app_path: str) -> List[Dict[str, Any]]:
 
     return errors
 
-def validate_app(app_code: str, notebook_path: str) -> Tuple[bool, List[str]]:
+def validate_app(app_code: str, notebook_path: AbsoluteNotebookPath) -> Tuple[bool, List[str]]:
     """Convenience function to validate Streamlit code"""
-    notebook_path = resolve_notebook_path(notebook_path)
-    
     errors = check_for_errors(app_code, notebook_path)
     
     has_validation_error = len(errors) > 0

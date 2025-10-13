@@ -11,6 +11,7 @@ from mito_ai.streamlit_conversion.streamlit_utils import (
     create_app_file,
     parse_jupyter_notebook_to_extract_required_content
 )
+from mito_ai.path_utils import get_absolute_notebook_path
 from typing import Dict, Any
 
 class TestExtractCodeBlocks:
@@ -128,7 +129,8 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         with open(notebook_path, 'w') as f:
             json.dump(notebook_data, f)
         
-        result = parse_jupyter_notebook_to_extract_required_content(str(notebook_path))
+        absolute_path = get_absolute_notebook_path(str(notebook_path))
+        result = parse_jupyter_notebook_to_extract_required_content(absolute_path)
         
         # Check that only cell_type and source are preserved
         assert len(result) == 2
@@ -144,7 +146,8 @@ class TestParseJupyterNotebookToExtractRequiredContent:
     def test_parse_notebook_file_not_found(self):
         """Test parsing non-existent notebook file"""
         with pytest.raises(FileNotFoundError, match="Notebook file not found"):
-            parse_jupyter_notebook_to_extract_required_content("/nonexistent/path/notebook.ipynb")
+            absolute_path = get_absolute_notebook_path("/nonexistent/path/notebook.ipynb")
+            parse_jupyter_notebook_to_extract_required_content(absolute_path)
 
     def test_parse_notebook_with_missing_cell_fields(self, tmp_path):
         """Test parsing notebook where cells are missing cell_type or source"""
@@ -169,7 +172,8 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         with open(notebook_path, 'w') as f:
             json.dump(notebook_data, f)
         
-        result = parse_jupyter_notebook_to_extract_required_content(str(notebook_path))
+        absolute_path = get_absolute_notebook_path(str(notebook_path))
+        result = parse_jupyter_notebook_to_extract_required_content(absolute_path)
         
         assert len(result) == 3
         assert result[0]['cell_type'] == 'code'
@@ -191,6 +195,7 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         with open(notebook_path, 'w') as f:
             json.dump(notebook_data, f)
         
-        result = parse_jupyter_notebook_to_extract_required_content(str(notebook_path))
+        absolute_path = get_absolute_notebook_path(str(notebook_path))
+        result = parse_jupyter_notebook_to_extract_required_content(absolute_path)
         
         assert result == []
