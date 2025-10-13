@@ -3,6 +3,7 @@
 
 from typing import NewType
 import os
+from mito_ai.utils.error_classes import StreamlitPreviewError
 
 # Type definitions for better type safety
 AbsoluteNotebookPath = NewType('AbsoluteNotebookPath', str)
@@ -23,7 +24,7 @@ def get_absolute_notebook_path(notebook_path: str) -> AbsoluteNotebookPath:
         ValueError: If the path is invalid or empty
     """
     if not notebook_path or not notebook_path.strip():
-        raise ValueError("Notebook path cannot be empty")
+        raise StreamlitPreviewError("Notebook path cannot be empty", 400)
     
     absolute_path = os.path.abspath(notebook_path)
     return AbsoluteNotebookPath(absolute_path)
