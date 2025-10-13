@@ -3,10 +3,8 @@
 
 import re
 import json
-import os
 from typing import Dict, List, Optional, Tuple, Any
-from pathlib import Path
-from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookDirPath, AbsoluteNotebookPath
+from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookPath
 
 def extract_code_blocks(message_content: str) -> str:
     """

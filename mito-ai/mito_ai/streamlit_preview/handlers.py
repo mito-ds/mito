@@ -19,60 +19,6 @@ class StreamlitPreviewHandler(APIHandler):
         """Initialize the handler."""
         self.preview_manager = get_preview_manager()
 
-    # def _resolve_notebook_path(self, notebook_path: str) -> AbsoluteNotebookPath:
-    #     """
-    #     Resolve the notebook path to an absolute path that can be found by the backend.
-
-    #     This method handles path resolution issues that can occur in different environments:
-
-    #     1. **Test Environment**: Playwright tests create temporary directories with complex
-    #        paths like 'mitoai_ui_tests-app_builde-ab3a5-n-Test-Preview-as-Streamlit-chromium/'
-    #        that the backend can't directly access.
-
-    #     2. **JupyterHub/Cloud Deployments**: In cloud environments, users may have notebooks
-    #        in subdirectories that aren't immediately accessible from the server root.
-
-    #     3. **Docker Containers**: When running in containers, the working directory and
-    #        file paths may not align with what the frontend reports.
-
-    #     4. **Multi-user Environments**: In enterprise deployments, users may have notebooks
-    #        in user-specific directories that require path resolution.
-
-    #     The method tries multiple strategies:
-    #     1. If the path is already absolute, return it as-is
-    #     2. Try to resolve relative to the Jupyter server's root directory
-    #     3. Search recursively through subdirectories for a file with the same name
-    #     4. Return the original path if not found (will cause a clear error message)
-
-    #     Args:
-    #         notebook_path (str): The notebook path from the frontend (may be relative or absolute)
-
-    #     Returns:
-    #         AbsoluteNotebookPath: The resolved absolute path to the notebook file
-    #     """
-    #     # If the path is already absolute, return it
-    #     if os.path.isabs(notebook_path):
-    #         return AbsoluteNotebookPath(notebook_path)
-
-    #     # Get the Jupyter server's root directory
-    #     server_root = self.settings.get("server_root_dir", os.getcwd())
-
-    #     # Try to find the notebook file in the server root
-    #     resolved_path = os.path.join(server_root, notebook_path)
-    #     if os.path.exists(resolved_path):
-    #         return AbsoluteNotebookPath(resolved_path)
-
-    #     # If not found, try to find it in subdirectories
-    #     # This handles cases where the notebook is in a subdirectory that the frontend
-    #     # doesn't know about, or where the path structure differs between frontend and backend
-    #     for root, dirs, files in os.walk(server_root):
-    #         if os.path.basename(notebook_path) in files:
-    #             return AbsoluteNotebookPath(os.path.join(root, os.path.basename(notebook_path)))
-
-    #     # If still not found, return the original path (will cause a clear error)
-    #     # This ensures we get a meaningful error message rather than a generic "file not found"
-    #     return AbsoluteNotebookPath(os.path.join(os.getcwd(), notebook_path))
-
     @tornado.web.authenticated
     async def post(self) -> None:
         """Start a new streamlit preview."""
