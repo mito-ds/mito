@@ -97,9 +97,14 @@ export const SubscriptionPage = (): JSX.Element => {
                 </div>
 
                 {/* Upgrade button */}
-                <button className="button-base button-purple button-width-block">
-                    Upgrade to Pro
-                </button>
+                <a 
+                    href="https://www.trymito.io/plans" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="button-base button-purple button-width-block subscription-page-upgrade-link"
+                >
+                    <b>Upgrade to Pro</b>
+                </a>
             </div>
         </div>
     );

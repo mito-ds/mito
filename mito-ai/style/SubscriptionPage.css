@@ -87,3 +87,9 @@
     background-color: var(--jp-error-color3);
     border-radius: 4px;
 }
+
+.subscription-page-upgrade-link {
+    text-decoration: none;
+    display: block;
+    text-align: center;
+}
