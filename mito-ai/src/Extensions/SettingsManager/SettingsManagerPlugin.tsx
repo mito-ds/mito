@@ -9,6 +9,7 @@ import { SettingsWidget } from './SettingsWidget';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 
 export const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
+export const COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION = 'mito-ai:open-settings-subscription';
 
 /**
  * Initialization data for the mito settings extension.
@@ -29,8 +30,8 @@ function _activate(
     restorer: ILayoutRestorer | null
 ): WidgetTracker {
     // Create a widget creator function
-    const newWidget = (): MainAreaWidget => {
-        const content = new SettingsWidget(contextManager);
+    const newWidget = (initialTab?: 'database' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): MainAreaWidget => {
+        const content = new SettingsWidget(contextManager, initialTab);
         const widget = new MainAreaWidget({ content });
         widget.id = 'mito-ai-settings';
         widget.title.label = 'Mito AI Settings';
@@ -67,6 +68,37 @@ function _activate(
     // Add the command to the palette
     palette.addItem({
         command: COMMAND_MITO_AI_SETTINGS,
+        category: 'Mito AI'
+    });
+
+    // Add a command to open settings with the subscription tab
+    app.commands.addCommand(COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION, {
+        label: 'Mito AI Settings: Subscription',
+        execute: () => {
+            // Dispose the old widget and create a new one with subscription tab
+            if (widget && !widget.isDisposed) {
+                widget.dispose();
+            }
+            widget = newWidget('subscription');
+
+            // Add the widget to the tracker
+            if (!tracker.has(widget)) {
+                void tracker.add(widget);
+            }
+
+            // Add the widget to the app
+            if (!widget.isAttached) {
+                void app.shell.add(widget, 'main');
+            }
+
+            // Activate the widget
+            app.shell.activateById(widget.id);
+        }
+    });
+
+    // Add the subscription command to the palette
+    palette.addItem({
+        command: COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION,
         category: 'Mito AI'
     });
 

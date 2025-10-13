@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getUserKey } from '../../restAPI/RestAPI';
 import '../../../style/UsageBadge.css';
-import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import { COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION } from '../SettingsManager/SettingsManagerPlugin';
 
 const MAX_FREE_USAGE = 150;
 const SVG_SIZE = 16;
@@ -56,7 +56,7 @@ const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
         <div
             className="usage-badge"
             onClick={() => {
-                void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
+                void app.commands.execute(COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION);
             }}
             title={`${usageCount}/${MAX_FREE_USAGE} free AI messages used`}
         >
