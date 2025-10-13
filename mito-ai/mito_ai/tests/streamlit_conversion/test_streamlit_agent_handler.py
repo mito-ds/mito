@@ -12,7 +12,7 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     correct_error_in_generation,
     streamlit_handler
 )
-from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookPath, get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookPath, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
 
 # Add this line to enable async support
 pytest_plugins = ('pytest_asyncio',)
@@ -152,14 +152,17 @@ class TestStreamlitHandler:
         
         # Use a relative path that will work cross-platform
         notebook_path = AbsoluteNotebookPath("absolute/path/to/notebook.ipynb")
-        app_path = AbsoluteAppPath("absolute/path/to/app.py")
+        
+        # Construct the expected app path using the same method as the production code
+        app_directory = get_absolute_notebook_dir_path(notebook_path)
+        expected_app_path = get_absolute_app_path(app_directory)
         await streamlit_handler(notebook_path)
         
         # Verify calls
         mock_parse.assert_called_once_with(notebook_path)
         mock_generate_code.assert_called_once_with(mock_notebook_data)
         mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", notebook_path)
-        mock_create_file.assert_called_once_with(app_path, "import streamlit\nst.title('Test')")
+        mock_create_file.assert_called_once_with(expected_app_path, "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
