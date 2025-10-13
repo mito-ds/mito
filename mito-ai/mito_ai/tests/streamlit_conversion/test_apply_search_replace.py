@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from mito_ai.utils.error_classes import StreamlitConversionError
 import pytest
 from mito_ai.streamlit_conversion.search_replace_utils import apply_search_replace
 
@@ -215,11 +216,11 @@ def test_apply_search_replace(original_text, search_replace_pairs, expected_resu
 
 def test_apply_search_replace_search_not_found():
     """Test that ValueError is raised when search text is not found."""
-    with pytest.raises(ValueError, match="Search text not found"):
+    with pytest.raises(StreamlitConversionError, match="Search text not found"):
         apply_search_replace("st.title(\"My App\")", [("st.title(\"Not Found\")", "st.title(\"New Title\")")])
 
 
 def test_apply_search_replace_multiple_matches():
     """Test that ValueError is raised when search text is found multiple times."""
-    with pytest.raises(ValueError, match="Search text found 2 times"):
+    with pytest.raises(StreamlitConversionError, match="Search text found 2 times"):
         apply_search_replace("st.write(\"Hello\")\nst.write(\"Hello\")", [("st.write(\"Hello\")", "st.write(\"Hi\")")])

@@ -79,10 +79,10 @@ def apply_search_replace(text: str, search_replace_pairs: List[Tuple[str, str]])
         
         if count == 0:
             print("Search Text Not Found: ", repr(search_text))
-            raise StreamlitConversionError(f"Search text not found: {repr(search_text)}")
+            raise StreamlitConversionError(f"Search text not found: {repr(search_text)}", error_code=500)
         elif count > 1:
             print("Search Text Found Multiple Times: ", repr(search_text))
-            raise StreamlitConversionError(f"Search text found {count} times (must be unique): {repr(search_text)}")
+            raise StreamlitConversionError(f"Search text found {count} times (must be unique): {repr(search_text)}", error_code=500)
         
         # Perform the replacement
         result = result.replace(search_text, replace_text)
