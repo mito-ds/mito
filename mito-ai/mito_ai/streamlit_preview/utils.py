@@ -3,7 +3,7 @@
 
 from typing import Tuple, Optional
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
-from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_app_path, get_absolute_notebook_dir_path, validate_notebook_path
+from mito_ai.path_utils import AbsoluteNotebookPath, does_app_path_exists, get_absolute_app_path, get_absolute_notebook_dir_path
 
 
 def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str], bool, str]:
@@ -30,9 +30,10 @@ async def ensure_app_exists(absolute_notebook_path: AbsoluteNotebookPath, force_
 
     absolute_notebook_dir_path = get_absolute_notebook_dir_path(absolute_notebook_path)
     absolute_app_path = get_absolute_app_path(absolute_notebook_dir_path)
+    app_path_exists = does_app_path_exists(absolute_app_path)
     
-    if absolute_app_path is None or force_recreate:
-        if absolute_app_path is None:
+    if not app_path_exists or force_recreate:
+        if not app_path_exists:
             print("[Mito AI] App path not found, generating streamlit code")
         else:
             print("[Mito AI] Force recreating streamlit app")

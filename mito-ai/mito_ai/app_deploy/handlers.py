@@ -6,7 +6,7 @@ import time
 import logging
 from typing import Any, Union, List
 import tempfile
-from mito_ai.path_utils import AbsoluteAppPath, check_if_app_path_exists, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteAppPath, does_app_path_exists, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
@@ -154,7 +154,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             absolute_app_directory = get_absolute_notebook_dir_path(absolute_notebook_path)
             app_path = get_absolute_app_path(absolute_app_directory)
             
-            if not check_if_app_path_exists(app_path):
+            if not does_app_path_exists(app_path):
                 error = AppDeployError(
                     error_type="AppNotFound",
                     title="App not found",
