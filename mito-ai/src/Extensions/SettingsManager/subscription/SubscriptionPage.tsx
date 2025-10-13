@@ -12,6 +12,8 @@ const MAX_FREE_USAGE = 150;
 export const SubscriptionPage = (): JSX.Element => {
     const [usageCount, setUsageCount] = useState<number>(0);
     const [resetDate, setResetDate] = useState<string | null>(null);
+    const [percentage, setPercentage] = useState<number>(0);
+    const [remainingUsage, setRemainingUsage] = useState<number>(MAX_FREE_USAGE);
 
     const getAiMitoApiNumUsages = async (): Promise<number> => {
         const usageCount = await getUserKey('ai_mito_api_num_usages');
@@ -43,8 +45,11 @@ export const SubscriptionPage = (): JSX.Element => {
         void fetchSettings();
     }, []);
 
-    const percentage = (usageCount / MAX_FREE_USAGE) * 100;
-    const remainingUsage = MAX_FREE_USAGE - usageCount;
+    // Update percentage and remaining usage when usageCount changes
+    useEffect(() => {
+        setPercentage(Math.round((usageCount / MAX_FREE_USAGE) * 100));
+        setRemainingUsage(MAX_FREE_USAGE - usageCount);
+    }, [usageCount]);
 
     return (
         <div className="subscription-page-container">
@@ -68,7 +73,7 @@ export const SubscriptionPage = (): JSX.Element => {
                         </div>
                         <div className="subscription-page-usage-details">
                             <div>of {MAX_FREE_USAGE} messages</div>
-                            <div>({percentage.toFixed(1)}% used)</div>
+                            <div>({percentage}% used)</div>
                         </div>
                     </div>
 
