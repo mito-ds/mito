@@ -28,8 +28,6 @@ export const showUpdateAppDropdown = (
     // Create dropdown container
     const dropdownContainer = document.createElement('div');
     dropdownContainer.className = 'update-app-dropdown';
-    dropdownContainer.style.position = 'absolute';
-    dropdownContainer.style.zIndex = '1000';
 
     // Position the dropdown below the button
     const buttonRect = buttonElement.getBoundingClientRect();

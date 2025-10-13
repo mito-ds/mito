@@ -11,6 +11,7 @@ import requests
 from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
 from mito_ai.logger import get_logger
+from mito_ai.utils.error_classes import StreamlitPreviewError
 
 
 @dataclass
@@ -37,7 +38,7 @@ class StreamlitPreviewManager:
         
         return port
     
-    def start_streamlit_preview(self, app_directory: str, preview_id: str) -> Tuple[bool, str, Optional[int]]:
+    def start_streamlit_preview(self, app_directory: str, preview_id: str) -> int:
         """Start a streamlit preview process.
         
         Args:
@@ -80,7 +81,7 @@ class StreamlitPreviewManager:
             if not ready:
                 proc.terminate()
                 proc.wait()
-                return False, "Streamlit app failed to start", None
+                raise StreamlitPreviewError("Streamlit app failed to start as app is not ready", 500)
             
             # Register the process
             with self._lock:
@@ -90,11 +91,11 @@ class StreamlitPreviewManager:
                 )
             
             self.log.info(f"Started streamlit preview {preview_id} on port {port}")
-            return True, "Preview started successfully", port
+            return port
             
         except Exception as e:
             self.log.error(f"Error starting streamlit preview: {e}")
-            return False, f"Failed to start preview: {str(e)}", None
+            raise StreamlitPreviewError(f"Failed to start preview: {str(e)}", 500)
     
     def _wait_for_app_ready(self, port: int, timeout: int = 30) -> bool:
         """Wait for streamlit app to be ready on the given port."""
@@ -106,7 +107,7 @@ class StreamlitPreviewManager:
                 if response.status_code == 200:
                     return True
             except requests.exceptions.RequestException as e:
-                print(f"Error waiting for app to be ready: {e}")
+                print(f"Waiting for app to be ready...")
                 pass
             
             time.sleep(1)

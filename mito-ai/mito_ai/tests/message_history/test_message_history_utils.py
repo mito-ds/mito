@@ -233,16 +233,17 @@ file1.csv
 file2.txt
 """
     
-    # Create test messages with proper typing
+    # Create test messages with proper typing 
     messages: List[ChatCompletionMessageParam] = [
         {"role": "system", "content": system_message_with_sections},
         {"role": "user", "content": user_message_with_sections},
         {"role": "assistant", "content": assistant_message_with_sections},
-        {"role": "user", "content": "Recent user message"},
+        {"role": "user", "content": "Recent user message 1"},
+        {"role": "user", "content": "Recent user message 2"},
+        {"role": "user", "content": "Recent user message 3"},
     ]
     
-    # Keep only the most recent message
-    result = trim_old_messages(messages, keep_recent=1)
+    result = trim_old_messages(messages)
     
     # System message should remain unchanged even though it's old
     system_content = result[0].get("content")
@@ -265,14 +266,22 @@ file2.txt
     assert FILES_SECTION_HEADING in assistant_content
     assert "file1.csv" in assistant_content
     
-    # Recent user message should remain unchanged
-    recent_content = result[3].get("content")
-    assert isinstance(recent_content, str)
-    assert recent_content == "Recent user message"
+    # Recent user messages should remain unchanged
+    recent_content_1 = result[3].get("content")
+    assert isinstance(recent_content_1, str)
+    assert recent_content_1 == "Recent user message 1"
+    
+    recent_content_2 = result[4].get("content")
+    assert isinstance(recent_content_2, str)
+    assert recent_content_2 == "Recent user message 2"
+    
+    recent_content_3 = result[5].get("content")
+    assert isinstance(recent_content_3, str)
+    assert recent_content_3 == "Recent user message 3"
 
 
 def test_trim_old_messages_preserves_recent_messages() -> None:
-    """Test that trim_old_messages preserves the most recent messages based on keep_recent parameter."""
+    """Test that trim_old_messages preserves the most recent messages based on MESSAGE_HISTORY_TRIM_THRESHOLD."""
     # Create test messages
     old_message_1 = f"""Old message 1.
 {FILES_SECTION_HEADING}
@@ -290,6 +299,10 @@ file3.csv
 {FILES_SECTION_HEADING}
 file4.csv
 """
+    recent_message_3 = f"""Recent message 3.
+{FILES_SECTION_HEADING}
+file5.csv
+"""
     
     # Create test messages with proper typing
     messages: List[ChatCompletionMessageParam] = [
@@ -297,10 +310,11 @@ file4.csv
         {"role": "user", "content": old_message_2},
         {"role": "user", "content": recent_message_1},
         {"role": "user", "content": recent_message_2},
+        {"role": "user", "content": recent_message_3},
     ]
     
-    # Keep the 2 most recent messages
-    result = trim_old_messages(messages, keep_recent=2)
+    # Test with MESSAGE_HISTORY_TRIM_THRESHOLD (3) - only the first 2 messages should be trimmed
+    result = trim_old_messages(messages)
     
     # Old messages should be trimmed
     old_content_1 = result[0].get("content")
@@ -325,24 +339,30 @@ file4.csv
     assert recent_content_2 == recent_message_2
     assert FILES_SECTION_HEADING in recent_content_2
     assert "file4.csv" in recent_content_2
+    
+    recent_content_3 = result[4].get("content")
+    assert isinstance(recent_content_3, str)
+    assert recent_content_3 == recent_message_3
+    assert FILES_SECTION_HEADING in recent_content_3
+    assert "file5.csv" in recent_content_3
 
 def test_trim_old_messages_empty_list() -> None:
     """Test that trim_old_messages handles empty message lists correctly."""
     messages: List[ChatCompletionMessageParam] = []
-    result = trim_old_messages(messages, keep_recent=2)
+    result = trim_old_messages(messages)
     assert result == []
 
 
-def test_trim_old_messages_fewer_than_keep_recent() -> None:
-    """Test that trim_old_messages doesn't modify messages if there are fewer than keep_recent."""
+def test_trim_old_messages_fewer_than_threshold() -> None:
+    """Test that trim_old_messages doesn't modify messages if there are fewer than MESSAGE_HISTORY_TRIM_THRESHOLD."""
     messages: List[ChatCompletionMessageParam] = [
         {"role": "user", "content": "User message 1"},
         {"role": "assistant", "content": "Assistant message 1"},
     ]
     
-    result = trim_old_messages(messages, keep_recent=3)
+    result = trim_old_messages(messages)
     
-    # Messages should remain unchanged
+    # Messages should remain unchanged since we have fewer than MESSAGE_HISTORY_TRIM_THRESHOLD (3) messages
     user_content = result[0].get("content")
     assert isinstance(user_content, str)
     assert user_content == "User message 1"
@@ -373,15 +393,17 @@ def test_trim_mixed_content_messages() -> None:
     })
     
     # Create sample message list with one old message (the mixed content)
-    # and one recent message (to not be trimmed)
+    # and enough recent messages to exceed MESSAGE_HISTORY_TRIM_THRESHOLD (3)
     message_list: List[ChatCompletionMessageParam] = [
         mixed_content_message,  # This should get trimmed
         {"role": "assistant", "content": "That's a chart showing data trends"},
-        {"role": "user", "content": "Can you explain more?"}  # Recent message, should not be trimmed
+        {"role": "user", "content": "Can you explain more?"},  # Recent message, should not be trimmed
+        {"role": "user", "content": "Another recent message"},  # Recent message, should not be trimmed
+        {"role": "user", "content": "Yet another recent message"}  # Recent message, should not be trimmed
     ]
     
     # Apply the trimming function
-    trimmed_messages = trim_old_messages(message_list, keep_recent=2)
+    trimmed_messages = trim_old_messages(message_list)
     
     # Verify that the first message has been trimmed properly
     assert trimmed_messages[0]["role"] == "user"
@@ -390,6 +412,8 @@ def test_trim_mixed_content_messages() -> None:
     # Verify that the recent messages are untouched
     assert trimmed_messages[1] == message_list[1]
     assert trimmed_messages[2] == message_list[2]
+    assert trimmed_messages[3] == message_list[3]
+    assert trimmed_messages[4] == message_list[4]
 
 
 def test_get_display_history_calls_update_last_interaction() -> None:

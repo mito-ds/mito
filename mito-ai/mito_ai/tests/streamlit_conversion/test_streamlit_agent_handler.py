@@ -152,7 +152,7 @@ class TestStreamlitHandler:
         mock_validator.return_value = (False, "")
         
         # Mock file creation
-        mock_create_file.return_value = (True, "/path/to/app.py", "File created successfully")
+        mock_create_file.return_value = "/path/to/app.py"
         
         # Mock clean directory check (no-op)
         mock_clean_directory.return_value = None
@@ -161,8 +161,7 @@ class TestStreamlitHandler:
         notebook_path = "notebook.ipynb"
         result = await streamlit_handler(notebook_path)
         
-        assert result[0] is True
-        assert "File created successfully" in result[2]
+        assert result == "/path/to/app.py"
         
         # Verify calls
         mock_parse.assert_called_once_with(notebook_path)
@@ -177,7 +176,8 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.correct_error_in_generation')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
-    async def test_streamlit_handler_max_retries_exceeded(self, mock_validator, mock_correct_error, mock_generate_code, mock_parse):
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.clean_directory_check')
+    async def test_streamlit_handler_max_retries_exceeded(self, mock_clean_directory, mock_validator, mock_correct_error, mock_generate_code, mock_parse):
         """Test streamlit handler when max retries are exceeded"""
         # Mock notebook parsing
         mock_notebook_data: List[dict] = [{"cells": []}]
@@ -189,12 +189,13 @@ class TestStreamlitHandler:
     
         # Mock validation (always errors) - Return list of errors as expected by validate_app
         mock_validator.return_value = (True, ["Persistent error"])
-    
-        result = await streamlit_handler("notebook.ipynb")
         
-        # Verify the result indicates failure
-        assert result[0] is False
-        assert "Error generating streamlit code by agent" in result[2]
+        # Mock clean directory check (no-op)
+        mock_clean_directory.return_value = None
+    
+        # Now it should raise an exception instead of returning a tuple
+        with pytest.raises(Exception):
+            await streamlit_handler("notebook.ipynb")
         
         # Verify that error correction was called 5 times (max retries)
         assert mock_correct_error.call_count == 5
@@ -217,16 +218,15 @@ class TestStreamlitHandler:
         # Mock validation (no errors)
         mock_validator.return_value = (False, "")
         
-        # Mock file creation failure
-        mock_create_file.return_value = (False, None, "Permission denied")
+        # Mock file creation failure - now it should raise an exception
+        mock_create_file.side_effect = Exception("Permission denied")
         
         # Mock clean directory check (no-op)
         mock_clean_directory.return_value = None
         
-        result = await streamlit_handler("notebook.ipynb")
-        
-        assert result[0] is False
-        assert "Permission denied" in result[2]
+        # Now it should raise an exception instead of returning a tuple
+        with pytest.raises(Exception, match="Permission denied"):
+            await streamlit_handler("notebook.ipynb")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')

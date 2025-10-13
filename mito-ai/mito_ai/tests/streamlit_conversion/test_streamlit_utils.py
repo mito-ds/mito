@@ -51,16 +51,13 @@ class TestCreateAppFile:
         file_path = str(tmp_path)
         code = "import streamlit\nst.title('Test')"
         
-        success, app_path, message = create_app_file(file_path, code)
+        app_path = create_app_file(file_path, code)
         
-        assert success is True
-        assert "Successfully created" in message
+        assert app_path is not None
+        assert os.path.exists(app_path)
         
         # Verify file was created with correct content
-        app_file_path = os.path.join(file_path, "app.py")
-        assert os.path.exists(app_file_path)
-        
-        with open(app_file_path, 'r') as f:
+        with open(app_path, 'r') as f:
             content = f.read()
         assert content == code
 
@@ -69,10 +66,8 @@ class TestCreateAppFile:
         file_path = "/nonexistent/path/that/should/fail"
         code = "import streamlit"
         
-        success, app_path, message = create_app_file(file_path, code)
-        
-        assert success is False
-        assert "Error creating file" in message
+        with pytest.raises(Exception):
+            create_app_file(file_path, code)
 
     @patch('builtins.open', side_effect=Exception("Unexpected error"))
     def test_create_app_file_unexpected_error(self, mock_open):
@@ -80,23 +75,20 @@ class TestCreateAppFile:
         file_path = "/tmp/test"
         code = "import streamlit"
         
-        success, app_path, message = create_app_file(file_path, code)
-        
-        assert success is False
-        assert "Unexpected error" in message
+        with pytest.raises(Exception, match="Unexpected error"):
+            create_app_file(file_path, code)
 
     def test_create_app_file_empty_code(self, tmp_path):
         """Test creating file with empty code"""
         file_path = str(tmp_path)
         code = ""
         
-        success, app_path, message = create_app_file(file_path, code)
+        app_path = create_app_file(file_path, code)
         
-        assert success is True
-        assert "Successfully created" in message
+        assert app_path is not None
+        assert os.path.exists(app_path)
         
-        app_file_path = os.path.join(file_path, "app.py")
-        with open(app_file_path, 'r') as f:
+        with open(app_path, 'r') as f:
             content = f.read()
         assert content == ""
 
@@ -143,7 +135,8 @@ class TestParseJupyterNotebookToExtractRequiredContent:
 
     def test_parse_notebook_file_not_found(self):
         """Test parsing non-existent notebook file"""
-        with pytest.raises(FileNotFoundError, match="Notebook file not found"):
+        from mito_ai.utils.error_classes import StreamlitConversionError
+        with pytest.raises(StreamlitConversionError, match="Notebook file not found"):
             parse_jupyter_notebook_to_extract_required_content("/nonexistent/path/notebook.ipynb")
 
     def test_parse_notebook_with_missing_cell_fields(self, tmp_path):

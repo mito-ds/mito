@@ -194,7 +194,7 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
         await deployStreamlitApp(mockNotebookPanel, mockAppDeployService, mockAppManagerService);
 
         expect(mockAppDeployService.client.sendMessage).toHaveBeenCalledWith({
-            type: 'deploy-app',
+            type: 'deploy_app',
             message_id: 'test-uuid-123',
             notebook_path: 'test_notebook.ipynb',
             jwt_token: 'test-jwt-token',
