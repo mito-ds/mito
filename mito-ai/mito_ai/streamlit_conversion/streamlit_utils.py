@@ -6,7 +6,7 @@ import json
 import os
 from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
-from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookPath
+from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookDirPath, AbsoluteNotebookPath
 
 def extract_code_blocks(message_content: str) -> str:
     """
@@ -41,7 +41,7 @@ def extract_unified_diff_blocks(message_content: str) -> str:
     return '\n'.join(matches)
 
 
-def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
+def create_app_file(app_path: AbsoluteAppPath, code: str) -> Tuple[bool, str]:
     """
     Create app.py file and write code to it with error handling
 
@@ -54,16 +54,14 @@ def create_app_file(app_directory: str, code: str) -> Tuple[bool, str, str]:
 
     """
     try:
-        app_path = os.path.join(app_directory, "app.py")
-
         with open(app_path, 'w', encoding='utf-8') as f:
             f.write(code)
         
-        return True, app_path, f"Successfully created {app_directory}"
+        return True, f"Successfully created {app_path}"
     except IOError as e:
-        return False, '', f"Error creating file: {str(e)}"
+        return False, f"Error creating file: {str(e)}"
     except Exception as e:
-        return False, '', f"Unexpected error: {str(e)}"
+        return False, f"Unexpected error: {str(e)}"
     
 def get_app_code_from_file(app_path: AbsoluteAppPath) -> Optional[str]:
     with open(app_path, 'r', encoding='utf-8') as f:

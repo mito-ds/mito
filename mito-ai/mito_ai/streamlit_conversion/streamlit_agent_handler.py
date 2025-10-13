@@ -13,7 +13,7 @@ from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
-from mito_ai.path_utils import get_absolute_notebook_path, get_absolute_notebook_dir_path, AbsoluteNotebookPath, AbsoluteNotebookDirPath
+from mito_ai.path_utils import get_absolute_app_path, get_absolute_notebook_path, get_absolute_notebook_dir_path, AbsoluteNotebookPath, AbsoluteNotebookDirPath
 
 async def generate_new_streamlit_code(notebook: List[dict]) -> str:
     """Send a query to the agent, get its response and parse the code"""
@@ -105,10 +105,11 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: st
     # Convert to absolute path for consistent handling
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     app_directory = get_absolute_notebook_dir_path(notebook_path)
+    app_path = get_absolute_app_path(app_directory)
     
     if edit_prompt != "":
         # If the user is editing an existing streamlit app, use the update function
-        streamlit_code = get_app_code_from_file(app_directory)
+        streamlit_code = get_app_code_from_file(app_path)
         
         if streamlit_code is None:
             return False, '', "Error updating existing streamlit app because app.py file was not found."
@@ -138,7 +139,7 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: st
         return False, '', "Error generating streamlit code by agent"
     
     # Finally, update the app.py file with the new code
-    success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
+    success_flag, message = create_app_file(app_path, streamlit_code)
     if not success_flag:
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, message, edit_prompt)
     

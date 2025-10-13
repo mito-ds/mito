@@ -11,7 +11,7 @@ from mito_ai.streamlit_conversion.streamlit_utils import (
     create_app_file,
     parse_jupyter_notebook_to_extract_required_content
 )
-from mito_ai.path_utils import get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookDirPath, get_absolute_notebook_path
 from typing import Dict, Any
 
 class TestExtractCodeBlocks:
@@ -52,7 +52,7 @@ class TestCreateAppFile:
         file_path = str(tmp_path)
         code = "import streamlit\nst.title('Test')"
         
-        success, app_path, message = create_app_file(file_path, code)
+        success, message = create_app_file(AbsoluteAppPath(os.path.join(file_path, "app.py")), code)
         
         assert success is True
         assert "Successfully created" in message
@@ -70,7 +70,7 @@ class TestCreateAppFile:
         file_path = "/nonexistent/path/that/should/fail"
         code = "import streamlit"
         
-        success, app_path, message = create_app_file(file_path, code)
+        success, message = create_app_file(AbsoluteAppPath(os.path.join(file_path, "app.py")), code)
         
         assert success is False
         assert "Error creating file" in message
@@ -81,7 +81,7 @@ class TestCreateAppFile:
         file_path = "/tmp/test"
         code = "import streamlit"
         
-        success, app_path, message = create_app_file(file_path, code)
+        success, message = create_app_file(AbsoluteAppPath(os.path.join(file_path, "app.py")), code)
         
         assert success is False
         assert "Unexpected error" in message
@@ -91,7 +91,7 @@ class TestCreateAppFile:
         file_path = str(tmp_path)
         code = ""
         
-        success, app_path, message = create_app_file(file_path, code)
+        success, message = create_app_file(AbsoluteAppPath(os.path.join(file_path, "app.py")), code)
         
         assert success is True
         assert "Successfully created" in message

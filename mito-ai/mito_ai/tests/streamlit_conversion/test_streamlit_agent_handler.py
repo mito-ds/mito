@@ -12,7 +12,7 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     correct_error_in_generation,
     streamlit_handler
 )
-from mito_ai.path_utils import get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_path
 
 # Add this line to enable async support
 pytest_plugins = ('pytest_asyncio',)
@@ -157,7 +157,7 @@ class TestStreamlitHandler:
         
         
         # Use a relative path that will work cross-platform
-        notebook_path = "absolute/path/to/notebook.ipynb"
+        notebook_path = AbsoluteNotebookPath("absolute/path/to/notebook.ipynb")
         result = await streamlit_handler(notebook_path)
         
         assert result[0] is True
@@ -189,7 +189,7 @@ class TestStreamlitHandler:
         # Mock validation (always errors) - Return list of errors as expected by validate_app
         mock_validator.return_value = (True, ["Persistent error"])
     
-        result = await streamlit_handler("notebook.ipynb")
+        result = await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
         
         # Verify the result indicates failure
         assert result[0] is False
@@ -219,7 +219,7 @@ class TestStreamlitHandler:
         mock_create_file.return_value = (False, None, "Permission denied")
         
         
-        result = await streamlit_handler("notebook.ipynb")
+        result = await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
         
         assert result[0] is False
         assert "Permission denied" in result[2]
@@ -232,7 +232,7 @@ class TestStreamlitHandler:
         mock_parse.side_effect = FileNotFoundError("Notebook not found")
         
         with pytest.raises(FileNotFoundError, match="Notebook not found"):
-            await streamlit_handler("notebook.ipynb")
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -248,7 +248,7 @@ class TestStreamlitHandler:
         
         
         with pytest.raises(Exception, match="Generation failed"):
-            await streamlit_handler("notebook.ipynb")
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
 
 
 

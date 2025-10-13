@@ -45,7 +45,7 @@ def get_absolute_app_path(app_directory: AbsoluteNotebookDirPath) -> AbsoluteApp
     """
     Check if the app.py file exists in the given directory.
     """
-    return os.path.join(app_directory, "app.py")
+    return AbsoluteAppPath(os.path.join(app_directory, "app.py"))
 
 def does_app_path_exists(app_path: AbsoluteAppPath) -> bool:
     """
