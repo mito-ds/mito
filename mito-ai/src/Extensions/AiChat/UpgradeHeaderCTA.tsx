@@ -10,8 +10,8 @@ import '../../../style/UpgradeCTAHeader.css';
 // import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 
 const MAX_FREE_USAGE = 150;
-const SVG_SIZE = 18;
-const CIRCLE_RADIUS = 6.5;
+const SVG_SIZE = 16;
+const CIRCLE_RADIUS = 5.5;
 const CIRCLE_CENTER = SVG_SIZE / 2; // Center x and y coordinates
 
 const USAGE_COLORS = {

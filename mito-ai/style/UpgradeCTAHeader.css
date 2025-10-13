@@ -8,8 +8,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
 }
 
 .upgrade-header-cta-svg {
@@ -19,13 +19,12 @@
 .upgrade-header-cta-circle-background {
     fill: none;
     stroke: var(--jp-inverse-layout-color3);
-    stroke-width: 4;
+    stroke-width: 3.5;
 }
 
 .upgrade-header-cta-circle-progress {
     fill: none;
-    stroke-width: 4;
+    stroke-width: 3.5;
     stroke-linecap: round;
     transition: stroke-dashoffset 0.5s ease;
 }
-
