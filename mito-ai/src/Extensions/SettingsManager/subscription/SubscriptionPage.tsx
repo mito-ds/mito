@@ -5,16 +5,30 @@
 
 import React, { useEffect, useState } from 'react';
 import { getUserKey } from '../../../restAPI/RestAPI';
+import '../../../../style/SubscriptionPage.css';
 
 const MAX_FREE_USAGE = 150;
 
 export const SubscriptionPage = (): JSX.Element => {
-
     const [usageCount, setUsageCount] = useState<number>(0);
+    const [resetDate, setResetDate] = useState<string | null>(null);
 
     const getAiMitoApiNumUsages = async (): Promise<number> => {
         const usageCount = await getUserKey('ai_mito_api_num_usages');
         return usageCount ? parseInt(usageCount) : 0;
+    };
+
+    const getNextResetDate = async (): Promise<string | null> => {
+        const lastResetDate = await getUserKey('mito_ai_last_reset_date');
+        if (!lastResetDate) return null;
+        
+        // Parse the date and add one month
+        const lastReset = new Date(lastResetDate);
+        const nextReset = new Date(lastReset);
+        nextReset.setMonth(nextReset.getMonth() + 1);
+        
+        // Format the date before returning
+        return nextReset.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
 
     // When we first open the page, load the settings from the server
@@ -22,6 +36,9 @@ export const SubscriptionPage = (): JSX.Element => {
         const fetchSettings = async (): Promise<void> => {
             const count = await getAiMitoApiNumUsages();
             setUsageCount(count);
+            
+            const nextReset = await getNextResetDate();
+            setResetDate(nextReset);
         };
         void fetchSettings();
     }, []);
@@ -29,27 +46,67 @@ export const SubscriptionPage = (): JSX.Element => {
     const percentage = (usageCount / MAX_FREE_USAGE) * 100;
     const remainingUsage = MAX_FREE_USAGE - usageCount;
 
+    // Determine color class based on usage
+    const getUsageColorClass = () => {
+        if (percentage < 50) return 'usage-green';
+        if (percentage < 80) return 'usage-yellow';
+        return 'usage-red';
+    };
+
     return (
-        <div>
-            <div className="settings-header">
-                <h2>Manage Subscription</h2>
+        <div className="subscription-page-container">
+            <div className="subscription-page-header">
+                <h2 className="subscription-page-title">Manage Subscription</h2>
+                <p className="subscription-page-subtitle">
+                    Track your usage and manage your plan
+                </p>
             </div>
-            <div className="settings-option">
-                <div className="settings-section">
-                    <h3>Free Plan Usage</h3>
-                    <p className="settings-option-description">
-                        You have used <strong>{usageCount}</strong> of <strong>{MAX_FREE_USAGE}</strong> free AI messages ({percentage.toFixed(1)}%)
-                    </p>
+
+            <div className="subscription-page-card">
+                <div className="subscription-page-card-content">
+                    <h3 className="subscription-page-section-title">
+                        Free Plan Usage
+                    </h3>
+
+                    {/* Usage stats */}
+                    <div className="subscription-page-usage-stats">
+                        <div className={`subscription-page-usage-count ${getUsageColorClass()}`}>
+                            {usageCount}
+                        </div>
+                        <div className="subscription-page-usage-details">
+                            <div>of {MAX_FREE_USAGE} messages</div>
+                            <div>({percentage.toFixed(1)}% used)</div>
+                        </div>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="subscription-page-progress-bar">
+                        <div
+                            className={`subscription-page-progress-fill ${getUsageColorClass()}`}
+                            style={{ width: `${Math.min(percentage, 100)}%` }}
+                        />
+                    </div>
+
+                    {/* Status message */}
                     {remainingUsage > 0 ? (
-                        <p className="settings-option-description">
-                            {remainingUsage} messages remaining
+                        <p className="subscription-page-status-message">
+                            {resetDate ? (
+                                <>Your free usage resets {resetDate}</>
+                            ) : (
+                                <>✓ {remainingUsage} messages remaining</>
+                            )}
                         </p>
                     ) : (
-                        <p className="settings-option-description" style={{ color: 'var(--red-500)' }}>
-                            You have reached your free usage limit. Upgrade to continue using Mito AI.
+                        <p className="subscription-page-status-warning">
+                            ⚠️ You have reached your free usage limit. Upgrade to continue using Mito AI.
                         </p>
                     )}
                 </div>
+
+                {/* Upgrade button */}
+                <button className="subscription-page-upgrade-button">
+                    Upgrade to Pro
+                </button>
             </div>
         </div>
     );
