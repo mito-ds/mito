@@ -10,6 +10,7 @@ import { SupportPage } from './support/SupportPage';
 import { GeneralPage } from './general/GeneralPage';
 import { RulesPage } from './rules/RulesPage';
 import { ProfilerPage } from './profiler/ProfilerPage';
+import { SubscriptionPage } from './subscription/SubscriptionPage';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import '../../../style/SettingsWidget.css';
 
@@ -21,6 +22,10 @@ const TABS_CONFIG = (contextManager: IContextManager) => ({
     general: {
         label: 'General',
         component: GeneralPage
+    },
+    subscription: {
+        label: 'Subscription',
+        component: SubscriptionPage
     },
     rules: {
         label: 'Rules',
