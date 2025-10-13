@@ -14,7 +14,8 @@ import { statusItem } from './Extensions/status';
 import SettingsManagerPlugin from './Extensions/SettingsManager/SettingsManagerPlugin';
 import { versionCheckPlugin } from './Extensions/VersionCheck';
 import NotebookFooterPlugin from './Extensions/NotebookFooter';
-import ManageAppsPlugin from "./Extensions/AppManager/ManageAppsPlugin"
+import ManageAppsPlugin from "./Extensions/AppManager/ManageAppsPlugin";
+import mitoThemePlugin from './Extensions/MitoThemeLight';
 
 // This is the main entry point to the mito-ai extension. It must export all of the top level
 // extensions that we want to load.
@@ -30,5 +31,6 @@ export default [
   SettingsManagerPlugin,
   versionCheckPlugin,
   NotebookFooterPlugin,
-  ManageAppsPlugin
+  ManageAppsPlugin,
+  mitoThemePlugin
 ];
