@@ -96,20 +96,20 @@ class StreamlitPreviewHandler(APIHandler):
             port = self.preview_manager.start_streamlit_preview(resolved_app_directory, preview_id)
 
             # Return success response
-            await self.finish({"id": preview_id, "port": port, "url": f"http://localhost:{port}"})
+            self.finish({"id": preview_id, "port": port, "url": f"http://localhost:{port}"})
 
         except (StreamlitPreviewError, StreamlitConversionError) as e:
             print(e)
             self.set_status(e.error_code)
             error_message = {"error": str(e)}
-            await self.finish(error_message)
+            self.finish(error_message)
             error_message["traceback"] = traceback.format_exc()
             log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message)
 
         except Exception as e:
             print(f"Exception in streamlit preview handler: {e}")
             self.set_status(500)
-            await self.finish({"error": str(e)})
+            self.finish({"error": str(e)})
             log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, {"error":str(e), "traceback": traceback.format_exc()})
 
     @tornado.web.authenticated

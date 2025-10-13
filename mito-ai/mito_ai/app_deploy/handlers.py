@@ -288,7 +288,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             self.log.error(f"Error during API request: {e}")
             if hasattr(e, 'response') and e.response is not None:
                 error_detail = e.response.json()
-                error_message = error_detail['error']
+                error_message = error_detail.get('error', "")
                 self.log.error(f"Server error details: {error_detail}")
             else:
                 error_message = str(e)
