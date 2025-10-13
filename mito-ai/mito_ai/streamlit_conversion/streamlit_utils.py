@@ -30,18 +30,6 @@ def extract_code_blocks(message_content: str) -> str:
     result = '\n'.join(matches)
     return result
 
-def extract_unified_diff_blocks(message_content: str) -> str:
-    """
-    Extract all unified_diff blocks from Claude's response.
-    """
-    if "```unified_diff" not in message_content:
-        return message_content
-    
-    pattern = r'```unified_diff\n(.*?)```'
-    matches = re.findall(pattern, message_content, re.DOTALL)
-    return '\n'.join(matches)
-
-
 def create_app_file(app_directory: str, code: str) -> str:
     """
     Create app.py file and write code to it with error handling

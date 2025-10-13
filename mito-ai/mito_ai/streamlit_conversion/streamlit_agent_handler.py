@@ -4,13 +4,14 @@
 import os
 from anthropic.types import MessageParam
 from typing import List, Optional, Tuple, cast
-from mito_ai.streamlit_conversion.agent_utils import apply_patch_to_text, extract_todo_placeholders, fix_diff_headers, get_response_from_agent
+from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders, get_response_from_agent
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
 from mito_ai.streamlit_conversion.prompts.update_existing_app_prompt import get_update_existing_app_prompt
 from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
-from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
+from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
+from mito_ai.streamlit_conversion.search_replace_utils import extract_search_replace_blocks, apply_search_replace
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.error_classes import StreamlitConversionError
 from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
@@ -58,10 +59,9 @@ async def generate_new_streamlit_code(notebook: List[dict]) -> str:
         ]
         todo_response = await get_response_from_agent(todo_messages)
         
-        # Apply the diff to the streamlit app
-        exctracted_diff = extract_unified_diff_blocks(todo_response)
-        fixed_diff = fix_diff_headers(exctracted_diff)
-        converted_code = apply_patch_to_text(converted_code, fixed_diff)
+        # Apply the search/replace to the streamlit app
+        search_replace_pairs = extract_search_replace_blocks(todo_response)
+        converted_code = apply_search_replace(converted_code, search_replace_pairs)
                 
     return converted_code
 
@@ -81,10 +81,12 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
     ]
     
     agent_response = await get_response_from_agent(messages)
-    exctracted_diff = extract_unified_diff_blocks(agent_response)
-    fixed_diff = fix_diff_headers(exctracted_diff)
-    print(fixed_diff)
-    converted_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
+    
+    # Apply the search/replace to the streamlit app
+    search_replace_pairs = extract_search_replace_blocks(agent_response)
+    print(f"[Mito AI Search/Replace Tool]\n: {search_replace_pairs}")
+    converted_code = apply_search_replace(streamlit_app_code, search_replace_pairs)
+    print(f"[Mito AI Search/Replace Tool]\nConverted code\n: {converted_code}")
     return converted_code
 
 
@@ -101,10 +103,9 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
     ]
     agent_response = await get_response_from_agent(messages)
     
-    # Apply the diff to the streamlit app
-    exctracted_diff = extract_unified_diff_blocks(agent_response)
-    fixed_diff = fix_diff_headers(exctracted_diff)
-    streamlit_app_code = apply_patch_to_text(streamlit_app_code, fixed_diff)
+    # Apply the search/replace to the streamlit app
+    search_replace_pairs = extract_search_replace_blocks(agent_response)
+    streamlit_app_code = apply_search_replace(streamlit_app_code, search_replace_pairs)
 
     return streamlit_app_code
 
