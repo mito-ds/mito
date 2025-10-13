@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.upgrade-header-cta-badge {
+.usage-badge {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -15,29 +15,29 @@
     transition: background-color 0.2s ease;
 }
 
-.upgrade-header-cta-badge:hover {
+.usage-badge:hover {
     background-color: var(--jp-layout-color3);
 }
 
-.upgrade-header-cta-svg {
+.usage-badge-svg {
     transform: rotate(-90deg);
     flex-shrink: 0;
 }
 
-.upgrade-header-cta-text {
+.usage-badge-text {
     font-size: 11px;
     color: var(--jp-ui-font-color2);
     white-space: nowrap;
     line-height: 1;
 }
 
-.upgrade-header-cta-circle-background {
+.usage-badge-circle-background {
     fill: none;
     stroke: var(--jp-layout-color3);
     stroke-width: 3.5;
 }
 
-.upgrade-header-cta-circle-progress {
+.usage-badge-circle-progress {
     fill: none;
     stroke-width: 3.5;
     stroke-linecap: round;

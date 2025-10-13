@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getUserKey } from '../../restAPI/RestAPI';
-import '../../../style/UpgradeCTAHeader.css';
+import '../../../style/UsageBadge.css';
 import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 
 const MAX_FREE_USAGE = 150;
@@ -20,11 +20,11 @@ const USAGE_COLORS = {
     RED: 'var(--red-500)',
 };
 
-interface UpgradeHeaderCTAProps {
+interface UsageBadgeProps {
     app: JupyterFrontEnd;
 }
 
-const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
+const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
     const [usageCount, setUsageCount] = useState<number>(0);
 
     const getAiMitoApiNumUsages = async (): Promise<number> => {
@@ -54,23 +54,23 @@ const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
 
     return (
         <div
-            className="upgrade-header-cta-badge"
+            className="usage-badge"
             onClick={() => {
                 void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
             }}
             title={`${usageCount}/${MAX_FREE_USAGE} free AI messages used`}
         >
-            <svg className="upgrade-header-cta-svg" width={SVG_SIZE} height={SVG_SIZE}>
+            <svg className="usage-badge-svg" width={SVG_SIZE} height={SVG_SIZE}>
                 {/* Background circle */}
                 <circle
-                    className="upgrade-header-cta-circle-background"
+                    className="usage-badge-circle-background"
                     cx={CIRCLE_CENTER}
                     cy={CIRCLE_CENTER}
                     r={CIRCLE_RADIUS}
                 />
                 {/* Progress circle */}
                 <circle
-                    className="upgrade-header-cta-circle-progress"
+                    className="usage-badge-circle-progress"
                     style={{
                         stroke: getColor(),
                         strokeDasharray: circumference,
@@ -81,7 +81,7 @@ const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
                     r={CIRCLE_RADIUS}
                 />
             </svg>
-            <span className="upgrade-header-cta-text">
+            <span className="usage-badge-text">
                 {usageCount >= MAX_FREE_USAGE
                     ? 'Upgrade to Pro'
                     : `${usageCount}/${MAX_FREE_USAGE}`
@@ -91,4 +91,4 @@ const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
     );
 };
 
-export default UpgradeHeaderCTA;
+export default UsageBadge;
