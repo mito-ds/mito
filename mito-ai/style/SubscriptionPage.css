@@ -48,7 +48,7 @@
 .subscription-page-usage-count {
     font-size: 32px;
     font-weight: 700;
-    color: var(--purple-500);
+    color: var(--purple-600);
 }
 
 .subscription-page-usage-details {
@@ -67,7 +67,7 @@
 
 .subscription-page-progress-fill {
     height: 100%;
-    background-color: var(--purple-500);
+    background-color: var(--purple-600);
     transition: width 0.3s ease;
 }
 
