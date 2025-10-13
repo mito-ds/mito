@@ -6,6 +6,7 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.db import get_user_field, set_user_field
 from mito_ai.utils.telemetry_utils import identify
+from mito_ai.utils.version_utils import is_pro
 
 
 class UserHandler(APIHandler):
@@ -13,7 +14,13 @@ class UserHandler(APIHandler):
 
     @tornado.web.authenticated
     def get(self, key: str) -> None:
-        value = get_user_field(key)
+        if key == "is_pro":
+            # Special case, since we don't store this key 
+            # in the user.json file.
+            value = is_pro()
+        else: 
+            value = get_user_field(key)
+
         if value is None:
             self.set_status(404)
             self.finish(json.dumps({"error": f"User field with key '{key}' not found"}))
@@ -29,5 +36,7 @@ class UserHandler(APIHandler):
             return
 
         set_user_field(key, data["value"])
-        identify() # Log the new user 
-        self.finish(json.dumps({"status": "success", "key": key, "value": data["value"]}))
+        identify()  # Log the new user
+        self.finish(
+            json.dumps({"status": "success", "key": key, "value": data["value"]})
+        )

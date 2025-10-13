@@ -17,6 +17,8 @@ export const SubscriptionPage = (): JSX.Element => {
 
     const getAiMitoApiNumUsages = async (): Promise<number> => {
         const usageCount = await getUserKey('ai_mito_api_num_usages');
+        const isPro = await getUserKey('is_pro');
+        console.log('isPro', isPro);
         return usageCount ? parseInt(usageCount) : 0;
     };
 
