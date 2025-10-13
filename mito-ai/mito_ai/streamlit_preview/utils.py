@@ -15,11 +15,6 @@ def validate_request_body(body: Optional[dict]) -> Tuple[bool, str, Optional[str
     if not notebook_path:
         return False, "Missing notebook_path parameter", None, False, ""
 
-    # Validate the notebook path
-    is_valid, error_msg = validate_notebook_path(notebook_path)
-    if not is_valid:
-        return False, f"Invalid notebook path: {error_msg}", None, False, ""
-
     force_recreate = body.get("force_recreate", False)
     if not isinstance(force_recreate, bool):
         return False, "force_recreate must be a boolean", None, False, ""
