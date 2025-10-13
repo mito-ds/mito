@@ -125,7 +125,7 @@ class StreamlitPreviewHandler(APIHandler):
             error_message = str(e)
             formatted_traceback = traceback.format_exc()
             self.finish({"error": error_message})
-            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message, formatted_traceback)
+            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message, formatted_traceback, "")
 
     @tornado.web.authenticated
     def delete(self, preview_id: str) -> None:
