@@ -82,7 +82,10 @@ const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
                 />
             </svg>
             <span className="upgrade-header-cta-text">
-                {usageCount}/{MAX_FREE_USAGE}
+                {usageCount >= MAX_FREE_USAGE
+                    ? 'Upgrade to Pro'
+                    : `${usageCount}/${MAX_FREE_USAGE}`
+                }
             </span>
         </div>
     );
