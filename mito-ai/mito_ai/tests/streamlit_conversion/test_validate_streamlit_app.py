@@ -11,6 +11,7 @@ from mito_ai.streamlit_conversion.validate_streamlit_app import (
     validate_app
 )
 import pytest
+from mito_ai.path_utils import AbsoluteNotebookPath
 
 
 class TestGetSyntaxError:
@@ -56,7 +57,9 @@ class TestGetRuntimeErrors:
     ])
     def test_get_runtime_errors(self, app_code, expected_error):
         """Test getting runtime errors"""
-        errors = get_runtime_errors(app_code, '/app.py')
+        
+        absolute_path = AbsoluteNotebookPath('/notebook.ipynb')
+        errors = get_runtime_errors(app_code, absolute_path)
         
         if expected_error is None:
             assert errors is None
@@ -85,7 +88,7 @@ df=pd.read_csv('data.csv')
             with open(csv_path, "w") as f:
                 f.write("name,age\nJohn,25\nJane,30")
                
-            errors = get_runtime_errors(app_code, app_path)
+            errors = get_runtime_errors(app_code, AbsoluteNotebookPath(app_path))
             assert errors is None
 
 class TestValidateApp:
@@ -99,7 +102,7 @@ class TestValidateApp:
     ])
     def test_validate_app(self, app_code, expected_has_validation_error, expected_error_message):
         """Test the validate_app function"""
-        has_validation_error, errors = validate_app(app_code, '/app.py')
+        has_validation_error, errors = validate_app(app_code, AbsoluteNotebookPath('/notebook.ipynb'))
         
         assert has_validation_error == expected_has_validation_error
         assert expected_error_message in str(errors)

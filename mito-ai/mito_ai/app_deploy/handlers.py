@@ -6,7 +6,7 @@ import time
 import logging
 from typing import Any, Union, List, Optional
 import tempfile
-from mito_ai.streamlit_conversion.streamlit_utils import get_app_path
+from mito_ai.path_utils import AbsoluteAppPath, does_app_path_exists, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.error_classes import StreamlitDeploymentError
 from mito_ai.utils.version_utils import is_pro
@@ -157,12 +157,13 @@ class AppDeployHandler(BaseWebSocketHandler):
             self.log.info("JWT token validation successful")
 
         notebook_path = str(notebook_path) if notebook_path else ""
-
-        app_directory = os.path.dirname(notebook_path)
+        absolute_notebook_path = get_absolute_notebook_path(notebook_path)
+        absolute_app_directory = get_absolute_notebook_dir_path(absolute_notebook_path)
+        app_path = get_absolute_app_path(absolute_app_directory)
 
         # Check if the app.py file exists
-        app_path = get_app_path(app_directory)
-        if app_path is None:
+        app_path_exists = does_app_path_exists(app_path)
+        if not app_path_exists:
             error = AppDeployError(
                 error_type="AppNotFound",
                 message="App not found",
@@ -173,7 +174,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             raise StreamlitDeploymentError(error)
 
         # Finally, deploy the app
-        deploy_url = await self._deploy_app(app_directory, files_to_upload, message_id, jwt_token)
+        deploy_url = await self._deploy_app(app_path, files_to_upload, message_id, jwt_token)
 
         # Send the response
         return DeployAppReply(
@@ -216,7 +217,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             return False
 
 
-    async def _deploy_app(self, app_path: str, files_to_upload:List[str], message_id: str, jwt_token: str = '') -> Optional[str]:
+    async def _deploy_app(self, app_path: AbsoluteAppPath, files_to_upload:List[str], message_id: str, jwt_token: str = '') -> Optional[str]:
         """Deploy the app using pre-signed URLs.
         
         Args:

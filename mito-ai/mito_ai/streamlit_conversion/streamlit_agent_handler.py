@@ -15,15 +15,7 @@ from mito_ai.streamlit_conversion.search_replace_utils import extract_search_rep
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.error_classes import StreamlitConversionError
 from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
-from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
-
-def get_app_directory(notebook_path: str) -> str:
-    # Make sure the path is absolute if it is not already
-    absolute_notebook_path = os.path.abspath(notebook_path)
-    
-    # Get the directory of the notebook
-    app_directory = os.path.dirname(absolute_notebook_path)
-    return app_directory
+from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_dir_path, get_absolute_app_path
 
 async def generate_new_streamlit_code(notebook: List[dict]) -> str:
     """Send a query to the agent, get its response and parse the code"""
@@ -109,17 +101,17 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
 
     return streamlit_app_code
 
-async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> str:
+async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: str = "") -> None:
     """Handler function for streamlit code generation and validation"""
 
-    clean_directory_check(notebook_path)
-
+    # Convert to absolute path for consistent handling
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
-    app_directory = get_app_directory(notebook_path)
+    app_directory = get_absolute_notebook_dir_path(notebook_path)
+    app_path = get_absolute_app_path(app_directory)
     
     if edit_prompt != "":
         # If the user is editing an existing streamlit app, use the update function
-        streamlit_code = get_app_code_from_file(app_directory)
+        streamlit_code = get_app_code_from_file(app_path)
         
         if streamlit_code is None:
             raise StreamlitConversionError("Error updating existing streamlit app because app.py file was not found.", 404)
@@ -148,6 +140,5 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> str:
         raise StreamlitConversionError("Streamlit agent failed generating code after max retries", 500)
     
     # Finally, update the app.py file with the new code
-    app_path = create_app_file(app_directory, streamlit_code)
+    create_app_file(app_path, streamlit_code)
     log_streamlit_app_conversion_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
-    return app_path
