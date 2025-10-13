@@ -15,10 +15,6 @@ import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import '../../../style/SettingsWidget.css';
 
 const TABS_CONFIG = (contextManager: IContextManager) => ({
-    database: {
-        label: 'Database',
-        component: DatabasePage
-    },
     general: {
         label: 'General',
         component: GeneralPage
@@ -26,6 +22,10 @@ const TABS_CONFIG = (contextManager: IContextManager) => ({
     subscription: {
         label: 'Subscription',
         component: SubscriptionPage
+    },
+    database: {
+        label: 'Database',
+        component: DatabasePage
     },
     rules: {
         label: 'Rules',
@@ -47,7 +47,7 @@ interface AppProps {
     initialTab?: keyof ReturnType<typeof TABS_CONFIG>;
 }
 
-const App = ({ contextManager, initialTab = 'database' }: AppProps): JSX.Element => {
+const App = ({ contextManager, initialTab = 'general' }: AppProps): JSX.Element => {
     const [activeTab, setActiveTab] = useState<keyof ReturnType<typeof TABS_CONFIG>>(initialTab);
     const tabsConfig = TABS_CONFIG(contextManager);
 

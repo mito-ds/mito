@@ -10,6 +10,7 @@ import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 
 export const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
 export const COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION = 'mito-ai:open-settings-subscription';
+export const COMMAND_MITO_AI_SETTINGS_DATABASE = 'mito-ai:open-settings-database';
 
 /**
  * Initialization data for the mito settings extension.
@@ -90,10 +91,12 @@ function _activate(
         }
     });
 
-    // Add the subscription command to the palette
-    palette.addItem({
-        command: COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION,
-        category: 'Mito AI'
+    // Add a command to open setting with the database tab
+    app.commands.addCommand(COMMAND_MITO_AI_SETTINGS_DATABASE, {
+        label: 'Mito AI Settings: Database',
+        execute: () => {
+            openSettingsWithTab('database');
+        }
     });
 
     if (!tracker.has(widget)) {

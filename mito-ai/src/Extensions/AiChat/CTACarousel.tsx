@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import { COMMAND_MITO_AI_SETTINGS_DATABASE } from '../SettingsManager/SettingsManagerPlugin';
 import MitoLogo from '../../icons/MitoLogo';
 import '../../../style/CTACarousel.css';
 
@@ -25,7 +25,7 @@ const CTACarousel: React.FC<CTACarouselProps> = ({ app }) => {
                     <br />
                     <button
                         className="button-base button-gray cta-carousel-button"
-                        onClick={() => app.commands.execute(COMMAND_MITO_AI_SETTINGS)}
+                        onClick={() => app.commands.execute(COMMAND_MITO_AI_SETTINGS_DATABASE)}
                         data-testid="cta-carousel-button"
                     >
                         <b>＋ Add Database</b>
