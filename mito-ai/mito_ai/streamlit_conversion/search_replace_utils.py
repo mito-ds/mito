@@ -1,6 +1,8 @@
 import re
 from typing import List, Tuple
 
+from mito_ai.utils.error_classes import StreamlitConversionError
+
 
 def extract_search_replace_blocks(message_content: str) -> List[Tuple[str, str]]:
     """
@@ -76,12 +78,11 @@ def apply_search_replace(text: str, search_replace_pairs: List[Tuple[str, str]])
         count = result.count(search_text)
         
         if count == 0:
-            # TODO: Replace with correct Mito Errors after PRs are merged
             print("Search Text Not Found: ", repr(search_text))
-            raise ValueError(f"Search text not found: {repr(search_text)}")
+            raise StreamlitConversionError(f"Search text not found: {repr(search_text)}")
         elif count > 1:
             print("Search Text Found Multiple Times: ", repr(search_text))
-            raise ValueError(f"Search text found {count} times (must be unique): {repr(search_text)}")
+            raise StreamlitConversionError(f"Search text found {count} times (must be unique): {repr(search_text)}")
         
         # Perform the replacement
         result = result.replace(search_text, replace_text)
