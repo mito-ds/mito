@@ -6,7 +6,7 @@ import os
 import tempfile
 from unittest.mock import patch
 from mito_ai.streamlit_preview.utils import ensure_app_exists
-from mito_ai.path_utils import get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_path
 
 
 class TestEnsureAppExists:
@@ -14,14 +14,12 @@ class TestEnsureAppExists:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "app_exists,streamlit_handler_success,expected_success,expected_error,streamlit_handler_called,streamlit_handler_return",
+        "app_exists,streamlit_handler_success,streamlit_handler_called,streamlit_handler_return",
         [
             # Test case 1: App exists, should use existing file
             (
                 True,  # app_exists
                 True,  # streamlit_handler_success (not relevant)
-                True,  # expected_success
-                "",    # expected_error
                 False, # streamlit_handler_called
                 None,  # streamlit_handler_return (not used)
             ),
@@ -29,10 +27,8 @@ class TestEnsureAppExists:
             (
                 False,  # app_exists
                 True,   # streamlit_handler_success
-                True,   # expected_success
-                "",     # expected_error
                 True,   # streamlit_handler_called
-                (True, "Success"),  # streamlit_handler_return
+                "/path/to/app.py",  # streamlit_handler_return
             )
         ],
         ids=[
@@ -44,8 +40,6 @@ class TestEnsureAppExists:
         self,
         app_exists,
         streamlit_handler_success,
-        expected_success,
-        expected_error,
         streamlit_handler_called,
         streamlit_handler_return,
     ):
@@ -77,19 +71,14 @@ class TestEnsureAppExists:
                     if streamlit_handler_return is not None:
                         mock_streamlit_handler.return_value = streamlit_handler_return
                     
-                    absolute_path = get_absolute_notebook_path(notebook_path)
-                    success, error_msg = await ensure_app_exists(absolute_path, False, "")
-                    
-                    # Assertions
-                    assert success == expected_success
-                    assert error_msg == expected_error
+                    await ensure_app_exists(AbsoluteNotebookPath(notebook_path), False, "")
                     
                     # Verify get_app_path was called with the correct directory
                     mock_get_app_path.assert_called_once_with(temp_dir)
                     
                     # Verify streamlit_handler was called or not called as expected
                     if streamlit_handler_called:
-                        mock_streamlit_handler.assert_called_once_with(absolute_path, "")
+                        mock_streamlit_handler.assert_called_once_with(notebook_path, "")
                     else:
                         mock_streamlit_handler.assert_not_called()
 

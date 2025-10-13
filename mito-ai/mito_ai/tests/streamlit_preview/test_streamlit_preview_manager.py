@@ -79,25 +79,22 @@ st.write("Hello, World!")
             mock_requests_get.return_value = mock_response
             
             # Test
-            success, message, port = manager.start_streamlit_preview(app_directory, preview_id)
+            port = manager.start_streamlit_preview(app_directory, preview_id)
             
             # Assertions
-            assert success == expected_success
-            if expected_success:
-                assert "successfully" in message.lower()
-                assert isinstance(port, int)
-                assert port > 0
-                
-                # Verify subprocess was called correctly
-                mock_popen.assert_called_once()
-                call_args = mock_popen.call_args
-                assert "streamlit" in call_args[0][0]
-                assert "run" in call_args[0][0]
-                assert "--server.headless" in call_args[0][0]
-                assert "--server.address" in call_args[0][0]
-                
-                # Cleanup
-                manager.stop_preview(preview_id)
+            assert isinstance(port, int)
+            assert port > 0
+            
+            # Verify subprocess was called correctly
+            mock_popen.assert_called_once()
+            call_args = mock_popen.call_args
+            assert "streamlit" in call_args[0][0]
+            assert "run" in call_args[0][0]
+            assert "--server.headless" in call_args[0][0]
+            assert "--server.address" in call_args[0][0]
+            
+            # Cleanup
+            manager.stop_preview(preview_id)
     
     @pytest.mark.parametrize("exception_type,expected_message", [
         (Exception("Temp dir creation failed"), "failed to start preview"),
@@ -106,13 +103,15 @@ st.write("Hello, World!")
     ])
     def test_start_streamlit_preview_exceptions(self, manager, sample_app_code, exception_type, expected_message):
         """Test streamlit preview start with different exceptions."""
-        with patch('tempfile.mkdtemp', side_effect=exception_type):
+        from mito_ai.utils.error_classes import StreamlitPreviewError
+        
+        with patch('subprocess.Popen', side_effect=exception_type):
             app_directory = "/tmp/test_dir"
-            success, message, port = manager.start_streamlit_preview(app_directory, "test_preview")
             
-            assert success is False
-            assert expected_message in message.lower()
-            assert port is None
+            with pytest.raises(StreamlitPreviewError) as exc_info:
+                manager.start_streamlit_preview(app_directory, "test_preview")
+            
+            assert expected_message in str(exc_info.value).lower()
     
     @pytest.mark.parametrize("preview_id,expected_result", [
         ("existing_preview", True),
@@ -282,8 +281,7 @@ st.write("Hello, World!")
             
             # Start multiple previews
             for preview_id in preview_ids:
-                success, _, port = manager.start_streamlit_preview("/tmp/test_dir", preview_id)
-                assert success is True
+                port = manager.start_streamlit_preview("/tmp/test_dir", preview_id)
                 ports.append(port)
             
             # Assertions

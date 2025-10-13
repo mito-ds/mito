@@ -153,21 +153,19 @@ class TestStreamlitHandler:
         mock_validator.return_value = (False, "")
         
         # Mock file creation
-        mock_create_file.return_value = (True, "File created successfully")
+        mock_create_file.return_value = "/path/to/app.py"
         
         # Use a relative path that will work cross-platform
         notebook_path = AbsoluteNotebookPath("absolute/path/to/notebook.ipynb")
-        result = await streamlit_handler(notebook_path)
-        
-        assert result[0] is True
+        await streamlit_handler(notebook_path)
         
         # Verify calls
         mock_parse.assert_called_once_with(notebook_path)
         mock_generate_code.assert_called_once_with(mock_notebook_data)
         mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", notebook_path)
         
-        expected_app_dir = os.path.join(os.path.dirname(notebook_path), "app.py")
-        mock_create_file.assert_called_once_with(AbsoluteAppPath(expected_app_dir), "import streamlit\nst.title('Test')")
+        expected_app_dir = os.path.dirname(notebook_path)
+        mock_create_file.assert_called_once_with(expected_app_dir, "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -187,11 +185,9 @@ class TestStreamlitHandler:
         # Mock validation (always errors) - Return list of errors as expected by validate_app
         mock_validator.return_value = (True, ["Persistent error"])
     
-        result = await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
-        
-        # Verify the result indicates failure
-        assert result[0] is False
-        assert "Error generating streamlit code by agent" in result[1]
+        # Now it should raise an exception instead of returning a tuple
+        with pytest.raises(Exception):
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
         
         # Verify that error correction was called 5 times (max retries)
         assert mock_correct_error.call_count == 5
@@ -213,13 +209,12 @@ class TestStreamlitHandler:
         # Mock validation (no errors)
         mock_validator.return_value = (False, "")
         
-        # Mock file creation failure
-        mock_create_file.return_value = (False, "Permission denied")
+        # Mock file creation failure - now it should raise an exception
+        mock_create_file.side_effect = Exception("Permission denied")
         
-        result = await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
-        
-        assert result[0] is False
-        assert "Permission denied" in result[1]
+        # Now it should raise an exception instead of returning a tuple
+        with pytest.raises(Exception, match="Permission denied"):
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
