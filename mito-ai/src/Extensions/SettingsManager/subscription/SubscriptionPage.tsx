@@ -96,15 +96,29 @@ export const SubscriptionPage = (): JSX.Element => {
                     )}
                 </div>
 
-                {/* Upgrade button */}
-                <a 
-                    href="https://www.trymito.io/plans" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="button-base button-purple button-width-block subscription-page-upgrade-link"
-                >
-                    <b>Upgrade to Pro</b>
-                </a>
+                {/* Action buttons */}
+                <div className="subscription-page-button-container">
+                    <form 
+                        action="https://jl76z192i0.execute-api.us-east-1.amazonaws.com/Prod/create_checkout_session/" 
+                        method="POST" 
+                        target="_blank"
+                    >
+                        <button 
+                            type="submit"
+                            className="button-base button-purple subscription-page-button"
+                        >
+                            <b>Upgrade to Pro</b>
+                        </button>
+                    </form>
+                    <a 
+                        href="https://www.trymito.io/plans" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="button-base button-gray subscription-page-button"
+                    >
+                        <b>View Plans</b>
+                    </a>
+                </div>
             </div>
         </div>
     );

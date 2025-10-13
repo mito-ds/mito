@@ -84,8 +84,19 @@
     font-weight: 600;
 }
 
-.subscription-page-upgrade-link {
+.subscription-page-button-container {
+    display: flex;
+    gap: 12px;
+}
+
+.subscription-page-button-container form {
+    flex: 1;
+    margin: 0;
+}
+
+.subscription-page-button {
     text-decoration: none;
-    display: block;
     text-align: center;
+    flex: 1;
+    width: 100%;
 }
