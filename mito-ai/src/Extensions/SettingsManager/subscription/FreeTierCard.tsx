@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { getUserKey } from '../../../restAPI/RestAPI';
+import { getUserKey, logEvent } from '../../../restAPI/RestAPI';
 import '../../../../style/SubscriptionPage.css';
 
 const MAX_FREE_USAGE = 150;
@@ -103,6 +103,12 @@ export const FreeTierCard = (): JSX.Element => {
                     <button
                         type="submit"
                         className="button-base button-purple subscription-page-button"
+                        onClick={() => {
+                            void logEvent('clicked_upgrade_to_pro_from_settings', {
+                                usage_count: usageCount,
+                                usage_percentage: percentage,
+                            });
+                        }}
                     >
                         <b>Upgrade to Pro</b>
                     </button>
@@ -112,6 +118,14 @@ export const FreeTierCard = (): JSX.Element => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="button-base button-gray subscription-page-button"
+                    onClick={() => {
+                        void logEvent('clicked_view_plans_from_settings',
+                            {
+                                usage_count: usageCount,
+                                usage_percentage: percentage,
+                            }
+                        );
+                    }}
                 >
                     <b>View Plans</b>
                 </a>
