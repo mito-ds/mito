@@ -34,17 +34,17 @@ const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
     };
 
     useEffect(() => {
-        const fetchIsPro = async () => {
+        const fetchIsPro = async (): Promise<void> => {
             const isPro = await getUserKey('is_pro');
             setIsPro(isPro === 'True');
         };
-        fetchIsPro();
+        void fetchIsPro();
 
-        const fetchUsageCount = async () => {
+        const fetchUsageCount = async (): Promise<void> => {
             const count = await getAiMitoApiNumUsages();
             setUsageCount(count);
         };
-        fetchUsageCount();
+        void fetchUsageCount();
     }, []);
 
     // Calculate progress
@@ -53,7 +53,7 @@ const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
     // Determine color based on usage - green to red
-    const getColor = () => {
+    const getColor = (): string => {
         if (percentage < 50) return USAGE_COLORS.GREEN;
         if (percentage < 80) return USAGE_COLORS.ORANGE;
         return USAGE_COLORS.RED;
