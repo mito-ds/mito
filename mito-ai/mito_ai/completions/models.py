@@ -29,12 +29,13 @@ class CellUpdate(BaseModel):
 # for now and rely on the AI to respond with the correct types, following the format
 # that we show it in the system prompt.
 class AgentResponse(BaseModel):
-    type: Literal['cell_update', 'get_cell_output', 'run_all_cells', 'finished_task']
+    type: Literal['cell_update', 'get_cell_output', 'run_all_cells', 'finished_task', 'create_streamlit_app', 'edit_streamlit_app']
     message: str
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]
     next_steps: Optional[List[str]]
     analysis_assumptions: Optional[List[str]]
+    edit_streamlit_app_prompt: Optional[str]
     
     
 @dataclass(frozen=True)
@@ -102,6 +103,7 @@ class AgentExecutionMetadata():
     files: Optional[List[str]] = None
     index: Optional[int] = None
     additionalContext: Optional[List[Dict[str, str]]] = None
+    streamlitAppIsOpen: Optional[bool] = None
     
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():

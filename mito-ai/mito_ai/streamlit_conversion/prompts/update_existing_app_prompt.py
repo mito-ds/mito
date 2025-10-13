@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
-from mito_ai.streamlit_conversion.prompts.prompt_constants import unified_diff_instructions
+from mito_ai.streamlit_conversion.prompts.prompt_constants import search_replace_instructions
 from mito_ai.streamlit_conversion.prompts.prompt_utils import add_line_numbers_to_code
 
 def get_update_existing_app_prompt(notebook: List[dict], streamlit_app_code: str, edit_prompt: str) -> str:
@@ -30,7 +30,7 @@ You have ONE and ONLY ONE opportunity to complete this edit request. If you do n
 - If creating functions: Implement ALL required functionality.
 - If converting a visualization: Copy over ALL of the visualization code from the notebook, including all styling and formatting.
 
-{unified_diff_instructions}
+{search_replace_instructions}
 
 ===============================================
 

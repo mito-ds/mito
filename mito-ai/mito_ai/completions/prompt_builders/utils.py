@@ -69,3 +69,17 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
 
     # STEP 3: Combine into a single string
     return "\n\n".join(context_parts)
+
+
+def get_streamlit_app_status_str(streamlit_app_is_open: Optional[bool]) -> str:
+    """
+    Get the streamlit app status string.
+    """
+    if streamlit_app_is_open is None:
+        return ""
+    
+    if streamlit_app_is_open:
+        return "A Streamlit app is currently open and running."
+    else:
+        return "No Streamlit app is currently open."
+

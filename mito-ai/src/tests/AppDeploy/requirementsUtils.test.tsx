@@ -3,7 +3,6 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { INotebookTracker } from '@jupyterlab/notebook';
 import { generateRequirementsTxt } from '../../Extensions/AppDeploy/requirementsUtils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -13,7 +12,6 @@ import * as os from 'os';
 jest.mock('@jupyterlab/notebook');
 
 describe('requirementsUtils', () => {
-    let mockNotebookTracker: jest.Mocked<INotebookTracker>;
     let mockNotebookPanel: any;
     let mockKernel: any;
     let mockSession: any;
@@ -43,11 +41,6 @@ describe('requirementsUtils', () => {
             },
             sessionContext: { session: mockSession }
         };
-
-        // Setup mock notebook tracker
-        mockNotebookTracker = {
-            currentWidget: mockNotebookPanel
-        } as any;
 
         // Mock console.error
         console.error = jest.fn();
@@ -104,7 +97,7 @@ describe('requirementsUtils', () => {
             // Don't create app.py file - test the file existence check
             mockKernelExecution('Log: Error: app.py not found at app.py');
 
-            const result = await generateRequirementsTxt(mockNotebookTracker);
+            const result = await generateRequirementsTxt(mockNotebookPanel);
 
             // Should return fallback when app.py doesn't exist
             expect(result).toBe('streamlit>=1.28.0');
@@ -131,7 +124,7 @@ return response.json()
             const pipreqsOutput = 'requests==2.31.0\n';
             mockKernelExecution(pipreqsOutput);
 
-            const result = await generateRequirementsTxt(mockNotebookTracker);
+            const result = await generateRequirementsTxt(mockNotebookPanel);
 
             // Should include required packages (streamlit) even if not in pipreqs output
             expect(result).toContain('streamlit');
@@ -141,23 +134,11 @@ return response.json()
 
 
     describe('Fallback behavior', () => {
-        test('should return fallback requirements when no notebook is active', async () => {
-            // Create a new mock tracker with null currentWidget
-            const mockTrackerWithNullWidget = {
-                currentWidget: null
-            } as any;
-
-            const result = await generateRequirementsTxt(mockTrackerWithNullWidget);
-
-            expect(result).toBe('');
-            expect(console.error).toHaveBeenCalledWith('No notebook is currently active');
-        });
-
         test('should return fallback requirements when kernel is null', async () => {
             // Set kernel to null
             mockSession.kernel = null;
 
-            const result = await generateRequirementsTxt(mockNotebookTracker);
+            const result = await generateRequirementsTxt(mockNotebookPanel);
 
             expect(result).toBe('streamlit>=1.28.0');
             expect(console.error).toHaveBeenCalledWith('No kernel found');
@@ -177,7 +158,7 @@ return df
             // Mock kernel execution that throws an error
             mockKernelExecution('', true);
 
-            const result = await generateRequirementsTxt(mockNotebookTracker);
+            const result = await generateRequirementsTxt(mockNotebookPanel);
 
             expect(result).toBe('streamlit>=1.28.0');
             expect(console.error).toHaveBeenCalledWith('Error generating requirements.txt:', expect.any(Error));
@@ -195,7 +176,7 @@ df
             // Mock kernel execution that returns empty result
             mockKernelExecution('');
 
-            const result = await generateRequirementsTxt(mockNotebookTracker);
+            const result = await generateRequirementsTxt(mockNotebookPanel);
 
             expect(result).toBe('streamlit>=1.28.0');
         });
@@ -204,7 +185,7 @@ df
             // Set session to null
             mockNotebookPanel.sessionContext.session = null;
 
-            const result = await generateRequirementsTxt(mockNotebookTracker);
+            const result = await generateRequirementsTxt(mockNotebookPanel);
 
             expect(result).toBe('streamlit>=1.28.0');
         });
@@ -216,7 +197,7 @@ df
             // Mock kernel execution that simulates app.py not found
             mockKernelExecution('Log: Error: app.py not found at app.py');
 
-            const result = await generateRequirementsTxt(mockNotebookTracker);
+            const result = await generateRequirementsTxt(mockNotebookPanel);
 
             expect(result).toBe('streamlit>=1.28.0');
         });
@@ -259,7 +240,7 @@ df
 
             mockKernel.requestExecute.mockReturnValue(mockFuture);
 
-            const result = await generateRequirementsTxt(mockNotebookTracker);
+            const result = await generateRequirementsTxt(mockNotebookPanel);
 
             expect(result).toContain('pandas==2.0.3');
             expect(result).toContain('streamlit');

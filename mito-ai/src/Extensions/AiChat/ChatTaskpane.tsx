@@ -10,10 +10,9 @@ import React, { useEffect, useRef, useState } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { NotebookPanel } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { addIcon, historyIcon, deleteIcon, settingsIcon } from '@jupyterlab/ui-components';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
@@ -67,6 +66,7 @@ import { getActiveCellOutput } from '../../utils/cellOutput';
 import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
+import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { logEvent } from '../../restAPI/RestAPI';
@@ -120,8 +120,13 @@ import LoadingDots from '../../components/LoadingDots';
 
 const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
-const getDefaultChatHistoryManager = (notebookTracker: INotebookTracker, contextManager: IContextManager): ChatHistoryManager => {
-    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker)
+const getDefaultChatHistoryManager = (
+    notebookTracker: INotebookTracker, 
+    contextManager: IContextManager, 
+    app: JupyterFrontEnd, 
+    streamlitPreviewManager: IStreamlitPreviewManager
+): ChatHistoryManager => {
+    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker, app, streamlitPreviewManager)
     return chatHistoryManager
 }
 
@@ -129,6 +134,7 @@ interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     renderMimeRegistry: IRenderMimeRegistry
     contextManager: IContextManager
+    streamlitPreviewManager: IStreamlitPreviewManager
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
     websocketClient: CompletionWebsocketClient
@@ -146,13 +152,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     renderMimeRegistry,
     contextManager,
+    streamlitPreviewManager,
     app,
     operatingSystem,
     websocketClient,
 }) => {
 
     const [isSignedUp, setIsSignedUp] = useState<boolean>(true);
-    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager));
+    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
     const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
@@ -281,7 +288,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const chatHistoryResponse = await websocketClient.sendMessage<ICompletionRequest, IFetchHistoryReply>(fetchHistoryCompletionRequest);
 
         // Create a fresh ChatHistoryManager and add the initial messages
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager);
 
         // Each thread only contains agent or chat messages. For now, we enforce this by clearing the chat 
         // when the user switches mode. When the user reloads a chat, we want to put them back into the same
@@ -361,7 +368,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAutoScrollFollowMode(true);
 
         // Reset frontend chat history
-        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager);
+        const newChatHistoryManager = getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager);
         setChatHistoryManager(newChatHistoryManager);
 
         // Notify the backend to request a new chat thread and get its ID
@@ -432,7 +439,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } catch (error: unknown) {
                 const newChatHistoryManager = getDefaultChatHistoryManager(
                     notebookTracker,
-                    contextManager
+                    contextManager,
+                    app,
+                    streamlitPreviewManager
                 );
                 addAIMessageFromResponseAndUpdateState(
                     (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,
@@ -957,11 +966,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 activeRequestControllerRef.current = null;
             }
 
-            // Add feedback message based on reason
             const newChatHistoryManager = getDuplicateChatHistoryManager();
             addAIMessageFromResponseAndUpdateState(
                 "Agent stopped by user.",
-                'chat',
+                'chat', // TODO: This probably should not be type 'chat' because that is reserved for a chat thread!
                 newChatHistoryManager
             );
 
@@ -1069,6 +1077,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 break;
             }
 
+            // TODO: If we created a validated type in the agent response validation function, then we woulnd't need to do these checks
+            if (agentResponse.type === 'edit_streamlit_app' && (agentResponse.edit_streamlit_app_prompt === undefined || agentResponse.edit_streamlit_app_prompt === null)) {
+                await markAgentForStopping();
+                isAgentFinished = true
+                break;
+            }
+
             if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
                 // Run the code and handle any errors
                 await acceptAndRunCellUpdate(
@@ -1140,6 +1155,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         break;
                     }
                 }
+            }
+
+            if (agentResponse.type === 'create_streamlit_app') {
+                // Create new preview using the service
+                await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+            }
+
+            if (agentResponse.type === 'edit_streamlit_app' && agentResponse.edit_streamlit_app_prompt) {
+                // Ensure there is an active preview to edit
+                if (!streamlitPreviewManager.hasActivePreview()) {
+                    await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+                }
+
+                // Edit the existing preview
+                await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, agentTargetNotebookPanelRef.current);
             }
         }
 
@@ -1708,3 +1738,5 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 };
 
 export default ChatTaskpane;
+
+
