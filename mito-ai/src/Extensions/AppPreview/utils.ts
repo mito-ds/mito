@@ -40,7 +40,7 @@ export const startStreamlitPreviewAndNotify = async (
       // Display error notification
       Notification.update({
         id: notificationId,
-        message: "Failed to start app preview: " + String(error),
+        message: String(error),
         type: 'error',
         autoClose: 5 * 1000
       });

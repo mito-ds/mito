@@ -4,7 +4,7 @@
 from typing import List
 import re
 from anthropic.types import MessageParam
-from mito_ai.streamlit_conversion.streamlit_system_prompt import streamlit_system_prompt
+from mito_ai.streamlit_conversion.prompts.streamlit_system_prompt import streamlit_system_prompt
 from mito_ai.utils.anthropic_utils import stream_anthropic_completion_from_mito_server
 from unidiff import PatchSet
 from mito_ai.streamlit_conversion.prompts.prompt_constants import MITO_TODO_PLACEHOLDER

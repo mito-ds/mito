@@ -85,7 +85,7 @@ export const deployStreamlitApp = async (
 
     // Use the JWT token that was already obtained or refreshed above
     const response: IDeployAppReply = await appDeployService.client.sendMessage<IDeployAppRequest, IDeployAppReply>({
-      type: 'deploy-app',
+      type: 'deploy_app',
       message_id: UUID.uuid4(),
       notebook_path: notebookPath,
       jwt_token: jwtToken,
@@ -93,9 +93,18 @@ export const deployStreamlitApp = async (
     });
 
     if (response.error) {
+      const errorMsg = response.error;
+      console.group('Deploy App Error:');
+      console.error('Type:', errorMsg.error_type);
+      console.error('Title:', errorMsg.message);
+      console.error('Hint:', errorMsg.hint);
+      let displayMessage = String(errorMsg.message)
+      if (errorMsg.hint){
+        displayMessage = displayMessage+"\n"+"Hint:"+String(errorMsg.hint)
+      }
       Notification.update({
         id: newNotificationId,
-        message: response.error.title,
+        message: displayMessage,
         type: 'error',
         autoClose: false
       });
@@ -105,7 +114,13 @@ export const deployStreamlitApp = async (
       deployAppNotification(url, appManagerService, newNotificationId);
     }
   } catch (error) {
-    // TODO: Do something with the error
+    // TODO: In the future, remove this if we dont see any connection errors that need to be caught
     console.error("Error deploying app:", error);
+    Notification.update({
+      id: newNotificationId,
+      message: String(error),
+      type: 'error',
+      autoClose: false
+    });
   }
 };

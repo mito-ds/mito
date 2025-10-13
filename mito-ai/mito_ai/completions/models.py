@@ -65,6 +65,7 @@ class MessageType(Enum):
     UPDATE_MODEL_CONFIG = "update_model_config"
     STREAMLIT_CONVERSION = "streamlit_conversion"
     STOP_AGENT = "stop_agent"
+    DEPLOY_APP = "deploy_app"
 
     
 @dataclass(frozen=True)

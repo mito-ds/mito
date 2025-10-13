@@ -12,7 +12,8 @@ from mito_ai.streamlit_conversion.prompts.update_existing_app_prompt import get_
 from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.completions.models import MessageType
-from mito_ai.utils.telemetry_utils import log_streamlit_app_creation_error, log_streamlit_app_creation_retry, log_streamlit_app_creation_success
+from mito_ai.utils.error_classes import StreamlitConversionError
+from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
 from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
 
 def get_app_directory(notebook_path: str) -> str:
@@ -107,7 +108,7 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
 
     return streamlit_app_code
 
-async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[bool, Optional[str], str]:
+async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> str:
     """Handler function for streamlit code generation and validation"""
 
     clean_directory_check(notebook_path)
@@ -120,7 +121,7 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[
         streamlit_code = get_app_code_from_file(app_directory)
         
         if streamlit_code is None:
-            return False, '', "Error updating existing streamlit app because app.py file was not found."
+            raise StreamlitConversionError("Error updating existing streamlit app because app.py file was not found.", 404)
         
         streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, edit_prompt)
     else:
@@ -139,17 +140,13 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> Tuple[
         if has_validation_error:
             # TODO: We can't easily get the key type here, so for the beta release
             # we are just defaulting to the mito server key since that is by far the most common.
-            log_streamlit_app_creation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, error)
+            log_streamlit_app_validation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, errors)
         tries+=1
 
     if has_validation_error:
-        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error, edit_prompt)
-        return False, '', "Error generating streamlit code by agent"
+        raise StreamlitConversionError("Streamlit agent failed generating code after max retries", 500)
     
     # Finally, update the app.py file with the new code
-    success_flag, app_path, message = create_app_file(app_directory, streamlit_code)
-    if not success_flag:
-        log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, message, edit_prompt)
-    
-    log_streamlit_app_creation_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
-    return success_flag, app_path, message
+    app_path = create_app_file(app_directory, streamlit_code)
+    log_streamlit_app_conversion_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
+    return app_path
