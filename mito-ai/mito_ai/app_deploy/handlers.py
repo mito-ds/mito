@@ -180,7 +180,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             parent_id=message_id,
             url=deploy_url if deploy_url else ""
         )
-
+        
 
     def _validate_jwt_token(self, token: str) -> bool:
         """Basic JWT token validation logic.

@@ -13,7 +13,7 @@ from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, extract_unified_diff_blocks, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.error_classes import StreamlitConversionError
-from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_error, log_streamlit_app_validation_retry, log_streamlit_app_creation_success
+from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
 from mito_ai.streamlit_conversion.streamlit_utils import clean_directory_check
 
 def get_app_directory(notebook_path: str) -> str:
@@ -144,10 +144,9 @@ async def streamlit_handler(notebook_path: str, edit_prompt: str = "") -> str:
         tries+=1
 
     if has_validation_error:
-        log_streamlit_app_validation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, errors, edit_prompt)
         raise StreamlitConversionError("Streamlit agent failed generating code after max retries", 500)
     
     # Finally, update the app.py file with the new code
     app_path = create_app_file(app_directory, streamlit_code)
-    log_streamlit_app_creation_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
+    log_streamlit_app_conversion_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
     return app_path

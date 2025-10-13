@@ -383,12 +383,16 @@ def log_mito_server_free_tier_limit_reached(key_type: Literal['mito_server_key',
 
 
 #################################
-# Streamlit Conversion
+# Streamlit Logs
 #################################
 
-def log_streamlit_app_creation_success(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, edit_prompt: str) -> None:
+### 
+# Converting Notebook into Streamlit App code
+###
+
+def log_streamlit_app_conversion_success(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, edit_prompt: str) -> None:
     log(
-        "mito_ai_streamlit_app_creation_success", 
+        "mito_ai_streamlit_app_conversion_success", 
         key_type=key_type,
         params={
             "edit_prompt": edit_prompt,
@@ -398,7 +402,7 @@ def log_streamlit_app_creation_success(key_type: Literal['mito_server_key', 'use
     
 def log_streamlit_app_validation_retry(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: List[str]) -> None:
     log(
-        "log_streamlit_app_validation_retry",
+        "mito_ai_streamlit_app_conversion_retry",
         params={
             "error_message": error,
             "message_type": message_type
@@ -406,16 +410,45 @@ def log_streamlit_app_validation_retry(key_type: Literal['mito_server_key', 'use
         key_type=key_type
     )
     
-def log_streamlit_app_validation_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: List[str], edit_prompt: str) -> None:
+def log_streamlit_app_conversion_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error_message: str, edit_prompt: str) -> None:
     log(
-        "log_streamlit_app_validation_error",
+        "mito_ai_streamlit_app_conversion_error",
         params={
-            "error_message": error,
+            "error_message": error_message,
             "edit_prompt": edit_prompt,
             "message_type": message_type
         },
         key_type=key_type
     )
+    
+###
+# Setting up Preview
+###
+
+def log_streamlit_app_preview_success(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, edit_prompt: str) -> None:
+    log(
+        "mito_ai_streamlit_app_preview_success",
+        key_type=key_type,
+        params={
+            "edit_prompt": edit_prompt,
+            "message_type": message_type
+        }
+    )
+    
+def log_streamlit_app_preview_failure(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error_message: str, edit_prompt: str) -> None:
+    log(
+        "mito_ai_streamlit_app_preview_failure",
+        key_type=key_type,
+        params={
+            "error_message": error_message,
+            "message_type": message_type, 
+            "edit_prompt": edit_prompt
+        }
+    )
+    
+###
+# Deploying Streamlit App
+###
 
 def log_streamlit_app_deployment_failure(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: Dict) -> None:
     log(
@@ -423,16 +456,6 @@ def log_streamlit_app_deployment_failure(key_type: Literal['mito_server_key', 'u
         key_type=key_type,
         params={
             "error": error, # Contains all details in app_deploy.models.AppDeployError class
-            "message_type": message_type
-        }
-    )
-
-def log_streamlit_app_preview_failure(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error: Dict) -> None:
-    log(
-        "mito_ai_streamlit_app_deployment_failure",
-        key_type=key_type,
-        params={
-            "error": error, # Contains both error message and traceback
             "message_type": message_type
         }
     )

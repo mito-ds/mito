@@ -8,7 +8,7 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_preview.manager import get_preview_manager
 from mito_ai.utils.error_classes import StreamlitPreviewError, StreamlitConversionError
-from mito_ai.utils.telemetry_utils import log_streamlit_app_preview_failure
+from mito_ai.utils.telemetry_utils import log_streamlit_app_conversion_error, log_streamlit_app_preview_failure, log_streamlit_app_preview_success
 from mito_ai.completions.models import MessageType
 import traceback
 
@@ -97,20 +97,26 @@ class StreamlitPreviewHandler(APIHandler):
 
             # Return success response
             self.finish({"id": preview_id, "port": port, "url": f"http://localhost:{port}"})
+            log_streamlit_app_preview_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
 
-        except (StreamlitPreviewError, StreamlitConversionError) as e:
+        except StreamlitConversionError as e:
             print(e)
             self.set_status(e.error_code)
-            error_message = {"error": str(e)}
-            self.finish(error_message)
-            error_message["traceback"] = traceback.format_exc()
-            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message)
-
+            error_message = str(e)
+            self.finish({"error": error_message})
+            log_streamlit_app_conversion_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message, edit_prompt)
+        except StreamlitPreviewError as e:
+            print(e)
+            error_message = str(e)
+            self.set_status(e.error_code)
+            self.finish({"error": error_message})
+            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message, edit_prompt)
         except Exception as e:
             print(f"Exception in streamlit preview handler: {e}")
             self.set_status(500)
-            self.finish({"error": str(e)})
-            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, {"error":str(e), "traceback": traceback.format_exc()})
+            error_message = str(e)
+            self.finish({"error": error_message})
+            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message, edit_prompt)
 
     @tornado.web.authenticated
     def delete(self, preview_id: str) -> None:
