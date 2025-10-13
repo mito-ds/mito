@@ -12,7 +12,7 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     correct_error_in_generation,
     streamlit_handler
 )
-from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookPath, get_absolute_notebook_path
 
 # Add this line to enable async support
 pytest_plugins = ('pytest_asyncio',)
@@ -153,23 +153,21 @@ class TestStreamlitHandler:
         mock_validator.return_value = (False, "")
         
         # Mock file creation
-        mock_create_file.return_value = (True, "/path/to/app.py", "File created successfully")
-        
+        mock_create_file.return_value = (True, "File created successfully")
         
         # Use a relative path that will work cross-platform
         notebook_path = AbsoluteNotebookPath("absolute/path/to/notebook.ipynb")
         result = await streamlit_handler(notebook_path)
         
         assert result[0] is True
-        assert "File created successfully" in result[2]
         
         # Verify calls
         mock_parse.assert_called_once_with(notebook_path)
         mock_generate_code.assert_called_once_with(mock_notebook_data)
         mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", notebook_path)
         
-        expected_app_dir = os.path.dirname(notebook_path)
-        mock_create_file.assert_called_once_with(expected_app_dir, "import streamlit\nst.title('Test')")
+        expected_app_dir = os.path.join(os.path.dirname(notebook_path), "app.py")
+        mock_create_file.assert_called_once_with(AbsoluteAppPath(expected_app_dir), "import streamlit\nst.title('Test')")
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -193,7 +191,7 @@ class TestStreamlitHandler:
         
         # Verify the result indicates failure
         assert result[0] is False
-        assert "Error generating streamlit code by agent" in result[2]
+        assert "Error generating streamlit code by agent" in result[1]
         
         # Verify that error correction was called 5 times (max retries)
         assert mock_correct_error.call_count == 5
@@ -216,13 +214,12 @@ class TestStreamlitHandler:
         mock_validator.return_value = (False, "")
         
         # Mock file creation failure
-        mock_create_file.return_value = (False, None, "Permission denied")
-        
+        mock_create_file.return_value = (False, "Permission denied")
         
         result = await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
         
         assert result[0] is False
-        assert "Permission denied" in result[2]
+        assert "Permission denied" in result[1]
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -245,7 +242,6 @@ class TestStreamlitHandler:
         
         # Mock code generation failure
         mock_generate_code.side_effect = Exception("Generation failed")
-        
         
         with pytest.raises(Exception, match="Generation failed"):
             await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))

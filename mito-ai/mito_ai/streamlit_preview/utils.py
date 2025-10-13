@@ -38,9 +38,9 @@ async def ensure_app_exists(absolute_notebook_path: AbsoluteNotebookPath, force_
         else:
             print("[Mito AI] Force recreating streamlit app")
         
-        success, app_path, message = await streamlit_handler(absolute_notebook_path, edit_prompt)
+        success, message = await streamlit_handler(absolute_notebook_path, edit_prompt)
 
-        if not success or app_path is None:
+        if not success:
             return False, f"Failed to generate streamlit code: {message}"
 
     return True, ""

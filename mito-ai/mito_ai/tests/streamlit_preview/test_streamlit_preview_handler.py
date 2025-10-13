@@ -32,7 +32,7 @@ class TestEnsureAppExists:
                 True,   # expected_success
                 "",     # expected_error
                 True,   # streamlit_handler_called
-                (True, "/path/to/app.py", "Success"),  # streamlit_handler_return
+                (True, "Success"),  # streamlit_handler_return
             )
         ],
         ids=[

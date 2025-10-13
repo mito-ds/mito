@@ -99,7 +99,7 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
 
     return streamlit_app_code
 
-async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: str = "") -> Tuple[bool, Optional[str], str]:
+async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: str = "") -> Tuple[bool, str]:
     """Handler function for streamlit code generation and validation"""
 
     # Convert to absolute path for consistent handling
@@ -136,7 +136,7 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: st
 
     if has_validation_error:
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, error, edit_prompt)
-        return False, '', "Error generating streamlit code by agent"
+        return False, "Error generating streamlit code by agent"
     
     # Finally, update the app.py file with the new code
     success_flag, message = create_app_file(app_path, streamlit_code)
@@ -144,4 +144,4 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: st
         log_streamlit_app_creation_error('mito_server_key', MessageType.STREAMLIT_CONVERSION, message, edit_prompt)
     
     log_streamlit_app_creation_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
-    return success_flag, app_path, message
+    return success_flag, message
