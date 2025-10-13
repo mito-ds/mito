@@ -64,7 +64,7 @@ class TestEnsureAppExists:
                     if streamlit_handler_return is not None:
                         mock_streamlit_handler.return_value = streamlit_handler_return
                     
-                    result = await ensure_app_exists(notebook_path, False, "")
+                    await ensure_app_exists(notebook_path, False, "")
                     
                     # Verify get_app_path was called with the correct directory
                     mock_get_app_path.assert_called_once_with(temp_dir)

@@ -178,7 +178,7 @@ class AppDeployHandler(BaseWebSocketHandler):
         # Send the response
         return DeployAppReply(
             parent_id=message_id,
-            url=deploy_url
+            url=deploy_url if deploy_url else ""
         )
 
 
@@ -216,7 +216,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             return False
 
 
-    async def _deploy_app(self, app_path: str, files_to_upload:List[str], message_id: str, jwt_token: str = '') -> str:
+    async def _deploy_app(self, app_path: str, files_to_upload:List[str], message_id: str, jwt_token: str = '') -> Optional[str]:
         """Deploy the app using pre-signed URLs.
         
         Args:
@@ -282,21 +282,25 @@ class AppDeployHandler(BaseWebSocketHandler):
             self.log.info(f"Upload successful! Status code: {upload_response.status_code}")
             
             self.log.info(f"Deployment initiated. App will be available at: {expected_app_url}")
-            return expected_app_url
+            return str(expected_app_url)
             
         except requests.exceptions.RequestException as e:
             self.log.error(f"Error during API request: {e}")
             if hasattr(e, 'response') and e.response is not None:
                 error_detail = e.response.json()
+                error_message = error_detail['error']
                 self.log.error(f"Server error details: {error_detail}")
-                error = AppDeployError(
-                    error_type="APIException",
-                    message=str(error_detail['error']),
-                    traceback=traceback.format_exc(),
-                    error_code=500,
-                    message_id=message_id
-                )
-                raise StreamlitDeploymentError(error)
+            else:
+                error_message = str(e)
+            
+            error = AppDeployError(
+                error_type="APIException",
+                message=str(error_message),
+                traceback=traceback.format_exc(),
+                error_code=500,
+                message_id=message_id
+            )
+            raise StreamlitDeploymentError(error)
         except Exception as e:
             self.log.error(f"Error during deployment: {str(e)}")
             error = AppDeployError(
