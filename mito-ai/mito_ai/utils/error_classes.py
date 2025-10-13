@@ -1,3 +1,5 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from mito_ai.app_deploy.models import AppDeployError
 
