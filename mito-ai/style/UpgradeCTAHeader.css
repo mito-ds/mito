@@ -10,6 +10,7 @@
     justify-content: center;
     width: 16px;
     height: 16px;
+    cursor: pointer;
 }
 
 .upgrade-header-cta-svg {

@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getUserKey } from '../../restAPI/RestAPI';
 import '../../../style/UpgradeCTAHeader.css';
-// import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
+import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlugin';
 
 const MAX_FREE_USAGE = 150;
 const SVG_SIZE = 16;
@@ -53,7 +53,13 @@ const UpgradeHeaderCTA: React.FC<UpgradeHeaderCTAProps> = ({ app }) => {
     };
 
     return (
-        <div className="upgrade-header-cta-container">
+        <div
+            className="upgrade-header-cta-container"
+            onClick={() => {
+                void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
+            }}
+            title={`${usageCount}/${MAX_FREE_USAGE} free AI messages used`}
+        >
             <svg className="upgrade-header-cta-svg" width={SVG_SIZE} height={SVG_SIZE}>
                 {/* Background circle */}
                 <circle
