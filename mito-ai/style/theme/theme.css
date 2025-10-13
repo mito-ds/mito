@@ -5,6 +5,7 @@
 
 @import './variables.css';
 @import './componentStyling.css';
+@import './icons.css';
 
 /* Set the default typography for monospace elements */
 .jp-ThemedContainer tt,
