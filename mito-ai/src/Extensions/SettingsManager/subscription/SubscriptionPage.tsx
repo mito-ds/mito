@@ -4,26 +4,30 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { getSetting, updateSettings } from '../../../restAPI/RestAPI';
+import { getUserKey } from '../../../restAPI/RestAPI';
+
+const MAX_FREE_USAGE = 150;
 
 export const SubscriptionPage = (): JSX.Element => {
 
-    const [betaMode, setBetaMode] = useState<boolean>(false);
+    const [usageCount, setUsageCount] = useState<number>(0);
+
+    const getAiMitoApiNumUsages = async (): Promise<number> => {
+        const usageCount = await getUserKey('ai_mito_api_num_usages');
+        return usageCount ? parseInt(usageCount) : 0;
+    };
 
     // When we first open the page, load the settings from the server
     useEffect(() => {
         const fetchSettings = async (): Promise<void> => {
-            const betaMode = await getSetting('beta_mode');
-            setBetaMode(betaMode === 'true');
+            const count = await getAiMitoApiNumUsages();
+            setUsageCount(count);
         };
         void fetchSettings();
     }, []);
 
-    const handleBetaModeChange = async (): Promise<void> => {
-        const newBetaMode = !betaMode;
-        await updateSettings('beta_mode', newBetaMode.toString());
-        setBetaMode(newBetaMode);
-    };
+    const percentage = (usageCount / MAX_FREE_USAGE) * 100;
+    const remainingUsage = MAX_FREE_USAGE - usageCount;
 
     return (
         <div>
@@ -31,13 +35,21 @@ export const SubscriptionPage = (): JSX.Element => {
                 <h2>Manage Subscription</h2>
             </div>
             <div className="settings-option">
-                <label className="settings-checkbox-label">
-                    <input type="checkbox" checked={betaMode} onChange={handleBetaModeChange} />
-                    <span>Beta Mode</span>
-                </label>
-                <p className="settings-option-description">
-                    Enable early access to experimental features. These features may be less stable than regular features.
-                </p>
+                <div className="settings-section">
+                    <h3>Free Plan Usage</h3>
+                    <p className="settings-option-description">
+                        You have used <strong>{usageCount}</strong> of <strong>{MAX_FREE_USAGE}</strong> free AI messages ({percentage.toFixed(1)}%)
+                    </p>
+                    {remainingUsage > 0 ? (
+                        <p className="settings-option-description">
+                            {remainingUsage} messages remaining
+                        </p>
+                    ) : (
+                        <p className="settings-option-description" style={{ color: 'var(--red-500)' }}>
+                            You have reached your free usage limit. Upgrade to continue using Mito AI.
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );
