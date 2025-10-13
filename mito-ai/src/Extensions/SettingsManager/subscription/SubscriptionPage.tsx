@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { getUserKey } from '../../../restAPI/RestAPI';
 import { FreeTierCard } from './FreeTierCard';
+import { ProCard } from './ProCard';
 import '../../../../style/SubscriptionPage.css';
 
 export const SubscriptionPage = (): JSX.Element => {
@@ -16,7 +17,7 @@ export const SubscriptionPage = (): JSX.Element => {
         const fetchSettings = async (): Promise<void> => {
             const proStatus = await getUserKey('is_pro');
             console.log('proStatus', proStatus);
-            setIsPro(false);
+            setIsPro(true);
         };
         void fetchSettings();
     }, []);
@@ -30,20 +31,7 @@ export const SubscriptionPage = (): JSX.Element => {
                 </p>
             </div>
 
-            {isPro ? (
-                <div className="subscription-page-card">
-                    <div className="subscription-page-card-content">
-                        <h3 className="subscription-page-section-title">
-                            Mito Pro
-                        </h3>
-                        <p className="subscription-page-status-message">
-                            ✓ You have unlimited access to Mito AI
-                        </p>
-                    </div>
-                </div>
-            ) : (
-                <FreeTierCard />
-            )}
+            {isPro ? <ProCard /> : <FreeTierCard />}
         </div>
     );
 };
