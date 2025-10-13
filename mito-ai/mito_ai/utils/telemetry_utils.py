@@ -410,11 +410,12 @@ def log_streamlit_app_validation_retry(key_type: Literal['mito_server_key', 'use
         key_type=key_type
     )
     
-def log_streamlit_app_conversion_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error_message: str, edit_prompt: str) -> None:
+def log_streamlit_app_conversion_error(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error_message: str, formatted_traceback: str, edit_prompt: str) -> None:
     log(
         "mito_ai_streamlit_app_conversion_error",
         params={
             "error_message": error_message,
+            "traceback": formatted_traceback,
             "edit_prompt": edit_prompt,
             "message_type": message_type
         },
@@ -435,12 +436,13 @@ def log_streamlit_app_preview_success(key_type: Literal['mito_server_key', 'user
         }
     )
     
-def log_streamlit_app_preview_failure(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error_message: str, edit_prompt: str) -> None:
+def log_streamlit_app_preview_failure(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType, error_message: str, formatted_traceback: str, edit_prompt: str) -> None:
     log(
         "mito_ai_streamlit_app_preview_failure",
         key_type=key_type,
         params={
             "error_message": error_message,
+            "traceback": formatted_traceback,
             "message_type": message_type, 
             "edit_prompt": edit_prompt
         }
