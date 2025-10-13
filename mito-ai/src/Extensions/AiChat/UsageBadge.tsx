@@ -25,6 +25,7 @@ interface UsageBadgeProps {
 }
 
 const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
+    const [isPro, setIsPro] = useState<boolean>(false);
     const [usageCount, setUsageCount] = useState<number>(0);
 
     const getAiMitoApiNumUsages = async (): Promise<number> => {
@@ -33,6 +34,12 @@ const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
     };
 
     useEffect(() => {
+        const fetchIsPro = async () => {
+            const isPro = await getUserKey('is_pro');
+            setIsPro(isPro === 'True');
+        };
+        fetchIsPro();
+
         const fetchUsageCount = async () => {
             const count = await getAiMitoApiNumUsages();
             setUsageCount(count);
@@ -51,6 +58,11 @@ const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
         if (percentage < 80) return USAGE_COLORS.ORANGE;
         return USAGE_COLORS.RED;
     };
+
+    if (isPro) {
+        // If the user is pro, don't show the usage badge
+        return null;
+    }
 
     return (
         <div
