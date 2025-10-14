@@ -218,7 +218,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const iframeWidget = new IFrameWidget(previewData.url);
 
     // Log that the preview is open
-    logEvent('opened_streamlit_app_preview')
+    void logEvent('opened_streamlit_app_preview')
 
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
