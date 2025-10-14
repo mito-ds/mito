@@ -14,12 +14,6 @@ const SVG_SIZE = 16;
 const CIRCLE_RADIUS = 5.5;
 const CIRCLE_CENTER = SVG_SIZE / 2; // Center x and y coordinates
 
-const USAGE_COLORS = {
-    GREEN: 'var(--green-600)',
-    ORANGE: 'var(--yellow-600)',
-    RED: 'var(--red-500)',
-};
-
 interface UsageBadgeProps {
     app: JupyterFrontEnd;
 }
@@ -54,9 +48,9 @@ const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
 
     // Determine color based on usage - green to red
     const getColor = (): string => {
-        if (percentage < 50) return USAGE_COLORS.GREEN;
-        if (percentage < 80) return USAGE_COLORS.ORANGE;
-        return USAGE_COLORS.RED;
+        if (percentage < 50) return 'var(--green-600)';
+        if (percentage < 80) return 'var(--yellow-600)';
+        return 'var(--red-500)';
     };
 
     if (isPro) {
