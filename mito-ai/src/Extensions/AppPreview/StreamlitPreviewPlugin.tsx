@@ -10,7 +10,7 @@ import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { Token } from '@lumino/coreutils';
-import { stopStreamlitPreview } from '../../restAPI/RestAPI';
+import { logEvent, stopStreamlitPreview } from '../../restAPI/RestAPI';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
@@ -216,6 +216,9 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     previewData: StreamlitPreviewResponse
   ): MainAreaWidget {
     const iframeWidget = new IFrameWidget(previewData.url);
+
+    // Log that the preview is open
+    logEvent('opened_streamlit_app_preview')
 
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
