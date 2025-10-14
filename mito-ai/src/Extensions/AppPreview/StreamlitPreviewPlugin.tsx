@@ -14,7 +14,7 @@ import { stopStreamlitPreview } from '../../restAPI/RestAPI';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
-import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
+import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
 import { showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
@@ -135,6 +135,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     
     // Create the new preview widget
     const widget = this.createPreviewWidget(
+      app,
       notebookPanel,
       this.appDeployService,
       this.appManagerService,
@@ -210,6 +211,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
    * Create a new preview widget with toolbar buttons.
    */
   private createPreviewWidget(
+    app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService,
@@ -261,7 +263,10 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     // Insert the buttons into the toolbar
     widget.toolbar.insertAfter('spacer', 'edit-app-button', editAppButton);
     widget.toolbar.insertAfter('edit-app-button', 'recreate-app-button', recreateAppButton);
-    widget.toolbar.insertAfter('recreate-app-button', 'deploy-app-button', deployButton);
+
+    if (app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED)) {
+      widget.toolbar.insertAfter('recreate-app-button', 'deploy-app-button', deployButton);
+    }
 
     // Handle widget disposal
     widget.disposed.connect(() => {
