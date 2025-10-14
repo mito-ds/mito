@@ -1015,8 +1015,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Sometimes its useful to send extra information back to the agent. For example, 
         // if the agent tries to create a streamlit app and it errors, we want to let the 
-        // orchestrator agent know about the issue
-        let messageToShareWithAgentNext: string | undefined = undefined
+        // orchestrator agent know about the issue. 
+        // TODO: Ideally this would be a different type of message that does not show up
+        // as a user message in the chat taskpane, but this is the only mechanism we have 
+        // right now.
+        let messageToShareWithAgent: string | undefined = undefined
 
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
@@ -1032,9 +1035,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentExecutionDepth === 1) {
                 await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext)
             } else {
-                await sendAgentExecutionMessage(messageToShareWithAgentNext || '', undefined, sendCellIDOutput)
+                await sendAgentExecutionMessage(messageToShareWithAgent || '', undefined, sendCellIDOutput)
                 // Reset flag back to false until the agent requests the active cell output again
                 sendCellIDOutput = undefined
+                messageToShareWithAgent = undefined
             }
 
             // Iterate the agent execution depth
@@ -1175,7 +1179,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 // Create new preview using the service
                 const result = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
                 if (result.type === 'error') {
-                    messageToShareWithAgentNext = result.message
+                    messageToShareWithAgent = result.message
                 }
             }
 
@@ -1184,7 +1188,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 if (!streamlitPreviewManager.hasActivePreview()) {
                     const result = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
                     if (result.type === 'error') {
-                        messageToShareWithAgentNext = result.message
+                        messageToShareWithAgent = result.message
                     }
                 }
 
