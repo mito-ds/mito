@@ -86,7 +86,6 @@ def check_for_errors(app_code: str, app_path: AbsoluteNotebookPath) -> List[Dict
     try:
         # Step 1: Check syntax
         syntax_error = get_syntax_error(app_code)
-        syntax_error = 'No module named plotly'
         if syntax_error:
             errors.append({'type': 'syntax', 'details': syntax_error})
 
