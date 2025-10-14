@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { getUserKey, logEvent } from '../../../restAPI/RestAPI';
+import { STRIPE_PAYMENT_LINK } from '../../../utils/stripe';
 import '../../../../style/SubscriptionPage.css';
 
 const MAX_FREE_USAGE = 150;
@@ -96,7 +97,7 @@ export const FreeTierCard = (): JSX.Element => {
             {/* Action buttons */}
             <div className="subscription-page-button-container">
                 <form
-                    action="https://jl76z192i0.execute-api.us-east-1.amazonaws.com/Prod/create_checkout_session/"
+                    action={STRIPE_PAYMENT_LINK}
                     method="POST"
                     target="_blank"
                 >
