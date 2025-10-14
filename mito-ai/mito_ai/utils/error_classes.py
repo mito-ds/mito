@@ -13,12 +13,10 @@ class MitoAppError(Exception):
 
 class StreamlitPreviewError(MitoAppError):
     def __str__(self) -> str:
-        print("using str rep")
         return f"[PreviewError]: {self.message} (Error Code: {self.error_code})"
 
 class StreamlitConversionError(MitoAppError):
     def __str__(self) -> str:
-        print('Using str rep')
         return f"[ConversionError]: {self.message} (Error Code: {self.error_code})"
 
 

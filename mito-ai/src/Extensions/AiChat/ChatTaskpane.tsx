@@ -1013,6 +1013,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         let agentExecutionDepth = 1
         let sendCellIDOutput: string | undefined = undefined
 
+        // Sometimes its useful to send extra information back to the agent. For example, 
+        // if the agent tries to create a streamlit app and it errors, we want to let the 
+        // orchestrator agent know about the issue
+        let messageToShareWithAgentNext: string | undefined = undefined
+
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
 
@@ -1027,7 +1032,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentExecutionDepth === 1) {
                 await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext)
             } else {
-                await sendAgentExecutionMessage('', undefined, sendCellIDOutput)
+                await sendAgentExecutionMessage(messageToShareWithAgentNext || '', undefined, sendCellIDOutput)
                 // Reset flag back to false until the agent requests the active cell output again
                 sendCellIDOutput = undefined
             }
@@ -1168,13 +1173,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (agentResponse.type === 'create_streamlit_app') {
                 // Create new preview using the service
-                await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+                const result = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+                if (result.type === 'error') {
+                    messageToShareWithAgentNext = result.message
+                }
             }
 
             if (agentResponse.type === 'edit_streamlit_app' && agentResponse.edit_streamlit_app_prompt) {
                 // Ensure there is an active preview to edit
                 if (!streamlitPreviewManager.hasActivePreview()) {
-                    await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+                    const result = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+                    if (result.type === 'error') {
+                        messageToShareWithAgentNext = result.message
+                    }
                 }
 
                 // Edit the existing preview
