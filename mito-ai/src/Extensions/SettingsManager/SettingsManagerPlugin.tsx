@@ -9,6 +9,8 @@ import { SettingsWidget } from './SettingsWidget';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 
 export const COMMAND_MITO_AI_SETTINGS = 'mito-ai:open-settings';
+export const COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION = 'mito-ai:open-settings-subscription';
+export const COMMAND_MITO_AI_SETTINGS_DATABASE = 'mito-ai:open-settings-database';
 
 /**
  * Initialization data for the mito settings extension.
@@ -29,8 +31,8 @@ function _activate(
     restorer: ILayoutRestorer | null
 ): WidgetTracker {
     // Create a widget creator function
-    const newWidget = (): MainAreaWidget => {
-        const content = new SettingsWidget(contextManager);
+    const newWidget = (initialTab?: 'database' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): MainAreaWidget => {
+        const content = new SettingsWidget(contextManager, initialTab);
         const widget = new MainAreaWidget({ content });
         widget.id = 'mito-ai-settings';
         widget.title.label = 'Mito AI Settings';
@@ -40,27 +42,38 @@ function _activate(
 
     let widget = newWidget();
 
+    // Track and restore the widget state
+    const tracker = new WidgetTracker<MainAreaWidget>({
+        namespace: widget.id
+    });
+
+    // Reusable function to open settings with a specific tab
+    const openSettingsWithTab = (initialTab?: 'database' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): void => {
+        // Dispose the old widget and create a new one with the specified tab
+        if (widget && !widget.isDisposed) {
+            widget.dispose();
+        }
+        widget = newWidget(initialTab);
+
+        // Add the widget to the tracker
+        if (!tracker.has(widget)) {
+            void tracker.add(widget);
+        }
+
+        // Add the widget to the app
+        if (!widget.isAttached) {
+            void app.shell.add(widget, 'main');
+        }
+
+        // Activate the widget
+        app.shell.activateById(widget.id);
+    };
+
     // Add an application command
     app.commands.addCommand(COMMAND_MITO_AI_SETTINGS, {
         label: 'Mito AI Settings',
         execute: () => {
-            // Create the widget if it doesn't exist or is disposed
-            if (!widget || widget.isDisposed) {
-                widget = newWidget();
-            }
-
-            // Add the widget to the tracker if not already there
-            if (!tracker.has(widget)) {
-                void tracker.add(widget);
-            }
-
-            // Add the widget to the app if not already attached
-            if (!widget.isAttached) {
-                void app.shell.add(widget, 'main');
-            }
-
-            // Activate the widget
-            app.shell.activateById(widget.id);
+            openSettingsWithTab();
         }
     });
 
@@ -70,9 +83,20 @@ function _activate(
         category: 'Mito AI'
     });
 
-    // Track and restore the widget state
-    const tracker = new WidgetTracker<MainAreaWidget>({
-        namespace: widget.id
+    // Add a command to open settings with the subscription tab
+    app.commands.addCommand(COMMAND_MITO_AI_SETTINGS_SUBSCRIPTION, {
+        label: 'Mito AI Settings: Subscription',
+        execute: () => {
+            openSettingsWithTab('subscription');
+        }
+    });
+
+    // Add a command to open setting with the database tab
+    app.commands.addCommand(COMMAND_MITO_AI_SETTINGS_DATABASE, {
+        label: 'Mito AI Settings: Database',
+        execute: () => {
+            openSettingsWithTab('database');
+        }
     });
 
     if (!tracker.has(widget)) {
