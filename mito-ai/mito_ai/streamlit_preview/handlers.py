@@ -14,12 +14,6 @@ from mito_ai.completions.models import MessageType
 from mito_ai.utils.error_classes import StreamlitConversionError, StreamlitPreviewError
 import traceback
 
-class StreamlitPreviewReponse(TypedDict):
-    type: Literal['success']
-    id: str
-    port: int
-    url: str
-
 
 class StreamlitPreviewHandler(APIHandler):
     """REST handler for streamlit preview operations."""
@@ -62,6 +56,7 @@ class StreamlitPreviewHandler(APIHandler):
             self.set_status(e.error_code)
             error_message = str(e)
             formatted_traceback = traceback.format_exc()
+            print('error_message', error_message)
             self.finish({"error": error_message})
             log_streamlit_app_conversion_error(
                 'mito_server_key', 

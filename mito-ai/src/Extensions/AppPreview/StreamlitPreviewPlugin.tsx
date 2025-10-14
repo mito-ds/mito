@@ -39,6 +39,11 @@ export type StreamlitPreviewResponseSuccess = {
   url: string;
 }
 
+export type StreamlitPreviewResponseError = {
+  type: 'error',
+  message: string
+}
+
 /**
  * Interface for the StreamlitPreview service.
  */
@@ -49,7 +54,7 @@ export interface IStreamlitPreviewManager {
   openAppPreview(
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel
-  ): Promise<MainAreaWidget>;
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError>;
 
   /**
    * Edit the existing Streamlit app preview by updating the app.py file.
@@ -120,7 +125,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   async openAppPreview(
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
-  ): Promise<MainAreaWidget> {
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
     // Close existing preview if any
     this.closeCurrentPreview();
 
@@ -130,8 +135,8 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const notebookPath = notebookPanel.context.path;
     const finalPreviewData = await startStreamlitPreviewAndNotify(notebookPath);
 
-    if (finalPreviewData === undefined) {
-      throw new Error('Failed to create Streamlit preview');
+    if (finalPreviewData.type === 'error') {
+      return finalPreviewData
     }
     
     // Create the new preview widget
@@ -152,7 +157,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
       ref: notebookPanel.id
     });
 
-    return widget;
+    return finalPreviewData;
   }
 
   /**
