@@ -42,7 +42,7 @@ const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
     }, []);
 
     // Calculate progress
-    const percentage = (usageCount / MAX_FREE_USAGE) * 100;
+    const percentage = Math.min((usageCount / MAX_FREE_USAGE) * 100, 100);
     const circumference = 2 * Math.PI * CIRCLE_RADIUS;
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
