@@ -3,6 +3,7 @@
 
 import json
 import tornado
+from typing import Any, Optional
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.db import get_user_field, set_user_field
 from mito_ai.utils.telemetry_utils import identify
@@ -14,6 +15,8 @@ class UserHandler(APIHandler):
 
     @tornado.web.authenticated
     def get(self, key: str) -> None:
+        value: Optional[Any] = None
+
         if key == "is_pro":
             # Special case, since we don't store this key 
             # in the user.json file.
