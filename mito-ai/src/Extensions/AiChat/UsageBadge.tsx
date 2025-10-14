@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getUserKey } from '../../restAPI/RestAPI';
 import '../../../style/UsageBadge.css';
@@ -18,7 +18,11 @@ interface UsageBadgeProps {
     app: JupyterFrontEnd;
 }
 
-const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
+export interface UsageBadgeRef {
+    refresh: () => Promise<void>;
+}
+
+const UsageBadge = forwardRef<UsageBadgeRef, UsageBadgeProps>(({ app }, ref) => {
     const [isPro, setIsPro] = useState<boolean>(false);
     const [usageCount, setUsageCount] = useState<number>(0);
 
@@ -27,17 +31,25 @@ const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
         return usageCount ? parseInt(usageCount) : 0;
     };
 
-    useEffect(() => {
-        const fetchIsPro = async (): Promise<void> => {
-            const isPro = await getUserKey('is_pro');
-            setIsPro(isPro === 'True');
-        };
-        void fetchIsPro();
+    const fetchIsPro = async (): Promise<void> => {
+        const isPro = await getUserKey('is_pro');
+        setIsPro(isPro === 'True');
+    };
 
-        const fetchUsageCount = async (): Promise<void> => {
-            const count = await getAiMitoApiNumUsages();
-            setUsageCount(count);
-        };
+    const fetchUsageCount = async (): Promise<void> => {
+        const count = await getAiMitoApiNumUsages();
+        setUsageCount(count);
+    };
+
+    // Expose refresh method to parent component
+    useImperativeHandle(ref, () => ({
+        refresh: async () => {
+            await Promise.all([fetchIsPro(), fetchUsageCount()]);
+        }
+    }));
+
+    useEffect(() => {
+        void fetchIsPro();
         void fetchUsageCount();
     }, []);
 
@@ -95,6 +107,8 @@ const UsageBadge: React.FC<UsageBadgeProps> = ({ app }) => {
             </span>
         </div>
     );
-};
+});
+
+UsageBadge.displayName = 'UsageBadge';
 
 export default UsageBadge;

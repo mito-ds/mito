@@ -103,7 +103,7 @@ import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPa
 
 // Internal imports - Chat components
 import CTACarousel from './CTACarousel';
-import UsageBadge from './UsageBadge';
+import UsageBadge, { UsageBadgeRef } from './UsageBadge';
 import SignUpForm from './SignUpForm';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import { getFirstMessageFromCookie } from './FirstMessage';
@@ -198,6 +198,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // we don't need to handle the undefined case everywhere, we just default to an empty string knowing that
     // it will always be set to a valid thread id before it is used.
     const activeThreadIdRef = useRef<string>('');
+    
+    // Ref to trigger refresh of the usage badge
+    const usageBadgeRef = useRef<UsageBadgeRef>(null);
 
     /* 
         Three possible states:
@@ -926,6 +929,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             activeRequestControllerRef.current = null;
         }
 
+        // Refresh the usage badge to reflect updated usage count
+        if (usageBadgeRef.current) {
+            void usageBadgeRef.current.refresh();
+        }
+
         return true
     }
 
@@ -1478,7 +1486,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
                         }}
                     />
-                    <UsageBadge app={app} />
+                    <UsageBadge app={app} ref={usageBadgeRef} />
                 </div>
                 <div className="chat-taskpane-header-right">
                     <IconButton
