@@ -4,7 +4,7 @@
  */
 
 import { startStreamlitPreview } from "../../restAPI/RestAPI";
-import { StreamlitPreviewResponse } from "./StreamlitPreviewPlugin";
+import { StreamlitPreviewResponseSuccess } from "./StreamlitPreviewPlugin";
 import { Dialog, Notification, showDialog } from "@jupyterlab/apputils";
 
 
@@ -14,7 +14,7 @@ export const startStreamlitPreviewAndNotify = async (
   edit_prompt: string = '',
   start_notification_message: string = 'Building App Preview...',
   success_notification_message: string = 'Streamlit preview started successfully!'
-): Promise<StreamlitPreviewResponse | undefined> => {
+): Promise<StreamlitPreviewResponseSuccess | undefined> => {
 
   const notificationId = Notification.emit(
     start_notification_message,

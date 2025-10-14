@@ -32,7 +32,8 @@ export const IStreamlitPreviewManager = new Token<IStreamlitPreviewManager>(
 /**
  * Interface for the streamlit preview response.
  */
-export interface StreamlitPreviewResponse {
+export type StreamlitPreviewResponseSuccess = {
+  type: 'success'
   id: string;
   port: number;
   url: string;
@@ -215,7 +216,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     notebookPanel: NotebookPanel,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService,
-    previewData: StreamlitPreviewResponse
+    previewData: StreamlitPreviewResponseSuccess
   ): MainAreaWidget {
     const iframeWidget = new IFrameWidget(previewData.url);
 

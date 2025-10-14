@@ -109,6 +109,8 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: st
     app_directory = get_absolute_notebook_dir_path(notebook_path)
     app_path = get_absolute_app_path(app_directory)
     
+    # raise StreamlitConversionError("Test Error", 404)
+    
     if edit_prompt != "":
         # If the user is editing an existing streamlit app, use the update function
         streamlit_code = get_app_code_from_file(app_path)

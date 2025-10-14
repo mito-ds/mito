@@ -4,7 +4,7 @@
  */
 
 import { requestAPI } from "./utils";
-import { StreamlitPreviewResponse } from "../Extensions/AppPreview/StreamlitPreviewPlugin";
+import { StreamlitPreviewResponseSuccess } from "../Extensions/AppPreview/StreamlitPreviewPlugin";
 
 
 /************************************
@@ -117,8 +117,8 @@ export const startStreamlitPreview = async(
     notebookPath: string, 
     force_recreate: boolean = false,
     edit_prompt: string = ''
-): Promise<StreamlitPreviewResponse> => {
-    const response = await requestAPI<StreamlitPreviewResponse>('streamlit-preview', {
+): Promise<StreamlitPreviewResponseSuccess> => {
+    const response = await requestAPI<StreamlitPreviewResponseSuccess>('streamlit-preview', {
         method: 'POST',
         body: JSON.stringify({ 
             notebook_path: notebookPath, 
@@ -126,6 +126,8 @@ export const startStreamlitPreview = async(
             edit_prompt: edit_prompt
         })
     })
+
+    console.log(response)
     
     if (response.error) {
         throw new Error(response.error.message);
