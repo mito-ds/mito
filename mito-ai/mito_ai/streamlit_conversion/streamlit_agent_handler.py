@@ -73,10 +73,10 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
     ]
     
     agent_response = await get_response_from_agent(messages)
-    
+    print(f"[Mito AI Search/Replace Tool]:\n {agent_response}")
+
     # Apply the search/replace to the streamlit app
     search_replace_pairs = extract_search_replace_blocks(agent_response)
-    print(f"[Mito AI Search/Replace Tool]\n: {search_replace_pairs}")
     converted_code = apply_search_replace(streamlit_app_code, search_replace_pairs)
     print(f"[Mito AI Search/Replace Tool]\nConverted code\n: {converted_code}")
     return converted_code

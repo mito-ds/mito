@@ -18,7 +18,7 @@ RESPONSE FORMAT: You can edit the existing code using the **SEARCH_REPLACE forma
 **COMPONENTS:**
 ```search_replace - This is the start of the search/replace block
 - `>>>>>>> SEARCH` - Exact text that EXISTS NOW in the file (7 chevrons)
-- `=======` - Separator (7 equals signs)  
+- `=======` - Separator between the search and replace blocks (7 equals signs)  
 - `<<<<<<< REPLACE` - Replacement text (7 chevrons)
 
 ---
@@ -49,6 +49,9 @@ RESPONSE FORMAT: You can edit the existing code using the **SEARCH_REPLACE forma
    ✓ Is every line in my SEARCH block currently in the file?
    ✓ Did I copy the exact spacing and whitespace?
    ✓ Will this match exactly once?
+   
+6. **SEARCH REPLACE BLOCK STRUCTURE**
+   - You must adhere to to the exact search_replace structure as shown in the examples.
 
 ---
 
