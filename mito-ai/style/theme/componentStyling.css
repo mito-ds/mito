@@ -25,8 +25,18 @@
     border-radius: 3px !important;
 }
 
+/* Remove the collapser next to the active cell */ 
+.jp-Collapser {
+    display: none !important;
+}
+
+/* Update the color of the top nav bar (File, Edit, etc.) */
 .lm-MenuBar,
 #jp-top-bar,
 #jp-MainLogo {
     background-color: var(--jp-layout-color2) !important;
+}
+
+.jp-Notebook.jp-mod-editMode .jp-Cell.jp-mod-active .jp-InputArea-editor {
+    border-width: 1.5px !important;
 }
