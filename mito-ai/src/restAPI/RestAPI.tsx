@@ -126,8 +126,6 @@ export const startStreamlitPreview = async(
             edit_prompt: edit_prompt
         })
     })
-
-    console.log(response)
     
     if (response.error) {
         const streamlitPreviewReponseError: StreamlitPreviewResponseError = {
