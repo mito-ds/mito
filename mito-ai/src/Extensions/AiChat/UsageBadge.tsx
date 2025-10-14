@@ -15,7 +15,7 @@ const CIRCLE_RADIUS = 5.5;
 const CIRCLE_CENTER = SVG_SIZE / 2; // Center x and y coordinates
 
 const USAGE_COLORS = {
-    GREEN: 'var(--green-500)',
+    GREEN: 'var(--green-600)',
     ORANGE: 'var(--yellow-600)',
     RED: 'var(--red-500)',
 };
