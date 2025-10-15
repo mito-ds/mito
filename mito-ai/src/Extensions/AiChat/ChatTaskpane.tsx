@@ -1177,23 +1177,27 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
             if (agentResponse.type === 'create_streamlit_app') {
                 // Create new preview using the service
-                const result = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
-                if (result.type === 'error') {
-                    messageToShareWithAgent = result.message
+                const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+                if (streamlitPreviewResponse.type === 'error') {
+                    messageToShareWithAgent = streamlitPreviewResponse.message
                 }
             }
 
             if (agentResponse.type === 'edit_streamlit_app' && agentResponse.edit_streamlit_app_prompt) {
                 // Ensure there is an active preview to edit
                 if (!streamlitPreviewManager.hasActivePreview()) {
-                    const result = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
-                    if (result.type === 'error') {
-                        messageToShareWithAgent = result.message
+                    const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+                    if (streamlitPreviewResponse.type === 'error') {
+                        messageToShareWithAgent = streamlitPreviewResponse.message
+                        continue;
                     }
                 }
 
                 // Edit the existing preview
-                await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, agentTargetNotebookPanelRef.current);
+                const streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, agentTargetNotebookPanelRef.current);
+                if (streamlitPreviewResponse.type === 'error') {
+                    messageToShareWithAgent = streamlitPreviewResponse.message
+                }
             }
         }
 

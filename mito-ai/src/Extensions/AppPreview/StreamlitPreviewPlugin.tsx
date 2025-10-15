@@ -62,7 +62,7 @@ export interface IStreamlitPreviewManager {
   editExistingPreview(
     editPrompt: string,
     notebookPanel: NotebookPanel
-  ): Promise<void>;
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError>;
 
   /**
    * Close the current preview if one exists.
@@ -133,10 +133,10 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     await notebookPanel.context.save();
 
     const notebookPath = notebookPanel.context.path;
-    const finalPreviewData = await startStreamlitPreviewAndNotify(notebookPath);
+    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath);
 
-    if (finalPreviewData.type === 'error') {
-      return finalPreviewData
+    if (streamlitPreviewResponse.type === 'error') {
+      return streamlitPreviewResponse
     }
     
     // Create the new preview widget
@@ -145,7 +145,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
       notebookPanel,
       this.appDeployService,
       this.appManagerService,
-      finalPreviewData
+      streamlitPreviewResponse
     );
 
     // Store current preview info
@@ -157,7 +157,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
       ref: notebookPanel.id
     });
 
-    return finalPreviewData;
+    return streamlitPreviewResponse;
   }
 
   /**
@@ -167,7 +167,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   async editExistingPreview(
     editPrompt: string,
     notebookPanel: NotebookPanel
-  ): Promise<void> {
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
     if (!this.currentPreview) {
       throw new Error('No active preview to edit');
     }
@@ -179,13 +179,15 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     await notebookPanel.context.save();
 
     // Update the app with the edit prompt
-    await startStreamlitPreviewAndNotify(
+    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(
       notebookPanel.context.path, 
       true, // force_recreate
       editPrompt, 
       'Editing Streamlit app...', 
       'Streamlit app updated successfully!'
     );
+
+    return streamlitPreviewResponse
   }
 
   /**
