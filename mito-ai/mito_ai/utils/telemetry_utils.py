@@ -368,7 +368,7 @@ def log_file_upload_failure(error: str) -> None:
     log("mito_ai_file_upload_failure", params={"error_message": error})
 
 def log_ai_completion_retry(key_type: Literal['mito_server_key', 'user_key'], thread_id: str, message_type: MessageType, error: BaseException) -> None:
-    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, thread_id=thread_id, key_type=key_type, error=error)
+    log(MITO_AI_COMPLETION_RETRY, params={KEY_TYPE_PARAM: key_type, "message_type": message_type.value}, thread_id=thread_id, key_type=key_type, error=error)
     
 def log_ai_completion_error(
     key_type: Literal['mito_server_key', 'user_key'],
@@ -376,10 +376,10 @@ def log_ai_completion_error(
     message_type: MessageType, 
     error: BaseException
 ) -> None:
-    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, thread_id=thread_id, key_type=key_type, error=error)
+    log(MITO_AI_COMPLETION_ERROR, params={KEY_TYPE_PARAM: key_type, "message_type": message_type.value}, thread_id=thread_id, key_type=key_type, error=error)
     
 def log_mito_server_free_tier_limit_reached(key_type: Literal['mito_server_key', 'user_key'], message_type: MessageType) -> None:
-    log(MITO_SERVER_FREE_TIER_LIMIT_REACHED, params={KEY_TYPE_PARAM: key_type, "message_type": message_type}, key_type=key_type)
+    log(MITO_SERVER_FREE_TIER_LIMIT_REACHED, params={KEY_TYPE_PARAM: key_type, "message_type": message_type.value}, key_type=key_type)
 
 
 #################################
@@ -396,7 +396,7 @@ def log_streamlit_app_conversion_success(key_type: Literal['mito_server_key', 'u
         key_type=key_type,
         params={
             "edit_prompt": edit_prompt,
-            "message_type": message_type
+            "message_type": message_type.value
         }
     )
     
@@ -405,7 +405,7 @@ def log_streamlit_app_validation_retry(key_type: Literal['mito_server_key', 'use
         "mito_ai_streamlit_app_conversion_retry",
         params={
             "error_message": error,
-            "message_type": message_type
+            "message_type": message_type.value
         },
         key_type=key_type
     )
@@ -417,7 +417,7 @@ def log_streamlit_app_conversion_error(key_type: Literal['mito_server_key', 'use
             "error_message": error_message,
             "traceback": formatted_traceback,
             "edit_prompt": edit_prompt,
-            "message_type": message_type
+            "message_type": message_type.value
         },
         key_type=key_type
     )
@@ -432,7 +432,7 @@ def log_streamlit_app_preview_success(key_type: Literal['mito_server_key', 'user
         key_type=key_type,
         params={
             "edit_prompt": edit_prompt,
-            "message_type": message_type
+            "message_type": message_type.value
         }
     )
     
@@ -443,7 +443,7 @@ def log_streamlit_app_preview_failure(key_type: Literal['mito_server_key', 'user
         params={
             "error_message": error_message,
             "traceback": formatted_traceback,
-            "message_type": message_type, 
+            "message_type": message_type.value,
             "edit_prompt": edit_prompt
         }
     )
@@ -458,6 +458,6 @@ def log_streamlit_app_deployment_failure(key_type: Literal['mito_server_key', 'u
         key_type=key_type,
         params={
             "error": error, # Contains all details in app_deploy.models.AppDeployError class
-            "message_type": message_type
+            "message_type": message_type.value
         }
     )
