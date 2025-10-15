@@ -38,6 +38,7 @@ export async function requestAPI<T>(
     try {
         response = await ServerConnection.makeRequest(requestUrl, init, settings);
     } catch (error) {
+        console.log(error)
         return {
             error: {
                 message: (error as Error).message || 'Network error occurred',
