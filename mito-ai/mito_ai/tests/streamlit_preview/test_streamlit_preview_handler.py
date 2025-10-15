@@ -4,8 +4,9 @@
 import pytest
 import os
 import tempfile
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch
 from mito_ai.streamlit_preview.utils import ensure_app_exists
+from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_path
 
 
 class TestEnsureAppExists:
@@ -13,14 +14,12 @@ class TestEnsureAppExists:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "app_exists,streamlit_handler_success,expected_success,expected_error,streamlit_handler_called,streamlit_handler_return",
+        "app_exists,streamlit_handler_success,streamlit_handler_called,streamlit_handler_return",
         [
             # Test case 1: App exists, should use existing file
             (
                 True,  # app_exists
                 True,  # streamlit_handler_success (not relevant)
-                True,  # expected_success
-                "",    # expected_error
                 False, # streamlit_handler_called
                 None,  # streamlit_handler_return (not used)
             ),
@@ -28,10 +27,8 @@ class TestEnsureAppExists:
             (
                 False,  # app_exists
                 True,   # streamlit_handler_success
-                True,   # expected_success
-                "",     # expected_error
                 True,   # streamlit_handler_called
-                (True, "/path/to/app.py", "Success"),  # streamlit_handler_return
+                "/path/to/app.py",  # streamlit_handler_return
             )
         ],
         ids=[
@@ -43,8 +40,6 @@ class TestEnsureAppExists:
         self,
         app_exists,
         streamlit_handler_success,
-        expected_success,
-        expected_error,
         streamlit_handler_called,
         streamlit_handler_return,
     ):
@@ -62,19 +57,21 @@ class TestEnsureAppExists:
                     f.write("import streamlit as st\nst.write('Hello World')")
             
             # Mock get_app_path to return the appropriate value
-            with patch('mito_ai.streamlit_preview.utils.get_app_path') as mock_get_app_path:
+            with patch('mito_ai.streamlit_preview.utils.get_absolute_notebook_dir_path') as mock_get_dir_path, \
+                patch('mito_ai.streamlit_preview.utils.get_absolute_app_path') as mock_get_app_path, \
+                patch('mito_ai.streamlit_preview.utils.does_app_path_exists') as mock_app_exists:
+            
+                # Set up mocks
+                mock_get_dir_path.return_value = temp_dir
                 mock_get_app_path.return_value = app_path
+                mock_app_exists.return_value = app_exists
                 
                 # Mock streamlit_handler
                 with patch('mito_ai.streamlit_preview.utils.streamlit_handler') as mock_streamlit_handler:
                     if streamlit_handler_return is not None:
                         mock_streamlit_handler.return_value = streamlit_handler_return
                     
-                    success, error_msg = await ensure_app_exists(notebook_path, False, "")
-                    
-                    # Assertions
-                    assert success == expected_success
-                    assert error_msg == expected_error
+                    await ensure_app_exists(AbsoluteNotebookPath(notebook_path), False, "")
                     
                     # Verify get_app_path was called with the correct directory
                     mock_get_app_path.assert_called_once_with(temp_dir)

@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { NotebookPanel } from '@jupyterlab/notebook';
 import { Notification } from '@jupyterlab/apputils';
 import { generateRequirementsTxt } from './requirementsUtils';
 import { saveFileWithKernel } from './fileUtils';
@@ -22,7 +22,7 @@ This function generates the requirements.txt file needed to host the streamlit a
 and deploys it! 
 */
 export const deployStreamlitApp = async (
-  notebookTracker: INotebookTracker,
+  notebookPanel: NotebookPanel,
   appDeployService: IAppDeployService,
   appManagerService: IAppManagerService,
 ): Promise<void> => {
@@ -50,11 +50,6 @@ export const deployStreamlitApp = async (
     }
   }
 
-  const notebookPanel = notebookTracker.currentWidget;
-  if (!notebookPanel) {
-    console.error('No notebook is currently active');
-    return;
-  }
   const notebookPath = notebookPanel.context.path;
 
   const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
@@ -62,10 +57,10 @@ export const deployStreamlitApp = async (
   });
 
   // Build the requirements.txt file
-  const requirementsContent = await generateRequirementsTxt(notebookTracker);
+  const requirementsContent = await generateRequirementsTxt(notebookPanel);
 
   // Save the files to the current directory
-  await saveFileWithKernel(notebookTracker, './requirements.txt', requirementsContent);
+  await saveFileWithKernel(notebookPanel, './requirements.txt', requirementsContent);
 
   try{
     Notification.dismiss(notificationId);
@@ -85,7 +80,7 @@ export const deployStreamlitApp = async (
 
     // Use the JWT token that was already obtained or refreshed above
     const response: IDeployAppReply = await appDeployService.client.sendMessage<IDeployAppRequest, IDeployAppReply>({
-      type: 'deploy-app',
+      type: 'deploy_app',
       message_id: UUID.uuid4(),
       notebook_path: notebookPath,
       jwt_token: jwtToken,
@@ -93,9 +88,18 @@ export const deployStreamlitApp = async (
     });
 
     if (response.error) {
+      const errorMsg = response.error;
+      console.group('Deploy App Error:');
+      console.error('Type:', errorMsg.error_type);
+      console.error('Title:', errorMsg.message);
+      console.error('Hint:', errorMsg.hint);
+      let displayMessage = String(errorMsg.message)
+      if (errorMsg.hint){
+        displayMessage = displayMessage+"\n"+"Hint:"+String(errorMsg.hint)
+      }
       Notification.update({
         id: newNotificationId,
-        message: response.error.title,
+        message: displayMessage,
         type: 'error',
         autoClose: false
       });
@@ -105,7 +109,13 @@ export const deployStreamlitApp = async (
       deployAppNotification(url, appManagerService, newNotificationId);
     }
   } catch (error) {
-    // TODO: Do something with the error
+    // TODO: In the future, remove this if we dont see any connection errors that need to be caught
     console.error("Error deploying app:", error);
+    Notification.update({
+      id: newNotificationId,
+      message: String(error),
+      type: 'error',
+      autoClose: false
+    });
   }
 };

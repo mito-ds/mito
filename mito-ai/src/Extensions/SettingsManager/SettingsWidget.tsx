@@ -10,17 +10,22 @@ import { SupportPage } from './support/SupportPage';
 import { GeneralPage } from './general/GeneralPage';
 import { RulesPage } from './rules/RulesPage';
 import { ProfilerPage } from './profiler/ProfilerPage';
+import { SubscriptionPage } from './subscription/SubscriptionPage';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import '../../../style/SettingsWidget.css';
 
 const TABS_CONFIG = (contextManager: IContextManager) => ({
-    database: {
-        label: 'Database',
-        component: DatabasePage
-    },
     general: {
         label: 'General',
         component: GeneralPage
+    },
+    subscription: {
+        label: 'Subscription',
+        component: SubscriptionPage
+    },
+    database: {
+        label: 'Database',
+        component: DatabasePage
     },
     rules: {
         label: 'Rules',
@@ -39,10 +44,11 @@ const TABS_CONFIG = (contextManager: IContextManager) => ({
 
 interface AppProps {
     contextManager: IContextManager;
+    initialTab?: keyof ReturnType<typeof TABS_CONFIG>;
 }
 
-const App = ({ contextManager }: AppProps): JSX.Element => {
-    const [activeTab, setActiveTab] = useState<keyof ReturnType<typeof TABS_CONFIG>>('database');
+const App = ({ contextManager, initialTab = 'general' }: AppProps): JSX.Element => {
+    const [activeTab, setActiveTab] = useState<keyof ReturnType<typeof TABS_CONFIG>>(initialTab);
     const tabsConfig = TABS_CONFIG(contextManager);
 
     const renderContent = (): JSX.Element => {
@@ -78,14 +84,16 @@ const App = ({ contextManager }: AppProps): JSX.Element => {
 
 export class SettingsWidget extends ReactWidget {
     private contextManager: IContextManager;
+    private initialTab?: keyof ReturnType<typeof TABS_CONFIG>;
 
-    constructor(contextManager: IContextManager) {
+    constructor(contextManager: IContextManager, initialTab?: keyof ReturnType<typeof TABS_CONFIG>) {
         super();
         this.contextManager = contextManager;
+        this.initialTab = initialTab;
         this.addClass('jp-ReactWidget');
     }
 
     render(): JSX.Element {
-        return <App contextManager={this.contextManager} />;
+        return <App contextManager={this.contextManager} initialTab={this.initialTab} />;
     }
 }

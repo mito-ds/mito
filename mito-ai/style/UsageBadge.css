@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.usage-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px 2px 4px;
+    background-color: var(--jp-layout-color2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-bottom: 4px;
+}
+
+.usage-badge:hover {
+    background-color: var(--jp-layout-color3);
+}
+
+.usage-badge-svg {
+    transform: rotate(-90deg);
+    flex-shrink: 0;
+}
+
+.usage-badge-text {
+    font-size: 11px;
+    color: var(--jp-ui-font-color2);
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.usage-badge-circle-background {
+    fill: none;
+    stroke: var(--jp-layout-color3);
+    stroke-width: 3.5;
+}
+
+.usage-badge-circle-progress {
+    fill: none;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+}

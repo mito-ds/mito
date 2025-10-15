@@ -77,10 +77,10 @@ export class AppDeployWebsocketClient extends BaseWebsocketClient<IAppDeployRequ
         if (message.error) {
           this._stream.emit({
             type: 'chunk',
-            chunk: { content: message.error.hint || message.error.title || "An error occurred" },
+            chunk: { content: message.error.hint || message.error.message || "An error occurred" },
             done: true,
             parent_id: message.parent_id,
-            error: message.error
+            error: message.error.message
           } as unknown as any);
         }
         // This will get triggered when streaming and there is an error message.
