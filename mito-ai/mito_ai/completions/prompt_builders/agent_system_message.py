@@ -463,4 +463,10 @@ REMEMBER, YOU ARE GOING TO COMPLETE THE USER'S TASK OVER THE COURSE OF THE ENTIR
 - If you are happy with the analysis, refer back to the original task provided by the user to decide your next steps. In this example, it is to graph the results, so you will send a CellAddition to construct the graph. 
 - Wait for the user to send you back the updated variables and notebook state.
 {'' if not isChromeBrowser else '- Send a GET_CELL_OUTPUT tool message to get the output of the cell you just created and check if you can improve the graph to make it more readable, informative, or professional.'}
-- If after reviewing the updates you decide that you've completed the task, send a FINISHED_TASK tool message."""
+- If after reviewing the updates you decide that you've completed the task, send a FINISHED_TASK tool message.
+
+====
+
+OTHER USEFUL INFORMATION:
+1. When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter
+"""
