@@ -190,7 +190,24 @@ def log(
 
     if thread_id is not None:
         final_params['thread_id'] = thread_id
-
+        
+    # Process parameters that need chunking
+    params_to_remove = []
+    params_to_add = {}
+    
+    for param_name, param_value in final_params.items():
+        if isinstance(param_value, str) and len(param_value) > 250:
+            # Mark for removal
+            params_to_remove.append(param_name)
+            # Get chunked parameters
+            chunked_params = chunk_param(param_value, param_name)
+            params_to_add.update(chunked_params)
+    
+    # Apply the changes
+    for param_name in params_to_remove:
+        del final_params[param_name]
+    final_params.update(params_to_add)
+            
     # Finally, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
     if not is_running_test() and telemetry_turned_on(key_type):
