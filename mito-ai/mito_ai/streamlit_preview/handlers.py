@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import os
+from typing import Literal, TypedDict
 import uuid
 from mito_ai.streamlit_preview.utils import ensure_app_exists, validate_request_body
 import tornado
@@ -42,7 +43,12 @@ class StreamlitPreviewHandler(APIHandler):
             port = self.preview_manager.start_streamlit_preview(absolute_app_directory, preview_id)
 
             # Return success response
-            self.finish({"id": preview_id, "port": port, "url": f"http://localhost:{port}"})
+            self.finish({
+                "type": 'success',
+                "id": preview_id, 
+                "port": port, 
+                "url": f"http://localhost:{port}"
+            })
             log_streamlit_app_preview_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
 
         except StreamlitConversionError as e:

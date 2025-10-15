@@ -32,10 +32,16 @@ export const IStreamlitPreviewManager = new Token<IStreamlitPreviewManager>(
 /**
  * Interface for the streamlit preview response.
  */
-export interface StreamlitPreviewResponse {
+export type StreamlitPreviewResponseSuccess = {
+  type: 'success'
   id: string;
   port: number;
   url: string;
+}
+
+export type StreamlitPreviewResponseError = {
+  type: 'error',
+  message: string
 }
 
 /**
@@ -48,7 +54,7 @@ export interface IStreamlitPreviewManager {
   openAppPreview(
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel
-  ): Promise<MainAreaWidget>;
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError>;
 
   /**
    * Edit the existing Streamlit app preview by updating the app.py file.
@@ -56,7 +62,7 @@ export interface IStreamlitPreviewManager {
   editExistingPreview(
     editPrompt: string,
     notebookPanel: NotebookPanel
-  ): Promise<void>;
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError>;
 
   /**
    * Close the current preview if one exists.
@@ -119,7 +125,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   async openAppPreview(
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
-  ): Promise<MainAreaWidget> {
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
     // Close existing preview if any
     this.closeCurrentPreview();
 
@@ -127,10 +133,10 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     await notebookPanel.context.save();
 
     const notebookPath = notebookPanel.context.path;
-    const finalPreviewData = await startStreamlitPreviewAndNotify(notebookPath);
+    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath);
 
-    if (finalPreviewData === undefined) {
-      throw new Error('Failed to create Streamlit preview');
+    if (streamlitPreviewResponse.type === 'error') {
+      return streamlitPreviewResponse
     }
     
     // Create the new preview widget
@@ -139,7 +145,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
       notebookPanel,
       this.appDeployService,
       this.appManagerService,
-      finalPreviewData
+      streamlitPreviewResponse
     );
 
     // Store current preview info
@@ -151,7 +157,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
       ref: notebookPanel.id
     });
 
-    return widget;
+    return streamlitPreviewResponse;
   }
 
   /**
@@ -161,7 +167,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   async editExistingPreview(
     editPrompt: string,
     notebookPanel: NotebookPanel
-  ): Promise<void> {
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
     if (!this.currentPreview) {
       throw new Error('No active preview to edit');
     }
@@ -173,13 +179,15 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     await notebookPanel.context.save();
 
     // Update the app with the edit prompt
-    await startStreamlitPreviewAndNotify(
+    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(
       notebookPanel.context.path, 
       true, // force_recreate
       editPrompt, 
       'Editing Streamlit app...', 
       'Streamlit app updated successfully!'
     );
+
+    return streamlitPreviewResponse
   }
 
   /**
@@ -215,7 +223,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     notebookPanel: NotebookPanel,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService,
-    previewData: StreamlitPreviewResponse
+    previewData: StreamlitPreviewResponseSuccess
   ): MainAreaWidget {
     const iframeWidget = new IFrameWidget(previewData.url);
 

@@ -137,7 +137,8 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: st
         tries+=1
 
     if has_validation_error:
-        raise StreamlitConversionError("Streamlit agent failed generating code after max retries", 500)
+        final_errors = ', '.join(errors)
+        raise StreamlitConversionError(f"Streamlit agent failed generating code after max retries. Errors: {final_errors}", 500)
     
     # Finally, update the app.py file with the new code
     create_app_file(app_path, streamlit_code)

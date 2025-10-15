@@ -4,7 +4,7 @@
  */
 
 import { startStreamlitPreview } from "../../restAPI/RestAPI";
-import { StreamlitPreviewResponse } from "./StreamlitPreviewPlugin";
+import { StreamlitPreviewResponseError, StreamlitPreviewResponseSuccess } from "./StreamlitPreviewPlugin";
 import { Dialog, Notification, showDialog } from "@jupyterlab/apputils";
 
 
@@ -14,7 +14,7 @@ export const startStreamlitPreviewAndNotify = async (
   edit_prompt: string = '',
   start_notification_message: string = 'Building App Preview...',
   success_notification_message: string = 'Streamlit preview started successfully!'
-): Promise<StreamlitPreviewResponse | undefined> => {
+): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> => {
 
   const notificationId = Notification.emit(
     start_notification_message,
@@ -22,9 +22,9 @@ export const startStreamlitPreviewAndNotify = async (
     { autoClose: false }
   );
 
-  try {
-    const previewData = await startStreamlitPreview(notebookPath, force_recreate, edit_prompt);
+  const previewData = await startStreamlitPreview(notebookPath, force_recreate, edit_prompt);
 
+  if (previewData.type === 'success') {
     // Update notification to success
     Notification.update({
       id: notificationId,
@@ -32,21 +32,17 @@ export const startStreamlitPreviewAndNotify = async (
       type: 'success',
       autoClose: 5 * 1000
     });
-
-    return previewData;
-
-  } catch (error) {
-
+  } else {
     // Display error notification
     Notification.update({
       id: notificationId,
-      message: "Failed to start app preview: " + String(error),
+      message: "Failed to start app preview: " + String(previewData.message),
       type: 'error',
       autoClose: 5 * 1000
     });
-
-    return undefined;
   }
+
+  return previewData;
 }
 
 
