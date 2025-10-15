@@ -1035,6 +1035,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             if (agentExecutionDepth === 1) {
                 await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext)
             } else {
+                console.log("message to share with agent", messageToShareWithAgent)
                 await sendAgentExecutionMessage(messageToShareWithAgent || '', undefined, sendCellIDOutput)
                 // Reset flag back to false until the agent requests the active cell output again
                 sendCellIDOutput = undefined
@@ -1197,6 +1198,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, agentTargetNotebookPanelRef.current);
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message
+                    console.log("MESSAGE", messageToShareWithAgent)
                 }
             }
         }
