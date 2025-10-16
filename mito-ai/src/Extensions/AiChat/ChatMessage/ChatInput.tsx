@@ -70,6 +70,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [dropdownFilter, setDropdownFilter] = useState('');
     const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
+    const [isDragOver, setIsDragOver] = useState(false);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;
@@ -91,6 +92,34 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 display: file.name
             }
         ]);
+    };
+
+    // Drag and drop handlers
+    const handleDragOver = (e: React.DragEvent): void => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent): void => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+    };
+
+    const handleDrop = (e: React.DragEvent): void => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            if (file) {
+                // Use the existing file upload logic from AttachFileButton
+                handleFileUpload(file);
+            }
+        }
     };
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
@@ -336,7 +365,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div
-            className={classNames("chat-input-container", { "editing": isEditing })}
+            className={classNames("chat-input-container", { 
+                "editing": isEditing,
+                "drag-over": isDragOver 
+            })}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />

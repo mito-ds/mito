@@ -22,6 +22,12 @@
   margin-top: 0;
 }
 
+.chat-input-container.drag-over {
+  border: 2px dashed var(--jp-brand-color1);
+  /* background-color: var(--jp-brand-color1-light); */
+  transform: scale(1.02);
+}
+
 .chat-input-text-area-container {
   position: relative;
   height: min-content;
