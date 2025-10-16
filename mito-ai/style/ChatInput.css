@@ -23,7 +23,7 @@
 }
 
 .chat-input-container.drag-over {
-  border: 2px dashed var(--jp-brand-color1);
+  border: 2px dashed var(--purple-500);
   transform: scale(1.02);
 }
 
