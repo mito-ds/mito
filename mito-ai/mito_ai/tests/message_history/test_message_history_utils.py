@@ -112,6 +112,7 @@ PROMPT_BUILDER_TEST_CASES = [
                 input=TEST_INPUT,
                 promptType="agent:execution",
                 threadId=ThreadID("test-thread-id"),
+                activeCellId="cell1",
                 isChromeBrowser=True
             )
         ),
