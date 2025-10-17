@@ -87,7 +87,6 @@ export interface IAgentExecutionMetadata {
   promptType: 'agent:execution'
   aiOptimizedCells: AIOptimizedCell[]
   activeCellId: string;
-  activeCellCode: string;
   base64EncodedActiveCellOutput?: string;
   variables?: Variable[];
   files?: File[];

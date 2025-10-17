@@ -98,7 +98,6 @@ class AgentExecutionMetadata():
     input: str
     aiOptimizedCells: List[AIOptimizedCell]
     activeCellId: str
-    activeCellCode: str
     isChromeBrowser: bool
     base64EncodedActiveCellOutput: Optional[str] = None
     variables: Optional[List[str]] = None
