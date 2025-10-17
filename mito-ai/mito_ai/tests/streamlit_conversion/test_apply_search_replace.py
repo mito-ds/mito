@@ -200,6 +200,23 @@ st.write("Welcome to my application")""",
 
 st.title("🚀 My App")
 st.write("Welcome to my application")"""
+    ),
+    
+    # Test case 11: Only replace first occurrence when search text exists multiple times
+    (
+        """import streamlit as st
+
+st.write("Hello World")
+st.title("My App")
+st.write("Hello World")
+st.write("Another message")""",
+        [("st.write(\"Hello World\")", "st.write(\"Hi There\")")],
+        """import streamlit as st
+
+st.write("Hi There")
+st.title("My App")
+st.write("Hello World")
+st.write("Another message")"""
     )
 ])
 def test_apply_search_replace(original_text, search_replace_pairs, expected_result):
@@ -220,7 +237,4 @@ def test_apply_search_replace_search_not_found():
         apply_search_replace("st.title(\"My App\")", [("st.title(\"Not Found\")", "st.title(\"New Title\")")])
 
 
-def test_apply_search_replace_multiple_matches():
-    """Test that ValueError is raised when search text is found multiple times."""
-    with pytest.raises(StreamlitConversionError, match="Search text found 2 times"):
-        apply_search_replace("st.write(\"Hello\")\nst.write(\"Hello\")", [("st.write(\"Hello\")", "st.write(\"Hi\")")])
+
