@@ -97,6 +97,7 @@ class AgentExecutionMetadata():
     threadId: ThreadID
     input: str
     aiOptimizedCells: List[AIOptimizedCell]
+    activeCellId: str
     activeCellCode: str
     isChromeBrowser: bool
     base64EncodedActiveCellOutput: Optional[str] = None

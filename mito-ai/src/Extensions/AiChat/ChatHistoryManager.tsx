@@ -203,6 +203,7 @@ export class ChatHistoryManager {
 
         const agentExecutionMetadata: IAgentExecutionMetadata = {
             promptType: 'agent:execution',
+            activeCellId: getActiveCellID(this.notebookTracker) || '',
             activeCellCode: getActiveCellCode(this.notebookTracker) || '',
             variables: notebookContext?.variables || [],
             files: notebookContext?.files || [],
