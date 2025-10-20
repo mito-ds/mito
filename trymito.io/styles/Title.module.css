@@ -23,6 +23,11 @@
     text-align: center;
 }
 
+.cycling_h1_container {
+    width: 500px;
+    text-align: start !important; /* Make sure there is space for the cycling words */
+}
+
 .description {
     line-height: 1.5;
     margin: 0;
@@ -52,5 +57,50 @@
     .description {
         max-width: 50rem;
         font-size: 1.5rem;
+    }
+}
+
+.cycling_text {
+    position: relative;
+    display: inline;
+}
+
+.cycling_word {
+    position: absolute;
+    left: 12px; /* This is the space between the regular text and the cycling word */
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+    animation: cycleWords 8s infinite;
+    white-space: nowrap;
+}
+
+.cycling_word:nth-child(1) {
+    animation-delay: 0s;
+    color: var(--color-purple); /* Primary purple */
+}
+
+.cycling_word:nth-child(2) {
+    animation-delay: 2s;
+    color: var(--color-light-purple); /* Light purple */
+}
+
+.cycling_word:nth-child(3) {
+    animation-delay: 4s;
+    color: var(--color-yellow); /* Yellow accent */
+}
+
+.cycling_word:nth-child(4) {
+    animation-delay: 6s;
+    color: var(--color-twitter-blue); /* Twitter blue */
+}
+
+@keyframes cycleWords {
+    0%, 20% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    25%, 100% {
+        opacity: 0;
+        transform: translateY(20px);
     }
 }
