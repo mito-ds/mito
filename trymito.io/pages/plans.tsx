@@ -408,7 +408,7 @@ const Plans: NextPage = () => {
                 <div className={plansStyles.plan_cta}>
                   <TextButton 
                     text='Install Now'
-                    href={MITO_INSTALLATION_DOCS_LINK}
+                    href='/downloads'
                     className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_PLANS_OS}
                   />
                 </div>
