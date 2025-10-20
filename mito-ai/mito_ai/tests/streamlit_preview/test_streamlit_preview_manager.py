@@ -15,8 +15,7 @@ from typing import Any
 
 from mito_ai.streamlit_preview.manager import (
     StreamlitPreviewManager, 
-    PreviewProcess, 
-    get_preview_manager
+    PreviewProcess
 )
 
 
@@ -242,15 +241,7 @@ st.write("Hello, World!")
         
         assert preview.proc == proc
         assert preview.port == port
-    
-    def test_get_preview_manager_singleton(self):
-        """Test that get_preview_manager returns the same instance."""
-        manager1 = get_preview_manager()
-        manager2 = get_preview_manager()
-        
-        assert manager1 is manager2
-        assert isinstance(manager1, StreamlitPreviewManager)
-    
+
     @pytest.mark.parametrize("num_previews", [1, 2, 3])
     def test_concurrent_previews(self, manager, sample_app_code, num_previews):
         """Test managing multiple concurrent previews."""

@@ -5,48 +5,13 @@ import os
 import tempfile
 from unittest.mock import patch, MagicMock
 from mito_ai.streamlit_conversion.validate_streamlit_app import (
-    get_syntax_error,
     get_runtime_errors,
-    check_for_errors,
     validate_app
 )
 import pytest
 from mito_ai.path_utils import AbsoluteNotebookPath
 
 
-class TestGetSyntaxError:
-    """Test cases for get_syntax_error function"""
-
-    @pytest.mark.parametrize("code,expected_error,test_description", [
-        # Valid Python code should return no error
-        (
-            "import streamlit\nst.title('Hello World')",
-            None,
-            "valid Python code"
-        ),
-        # Invalid Python syntax should be caught
-        (
-            "import streamlit\nst.title('Hello World'",
-            "SyntaxError",
-            "invalid Python code"
-        ),
-        # Empty streamlit app is valid
-        (
-            "",
-            None,
-            "empty code"
-        ),
-    ])
-    def test_get_syntax_error(self, code, expected_error, test_description):
-        """Test syntax validation with various code inputs"""
-        error = get_syntax_error(code)
-        
-        if expected_error is None:
-            assert error is None, f"Expected no error for {test_description}"
-        else:
-            assert error is not None, f"Expected error for {test_description}"
-            assert expected_error in error, f"Expected '{expected_error}' in error for {test_description}"
-        
 class TestGetRuntimeErrors:
     """Test cases for get_runtime_errors function"""
 
