@@ -244,6 +244,7 @@ const PostPage = (props: {post: PostOrPage}) => {
             <div className={postStyles.post_cta_container}>
               <PostCTA 
                 textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA}
+                addScrollMargin={true}
               />
             </div>
           </div>
