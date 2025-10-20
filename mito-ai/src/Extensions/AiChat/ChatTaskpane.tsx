@@ -54,6 +54,7 @@ import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
 import {
     getActiveCellID,
+    getAIOptimizedCellsInNotebookPanel,
     getCellByID,
     getCellCodeByID,
     highlightCodeCell,
@@ -93,7 +94,8 @@ import {
     IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
     AgentResponse,
-    ICompletionStreamChunk
+    ICompletionStreamChunk,
+    AIOptimizedCell
 } from '../../websockets/completions/CompletionModels';
 
 // Internal imports - Extensions
@@ -235,6 +237,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
+    const [notebookSnapshot, setNotebookSnapshot] = useState<AIOptimizedCell[] | null>(null);
+    const [agentEdits, setAgentEdits] = useState<{ cellId: string, code: string }[] | null>(null);
 
     // Track if revert questionnaire should be shown
     const [showRevertQuestionnaire, setShowRevertQuestionnaire] = useState<boolean>(false);
@@ -1000,6 +1004,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
 
+        console.log(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current))
+        setNotebookSnapshot(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
+        console.log('Notebook snapshot:', notebookSnapshot);
+
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
@@ -1103,6 +1111,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
+                // Track the cell ID being updated and the code that is added
+                const cellUpdate = agentResponse.cell_update;
+                const cellId = cellUpdate.type === 'modification' ? cellUpdate.id : `new-cell-at-index-${cellUpdate.index}`;
+                const code = cellUpdate.code;
+                
+                setAgentEdits(prev => {
+                    const updated = [...(prev || []), { cellId, code }];
+                    console.log('Updated agentEdits:', updated);
+                    return updated;
+                });
+                console.log('Agent edits:', agentEdits);
+                
                 // Run the code and handle any errors
                 await acceptAndRunCellUpdate(
                     agentResponse.cell_update,
