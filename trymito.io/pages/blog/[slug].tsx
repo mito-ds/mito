@@ -29,10 +29,78 @@ import { classNames } from '../../utils/classNames';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA } from '../../utils/plausible';
 import PostCTA from '../../components/PostCTA/PostCTA';
 import postCTAStyles from '../../components/PostCTA/PostCTA.module.css';
+import InlineBlogCTA from '../../components/InlineBlogCTA/InlineBlogCTA';
 
 declare global {
   interface Window { Prism: any; }
 }
+
+// Component to render blog content with inline CTA
+const BlogContentWithCTA = ({ html, textButtonClassName }: { html: string, textButtonClassName: string }) => {
+  const [contentParts, setContentParts] = useState<{ before: string, after: string } | null>(null);
+  
+  useEffect(() => {
+    // Create a temporary div to parse the HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // Find all paragraph elements
+    const paragraphs = tempDiv.querySelectorAll('p');
+    
+    // If we have at least 3 paragraphs, split the content
+    if (paragraphs.length >= 3) {
+      const thirdParagraph = paragraphs[2];
+      
+      // Get all content before the third paragraph
+      const beforeContent = [];
+      let current = thirdParagraph.previousSibling;
+      while (current) {
+        const element = current as Element;
+        beforeContent.unshift(element.outerHTML || current.textContent || '');
+        current = current.previousSibling;
+      }
+      
+      // Get all content after the third paragraph
+      const afterContent = [];
+      current = thirdParagraph.nextSibling;
+      while (current) {
+        const element = current as Element;
+        afterContent.push(element.outerHTML || current.textContent || '');
+        current = current.nextSibling;
+      }
+      
+      setContentParts({
+        before: beforeContent.join('') + thirdParagraph.outerHTML,
+        after: afterContent.join('')
+      });
+    } else {
+      // If less than 3 paragraphs, just show the original content
+      setContentParts({ before: html, after: '' });
+    }
+  }, [html]);
+  
+  // Re-run Prism highlighting after content is rendered
+  useEffect(() => {
+    if (contentParts) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        Prism.highlightAll();
+      }, 100);
+    }
+  }, [contentParts]);
+  
+  if (!contentParts) {
+    return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  }
+  
+  return (
+    <>
+      <div dangerouslySetInnerHTML={{ __html: contentParts.before }} />
+      <InlineBlogCTA textButtonClassName={textButtonClassName} />
+      <div dangerouslySetInnerHTML={{ __html: contentParts.after }} />
+    </>
+  );
+};
 
 // PostPage page component
 const PostPage = (props: {post: PostOrPage}) => {
@@ -136,7 +204,10 @@ const PostPage = (props: {post: PostOrPage}) => {
             </div>
             {/* Post Contents */}
             <div className={postStyles.post_content}> 
-              <div dangerouslySetInnerHTML={{ __html: props.post.html }}/>
+              <BlogContentWithCTA 
+                html={props.post.html} 
+                textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA}
+              />
               <div className={postStyles.share_section}>
                 <a className={postStyles.tweet_button}
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(currentURL ?? '')}`}>

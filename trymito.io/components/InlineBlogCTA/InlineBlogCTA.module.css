@@ -1,0 +1,132 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.inline_cta {
+    margin: 3rem 0;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    position: relative;
+}
+
+.content {
+    background: rgba(45, 27, 61, 0.08);
+    border: 1px solid rgba(157, 108, 255, 0.3);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 0;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
+    
+    /* Sparkle/glow effect */
+    box-shadow: 
+        0 0 20px rgba(157, 108, 255, 0.15),
+        0 0 40px rgba(157, 108, 255, 0.1),
+        0 0 60px rgba(157, 108, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    /* Animated sparkle border */
+}
+
+.content::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+        rgba(157, 108, 255, 0.3),
+        rgba(172, 132, 252, 0.2),
+        rgba(192, 132, 252, 0.3),
+        rgba(157, 108, 255, 0.2),
+        rgba(157, 108, 255, 0.3)
+    );
+    border-radius: 18px;
+    z-index: -1;
+    animation: sparkle 3s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.02);
+    }
+}
+
+.title {
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 0.75rem 0;
+    text-align: center;
+    letter-spacing: -0.02em;
+}
+
+.description {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: 400;
+}
+
+.button_container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.button_container a {
+    text-decoration: none;
+    font-size: 1rem !important;
+    padding: 0.75rem 2rem !important;
+    min-width: 180px;
+}
+
+/* Responsive design */
+@media only screen and (max-width: 768px) {
+    .content {
+        padding: 1.5rem;
+        margin: 0;
+    }
+    
+    .title {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .description {
+        font-size: 0.95rem;
+        margin-bottom: 1.25rem;
+        max-width: 350px;
+    }
+    
+    .button_container a {
+        font-size: 0.9rem !important;
+        padding: 0.65rem 1.5rem !important;
+        min-width: 160px;
+    }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .content {
+        background: rgba(45, 27, 61, 0.1);
+        border-color: rgba(157, 108, 255, 0.2);
+    }
+}
