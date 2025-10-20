@@ -88,7 +88,7 @@ class TestStreamlitPreviewHandler:
                  patch('mito_ai.streamlit_preview.handlers.log_streamlit_app_preview_success'):
                 
                 # Call the handler
-                await handler.post()
+                await handler.post()  # type: ignore[misc]
                 
                 # Verify streamlit_handler was called or not called as expected
                 if streamlit_handler_called:
