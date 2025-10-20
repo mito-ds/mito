@@ -5,7 +5,6 @@ import pytest
 import os
 import tempfile
 from unittest.mock import patch
-from mito_ai.streamlit_preview.utils import ensure_app_exists
 from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_path
 
 
