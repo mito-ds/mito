@@ -68,26 +68,22 @@ class TestStreamlitPreviewHandler:
             handler.initialize()
             
             # Mock authentication - set current_user to bypass @tornado.web.authenticated
-            handler.current_user = "test_user"
-            
-            # Mock get_json_body to return the proper request body
-            handler.get_json_body = Mock(return_value={
-                "notebook_path": notebook_path,
-                "force_recreate": force_recreate,
-                "edit_prompt": ""
-            })
+            handler.current_user = "test_user"  # type: ignore
             
             # Mock the finish method and other handler methods
             finish_called = []
             def mock_finish_func(response):
                 finish_called.append(response)
-            handler.finish = mock_finish_func
-            
-            # Mock set_status to avoid issues
-            handler.set_status = Mock()
             
             # Mock streamlit_handler and preview manager
-            with patch('mito_ai.streamlit_preview.handlers.streamlit_handler', new_callable=AsyncMock) as mock_streamlit_handler, \
+            with patch.object(handler, 'get_json_body', return_value={
+                "notebook_path": notebook_path,
+                "force_recreate": force_recreate,
+                "edit_prompt": ""
+            }), \
+                 patch.object(handler, 'finish', side_effect=mock_finish_func), \
+                 patch.object(handler, 'set_status'), \
+                 patch('mito_ai.streamlit_preview.handlers.streamlit_handler', new_callable=AsyncMock) as mock_streamlit_handler, \
                  patch.object(handler.preview_manager, 'start_streamlit_preview', return_value=8501) as mock_start_preview, \
                  patch('mito_ai.streamlit_preview.handlers.log_streamlit_app_preview_success'):
                 
