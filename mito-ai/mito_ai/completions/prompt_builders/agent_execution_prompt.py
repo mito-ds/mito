@@ -3,6 +3,7 @@
 
 from mito_ai.completions.models import AgentExecutionMetadata
 from mito_ai.completions.prompt_builders.prompt_constants import (
+    ACTIVE_CELL_ID_SECTION_HEADING,
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     STREAMLIT_APP_STATUS_SECTION_HEADING,
@@ -39,6 +40,9 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
 
 {STREAMLIT_APP_STATUS_SECTION_HEADING}
 {streamlit_status_str}
+
+{ACTIVE_CELL_ID_SECTION_HEADING}
+{md.activeCellId}
 
 {selected_context_str}
 

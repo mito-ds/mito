@@ -469,4 +469,4 @@ REMEMBER, YOU ARE GOING TO COMPLETE THE USER'S TASK OVER THE COURSE OF THE ENTIR
 
 OTHER USEFUL INFORMATION:
 1. When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter
-"""
+2. The active cell ID is shared with you so that when the user refers to "this cell" or similar phrases, you know which cell they mean. However, you are free to edit any cell that you see fit."""
