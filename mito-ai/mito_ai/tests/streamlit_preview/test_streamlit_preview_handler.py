@@ -4,81 +4,95 @@
 import pytest
 import os
 import tempfile
-from unittest.mock import patch
-from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_path
+from unittest.mock import patch, Mock, AsyncMock
+from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
+from mito_ai.path_utils import AbsoluteNotebookPath
 
 
-class TestEnsureAppExists:
-    """Test cases for the ensure_app_exists function."""
+class TestStreamlitPreviewHandler:
+    """Test cases for the StreamlitPreviewHandler."""
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
-        "app_exists,streamlit_handler_success,streamlit_handler_called,streamlit_handler_return",
+        "app_exists,force_recreate,streamlit_handler_called",
         [
-            # Test case 1: App exists, should use existing file
-            (
-                True,  # app_exists
-                True,  # streamlit_handler_success (not relevant)
-                False, # streamlit_handler_called
-                None,  # streamlit_handler_return (not used)
-            ),
-            # Test case 2: App doesn't exist, streamlit_handler succeeds
-            (
-                False,  # app_exists
-                True,   # streamlit_handler_success
-                True,   # streamlit_handler_called
-                "/path/to/app.py",  # streamlit_handler_return
-            )
+            # Test case 1: App exists, not forcing recreate - should not call streamlit_handler
+            (True, False, False),
+            # Test case 2: App doesn't exist - should call streamlit_handler
+            (False, False, True),
+            # Test case 3: App exists but forcing recreate - should call streamlit_handler
+            (True, True, True),
         ],
         ids=[
-            "app_exists_uses_existing_file",
-            "app_does_not_exist_generates_new_one_success",
+            "app_exists_no_force_recreate",
+            "app_does_not_exist_generates_new_one",
+            "app_exists_force_recreate",
         ]
     )
-    async def test_ensure_app_exists(
+    async def test_post_handler_app_generation(
         self,
         app_exists,
-        streamlit_handler_success,
+        force_recreate,
         streamlit_handler_called,
-        streamlit_handler_return,
     ):
-        """Test ensure_app_exists function with various scenarios."""
+        """Test StreamlitPreviewHandler POST method with various scenarios."""
         with tempfile.TemporaryDirectory() as temp_dir:
             notebook_path = os.path.join(temp_dir, "test_notebook.ipynb")
+            app_path = os.path.join(temp_dir, "app.py")
             
-            # Set up app_path based on whether app exists
-            app_path = os.path.join(temp_dir, "app.py") if app_exists else None
+            # Create notebook file
+            with open(notebook_path, "w") as f:
+                f.write('{"cells": []}')
             
             # Create app.py file if it should exist
             if app_exists:
-                assert app_path is not None  # Type assertion for mypy
                 with open(app_path, "w") as f:
                     f.write("import streamlit as st\nst.write('Hello World')")
             
-            # Mock get_app_path to return the appropriate value
-            with patch('mito_ai.streamlit_preview.utils.get_absolute_notebook_dir_path') as mock_get_dir_path, \
-                patch('mito_ai.streamlit_preview.utils.get_absolute_app_path') as mock_get_app_path, \
-                patch('mito_ai.streamlit_preview.utils.does_app_path_exists') as mock_app_exists:
+            # Create handler instance
+            handler = StreamlitPreviewHandler(
+                application=Mock(),
+                request=Mock(),
+            )
+            handler.initialize()
             
-                # Set up mocks
-                mock_get_dir_path.return_value = temp_dir
-                mock_get_app_path.return_value = app_path
-                mock_app_exists.return_value = app_exists
+            # Mock methods
+            handler.get_json_body = Mock(return_value={
+                "notebook_path": notebook_path,
+                "force_recreate": force_recreate,
+                "edit_prompt": ""
+            })
+            handler.finish = Mock()
+            
+            # Mock streamlit_handler and preview manager
+            with patch('mito_ai.streamlit_preview.handlers.streamlit_handler') as mock_streamlit_handler, \
+                 patch.object(handler.preview_manager, 'start_streamlit_preview') as mock_start_preview, \
+                 patch('mito_ai.streamlit_preview.handlers.log_streamlit_app_preview_success'):
                 
-                # Mock streamlit_handler
-                with patch('mito_ai.streamlit_preview.utils.streamlit_handler') as mock_streamlit_handler:
-                    if streamlit_handler_return is not None:
-                        mock_streamlit_handler.return_value = streamlit_handler_return
-                    
-                    await ensure_app_exists(AbsoluteNotebookPath(notebook_path), False, "")
-                    
-                    # Verify get_app_path was called with the correct directory
-                    mock_get_app_path.assert_called_once_with(temp_dir)
-                    
-                    # Verify streamlit_handler was called or not called as expected
-                    if streamlit_handler_called:
-                        mock_streamlit_handler.assert_called_once_with(notebook_path, "")
-                    else:
-                        mock_streamlit_handler.assert_not_called()
+                mock_streamlit_handler.return_value = AsyncMock()
+                mock_start_preview.return_value = 8501
+                
+                # Call the handler
+                await handler.post()
+                
+                # Verify streamlit_handler was called or not called as expected
+                if streamlit_handler_called:
+                    assert mock_streamlit_handler.called
+                    # Verify it was called with the absolute notebook path
+                    call_args = mock_streamlit_handler.call_args
+                    assert call_args[0][0] == notebook_path  # First argument should be the notebook path
+                    assert call_args[0][1] == ""  # Second argument should be the edit_prompt
+                else:
+                    mock_streamlit_handler.assert_not_called()
+                
+                # Verify preview was started
+                mock_start_preview.assert_called_once()
+                
+                # Verify response was sent
+                handler.finish.assert_called_once()
+                response = handler.finish.call_args[0][0]
+                assert response["type"] == "success"
+                assert "port" in response
+                assert "id" in response
 
     

@@ -59,17 +59,18 @@ df=pd.read_csv('data.csv')
 class TestValidateApp:
     """Test cases for validate_app function"""
 
-    @pytest.mark.parametrize("app_code,expected_has_validation_error,expected_error_message", [
+    @pytest.mark.parametrize("app_code,expected_has_errors,expected_error_message", [
         ("x=5", False, ""),
         ("1/0", True, "division by zero"),
         ("print('Hello World'", True, "SyntaxError"),
         ("", False, ""),
     ])
-    def test_validate_app(self, app_code, expected_has_validation_error, expected_error_message):
+    def test_validate_app(self, app_code, expected_has_errors, expected_error_message):
         """Test the validate_app function"""
-        has_validation_error, errors = validate_app(app_code, AbsoluteNotebookPath('/notebook.ipynb'))
+        errors = validate_app(app_code, AbsoluteNotebookPath('/notebook.ipynb'))
         
-        assert has_validation_error == expected_has_validation_error
+        has_errors = len(errors) > 0
+        assert has_errors == expected_has_errors
         assert expected_error_message in str(errors)
         
     
