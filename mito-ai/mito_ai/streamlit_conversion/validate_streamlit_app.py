@@ -3,6 +3,8 @@
 
 import os
 import tempfile
+import traceback
+import ast
 import warnings
 from typing import List, Tuple, Optional, Dict, Any, Generator
 from streamlit.testing.v1 import AppTest
@@ -10,6 +12,15 @@ from contextlib import contextmanager
 from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_dir_path
 
 warnings.filterwarnings("ignore", message=".*bare mode.*")
+
+def get_syntax_error(app_code: str) -> Optional[str]:
+    """Check if the Python code has valid syntax"""
+    try:
+        ast.parse(app_code)
+        return None
+    except SyntaxError as e:
+        error_msg = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+        return error_msg
 
 def get_runtime_errors(app_code: str, app_path: AbsoluteNotebookPath) -> Optional[List[Dict[str, Any]]]:
     """Start the Streamlit app in a subprocess"""  
@@ -73,6 +84,11 @@ def check_for_errors(app_code: str, app_path: AbsoluteNotebookPath) -> List[Dict
     errors: List[Dict[str, Any]] = []
 
     try:
+        # Step 1: Check syntax
+        syntax_error = get_syntax_error(app_code)
+        if syntax_error:
+            errors.append({'type': 'syntax', 'details': syntax_error})
+
         runtime_errors = get_runtime_errors(app_code, app_path)
         if runtime_errors:
             errors.extend(runtime_errors)
