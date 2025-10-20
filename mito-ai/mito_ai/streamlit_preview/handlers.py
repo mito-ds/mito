@@ -1,17 +1,16 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import os
-from typing import Literal, TypedDict
 import uuid
-from mito_ai.streamlit_preview.utils import ensure_app_exists, validate_request_body
+from mito_ai.streamlit_preview.utils import validate_request_body
 import tornado
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.streamlit_preview.manager import get_preview_manager
-from mito_ai.path_utils import  AbsoluteNotebookPath, get_absolute_notebook_dir_path, get_absolute_notebook_path
+from mito_ai.streamlit_preview.manager import StreamlitPreviewManager
+from mito_ai.path_utils import get_absolute_notebook_dir_path, get_absolute_notebook_path, get_absolute_app_path, does_app_path_exist
 from mito_ai.utils.telemetry_utils import log_streamlit_app_conversion_error, log_streamlit_app_preview_failure, log_streamlit_app_preview_success
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.error_classes import StreamlitConversionError, StreamlitPreviewError
+from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
 import traceback
 
 
@@ -20,7 +19,7 @@ class StreamlitPreviewHandler(APIHandler):
 
     def initialize(self) -> None:
         """Initialize the handler."""
-        self.preview_manager = get_preview_manager()
+        self.preview_manager = StreamlitPreviewManager()
 
     @tornado.web.authenticated
     async def post(self) -> None:
@@ -32,15 +31,24 @@ class StreamlitPreviewHandler(APIHandler):
 
             # Ensure app exists
             absolute_notebook_path = get_absolute_notebook_path(notebook_path)
-            await ensure_app_exists(absolute_notebook_path, force_recreate, edit_prompt)
+            absolute_notebook_dir_path = get_absolute_notebook_dir_path(absolute_notebook_path)
+            absolute_app_path = get_absolute_app_path(absolute_notebook_dir_path)
+            app_path_exists = does_app_path_exist(absolute_app_path)
+
+            if not app_path_exists or force_recreate:
+                if not app_path_exists:
+                    print("[Mito AI] App path not found, generating streamlit code")
+                else:
+                    print("[Mito AI] Force recreating streamlit app")
+
+                await streamlit_handler(absolute_notebook_path, edit_prompt)
 
             # Start preview
             # TODO: There's a bug here where when the user rebuilds and already running app. Instead of 
             # creating a new process, we should update the existing process. The app displayed to the user 
             # does update, but that's just because of hot reloading when we overwrite the app.py file. 
             preview_id = str(uuid.uuid4())
-            absolute_app_directory = get_absolute_notebook_dir_path(absolute_notebook_path)
-            port = self.preview_manager.start_streamlit_preview(absolute_app_directory, preview_id)
+            port = self.preview_manager.start_streamlit_preview(absolute_notebook_dir_path, preview_id)
 
             # Return success response
             self.finish({

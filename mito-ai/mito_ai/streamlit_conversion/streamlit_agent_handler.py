@@ -1,9 +1,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import os
 from anthropic.types import MessageParam
-from typing import List, Optional, Tuple, cast
+from typing import List, cast
 from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders, get_response_from_agent
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
@@ -122,21 +121,21 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: st
         streamlit_code = await generate_new_streamlit_code(notebook_code)
        
     # Then, after creating/updating the app, validate that the new code runs 
-    has_validation_error, errors = validate_app(streamlit_code, notebook_path)
+    errors = validate_app(streamlit_code, notebook_path)
     tries = 0
-    while has_validation_error and tries < 5:
+    while len(errors)>0 and tries < 5:
         for error in errors:
             streamlit_code = await correct_error_in_generation(error, streamlit_code)
         
-        has_validation_error, errors = validate_app(streamlit_code, notebook_path)
+        errors = validate_app(streamlit_code, notebook_path)
         
-        if has_validation_error:
+        if len(errors)>0:
             # TODO: We can't easily get the key type here, so for the beta release
             # we are just defaulting to the mito server key since that is by far the most common.
             log_streamlit_app_validation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, errors)
         tries+=1
 
-    if has_validation_error:
+    if len(errors)>0:
         final_errors = ', '.join(errors)
         raise StreamlitConversionError(f"Streamlit agent failed generating code after max retries. Errors: {final_errors}", 500)
     
