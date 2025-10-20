@@ -9,35 +9,17 @@ import inlineBlogCTAStyles from './InlineBlogCTA.module.css';
 
 interface InlineBlogCTAProps {
   textButtonClassName: string;
-  variant?: 'default' | 'data-analysis' | 'automation';
   className?: string;
 }
 
 const InlineBlogCTA = (props: InlineBlogCTAProps): JSX.Element => {
-  const getValueProposition = () => {
-    switch (props.variant) {
-      case 'data-analysis':
-        return {
-          title: 'Stop wrestling with Python syntax',
-          description: 'Work in a familiar spreadsheet interface while Mito generates the Python code automatically.',
-          cta: 'Try Mito for free'
-        };
-      case 'automation':
-        return {
-          title: 'Automate your data tasks',
-          description: 'Turn hours of manual work into minutes of automated Python scripts.',
-          cta: 'Start automating today'
-        };
-      default:
-        return {
-          title: 'Turn data into insights 4x faster',
-          description: 'Work in a familiar spreadsheet interface while Mito generates the Python code automatically.',
-          cta: 'Download Mito'
-        };
-    }
-  };
 
-  const valueProp = getValueProposition();
+
+  const valueProp = {
+    title: 'AI-powered data analysis you can trust',
+    description: 'Go from raw data to presentation-ready insights 4x faster with AI that understands your data. Completely open source.',
+    cta: 'Download Mito'
+  };
 
   return (
     <div className={classNames(inlineBlogCTAStyles.inline_cta, props.className)}>

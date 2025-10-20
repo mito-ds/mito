@@ -47,22 +47,23 @@ const BlogContentWithCTA = ({ html, textButtonClassName }: { html: string, textB
     // Find all paragraph elements
     const paragraphs = tempDiv.querySelectorAll('p');
     
-    // If we have at least 3 paragraphs, split the content
-    if (paragraphs.length >= 3) {
-      const thirdParagraph = paragraphs[2];
+    const paragraphsToSplitOn = 4;
+    // If we have at least 4 paragraphs, split the content
+    if (paragraphs.length >= paragraphsToSplitOn) {
+      const targetParagraph = paragraphs[paragraphsToSplitOn - 1];
       
-      // Get all content before the third paragraph
+      // Get all content before the target paragraph
       const beforeContent = [];
-      let current = thirdParagraph.previousSibling;
+      let current = targetParagraph.previousSibling;
       while (current) {
         const element = current as Element;
         beforeContent.unshift(element.outerHTML || current.textContent || '');
         current = current.previousSibling;
       }
       
-      // Get all content after the third paragraph
+      // Get all content after the target paragraph
       const afterContent = [];
-      current = thirdParagraph.nextSibling;
+      current = targetParagraph.nextSibling;
       while (current) {
         const element = current as Element;
         afterContent.push(element.outerHTML || current.textContent || '');
@@ -70,7 +71,7 @@ const BlogContentWithCTA = ({ html, textButtonClassName }: { html: string, textB
       }
       
       setContentParts({
-        before: beforeContent.join('') + thirdParagraph.outerHTML,
+        before: beforeContent.join('') + targetParagraph.outerHTML,
         after: afterContent.join('')
       });
     } else {

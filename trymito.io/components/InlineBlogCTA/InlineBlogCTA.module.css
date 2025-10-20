@@ -79,7 +79,7 @@
     line-height: 1.5;
     margin: 0 0 1.5rem 0;
     text-align: center;
-    max-width: 400px;
+    max-width: 600px;
     margin-left: auto;
     margin-right: auto;
     font-weight: 400;
@@ -113,7 +113,7 @@
     .description {
         font-size: 0.95rem;
         margin-bottom: 1.25rem;
-        max-width: 350px;
+        max-width: 450px;
     }
     
     .button_container a {
