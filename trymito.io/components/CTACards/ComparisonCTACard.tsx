@@ -5,33 +5,40 @@
 
 import titleStyles from '../../styles/Title.module.css';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD } from '../../utils/plausible';
+import TextButton from '../Buttons/TextButton/TextButton';
 import CTAButtons from '../CTAButtons/CTAButtons';
 
-const ComparisonCTACard = (props: { 
-    headerStyle?: React.CSSProperties, 
+const DownloadSidePanelCTACard = (props: { 
     buttonContainerStyle?: React.CSSProperties 
-    textButtonClassName?: string | undefined;
+    textButtonClassName: string
+    variant?: 'answers-not-syntax-errors'
 }): JSX.Element => {
 
+    let cta = '';
+    if (props.variant === 'answers-not-syntax-errors') {
+        cta = 'Get answers from your data, not syntax errors. Download the Mito AI analyst'
+    } else {
+        cta = 'Turn data into insights, reports, and automations 4x faster.'
+    }
+
     return (
-        <div> 
-            <h2 style={{...props.headerStyle, textAlign: 'left'}} className={titleStyles.title} >
-                Tired of copy-pasting code that doesn&apos;t work?
-            </h2>
-            <p style={{ fontSize: '1rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }}>
-                Write Python code 3.2x faster than ChatGPT.
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}> 
+            <p style={{
+                textAlign: 'left', 
+                fontSize: '1rem', color: 'var(--color-light-background-accent)', 
+                fontWeight: 'normal',
+                marginBottom: '1rem'
+            }}>
+                {cta}
             </p>
             <div>
-                <CTAButtons 
-                    style={props.buttonContainerStyle} 
-                    variant='comparison' 
-                    align='left' 
-                    displaySecondaryCTA={false}
-                    textButtonClassName={props.textButtonClassName || PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD}
+                <TextButton 
+                    text='Download Mito'
+                    href='/downloads'
                 />
             </div>  
         </div>
     )
 }
 
-export default ComparisonCTACard; 
+export default DownloadSidePanelCTACard; 

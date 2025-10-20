@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.post_cta {
+    width: 16rem;
+    min-width: 16rem;
+    background: linear-gradient(135deg, #2D1B3D 0%, #3D2A4D 100%);
+    border-radius: 20px;
+    padding: 1.75rem;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 4px 16px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(157, 108, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.cta_text {
+    color: #E8E8E8;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin: 0 0 1.25rem 0;
+    font-weight: 400;
+    text-align: left;
+}
+
+.button_container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.button_container a {
+    text-decoration: none;
+    width: 100%;
+    max-width: none;
+    font-size: 1rem !important;
+    padding: 0.75rem 1.5rem !important;
+}
+
+/* For medium width screens */
+@media only screen and (max-width: 92rem) {
+    .post_cta {
+        display: none;
+    }
+}
+
+/* When used in TOC context */
+.post_cta.toc_context {
+    display: none;
+    padding: 1rem;
+    margin-top: 0;
+    width: 14rem;
+    min-width: 14rem;
+}
+
+.post_cta.toc_context .cta_text {
+    font-size: 0.85rem;
+    line-height: 1.25;
+    margin-bottom: 0.75rem;
+}
+
+.post_cta.toc_context .button_container a {
+    font-size: 0.8rem !important;
+    padding: 0.5rem 1rem !important;
+}
+
+@media only screen and (max-width: 92rem) {
+    .post_cta.toc_context {
+        display: block;
+    }
+}

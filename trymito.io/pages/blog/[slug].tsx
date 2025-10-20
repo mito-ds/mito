@@ -9,7 +9,6 @@ import Head from 'next/head';
 import Image from "next/image";
 import { GetStaticProps } from 'next/types';
 import { useEffect, useState } from 'react';
-import ComparisonCTACard from '../../components/CTACards/ComparisonCTACard';
 import Footer from '../../components/Footer/Footer';
 import PageTOC from '../../components/Glossary/PageTOC/PageTOC';
 import pageStyles from '../../styles/Page.module.css';
@@ -27,7 +26,9 @@ import 'prism-themes/themes/prism-coldark-dark.css'
 require('prismjs/components/prism-python');
 
 import { classNames } from '../../utils/classNames';
-import { PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG } from '../../utils/plausible';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA } from '../../utils/plausible';
+import PostCTA from '../../components/PostCTA/PostCTA';
+import postCTAStyles from '../../components/PostCTA/PostCTA.module.css';
 
 declare global {
   interface Window { Prism: any; }
@@ -128,12 +129,10 @@ const PostPage = (props: {post: PostOrPage}) => {
             {/* Table of Contents */}
             <div className={postStyles.post_toc}>
               <PageTOC />
-              <div className={postStyles.post_cta}>
-              <ComparisonCTACard 
-                  headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} 
-                  textButtonClassName={PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG} 
-                />
-              </div>
+              <PostCTA 
+                textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA}
+                className={postCTAStyles.toc_context}
+              />
             </div>
             {/* Post Contents */}
             <div className={postStyles.post_content}> 
@@ -171,12 +170,9 @@ const PostPage = (props: {post: PostOrPage}) => {
 
             {/* CTA */}
             <div className={postStyles.post_cta_container}>
-              <div className={postStyles.post_cta}>
-                <ComparisonCTACard 
-                  headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} 
-                  textButtonClassName={PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG} 
-                />
-              </div>
+              <PostCTA 
+                textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA}
+              />
             </div>
           </div>
         </div>

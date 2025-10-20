@@ -227,33 +227,12 @@
     margin-left: 2rem;
 }
 
-.post_cta {
-    width: 16rem;
-    min-width: 16rem;
-    background-color: var(--color-yellow);
-    border-radius: 15px;
-    padding: 2rem 2rem 0 2rem;
-}
-
-.post_toc .post_cta {
-    display: none;
-    padding: 1.25rem 1.25rem 0 1.25rem;
-    margin-top: 2rem;
-}
-.post_toc .post_cta a {
-    font-size: 1rem;
-}
-
 .post_cta_container {
     position: sticky;
     height: fit-content;
     top: 6rem;
     margin-right: 2rem;
     margin-top: 2rem;
-}
-
-.post_cta a {
-    text-decoration: none;
 }
 
 /* Sharing Buttons */
@@ -326,15 +305,6 @@
 
 /* For medium width screens */
 @media only screen and (max-width: 92rem) {
-    .post_cta {
-        display: none;
-    }
-    .post_toc .post_cta {
-        display: block;
-    }
-    .post_toc .post_cta .cta_buttons_container {
-        margin-top: 2rem;
-    }
 
     .post_content_container {
         justify-content: flex-start;

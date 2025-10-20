@@ -17,8 +17,8 @@ export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_PLANS_OS = 'plausible-event-nam
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER = 'plausible-event-name=install_docs_cta_pressed+location_header'
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA = 'plausible-event-name=install_docs_cta_pressed+location_excel_to_python_glossary_toc_cta'
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA = 'plausible-event-name=install_docs_cta_pressed+location_excel_to_python_glossary_in_content_cta'
-export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG = 'plausible-event-name=install_docs_cta_pressed+location_blog'
 export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FEATURE_SQUARES = 'plausible-event-name=install_docs_cta_pressed+location_feature_squares'
+export const PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA = 'plausible-event-name=install_docs_cta_pressed+location_blog_side_panel_cta'
 
 // Copy the install instructions directly
 export const PLAUSIBLE_SCROLLED_TO_INSTALL_INSTRUCTIONS = 'plausible-event-name=scrolled_to_install_instructions+location_title_card'
@@ -36,9 +36,6 @@ export const PLAUSIBLE_BOOK_A_DEMO_CTA_PRESSED_PLANS_PAGE = 'plausible-event-nam
 
 // The user copies the pip install mitosheet command from the homepage
 export const PLAUSIBLE_COPIED_PIP_INSTALL_MITOSHEET = 'plausible-event-name=copied_pip_install_mitosheet+location_homepage'
-
-// Mito vs ChatGPT comparison CTA
-export const PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG = 'plausible-event-name=mito_vs_chatgpt+location_blog'
 
 // The user clicked on a try online/JupyterHub CTA
 export const PLAUSIBLE_JUPYTERHUB_CTA_PRESSED_LOCATION_MITO_VS_CHATGPT_PAGE = 'plausible-event-name=jupyterhub_cta_pressed+location_mito_vs_chatgpt_page'
