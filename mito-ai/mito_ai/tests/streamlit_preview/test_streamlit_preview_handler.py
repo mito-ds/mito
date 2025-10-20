@@ -4,7 +4,7 @@
 import pytest
 import os
 import tempfile
-from unittest.mock import patch, Mock, AsyncMock
+from unittest.mock import patch, Mock, AsyncMock, MagicMock
 from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
 from mito_ai.path_utils import AbsoluteNotebookPath
 
@@ -49,28 +49,47 @@ class TestStreamlitPreviewHandler:
                 with open(app_path, "w") as f:
                     f.write("import streamlit as st\nst.write('Hello World')")
             
-            # Create handler instance
+            # Create a properly mocked Tornado application with required attributes
+            mock_application = MagicMock()
+            mock_application.ui_methods = {}
+            mock_application.ui_modules = {}
+            mock_application.settings = {}
+            
+            # Create a mock request with necessary tornado setup
+            mock_request = MagicMock()
+            mock_request.connection = MagicMock()
+            mock_request.connection.context = MagicMock()
+            
+            # Create handler instance  
             handler = StreamlitPreviewHandler(
-                application=Mock(),
-                request=Mock(),
+                application=mock_application,
+                request=mock_request,
             )
             handler.initialize()
             
-            # Mock methods
+            # Mock authentication - set current_user to bypass @tornado.web.authenticated
+            handler.current_user = "test_user"
+            
+            # Mock get_json_body to return the proper request body
             handler.get_json_body = Mock(return_value={
                 "notebook_path": notebook_path,
                 "force_recreate": force_recreate,
                 "edit_prompt": ""
             })
-            handler.finish = Mock()
+            
+            # Mock the finish method and other handler methods
+            finish_called = []
+            def mock_finish_func(response):
+                finish_called.append(response)
+            handler.finish = mock_finish_func
+            
+            # Mock set_status to avoid issues
+            handler.set_status = Mock()
             
             # Mock streamlit_handler and preview manager
-            with patch('mito_ai.streamlit_preview.handlers.streamlit_handler') as mock_streamlit_handler, \
-                 patch.object(handler.preview_manager, 'start_streamlit_preview') as mock_start_preview, \
+            with patch('mito_ai.streamlit_preview.handlers.streamlit_handler', new_callable=AsyncMock) as mock_streamlit_handler, \
+                 patch.object(handler.preview_manager, 'start_streamlit_preview', return_value=8501) as mock_start_preview, \
                  patch('mito_ai.streamlit_preview.handlers.log_streamlit_app_preview_success'):
-                
-                mock_streamlit_handler.return_value = AsyncMock()
-                mock_start_preview.return_value = 8501
                 
                 # Call the handler
                 await handler.post()
@@ -89,8 +108,8 @@ class TestStreamlitPreviewHandler:
                 mock_start_preview.assert_called_once()
                 
                 # Verify response was sent
-                handler.finish.assert_called_once()
-                response = handler.finish.call_args[0][0]
+                assert len(finish_called) == 1
+                response = finish_called[0]
                 assert response["type"] == "success"
                 assert "port" in response
                 assert "id" in response
