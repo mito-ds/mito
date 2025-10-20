@@ -70,37 +70,100 @@
     left: 12px; /* This is the space between the regular text and the cycling word */
     opacity: 0;
     transition: all 0.5s ease-in-out;
-    animation: cycleWords 8s infinite;
+    animation: cycleWords 16s infinite;
     white-space: nowrap;
 }
 
 .cycling_word:nth-child(1) {
     animation-delay: 0s;
-    color: var(--color-purple); /* Primary purple */
+    background: linear-gradient(
+        135deg, 
+        #9D6CFF 0%, 
+        #ac84fc 25%,
+        #ffffff 50%,
+        #ac84fc 75%,
+        #F2C94C 100%
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: cycleWords 16s infinite, shineGradient 3s ease-in-out infinite;
 }
 
 .cycling_word:nth-child(2) {
-    animation-delay: 2s;
-    color: var(--color-light-purple); /* Light purple */
+    animation-delay: 4s;
+    background: linear-gradient(
+        135deg, 
+        #ac84fc 0%, 
+        #9D6CFF 25%,
+        #ffffff 50%,
+        #9D6CFF 75%,
+        #479BE9 100%
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: cycleWords 16s infinite, shineGradient 3s ease-in-out infinite;
+    animation-delay: 4s, 4s;
 }
 
 .cycling_word:nth-child(3) {
-    animation-delay: 4s;
-    color: var(--color-yellow); /* Yellow accent */
+    animation-delay: 8s;
+    background: linear-gradient(
+        135deg, 
+        #F2C94C 0%, 
+        #9D6CFF 25%,
+        #ffffff 50%,
+        #9D6CFF 75%,
+        #ac84fc 100%
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: cycleWords 16s infinite, shineGradient 3s ease-in-out infinite;
+    animation-delay: 8s, 8s;
 }
 
 .cycling_word:nth-child(4) {
-    animation-delay: 6s;
-    color: var(--color-twitter-blue); /* Twitter blue */
+    animation-delay: 12s;
+    background: linear-gradient(
+        135deg, 
+        #479BE9 0%, 
+        #9D6CFF 25%,
+        #ffffff 50%,
+        #9D6CFF 75%,
+        #F2C94C 100%
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: cycleWords 16s infinite, shineGradient 3s ease-in-out infinite;
+    animation-delay: 12s, 12s;
 }
 
 @keyframes cycleWords {
-    0%, 20% {
+    0%, 23% {
         opacity: 1;
         transform: translateY(0);
     }
     25%, 100% {
         opacity: 0;
         transform: translateY(20px);
+    }
+}
+
+@keyframes shineGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
     }
 }

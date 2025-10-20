@@ -47,7 +47,7 @@ const Home: NextPage = () => {
                 <span className={titleStyles.cycling_word} data-word="insights">insights</span>
                 <span className={titleStyles.cycling_word} data-word="automations">automations</span>
                 <span className={titleStyles.cycling_word} data-word="dashboards">dashboards</span>
-                <span className={titleStyles.cycling_word} data-word="internal tool">internal tool</span>
+                <span className={titleStyles.cycling_word} data-word="internal tools">internal tool</span>
               </span>
             </h1>
 
