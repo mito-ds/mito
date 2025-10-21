@@ -1604,7 +1604,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         return Array.isArray(item);
     };
 
-    const reviewChanges = (): void => {
+    const reviewAgentChanges = (): void => {
         if (!notebookSnapshot || agentEditsRef.current.length === 0) {
             return;
         }
@@ -1756,7 +1756,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 <button 
                                     className="button-base button-green"
                                     onClick={() => {
-                                        reviewChanges();
+                                        reviewAgentChanges();
                                     }}
                                 >
                                     Review Changes
