@@ -1307,7 +1307,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 activeCellId,
                 cellStatesBeforeDiff.current,
                 agentEditsRef.current,
-                agentModeEnabledRef.current
             );
             
             return;
@@ -1373,7 +1372,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 activeCellId,
                 cellStatesBeforeDiff.current,
                 agentEditsRef.current,
-                agentModeEnabledRef.current
             );
             
             return;

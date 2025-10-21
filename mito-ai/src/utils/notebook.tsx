@@ -346,29 +346,31 @@ export const scrollToNextCellWithDiff = (
     currentCellId: string,
     cellStatesBeforeDiff: Map<string, string>,
     agentEdits: { cellId: string, code: string }[],
-    agentModeEnabled: boolean
 ): void => {
-    // Only proceed if in agent mode and there are remaining diffs
-    if (!agentModeEnabled || cellStatesBeforeDiff.size === 0) {
+    // Early return if no diffs remain
+    if (cellStatesBeforeDiff.size === 0) {
         return;
     }
 
-    // Find the next cell with a diff in the order they appear in agentEdits
-    const currentEditIndex = agentEdits.findIndex(e => e.cellId === currentCellId);
-    
-    // Look for the next cell that still has a diff (starting from the cell after current)
-    if (currentEditIndex >= 0) {
-        for (let i = currentEditIndex + 1; i < agentEdits.length; i++) {
-            const nextEdit = agentEdits[i];
-            if (nextEdit && cellStatesBeforeDiff.has(nextEdit.cellId)) {
-                // Found the next cell with a diff - scroll to it and select it
-                setActiveCellByID(notebookTracker, nextEdit.cellId);
-                if (notebookTracker.currentWidget) {
-                    scrollToCell(notebookTracker.currentWidget, nextEdit.cellId, undefined, 'start');
-                }
-                break;
-            }
-        }
+    // Find current cell's position in the edits list
+    const currentEditIndex = agentEdits.findIndex(edit => edit.cellId === currentCellId);
+    if (currentEditIndex < 0) {
+        return; // Current cell not found in edits
+    }
+
+    // Find the next cell that still has a diff
+    const nextCellWithDiff = agentEdits
+        .slice(currentEditIndex + 1)
+        .find(edit => cellStatesBeforeDiff.has(edit.cellId));
+
+    if (!nextCellWithDiff) {
+        return; // No more cells with diffs
+    }
+
+    // Scroll to and select the next cell with diff
+    setActiveCellByID(notebookTracker, nextCellWithDiff.cellId);
+    if (notebookTracker.currentWidget) {
+        scrollToCell(notebookTracker.currentWidget, nextCellWithDiff.cellId, undefined, 'start');
     }
 }
 
