@@ -1283,19 +1283,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         updateCellToolbarButtons()
     }
 
-    const acceptAICode = (cellId?: string): void => {
+    const acceptAICode = (): void => {
+        const activeCellId = notebookTracker.activeCell?.model.id;
+        
         // Agent review mode: accept specific cell from multi-cell review
-        if (cellId !== undefined) {
+        if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
             // Remove the cell from tracking
-            cellStatesBeforeDiff.current.delete(cellId);
+            cellStatesBeforeDiff.current.delete(activeCellId);
             
             // Find the final code from the agentEdits array
-            const edit = agentEditsRef.current.find(e => e.cellId === cellId);
+            const edit = agentEditsRef.current.find(e => e.cellId === activeCellId);
             if (!edit) return;
             
             // Write the final code to the cell and turn off diffs
-            writeCodeToCellByID(notebookTracker, edit.code, cellId);
-            turnOffDiffsForCell(cellId);
+            writeCodeToCellByID(notebookTracker, edit.code, activeCellId);
+            turnOffDiffsForCell(activeCellId);
             updateCellToolbarButtons();
             return;
         }
@@ -1340,16 +1342,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setShowRevertQuestionnaire(false);
     }
 
-    const rejectAICode = (cellId?: string): void => {
+    const rejectAICode = (): void => {
+        const activeCellId = notebookTracker.activeCell?.model.id;
+        
         // Agent review mode: reject specific cell from multi-cell review
-        if (cellId !== undefined) {
-            const originalCode = cellStatesBeforeDiff.current.get(cellId);
+        if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
+            const originalCode = cellStatesBeforeDiff.current.get(activeCellId);
             if (originalCode === undefined) return;
             
             // Remove from tracking and restore original code
-            cellStatesBeforeDiff.current.delete(cellId);
-            writeCodeToCellByID(notebookTracker, originalCode, cellId);
-            turnOffDiffsForCell(cellId);
+            cellStatesBeforeDiff.current.delete(activeCellId);
+            writeCodeToCellByID(notebookTracker, originalCode, activeCellId);
+            turnOffDiffsForCell(activeCellId);
             updateCellToolbarButtons();
             return;
         }
@@ -1400,30 +1404,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             console.error('Error checking if code cell toolbar buttons should be visible', error)
             return false;
         }
-    }
-
-    // Helper function to handle accept code for either mode
-    const handleAcceptCode = (): void => {
-        const activeCellId = notebookTracker.activeCell?.model.id;
-        
-        // If this is an agent review mode cell, pass the cellId; otherwise chat mode
-        const cellIdParam = activeCellId && cellStatesBeforeDiff.current.has(activeCellId) 
-            ? activeCellId 
-            : undefined;
-        
-        acceptAICode(cellIdParam);
-    }
-
-    // Helper function to handle reject code for either mode
-    const handleRejectCode = (): void => {
-        const activeCellId = notebookTracker.activeCell?.model.id;
-        
-        // If this is an agent review mode cell, pass the cellId; otherwise chat mode
-        const cellIdParam = activeCellId && cellStatesBeforeDiff.current.has(activeCellId) 
-            ? activeCellId 
-            : undefined;
-        
-        rejectAICode(cellIdParam);
     }
 
     useEffect(() => {
@@ -1494,7 +1474,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             label: `Accept ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
             className: 'text-button-mito-ai button-base button-green',
             caption: 'Accept Code',
-            execute: handleAcceptCode,
+            execute: acceptAICode,
             isVisible: shouldShowDiffToolbarButtons
         });
 
@@ -1502,7 +1482,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             label: `Reject ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`,
             className: 'text-button-mito-ai button-base button-red',
             caption: 'Reject Code',
-            execute: handleRejectCode,
+            execute: rejectAICode,
             isVisible: shouldShowDiffToolbarButtons
         });
     }, []);
