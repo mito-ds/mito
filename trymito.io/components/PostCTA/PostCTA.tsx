@@ -32,7 +32,7 @@ const PostCTA = (props: PostCTAProps): JSX.Element => {
 
   const ctaText = props.variant === 'answers-not-syntax-errors' 
     ? 'Get answers from your data, not syntax errors. Download the Mito AI analyst'
-    : 'Turn data into insights, reports, and automations 4x faster.';
+    : 'Turn data into insights and reports 4x faster with Mito AI';
 
   const scrollMarginClass = props.addScrollMargin && isScrolled ? postCTAStyles.scroll_margin : '';
 
