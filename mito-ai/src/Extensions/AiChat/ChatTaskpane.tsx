@@ -58,6 +58,7 @@ import {
     getCellCodeByID,
     highlightCodeCell,
     scrollToCell,
+    scrollToNextCellWithDiff,
     setActiveCellByID,
     setActiveCellByIDInNotebookPanel,
     writeCodeToCellByID,
@@ -1299,6 +1300,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             writeCodeToCellByID(notebookTracker, edit.code, activeCellId);
             turnOffDiffsForCell(activeCellId);
             updateCellToolbarButtons();
+            
+            // Scroll to the next cell with a diff if in agent mode
+            scrollToNextCellWithDiff(
+                notebookTracker,
+                activeCellId,
+                cellStatesBeforeDiff.current,
+                agentEditsRef.current,
+                agentModeEnabledRef.current
+            );
+            
             return;
         }
 
@@ -1355,6 +1366,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             writeCodeToCellByID(notebookTracker, originalCode, activeCellId);
             turnOffDiffsForCell(activeCellId);
             updateCellToolbarButtons();
+            
+            // Scroll to the next cell with a diff if in agent mode
+            scrollToNextCellWithDiff(
+                notebookTracker,
+                activeCellId,
+                cellStatesBeforeDiff.current,
+                agentEditsRef.current,
+                agentModeEnabledRef.current
+            );
+            
             return;
         }
 

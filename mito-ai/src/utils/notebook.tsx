@@ -342,6 +342,47 @@ export const scrollToCell = (
 }
 
 /**
+ * Scrolls to the next cell that has a diff in agent review mode.
+ * Used after accepting or rejecting a cell's changes to automatically move to the next cell that needs review.
+ * 
+ * @param notebookTracker - The notebook tracker
+ * @param currentCellId - The ID of the cell that was just accepted/rejected
+ * @param cellStatesBeforeDiff - Map of cell IDs that still have pending diffs
+ * @param agentEdits - Array of agent edits in order
+ * @param agentModeEnabled - Whether agent mode is currently enabled
+ */
+export const scrollToNextCellWithDiff = (
+    notebookTracker: INotebookTracker,
+    currentCellId: string,
+    cellStatesBeforeDiff: Map<string, string>,
+    agentEdits: { cellId: string, code: string }[],
+    agentModeEnabled: boolean
+): void => {
+    // Only proceed if in agent mode and there are remaining diffs
+    if (!agentModeEnabled || cellStatesBeforeDiff.size === 0) {
+        return;
+    }
+
+    // Find the next cell with a diff in the order they appear in agentEdits
+    const currentEditIndex = agentEdits.findIndex(e => e.cellId === currentCellId);
+    
+    // Look for the next cell that still has a diff (starting from the cell after current)
+    if (currentEditIndex >= 0) {
+        for (let i = currentEditIndex + 1; i < agentEdits.length; i++) {
+            const nextEdit = agentEdits[i];
+            if (nextEdit && cellStatesBeforeDiff.has(nextEdit.cellId)) {
+                // Found the next cell with a diff - scroll to it and select it
+                setActiveCellByID(notebookTracker, nextEdit.cellId);
+                if (notebookTracker.currentWidget) {
+                    scrollToCell(notebookTracker.currentWidget, nextEdit.cellId, undefined, 'start');
+                }
+                break;
+            }
+        }
+    }
+}
+
+/**
  * Applies a CodeMirror extension to a specific cell's editor.
  * Manages the compartment for the extension, creating it if it doesn't exist or reconfiguring if it does.
  * 

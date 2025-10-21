@@ -8,11 +8,10 @@ import { CodeCell } from "@jupyterlab/cells"
 import { NotebookActions, NotebookPanel } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { createCodeCellAtIndexAndActivate, didCellExecutionError, getActiveCellIDInNotebookPanel, setActiveCellByIDInNotebookPanel, writeCodeToCellByIDInNotebookPanel } from "./notebook"
+import { createCodeCellAtIndexAndActivate, didCellExecutionError, getActiveCellIDInNotebookPanel, setActiveCellByIDInNotebookPanel, writeCodeToCellByIDInNotebookPanel, scrollToCell } from "./notebook"
 import { ChatHistoryManager } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
-import { scrollToCell } from "./notebook"
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
