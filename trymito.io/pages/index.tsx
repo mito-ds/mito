@@ -41,7 +41,7 @@ const Home: NextPage = () => {
 
         <main className={pageStyles.main}>
           <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
-            <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container)}>
+            <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
               From Data to{' '}
               <span className={titleStyles.cycling_text}>
                 <span className={titleStyles.cycling_word} data-word="insights">insights</span>
@@ -49,6 +49,9 @@ const Home: NextPage = () => {
                 <span className={titleStyles.cycling_word} data-word="dashboards">dashboards</span>
                 <span className={titleStyles.cycling_word} data-word="internal tools">internal tool</span>
               </span>
+            </h1>
+            <h1 className={classNames(titleStyles.title, 'only-on-mobile')}>
+              From Data to insights and automations
             </h1>
 
             <h2 className={titleStyles.description}>
