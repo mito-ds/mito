@@ -46,6 +46,10 @@ export const deployStreamlitApp = async (
       }
     } catch (error) {
       console.log('Authentication cancelled or failed:', error);
+      const errorMsg = 'Authentication failed: ' + error
+      Notification.emit(errorMsg, 'error', {
+          autoClose: false
+      });
       return; // Exit early if authentication was cancelled
     }
   }
@@ -66,6 +70,10 @@ export const deployStreamlitApp = async (
     Notification.dismiss(notificationId);
     selectedFiles = await fileSelectorPopup(notebookPath);
   }catch (error) {
+      const errorMsg = 'Files selection failed: ' + error
+        Notification.emit(errorMsg, 'error', {
+            autoClose: false
+      });
       console.log('File selection failed:', error);
       return;
   }

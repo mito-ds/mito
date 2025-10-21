@@ -98,10 +98,8 @@ def check_for_errors(app_code: str, app_path: AbsoluteNotebookPath) -> List[Dict
 
     return errors
 
-def validate_app(app_code: str, notebook_path: AbsoluteNotebookPath) -> Tuple[bool, List[str]]:
+def validate_app(app_code: str, notebook_path: AbsoluteNotebookPath) -> List[str]:
     """Convenience function to validate Streamlit code"""
     errors = check_for_errors(app_code, notebook_path)
-    
-    has_validation_error = len(errors) > 0
     stringified_errors = [str(error) for error in errors]
-    return has_validation_error, stringified_errors
+    return stringified_errors

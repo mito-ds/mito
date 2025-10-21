@@ -6,7 +6,7 @@ import time
 import logging
 from typing import Any, Union, List, Optional
 import tempfile
-from mito_ai.path_utils import AbsoluteAppPath, does_app_path_exists, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteAppPath, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.error_classes import StreamlitDeploymentError
 from mito_ai.utils.version_utils import is_pro
@@ -131,6 +131,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             raise StreamlitDeploymentError(error)
 
         if not notebook_path:
+            self.log.error("Missing notebook_path in request")
             error = AppDeployError(
                 error_type="InvalidRequest",
                 message="Missing 'notebook_path' parameter",
@@ -162,7 +163,7 @@ class AppDeployHandler(BaseWebSocketHandler):
         app_path = get_absolute_app_path(absolute_app_directory)
 
         # Check if the app.py file exists
-        app_path_exists = does_app_path_exists(app_path)
+        app_path_exists = does_app_path_exist(app_path)
         if not app_path_exists:
             error = AppDeployError(
                 error_type="AppNotFound",

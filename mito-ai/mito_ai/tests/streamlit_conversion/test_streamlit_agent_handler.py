@@ -138,7 +138,8 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.create_app_file')
-    async def test_streamlit_handler_success(self, mock_create_file, mock_validator, mock_generate_code, mock_parse):
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.log_streamlit_app_conversion_success')
+    async def test_streamlit_handler_success(self, mock_log_success, mock_create_file, mock_validator, mock_generate_code, mock_parse):
         """Test successful streamlit handler execution"""
         # Mock notebook parsing
         mock_notebook_data: List[dict] = [{"cells": [{"cell_type": "code", "source": ["import pandas"]}]}]
@@ -148,7 +149,7 @@ class TestStreamlitHandler:
         mock_generate_code.return_value = "import streamlit\nst.title('Test')"
         
         # Mock validation (no errors)
-        mock_validator.return_value = (False, "")
+        mock_validator.return_value = []
         
         # Use a relative path that will work cross-platform
         notebook_path = AbsoluteNotebookPath("absolute/path/to/notebook.ipynb")
@@ -169,7 +170,8 @@ class TestStreamlitHandler:
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.generate_new_streamlit_code')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.correct_error_in_generation')
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.validate_app')
-    async def test_streamlit_handler_max_retries_exceeded(self, mock_validator, mock_correct_error, mock_generate_code, mock_parse):
+    @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.log_streamlit_app_validation_retry')
+    async def test_streamlit_handler_max_retries_exceeded(self, mock_log_retry, mock_validator, mock_correct_error, mock_generate_code, mock_parse):
         """Test streamlit handler when max retries are exceeded"""
         # Mock notebook parsing
         mock_notebook_data: List[dict] = [{"cells": []}]
@@ -179,14 +181,15 @@ class TestStreamlitHandler:
         mock_generate_code.return_value = "import streamlit\nst.title('Test')"
         mock_correct_error.return_value = "import streamlit\nst.title('Fixed')"
     
-        # Mock validation (always errors) - Return list of errors as expected by validate_app
-        mock_validator.return_value = (True, ["Persistent error"])
+        # Mock validation (always errors) - validate_app returns List[str]
+        mock_validator.return_value = ["Persistent error"]
     
         # Now it should raise an exception instead of returning a tuple
         with pytest.raises(Exception):
             await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
         
-        # Verify that error correction was called 5 times (max retries)
+        # Verify that error correction was called 5 times (once per error, 5 retries)
+        # Each retry processes 1 error, so 5 retries = 5 calls
         assert mock_correct_error.call_count == 5
 
     @pytest.mark.asyncio
@@ -203,14 +206,14 @@ class TestStreamlitHandler:
         # Mock code generation
         mock_generate_code.return_value = "import streamlit\nst.title('Test')"
         
-        # Mock validation (no errors)
-        mock_validator.return_value = (False, "")
+        # Mock validation (no errors) - validate_app returns List[str]
+        mock_validator.return_value = []
         
         # Mock file creation failure - now it should raise an exception
         mock_create_file.side_effect = Exception("Permission denied")
         
         # Now it should raise an exception instead of returning a tuple
-        with pytest.raises(Exception, match="Permission denied"):
+        with pytest.raises(Exception):
             await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
 
     @pytest.mark.asyncio

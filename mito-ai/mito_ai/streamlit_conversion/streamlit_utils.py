@@ -3,9 +3,8 @@
 
 import re
 import json
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookPath
-from pathlib import Path
 from mito_ai.utils.error_classes import StreamlitConversionError
 
 

@@ -1,10 +1,8 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import os
 import socket
 import subprocess
-import tempfile
 import time
 import threading
 import requests
@@ -107,7 +105,7 @@ class StreamlitPreviewManager:
                 if response.status_code == 200:
                     return True
             except requests.exceptions.RequestException as e:
-                print(f"Waiting for app to be ready...")
+                self.log.info(f"Waiting for app to be ready...")
                 pass
             
             time.sleep(1)
@@ -123,7 +121,7 @@ class StreamlitPreviewManager:
         Returns:
             True if stopped successfully, False if not found
         """
-        print(f"Stopping preview {preview_id}")
+        self.log.info(f"Stopping preview {preview_id}")
         with self._lock:
             if preview_id not in self._previews:
                 return False
@@ -150,10 +148,3 @@ class StreamlitPreviewManager:
         """Get a preview process by ID."""
         with self._lock:
             return self._previews.get(preview_id)
-
-# Global instance
-_preview_manager = StreamlitPreviewManager()
-
-def get_preview_manager() -> StreamlitPreviewManager:
-    """Get the global preview manager instance."""
-    return _preview_manager 
