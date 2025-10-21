@@ -1732,13 +1732,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     agentModeEnabled &&
                     agentExecutionStatus === 'idle' &&
                     displayOptimizedChatHistory.length > 0 && (
-                        <>
-                            <button onClick={() => {
-                                reviewChanges();
-                            }}>
-                                Review Changes
-                            </button>
-                            <div className='message message-assistant-chat'>
+                        <div className='message message-assistant-chat'>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <button 
+                                    className="button-base button-green"
+                                    onClick={() => {
+                                        reviewChanges();
+                                    }}
+                                >
+                                    Review Changes
+                                </button>
                                 <TextAndIconButton
                                     text="Revert changes"
                                     icon={UndoIcon}
@@ -1754,11 +1757,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                     width="fit-contents"
                                     iconPosition="left"
                                 />
-                                <p className="text-muted text-sm">
-                                    Undo the most recent changes made by the agent
-                                </p>
                             </div>
-                        </>
+                            <p className="text-muted text-sm">
+                                Undo the most recent changes made by the agent
+                            </p>
+                        </div>
                     )}
                 {/* Revert questionnaire - shows when user clicks revert button */}
                 {showRevertQuestionnaire && (
