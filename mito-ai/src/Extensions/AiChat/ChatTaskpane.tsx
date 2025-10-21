@@ -49,7 +49,14 @@ import { classNames } from '../../utils/classNames';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
 import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
 import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
-import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
+import { 
+    getCodeDiffsAndUnifiedCodeString, 
+    UnifiedDiffLine, 
+    applyDiffStripesToCell, 
+    turnOffDiffsForCell, 
+    shouldShowDiffToolbarButtons, 
+    ICellStateBeforeDiff 
+} from '../../utils/codeDiff';
 import {
     applyCellEditorExtension,
     getActiveCellID,
@@ -141,11 +148,6 @@ interface IChatTaskpaneProps {
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
     websocketClient: CompletionWebsocketClient
-}
-
-interface ICellStateBeforeDiff {
-    codeCellID: string
-    code: string
 }
 
 export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
@@ -1298,7 +1300,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             
             // Write the final code to the cell and turn off diffs
             writeCodeToCellByID(notebookTracker, edit.code, activeCellId);
-            turnOffDiffsForCell(activeCellId);
+            turnOffDiffsForCell(notebookTracker, activeCellId, codeDiffStripesCompartments.current);
             updateCellToolbarButtons();
             
             // Scroll to the next cell with a diff if in agent mode
@@ -1363,7 +1365,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Remove from tracking and restore original code
             cellStatesBeforeDiff.current.delete(activeCellId);
             writeCodeToCellByID(notebookTracker, originalCode, activeCellId);
-            turnOffDiffsForCell(activeCellId);
+            turnOffDiffsForCell(notebookTracker, activeCellId, codeDiffStripesCompartments.current);
             updateCellToolbarButtons();
             
             // Scroll to the next cell with a diff if in agent mode
@@ -1394,34 +1396,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (codeCellID !== undefined) {
             writeCodeToCellByID(notebookTracker, code, codeCellID)
             updateCellToolbarButtons()
-        }
-    }
-
-    // Apply or remove diff stripes for a specific cell
-    const applyDiffStripesToCell = (cellId: string, unifiedDiffs: UnifiedDiffLine[] | null): void => {
-        const extension = unifiedDiffs ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffs }) : [];
-        applyCellEditorExtension(notebookTracker, cellId, extension, codeDiffStripesCompartments.current);
-    }
-
-    // Turn off diff stripes for a specific cell
-    const turnOffDiffsForCell = (cellId: string): void => {
-        applyDiffStripesToCell(cellId, null);
-    }
-
-    // Helper function to check if toolbar buttons should be visible for active cell
-    const shouldShowDiffToolbarButtons = (): boolean => {
-        try {
-            const activeCellId = notebookTracker.activeCell?.model.id;
-            if (!activeCellId) return false;
-            
-            // Check both single-cell mode and multi-cell mode
-            return (
-                activeCellId === cellStateBeforeDiff.current?.codeCellID ||
-                cellStatesBeforeDiff.current.has(activeCellId)
-            );
-        } catch (error) {
-            console.error('Error checking if code cell toolbar buttons should be visible', error)
-            return false;
         }
     }
 
@@ -1494,7 +1468,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             className: 'text-button-mito-ai button-base button-green',
             caption: 'Accept Code',
             execute: acceptAICode,
-            isVisible: shouldShowDiffToolbarButtons
+            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, cellStatesBeforeDiff.current)
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
@@ -1502,7 +1476,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             className: 'text-button-mito-ai button-base button-red',
             caption: 'Reject Code',
             execute: rejectAICode,
-            isVisible: shouldShowDiffToolbarButtons
+            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, cellStatesBeforeDiff.current)
         });
     }, []);
 
@@ -1631,7 +1605,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             writeCodeToCellByID(notebookTracker, unifiedCodeString, edit.cellId);
 
             // Apply diff stripes to this cell
-            applyDiffStripesToCell(edit.cellId, unifiedDiffs);
+            applyDiffStripesToCell(notebookTracker, edit.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
 
             // Highlight the cell to draw attention
             highlightCodeCell(notebookTracker, edit.cellId);
