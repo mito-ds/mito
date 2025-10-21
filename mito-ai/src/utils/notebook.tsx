@@ -340,3 +340,50 @@ export const scrollToCell = (
     // Use the new JupyterLab scrollToCell method instead of DOM node scrollIntoView
     void notebookPanel.content.scrollToCell(cell, position);
 }
+
+/**
+ * Applies a CodeMirror extension to a specific cell's editor.
+ * Manages the compartment for the extension, creating it if it doesn't exist or reconfiguring if it does.
+ * 
+ * @param notebookTracker - The notebook tracker to find the cell in
+ * @param cellId - The ID of the cell to apply the extension to
+ * @param extension - The CodeMirror extension to apply (or empty array to remove)
+ * @param compartmentsMap - Map storing compartments for each cell (for extension management)
+ */
+export const applyCellEditorExtension = (
+    notebookTracker: INotebookTracker,
+    cellId: string,
+    extension: any,
+    compartmentsMap: Map<string, any>
+): void => {
+    const notebook = notebookTracker.currentWidget?.content;
+    if (!notebook) return;
+
+    const cell = notebook.widgets.find(c => c.model.id === cellId);
+    if (!cell || cell.model.type !== 'code') return;
+
+    const codeCell = cell as CodeCell;
+    const cmEditor = codeCell.editor as any; // CodeMirrorEditor
+    const editorView = cmEditor?.editor;
+
+    if (!editorView) return;
+
+    let compartment = compartmentsMap.get(cellId);
+
+    if (!compartment) {
+        // Create a new compartment if it doesn't exist
+        const { Compartment } = require('@codemirror/state');
+        compartment = new Compartment();
+        compartmentsMap.set(cellId, compartment);
+
+        const { StateEffect } = require('@codemirror/state');
+        editorView.dispatch({
+            effects: StateEffect.appendConfig.of(compartment.of(extension)),
+        });
+    } else {
+        // Reconfigure existing compartment
+        editorView.dispatch({
+            effects: compartment.reconfigure(extension),
+        });
+    }
+}

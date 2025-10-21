@@ -4,14 +4,12 @@
  */
 
 // External libraries
-import { Compartment, StateEffect } from '@codemirror/state';
+import { Compartment } from '@codemirror/state';
 import OpenAI from "openai";
 import React, { useEffect, useRef, useState } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { CodeCell } from '@jupyterlab/cells';
-import { CodeMirrorEditor } from '@jupyterlab/codemirror';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { addIcon, historyIcon, deleteIcon, settingsIcon } from '@jupyterlab/ui-components';
@@ -53,6 +51,7 @@ import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
 import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
 import { getCodeDiffsAndUnifiedCodeString, UnifiedDiffLine } from '../../utils/codeDiff';
 import {
+    applyCellEditorExtension,
     getActiveCellID,
     getAIOptimizedCellsInNotebookPanel,
     getCellByID,
@@ -1377,27 +1376,60 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         updateCellToolbarButtons();
     }
 
+    // Apply or remove diff stripes for a specific cell
+    const applyDiffStripesToCell = (cellId: string, unifiedDiffs: UnifiedDiffLine[] | null): void => {
+        const extension = unifiedDiffs ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffs }) : [];
+        applyCellEditorExtension(notebookTracker, cellId, extension, codeDiffStripesCompartments.current);
+    }
+
     // Turn off diff stripes for a specific cell
     const turnOffDiffsForCell = (cellId: string): void => {
-        const notebook = notebookTracker.currentWidget?.content;
-        if (!notebook) return;
+        applyDiffStripesToCell(cellId, null);
+    }
 
-        notebook.widgets.forEach((cell) => {
-            if (cell.model.type === 'code' && cell.model.id === cellId) {
-                const codeCell = cell as CodeCell;
-                const cmEditor = codeCell.editor as CodeMirrorEditor;
-                const editorView = cmEditor?.editor;
+    // Helper function to check if toolbar buttons should be visible for active cell
+    const shouldShowDiffToolbarButtons = (): boolean => {
+        try {
+            const activeCellId = notebookTracker.activeCell?.model.id;
+            if (!activeCellId) return false;
+            
+            // Check both single-cell mode and multi-cell mode
+            return (
+                activeCellId === cellStateBeforeDiff.current?.codeCellID ||
+                cellStatesBeforeDiff.current.has(activeCellId)
+            );
+        } catch (error) {
+            console.error('Error checking if code cell toolbar buttons should be visible', error)
+            return false;
+        }
+    }
 
-                if (editorView) {
-                    const compartment = codeDiffStripesCompartments.current.get(cellId);
-                    if (compartment) {
-                        editorView.dispatch({
-                            effects: compartment.reconfigure([])
-                        });
-                    }
-                }
-            }
-        });
+    // Helper function to handle accept code for either mode
+    const handleAcceptCode = (): void => {
+        const activeCellId = notebookTracker.activeCell?.model.id;
+        if (!activeCellId) return;
+        
+        // Check if this is an agent review mode cell
+        if (cellStatesBeforeDiff.current.has(activeCellId)) {
+            acceptAgentCellChanges(activeCellId);
+        } else {
+            // Fall back to single-cell chat mode
+            acceptAICode();
+        }
+    }
+
+    // Helper function to handle reject code for either mode
+    const handleRejectCode = (): void => {
+        const activeCellId = notebookTracker.activeCell?.model.id;
+        if (!activeCellId) return;
+        
+        // Check if this is an agent review mode cell
+        if (cellStatesBeforeDiff.current.has(activeCellId)) {
+            rejectAgentCellChanges(activeCellId);
+        } else {
+            // Fall back to single-cell chat mode
+            rejectAICode();
+        }
     }
 
     useEffect(() => {
@@ -1468,66 +1500,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             label: `Accept ${operatingSystem === 'mac' ? '⌘Y' : 'Ctrl+Y'}`,
             className: 'text-button-mito-ai button-base button-green',
             caption: 'Accept Code',
-            execute: () => { 
-                const activeCellId = notebookTracker.activeCell?.model.id;
-                if (!activeCellId) return;
-                
-                // Check if this is an agent review mode cell
-                if (cellStatesBeforeDiff.current.has(activeCellId)) {
-                    acceptAgentCellChanges(activeCellId);
-                } else {
-                    // Fall back to single-cell chat mode
-                    acceptAICode();
-                }
-            },
-            isVisible: () => {
-                try {
-                    const activeCellId = notebookTracker.activeCell?.model.id;
-                    if (!activeCellId) return false;
-                    
-                    // Check both single-cell mode and multi-cell mode
-                    return (
-                        activeCellId === cellStateBeforeDiff.current?.codeCellID ||
-                        cellStatesBeforeDiff.current.has(activeCellId)
-                    );
-                } catch (error) {
-                    console.error('Error checking if code cell toolbar accept code is visible', error)
-                    return false;
-                }
-            }
+            execute: handleAcceptCode,
+            isVisible: shouldShowDiffToolbarButtons
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
             label: `Reject ${operatingSystem === 'mac' ? '⌘U' : 'Ctrl+U'}`,
             className: 'text-button-mito-ai button-base button-red',
             caption: 'Reject Code',
-            execute: () => { 
-                const activeCellId = notebookTracker.activeCell?.model.id;
-                if (!activeCellId) return;
-                
-                // Check if this is an agent review mode cell
-                if (cellStatesBeforeDiff.current.has(activeCellId)) {
-                    rejectAgentCellChanges(activeCellId);
-                } else {
-                    // Fall back to single-cell chat mode
-                    rejectAICode();
-                }
-            },
-            isVisible: () => {
-                try {
-                    const activeCellId = notebookTracker.activeCell?.model.id;
-                    if (!activeCellId) return false;
-                    
-                    // Check both single-cell mode and multi-cell mode
-                    return (
-                        activeCellId === cellStateBeforeDiff.current?.codeCellID ||
-                        cellStatesBeforeDiff.current.has(activeCellId)
-                    );
-                } catch (error) {
-                    console.error('Error checking if code cell toolbar reject code is visible', error)
-                    return false;
-                }
-            }
+            execute: handleRejectCode,
+            isVisible: shouldShowDiffToolbarButtons
         });
     }, []);
 
@@ -1597,42 +1579,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         notebook.widgets.forEach((cell, index) => {
             if (cell.model.type === 'code') {
-
                 const isActiveCodeCell = activeCellIndex === index
-
-                // TODO: Instead of casting, we should rely on the type system to make 
-                // sure we're using the correct types!
-                const codeCell = cell as CodeCell;
-
-                const cmEditor = codeCell.editor as CodeMirrorEditor;
-                const editorView = cmEditor?.editor;
-
-                if (editorView) {
-                    const cellId = codeCell.model.id;
-                    let compartment = codeDiffStripesCompartments.current.get(cellId);
-
-                    if (!compartment) {
-                        // Create a new compartment and store it
-                        compartment = new Compartment();
-                        codeDiffStripesCompartments.current.set(cellId, compartment);
-
-                        // Apply the initial configuration
-                        editorView.dispatch({
-                            effects: StateEffect.appendConfig.of(
-                                compartment.of(unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : [])
-                            ),
-                        });
-                    } else {
-                        // Reconfigure the compartment
-                        editorView.dispatch({
-                            effects: compartment.reconfigure(
-                                unifiedDiffLines !== undefined && isActiveCodeCell ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) : []
-                            ),
-                        });
-                    }
-                } else {
-                    console.log('Mito AI: editor view not found when applying code diff stripes')
-                }
+                const cellId = cell.model.id;
+                
+                // Only apply diff stripes to the active cell
+                const extension = unifiedDiffLines !== undefined && isActiveCodeCell 
+                    ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) 
+                    : [];
+                
+                applyCellEditorExtension(notebookTracker, cellId, extension, codeDiffStripesCompartments.current);
             }
         });
     };
@@ -1683,40 +1638,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             writeCodeToCellByID(notebookTracker, unifiedCodeString, edit.cellId);
 
             // Apply diff stripes to this cell
-            const notebook = notebookTracker.currentWidget?.content;
-            if (!notebook) return;
+            applyDiffStripesToCell(edit.cellId, unifiedDiffs);
 
-            notebook.widgets.forEach((cell) => {
-                if (cell.model.type === 'code' && cell.model.id === edit.cellId) {
-                    const codeCell = cell as CodeCell;
-                    const cmEditor = codeCell.editor as CodeMirrorEditor;
-                    const editorView = cmEditor?.editor;
-
-                    if (editorView) {
-                        let compartment = codeDiffStripesCompartments.current.get(edit.cellId);
-
-                        if (!compartment) {
-                            compartment = new Compartment();
-                            codeDiffStripesCompartments.current.set(edit.cellId, compartment);
-
-                            editorView.dispatch({
-                                effects: StateEffect.appendConfig.of(
-                                    compartment.of(codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffs }))
-                                ),
-                            });
-                        } else {
-                            editorView.dispatch({
-                                effects: compartment.reconfigure(
-                                    codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffs })
-                                ),
-                            });
-                        }
-                    }
-
-                    // Highlight the cell to draw attention
-                    highlightCodeCell(notebookTracker, edit.cellId);
-                }
-            });
+            // Highlight the cell to draw attention
+            highlightCodeCell(notebookTracker, edit.cellId);
         });
 
         // Scroll to the first changed cell
