@@ -38,6 +38,7 @@ require('prismjs/components/prism-python');
 import Link from 'next/link';
 import { arraysContainSameValueAndOrder } from '../../utils/arrays';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_IN_CONTENT_CTA, PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA, PLAUSIBLE_COPIED_CODE_MITO_EXPORTED_FUNCTION, PLAUSIBLE_COPIED_CODE_NON_MITO_EXPORTED_FUNCTION } from '../../utils/plausible';
+import PostCTA from '../../components/PostCTA/PostCTA';
 
 const getRelatedFunctionHref = (relatedFunctionShortName: string, glossaryPageInfo: GlossaryPageInfo[]) => {
   const relatedFunction = glossaryPageInfo.filter((glossaryPageInfo) => {
@@ -354,14 +355,9 @@ const ExcelToPythonGlossaryPage = (props: {pageContent: PageContent, glossaryPag
             </div>
             <div className={excelToPythonStyles.table_of_contents_container}>
               <PageTOC />
-              <p className={classNames('text-primary', 'margin-bottom-1')}>
-                <b>Don&apos;t re-invent the wheel. Use Excel formulas in Python.</b> 
-              </p>
-              <TextButton 
-                text={'Install Mito'} 
-                href={MITO_INSTALLATION_DOCS_LINK} 
-                className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA}
-                buttonSize='small'
+              <PostCTA 
+                variant='answers-not-syntax-errors' 
+                textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_EXCEL_TO_PYTHON_GLOSSARY_TOC_CTA}
               />
             </div>
           </div>

@@ -9,7 +9,6 @@ import Head from 'next/head';
 import Image from "next/image";
 import { GetStaticProps } from 'next/types';
 import { useEffect, useState } from 'react';
-import ComparisonCTACard from '../../components/CTACards/ComparisonCTACard';
 import Footer from '../../components/Footer/Footer';
 import PageTOC from '../../components/Glossary/PageTOC/PageTOC';
 import pageStyles from '../../styles/Page.module.css';
@@ -27,11 +26,82 @@ import 'prism-themes/themes/prism-coldark-dark.css'
 require('prismjs/components/prism-python');
 
 import { classNames } from '../../utils/classNames';
-import { PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG } from '../../utils/plausible';
+import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA } from '../../utils/plausible';
+import PostCTA from '../../components/PostCTA/PostCTA';
+import postCTAStyles from '../../components/PostCTA/PostCTA.module.css';
+import InlineBlogCTA from '../../components/InlineBlogCTA/InlineBlogCTA';
 
 declare global {
   interface Window { Prism: any; }
 }
+
+// Component to render blog content with inline CTA
+const BlogContentWithCTA = ({ html, textButtonClassName }: { html: string, textButtonClassName: string }) => {
+  const [contentParts, setContentParts] = useState<{ before: string, after: string } | null>(null);
+  
+  useEffect(() => {
+    // Create a temporary div to parse the HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // Find all paragraph elements
+    const paragraphs = tempDiv.querySelectorAll('p');
+    
+    const paragraphsToSplitOn = 4;
+    // If we have at least 4 paragraphs, split the content
+    if (paragraphs.length >= paragraphsToSplitOn) {
+      const targetParagraph = paragraphs[paragraphsToSplitOn - 1];
+      
+      // Get all content before the target paragraph
+      const beforeContent = [];
+      let current = targetParagraph.previousSibling;
+      while (current) {
+        const element = current as Element;
+        beforeContent.unshift(element.outerHTML || current.textContent || '');
+        current = current.previousSibling;
+      }
+      
+      // Get all content after the target paragraph
+      const afterContent = [];
+      current = targetParagraph.nextSibling;
+      while (current) {
+        const element = current as Element;
+        afterContent.push(element.outerHTML || current.textContent || '');
+        current = current.nextSibling;
+      }
+      
+      setContentParts({
+        before: beforeContent.join('') + targetParagraph.outerHTML,
+        after: afterContent.join('')
+      });
+    } else {
+      // If less than 3 paragraphs, just show the original content
+      setContentParts({ before: html, after: '' });
+    }
+  }, [html]);
+  
+  // Re-run Prism highlighting after content is rendered
+  useEffect(() => {
+    if (contentParts) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        Prism.highlightAll();
+      }, 100);
+    }
+  }, [contentParts]);
+  
+  if (!contentParts) {
+    return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  }
+  
+  return (
+    <>
+      <div dangerouslySetInnerHTML={{ __html: contentParts.before }} />
+      <InlineBlogCTA textButtonClassName={textButtonClassName} />
+      <div dangerouslySetInnerHTML={{ __html: contentParts.after }} />
+    </>
+  );
+};
 
 // PostPage page component
 const PostPage = (props: {post: PostOrPage}) => {
@@ -128,16 +198,17 @@ const PostPage = (props: {post: PostOrPage}) => {
             {/* Table of Contents */}
             <div className={postStyles.post_toc}>
               <PageTOC />
-              <div className={postStyles.post_cta}>
-              <ComparisonCTACard 
-                  headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} 
-                  textButtonClassName={PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG} 
-                />
-              </div>
+              <PostCTA 
+                textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA}
+                className={postCTAStyles.toc_context}
+              />
             </div>
             {/* Post Contents */}
             <div className={postStyles.post_content}> 
-              <div dangerouslySetInnerHTML={{ __html: props.post.html }}/>
+              <BlogContentWithCTA 
+                html={props.post.html} 
+                textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA}
+              />
               <div className={postStyles.share_section}>
                 <a className={postStyles.tweet_button}
                   href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(props.post.title ?? '')}&url=${encodeURIComponent(currentURL ?? '')}`}>
@@ -171,12 +242,10 @@ const PostPage = (props: {post: PostOrPage}) => {
 
             {/* CTA */}
             <div className={postStyles.post_cta_container}>
-              <div className={postStyles.post_cta}>
-                <ComparisonCTACard 
-                  headerStyle={{ fontSize: '1.5rem', color: 'var(--color-light-background-accent)', fontWeight: 'normal' }} 
-                  textButtonClassName={PLAUSIBLE_MITO_VS_CHATGPT_CTA_LOCATION_BLOG} 
-                />
-              </div>
+              <PostCTA 
+                textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_BLOG_SIDE_PANEL_CTA}
+                addScrollMargin={true}
+              />
             </div>
           </div>
         </div>
