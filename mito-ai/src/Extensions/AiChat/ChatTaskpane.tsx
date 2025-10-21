@@ -36,18 +36,16 @@ import LoadingCircle from '../../components/LoadingCircle';
 import { DEFAULT_MODEL } from '../../components/ModelSelector';
 import ModelSelector from '../../components/ModelSelector';
 import NextStepsPills from '../../components/NextStepsPills';
-import TextAndIconButton from '../../components/TextAndIconButton';
 import ToggleButton from '../../components/ToggleButton';
 
 // Internal imports - Icons
 import { OpenIndicatorLabIcon } from '../../icons';
-import UndoIcon from '../../icons/UndoIcon';
 
 // Internal imports - Utils
 import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../utils/agentActions';
 import { classNames } from '../../utils/classNames';
 import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
-import { createCheckpoint, restoreCheckpoint } from '../../utils/checkpoint';
+import { createCheckpoint } from '../../utils/checkpoint';
 import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
 import { 
     getCodeDiffsAndUnifiedCodeString, 
@@ -111,6 +109,7 @@ import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlug
 import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPage';
 
 // Internal imports - Chat components
+import AgentChangeControls from './ChatMessage/AgentChangeControls';
 import CTACarousel from './CTACarousel';
 import UsageBadge, { UsageBadgeRef } from './UsageBadge';
 import SignUpForm from './SignUpForm';
@@ -1721,41 +1720,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
                 {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
-                {hasCheckpoint &&
-                    agentModeEnabled &&
-                    agentExecutionStatus === 'idle' &&
-                    displayOptimizedChatHistory.length > 0 && (
-                        <div className='message message-assistant-chat'>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                <button 
-                                    className="button-base button-green"
-                                    onClick={() => {
-                                        reviewAgentChanges();
-                                    }}
-                                >
-                                    Review Changes
-                                </button>
-                                <TextAndIconButton
-                                    text="Revert changes"
-                                    icon={UndoIcon}
-                                    title="Revert changes"
-                                    onClick={() => {
-                                        void restoreCheckpoint(app, notebookTracker, setHasCheckpoint)
-                                        setDisplayedNextStepsIfAvailable(false)
-                                        setHasCheckpoint(false)
-                                        setShowRevertQuestionnaire(true)
-                                        scrollToDiv(chatMessagesRef);
-                                    }}
-                                    variant="gray"
-                                    width="fit-contents"
-                                    iconPosition="left"
-                                />
-                            </div>
-                            <p className="text-muted text-sm">
-                                Undo the most recent changes made by the agent
-                            </p>
-                        </div>
-                    )}
+                <AgentChangeControls
+                    hasCheckpoint={hasCheckpoint}
+                    agentModeEnabled={agentModeEnabled}
+                    agentExecutionStatus={agentExecutionStatus}
+                    displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
+                    reviewAgentChanges={reviewAgentChanges}
+                    app={app}
+                    notebookTracker={notebookTracker}
+                    setHasCheckpoint={setHasCheckpoint}
+                    setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                    setShowRevertQuestionnaire={setShowRevertQuestionnaire}
+                    chatMessagesRef={chatMessagesRef}
+                />
                 {/* Revert questionnaire - shows when user clicks revert button */}
                 {showRevertQuestionnaire && (
                     <RevertQuestionnaire 
