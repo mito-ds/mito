@@ -341,16 +341,6 @@ export const scrollToCell = (
     void notebookPanel.content.scrollToCell(cell, position);
 }
 
-/**
- * Scrolls to the next cell that has a diff in agent review mode.
- * Used after accepting or rejecting a cell's changes to automatically move to the next cell that needs review.
- * 
- * @param notebookTracker - The notebook tracker
- * @param currentCellId - The ID of the cell that was just accepted/rejected
- * @param cellStatesBeforeDiff - Map of cell IDs that still have pending diffs
- * @param agentEdits - Array of agent edits in order
- * @param agentModeEnabled - Whether agent mode is currently enabled
- */
 export const scrollToNextCellWithDiff = (
     notebookTracker: INotebookTracker,
     currentCellId: string,
@@ -382,21 +372,32 @@ export const scrollToNextCellWithDiff = (
     }
 }
 
-/**
- * Applies a CodeMirror extension to a specific cell's editor.
- * Manages the compartment for the extension, creating it if it doesn't exist or reconfiguring if it does.
- * 
- * @param notebookTracker - The notebook tracker to find the cell in
- * @param cellId - The ID of the cell to apply the extension to
- * @param extension - The CodeMirror extension to apply (or empty array to remove)
- * @param compartmentsMap - Map storing compartments for each cell (for extension management)
- */
 export const applyCellEditorExtension = (
     notebookTracker: INotebookTracker,
     cellId: string,
     extension: any,
     compartmentsMap: Map<string, any>
 ): void => {
+    /*
+    What it does:
+    - Dynamically adds or updates CodeMirror extensions (like visual decorations, custom behaviors, 
+      or styling) to individual notebook cells
+    - Uses CodeMirror's "compartment" system, which allows extensions to be added, removed, or 
+      modified after the editor is already created
+
+    Why we need this:
+    - To show visual diff stripes on cells that the AI agent has modified (added/removed/changed lines)
+    - To dynamically toggle these decorations on/off (e.g., only show on active cell, remove when 
+      user accepts/rejects changes)
+    - To avoid recreating the entire editor just to add/remove visual features
+
+    How it works (the compartment pattern):
+    - Each cell gets its own compartment (stored in compartmentsMap by cellId)
+    - First call: Creates a new compartment and appends the extension to the editor
+    - Subsequent calls: Reconfigures the existing compartment with the new extension
+    - Pass an empty array as the extension to effectively remove/disable it
+    */
+
     const notebook = notebookTracker.currentWidget?.content;
     if (!notebook) return;
 
