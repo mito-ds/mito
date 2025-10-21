@@ -70,7 +70,7 @@
     left: 12px; /* This is the space between the regular text and the cycling word */
     opacity: 0;
     transition: all 0.5s ease-in-out;
-    animation: cycleWords 16s infinite;
+    animation: cycleWords 20s infinite;
     white-space: nowrap;
 }
 
@@ -88,7 +88,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: cycleWords 16s infinite, shineGradient 3s ease-in-out infinite;
+    animation: cycleWords 20s infinite, shineGradient 3s ease-in-out infinite;
 }
 
 .cycling_word:nth-child(2) {
@@ -105,7 +105,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: cycleWords 16s infinite, shineGradient 3s ease-in-out infinite;
+    animation: cycleWords 20s infinite, shineGradient 3s ease-in-out infinite;
     animation-delay: 4s, 4s;
 }
 
@@ -123,7 +123,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: cycleWords 16s infinite, shineGradient 3s ease-in-out infinite;
+    animation: cycleWords 20s infinite, shineGradient 3s ease-in-out infinite;
     animation-delay: 8s, 8s;
 }
 
@@ -141,16 +141,34 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: cycleWords 16s infinite, shineGradient 3s ease-in-out infinite;
+    animation: cycleWords 20s infinite, shineGradient 3s ease-in-out infinite;
     animation-delay: 12s, 12s;
 }
 
+.cycling_word:nth-child(5) {
+    animation-delay: 16s;
+    background: linear-gradient(
+        135deg, 
+        #ac84fc 0%, 
+        #F2C94C 25%,
+        #ffffff 50%,
+        #F2C94C 75%,
+        #9D6CFF 100%
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: cycleWords 20s infinite, shineGradient 3s ease-in-out infinite;
+    animation-delay: 16s, 16s;
+}
+
 @keyframes cycleWords {
-    0%, 23% {
+    0%, 18% {
         opacity: 1;
         transform: translateY(0);
     }
-    25%, 100% {
+    20%, 100% {
         opacity: 0;
         transform: translateY(20px);
     }
