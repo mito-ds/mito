@@ -1283,7 +1283,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         updateCellToolbarButtons()
     }
 
-    const acceptAICode = (): void => {
+    const acceptAICode = (cellId?: string): void => {
+        // Agent review mode: accept specific cell from multi-cell review
+        if (cellId !== undefined) {
+            // Remove the cell from tracking
+            cellStatesBeforeDiff.current.delete(cellId);
+            
+            // Find the final code from the agentEdits array
+            const edit = agentEditsRef.current.find(e => e.cellId === cellId);
+            if (!edit) return;
+            
+            // Write the final code to the cell and turn off diffs
+            writeCodeToCellByID(notebookTracker, edit.code, cellId);
+            turnOffDiffsForCell(cellId);
+            updateCellToolbarButtons();
+            return;
+        }
+
+        // Chat mode: accept single cell from chat preview
         const latestChatHistoryManager = chatHistoryManagerRef.current;
         const lastAIMessage = latestChatHistoryManager.getLastAIDisplayOptimizedChatItem()
 
@@ -1323,7 +1340,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setShowRevertQuestionnaire(false);
     }
 
-    const rejectAICode = (): void => {
+    const rejectAICode = (cellId?: string): void => {
+        // Agent review mode: reject specific cell from multi-cell review
+        if (cellId !== undefined) {
+            const originalCode = cellStatesBeforeDiff.current.get(cellId);
+            if (originalCode === undefined) return;
+            
+            // Remove from tracking and restore original code
+            cellStatesBeforeDiff.current.delete(cellId);
+            writeCodeToCellByID(notebookTracker, originalCode, cellId);
+            turnOffDiffsForCell(cellId);
+            updateCellToolbarButtons();
+            return;
+        }
+
+        // Chat mode: reject single cell from chat preview
         if (cellStateBeforeDiff.current === undefined) {
             return
         }
@@ -1341,39 +1372,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             writeCodeToCellByID(notebookTracker, code, codeCellID)
             updateCellToolbarButtons()
         }
-    }
-
-    // Accept changes for a single cell in agent review mode
-    const acceptAgentCellChanges = (cellId: string): void => {
-        // Remove the cell from the map (accepting means we no longer need to track it)
-        cellStatesBeforeDiff.current.delete(cellId);
-        
-        // Find the final code from the agentEdits array using the ref to get current state
-        const edit = agentEditsRef.current.find(e => e.cellId === cellId);
-        if (!edit) return;
-        
-        // Write the final code to the cell and turn off diffs for this cell
-        writeCodeToCellByID(notebookTracker, edit.code, cellId);
-        turnOffDiffsForCell(cellId);
-        
-        updateCellToolbarButtons();
-    }
-
-    // Reject changes for a single cell in agent review mode
-    const rejectAgentCellChanges = (cellId: string): void => {
-        const originalCode = cellStatesBeforeDiff.current.get(cellId);
-        if (originalCode === undefined) {
-            return;
-        }
-        
-        // Remove from map since we're reverting
-        cellStatesBeforeDiff.current.delete(cellId);
-        
-        // Restore original code and turn off diffs for this cell
-        writeCodeToCellByID(notebookTracker, originalCode, cellId);
-        turnOffDiffsForCell(cellId);
-        
-        updateCellToolbarButtons();
     }
 
     // Apply or remove diff stripes for a specific cell
@@ -1407,29 +1405,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Helper function to handle accept code for either mode
     const handleAcceptCode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
-        if (!activeCellId) return;
         
-        // Check if this is an agent review mode cell
-        if (cellStatesBeforeDiff.current.has(activeCellId)) {
-            acceptAgentCellChanges(activeCellId);
-        } else {
-            // Fall back to single-cell chat mode
-            acceptAICode();
-        }
+        // If this is an agent review mode cell, pass the cellId; otherwise chat mode
+        const cellIdParam = activeCellId && cellStatesBeforeDiff.current.has(activeCellId) 
+            ? activeCellId 
+            : undefined;
+        
+        acceptAICode(cellIdParam);
     }
 
     // Helper function to handle reject code for either mode
     const handleRejectCode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
-        if (!activeCellId) return;
         
-        // Check if this is an agent review mode cell
-        if (cellStatesBeforeDiff.current.has(activeCellId)) {
-            rejectAgentCellChanges(activeCellId);
-        } else {
-            // Fall back to single-cell chat mode
-            rejectAICode();
-        }
+        // If this is an agent review mode cell, pass the cellId; otherwise chat mode
+        const cellIdParam = activeCellId && cellStatesBeforeDiff.current.has(activeCellId) 
+            ? activeCellId 
+            : undefined;
+        
+        rejectAICode(cellIdParam);
     }
 
     useEffect(() => {
