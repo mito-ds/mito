@@ -71,9 +71,6 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
                     iconPosition="left"
                 />
             </div>
-            <p className="text-muted text-sm">
-                Undo the most recent changes made by the agent
-            </p>
         </div>
     );
 };
