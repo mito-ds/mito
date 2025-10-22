@@ -35,6 +35,24 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
 
     const [isReviewing, setIsReviewing] = useState(false);
 
+    const handleAcceptAll = (): void => {
+        acceptAllAICode();
+        setIsReviewing(false);
+    }
+
+    const handleReviewChanges = (): void => {
+        setIsReviewing(true);
+        reviewAgentChanges();
+    }
+
+    const handleUndoAll = (): void => {
+        restoreCheckpoint(app, notebookTracker, setHasCheckpoint);
+        setDisplayedNextStepsIfAvailable(false);
+        setHasCheckpoint(false);
+        setShowRevertQuestionnaire(true);
+        scrollToDiv(chatMessagesRef);
+    }
+
     return (
         <div className='message message-assistant-chat'>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -42,34 +60,23 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
                     <button
                         className="button-base button-green"
                         title="Accept all changes"
-                        onClick={() => {
-                            acceptAllAICode();
-                        }}
+                        onClick={handleAcceptAll}
                     >
                         Accept all
                     </button>
                 ) : (
                     <button
                         className="button-base button-gray"
-                        onClick={() => {
-                            setIsReviewing(true);
-                            reviewAgentChanges();
-                        }}
+                        onClick={handleReviewChanges}
                     >
                         Review Changes
                     </button>
                 )}
                 <TextAndIconButton
-                    text="Revert changes"
+                    text="Undo All"
                     icon={UndoIcon}
-                    title="Revert changes"
-                    onClick={() => {
-                        void restoreCheckpoint(app, notebookTracker, setHasCheckpoint)
-                        setDisplayedNextStepsIfAvailable(false)
-                        setHasCheckpoint(false)
-                        setShowRevertQuestionnaire(true)
-                        scrollToDiv(chatMessagesRef);
-                    }}
+                    title="Undo All"
+                    onClick={handleUndoAll}
                     variant="gray"
                     width="fit-contents"
                     iconPosition="left"
