@@ -1760,6 +1760,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
                     setShowRevertQuestionnaire={setShowRevertQuestionnaire}
                     chatMessagesRef={chatMessagesRef}
+                    acceptAllAICode={acceptAllAICode}
                 />
                 {/* Revert questionnaire - shows when user clicks revert button */}
                 {showRevertQuestionnaire && (

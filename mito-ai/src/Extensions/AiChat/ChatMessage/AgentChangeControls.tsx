@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import TextAndIconButton from '../../../components/TextAndIconButton';
@@ -24,6 +24,7 @@ interface IAgentChangeControlsProps {
     setDisplayedNextStepsIfAvailable: (value: boolean) => void;
     setShowRevertQuestionnaire: (value: boolean) => void;
     chatMessagesRef: React.RefObject<HTMLDivElement>;
+    acceptAllAICode: () => void;
 }
 
 const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
@@ -38,23 +39,44 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     setDisplayedNextStepsIfAvailable,
     setShowRevertQuestionnaire,
     chatMessagesRef,
+    acceptAllAICode,
 }) => {
     // Only show when agent checkpoint exists and agent is idle
-    if (!hasCheckpoint || !agentModeEnabled || agentExecutionStatus !== 'idle' || displayOptimizedChatHistoryLength === 0) {
+    if (
+        !hasCheckpoint ||
+        !agentModeEnabled ||
+        agentExecutionStatus !== 'idle' ||
+        displayOptimizedChatHistoryLength === 0
+    ) {
         return null;
     }
+
+    const [isReviewing, setIsReviewing] = useState(false);
 
     return (
         <div className='message message-assistant-chat'>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <button 
-                    className="button-base button-green"
-                    onClick={() => {
-                        reviewAgentChanges();
-                    }}
-                >
-                    Review Changes
-                </button>
+                {isReviewing ? (
+                    <button
+                        className="button-base button-green"
+                        title="Accept all changes"
+                        onClick={() => {
+                            acceptAllAICode();
+                        }}
+                    >
+                        Accept all
+                    </button>
+                ) : (
+                    <button
+                        className="button-base button-gray"
+                        onClick={() => {
+                            setIsReviewing(true);
+                            reviewAgentChanges();
+                        }}
+                    >
+                        Review Changes
+                    </button>
+                )}
                 <TextAndIconButton
                     text="Revert changes"
                     icon={UndoIcon}
