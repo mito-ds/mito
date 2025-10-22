@@ -41,15 +41,6 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     chatMessagesRef,
     acceptAllAICode,
 }) => {
-    // Only show when agent checkpoint exists and agent is idle
-    if (
-        !hasCheckpoint ||
-        !agentModeEnabled ||
-        agentExecutionStatus !== 'idle' ||
-        displayOptimizedChatHistoryLength === 0
-    ) {
-        return null;
-    }
 
     const [isReviewing, setIsReviewing] = useState(false);
 

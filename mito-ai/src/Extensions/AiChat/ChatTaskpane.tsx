@@ -1748,20 +1748,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                 }
                 {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
-                <AgentChangeControls
-                    hasCheckpoint={hasCheckpoint}
-                    agentModeEnabled={agentModeEnabled}
-                    agentExecutionStatus={agentExecutionStatus}
-                    displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
-                    reviewAgentChanges={reviewAgentChanges}
-                    app={app}
-                    notebookTracker={notebookTracker}
-                    setHasCheckpoint={setHasCheckpoint}
-                    setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
-                    setShowRevertQuestionnaire={setShowRevertQuestionnaire}
-                    chatMessagesRef={chatMessagesRef}
-                    acceptAllAICode={acceptAllAICode}
-                />
+                {hasCheckpoint &&
+                    agentModeEnabled &&
+                    agentExecutionStatus === 'idle' &&
+                    displayOptimizedChatHistory.length > 0 && (
+                    <AgentChangeControls
+                        hasCheckpoint={hasCheckpoint}
+                        agentModeEnabled={agentModeEnabled}
+                        agentExecutionStatus={agentExecutionStatus}
+                        displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
+                        reviewAgentChanges={reviewAgentChanges}
+                        app={app}
+                        notebookTracker={notebookTracker}
+                        setHasCheckpoint={setHasCheckpoint}
+                        setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                        setShowRevertQuestionnaire={setShowRevertQuestionnaire}
+                        chatMessagesRef={chatMessagesRef}
+                        acceptAllAICode={acceptAllAICode}
+                    />
+                )}
                 {/* Revert questionnaire - shows when user clicks revert button */}
                 {showRevertQuestionnaire && (
                     <RevertQuestionnaire 
