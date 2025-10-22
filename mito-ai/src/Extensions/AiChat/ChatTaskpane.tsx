@@ -1017,6 +1017,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
 
+        acceptAllAICode();
         setNotebookSnapshot(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
         setAgentEdits([]); // Reset edits tracking for new agent execution
         await createCheckpoint(app, setHasCheckpoint);
@@ -1343,6 +1344,30 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             // Focus on the active cell
             targetCell.activate();
         }
+    }
+
+    const acceptAllAICode = (): void => {
+        // Look for all cells with diffs
+        if (cellStatesBeforeDiff.current.size === 0) {
+            return;
+        }
+
+        // Accept all cells that have diffs
+        cellStatesBeforeDiff.current.forEach((originalCode, cellId) => {
+            // Find the final code from the agentEdits array
+            const edit = agentEditsRef.current.find(e => e.cellId === cellId);
+            if (edit) {
+                // Write the final code to the cell and turn off diffs
+                writeCodeToCellByID(notebookTracker, edit.code, cellId);
+                turnOffDiffsForCell(notebookTracker, cellId, codeDiffStripesCompartments.current);
+            }
+        });
+
+        // Clear all tracking
+        cellStatesBeforeDiff.current.clear();
+        
+        // Update UI
+        updateCellToolbarButtons();
     }
 
     const resetForNewMessage = (): void => {
