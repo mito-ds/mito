@@ -10,13 +10,8 @@ import TextAndIconButton from '../../../components/TextAndIconButton';
 import UndoIcon from '../../../icons/UndoIcon';
 import { restoreCheckpoint } from '../../../utils/checkpoint';
 import { scrollToDiv } from '../../../utils/scroll';
-import { AgentExecutionStatus } from '../ChatTaskpane';
 
 interface IAgentChangeControlsProps {
-    hasCheckpoint: boolean;
-    agentModeEnabled: boolean;
-    agentExecutionStatus: AgentExecutionStatus;
-    displayOptimizedChatHistoryLength: number;
     reviewAgentChanges: () => void;
     app: JupyterFrontEnd;
     notebookTracker: INotebookTracker;
@@ -28,10 +23,6 @@ interface IAgentChangeControlsProps {
 }
 
 const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
-    hasCheckpoint,
-    agentModeEnabled,
-    agentExecutionStatus,
-    displayOptimizedChatHistoryLength,
     reviewAgentChanges,
     app,
     notebookTracker,

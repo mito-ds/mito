@@ -1753,10 +1753,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     agentExecutionStatus === 'idle' &&
                     displayOptimizedChatHistory.length > 0 && (
                     <AgentChangeControls
-                        hasCheckpoint={hasCheckpoint}
-                        agentModeEnabled={agentModeEnabled}
-                        agentExecutionStatus={agentExecutionStatus}
-                        displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
                         reviewAgentChanges={reviewAgentChanges}
                         app={app}
                         notebookTracker={notebookTracker}
