@@ -1122,18 +1122,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
-                // Track the cell ID being updated and the code that is added
+                // Track the the code that is added
                 const cellUpdate = agentResponse.cell_update;
-                const cellId = cellUpdate.type === 'modification' ? cellUpdate.id : `new-cell-at-index-${cellUpdate.index}`;
                 const code = cellUpdate.code;
                 
-                setAgentEdits(prev => [...prev, { cellId, code }]);
-                
-                // Run the code and handle any errors
+                // Run the code and handle any errors first
                 await acceptAndRunCellUpdate(
                     agentResponse.cell_update,
                     agentTargetNotebookPanelRef.current,
                 )
+                
+                // Get the cell ID after the cell has been created/updated
+                const actualCellId = getActiveCellID(notebookTracker);
+                if (actualCellId) {
+                    setAgentEdits(prev => [...prev, { cellId: actualCellId, code }]);
+                }
 
                 const status = await retryIfExecutionError(
                     agentTargetNotebookPanelRef.current,
