@@ -1123,21 +1123,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             }
 
             if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
-                // Track the the code that is added
-                const cellUpdate = agentResponse.cell_update;
-                const code = cellUpdate.code;
-                
-                // Run the code and handle any errors first
+                // Run the code and handle any errors
                 await acceptAndRunCellUpdate(
                     agentResponse.cell_update,
                     agentTargetNotebookPanelRef.current,
                 )
-                
-                // Get the cell ID after the cell has been created/updated
-                const actualCellId = getActiveCellID(notebookTracker);
-                if (actualCellId) {
-                    setAgentEdits(prev => [...prev, { cellId: actualCellId, code }]);
-                }
 
                 const status = await retryIfExecutionError(
                     agentTargetNotebookPanelRef.current,
@@ -1606,42 +1596,81 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     };
 
     const reviewAgentChanges = (): void => {
-        if (!notebookSnapshot || agentEditsRef.current.length === 0) {
+        const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
+
+        if (!notebookSnapshot || !currentNotebookSnapshot) {
             return;
         }
 
         // Clear and populate the map of original cell states
         cellStatesBeforeDiff.current.clear();
 
-        // For each agent edit, calculate and apply diff stripes
-        agentEditsRef.current.forEach(edit => {
-            // Find the original code from the snapshot
-            const originalCell = notebookSnapshot.find(cell => cell.id === edit.cellId);
-            const originalCode = originalCell ? originalCell.code : '';
+        // Find cells that have changed between snapshots
+        const changedCells: { cellId: string, originalCode: string, currentCode: string }[] = [];
 
+        // Compare each cell in the current snapshot with the original snapshot
+        currentNotebookSnapshot.forEach(currentCell => {
+            const originalCell = notebookSnapshot.find(cell => cell.id === currentCell.id);
+            
+            if (originalCell) {
+                // Cell exists in both snapshots, check if code has changed
+                if (originalCell.code !== currentCell.code) {
+                    changedCells.push({
+                        cellId: currentCell.id,
+                        originalCode: originalCell.code,
+                        currentCode: currentCell.code
+                    });
+                }
+            } else {
+                // Cell was added (doesn't exist in original snapshot)
+                changedCells.push({
+                    cellId: currentCell.id,
+                    originalCode: '',
+                    currentCode: currentCell.code
+                });
+            }
+        });
+
+        // Check for cells that were removed (exist in original but not in current)
+        notebookSnapshot.forEach(originalCell => {
+            const currentCell = currentNotebookSnapshot.find(cell => cell.id === originalCell.id);
+            if (!currentCell) {
+                // Cell was removed
+                changedCells.push({
+                    cellId: originalCell.id,
+                    originalCode: originalCell.code,
+                    currentCode: ''
+                });
+            }
+        });
+
+        if (changedCells.length === 0) {
+            console.log('No changes detected between snapshots');
+            return;
+        }
+
+        // For each changed cell, calculate and apply diff stripes
+        changedCells.forEach(change => {
             // Store the original code so we can revert if user rejects
-            cellStatesBeforeDiff.current.set(edit.cellId, originalCode);
-
-            // Get current code from the cell (which should match edit.code)
-            const currentCode = getCellCodeByID(notebookTracker, edit.cellId) || '';
+            cellStatesBeforeDiff.current.set(change.cellId, change.originalCode);
 
             // Calculate the code diffs
-            const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(originalCode, currentCode);
+            const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(change.originalCode, change.currentCode);
 
             // Write the unified code string to the cell
-            writeCodeToCellByID(notebookTracker, unifiedCodeString, edit.cellId);
+            writeCodeToCellByID(notebookTracker, unifiedCodeString, change.cellId);
 
             // Apply diff stripes to this cell
-            applyDiffStripesToCell(notebookTracker, edit.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
+            applyDiffStripesToCell(notebookTracker, change.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
 
             // Highlight the cell to draw attention
-            highlightCodeCell(notebookTracker, edit.cellId);
+            highlightCodeCell(notebookTracker, change.cellId);
         });
 
         // Scroll to the first changed cell
-        const firstEdit = agentEditsRef.current[0];
-        if (firstEdit && notebookTracker.currentWidget) {
-            scrollToCell(notebookTracker.currentWidget, firstEdit.cellId, undefined, 'start');
+        const firstChangedCell = changedCells[0];
+        if (firstChangedCell && notebookTracker.currentWidget) {
+            scrollToCell(notebookTracker.currentWidget, firstChangedCell.cellId, undefined, 'start');
         }
     }
 
