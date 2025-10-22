@@ -8,6 +8,7 @@ import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
 import { WindowedList } from '@jupyterlab/ui-components';
+import { Compartment, StateEffect } from '@codemirror/state';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebookPanel = notebookTracker.currentWidget;
@@ -416,11 +417,9 @@ export const applyCellEditorExtension = (
 
     if (!compartment) {
         // Create a new compartment if it doesn't exist
-        const { Compartment } = require('@codemirror/state');
         compartment = new Compartment();
         compartmentsMap.set(cellId, compartment);
 
-        const { StateEffect } = require('@codemirror/state');
         editorView.dispatch({
             effects: StateEffect.appendConfig.of(compartment.of(extension)),
         });
