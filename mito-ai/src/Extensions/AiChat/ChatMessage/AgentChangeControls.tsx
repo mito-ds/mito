@@ -45,8 +45,8 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         reviewAgentChanges();
     }
 
-    const handleUndoAll = (): void => {
-        restoreCheckpoint(app, notebookTracker, setHasCheckpoint);
+    const handleUndoAll = async (): Promise<void> => {
+        await restoreCheckpoint(app, notebookTracker, setHasCheckpoint);
         setDisplayedNextStepsIfAvailable(false);
         setHasCheckpoint(false);
         setShowRevertQuestionnaire(true);
