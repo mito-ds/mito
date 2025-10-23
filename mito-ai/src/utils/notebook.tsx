@@ -345,13 +345,18 @@ export const scrollToCell = (
 export const scrollToNextCellWithDiff = (
     notebookTracker: INotebookTracker,
     currentCellId: string,
-    cellStatesBeforeDiff: Map<string, string>,
-    agentEdits: { cellId: string, code: string }[],
+    changedCells: { cellId: string, originalCode: string, currentCode: string }[],
 ): void => {
     // Early return if no diffs remain
-    if (cellStatesBeforeDiff.size === 0) {
+    if (changedCells.length === 0) {
         return;
     }
+
+    // Convert changedCells to agentEdits format for internal use
+    const agentEdits = changedCells.map(change => ({
+        cellId: change.cellId,
+        code: change.currentCode
+    }));
 
     // Find current cell's position in the edits list
     const currentEditIndex = agentEdits.findIndex(edit => edit.cellId === currentCellId);
@@ -362,7 +367,7 @@ export const scrollToNextCellWithDiff = (
     // Find the next cell that still has a diff
     const nextCellWithDiff = agentEdits
         .slice(currentEditIndex + 1)
-        .find(edit => cellStatesBeforeDiff.has(edit.cellId));
+        .find(edit => changedCells.some(change => change.cellId === edit.cellId));
 
     if (!nextCellWithDiff) {
         return; // No more cells with diffs

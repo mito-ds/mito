@@ -173,6 +173,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     
     // Store original cell states for multiple cells (used in agent review mode)
     const cellStatesBeforeDiff = useRef<Map<string, string>>(new Map())
+    
+    // Store the changedCells array for use in scrollToNextCellWithDiff
+    const changedCellsRef = useRef<{ cellId: string, originalCode: string, currentCode: string }[]>([])
 
     // Three possible states:
     // 1. chatPreview: state where the user has not yet pressed the apply button.
@@ -242,8 +245,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
     const [notebookSnapshot, setNotebookSnapshot] = useState<AIOptimizedCell[] | null>(null);
-    const [agentEdits, setAgentEdits] = useState<{ cellId: string, code: string }[]>([]);
-    const agentEditsRef = useRef<{ cellId: string, code: string }[]>([]);
+    const currentNotebookSnapshotRef = useRef<AIOptimizedCell[] | null>(null);
 
     // Track if revert questionnaire should be shown
     const [showRevertQuestionnaire, setShowRevertQuestionnaire] = useState<boolean>(false);
@@ -504,11 +506,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef.current = chatHistoryManager;
 
     }, [chatHistoryManager]);
-
-    useEffect(() => {
-        // Keep agentEditsRef in sync with agentEdits state for use in command handlers
-        agentEditsRef.current = agentEdits;
-    }, [agentEdits]);
 
     // Function to refresh user signup state using the shared helper
     const refreshUserSignupState = async (): Promise<void> => {
@@ -1019,7 +1016,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         acceptAllAICode();
         setNotebookSnapshot(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
-        setAgentEdits([]); // Reset edits tracking for new agent execution
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
@@ -1286,13 +1282,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
             // Remove the cell from tracking
             cellStatesBeforeDiff.current.delete(activeCellId);
-            
-            // Find the final code from the agentEdits array
-            const edit = agentEditsRef.current.find(e => e.cellId === activeCellId);
-            if (!edit) return;
+
+            // Find the final code from the current notebook snapshot
+            const edit = currentNotebookSnapshotRef.current?.find(cell => cell.id === activeCellId);
             
             // Write the final code to the cell and turn off diffs
-            writeCodeToCellByID(notebookTracker, edit.code, activeCellId);
+            writeCodeToCellByID(notebookTracker, edit?.code || '', activeCellId);
             turnOffDiffsForCell(notebookTracker, activeCellId, codeDiffStripesCompartments.current);
             updateCellToolbarButtons();
             
@@ -1300,8 +1295,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             scrollToNextCellWithDiff(
                 notebookTracker,
                 activeCellId,
-                cellStatesBeforeDiff.current,
-                agentEditsRef.current,
+                changedCellsRef.current,
             );
             
             return;
@@ -1344,8 +1338,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Accept all cells that have diffs
         cellStatesBeforeDiff.current.forEach((originalCode, cellId) => {
-            // Find the final code from the agentEdits array
-            const edit = agentEditsRef.current.find(e => e.cellId === cellId);
+            // Find the final code from the current notebook snapshot
+            const edit = currentNotebookSnapshotRef.current?.find(cell => cell.id === cellId);
             if (edit) {
                 // Write the final code to the cell and turn off diffs
                 writeCodeToCellByID(notebookTracker, edit.code, cellId);
@@ -1389,8 +1383,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             scrollToNextCellWithDiff(
                 notebookTracker,
                 activeCellId,
-                cellStatesBeforeDiff.current,
-                agentEditsRef.current,
+                changedCellsRef.current,
             );
             
             return;
@@ -1597,6 +1590,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const reviewAgentChanges = (): void => {
         const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
+        currentNotebookSnapshotRef.current = currentNotebookSnapshot;
 
         if (!notebookSnapshot || !currentNotebookSnapshot) {
             return;
@@ -1607,6 +1601,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Find cells that have changed between snapshots
         const changedCells: { cellId: string, originalCode: string, currentCode: string }[] = [];
+        changedCellsRef.current = changedCells;
 
         // Compare each cell in the current snapshot with the original snapshot
         currentNotebookSnapshot.forEach(currentCell => {
