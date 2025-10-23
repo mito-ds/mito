@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { setUserKey } from '../../restAPI/RestAPI';
 import MitoLogo from '../../icons/MitoLogo';
+import { logEvent } from '../../restAPI/RestAPI';
 import { userSignupEvents } from '../../utils/userSignupEvents';
 import '../../../style/SignUpForm.css';
 
@@ -25,7 +26,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
             // Emit signup success event for other components to listen to
             userSignupEvents.emitSignupSuccess();
         } catch (error) {
+            // If we can't set the email, we still want the user to be able to use Mito AI.
+            // In this case, we log the error, and emit the signup success event.
             console.error('Failed to set user email:', error);
+            void logEvent('mito_ai_failed_to_set_user_email', { 'error': error, 'email': email });
+
+            onSignUpSuccess?.();
+            userSignupEvents.emitSignupSuccess();
         }
     };
 
