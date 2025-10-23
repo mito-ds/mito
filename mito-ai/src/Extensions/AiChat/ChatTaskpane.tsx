@@ -1667,6 +1667,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (firstChangedCell && notebookTracker.currentWidget) {
             scrollToCell(notebookTracker.currentWidget, firstChangedCell.cellId, undefined, 'start');
         }
+
+        // Update toolbar buttons to show accept/reject buttons for cells with diffs
+        updateCellToolbarButtons();
     }
 
     return (
