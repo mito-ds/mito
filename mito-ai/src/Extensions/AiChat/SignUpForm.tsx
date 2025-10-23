@@ -31,6 +31,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
             console.error('Failed to set user email:', error);
             void logEvent('mito_ai_failed_to_set_user_email', { 'error': error, 'email': email });
 
+            // Set soft signup flag to allow user to proceed even without email being set
+            localStorage.setItem('mito_ai_soft_signup', 'true');
+
             onSignUpSuccess?.();
             userSignupEvents.emitSignupSuccess();
         }

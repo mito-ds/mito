@@ -9,18 +9,23 @@ export interface UserSignupState {
     isSignedUp: boolean;
     hasEmail: boolean;
     hasChatHistory: boolean;
+    hasSoftSignup: boolean;
 }
 
 /**
  * Determines if a user should be considered "signed up" based on:
  * 1. Having an email address, OR
- * 2. Having existing chat history threads
+ * 2. Having existing chat history threads, OR
+ * 3. Having a soft signup flag (for cases where email setting failed)
  * 
  * This ensures consistent behavior across all components that need to check
  * if a user should have access to Mito AI features.
  */
 export const checkUserSignupState = async (): Promise<UserSignupState> => {
     try {
+        // Check for soft signup flag first (for cases where email setting failed)
+        const hasSoftSignup = localStorage.getItem('mito_ai_soft_signup') === 'true';
+
         // Check if user has an email address
         const userEmail = await getUserKey('user_email');
         const hasEmail = userEmail !== "" && userEmail !== undefined;
@@ -29,7 +34,8 @@ export const checkUserSignupState = async (): Promise<UserSignupState> => {
             return {
                 isSignedUp: true,
                 hasEmail: true,
-                hasChatHistory: false
+                hasChatHistory: false,
+                hasSoftSignup: false
             };
         }
 
@@ -39,9 +45,10 @@ export const checkUserSignupState = async (): Promise<UserSignupState> => {
 
         if (!hasThreads) {
             return {
-                isSignedUp: false,
+                isSignedUp: hasSoftSignup,
                 hasEmail: false,
-                hasChatHistory: false
+                hasChatHistory: false,
+                hasSoftSignup: hasSoftSignup
             };
         }
 
@@ -50,16 +57,20 @@ export const checkUserSignupState = async (): Promise<UserSignupState> => {
         const hasActualChatHistory = firstThread.display_history.length > 0;
 
         return {
-            isSignedUp: hasActualChatHistory,
+            isSignedUp: hasActualChatHistory || hasSoftSignup,
             hasEmail: false,
-            hasChatHistory: hasActualChatHistory
+            hasChatHistory: hasActualChatHistory,
+            hasSoftSignup: hasSoftSignup
         };
     } catch (error) {
         console.error('Failed to check user signup state:', error);
+        // Even if there's an error, check for soft signup flag
+        const hasSoftSignup = localStorage.getItem('mito_ai_soft_signup') === 'true';
         return {
-            isSignedUp: false,
+            isSignedUp: hasSoftSignup,
             hasEmail: false,
-            hasChatHistory: false
+            hasChatHistory: false,
+            hasSoftSignup: hasSoftSignup
         };
     }
 };
