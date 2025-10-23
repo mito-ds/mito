@@ -435,3 +435,27 @@ export const applyCellEditorExtension = (
         });
     }
 }
+
+export const runCellByIDInBackground = async (notebookPanel: NotebookPanel | null, cellId: string): Promise<void> => {
+    if (!notebookPanel) return;
+
+    const notebook = notebookPanel.content;
+    const sessionContext = notebookPanel.context?.sessionContext;
+    
+    // Find the cell by ID
+    const cell = notebook.widgets.find(widget => widget.model.id === cellId);
+    if (!cell || cell.model.type !== 'code') return;
+
+    // Set the cell as active temporarily
+    const originalActiveCellIndex = notebook.activeCellIndex;
+    const cellIndex = notebook.widgets.findIndex(widget => widget.model.id === cellId);
+    notebook.activeCellIndex = cellIndex;
+
+    try {
+        // Run the cell without awaiting - this makes it run in the background
+        NotebookActions.run(notebook, sessionContext);
+    } finally {
+        // Restore the original active cell
+        notebook.activeCellIndex = originalActiveCellIndex;
+    }
+}
