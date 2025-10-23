@@ -28,7 +28,7 @@ export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | 
 export const getCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | null, cellID: string | undefined): Cell | undefined => {
     if (cellID === undefined) {
         return undefined
-    }   
+    }
 
     return notebookPanel?.content.widgets.find(cell => cell.model.id === cellID);
 }
@@ -131,7 +131,7 @@ export const getAIOptimizedCells = (
 
 export const getAIOptimizedCellsInNotebookPanel = (notebookPanel: NotebookPanel | null): AIOptimizedCell[] => {
     const cellList = notebookPanel?.model?.cells
-    
+
     if (cellList == undefined || cellList == null) {
         return []
     }
@@ -212,9 +212,9 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
 }
 
 export const highlightLinesOfCodeInCodeCell = (
-    notebookPanel: NotebookPanel, 
-    codeCellID: string, 
-    startLine: number | undefined, 
+    notebookPanel: NotebookPanel,
+    codeCellID: string,
+    startLine: number | undefined,
     endLine: number | undefined
 ): void => {
     /*
@@ -282,8 +282,8 @@ export const highlightLinesOfCodeInCodeCell = (
 }
 
 export const scrollToAndHighlightCell = (
-    notebookPanel: NotebookPanel | null, 
-    cellID: string, 
+    notebookPanel: NotebookPanel | null,
+    cellID: string,
     startLine: number | undefined,
     endLine?: number,
     position: WindowedList.BaseScrollToAlignment = 'center'
@@ -312,8 +312,8 @@ export const scrollToAndHighlightCell = (
 }
 
 export const scrollToCell = (
-    notebookPanel: NotebookPanel | null, 
-    cellID: string, 
+    notebookPanel: NotebookPanel | null,
+    cellID: string,
     startLine: number | undefined,
     position: WindowedList.BaseScrollToAlignment = 'center'
 ): void => {
@@ -441,7 +441,7 @@ export const runCellByIDInBackground = async (notebookPanel: NotebookPanel | nul
 
     const notebook = notebookPanel.content;
     const sessionContext = notebookPanel.context?.sessionContext;
-    
+
     // Find the cell by ID
     const cell = notebook.widgets.find(widget => widget.model.id === cellId);
     if (!cell || cell.model.type !== 'code') return;
@@ -453,7 +453,7 @@ export const runCellByIDInBackground = async (notebookPanel: NotebookPanel | nul
 
     try {
         // Run the cell without awaiting - this makes it run in the background
-        NotebookActions.run(notebook, sessionContext);
+        void NotebookActions.run(notebook, sessionContext);
     } finally {
         // Restore the original active cell
         notebook.activeCellIndex = originalActiveCellIndex;

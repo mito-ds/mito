@@ -1380,7 +1380,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             updateCellToolbarButtons();
 
             // Re-run cell in background
-            runCellByIDInBackground(notebookTracker.currentWidget, activeCellId);
+            void runCellByIDInBackground(notebookTracker.currentWidget, activeCellId);
             
             // Scroll to the next cell with a diff if in agent mode
             scrollToNextCellWithDiff(
