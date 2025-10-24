@@ -1062,8 +1062,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             targetCellID,
             notebookTracker,
             latestChatHistoryManager,
-            cellStateBeforeDiff,
-            codeDiffStripesCompartments
+            cellStateBeforeDiff
         );
     };
 
@@ -1101,8 +1100,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         RejectSingleCellEditChatMode(
             cellStateBeforeDiff.current.codeCellID,
             notebookTracker,
-            cellStateBeforeDiff,
-            codeDiffStripesCompartments
+            cellStateBeforeDiff
         );
     };
 

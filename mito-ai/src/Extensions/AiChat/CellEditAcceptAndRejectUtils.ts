@@ -86,7 +86,6 @@ export const AcceptSingleCellEditChatMode = (
     notebookTracker: INotebookTracker,
     chatHistoryManager: ChatHistoryManager,
     cellStateBeforeDiff: React.MutableRefObject<{ codeCellID: string; code: string } | undefined>,
-    codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>
 ): void => {
     const latestChatHistoryManager = chatHistoryManager;
     const lastAIMessage = latestChatHistoryManager.getLastAIDisplayOptimizedChatItem();
@@ -101,7 +100,7 @@ export const AcceptSingleCellEditChatMode = (
     }
 
     // Write to the cell that has the code diffs
-    writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, cellId, notebookTracker, cellStateBeforeDiff, codeDiffStripesCompartments);
+    writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, cellId, notebookTracker, cellStateBeforeDiff);
 
     // Focus on the active cell after the code is written
     const targetCell = getCellByID(notebookTracker, cellId);
@@ -120,7 +119,6 @@ export const RejectSingleCellEditChatMode = (
     cellId: string,
     notebookTracker: INotebookTracker,
     cellStateBeforeDiff: React.MutableRefObject<{ codeCellID: string; code: string } | undefined>,
-    codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>
 ): void => {
     if (cellStateBeforeDiff.current === undefined) {
         return;
@@ -131,7 +129,6 @@ export const RejectSingleCellEditChatMode = (
         cellId,
         notebookTracker,
         cellStateBeforeDiff,
-        codeDiffStripesCompartments
     );
 };
 
@@ -199,7 +196,6 @@ const writeCodeToCellAndTurnOffDiffs = (
     cellId: string,
     notebookTracker: INotebookTracker,
     cellStateBeforeDiff: React.MutableRefObject<{ codeCellID: string; code: string } | undefined>,
-    codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>
 ): void => {
     // Clear the cell state before diff
     cellStateBeforeDiff.current = undefined;
