@@ -1295,7 +1295,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             cellStatesBeforeDiff,
             notebookSnapshotAfterAgentExecutionRef.current,
             codeDiffStripesCompartments,
-            changedCellsRef.current
+            changedCellsRef.current,
+            agentTargetNotebookPanelRef
         );
         updateCellToolbarButtons();
     };
@@ -1371,7 +1372,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             notebookTracker,
             cellStatesBeforeDiff,
             codeDiffStripesCompartments,
-            changedCellsRef.current
+            changedCellsRef.current,
+            agentTargetNotebookPanelRef
         );
         updateCellToolbarButtons();
     };

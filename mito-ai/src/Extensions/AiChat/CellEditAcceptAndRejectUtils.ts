@@ -26,7 +26,8 @@ export const AcceptSingleCellEdit = (
     cellStatesBeforeDiff: React.MutableRefObject<Map<string, string>>,
     notebookSnapshotAfterAgentExecution: AIOptimizedCell[] | null,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
-    changedCells: ChangedCell[]
+    changedCells: ChangedCell[],
+    agentTargetNotebookPanelRef?: React.MutableRefObject<any>
 ): void => {
     // Remove the cell from tracking
     cellStatesBeforeDiff.current.delete(cellId);
@@ -40,9 +41,9 @@ export const AcceptSingleCellEdit = (
 
     // Scroll to the next cell with a diff if in agent mode
     scrollToNextCellWithDiff(
-        notebookTracker,
+        agentTargetNotebookPanelRef?.current,
         cellId,
-        changedCells,
+        changedCells
     );
 };
 
@@ -54,7 +55,8 @@ export const RejectSingleCellEdit = (
     notebookTracker: INotebookTracker,
     cellStatesBeforeDiff: React.MutableRefObject<Map<string, string>>,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
-    changedCells: ChangedCell[]
+    changedCells: ChangedCell[],
+    agentTargetNotebookPanelRef?: React.MutableRefObject<any>
 ): void => {
     const originalCode = cellStatesBeforeDiff.current.get(cellId);
     if (originalCode === undefined) return;
@@ -70,9 +72,9 @@ export const RejectSingleCellEdit = (
 
     // Scroll to the next cell with a diff if in agent mode
     scrollToNextCellWithDiff(
-        notebookTracker,
+        agentTargetNotebookPanelRef?.current,
         cellId,
-        changedCells,
+        changedCells
     );
 };
 

@@ -344,12 +344,12 @@ export const scrollToCell = (
 }
 
 export const scrollToNextCellWithDiff = (
-    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel | null,
     currentCellId: string,
     changedCells: ChangedCell[],
 ): void => {
-    // Early return if no diffs remain
-    if (changedCells.length === 0) {
+    // Early return if no diffs remain or no notebook panel
+    if (changedCells.length === 0 || !notebookPanel) {
         return;
     }
 
@@ -374,11 +374,9 @@ export const scrollToNextCellWithDiff = (
         return; // No more cells with diffs
     }
 
-    // Scroll to and select the next cell with diff
-    setActiveCellByID(notebookTracker, nextCellWithDiff.cellId);
-    if (notebookTracker.currentWidget) {
-        scrollToCell(notebookTracker.currentWidget, nextCellWithDiff.cellId, undefined, 'start');
-    }
+    // Scroll to and select the next cell with diff using the notebook panel
+    setActiveCellByIDInNotebookPanel(notebookPanel, nextCellWithDiff.cellId);
+    scrollToCell(notebookPanel, nextCellWithDiff.cellId, undefined, 'start');
 }
 
 export const applyCellEditorExtension = (
