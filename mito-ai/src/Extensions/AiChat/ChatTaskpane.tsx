@@ -250,7 +250,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
-    const [notebookSnapshotPreAgentExecution, setNotebookSnapshotPreAgentExecution] = useState<AIOptimizedCell[] | null>(null);
+    const notebookSnapshotPreAgentExecutionRef = useRef<AIOptimizedCell[] | null>(null);
     const notebookSnapshotAfterAgentExecutionRef = useRef<AIOptimizedCell[] | null>(null);
 
     // Track if revert questionnaire should be shown
@@ -1020,7 +1020,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
 
         acceptAllAICode();
-        setNotebookSnapshotPreAgentExecution(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
+        notebookSnapshotPreAgentExecutionRef.current = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
@@ -1600,7 +1600,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
         notebookSnapshotAfterAgentExecutionRef.current = currentNotebookSnapshot;
 
-        if (!notebookSnapshotPreAgentExecution || !currentNotebookSnapshot) {
+        if (!notebookSnapshotPreAgentExecutionRef.current || !currentNotebookSnapshot) {
             return;
         }
 
@@ -1613,7 +1613,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Compare each cell in the current snapshot with the original snapshot
         currentNotebookSnapshot.forEach(currentCell => {
-            const originalCell = notebookSnapshotPreAgentExecution.find(cell => cell.id === currentCell.id);
+            const originalCell = notebookSnapshotPreAgentExecutionRef.current?.find(cell => cell.id === currentCell.id);
             
             if (originalCell) {
                 // Cell exists in both snapshots, check if code has changed
@@ -1635,7 +1635,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         // Check for cells that were removed (exist in original but not in current)
-        notebookSnapshotPreAgentExecution.forEach(originalCell => {
+        notebookSnapshotPreAgentExecutionRef.current?.forEach(originalCell => {
             const currentCell = currentNotebookSnapshot.find(cell => cell.id === originalCell.id);
             if (!currentCell) {
                 // Cell was removed
