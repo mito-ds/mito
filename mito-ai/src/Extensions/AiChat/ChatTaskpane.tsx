@@ -1384,7 +1384,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             turnOffDiffsForCell(notebookTracker, activeCellId, codeDiffStripesCompartments.current);
             updateCellToolbarButtons();
 
-            // Re-run cell in background
+            // Re-run the rejected cell in background. We want to make sure that the agent has the 
+            // most up-to-date version of every variable. 
             void runCellByIDInBackground(notebookTracker.currentWidget, activeCellId);
             
             // Scroll to the next cell with a diff if in agent mode
