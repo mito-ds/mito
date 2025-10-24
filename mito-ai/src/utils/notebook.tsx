@@ -7,6 +7,7 @@ import { INotebookTracker, NotebookActions, NotebookPanel } from '@jupyterlab/no
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
+import { ChangedCell } from '../Extensions/AiChat/ChatTaskpane';
 import { WindowedList } from '@jupyterlab/ui-components';
 import { Compartment, StateEffect } from '@codemirror/state';
 
@@ -345,7 +346,7 @@ export const scrollToCell = (
 export const scrollToNextCellWithDiff = (
     notebookTracker: INotebookTracker,
     currentCellId: string,
-    changedCells: { cellId: string, originalCode: string, currentCode: string }[],
+    changedCells: ChangedCell[],
 ): void => {
     // Early return if no diffs remain
     if (changedCells.length === 0) {

@@ -152,6 +152,11 @@ interface IChatTaskpaneProps {
 
 export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle'
+export interface ChangedCell {
+    cellId: string;
+    originalCode: string;
+    currentCode: string;
+}
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
@@ -176,7 +181,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const cellStatesBeforeDiff = useRef<Map<string, string>>(new Map())
     
     // Store the changedCells array for use in scrollToNextCellWithDiff
-    const changedCellsRef = useRef<{ cellId: string, originalCode: string, currentCode: string }[]>([])
+    const changedCellsRef = useRef<ChangedCell[]>([])
 
     // Three possible states:
     // 1. chatPreview: state where the user has not yet pressed the apply button.
@@ -1603,7 +1608,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         cellStatesBeforeDiff.current.clear();
 
         // Find cells that have changed between snapshots
-        const changedCells: { cellId: string, originalCode: string, currentCode: string }[] = [];
+        const changedCells: ChangedCell[] = [];
         changedCellsRef.current = changedCells;
 
         // Compare each cell in the current snapshot with the original snapshot
