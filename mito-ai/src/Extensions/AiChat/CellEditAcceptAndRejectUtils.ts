@@ -6,14 +6,10 @@
 import { INotebookTracker } from '@jupyterlab/notebook';
 import {
     writeCodeToCellByID,
-    setActiveCellByID,
-    getCellByID,
     scrollToNextCellWithDiff
 } from '../../utils/notebook';
 import { turnOffDiffsForCell } from '../../utils/codeDiff';
 import { runCellByIDInBackground } from '../../utils/notebook';
-import { getCodeBlockFromMessage } from '../../utils/strings';
-import { ChatHistoryManager } from './ChatHistoryManager';
 import { ChangedCell } from './ChatTaskpane';
 import { AIOptimizedCell } from '../../websockets/completions/CompletionModels';
 
@@ -79,60 +75,6 @@ export const RejectSingleCellEdit = (
 };
 
 /**
- * Accepts a single cell edit in chat mode
- */
-export const AcceptSingleCellEditChatMode = (
-    cellId: string,
-    notebookTracker: INotebookTracker,
-    chatHistoryManager: ChatHistoryManager,
-    cellStateBeforeDiff: React.MutableRefObject<{ codeCellID: string; code: string } | undefined>,
-): void => {
-    const latestChatHistoryManager = chatHistoryManager;
-    const lastAIMessage = latestChatHistoryManager.getLastAIDisplayOptimizedChatItem();
-
-    if (!lastAIMessage || !cellStateBeforeDiff.current) {
-        return;
-    }
-
-    const aiGeneratedCode = getCodeBlockFromMessage(lastAIMessage.message);
-    if (!aiGeneratedCode) {
-        return;
-    }
-
-    // Write to the cell that has the code diffs
-    writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, cellId, notebookTracker, cellStateBeforeDiff);
-
-    // Focus on the active cell after the code is written
-    const targetCell = getCellByID(notebookTracker, cellId);
-    if (targetCell) {
-        // Make the target cell the active cell
-        setActiveCellByID(notebookTracker, cellId);
-        // Focus on the active cell
-        targetCell.activate();
-    }
-};
-
-/**
- * Rejects a single cell edit in chat mode
- */
-export const RejectSingleCellEditChatMode = (
-    cellId: string,
-    notebookTracker: INotebookTracker,
-    cellStateBeforeDiff: React.MutableRefObject<{ codeCellID: string; code: string } | undefined>,
-): void => {
-    if (cellStateBeforeDiff.current === undefined) {
-        return;
-    }
-
-    writeCodeToCellAndTurnOffDiffs(
-        cellStateBeforeDiff.current.code,
-        cellId,
-        notebookTracker,
-        cellStateBeforeDiff,
-    );
-};
-
-/**
  * Accepts all cell edits in agent review mode
  */
 export const AcceptAllCellEdits = (
@@ -188,19 +130,3 @@ export const RejectAllCellEdits = (
     cellStatesBeforeDiff.current.clear();
 };
 
-/**
- * Helper function to write code to cell and turn off diffs
- */
-const writeCodeToCellAndTurnOffDiffs = (
-    code: string,
-    cellId: string,
-    notebookTracker: INotebookTracker,
-    cellStateBeforeDiff: React.MutableRefObject<{ codeCellID: string; code: string } | undefined>,
-): void => {
-    // Clear the cell state before diff
-    cellStateBeforeDiff.current = undefined;
-
-    if (cellId !== undefined) {
-        writeCodeToCellByID(notebookTracker, code, cellId);
-    }
-};

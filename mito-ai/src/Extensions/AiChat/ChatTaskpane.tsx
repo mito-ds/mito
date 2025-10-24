@@ -53,9 +53,11 @@ import {
 import {
     applyCellEditorExtension,
     getActiveCellID,
+    getCellByID,
     getCellCodeByID,
     highlightCodeCell,
     scrollToCell,
+    setActiveCellByID,
     writeCodeToCellByID,
 } from '../../utils/notebook';
 import { getActiveCellOutput } from '../../utils/cellOutput';
@@ -108,10 +110,6 @@ import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
-import { 
-    AcceptSingleCellEditChatMode, 
-    RejectSingleCellEditChatMode
-} from './CellEditAcceptAndRejectUtils';
 
 // Internal imports - Hooks
 import { useAgentReview } from './hooks/useAgentReview';
@@ -1044,26 +1042,31 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const acceptAICodeInChatMode = (): void => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
-        const lastAIMessage = latestChatHistoryManager.getLastAIDisplayOptimizedChatItem();
+        const lastAIMessage = latestChatHistoryManager.getLastAIDisplayOptimizedChatItem()
 
         if (!lastAIMessage || !cellStateBeforeDiff.current) {
-            return;
+            return
         }
 
         const aiGeneratedCode = getCodeBlockFromMessage(lastAIMessage.message);
         if (!aiGeneratedCode) {
-            return;
+            return
         }
 
-        setCodeReviewStatus('applied');
+        setCodeReviewStatus('applied')
 
-        const targetCellID = cellStateBeforeDiff.current.codeCellID;
-        AcceptSingleCellEditChatMode(
-            targetCellID,
-            notebookTracker,
-            latestChatHistoryManager,
-            cellStateBeforeDiff
-        );
+        const targetCellID = cellStateBeforeDiff.current.codeCellID
+        // Write to the cell that has the code diffs
+        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, targetCellID)
+
+        // Focus on the active cell after the code is written
+        const targetCell = getCellByID(notebookTracker, targetCellID)
+        if (targetCell) {
+            // Make the target cell the active cell
+            setActiveCellByID(notebookTracker, targetCellID)
+            // Focus on the active cell
+            targetCell.activate();
+        }
     };
 
     const acceptAICode = (): void => {
@@ -1073,6 +1076,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (activeCellId && agentReview.cellStatesBeforeDiff.current.has(activeCellId)) {
             agentReview.acceptAICodeInAgentMode();
         } else {
+            console.log('acceptAICodeInChatMode')
             acceptAICodeInChatMode();
         }
     }
@@ -1092,16 +1096,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const rejectAICodeInChatMode = (): void => {
         if (cellStateBeforeDiff.current === undefined) {
-            return;
+            return
         }
 
-        setCodeReviewStatus('chatPreview');
+        setCodeReviewStatus('chatPreview')
 
-        RejectSingleCellEditChatMode(
-            cellStateBeforeDiff.current.codeCellID,
-            notebookTracker,
-            cellStateBeforeDiff
-        );
+        writeCodeToCellAndTurnOffDiffs(cellStateBeforeDiff.current.code, cellStateBeforeDiff.current.codeCellID)
     };
 
     const rejectAICode = (): void => {
@@ -1115,6 +1115,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
     }
 
+    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined): void => {
+        updateCodeCellsExtensions(undefined)
+        cellStateBeforeDiff.current = undefined
+
+        if (codeCellID !== undefined) {
+            writeCodeToCellByID(notebookTracker, code, codeCellID)
+            updateCellToolbarButtons()
+        }
+    }
 
     useEffect(() => {
         /* 
