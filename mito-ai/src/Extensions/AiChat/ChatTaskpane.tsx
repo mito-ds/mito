@@ -50,7 +50,6 @@ import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../
 import { 
     getCodeDiffsAndUnifiedCodeString, 
     UnifiedDiffLine, 
-    applyDiffStripesToCell, 
     shouldShowDiffToolbarButtons, 
     ICellStateBeforeDiff 
 } from '../../utils/codeDiff';
@@ -95,8 +94,7 @@ import {
     IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
     AgentResponse,
-    ICompletionStreamChunk,
-    AIOptimizedCell
+    ICompletionStreamChunk
 } from '../../websockets/completions/CompletionModels';
 
 // Internal imports - Extensions
@@ -117,12 +115,12 @@ import RevertQuestionnaire from './ChatMessage/RevertQuestionnaire';
 import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
 import { 
-    AcceptSingleCellEdit, 
-    RejectSingleCellEdit, 
     AcceptSingleCellEditChatMode, 
-    RejectSingleCellEditChatMode,
-    AcceptAllCellEdits
+    RejectSingleCellEditChatMode
 } from './CellEditAcceptAndRejectUtils';
+
+// Internal imports - Hooks
+import { useAgentReview } from './hooks/useAgentReview';
 
 // Styles
 import '../../../style/button.css';
@@ -179,12 +177,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Store the original cell before diff so that we can revert to it if the user rejects the AI's code
     const cellStateBeforeDiff = useRef<ICellStateBeforeDiff | undefined>(undefined)
     
-    // Store original cell states for multiple cells (used in agent review mode)
-    const cellStatesBeforeDiff = useRef<Map<string, string>>(new Map())
-    
-    // Store the changedCells array for use in scrollToNextCellWithDiff
-    const changedCellsRef = useRef<ChangedCell[]>([])
-
     // Three possible states:
     // 1. chatPreview: state where the user has not yet pressed the apply button.
     // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
@@ -252,11 +244,27 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
-    const notebookSnapshotPreAgentExecutionRef = useRef<AIOptimizedCell[] | null>(null);
-    const notebookSnapshotAfterAgentExecutionRef = useRef<AIOptimizedCell[] | null>(null);
 
     // Track if revert questionnaire should be shown
     const [showRevertQuestionnaire, setShowRevertQuestionnaire] = useState<boolean>(false);
+
+    // Initialize code diff stripes compartments
+    const codeDiffStripesCompartments = React.useRef(new Map<string, Compartment>());
+
+    // Initialize agent review hook
+    const agentReview = useAgentReview({
+        notebookTracker,
+        agentTargetNotebookPanelRef,
+        codeDiffStripesCompartments,
+        updateCellToolbarButtons: () => {
+            // Tell Jupyter to re-evaluate if the toolbar buttons should be visible.
+            // Without this, the user needs to take some action, like switching to a different cell 
+            // and then switching back in order for the Jupyter to re-evaluate if it should
+            // show the toolbar buttons.
+            app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE);
+            app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE);
+        }
+    });
 
     const updateModelOnBackend = async (model: string): Promise<void> => {
         try {
@@ -388,7 +396,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setHasCheckpoint(false)
         
         // Clear agent review diffs
-        cellStatesBeforeDiff.current.clear()
+        agentReview.clearAgentReviewDiffs()
 
         // Enable follow mode when starting a new chat
         setAutoScrollFollowMode(true);
@@ -1021,8 +1029,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
 
-        acceptAllAICode();
-        notebookSnapshotPreAgentExecutionRef.current = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
+        agentReview.acceptAllAICode();
+        agentReview.setNotebookSnapshotPreAgentExecution(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
@@ -1282,24 +1290,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         updateCellToolbarButtons()
     }
 
-    const acceptAICodeInAgentMode = (): void => {
-        const activeCellId = notebookTracker.activeCell?.model.id;
-        
-        if (!activeCellId || !cellStatesBeforeDiff.current.has(activeCellId)) {
-            return;
-        }
-
-        AcceptSingleCellEdit(
-            activeCellId,
-            notebookTracker,
-            cellStatesBeforeDiff,
-            notebookSnapshotAfterAgentExecutionRef.current,
-            codeDiffStripesCompartments,
-            changedCellsRef.current,
-            agentTargetNotebookPanelRef
-        );
-        updateCellToolbarButtons();
-    };
 
     const acceptAICodeInChatMode = (): void => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
@@ -1330,24 +1320,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const activeCellId = notebookTracker.activeCell?.model.id;
         
         // Determine mode based on whether the active cell has diffs in agent review mode
-        if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
-            acceptAICodeInAgentMode();
+        if (activeCellId && agentReview.cellStatesBeforeDiff.current.has(activeCellId)) {
+            agentReview.acceptAICodeInAgentMode();
         } else {
             acceptAICodeInChatMode();
         }
     }
 
-    const acceptAllAICode = (): void => {
-        AcceptAllCellEdits(
-            notebookTracker,
-            cellStatesBeforeDiff,
-            notebookSnapshotAfterAgentExecutionRef.current,
-            codeDiffStripesCompartments
-        );
-        
-        // Update UI
-        updateCellToolbarButtons();
-    }
 
     const resetForNewMessage = (): void => {
         /* 
@@ -1360,23 +1339,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setShowRevertQuestionnaire(false);
     }
 
-    const rejectAICodeInAgentMode = (): void => {
-        const activeCellId = notebookTracker.activeCell?.model.id;
-        
-        if (!activeCellId || !cellStatesBeforeDiff.current.has(activeCellId)) {
-            return;
-        }
-
-        RejectSingleCellEdit(
-            activeCellId,
-            notebookTracker,
-            cellStatesBeforeDiff,
-            codeDiffStripesCompartments,
-            changedCellsRef.current,
-            agentTargetNotebookPanelRef
-        );
-        updateCellToolbarButtons();
-    };
 
     const rejectAICodeInChatMode = (): void => {
         if (cellStateBeforeDiff.current === undefined) {
@@ -1397,8 +1359,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const activeCellId = notebookTracker.activeCell?.model.id;
         
         // Determine mode based on whether the active cell has diffs in agent review mode
-        if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
-            rejectAICodeInAgentMode();
+        if (activeCellId && agentReview.cellStatesBeforeDiff.current.has(activeCellId)) {
+            agentReview.rejectAICodeInAgentMode();
         } else {
             rejectAICodeInChatMode();
         }
@@ -1474,7 +1436,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             className: 'text-button-mito-ai button-base button-green',
             caption: 'Accept Code',
             execute: acceptAICode,
-            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, cellStatesBeforeDiff.current)
+            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, agentReview.cellStatesBeforeDiff.current)
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
@@ -1482,7 +1444,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             className: 'text-button-mito-ai button-base button-red',
             caption: 'Reject Code',
             execute: rejectAICode,
-            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, cellStatesBeforeDiff.current)
+            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, agentReview.cellStatesBeforeDiff.current)
         });
     }, []);
 
@@ -1539,8 +1501,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         return undefined;
     }, [notebookTracker.currentWidget]);
     
-    const codeDiffStripesCompartments = React.useRef(new Map<string, Compartment>());
-
     // Function to update the extensions of code cells
     const updateCodeCellsExtensions = (unifiedDiffLines: UnifiedDiffLine[] | undefined): void => {
         const notebook = notebookTracker.currentWidget?.content;
@@ -1584,89 +1544,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         return Array.isArray(item);
     };
 
-    const reviewAgentChanges = (): void => {
-        const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
-        notebookSnapshotAfterAgentExecutionRef.current = currentNotebookSnapshot;
-
-        if (!notebookSnapshotPreAgentExecutionRef.current || !currentNotebookSnapshot) {
-            return;
-        }
-
-        // Clear and populate the map of original cell states
-        cellStatesBeforeDiff.current.clear();
-
-        // Find cells that have changed between snapshots
-        const changedCells: ChangedCell[] = [];
-        changedCellsRef.current = changedCells;
-
-        // Compare each cell in the current snapshot with the original snapshot
-        currentNotebookSnapshot.forEach(currentCell => {
-            const originalCell = notebookSnapshotPreAgentExecutionRef.current?.find(cell => cell.id === currentCell.id);
-            
-            if (originalCell) {
-                // Cell exists in both snapshots, check if code has changed
-                if (originalCell.code !== currentCell.code) {
-                    changedCells.push({
-                        cellId: currentCell.id,
-                        originalCode: originalCell.code,
-                        currentCode: currentCell.code
-                    });
-                }
-            } else {
-                // Cell was added (doesn't exist in original snapshot)
-                changedCells.push({
-                    cellId: currentCell.id,
-                    originalCode: '',
-                    currentCode: currentCell.code
-                });
-            }
-        });
-
-        // Check for cells that were removed (exist in original but not in current)
-        notebookSnapshotPreAgentExecutionRef.current?.forEach(originalCell => {
-            const currentCell = currentNotebookSnapshot.find(cell => cell.id === originalCell.id);
-            if (!currentCell) {
-                // Cell was removed
-                changedCells.push({
-                    cellId: originalCell.id,
-                    originalCode: originalCell.code,
-                    currentCode: ''
-                });
-            }
-        });
-
-        if (changedCells.length === 0) {
-            console.log('No changes detected between snapshots');
-            return;
-        }
-
-        // For each changed cell, calculate and apply diff stripes
-        changedCells.forEach(change => {
-            // Store the original code so we can revert if user rejects
-            cellStatesBeforeDiff.current.set(change.cellId, change.originalCode);
-
-            // Calculate the code diffs
-            const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(change.originalCode, change.currentCode);
-
-            // Write the unified code string to the cell
-            writeCodeToCellByID(notebookTracker, unifiedCodeString, change.cellId);
-
-            // Apply diff stripes to this cell
-            applyDiffStripesToCell(notebookTracker, change.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
-
-            // Highlight the cell to draw attention
-            highlightCodeCell(notebookTracker, change.cellId);
-        });
-
-        // Scroll to the first changed cell
-        const firstChangedCell = changedCells[0];
-        if (firstChangedCell && notebookTracker.currentWidget) {
-            scrollToCell(notebookTracker.currentWidget, firstChangedCell.cellId, undefined, 'start');
-        }
-
-        // Update toolbar buttons to show accept/reject buttons for cells with diffs
-        updateCellToolbarButtons();
-    }
 
     return (
         // We disable the chat taskpane if the user is not signed up AND there are no chat history items
@@ -1776,14 +1653,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     agentExecutionStatus === 'idle' &&
                     displayOptimizedChatHistory.length > 0 && (
                     <AgentChangeControls
-                        reviewAgentChanges={reviewAgentChanges}
+                        reviewAgentChanges={agentReview.reviewAgentChanges}
                         app={app}
                         notebookTracker={notebookTracker}
                         setHasCheckpoint={setHasCheckpoint}
                         setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
                         setShowRevertQuestionnaire={setShowRevertQuestionnaire}
                         chatMessagesRef={chatMessagesRef}
-                        acceptAllAICode={acceptAllAICode}
+                        acceptAllAICode={agentReview.acceptAllAICode}
                     />
                 )}
                 {/* Revert questionnaire - shows when user clicks revert button */}
