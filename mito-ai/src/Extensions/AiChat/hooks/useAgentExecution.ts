@@ -70,7 +70,16 @@ export const useAgentExecution = ({
     sendAgentSmartDebugMessage,
     agentReview,
     agentTargetNotebookPanelRef
-}: UseAgentExecutionProps) => {
+}: UseAgentExecutionProps): {
+    agentExecutionStatus: AgentExecutionStatus;
+    shouldContinueAgentExecution: React.MutableRefObject<boolean>;
+    startAgentExecution: (
+        input: string,
+        messageIndex?: number,
+        additionalContext?: Array<{ type: string, value: string }>
+    ) => Promise<void>;
+    markAgentForStopping: (reason?: 'userStop' | 'naturalConclusion') => Promise<void>;
+} => {
     // Agent execution state
     const [agentExecutionStatus, setAgentExecutionStatus] = useState<AgentExecutionStatus>('idle');
     const shouldContinueAgentExecution = useRef<boolean>(true);
