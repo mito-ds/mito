@@ -25,7 +25,7 @@ import { ChangedCell } from '../ChatTaskpane';
 
 interface UseAgentReviewProps {
     notebookTracker: INotebookTracker;
-    agentTargetNotebookPanelRef: React.MutableRefObject<any>;
+    agentTargetNotebookPanelRef: React.MutableRefObject<any> | null;
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>;
     updateCellToolbarButtons: () => void;
 }
@@ -60,7 +60,7 @@ export const useAgentReview = ({
             notebookSnapshotAfterAgentExecutionRef.current,
             codeDiffStripesCompartments,
             changedCellsRef.current,
-            agentTargetNotebookPanelRef
+            agentTargetNotebookPanelRef || undefined
         );
         updateCellToolbarButtons();
     };
@@ -78,7 +78,7 @@ export const useAgentReview = ({
             cellStatesBeforeDiff,
             codeDiffStripesCompartments,
             changedCellsRef.current,
-            agentTargetNotebookPanelRef
+            agentTargetNotebookPanelRef || undefined
         );
         updateCellToolbarButtons();
     };
@@ -96,6 +96,10 @@ export const useAgentReview = ({
     };
 
     const reviewAgentChanges = (): void => {
+        if (!agentTargetNotebookPanelRef?.current) {
+            return;
+        }
+
         const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
         notebookSnapshotAfterAgentExecutionRef.current = currentNotebookSnapshot;
 
@@ -193,6 +197,7 @@ export const useAgentReview = ({
         changedCellsRef,
         notebookSnapshotPreAgentExecutionRef,
         notebookSnapshotAfterAgentExecutionRef,
+        agentTargetNotebookPanelRef,
 
         // Functions
         acceptAICodeInAgentMode,

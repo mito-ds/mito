@@ -10,7 +10,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { addIcon, historyIcon, deleteIcon, settingsIcon } from '@jupyterlab/ui-components';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
@@ -42,10 +42,7 @@ import ToggleButton from '../../components/ToggleButton';
 import { OpenIndicatorLabIcon } from '../../icons';
 
 // Internal imports - Utils
-import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../utils/agentActions';
 import { classNames } from '../../utils/classNames';
-import { checkForBlacklistedWords } from '../../utils/blacklistedWords';
-import { createCheckpoint } from '../../utils/checkpoint';
 import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
 import { 
     getCodeDiffsAndUnifiedCodeString, 
@@ -56,11 +53,9 @@ import {
 import {
     applyCellEditorExtension,
     getActiveCellID,
-    getAIOptimizedCellsInNotebookPanel,
     getCellCodeByID,
     highlightCodeCell,
     scrollToCell,
-    setActiveCellByIDInNotebookPanel,
     writeCodeToCellByID,
 } from '../../utils/notebook';
 import { getActiveCellOutput } from '../../utils/cellOutput';
@@ -120,6 +115,7 @@ import {
 
 // Internal imports - Hooks
 import { useAgentReview } from './hooks/useAgentReview';
+import { useAgentExecution } from './hooks/useAgentExecution';
 
 // Styles
 import '../../../style/button.css';
@@ -127,7 +123,6 @@ import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
 import LoadingDots from '../../components/LoadingDots';
 
-const AGENT_EXECUTION_DEPTH_LIMIT = 20
 
 const getDefaultChatHistoryManager = (
     notebookTracker: INotebookTracker, 
@@ -217,19 +212,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Ref to trigger refresh of the usage badge
     const usageBadgeRef = useRef<UsageBadgeRef>(null);
 
-    /* 
-        Three possible states:
-        1. working: the agent is working on the task
-        2. stopping: the agent is stopping after it has received ai response it is waiting on
-        3. idle: the agent is idle
-    */
-    const [agentExecutionStatus, setAgentExecutionStatus] = useState<AgentExecutionStatus>('idle')
-    const agentTargetNotebookPanelRef = useRef<NotebookPanel | null>(null)
-
-    // We use a ref to always access the most up-to-date value during a function's execution. Refs immediately reflect changes, 
-    // unlike state variables, which are captured at the beginning of a function and may not reflect updates made during execution.
-    const shouldContinueAgentExecution = useRef<boolean>(true);
-
     const streamingContentRef = useRef<string>('');
     const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
     
@@ -249,6 +231,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Initialize code diff stripes compartments
     const codeDiffStripesCompartments = React.useRef(new Map<string, Compartment>());
+
+    // Create a shared ref for the agent target notebook panel
+    const agentTargetNotebookPanelRef = React.useRef<any>(null);
 
     // Initialize agent review hook
     const agentReview = useAgentReview({
@@ -466,7 +451,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const firstMessage = getFirstMessageFromCookie();
                 if (firstMessage) {
                     await waitForNotebookReady(notebookTracker);
-                    await startAgentExecution(firstMessage);
+                    await agentExecution.startAgentExecution(firstMessage);
                 }
 
             } catch (error: unknown) {
@@ -772,7 +757,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Then send the new message to replace it
         if (agentModeEnabled) {
-            await startAgentExecution(newContent, messageIndex, additionalContext)
+            await agentExecution.startAgentExecution(newContent, messageIndex, additionalContext)
         } else {
             await sendChatInputMessage(newContent, messageIndex, additionalContext)
         }
@@ -990,259 +975,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(chatHistoryManager)
     }
 
-    const markAgentForStopping = async (reason: 'userStop' | 'naturalConclusion' = 'naturalConclusion',): Promise<void> => {
-        // Signal that the agent should stop immediately
-        shouldContinueAgentExecution.current = false;
-        // Update state/UI
-        setAgentExecutionStatus('idle');
-        setLoadingAIResponse(false);
-
-        if (reason === 'userStop') {
-            // Immediately abort any ongoing requests
-            if (activeRequestControllerRef.current) {
-                activeRequestControllerRef.current.abort();
-                activeRequestControllerRef.current = null;
-            }
-
-            const newChatHistoryManager = getDuplicateChatHistoryManager();
-            addAIMessageFromResponseAndUpdateState(
-                "Agent stopped by user.",
-                'chat', // TODO: This probably should not be type 'chat' because that is reserved for a chat thread!
-                newChatHistoryManager
-            );
-
-            // Send stop message to backend
-            await websocketClient.sendMessage({
-                type: "stop_agent",
-                message_id: UUID.uuid4(),
-                metadata: {
-                    promptType: "stop_agent",
-                    threadId: activeThreadIdRef.current
-                },
-                stream: false
-            });
-        }
-        return;
-    }
-
-    const startAgentExecution = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
-        agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
-
-        agentReview.acceptAllAICode();
-        agentReview.setNotebookSnapshotPreAgentExecution(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
-        await createCheckpoint(app, setHasCheckpoint);
-        setAgentExecutionStatus('working')
-
-        // Enable follow mode when user starts agent execution
-        setAutoScrollFollowMode(true);
-
-        // Reset the execution flag at the start of a new plan
-        shouldContinueAgentExecution.current = true;
-
-        let isAgentFinished = false
-        let agentExecutionDepth = 1
-        let sendCellIDOutput: string | undefined = undefined
-
-        // Sometimes its useful to send extra information back to the agent. For example, 
-        // if the agent tries to create a streamlit app and it errors, we want to let the 
-        // orchestrator agent know about the issue. 
-        // TODO: Ideally this would be a different type of message that does not show up
-        // as a user message in the chat taskpane, but this is the only mechanism we have 
-        // right now.
-        let messageToShareWithAgent: string | undefined = undefined
-
-        // Loop through each message in the plan and send it to the AI
-        while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
-
-            // Check if we should continue execution
-            if (!shouldContinueAgentExecution.current) {
-                await markAgentForStopping()
-                break;
-            }
-
-            // Only the first message sent to the Agent should contain the user's input.
-            // All other messages only contain updated information about the state of the notebook.
-            if (agentExecutionDepth === 1) {
-                await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext)
-            } else {
-                await sendAgentExecutionMessage(messageToShareWithAgent || '', undefined, sendCellIDOutput)
-                // Reset flag back to false until the agent requests the active cell output again
-                sendCellIDOutput = undefined
-                messageToShareWithAgent = undefined
-            }
-
-            // Iterate the agent execution depth
-            agentExecutionDepth++
-
-            // Check the code generated by the AI for blacklisted words before running it
-            const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
-
-            // # TODO: Make this is a helper function so we can also use it in the auto error fixup! 
-            if (aiDisplayOptimizedChatItem) {
-                const aiGeneratedCode = getCodeBlockFromMessage(aiDisplayOptimizedChatItem.message);
-                if (aiGeneratedCode) {
-                    const securityCheck = checkForBlacklistedWords(aiGeneratedCode);
-                    if (!securityCheck.safe) {
-                        console.error('Security Warning:', securityCheck.reason);
-                        addAIMessageFromResponseAndUpdateState(
-                            `I cannot execute this code without your approval because this code did not pass my security checks. ${securityCheck.reason}. For your safety, I am stopping execution of this plan.`,
-                            'agent:execution',
-                            chatHistoryManager
-                        );
-                        await markAgentForStopping()
-                        break;
-                    }
-                }
-            }
-
-            const agentResponse = aiDisplayOptimizedChatItem?.agentResponse
-
-            if (agentTargetNotebookPanelRef.current === null) {
-                // If the agent target notebook panel is not set, we don't know where to run the code so we stop
-                await markAgentForStopping();
-                isAgentFinished = true
-                break;
-            }
-
-            if (agentResponse === undefined) {
-                // If the agent response is undefined, we need to send a message to the agent
-                await markAgentForStopping();
-                isAgentFinished = true
-                break;
-            }
-
-            if (agentResponse.type === 'finished_task') {
-                // If the agent told us that it is finished, we can stop
-                await markAgentForStopping();
-                isAgentFinished = true
-                break;
-            }
-
-            if (agentResponse.type === 'cell_update' && (agentResponse.cell_update === undefined || agentResponse.cell_update === null)) {
-                // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
-                await markAgentForStopping();
-                isAgentFinished = true
-                break;
-            }
-
-            // TODO: If we created a validated type in the agent response validation function, then we woulnd't need to do these checks
-            if (agentResponse.type === 'edit_streamlit_app' && (agentResponse.edit_streamlit_app_prompt === undefined || agentResponse.edit_streamlit_app_prompt === null)) {
-                await markAgentForStopping();
-                isAgentFinished = true
-                break;
-            }
-
-            if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
-                // Run the code and handle any errors
-                await acceptAndRunCellUpdate(
-                    agentResponse.cell_update,
-                    agentTargetNotebookPanelRef.current,
-                )
-
-                const status = await retryIfExecutionError(
-                    agentTargetNotebookPanelRef.current,
-                    app,
-                    sendAgentSmartDebugMessage,
-                    shouldContinueAgentExecution,
-                    markAgentForStopping,
-                    chatHistoryManagerRef
-                )
-
-                if (status === 'interupted') {
-                    break;
-                }
-
-                // If we were not able to run the code, break out of the loop 
-                // so we don't continue to execute the plan. Instead, we encourage
-                // the user to update the plan and try again. 
-                // TODO: Save this message in backend also even if there is not another message sent. 
-                // TODO: Move this into the retryIfExecutionError function?
-                if (status === 'failure') {
-                    addAIMessageFromResponseAndUpdateState(
-                        "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
-                        'agent:execution',
-                        chatHistoryManager
-                    )
-                    break;
-                }
-            }
-
-            if (agentResponse.type === 'get_cell_output' && agentResponse.get_cell_output_cell_id !== null && agentResponse.get_cell_output_cell_id !== undefined) {
-                // Mark that we should send the cell output to the agent 
-                // in the next loop iteration
-                sendCellIDOutput = agentResponse.get_cell_output_cell_id
-            }
-
-            if (agentResponse.type === 'run_all_cells') {
-                const result = await runAllCells(app, agentTargetNotebookPanelRef.current)
-                
-                // If run_all_cells resulted in an error, handle it through the error fixup process
-                if (!result.success && result.errorMessage && result.errorCellId) {
-                    // Set the error cell as active so the error retry logic can work with it
-                    setActiveCellByIDInNotebookPanel(agentTargetNotebookPanelRef.current, result.errorCellId)
-                    
-                    const status = await retryIfExecutionError(
-                        agentTargetNotebookPanelRef.current,
-                        app,
-                        sendAgentSmartDebugMessage,
-                        shouldContinueAgentExecution,
-                        markAgentForStopping,
-                        chatHistoryManagerRef
-                    )
-
-                    if (status === 'interupted') {
-                        break;
-                    }
-
-                    if (status === 'failure') {
-                        addAIMessageFromResponseAndUpdateState(
-                            "I apologize, but I encountered an error while running all cells and was unable to fix it after multiple attempts. You may want to check the notebook for errors.",
-                            'agent:execution',
-                            chatHistoryManager
-                        )
-                        break;
-                    }
-                }
-            }
-
-            if (agentResponse.type === 'create_streamlit_app') {
-                // Create new preview using the service
-                const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
-                if (streamlitPreviewResponse.type === 'error') {
-                    messageToShareWithAgent = streamlitPreviewResponse.message
-                }
-            }
-
-            if (agentResponse.type === 'edit_streamlit_app' && agentResponse.edit_streamlit_app_prompt) {
-                // Ensure there is an active preview to edit
-                if (!streamlitPreviewManager.hasActivePreview()) {
-                    const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
-                    if (streamlitPreviewResponse.type === 'error') {
-                        messageToShareWithAgent = streamlitPreviewResponse.message
-                        continue;
-                    }
-                }
-
-                // Edit the existing preview
-                const streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, agentTargetNotebookPanelRef.current);
-                if (streamlitPreviewResponse.type === 'error') {
-                    messageToShareWithAgent = streamlitPreviewResponse.message
-                }
-            }
-        }
-
-        if (agentExecutionDepth > AGENT_EXECUTION_DEPTH_LIMIT) {
-            addAIMessageFromResponseAndUpdateState(
-                "Since I've been working for a while now, give my work a review and then tell me how to continue.",
-                'agent:execution',
-                chatHistoryManager
-            )
-        }
-
-        // Use markAgentForStopping for natural conclusion to ensure consistent cleanup
-        await markAgentForStopping();
-    }
-
     const updateCodeDiffStripes = (aiMessage: OpenAI.ChatCompletionMessageParam | undefined, updateCellID: string): void => {
         if (!aiMessage) {
             return
@@ -1271,6 +1003,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Briefly highlight the code cell to draw the user's attention to it
         highlightCodeCell(notebookTracker, updateCellID)
     }
+
+    // Initialize agent execution hook
+    const agentExecution = useAgentExecution({
+        notebookTracker,
+        app,
+        streamlitPreviewManager,
+        websocketClient,
+        chatHistoryManagerRef,
+        activeThreadIdRef,
+        activeRequestControllerRef,
+        setLoadingAIResponse,
+        setAutoScrollFollowMode,
+        setHasCheckpoint,
+        addAIMessageFromResponseAndUpdateState,
+        getDuplicateChatHistoryManager,
+        sendAgentExecutionMessage,
+        sendAgentSmartDebugMessage,
+        agentReview,
+        agentTargetNotebookPanelRef
+    });
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
@@ -1421,7 +1173,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // Wait for the next tick to ensure state update is processed
                     await new Promise(resolve => setTimeout(resolve, 0));
 
-                    await startAgentExecution(args.input.toString())
+                    await agentExecution.startAgentExecution(args.input.toString())
                 }
             }
         });
@@ -1650,7 +1402,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <AgentReviewPanel
                     hasCheckpoint={hasCheckpoint}
                     agentModeEnabled={agentModeEnabled}
-                    agentExecutionStatus={agentExecutionStatus}
+                    agentExecutionStatus={agentExecution.agentExecutionStatus}
                     displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
                     showRevertQuestionnaire={showRevertQuestionnaire}
                     reviewAgentChanges={agentReview.reviewAgentChanges}
@@ -1670,7 +1422,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <ScrollableSuggestions
                         onSelectSuggestion={(prompt) => {
                             if (agentModeEnabled) {
-                                void startAgentExecution(prompt);
+                                void agentExecution.startAgentExecution(prompt);
                             } else {
                                 void sendChatInputMessage(prompt);
                             }
@@ -1682,7 +1434,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 {nextSteps.length > 0 && (
                     <NextStepsPills
                         nextSteps={nextSteps}
-                        onSelectNextStep={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                        onSelectNextStep={agentModeEnabled ? agentExecution.startAgentExecution : sendChatInputMessage}
                         displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
                         setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
                     />
@@ -1690,20 +1442,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <ChatInput
                     app={app}
                     initialContent={''}
-                    onSave={agentModeEnabled ? startAgentExecution : sendChatInputMessage}
+                    onSave={agentModeEnabled ? agentExecution.startAgentExecution : sendChatInputMessage}
                     onCancel={undefined}
                     isEditing={false}
                     contextManager={contextManager}
                     notebookTracker={notebookTracker}
                     agentModeEnabled={agentModeEnabled}
-                    agentExecutionStatus={agentExecutionStatus}
+                    agentExecutionStatus={agentExecution.agentExecutionStatus}
                     operatingSystem={operatingSystem}
                     displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
                     agentTargetNotebookPanelRef={agentTargetNotebookPanelRef}
                     isSignedUp={isSignedUp}
                 />
             </div>
-            {agentExecutionStatus !== 'working' && agentExecutionStatus !== 'stopping' && (
+            {agentExecution.agentExecutionStatus !== 'working' && agentExecution.agentExecutionStatus !== 'stopping' && (
                 <div className="chat-controls">
                     <div className="chat-controls-left">
                         <ToggleButton
@@ -1753,14 +1505,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </button>
                 </div>
             )}
-            {(agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping') && (
+            {(agentExecution.agentExecutionStatus === 'working' || agentExecution.agentExecutionStatus === 'stopping') && (
                 <button
                     className="button-base button-red stop-agent-button"
-                    onClick={() => void markAgentForStopping('userStop')}
-                    disabled={agentExecutionStatus === 'stopping'}
+                    onClick={() => void agentExecution.markAgentForStopping('userStop')}
+                    disabled={agentExecution.agentExecutionStatus === 'stopping'}
                     data-testid="stop-agent-button"
                 >
-                    {agentExecutionStatus === 'stopping' ? (
+                    {agentExecution.agentExecutionStatus === 'stopping' ? (
                         <div className="stop-agent-button-content">Stopping<LoadingCircle /> </div>
                     ) : (
                         'Stop Agent'
