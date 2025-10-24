@@ -10,7 +10,7 @@ import {
     AcceptSingleCellEdit,
     RejectSingleCellEdit,
     AcceptAllCellEdits
-} from '../CellEditAcceptAndRejectUtils';
+} from '../AgentReviewUtils';
 import {
     getCodeDiffsAndUnifiedCodeString,
     applyDiffStripesToCell

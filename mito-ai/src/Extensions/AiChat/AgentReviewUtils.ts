@@ -102,31 +102,3 @@ export const AcceptAllCellEdits = (
     // Clear all tracking
     cellStatesBeforeDiff.current.clear();
 };
-
-/**
- * Rejects all cell edits in agent review mode
- */
-export const RejectAllCellEdits = (
-    notebookTracker: INotebookTracker,
-    cellStatesBeforeDiff: React.MutableRefObject<Map<string, string>>,
-    codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>
-): void => {
-    // Look for all cells with diffs
-    if (cellStatesBeforeDiff.current.size === 0) {
-        return;
-    }
-
-    // Reject all cells that have diffs
-    cellStatesBeforeDiff.current.forEach((originalCode, cellId) => {
-        // Restore original code and turn off diffs
-        writeCodeToCellByID(notebookTracker, originalCode, cellId);
-        turnOffDiffsForCell(notebookTracker, cellId, codeDiffStripesCompartments.current);
-
-        // Re-run the rejected cell in background
-        void runCellByIDInBackground(notebookTracker.currentWidget, cellId);
-    });
-
-    // Clear all tracking
-    cellStatesBeforeDiff.current.clear();
-};
-
