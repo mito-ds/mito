@@ -365,10 +365,16 @@ export const scrollToNextCellWithDiff = (
         return; // Current cell not found in edits
     }
 
-    // Find the next cell that still has a diff
-    const nextCellWithDiff = agentEdits
+    // First, look for the next cell that still has a diff below the current cell
+    let nextCellWithDiff = agentEdits
         .slice(currentEditIndex + 1)
         .find(edit => changedCells.some(change => change.cellId === edit.cellId));
+
+    // If no cell found below, go to the first diff in the file
+    if (!nextCellWithDiff) {
+        nextCellWithDiff = agentEdits
+            .find(edit => changedCells.some(change => change.cellId === edit.cellId));
+    }
 
     if (!nextCellWithDiff) {
         return; // No more cells with diffs
