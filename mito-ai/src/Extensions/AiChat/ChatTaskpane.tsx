@@ -1282,39 +1282,40 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         updateCellToolbarButtons()
     }
 
-    const acceptAICode = (): void => {
+    const acceptAICodeInAgentMode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
         
-        // Agent review mode: accept specific cell from multi-cell review
-        if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
-            AcceptSingleCellEdit(
-                activeCellId,
-                notebookTracker,
-                cellStatesBeforeDiff,
-                notebookSnapshotAfterAgentExecutionRef.current,
-                codeDiffStripesCompartments,
-                changedCellsRef.current
-            );
-            updateCellToolbarButtons();
+        if (!activeCellId || !cellStatesBeforeDiff.current.has(activeCellId)) {
             return;
         }
 
-        // Chat mode: accept single cell from chat preview
+        AcceptSingleCellEdit(
+            activeCellId,
+            notebookTracker,
+            cellStatesBeforeDiff,
+            notebookSnapshotAfterAgentExecutionRef.current,
+            codeDiffStripesCompartments,
+            changedCellsRef.current
+        );
+        updateCellToolbarButtons();
+    };
+
+    const acceptAICodeInChatMode = (): void => {
         const latestChatHistoryManager = chatHistoryManagerRef.current;
-        const lastAIMessage = latestChatHistoryManager.getLastAIDisplayOptimizedChatItem()
+        const lastAIMessage = latestChatHistoryManager.getLastAIDisplayOptimizedChatItem();
 
         if (!lastAIMessage || !cellStateBeforeDiff.current) {
-            return
+            return;
         }
 
         const aiGeneratedCode = getCodeBlockFromMessage(lastAIMessage.message);
         if (!aiGeneratedCode) {
-            return
+            return;
         }
 
-        setCodeReviewStatus('applied')
+        setCodeReviewStatus('applied');
 
-        const targetCellID = cellStateBeforeDiff.current.codeCellID
+        const targetCellID = cellStateBeforeDiff.current.codeCellID;
         AcceptSingleCellEditChatMode(
             targetCellID,
             notebookTracker,
@@ -1322,6 +1323,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             cellStateBeforeDiff,
             codeDiffStripesCompartments
         );
+    };
+
+    const acceptAICode = (): void => {
+        const activeCellId = notebookTracker.activeCell?.model.id;
+        
+        // Determine mode based on whether the active cell has diffs in agent review mode
+        if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
+            acceptAICodeInAgentMode();
+        } else {
+            acceptAICodeInChatMode();
+        }
     }
 
     const acceptAllAICode = (): void => {
@@ -1347,28 +1359,29 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setShowRevertQuestionnaire(false);
     }
 
-    const rejectAICode = (): void => {
+    const rejectAICodeInAgentMode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
         
-        // Agent review mode: reject specific cell from multi-cell review
-        if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
-            RejectSingleCellEdit(
-                activeCellId,
-                notebookTracker,
-                cellStatesBeforeDiff,
-                codeDiffStripesCompartments,
-                changedCellsRef.current
-            );
-            updateCellToolbarButtons();
+        if (!activeCellId || !cellStatesBeforeDiff.current.has(activeCellId)) {
             return;
         }
 
-        // Chat mode: reject single cell from chat preview
+        RejectSingleCellEdit(
+            activeCellId,
+            notebookTracker,
+            cellStatesBeforeDiff,
+            codeDiffStripesCompartments,
+            changedCellsRef.current
+        );
+        updateCellToolbarButtons();
+    };
+
+    const rejectAICodeInChatMode = (): void => {
         if (cellStateBeforeDiff.current === undefined) {
-            return
+            return;
         }
 
-        setCodeReviewStatus('chatPreview')
+        setCodeReviewStatus('chatPreview');
 
         RejectSingleCellEditChatMode(
             cellStateBeforeDiff.current.codeCellID,
@@ -1376,6 +1389,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             cellStateBeforeDiff,
             codeDiffStripesCompartments
         );
+    };
+
+    const rejectAICode = (): void => {
+        const activeCellId = notebookTracker.activeCell?.model.id;
+        
+        // Determine mode based on whether the active cell has diffs in agent review mode
+        if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
+            rejectAICodeInAgentMode();
+        } else {
+            rejectAICodeInChatMode();
+        }
     }
 
 
