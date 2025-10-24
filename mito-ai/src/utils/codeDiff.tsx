@@ -250,6 +250,17 @@ export const shouldShowDiffToolbarButtons = (
         if (!activeCellId) return false;
         
         // Check both single-cell mode and multi-cell mode
+        // 
+        // SINGLE-CELL MODE (Chat mode): 
+        // - Uses cellStateBeforeDiff.current which stores a single cell's original state
+        // - This happens when user is in chat mode and AI suggests code for the active cell
+        // - The cellStateBeforeDiff.codeCellID matches the cell that has the diff
+        //
+        // MULTI-CELL MODE (Agent review mode):
+        // - Uses cellStatesBeforeDiff Map which stores original states for multiple cells
+        // - This happens when agent completes execution and user reviews all changes at once
+        // - The Map contains all cells that were modified during agent execution
+        // - We check if the active cell is one of the modified cells
         return (
             activeCellId === cellStateBeforeDiff?.codeCellID ||
             cellStatesBeforeDiff.has(activeCellId)
