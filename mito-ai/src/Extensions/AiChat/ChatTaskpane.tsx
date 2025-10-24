@@ -51,7 +51,6 @@ import {
     getCodeDiffsAndUnifiedCodeString, 
     UnifiedDiffLine, 
     applyDiffStripesToCell, 
-    turnOffDiffsForCell, 
     shouldShowDiffToolbarButtons, 
     ICellStateBeforeDiff 
 } from '../../utils/codeDiff';
@@ -59,13 +58,9 @@ import {
     applyCellEditorExtension,
     getActiveCellID,
     getAIOptimizedCellsInNotebookPanel,
-    getCellByID,
     getCellCodeByID,
     highlightCodeCell,
-    runCellByIDInBackground,
     scrollToCell,
-    scrollToNextCellWithDiff,
-    setActiveCellByID,
     setActiveCellByIDInNotebookPanel,
     writeCodeToCellByID,
 } from '../../utils/notebook';
@@ -121,6 +116,13 @@ import ChatMessage from './ChatMessage/ChatMessage';
 import RevertQuestionnaire from './ChatMessage/RevertQuestionnaire';
 import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
+import { 
+    AcceptSingleCellEdit, 
+    RejectSingleCellEdit, 
+    AcceptSingleCellEditChatMode, 
+    RejectSingleCellEditChatMode,
+    AcceptAllCellEdits
+} from './CellEditAcceptAndRejectUtils';
 
 // Styles
 import '../../../style/button.css';
@@ -1285,24 +1287,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         
         // Agent review mode: accept specific cell from multi-cell review
         if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
-            // Remove the cell from tracking
-            cellStatesBeforeDiff.current.delete(activeCellId);
-
-            // Find the final code from the current notebook snapshot
-            const edit = notebookSnapshotAfterAgentExecutionRef.current?.find(cell => cell.id === activeCellId);
-            
-            // Write the final code to the cell and turn off diffs
-            writeCodeToCellByID(notebookTracker, edit?.code || '', activeCellId);
-            turnOffDiffsForCell(notebookTracker, activeCellId, codeDiffStripesCompartments.current);
-            updateCellToolbarButtons();
-            
-            // Scroll to the next cell with a diff if in agent mode
-            scrollToNextCellWithDiff(
-                notebookTracker,
+            AcceptSingleCellEdit(
                 activeCellId,
-                changedCellsRef.current,
+                notebookTracker,
+                cellStatesBeforeDiff,
+                notebookSnapshotAfterAgentExecutionRef.current,
+                codeDiffStripesCompartments,
+                changedCellsRef.current
             );
-            
+            updateCellToolbarButtons();
             return;
         }
 
@@ -1322,38 +1315,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setCodeReviewStatus('applied')
 
         const targetCellID = cellStateBeforeDiff.current.codeCellID
-        // Write to the cell that has the code diffs
-        writeCodeToCellAndTurnOffDiffs(aiGeneratedCode, targetCellID)
-
-        // Focus on the active cell after the code is written
-        const targetCell = getCellByID(notebookTracker, targetCellID)
-        if (targetCell) {
-            // Make the target cell the active cell
-            setActiveCellByID(notebookTracker, targetCellID)
-            // Focus on the active cell
-            targetCell.activate();
-        }
+        AcceptSingleCellEditChatMode(
+            targetCellID,
+            notebookTracker,
+            latestChatHistoryManager,
+            cellStateBeforeDiff,
+            codeDiffStripesCompartments
+        );
     }
 
     const acceptAllAICode = (): void => {
-        // Look for all cells with diffs
-        if (cellStatesBeforeDiff.current.size === 0) {
-            return;
-        }
-
-        // Accept all cells that have diffs
-        cellStatesBeforeDiff.current.forEach((originalCode, cellId) => {
-            // Find the final code from the current notebook snapshot
-            const edit = notebookSnapshotAfterAgentExecutionRef.current?.find(cell => cell.id === cellId);
-            if (edit) {
-                // Write the final code to the cell and turn off diffs
-                writeCodeToCellByID(notebookTracker, edit.code, cellId);
-                turnOffDiffsForCell(notebookTracker, cellId, codeDiffStripesCompartments.current);
-            }
-        });
-
-        // Clear all tracking
-        cellStatesBeforeDiff.current.clear();
+        AcceptAllCellEdits(
+            notebookTracker,
+            cellStatesBeforeDiff,
+            notebookSnapshotAfterAgentExecutionRef.current,
+            codeDiffStripesCompartments
+        );
         
         // Update UI
         updateCellToolbarButtons();
@@ -1375,26 +1352,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         
         // Agent review mode: reject specific cell from multi-cell review
         if (activeCellId && cellStatesBeforeDiff.current.has(activeCellId)) {
-            const originalCode = cellStatesBeforeDiff.current.get(activeCellId);
-            if (originalCode === undefined) return;
-            
-            // Remove from tracking and restore original code
-            cellStatesBeforeDiff.current.delete(activeCellId);
-            writeCodeToCellByID(notebookTracker, originalCode, activeCellId);
-            turnOffDiffsForCell(notebookTracker, activeCellId, codeDiffStripesCompartments.current);
-            updateCellToolbarButtons();
-
-            // Re-run the rejected cell in background. We want to make sure that the agent has the 
-            // most up-to-date version of every variable. 
-            void runCellByIDInBackground(notebookTracker.currentWidget, activeCellId);
-            
-            // Scroll to the next cell with a diff if in agent mode
-            scrollToNextCellWithDiff(
-                notebookTracker,
+            RejectSingleCellEdit(
                 activeCellId,
-                changedCellsRef.current,
+                notebookTracker,
+                cellStatesBeforeDiff,
+                codeDiffStripesCompartments,
+                changedCellsRef.current
             );
-            
+            updateCellToolbarButtons();
             return;
         }
 
@@ -1405,18 +1370,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         setCodeReviewStatus('chatPreview')
 
-        writeCodeToCellAndTurnOffDiffs(cellStateBeforeDiff.current.code, cellStateBeforeDiff.current.codeCellID)
+        RejectSingleCellEditChatMode(
+            cellStateBeforeDiff.current.codeCellID,
+            notebookTracker,
+            cellStateBeforeDiff,
+            codeDiffStripesCompartments
+        );
     }
 
-    const writeCodeToCellAndTurnOffDiffs = (code: string, codeCellID: string | undefined): void => {
-        updateCodeCellsExtensions(undefined)
-        cellStateBeforeDiff.current = undefined
-
-        if (codeCellID !== undefined) {
-            writeCodeToCellByID(notebookTracker, code, codeCellID)
-            updateCellToolbarButtons()
-        }
-    }
 
     useEffect(() => {
         /* 
