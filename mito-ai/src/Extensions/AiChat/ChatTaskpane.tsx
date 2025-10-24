@@ -250,8 +250,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Track if checkpoint exists for UI updates
     const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
-    const [notebookSnapshot, setNotebookSnapshot] = useState<AIOptimizedCell[] | null>(null);
-    const currentNotebookSnapshotRef = useRef<AIOptimizedCell[] | null>(null);
+    const [notebookSnapshotPreAgentExecution, setNotebookSnapshotPreAgentExecution] = useState<AIOptimizedCell[] | null>(null);
+    const notebookSnapshotAfterAgentExecutionRef = useRef<AIOptimizedCell[] | null>(null);
 
     // Track if revert questionnaire should be shown
     const [showRevertQuestionnaire, setShowRevertQuestionnaire] = useState<boolean>(false);
@@ -1020,7 +1020,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         agentTargetNotebookPanelRef.current = notebookTracker.currentWidget
 
         acceptAllAICode();
-        setNotebookSnapshot(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
+        setNotebookSnapshotPreAgentExecution(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working')
 
@@ -1289,7 +1289,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             cellStatesBeforeDiff.current.delete(activeCellId);
 
             // Find the final code from the current notebook snapshot
-            const edit = currentNotebookSnapshotRef.current?.find(cell => cell.id === activeCellId);
+            const edit = notebookSnapshotAfterAgentExecutionRef.current?.find(cell => cell.id === activeCellId);
             
             // Write the final code to the cell and turn off diffs
             writeCodeToCellByID(notebookTracker, edit?.code || '', activeCellId);
@@ -1344,7 +1344,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Accept all cells that have diffs
         cellStatesBeforeDiff.current.forEach((originalCode, cellId) => {
             // Find the final code from the current notebook snapshot
-            const edit = currentNotebookSnapshotRef.current?.find(cell => cell.id === cellId);
+            const edit = notebookSnapshotAfterAgentExecutionRef.current?.find(cell => cell.id === cellId);
             if (edit) {
                 // Write the final code to the cell and turn off diffs
                 writeCodeToCellByID(notebookTracker, edit.code, cellId);
@@ -1598,9 +1598,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     const reviewAgentChanges = (): void => {
         const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
-        currentNotebookSnapshotRef.current = currentNotebookSnapshot;
+        notebookSnapshotAfterAgentExecutionRef.current = currentNotebookSnapshot;
 
-        if (!notebookSnapshot || !currentNotebookSnapshot) {
+        if (!notebookSnapshotPreAgentExecution || !currentNotebookSnapshot) {
             return;
         }
 
@@ -1613,7 +1613,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Compare each cell in the current snapshot with the original snapshot
         currentNotebookSnapshot.forEach(currentCell => {
-            const originalCell = notebookSnapshot.find(cell => cell.id === currentCell.id);
+            const originalCell = notebookSnapshotPreAgentExecution.find(cell => cell.id === currentCell.id);
             
             if (originalCell) {
                 // Cell exists in both snapshots, check if code has changed
@@ -1635,7 +1635,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         });
 
         // Check for cells that were removed (exist in original but not in current)
-        notebookSnapshot.forEach(originalCell => {
+        notebookSnapshotPreAgentExecution.forEach(originalCell => {
             const currentCell = currentNotebookSnapshot.find(cell => cell.id === originalCell.id);
             if (!currentCell) {
                 // Cell was removed
