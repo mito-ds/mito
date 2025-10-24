@@ -1,0 +1,83 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+import React from 'react';
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import AgentChangeControls from '../ChatMessage/AgentChangeControls';
+import RevertQuestionnaire from '../ChatMessage/RevertQuestionnaire';
+import { ChatHistoryManager } from '../ChatHistoryManager';
+
+interface AgentReviewPanelProps {
+    // Agent review state
+    hasCheckpoint: boolean;
+    agentModeEnabled: boolean;
+    agentExecutionStatus: 'working' | 'stopping' | 'idle';
+    displayOptimizedChatHistoryLength: number;
+    showRevertQuestionnaire: boolean;
+
+    // Agent review functions
+    reviewAgentChanges: () => void;
+    acceptAllAICode: () => void;
+    setHasCheckpoint: (value: boolean) => void;
+    setDisplayedNextStepsIfAvailable: (value: boolean) => void;
+    setShowRevertQuestionnaire: (value: boolean) => void;
+    getDuplicateChatHistoryManager: () => ChatHistoryManager;
+    setChatHistoryManager: (manager: ChatHistoryManager) => void;
+
+    // Required props
+    app: JupyterFrontEnd;
+    notebookTracker: INotebookTracker;
+    chatMessagesRef: React.RefObject<HTMLDivElement>;
+}
+
+const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
+    hasCheckpoint,
+    agentModeEnabled,
+    agentExecutionStatus,
+    displayOptimizedChatHistoryLength,
+    showRevertQuestionnaire,
+    reviewAgentChanges,
+    acceptAllAICode,
+    setHasCheckpoint,
+    setDisplayedNextStepsIfAvailable,
+    setShowRevertQuestionnaire,
+    getDuplicateChatHistoryManager,
+    setChatHistoryManager,
+    app,
+    notebookTracker,
+    chatMessagesRef
+}) => {
+    return (
+        <>
+            {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
+            {hasCheckpoint &&
+                agentModeEnabled &&
+                agentExecutionStatus === 'idle' &&
+                displayOptimizedChatHistoryLength > 0 && (
+                    <AgentChangeControls
+                        reviewAgentChanges={reviewAgentChanges}
+                        app={app}
+                        notebookTracker={notebookTracker}
+                        setHasCheckpoint={setHasCheckpoint}
+                        setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                        setShowRevertQuestionnaire={setShowRevertQuestionnaire}
+                        chatMessagesRef={chatMessagesRef}
+                        acceptAllAICode={acceptAllAICode}
+                    />
+                )}
+            {/* Revert questionnaire - shows when user clicks revert button */}
+            {showRevertQuestionnaire && (
+                <RevertQuestionnaire
+                    onDestroy={() => setShowRevertQuestionnaire(false)}
+                    getDuplicateChatHistoryManager={getDuplicateChatHistoryManager}
+                    setChatHistoryManager={setChatHistoryManager}
+                />
+            )}
+        </>
+    );
+};
+
+export default AgentReviewPanel;

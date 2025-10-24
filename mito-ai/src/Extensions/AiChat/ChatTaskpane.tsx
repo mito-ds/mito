@@ -103,7 +103,7 @@ import { COMMAND_MITO_AI_SETTINGS } from '../SettingsManager/SettingsManagerPlug
 import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPage';
 
 // Internal imports - Chat components
-import AgentChangeControls from './ChatMessage/AgentChangeControls';
+import AgentReviewPanel from './components/AgentReviewPanel';
 import CTACarousel from './CTACarousel';
 import UsageBadge, { UsageBadgeRef } from './UsageBadge';
 import SignUpForm from './SignUpForm';
@@ -111,7 +111,6 @@ import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import { getFirstMessageFromCookie } from './FirstMessage';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
-import RevertQuestionnaire from './ChatMessage/RevertQuestionnaire';
 import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
 import { 
@@ -1647,30 +1646,24 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         Thinking <LoadingDots />
                     </div>
                 }
-                {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
-                {hasCheckpoint &&
-                    agentModeEnabled &&
-                    agentExecutionStatus === 'idle' &&
-                    displayOptimizedChatHistory.length > 0 && (
-                    <AgentChangeControls
-                        reviewAgentChanges={agentReview.reviewAgentChanges}
-                        app={app}
-                        notebookTracker={notebookTracker}
-                        setHasCheckpoint={setHasCheckpoint}
-                        setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
-                        setShowRevertQuestionnaire={setShowRevertQuestionnaire}
-                        chatMessagesRef={chatMessagesRef}
-                        acceptAllAICode={agentReview.acceptAllAICode}
-                    />
-                )}
-                {/* Revert questionnaire - shows when user clicks revert button */}
-                {showRevertQuestionnaire && (
-                    <RevertQuestionnaire 
-                        onDestroy={() => setShowRevertQuestionnaire(false)} 
-                        getDuplicateChatHistoryManager={getDuplicateChatHistoryManager}
-                        setChatHistoryManager={setChatHistoryManager}
-                    />
-                )}
+                {/* Agent review panel - handles all agent review UI */}
+                <AgentReviewPanel
+                    hasCheckpoint={hasCheckpoint}
+                    agentModeEnabled={agentModeEnabled}
+                    agentExecutionStatus={agentExecutionStatus}
+                    displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
+                    showRevertQuestionnaire={showRevertQuestionnaire}
+                    reviewAgentChanges={agentReview.reviewAgentChanges}
+                    acceptAllAICode={agentReview.acceptAllAICode}
+                    setHasCheckpoint={setHasCheckpoint}
+                    setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                    setShowRevertQuestionnaire={setShowRevertQuestionnaire}
+                    getDuplicateChatHistoryManager={getDuplicateChatHistoryManager}
+                    setChatHistoryManager={setChatHistoryManager}
+                    app={app}
+                    notebookTracker={notebookTracker}
+                    chatMessagesRef={chatMessagesRef}
+                />
             </div>
             {displayOptimizedChatHistory.length === 0 && (
                 <div className="suggestions-container">
