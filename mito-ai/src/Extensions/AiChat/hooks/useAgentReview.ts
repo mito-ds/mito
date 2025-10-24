@@ -35,7 +35,22 @@ export const useAgentReview = ({
     agentTargetNotebookPanelRef,
     codeDiffStripesCompartments,
     updateCellToolbarButtons
-}: UseAgentReviewProps) => {
+}: UseAgentReviewProps): {
+    // State
+    cellStatesBeforeDiff: React.MutableRefObject<Map<string, string>>;
+    changedCellsRef: React.MutableRefObject<ChangedCell[]>;
+    notebookSnapshotPreAgentExecutionRef: React.MutableRefObject<AIOptimizedCell[] | null>;
+    notebookSnapshotAfterAgentExecutionRef: React.MutableRefObject<AIOptimizedCell[] | null>;
+    agentTargetNotebookPanelRef: React.MutableRefObject<any> | null;
+
+    // Functions
+    acceptAICodeInAgentMode: () => void;
+    rejectAICodeInAgentMode: () => void;
+    acceptAllAICode: () => void;
+    reviewAgentChanges: () => void;
+    clearAgentReviewDiffs: () => void;
+    setNotebookSnapshotPreAgentExecution: (snapshot: AIOptimizedCell[] | null) => void;
+} => {
     // Store original cell states for multiple cells (used in agent review mode)
     const cellStatesBeforeDiff = useRef<Map<string, string>>(new Map());
 
