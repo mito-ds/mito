@@ -61,10 +61,10 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         scrollToDiv(chatMessagesRef);
     }
 
-    return (
-        <div className='message message-assistant-chat'>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                {isReviewing ? (
+    if (isReviewing) {
+        return (
+            <div className='message message-assistant-chat'>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <button
                         className="button-base button-green"
                         title="Accept all changes"
@@ -72,32 +72,35 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
                     >
                         Accept all
                     </button>
-                ) : (
-                    <button
-                        className="button-base button-gray"
-                        onClick={handleReviewChanges}
-                    >
-                        Review Changes
-                    </button>
-                )}
-                {isReviewing ? (
                     <button
                         className="button-base button-red"
                         onClick={handleRejectAll}
                     >
                         Reject All
                     </button>
-                ) : (
-                    <TextAndIconButton
-                        text="Undo All"
-                        icon={UndoIcon}
-                        title="Undo All"
-                        onClick={handleUndoAll}
-                        variant="gray"
-                        width="fit-contents"
-                        iconPosition="left"
-                    />
-                )}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className='message message-assistant-chat'>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button
+                    className="button-base button-gray"
+                    onClick={handleReviewChanges}
+                >
+                    Review Changes
+                </button>
+                <TextAndIconButton
+                    text="Undo All"
+                    icon={UndoIcon}
+                    title="Undo All"
+                    onClick={handleUndoAll}
+                    variant="gray"
+                    width="fit-contents"
+                    iconPosition="left"
+                />
             </div>
         </div>
     );
