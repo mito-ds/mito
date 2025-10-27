@@ -35,33 +35,57 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     rejectAllAICode,
 }) => {
 
-    const [isReviewing, setIsReviewing] = useState(false);
+    const [reviewStatus, setReviewStatus] = useState<'pre-review' | 'reviewing' | 'post-review'>('pre-review');
 
     const handleReviewChanges = (): void => {
-        setIsReviewing(true);
+        setReviewStatus('reviewing');
         reviewAgentChanges();
     }
 
     const handleAcceptAll = (): void => {
         acceptAllAICode();
-        setIsReviewing(false);
+        setReviewStatus('post-review');
     }
 
     const handleRejectAll = (): void => {
         rejectAllAICode();
-        setIsReviewing(false);
+        setReviewStatus('post-review');
     }
 
     const handleUndoAll = async (): Promise<void> => {
         await restoreCheckpoint(app, notebookTracker, setHasCheckpoint);
         setDisplayedNextStepsIfAvailable(false);
         setHasCheckpoint(false);
-        setIsReviewing(false);
+        setReviewStatus('post-review');
         setShowRevertQuestionnaire(true);
         scrollToDiv(chatMessagesRef);
     }
 
-    if (isReviewing) {
+    if (reviewStatus === 'pre-review') {
+        return (
+            <div className='message message-assistant-chat'>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                        className="button-base button-gray"
+                        onClick={handleReviewChanges}
+                    >
+                        Review Changes
+                    </button>
+                    <TextAndIconButton
+                        text="Undo All"
+                        icon={UndoIcon}
+                        title="Undo All"
+                        onClick={handleUndoAll}
+                        variant="gray"
+                        width="fit-contents"
+                        iconPosition="left"
+                    />
+                </div>
+            </div>
+        )
+    }
+
+    if (reviewStatus === 'reviewing') {
         return (
             <div className='message message-assistant-chat'>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -80,18 +104,12 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
                     </button>
                 </div>
             </div>
-        );
+        )
     }
 
-    return (
-        <div className='message message-assistant-chat'>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <button
-                    className="button-base button-gray"
-                    onClick={handleReviewChanges}
-                >
-                    Review Changes
-                </button>
+    if (reviewStatus === 'post-review') {
+        return (
+            <div className='message message-assistant-chat'>
                 <TextAndIconButton
                     text="Undo All"
                     icon={UndoIcon}
@@ -102,8 +120,10 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
                     iconPosition="left"
                 />
             </div>
-        </div>
-    );
+        )
+    }   
+
+    return null;
 };
 
 export default AgentChangeControls;
