@@ -368,12 +368,12 @@ export const scrollToNextCellWithDiff = (
     // First, look for the next cell that still has a diff below the current cell
     let nextCellWithDiff = agentEdits
         .slice(currentEditIndex + 1)
-        .find(edit => changedCells.some(change => change.cellId === edit.cellId));
+        .find(edit => changedCells.some(change => change.cellId === edit.cellId && !change.reviewed));
 
     // If no cell found below, go to the first diff in the file
     if (!nextCellWithDiff) {
         nextCellWithDiff = agentEdits
-            .find(edit => changedCells.some(change => change.cellId === edit.cellId));
+            .find(edit => changedCells.some(change => change.cellId === edit.cellId && !change.reviewed));
     }
 
     if (!nextCellWithDiff) {

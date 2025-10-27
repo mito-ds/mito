@@ -30,6 +30,10 @@ export const acceptSingleCellEdit = (
 
     // Find the final code from the current notebook snapshot
     const edit = notebookSnapshotAfterAgentExecution?.find(cell => cell.id === cellId);
+    const changedCell = changedCells.find(cell => cell.cellId === cellId);
+    if (changedCell) {
+        changedCell.reviewed = true;
+    }
 
     // Write the final code to the cell and turn off diffs
     writeCodeToCellByID(notebookTracker, edit?.code || '', cellId);
@@ -59,6 +63,11 @@ export const rejectSingleCellEdit = (
 
     // Remove from tracking and restore original code
     cellStatesBeforeDiff.current.delete(cellId);
+
+    const changedCell = changedCells.find(cell => cell.cellId === cellId);
+    if (changedCell) {
+        changedCell.reviewed = true;
+    }
     writeCodeToCellByID(notebookTracker, originalCode, cellId);
     turnOffDiffsForCell(notebookTracker, cellId, codeDiffStripesCompartments.current);
 

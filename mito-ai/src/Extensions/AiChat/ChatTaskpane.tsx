@@ -148,6 +148,7 @@ export interface ChangedCell {
     cellId: string;
     originalCode: string;
     currentCode: string;
+    reviewed: boolean;
 }
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({

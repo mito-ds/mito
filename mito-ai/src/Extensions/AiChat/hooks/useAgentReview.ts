@@ -148,7 +148,8 @@ export const useAgentReview = ({
                     changedCells.push({
                         cellId: currentCell.id,
                         originalCode: originalCell.code,
-                        currentCode: currentCell.code
+                        currentCode: currentCell.code,
+                        reviewed: false
                     });
                 }
             } else {
@@ -156,7 +157,8 @@ export const useAgentReview = ({
                 changedCells.push({
                     cellId: currentCell.id,
                     originalCode: '',
-                    currentCode: currentCell.code
+                    currentCode: currentCell.code,
+                    reviewed: false
                 });
             }
         });
@@ -169,7 +171,8 @@ export const useAgentReview = ({
                 changedCells.push({
                     cellId: originalCell.id,
                     originalCode: originalCell.code,
-                    currentCode: ''
+                    currentCode: '',
+                    reviewed: false
                 });
             }
         });
