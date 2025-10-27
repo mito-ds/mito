@@ -1208,10 +1208,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     useEffect(() => {
         // Register keyboard shortcuts 
+        // In agent mode, always apply code directly. In chat mode, preview first if in chatPreview status.
+        let command: string;
+        if (agentModeEnabled) {
+            command = COMMAND_MITO_AI_APPLY_LATEST_CODE;
+        } else if (codeReviewStatus === 'chatPreview') {
+            command = COMMAND_MITO_AI_PREVIEW_LATEST_CODE;
+        } else {
+            command = COMMAND_MITO_AI_APPLY_LATEST_CODE;
+        }
+
         const accelYDisposable = app.commands.addKeyBinding({
-            command: codeReviewStatus === 'chatPreview' ?
-                COMMAND_MITO_AI_PREVIEW_LATEST_CODE :
-                COMMAND_MITO_AI_APPLY_LATEST_CODE,
+            command,
             keys: ['Accel Y'],
             selector: 'body',
         });
@@ -1230,7 +1238,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             accelYDisposable.dispose();
             accelDDisposable.dispose();
         };
-    }, [codeReviewStatus]);
+    }, [codeReviewStatus, agentModeEnabled]);
 
     const updateCellToolbarButtons = (): void => {
         // Tell Jupyter to re-evaluate if the toolbar buttons should be visible.
