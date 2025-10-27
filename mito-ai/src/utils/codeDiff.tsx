@@ -243,7 +243,7 @@ export const turnOffDiffsForCell = (
 export const shouldShowDiffToolbarButtons = (
     notebookTracker: INotebookTracker,
     cellStateBeforeDiff: ICellStateBeforeDiff | undefined,
-    cellStatesBeforeDiff: Map<string, string>
+    changedCells: Array<{cellId: string; reviewed: boolean}>
 ): boolean => {
     try {
         const activeCellId = notebookTracker.activeCell?.model.id;
@@ -257,13 +257,12 @@ export const shouldShowDiffToolbarButtons = (
         // - The cellStateBeforeDiff.codeCellID matches the cell that has the diff
         //
         // MULTI-CELL MODE (Agent review mode):
-        // - Uses cellStatesBeforeDiff Map which stores original states for multiple cells
+        // - Uses changedCells array which stores all changed cells with their review status
         // - This happens when agent completes execution and user reviews all changes at once
-        // - The Map contains all cells that were modified during agent execution
-        // - We check if the active cell is one of the modified cells
+        // - We check if the active cell is one of the unreviewed cells (has a diff)
         return (
             activeCellId === cellStateBeforeDiff?.codeCellID ||
-            cellStatesBeforeDiff.has(activeCellId)
+            changedCells.some(cell => cell.cellId === activeCellId && !cell.reviewed)
         );
     } catch (error) {
         console.error('Error checking if code cell toolbar buttons should be visible', error)

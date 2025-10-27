@@ -1073,8 +1073,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const acceptAICode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
         
-        // Determine mode based on whether the active cell has diffs in agent review mode
-        if (activeCellId && agentReview.cellStatesBeforeDiff.current.has(activeCellId)) {
+        // Determine mode based on whether the active cell has unreviewed changes in agent review mode
+        const hasUnreviewedChanges = activeCellId && agentReview.changedCellsRef.current.some(cell => cell.cellId === activeCellId && !cell.reviewed);
+        if (hasUnreviewedChanges) {
             agentReview.acceptAICodeInAgentMode();
         } else {
             console.log('acceptAICodeInChatMode')
@@ -1108,8 +1109,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const rejectAICode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
         
-        // Determine mode based on whether the active cell has diffs in agent review mode
-        if (activeCellId && agentReview.cellStatesBeforeDiff.current.has(activeCellId)) {
+        // Determine mode based on whether the active cell has unreviewed changes in agent review mode
+        const hasUnreviewedChanges = activeCellId && agentReview.changedCellsRef.current.some(cell => cell.cellId === activeCellId && !cell.reviewed);
+        if (hasUnreviewedChanges) {
             agentReview.rejectAICodeInAgentMode();
         } else {
             rejectAICodeInChatMode();
@@ -1195,7 +1197,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             className: 'text-button-mito-ai button-base button-green',
             caption: 'Accept Code',
             execute: acceptAICode,
-            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, agentReview.cellStatesBeforeDiff.current)
+            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, agentReview.changedCellsRef.current)
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE, {
@@ -1203,7 +1205,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             className: 'text-button-mito-ai button-base button-red',
             caption: 'Reject Code',
             execute: rejectAICode,
-            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, agentReview.cellStatesBeforeDiff.current)
+            isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, agentReview.changedCellsRef.current)
         });
     }, []);
 

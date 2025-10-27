@@ -38,7 +38,6 @@ export const useAgentReview = ({
     updateCellToolbarButtons
 }: UseAgentReviewProps): {
     // State
-    cellStatesBeforeDiff: React.MutableRefObject<Map<string, string>>;
     changedCellsRef: React.MutableRefObject<ChangedCell[]>;
     notebookSnapshotPreAgentExecutionRef: React.MutableRefObject<AIOptimizedCell[] | null>;
     notebookSnapshotAfterAgentExecutionRef: React.MutableRefObject<AIOptimizedCell[] | null>;
@@ -53,9 +52,6 @@ export const useAgentReview = ({
     clearAgentReviewDiffs: () => void;
     setNotebookSnapshotPreAgentExecution: (snapshot: AIOptimizedCell[] | null) => void;
 } => {
-    // Store original cell states for multiple cells (used in agent review mode)
-    const cellStatesBeforeDiff = useRef<Map<string, string>>(new Map());
-
     // Store the changedCells array for use in scrollToNextCellWithDiff
     const changedCellsRef = useRef<ChangedCell[]>([]);
 
@@ -66,14 +62,19 @@ export const useAgentReview = ({
     const acceptAICodeInAgentMode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
 
-        if (!activeCellId || !cellStatesBeforeDiff.current.has(activeCellId)) {
+        if (!activeCellId) {
+            return;
+        }
+
+        // Check if the active cell has unreviewed changes
+        const hasUnreviewedChanges = changedCellsRef.current.some(cell => cell.cellId === activeCellId && !cell.reviewed);
+        if (!hasUnreviewedChanges) {
             return;
         }
 
         acceptSingleCellEdit(
             activeCellId,
             notebookTracker,
-            cellStatesBeforeDiff,
             notebookSnapshotAfterAgentExecutionRef.current,
             codeDiffStripesCompartments,
             changedCellsRef.current,
@@ -85,14 +86,19 @@ export const useAgentReview = ({
     const rejectAICodeInAgentMode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
 
-        if (!activeCellId || !cellStatesBeforeDiff.current.has(activeCellId)) {
+        if (!activeCellId) {
+            return;
+        }
+
+        // Check if the active cell has unreviewed changes
+        const hasUnreviewedChanges = changedCellsRef.current.some(cell => cell.cellId === activeCellId && !cell.reviewed);
+        if (!hasUnreviewedChanges) {
             return;
         }
 
         rejectSingleCellEdit(
             activeCellId,
             notebookTracker,
-            cellStatesBeforeDiff,
             codeDiffStripesCompartments,
             changedCellsRef.current,
             agentTargetNotebookPanelRef || undefined
@@ -103,9 +109,9 @@ export const useAgentReview = ({
     const acceptAllAICode = (): void => {
         acceptAllCellEdits(
             notebookTracker,
-            cellStatesBeforeDiff,
             notebookSnapshotAfterAgentExecutionRef.current,
-            codeDiffStripesCompartments
+            codeDiffStripesCompartments,
+            changedCellsRef.current
         );
         updateCellToolbarButtons();
     };
@@ -113,8 +119,8 @@ export const useAgentReview = ({
     const rejectAllAICode = (): void => {
         rejectAllCellEdits(
             notebookTracker,
-            cellStatesBeforeDiff,
-            codeDiffStripesCompartments
+            codeDiffStripesCompartments,
+            changedCellsRef.current
         );
         updateCellToolbarButtons();
     };
@@ -131,10 +137,7 @@ export const useAgentReview = ({
             return;
         }
 
-        // Clear and populate the map of original cell states
-        cellStatesBeforeDiff.current.clear();
-
-        // Find cells that have changed between snapshots
+        // Clear and populate the changed cells array
         const changedCells: ChangedCell[] = [];
         changedCellsRef.current = changedCells;
 
@@ -184,9 +187,6 @@ export const useAgentReview = ({
 
         // For each changed cell, calculate and apply diff stripes
         changedCells.forEach(change => {
-            // Store the original code so we can revert if user rejects
-            cellStatesBeforeDiff.current.set(change.cellId, change.originalCode);
-
             // Calculate the code diffs
             const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(change.originalCode, change.currentCode);
 
@@ -211,7 +211,8 @@ export const useAgentReview = ({
     };
 
     const clearAgentReviewDiffs = (): void => {
-        cellStatesBeforeDiff.current.clear();
+        // Clear the changed cells array
+        changedCellsRef.current = [];
     };
 
     const setNotebookSnapshotPreAgentExecution = (snapshot: AIOptimizedCell[] | null): void => {
@@ -220,7 +221,6 @@ export const useAgentReview = ({
 
     return {
         // State
-        cellStatesBeforeDiff,
         changedCellsRef,
         notebookSnapshotPreAgentExecutionRef,
         notebookSnapshotAfterAgentExecutionRef,
