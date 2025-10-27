@@ -52,7 +52,7 @@ export const useAgentReview = ({
     clearAgentReviewDiffs: () => void;
     setNotebookSnapshotPreAgentExecution: (snapshot: AIOptimizedCell[] | null) => void;
 } => {
-    // Store the changedCells array for use in scrollToNextCellWithDiff
+    // Store a list of changed cells, including their reviewed status.
     const changedCellsRef = useRef<ChangedCell[]>([]);
 
     // Store notebook snapshots for comparison
