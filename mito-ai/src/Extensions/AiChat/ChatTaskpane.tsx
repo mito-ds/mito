@@ -1077,7 +1077,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (activeCellId && agentReview.hasUnreviewedChanges(activeCellId)) {
             agentReview.acceptAICodeInAgentMode();
         } else {
-            console.log('acceptAICodeInChatMode')
             acceptAICodeInChatMode();
         }
     }
