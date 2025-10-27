@@ -1074,8 +1074,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const activeCellId = notebookTracker.activeCell?.model.id;
         
         // Determine mode based on whether the active cell has unreviewed changes in agent review mode
-        const hasUnreviewedChanges = activeCellId && agentReview.changedCellsRef.current.some(cell => cell.cellId === activeCellId && !cell.reviewed);
-        if (hasUnreviewedChanges) {
+        if (activeCellId && agentReview.hasUnreviewedChanges(activeCellId)) {
             agentReview.acceptAICodeInAgentMode();
         } else {
             console.log('acceptAICodeInChatMode')
@@ -1110,8 +1109,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const activeCellId = notebookTracker.activeCell?.model.id;
         
         // Determine mode based on whether the active cell has unreviewed changes in agent review mode
-        const hasUnreviewedChanges = activeCellId && agentReview.changedCellsRef.current.some(cell => cell.cellId === activeCellId && !cell.reviewed);
-        if (hasUnreviewedChanges) {
+        if (activeCellId && agentReview.hasUnreviewedChanges(activeCellId)) {
             agentReview.rejectAICodeInAgentMode();
         } else {
             rejectAICodeInChatMode();

@@ -51,6 +51,7 @@ export const useAgentReview = ({
     reviewAgentChanges: () => void;
     clearAgentReviewDiffs: () => void;
     setNotebookSnapshotPreAgentExecution: (snapshot: AIOptimizedCell[] | null) => void;
+    hasUnreviewedChanges: (cellId: string) => boolean;
 } => {
     // Store a list of changed cells, including their reviewed status.
     const changedCellsRef = useRef<ChangedCell[]>([]);
@@ -59,16 +60,14 @@ export const useAgentReview = ({
     const notebookSnapshotPreAgentExecutionRef = useRef<AIOptimizedCell[] | null>(null);
     const notebookSnapshotAfterAgentExecutionRef = useRef<AIOptimizedCell[] | null>(null);
 
+    const hasUnreviewedChanges = (cellId: string): boolean => {
+        return changedCellsRef.current.some(cell => cell.cellId === cellId && !cell.reviewed);
+    };
+
     const acceptAICodeInAgentMode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
 
-        if (!activeCellId) {
-            return;
-        }
-
-        // Check if the active cell has unreviewed changes
-        const hasUnreviewedChanges = changedCellsRef.current.some(cell => cell.cellId === activeCellId && !cell.reviewed);
-        if (!hasUnreviewedChanges) {
+        if (!activeCellId || !hasUnreviewedChanges(activeCellId)) {
             return;
         }
 
@@ -86,13 +85,7 @@ export const useAgentReview = ({
     const rejectAICodeInAgentMode = (): void => {
         const activeCellId = notebookTracker.activeCell?.model.id;
 
-        if (!activeCellId) {
-            return;
-        }
-
-        // Check if the active cell has unreviewed changes
-        const hasUnreviewedChanges = changedCellsRef.current.some(cell => cell.cellId === activeCellId && !cell.reviewed);
-        if (!hasUnreviewedChanges) {
+        if (!activeCellId || !hasUnreviewedChanges(activeCellId)) {
             return;
         }
 
@@ -233,6 +226,7 @@ export const useAgentReview = ({
         rejectAllAICode,
         reviewAgentChanges,
         clearAgentReviewDiffs,
-        setNotebookSnapshotPreAgentExecution
+        setNotebookSnapshotPreAgentExecution,
+        hasUnreviewedChanges
     };
 };
