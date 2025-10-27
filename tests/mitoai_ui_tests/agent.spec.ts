@@ -293,15 +293,11 @@ test.describe.parallel("Review agent changes", () => {
         expect(codeFromCellsString).toContain('z = 3');
     });
 
-    test("Review and undo all changes", async ({ page }) => {
-        // Undo all changes
-        const undoAllButton = page.getByRole('button', { name: 'Undo All' });
-        await undoAllButton.waitFor({ state: 'visible' });
-        await undoAllButton.click();
-
-        // Accept the revert prompt
-        await page.getByRole('button', { name: 'Revert' }).click();
-        await waitForIdle(page);
+    test("Review and reject all changes", async ({ page }) => {
+        // Reject all changes
+        const rejectAllButton = page.getByRole('button', { name: 'Reject All' });
+        await rejectAllButton.waitFor({ state: 'visible' });
+        await rejectAllButton.click();
 
         // There should be no diff stripes after undoing all changes
         await expect(page.locator('.cm-codeDiffInsertedStripe')).toHaveCount(0);
