@@ -16,7 +16,7 @@ import { AIOptimizedCell } from '../../websockets/completions/CompletionModels';
 /**
  * Accepts a single cell edit in agent review mode
  */
-export const AcceptSingleCellEdit = (
+export const acceptSingleCellEdit = (
     cellId: string,
     notebookTracker: INotebookTracker,
     cellStatesBeforeDiff: React.MutableRefObject<Map<string, string>>,
@@ -46,7 +46,7 @@ export const AcceptSingleCellEdit = (
 /**
  * Rejects a single cell edit in agent review mode
  */
-export const RejectSingleCellEdit = (
+export const rejectSingleCellEdit = (
     cellId: string,
     notebookTracker: INotebookTracker,
     cellStatesBeforeDiff: React.MutableRefObject<Map<string, string>>,
@@ -77,7 +77,7 @@ export const RejectSingleCellEdit = (
 /**
  * Accepts all cell edits in agent review mode
  */
-export const AcceptAllCellEdits = (
+export const acceptAllCellEdits = (
     notebookTracker: INotebookTracker,
     cellStatesBeforeDiff: React.MutableRefObject<Map<string, string>>,
     notebookSnapshotAfterAgentExecution: AIOptimizedCell[] | null,
@@ -106,7 +106,7 @@ export const AcceptAllCellEdits = (
 /**
  * Rejects all cell edits in agent review mode
  */
-export const RejectAllCellEdits = (
+export const rejectAllCellEdits = (
     notebookTracker: INotebookTracker,
     cellStatesBeforeDiff: React.MutableRefObject<Map<string, string>>,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>

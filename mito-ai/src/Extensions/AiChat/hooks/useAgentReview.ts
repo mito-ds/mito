@@ -7,10 +7,10 @@ import { useRef } from 'react';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { AIOptimizedCell } from '../../../websockets/completions/CompletionModels';
 import {
-    AcceptSingleCellEdit,
-    RejectSingleCellEdit,
-    AcceptAllCellEdits,
-    RejectAllCellEdits
+    acceptSingleCellEdit,
+    rejectSingleCellEdit,
+    acceptAllCellEdits,
+    rejectAllCellEdits
 } from '../AgentReviewUtils';
 import {
     getCodeDiffsAndUnifiedCodeString,
@@ -70,7 +70,7 @@ export const useAgentReview = ({
             return;
         }
 
-        AcceptSingleCellEdit(
+        acceptSingleCellEdit(
             activeCellId,
             notebookTracker,
             cellStatesBeforeDiff,
@@ -89,7 +89,7 @@ export const useAgentReview = ({
             return;
         }
 
-        RejectSingleCellEdit(
+        rejectSingleCellEdit(
             activeCellId,
             notebookTracker,
             cellStatesBeforeDiff,
@@ -101,7 +101,7 @@ export const useAgentReview = ({
     };
 
     const acceptAllAICode = (): void => {
-        AcceptAllCellEdits(
+        acceptAllCellEdits(
             notebookTracker,
             cellStatesBeforeDiff,
             notebookSnapshotAfterAgentExecutionRef.current,
@@ -111,7 +111,7 @@ export const useAgentReview = ({
     };
 
     const rejectAllAICode = (): void => {
-        RejectAllCellEdits(
+        rejectAllCellEdits(
             notebookTracker,
             cellStatesBeforeDiff,
             codeDiffStripesCompartments
