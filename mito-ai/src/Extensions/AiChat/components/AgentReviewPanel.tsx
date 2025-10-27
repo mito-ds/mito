@@ -21,6 +21,7 @@ interface AgentReviewPanelProps {
     // Agent review functions
     reviewAgentChanges: () => void;
     acceptAllAICode: () => void;
+    rejectAllAICode: () => void;
     setHasCheckpoint: (value: boolean) => void;
     setDisplayedNextStepsIfAvailable: (value: boolean) => void;
     setShowRevertQuestionnaire: (value: boolean) => void;
@@ -41,6 +42,7 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     showRevertQuestionnaire,
     reviewAgentChanges,
     acceptAllAICode,
+    rejectAllAICode,
     setHasCheckpoint,
     setDisplayedNextStepsIfAvailable,
     setShowRevertQuestionnaire,
@@ -66,6 +68,7 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
                         setShowRevertQuestionnaire={setShowRevertQuestionnaire}
                         chatMessagesRef={chatMessagesRef}
                         acceptAllAICode={acceptAllAICode}
+                        rejectAllAICode={rejectAllAICode}
                     />
                 )}
             {/* Revert questionnaire - shows when user clicks revert button */}

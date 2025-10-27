@@ -9,7 +9,8 @@ import { AIOptimizedCell } from '../../../websockets/completions/CompletionModel
 import {
     AcceptSingleCellEdit,
     RejectSingleCellEdit,
-    AcceptAllCellEdits
+    AcceptAllCellEdits,
+    RejectAllCellEdits
 } from '../AgentReviewUtils';
 import {
     getCodeDiffsAndUnifiedCodeString,
@@ -47,6 +48,7 @@ export const useAgentReview = ({
     acceptAICodeInAgentMode: () => void;
     rejectAICodeInAgentMode: () => void;
     acceptAllAICode: () => void;
+    rejectAllAICode: () => void;
     reviewAgentChanges: () => void;
     clearAgentReviewDiffs: () => void;
     setNotebookSnapshotPreAgentExecution: (snapshot: AIOptimizedCell[] | null) => void;
@@ -105,8 +107,15 @@ export const useAgentReview = ({
             notebookSnapshotAfterAgentExecutionRef.current,
             codeDiffStripesCompartments
         );
+        updateCellToolbarButtons();
+    };
 
-        // Update UI
+    const rejectAllAICode = (): void => {
+        RejectAllCellEdits(
+            notebookTracker,
+            cellStatesBeforeDiff,
+            codeDiffStripesCompartments
+        );
         updateCellToolbarButtons();
     };
 
@@ -218,6 +227,7 @@ export const useAgentReview = ({
         acceptAICodeInAgentMode,
         rejectAICodeInAgentMode,
         acceptAllAICode,
+        rejectAllAICode,
         reviewAgentChanges,
         clearAgentReviewDiffs,
         setNotebookSnapshotPreAgentExecution

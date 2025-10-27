@@ -20,6 +20,7 @@ interface IAgentChangeControlsProps {
     setShowRevertQuestionnaire: (value: boolean) => void;
     chatMessagesRef: React.RefObject<HTMLDivElement>;
     acceptAllAICode: () => void;
+    rejectAllAICode: () => void;
 }
 
 const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
@@ -31,24 +32,31 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     setShowRevertQuestionnaire,
     chatMessagesRef,
     acceptAllAICode,
+    rejectAllAICode,
 }) => {
 
     const [isReviewing, setIsReviewing] = useState(false);
-
-    const handleAcceptAll = (): void => {
-        acceptAllAICode();
-        setIsReviewing(false);
-    }
 
     const handleReviewChanges = (): void => {
         setIsReviewing(true);
         reviewAgentChanges();
     }
 
+    const handleAcceptAll = (): void => {
+        acceptAllAICode();
+        setIsReviewing(false);
+    }
+
+    const handleRejectAll = (): void => {
+        rejectAllAICode();
+        setIsReviewing(false);
+    }
+
     const handleUndoAll = async (): Promise<void> => {
         await restoreCheckpoint(app, notebookTracker, setHasCheckpoint);
         setDisplayedNextStepsIfAvailable(false);
         setHasCheckpoint(false);
+        setIsReviewing(false);
         setShowRevertQuestionnaire(true);
         scrollToDiv(chatMessagesRef);
     }
@@ -72,15 +80,24 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
                         Review Changes
                     </button>
                 )}
-                <TextAndIconButton
-                    text="Undo All"
-                    icon={UndoIcon}
-                    title="Undo All"
-                    onClick={handleUndoAll}
-                    variant="gray"
-                    width="fit-contents"
-                    iconPosition="left"
-                />
+                {isReviewing ? (
+                    <button
+                        className="button-base button-red"
+                        onClick={handleRejectAll}
+                    >
+                        Reject All
+                    </button>
+                ) : (
+                    <TextAndIconButton
+                        text="Undo All"
+                        icon={UndoIcon}
+                        title="Undo All"
+                        onClick={handleUndoAll}
+                        variant="gray"
+                        width="fit-contents"
+                        iconPosition="left"
+                    />
+                )}
             </div>
         </div>
     );
