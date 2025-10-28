@@ -41,18 +41,18 @@ const Home: NextPage = () => {
 
         <main className={pageStyles.main}>
           <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
-            <h1 className={titleStyles.title}>
-              {/* Other ideas:
-                - Automate your spreadsheets. No Computer Science Degree Required.
-                - Edit a spreadsheet. Generate Python code. 
-                - Automate your spreadsheets, but successfully
-                - All the tools you need to turn Excel reports into Python.
-                - Write Python, not Spreadsheets
-                - Write Python 4x faster 
-                - Write Python 4x faster. Take the test.
-                - Don't know how to code? Now you do.
-              */}
-              Cursor for Data Teams
+            <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
+              From Data to{' '}
+              <span className={titleStyles.cycling_text}>
+                <span className={titleStyles.cycling_word} data-word="insights">insights</span>
+                <span className={titleStyles.cycling_word} data-word="automations">automations</span>
+                <span className={titleStyles.cycling_word} data-word="dashboards">dashboards</span>
+                <span className={titleStyles.cycling_word} data-word="internal tools">internal tool</span>
+                <span className={titleStyles.cycling_word} data-word="Agent">Agent</span>
+              </span>
+            </h1>
+            <h1 className={classNames(titleStyles.title, 'only-on-mobile')}>
+              From Data to insights and automations
             </h1>
 
             <h2 className={titleStyles.description}>
