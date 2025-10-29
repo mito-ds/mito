@@ -6,6 +6,7 @@
 import { ServerConnection } from '@jupyterlab/services';
 import { Notification } from '@jupyterlab/apputils';
 import * as semver from 'semver';
+import { isElectronBasedFrontend } from './user';
 
 const VERSION_CHECK_TIMEOUT = 5000;
 const VERSION_CHECK_ENDPOINT = 'mito-ai/version-check';
@@ -42,6 +43,12 @@ export function showVersionOutdatedNotification(currentVersion: string, latestVe
  */
 export async function checkForUpdates(serverSettings: ServerConnection.ISettings): Promise<void> {
   try {
+    // Skip version check if running in Electron (desktop app)
+    if (isElectronBasedFrontend()) {
+      console.log('Skipping version check - running in Electron desktop app');
+      return;
+    }
+
     // Build the URL
     const baseUrl = serverSettings.baseUrl;
     const url = `${baseUrl}${VERSION_CHECK_ENDPOINT}`;
