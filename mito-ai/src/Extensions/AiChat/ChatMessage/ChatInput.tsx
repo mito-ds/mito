@@ -24,7 +24,7 @@ import { uploadFileToBackend } from '../../../utils/fileUpload';
 interface ChatInputProps {
     app: JupyterFrontEnd;
     initialContent: string;
-    handleSubmitUserMessage: (messageIndex: number, newContent: string, additionalContext?: ContextItemAIOptimized[]) => void;
+    handleSubmitUserMessage: (newContent: string, messageIndex?: number,  additionalContext?: ContextItemAIOptimized[]) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -35,6 +35,7 @@ interface ChatInputProps {
     displayOptimizedChatHistoryLength?: number;
     agentTargetNotebookPanelRef?: React.RefObject<any>;
     isSignedUp?: boolean;
+    messageIndex?: number;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -70,6 +71,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     displayOptimizedChatHistoryLength = 0,
     agentTargetNotebookPanelRef,
     isSignedUp = true,
+    messageIndex,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -443,7 +445,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             e.preventDefault();
                             adjustHeight(true)
                             const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
-                            handleSubmitUserMessage(0, input, additionalContextWithoutDisplayNames);
+                            handleSubmitUserMessage(input, messageIndex, additionalContextWithoutDisplayNames);
 
                             // Reset
                             setInput('')
@@ -474,7 +476,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <div className="message-edit-buttons">
                     <button onClick={() => {
                         const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
-                        handleSubmitUserMessage(0, input, additionalContextWithoutDisplayNames);
+                        handleSubmitUserMessage(input, messageIndex, additionalContextWithoutDisplayNames);
                     }}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>

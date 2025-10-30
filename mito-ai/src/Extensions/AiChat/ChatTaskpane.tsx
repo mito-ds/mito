@@ -752,8 +752,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const handleSubmitUserMessage = async (
-        messageIndex: number,
         newContent: string,
+        messageIndex?: number, // The index of the message to replace. Undefined if adding a new message instead of editing existing message.
         additionalContext?: ContextItemAIOptimized[]
     ): Promise<void> => {
 

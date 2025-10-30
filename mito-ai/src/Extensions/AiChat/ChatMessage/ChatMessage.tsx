@@ -57,7 +57,7 @@ interface IChatMessageProps {
     setNextSteps: (nextSteps: string[]) => void
     agentModeEnabled: boolean
     additionalContext?: Array<{ type: string, value: string }>
-    handleSubmitUserMessage: (messageIndex: number, newContent: string, additionalContext?: Array<{ type: string, value: string }>) => void
+    handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -127,6 +127,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 notebookTracker={notebookTracker}
                 agentModeEnabled={false}
                 handleSubmitUserMessage={handleSubmitUserMessage}
+                messageIndex={messageIndex}
             />
         );
     }
