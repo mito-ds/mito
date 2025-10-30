@@ -71,8 +71,7 @@ export const useAgentExecution = ({
     sendAgentExecutionMessage,
     sendAgentSmartDebugMessage,
     agentReview,
-    agentTargetNotebookPanelRef,
-    setAgentReviewStatus
+    agentTargetNotebookPanelRef
 }: UseAgentExecutionProps): {
     agentExecutionStatus: AgentExecutionStatus;
     shouldContinueAgentExecution: React.MutableRefObject<boolean>;
