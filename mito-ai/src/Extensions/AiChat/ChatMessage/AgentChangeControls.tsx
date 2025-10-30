@@ -6,11 +6,10 @@
 import React from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import TextAndIconButton from '../../../components/TextAndIconButton';
-import UndoIcon from '../../../icons/UndoIcon';
 import { restoreCheckpoint } from '../../../utils/checkpoint';
 import { scrollToDiv } from '../../../utils/scroll';
 import { AgentReviewStatus } from '../ChatTaskpane';
+import TextButton from '../../../components/TextButton';
 
 interface IAgentChangeControlsProps {
     reviewAgentChanges: () => void;
@@ -68,20 +67,19 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         return (
             <div className='message message-assistant-chat'>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button
-                        className="button-base button-gray"
+                    <TextButton
+                        text="Review Changes"
+                        title="Review the changes made by the agent"
                         onClick={handleReviewChanges}
-                    >
-                        Review Changes
-                    </button>
-                    <TextAndIconButton
+                        variant="gray"
+                        width="fit-contents"
+                    />
+                    <TextButton
                         text="Undo All"
-                        icon={UndoIcon}
-                        title="Undo All"
+                        title="Undo all of the most recent changes made by the agent"
                         onClick={handleUndoAll}
                         variant="gray"
                         width="fit-contents"
-                        iconPosition="left"
                     />
                 </div>
             </div>
@@ -113,14 +111,12 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     if (agentReviewStatus === 'post-agent-code-review') {
         return (
             <div className='message message-assistant-chat'>
-                <TextAndIconButton
+                <TextButton
                     text="Undo All"
-                    icon={UndoIcon}
-                    title="Undo All"
                     onClick={handleUndoAll}
                     variant="gray"
                     width="fit-contents"
-                    iconPosition="left"
+                    title="Undo all of the most recent changes made by the agent"
                 />
             </div>
         )
