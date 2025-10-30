@@ -27,15 +27,14 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSignUpSuccess }) => {
             userSignupEvents.emitSignupSuccess();
         } catch (error) {
             // If we can't set the email, we still want the user to be able to use Mito AI.
-            // In this case, we log the error, and emit the signup success event.
             console.error('Failed to set user email:', error);
-            void logEvent('mito_ai_failed_to_set_user_email', { 'error': error, 'email': email });
-
-            // Set soft signup flag to allow user to proceed even without email being set
+            // 1. Set the soft signup flag, allowing the user to proceed without an email being set.
             localStorage.setItem('mito_ai_soft_signup', 'true');
-
+            // 2. Emit the signup success event.
             onSignUpSuccess?.();
             userSignupEvents.emitSignupSuccess();
+            // 3. Finally, if possible, log the error.
+            void logEvent('mito_ai_failed_to_set_user_email', { 'error': error, 'email': email });
         }
     };
 
