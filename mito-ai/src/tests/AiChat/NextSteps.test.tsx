@@ -351,7 +351,7 @@ describe('NextStepsPills Component', () => {
 
             // Wait for the animation delay
             await waitFor(() => {
-                expect(mockOnSelectNextStep).toHaveBeenCalledWith('Create a bar chart');
+                expect(mockOnSelectNextStep).toHaveBeenCalledWith('Create a bar chart', expect.any(Function));
             }, { timeout: 200 });
         });
 

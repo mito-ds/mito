@@ -147,17 +147,17 @@ const typeInTextarea = (textarea: HTMLElement, value: string) => {
 
 describe('ChatInput Component', () => {
     let textarea: HTMLElement;
-    let onSaveMock: jest.Mock;
+    let handleSubmitUserMessageMock: jest.Mock;
 
     beforeEach(() => {
         // Clear any previous renders
         document.body.innerHTML = '';
 
         // Create fresh mocks for each test
-        onSaveMock = jest.fn();
+        handleSubmitUserMessageMock = jest.fn();
 
         // Render with default props
-        renderChatInput({ onSave: onSaveMock });
+        renderChatInput({ handleSubmitUserMessage: handleSubmitUserMessageMock });
 
         // Get the textarea element that's used in most tests
         textarea = screen.getByRole('textbox');
@@ -173,9 +173,9 @@ describe('ChatInput Component', () => {
             // Simulate pressing Enter
             fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter' });
 
-            // Verify onSave was called with the input content
-            expect(onSaveMock).toHaveBeenCalledWith(testMessage, undefined, [
-                { type: 'active_cell', value: 'Active Cell', display: 'Active Cell' }
+            // Verify handleSubmitUserMessage was called with the input content
+            expect(handleSubmitUserMessageMock).toHaveBeenCalledWith(testMessage, undefined, [
+                { type: 'active_cell', value: 'Active Cell' }
             ]);
 
             // Verify the input was cleared
@@ -202,8 +202,8 @@ describe('ChatInput Component', () => {
             // Verify the input was not cleared
             expect(textarea).toHaveValue(testMessage);
 
-            // Verify onSave was not called
-            expect(onSaveMock).not.toHaveBeenCalled();
+            // Verify handleSubmitUserMessage was not called
+            expect(handleSubmitUserMessageMock).not.toHaveBeenCalled();
 
             // Manually simulate adding a new line (as the browser would do)
             // since JSDOM doesn't automatically do this
@@ -212,8 +212,8 @@ describe('ChatInput Component', () => {
             // Verify the new line is in the textarea
             expect(textarea).toHaveValue(`${testMessage}\nLine 2`);
 
-            // Verify onSave was still not called
-            expect(onSaveMock).not.toHaveBeenCalled();
+            // Verify handleSubmitUserMessage was still not called
+            expect(handleSubmitUserMessageMock).not.toHaveBeenCalled();
         });
 
         it('prevents typing when agent is working', () => {
@@ -237,8 +237,8 @@ describe('ChatInput Component', () => {
             // Verify preventDefault was called (input was blocked)
             expect(enterEvent.defaultPrevented).toBe(true);
 
-            // Verify onSave was not called
-            expect(onSaveMock).not.toHaveBeenCalled();
+            // Verify handleSubmitUserMessage was not called
+            expect(handleSubmitUserMessageMock).not.toHaveBeenCalled();
         });
 
         it('prevents typing when agent is stopping', () => {
@@ -262,15 +262,15 @@ describe('ChatInput Component', () => {
             // Verify preventDefault was called (input was blocked)
             expect(enterEvent.defaultPrevented).toBe(true);
 
-            // Verify onSave was not called
-            expect(onSaveMock).not.toHaveBeenCalled();
+            // Verify handleSubmitUserMessage was not called
+            expect(handleSubmitUserMessageMock).not.toHaveBeenCalled();
         });
 
         it('allows typing when agent is idle', () => {
             // Clear and re-render with agent idle status
             document.body.innerHTML = '';
-            const idleSaveMock = jest.fn();
-            renderChatInput({ agentExecutionStatus: 'idle', onSave: idleSaveMock });
+            const idleHandleSubmitMock = jest.fn();
+            renderChatInput({ agentExecutionStatus: 'idle', handleSubmitUserMessage: idleHandleSubmitMock });
 
             const idleTextarea = screen.getByRole('textbox');
 
@@ -287,9 +287,9 @@ describe('ChatInput Component', () => {
             // Press Enter key
             fireEvent.keyDown(idleTextarea, { key: 'Enter', code: 'Enter' });
 
-            // Verify onSave was called
-            expect(idleSaveMock).toHaveBeenCalledWith(testMessage, undefined, [
-                { type: 'active_cell', value: 'Active Cell', display: 'Active Cell' }
+            // Verify handleSubmitUserMessage was called
+            expect(idleHandleSubmitMock).toHaveBeenCalledWith(testMessage, undefined, [
+                { type: 'active_cell', value: 'Active Cell' }
             ]);
         });
     });
@@ -311,16 +311,16 @@ describe('ChatInput Component', () => {
             expect(screen.getByText('Cancel')).toBeInTheDocument();
         });
 
-        it('calls onSave with current input when Save button is clicked', () => {
+        it('calls handleSubmitUserMessage with current input when Save button is clicked', () => {
             // Clear and re-render with edit mode props
             document.body.innerHTML = '';
             const initialContent = 'Initial content';
-            const editSaveMock = jest.fn();
+            const editHandleSubmitMock = jest.fn();
 
             renderChatInput({
                 isEditing: true,
                 initialContent: initialContent,
-                onSave: editSaveMock
+                handleSubmitUserMessage: editHandleSubmitMock
             });
 
             const editTextarea = screen.getByRole('textbox');
@@ -334,9 +334,9 @@ describe('ChatInput Component', () => {
             const saveButton = screen.getByText('Save');
             fireEvent.click(saveButton);
 
-            // Verify onSave was called with the updated content
-            expect(editSaveMock).toHaveBeenCalledWith(updatedContent, undefined, [
-                { type: 'active_cell', value: 'Active Cell', display: 'Active Cell' }
+            // Verify handleSubmitUserMessage was called with the updated content
+            expect(editHandleSubmitMock).toHaveBeenCalledWith(updatedContent, undefined, [
+                { type: 'active_cell', value: 'Active Cell' }
             ]);
         });
 
