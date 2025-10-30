@@ -102,6 +102,11 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         setIsEditing(false);
     };
 
+    const handleSubmitUserMessageAndCloseEditing = (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>): void => {
+        setIsEditing(false);
+        handleSubmitUserMessage(newContent, messageIndex, additionalContext);
+    };
+
     if (
         isLastMessage && agentResponse?.type === 'finished_task' &&
         agentResponse.next_steps &&
@@ -126,7 +131,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 contextManager={contextManager}
                 notebookTracker={notebookTracker}
                 agentModeEnabled={false}
-                handleSubmitUserMessage={handleSubmitUserMessage}
+                handleSubmitUserMessage={handleSubmitUserMessageAndCloseEditing}
                 messageIndex={messageIndex}
             />
         );
