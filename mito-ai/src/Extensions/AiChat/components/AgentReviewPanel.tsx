@@ -9,6 +9,7 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import AgentChangeControls from '../ChatMessage/AgentChangeControls';
 import RevertQuestionnaire from '../ChatMessage/RevertQuestionnaire';
 import { ChatHistoryManager } from '../ChatHistoryManager';
+import { AgentReviewStatus } from '../ChatTaskpane';
 
 interface AgentReviewPanelProps {
     // Agent review state
@@ -17,6 +18,8 @@ interface AgentReviewPanelProps {
     agentExecutionStatus: 'working' | 'stopping' | 'idle';
     displayOptimizedChatHistoryLength: number;
     showRevertQuestionnaire: boolean;
+    agentReviewStatus: AgentReviewStatus;
+    setAgentReviewStatus: (status: AgentReviewStatus) => void;
 
     // Agent review functions
     reviewAgentChanges: () => void;
@@ -35,6 +38,8 @@ interface AgentReviewPanelProps {
 }
 
 const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
+    agentReviewStatus,
+    setAgentReviewStatus,
     hasCheckpoint,
     agentModeEnabled,
     agentExecutionStatus,
@@ -69,6 +74,8 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
                         chatMessagesRef={chatMessagesRef}
                         acceptAllAICode={acceptAllAICode}
                         rejectAllAICode={rejectAllAICode}
+                        agentReviewStatus={agentReviewStatus}
+                        setAgentReviewStatus={setAgentReviewStatus}
                     />
                 )}
             {/* Revert questionnaire - shows when user clicks revert button */}

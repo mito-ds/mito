@@ -52,12 +52,12 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, additionalContext?: Array<{ type: string, value: string }>) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
     agentModeEnabled: boolean
     additionalContext?: Array<{ type: string, value: string }>
+    handleSubmitUserMessage: (messageIndex: number, newContent: string, additionalContext?: Array<{ type: string, value: string }>) => void
 }
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
@@ -76,12 +76,12 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     previewAICode,
     acceptAICode,
     rejectAICode,
-    onUpdateMessage,
     contextManager,
     codeReviewStatus,
     setNextSteps,
     agentModeEnabled,
     additionalContext,
+    handleSubmitUserMessage,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -96,15 +96,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
 
     const handleEditClick = (): void => {
         setIsEditing(true);
-    };
-
-    const handleSave = (
-        content: string,
-        _index?: number,
-        additionalContext?: Array<{ type: string, value: string }>
-    ): void => {
-        onUpdateMessage(messageIndex, content, additionalContext);
-        setIsEditing(false);
     };
 
     const handleCancel = (): void => {
@@ -130,12 +121,12 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             <ChatInput
                 app={app}
                 initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
-                onSave={handleSave}
                 onCancel={handleCancel}
                 isEditing={isEditing}
                 contextManager={contextManager}
                 notebookTracker={notebookTracker}
                 agentModeEnabled={false}
+                handleSubmitUserMessage={handleSubmitUserMessage}
             />
         );
     }

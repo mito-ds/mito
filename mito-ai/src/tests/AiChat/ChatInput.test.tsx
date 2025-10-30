@@ -95,7 +95,6 @@ const createMockProps = (overrides = {}) => ({
     } as unknown as JupyterFrontEnd,
     initialContent: '',
     placeholder: 'Type your message...',
-    onSave: jest.fn(),
     isEditing: false,
     contextManager: {
         getNotebookContext: jest.fn(),
@@ -132,6 +131,7 @@ const createMockProps = (overrides = {}) => ({
     displayActiveCellCode: true,
     agentModeEnabled: false,
     agentExecutionStatus: 'idle' as AgentExecutionStatus,
+    handleSubmitUserMessage: jest.fn(),
     ...overrides
 });
 

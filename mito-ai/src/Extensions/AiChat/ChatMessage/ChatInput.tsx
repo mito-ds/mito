@@ -24,7 +24,7 @@ import { uploadFileToBackend } from '../../../utils/fileUpload';
 interface ChatInputProps {
     app: JupyterFrontEnd;
     initialContent: string;
-    onSave: (content: string, index?: number, additionalContext?: Array<{ type: string, value: string }>) => void;
+    handleSubmitUserMessage: (messageIndex: number, newContent: string, additionalContext?: ContextItemAIOptimized[]) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -42,16 +42,24 @@ export interface ExpandedVariable extends Variable {
     file_name?: string;
 }
 
-interface ContextItem {
+interface ContextItemDisplayOptimized {
     type: string;
     value: string;
-    display?: string; // Optional display name, will fallback to value if not provided
+    // For databases, we want to show a display name like: "snowflake"
+    // But we need to send the AI the full connection string like: "e01f355d-9d31-4957-acb7-6c2a7a4d6e50 - snowflake"
+    // so that if there are multiple connections with the same , the AI can still identify the correct connection.
+    display?: string;
+}
+
+export interface ContextItemAIOptimized {
+    type: string;
+    value: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
     app,
     initialContent,
-    onSave,
+    handleSubmitUserMessage,
     onCancel,
     isEditing,
     contextManager,
@@ -69,7 +77,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const activeCellCode = getActiveCellCode(notebookTracker) || '';
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
-    const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
+    const [additionalContext, setAdditionalContext] = useState<ContextItemDisplayOptimized[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -208,6 +216,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             } else if (option.type === 'rule') {
                 setAdditionalContext(prev => [...prev, { type: 'rule', value: option.rule }]);
             } else if (option.type === 'db') {
+                console.log('db', option);
                 setAdditionalContext(prev => [
                     ...prev,
                     {
@@ -244,6 +253,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             } else {
                 contextChatRepresentation = `\`${option.variable.variable_name}\``
             }
+            console.log('variable', option);
         } else if (option.type === 'file') {
             // For files, add them as both back-ticked elements and the additional context container
             contextChatRepresentation = `\`${option.file.variable_name}\``
@@ -255,7 +265,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
             // delete the context from there if they want to. 
             contextChatRepresentation = option.rule
             setAdditionalContext([...additionalContext, { type: 'rule', value: option.rule }]);
+            console.log('rule', option);
         } else if (option.type === 'db') {
+            console.log('variable', option);
             // For databases, add them as back-ticked elements
             contextChatRepresentation = `\`${option.variable.variable_name}\``
             setAdditionalContext([
@@ -289,21 +301,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setIsDropdownFromButton(false);
     };
 
-    const mapAdditionalContext = (): Array<{ type: string, value: string }> => {
-        const result: Array<{ type: string, value: string }> = [];
-
-        additionalContext.forEach(contextItem => {
-            if (contextItem.type === 'db') {
-                result.push({
-                    type: contextItem.type,
-                    value: contextItem.value
-                });
-            } else {
-                result.push(contextItem);
-            }
-        });
-
-        return result;
+    const getAdditionContextWithoutDisplayNames = (): ContextItemAIOptimized[] => {
+        return additionalContext.map(contextItem => ({
+            type: contextItem.type,
+            value: contextItem.value
+        }));
     };
 
     const getExpandedVarialbes = (): ExpandedVariable[] => {
@@ -440,7 +442,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
-                            onSave(input, undefined, mapAdditionalContext())
+                            const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
+                            handleSubmitUserMessage(0, input, additionalContextWithoutDisplayNames);
 
                             // Reset
                             setInput('')
@@ -469,7 +472,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => onSave(input, undefined, mapAdditionalContext())}>Save</button>
+                    <button onClick={() => {
+                        const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
+                        handleSubmitUserMessage(0, input, additionalContextWithoutDisplayNames);
+                    }}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

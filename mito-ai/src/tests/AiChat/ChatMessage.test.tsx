@@ -133,6 +133,7 @@ const createMockProps = (overrides = {}) => ({
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
     setNextSteps: jest.fn(),
     agentModeEnabled: false,
+    handleSubmitUserMessage: jest.fn(),
     ...overrides
 });
 

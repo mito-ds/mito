@@ -106,7 +106,7 @@ import UsageBadge, { UsageBadgeRef } from './UsageBadge';
 import SignUpForm from './SignUpForm';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
 import { getFirstMessageFromCookie } from './FirstMessage';
-import ChatInput from './ChatMessage/ChatInput';
+import ChatInput, { ContextItemAIOptimized } from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
 import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './ChatHistoryManager';
@@ -143,6 +143,7 @@ interface IChatTaskpaneProps {
 }
 
 export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
+export type AgentReviewStatus = 'pre-agent-code-review' | 'in-agent-code-review' | 'post-agent-code-review'
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle'
 export interface ChangedCell {
     cellId: string;
@@ -175,6 +176,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
     // 3. applied: state where the user has applied the code to the code cell
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
+    const [agentReviewStatus, setAgentReviewStatus] = useState<AgentReviewStatus>('pre-agent-code-review')
 
     // Add this ref for the chat messages container
     const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -239,6 +241,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         notebookTracker,
         agentTargetNotebookPanelRef,
         codeDiffStripesCompartments,
+        setAgentReviewStatus,
         updateCellToolbarButtons: () => {
             // Tell Jupyter to re-evaluate if the toolbar buttons should be visible.
             // Without this, the user needs to take some action, like switching to a different cell 
@@ -450,7 +453,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const firstMessage = getFirstMessageFromCookie();
                 if (firstMessage) {
                     await waitForNotebookReady(notebookTracker);
-                    await agentExecution.startAgentExecution(firstMessage);
+                    await agentExecution.startAgentExecution(firstMessage, setAgentReviewStatus);
                 }
 
             } catch (error: unknown) {
@@ -748,15 +751,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
     }
 
-    const handleUpdateMessage = async (
+    const handleSubmitUserMessage = async (
         messageIndex: number,
         newContent: string,
-        additionalContext?: Array<{type: string, value: string}>
+        additionalContext?: ContextItemAIOptimized[]
     ): Promise<void> => {
 
         // Then send the new message to replace it
         if (agentModeEnabled) {
-            await agentExecution.startAgentExecution(newContent, messageIndex, additionalContext)
+            await agentExecution.startAgentExecution(newContent, setAgentReviewStatus, messageIndex, additionalContext)
         } else {
             await sendChatInputMessage(newContent, messageIndex, additionalContext)
         }
@@ -1020,7 +1023,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendAgentExecutionMessage,
         sendAgentSmartDebugMessage,
         agentReview,
-        agentTargetNotebookPanelRef
+        agentTargetNotebookPanelRef,
+        setAgentReviewStatus
     });
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
@@ -1180,7 +1184,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // Wait for the next tick to ensure state update is processed
                     await new Promise(resolve => setTimeout(resolve, 0));
 
-                    await agentExecution.startAgentExecution(args.input.toString())
+                    await agentExecution.startAgentExecution(args.input.toString(), setAgentReviewStatus)
                 }
             }
         });
@@ -1398,7 +1402,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 previewAICode={previewAICodeToActiveCell}
                                 acceptAICode={acceptAICode}
                                 rejectAICode={rejectAICode}
-                                onUpdateMessage={handleUpdateMessage}
+                                handleSubmitUserMessage={handleSubmitUserMessage}
                                 contextManager={contextManager}
                                 codeReviewStatus={codeReviewStatus}
                                 setNextSteps={setNextSteps}
@@ -1431,6 +1435,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     app={app}
                     notebookTracker={notebookTracker}
                     chatMessagesRef={chatMessagesRef}
+                    agentReviewStatus={agentReviewStatus}
+                    setAgentReviewStatus={setAgentReviewStatus}
                 />
             </div>
             {displayOptimizedChatHistory.length === 0 && (
@@ -1438,7 +1444,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     <ScrollableSuggestions
                         onSelectSuggestion={(prompt) => {
                             if (agentModeEnabled) {
-                                void agentExecution.startAgentExecution(prompt);
+                                void agentExecution.startAgentExecution(prompt, setAgentReviewStatus);
                             } else {
                                 void sendChatInputMessage(prompt);
                             }
@@ -1450,15 +1456,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 {nextSteps.length > 0 && (
                     <NextStepsPills
                         nextSteps={nextSteps}
-                        onSelectNextStep={agentModeEnabled ? agentExecution.startAgentExecution : sendChatInputMessage}
+                        onSelectNextStep={agentExecution.startAgentExecution}
                         displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
                         setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                        setAgentReviewStatus={setAgentReviewStatus}
                     />
                 )}
                 <ChatInput
                     app={app}
                     initialContent={''}
-                    onSave={agentModeEnabled ? agentExecution.startAgentExecution : sendChatInputMessage}
+                    handleSubmitUserMessage={handleSubmitUserMessage}
                     onCancel={undefined}
                     isEditing={false}
                     contextManager={contextManager}

@@ -10,7 +10,7 @@ import {
 } from '../../utils/notebook';
 import { turnOffDiffsForCell } from '../../utils/codeDiff';
 import { runCellByIDInBackground } from '../../utils/notebook';
-import { ChangedCell } from './ChatTaskpane';
+import { AgentReviewStatus, ChangedCell } from './ChatTaskpane';
 import { AIOptimizedCell } from '../../websockets/completions/CompletionModels';
 
 /**
@@ -22,7 +22,8 @@ export const acceptSingleCellEdit = (
     notebookSnapshotAfterAgentExecution: AIOptimizedCell[] | null,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
     changedCells: ChangedCell[],
-    agentTargetNotebookPanelRef?: React.MutableRefObject<any>
+    setAgentReviewStatus: (status: AgentReviewStatus) => void,
+    agentTargetNotebookPanelRef?: React.MutableRefObject<any>,
 ): void => {
     // Find the final code from the current notebook snapshot
     const edit = notebookSnapshotAfterAgentExecution?.find(cell => cell.id === cellId);
@@ -39,7 +40,8 @@ export const acceptSingleCellEdit = (
     scrollToNextCellWithDiff(
         agentTargetNotebookPanelRef?.current,
         cellId,
-        changedCells
+        changedCells,
+        setAgentReviewStatus
     );
 };
 
@@ -51,7 +53,8 @@ export const rejectSingleCellEdit = (
     notebookTracker: INotebookTracker,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
     changedCells: ChangedCell[],
-    agentTargetNotebookPanelRef?: React.MutableRefObject<any>
+    setAgentReviewStatus: (status: AgentReviewStatus) => void,
+    agentTargetNotebookPanelRef?: React.MutableRefObject<any>,
 ): void => {
     const changedCell = changedCells.find(cell => cell.cellId === cellId);
     if (!changedCell) return;
@@ -69,7 +72,8 @@ export const rejectSingleCellEdit = (
     scrollToNextCellWithDiff(
         agentTargetNotebookPanelRef?.current,
         cellId,
-        changedCells
+        changedCells,
+        setAgentReviewStatus
     );
 };
 

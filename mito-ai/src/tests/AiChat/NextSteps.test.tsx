@@ -40,6 +40,7 @@ const createMockProps = (overrides = {}) => ({
     onSelectNextStep: jest.fn(),
     displayedNextStepsIfAvailable: true,
     setDisplayedNextStepsIfAvailable: jest.fn(),
+    setAgentReviewStatus: jest.fn(),
     ...overrides
 });
 
@@ -73,6 +74,8 @@ const createMockChatMessageProps = (overrides = {}) => ({
     codeReviewStatus: 'chatPreview' as const,
     setNextSteps: jest.fn(),
     agentModeEnabled: false,
+    setAgentReviewStatus: jest.fn(),
+    handleSubmitUserMessage: jest.fn(),
     ...overrides
 });
 

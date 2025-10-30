@@ -15,6 +15,7 @@ import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../.
 import { checkForBlacklistedWords } from '../../../utils/blacklistedWords';
 import { getCodeBlockFromMessage } from '../../../utils/strings';
 import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } from '../../../utils/notebook';
+import { AgentReviewStatus } from '../ChatTaskpane';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -51,6 +52,7 @@ interface UseAgentExecutionProps {
         setNotebookSnapshotPreAgentExecution: (snapshot: any) => void;
     };
     agentTargetNotebookPanelRef: React.MutableRefObject<any>;
+    setAgentReviewStatus: (status: AgentReviewStatus) => void;
 }
 
 export const useAgentExecution = ({
@@ -69,12 +71,14 @@ export const useAgentExecution = ({
     sendAgentExecutionMessage,
     sendAgentSmartDebugMessage,
     agentReview,
-    agentTargetNotebookPanelRef
+    agentTargetNotebookPanelRef,
+    setAgentReviewStatus
 }: UseAgentExecutionProps): {
     agentExecutionStatus: AgentExecutionStatus;
     shouldContinueAgentExecution: React.MutableRefObject<boolean>;
     startAgentExecution: (
         input: string,
+        setAgentReviewStatus: (status: AgentReviewStatus) => void,
         messageIndex?: number,
         additionalContext?: Array<{ type: string, value: string }>
     ) => Promise<void>;
@@ -121,6 +125,7 @@ export const useAgentExecution = ({
 
     const startAgentExecution = async (
         input: string,
+        setAgentReviewStatus: (status: AgentReviewStatus) => void,
         messageIndex?: number,
         additionalContext?: Array<{ type: string, value: string }>
     ): Promise<void> => {
@@ -130,6 +135,7 @@ export const useAgentExecution = ({
         agentReview.setNotebookSnapshotPreAgentExecution(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
         await createCheckpoint(app, setHasCheckpoint);
         setAgentExecutionStatus('working');
+        setAgentReviewStatus('pre-agent-code-review');
 
         // Enable follow mode when user starts agent execution
         setAutoScrollFollowMode(true);

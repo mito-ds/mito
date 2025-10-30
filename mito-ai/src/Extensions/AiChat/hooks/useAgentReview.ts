@@ -22,20 +22,22 @@ import {
     highlightCodeCell,
     scrollToCell
 } from '../../../utils/notebook';
-import { ChangedCell } from '../ChatTaskpane';
+import { AgentReviewStatus, ChangedCell } from '../ChatTaskpane';
 
 interface UseAgentReviewProps {
     notebookTracker: INotebookTracker;
     agentTargetNotebookPanelRef: React.MutableRefObject<any> | null;
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>;
     updateCellToolbarButtons: () => void;
+    setAgentReviewStatus: (status: AgentReviewStatus) => void;
 }
 
 export const useAgentReview = ({
     notebookTracker,
     agentTargetNotebookPanelRef,
     codeDiffStripesCompartments,
-    updateCellToolbarButtons
+    updateCellToolbarButtons,
+    setAgentReviewStatus
 }: UseAgentReviewProps): {
     // State
     changedCellsRef: React.MutableRefObject<ChangedCell[]>;
@@ -77,7 +79,8 @@ export const useAgentReview = ({
             notebookSnapshotAfterAgentExecutionRef.current,
             codeDiffStripesCompartments,
             changedCellsRef.current,
-            agentTargetNotebookPanelRef || undefined
+            setAgentReviewStatus,
+            agentTargetNotebookPanelRef || undefined,
         );
         updateCellToolbarButtons();
     };
@@ -94,6 +97,7 @@ export const useAgentReview = ({
             notebookTracker,
             codeDiffStripesCompartments,
             changedCellsRef.current,
+            setAgentReviewStatus,
             agentTargetNotebookPanelRef || undefined
         );
         updateCellToolbarButtons();

@@ -3,13 +3,14 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import TextAndIconButton from '../../../components/TextAndIconButton';
 import UndoIcon from '../../../icons/UndoIcon';
 import { restoreCheckpoint } from '../../../utils/checkpoint';
 import { scrollToDiv } from '../../../utils/scroll';
+import { AgentReviewStatus } from '../ChatTaskpane';
 
 interface IAgentChangeControlsProps {
     reviewAgentChanges: () => void;
@@ -21,6 +22,8 @@ interface IAgentChangeControlsProps {
     chatMessagesRef: React.RefObject<HTMLDivElement>;
     acceptAllAICode: () => void;
     rejectAllAICode: () => void;
+    setAgentReviewStatus: (status: AgentReviewStatus) => void;
+    agentReviewStatus: AgentReviewStatus;
 }
 
 const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
@@ -33,35 +36,35 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     chatMessagesRef,
     acceptAllAICode,
     rejectAllAICode,
+    setAgentReviewStatus,
+    agentReviewStatus,
 }) => {
 
-    const [reviewStatus, setReviewStatus] = useState<'pre-review' | 'reviewing' | 'post-review'>('pre-review');
-
     const handleReviewChanges = (): void => {
-        setReviewStatus('reviewing');
+        setAgentReviewStatus('in-agent-code-review');
         reviewAgentChanges();
     }
 
     const handleAcceptAll = (): void => {
         acceptAllAICode();
-        setReviewStatus('post-review');
+        setAgentReviewStatus('post-agent-code-review');
     }
 
     const handleRejectAll = (): void => {
         rejectAllAICode();
-        setReviewStatus('post-review');
+        setAgentReviewStatus('post-agent-code-review');
     }
 
     const handleUndoAll = async (): Promise<void> => {
         await restoreCheckpoint(app, notebookTracker, setHasCheckpoint);
         setDisplayedNextStepsIfAvailable(false);
         setHasCheckpoint(false);
-        setReviewStatus('post-review');
+        setAgentReviewStatus('post-agent-code-review');
         setShowRevertQuestionnaire(true);
         scrollToDiv(chatMessagesRef);
     }
 
-    if (reviewStatus === 'pre-review') {
+    if (agentReviewStatus === 'pre-agent-code-review') {
         return (
             <div className='message message-assistant-chat'>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -85,7 +88,7 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         )
     }
 
-    if (reviewStatus === 'reviewing') {
+    if (agentReviewStatus === 'in-agent-code-review') {
         return (
             <div className='message message-assistant-chat'>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -107,7 +110,7 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         )
     }
 
-    if (reviewStatus === 'post-review') {
+    if (agentReviewStatus === 'post-agent-code-review') {
         return (
             <div className='message message-assistant-chat'>
                 <TextAndIconButton
