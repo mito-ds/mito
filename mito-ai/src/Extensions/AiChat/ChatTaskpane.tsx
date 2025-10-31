@@ -106,7 +106,7 @@ import CTACarousel from './CTACarousel';
 import UsageBadge, { UsageBadgeRef } from './UsageBadge';
 import SignUpForm from './SignUpForm';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
-import { getFirstMessageFromCookie } from './FirstMessage';
+import { getFirstMessage } from './FirstMessage';
 import ChatInput from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import RevertQuestionnaire from './ChatMessage/RevertQuestionnaire';
@@ -434,7 +434,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     await startNewChat();
                 }
 
-                const firstMessage = getFirstMessageFromCookie();
+                const firstMessage = getFirstMessage();
                 if (firstMessage) {
                     await waitForNotebookReady(notebookTracker);
                     await startAgentExecution(firstMessage);

@@ -22,20 +22,51 @@ const deleteCookie = (name: string): void => {
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.trymito.io;`;
 }
 
-const getFirstMessageFromCookies = (): string | null => {
+export const getFirstMessageFromCookie = (): string | undefined => {
+    // Primary: Check cookies (works through SSO flow)
     const firstMessage = getCookie('mito-ai-first-message');
     if (firstMessage) {
         // Clean up cookie after reading
         deleteCookie('mito-ai-first-message');
         return firstMessage;
     }
-    return null;
-}
-
-export const getFirstMessageFromCookie = (): string | undefined => {
-    // Primary: Check cookies (works through SSO flow)
-    const firstMessage = getFirstMessageFromCookies();
     console.log('Cookie check:', firstMessage);
 
     return firstMessage || undefined;
+}
+
+
+/**
+ * Get the first message from the Electron Desktop app prompt.
+ * This checks for window.mitoDesktopAIPrompt which is set by the Electron app
+ * when a user submits a prompt from the welcome screen.
+ */
+export const getFirstMessageFromDesktopPrompt = (): string | undefined => {
+    // Check if we're in the Electron desktop app environment
+    // @ts-ignore - window.mitoDesktopAIPrompt is set by Electron desktop app
+    const desktopPrompt = (window as any).mitoDesktopAIPrompt;
+    
+    if (desktopPrompt && typeof desktopPrompt === 'string') {
+        // Clear the prompt after reading to avoid reusing it
+        // @ts-ignore
+        delete (window as any).mitoDesktopAIPrompt;
+        console.log('Desktop prompt found:', desktopPrompt);
+        return desktopPrompt;
+    }
+    
+    return undefined;
+}
+
+/**
+ * Get the first message from either cookies or the Electron Desktop app prompt.
+ */
+export const getFirstMessage = (): string | undefined => {
+    // First, check for desktop app prompt (higher priority for desktop users)
+    const desktopPrompt = getFirstMessageFromDesktopPrompt();
+    if (desktopPrompt) {
+        return desktopPrompt;
+    }
+    
+    // Fallback to cookie-based prompt (works through SSO flow for web users)
+    return getFirstMessageFromCookie();
 }
