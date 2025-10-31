@@ -218,7 +218,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             } else if (option.type === 'rule') {
                 setAdditionalContext(prev => [...prev, { type: 'rule', value: option.rule }]);
             } else if (option.type === 'db') {
-                console.log('db', option);
                 setAdditionalContext(prev => [
                     ...prev,
                     {
@@ -255,7 +254,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             } else {
                 contextChatRepresentation = `\`${option.variable.variable_name}\``
             }
-            console.log('variable', option);
         } else if (option.type === 'file') {
             // For files, add them as both back-ticked elements and the additional context container
             contextChatRepresentation = `\`${option.file.variable_name}\``
@@ -267,9 +265,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             // delete the context from there if they want to. 
             contextChatRepresentation = option.rule
             setAdditionalContext([...additionalContext, { type: 'rule', value: option.rule }]);
-            console.log('rule', option);
         } else if (option.type === 'db') {
-            console.log('variable', option);
             // For databases, add them as back-ticked elements
             contextChatRepresentation = `\`${option.variable.variable_name}\``
             setAdditionalContext([
