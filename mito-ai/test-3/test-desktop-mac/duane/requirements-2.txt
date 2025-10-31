@@ -1,7 +1,0 @@
-snowflake-sqlalchemy
-matplotlib
-altair==5.5.0
-folium==0.20.0
-h3==4.3.1
-pandas==2.3.2
-streamlit==1.49.1
