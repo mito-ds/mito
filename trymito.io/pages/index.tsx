@@ -22,6 +22,7 @@ import { classNames } from '../utils/classNames';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
+import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
 
 const Home: NextPage = () => {
 
@@ -74,6 +75,10 @@ const Home: NextPage = () => {
           </section>
 
           <LogoSection></LogoSection>
+
+          <section>
+            <MadeWithMito />
+          </section>
 
           <section>
             <FeatureSquares />
