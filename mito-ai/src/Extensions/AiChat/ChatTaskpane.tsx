@@ -105,7 +105,7 @@ import CTACarousel from './CTACarousel';
 import UsageBadge, { UsageBadgeRef } from './UsageBadge';
 import SignUpForm from './SignUpForm';
 import { codeDiffStripesExtension } from './CodeDiffDisplay';
-import { getFirstMessageFromCookie } from './FirstMessage';
+import { getFirstMessage } from './FirstMessage';
 import ChatInput, { ContextItemAIOptimized } from './ChatMessage/ChatInput';
 import ChatMessage from './ChatMessage/ChatMessage';
 import ScrollableSuggestions from './ChatMessage/ScrollableSuggestions';
@@ -450,9 +450,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     await startNewChat();
                 }
 
-                const firstMessage = getFirstMessageFromCookie();
+                const firstMessage = getFirstMessage();
                 if (firstMessage) {
                     await waitForNotebookReady(notebookTracker);
+                    await startNewChat();
                     await agentExecution.startAgentExecution(firstMessage, setAgentReviewStatus);
                 }
 
