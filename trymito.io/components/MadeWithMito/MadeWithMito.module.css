@@ -1,0 +1,69 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+}
+
+.buttons_container {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 2rem 0;
+}
+
+.video_button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 2px solid rgba(157, 108, 255, 0.4);
+    background: rgba(157, 108, 255, 0.1);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.video_button:hover {
+    background: rgba(157, 108, 255, 0.2);
+    border-color: rgba(157, 108, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.video_container {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.video {
+    width: 100%;
+    height: auto;
+    border-radius: 1rem;
+    background: var(--color-video-background);
+    border: 5px solid rgba(198, 169, 255, 0.25);
+}
+
+.video_placeholder {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    background: var(--color-video-background);
+    border: 5px solid rgba(198, 169, 255, 0.25);
+    color: var(--color-text-secondary);
+    font-size: 1.25rem;
+}
+
