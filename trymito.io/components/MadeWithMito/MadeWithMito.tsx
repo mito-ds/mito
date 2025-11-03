@@ -3,12 +3,31 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import madeWithMitoStyles from './MadeWithMito.module.css';
 import { classNames } from '../../utils/classNames';
 
 const MadeWithMito = (): JSX.Element => {
     const [selectedVideo, setSelectedVideo] = useState<number>(0);
+    const [videoEnded, setVideoEnded] = useState<boolean>(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    const handleReplay = () => {
+        if (videoRef.current) {
+            videoRef.current.currentTime = 0;
+            videoRef.current.play();
+            setVideoEnded(false);
+        }
+    };
+
+    const handleVideoEnd = () => {
+        setVideoEnded(true);
+    };
+
+    const handleVideoSelect = (index: number) => {
+        setSelectedVideo(index);
+        setVideoEnded(false);
+    };
 
     // Placeholder video sources - replace with actual video paths
     const videos = [
@@ -41,7 +60,7 @@ const MadeWithMito = (): JSX.Element => {
                             madeWithMitoStyles.video_button,
                             { [madeWithMitoStyles.video_button_deselected]: selectedVideo !== index }
                         )}
-                        onClick={() => setSelectedVideo(index)}
+                        onClick={() => handleVideoSelect(index)}
                     >
                         {label}
                     </button>
@@ -49,18 +68,33 @@ const MadeWithMito = (): JSX.Element => {
             </div>
 
             <div className={madeWithMitoStyles.video_container}>
-                <video
-                    className={madeWithMitoStyles.video}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    controls
-                    key={selectedVideo}
-                >
-                    <source src={videos[selectedVideo]} type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
+                <div className={classNames(
+                    madeWithMitoStyles.video_wrapper,
+                    { [madeWithMitoStyles.video_wrapper_ended]: videoEnded }
+                )}>
+                    <video
+                        ref={videoRef}
+                        className={madeWithMitoStyles.video}
+                        autoPlay
+                        muted
+                        playsInline
+                        controls
+                        key={selectedVideo}
+                        onEnded={handleVideoEnd}
+                    >
+                        <source src={videos[selectedVideo]} type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                    {videoEnded && (
+                        <button
+                            className={madeWithMitoStyles.replay_button}
+                            onClick={handleReplay}
+                            aria-label="Replay video"
+                        >
+                            Replay
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     )
