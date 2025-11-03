@@ -3,11 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { INotebookTracker } from '@jupyterlab/notebook';
-import {
-    writeCodeToCellByID,
-    scrollToNextCellWithDiff
-} from '../../utils/notebook';
+import { NotebookPanel } from '@jupyterlab/notebook';
+import { scrollToNextCellWithDiff, writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
 import { turnOffDiffsForCell } from '../../utils/codeDiff';
 import { runCellByIDInBackground } from '../../utils/notebook';
 import { AgentReviewStatus, ChangedCell } from './ChatTaskpane';
@@ -18,12 +15,11 @@ import { AIOptimizedCell } from '../../websockets/completions/CompletionModels';
  */
 export const acceptSingleCellEdit = (
     cellId: string,
-    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
     notebookSnapshotAfterAgentExecution: AIOptimizedCell[] | null,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
     changedCells: ChangedCell[],
     setAgentReviewStatus: (status: AgentReviewStatus) => void,
-    agentTargetNotebookPanelRef?: React.MutableRefObject<any>,
 ): void => {
     // Find the final code from the current notebook snapshot
     const edit = notebookSnapshotAfterAgentExecution?.find(cell => cell.id === cellId);
@@ -33,12 +29,12 @@ export const acceptSingleCellEdit = (
     }
 
     // Write the final code to the cell and turn off diffs
-    writeCodeToCellByID(notebookTracker, edit?.code || '', cellId);
-    turnOffDiffsForCell(notebookTracker, cellId, codeDiffStripesCompartments.current);
+    writeCodeToCellByIDInNotebookPanel(notebookPanel, edit?.code || '', cellId);
+    turnOffDiffsForCell(notebookPanel, cellId, codeDiffStripesCompartments.current);
 
     // Scroll to the next cell with a diff if in agent mode
     scrollToNextCellWithDiff(
-        agentTargetNotebookPanelRef?.current,
+        notebookPanel,
         cellId,
         changedCells,
         setAgentReviewStatus
@@ -50,7 +46,7 @@ export const acceptSingleCellEdit = (
  */
 export const rejectSingleCellEdit = (
     cellId: string,
-    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
     changedCells: ChangedCell[],
     setAgentReviewStatus: (status: AgentReviewStatus) => void,
@@ -61,12 +57,12 @@ export const rejectSingleCellEdit = (
 
     // Mark as reviewed and restore original code
     changedCell.reviewed = true;
-    writeCodeToCellByID(notebookTracker, changedCell.originalCode, cellId);
-    turnOffDiffsForCell(notebookTracker, cellId, codeDiffStripesCompartments.current);
+    writeCodeToCellByIDInNotebookPanel(notebookPanel, changedCell.originalCode, cellId)
+    turnOffDiffsForCell(notebookPanel, cellId, codeDiffStripesCompartments.current);
 
     // Re-run the rejected cell in background. We want to make sure that the agent has the 
     // most up-to-date version of every variable. 
-    void runCellByIDInBackground(notebookTracker.currentWidget, cellId);
+    void runCellByIDInBackground(notebookPanel, cellId);
 
     // Scroll to the next cell with a diff if in agent mode
     scrollToNextCellWithDiff(
@@ -81,7 +77,7 @@ export const rejectSingleCellEdit = (
  * Accepts all cell edits in agent review mode
  */
 export const acceptAllCellEdits = (
-    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
     notebookSnapshotAfterAgentExecution: AIOptimizedCell[] | null,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
     changedCells: ChangedCell[]
@@ -100,8 +96,8 @@ export const acceptAllCellEdits = (
             // Mark as reviewed
             changedCell.reviewed = true;
             // Write the final code to the cell and turn off diffs
-            writeCodeToCellByID(notebookTracker, edit.code, changedCell.cellId);
-            turnOffDiffsForCell(notebookTracker, changedCell.cellId, codeDiffStripesCompartments.current);
+            writeCodeToCellByIDInNotebookPanel(notebookPanel, edit.code, changedCell.cellId);
+            turnOffDiffsForCell(notebookPanel, changedCell.cellId, codeDiffStripesCompartments.current);
         }
     });
 };
@@ -110,7 +106,7 @@ export const acceptAllCellEdits = (
  * Rejects all cell edits in agent review mode
  */
 export const rejectAllCellEdits = (
-    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
     changedCells: ChangedCell[]
 ): void => {
@@ -124,11 +120,11 @@ export const rejectAllCellEdits = (
     unreviewedCells.forEach(changedCell => {
         // Mark as reviewed and restore original code
         changedCell.reviewed = true;
-        writeCodeToCellByID(notebookTracker, changedCell.originalCode, changedCell.cellId);
-        turnOffDiffsForCell(notebookTracker, changedCell.cellId, codeDiffStripesCompartments.current);
+        writeCodeToCellByIDInNotebookPanel(notebookPanel, changedCell.originalCode, changedCell.cellId);
+        turnOffDiffsForCell(notebookPanel, changedCell.cellId, codeDiffStripesCompartments.current);
 
         // Re-run the rejected cell in background. We want to make sure that the agent has the 
         // most up-to-date version of every variable.
-        void runCellByIDInBackground(notebookTracker.currentWidget, changedCell.cellId);
+        void runCellByIDInBackground(notebookPanel, changedCell.cellId);
     });
 };

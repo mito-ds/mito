@@ -388,7 +388,7 @@ export const scrollToNextCellWithDiff = (
 }
 
 export const applyCellEditorExtension = (
-    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
     cellId: string,
     extension: any,
     compartmentsMap: Map<string, any>
@@ -413,7 +413,7 @@ export const applyCellEditorExtension = (
     - Pass an empty array as the extension to effectively remove/disable it
     */
 
-    const notebook = notebookTracker.currentWidget?.content;
+    const notebook = notebookPanel.content;
     if (!notebook) return;
 
     const cell = notebook.widgets.find(c => c.model.id === cellId);

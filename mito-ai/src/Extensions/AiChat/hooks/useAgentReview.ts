@@ -75,12 +75,11 @@ export const useAgentReview = ({
 
         acceptSingleCellEdit(
             activeCellId,
-            notebookTracker,
+            agentTargetNotebookPanelRef?.current,
             notebookSnapshotAfterAgentExecutionRef.current,
             codeDiffStripesCompartments,
             changedCellsRef.current,
             setAgentReviewStatus,
-            agentTargetNotebookPanelRef || undefined,
         );
         updateCellToolbarButtons();
     };
@@ -94,7 +93,7 @@ export const useAgentReview = ({
 
         rejectSingleCellEdit(
             activeCellId,
-            notebookTracker,
+            agentTargetNotebookPanelRef?.current,
             codeDiffStripesCompartments,
             changedCellsRef.current,
             setAgentReviewStatus,
@@ -105,7 +104,7 @@ export const useAgentReview = ({
 
     const acceptAllAICode = (): void => {
         acceptAllCellEdits(
-            notebookTracker,
+            agentTargetNotebookPanelRef?.current,
             notebookSnapshotAfterAgentExecutionRef.current,
             codeDiffStripesCompartments,
             changedCellsRef.current
@@ -115,7 +114,7 @@ export const useAgentReview = ({
 
     const rejectAllAICode = (): void => {
         rejectAllCellEdits(
-            notebookTracker,
+            agentTargetNotebookPanelRef?.current,
             codeDiffStripesCompartments,
             changedCellsRef.current
         );
@@ -191,7 +190,7 @@ export const useAgentReview = ({
             writeCodeToCellByID(notebookTracker, unifiedCodeString, change.cellId);
 
             // Apply diff stripes to this cell
-            applyDiffStripesToCell(notebookTracker, change.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
+            applyDiffStripesToCell(agentTargetNotebookPanelRef.current, change.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
 
             // Highlight the cell to draw attention
             highlightCodeCell(notebookTracker, change.cellId);
