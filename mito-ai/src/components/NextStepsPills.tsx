@@ -5,15 +5,17 @@
 
 import React, { useEffect, useState } from 'react';
 import '../../style/NextStepsPills.css';
+import { AgentReviewStatus } from '../Extensions/AiChat/ChatTaskpane';
 
 interface NextStepsPillsProps {
     nextSteps: string[];
-    onSelectNextStep?: (nextStep: string) => void;
+    onSelectNextStep?: (nextStep: string, setAgentReviewStatus: (status: AgentReviewStatus) => void) => void;
     displayedNextStepsIfAvailable: boolean;
     setDisplayedNextStepsIfAvailable: (displayedNextStepsIfAvailable: boolean) => void;
+    setAgentReviewStatus: (status: AgentReviewStatus) => void;
 }
 
-const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNextStep, displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable }) => {
+const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNextStep, displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable, setAgentReviewStatus }) => {
     const [isVisible, setIsVisible] = useState(displayedNextStepsIfAvailable);
     const [isAnimatingOut, setIsAnimatingOut] = useState(false);
 
@@ -39,7 +41,7 @@ const NextStepsPills: React.FC<NextStepsPillsProps> = ({ nextSteps, onSelectNext
         // Call the callback after a short delay to allow animation
         setTimeout(() => {
             if (onSelectNextStep) {
-                onSelectNextStep(nextStep);
+                void onSelectNextStep(nextStep, setAgentReviewStatus);
             }
         }, 150);
     };

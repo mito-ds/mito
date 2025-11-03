@@ -24,7 +24,7 @@ import { uploadFileToBackend } from '../../../utils/fileUpload';
 interface ChatInputProps {
     app: JupyterFrontEnd;
     initialContent: string;
-    onSave: (content: string, index?: number, additionalContext?: Array<{ type: string, value: string }>) => void;
+    handleSubmitUserMessage: (newContent: string, messageIndex?: number,  additionalContext?: ContextItemAIOptimized[]) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -35,6 +35,7 @@ interface ChatInputProps {
     displayOptimizedChatHistoryLength?: number;
     agentTargetNotebookPanelRef?: React.RefObject<any>;
     isSignedUp?: boolean;
+    messageIndex?: number;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -42,16 +43,24 @@ export interface ExpandedVariable extends Variable {
     file_name?: string;
 }
 
-interface ContextItem {
+interface ContextItemDisplayOptimized {
     type: string;
     value: string;
-    display?: string; // Optional display name, will fallback to value if not provided
+    // For databases, we want to show a display name like: "snowflake"
+    // But we need to send the AI the full connection string like: "e01f355d-9d31-4957-acb7-6c2a7a4d6e50 - snowflake"
+    // so that if there are multiple connections with the same , the AI can still identify the correct connection.
+    display?: string;
+}
+
+export interface ContextItemAIOptimized {
+    type: string;
+    value: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
     app,
     initialContent,
-    onSave,
+    handleSubmitUserMessage,
     onCancel,
     isEditing,
     contextManager,
@@ -62,6 +71,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     displayOptimizedChatHistoryLength = 0,
     agentTargetNotebookPanelRef,
     isSignedUp = true,
+    messageIndex,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -69,7 +79,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const activeCellCode = getActiveCellCode(notebookTracker) || '';
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
-    const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
+    const [additionalContext, setAdditionalContext] = useState<ContextItemDisplayOptimized[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -289,21 +299,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setIsDropdownFromButton(false);
     };
 
-    const mapAdditionalContext = (): Array<{ type: string, value: string }> => {
-        const result: Array<{ type: string, value: string }> = [];
-
-        additionalContext.forEach(contextItem => {
-            if (contextItem.type === 'db') {
-                result.push({
-                    type: contextItem.type,
-                    value: contextItem.value
-                });
-            } else {
-                result.push(contextItem);
-            }
-        });
-
-        return result;
+    const getAdditionContextWithoutDisplayNames = (): ContextItemAIOptimized[] => {
+        return additionalContext.map(contextItem => ({
+            type: contextItem.type,
+            value: contextItem.value
+        }));
     };
 
     const getExpandedVarialbes = (): ExpandedVariable[] => {
@@ -440,7 +440,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
-                            onSave(input, undefined, mapAdditionalContext())
+                            const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
+                            handleSubmitUserMessage(input, messageIndex, additionalContextWithoutDisplayNames);
 
                             // Reset
                             setInput('')
@@ -469,7 +470,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => onSave(input, undefined, mapAdditionalContext())}>Save</button>
+                    <button onClick={() => {
+                        const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
+                        handleSubmitUserMessage(input, messageIndex, additionalContextWithoutDisplayNames);
+                    }}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }
