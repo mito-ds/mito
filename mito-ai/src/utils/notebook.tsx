@@ -7,7 +7,9 @@ import { INotebookTracker, NotebookActions, NotebookPanel } from '@jupyterlab/no
 import { Cell, CodeCell } from '@jupyterlab/cells';
 import { removeMarkdownCodeFormatting } from './strings';
 import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
+import { AgentReviewStatus, ChangedCell } from '../Extensions/AiChat/ChatTaskpane';
 import { WindowedList } from '@jupyterlab/ui-components';
+import { Compartment, StateEffect } from '@codemirror/state';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebookPanel = notebookTracker.currentWidget;
@@ -27,7 +29,7 @@ export const getCellByID = (notebookTracker: INotebookTracker, cellID: string | 
 export const getCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | null, cellID: string | undefined): Cell | undefined => {
     if (cellID === undefined) {
         return undefined
-    }   
+    }
 
     return notebookPanel?.content.widgets.find(cell => cell.model.id === cellID);
 }
@@ -130,7 +132,7 @@ export const getAIOptimizedCells = (
 
 export const getAIOptimizedCellsInNotebookPanel = (notebookPanel: NotebookPanel | null): AIOptimizedCell[] => {
     const cellList = notebookPanel?.model?.cells
-    
+
     if (cellList == undefined || cellList == null) {
         return []
     }
@@ -211,9 +213,9 @@ export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID:
 }
 
 export const highlightLinesOfCodeInCodeCell = (
-    notebookPanel: NotebookPanel, 
-    codeCellID: string, 
-    startLine: number | undefined, 
+    notebookPanel: NotebookPanel,
+    codeCellID: string,
+    startLine: number | undefined,
     endLine: number | undefined
 ): void => {
     /*
@@ -281,8 +283,8 @@ export const highlightLinesOfCodeInCodeCell = (
 }
 
 export const scrollToAndHighlightCell = (
-    notebookPanel: NotebookPanel | null, 
-    cellID: string, 
+    notebookPanel: NotebookPanel | null,
+    cellID: string,
     startLine: number | undefined,
     endLine?: number,
     position: WindowedList.BaseScrollToAlignment = 'center'
@@ -311,8 +313,8 @@ export const scrollToAndHighlightCell = (
 }
 
 export const scrollToCell = (
-    notebookPanel: NotebookPanel | null, 
-    cellID: string, 
+    notebookPanel: NotebookPanel | null,
+    cellID: string,
     startLine: number | undefined,
     position: WindowedList.BaseScrollToAlignment = 'center'
 ): void => {
@@ -339,4 +341,128 @@ export const scrollToCell = (
 
     // Use the new JupyterLab scrollToCell method instead of DOM node scrollIntoView
     void notebookPanel.content.scrollToCell(cell, position);
+}
+
+export const scrollToNextCellWithDiff = (
+    notebookPanel: NotebookPanel | null,
+    currentCellId: string,
+    changedCells: ChangedCell[],
+    setAgentReviewStatus: (status: AgentReviewStatus) => void,
+): void => {
+    // Early return if no diffs remain or no notebook panel
+    if (changedCells.length === 0 || !notebookPanel) {
+        return;
+    }
+
+    // Convert changedCells to agentEdits format for internal use
+    const agentEdits = changedCells.map(change => ({
+        cellId: change.cellId,
+        code: change.currentCode
+    }));
+
+    // Find current cell's position in the edits list
+    const currentEditIndex = agentEdits.findIndex(edit => edit.cellId === currentCellId);
+    if (currentEditIndex < 0) {
+        return; // Current cell not found in edits
+    }
+
+    // First, look for the next cell that still has a diff below the current cell
+    let nextCellWithDiff = agentEdits
+        .slice(currentEditIndex + 1)
+        .find(edit => changedCells.some(change => change.cellId === edit.cellId && !change.reviewed));
+
+    // If no cell found below, go to the first diff in the file
+    if (!nextCellWithDiff) {
+        nextCellWithDiff = agentEdits
+            .find(edit => changedCells.some(change => change.cellId === edit.cellId && !change.reviewed));
+    }
+
+    if (!nextCellWithDiff) {
+        setAgentReviewStatus('post-agent-code-review');
+        return; // No more cells with diffs
+    }
+
+    // Scroll to and select the next cell with diff using the notebook panel
+    setActiveCellByIDInNotebookPanel(notebookPanel, nextCellWithDiff.cellId);
+    scrollToCell(notebookPanel, nextCellWithDiff.cellId, undefined, 'start');
+}
+
+export const applyCellEditorExtension = (
+    notebookTracker: INotebookTracker,
+    cellId: string,
+    extension: any,
+    compartmentsMap: Map<string, any>
+): void => {
+    /*
+    What it does:
+    - Dynamically adds or updates CodeMirror extensions (like visual decorations, custom behaviors, 
+      or styling) to individual notebook cells
+    - Uses CodeMirror's "compartment" system, which allows extensions to be added, removed, or 
+      modified after the editor is already created
+
+    Why we need this:
+    - To show visual diff stripes on cells that the AI agent has modified (added/removed/changed lines)
+    - To dynamically toggle these decorations on/off (e.g., only show on active cell, remove when 
+      user accepts/rejects changes)
+    - To avoid recreating the entire editor just to add/remove visual features
+
+    How it works (the compartment pattern):
+    - Each cell gets its own compartment (stored in compartmentsMap by cellId)
+    - First call: Creates a new compartment and appends the extension to the editor
+    - Subsequent calls: Reconfigures the existing compartment with the new extension
+    - Pass an empty array as the extension to effectively remove/disable it
+    */
+
+    const notebook = notebookTracker.currentWidget?.content;
+    if (!notebook) return;
+
+    const cell = notebook.widgets.find(c => c.model.id === cellId);
+    if (!cell || cell.model.type !== 'code') return;
+
+    const codeCell = cell as CodeCell;
+    const cmEditor = codeCell.editor as any; // CodeMirrorEditor
+    const editorView = cmEditor?.editor;
+
+    if (!editorView) return;
+
+    let compartment = compartmentsMap.get(cellId);
+
+    if (!compartment) {
+        // Create a new compartment if it doesn't exist
+        compartment = new Compartment();
+        compartmentsMap.set(cellId, compartment);
+
+        editorView.dispatch({
+            effects: StateEffect.appendConfig.of(compartment.of(extension)),
+        });
+    } else {
+        // Reconfigure existing compartment
+        editorView.dispatch({
+            effects: compartment.reconfigure(extension),
+        });
+    }
+}
+
+export const runCellByIDInBackground = async (notebookPanel: NotebookPanel | null, cellId: string): Promise<void> => {
+    if (!notebookPanel) return;
+
+    const notebook = notebookPanel.content;
+    const sessionContext = notebookPanel.context?.sessionContext;
+
+    // Find the cell by ID
+    const cell = notebook.widgets.find(widget => widget.model.id === cellId);
+    if (!cell || cell.model.type !== 'code') return;
+
+    // Set the cell as active temporarily
+    const originalActiveCellIndex = notebook.activeCellIndex;
+    const cellIndex = notebook.widgets.findIndex(widget => widget.model.id === cellId);
+    notebook.activeCellIndex = cellIndex;
+
+    try {
+        // Run the cell without awaiting - this makes it run in the background
+        void NotebookActions.run(notebook, sessionContext);
+    } finally {
+        // Restore the original active cell
+        notebook.activeCellIndex = originalActiveCellIndex;
+    }
 }

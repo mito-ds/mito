@@ -67,7 +67,7 @@ jest.mock('../../Extensions/AiChat/ChatMessage/ChatInput', () => {
         default: jest.fn(props => {
             // Store callbacks for later access in tests
             (window as any).__chatInputCallbacks = {
-                onSave: props.onSave,
+                handleSubmitUserMessage: props.handleSubmitUserMessage,
                 onCancel: props.onCancel
             };
             return (
@@ -78,7 +78,7 @@ jest.mock('../../Extensions/AiChat/ChatMessage/ChatInput', () => {
                     />
                     <button
                         data-testid="save-button"
-                        onClick={() => props.onSave(props.initialContent)}
+                        onClick={() => props.handleSubmitUserMessage(props.initialContent, props.messageIndex)}
                     >
                         Save
                     </button>
@@ -128,11 +128,12 @@ const createMockProps = (overrides = {}) => ({
     previewAICode: jest.fn(),
     acceptAICode: jest.fn(),
     rejectAICode: jest.fn(),
-    onUpdateMessage: jest.fn(),
+    // Legacy: onUpdateMessage no longer used by component
     contextManager: { getVariables: jest.fn(() => []) } as unknown as IContextManager,
     codeReviewStatus: 'chatPreview' as CodeReviewStatus,
     setNextSteps: jest.fn(),
     agentModeEnabled: false,
+    handleSubmitUserMessage: jest.fn(),
     ...overrides
 });
 
@@ -251,11 +252,11 @@ describe('ChatMessage Component', () => {
         });
 
         it('switches to edit mode when edit button is clicked', () => {
-            const updateMessageMock = jest.fn();
+            const handleSubmitUserMessageMock = jest.fn();
 
             renderChatMessage({
                 message: createMockMessage('user', 'Hello, can you help me with pandas?'),
-                onUpdateMessage: updateMessageMock
+                handleSubmitUserMessage: handleSubmitUserMessageMock
             });
 
             // Find and click the edit button
@@ -271,18 +272,18 @@ describe('ChatMessage Component', () => {
 
             // Simulate saving the edited message
             act(() => {
-                (window as any).__chatInputCallbacks.onSave('Updated message content');
+                (window as any).__chatInputCallbacks.handleSubmitUserMessage('Updated message content', 0);
             });
 
-            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', undefined);
+            expect(handleSubmitUserMessageMock).toHaveBeenCalledWith('Updated message content', 0, undefined);
         });
 
         it('switches to edit mode when user message is double-clicked', () => {
-            const updateMessageMock = jest.fn();
+            const handleSubmitUserMessageMock = jest.fn();
 
             renderChatMessage({
                 message: createMockMessage('user', 'Hello, can you help me with pandas?'),
-                onUpdateMessage: updateMessageMock
+                handleSubmitUserMessage: handleSubmitUserMessageMock
             });
 
             // Find the message text element
@@ -298,14 +299,14 @@ describe('ChatMessage Component', () => {
 
             // Simulate saving the edited message
             act(() => {
-                (window as any).__chatInputCallbacks.onSave('Updated message content');
+                (window as any).__chatInputCallbacks.handleSubmitUserMessage('Updated message content', 0);
             });
 
-            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', undefined);
+            expect(handleSubmitUserMessageMock).toHaveBeenCalledWith('Updated message content', 0, undefined);
         });
 
         it('passes additionalContext when editing a message with context', () => {
-            const updateMessageMock = jest.fn();
+            const handleSubmitUserMessageMock = jest.fn();
             const mockAdditionalContext = [
                 { type: 'variable', value: 'df' },
                 { type: 'file', value: 'data.csv' }
@@ -313,7 +314,7 @@ describe('ChatMessage Component', () => {
 
             renderChatMessage({
                 message: createMockMessage('user', 'Hello, can you help me with pandas?'),
-                onUpdateMessage: updateMessageMock,
+                handleSubmitUserMessage: handleSubmitUserMessageMock,
                 additionalContext: mockAdditionalContext
             });
 
@@ -330,11 +331,11 @@ describe('ChatMessage Component', () => {
 
             // Simulate saving the edited message with additional context
             act(() => {
-                (window as any).__chatInputCallbacks.onSave('Updated message content', undefined, mockAdditionalContext);
+                (window as any).__chatInputCallbacks.handleSubmitUserMessage('Updated message content', 0, mockAdditionalContext);
             });
 
             // Verify that onUpdateMessage was called with the additional context
-            expect(updateMessageMock).toHaveBeenCalledWith(0, 'Updated message content', mockAdditionalContext);
+            expect(handleSubmitUserMessageMock).toHaveBeenCalledWith('Updated message content', 0, mockAdditionalContext);
         });
 
         it('displays additionalContext containers in user messages', () => {
