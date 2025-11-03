@@ -4,7 +4,6 @@
  */
 
 import { useRef } from 'react';
-import { INotebookTracker } from '@jupyterlab/notebook';
 import { AIOptimizedCell } from '../../../websockets/completions/CompletionModels';
 import {
     acceptSingleCellEdit,
@@ -18,14 +17,13 @@ import {
 } from '../../../utils/codeDiff';
 import {
     getAIOptimizedCellsInNotebookPanel,
-    writeCodeToCellByID,
     highlightCodeCell,
-    scrollToCell
+    scrollToCell,
+    writeCodeToCellByIDInNotebookPanel
 } from '../../../utils/notebook';
 import { AgentReviewStatus, ChangedCell } from '../ChatTaskpane';
 
 interface UseAgentReviewProps {
-    notebookTracker: INotebookTracker;
     agentTargetNotebookPanelRef: React.MutableRefObject<any> | null;
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>;
     updateCellToolbarButtons: () => void;
@@ -33,7 +31,6 @@ interface UseAgentReviewProps {
 }
 
 export const useAgentReview = ({
-    notebookTracker,
     agentTargetNotebookPanelRef,
     codeDiffStripesCompartments,
     updateCellToolbarButtons,
@@ -67,7 +64,7 @@ export const useAgentReview = ({
     };
 
     const acceptAICodeInAgentMode = (): void => {
-        const activeCellId = notebookTracker.activeCell?.model.id;
+        const activeCellId = agentTargetNotebookPanelRef?.current?.activeCell?.model.id;
 
         if (!activeCellId || !hasUnreviewedChanges(activeCellId)) {
             return;
@@ -85,7 +82,7 @@ export const useAgentReview = ({
     };
 
     const rejectAICodeInAgentMode = (): void => {
-        const activeCellId = notebookTracker.activeCell?.model.id;
+        const activeCellId = agentTargetNotebookPanelRef?.current?.activeCell?.model.id;
 
         if (!activeCellId || !hasUnreviewedChanges(activeCellId)) {
             return;
@@ -187,19 +184,19 @@ export const useAgentReview = ({
             const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(change.originalCode, change.currentCode);
 
             // Write the unified code string to the cell
-            writeCodeToCellByID(notebookTracker, unifiedCodeString, change.cellId);
+            writeCodeToCellByIDInNotebookPanel(agentTargetNotebookPanelRef.current, unifiedCodeString, change.cellId);
 
             // Apply diff stripes to this cell
             applyDiffStripesToCell(agentTargetNotebookPanelRef.current, change.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
 
             // Highlight the cell to draw attention
-            highlightCodeCell(notebookTracker, change.cellId);
+            highlightCodeCell(agentTargetNotebookPanelRef.current, change.cellId);
         });
 
         // Scroll to the first changed cell
         const firstChangedCell = changedCells[0];
-        if (firstChangedCell && notebookTracker.currentWidget) {
-            scrollToCell(notebookTracker.currentWidget, firstChangedCell.cellId, undefined, 'start');
+        if (firstChangedCell && agentTargetNotebookPanelRef.current) {
+            scrollToCell(agentTargetNotebookPanelRef.current, firstChangedCell.cellId, undefined, 'start');
         }
 
         // Update toolbar buttons to show accept/reject buttons for cells with diffs

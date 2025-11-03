@@ -238,7 +238,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Initialize agent review hook
     const agentReview = useAgentReview({
-        notebookTracker,
         agentTargetNotebookPanelRef,
         codeDiffStripesCompartments,
         setAgentReviewStatus,
