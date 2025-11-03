@@ -29,7 +29,6 @@ const MadeWithMito = (): JSX.Element => {
         setVideoEnded(false);
     };
 
-    // Placeholder video sources - replace with actual video paths
     const videos = [
         'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/made-with-mito/analysis.mp4',
         'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/made-with-mito/excel-report.mp4',
@@ -43,7 +42,7 @@ const MadeWithMito = (): JSX.Element => {
         'Excel Reporting',
         'Email Automation',
         'Database Q&A',
-        'Internal Dashboard',
+        'Dashboard',
     ];
 
     return (
