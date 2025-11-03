@@ -23,8 +23,10 @@ import {
 } from '../../../utils/notebook';
 import { AgentReviewStatus, ChangedCell } from '../ChatTaskpane';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 interface UseAgentReviewProps {
+    app: JupyterFrontEnd;
     agentTargetNotebookPanelRef: React.MutableRefObject<NotebookPanel> | null;
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>;
     updateCellToolbarButtons: () => void;
@@ -32,6 +34,7 @@ interface UseAgentReviewProps {
 }
 
 export const useAgentReview = ({
+    app,
     agentTargetNotebookPanelRef,
     codeDiffStripesCompartments,
     updateCellToolbarButtons,
@@ -125,7 +128,7 @@ export const useAgentReview = ({
         }
 
         // Make the notebook panel the active notebook panel
-        agentTargetNotebookPanelRef.current.activate()
+        app.shell.activateById(agentTargetNotebookPanelRef.current.id);
 
         const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
         notebookSnapshotAfterAgentExecutionRef.current = currentNotebookSnapshot;
