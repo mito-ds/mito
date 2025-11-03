@@ -437,6 +437,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 const firstMessage = getFirstMessage();
                 if (firstMessage) {
                     await waitForNotebookReady(notebookTracker);
+                    // Start a new chat with the first message
+                    await startNewChat();
                     await startAgentExecution(firstMessage);
                 }
 
