@@ -51,7 +51,7 @@ const MadeWithMito = (): JSX.Element => {
             <h2>
                 Made with Mito
             </h2>
-            
+
             <div className={madeWithMitoStyles.buttons_container}>
                 {buttonLabels.map((label, index) => (
                     <button

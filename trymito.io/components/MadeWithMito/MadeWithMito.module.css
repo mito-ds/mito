@@ -23,16 +23,16 @@
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     border-radius: 8px;
-    border: 2px solid rgba(157, 108, 255, 0.4);
-    background: rgba(157, 108, 255, 0.1);
+    border: 2px solid color-mix(in srgb, var(--color-purple) 40%, transparent);
+    background: color-mix(in srgb, var(--color-purple) 10%, transparent);
     color: var(--color-text-primary);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .video_button:hover {
-    background: rgba(157, 108, 255, 0.2);
-    border-color: rgba(157, 108, 255, 0.6);
+    background: color-mix(in srgb, var(--color-purple) 20%, transparent);
+    border-color: color-mix(in srgb, var(--color-purple) 60%, transparent);
     transform: translateY(-2px);
 }
 
@@ -60,7 +60,7 @@
 }
 
 .video_wrapper_ended .video {
-    opacity: 0.6;
+    opacity: 0.3;
     transition: opacity 0.3s ease;
 }
 
@@ -69,7 +69,7 @@
     height: auto;
     border-radius: 1rem;
     background: var(--color-video-background);
-    border: 5px solid rgba(198, 169, 255, 0.25);
+    border: 5px solid color-mix(in srgb, var(--color-light-purple) 25%, transparent);
     display: block;
     transition: opacity 0.3s ease;
 }
@@ -82,7 +82,7 @@
     justify-content: center;
     border-radius: 1rem;
     background: var(--color-video-background);
-    border: 5px solid rgba(198, 169, 255, 0.25);
+    border: 5px solid color-mix(in srgb, var(--color-light-purple) 25%, transparent);
     color: var(--color-text-secondary);
     font-size: 1.25rem;
 }
@@ -95,8 +95,8 @@
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     border-radius: 8px;
-    border: 2px solid rgba(157, 108, 255, 0.4);
-    background: rgba(157, 108, 255, 0.85);
+    border: 2px solid color-mix(in srgb, var(--color-purple) 40%, transparent);
+    background: color-mix(in srgb, var(--color-purple) 85%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     color: var(--color-text-primary);
@@ -106,13 +106,12 @@
     align-items: center;
     gap: 0.5rem;
     z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 8px color-mix(in srgb, black 30%, transparent);
 }
 
 .replay_button:hover {
-    background: rgba(157, 108, 255, 0.95);
+    background: color-mix(in srgb, var(--color-purple) 95%, transparent);
     border-color: var(--color-purple);
     transform: translate(-50%, -52%);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 12px color-mix(in srgb, black 40%, transparent);
 }
-
