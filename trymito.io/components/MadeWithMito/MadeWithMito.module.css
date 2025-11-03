@@ -46,7 +46,7 @@
 
 .video_container {
     width: 100%;
-    max-width: 800px;
+    max-width: 1000px;
     margin-top: 2rem;
     display: flex;
     justify-content: center;
