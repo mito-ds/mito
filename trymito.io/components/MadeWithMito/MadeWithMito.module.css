@@ -36,6 +36,14 @@
     transform: translateY(-2px);
 }
 
+.video_button_deselected {
+    opacity: 0.5;
+}
+
+.video_button_deselected:hover {
+    opacity: 0.7;
+}
+
 .video_container {
     width: 100%;
     max-width: 800px;

@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import madeWithMitoStyles from './MadeWithMito.module.css';
+import { classNames } from '../../utils/classNames';
 
 const MadeWithMito = (): JSX.Element => {
     const [selectedVideo, setSelectedVideo] = useState<number>(0);
@@ -36,7 +37,10 @@ const MadeWithMito = (): JSX.Element => {
                 {buttonLabels.map((label, index) => (
                     <button
                         key={index}
-                        className={madeWithMitoStyles.video_button}
+                        className={classNames(
+                            madeWithMitoStyles.video_button,
+                            { [madeWithMitoStyles.video_button_deselected]: selectedVideo !== index }
+                        )}
                         onClick={() => setSelectedVideo(index)}
                     >
                         {label}
