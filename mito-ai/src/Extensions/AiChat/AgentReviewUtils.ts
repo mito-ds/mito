@@ -77,14 +77,14 @@ export const rejectSingleCellEdit = (
  * Accepts all cell edits in agent review mode
  */
 export const acceptAllCellEdits = (
-    notebookPanel: NotebookPanel,
+    notebookPanel: NotebookPanel | undefined,
     notebookSnapshotAfterAgentExecution: AIOptimizedCell[] | null,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
     changedCells: ChangedCell[]
 ): void => {
     // Look for all cells with diffs
     const unreviewedCells = changedCells.filter(cell => !cell.reviewed);
-    if (unreviewedCells.length === 0) {
+    if (unreviewedCells.length === 0 || !notebookPanel) {
         return;
     }
 
@@ -106,13 +106,13 @@ export const acceptAllCellEdits = (
  * Rejects all cell edits in agent review mode
  */
 export const rejectAllCellEdits = (
-    notebookPanel: NotebookPanel,
+    notebookPanel: NotebookPanel | undefined,
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>,
     changedCells: ChangedCell[]
 ): void => {
     // Look for all cells with diffs
     const unreviewedCells = changedCells.filter(cell => !cell.reviewed);
-    if (unreviewedCells.length === 0) {
+    if (unreviewedCells.length === 0 || !notebookPanel) {
         return;
     }
 

@@ -17,14 +17,15 @@ import {
 } from '../../../utils/codeDiff';
 import {
     getAIOptimizedCellsInNotebookPanel,
-    highlightCodeCell,
+    highlightCodeCellInNotebookPanel,
     scrollToCell,
     writeCodeToCellByIDInNotebookPanel
 } from '../../../utils/notebook';
 import { AgentReviewStatus, ChangedCell } from '../ChatTaskpane';
+import { NotebookPanel } from '@jupyterlab/notebook';
 
 interface UseAgentReviewProps {
-    agentTargetNotebookPanelRef: React.MutableRefObject<any> | null;
+    agentTargetNotebookPanelRef: React.MutableRefObject<NotebookPanel> | null;
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>;
     updateCellToolbarButtons: () => void;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
@@ -64,7 +65,7 @@ export const useAgentReview = ({
     };
 
     const acceptAICodeInAgentMode = (): void => {
-        const activeCellId = agentTargetNotebookPanelRef?.current?.activeCell?.model.id;
+        const activeCellId = agentTargetNotebookPanelRef?.current?.content.activeCell?.model.id;
 
         if (!activeCellId || !hasUnreviewedChanges(activeCellId)) {
             return;
@@ -82,7 +83,7 @@ export const useAgentReview = ({
     };
 
     const rejectAICodeInAgentMode = (): void => {
-        const activeCellId = agentTargetNotebookPanelRef?.current?.activeCell?.model.id;
+        const activeCellId = agentTargetNotebookPanelRef?.current?.content.activeCell?.model.id;
 
         if (!activeCellId || !hasUnreviewedChanges(activeCellId)) {
             return;
@@ -122,6 +123,9 @@ export const useAgentReview = ({
         if (!agentTargetNotebookPanelRef?.current) {
             return;
         }
+
+        // Make the notebook panel the active notebook panel
+        agentTargetNotebookPanelRef.current.activate()
 
         const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
         notebookSnapshotAfterAgentExecutionRef.current = currentNotebookSnapshot;
@@ -190,7 +194,7 @@ export const useAgentReview = ({
             applyDiffStripesToCell(agentTargetNotebookPanelRef.current, change.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
 
             // Highlight the cell to draw attention
-            highlightCodeCell(agentTargetNotebookPanelRef.current, change.cellId);
+            highlightCodeCellInNotebookPanel(agentTargetNotebookPanelRef.current, change.cellId);
         });
 
         // Scroll to the first changed cell

@@ -192,11 +192,15 @@ export const getNotebookName = (notebookTracker: INotebookTracker): string => {
 }
 
 export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID: string): void => {
-    /*
-        Briefly highlights a code cell, to draw the user's attention to it.
-    */
-    const notebook = notebookTracker.currentWidget?.content;
-    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    const notebookPanel = notebookTracker.currentWidget;
+    if (!notebookPanel) {
+        return;
+    }
+    highlightCodeCellInNotebookPanel(notebookPanel, codeCellID);
+}
+
+export const highlightCodeCellInNotebookPanel = (notebookPanel: NotebookPanel, codeCellID: string): void => {
+    const cell = notebookPanel?.content.widgets.find(cell => cell.model.id === codeCellID);
     if (cell) {
         const cellElement = cell.node;
         const originalBackground = cellElement.style.background;
