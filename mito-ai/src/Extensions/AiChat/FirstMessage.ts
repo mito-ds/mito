@@ -43,13 +43,11 @@ export const getFirstMessageFromCookie = (): string | undefined => {
  */
 export const getFirstMessageFromDesktopPrompt = (): string | undefined => {
     // Check if we're in the Electron desktop app environment
-    // @ts-ignore - window.mitoDesktopAIPrompt is set by Electron desktop app
-    const desktopPrompt = (window as any).mitoDesktopAIPrompt;
+    const desktopPrompt = (window as any)?.mitoDesktopAIPrompt;
     
     if (desktopPrompt && typeof desktopPrompt === 'string') {
         // Clear the prompt after reading to avoid reusing it
-        // @ts-ignore
-        delete (window as any).mitoDesktopAIPrompt;
+        delete (window as any)?.mitoDesktopAIPrompt;
         console.log('Desktop prompt found:', desktopPrompt);
         return desktopPrompt;
     }
