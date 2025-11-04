@@ -115,6 +115,7 @@ import { useUserSignup } from './hooks/useUserSignup';
 import { useChatScroll } from './hooks/useChatScroll';
 import { useModelConfig } from './hooks/useModelConfig';
 import { useAgentMode } from './hooks/useAgentMode';
+import { useStreamingResponse } from './hooks/useStreamingResponse';
 
 // Styles
 import '../../../style/button.css';
@@ -197,11 +198,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Ref to trigger refresh of the usage badge
     const usageBadgeRef = useRef<UsageBadgeRef>(null);
 
-    const streamingContentRef = useRef<string>('');
-    const streamHandlerRef = useRef<((sender: CompletionWebsocketClient, chunk: ICompletionStreamChunk) => void) | null>(null);
-    
-    // Track active requests for cancellation
-    const activeRequestControllerRef = useRef<AbortController | null>(null);
+    // Streaming response management
+    const { streamingContentRef, streamHandlerRef, activeRequestControllerRef } = useStreamingResponse();
 
     // State for managing next steps from responses
     // If the user hides the next steps, we keep them hidden until they re-open them
