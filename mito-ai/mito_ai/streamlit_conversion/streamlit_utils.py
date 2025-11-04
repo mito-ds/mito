@@ -31,15 +31,7 @@ def extract_code_blocks(message_content: str) -> str:
 
 def create_app_file(app_path: AbsoluteAppPath, code: str) -> None:
     """
-    Create app.py file and write code to it with error handling
-
-    Args:
-        file_path (str): The actual content from the agent's response
-        code (str): The actual content from the agent's response
-
-    Returns:
-        str: Removes the ```python``` part to be able to parse the code
-
+    Create .py file and write code to it with error handling
     """
     try:
         with open(app_path, 'w', encoding='utf-8') as f:

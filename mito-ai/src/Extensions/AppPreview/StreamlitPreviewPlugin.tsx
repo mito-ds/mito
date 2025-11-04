@@ -19,6 +19,7 @@ import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
 import { showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
 import { showUpdateAppDropdown } from './UpdateAppDropdown';
+import { getNotebookID } from '../../utils/notebookMetadata';
 
 
 /**
@@ -133,7 +134,9 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     await notebookPanel.context.save();
 
     const notebookPath = notebookPanel.context.path;
-    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath);
+    const notebookID = getNotebookID(notebookPanel)
+    console.log("NOTEBOOK ID", notebookID)
+    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID);
 
     if (streamlitPreviewResponse.type === 'error') {
       return streamlitPreviewResponse
@@ -177,10 +180,12 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     // Because we are parsing the notebook on the backend by reading 
     // the file system, it only sees the last saved version of the notebook.
     await notebookPanel.context.save();
+    const notebookID = getNotebookID(notebookPanel)
 
     // Update the app with the edit prompt
     const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(
       notebookPanel.context.path, 
+      notebookID,
       true, // force_recreate
       editPrompt, 
       'Editing Streamlit app...', 
@@ -234,6 +239,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const widget = new MainAreaWidget({ content: iframeWidget });
     const notebookPath = notebookPanel.context.path;
     const notebookName = PathExt.basename(notebookPath, '.ipynb');
+    const notebookID = getNotebookID(notebookPanel)
     widget.title.label = `App Preview (${notebookName})`;
     widget.title.closable = true;
 
@@ -252,7 +258,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const recreateAppButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: async (): Promise<void> => {
-        await showRecreateAppConfirmation(notebookPath);
+        await showRecreateAppConfirmation(notebookPath, notebookID);
       },
       tooltip: 'Recreate new App from scratch based on the current state of the notebook',
       label: 'Recreate App',

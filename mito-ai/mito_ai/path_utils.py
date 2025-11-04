@@ -9,6 +9,7 @@ from mito_ai.utils.error_classes import StreamlitPreviewError
 AbsoluteNotebookPath = NewType('AbsoluteNotebookPath', str)
 AbsoluteNotebookDirPath = NewType('AbsoluteNotebookDirPath', str)
 AbsoluteAppPath = NewType('AbsoluteAppPath', str)
+AppFileName = NewType("AppFileName", str)
 
 def get_absolute_notebook_path(notebook_path: str) -> AbsoluteNotebookPath:
     """
@@ -42,11 +43,11 @@ def get_absolute_notebook_dir_path(notebook_path: AbsoluteNotebookPath) -> Absol
     """
     return AbsoluteNotebookDirPath(os.path.dirname(notebook_path))
 
-def get_absolute_app_path(app_directory: AbsoluteNotebookDirPath) -> AbsoluteAppPath:
+def get_absolute_app_path(app_directory: AbsoluteNotebookDirPath, app_file_name: AppFileName) -> AbsoluteAppPath:
     """
     Check if the app.py file exists in the given directory.
     """
-    return AbsoluteAppPath(os.path.join(app_directory, "app.py"))
+    return AbsoluteAppPath(os.path.join(app_directory, app_file_name))
 
 def does_app_path_exist(app_path: AbsoluteAppPath) -> bool:
     """
@@ -54,3 +55,5 @@ def does_app_path_exist(app_path: AbsoluteAppPath) -> bool:
     """
     return os.path.exists(app_path)
 
+def get_app_file_name(notebook_id: str) -> AppFileName:
+    return f'{notebook_id}.py'
