@@ -318,16 +318,14 @@ export const useAgentExecution = ({
 
             if (agentResponse.type === 'edit_streamlit_app' && agentResponse.edit_streamlit_app_prompt) {
                 // Ensure there is an active preview to edit
-                if (!streamlitPreviewManager.hasActivePreview()) {
-                    const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
-                    if (streamlitPreviewResponse.type === 'error') {
-                        messageToShareWithAgent = streamlitPreviewResponse.message;
-                        continue;
-                    }
+                let streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+                if (streamlitPreviewResponse.type === 'error') {
+                    messageToShareWithAgent = streamlitPreviewResponse.message;
+                    continue;
                 }
 
                 // Edit the existing preview
-                const streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, agentTargetNotebookPanelRef.current);
+                streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, agentTargetNotebookPanelRef.current);
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message;
                 }

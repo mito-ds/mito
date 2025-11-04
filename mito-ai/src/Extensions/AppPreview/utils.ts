@@ -3,9 +3,11 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import { PathExt } from "@jupyterlab/coreutils";
 import { startStreamlitPreview } from "../../restAPI/RestAPI";
 import { StreamlitPreviewResponseError, StreamlitPreviewResponseSuccess } from "./StreamlitPreviewPlugin";
 import { Dialog, Notification, showDialog } from "@jupyterlab/apputils";
+import { NotebookPanel } from '@jupyterlab/notebook';
 
 
 export const startStreamlitPreviewAndNotify = async (
@@ -61,4 +63,10 @@ export async function showRecreateAppConfirmation(notebookPath: string, notebook
   if (result.button.accept) {
     void startStreamlitPreviewAndNotify(notebookPath, notebookID, true, undefined, 'Recreating app from scratch...', 'App recreated successfully!');
   }
+}
+
+export const getAppPreviewNameFromNotebookPanel = (notebookPanel: NotebookPanel): string => {
+  const notebookPath = notebookPanel.context.path;
+  const notebookName = PathExt.basename(notebookPath, '.ipynb');
+  return `App Preview (${notebookName})`;
 }

@@ -6,7 +6,6 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
-import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { Token } from '@lumino/coreutils';
@@ -17,7 +16,7 @@ import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
-import { showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
+import { getAppPreviewNameFromNotebookPanel, showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
 import { showUpdateAppDropdown } from './UpdateAppDropdown';
 import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
 
@@ -71,11 +70,6 @@ export interface IStreamlitPreviewManager {
   closeCurrentPreview(): void;
 
   /**
-   * Check if there's an active preview.
-   */
-  hasActivePreview(): boolean;
-
-  /**
    * Get the current preview widget.
    */
   getCurrentPreview(): MainAreaWidget | null;
@@ -127,15 +121,17 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
-    // Close existing preview if any
-    this.closeCurrentPreview();
-
+    
+    // If there user has a different app open, we first close that one
+    if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
+      this.closeCurrentPreview();
+    }
+    
     // First save the notebook to ensure the app is up to date
     await notebookPanel.context.save();
 
     const notebookPath = notebookPanel.context.path;
     const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
-    console.log("NOTEBOOK ID", notebookID)
     const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID);
 
     if (streamlitPreviewResponse.type === 'error') {
@@ -207,17 +203,27 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   }
 
   /**
-   * Check if there's an active preview.
-   */
-  hasActivePreview(): boolean {
-    return this.currentPreview !== null;
-  }
-
-  /**
    * Get the current preview widget.
    */
   getCurrentPreview(): MainAreaWidget | null {
     return this.currentPreview;
+  }
+
+  /** 
+   * Check if the current app preview is for the target notebook
+   */
+  isCurrentPreivewForCurrentNotebook(notebookPanel: NotebookPanel): boolean {
+    const currentPreivew = this.getCurrentPreview()
+    if (currentPreivew === null) {
+      return false
+    }
+
+    // Note we will identify a false position match when the user has two notebooks open
+    // that have the same name because they are in different folders. However, its so unlikely
+    // that a user two notebooks with the same name and one open as an app while trying to open the 
+    // app for the other one. We ignore this case for now. Its not a big deal if it happens anyways
+    const currentNotebookAppTitle = getAppPreviewNameFromNotebookPanel(notebookPanel)
+    return currentNotebookAppTitle === currentPreivew.title.label
   }
 
   /**
@@ -238,9 +244,8 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
     const notebookPath = notebookPanel.context.path;
-    const notebookName = PathExt.basename(notebookPath, '.ipynb');
     const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
-    widget.title.label = `App Preview (${notebookName})`;
+    widget.title.label = getAppPreviewNameFromNotebookPanel(notebookPanel);
     widget.title.closable = true;
 
     // Create toolbar buttons
