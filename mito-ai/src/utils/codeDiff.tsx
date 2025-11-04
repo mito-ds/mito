@@ -4,7 +4,7 @@
  */
 
 import { Compartment } from '@codemirror/state';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { DiffComputer, IDiffComputerOpts, ILineChange } from "vscode-diff";
 import { applyCellEditorExtension } from './notebook';
 import { codeDiffStripesExtension } from '../Extensions/AiChat/CodeDiffDisplay';
@@ -223,21 +223,21 @@ export const getCodeDiffsAndUnifiedCodeString = (originalCode: string | undefine
 }
 
 export const applyDiffStripesToCell = (
-    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
     cellId: string,
     unifiedDiffs: UnifiedDiffLine[] | null,
     codeDiffStripesCompartments: Map<string, Compartment>
 ): void => {
     const extension = unifiedDiffs ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffs }) : [];
-    applyCellEditorExtension(notebookTracker, cellId, extension, codeDiffStripesCompartments);
+    applyCellEditorExtension(notebookPanel, cellId, extension, codeDiffStripesCompartments);
 }
 
 export const turnOffDiffsForCell = (
-    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
     cellId: string,
     codeDiffStripesCompartments: Map<string, Compartment>
 ): void => {
-    applyDiffStripesToCell(notebookTracker, cellId, null, codeDiffStripesCompartments);
+    applyDiffStripesToCell(notebookPanel, cellId, null, codeDiffStripesCompartments);
 }
 
 export const shouldShowDiffToolbarButtons = (

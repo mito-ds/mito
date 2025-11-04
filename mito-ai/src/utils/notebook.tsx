@@ -192,11 +192,15 @@ export const getNotebookName = (notebookTracker: INotebookTracker): string => {
 }
 
 export const highlightCodeCell = (notebookTracker: INotebookTracker, codeCellID: string): void => {
-    /*
-        Briefly highlights a code cell, to draw the user's attention to it.
-    */
-    const notebook = notebookTracker.currentWidget?.content;
-    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    const notebookPanel = notebookTracker.currentWidget;
+    if (!notebookPanel) {
+        return;
+    }
+    highlightCodeCellInNotebookPanel(notebookPanel, codeCellID);
+}
+
+export const highlightCodeCellInNotebookPanel = (notebookPanel: NotebookPanel, codeCellID: string): void => {
+    const cell = notebookPanel?.content.widgets.find(cell => cell.model.id === codeCellID);
     if (cell) {
         const cellElement = cell.node;
         const originalBackground = cellElement.style.background;
@@ -388,7 +392,7 @@ export const scrollToNextCellWithDiff = (
 }
 
 export const applyCellEditorExtension = (
-    notebookTracker: INotebookTracker,
+    notebookPanel: NotebookPanel,
     cellId: string,
     extension: any,
     compartmentsMap: Map<string, any>
@@ -413,7 +417,7 @@ export const applyCellEditorExtension = (
     - Pass an empty array as the extension to effectively remove/disable it
     */
 
-    const notebook = notebookTracker.currentWidget?.content;
+    const notebook = notebookPanel.content;
     if (!notebook) return;
 
     const cell = notebook.widgets.find(c => c.model.id === cellId);

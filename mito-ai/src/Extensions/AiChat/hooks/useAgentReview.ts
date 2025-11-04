@@ -4,7 +4,6 @@
  */
 
 import { useRef } from 'react';
-import { INotebookTracker } from '@jupyterlab/notebook';
 import { AIOptimizedCell } from '../../../websockets/completions/CompletionModels';
 import {
     acceptSingleCellEdit,
@@ -18,22 +17,24 @@ import {
 } from '../../../utils/codeDiff';
 import {
     getAIOptimizedCellsInNotebookPanel,
-    writeCodeToCellByID,
-    highlightCodeCell,
-    scrollToCell
+    highlightCodeCellInNotebookPanel,
+    scrollToCell,
+    writeCodeToCellByIDInNotebookPanel
 } from '../../../utils/notebook';
 import { AgentReviewStatus, ChangedCell } from '../ChatTaskpane';
+import { NotebookPanel } from '@jupyterlab/notebook';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 interface UseAgentReviewProps {
-    notebookTracker: INotebookTracker;
-    agentTargetNotebookPanelRef: React.MutableRefObject<any> | null;
+    app: JupyterFrontEnd;
+    agentTargetNotebookPanelRef: React.MutableRefObject<NotebookPanel> | null;
     codeDiffStripesCompartments: React.MutableRefObject<Map<string, any>>;
     updateCellToolbarButtons: () => void;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
 }
 
 export const useAgentReview = ({
-    notebookTracker,
+    app,
     agentTargetNotebookPanelRef,
     codeDiffStripesCompartments,
     updateCellToolbarButtons,
@@ -67,7 +68,7 @@ export const useAgentReview = ({
     };
 
     const acceptAICodeInAgentMode = (): void => {
-        const activeCellId = notebookTracker.activeCell?.model.id;
+        const activeCellId = agentTargetNotebookPanelRef?.current?.content.activeCell?.model.id;
 
         if (!activeCellId || !hasUnreviewedChanges(activeCellId)) {
             return;
@@ -75,18 +76,17 @@ export const useAgentReview = ({
 
         acceptSingleCellEdit(
             activeCellId,
-            notebookTracker,
+            agentTargetNotebookPanelRef?.current,
             notebookSnapshotAfterAgentExecutionRef.current,
             codeDiffStripesCompartments,
             changedCellsRef.current,
             setAgentReviewStatus,
-            agentTargetNotebookPanelRef || undefined,
         );
         updateCellToolbarButtons();
     };
 
     const rejectAICodeInAgentMode = (): void => {
-        const activeCellId = notebookTracker.activeCell?.model.id;
+        const activeCellId = agentTargetNotebookPanelRef?.current?.content.activeCell?.model.id;
 
         if (!activeCellId || !hasUnreviewedChanges(activeCellId)) {
             return;
@@ -94,7 +94,7 @@ export const useAgentReview = ({
 
         rejectSingleCellEdit(
             activeCellId,
-            notebookTracker,
+            agentTargetNotebookPanelRef?.current,
             codeDiffStripesCompartments,
             changedCellsRef.current,
             setAgentReviewStatus,
@@ -105,7 +105,7 @@ export const useAgentReview = ({
 
     const acceptAllAICode = (): void => {
         acceptAllCellEdits(
-            notebookTracker,
+            agentTargetNotebookPanelRef?.current,
             notebookSnapshotAfterAgentExecutionRef.current,
             codeDiffStripesCompartments,
             changedCellsRef.current
@@ -115,7 +115,7 @@ export const useAgentReview = ({
 
     const rejectAllAICode = (): void => {
         rejectAllCellEdits(
-            notebookTracker,
+            agentTargetNotebookPanelRef?.current,
             codeDiffStripesCompartments,
             changedCellsRef.current
         );
@@ -126,6 +126,9 @@ export const useAgentReview = ({
         if (!agentTargetNotebookPanelRef?.current) {
             return;
         }
+
+        // Make the notebook panel the active notebook panel
+        app.shell.activateById(agentTargetNotebookPanelRef.current.id);
 
         const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
         notebookSnapshotAfterAgentExecutionRef.current = currentNotebookSnapshot;
@@ -188,19 +191,19 @@ export const useAgentReview = ({
             const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(change.originalCode, change.currentCode);
 
             // Write the unified code string to the cell
-            writeCodeToCellByID(notebookTracker, unifiedCodeString, change.cellId);
+            writeCodeToCellByIDInNotebookPanel(agentTargetNotebookPanelRef.current, unifiedCodeString, change.cellId);
 
             // Apply diff stripes to this cell
-            applyDiffStripesToCell(notebookTracker, change.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
+            applyDiffStripesToCell(agentTargetNotebookPanelRef.current, change.cellId, unifiedDiffs, codeDiffStripesCompartments.current);
 
             // Highlight the cell to draw attention
-            highlightCodeCell(notebookTracker, change.cellId);
+            highlightCodeCellInNotebookPanel(agentTargetNotebookPanelRef.current, change.cellId);
         });
 
         // Scroll to the first changed cell
         const firstChangedCell = changedCells[0];
-        if (firstChangedCell && notebookTracker.currentWidget) {
-            scrollToCell(notebookTracker.currentWidget, firstChangedCell.cellId, undefined, 'start');
+        if (firstChangedCell && agentTargetNotebookPanelRef.current) {
+            scrollToCell(agentTargetNotebookPanelRef.current, firstChangedCell.cellId, undefined, 'start');
         }
 
         // Update toolbar buttons to show accept/reject buttons for cells with diffs

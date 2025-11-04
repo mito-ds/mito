@@ -238,7 +238,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Initialize agent review hook
     const agentReview = useAgentReview({
-        notebookTracker,
+        app,
         agentTargetNotebookPanelRef,
         codeDiffStripesCompartments,
         setAgentReviewStatus,
@@ -1274,7 +1274,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     
     // Function to update the extensions of code cells
     const updateCodeCellsExtensions = (unifiedDiffLines: UnifiedDiffLine[] | undefined): void => {
-        const notebook = notebookTracker.currentWidget?.content;
+        const notebookPanel = notebookTracker.currentWidget;
+        const notebook = notebookPanel?.content;
         if (!notebook) {
             return;
         }
@@ -1291,7 +1292,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffLines }) 
                     : [];
                 
-                applyCellEditorExtension(notebookTracker, cellId, extension, codeDiffStripesCompartments.current);
+                applyCellEditorExtension(notebookPanel, cellId, extension, codeDiffStripesCompartments.current);
             }
         });
     };
