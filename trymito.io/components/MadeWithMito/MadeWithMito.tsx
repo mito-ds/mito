@@ -31,7 +31,7 @@ const MadeWithMito = (): JSX.Element => {
 
     const videos = [
         'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/made-with-mito/analysis.mp4',
-        'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/made-with-mito/excel-report.mp4',
+        'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/made-with-mito/excel-2.mp4',
         'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/made-with-mito/email.mp4',
         'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/made-with-mito/database-talk.mp4',
         'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/made-with-mito/sales-dashboard-FULL.mp4',
