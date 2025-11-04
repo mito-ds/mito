@@ -131,7 +131,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             missing_required_parameters.append('notebook_path')
             
         if len(missing_required_parameters) > 0:
-            error_message = f'Missing required request parameters: {', '.join(missing_required_parameters)}'
+            error_message = f"Missing required request parameters: {', '.join(missing_required_parameters)}"
             self.log.error(error_message)
             error = AppDeployError(
                 error_type="BadRequest",

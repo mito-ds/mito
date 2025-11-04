@@ -90,10 +90,7 @@ def get_streamlit_app_status_str(notebook_id: str, notebook_path: str) -> str:
     """
     
     if does_notebook_id_have_corresponding_app(notebook_id, notebook_path):
-        print("DOES HAVE APP")
         return "The notebook has an existing Streamlit ap that you can edit"
-    
-    print("DOES NOT HAVE APP")
     return "The notebook does not have an existing Streamlit app. If you want to show an app to the user, you must create a new one."
 
 
