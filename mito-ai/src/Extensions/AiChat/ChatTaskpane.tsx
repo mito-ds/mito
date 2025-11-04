@@ -120,7 +120,7 @@ import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
 import LoadingDots from '../../components/LoadingDots';
-import { getNotebookID, setNotebookID } from '../../utils/notebookMetadata';
+import { setNotebookID } from '../../utils/notebookMetadata';
 
 
 const getDefaultChatHistoryManager = (
@@ -483,6 +483,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         void logEvent('opened_ai_chat_taskpane');
         void initializeChatHistory(); 
         void refreshUserSignupState(); // Get user signup state when the component first mounts
+
+
+        /**** 
+         * Give each notebook a Unique ID so that we can associate notebooks
+         * to specific app files
+         * ****/
+        const handleNotebookPanelChanged = (): void => {
+            setNotebookID(notebookTracker.currentWidget)
+        };
+
+        // Event fires every time the active notebook panel changes
+        notebookTracker.currentChanged.connect(handleNotebookPanelChanged);
+        
+        return () => {
+            notebookTracker.currentChanged.disconnect(handleNotebookPanelChanged);
+        };
 
     }, [websocketClient]);
 
@@ -1255,38 +1271,23 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE);
     }
     
-    // Execute events when the notebook changes
+    // Update toolbar buttons when active cell changes
+    // TODO: Check if we actually need this
     useEffect(() => {
-
-        console.log("HERE!!")
-
-        const notebookPanel = notebookTracker.currentWidget;
-        if (notebookPanel === null) {
-            return undefined
-        }
-
-        /**** 
-         * 1. Make sure the notebook has a mito-notebook-id
-         * ****/
-
-        setNotebookID(notebookPanel)
-
-        /**** 
-         * 2. Update toolbar buttons when active cell changes
-         * ****/
         const handleActiveCellChanged = (): void => {
-            console.log("TEST")
             updateCellToolbarButtons();
         };
 
-        notebookPanel.content.activeCellChanged.connect(handleActiveCellChanged);
-
-        console.log(getNotebookID(notebookPanel))
+        const currentWidget = notebookTracker.currentWidget;
+        if (currentWidget) {
+            currentWidget.content.activeCellChanged.connect(handleActiveCellChanged);
+            
+            return () => {
+                currentWidget.content.activeCellChanged.disconnect(handleActiveCellChanged);
+            };
+        }
         
-        return () => {
-            notebookPanel.content.activeCellChanged.disconnect(handleActiveCellChanged);
-        };
-        
+        return undefined;
     }, [notebookTracker.currentWidget]);
     
     // Function to update the extensions of code cells
