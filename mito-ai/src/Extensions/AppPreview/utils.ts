@@ -70,3 +70,9 @@ export const getAppPreviewNameFromNotebookPanel = (notebookPanel: NotebookPanel)
   const notebookName = PathExt.basename(notebookPath, '.ipynb');
   return `App Preview (${notebookName})`;
 }
+
+export const getAppNameFromNotebookID= (notebookID: string): string => {
+  let appName = notebookID.replace('mito-notebook-', 'mito-app-')
+  appName = appName + '.py'
+  return appName
+}

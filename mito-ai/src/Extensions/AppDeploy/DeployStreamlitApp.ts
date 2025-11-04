@@ -68,7 +68,7 @@ export const deployStreamlitApp = async (
 
   try{
     Notification.dismiss(notificationId);
-    selectedFiles = await fileSelectorPopup(notebookPath);
+    selectedFiles = await fileSelectorPopup(notebookPanel);
   }catch (error) {
       const errorMsg = 'Files selection failed: ' + error
         Notification.emit(errorMsg, 'error', {
