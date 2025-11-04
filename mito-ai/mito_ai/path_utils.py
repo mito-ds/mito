@@ -33,27 +33,21 @@ def get_absolute_notebook_path(notebook_path: str) -> AbsoluteNotebookPath:
 
 def get_absolute_notebook_dir_path(notebook_path: AbsoluteNotebookPath) -> AbsoluteNotebookDirPath:
     """
-    Get the directory containing the notebook.
-    
-    Args:
-        notebook_path: Absolute path to the notebook
-        
-    Returns:
-        AbsoluteNotebookDirPath: The directory containing the notebook
+    Get the absolute directory containing the notebook.
     """
     return AbsoluteNotebookDirPath(os.path.dirname(notebook_path))
 
 def get_absolute_app_path(app_directory: AbsoluteNotebookDirPath, app_file_name: AppFileName) -> AbsoluteAppPath:
     """
-    Check if the app.py file exists in the given directory.
+    Get the absolute path to the app
     """
     return AbsoluteAppPath(os.path.join(app_directory, app_file_name))
 
 def does_app_path_exist(app_path: AbsoluteAppPath) -> bool:
     """
-    Check if the app.py file exists in the given directory.
+    Check if the app file exists
     """
     return os.path.exists(app_path)
 
 def get_app_file_name(notebook_id: str) -> AppFileName:
-    return f'{notebook_id}.py'
+    return AppFileName(f'{notebook_id}.py')

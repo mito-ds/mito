@@ -48,9 +48,6 @@ class StreamlitPreviewManager:
             Tuple of (success, message, port)
         """
         
-        print("STARTING APP")
-        print("App Directory: ", app_directory)
-        print("App Name: ", app_file_name)
         try:
             
             # Get free port
@@ -63,7 +60,7 @@ class StreamlitPreviewManager:
                 "--server.headless", "true",
                 "--server.address", "localhost",
                 "--server.enableXsrfProtection", "false",
-                "--server.runOnSave", "true",  # auto-reload when app.py is saved
+                "--server.runOnSave", "true",  # auto-reload when app is saved
                 "--logger.level", "error"
             ]
             
