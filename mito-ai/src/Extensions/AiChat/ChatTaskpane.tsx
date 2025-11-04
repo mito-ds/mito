@@ -68,7 +68,6 @@ import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { logEvent } from '../../restAPI/RestAPI';
-import { isUserSignedUp } from '../../utils/userSignupState';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -114,6 +113,7 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 // Internal imports - Hooks
 import { useAgentReview } from './hooks/useAgentReview';
 import { useAgentExecution } from './hooks/useAgentExecution';
+import { useUserSignup } from './hooks/useUserSignup';
 
 // Styles
 import '../../../style/button.css';
@@ -162,7 +162,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     websocketClient,
 }) => {
 
-    const [isSignedUp, setIsSignedUp] = useState<boolean>(true);
+    // User signup state
+    const { isSignedUp, refreshUserSignupState } = useUserSignup();
+    
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager));
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
@@ -510,11 +512,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     }, [chatHistoryManager]);
 
-    // Function to refresh user signup state using the shared helper
-    const refreshUserSignupState = async (): Promise<void> => {
-        const signedUp = await isUserSignedUp();
-        setIsSignedUp(signedUp);
-    };
 
     // Scroll to bottom whenever chat history updates, but only if in follow mode
     useEffect(() => {
