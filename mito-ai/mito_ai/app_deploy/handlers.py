@@ -6,7 +6,7 @@ import time
 import logging
 from typing import Any, Union, List, Optional
 import tempfile
-from mito_ai.path_utils import AbsoluteAppPath, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteAppPath, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path, get_app_file_name
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.error_classes import StreamlitDeploymentError
 from mito_ai.utils.version_utils import is_pro
@@ -117,24 +117,25 @@ class AppDeployHandler(BaseWebSocketHandler):
         """
         message_id = message.message_id
         notebook_path = message.notebook_path
+        notebook_id = message.notebook_id
         jwt_token = message.jwt_token
         files_to_upload = message.selected_files
         
+        # Validate parameters
+        missing_required_parameters = []
         if not message_id:
-            self.log.error("Missing message_id in request")
+            missing_required_parameters.append('message_id')
+        if not notebook_id:
+            missing_required_parameters.append('notebook_id')
+        if not notebook_path:
+            missing_required_parameters.append('notebook_path')
+            
+        if len(missing_required_parameters) > 0:
+            error_message = f'Missing required request parameters: {', '.join(missing_required_parameters)}'
+            self.log.error(error_message)
             error = AppDeployError(
                 error_type="BadRequest",
-                message="Missing message_id in request",
-                error_code=400,
-                message_id=message_id
-            )
-            raise StreamlitDeploymentError(error)
-
-        if not notebook_path:
-            self.log.error("Missing notebook_path in request")
-            error = AppDeployError(
-                error_type="InvalidRequest",
-                message="Missing 'notebook_path' parameter",
+                message=error_message,
                 error_code=400,
                 message_id=message_id
             )
@@ -160,7 +161,8 @@ class AppDeployHandler(BaseWebSocketHandler):
         notebook_path = str(notebook_path) if notebook_path else ""
         absolute_notebook_path = get_absolute_notebook_path(notebook_path)
         absolute_app_directory = get_absolute_notebook_dir_path(absolute_notebook_path)
-        app_path = get_absolute_app_path(absolute_app_directory)
+        app_file_name = get_app_file_name(notebook_id)
+        app_path = get_absolute_app_path(absolute_app_directory, app_file_name)
 
         # Check if the app.py file exists
         app_path_exists = does_app_path_exist(app_path)
@@ -231,6 +233,7 @@ class AppDeployHandler(BaseWebSocketHandler):
         """
         # Get app name from the path
         app_name = os.path.basename(app_path).split('.')[0]
+        print("APP NAME: ", app_name)
         self.log.info(f"Deploying app: {app_name} from path: {app_path}")
         
         try:
