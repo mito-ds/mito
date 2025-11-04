@@ -61,7 +61,6 @@ import {
     writeCodeToCellByID,
 } from '../../utils/notebook';
 import { getActiveCellOutput } from '../../utils/cellOutput';
-import { scrollToDiv } from '../../utils/scroll';
 import { getCodeBlockFromMessage, removeMarkdownCodeFormatting } from '../../utils/strings';
 import { OperatingSystem } from '../../utils/user';
 import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
@@ -114,6 +113,7 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import { useAgentReview } from './hooks/useAgentReview';
 import { useAgentExecution } from './hooks/useAgentExecution';
 import { useUserSignup } from './hooks/useUserSignup';
+import { useChatScroll } from './hooks/useChatScroll';
 
 // Styles
 import '../../../style/button.css';
@@ -180,9 +180,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
     const [agentReviewStatus, setAgentReviewStatus] = useState<AgentReviewStatus>('pre-agent-code-review')
 
-    // Add this ref for the chat messages container
-    const chatMessagesRef = useRef<HTMLDivElement>(null);
-
     /* 
         Keep track of agent mode enabled state and use keep a ref in sync with it 
         so that we can access the most up-to-date value during a function's execution.
@@ -195,15 +192,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         agentModeEnabledRef.current = agentModeEnabled;
     }, [agentModeEnabled]);
 
-    /* 
-        Auto-scroll follow mode: tracks whether we should automatically scroll to bottom
-        when new messages arrive. Set to false when user manually scrolls up.
-    */
-    const [autoScrollFollowMode, setAutoScrollFollowMode] = useState<boolean>(true);
-    const autoScrollFollowModeRef = useRef<boolean>(autoScrollFollowMode);
-    useEffect(() => {
-        autoScrollFollowModeRef.current = autoScrollFollowMode;
-    }, [autoScrollFollowMode]);
+    // Chat scroll management
+    const { chatMessagesRef, setAutoScrollFollowMode } = useChatScroll(chatHistoryManager);
 
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
@@ -511,37 +501,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef.current = chatHistoryManager;
 
     }, [chatHistoryManager]);
-
-
-    // Scroll to bottom whenever chat history updates, but only if in follow mode
-    useEffect(() => {
-        if (autoScrollFollowMode) {
-            scrollToDiv(chatMessagesRef);
-        }
-    }, [chatHistoryManager.getDisplayOptimizedHistory().length, chatHistoryManager, autoScrollFollowMode]);
-
-    // Add scroll event handler to detect manual scrolling
-    useEffect(() => {
-        const chatContainer = chatMessagesRef.current;
-        if (!chatContainer) return;
-
-        const handleScroll = (): void => {
-            const { scrollTop, scrollHeight, clientHeight } = chatContainer;
-            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
-
-            // If user is not at bottom and we're in follow mode, break out of follow mode
-            if (!isAtBottom && autoScrollFollowModeRef.current) {
-                setAutoScrollFollowMode(false);
-            }
-            // If user scrolls back to bottom, re-enter follow mode
-            else if (isAtBottom && !autoScrollFollowModeRef.current) {
-                setAutoScrollFollowMode(true);
-            }
-        };
-
-        chatContainer.addEventListener('scroll', handleScroll);
-        return () => chatContainer.removeEventListener('scroll', handleScroll);
-    }, []);
 
     const getDuplicateChatHistoryManager = (): ChatHistoryManager => {
 
