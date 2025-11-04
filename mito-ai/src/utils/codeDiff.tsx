@@ -3,13 +3,22 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import { Compartment } from '@codemirror/state';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { DiffComputer, IDiffComputerOpts, ILineChange } from "vscode-diff";
+import { applyCellEditorExtension } from './notebook';
+import { codeDiffStripesExtension } from '../Extensions/AiChat/CodeDiffDisplay';
 
 export interface UnifiedDiffLine {
     content: string;                   // The content of the line
     type: 'unchanged' | 'inserted' | 'removed'; // The type of change
     originalLineNumber: number | null; // Line number in the original code
     modifiedLineNumber: number | null; // Line number in the modified code
+}
+
+export interface ICellStateBeforeDiff {
+    codeCellID: string;
+    code: string;
 }
 
 export const getCodeDiffLineRanges = (originalLines: string | undefined | null, modifiedLines: string | undefined | null): ILineChange[] => {
@@ -210,5 +219,53 @@ export const getCodeDiffsAndUnifiedCodeString = (originalCode: string | undefine
     return {
         unifiedCodeString,
         unifiedDiffs
+    }
+}
+
+export const applyDiffStripesToCell = (
+    notebookPanel: NotebookPanel,
+    cellId: string,
+    unifiedDiffs: UnifiedDiffLine[] | null,
+    codeDiffStripesCompartments: Map<string, Compartment>
+): void => {
+    const extension = unifiedDiffs ? codeDiffStripesExtension({ unifiedDiffLines: unifiedDiffs }) : [];
+    applyCellEditorExtension(notebookPanel, cellId, extension, codeDiffStripesCompartments);
+}
+
+export const turnOffDiffsForCell = (
+    notebookPanel: NotebookPanel,
+    cellId: string,
+    codeDiffStripesCompartments: Map<string, Compartment>
+): void => {
+    applyDiffStripesToCell(notebookPanel, cellId, null, codeDiffStripesCompartments);
+}
+
+export const shouldShowDiffToolbarButtons = (
+    notebookTracker: INotebookTracker,
+    cellStateBeforeDiff: ICellStateBeforeDiff | undefined,
+    changedCells: Array<{cellId: string; reviewed: boolean}>
+): boolean => {
+    try {
+        const activeCellId = notebookTracker.activeCell?.model.id;
+        if (!activeCellId) return false;
+        
+        // Check both single-cell mode and multi-cell mode
+        // 
+        // SINGLE-CELL MODE (Chat mode): 
+        // - Uses cellStateBeforeDiff.current which stores a single cell's original state
+        // - This happens when user is in chat mode and AI suggests code for the active cell
+        // - The cellStateBeforeDiff.codeCellID matches the cell that has the diff
+        //
+        // MULTI-CELL MODE (Agent review mode):
+        // - Uses changedCells array which stores all changed cells with their review status
+        // - This happens when agent completes execution and user reviews all changes at once
+        // - We check if the active cell is one of the unreviewed cells (has a diff)
+        return (
+            activeCellId === cellStateBeforeDiff?.codeCellID ||
+            changedCells.some(cell => cell.cellId === activeCellId && !cell.reviewed)
+        );
+    } catch (error) {
+        console.error('Error checking if code cell toolbar buttons should be visible', error)
+        return false;
     }
 }

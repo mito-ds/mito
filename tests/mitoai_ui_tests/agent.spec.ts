@@ -15,7 +15,9 @@ import {
     turnOnAgentMode,
     getNotebookCode,
     waitForAgentToFinish,
-    startNewMitoAIChat
+    startNewMitoAIChat,
+    clickAcceptButton,
+    clickDenyButton
 } from './utils';
 import { CLAUDE_SONNET_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 
@@ -247,5 +249,94 @@ test.describe.parallel("Agent mode blacklisted words", () => {
             const code = await cell.locator('.jp-Editor').textContent();
             expect(code).not.toContain('DROP TABLE');
         }
+    });
+});
+
+test.describe.parallel("Review agent changes", () => {
+
+    test.beforeEach(async ({ page }) => {
+        await createAndRunNotebookWithCells(page, []);
+        await waitForIdle(page);
+
+        await startNewMitoAIChat(page, MODEL);
+
+        // Switch to agent mode 
+        await turnOnAgentMode(page);
+
+        await sendMessageToAgent(page, "create three new cells with the following code: x = 1, y = 2, z = 3");
+        await waitForIdle(page);
+
+        // Start the review process
+        const reviewButton = page.getByRole('button', { name: 'Review Changes' });
+        await reviewButton.waitFor({ state: 'visible' });
+        await reviewButton.click();
+
+        // Make sure there are three new diff stripes to start
+        await expect(page.locator('.cm-codeDiffInsertedStripe')).toHaveCount(3);        
+    });
+
+
+    test("Review and accept all changes", async ({ page }) => {
+        // Accept all changes
+        const acceptAllButton = page.getByRole('button', { name: 'Accept all' });
+        await acceptAllButton.waitFor({ state: 'visible' });
+        await acceptAllButton.click();
+
+        // There should be no diff stripes after accepting all changes
+        await expect(page.locator('.cm-codeDiffInsertedStripe')).toHaveCount(0);
+
+        // Make sure the code in the cells is correct
+        const codeFromCells = await getNotebookCode(page)
+        const codeFromCellsString = codeFromCells.join(' ')
+        expect(codeFromCellsString).toContain('x = 1');
+        expect(codeFromCellsString).toContain('y = 2');
+        expect(codeFromCellsString).toContain('z = 3');
+    });
+
+    test("Review and reject all changes", async ({ page }) => {
+        // Reject all changes
+        const rejectAllButton = page.getByRole('button', { name: 'Reject All' });
+        await rejectAllButton.waitFor({ state: 'visible' });
+        await rejectAllButton.click();
+
+        // There should be no diff stripes after undoing all changes
+        await expect(page.locator('.cm-codeDiffInsertedStripe')).toHaveCount(0);
+
+        // Make sure the code in the cells is correct
+        const codeFromCells = await getNotebookCode(page)
+        const codeFromCellsString = codeFromCells.join(' ')
+        expect(codeFromCellsString).not.toContain('x = 1');
+        expect(codeFromCellsString).not.toContain('y = 2');
+        expect(codeFromCellsString).not.toContain('z = 3');
+    });
+
+    test("Review and accept single change", async ({ page }) => {
+        // Look for the accept button in the first cell
+        await clickAcceptButton(page, { useCellToolbar: true });
+
+        // Should only see two diff stripes
+        await expect(page.locator('.cm-codeDiffInsertedStripe')).toHaveCount(2);
+
+        // Make sure the code in the cells is correct
+        const codeFromCells = await getNotebookCode(page)
+        const codeFromCellsString = codeFromCells.join(' ')
+        expect(codeFromCellsString).toContain('x = 1');
+        expect(codeFromCellsString).toContain('y = 2');
+        expect(codeFromCellsString).toContain('z = 3');
+    });
+
+    test("Review and reject single change", async ({ page }) => {
+        // Look for the deny button in the first cell
+        await clickDenyButton(page, { useCellToolbar: true });
+
+        // Should only see two diff stripes
+        await expect(page.locator('.cm-codeDiffInsertedStripe')).toHaveCount(2);
+
+        // Make sure the code in the cells is correct
+        const codeFromCells = await getNotebookCode(page)
+        const codeFromCellsString = codeFromCells.join(' ')
+        expect(codeFromCellsString).not.toContain('x = 1');
+        expect(codeFromCellsString).toContain('y = 2');
+        expect(codeFromCellsString).toContain('z = 3');
     });
 });

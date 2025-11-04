@@ -13,6 +13,10 @@
     text-align: center;
 }
 
+.tagline {
+    opacity: 0.7;
+}
+
 .logos {
     display: flex;
     flex-direction: row;

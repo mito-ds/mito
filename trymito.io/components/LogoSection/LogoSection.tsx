@@ -69,7 +69,7 @@ const LogoSection = (props: {}): JSX.Element => {
 
     return (
         <div className={logoSection.container}>
-            <h2>Trusted by dozens of fortune 500 companies</h2>
+            <p className={logoSection.tagline}>Trusted by dozens of Fortune 500 companies</p>
             <div className={logoSection.logos}>
                 <RotatingLogo imgs={LOGOS[0]} selectedIndex={selectedLogoArray[0]} />
                 <RotatingLogo imgs={LOGOS[1]} selectedIndex={selectedLogoArray[1]} />
