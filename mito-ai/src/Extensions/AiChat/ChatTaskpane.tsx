@@ -116,6 +116,7 @@ import { useChatScroll } from './hooks/useChatScroll';
 import { useModelConfig } from './hooks/useModelConfig';
 import { useAgentMode } from './hooks/useAgentMode';
 import { useStreamingResponse } from './hooks/useStreamingResponse';
+import { useChatState } from './hooks/useChatState';
 
 // Styles
 import '../../../style/button.css';
@@ -144,8 +145,8 @@ interface IChatTaskpaneProps {
     websocketClient: CompletionWebsocketClient
 }
 
-export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied'
-export type AgentReviewStatus = 'pre-agent-code-review' | 'in-agent-code-review' | 'post-agent-code-review'
+// Re-export types from hooks for backward compatibility
+export type { CodeReviewStatus, AgentReviewStatus } from './hooks/useChatState';
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle'
 export interface ChangedCell {
     cellId: string;
@@ -166,21 +167,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // User signup state
     const { isSignedUp, refreshUserSignupState } = useUserSignup();
-    
-    const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(() => getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager));
-    const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
-    const [loadingAIResponse, setLoadingAIResponse] = useState<boolean>(false)
+    // Core chat state management
+    const {
+        chatHistoryManager,
+        chatHistoryManagerRef,
+        setChatHistoryManager,
+        loadingAIResponse,
+        setLoadingAIResponse,
+        codeReviewStatus,
+        setCodeReviewStatus,
+        agentReviewStatus,
+        setAgentReviewStatus,
+        nextSteps,
+        setNextSteps,
+        displayedNextStepsIfAvailable,
+        setDisplayedNextStepsIfAvailable,
+    } = useChatState(getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager));
 
     // Store the original cell before diff so that we can revert to it if the user rejects the AI's code
-    const cellStateBeforeDiff = useRef<ICellStateBeforeDiff | undefined>(undefined)
-    
-    // Three possible states:
-    // 1. chatPreview: state where the user has not yet pressed the apply button.
-    // 2. codeCellPreview: state where the user is seeing the code diffs and deciding how they want to respond.
-    // 3. applied: state where the user has applied the code to the code cell
-    const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
-    const [agentReviewStatus, setAgentReviewStatus] = useState<AgentReviewStatus>('pre-agent-code-review')
+    const cellStateBeforeDiff = useRef<ICellStateBeforeDiff | undefined>(undefined);
 
     // Chat scroll management
     const { chatMessagesRef, setAutoScrollFollowMode } = useChatScroll(chatHistoryManager);
@@ -200,11 +206,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Streaming response management
     const { streamingContentRef, streamHandlerRef, activeRequestControllerRef } = useStreamingResponse();
-
-    // State for managing next steps from responses
-    // If the user hides the next steps, we keep them hidden until they re-open them
-    const [nextSteps, setNextSteps] = useState<string[]>([]);
-    const [displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable] = useState(true);
 
     // Agent mode state management
     const {
@@ -444,31 +445,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         void refreshUserSignupState(); // Get user signup state when the component first mounts
 
     }, [websocketClient]);
-
-    useEffect(() => {
-        /* 
-            Why we use a ref (chatHistoryManagerRef) instead of directly accessing the state (chatHistoryManager):
-
-            The reason we use a ref here is because the function `applyLatestCode` is registered once 
-            when the component mounts via `app.commands.addCommand`. If we directly used `chatHistoryManager`
-            in the command's execute function, it would "freeze" the state at the time of the registration 
-            and wouldn't update as the state changes over time.
-
-            React's state (`useState`) is asynchronous, and the registered command won't automatically pick up the 
-            updated state unless the command is re-registered every time the state changes, which would require 
-            unregistering and re-registering the command, causing unnecessary complexity.
-
-            By using a ref (`chatHistoryManagerRef`), we are able to keep a persistent reference to the 
-            latest version of `chatHistoryManager`, which is updated in this effect whenever the state 
-            changes. This allows us to always access the most recent state of `chatHistoryManager` in the 
-            `applyLatestCode` function, without needing to re-register the command or cause unnecessary re-renders.
-
-            We still use `useState` for `chatHistoryManager` so that we can trigger a re-render of the chat
-            when the state changes.
-        */
-        chatHistoryManagerRef.current = chatHistoryManager;
-
-    }, [chatHistoryManager]);
 
     const getDuplicateChatHistoryManager = (): ChatHistoryManager => {
 
