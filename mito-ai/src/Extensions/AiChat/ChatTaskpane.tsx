@@ -114,6 +114,7 @@ import { useAgentExecution } from './hooks/useAgentExecution';
 import { useUserSignup } from './hooks/useUserSignup';
 import { useChatScroll } from './hooks/useChatScroll';
 import { useModelConfig } from './hooks/useModelConfig';
+import { useAgentMode } from './hooks/useAgentMode';
 
 // Styles
 import '../../../style/button.css';
@@ -180,18 +181,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview')
     const [agentReviewStatus, setAgentReviewStatus] = useState<AgentReviewStatus>('pre-agent-code-review')
 
-    /* 
-        Keep track of agent mode enabled state and use keep a ref in sync with it 
-        so that we can access the most up-to-date value during a function's execution.
-        Without it, we would always use the initial value of agentModeEnabled.
-    */
-    const [agentModeEnabled, setAgentModeEnabled] = useState<boolean>(true)
-    const agentModeEnabledRef = useRef<boolean>(agentModeEnabled);
-    useEffect(() => {
-        // Update the ref whenever agentModeEnabled state changes
-        agentModeEnabledRef.current = agentModeEnabled;
-    }, [agentModeEnabled]);
-
     // Chat scroll management
     const { chatMessagesRef, setAutoScrollFollowMode } = useChatScroll(chatHistoryManager);
 
@@ -219,11 +208,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const [nextSteps, setNextSteps] = useState<string[]>([]);
     const [displayedNextStepsIfAvailable, setDisplayedNextStepsIfAvailable] = useState(true);
 
-    // Track if checkpoint exists for UI updates
-    const [hasCheckpoint, setHasCheckpoint] = useState<boolean>(false);
-
-    // Track if revert questionnaire should be shown
-    const [showRevertQuestionnaire, setShowRevertQuestionnaire] = useState<boolean>(false);
+    // Agent mode state management
+    const {
+        agentModeEnabled,
+        agentModeEnabledRef,
+        setAgentModeEnabled,
+        hasCheckpoint,
+        setHasCheckpoint,
+        showRevertQuestionnaire,
+        setShowRevertQuestionnaire,
+    } = useAgentMode();
 
     // Initialize code diff stripes compartments
     const codeDiffStripesCompartments = React.useRef(new Map<string, Compartment>());
