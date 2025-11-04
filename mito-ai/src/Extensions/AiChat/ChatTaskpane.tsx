@@ -33,7 +33,6 @@ import DropdownMenu from '../../components/DropdownMenu';
 import IconButton from '../../components/IconButton';
 import LoadingCircle from '../../components/LoadingCircle';
 
-import { DEFAULT_MODEL } from '../../components/ModelSelector';
 import ModelSelector from '../../components/ModelSelector';
 import NextStepsPills from '../../components/NextStepsPills';
 import ToggleButton from '../../components/ToggleButton';
@@ -114,6 +113,7 @@ import { useAgentReview } from './hooks/useAgentReview';
 import { useAgentExecution } from './hooks/useAgentExecution';
 import { useUserSignup } from './hooks/useUserSignup';
 import { useChatScroll } from './hooks/useChatScroll';
+import { useModelConfig } from './hooks/useModelConfig';
 
 // Styles
 import '../../../style/button.css';
@@ -195,6 +195,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Chat scroll management
     const { chatMessagesRef, setAutoScrollFollowMode } = useChatScroll(chatHistoryManager);
 
+    // Model configuration
+    const { updateModelOnBackend, getInitialModel } = useModelConfig(websocketClient);
+
     const [chatThreads, setChatThreads] = useState<IChatThreadMetadataItem[]>([]);
     // The active thread id is originally set by the initializeChatHistory function, which will either set it to 
     // the last active thread or create a new thread if there are no previously existing threads. So that
@@ -243,24 +246,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             app.commands.notifyCommandChanged(COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE);
         }
     });
-
-    const updateModelOnBackend = async (model: string): Promise<void> => {
-        try {
-            await websocketClient.sendMessage({
-                type: "update_model_config",
-                message_id: UUID.uuid4(),
-                metadata: {
-                    promptType: "update_model_config",
-                    model: model
-                },
-                stream: false
-            });
-
-            console.log('Model configuration updated on backend:', model);
-        } catch (error) {
-            console.error('Failed to update model configuration on backend:', error);
-        }
-    };
 
     const fetchChatThreads = async (): Promise<void> => {
         const metadata: IGetThreadsMetadata = {
@@ -406,18 +391,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Main initialization effect - runs once on mount
     useEffect(() => {
         const initializeChatHistory = async (): Promise<void> => {
-            try {                
-                // Check for saved model preference in localStorage
-                const storedConfig = localStorage.getItem('llmModelConfig');
-                let initialModel = DEFAULT_MODEL;
-                if (storedConfig) {
-                    try {
-                        const parsedConfig = JSON.parse(storedConfig);
-                        initialModel = parsedConfig.model || DEFAULT_MODEL;
-                    } catch (e) {
-                        console.error('Failed to parse stored LLM config', e);
-                    }
-                }
+            try {
+                // Get initial model from localStorage or default
+                const initialModel = getInitialModel();
 
                 // Set the model on backend when the taskpane is opened
                 void updateModelOnBackend(initialModel);
