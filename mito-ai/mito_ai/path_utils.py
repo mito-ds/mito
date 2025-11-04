@@ -43,15 +43,15 @@ def get_absolute_app_path(app_directory: AbsoluteNotebookDirPath, app_file_name:
     """
     return AbsoluteAppPath(os.path.join(app_directory, app_file_name))
 
-def does_app_path_exist(app_path: AbsoluteAppPath) -> bool:
-    """
-    Check if the app file exists
-    """
-    return os.path.exists(app_path)
-
 def get_app_file_name(notebook_id: str) -> AppFileName:
     """
     Converts the notebook id into the corresponding app id
     """
     mito_app_name = notebook_id.replace('mito-notebook-', 'mito-app-')
     return AppFileName(f'{mito_app_name}.py')
+
+def does_app_path_exist(app_path: AbsoluteAppPath) -> bool:
+    """
+    Check if the app file exists
+    """
+    return os.path.exists(app_path)

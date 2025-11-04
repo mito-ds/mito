@@ -12,7 +12,7 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     correct_error_in_generation,
     streamlit_handler
 )
-from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookPath, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
 
 # Add this line to enable async support
 pytest_plugins = ('pytest_asyncio',)
