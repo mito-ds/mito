@@ -5,7 +5,7 @@
 
 import { ChatHistoryManager, IDisplayOptimizedChatItem } from '../../Extensions/AiChat/ChatHistoryManager';
 import { IContextManager } from '../../Extensions/ContextManager/ContextManagerPlugin';
-import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
 // Mock the notebook utilities
@@ -27,7 +27,7 @@ jest.mock('../../utils/user', () => ({
 describe('ChatHistoryManager', () => {
     let mockContextManager: IContextManager;
     let mockNotebookTracker: INotebookTracker;
-    let mockNotebookPanel: NotebookPanel;
+    let mockNotebookPanel: any;
     let mockApp: JupyterFrontEnd;
     const mockNotebookId = '/test/notebook.ipynb';
 
@@ -47,9 +47,10 @@ describe('ChatHistoryManager', () => {
         mockNotebookPanel = {
             id: mockNotebookId,
             context: {
-                sessionContext: { name: 'test-notebook' }
+                save: jest.fn(),
+                sessionContext: { name: 'test-notebook' },
             }
-        } as NotebookPanel;
+        }
 
         // Create mock notebook tracker
         mockNotebookTracker = {} as INotebookTracker;
