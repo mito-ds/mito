@@ -47,11 +47,9 @@
 .video_container {
     width: 100%;
     max-width: 1000px;
-    margin-top: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 400px;
 }
 
 .video_wrapper {
