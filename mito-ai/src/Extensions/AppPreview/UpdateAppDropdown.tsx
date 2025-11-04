@@ -9,7 +9,7 @@ import { classNames } from '../../utils/classNames';
 import { createRoot } from 'react-dom/client';
 import { startStreamlitPreviewAndNotify } from './utils';
 import { NotebookPanel } from '@jupyterlab/notebook';
-import { getNotebookID } from '../../utils/notebookMetadata';
+import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
 
 /**
  * Show the update app dropdown.
@@ -25,7 +25,7 @@ export const showUpdateAppDropdown = (
     }
 
     const notebookPath = notebookPanel.context.path;
-    const notebookID = getNotebookID(notebookPanel)
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
 
     // Create dropdown container
     const dropdownContainer = document.createElement('div');
