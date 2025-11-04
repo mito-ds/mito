@@ -7,7 +7,7 @@ from mito_ai.utils.error_classes import StreamlitPreviewError
 
 # Type definitions for better type safety
 AbsoluteNotebookPath = NewType('AbsoluteNotebookPath', str)
-AbsoluteNotebookDirPath = NewType('AbsoluteNotebookDirPath', str)
+AbsoluteDirPath = NewType('AbsoluteDirPath', str)
 AbsoluteAppPath = NewType('AbsoluteAppPath', str)
 
 def get_absolute_notebook_path(notebook_path: str) -> AbsoluteNotebookPath:
@@ -30,7 +30,7 @@ def get_absolute_notebook_path(notebook_path: str) -> AbsoluteNotebookPath:
     return AbsoluteNotebookPath(absolute_path)
     
 
-def get_absolute_notebook_dir_path(notebook_path: AbsoluteNotebookPath) -> AbsoluteNotebookDirPath:
+def get_absolute_notebook_dir_path(notebook_path: AbsoluteNotebookPath) -> AbsoluteDirPath:
     """
     Get the directory containing the notebook.
     
@@ -38,11 +38,24 @@ def get_absolute_notebook_dir_path(notebook_path: AbsoluteNotebookPath) -> Absol
         notebook_path: Absolute path to the notebook
         
     Returns:
-        AbsoluteNotebookDirPath: The directory containing the notebook
+        AbsoluteDirPath: The directory containing the notebook
     """
-    return AbsoluteNotebookDirPath(os.path.dirname(notebook_path))
+    return AbsoluteDirPath(os.path.dirname(notebook_path))
 
-def get_absolute_app_path(app_directory: AbsoluteNotebookDirPath) -> AbsoluteAppPath:
+
+def get_absolute_app_dir_path(app_path: AbsoluteAppPath) -> AbsoluteDirPath:
+    """
+    Get the directory containing the notebook.
+
+    Args:
+        app_path: Absolute path to the notebook
+
+    Returns:
+        AbsoluteDirPath: The directory containing the notebook
+    """
+    return AbsoluteDirPath(os.path.dirname(app_path))
+
+def get_absolute_app_path(app_directory: AbsoluteDirPath) -> AbsoluteAppPath:
     """
     Check if the app.py file exists in the given directory.
     """

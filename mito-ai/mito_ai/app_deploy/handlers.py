@@ -6,7 +6,7 @@ import time
 import logging
 from typing import Any, Union, List, Optional
 import tempfile
-from mito_ai.path_utils import AbsoluteAppPath, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteAppPath, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path, get_absolute_app_dir_path
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.error_classes import StreamlitDeploymentError
 from mito_ai.utils.version_utils import is_pro
@@ -263,7 +263,8 @@ class AppDeployHandler(BaseWebSocketHandler):
                     temp_zip_path = temp_zip.name
 
                 self.log.info("Zipping application files...")
-                add_files_to_zip(temp_zip_path, app_path, files_to_upload, self.log)
+                app_dir = get_absolute_app_dir_path(app_path)
+                add_files_to_zip(temp_zip_path, app_dir, files_to_upload, self.log)
 
                 upload_response = await self._upload_app_to_s3(temp_zip_path, presigned_url)
             except Exception as e:
