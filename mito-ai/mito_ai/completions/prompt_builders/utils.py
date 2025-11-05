@@ -2,7 +2,6 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List, Optional, Dict
-from mito_ai.path_utils import AbsoluteNotebookPath
 from mito_ai.rules.utils import get_rule
 
 

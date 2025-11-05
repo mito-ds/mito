@@ -6,7 +6,7 @@ import time
 import logging
 from typing import Any, Union, List, Optional
 import tempfile
-from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookDirPath, AppFileName, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path, get_app_file_name
+from mito_ai.path_utils import AbsoluteNotebookDirPath, AppFileName, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path, get_app_file_name
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.error_classes import StreamlitDeploymentError
 from mito_ai.utils.version_utils import is_pro
