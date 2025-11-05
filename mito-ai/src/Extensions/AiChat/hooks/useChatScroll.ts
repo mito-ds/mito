@@ -17,13 +17,13 @@ import { ChatHistoryManager } from '../ChatHistoryManager';
  * @param chatHistoryManager - The chat history manager instance to watch for changes
  * 
  * @returns Object containing:
- *   - chatMessagesRef: Ref to attach to the chat messages container
+ *   - chatTaskpaneMessagesRef: Ref to attach to the chat messages container in the taskpane
  *   - autoScrollFollowMode: Boolean indicating if auto-scroll is enabled
  *   - autoScrollFollowModeRef: Ref to access the latest autoScrollFollowMode value
  *   - setAutoScrollFollowMode: Function to manually set the auto-scroll mode
  */
 export const useChatScroll = (chatHistoryManager: ChatHistoryManager): {
-    chatMessagesRef: React.RefObject<HTMLDivElement>;
+    chatTaskpaneMessagesRef: React.RefObject<HTMLDivElement>;
     autoScrollFollowMode: boolean;
     autoScrollFollowModeRef: React.MutableRefObject<boolean>;
     setAutoScrollFollowMode: (mode: boolean) => void;
@@ -35,8 +35,8 @@ export const useChatScroll = (chatHistoryManager: ChatHistoryManager): {
     const [autoScrollFollowMode, setAutoScrollFollowMode] = useState<boolean>(true);
     const autoScrollFollowModeRef = useRef<boolean>(autoScrollFollowMode);
     
-    // Ref for the chat messages container
-    const chatMessagesRef = useRef<HTMLDivElement>(null);
+    // Ref for the chat messages container in the taskpane
+    const chatTaskpaneMessagesRef = useRef<HTMLDivElement>(null);
 
     // Keep ref in sync with state
     useEffect(() => {
@@ -46,13 +46,13 @@ export const useChatScroll = (chatHistoryManager: ChatHistoryManager): {
     // Scroll to bottom whenever chat history updates, but only if in follow mode
     useEffect(() => {
         if (autoScrollFollowMode) {
-            scrollToDiv(chatMessagesRef);
+            scrollToDiv(chatTaskpaneMessagesRef);
         }
     }, [chatHistoryManager.getDisplayOptimizedHistory().length, chatHistoryManager, autoScrollFollowMode]);
 
     // Add scroll event handler to detect manual scrolling
     useEffect(() => {
-        const chatContainer = chatMessagesRef.current;
+        const chatContainer = chatTaskpaneMessagesRef.current;
         if (!chatContainer) return;
 
         const handleScroll = (): void => {
@@ -74,7 +74,7 @@ export const useChatScroll = (chatHistoryManager: ChatHistoryManager): {
     }, []);
 
     return {
-        chatMessagesRef,
+        chatTaskpaneMessagesRef,
         autoScrollFollowMode,
         autoScrollFollowModeRef,
         setAutoScrollFollowMode,

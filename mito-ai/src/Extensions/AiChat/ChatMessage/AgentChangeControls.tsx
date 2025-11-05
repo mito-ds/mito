@@ -18,7 +18,7 @@ interface IAgentChangeControlsProps {
     setHasCheckpoint: (value: boolean) => void;
     setDisplayedNextStepsIfAvailable: (value: boolean) => void;
     setShowRevertQuestionnaire: (value: boolean) => void;
-    chatMessagesRef: React.RefObject<HTMLDivElement>;
+    chatTaskpaneMessagesRef: React.RefObject<HTMLDivElement>;
     acceptAllAICode: () => void;
     rejectAllAICode: () => void;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
@@ -32,7 +32,7 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     setHasCheckpoint,
     setDisplayedNextStepsIfAvailable,
     setShowRevertQuestionnaire,
-    chatMessagesRef,
+    chatTaskpaneMessagesRef,
     acceptAllAICode,
     rejectAllAICode,
     setAgentReviewStatus,
@@ -60,7 +60,7 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         setHasCheckpoint(false);
         setAgentReviewStatus('post-agent-code-review');
         setShowRevertQuestionnaire(true);
-        scrollToDiv(chatMessagesRef);
+        scrollToDiv(chatTaskpaneMessagesRef);
     }
 
     if (agentReviewStatus === 'pre-agent-code-review') {

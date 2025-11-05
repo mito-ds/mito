@@ -163,7 +163,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     } = useChatState(getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager));
 
     // Chat scroll management
-    const { chatMessagesRef, setAutoScrollFollowMode } = useChatScroll(chatHistoryManager);
+    const { chatTaskpaneMessagesRef, setAutoScrollFollowMode } = useChatScroll(chatHistoryManager);
 
     // Model configuration
     const { updateModelOnBackend, getInitialModel } = useModelConfig(websocketClient);
@@ -975,7 +975,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     />
                 </div>
             </div>
-            <div className="chat-messages" ref={chatMessagesRef}>
+            <div className="chat-messages" ref={chatTaskpaneMessagesRef}>
                 {displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
                         {isSignedUp === false 
@@ -1045,7 +1045,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     setChatHistoryManager={setChatHistoryManager}
                     app={app}
                     notebookTracker={notebookTracker}
-                    chatMessagesRef={chatMessagesRef}
+                    chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
                     agentReviewStatus={agentReviewStatus}
                     setAgentReviewStatus={setAgentReviewStatus}
                 />
