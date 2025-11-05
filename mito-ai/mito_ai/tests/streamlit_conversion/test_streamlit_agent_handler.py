@@ -12,7 +12,7 @@ from mito_ai.streamlit_conversion.streamlit_agent_handler import (
     correct_error_in_generation,
     streamlit_handler
 )
-from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteNotebookPath, AppFileName, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
 
 # Add this line to enable async support
 pytest_plugins = ('pytest_asyncio',)
@@ -153,11 +153,12 @@ class TestStreamlitHandler:
         
         # Use a relative path that will work cross-platform
         notebook_path = AbsoluteNotebookPath("absolute/path/to/notebook.ipynb")
+        app_file_name = AppFileName('test-app-file-name.py')
         
         # Construct the expected app path using the same method as the production code
         app_directory = get_absolute_notebook_dir_path(notebook_path)
-        expected_app_path = get_absolute_app_path(app_directory)
-        await streamlit_handler(notebook_path)
+        expected_app_path = get_absolute_app_path(app_directory, app_file_name)
+        await streamlit_handler(notebook_path, app_file_name)
         
         # Verify calls
         mock_parse.assert_called_once_with(notebook_path)
@@ -186,7 +187,7 @@ class TestStreamlitHandler:
     
         # Now it should raise an exception instead of returning a tuple
         with pytest.raises(Exception):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'))
         
         # Verify that error correction was called 5 times (once per error, 5 retries)
         # Each retry processes 1 error, so 5 retries = 5 calls
@@ -214,7 +215,7 @@ class TestStreamlitHandler:
         
         # Now it should raise an exception instead of returning a tuple
         with pytest.raises(Exception):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'))
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -224,7 +225,7 @@ class TestStreamlitHandler:
         mock_parse.side_effect = FileNotFoundError("Notebook not found")
         
         with pytest.raises(FileNotFoundError, match="Notebook not found"):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'))
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -239,7 +240,7 @@ class TestStreamlitHandler:
         mock_generate_code.side_effect = Exception("Generation failed")
         
         with pytest.raises(Exception, match="Generation failed"):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"))
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'))
 
 
 

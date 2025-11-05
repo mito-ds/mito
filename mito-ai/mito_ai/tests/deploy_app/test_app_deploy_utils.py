@@ -17,11 +17,28 @@ class TestAddFilesToZip:
         f2.write_text("file2 content")
 
         zip_path = tmp_path / "test.zip"
-        add_files_to_zip(str(zip_path), str(tmp_path), ["file1.txt", "file2.txt"])
+        add_files_to_zip(str(zip_path), str(tmp_path), ["file1.txt", "file2.txt"], 'test-app-file-name.py')
 
         with zipfile.ZipFile(zip_path, "r") as zf:
             names = zf.namelist()
             assert "file1.txt" in names
+            assert "file2.txt" in names
+            assert len(names) == 2
+            
+    def test_renames_app_file(self, tmp_path):
+        """Ensure individual files are added correctly to the zip"""
+        # Create files
+        f1 = tmp_path / "original-file-name.py"
+        f1.write_text("file1 content")
+        f2 = tmp_path / "file2.txt"
+        f2.write_text("file2 content")
+
+        zip_path = tmp_path / "test.zip"
+        add_files_to_zip(str(zip_path), str(tmp_path), ["original-file-name.py", "file2.txt"], 'original-file-name.py')
+
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            names = zf.namelist()
+            assert "app.py" in names
             assert "file2.txt" in names
             assert len(names) == 2
 
@@ -35,7 +52,7 @@ class TestAddFilesToZip:
         (subfolder / "nested2.txt").write_text("nested2 content")
 
         zip_path = tmp_path / "test.zip"
-        add_files_to_zip(str(zip_path), str(tmp_path), ["folder"])
+        add_files_to_zip(str(zip_path), str(tmp_path), ["folder"], 'test-app.py')
 
         with zipfile.ZipFile(zip_path, "r") as zf:
             names = zf.namelist()
@@ -46,7 +63,7 @@ class TestAddFilesToZip:
         """Ensure missing files do not break the function and warning is logged"""
         caplog.set_level(logging.WARNING)
         zip_path = tmp_path / "test.zip"
-        add_files_to_zip(str(zip_path), str(tmp_path), ["does_not_exist.txt"], logger=logging.getLogger())
+        add_files_to_zip(str(zip_path), str(tmp_path), ["does_not_exist.txt"], 'test-app.py', logger=logging.getLogger())
 
         # Zip should exist but be empty
         with zipfile.ZipFile(zip_path, "r") as zf:
@@ -63,7 +80,7 @@ class TestAddFilesToZip:
         (folder / "nested.txt").write_text("nested content")
 
         zip_path = tmp_path / "test.zip"
-        add_files_to_zip(str(zip_path), str(tmp_path), ["file.txt", "folder"])
+        add_files_to_zip(str(zip_path), str(tmp_path), ["file.txt", "folder"], 'test-app.py')
 
         with zipfile.ZipFile(zip_path, "r") as zf:
             names = zf.namelist()
