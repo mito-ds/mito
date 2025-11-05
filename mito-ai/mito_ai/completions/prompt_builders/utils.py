@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List, Optional, Dict
+from mito_ai.path_utils import AbsoluteNotebookPath
 from mito_ai.rules.utils import get_rule
 
 
@@ -70,25 +71,12 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
     # STEP 3: Combine into a single string
     return "\n\n".join(context_parts)
 
-def does_notebook_id_have_corresponding_app(notebook_id: str, notebook_path: str) -> bool:
-    """
-    Given a notebook_id and raw notebook_path checks if the notebook has a corresponding
-    app by converting the notebook_path into an absolute path and converting the notebook_id
-    into an app name
-    """
-    from mito_ai.path_utils import does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_app_file_name
-
-    app_file_name = get_app_file_name(notebook_id)
-    app_directory = get_absolute_notebook_dir_path(notebook_path)
-    app_path = get_absolute_app_path(app_directory, app_file_name)
-    return does_app_path_exist(app_path)
-
 
 def get_streamlit_app_status_str(notebook_id: str, notebook_path: str) -> str:
     """
     Get the streamlit app status string.
     """
-    
+    from mito_ai.path_utils import does_notebook_id_have_corresponding_app
     if does_notebook_id_have_corresponding_app(notebook_id, notebook_path):
         return "The notebook has an existing Streamlit ap that you can edit"
     return "The notebook does not have an existing Streamlit app. If you want to show an app to the user, you must create a new one."

@@ -55,3 +55,16 @@ def does_app_path_exist(app_path: AbsoluteAppPath) -> bool:
     Check if the app file exists
     """
     return os.path.exists(app_path)
+
+def does_notebook_id_have_corresponding_app(notebook_id: str, notebook_path: str) -> bool:
+    """
+    Given a notebook_id and raw notebook_path checks if the notebook has a corresponding
+    app by converting the notebook_path into an absolute path and converting the notebook_id
+    into an app name
+    """
+
+    app_file_name = get_app_file_name(notebook_id)
+    notebook_path = get_absolute_notebook_path(notebook_path)
+    app_directory = get_absolute_notebook_dir_path(notebook_path)
+    app_path = get_absolute_app_path(app_directory, app_file_name)
+    return does_app_path_exist(app_path)

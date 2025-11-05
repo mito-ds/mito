@@ -4,6 +4,7 @@
 import zipfile
 import logging
 from mito_ai.app_deploy.app_deploy_utils import add_files_to_zip
+from mito_ai.path_utils import AbsoluteNotebookDirPath
 
 class TestAddFilesToZip:
     """Test cases for add_files_to_zip helper function"""
@@ -17,7 +18,7 @@ class TestAddFilesToZip:
         f2.write_text("file2 content")
 
         zip_path = tmp_path / "test.zip"
-        add_files_to_zip(str(zip_path), str(tmp_path), ["file1.txt", "file2.txt"], 'test-app-file-name.py')
+        add_files_to_zip(str(zip_path), AbsoluteNotebookDirPath(str(tmp_path)), ["file1.txt", "file2.txt"], 'test-app-file-name.py')
 
         with zipfile.ZipFile(zip_path, "r") as zf:
             names = zf.namelist()
@@ -34,7 +35,7 @@ class TestAddFilesToZip:
         f2.write_text("file2 content")
 
         zip_path = tmp_path / "test.zip"
-        add_files_to_zip(str(zip_path), str(tmp_path), ["original-file-name.py", "file2.txt"], 'original-file-name.py')
+        add_files_to_zip(str(zip_path), AbsoluteNotebookDirPath(str(tmp_path)), ["original-file-name.py", "file2.txt"], 'original-file-name.py')
 
         with zipfile.ZipFile(zip_path, "r") as zf:
             names = zf.namelist()
@@ -52,7 +53,7 @@ class TestAddFilesToZip:
         (subfolder / "nested2.txt").write_text("nested2 content")
 
         zip_path = tmp_path / "test.zip"
-        add_files_to_zip(str(zip_path), str(tmp_path), ["folder"], 'test-app.py')
+        add_files_to_zip(str(zip_path), AbsoluteNotebookDirPath(str(tmp_path)), ["folder"], 'test-app.py')
 
         with zipfile.ZipFile(zip_path, "r") as zf:
             names = zf.namelist()
@@ -63,7 +64,7 @@ class TestAddFilesToZip:
         """Ensure missing files do not break the function and warning is logged"""
         caplog.set_level(logging.WARNING)
         zip_path = tmp_path / "test.zip"
-        add_files_to_zip(str(zip_path), str(tmp_path), ["does_not_exist.txt"], 'test-app.py', logger=logging.getLogger())
+        add_files_to_zip(str(zip_path), AbsoluteNotebookDirPath(str(tmp_path)), ["does_not_exist.txt"], 'test-app.py', logger=logging.getLogger())
 
         # Zip should exist but be empty
         with zipfile.ZipFile(zip_path, "r") as zf:
@@ -80,7 +81,7 @@ class TestAddFilesToZip:
         (folder / "nested.txt").write_text("nested content")
 
         zip_path = tmp_path / "test.zip"
-        add_files_to_zip(str(zip_path), str(tmp_path), ["file.txt", "folder"], 'test-app.py')
+        add_files_to_zip(str(zip_path), AbsoluteNotebookDirPath(str(tmp_path)), ["file.txt", "folder"], 'test-app.py')
 
         with zipfile.ZipFile(zip_path, "r") as zf:
             names = zf.namelist()
