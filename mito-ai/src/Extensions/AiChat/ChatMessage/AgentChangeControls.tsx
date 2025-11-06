@@ -83,7 +83,7 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         const interval = setInterval(updateProgress, 500);
 
         return () => clearInterval(interval);
-    }, [agentReviewStatus, getReviewProgress]);
+    }, [agentReviewStatus]);
 
     const handleReviewChanges = (): void => {
         reviewAgentChanges();
