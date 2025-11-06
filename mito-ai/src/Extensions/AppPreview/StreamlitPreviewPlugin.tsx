@@ -6,7 +6,6 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
-import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { Token } from '@lumino/coreutils';
@@ -17,8 +16,9 @@ import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
-import { showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
+import { getAppPreviewNameFromNotebookPanel, showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
 import { showUpdateAppDropdown } from './UpdateAppDropdown';
+import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
 
 
 /**
@@ -68,11 +68,6 @@ export interface IStreamlitPreviewManager {
    * Close the current preview if one exists.
    */
   closeCurrentPreview(): void;
-
-  /**
-   * Check if there's an active preview.
-   */
-  hasActivePreview(): boolean;
 
   /**
    * Get the current preview widget.
@@ -126,16 +121,27 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
-    // Close existing preview if any
-    this.closeCurrentPreview();
-
+    
+    // If the user has a different app open, we first close that one
+    if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
+      this.closeCurrentPreview();
+    }
+    
     // First save the notebook to ensure the app is up to date
     await notebookPanel.context.save();
 
     const notebookPath = notebookPanel.context.path;
-    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath);
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
+    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID);
 
     if (streamlitPreviewResponse.type === 'error') {
+      return streamlitPreviewResponse
+    }
+
+    if (this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
+      // If there is already a preview window for the current app, 
+      // then don't create a new widget. The backend will update the 
+      // .py file and the app preview will update automatically
       return streamlitPreviewResponse
     }
     
@@ -177,10 +183,12 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     // Because we are parsing the notebook on the backend by reading 
     // the file system, it only sees the last saved version of the notebook.
     await notebookPanel.context.save();
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
 
     // Update the app with the edit prompt
     const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(
       notebookPanel.context.path, 
+      notebookID,
       true, // force_recreate
       editPrompt, 
       'Editing Streamlit app...', 
@@ -202,17 +210,27 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   }
 
   /**
-   * Check if there's an active preview.
-   */
-  hasActivePreview(): boolean {
-    return this.currentPreview !== null;
-  }
-
-  /**
    * Get the current preview widget.
    */
   getCurrentPreview(): MainAreaWidget | null {
     return this.currentPreview;
+  }
+
+  /** 
+   * Check if the current app preview is for the target notebook
+   */
+  isCurrentPreivewForCurrentNotebook(notebookPanel: NotebookPanel): boolean {
+    const currentPreivew = this.getCurrentPreview()
+    if (currentPreivew === null) {
+      return false
+    }
+
+    // Note we will identify a false position match when the user has two notebooks open
+    // that have the same name because they are in different folders. However, its so unlikely
+    // that a user two notebooks with the same name and one open as an app while trying to open the 
+    // app for the other one. We ignore this case for now. Its not a big deal if it happens anyways
+    const currentNotebookAppTitle = getAppPreviewNameFromNotebookPanel(notebookPanel)
+    return currentNotebookAppTitle === currentPreivew.title.label
   }
 
   /**
@@ -233,8 +251,8 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
     const notebookPath = notebookPanel.context.path;
-    const notebookName = PathExt.basename(notebookPath, '.ipynb');
-    widget.title.label = `App Preview (${notebookName})`;
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
+    widget.title.label = getAppPreviewNameFromNotebookPanel(notebookPanel);
     widget.title.closable = true;
 
     // Create toolbar buttons
@@ -252,7 +270,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const recreateAppButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: async (): Promise<void> => {
-        await showRecreateAppConfirmation(notebookPath);
+        await showRecreateAppConfirmation(notebookPath, notebookID);
       },
       tooltip: 'Recreate new App from scratch based on the current state of the notebook',
       label: 'Recreate App',

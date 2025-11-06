@@ -100,15 +100,15 @@ import '../../../style/button.css';
 import '../../../style/ChatTaskpane.css';
 import '../../../style/TextButton.css';
 import LoadingDots from '../../components/LoadingDots';
+import { setNotebookID } from '../../utils/notebookMetadata';
 
 
 const getDefaultChatHistoryManager = (
     notebookTracker: INotebookTracker, 
     contextManager: IContextManager, 
     app: JupyterFrontEnd, 
-    streamlitPreviewManager: IStreamlitPreviewManager
 ): ChatHistoryManager => {
-    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker, app, streamlitPreviewManager)
+    const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker, app)
     return chatHistoryManager
 }
 
@@ -160,7 +160,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setNextSteps,
         displayedNextStepsIfAvailable,
         setDisplayedNextStepsIfAvailable,
-    } = useChatState(getDefaultChatHistoryManager(notebookTracker, contextManager, app, streamlitPreviewManager));
+    } = useChatState(getDefaultChatHistoryManager(notebookTracker, contextManager, app));
 
     // Chat scroll management
     const { chatTaskpaneMessagesRef, setAutoScrollFollowMode } = useChatScroll(chatHistoryManager);
@@ -737,7 +737,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     notebookTracker,
                     contextManager,
                     app,
-                    streamlitPreviewManager
                 );
                 addAIMessageFromResponseAndUpdateState(
                     (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,
@@ -757,6 +756,21 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         void logEvent('opened_ai_chat_taskpane');
         void initializeChatHistory(); 
         void refreshUserSignupState(); // Get user signup state when the component first mounts
+
+        /**** 
+         * Give each notebook a Unique ID so that we can associate notebooks
+         * to specific app files
+         * ****/
+        const handleNotebookPanelChanged = (): void => {
+            setNotebookID(notebookTracker.currentWidget)
+        };
+
+        // Event fires every time the active notebook panel changes
+        notebookTracker.currentChanged.connect(handleNotebookPanelChanged);
+        
+        return () => {
+            notebookTracker.currentChanged.disconnect(handleNotebookPanelChanged);
+        };
 
     }, [websocketClient]);
 
@@ -889,6 +903,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [codeReviewStatus, agentModeEnabled]);
 
     // Update toolbar buttons when active cell changes
+    // TODO: Check if we actually need this
     useEffect(() => {
         const handleActiveCellChanged = (): void => {
             updateCellToolbarButtons();

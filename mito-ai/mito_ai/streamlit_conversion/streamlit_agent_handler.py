@@ -14,7 +14,7 @@ from mito_ai.streamlit_conversion.search_replace_utils import extract_search_rep
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.error_classes import StreamlitConversionError
 from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
-from mito_ai.path_utils import AbsoluteNotebookPath, get_absolute_notebook_dir_path, get_absolute_app_path
+from mito_ai.path_utils import AbsoluteNotebookPath, AppFileName, get_absolute_notebook_dir_path, get_absolute_app_path, get_app_file_name
 
 async def generate_new_streamlit_code(notebook: List[dict]) -> str:
     """Send a query to the agent, get its response and parse the code"""
@@ -100,13 +100,13 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
 
     return streamlit_app_code
 
-async def streamlit_handler(notebook_path: AbsoluteNotebookPath, edit_prompt: str = "") -> None:
+async def streamlit_handler(notebook_path: AbsoluteNotebookPath, app_file_name: AppFileName, edit_prompt: str = "") -> None:
     """Handler function for streamlit code generation and validation"""
 
     # Convert to absolute path for consistent handling
     notebook_code = parse_jupyter_notebook_to_extract_required_content(notebook_path)
     app_directory = get_absolute_notebook_dir_path(notebook_path)
-    app_path = get_absolute_app_path(app_directory)
+    app_path = get_absolute_app_path(app_directory, app_file_name)
     
     if edit_prompt != "":
         # If the user is editing an existing streamlit app, use the update function

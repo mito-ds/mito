@@ -106,6 +106,8 @@ PROMPT_BUILDER_TEST_CASES = [
             AgentExecutionMetadata(
                 variables=TEST_VARIABLES,
                 files=TEST_FILES,
+                notebookPath='/test-notebook-path.ipynb',
+                notebookID='test-notebook-id',
                 aiOptimizedCells=[
                     AIOptimizedCell(cell_type="code", id="cell1", code=TEST_CODE)
                 ],

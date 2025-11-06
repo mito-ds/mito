@@ -15,6 +15,7 @@ import { IDeployAppReply, IDeployAppRequest } from '../../websockets/appDeploy/a
 import {getJWTToken } from './auth';
 import { showAuthenticationPopup } from './authPopupUtils';
 import { fileSelectorPopup } from './FilesSelectorUtils';
+import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
 
 
 /* 
@@ -55,6 +56,7 @@ export const deployStreamlitApp = async (
   }
 
   const notebookPath = notebookPanel.context.path;
+  const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
 
   const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
     autoClose: false
@@ -68,7 +70,7 @@ export const deployStreamlitApp = async (
 
   try{
     Notification.dismiss(notificationId);
-    selectedFiles = await fileSelectorPopup(notebookPath);
+    selectedFiles = await fileSelectorPopup(notebookPanel);
   }catch (error) {
       const errorMsg = 'Files selection failed: ' + error
         Notification.emit(errorMsg, 'error', {
@@ -91,6 +93,7 @@ export const deployStreamlitApp = async (
       type: 'deploy_app',
       message_id: UUID.uuid4(),
       notebook_path: notebookPath,
+      notebook_id: notebookID,
       jwt_token: jwtToken,
       selected_files: selectedFiles
     });

@@ -12,7 +12,7 @@ import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChat
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
 import { validateAndCorrectAgentResponse } from "./validationUtils";
-import { IStreamlitPreviewManager } from "../AppPreview/StreamlitPreviewPlugin";
+import { getNotebookIDAndSetIfNonexistant } from "../../utils/notebookMetadata";
 
 export type PromptType = 
     'chat' | 
@@ -61,14 +61,12 @@ export class ChatHistoryManager {
     private contextManager: IContextManager;
     private notebookTracker: INotebookTracker;
     private app: JupyterFrontEnd;
-    private streamlitPreviewManager: IStreamlitPreviewManager;
     private _allAssumptions = new Set<string>();
 
     constructor(
         contextManager: IContextManager, 
         notebookTracker: INotebookTracker, 
         app: JupyterFrontEnd, 
-        streamlitPreviewManager: IStreamlitPreviewManager, 
         initialHistory?: IDisplayOptimizedChatItem[]
     ) {
         // Initialize the history
@@ -83,16 +81,8 @@ export class ChatHistoryManager {
         // Save the app
         this.app = app;
 
-        // Save the streamlit preview service
-        this.streamlitPreviewManager = streamlitPreviewManager;
-
         // Initialize assumptions from existing history
         this.initializeAssumptionsFromHistory();
-    }
-
-    private checkIfStreamlitAppIsOpen(): boolean {
-        // Use the service to check if there's an active preview
-        return this.streamlitPreviewManager.hasActivePreview();
     }
 
     private initializeAssumptionsFromHistory(): void {
@@ -136,7 +126,6 @@ export class ChatHistoryManager {
             this.contextManager, 
             this.notebookTracker, 
             this.app,
-            this.streamlitPreviewManager,
             this.displayOptimizedChatHistory
         );
 
@@ -199,11 +188,12 @@ export class ChatHistoryManager {
 
         const aiOptimizedCells = getAIOptimizedCellsInNotebookPanel(notebookPanel)
         const notebookContext = this.contextManager.getNotebookContext(notebookPanel.id);
-        const streamlitAppIsOpen = this.checkIfStreamlitAppIsOpen();
 
         const agentExecutionMetadata: IAgentExecutionMetadata = {
             promptType: 'agent:execution',
             activeCellId: getActiveCellIDInNotebookPanel(notebookPanel) || '',
+            notebookPath: notebookPanel.context.path,
+            notebookID: getNotebookIDAndSetIfNonexistant(notebookPanel) || '',
             variables: notebookContext?.variables || [],
             files: notebookContext?.files || [],
             aiOptimizedCells: aiOptimizedCells,
@@ -211,7 +201,6 @@ export class ChatHistoryManager {
             threadId: activeThreadId,
             isChromeBrowser: isChromeBasedBrowser(),
             additionalContext: additionalContext,
-            streamlitAppIsOpen: streamlitAppIsOpen
         }
 
         // We use this function in two ways: 

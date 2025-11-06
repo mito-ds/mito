@@ -6,12 +6,26 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { FileUploadPopup } from './DeployFilesSelector';
+import { NotebookPanel } from '@jupyterlab/notebook';
+import { getAppNameFromNotebookID } from '../AppPreview/utils';
+import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
+
 
 /**
  * Shows a file selector popup
  */
-export const fileSelectorPopup = (notebookPath: string): Promise<string[]> => {
+export const fileSelectorPopup = (notebookPanel: NotebookPanel): Promise<string[]> => {
   return new Promise<any>((resolve, reject) => {
+
+    const notebookPath = notebookPanel.context.path
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
+
+    if (notebookID === undefined) {
+      // TODO: We should show some error here
+      console.error("Failed to identify NotebookID")
+      return
+    }
+    const appFileName = getAppNameFromNotebookID(notebookID)
 
     console.log("Starting file selector for:", notebookPath);
 
@@ -41,6 +55,7 @@ export const fileSelectorPopup = (notebookPath: string): Promise<string[]> => {
     root.render(
       <FileUploadPopup
         filePath={notebookPath}
+        appFileName={appFileName}
         onClose={handleClose}
         onSubmit={handleSubmit}
       />

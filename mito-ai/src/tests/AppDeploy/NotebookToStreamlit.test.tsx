@@ -94,7 +94,10 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
 
         // Setup mock notebook panel
         mockNotebookPanel = {
-            context: { path: 'test_notebook.ipynb' },
+            context: { 
+                path: 'test_notebook.ipynb',
+                save: jest.fn(),
+            },
             content: { 
                 widgets: [{
                     model: {
