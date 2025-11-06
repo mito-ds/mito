@@ -245,8 +245,10 @@ class AppDeployHandler(BaseWebSocketHandler):
         Returns:
             The URL of the deployed app.
         """
-        # Get app name from the path
-        app_file_name_no_ending = app_file_name.split('.')[0]
+        # Get app name from the path without the file type ending 
+        # ie: if the file is my-app.py, this variable is just my-app
+        # We use it in the app url
+        app_file_name_no_file_extension_ending = app_file_name.split('.')[0]
         self.log.info(f"Deploying app: {app_file_name} from path: {absolute_notebook_dir_path}")
         
         try:
@@ -262,7 +264,7 @@ class AppDeployHandler(BaseWebSocketHandler):
 
             headers["Subscription-Tier"] = 'Pro' if is_pro() else 'Standard'
 
-            url_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/get-upload-url?app_name={app_file_name_no_ending}", headers=headers)
+            url_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/get-upload-url?app_name={app_file_name_no_file_extension_ending}", headers=headers)
             url_response.raise_for_status()
             
             url_data = url_response.json()
