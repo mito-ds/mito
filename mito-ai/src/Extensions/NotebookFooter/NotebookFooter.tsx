@@ -13,7 +13,7 @@ import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
 import { userSignupEvents } from '../../utils/userSignupEvents';
-import { isUserSignedUp } from '../../utils/userSignupState';
+import { useUserSignup } from '../AiChat/hooks/useUserSignup';
 
 interface NotebookFooterProps {
     notebookTracker: INotebookTracker;
@@ -25,13 +25,7 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
 
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-    const [isSignedUp, setIsSignedUp] = useState(true);
-
-    // Function to refresh user signup state using the shared helper
-    const refreshUserSignupState = async (): Promise<void> => {
-        const signedUp = await isUserSignedUp();
-        setIsSignedUp(signedUp);
-    };
+    const { isSignedUp, refreshUserSignupState } = useUserSignup();
 
     useEffect(() => {
         void refreshUserSignupState();
