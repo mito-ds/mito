@@ -92,6 +92,10 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         // Only set status if there are actually changes to review
         if (counts.total > 0) {
             setAgentReviewStatus('in-agent-code-review');
+            // Scroll to show the new review controls after the UI updates
+            setTimeout(() => {
+                scrollToDiv(chatTaskpaneMessagesRef);
+            }, 0);
         }
     }
 
@@ -117,7 +121,7 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     if (agentReviewStatus === 'pre-agent-code-review') {
         return (
             <div className='message message-assistant-chat'>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="agent-change-controls-buttons">
                     <TextButton
                         text="Review Changes"
                         title="Review the changes made by the agent"
@@ -140,7 +144,7 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     if (agentReviewStatus === 'in-agent-code-review') {
         return (
             <div className='message message-assistant-chat'>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="agent-change-controls-container">
                     {changeCounts && (
                         <div className="agent-change-counts">
                             <span className="agent-change-count">
@@ -169,7 +173,7 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
                             </span>
                         </div>
                     )}
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div className="agent-change-controls-buttons">
                         <button
                             className="button-base button-green"
                             title="Accept all changes"

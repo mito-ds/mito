@@ -50,3 +50,15 @@
     color: var(--muted-text-color);
 }
 
+.agent-change-controls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.agent-change-controls-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
