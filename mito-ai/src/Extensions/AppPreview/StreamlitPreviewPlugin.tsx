@@ -122,7 +122,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     notebookPanel: NotebookPanel,
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
     
-    // If there user has a different app open, we first close that one
+    // If the user has a different app open, we first close that one
     if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
       this.closeCurrentPreview();
     }
@@ -135,6 +135,13 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID);
 
     if (streamlitPreviewResponse.type === 'error') {
+      return streamlitPreviewResponse
+    }
+
+    if (this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
+      // If there is already a preview window for the current app, 
+      // then don't create a new widget. The backend will update the 
+      // .py file and the app preview will update automatically
       return streamlitPreviewResponse
     }
     
