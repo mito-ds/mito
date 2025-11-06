@@ -34,7 +34,7 @@ interface AgentReviewPanelProps {
     // Required props
     app: JupyterFrontEnd;
     notebookTracker: INotebookTracker;
-    chatMessagesRef: React.RefObject<HTMLDivElement>;
+    chatTaskpaneMessagesRef: React.RefObject<HTMLDivElement>;
 }
 
 const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
@@ -55,7 +55,7 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     setChatHistoryManager,
     app,
     notebookTracker,
-    chatMessagesRef
+    chatTaskpaneMessagesRef
 }) => {
     return (
         <>
@@ -71,7 +71,7 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
                         setHasCheckpoint={setHasCheckpoint}
                         setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
                         setShowRevertQuestionnaire={setShowRevertQuestionnaire}
-                        chatMessagesRef={chatMessagesRef}
+                        chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
                         acceptAllAICode={acceptAllAICode}
                         rejectAllAICode={rejectAllAICode}
                         agentReviewStatus={agentReviewStatus}
