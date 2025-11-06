@@ -170,7 +170,7 @@ class AppDeployHandler(BaseWebSocketHandler):
             error = AppDeployError(
                 error_type="AppNotFound",
                 message="App not found",
-                hint="Please make sure the app.py file exists in the same directory as the notebook.",
+                hint=f"Please make sure the {app_file_name} file exists in the same directory as the notebook.",
                 error_code=400,
                 message_id=message_id
             )
