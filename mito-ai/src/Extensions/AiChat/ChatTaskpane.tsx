@@ -251,62 +251,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         getDefaultChatHistoryManager,
     });
 
-    // Main initialization effect - runs once on mount
-    useEffect(() => {
-        const initializeChatHistory = async (): Promise<void> => {
-            try {
-                // Get initial model from localStorage or default
-                const initialModel = getInitialModel();
-
-                // Set the model on backend when the taskpane is opened
-                void updateModelOnBackend(initialModel);
-
-                // 1. Fetch available chat threads.
-                const fetchedThreads = await fetchChatThreads();
-
-                // 2. If threads exist, load the latest thread; otherwise, start a new chat.
-                if (fetchedThreads.length > 0) {
-                    const latestThread = fetchedThreads[0]!;
-                    await fetchChatHistoryAndSetActiveThread(latestThread.thread_id);
-                } else {
-                    await startNewChat();
-                }
-
-                const firstMessage = getFirstMessage();
-                if (firstMessage) {
-                    await waitForNotebookReady(notebookTracker);
-                    await startNewChat();
-                    await agentExecution.startAgentExecution(firstMessage, setAgentReviewStatus);
-                }
-
-            } catch (error: unknown) {
-                const newChatHistoryManager = getDefaultChatHistoryManager(
-                    notebookTracker,
-                    contextManager,
-                    app,
-                    streamlitPreviewManager
-                );
-                addAIMessageFromResponseAndUpdateState(
-                    (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,
-                    'chat',
-                    newChatHistoryManager,
-                    false
-                );
-                addAIMessageFromResponseAndUpdateState(
-                    (error as { hint?: string }).hint ? (error as { hint?: string }).hint! : `${error}`,
-                    'chat',
-                    newChatHistoryManager,
-                    true
-                );
-            }
-        };
-
-        void logEvent('opened_ai_chat_taskpane');
-        void initializeChatHistory(); 
-        void refreshUserSignupState(); // Get user signup state when the component first mounts
-
-    }, [websocketClient]);
-
     const getDuplicateChatHistoryManager = (): ChatHistoryManager => {
 
         /*
@@ -759,6 +703,62 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         agentTargetNotebookPanelRef,
         setAgentReviewStatus
     });
+
+    // Main initialization effect - runs once on mount
+    useEffect(() => {
+        const initializeChatHistory = async (): Promise<void> => {
+            try {
+                // Get initial model from localStorage or default
+                const initialModel = getInitialModel();
+
+                // Set the model on backend when the taskpane is opened
+                void updateModelOnBackend(initialModel);
+
+                // 1. Fetch available chat threads.
+                const fetchedThreads = await fetchChatThreads();
+
+                // 2. If threads exist, load the latest thread; otherwise, start a new chat.
+                if (fetchedThreads.length > 0) {
+                    const latestThread = fetchedThreads[0]!;
+                    await fetchChatHistoryAndSetActiveThread(latestThread.thread_id);
+                } else {
+                    await startNewChat();
+                }
+
+                const firstMessage = getFirstMessage();
+                if (firstMessage) {
+                    await waitForNotebookReady(notebookTracker);
+                    await startNewChat();
+                    await agentExecution.startAgentExecution(firstMessage, setAgentReviewStatus);
+                }
+
+            } catch (error: unknown) {
+                const newChatHistoryManager = getDefaultChatHistoryManager(
+                    notebookTracker,
+                    contextManager,
+                    app,
+                    streamlitPreviewManager
+                );
+                addAIMessageFromResponseAndUpdateState(
+                    (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,
+                    'chat',
+                    newChatHistoryManager,
+                    false
+                );
+                addAIMessageFromResponseAndUpdateState(
+                    (error as { hint?: string }).hint ? (error as { hint?: string }).hint! : `${error}`,
+                    'chat',
+                    newChatHistoryManager,
+                    true
+                );
+            }
+        };
+
+        void logEvent('opened_ai_chat_taskpane');
+        void initializeChatHistory(); 
+        void refreshUserSignupState(); // Get user signup state when the component first mounts
+
+    }, [websocketClient]);
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
 
