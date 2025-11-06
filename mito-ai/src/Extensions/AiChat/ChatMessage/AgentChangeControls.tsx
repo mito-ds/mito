@@ -190,7 +190,7 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
                     </div>
                     {reviewProgress && reviewProgress.total > 0 && (
                         <div className="agent-review-progress">
-                            {reviewProgress.reviewed}/{reviewProgress.total} changes reviewed so far
+                            {reviewProgress.reviewed}/{reviewProgress.total} changes reviewed
                         </div>
                     )}
                 </div>
