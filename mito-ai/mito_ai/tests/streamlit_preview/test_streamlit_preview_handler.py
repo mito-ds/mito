@@ -38,13 +38,16 @@ class TestStreamlitPreviewHandler:
         """Test StreamlitPreviewHandler POST method with various scenarios."""
         with tempfile.TemporaryDirectory() as temp_dir:
             notebook_path = os.path.join(temp_dir, "test_notebook.ipynb")
-            app_path = os.path.join(temp_dir, "app.py")
+            notebook_id = "test_notebook_id"
+            # App file name is derived from notebook_id
+            app_file_name = f"{notebook_id}.py"
+            app_path = os.path.join(temp_dir, app_file_name)
             
             # Create notebook file
             with open(notebook_path, "w") as f:
                 f.write('{"cells": []}')
             
-            # Create app.py file if it should exist
+            # Create app file if it should exist
             if app_exists:
                 with open(app_path, "w") as f:
                     f.write("import streamlit as st\nst.write('Hello World')")
@@ -78,6 +81,7 @@ class TestStreamlitPreviewHandler:
             # Mock streamlit_handler and preview manager
             with patch.object(handler, 'get_json_body', return_value={
                 "notebook_path": notebook_path,
+                "notebook_id": notebook_id,
                 "force_recreate": force_recreate,
                 "edit_prompt": ""
             }), \
@@ -93,10 +97,11 @@ class TestStreamlitPreviewHandler:
                 # Verify streamlit_handler was called or not called as expected
                 if streamlit_handler_called:
                     assert mock_streamlit_handler.called
-                    # Verify it was called with the absolute notebook path
+                    # Verify it was called with the correct arguments
                     call_args = mock_streamlit_handler.call_args
-                    assert call_args[0][0] == notebook_path  # First argument should be the notebook path
-                    assert call_args[0][1] == ""  # Second argument should be the edit_prompt
+                    assert call_args[0][0] == os.path.abspath(notebook_path)  # First argument should be the absolute notebook path
+                    assert call_args[0][1] == app_file_name  # Second argument should be the app file name
+                    assert call_args[0][2] == ""  # Third argument should be the edit_prompt
                 else:
                     mock_streamlit_handler.assert_not_called()
                 

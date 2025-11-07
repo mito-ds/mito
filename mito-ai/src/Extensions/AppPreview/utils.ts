@@ -3,13 +3,16 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import { PathExt } from "@jupyterlab/coreutils";
 import { startStreamlitPreview } from "../../restAPI/RestAPI";
 import { StreamlitPreviewResponseError, StreamlitPreviewResponseSuccess } from "./StreamlitPreviewPlugin";
 import { Dialog, Notification, showDialog } from "@jupyterlab/apputils";
+import { NotebookPanel } from '@jupyterlab/notebook';
 
 
 export const startStreamlitPreviewAndNotify = async (
   notebookPath: string,
+  notebookID: string | undefined,
   force_recreate: boolean = false,
   edit_prompt: string = '',
   start_notification_message: string = 'Building App Preview...',
@@ -22,7 +25,7 @@ export const startStreamlitPreviewAndNotify = async (
     { autoClose: false }
   );
 
-  const previewData = await startStreamlitPreview(notebookPath, force_recreate, edit_prompt);
+  const previewData = await startStreamlitPreview(notebookPath, notebookID, force_recreate, edit_prompt);
 
   if (previewData.type === 'success') {
     // Update notification to success
@@ -46,7 +49,7 @@ export const startStreamlitPreviewAndNotify = async (
 }
 
 
-export async function showRecreateAppConfirmation(notebookPath: string): Promise<void> {
+export async function showRecreateAppConfirmation(notebookPath: string, notebookID: string | undefined): Promise<void> {
   const result = await showDialog({
     title: 'Recreate App',
     body: 'This will recreate the app from scratch, discarding all your current edits. This action cannot be undone. Are you sure you want to continue?',
@@ -58,6 +61,18 @@ export async function showRecreateAppConfirmation(notebookPath: string): Promise
   });
 
   if (result.button.accept) {
-    void startStreamlitPreviewAndNotify(notebookPath, true, undefined, 'Recreating app from scratch...', 'App recreated successfully!');
+    void startStreamlitPreviewAndNotify(notebookPath, notebookID, true, undefined, 'Recreating app from scratch...', 'App recreated successfully!');
   }
+}
+
+export const getAppPreviewNameFromNotebookPanel = (notebookPanel: NotebookPanel): string => {
+  const notebookPath = notebookPanel.context.path;
+  const notebookName = PathExt.basename(notebookPath, '.ipynb');
+  return `App Preview (${notebookName})`;
+}
+
+export const getAppNameFromNotebookID= (notebookID: string): string => {
+  let appName = notebookID.replace('mito-notebook-', 'mito-app-')
+  appName = appName + '.py'
+  return appName
 }

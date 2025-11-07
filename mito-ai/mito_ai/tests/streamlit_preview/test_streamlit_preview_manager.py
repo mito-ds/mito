@@ -78,7 +78,7 @@ st.write("Hello, World!")
             mock_requests_get.return_value = mock_response
             
             # Test
-            port = manager.start_streamlit_preview(app_directory, preview_id)
+            port = manager.start_streamlit_preview(app_directory, 'test-file-name.py',  preview_id)
             
             # Assertions
             assert isinstance(port, int)
@@ -108,7 +108,7 @@ st.write("Hello, World!")
             app_directory = "/tmp/test_dir"
             
             with pytest.raises(StreamlitPreviewError) as exc_info:
-                manager.start_streamlit_preview(app_directory, "test_preview")
+                manager.start_streamlit_preview(app_directory, 'test-file-name.py',  "test_preview")
             
             assert expected_message in str(exc_info.value).lower()
     
@@ -142,7 +142,7 @@ st.write("Hello, World!")
                 mock_open.return_value.__enter__.return_value = mock_file
                 mock_exists.return_value = True
                 
-                manager.start_streamlit_preview(app_directory, preview_id)
+                manager.start_streamlit_preview(app_directory, 'test-file-name.py',  preview_id)
     
     @pytest.mark.parametrize("process_behavior,expected_kill_called", [
         (subprocess.TimeoutExpired("cmd", 5), True),
@@ -175,7 +175,7 @@ st.write("Hello, World!")
             mock_exists.return_value = True
             
             # Start a preview
-            manager.start_streamlit_preview(app_directory, "test_preview")
+            manager.start_streamlit_preview(app_directory, 'test-file-name.py',  "test_preview")
             
             # Setup process behavior for stop
             if process_behavior:
@@ -215,7 +215,7 @@ st.write("Hello, World!")
                 mock_open.return_value.__enter__.return_value = mock_file
                 mock_exists.return_value = True
                 
-                manager.start_streamlit_preview("/tmp/test_dir", preview_id)
+                manager.start_streamlit_preview("/tmp/test_dir", 'test-file-name.py', preview_id)
         
         preview = manager.get_preview(preview_id)
         
@@ -272,7 +272,7 @@ st.write("Hello, World!")
             
             # Start multiple previews
             for preview_id in preview_ids:
-                port = manager.start_streamlit_preview("/tmp/test_dir", preview_id)
+                port = manager.start_streamlit_preview("/tmp/test_dir", 'test-file-name.py', preview_id)
                 ports.append(port)
             
             # Assertions

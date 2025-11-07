@@ -16,12 +16,14 @@ const CloseIcon = closeIcon.react;
 
 interface FileUploadPopupProps {
   filePath: string,
+  appFileName: string,
   onClose: () => void;
   onSubmit: (items: string[]) => void;
 }
 
 export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
   filePath,
+  appFileName,
   onClose,
   onSubmit
 }) => {
@@ -36,7 +38,7 @@ export const FileUploadPopup: React.FC<FileUploadPopupProps> = ({
     return parts.join('/');
   };
 
-  const alwaysSelected = ['requirements.txt', 'app.py'];
+  const alwaysSelected = ['requirements.txt', appFileName];
   useEffect(() => {
     const nbDir = getNotebookDir();
     const apiPath = nbDir ? `/api/contents/${nbDir}` : '/api/contents/';

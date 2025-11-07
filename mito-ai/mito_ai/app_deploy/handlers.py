@@ -6,7 +6,7 @@ import time
 import logging
 from typing import Any, Union, List, Optional
 import tempfile
-from mito_ai.path_utils import AbsoluteAppPath, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path
+from mito_ai.path_utils import AbsoluteNotebookDirPath, AppFileName, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path, get_app_file_name
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.error_classes import StreamlitDeploymentError
 from mito_ai.utils.version_utils import is_pro
@@ -117,24 +117,25 @@ class AppDeployHandler(BaseWebSocketHandler):
         """
         message_id = message.message_id
         notebook_path = message.notebook_path
+        notebook_id = message.notebook_id
         jwt_token = message.jwt_token
         files_to_upload = message.selected_files
         
+        # Validate parameters
+        missing_required_parameters = []
         if not message_id:
-            self.log.error("Missing message_id in request")
+            missing_required_parameters.append('message_id')
+        if not notebook_id:
+            missing_required_parameters.append('notebook_id')
+        if not notebook_path:
+            missing_required_parameters.append('notebook_path')
+            
+        if len(missing_required_parameters) > 0:
+            error_message = f"Missing required request parameters: {', '.join(missing_required_parameters)}"
+            self.log.error(error_message)
             error = AppDeployError(
                 error_type="BadRequest",
-                message="Missing message_id in request",
-                error_code=400,
-                message_id=message_id
-            )
-            raise StreamlitDeploymentError(error)
-
-        if not notebook_path:
-            self.log.error("Missing notebook_path in request")
-            error = AppDeployError(
-                error_type="InvalidRequest",
-                message="Missing 'notebook_path' parameter",
+                message=error_message,
                 error_code=400,
                 message_id=message_id
             )
@@ -160,7 +161,8 @@ class AppDeployHandler(BaseWebSocketHandler):
         notebook_path = str(notebook_path) if notebook_path else ""
         absolute_notebook_path = get_absolute_notebook_path(notebook_path)
         absolute_app_directory = get_absolute_notebook_dir_path(absolute_notebook_path)
-        app_path = get_absolute_app_path(absolute_app_directory)
+        app_file_name = get_app_file_name(notebook_id)
+        app_path = get_absolute_app_path(absolute_app_directory, app_file_name)
 
         # Check if the app.py file exists
         app_path_exists = does_app_path_exist(app_path)
@@ -168,14 +170,20 @@ class AppDeployHandler(BaseWebSocketHandler):
             error = AppDeployError(
                 error_type="AppNotFound",
                 message="App not found",
-                hint="Please make sure the app.py file exists in the same directory as the notebook.",
+                hint=f"Please make sure the {app_file_name} file exists in the same directory as the notebook.",
                 error_code=400,
                 message_id=message_id
             )
             raise StreamlitDeploymentError(error)
 
         # Finally, deploy the app
-        deploy_url = await self._deploy_app(app_path, files_to_upload, message_id, jwt_token)
+        deploy_url = await self._deploy_app(
+            absolute_app_directory, 
+            app_file_name,
+            files_to_upload, 
+            message_id,
+            jwt_token
+        )
 
         # Send the response
         return DeployAppReply(
@@ -218,7 +226,15 @@ class AppDeployHandler(BaseWebSocketHandler):
             return False
 
 
-    async def _deploy_app(self, app_path: AbsoluteAppPath, files_to_upload:List[str], message_id: str, jwt_token: str = '') -> Optional[str]:
+    async def _deploy_app(
+        self,
+        absolute_notebook_dir_path: AbsoluteNotebookDirPath, 
+        app_file_name: AppFileName, 
+        files_to_upload:List[str], 
+        message_id: str, 
+        jwt_token: str = ''
+    ) -> Optional[str]:
+        
         """Deploy the app using pre-signed URLs.
         
         Args:
@@ -229,9 +245,11 @@ class AppDeployHandler(BaseWebSocketHandler):
         Returns:
             The URL of the deployed app.
         """
-        # Get app name from the path
-        app_name = os.path.basename(app_path).split('.')[0]
-        self.log.info(f"Deploying app: {app_name} from path: {app_path}")
+        # Get app name from the path without the file type ending 
+        # ie: if the file is my-app.py, this variable is just my-app
+        # We use it in the app url
+        app_file_name_no_file_extension_ending = app_file_name.split('.')[0]
+        self.log.info(f"Deploying app: {app_file_name} from path: {absolute_notebook_dir_path}")
         
         try:
             # Step 1: Get pre-signed URL from API
@@ -246,7 +264,7 @@ class AppDeployHandler(BaseWebSocketHandler):
 
             headers["Subscription-Tier"] = 'Pro' if is_pro() else 'Standard'
 
-            url_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/get-upload-url?app_name={app_name}", headers=headers)
+            url_response = requests.get(f"{ACTIVE_STREAMLIT_BASE_URL}/get-upload-url?app_name={app_file_name_no_file_extension_ending}", headers=headers)
             url_response.raise_for_status()
             
             url_data = url_response.json()
@@ -263,7 +281,7 @@ class AppDeployHandler(BaseWebSocketHandler):
                     temp_zip_path = temp_zip.name
 
                 self.log.info("Zipping application files...")
-                add_files_to_zip(temp_zip_path, app_path, files_to_upload, self.log)
+                add_files_to_zip(temp_zip_path, absolute_notebook_dir_path, files_to_upload, app_file_name, self.log)
 
                 upload_response = await self._upload_app_to_s3(temp_zip_path, presigned_url)
             except Exception as e:

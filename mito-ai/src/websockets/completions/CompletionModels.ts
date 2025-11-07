@@ -87,6 +87,8 @@ export interface IAgentExecutionMetadata {
   promptType: 'agent:execution'
   aiOptimizedCells: AIOptimizedCell[]
   activeCellId: string;
+  notebookPath: string;
+  notebookID: string;
   base64EncodedActiveCellOutput?: string;
   variables?: Variable[];
   files?: File[];
@@ -95,7 +97,6 @@ export interface IAgentExecutionMetadata {
   threadId: string;
   isChromeBrowser: boolean;
   additionalContext?: Array<{type: string, value: string}>;
-  streamlitAppIsOpen?: boolean;
 }
 
 export interface IAgentSmartDebugMetadata {

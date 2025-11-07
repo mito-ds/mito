@@ -6,7 +6,7 @@ from mito_ai.streamlit_preview.utils import validate_request_body
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.streamlit_preview.manager import StreamlitPreviewManager
-from mito_ai.path_utils import get_absolute_notebook_dir_path, get_absolute_notebook_path, get_absolute_app_path, does_app_path_exist
+from mito_ai.path_utils import get_absolute_notebook_dir_path, get_absolute_notebook_path, get_absolute_app_path, does_app_path_exist, get_app_file_name
 from mito_ai.utils.telemetry_utils import log_streamlit_app_conversion_error, log_streamlit_app_preview_failure, log_streamlit_app_preview_success
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.error_classes import StreamlitConversionError, StreamlitPreviewError
@@ -27,12 +27,13 @@ class StreamlitPreviewHandler(APIHandler):
         try:
             # Parse and validate request
             body = self.get_json_body()
-            notebook_path, force_recreate, edit_prompt = validate_request_body(body)
+            notebook_path, notebook_id, force_recreate, edit_prompt = validate_request_body(body)
 
             # Ensure app exists
             absolute_notebook_path = get_absolute_notebook_path(notebook_path)
             absolute_notebook_dir_path = get_absolute_notebook_dir_path(absolute_notebook_path)
-            absolute_app_path = get_absolute_app_path(absolute_notebook_dir_path)
+            app_file_name = get_app_file_name(notebook_id)
+            absolute_app_path = get_absolute_app_path(absolute_notebook_dir_path, app_file_name)
             app_path_exists = does_app_path_exist(absolute_app_path)
 
             if not app_path_exists or force_recreate:
@@ -41,14 +42,14 @@ class StreamlitPreviewHandler(APIHandler):
                 else:
                     print("[Mito AI] Force recreating streamlit app")
 
-                await streamlit_handler(absolute_notebook_path, edit_prompt)
+                await streamlit_handler(absolute_notebook_path, app_file_name, edit_prompt)
 
             # Start preview
             # TODO: There's a bug here where when the user rebuilds and already running app. Instead of 
             # creating a new process, we should update the existing process. The app displayed to the user 
             # does update, but that's just because of hot reloading when we overwrite the app.py file. 
             preview_id = str(uuid.uuid4())
-            port = self.preview_manager.start_streamlit_preview(absolute_notebook_dir_path, preview_id)
+            port = self.preview_manager.start_streamlit_preview(absolute_notebook_dir_path, app_file_name, preview_id)
 
             # Return success response
             self.finish({

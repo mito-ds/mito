@@ -9,6 +9,7 @@ import requests
 from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
 from mito_ai.logger import get_logger
+from mito_ai.path_utils import AbsoluteNotebookDirPath, AppFileName
 from mito_ai.utils.error_classes import StreamlitPreviewError
 
 
@@ -36,7 +37,7 @@ class StreamlitPreviewManager:
         
         return port
     
-    def start_streamlit_preview(self, app_directory: str, preview_id: str) -> int:
+    def start_streamlit_preview(self, app_directory: AbsoluteNotebookDirPath, app_file_name: AppFileName, preview_id: str) -> int:
         """Start a streamlit preview process.
         
         Args:
@@ -46,6 +47,7 @@ class StreamlitPreviewManager:
         Returns:
             Tuple of (success, message, port)
         """
+        
         try:
             
             # Get free port
@@ -53,12 +55,12 @@ class StreamlitPreviewManager:
             
             # Start streamlit process
             cmd = [
-                "streamlit", "run", 'app.py', # Since we run this command from the app_directory, we always just run app.py 
+                "streamlit", "run", app_file_name,
                 "--server.port", str(port),
                 "--server.headless", "true",
                 "--server.address", "localhost",
                 "--server.enableXsrfProtection", "false",
-                "--server.runOnSave", "true",  # auto-reload when app.py is saved
+                "--server.runOnSave", "true",  # auto-reload when app is saved
                 "--logger.level", "error"
             ]
             
