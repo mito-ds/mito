@@ -70,6 +70,9 @@ class DeployAppRequest:
     
     # Path to the app file.
     notebook_path: str
+    
+    # Notebook ID
+    notebook_id: str
 
     # Files to be uploaded for the app to run
     selected_files: List[str]

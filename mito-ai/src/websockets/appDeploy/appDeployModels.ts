@@ -17,6 +17,7 @@ export interface IAppDeployRequest {
 export interface IDeployAppRequest extends IAppDeployRequest {
   type: 'deploy_app'
   notebook_path: string,
+  notebook_id: string | undefined,
   selected_files: string[],
   jwt_token?: string
 }

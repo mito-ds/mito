@@ -9,6 +9,7 @@ import { classNames } from '../../utils/classNames';
 import { createRoot } from 'react-dom/client';
 import { startStreamlitPreviewAndNotify } from './utils';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
 
 /**
  * Show the update app dropdown.
@@ -24,6 +25,7 @@ export const showUpdateAppDropdown = (
     }
 
     const notebookPath = notebookPanel.context.path;
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
 
     // Create dropdown container
     const dropdownContainer = document.createElement('div');
@@ -43,7 +45,7 @@ export const showUpdateAppDropdown = (
             onSubmit={async (message) => {
                 // Save the notebook first to ensure app reads up to date version
                 await notebookPanel.context.save();
-                await startStreamlitPreviewAndNotify(notebookPath, true, message, 'Updating app...', 'App updated successfully!');
+                await startStreamlitPreviewAndNotify(notebookPath, notebookID, true, message, 'Updating app...', 'App updated successfully!');
                 dropdownContainer.remove();
             }}
             onClose={() => {

@@ -13,7 +13,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
 from mito_ai.completions.prompt_builders.utils import (
     get_rules_str,
     get_selected_context_str,
-    get_streamlit_app_status_str,
+    get_streamlit_app_status_str
 )
 
 
@@ -23,7 +23,10 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
     rules_str = get_rules_str(md.additionalContext)
     selected_context_str = get_selected_context_str(md.additionalContext)
-    streamlit_status_str = get_streamlit_app_status_str(md.streamlitAppIsOpen)
+    
+
+    streamlit_status_str = get_streamlit_app_status_str(md.notebookID, md.notebookPath)    
+    
     context_str = f"""Remember to choose the correct tool to respond with.
 
 {rules_str}
