@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import demoVideoStyles from './DemoVideo.module.css';
 
 const DEMO_GIF_URL = 'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/demo-videos/Demo%20Video%20-%20Nov%202025_FINAL.gif';
@@ -71,6 +71,22 @@ const DemoVideo = (): JSX.Element => {
       handleCloseModal();
     }
   };
+
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showVideo) {
+        handleCloseModal();
+      }
+    };
+
+    if (showVideo) {
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [showVideo]);
 
   return (
     <>
