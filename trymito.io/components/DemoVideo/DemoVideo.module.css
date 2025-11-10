@@ -80,8 +80,8 @@
 
 .closeButton {
   position: absolute;
-  top: -2.5rem;
-  right: 0;
+  top: 1rem;
+  right: 1rem;
   background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: 50%;
