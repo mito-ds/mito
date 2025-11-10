@@ -6,6 +6,8 @@
 .title_card {
     padding-top: 4rem;
     padding-bottom: 2rem;
+    position: relative; /* enable overlay positioning */
+    overflow: hidden;   /* clip overlay edges */
 }
 
 .grid_card {
@@ -214,5 +216,57 @@
     }
     100% {
         background-position: 0% 50%;
+    }
+}
+
+/* Subtle animated grid overlay with light parallax */
+.title_card::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    right: -10%;
+    bottom: -10%;
+    /* Pure CSS subtle grid – no external asset required */
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.035) 0px,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px,
+            transparent 80px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.035) 0px,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px,
+            transparent 80px
+        );
+    background-repeat: repeat;
+    background-position: 0 0;
+    /* Use alpha in gradients for subtlety; keep full overlay opacity */
+    opacity: 1;
+    pointer-events: none;
+    background-attachment: fixed; /* simple parallax effect */
+    animation: gridDrift 60s linear infinite;
+    z-index: 0; /* place beneath content */
+}
+
+@keyframes gridDrift {
+    0%   { background-position: 0px 0px; }
+    50%  { background-position: 200px 120px; }
+    100% { background-position: 0px 0px; }
+}
+
+/* Ensure content stays above the overlay */
+.title_card > * {
+    position: relative;
+    z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .title_card::before {
+        animation: none;
     }
 }

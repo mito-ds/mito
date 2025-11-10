@@ -12,7 +12,7 @@
     box-sizing: border-box;
     width: 100%;
 
-    z-index: 1; /* Make sure everything scrolls behind the nav bar */
+    z-index: 1000; /* Ensure content scrolls behind the nav bar */
 }
 
 .navbar {
