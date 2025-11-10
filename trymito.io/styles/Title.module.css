@@ -63,7 +63,7 @@
     }
 
     .title {
-        font-size: 3rem;
+        font-size: 4rem;
         max-width: 100%;
     }
 
@@ -75,6 +75,7 @@
     .description {
         max-width: 80%;
         font-size: 1.5rem;
+        line-height: 2;
     }
 }
 

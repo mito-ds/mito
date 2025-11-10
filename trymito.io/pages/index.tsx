@@ -48,10 +48,10 @@ const Home: NextPage = () => {
                 <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
                   <span>From Data to{' '}</span>
                   <span className={titleStyles.cycling_text}>
-                    <span className={titleStyles.cycling_word} data-word="insights">insights</span>
-                    <span className={titleStyles.cycling_word} data-word="automations">automations</span>
-                    <span className={titleStyles.cycling_word} data-word="dashboards">dashboards</span>
-                    <span className={titleStyles.cycling_word} data-word="internal tools">internal tool</span>
+                    <span className={titleStyles.cycling_word} data-word="insights">Insights</span>
+                    <span className={titleStyles.cycling_word} data-word="automations">Automations</span>
+                    <span className={titleStyles.cycling_word} data-word="dashboards">Dashboards</span>
+                    <span className={titleStyles.cycling_word} data-word="internal tools">Internal Tool</span>
                     <span className={titleStyles.cycling_word} data-word="Agent">Agent</span>
                   </span>
                 </h1>
