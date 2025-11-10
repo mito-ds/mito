@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import demoVideoStyles from './DemoVideo.module.css';
 
 const DEMO_GIF_URL = 'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/demo-videos/Demo%20Video%20-%20Nov%202025_FINAL.gif';
@@ -57,6 +58,11 @@ const renderVideoModal = (
 
 const DemoVideo = (): JSX.Element => {
   const [showVideo, setShowVideo] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleGifClick = () => {
     setShowVideo(true);
@@ -118,7 +124,10 @@ const DemoVideo = (): JSX.Element => {
         </div>
       </div>
 
-      {showVideo && renderVideoModal(handleCloseModal, handleModalBackdropClick)}
+      {mounted && showVideo && createPortal(
+        renderVideoModal(handleCloseModal, handleModalBackdropClick),
+        document.body
+      )}
     </>
   );
 };

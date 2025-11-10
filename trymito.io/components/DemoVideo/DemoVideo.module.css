@@ -64,7 +64,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000; /* above fixed header */
   padding: 2rem;
 }
 
@@ -93,7 +93,7 @@
   cursor: pointer;
   color: white;
   transition: all 0.3s ease;
-  z-index: 1001;
+  z-index: 2001;
 }
 
 .closeButton:hover {
