@@ -15,7 +15,7 @@
   width: 100%;
   max-width: 1200px;
   border-radius: 1rem;
-  border: 5px solid var(--color-light-purple);
+  border: 5px solid color-mix(in srgb, var(--color-light-purple) 25%, transparent);
   cursor: pointer;
   overflow: hidden;
 }
