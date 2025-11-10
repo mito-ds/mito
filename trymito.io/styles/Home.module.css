@@ -3,6 +3,27 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+.hero_content_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin: 2rem;
+}
+
+.hero_text_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.hero_video_container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .cta_button_and_video_spacer {
   margin-bottom: 32px;
   display: flex;
@@ -81,10 +102,30 @@
   margin: 20px;
 }
 
-@media only screen and (min-width: 50em) {
+/* Only switch to side-by-side layout on larger screens */
+@media only screen and (min-width: 75em) {
+  .hero_content_container {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 3rem;
+  }
+
+  .hero_text_container {
+    flex: 1;
+    align-items: flex-start;
+    max-width: 50%;
+  }
+
+  .hero_video_container {
+    flex: 1;
+    max-width: 50%;
+    display: flex;
+    align-items: flex-start;
+  }
 
   .cta_buttons_homepage_container {
     gap: 25px;
+    justify-content: flex-start;
   }
 
   .video {

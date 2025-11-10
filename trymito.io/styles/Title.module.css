@@ -46,7 +46,7 @@
 
     .title {
         font-size: 3rem;
-        max-width: 60vw;
+        max-width: 100%;
     }
 
     .subtitle {
@@ -55,8 +55,19 @@
     }
 
     .description {
-        max-width: 50rem;
+        max-width: 100%;
         font-size: 1.5rem;
+    }
+}
+
+/* Left-align text only on larger screens when side-by-side */
+@media only screen and (min-width: 75em) {
+    .title {
+        text-align: left;
+    }
+
+    .description {
+        text-align: left;
     }
 }
 
