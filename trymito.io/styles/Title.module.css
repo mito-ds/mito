@@ -6,16 +6,11 @@
 .title_card {
     padding-top: 4rem;
     padding-bottom: 2rem;
-    position: relative; /* enable overlay positioning */
-    overflow: hidden;   /* clip overlay edges */
 }
 
 .grid_card {
-    background-image: url('../public/BackgroundGrid.svg');
-    background-size: contain;
-    --aspect-ratio: 2.8;
-    background-repeat: no-repeat;
-    background-position: center;
+    position: relative; /* enable overlay positioning */
+    overflow: hidden;   /* clip overlay edges */
 }
 
 .title {
@@ -219,8 +214,8 @@
     }
 }
 
-/* Subtle animated grid overlay with light parallax */
-.title_card::before {
+/* Subtle animated grid overlay with light parallax - applies wherever .grid_card is used */
+.grid_card::before {
     content: '';
     position: absolute;
     top: -10%;
@@ -260,13 +255,13 @@
 }
 
 /* Ensure content stays above the overlay */
-.title_card > * {
+.grid_card > * {
     position: relative;
     z-index: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .title_card::before {
+    .grid_card::before {
         animation: none;
     }
 }

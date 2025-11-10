@@ -42,7 +42,7 @@ const Home: NextPage = () => {
       <div className={pageStyles.container}>
 
         <main className={pageStyles.main}>
-          <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
+          <section className={classNames(pageStyles.background_card, titleStyles.title_card, titleStyles.grid_card)}>
             <div className={homeStyles.hero_content_container}>
               <div className={homeStyles.hero_text_container}>
                 <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
