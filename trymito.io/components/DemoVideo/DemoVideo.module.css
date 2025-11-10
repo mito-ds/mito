@@ -1,0 +1,130 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.container {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+
+.gifContainer {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 1rem;
+  border: 5px solid color-mix(in srgb, var(--color-light-purple) 25%, transparent);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.gifContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.gif {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.3s ease;
+  z-index: 2;
+}
+
+.gifContainer:hover .playButton {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; /* above fixed header */
+  padding: 2rem;
+}
+
+.modalContent {
+  position: relative;
+  width: 100%;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+  z-index: 2001;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.modalVideo {
+  width: 100%;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 1rem;
+  background: var(--color-video-background);
+  border: 5px solid var(--color-light-purple);
+}
+
+@media only screen and (min-width: 50em) {
+  .gifContainer {
+    max-width: 85vw;
+  }
+
+  .gif {
+    max-height: 40rem;
+    object-fit: contain;
+  }
+}
+
+/* Remove margin-top only on larger screens when side-by-side */
+@media only screen and (min-width: 75em) {
+  .container {
+    margin-top: 0;
+  }
+}
+
