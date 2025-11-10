@@ -7,7 +7,8 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 
 // Function to generate requirements.txt content using the kernel with pipreqs
 export const generateRequirementsTxt = async (
-  notebookPanel: NotebookPanel
+  notebookPanel: NotebookPanel,
+  appFilename: string
 ): Promise<string> => {
 
   // Initialize with fallback requirements in case kernel execution fails
@@ -17,17 +18,18 @@ export const generateRequirementsTxt = async (
     // Use the kernel to execute Python code using pipreqs
     const session = notebookPanel.sessionContext.session;
     if (session) {
-      const appPyPath = `app.py`;
+      const sanitizedAppFilename = JSON.stringify(appFilename);
 
-      // Create Python code to run pipreqs on the app.py file
+      // Create Python code to run pipreqs on the app file
       const pythonCode = `
 import subprocess
 import os
 
-# Check if app.py exists in the notebook directory
-app_py_path = os.path.join(os.getcwd(), "${appPyPath}")
+# Check if the Streamlit app file exists in the notebook directory
+app_py_filename = ${sanitizedAppFilename}
+app_py_path = os.path.join(os.getcwd(), app_py_filename)
 if not os.path.exists(app_py_path):
-    print(f"Error: app.py not found at {app_py_path}")
+    print(f"Error: {app_py_filename} not found at {app_py_path}")
     exit(1)
 
 # Make sure pipreqs is installed. Then
