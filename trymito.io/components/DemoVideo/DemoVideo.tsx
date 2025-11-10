@@ -16,21 +16,19 @@ const DemoVideo = (): JSX.Element => {
     setShowVideo(true);
   };
 
+  const handleCloseModal = () => {
+    setShowVideo(false);
+  };
+
+  const handleModalBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      handleCloseModal();
+    }
+  };
+
   return (
-    <div className={demoVideoStyles.container}>
-      {showVideo ? (
-        <video 
-          className={demoVideoStyles.video}
-          controls
-          autoPlay
-        >
-          <source 
-            src={DEMO_VIDEO_URL} 
-            type="video/mp4" 
-          />
-          Your browser does not support the video tag.
-        </video>
-      ) : (
+    <>
+      <div className={demoVideoStyles.container}>
         <div 
           className={demoVideoStyles.gifContainer}
           onClick={handleGifClick}
@@ -57,8 +55,49 @@ const DemoVideo = (): JSX.Element => {
             </svg>
           </button>
         </div>
+      </div>
+
+      {showVideo && (
+        <div 
+          className={demoVideoStyles.modalOverlay}
+          onClick={handleModalBackdropClick}
+        >
+          <div className={demoVideoStyles.modalContent}>
+            <button 
+              className={demoVideoStyles.closeButton}
+              onClick={handleCloseModal}
+              aria-label="Close video"
+            >
+              <svg 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path 
+                  d="M18 6L6 18M6 6L18 18" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+            <video 
+              className={demoVideoStyles.modalVideo}
+              controls
+              autoPlay
+            >
+              <source 
+                src={DEMO_VIDEO_URL} 
+                type="video/mp4" 
+              />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

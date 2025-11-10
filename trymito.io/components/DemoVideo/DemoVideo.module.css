@@ -9,13 +9,6 @@
   margin-top: 32px;
 }
 
-.video {
-  width: 100%;
-  max-width: 1200px;
-  border-radius: 1rem;
-  background: var(--color-video-background);
-  border: 5px solid var(--color-light-purple);
-}
 
 .gifContainer {
   position: relative;
@@ -63,12 +56,63 @@
   transform: translate(-50%, -50%) scale(0.95);
 }
 
-@media only screen and (min-width: 50em) {
-  .video {
-    max-width: 85vw;
-    max-height: 40rem;
-  }
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
 
+.modalContent {
+  position: relative;
+  width: 100%;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+  z-index: 1001;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.modalVideo {
+  width: 100%;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 1rem;
+  background: var(--color-video-background);
+  border: 5px solid var(--color-light-purple);
+}
+
+@media only screen and (min-width: 50em) {
   .gifContainer {
     max-width: 85vw;
   }
