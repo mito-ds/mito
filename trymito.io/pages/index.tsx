@@ -23,6 +23,7 @@ import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausib
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
+import DemoVideo from '../components/DemoVideo/DemoVideo';
 
 const Home: NextPage = () => {
 
@@ -41,33 +42,38 @@ const Home: NextPage = () => {
       <div className={pageStyles.container}>
 
         <main className={pageStyles.main}>
-          <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
-            <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
-              From Data to{' '}
-              <span className={titleStyles.cycling_text}>
-                <span className={titleStyles.cycling_word} data-word="insights">insights</span>
-                <span className={titleStyles.cycling_word} data-word="automations">automations</span>
-                <span className={titleStyles.cycling_word} data-word="dashboards">dashboards</span>
-                <span className={titleStyles.cycling_word} data-word="internal tools">internal tool</span>
-                <span className={titleStyles.cycling_word} data-word="Agent">Agent</span>
-              </span>
-            </h1>
-            <h1 className={classNames(titleStyles.title, 'only-on-mobile')}>
-              From Data to insights and automations
-            </h1>
+          <section className={classNames(pageStyles.background_card, titleStyles.title_card, titleStyles.grid_card)}>
+            <div className={homeStyles.hero_content_container}>
+              <div className={homeStyles.hero_text_container}>
+                <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
+                  <span>From Data to{' '}</span>
+                  <span className={titleStyles.cycling_text}>
+                    <span className={titleStyles.cycling_word} data-word="insights">Insights</span>
+                    <span className={titleStyles.cycling_word} data-word="automations">Automations</span>
+                    <span className={titleStyles.cycling_word} data-word="dashboards">Dashboards</span>
+                    <span className={titleStyles.cycling_word} data-word="internal tools">Internal Tool</span>
+                    <span className={titleStyles.cycling_word} data-word="Agent">Agent</span>
+                  </span>
+                </h1>
+                <h1 className={classNames(titleStyles.title, 'only-on-mobile')}>
+                  From Data to insights and automations
+                </h1>
 
-            <h2 className={titleStyles.description}>
-              Go from raw data to presentation-ready insights 4x faster with AI that understands your data.
-            </h2>
-              
-            <div className={homeStyles.cta_button_and_video_spacer}>
-              <div className={homeStyles.cta_buttons_homepage_container}>
-                <CTAButtons 
-                  variant='download' 
-                  align='center' 
-                  displaySecondaryCTA={false} 
-                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}
-                  />
+                <h2 className={classNames(titleStyles.description)}>
+                  Go from raw data to presentation-ready insights 4x faster with AI that understands your data.
+                </h2>
+                  
+                <div className={homeStyles.cta_buttons_homepage_container}>
+                  <CTAButtons 
+                    variant='download' 
+                    align='center' 
+                    displaySecondaryCTA={false} 
+                    textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}
+                    />
+                </div>
+              </div>
+              <div className={homeStyles.hero_video_container}>
+                <DemoVideo />
               </div>
             </div>
 
