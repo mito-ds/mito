@@ -23,6 +23,7 @@ import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausib
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
+import DemoVideo from '../components/DemoVideo/DemoVideo';
 
 const Home: NextPage = () => {
 
@@ -69,6 +70,7 @@ const Home: NextPage = () => {
                   textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}
                   />
               </div>
+              <DemoVideo />
             </div>
 
             {/* <AIInputField autoLaunchJupyterLab={true} /> */}

@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.container {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.video {
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 1rem;
+  background: var(--color-video-background);
+  border: 5px solid var(--color-light-purple);
+}
+
+@media only screen and (min-width: 50em) {
+  .video {
+    max-width: 85vw;
+    max-height: 40rem;
+  }
+}
+
