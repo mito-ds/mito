@@ -55,7 +55,7 @@
     }
 
     .description {
-        max-width: 100%;
+        max-width: 80%;
         font-size: 1.5rem;
     }
 }
@@ -68,6 +68,7 @@
 
     .description {
         text-align: left;
+        max-width: 70%;
     }
 }
 
