@@ -46,7 +46,7 @@ const Home: NextPage = () => {
             <div className={homeStyles.hero_content_container}>
               <div className={homeStyles.hero_text_container}>
                 <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
-                  From Data to{' '}
+                  <span>From Data to{' '}</span>
                   <span className={titleStyles.cycling_text}>
                     <span className={titleStyles.cycling_word} data-word="insights">insights</span>
                     <span className={titleStyles.cycling_word} data-word="automations">automations</span>
@@ -59,7 +59,7 @@ const Home: NextPage = () => {
                   From Data to insights and automations
                 </h1>
 
-                <h2 className={titleStyles.description}>
+                <h2 className={classNames(titleStyles.description)}>
                   Go from raw data to presentation-ready insights 4x faster with AI that understands your data.
                 </h2>
                   

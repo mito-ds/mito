@@ -24,8 +24,29 @@
 }
 
 .cycling_h1_container {
-    width: 550px;
-    text-align: start !important; /* Make sure there is space for the cycling words */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 150px;
+}
+
+.cycling_text {
+    position: relative;
+    text-align: center;
+    display: inline-grid;
+    /* Let content define width; centers on small screens */
+}
+
+.cycling_word {
+    /* Overlay all words in a single grid cell without absolute positioning */
+    position: relative;
+    grid-area: 1 / 1;
+    margin-top: 10px;
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+    animation: cycleWords 20s infinite;
+    white-space: nowrap;
 }
 
 .description {
@@ -66,24 +87,22 @@
         text-align: left;
     }
 
+    .cycling_h1_container {
+        width: 100%;
+        text-align: center;
+        align-items: flex-start;
+    }
+
+    .cycling_text {
+        text-align: left;
+        display: inline-grid;
+        justify-items: start; /* left-align on wide screens */
+    }
+
     .description {
         text-align: left;
         max-width: 70%;
     }
-}
-
-.cycling_text {
-    position: relative;
-    display: inline;
-}
-
-.cycling_word {
-    position: absolute;
-    left: 12px; /* This is the space between the regular text and the cycling word */
-    opacity: 0;
-    transition: all 0.5s ease-in-out;
-    animation: cycleWords 20s infinite;
-    white-space: nowrap;
 }
 
 .cycling_word:nth-child(1) {
