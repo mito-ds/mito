@@ -50,12 +50,8 @@
   z-index: 2;
 }
 
-.playButton:hover {
+.gifContainer:hover .playButton {
   transform: translate(-50%, -50%) scale(1.1);
-}
-
-.playButton:active {
-  transform: translate(-50%, -50%) scale(0.95);
 }
 
 .modalOverlay {
