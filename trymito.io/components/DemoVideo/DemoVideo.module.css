@@ -17,10 +17,65 @@
   border: 5px solid var(--color-light-purple);
 }
 
+.gifContainer {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 1rem;
+  border: 5px solid var(--color-light-purple);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.gif {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.3s ease;
+  z-index: 10;
+}
+
+.playButton:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.playButton:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
 @media only screen and (min-width: 50em) {
   .video {
     max-width: 85vw;
     max-height: 40rem;
+  }
+
+  .gifContainer {
+    max-width: 85vw;
+  }
+
+  .gif {
+    max-height: 40rem;
+    object-fit: contain;
   }
 }
 
