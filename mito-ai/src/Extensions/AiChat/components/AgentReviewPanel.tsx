@@ -10,6 +10,7 @@ import AgentChangeControls from '../ChatMessage/AgentChangeControls';
 import RevertQuestionnaire from '../ChatMessage/RevertQuestionnaire';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 import { AgentReviewStatus } from '../ChatTaskpane';
+import { AgentReviewChangeCounts } from '../hooks/useAgentReview';
 
 interface AgentReviewPanelProps {
     // Agent review state
@@ -25,6 +26,8 @@ interface AgentReviewPanelProps {
     reviewAgentChanges: () => void;
     acceptAllAICode: () => void;
     rejectAllAICode: () => void;
+    getChangeCounts: () => AgentReviewChangeCounts;
+    getReviewProgress: () => { reviewed: number; total: number };
     setHasCheckpoint: (value: boolean) => void;
     setDisplayedNextStepsIfAvailable: (value: boolean) => void;
     setShowRevertQuestionnaire: (value: boolean) => void;
@@ -48,6 +51,8 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     reviewAgentChanges,
     acceptAllAICode,
     rejectAllAICode,
+    getChangeCounts,
+    getReviewProgress,
     setHasCheckpoint,
     setDisplayedNextStepsIfAvailable,
     setShowRevertQuestionnaire,
@@ -74,6 +79,8 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
                         chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
                         acceptAllAICode={acceptAllAICode}
                         rejectAllAICode={rejectAllAICode}
+                        getChangeCounts={getChangeCounts}
+                        getReviewProgress={getReviewProgress}
                         agentReviewStatus={agentReviewStatus}
                         setAgentReviewStatus={setAgentReviewStatus}
                     />
