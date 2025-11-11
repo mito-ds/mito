@@ -1,0 +1,130 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.waitlist_container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 30rem;
+  align-items: center;
+}
+
+.email_input {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(157, 108, 255, 0.4);
+  background: rgba(28, 24, 36, 0.8);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.email_input:focus {
+  outline: none;
+  border-color: var(--color-purple);
+  box-shadow: 0 0 0 3px rgba(157, 108, 255, 0.2);
+}
+
+.email_input::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+}
+
+.email_input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submit_button {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 1.5rem;
+  font-weight: 400;
+  border-radius: 10px;
+  border: 1px solid rgba(157, 108, 255, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(157, 108, 255, 0.4) 0%,
+    rgba(172, 132, 252, 0.3) 50%,
+    rgba(192, 132, 252, 0.4) 100%
+  );
+  color: #ffffff;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 1px 4px rgba(0, 0, 0, 0.2),
+    0 1px 8px rgba(157, 108, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.submit_button:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    rgba(157, 108, 255, 0.5) 0%,
+    rgba(172, 132, 252, 0.4) 50%,
+    rgba(192, 132, 252, 0.5) 100%
+  );
+  border-color: rgba(157, 108, 255, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 2px 12px rgba(157, 108, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.submit_button:active:not(:disabled) {
+  transform: translateY(0px);
+  transition-duration: 0.1s;
+}
+
+.submit_button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submitting {
+  opacity: 0.7;
+}
+
+.success_message {
+  padding: 10px 15px;
+  font-size: 1.5rem;
+  color: var(--color-purple);
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Desktop styles */
+@media only screen and (min-width: 50em) {
+  .waitlist_container {
+    flex-direction: row;
+    max-width: 40rem;
+  }
+
+  .email_input {
+    flex: 1;
+    font-size: 1.25rem;
+  }
+
+  .submit_button {
+    width: auto;
+    min-width: 12rem;
+    font-size: 1.25rem;
+  }
+
+  .success_message {
+    font-size: 1.25rem;
+  }
+}
+
