@@ -125,6 +125,7 @@ const WaitlistSignup = (): JSX.Element => {
           className={waitlistStyles.email_input}
           disabled={isSubmitting}
           required
+          autoComplete="email"
         />
         <button
           type="submit"
@@ -152,6 +153,10 @@ const WaitlistSignup = (): JSX.Element => {
         placeholder="Your name"
         className={waitlistStyles.email_input}
         disabled={isSubmitting}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
       />
       <input
         type="text"
@@ -160,6 +165,10 @@ const WaitlistSignup = (): JSX.Element => {
         placeholder="Company"
         className={waitlistStyles.email_input}
         disabled={isSubmitting}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
       />
       <button
         type="submit"
