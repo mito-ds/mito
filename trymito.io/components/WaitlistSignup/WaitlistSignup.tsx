@@ -11,7 +11,7 @@ declare global {
   interface Window {
     analytics?: {
       track: (eventName: string, properties?: Record<string, any>) => void;
-      identify: (userId: string, traits?: Record<string, any>) => void;
+      identify: (userId?: string, traits?: Record<string, any>) => void;
     };
   }
 }
@@ -40,11 +40,17 @@ const WaitlistSignup = (): JSX.Element => {
     setIsSubmitting(true);
 
     try {
-      // Track email submission to Segment/Mixpanel
+      // Identify user with email and track event to Segment/Mixpanel
       if (typeof window !== 'undefined' && window.analytics) {
-        window.analytics.track('Waitlist Signup - Email', {
+        // Set user profile with email as userId
+        window.analytics.identify(email, {
           email: email,
+        });
+        
+        // Track email submission event
+        window.analytics.track('Waitlist Signup - Email', {
           location: 'homepage_hero',
+          email: email,
           timestamp: new Date().toISOString(),
         });
       }
@@ -68,13 +74,30 @@ const WaitlistSignup = (): JSX.Element => {
     setIsSubmitting(true);
 
     try {
-      // Track additional information to Segment/Mixpanel
+      // Update user profile with additional information and track completion event
       if (typeof window !== 'undefined' && window.analytics) {
+        // Build traits object with all user information
+        const traits: Record<string, any> = {
+          email: email,
+        };
+        
+        if (name) {
+          traits.name = name;
+        }
+        
+        if (company) {
+          traits.company = company;
+        }
+        
+        // Identify user with email as userId and all traits - this sets them on the user profile
+        window.analytics.identify(email, traits);
+        
+        // Track completion event - user traits will be automatically included from the profile
         window.analytics.track('Waitlist Signup - Complete', {
+          location: 'homepage_hero',
           email: email,
           name: name,
           company: company,
-          location: 'homepage_hero',
           timestamp: new Date().toISOString(),
         });
       }
