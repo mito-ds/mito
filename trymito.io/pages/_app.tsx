@@ -8,7 +8,6 @@ import '../styles/margins.css'
 import type { AppProps } from 'next/app'
 import React, { useEffect } from 'react';
 import Head from 'next/head';
-import Script from 'next/script';
 
 
 function MyApp({ Component, pageProps }: AppProps) {

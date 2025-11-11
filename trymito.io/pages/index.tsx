@@ -8,7 +8,6 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Prism from 'prismjs';
 import { useEffect } from 'react';
-import CTAButtons from '../components/CTAButtons/CTAButtons';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import CaseStudies from '../components/CaseStudies/CaseStudies';
 import FAQCard from '../components/FAQCard/FAQCard';
@@ -24,6 +23,7 @@ import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButto
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
 import DemoVideo from '../components/DemoVideo/DemoVideo';
+import WaitlistSignup from '../components/WaitlistSignup/WaitlistSignup';
 
 const Home: NextPage = () => {
 
@@ -51,12 +51,12 @@ const Home: NextPage = () => {
                     <span className={titleStyles.cycling_word} data-word="insights">Insights</span>
                     <span className={titleStyles.cycling_word} data-word="automations">Automations</span>
                     <span className={titleStyles.cycling_word} data-word="dashboards">Dashboards</span>
-                    <span className={titleStyles.cycling_word} data-word="internal tools">Internal Tool</span>
+                    <span className={titleStyles.cycling_word} data-word="internal tools">Internal Tools</span>
                     <span className={titleStyles.cycling_word} data-word="Agent">Agent</span>
                   </span>
                 </h1>
                 <h1 className={classNames(titleStyles.title, 'only-on-mobile')}>
-                  From Data to insights and automations
+                  From Data to Insights and Automations
                 </h1>
 
                 <h2 className={classNames(titleStyles.description)}>
@@ -64,12 +64,7 @@ const Home: NextPage = () => {
                 </h2>
                   
                 <div className={homeStyles.cta_buttons_homepage_container}>
-                  <CTAButtons 
-                    variant='download' 
-                    align='center' 
-                    displaySecondaryCTA={false} 
-                    textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}
-                    />
+                  <WaitlistSignup />
                 </div>
               </div>
               <div className={homeStyles.hero_video_container}>
