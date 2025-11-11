@@ -25,6 +25,13 @@ import { AgentReviewStatus, ChangedCell } from '../ChatTaskpane';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
+export interface AgentReviewChangeCounts {
+    added: number;
+    modified: number;
+    removed: number;
+    total: number;
+}
+
 interface UseAgentReviewProps {
     app: JupyterFrontEnd;
     agentTargetNotebookPanelRef: React.MutableRefObject<NotebookPanel> | null;
@@ -55,6 +62,8 @@ export const useAgentReview = ({
     clearAgentReviewDiffs: () => void;
     setNotebookSnapshotPreAgentExecution: (snapshot: AIOptimizedCell[] | null) => void;
     hasUnreviewedChanges: (cellId: string) => boolean;
+    getChangeCounts: () => AgentReviewChangeCounts;
+    getReviewProgress: () => { reviewed: number; total: number };
 } => {
     // Store a list of changed cells, including their reviewed status.
     const changedCellsRef = useRef<ChangedCell[]>([]);
@@ -63,8 +72,29 @@ export const useAgentReview = ({
     const notebookSnapshotPreAgentExecutionRef = useRef<AIOptimizedCell[] | null>(null);
     const notebookSnapshotAfterAgentExecutionRef = useRef<AIOptimizedCell[] | null>(null);
 
+    // Store change counts (calculated in reviewAgentChanges)
+    const changeCountsRef = useRef<AgentReviewChangeCounts>({
+        added: 0,
+        modified: 0,
+        removed: 0,
+        total: 0
+    });
+
     const hasUnreviewedChanges = (cellId: string): boolean => {
         return changedCellsRef.current.some(cell => cell.cellId === cellId && !cell.reviewed);
+    };
+
+    const getChangeCounts = (): AgentReviewChangeCounts => {
+        return changeCountsRef.current;
+    };
+
+    const getReviewProgress = (): { reviewed: number; total: number } => {
+        const cells = changedCellsRef.current;
+        const reviewed = cells.filter(cell => cell.reviewed).length;
+        return {
+            reviewed,
+            total: cells.length
+        };
     };
 
     const acceptAICodeInAgentMode = (): void => {
@@ -141,6 +171,11 @@ export const useAgentReview = ({
         const changedCells: ChangedCell[] = [];
         changedCellsRef.current = changedCells;
 
+        // Initialize counters
+        let added = 0;
+        let modified = 0;
+        let removed = 0;
+
         // Compare each cell in the current snapshot with the original snapshot
         currentNotebookSnapshot.forEach(currentCell => {
             const originalCell = notebookSnapshotPreAgentExecutionRef.current?.find(cell => cell.id === currentCell.id);
@@ -154,6 +189,7 @@ export const useAgentReview = ({
                         currentCode: currentCell.code,
                         reviewed: false
                     });
+                    modified++;
                 }
             } else {
                 // Cell was added (doesn't exist in original snapshot)
@@ -163,6 +199,7 @@ export const useAgentReview = ({
                     currentCode: currentCell.code,
                     reviewed: false
                 });
+                added++;
             }
         });
 
@@ -177,8 +214,17 @@ export const useAgentReview = ({
                     currentCode: '',
                     reviewed: false
                 });
+                removed++;
             }
         });
+
+        // Update the change counts ref
+        changeCountsRef.current = {
+            added,
+            modified,
+            removed,
+            total: changedCells.length
+        };
 
         if (changedCells.length === 0) {
             console.log('No changes detected between snapshots');
@@ -234,6 +280,8 @@ export const useAgentReview = ({
         reviewAgentChanges,
         clearAgentReviewDiffs,
         setNotebookSnapshotPreAgentExecution,
-        hasUnreviewedChanges
+        hasUnreviewedChanges,
+        getChangeCounts,
+        getReviewProgress
     };
 };
