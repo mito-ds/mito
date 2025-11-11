@@ -102,11 +102,11 @@ const WaitlistSignup = (): JSX.Element => {
           <div className={waitlistStyles.success_header}>
             <div className={waitlistStyles.success_icon}>✓</div>
             <div className={waitlistStyles.success_message}>
-              You're on the list!
+              You&apos;re on the list!
             </div>
           </div>
           <div className={waitlistStyles.success_submessage}>
-            We'll be in touch with you shortly.
+            We&apos;ll be in touch with you shortly.
           </div>
         </div>
       </div>
