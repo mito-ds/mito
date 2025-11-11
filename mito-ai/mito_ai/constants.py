@@ -52,7 +52,7 @@ ACTIVE_STREAMLIT_BASE_URL = MITO_STREAMLIT_DEV_BASE_URL  # Change to MITO_STREAM
 # AWS Cognito configuration
 COGNITO_CONFIG_DEV = {
     'TOKEN_ENDPOINT': 'https://mito-app-auth.auth.us-east-1.amazoncognito.com/oauth2/token',
-    'CLIENT_ID': '6ara3u3l8sss738hrhbq1qtiqf',
+    'CLIENT_ID': '2sunerv2m6gp1qk3hib4t8oblh',
     'CLIENT_SECRET': '',
     'REDIRECT_URI': 'http://localhost:8888/lab'
 }

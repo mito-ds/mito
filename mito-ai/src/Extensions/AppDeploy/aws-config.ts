@@ -5,10 +5,10 @@
 
 import { Amplify } from 'aws-amplify';
 
-const userPoolIdDev = 'us-east-1_Kk0f9mOfx'
-const userPoolClientIdDev = '6ara3u3l8sss738hrhbq1qtiqf'
+const userPoolIdDev = 'us-east-1_s2V9RiyOa'
+const userPoolClientIdDev = '2sunerv2m6gp1qk3hib4t8oblh'
 
-// TODO: modify to prod user ID and client ID on after creating teh cognito resources in prod
+// TODO: modify to prod user ID and client ID on after creating the cognito resources in prod
 const userPoolId = userPoolIdDev
 const userPoolClientId = userPoolClientIdDev
 
