@@ -51,12 +51,12 @@ const Home: NextPage = () => {
                     <span className={titleStyles.cycling_word} data-word="insights">Insights</span>
                     <span className={titleStyles.cycling_word} data-word="automations">Automations</span>
                     <span className={titleStyles.cycling_word} data-word="dashboards">Dashboards</span>
-                    <span className={titleStyles.cycling_word} data-word="internal tools">Internal Tool</span>
+                    <span className={titleStyles.cycling_word} data-word="internal tools">Internal Tools</span>
                     <span className={titleStyles.cycling_word} data-word="Agent">Agent</span>
                   </span>
                 </h1>
                 <h1 className={classNames(titleStyles.title, 'only-on-mobile')}>
-                  From Data to insights and automations
+                  From Data to Insights and Automations
                 </h1>
 
                 <h2 className={classNames(titleStyles.description)}>
