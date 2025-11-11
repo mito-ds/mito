@@ -200,7 +200,7 @@ const WaitlistSignup = (): JSX.Element => {
         })}
         disabled={isSubmitting}
       >
-        {isSubmitting ? 'Submitting...' : 'Complete Signup'}
+        {isSubmitting ? 'Submitting...' : 'Jump the Queue'}
       </button>
     </form>
   );
