@@ -21,7 +21,7 @@ const AgentChangeSummary: React.FC<IAgentChangeSummaryProps> = ({
         <div className="agent-change-counts">
             <span className="agent-change-count">
                 <span className="agent-change-count-number agent-change-count-added">
-                    {changeCounts.added} &nbsp;
+                    {changeCounts.added}
                 </span>
                 <span className="agent-change-count-text">
                     {changeCounts.added === 1 ? 'cell added' : 'cells added'}
@@ -29,7 +29,7 @@ const AgentChangeSummary: React.FC<IAgentChangeSummaryProps> = ({
             </span>
             <span className="agent-change-count">
                 <span className="agent-change-count-number agent-change-count-modified">
-                    {changeCounts.modified} &nbsp;
+                    {changeCounts.modified}
                 </span>
                 <span className="agent-change-count-text">
                     {changeCounts.modified === 1 ? 'cell modified' : 'cells modified'}
@@ -37,7 +37,7 @@ const AgentChangeSummary: React.FC<IAgentChangeSummaryProps> = ({
             </span>
             <span className="agent-change-count">
                 <span className="agent-change-count-number agent-change-count-removed">
-                    {changeCounts.removed} &nbsp;
+                    {changeCounts.removed}
                 </span>
                 <span className="agent-change-count-text">
                     {changeCounts.removed === 1 ? 'cell removed' : 'cells removed'}
