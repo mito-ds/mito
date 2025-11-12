@@ -18,7 +18,6 @@ interface AgentReviewPanelProps {
     hasCheckpoint: boolean;
     agentModeEnabled: boolean;
     agentExecutionStatus: 'working' | 'stopping' | 'idle';
-    displayOptimizedChatHistoryLength: number;
     showRevertQuestionnaire: boolean;
     agentReviewStatus: AgentReviewStatus;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
@@ -48,7 +47,6 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     hasCheckpoint,
     agentModeEnabled,
     agentExecutionStatus,
-    displayOptimizedChatHistoryLength,
     showRevertQuestionnaire,
     reviewAgentChanges,
     acceptAllAICode,

@@ -1048,7 +1048,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     hasCheckpoint={hasCheckpoint}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecution.agentExecutionStatus}
-                    displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
                     showRevertQuestionnaire={showRevertQuestionnaire}
                     reviewAgentChanges={agentReview.reviewAgentChanges}
                     acceptAllAICode={agentReview.acceptAllAICode}
