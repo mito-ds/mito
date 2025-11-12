@@ -67,19 +67,17 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
 }) => {
 
     const agentFinished = hasCheckpoint && agentModeEnabled && agentExecutionStatus === 'idle';
-    const shouldShowAgentChangeControls =
-        agentFinished &&
-        displayOptimizedChatHistoryLength > 0 &&
-        hasChanges();
+    const shouldShowAgentChangeControls = agentFinished && hasChanges();
+    const shouldShowSummary = agentFinished && (agentReviewStatus === 'pre-agent-code-review' || agentReviewStatus === 'in-agent-code-review');
 
     return (
         <>
             {/* Agent change summary - shows after agent completes, before review starts */} 
-            {agentFinished && 
+            {shouldShowSummary && (
                 <div className='message message-assistant-chat'>
                     <AgentChangeSummary getChangeCounts={getChangeCounts} />
                 </div>
-            }
+            )}
 
             {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
             {shouldShowAgentChangeControls && (
