@@ -7,6 +7,7 @@ import React from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import AgentChangeControls from '../ChatMessage/AgentChangeControls';
+import AgentChangeSummary from '../ChatMessage/AgentChangeSummary';
 import RevertQuestionnaire from '../ChatMessage/RevertQuestionnaire';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 import { AgentReviewStatus } from '../ChatTaskpane';
@@ -64,15 +65,22 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     notebookTracker,
     chatTaskpaneMessagesRef
 }) => {
+
+    const agentFinished = hasCheckpoint && agentModeEnabled && agentExecutionStatus === 'idle';
     const shouldShowAgentChangeControls =
-        hasCheckpoint &&
-        agentModeEnabled &&
-        agentExecutionStatus === 'idle' &&
+        agentFinished &&
         displayOptimizedChatHistoryLength > 0 &&
         hasChanges();
 
     return (
         <>
+            {/* Agent change summary - shows after agent completes, before review starts */} 
+            {agentFinished && 
+                <div className='message message-assistant-chat'>
+                    <AgentChangeSummary getChangeCounts={getChangeCounts} />
+                </div>
+            }
+
             {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
             {shouldShowAgentChangeControls && (
                 <AgentChangeControls
@@ -85,7 +93,6 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
                     chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
                     acceptAllAICode={acceptAllAICode}
                     rejectAllAICode={rejectAllAICode}
-                    getChangeCounts={getChangeCounts}
                     getReviewProgress={getReviewProgress}
                     agentReviewStatus={agentReviewStatus}
                     setAgentReviewStatus={setAgentReviewStatus}
