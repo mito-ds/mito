@@ -64,30 +64,33 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     notebookTracker,
     chatTaskpaneMessagesRef
 }) => {
+    const shouldShowAgentChangeControls =
+        hasCheckpoint &&
+        agentModeEnabled &&
+        agentExecutionStatus === 'idle' &&
+        displayOptimizedChatHistoryLength > 0 &&
+        hasChanges();
+
     return (
         <>
             {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
-            {hasCheckpoint &&
-                agentModeEnabled &&
-                agentExecutionStatus === 'idle' &&
-                displayOptimizedChatHistoryLength > 0 &&
-                hasChanges() && (
-                    <AgentChangeControls
-                        reviewAgentChanges={reviewAgentChanges}
-                        app={app}
-                        notebookTracker={notebookTracker}
-                        setHasCheckpoint={setHasCheckpoint}
-                        setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
-                        setShowRevertQuestionnaire={setShowRevertQuestionnaire}
-                        chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
-                        acceptAllAICode={acceptAllAICode}
-                        rejectAllAICode={rejectAllAICode}
-                        getChangeCounts={getChangeCounts}
-                        getReviewProgress={getReviewProgress}
-                        agentReviewStatus={agentReviewStatus}
-                        setAgentReviewStatus={setAgentReviewStatus}
-                    />
-                )}
+            {shouldShowAgentChangeControls && (
+                <AgentChangeControls
+                    reviewAgentChanges={reviewAgentChanges}
+                    app={app}
+                    notebookTracker={notebookTracker}
+                    setHasCheckpoint={setHasCheckpoint}
+                    setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                    setShowRevertQuestionnaire={setShowRevertQuestionnaire}
+                    chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
+                    acceptAllAICode={acceptAllAICode}
+                    rejectAllAICode={rejectAllAICode}
+                    getChangeCounts={getChangeCounts}
+                    getReviewProgress={getReviewProgress}
+                    agentReviewStatus={agentReviewStatus}
+                    setAgentReviewStatus={setAgentReviewStatus}
+                />
+            )}
             {/* Revert questionnaire - shows when user clicks revert button */}
             {showRevertQuestionnaire && (
                 <RevertQuestionnaire
