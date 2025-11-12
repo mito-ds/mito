@@ -1055,6 +1055,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     rejectAllAICode={agentReview.rejectAllAICode}
                     getChangeCounts={agentReview.getChangeCounts}
                     getReviewProgress={agentReview.getReviewProgress}
+                    hasChanges={agentReview.hasChanges}
                     setHasCheckpoint={setHasCheckpoint}
                     setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
                     setShowRevertQuestionnaire={setShowRevertQuestionnaire}

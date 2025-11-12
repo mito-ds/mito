@@ -28,6 +28,7 @@ interface AgentReviewPanelProps {
     rejectAllAICode: () => void;
     getChangeCounts: () => AgentReviewChangeCounts;
     getReviewProgress: () => { reviewed: number; total: number };
+    hasChanges: () => boolean;
     setHasCheckpoint: (value: boolean) => void;
     setDisplayedNextStepsIfAvailable: (value: boolean) => void;
     setShowRevertQuestionnaire: (value: boolean) => void;
@@ -53,6 +54,7 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     rejectAllAICode,
     getChangeCounts,
     getReviewProgress,
+    hasChanges,
     setHasCheckpoint,
     setDisplayedNextStepsIfAvailable,
     setShowRevertQuestionnaire,
@@ -68,7 +70,8 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
             {hasCheckpoint &&
                 agentModeEnabled &&
                 agentExecutionStatus === 'idle' &&
-                displayOptimizedChatHistoryLength > 0 && (
+                displayOptimizedChatHistoryLength > 0 &&
+                hasChanges() && (
                     <AgentChangeControls
                         reviewAgentChanges={reviewAgentChanges}
                         app={app}

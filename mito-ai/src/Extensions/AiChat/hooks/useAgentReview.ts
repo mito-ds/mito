@@ -64,6 +64,7 @@ export const useAgentReview = ({
     hasUnreviewedChanges: (cellId: string) => boolean;
     getChangeCounts: () => AgentReviewChangeCounts;
     getReviewProgress: () => { reviewed: number; total: number };
+    hasChanges: () => boolean;
 } => {
     // Store a list of changed cells, including their reviewed status.
     const changedCellsRef = useRef<ChangedCell[]>([]);
@@ -95,6 +96,86 @@ export const useAgentReview = ({
             reviewed,
             total: cells.length
         };
+    };
+
+    // Helper function to detect and count changes between snapshots
+    // This populates changedCellsRef and changeCountsRef without applying visual diffs
+    const detectChanges = (): ChangedCell[] => {
+        if (!agentTargetNotebookPanelRef?.current) {
+            return [];
+        }
+
+        const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
+
+        if (!notebookSnapshotPreAgentExecutionRef.current || !currentNotebookSnapshot) {
+            return [];
+        }
+
+        // Clear and populate the changed cells array
+        const changedCells: ChangedCell[] = [];
+
+        // Initialize counters
+        let added = 0;
+        let modified = 0;
+        let removed = 0;
+
+        // Compare each cell in the current snapshot with the original snapshot
+        currentNotebookSnapshot.forEach(currentCell => {
+            const originalCell = notebookSnapshotPreAgentExecutionRef.current?.find(cell => cell.id === currentCell.id);
+
+            if (originalCell) {
+                // Cell exists in both snapshots, check if code has changed
+                if (originalCell.code !== currentCell.code) {
+                    changedCells.push({
+                        cellId: currentCell.id,
+                        originalCode: originalCell.code,
+                        currentCode: currentCell.code,
+                        reviewed: false
+                    });
+                    modified++;
+                }
+            } else {
+                // Cell was added (doesn't exist in original snapshot)
+                changedCells.push({
+                    cellId: currentCell.id,
+                    originalCode: '',
+                    currentCode: currentCell.code,
+                    reviewed: false
+                });
+                added++;
+            }
+        });
+
+        // Check for cells that were removed (exist in original but not in current)
+        notebookSnapshotPreAgentExecutionRef.current?.forEach(originalCell => {
+            const currentCell = currentNotebookSnapshot.find(cell => cell.id === originalCell.id);
+            if (!currentCell) {
+                // Cell was removed
+                changedCells.push({
+                    cellId: originalCell.id,
+                    originalCode: originalCell.code,
+                    currentCode: '',
+                    reviewed: false
+                });
+                removed++;
+            }
+        });
+
+        // Update the change counts ref
+        changeCountsRef.current = {
+            added,
+            modified,
+            removed,
+            total: changedCells.length
+        };
+
+        return changedCells;
+    };
+
+    const hasChanges = (): boolean => {
+        detectChanges();
+        // changeCountsRef is populated by detectChanges()
+        return changeCountsRef.current.total > 0;
     };
 
     const acceptAICodeInAgentMode = (): void => {
@@ -163,68 +244,9 @@ export const useAgentReview = ({
         const currentNotebookSnapshot = getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current);
         notebookSnapshotAfterAgentExecutionRef.current = currentNotebookSnapshot;
 
-        if (!notebookSnapshotPreAgentExecutionRef.current || !currentNotebookSnapshot) {
-            return;
-        }
-
-        // Clear and populate the changed cells array
-        const changedCells: ChangedCell[] = [];
+        // Detect changes and populate refs
+        const changedCells = detectChanges();
         changedCellsRef.current = changedCells;
-
-        // Initialize counters
-        let added = 0;
-        let modified = 0;
-        let removed = 0;
-
-        // Compare each cell in the current snapshot with the original snapshot
-        currentNotebookSnapshot.forEach(currentCell => {
-            const originalCell = notebookSnapshotPreAgentExecutionRef.current?.find(cell => cell.id === currentCell.id);
-
-            if (originalCell) {
-                // Cell exists in both snapshots, check if code has changed
-                if (originalCell.code !== currentCell.code) {
-                    changedCells.push({
-                        cellId: currentCell.id,
-                        originalCode: originalCell.code,
-                        currentCode: currentCell.code,
-                        reviewed: false
-                    });
-                    modified++;
-                }
-            } else {
-                // Cell was added (doesn't exist in original snapshot)
-                changedCells.push({
-                    cellId: currentCell.id,
-                    originalCode: '',
-                    currentCode: currentCell.code,
-                    reviewed: false
-                });
-                added++;
-            }
-        });
-
-        // Check for cells that were removed (exist in original but not in current)
-        notebookSnapshotPreAgentExecutionRef.current?.forEach(originalCell => {
-            const currentCell = currentNotebookSnapshot.find(cell => cell.id === originalCell.id);
-            if (!currentCell) {
-                // Cell was removed
-                changedCells.push({
-                    cellId: originalCell.id,
-                    originalCode: originalCell.code,
-                    currentCode: '',
-                    reviewed: false
-                });
-                removed++;
-            }
-        });
-
-        // Update the change counts ref
-        changeCountsRef.current = {
-            added,
-            modified,
-            removed,
-            total: changedCells.length
-        };
 
         if (changedCells.length === 0) {
             console.log('No changes detected between snapshots');
@@ -282,6 +304,7 @@ export const useAgentReview = ({
         setNotebookSnapshotPreAgentExecution,
         hasUnreviewedChanges,
         getChangeCounts,
-        getReviewProgress
+        getReviewProgress,
+        hasChanges
     };
 };
