@@ -10,7 +10,7 @@ import React from 'react';
 import Head from 'next/head';
 
 const DOMAIN = "trymito.io";
-const URL = `http://${DOMAIN}`;
+const URL = `https://${DOMAIN}`;
 const TITLE = "Best Python Spreadsheet Automation & Code Generation | Mito";
 const DESCRIPTION = "Mito is the fastest way to do Python data science. Edit your data in a spreadsheet, and generate Python code automatically.";
 const IMAGE = "/mito-og-banner.jpg";
