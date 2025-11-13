@@ -10,7 +10,6 @@ import { restoreCheckpoint } from '../../../utils/checkpoint';
 import { scrollToDiv } from '../../../utils/scroll';
 import { AgentReviewStatus } from '../ChatTaskpane';
 import TextButton from '../../../components/TextButton';
-import { AgentReviewChangeCounts } from '../hooks/useAgentReview';
 import '../../../../style/AgentChangeControls.css';
 
 interface IAgentChangeControlsProps {
@@ -23,7 +22,6 @@ interface IAgentChangeControlsProps {
     chatTaskpaneMessagesRef: React.RefObject<HTMLDivElement>;
     acceptAllAICode: () => void;
     rejectAllAICode: () => void;
-    getChangeCounts: () => AgentReviewChangeCounts;
     getReviewProgress: () => { reviewed: number; total: number };
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
     agentReviewStatus: AgentReviewStatus;
@@ -39,26 +37,21 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
     chatTaskpaneMessagesRef,
     acceptAllAICode,
     rejectAllAICode,
-    getChangeCounts,
     getReviewProgress,
     setAgentReviewStatus,
     agentReviewStatus,
 }) => {
-    const [changeCounts, setChangeCounts] = useState<AgentReviewChangeCounts | null>(null);
     const [reviewProgress, setReviewProgress] = useState<{ reviewed: number; total: number } | null>(null);
 
     // Update counts when review starts
     useEffect(() => {
         if (agentReviewStatus === 'in-agent-code-review') {
-            const counts = getChangeCounts();
-            setChangeCounts(counts);
             const progress = getReviewProgress();
             setReviewProgress(progress);
         } else {
-            setChangeCounts(null);
             setReviewProgress(null);
         }
-    }, [agentReviewStatus, getChangeCounts, getReviewProgress]);
+    }, [agentReviewStatus, getReviewProgress]);
 
     
     useEffect(() => {
@@ -87,16 +80,11 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
 
     const handleReviewChanges = (): void => {
         reviewAgentChanges();
-        // reviewAgentChanges populates changedCellsRef synchronously, so we can get counts immediately
-        const counts = getChangeCounts();
-        // Only set status if there are actually changes to review
-        if (counts.total > 0) {
-            setAgentReviewStatus('in-agent-code-review');
-            // Scroll to show the new review controls after the UI updates
-            setTimeout(() => {
-                scrollToDiv(chatTaskpaneMessagesRef);
-            }, 0);
-        }
+        setAgentReviewStatus('in-agent-code-review');
+        // Scroll to show the new review controls after the UI updates
+        setTimeout(() => {
+            scrollToDiv(chatTaskpaneMessagesRef);
+        }, 0);
     }
 
     const handleAcceptAll = (): void => {
@@ -145,34 +133,6 @@ const AgentChangeControls: React.FC<IAgentChangeControlsProps> = ({
         return (
             <div className='message message-assistant-chat'>
                 <div className="agent-change-controls-container">
-                    {changeCounts && (
-                        <div className="agent-change-counts">
-                            <span className="agent-change-count">
-                                <span className="agent-change-count-number agent-change-count-added">
-                                    {changeCounts.added} &nbsp;
-                                </span>
-                                <span className="agent-change-count-text">
-                                    {changeCounts.added === 1 ? 'cell added' : 'cells added'}
-                                </span>
-                            </span>
-                            <span className="agent-change-count">
-                                <span className="agent-change-count-number agent-change-count-modified">
-                                    {changeCounts.modified} &nbsp;
-                                </span>
-                                <span className="agent-change-count-text">
-                                    {changeCounts.modified === 1 ? 'cell modified' : 'cells modified'}
-                                </span>
-                            </span>
-                            <span className="agent-change-count">
-                                <span className="agent-change-count-number agent-change-count-removed">
-                                    {changeCounts.removed} &nbsp;
-                                </span>
-                                <span className="agent-change-count-text">
-                                    {changeCounts.removed === 1 ? 'cell removed' : 'cells removed'}
-                                </span>
-                            </span>
-                        </div>
-                    )}
                     <div className="agent-change-controls-buttons">
                         <button
                             className="button-base button-green"
