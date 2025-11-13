@@ -13,7 +13,7 @@ const DOMAIN = "trymito.io";
 const URL = `https://${DOMAIN}`;
 const TITLE = "Best Python Spreadsheet Automation & Code Generation | Mito";
 const DESCRIPTION = "Mito is the fastest way to do Python data science. Edit your data in a spreadsheet, and generate Python code automatically.";
-const IMAGE = "/mito-og-banner.jpg";
+const IMAGE = `${URL}/mito-og-banner.jpg`;
 
 function MyApp({ Component, pageProps }: AppProps) {
 
