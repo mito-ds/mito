@@ -33,6 +33,7 @@ app_py_path = os.path.join(os.getcwd(), app_py_filename)
 if not os.path.exists(app_py_path):
     print(f"Error: {app_py_filename} not found at {app_py_path}")
     exit(1)
+notebook_dir = os.path.dirname(app_py_path)
 
 try:
     # Create a temporary directory and copy the app file into it
@@ -45,7 +46,7 @@ try:
             [
                 'pipreqs',
                 '--encoding=utf-8',
-                '--savepath', os.path.join(os.getcwd(), 'requirements.in'),
+                '--savepath', os.path.join(notebook_dir, 'requirements.in'),
                 '--force',
                 tmpdir
             ],
@@ -56,7 +57,7 @@ try:
     print("Log: ", generate_req_in_file.stderr)
 
     # Read requirements.in and process each line
-    requirements_in_path = os.path.join(os.getcwd(), 'requirements.in')
+    requirements_in_path = os.path.join(notebook_dir, 'requirements.in')
     if os.path.exists(requirements_in_path):
         with open(requirements_in_path, 'r') as f:
             lines = f.readlines()
