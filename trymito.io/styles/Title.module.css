@@ -9,11 +9,8 @@
 }
 
 .grid_card {
-    background-image: url('../public/BackgroundGrid.svg');
-    background-size: contain;
-    --aspect-ratio: 2.8;
-    background-repeat: no-repeat;
-    background-position: center;
+    position: relative; /* enable overlay positioning */
+    overflow: hidden;   /* clip overlay edges */
 }
 
 .title {
@@ -24,8 +21,29 @@
 }
 
 .cycling_h1_container {
-    width: 550px;
-    text-align: start !important; /* Make sure there is space for the cycling words */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 150px;
+}
+
+.cycling_text {
+    position: relative;
+    text-align: center;
+    display: inline-grid;
+    /* Let content define width; centers on small screens */
+}
+
+.cycling_word {
+    /* Overlay all words in a single grid cell without absolute positioning */
+    position: relative;
+    grid-area: 1 / 1;
+    margin-top: 10px;
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+    animation: cycleWords 20s infinite;
+    white-space: nowrap;
 }
 
 .description {
@@ -45,8 +63,8 @@
     }
 
     .title {
-        font-size: 3rem;
-        max-width: 60vw;
+        font-size: 4rem;
+        max-width: 100%;
     }
 
     .subtitle {
@@ -55,23 +73,34 @@
     }
 
     .description {
-        max-width: 50rem;
+        max-width: 80%;
         font-size: 1.5rem;
+        line-height: 2;
     }
 }
 
-.cycling_text {
-    position: relative;
-    display: inline;
-}
+/* Left-align text only on larger screens when side-by-side */
+@media only screen and (min-width: 75em) {
+    .title {
+        text-align: left;
+    }
 
-.cycling_word {
-    position: absolute;
-    left: 12px; /* This is the space between the regular text and the cycling word */
-    opacity: 0;
-    transition: all 0.5s ease-in-out;
-    animation: cycleWords 20s infinite;
-    white-space: nowrap;
+    .cycling_h1_container {
+        width: 100%;
+        text-align: center;
+        align-items: flex-start;
+    }
+
+    .cycling_text {
+        text-align: left;
+        display: inline-grid;
+        justify-items: start; /* left-align on wide screens */
+    }
+
+    .description {
+        text-align: left;
+        max-width: 70%;
+    }
 }
 
 .cycling_word:nth-child(1) {
@@ -183,5 +212,57 @@
     }
     100% {
         background-position: 0% 50%;
+    }
+}
+
+/* Subtle animated grid overlay with light parallax - applies wherever .grid_card is used */
+.grid_card::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    right: -10%;
+    bottom: -10%;
+    /* Pure CSS subtle grid – no external asset required */
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.035) 0px,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px,
+            transparent 80px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.035) 0px,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px,
+            transparent 80px
+        );
+    background-repeat: repeat;
+    background-position: 0 0;
+    /* Use alpha in gradients for subtlety; keep full overlay opacity */
+    opacity: 1;
+    pointer-events: none;
+    background-attachment: fixed; /* simple parallax effect */
+    animation: gridDrift 60s linear infinite;
+    z-index: 0; /* place beneath content */
+}
+
+@keyframes gridDrift {
+    0%   { background-position: 0px 0px; }
+    50%  { background-position: 200px 120px; }
+    100% { background-position: 0px 0px; }
+}
+
+/* Ensure content stays above the overlay */
+.grid_card > * {
+    position: relative;
+    z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .grid_card::before {
+        animation: none;
     }
 }
