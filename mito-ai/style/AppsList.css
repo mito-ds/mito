@@ -74,6 +74,30 @@
   margin-top: 8px;
 }
 
+.apps-list-auth-message {
+  color: var(--jp-ui-font-color1);
+  background-color: var(--jp-layout-color0);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 4px;
+  padding: 24px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.apps-list-auth-text {
+  font-size: 14px;
+  font-weight: bold;
+  font-family: var(--jp-ui-font-family);
+}
+
+.apps-list-auth-login-button {
+  font-size: 13px;
+  min-width: 96px;
+}
+
 .apps-list-empty {
   color: var(--jp-ui-font-color2);
   text-align: center;
