@@ -132,6 +132,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
         </div>
       </div>
 
+      <div className="apps-list-content">
       {loading ? (
         <div className="apps-list-loading">
           Loading apps...
@@ -210,6 +211,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 };
