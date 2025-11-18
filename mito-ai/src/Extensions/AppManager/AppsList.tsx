@@ -112,9 +112,17 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
             {loading ? 'Loading...' : 'Refresh'}
           </button>
           <button
-            onClick={() => {
+            onClick={async () => {
               console.log('Logout clicked');
-              void logoutAndClearJWTTokens();
+              try {
+                await logoutAndClearJWTTokens();
+                // Refresh the apps list after logout to show "User not authenticated" message
+                await refreshApps();
+              } catch (err) {
+                console.error('[AppsList] Error during logout:', err);
+                // Still refresh even if logout had an error
+                await refreshApps();
+              }
             }}
             className="apps-list-button"
             title="Logout"
