@@ -7,6 +7,7 @@ import React from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import AgentChangeControls from '../ChatMessage/AgentChangeControls';
+import AgentChangeSummary from '../ChatMessage/AgentChangeSummary';
 import RevertQuestionnaire from '../ChatMessage/RevertQuestionnaire';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 import { AgentReviewStatus } from '../ChatTaskpane';
@@ -17,7 +18,6 @@ interface AgentReviewPanelProps {
     hasCheckpoint: boolean;
     agentModeEnabled: boolean;
     agentExecutionStatus: 'working' | 'stopping' | 'idle';
-    displayOptimizedChatHistoryLength: number;
     showRevertQuestionnaire: boolean;
     agentReviewStatus: AgentReviewStatus;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
@@ -28,6 +28,7 @@ interface AgentReviewPanelProps {
     rejectAllAICode: () => void;
     getChangeCounts: () => AgentReviewChangeCounts;
     getReviewProgress: () => { reviewed: number; total: number };
+    hasChanges: () => boolean;
     setHasCheckpoint: (value: boolean) => void;
     setDisplayedNextStepsIfAvailable: (value: boolean) => void;
     setShowRevertQuestionnaire: (value: boolean) => void;
@@ -46,13 +47,13 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     hasCheckpoint,
     agentModeEnabled,
     agentExecutionStatus,
-    displayOptimizedChatHistoryLength,
     showRevertQuestionnaire,
     reviewAgentChanges,
     acceptAllAICode,
     rejectAllAICode,
     getChangeCounts,
     getReviewProgress,
+    hasChanges,
     setHasCheckpoint,
     setDisplayedNextStepsIfAvailable,
     setShowRevertQuestionnaire,
@@ -62,29 +63,37 @@ const AgentReviewPanel: React.FC<AgentReviewPanelProps> = ({
     notebookTracker,
     chatTaskpaneMessagesRef
 }) => {
+
+    const agentFinished = hasCheckpoint && agentModeEnabled && agentExecutionStatus === 'idle';
+    const shouldShowAgentChangeControls = agentFinished && hasChanges();
+    const shouldShowSummary = agentFinished && (agentReviewStatus === 'pre-agent-code-review' || agentReviewStatus === 'in-agent-code-review');
+
     return (
         <>
+            {/* Agent change summary - shows after agent completes, before review starts */} 
+            {shouldShowSummary && (
+                <div className='message message-assistant-chat'>
+                    <AgentChangeSummary getChangeCounts={getChangeCounts} />
+                </div>
+            )}
+
             {/* Agent restore button - shows after agent completes and when agent checkpoint exists */}
-            {hasCheckpoint &&
-                agentModeEnabled &&
-                agentExecutionStatus === 'idle' &&
-                displayOptimizedChatHistoryLength > 0 && (
-                    <AgentChangeControls
-                        reviewAgentChanges={reviewAgentChanges}
-                        app={app}
-                        notebookTracker={notebookTracker}
-                        setHasCheckpoint={setHasCheckpoint}
-                        setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
-                        setShowRevertQuestionnaire={setShowRevertQuestionnaire}
-                        chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
-                        acceptAllAICode={acceptAllAICode}
-                        rejectAllAICode={rejectAllAICode}
-                        getChangeCounts={getChangeCounts}
-                        getReviewProgress={getReviewProgress}
-                        agentReviewStatus={agentReviewStatus}
-                        setAgentReviewStatus={setAgentReviewStatus}
-                    />
-                )}
+            {shouldShowAgentChangeControls && (
+                <AgentChangeControls
+                    reviewAgentChanges={reviewAgentChanges}
+                    app={app}
+                    notebookTracker={notebookTracker}
+                    setHasCheckpoint={setHasCheckpoint}
+                    setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
+                    setShowRevertQuestionnaire={setShowRevertQuestionnaire}
+                    chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
+                    acceptAllAICode={acceptAllAICode}
+                    rejectAllAICode={rejectAllAICode}
+                    getReviewProgress={getReviewProgress}
+                    agentReviewStatus={agentReviewStatus}
+                    setAgentReviewStatus={setAgentReviewStatus}
+                />
+            )}
             {/* Revert questionnaire - shows when user clicks revert button */}
             {showRevertQuestionnaire && (
                 <RevertQuestionnaire

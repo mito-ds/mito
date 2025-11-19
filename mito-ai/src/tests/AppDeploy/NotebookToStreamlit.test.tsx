@@ -9,6 +9,7 @@ import { saveFileWithKernel } from '../../Extensions/AppDeploy/fileUtils';
 import { getJWTToken } from '../../Extensions/AppDeploy/auth';
 import { deployAppNotification } from '../../Extensions/AppDeploy/DeployAppNotification';
 import { showAuthenticationPopup } from '../../Extensions/AppDeploy/authPopupUtils';
+import { generateRequirementsTxt } from '../../Extensions/AppDeploy/requirementsUtils';
 
 // Mock the dependencies
 jest.mock('@jupyterlab/notebook');
@@ -72,7 +73,7 @@ jest.mock('../../Extensions/AppDeploy/DeployFilesSelector', () => ({
 
 // Mock the fileSelectorPopup function to return the expected files
 jest.mock('../../Extensions/AppDeploy/FilesSelectorUtils', () => ({
-    fileSelectorPopup: jest.fn().mockResolvedValue(['app.py', 'requirements.txt'])
+    fileSelectorPopup: jest.fn().mockResolvedValue(['mito-app-test.py', 'requirements.txt'])
 }));
 
 // Mock Notification.emit to return a predictable ID
@@ -82,6 +83,14 @@ jest.mock('@jupyterlab/apputils', () => ({
         update: jest.fn(),
         dismiss: jest.fn()
     }
+}));
+
+jest.mock('../../utils/notebookMetadata', () => ({
+    getNotebookIDAndSetIfNonexistant: jest.fn().mockReturnValue('mito-notebook-test')
+}));
+
+jest.mock('../../Extensions/AppPreview/utils', () => ({
+    getAppNameFromNotebookID: jest.fn().mockImplementation((notebookID: string) => notebookID.replace('mito-notebook-', 'mito-app-') + '.py')
 }));
 
 describe('NotebookToStreamlit Conversion and Deployment', () => {
@@ -200,12 +209,14 @@ describe('NotebookToStreamlit Conversion and Deployment', () => {
             type: 'deploy_app',
             message_id: 'test-uuid-123',
             notebook_path: 'test_notebook.ipynb',
+            notebook_id: 'mito-notebook-test',
             jwt_token: 'test-jwt-token',
             selected_files: [
-              "app.py",
+              "mito-app-test.py",
               "requirements.txt",
             ]
         });
+        expect(generateRequirementsTxt).toHaveBeenCalledWith(mockNotebookPanel, 'mito-app-test.py');
     });
 
     test('should handle deployment errors gracefully', async () => {
