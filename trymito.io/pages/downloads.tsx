@@ -13,6 +13,7 @@ import downloadsStyles from '../styles/Downloads.module.css';
 import { classNames } from '../utils/classNames';
 import InstallInstructions from '../components/InstallInstructions/InstallInstructions';
 import { PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_LINUX, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_MACOS, PLAUSIBLE_MITO_DESKTOP_DOWNLOADER_WINDOWS } from '../utils/plausible';
+import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
 
 // GitHub Releases download URLs
 const DOWNLOAD_URLS = {
@@ -124,6 +125,12 @@ const Downloads: NextPage = () => {
                     <div className={downloadsStyles.install_instructions_container}>
                         <InstallInstructions />
                     </div>
+                    <section>
+                        <MadeWithMito 
+                            title='Still on the fence?' 
+                            subtitle='Here are just a few examples of how Mito can give you superpowers.' 
+                        />
+                    </section>
                 </main>
                 <Footer />
             </div>
