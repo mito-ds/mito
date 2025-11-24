@@ -100,7 +100,7 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
 
     return streamlit_app_code
 
-async def streamlit_handler(notebook_path: AbsoluteNotebookPath, app_file_name: AppFileName, edit_prompt: str = "") -> None:
+async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNotebookPath, app_file_name: AppFileName, prompt: str = "") -> None:
     """Handler function for streamlit code generation and validation"""
 
     # Convert to absolute path for consistent handling
@@ -108,46 +108,18 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, app_file_name: 
     app_directory = get_absolute_notebook_dir_path(notebook_path)
     app_path = get_absolute_app_path(app_directory, app_file_name)
     
-    # Instead of casing on edit_prompt we want to case on something else because we have more scenarios now: 
     
-    
-    # 1. Create new app w/o prompt -> triggerd by clicking recreate app or app mode button    
-    # - app does not exist & no prompt 
-    
-      
-    # 2. Create new app w/ prompt -> triggered by agent taskpane
-    # - app does not exist & prompt
-    
-    
-    # 3. Edit existing app w/ prompt -> triggered by agent or edit prompt input field
-    # - app exists & prompt
-    
-    # 4. Open an existing app -> triggered by opening the app 
-    # - app exists & no prompt 
-    
-    # 5. Recreate an app -> triggered by clicking the refresh app button
-    # - app exists, force_recreate param -> This has the same behavior as just creating a new app
-    
-    
-    # Maybe all of this logic should happen outside of the strealmit_handler. The streamlit handler is just responsible for 
-    # building or updating a streamlit app! Cause eventually we will create separate functions for editing vs creating, etc
-    # and those functions will just rely on the streamlit_handler code for actually building the app
-    
-    
-    # Currently, we use force_recreate to tell us if we want to create a new app when the app already exists.
-    # We do this because if the app is closed, to open it, we still go through this flow: We send a create app message, 
-    # then we check if the app exists already, and if it does, we start the preview. 
-    if edit_prompt != "":
+    if create_new_app:
+        # Otherwise generate a new streamlit app
+        streamlit_code = await generate_new_streamlit_code(notebook_code)
+    else:
         # If the user is editing an existing streamlit app, use the update function
         streamlit_code = get_app_code_from_file(app_path)
         
         if streamlit_code is None:
             raise StreamlitConversionError("Error updating existing streamlit app because app.py file was not found.", 404)
         
-        streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, edit_prompt)
-    else:
-        # Otherwise generate a new streamlit app
-        streamlit_code = await generate_new_streamlit_code(notebook_code)
+        streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, prompt) 
        
     # Then, after creating/updating the app, validate that the new code runs 
     errors = validate_app(streamlit_code, notebook_path)
@@ -170,4 +142,4 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, app_file_name: 
     
     # Finally, update the app.py file with the new code
     create_app_file(app_path, streamlit_code)
-    log_streamlit_app_conversion_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
+    log_streamlit_app_conversion_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, prompt)

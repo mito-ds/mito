@@ -310,7 +310,7 @@ export const useAgentExecution = ({
 
             if (agentResponse.type === 'create_streamlit_app') {
                 // Create new preview using the service
-                const createStreamlitAppPrompt = agentResponse.create_streamlit_app_prompt || ''
+                const createStreamlitAppPrompt = agentResponse.edit_streamlit_app_prompt || ''
                 const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current, createStreamlitAppPrompt);
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message;

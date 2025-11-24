@@ -191,7 +191,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(
       notebookPanel.context.path, 
       notebookID,
-      true, // force_recreate
+      false, // force_recreate
       editPrompt, 
       'Editing Streamlit app...', 
       'Streamlit app updated successfully!'
