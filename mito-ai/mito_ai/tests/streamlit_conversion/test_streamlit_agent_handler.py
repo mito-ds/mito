@@ -187,7 +187,7 @@ class TestStreamlitHandler:
     
         # Now it should raise an exception instead of returning a tuple
         with pytest.raises(Exception):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
+            await streamlit_handler(True, AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
         
         # Verify that error correction was called 5 times (once per error, 5 retries)
         # Each retry processes 1 error, so 5 retries = 5 calls
@@ -215,7 +215,7 @@ class TestStreamlitHandler:
         
         # Now it should raise an exception instead of returning a tuple
         with pytest.raises(Exception):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
+            await streamlit_handler(True, AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -225,7 +225,7 @@ class TestStreamlitHandler:
         mock_parse.side_effect = FileNotFoundError("Notebook not found")
         
         with pytest.raises(FileNotFoundError, match="Notebook not found"):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
+            await streamlit_handler(True, AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -240,7 +240,7 @@ class TestStreamlitHandler:
         mock_generate_code.side_effect = Exception("Generation failed")
         
         with pytest.raises(Exception, match="Generation failed"):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
+            await streamlit_handler(True, AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
 
 
 

@@ -113,17 +113,17 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
         streamlit_code = await generate_new_streamlit_code(notebook_code, streamlit_app_prompt)
     else:
         # If the user is editing an existing streamlit app, use the update function
-        streamlit_code = get_app_code_from_file(app_path)
+        existing_streamlit_code = get_app_code_from_file(app_path)
         
-        if streamlit_code is None:
+        if existing_streamlit_code is None:
             raise StreamlitConversionError("Error updating existing streamlit app because app.py file was not found.", 404)
         
-        streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, streamlit_app_prompt) 
+        streamlit_code = await update_existing_streamlit_code(notebook_code, existing_streamlit_code, streamlit_app_prompt) 
        
     # Then, after creating/updating the app, validate that the new code runs 
     errors = validate_app(streamlit_code, notebook_path)
     tries = 0
-    while len(errors)>0 and tries < 5:
+    while len(errors) > 0 and tries < 5:
         for error in errors:
             streamlit_code = await correct_error_in_generation(error, streamlit_code)
         
