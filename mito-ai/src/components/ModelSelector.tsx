@@ -3,7 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import '../../style/ModelSelector.css';
 import NucleausIcon from '../icons/NucleausIcon';
 import BrainIcon from '../icons/BrainIcon';
@@ -73,6 +74,8 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [hoveredModel, setHoveredModel] = useState<ModelMapping | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Load config from localStorage on component mount and notify parent
   useEffect(() => {
@@ -133,9 +136,23 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     };
   }, []);
 
+  // Calculate tooltip position when dropdown opens
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      setTooltipPosition({
+        top: rect.top - 120, // Position above the dropdown, aligned with the model options
+        left: rect.left + 160 // Position to the right of the dropdown options
+      });
+    } else {
+      setTooltipPosition(null);
+    }
+  }, [isOpen]);
+
   return (
     <div className="model-selector">
       <div
+        ref={dropdownRef}
         className={`model-selector-dropdown`}
         onClick={() => setIsOpen(!isOpen)}
         data-testid="model-selector"
@@ -183,8 +200,15 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
           </div>
         )}
       </div>
-      {isOpen && hoveredModel && (
-        <div className="model-tooltip">
+      {isOpen && hoveredModel && tooltipPosition && ReactDOM.createPortal(
+        <div 
+          className="model-tooltip"
+          style={{
+            position: 'fixed',
+            top: tooltipPosition.top,
+            left: tooltipPosition.left
+          }}
+        >
           <div className="model-tooltip-icon">
             {hoveredModel.type === 'smart' ? (
               <BrainIcon height={16} width={16} />
@@ -196,7 +220,8 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
             <div className="model-tooltip-title">{hoveredModel.tooltipTitle}</div>
             <div className="model-tooltip-description">{hoveredModel.tooltipDescription}</div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
