@@ -7,7 +7,12 @@ import React, { useState, useRef } from 'react';
 import madeWithMitoStyles from './MadeWithMito.module.css';
 import { classNames } from '../../utils/classNames';
 
-const MadeWithMito = (): JSX.Element => {
+interface MadeWithMitoProps {
+    title?: string;
+    subtitle?: string;
+}
+
+const MadeWithMito = ({ title, subtitle }: MadeWithMitoProps = {}): JSX.Element => {
     const [selectedVideo, setSelectedVideo] = useState<number>(0);
     const [videoEnded, setVideoEnded] = useState<boolean>(false);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -47,10 +52,10 @@ const MadeWithMito = (): JSX.Element => {
 
     return (
         <div className={madeWithMitoStyles.container}>
-            <h2>
-                Made with Mito
-            </h2>
-
+            <h2>{title || 'Made with Mito'}</h2>
+            {subtitle && (
+                <p>{subtitle}</p>
+            )}
             <div className={madeWithMitoStyles.buttons_container}>
                 {buttonLabels.map((label, index) => (
                     <button
