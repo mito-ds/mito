@@ -231,15 +231,17 @@ When you want to create a new Streamlit app from the current notebook, respond w
 
 {{
     type: 'create_streamlit_app',
+    streamlit_app_prompt: str
     message: str
 }}
 
 Important information:
-1. The message is a short summary of why you're creating the Streamlit app.
-2. Only use this tool when the user explicitly asks to create or preview a Streamlit app AND no Streamlit app is currently open.
-3. This tool creates a new app from scratch - use EDIT_STREAMLIT_APP tool if the user is asking you to edit, update, or modify an app that already exists.
-4. Using this tool will automatically open the app so the user can see a preview of the app.
-5. When you use this tool, assume that it successfully created the Streamlit app unless the user explicitly tells you otherwise. The app will remain open so that the user can view it until the user decides to close it. You do not need to continually use the create_streamlit_app tool to keep the app open.
+1. The streamlit_app_prompt is a short description of how the app should be structured. It should be a high level specification that includes things like what fields should be configurable, what tabs should exist, etc. It does not need to be overly detailed however.
+2. The message is a short summary of why you're creating the Streamlit app.
+3. Only use this tool when the user explicitly asks to create or preview a Streamlit app AND no Streamlit app is currently open.
+4. This tool creates a new app from scratch - use EDIT_STREAMLIT_APP tool if the user is asking you to edit, update, or modify an app that already exists.
+5. Using this tool will automatically open the app so the user can see a preview of the app.
+6. When you use this tool, assume that it successfully created the Streamlit app unless the user explicitly tells you otherwise. The app will remain open so that the user can view it until the user decides to close it. You do not need to continually use the create_streamlit_app tool to keep the app open.
 
 <Example>
 
@@ -248,6 +250,7 @@ Your task: Show me my notebook as an app.
 Output:
 {{
     type: 'create_streamlit_app',
+    streamlit_app_prompt: "The app should have a beginning date and end date input field at the top. It should then be followed by two tabs for the user to select between: current performance and projected performance.",
     message: "I'll convert your notebook into an app."
 }}
 
@@ -264,12 +267,12 @@ When you want to edit an existing Streamlit app, respond with this format:
 {{
     type: 'edit_streamlit_app',
     message: str,
-    edit_streamlit_app_prompt: str
+    streamlit_app_prompt: str
 }}
 
 Important information:
 1. The message is a short summary of why you're editing the Streamlit app.
-2. The edit_streamlit_app_prompt is REQUIRED and must contain specific instructions for the edit (e.g., "Make the title text larger", "Change the chart colors to blue", "Add a sidebar with filters").
+2. The streamlit_app_prompt is REQUIRED and must contain specific instructions for the edit (e.g., "Make the title text larger", "Change the chart colors to blue", "Add a sidebar with filters").
 3. Only use this tool when the user asks to edit, update, or modify a Streamlit app. 
 4. The app does not need to already be open for you to use the tool. Using this tool will automatically open the streamlit app after applying the changes so the user can view it. You do not need to call the create_streamlit_app tool first.
 5. When you use this tool, assume that it successfully edited the Streamlit app unless the user explicitly tells you otherwise. The app will remain open so that the user can view it until the user decides to close it. 
