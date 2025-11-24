@@ -89,7 +89,7 @@ class TestGenerateStreamlitCode:
         mock_stream.return_value = mock_async_gen()
         
         notebook_data: List[dict] = [{"cells": []}]
-        result = await generate_new_streamlit_code(notebook_data)
+        result = await generate_new_streamlit_code(notebook_data, '')
         
         expected_code = "import streamlit\nst.title('Hello')\n"
         assert result == expected_code
@@ -158,11 +158,11 @@ class TestStreamlitHandler:
         # Construct the expected app path using the same method as the production code
         app_directory = get_absolute_notebook_dir_path(notebook_path)
         expected_app_path = get_absolute_app_path(app_directory, app_file_name)
-        await streamlit_handler(notebook_path, app_file_name)
+        await streamlit_handler(True, notebook_path, app_file_name)
         
         # Verify calls
         mock_parse.assert_called_once_with(notebook_path)
-        mock_generate_code.assert_called_once_with(mock_notebook_data)
+        mock_generate_code.assert_called_once_with(mock_notebook_data, '')
         mock_validator.assert_called_once_with("import streamlit\nst.title('Test')", notebook_path)
         mock_create_file.assert_called_once_with(expected_app_path, "import streamlit\nst.title('Test')")
 
@@ -187,7 +187,7 @@ class TestStreamlitHandler:
     
         # Now it should raise an exception instead of returning a tuple
         with pytest.raises(Exception):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'))
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
         
         # Verify that error correction was called 5 times (once per error, 5 retries)
         # Each retry processes 1 error, so 5 retries = 5 calls
@@ -215,7 +215,7 @@ class TestStreamlitHandler:
         
         # Now it should raise an exception instead of returning a tuple
         with pytest.raises(Exception):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'))
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -225,7 +225,7 @@ class TestStreamlitHandler:
         mock_parse.side_effect = FileNotFoundError("Notebook not found")
         
         with pytest.raises(FileNotFoundError, match="Notebook not found"):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'))
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
 
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.streamlit_agent_handler.parse_jupyter_notebook_to_extract_required_content')
@@ -240,7 +240,7 @@ class TestStreamlitHandler:
         mock_generate_code.side_effect = Exception("Generation failed")
         
         with pytest.raises(Exception, match="Generation failed"):
-            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'))
+            await streamlit_handler(AbsoluteNotebookPath("notebook.ipynb"), AppFileName('test-app-file-name.py'), '')
 
 
 
