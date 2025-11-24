@@ -63,7 +63,7 @@ export async function showRecreateAppConfirmation(notebookPath: string, notebook
   });
 
   if (result.button.accept) {
-    void startStreamlitPreviewAndNotify(notebookPath, notebookID, true, undefined, 'Recreating app from scratch...', 'App recreated successfully!');
+    void startStreamlitPreviewAndNotify(notebookPath, notebookID, true, '', 'Recreating app from scratch...', 'App recreated successfully!');
   }
 }
 

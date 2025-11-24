@@ -30,11 +30,6 @@ class StreamlitPreviewHandler(APIHandler):
             # Parse and validate request
             body = self.get_json_body()
             notebook_path, notebook_id, force_recreate, streamlit_app_prompt = validate_request_body(body)
-            
-            print('notebook_path: ', notebook_path)
-            print('notebook_id: ', notebook_id)
-            print('force_recreate: ', force_recreate)
-            print('streamlit_app_prompt: ', streamlit_app_prompt)
 
             # Ensure app exists
             absolute_notebook_path = get_absolute_notebook_path(notebook_path)
