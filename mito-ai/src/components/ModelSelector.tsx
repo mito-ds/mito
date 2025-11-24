@@ -19,8 +19,7 @@ interface ModelMapping {
   displayName: string;
   fullName: string;
   type?: 'smart' | 'fast'; // 'smart' shows brain icon, 'fast' shows lightning icon
-  tooltipTitle: string;
-  tooltipDescription: string;
+  goodFor: string;
 }
 
 const MODEL_MAPPINGS: ModelMapping[] = [
@@ -28,36 +27,31 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     displayName: 'GPT 4.1', 
     fullName: 'gpt-4.1', 
     type: 'smart',
-    tooltipTitle: 'Very Smart Model',
-    tooltipDescription: 'Best for challenging tasks that require advanced reasoning and complex problem-solving.'
+    goodFor: 'Complex data transformations, advanced statistical analysis, debugging intricate code, and multi-step data workflows.'
   },
   { 
     displayName: CLAUDE_HAIKU_DISPLAY_NAME, 
     fullName: CLAUDE_HAIKU_MODEL_NAME, 
     type: 'fast',
-    tooltipTitle: 'Fast Model',
-    tooltipDescription: 'Still smart and capable, but optimized for speed. Best for quick iterations and simple tasks.'
+    goodFor: 'Quick data exploration, simple dataframe operations, basic visualizations, and rapid code iteration.'
   },
   { 
     displayName: CLAUDE_SONNET_DISPLAY_NAME, 
     fullName: CLAUDE_SONNET_MODEL_NAME, 
     type: 'smart',
-    tooltipTitle: 'Very Smart Model',
-    tooltipDescription: 'Best for challenging tasks that require advanced reasoning and complex problem-solving.'
+    goodFor: 'Complex data analysis, advanced pandas operations, statistical modeling, and multi-step data transformations.'
   },
   { 
     displayName: 'Gemini 2.5 Pro', 
     fullName: 'gemini-2.5-pro-preview-03-25', 
     type: 'smart',
-    tooltipTitle: 'Very Smart Model',
-    tooltipDescription: 'Best for challenging tasks that require advanced reasoning and complex problem-solving.'
+    goodFor: 'Complex data analysis, advanced coding tasks, statistical analysis, and working with large datasets.'
   },
   { 
     displayName: 'Gemini 3 Pro', 
     fullName: 'gemini-3-pro-preview', 
     type: 'smart',
-    tooltipTitle: 'Very Smart Model',
-    tooltipDescription: 'Best for challenging tasks that require advanced reasoning and complex problem-solving.'
+    goodFor: 'Complex data analysis, advanced statistical modeling, sophisticated data transformations, and multi-step analysis workflows.'
   }
 ];
 
@@ -217,8 +211,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
             )}
           </div>
           <div className="model-tooltip-content">
-            <div className="model-tooltip-title">{hoveredModel.tooltipTitle}</div>
-            <div className="model-tooltip-description">{hoveredModel.tooltipDescription}</div>
+            <div className="model-tooltip-title">{hoveredModel.displayName}</div>
+            <div className="model-tooltip-section">
+              <div className="model-tooltip-section-label">Good For:</div>
+              <div className="model-tooltip-section-text">{hoveredModel.goodFor}</div>
+            </div>
           </div>
         </div>,
         document.body

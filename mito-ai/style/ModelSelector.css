@@ -178,7 +178,7 @@
   padding: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 10000; /* High z-index to appear above Jupyter notebook */
-  width: 220px;
+  width: 260px;
   display: flex;
   gap: 10px;
   align-items: flex-start;
@@ -197,16 +197,32 @@
 .model-tooltip-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  flex: 1;
 }
 
 .model-tooltip-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--jp-content-font-color1);
+  margin-bottom: 2px;
 }
 
-.model-tooltip-description {
+.model-tooltip-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.model-tooltip-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--jp-content-font-color1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.model-tooltip-section-text {
   font-size: 12px;
   color: var(--jp-content-font-color2);
   line-height: 1.4;
