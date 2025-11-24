@@ -10,6 +10,7 @@ from mito_ai.completions.models import AgentResponse, MessageType, ResponseForma
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
 from mito_ai.constants import MITO_ANTHROPIC_URL
+from mito_ai.utils.tokens import get_rough_token_estimatation_anthropic
 
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
@@ -17,7 +18,29 @@ __user_id: Optional[str] = None
 ANTHROPIC_TIMEOUT = 60
 max_retries = 1
 
-FAST_ANTHROPIC_MODEL = "claude-3-5-haiku-latest"
+FAST_ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
+LARGE_CONTEXT_MODEL = "claude-sonnet-4-5-20250929" # This should be in sync with ModelSelector.tsx
+
+def does_message_exceed_max_tokens(system: Union[str, List[TextBlockParam], anthropic.Omit], messages: List[MessageParam]) -> bool:
+    token_estimation = get_rough_token_estimatation_anthropic(system, messages)
+
+    if token_estimation is not None and token_estimation > 200_000:
+        return True
+    return False
+
+def select_correct_model(default_model: str, message_type: MessageType, system: Union[str, List[TextBlockParam], anthropic.Omit], messages: List[MessageParam]) -> str:
+    
+    message_exceeds_fast_model_context_limit = does_message_exceed_max_tokens(system, messages)
+    if message_exceeds_fast_model_context_limit:
+        # Anthropic lets us use beta mode to extend context window for sonnet class models
+        # but not haiku models
+        return LARGE_CONTEXT_MODEL
+    
+    message_requires_fast_model = does_message_require_fast_model(message_type)
+    if message_requires_fast_model:
+        return FAST_ANTHROPIC_MODEL
+    
+    return default_model    
 
 def _prepare_anthropic_request_data_and_headers(
     model: Union[str, None],
@@ -36,6 +59,7 @@ def _prepare_anthropic_request_data_and_headers(
         __user_email = get_user_field(UJ_USER_EMAIL)
     if __user_id is None:
         __user_id = get_user_field(UJ_STATIC_USER_ID)
+    
     # Build the inner data dict (excluding timeout, max_retries, email, user_id)
     inner_data: Dict[str, Any] = {
         "model": model,
@@ -44,6 +68,7 @@ def _prepare_anthropic_request_data_and_headers(
         "messages": messages,
         "betas": ["context-1m-2025-08-07"]
     }
+    
     # Add system to inner_data only if it is not anthropic.Omit
     if not isinstance(system, anthropic.Omit):
         inner_data["system"] = system
@@ -139,8 +164,7 @@ def get_anthropic_completion_function_params(
     Only includes fields needed for the Anthropic API.
     """
     
-    message_requires_fast_model = does_message_require_fast_model(message_type)
-    model = FAST_ANTHROPIC_MODEL if message_requires_fast_model else model
+    model = select_correct_model(model, message_type, system, messages)
     
     provider_data = {
         "model": model,
@@ -166,3 +190,4 @@ def get_anthropic_completion_function_params(
         provider_data["stream"] = stream
     # Optionally handle response_format_info if Anthropic supports it in the future
     return provider_data
+

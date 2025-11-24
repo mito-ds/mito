@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../style/ModelSelector.css';
 import NucleausIcon from '../icons/NucleausIcon';
-import { CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME } from '../utils/models';
+import { CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME, CLAUDE_HAIKU_DISPLAY_NAME, CLAUDE_HAIKU_MODEL_NAME } from '../utils/models';
 
 interface ModelConfig {
   model: string;
@@ -20,6 +20,7 @@ interface ModelMapping {
 const MODEL_MAPPINGS: ModelMapping[] = [
   { displayName: 'GPT 4.1', fullName: 'gpt-4.1' },
   { displayName: CLAUDE_SONNET_DISPLAY_NAME, fullName: CLAUDE_SONNET_MODEL_NAME },
+  { displayName: CLAUDE_HAIKU_DISPLAY_NAME, fullName: CLAUDE_HAIKU_MODEL_NAME },
   { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25' },
   { displayName: 'Gemini 3 Pro', fullName: 'gemini-3-pro-preview' }
 ];
