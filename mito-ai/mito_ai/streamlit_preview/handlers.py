@@ -30,6 +30,11 @@ class StreamlitPreviewHandler(APIHandler):
             # Parse and validate request
             body = self.get_json_body()
             notebook_path, notebook_id, force_recreate, streamlit_app_prompt = validate_request_body(body)
+            
+            print('notebook_path: ', notebook_path)
+            print('notebook_id: ', notebook_id)
+            print('force_recreate: ', force_recreate)
+            print('streamlit_app_prompt: ', streamlit_app_prompt)
 
             # Ensure app exists
             absolute_notebook_path = get_absolute_notebook_path(notebook_path)
@@ -47,6 +52,7 @@ class StreamlitPreviewHandler(APIHandler):
                 # Create a new app 
                 await streamlit_handler(True, absolute_notebook_path, app_file_name, streamlit_app_prompt)
             elif streamlit_app_prompt != '':
+                print("CALLING HERE")
                 # Update an existing app if there is a prompt provided. Otherwise, the user is just
                 # starting an existing app so we can skip the streamlit_handler all together
                 await streamlit_handler(False, absolute_notebook_path, app_file_name, streamlit_app_prompt)

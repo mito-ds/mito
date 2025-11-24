@@ -238,9 +238,9 @@ When you want to create a new Streamlit app from the current notebook, respond w
 Important information:
 1. The streamlit_app_prompt is a short description of how the app should be structured. It should be a high level specification that includes things like what fields should be configurable, what tabs should exist, etc. It does not need to be overly detailed however.
 2. The message is a short summary of why you're creating the Streamlit app.
-3. Only use this tool when the user explicitly asks to create or preview a Streamlit app AND no Streamlit app is currently open.
+3. Only use this tool when the user explicitly asks to create or preview a Streamlit app. If the streamlit app for this app already exists, then use an empty string '' as the streamlit_app_prompt.
 4. This tool creates a new app from scratch - use EDIT_STREAMLIT_APP tool if the user is asking you to edit, update, or modify an app that already exists.
-5. Using this tool will automatically open the app so the user can see a preview of the app.
+5. Using this tool will automatically open the app so the user can see a preview of the app. If the user is asking you to open an app that already exists, but not make any changes to the app, this is the correct tool.
 6. When you use this tool, assume that it successfully created the Streamlit app unless the user explicitly tells you otherwise. The app will remain open so that the user can view it until the user decides to close it. You do not need to continually use the create_streamlit_app tool to keep the app open.
 
 <Example>
