@@ -35,7 +35,7 @@ class AgentResponse(BaseModel):
     get_cell_output_cell_id: Optional[str]
     next_steps: Optional[List[str]]
     analysis_assumptions: Optional[List[str]]
-    edit_streamlit_app_prompt: Optional[str]
+    streamlit_app_prompt: Optional[str]
     
     
 @dataclass(frozen=True)

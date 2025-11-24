@@ -45,9 +45,9 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
         correctedResponse.analysis_assumptions = correctedResponse.analysis_assumptions?.filter(assumption => assumption.trim() !== '')
     }
 
-    // Correct edit_streamlit_app_prompt - ensure it's a string when present
-    const editStreamlitAppPromptType = typeof correctedResponse.edit_streamlit_app_prompt;
-    correctedResponse.edit_streamlit_app_prompt = editStreamlitAppPromptType === 'string' ? correctedResponse.edit_streamlit_app_prompt : undefined;
+    // Correct streamlit_app_prompt - ensure it's a string when present
+    const editStreamlitAppPromptType = typeof correctedResponse.streamlit_app_prompt;
+    correctedResponse.streamlit_app_prompt = editStreamlitAppPromptType === 'string' ? correctedResponse.streamlit_app_prompt : undefined;
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 
     // not caused issues thus far.

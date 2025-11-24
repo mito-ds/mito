@@ -22,8 +22,8 @@ def validate_request_body(body: Optional[dict]) -> Tuple[str, str, bool, str]:
     if not isinstance(force_recreate, bool):
         raise StreamlitPreviewError("force_recreate must be a boolean", 400)
 
-    prompt = body.get("edit_streamlit_app_prompt", "")
-    if not isinstance(prompt, str):
-        raise StreamlitPreviewError("prompt must be a string", 400)
+    streamlit_app_prompt = body.get("streamlit_app_prompt", "")
+    if not isinstance(streamlit_app_prompt, str):
+        raise StreamlitPreviewError("streamlit_app_prompt must be a string", 400)
 
-    return notebook_path, notebook_id, force_recreate, prompt
+    return notebook_path, notebook_id, force_recreate, streamlit_app_prompt

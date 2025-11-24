@@ -117,7 +117,7 @@ export const createNewStreamlitAppPreview = async(
     notebookPath: string, 
     notebookID: string | undefined,
     force_recreate: boolean = false,
-    edit_streamlit_app_prompt: string = ''
+    streamlit_app_prompt: string = ''
 ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> => {
     const response = await requestAPI<StreamlitPreviewResponseSuccess>('streamlit-preview/create-new-app', {
         method: 'POST',
@@ -125,7 +125,7 @@ export const createNewStreamlitAppPreview = async(
             notebook_path: notebookPath, 
             notebook_id: notebookID,
             force_recreate: force_recreate,
-            edit_streamlit_app_prompt: edit_streamlit_app_prompt
+            streamlit_app_prompt: streamlit_app_prompt
         })
     })
     
