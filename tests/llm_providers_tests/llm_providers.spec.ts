@@ -29,11 +29,14 @@ import {
   GPT_4_1_MODEL_NAME, 
   CLAUDE_SONNET_DISPLAY_NAME, 
   CLAUDE_SONNET_MODEL_NAME,
+  CLAUDE_HAIKU_DISPLAY_NAME,
+  CLAUDE_HAIKU_MODEL_NAME,
  } from '../../mito-ai/src/utils/models';
 
 // Define test configurations for different models
 const modelConfigs = [
   { name: CLAUDE_SONNET_DISPLAY_NAME, provider: CLAUDE_SONNET_MODEL_NAME },
+  { name: CLAUDE_HAIKU_DISPLAY_NAME, provider: CLAUDE_HAIKU_MODEL_NAME },
   { name: 'Gemini 2.5 Pro', provider: 'Gemini 2.5 Pro' },
   { name: 'Gemini 3 Pro', provider: 'Gemini 3 Pro' },
   { name: GPT_4_1_DISPLAY_NAME, provider: GPT_4_1_MODEL_NAME }
