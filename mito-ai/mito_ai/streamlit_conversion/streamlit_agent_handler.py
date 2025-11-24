@@ -16,10 +16,10 @@ from mito_ai.utils.error_classes import StreamlitConversionError
 from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
 from mito_ai.path_utils import AbsoluteNotebookPath, AppFileName, get_absolute_notebook_dir_path, get_absolute_app_path, get_app_file_name
 
-async def generate_new_streamlit_code(notebook: List[dict]) -> str:
+async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt: str) -> str:
     """Send a query to the agent, get its response and parse the code"""
     
-    prompt_text = get_streamlit_app_creation_prompt(notebook)
+    prompt_text = get_streamlit_app_creation_prompt(notebook, streamlit_app_prompt)
     
     messages: List[MessageParam] = [
         cast(MessageParam, {
@@ -100,7 +100,7 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
 
     return streamlit_app_code
 
-async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNotebookPath, app_file_name: AppFileName, prompt: str = "") -> None:
+async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNotebookPath, app_file_name: AppFileName, streamlit_app_prompt: str = "") -> None:
     """Handler function for streamlit code generation and validation"""
 
     # Convert to absolute path for consistent handling
@@ -108,10 +108,9 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
     app_directory = get_absolute_notebook_dir_path(notebook_path)
     app_path = get_absolute_app_path(app_directory, app_file_name)
     
-    
     if create_new_app:
         # Otherwise generate a new streamlit app
-        streamlit_code = await generate_new_streamlit_code(notebook_code)
+        streamlit_code = await generate_new_streamlit_code(notebook_code, streamlit_app_prompt)
     else:
         # If the user is editing an existing streamlit app, use the update function
         streamlit_code = get_app_code_from_file(app_path)
@@ -119,7 +118,7 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
         if streamlit_code is None:
             raise StreamlitConversionError("Error updating existing streamlit app because app.py file was not found.", 404)
         
-        streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, prompt) 
+        streamlit_code = await update_existing_streamlit_code(notebook_code, streamlit_code, streamlit_app_prompt) 
        
     # Then, after creating/updating the app, validate that the new code runs 
     errors = validate_app(streamlit_code, notebook_path)
@@ -142,4 +141,4 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
     
     # Finally, update the app.py file with the new code
     create_app_file(app_path, streamlit_code)
-    log_streamlit_app_conversion_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, prompt)
+    log_streamlit_app_conversion_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, streamlit_app_prompt)
