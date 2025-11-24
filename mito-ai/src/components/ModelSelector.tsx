@@ -6,6 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import '../../style/ModelSelector.css';
 import NucleausIcon from '../icons/NucleausIcon';
+import BrainIcon from '../icons/BrainIcon';
+import LightningIcon from '../icons/LightningIcon';
 import { CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME, CLAUDE_HAIKU_DISPLAY_NAME, CLAUDE_HAIKU_MODEL_NAME } from '../utils/models';
 
 interface ModelConfig {
@@ -15,14 +17,15 @@ interface ModelConfig {
 interface ModelMapping {
   displayName: string;
   fullName: string;
+  type?: 'smart' | 'fast'; // 'smart' shows brain icon, 'fast' shows lightning icon
 }
 
 const MODEL_MAPPINGS: ModelMapping[] = [
-  { displayName: 'GPT 4.1', fullName: 'gpt-4.1' },
-  { displayName: CLAUDE_HAIKU_DISPLAY_NAME, fullName: CLAUDE_HAIKU_MODEL_NAME },
-  { displayName: CLAUDE_SONNET_DISPLAY_NAME, fullName: CLAUDE_SONNET_MODEL_NAME },
-  { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25' },
-  { displayName: 'Gemini 3 Pro', fullName: 'gemini-3-pro-preview' }
+  { displayName: 'GPT 4.1', fullName: 'gpt-4.1', type: 'smart' },
+  { displayName: CLAUDE_HAIKU_DISPLAY_NAME, fullName: CLAUDE_HAIKU_MODEL_NAME, type: 'fast' },
+  { displayName: CLAUDE_SONNET_DISPLAY_NAME, fullName: CLAUDE_SONNET_MODEL_NAME, type: 'smart' },
+  { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25', type: 'smart' },
+  { displayName: 'Gemini 3 Pro', fullName: 'gemini-3-pro-preview', type: 'smart' }
 ];
 
 const ALL_MODEL_DISPLAY_NAMES = MODEL_MAPPINGS.map(mapping => mapping.displayName);
@@ -117,20 +120,33 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
             className={`model-options dropup`}
             style={{ minWidth: '150px' }}
           >
-            {ALL_MODEL_DISPLAY_NAMES.map(model => (
-              <div
-                key={model}
-                className={`model-option ${model === selectedModel ? 'selected' : ''}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleModelChange(model);
-                }}
-                title={model} // Show full name on hover
-                data-testid="model-option"
-              >
-                {model}
-              </div>
-            ))}
+            {ALL_MODEL_DISPLAY_NAMES.map(model => {
+              const modelMapping = MODEL_MAPPINGS.find(m => m.displayName === model);
+              return (
+                <div
+                  key={model}
+                  className={`model-option ${model === selectedModel ? 'selected' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleModelChange(model);
+                  }}
+                  title={model} // Show full name on hover
+                  data-testid="model-option"
+                >
+                  <span className="model-option-name">{model}</span>
+                  {modelMapping?.type === 'smart' && (
+                    <span className="model-type-icon" title="Very smart model - best for challenging tasks">
+                      <BrainIcon height={12} width={12} />
+                    </span>
+                  )}
+                  {modelMapping?.type === 'fast' && (
+                    <span className="model-type-icon" title="Fast model - still smart and capable, returns results fastest">
+                      <LightningIcon height={12} width={12} />
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
