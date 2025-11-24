@@ -14,19 +14,13 @@ Here is a high level outline of the streamlit app. Use your best judgement to im
 {streamlit_app_prompt}
 
 """
-        
-        
-
-
+    
 
 def get_streamlit_app_creation_prompt(notebook: List[dict], streamlit_app_prompt: str) -> str:
     """
     This prompt is used to create a streamlit app from a notebook.
     """
     streamlit_app_spec_section = get_streamlit_app_spec_section(streamlit_app_prompt)
-    
-    print("STREAMLIT APP PROMPT")
-    print(streamlit_app_prompt)
     
     return f"""Convert the following Jupyter notebook into a Streamlit application.
 

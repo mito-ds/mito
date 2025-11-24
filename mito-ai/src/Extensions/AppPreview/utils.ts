@@ -4,7 +4,7 @@
  */
 
 import { PathExt } from "@jupyterlab/coreutils";
-import { createNewStreamlitAppPreview } from "../../restAPI/RestAPI";
+import { startStreamlitAppPreview } from "../../restAPI/RestAPI";
 import { StreamlitPreviewResponseError, StreamlitPreviewResponseSuccess } from "./StreamlitPreviewPlugin";
 import { Dialog, Notification, showDialog } from "@jupyterlab/apputils";
 import { NotebookPanel } from '@jupyterlab/notebook';
@@ -27,7 +27,7 @@ export const startStreamlitPreviewAndNotify = async (
 
 
   // TODO: I can have one function for creating new streamlit app and another function for editing a streamlit app
-  const previewData = await createNewStreamlitAppPreview(notebookPath, notebookID, force_recreate, edit_prompt);
+  const previewData = await startStreamlitAppPreview(notebookPath, notebookID, force_recreate, edit_prompt);
 
   if (previewData.type === 'success') {
     // Update notification to success

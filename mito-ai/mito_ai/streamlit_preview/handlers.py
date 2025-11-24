@@ -1,7 +1,6 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import Union
 import uuid
 from mito_ai.streamlit_preview.utils import validate_request_body
 import tornado
@@ -24,7 +23,7 @@ class StreamlitPreviewHandler(APIHandler):
 
     @tornado.web.authenticated
     
-    async def post(self, notebook_id: Union[str, None] = None) -> None:
+    async def post(self) -> None:
         """Start a new streamlit preview."""
         try:
             

@@ -113,13 +113,13 @@ STREAMLIT PREVIEW ENDPOINTS
 ************************************/
 
 
-export const createNewStreamlitAppPreview = async(
+export const startStreamlitAppPreview = async(
     notebookPath: string, 
     notebookID: string | undefined,
     force_recreate: boolean = false,
     streamlit_app_prompt: string = ''
 ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> => {
-    const response = await requestAPI<StreamlitPreviewResponseSuccess>('streamlit-preview/create-new-app', {
+    const response = await requestAPI<StreamlitPreviewResponseSuccess>('streamlit-preview', {
         method: 'POST',
         body: JSON.stringify({ 
             notebook_path: notebookPath, 
