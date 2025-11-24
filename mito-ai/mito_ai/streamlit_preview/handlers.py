@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import Union
 import uuid
 from mito_ai.streamlit_preview.utils import validate_request_body
 import tornado
@@ -22,9 +23,19 @@ class StreamlitPreviewHandler(APIHandler):
         self.preview_manager = StreamlitPreviewManager()
 
     @tornado.web.authenticated
-    async def post(self) -> None:
+    
+    async def post(self, notebook_id: Union[str, None] = None) -> None:
         """Start a new streamlit preview."""
         try:
+            
+            # If a notebook_id is provided as a url param then we update that app
+            
+            
+            
+            # Otherwise, we create a new app for the 
+            
+            
+            
             # Parse and validate request
             body = self.get_json_body()
             notebook_path, notebook_id, force_recreate, edit_prompt = validate_request_body(body)

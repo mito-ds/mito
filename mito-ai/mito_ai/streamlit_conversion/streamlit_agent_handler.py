@@ -108,6 +108,35 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, app_file_name: 
     app_directory = get_absolute_notebook_dir_path(notebook_path)
     app_path = get_absolute_app_path(app_directory, app_file_name)
     
+    # Instead of casing on edit_prompt we want to case on something else because we have more scenarios now: 
+    
+    
+    # 1. Create new app w/o prompt -> triggerd by clicking recreate app or app mode button    
+    # - app does not exist & no prompt 
+    
+      
+    # 2. Create new app w/ prompt -> triggered by agent taskpane
+    # - app does not exist & prompt
+    
+    
+    # 3. Edit existing app w/ prompt -> triggered by agent or edit prompt input field
+    # - app exists & prompt
+    
+    # 4. Open an existing app -> triggered by opening the app 
+    # - app exists & no prompt 
+    
+    # 5. Recreate an app -> triggered by clicking the refresh app button
+    # - app exists, force_recreate param -> This has the same behavior as just creating a new app
+    
+    
+    # Maybe all of this logic should happen outside of the strealmit_handler. The streamlit handler is just responsible for 
+    # building or updating a streamlit app! Cause eventually we will create separate functions for editing vs creating, etc
+    # and those functions will just rely on the streamlit_handler code for actually building the app
+    
+    
+    # Currently, we use force_recreate to tell us if we want to create a new app when the app already exists.
+    # We do this because if the app is closed, to open it, we still go through this flow: We send a create app message, 
+    # then we check if the app exists already, and if it does, we start the preview. 
     if edit_prompt != "":
         # If the user is editing an existing streamlit app, use the update function
         streamlit_code = get_app_code_from_file(app_path)

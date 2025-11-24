@@ -48,6 +48,7 @@ export type AgentResponse = {
   next_steps?: string[] | null | undefined
   analysis_assumptions?: string[] | null | undefined
   edit_streamlit_app_prompt?: string | null | undefined
+  create_streamlit_app_prompt?: string | null | undefined
 }
 
 /* 
