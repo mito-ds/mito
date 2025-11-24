@@ -18,14 +18,46 @@ interface ModelMapping {
   displayName: string;
   fullName: string;
   type?: 'smart' | 'fast'; // 'smart' shows brain icon, 'fast' shows lightning icon
+  tooltipTitle: string;
+  tooltipDescription: string;
 }
 
 const MODEL_MAPPINGS: ModelMapping[] = [
-  { displayName: 'GPT 4.1', fullName: 'gpt-4.1', type: 'smart' },
-  { displayName: CLAUDE_HAIKU_DISPLAY_NAME, fullName: CLAUDE_HAIKU_MODEL_NAME, type: 'fast' },
-  { displayName: CLAUDE_SONNET_DISPLAY_NAME, fullName: CLAUDE_SONNET_MODEL_NAME, type: 'smart' },
-  { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25', type: 'smart' },
-  { displayName: 'Gemini 3 Pro', fullName: 'gemini-3-pro-preview', type: 'smart' }
+  { 
+    displayName: 'GPT 4.1', 
+    fullName: 'gpt-4.1', 
+    type: 'smart',
+    tooltipTitle: 'Very Smart Model',
+    tooltipDescription: 'Best for challenging tasks that require advanced reasoning and complex problem-solving.'
+  },
+  { 
+    displayName: CLAUDE_HAIKU_DISPLAY_NAME, 
+    fullName: CLAUDE_HAIKU_MODEL_NAME, 
+    type: 'fast',
+    tooltipTitle: 'Fast Model',
+    tooltipDescription: 'Still smart and capable, but optimized for speed. Best for quick iterations and simple tasks.'
+  },
+  { 
+    displayName: CLAUDE_SONNET_DISPLAY_NAME, 
+    fullName: CLAUDE_SONNET_MODEL_NAME, 
+    type: 'smart',
+    tooltipTitle: 'Very Smart Model',
+    tooltipDescription: 'Best for challenging tasks that require advanced reasoning and complex problem-solving.'
+  },
+  { 
+    displayName: 'Gemini 2.5 Pro', 
+    fullName: 'gemini-2.5-pro-preview-03-25', 
+    type: 'smart',
+    tooltipTitle: 'Very Smart Model',
+    tooltipDescription: 'Best for challenging tasks that require advanced reasoning and complex problem-solving.'
+  },
+  { 
+    displayName: 'Gemini 3 Pro', 
+    fullName: 'gemini-3-pro-preview', 
+    type: 'smart',
+    tooltipTitle: 'Very Smart Model',
+    tooltipDescription: 'Best for challenging tasks that require advanced reasoning and complex problem-solving.'
+  }
 ];
 
 const ALL_MODEL_DISPLAY_NAMES = MODEL_MAPPINGS.map(mapping => mapping.displayName);
@@ -40,6 +72,7 @@ interface ModelSelectorProps {
 const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [hoveredModel, setHoveredModel] = useState<ModelMapping | null>(null);
 
   // Load config from localStorage on component mount and notify parent
   useEffect(() => {
@@ -105,7 +138,6 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
       <div
         className={`model-selector-dropdown`}
         onClick={() => setIsOpen(!isOpen)}
-        title={selectedModel}
         data-testid="model-selector"
       >
         <div className="selected-model">
@@ -119,6 +151,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
           <div
             className={`model-options dropup`}
             style={{ minWidth: '150px' }}
+            onMouseLeave={() => setHoveredModel(null)}
           >
             {ALL_MODEL_DISPLAY_NAMES.map(model => {
               const modelMapping = MODEL_MAPPINGS.find(m => m.displayName === model);
@@ -130,17 +163,17 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
                     e.stopPropagation();
                     handleModelChange(model);
                   }}
-                  title={model} // Show full name on hover
+                  onMouseEnter={() => setHoveredModel(modelMapping || null)}
                   data-testid="model-option"
                 >
                   <span className="model-option-name">{model}</span>
                   {modelMapping?.type === 'smart' && (
-                    <span className="model-type-icon" title="Very smart model - best for challenging tasks">
+                    <span className="model-type-icon">
                       <BrainIcon height={12} width={12} />
                     </span>
                   )}
                   {modelMapping?.type === 'fast' && (
-                    <span className="model-type-icon" title="Fast model - still smart and capable, returns results fastest">
+                    <span className="model-type-icon">
                       <LightningIcon height={12} width={12} />
                     </span>
                   )}
@@ -150,6 +183,21 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
           </div>
         )}
       </div>
+      {isOpen && hoveredModel && (
+        <div className="model-tooltip">
+          <div className="model-tooltip-icon">
+            {hoveredModel.type === 'smart' ? (
+              <BrainIcon height={16} width={16} />
+            ) : (
+              <LightningIcon height={16} width={16} />
+            )}
+          </div>
+          <div className="model-tooltip-content">
+            <div className="model-tooltip-title">{hoveredModel.tooltipTitle}</div>
+            <div className="model-tooltip-description">{hoveredModel.tooltipDescription}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
