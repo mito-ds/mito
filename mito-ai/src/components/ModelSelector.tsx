@@ -19,8 +19,8 @@ interface ModelMapping {
 
 const MODEL_MAPPINGS: ModelMapping[] = [
   { displayName: 'GPT 4.1', fullName: 'gpt-4.1' },
-  { displayName: CLAUDE_SONNET_DISPLAY_NAME, fullName: CLAUDE_SONNET_MODEL_NAME },
   { displayName: CLAUDE_HAIKU_DISPLAY_NAME, fullName: CLAUDE_HAIKU_MODEL_NAME },
+  { displayName: CLAUDE_SONNET_DISPLAY_NAME, fullName: CLAUDE_SONNET_MODEL_NAME },
   { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25' },
   { displayName: 'Gemini 3 Pro', fullName: 'gemini-3-pro-preview' }
 ];

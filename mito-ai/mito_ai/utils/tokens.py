@@ -9,9 +9,6 @@ def get_rough_token_estimatation_anthropic(system_message: Union[str, List[TextB
     We bias towards overestimating to make sure we don't accidentally
     think a conversation is safe to send to an AI without having applied an
     optimization strategy. 
-    
-    General rule of thumb: 1 token is about 4 characters. 
-    To be safe we use: 1 token is about 5 characters
     """
     
     try:
@@ -19,7 +16,10 @@ def get_rough_token_estimatation_anthropic(system_message: Union[str, List[TextB
         stringified_messages = str(messages)
         total_stringified_context = stringified_system_message + stringified_messages 
         
-        return len(total_stringified_context) / 5 + 1
+        # The general rule of thumb is: 1 token is about 4 characters. 
+        # To be safe we use:            1 token is about 3 characters
+        # This helps make sure we always overestimate
+        return len(total_stringified_context) / 3
     
     except: 
         return None
