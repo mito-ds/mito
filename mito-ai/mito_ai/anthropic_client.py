@@ -9,12 +9,11 @@ from anthropic.types import Message, MessageParam, TextBlockParam
 from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from mito_ai.constants import MESSAGE_HISTORY_TRIM_THRESHOLD
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
+from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
 # Max tokens is a required parameter for the Anthropic API. 
 # We set it to a high number so that we can edit large code cells
-# 8192 is the maximum allowed number of output tokens for claude-3-5-haiku-20241022
-MAX_TOKENS = 8_000
+MAX_TOKENS = 64_000
 
 def extract_and_parse_anthropic_json_response(response: Message) -> Union[object, Any]:
     """
@@ -278,6 +277,8 @@ class AnthropicClient:
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
             anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages)
+            model = select_correct_model(model, message_type, anthropic_system_prompt, anthropic_messages)
+
             accumulated_response = ""
 
             if self.api_key:
