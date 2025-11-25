@@ -32,13 +32,13 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     fullName: 'gpt-4.1', 
     type: 'smart',
     goodFor: [
-      'Complex data transformations',
-      'Advanced statistical analysis',
-      'Debugging intricate code',
+      'Complex data analysis',
+      'Advanced code generation and debugging',
+      'Statistical analysis and modeling',
       'Multi-step data workflows'
     ],
     provider: 'OpenAI',
-    tokenLimit: '128K',
+    tokenLimit: '1M',
     speed: 'Medium',
     complexityHandling: 'High'
   },
@@ -48,9 +48,9 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     type: 'fast',
     goodFor: [
       'Quick data exploration',
-      'Simple dataframe operations',
-      'Basic visualizations',
-      'Rapid code iteration'
+      'Pandas operations',
+      'Basic data cleaning',
+      'Fast code iterations'
     ],
     provider: 'Anthropic',
     tokenLimit: '200K',
@@ -63,12 +63,12 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     type: 'smart',
     goodFor: [
       'Complex data analysis',
-      'Advanced pandas operations',
-      'Statistical modeling',
-      'Multi-step data transformations'
+      'Advanced code generation and debugging',
+      'Statistical analysis and modeling',
+      'Multi-step data workflows'
     ],
     provider: 'Anthropic',
-    tokenLimit: '200K',
+    tokenLimit: '1M',
     speed: 'Medium',
     complexityHandling: 'High'
   },
@@ -78,9 +78,9 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     type: 'smart',
     goodFor: [
       'Complex data analysis',
-      'Advanced coding tasks',
-      'Statistical analysis',
-      'Working with large datasets'
+      'Advanced code generation and debugging',
+      'Statistical analysis and modeling',
+      'Multi-step data workflows'
     ],
     provider: 'Google',
     tokenLimit: '1M',
@@ -92,10 +92,10 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     fullName: 'gemini-3-pro-preview', 
     type: 'smart',
     goodFor: [
-      'Complex data analysis',
-      'Advanced statistical modeling',
-      'Sophisticated data transformations',
-      'Multi-step analysis workflows'
+      'Most complex data analysis',
+      'Advanced code generation and debugging',
+      'Statistical analysis and modeling',
+      'Multi-step data workflows'
     ],
     provider: 'Google',
     tokenLimit: '1M',
