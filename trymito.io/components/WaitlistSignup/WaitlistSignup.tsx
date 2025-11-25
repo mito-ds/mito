@@ -28,7 +28,7 @@ const WaitlistSignup = (): JSX.Element => {
 
   const handleEmailSubmit = async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    
+
     if (!email || isSubmitting) {
       return;
     }
@@ -65,7 +65,7 @@ const WaitlistSignup = (): JSX.Element => {
 
   const handleDetailsSubmit = async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    
+
     if (!firstName || !lastName || isSubmitting) {
       return;
     }
@@ -80,11 +80,11 @@ const WaitlistSignup = (): JSX.Element => {
           firstName: firstName,
           lastName: lastName,
         };
-        
+
         if (company) {
           traits.company = company;
         }
-        
+
         window.analytics.identify(email, traits);
         window.analytics.track('Waitlist Signup - Complete', {
           location: 'homepage_hero',
@@ -149,7 +149,10 @@ const WaitlistSignup = (): JSX.Element => {
 
   // Step 2: First name, last name, and company
   return (
-    <form onSubmit={handleDetailsSubmit} className={waitlistStyles.waitlist_container}>
+    <form onSubmit={handleDetailsSubmit} className={classNames(waitlistStyles.waitlist_container, waitlistStyles.additional_step)}>
+      <p className={waitlistStyles.additional_info_message}>
+        Share a bit about yourself to move up the waitlist
+      </p>
       <div className={waitlistStyles.name_row}>
         <input
           type="text"
