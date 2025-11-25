@@ -12,6 +12,20 @@
   align-items: center;
 }
 
+.name_row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.email_row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
 .email_input {
   width: 100%;
   padding: 10px 15px;
@@ -189,12 +203,24 @@
 /* Medium screens (50em+) - keep centered like description text */
 @media only screen and (min-width: 50em) {
   .waitlist_container {
-    flex-direction: row;
+    flex-direction: column;
     max-width: 40rem;
   }
 
   .additional_step {
     flex-direction: column !important;
+  }
+
+  .name_row {
+    flex-direction: row;
+  }
+
+  .email_row {
+    flex-direction: row;
+  }
+
+  .email_row .email_input {
+    flex: 1;
   }
 
   .email_input {
