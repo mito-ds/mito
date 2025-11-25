@@ -9,7 +9,9 @@ import { copyIcon } from '@jupyterlab/ui-components';
 import { logoutAndClearJWTTokens } from '../AppDeploy/auth';
 import { fetchUserApps, GetAppsResponse, AppMetadata, isGetAppsSuccess, AppStatus } from './ListAppsAPI';
 import { IAppManagerService } from './ManageAppsPlugin';
+import { showAuthenticationPopup } from '../AppDeploy/authPopupUtils';
 import '../../../style/AppsList.css';
+import '../../../style/button.css';
 
 // Add props interface to receive the appManagerService
 interface AppsListProps {
@@ -21,44 +23,40 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  // Fetch apps on component mount
-  React.useEffect(() => {
-    const loadApps = async (): Promise<void> => {
-      try {
-        console.log('[AppsList] Starting to load apps...');
-        setLoading(true);
-        setError(null);
-
-        console.log('[AppsList] Calling fetchUserApps...');
-        const response: GetAppsResponse = await fetchUserApps(appManagerService);
-        console.log('[AppsList] fetchUserApps response:', response);
-
-        if (isGetAppsSuccess(response)) {
-          setApps(response.apps);
-        } else {
-          setError(response.errorMessage || 'Failed to load apps');
-          setApps([]);
-        }
-      } catch (err) {
-        console.error('[AppsList] Error loading apps:', err);
-        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
-        setApps([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    console.log('[AppsList] Component mounted, calling loadApps...');
-    void loadApps();
-  }, [appManagerService]);
-
   const refreshApps = async (): Promise<void> => {
-    const response = await fetchUserApps(appManagerService);
-    if (isGetAppsSuccess(response)) {
-      setApps(response.apps);
+    try {
+      console.log('[AppsList] Refreshing apps...');
+      setLoading(true);
       setError(null);
-    } else {
-      setError(response.errorMessage || 'Failed to refresh apps');
+
+      const response: GetAppsResponse = await fetchUserApps(appManagerService);
+      console.log('[AppsList] fetchUserApps response:', response);
+
+      if (isGetAppsSuccess(response)) {
+        setApps(response.apps);
+      } else {
+        setError(response.errorMessage || 'Failed to load apps');
+        setApps([]);
+      }
+    } catch (err) {
+      console.error('[AppsList] Error loading apps:', err);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      setApps([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  React.useEffect(() => {
+      void refreshApps();
+    }, []);
+
+  const handleLogin = async (): Promise<void> => {
+    try {
+      await showAuthenticationPopup();
+      await refreshApps();
+    } catch (err) {
+      console.warn('[AppsList] Login popup closed or failed:', err);
     }
   };
 
@@ -113,9 +111,15 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
             {loading ? 'Loading...' : 'Refresh'}
           </button>
           <button
-            onClick={() => {
+            onClick={async () => {
               console.log('Logout clicked');
-              void logoutAndClearJWTTokens();
+              try {
+                await logoutAndClearJWTTokens();
+              } catch (err) {
+                console.error('[AppsList] Error during logout:', err);
+              } finally{
+                await refreshApps();
+              }
             }}
             className="apps-list-button"
             title="Logout"
@@ -125,22 +129,37 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
         </div>
       </div>
 
+      <div className="apps-list-content">
       {loading ? (
         <div className="apps-list-loading">
           Loading apps...
         </div>
       ) : error ? (
-        <div className="apps-list-error">
-          Error: {error}
-          <div className="apps-list-error-actions">
+        error === 'User not authenticated' ? (
+          <div className="apps-list-auth-message">
+            <div className="apps-list-auth-text">User not authenticated</div>
             <button
-              onClick={refreshApps}
-              className="apps-list-button primary"
+              onClick={handleLogin}
+              className="button-base button-purple apps-list-auth-login-button"
             >
-              Try Again
+              Login
             </button>
           </div>
-        </div>
+        ) : (
+          <div className="apps-list-error">
+            <>
+              Error: {error}
+              <div className="apps-list-error-actions">
+                <button
+                  onClick={refreshApps}
+                  className="apps-list-button primary"
+                >
+                  Try Again
+                </button>
+              </div>
+            </>
+          </div>
+        )
       ) : apps.length === 0 ? (
         <div className="apps-list-empty">
           No apps deployed yet
@@ -189,6 +208,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 };
