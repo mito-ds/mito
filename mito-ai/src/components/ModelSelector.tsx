@@ -19,7 +19,11 @@ interface ModelMapping {
   displayName: string;
   fullName: string;
   type?: 'smart' | 'fast'; // 'smart' shows brain icon, 'fast' shows lightning icon
-  goodFor: string;
+  goodFor: string[]; // Array of use cases for bullet points
+  provider: string;
+  tokenLimit: string;
+  speed: 'Fast' | 'Medium' | 'Slow';
+  complexityHandling: 'High' | 'Medium' | 'Low';
 }
 
 const MODEL_MAPPINGS: ModelMapping[] = [
@@ -27,31 +31,76 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     displayName: 'GPT 4.1', 
     fullName: 'gpt-4.1', 
     type: 'smart',
-    goodFor: 'Complex data transformations, advanced statistical analysis, debugging intricate code, and multi-step data workflows.'
+    goodFor: [
+      'Complex data transformations',
+      'Advanced statistical analysis',
+      'Debugging intricate code',
+      'Multi-step data workflows'
+    ],
+    provider: 'OpenAI',
+    tokenLimit: '128K',
+    speed: 'Medium',
+    complexityHandling: 'High'
   },
   { 
     displayName: CLAUDE_HAIKU_DISPLAY_NAME, 
     fullName: CLAUDE_HAIKU_MODEL_NAME, 
     type: 'fast',
-    goodFor: 'Quick data exploration, simple dataframe operations, basic visualizations, and rapid code iteration.'
+    goodFor: [
+      'Quick data exploration',
+      'Simple dataframe operations',
+      'Basic visualizations',
+      'Rapid code iteration'
+    ],
+    provider: 'Anthropic',
+    tokenLimit: '200K',
+    speed: 'Fast',
+    complexityHandling: 'Medium'
   },
   { 
     displayName: CLAUDE_SONNET_DISPLAY_NAME, 
     fullName: CLAUDE_SONNET_MODEL_NAME, 
     type: 'smart',
-    goodFor: 'Complex data analysis, advanced pandas operations, statistical modeling, and multi-step data transformations.'
+    goodFor: [
+      'Complex data analysis',
+      'Advanced pandas operations',
+      'Statistical modeling',
+      'Multi-step data transformations'
+    ],
+    provider: 'Anthropic',
+    tokenLimit: '200K',
+    speed: 'Medium',
+    complexityHandling: 'High'
   },
   { 
     displayName: 'Gemini 2.5 Pro', 
     fullName: 'gemini-2.5-pro-preview-03-25', 
     type: 'smart',
-    goodFor: 'Complex data analysis, advanced coding tasks, statistical analysis, and working with large datasets.'
+    goodFor: [
+      'Complex data analysis',
+      'Advanced coding tasks',
+      'Statistical analysis',
+      'Working with large datasets'
+    ],
+    provider: 'Google',
+    tokenLimit: '1M',
+    speed: 'Medium',
+    complexityHandling: 'High'
   },
   { 
     displayName: 'Gemini 3 Pro', 
     fullName: 'gemini-3-pro-preview', 
     type: 'smart',
-    goodFor: 'Complex data analysis, advanced statistical modeling, sophisticated data transformations, and multi-step analysis workflows.'
+    goodFor: [
+      'Complex data analysis',
+      'Advanced statistical modeling',
+      'Sophisticated data transformations',
+      'Multi-step analysis workflows'
+    ],
+    provider: 'Google',
+    tokenLimit: '1M',
+    speed: 'Slow',
+    complexityHandling: 'High'
   }
 ];
 
@@ -135,7 +184,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     if (isOpen && dropdownRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect();
       setTooltipPosition({
-        top: rect.top - 120, // Position above the dropdown, aligned with the model options
+        top: rect.top - 215, // Position above the dropdown, aligned with the model options
         left: rect.left + 160 // Position to the right of the dropdown options
       });
     } else {
@@ -203,18 +252,44 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
             left: tooltipPosition.left
           }}
         >
-          <div className="model-tooltip-icon">
-            {hoveredModel.type === 'smart' ? (
-              <BrainIcon height={16} width={16} />
-            ) : (
-              <LightningIcon height={16} width={16} />
-            )}
-          </div>
           <div className="model-tooltip-content">
-            <div className="model-tooltip-title">{hoveredModel.displayName}</div>
+            <div className="model-tooltip-header">
+              <div className="model-tooltip-title-row">
+                <span className="model-tooltip-title-icon">
+                  {hoveredModel.type === 'smart' ? (
+                    <BrainIcon height={16} width={16} />
+                  ) : (
+                    <LightningIcon height={16} width={16} />
+                  )}
+                </span>
+                <div className="model-tooltip-title">{hoveredModel.displayName}</div>
+              </div>
+              <div className="model-tooltip-metadata">
+                <div className="model-tooltip-metadata-item">
+                  <span className="model-tooltip-metadata-label">Provider:</span>
+                  <span className="model-tooltip-metadata-value">{hoveredModel.provider}</span>
+                </div>
+                <div className="model-tooltip-metadata-item">
+                  <span className="model-tooltip-metadata-label">Tokens:</span>
+                  <span className="model-tooltip-metadata-value">{hoveredModel.tokenLimit}</span>
+                </div>
+                <div className="model-tooltip-metadata-item">
+                  <span className="model-tooltip-metadata-label">Speed:</span>
+                  <span className="model-tooltip-metadata-value">{hoveredModel.speed}</span>
+                </div>
+                <div className="model-tooltip-metadata-item">
+                  <span className="model-tooltip-metadata-label">Complexity:</span>
+                  <span className="model-tooltip-metadata-value">{hoveredModel.complexityHandling}</span>
+                </div>
+              </div>
+            </div>
             <div className="model-tooltip-section">
               <div className="model-tooltip-section-label">Good For:</div>
-              <div className="model-tooltip-section-text">{hoveredModel.goodFor}</div>
+              <ul className="model-tooltip-bullet-list">
+                {hoveredModel.goodFor.map((item, index) => (
+                  <li key={index} className="model-tooltip-bullet-item">{item}</li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>,

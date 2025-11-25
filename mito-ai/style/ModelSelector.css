@@ -178,40 +178,65 @@
   padding: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 10000; /* High z-index to appear above Jupyter notebook */
-  width: 260px;
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
+  width: 280px;
   pointer-events: none; /* Prevent tooltip from blocking mouse events */
-}
-
-.model-tooltip-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  opacity: 0.8;
-  padding-top: 2px;
 }
 
 .model-tooltip-content {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+
+.model-tooltip-header {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  flex: 1;
+}
+
+.model-tooltip-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.model-tooltip-title-icon {
+  flex-shrink: 0;
+  opacity: 0.8;
 }
 
 .model-tooltip-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--jp-content-font-color1);
-  margin-bottom: 2px;
+}
+
+.model-tooltip-metadata {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  font-size: 11px;
+}
+
+.model-tooltip-metadata-item {
+  display: flex;
+  gap: 4px;
+}
+
+.model-tooltip-metadata-label {
+  color: var(--jp-content-font-color2);
+  font-weight: 500;
+}
+
+.model-tooltip-metadata-value {
+  color: var(--jp-content-font-color1);
+  font-weight: 600;
 }
 
 .model-tooltip-section {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 
 .model-tooltip-section-label {
@@ -222,8 +247,19 @@
   letter-spacing: 0.5px;
 }
 
-.model-tooltip-section-text {
+.model-tooltip-bullet-list {
+  margin: 0;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
+.model-tooltip-bullet-item {
   font-size: 12px;
   color: var(--jp-content-font-color2);
-  line-height: 1.4;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.model-tooltip-bullet-item:last-child {
+  margin-bottom: 0;
 }
