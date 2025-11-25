@@ -277,7 +277,7 @@ class AnthropicClient:
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
             anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages)
-            model = select_correct_model(model, message_type, anthropic_system_prompt, messages)
+            model = select_correct_model(model, message_type, anthropic_system_prompt, anthropic_messages)
 
             accumulated_response = ""
 
