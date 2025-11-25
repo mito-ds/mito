@@ -86,6 +86,25 @@
   transition: background-color 0.2s;
   white-space: nowrap;
   /* Prevent text wrapping */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.model-option-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.model-type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.7;
 }
 
 .model-option:hover {
@@ -149,4 +168,106 @@
   .model-name {
     display: none;
   }
+}
+
+/* Model tooltip - appears to the right of the dropdown, rendered via portal */
+.model-tooltip {
+  position: fixed;
+  top: var(--tooltip-top, 200px);
+  left: var(--tooltip-left, 200px);
+  background-color: var(--jp-layout-color1);
+  border: 1px solid var(--jp-layout-color2);
+  border-radius: 4px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10000; /* High z-index to appear above Jupyter notebook */
+  width: 280px;
+  pointer-events: none; /* Prevent tooltip from blocking mouse events */
+}
+
+.model-tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.model-tooltip-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.model-tooltip-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.model-tooltip-title-icon {
+  flex-shrink: 0;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.model-tooltip-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--jp-content-font-color1);
+  line-height: 1.2;
+}
+
+.model-tooltip-metadata {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  font-size: 11px;
+}
+
+.model-tooltip-metadata-item {
+  display: flex;
+  gap: 4px;
+}
+
+.model-tooltip-metadata-label {
+  color: var(--jp-content-font-color2);
+  font-weight: 500;
+}
+
+.model-tooltip-metadata-value {
+  color: var(--jp-content-font-color1);
+  font-weight: 600;
+}
+
+.model-tooltip-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.model-tooltip-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--jp-content-font-color1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.model-tooltip-bullet-list {
+  margin: 0;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
+.model-tooltip-bullet-item {
+  font-size: 12px;
+  color: var(--jp-content-font-color2);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.model-tooltip-bullet-item:last-child {
+  margin-bottom: 0;
 }
