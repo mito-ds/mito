@@ -107,7 +107,7 @@
 @media only screen and (min-width: 75em) {
   .hero_content_container {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     gap: 3rem;
   }
 
