@@ -23,7 +23,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const refreshApps = React.useCallback(async (): Promise<void> => {
+  const refreshApps = async (): Promise<void> => {
     try {
       console.log('[AppsList] Refreshing apps...');
       setLoading(true);
@@ -45,12 +45,7 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
     } finally {
       setLoading(false);
     }
-  }, [appManagerService]);
-
-  React.useEffect(() => {
-    console.log('[AppsList] Component mounted, refreshing apps...');
-    void refreshApps();
-  }, [refreshApps]);
+  }
 
   const handleLogin = async (): Promise<void> => {
     try {
@@ -116,11 +111,9 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
               console.log('Logout clicked');
               try {
                 await logoutAndClearJWTTokens();
-                // Refresh the apps list after logout to show "User not authenticated" message
-                await refreshApps();
               } catch (err) {
                 console.error('[AppsList] Error during logout:', err);
-                // Still refresh even if logout had an error
+              } finally{
                 await refreshApps();
               }
             }}
