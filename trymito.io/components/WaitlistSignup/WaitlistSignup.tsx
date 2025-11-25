@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { useState, FormEvent, KeyboardEvent } from 'react';
+import { useState, FormEvent, KeyboardEvent, useEffect } from 'react';
 import waitlistStyles from './WaitlistSignup.module.css';
 import { classNames } from '../../utils/classNames';
 
@@ -15,6 +15,8 @@ declare global {
     };
   }
 }
+
+const CALENDLY_LINK = 'https://calendly.com/jake_from_mito/mito-meeting';
 
 const WaitlistSignup = (): JSX.Element => {
   const [email, setEmail] = useState('');
@@ -82,6 +84,18 @@ const WaitlistSignup = (): JSX.Element => {
       handleSubmit(e);
     }
   };
+
+  // Auto-redirect to Calendly after successful submission
+  useEffect(() => {
+    if (submitted) {
+      // Small delay to allow success message to be visible briefly
+      const redirectTimer = setTimeout(() => {
+        window.location.replace(CALENDLY_LINK);
+      }, 500); // .5 second delay
+
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [submitted]);
 
   if (submitted) {
     return (
