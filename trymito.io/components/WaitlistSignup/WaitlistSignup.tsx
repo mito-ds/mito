@@ -18,6 +18,8 @@ declare global {
 
 const WaitlistSignup = (): JSX.Element => {
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [step, setStep] = useState<'email' | 'additional'>('email');
@@ -42,15 +44,28 @@ const WaitlistSignup = (): JSX.Element => {
     try {
       // Identify user with email and track event to Segment/Mixpanel
       if (typeof window !== 'undefined' && window.analytics) {
-        // Set user profile with email as userId
-        window.analytics.identify(email, {
+        // Build traits object with user information
+        const traits: Record<string, any> = {
           email: email,
-        });
+        };
+        
+        if (firstName) {
+          traits.firstName = firstName;
+        }
+        
+        if (lastName) {
+          traits.lastName = lastName;
+        }
+        
+        // Set user profile with email as userId
+        window.analytics.identify(email, traits);
         
         // Track email submission event
         window.analytics.track('Waitlist Signup - Email', {
           location: 'homepage_hero',
           email: email,
+          firstName: firstName,
+          lastName: lastName,
           timestamp: new Date().toISOString(),
         });
       }
@@ -139,26 +154,50 @@ const WaitlistSignup = (): JSX.Element => {
   if (step === 'email') {
     return (
       <form onSubmit={handleEmailSubmit} className={waitlistStyles.waitlist_container}>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Enter your email"
-          className={waitlistStyles.email_input}
-          disabled={isSubmitting}
-          required
-          autoComplete="email"
-        />
-        <button
-          type="submit"
-          className={classNames(waitlistStyles.submit_button, {
-            [waitlistStyles.submitting]: isSubmitting,
-          })}
-          disabled={isSubmitting || !email}
-        >
-          {isSubmitting ? 'Joining...' : 'Join Waitlist'}
-        </button>
+        <div className={waitlistStyles.name_row}>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder="First name"
+            className={waitlistStyles.email_input}
+            disabled={isSubmitting}
+            required
+            autoComplete="given-name"
+          />
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder="Last name"
+            className={waitlistStyles.email_input}
+            disabled={isSubmitting}
+            required
+            autoComplete="family-name"
+          />
+        </div>
+        <div className={waitlistStyles.email_row}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Email"
+            className={waitlistStyles.email_input}
+            disabled={isSubmitting}
+            required
+            autoComplete="email"
+          />
+          <button
+            type="submit"
+            className={classNames(waitlistStyles.submit_button, {
+              [waitlistStyles.submitting]: isSubmitting,
+            })}
+            disabled={isSubmitting || !email || !firstName || !lastName}
+          >
+            {isSubmitting ? 'Joining...' : 'Join Waitlist'}
+          </button>
+        </div>
       </form>
     );
   }
