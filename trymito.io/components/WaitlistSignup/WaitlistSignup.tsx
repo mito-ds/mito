@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { useState, FormEvent, KeyboardEvent, useEffect } from 'react';
+import { useState, FormEvent, KeyboardEvent } from 'react';
 import waitlistStyles from './WaitlistSignup.module.css';
 import { classNames } from '../../utils/classNames';
 
@@ -24,9 +24,9 @@ const WaitlistSignup = (): JSX.Element => {
   const [lastName, setLastName] = useState('');
   const [company, setCompany] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState<'email' | 'details'>('email');
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLInputElement>) => {
+  const handleEmailSubmit = async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     
     if (!email || isSubmitting) {
@@ -42,29 +42,50 @@ const WaitlistSignup = (): JSX.Element => {
     setIsSubmitting(true);
 
     try {
-      // Identify user with email and track event to Segment/Mixpanel
+      // Log email submission
       if (typeof window !== 'undefined' && window.analytics) {
-        // Build traits object with user information
+        window.analytics.identify(email, { email });
+        window.analytics.track('Waitlist Signup - Email', {
+          location: 'homepage_hero',
+          email: email,
+          timestamp: new Date().toISOString(),
+        });
+      }
+
+      // Move to next step
+      setStep('details');
+    } catch (error) {
+      console.error('Error tracking email signup:', error);
+      // Still move to next step even if tracking fails
+      setStep('details');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDetailsSubmit = async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    
+    if (!firstName || !lastName || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Identify user with all information and track completion event
+      if (typeof window !== 'undefined' && window.analytics) {
         const traits: Record<string, any> = {
           email: email,
+          firstName: firstName,
+          lastName: lastName,
         };
-        
-        if (firstName) {
-          traits.firstName = firstName;
-        }
-        
-        if (lastName) {
-          traits.lastName = lastName;
-        }
         
         if (company) {
           traits.company = company;
         }
         
-        // Set user profile with email as userId
         window.analytics.identify(email, traits);
-        
-        // Track completion event
         window.analytics.track('Waitlist Signup - Complete', {
           location: 'homepage_hero',
           email: email,
@@ -75,59 +96,66 @@ const WaitlistSignup = (): JSX.Element => {
         });
       }
 
-      setSubmitted(true);
+      // Redirect to Calendly
+      window.location.replace(CALENDLY_LINK);
     } catch (error) {
       console.error('Error tracking waitlist signup:', error);
-      // Still show success message even if tracking fails
-      setSubmitted(true);
+      // Still redirect even if tracking fails
+      window.location.replace(CALENDLY_LINK);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, step: 'email' | 'details') => {
     if (e.key === 'Enter') {
-      handleSubmit(e);
+      if (step === 'email') {
+        handleEmailSubmit(e);
+      } else {
+        handleDetailsSubmit(e);
+      }
     }
   };
 
-  // Auto-redirect to Calendly after successful submission
-  useEffect(() => {
-    if (submitted) {
-      // Small delay to allow success message to be visible briefly
-      const redirectTimer = setTimeout(() => {
-        window.location.replace(CALENDLY_LINK);
-      }, 500); // .5 second delay
-
-      return () => clearTimeout(redirectTimer);
-    }
-  }, [submitted]);
-
-  if (submitted) {
+  // Step 1: Email only
+  if (step === 'email') {
     return (
-      <div className={waitlistStyles.waitlist_container}>
-        <div className={waitlistStyles.success_container}>
-          <div className={waitlistStyles.success_header}>
-            <div className={waitlistStyles.success_icon}>✓</div>
-            <div className={waitlistStyles.success_message}>
-              You&apos;re on the list!
-            </div>
-          </div>
-          <div className={waitlistStyles.success_submessage}>
-            We&apos;ll be in touch with you shortly.
-          </div>
+      <form onSubmit={handleEmailSubmit} className={waitlistStyles.waitlist_container}>
+        <div className={waitlistStyles.email_row}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, 'email')}
+            placeholder="Enter your email"
+            className={waitlistStyles.email_input}
+            disabled={isSubmitting}
+            required
+            autoComplete="email"
+          />
+          <button
+            type="submit"
+            className={classNames(waitlistStyles.submit_button, {
+              [waitlistStyles.submitting]: isSubmitting,
+            })}
+            disabled={isSubmitting || !email}
+          >
+            {isSubmitting ? 'Submitting...' : 'Join Waitlist'}
+          </button>
         </div>
-      </div>
+      </form>
     );
   }
 
+  // Step 2: First name, last name, and company
   return (
-    <form onSubmit={handleSubmit} className={waitlistStyles.waitlist_container}>
+    <form onSubmit={handleDetailsSubmit} className={waitlistStyles.waitlist_container}>
       <div className={waitlistStyles.name_row}>
         <input
           type="text"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
+          onKeyDown={(e) => handleKeyDown(e, 'details')}
           placeholder="First name"
           className={waitlistStyles.email_input}
           disabled={isSubmitting}
@@ -138,6 +166,7 @@ const WaitlistSignup = (): JSX.Element => {
           type="text"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
+          onKeyDown={(e) => handleKeyDown(e, 'details')}
           placeholder="Last name"
           className={waitlistStyles.email_input}
           disabled={isSubmitting}
@@ -149,33 +178,21 @@ const WaitlistSignup = (): JSX.Element => {
         type="text"
         value={company}
         onChange={(e) => setCompany(e.target.value)}
+        onKeyDown={(e) => handleKeyDown(e, 'details')}
         placeholder="Company"
         className={waitlistStyles.email_input}
         disabled={isSubmitting}
         autoComplete="organization"
       />
-      <div className={waitlistStyles.email_row}>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Email"
-          className={waitlistStyles.email_input}
-          disabled={isSubmitting}
-          required
-          autoComplete="email"
-        />
-        <button
-          type="submit"
-          className={classNames(waitlistStyles.submit_button, {
-            [waitlistStyles.submitting]: isSubmitting,
-          })}
-          disabled={isSubmitting || !email || !firstName || !lastName}
-        >
-          {isSubmitting ? 'Joining...' : 'Join Waitlist'}
-        </button>
-      </div>
+      <button
+        type="submit"
+        className={classNames(waitlistStyles.submit_button, {
+          [waitlistStyles.submitting]: isSubmitting,
+        })}
+        disabled={isSubmitting || !firstName || !lastName}
+      >
+        {isSubmitting ? 'Submitting...' : 'Join Waitlist'}
+      </button>
     </form>
   );
 };
