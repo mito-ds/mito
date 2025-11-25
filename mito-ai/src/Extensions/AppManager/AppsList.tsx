@@ -47,6 +47,10 @@ export const AppsList: React.FC<AppsListProps> = ({ appManagerService }) => {
     }
   }
 
+  React.useEffect(() => {
+      void refreshApps();
+    }, []);
+
   const handleLogin = async (): Promise<void> => {
     try {
       await showAuthenticationPopup();
