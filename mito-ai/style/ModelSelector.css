@@ -203,12 +203,17 @@
 .model-tooltip-title-icon {
   flex-shrink: 0;
   opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .model-tooltip-title {
   font-size: 14px;
   font-weight: 600;
   color: var(--jp-content-font-color1);
+  line-height: 1.2;
 }
 
 .model-tooltip-metadata {

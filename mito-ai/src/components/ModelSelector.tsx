@@ -33,7 +33,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     type: 'smart',
     goodFor: [
       'Complex data analysis',
-      'Advanced code generation and debugging',
+      'Advanced debugging',
       'Statistical analysis and modeling',
       'Multi-step data workflows'
     ],
@@ -63,7 +63,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     type: 'smart',
     goodFor: [
       'Complex data analysis',
-      'Advanced code generation and debugging',
+      'Advanced debugging',
       'Statistical analysis and modeling',
       'Multi-step data workflows'
     ],
@@ -78,7 +78,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     type: 'smart',
     goodFor: [
       'Complex data analysis',
-      'Advanced code generation and debugging',
+      'Advanced debugging',
       'Statistical analysis and modeling',
       'Multi-step data workflows'
     ],
@@ -93,7 +93,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     type: 'smart',
     goodFor: [
       'Most complex data analysis',
-      'Advanced code generation and debugging',
+      'Advanced debugging',
       'Statistical analysis and modeling',
       'Multi-step data workflows'
     ],
