@@ -5,16 +5,28 @@
 
 /* apps-list.css */
 .apps-list-container {
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   font-size: 13px;
   font-family: var(--jp-ui-font-family);
+  overflow: hidden;
 }
 
 .apps-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  padding: 16px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--jp-border-color2);
+}
+
+.apps-list-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  min-height: 0;
 }
 
 .apps-list-title {
@@ -72,6 +84,30 @@
 
 .apps-list-error-actions {
   margin-top: 8px;
+}
+
+.apps-list-auth-message {
+  color: var(--jp-ui-font-color1);
+  background-color: var(--jp-layout-color0);
+  border: 1px solid var(--jp-border-color2);
+  border-radius: 4px;
+  padding: 24px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.apps-list-auth-text {
+  font-size: 14px;
+  font-weight: bold;
+  font-family: var(--jp-ui-font-family);
+}
+
+.apps-list-auth-login-button {
+  font-size: 13px;
+  min-width: 96px;
 }
 
 .apps-list-empty {
