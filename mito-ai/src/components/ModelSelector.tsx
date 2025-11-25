@@ -117,7 +117,6 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [hoveredModel, setHoveredModel] = useState<ModelMapping | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Load config from localStorage on component mount and notify parent
@@ -179,16 +178,18 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     };
   }, []);
 
-  // Calculate tooltip position when dropdown opens
+  // Set CSS custom properties for tooltip positioning
   useEffect(() => {
     if (isOpen && dropdownRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect();
-      setTooltipPosition({
-        top: rect.top - 215, // Position above the dropdown, aligned with the model options
-        left: rect.left + 160 // Position to the right of the dropdown options
-      });
-    } else {
-      setTooltipPosition(null);
+      // Align bottom of tooltip with bottom of dropdown (which is at rect.top)
+      // Tooltip height is approximately 180px
+      const tooltipHeight = 180;
+      const tooltipBottom = rect.top;
+      const tooltipTop = tooltipBottom - tooltipHeight;
+      
+      document.documentElement.style.setProperty('--tooltip-top', `${tooltipTop - 32}px`);
+      document.documentElement.style.setProperty('--tooltip-left', `${rect.left + 160}px`);
     }
   }, [isOpen]);
 
@@ -243,15 +244,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
           </div>
         )}
       </div>
-      {isOpen && hoveredModel && tooltipPosition && ReactDOM.createPortal(
+      {isOpen && hoveredModel && ReactDOM.createPortal(
         <div 
-          className="model-tooltip"
-          style={{
-            position: 'fixed',
-            top: tooltipPosition.top,
-            left: tooltipPosition.left
-          }}
-        >
+          className="model-tooltip">
           <div className="model-tooltip-content">
             <div className="model-tooltip-header">
               <div className="model-tooltip-title-row">
