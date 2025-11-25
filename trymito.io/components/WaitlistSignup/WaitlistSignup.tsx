@@ -73,7 +73,6 @@ const WaitlistSignup = (): JSX.Element => {
     setIsSubmitting(true);
 
     try {
-      // Identify user with all information and track completion event
       if (typeof window !== 'undefined' && window.analytics) {
         const traits: Record<string, any> = {
           email: email,
@@ -85,6 +84,7 @@ const WaitlistSignup = (): JSX.Element => {
           traits.company = company;
         }
 
+        // Identify user with all information and track completion event
         window.analytics.identify(email, traits);
         window.analytics.track('Waitlist Signup - Complete', {
           location: 'homepage_hero',
@@ -96,13 +96,8 @@ const WaitlistSignup = (): JSX.Element => {
         });
       }
 
-      // Redirect to Calendly
-      window.location.replace(CALENDLY_LINK);
-    } catch (error) {
-      console.error('Error tracking waitlist signup:', error);
-      // Still redirect even if tracking fails
-      window.location.replace(CALENDLY_LINK);
     } finally {
+      window.open(CALENDLY_LINK, '_blank');
       setIsSubmitting(false);
     }
   };
