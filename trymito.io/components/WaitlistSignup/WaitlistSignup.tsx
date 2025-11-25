@@ -22,6 +22,7 @@ const WaitlistSignup = (): JSX.Element => {
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [company, setCompany] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -56,6 +57,10 @@ const WaitlistSignup = (): JSX.Element => {
           traits.lastName = lastName;
         }
         
+        if (company) {
+          traits.company = company;
+        }
+        
         // Set user profile with email as userId
         window.analytics.identify(email, traits);
         
@@ -65,6 +70,7 @@ const WaitlistSignup = (): JSX.Element => {
           email: email,
           firstName: firstName,
           lastName: lastName,
+          company: company,
           timestamp: new Date().toISOString(),
         });
       }
@@ -139,17 +145,26 @@ const WaitlistSignup = (): JSX.Element => {
           autoComplete="family-name"
         />
       </div>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Email"
+        className={waitlistStyles.email_input}
+        disabled={isSubmitting}
+        required
+        autoComplete="email"
+      />
       <div className={waitlistStyles.email_row}>
         <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Email"
+          type="text"
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
+          placeholder="Company"
           className={waitlistStyles.email_input}
           disabled={isSubmitting}
-          required
-          autoComplete="email"
+          autoComplete="organization"
         />
         <button
           type="submit"
