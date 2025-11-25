@@ -25,6 +25,7 @@ const WaitlistSignup = (): JSX.Element => {
   const [company, setCompany] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<'email' | 'details'>('email');
+  const [submitted, setSubmitted] = useState(false);
 
   const handleEmailSubmit = async (e: FormEvent<HTMLFormElement> | KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -73,6 +74,7 @@ const WaitlistSignup = (): JSX.Element => {
     setIsSubmitting(true);
 
     try {
+      // Identify user with all information and track completion event
       if (typeof window !== 'undefined' && window.analytics) {
         const traits: Record<string, any> = {
           email: email,
@@ -84,7 +86,6 @@ const WaitlistSignup = (): JSX.Element => {
           traits.company = company;
         }
 
-        // Identify user with all information and track completion event
         window.analytics.identify(email, traits);
         window.analytics.track('Waitlist Signup - Complete', {
           location: 'homepage_hero',
@@ -97,8 +98,10 @@ const WaitlistSignup = (): JSX.Element => {
       }
 
     } finally {
+      // Always redirect to calendly 
       window.open(CALENDLY_LINK, '_blank');
       setIsSubmitting(false);
+      setSubmitted(true);
     }
   };
 
@@ -111,6 +114,36 @@ const WaitlistSignup = (): JSX.Element => {
       }
     }
   };
+
+  // Success state
+  if (submitted) {
+    return (
+      <div className={waitlistStyles.waitlist_container}>
+        <div className={waitlistStyles.success_container}>
+          <div className={waitlistStyles.success_header}>
+            <div className={waitlistStyles.success_icon}>✓</div>
+            <div className={waitlistStyles.success_message}>
+              Congrats you jumped to the front of the waitlist. Click here to sign up for your onboarding
+            </div>
+          </div>
+          <div className={waitlistStyles.success_submessage}>
+            <a 
+              href={CALENDLY_LINK} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ 
+                color: 'var(--color-purple)', 
+                textDecoration: 'underline',
+                cursor: 'pointer'
+              }}
+            >
+              Schedule your onboarding
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Step 1: Email only
   if (step === 'email') {
