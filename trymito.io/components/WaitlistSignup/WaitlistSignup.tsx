@@ -146,25 +146,25 @@ const WaitlistSignup = (): JSX.Element => {
         />
       </div>
       <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Email"
+        type="text"
+        value={company}
+        onChange={(e) => setCompany(e.target.value)}
+        placeholder="Company"
         className={waitlistStyles.email_input}
         disabled={isSubmitting}
-        required
-        autoComplete="email"
+        autoComplete="organization"
       />
       <div className={waitlistStyles.email_row}>
         <input
-          type="text"
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
-          placeholder="Company"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Email"
           className={waitlistStyles.email_input}
           disabled={isSubmitting}
-          autoComplete="organization"
+          required
+          autoComplete="email"
         />
         <button
           type="submit"
