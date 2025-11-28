@@ -69,3 +69,10 @@
 .jp-RenderedText[data-mime-type='application/vnd.jupyter.stderr'] {
     background: None !important;
 }
+
+/* Hiide the simple toggle because the theme only works with non-simple mode */
+#jp-single-document-mode,
+.jp-StatusBar-Item#jp-single-document-mode,
+.lm-Widget.jp-StatusBar-Item#jp-single-document-mode {
+  display: none !important;
+}
