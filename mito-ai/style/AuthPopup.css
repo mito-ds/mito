@@ -143,7 +143,7 @@
 
 /* Tab styling for sign in/sign up tabs */
 .modal-content .amplify-tabs__item {
-  color: var(--jp-ui-font-color2) !important;
+  color: var(--purple-500) !important;
   border-bottom: 2px solid transparent !important;
 }
 
@@ -161,7 +161,7 @@
 
 
 .modal-content .amplify-tabs__item:hover {
-  color: var(--jp-ui-font-color1) !important;
+  color: var(--purple-700) !important;
 }
 
 /* Override any default blue tab styling from Amplify */
