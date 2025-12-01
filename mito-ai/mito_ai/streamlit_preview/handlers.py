@@ -47,7 +47,6 @@ class StreamlitPreviewHandler(APIHandler):
                 # Create a new app 
                 await streamlit_handler(True, absolute_notebook_path, app_file_name, streamlit_app_prompt)
             elif streamlit_app_prompt != '':
-                print("CALLING HERE")
                 # Update an existing app if there is a prompt provided. Otherwise, the user is just
                 # starting an existing app so we can skip the streamlit_handler all together
                 await streamlit_handler(False, absolute_notebook_path, app_file_name, streamlit_app_prompt)
