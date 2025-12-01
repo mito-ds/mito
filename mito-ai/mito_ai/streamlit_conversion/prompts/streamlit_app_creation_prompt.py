@@ -4,10 +4,24 @@
 from typing import List
 from mito_ai.streamlit_conversion.prompts.prompt_constants import MITO_TODO_PLACEHOLDER
 
-def get_streamlit_app_creation_prompt(notebook: List[dict]) -> str:
+def get_streamlit_app_spec_section(streamlit_app_prompt: str) -> str:
+    if streamlit_app_prompt == '':
+        return ''
+    
+    return f"""
+Here is a high level outline of the streamlit app. Use your best judgement to implement this structure.
+
+{streamlit_app_prompt}
+
+"""
+    
+
+def get_streamlit_app_creation_prompt(notebook: List[dict], streamlit_app_prompt: str) -> str:
     """
     This prompt is used to create a streamlit app from a notebook.
     """
+    streamlit_app_spec_section = get_streamlit_app_spec_section(streamlit_app_prompt)
+    
     return f"""Convert the following Jupyter notebook into a Streamlit application.
 
 GOAL: Create a complete, runnable Streamlit app that accurately represents the notebook. It must completely convert the notebook. 
@@ -40,7 +54,9 @@ data = [
 ]
 </Example>
 
-Notebook to convert:
+{streamlit_app_spec_section}
+
+NOTEBOOK TO CONVERT:
 
 {notebook}
 """

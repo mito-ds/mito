@@ -53,7 +53,8 @@ export interface IStreamlitPreviewManager {
    */
   openAppPreview(
     app: JupyterFrontEnd,
-    notebookPanel: NotebookPanel
+    notebookPanel: NotebookPanel,
+    createStreamlitAppPrompt?: string
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError>;
 
   /**
@@ -120,6 +121,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   async openAppPreview(
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
+    createStreamlitAppPrompt: string = ''
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
     
     // If the user has a different app open, we first close that one
@@ -132,7 +134,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
 
     const notebookPath = notebookPanel.context.path;
     const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
-    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID);
+    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID, false, createStreamlitAppPrompt);
 
     if (streamlitPreviewResponse.type === 'error') {
       return streamlitPreviewResponse
@@ -189,7 +191,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(
       notebookPanel.context.path, 
       notebookID,
-      true, // force_recreate
+      false, // force_recreate
       editPrompt, 
       'Editing Streamlit app...', 
       'Streamlit app updated successfully!'
