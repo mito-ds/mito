@@ -16,15 +16,15 @@ Here is a high level outline of the streamlit app. Use your best judgement to im
 """
     
 
-def get_streamlit_app_creation_prompt(notebook: List[dict], streamlit_app_prompt: str) -> str:
+def get_streamlit_app_creation_prompt(cell: dict, streamlit_app_prompt: str) -> str:
     """
-    This prompt is used to create a streamlit app from a notebook.
+    This prompt is used to create a streamlit app from a notebook cell.
     """
     streamlit_app_spec_section = get_streamlit_app_spec_section(streamlit_app_prompt)
     
-    return f"""Convert the following Jupyter notebook into a Streamlit application.
+    return f"""Convert the following Jupyter notebook cell into a Streamlit application.
 
-GOAL: Create a complete, runnable Streamlit app that accurately represents the notebook. It must completely convert the notebook. 
+GOAL: Create a complete, runnable Streamlit app that accurately represents the notebook cell. It must completely convert the notebook cell. 
 
 TODO PLACEHOLDER RULES:
 If you decide to leave any TODOs, you must mark them with {MITO_TODO_PLACEHOLDER}. You should use {MITO_TODO_PLACEHOLDER} instead of comments like the following: 
@@ -43,6 +43,7 @@ IMPORTANT:
 - Do NOT use placeholders for small/medium content - include it directly
 - Do NOT use placeholders for file paths, imports, or core logic
 - Only use placeholders when absolutely necessary. Add all of the content directly as much as possible.
+- Be sure to import streamlit and any other necessary libraries at the top of the file.
 
 <Example>
 If the notebook has a list of dictionaries with 50 entries, you would write:
@@ -56,7 +57,7 @@ data = [
 
 {streamlit_app_spec_section}
 
-NOTEBOOK TO CONVERT:
+NOTEBOOK CELL TO CONVERT:
 
-{notebook}
+{cell}
 """

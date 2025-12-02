@@ -28,10 +28,10 @@ def _filter_empty_cells(notebook: List[dict]) -> List[dict]:
     return filtered
 
 
-async def _generate_streamlit_code_from_cells(notebook: List[dict], streamlit_app_prompt: str) -> str:
+async def _generate_streamlit_code_from_cell(cell: dict, streamlit_app_prompt: str) -> str:
     """Internal helper: Send a query to the agent with cells, get its response and parse the code"""
     
-    prompt_text = get_streamlit_app_creation_prompt(notebook, streamlit_app_prompt)
+    prompt_text = get_streamlit_app_creation_prompt(cell, streamlit_app_prompt)
     
     messages: List[MessageParam] = [
         cast(MessageParam, {
@@ -50,7 +50,7 @@ async def _generate_streamlit_code_from_cells(notebook: List[dict], streamlit_ap
     
     for todo_placeholder in todo_placeholders:
         print(f"Processing AI TODO: {todo_placeholder}")
-        todo_prompt = get_finish_todo_prompt(notebook, converted_code, todo_placeholder)
+        todo_prompt = get_finish_todo_prompt(cell, converted_code, todo_placeholder)
         todo_messages: List[MessageParam] = [
             cast(MessageParam, {
                 "role": "user",
@@ -86,7 +86,7 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
         if streamlit_code is None:
             # First cell: generate initial Streamlit app
             print(f"Processing first cell ({i+1}/{len(non_empty_cells)})")
-            streamlit_code = await _generate_streamlit_code_from_cells([cell], streamlit_app_prompt)
+            streamlit_code = await _generate_streamlit_code_from_cell(cell, streamlit_app_prompt)
         else:
             # Subsequent cells: update existing app
             print(f"Processing cell {i+1}/{len(non_empty_cells)}")
