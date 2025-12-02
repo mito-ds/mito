@@ -26,36 +26,8 @@ def _filter_empty_cells(notebook: List[dict]) -> List[dict]:
             filtered.append(cell)
     return filtered
 
-async def generate_new_streamlit_code_incremental(notebook: List[dict], streamlit_app_prompt: str) -> str:
-    """
-    Generate Streamlit code incrementally, processing one cell at a time.
-    First cell creates the app, subsequent cells update it.
-    """
-    # Filter out empty cells
-    non_empty_cells = _filter_empty_cells(notebook)
-    
-    if not non_empty_cells:
-        raise StreamlitConversionError("Notebook contains no non-empty cells", 400)
-    
-    streamlit_code = None
-    
-    for i, cell in enumerate(non_empty_cells):
-        if streamlit_code is None:
-            # First cell: generate initial Streamlit app
-            print(f"Processing first cell ({i+1}/{len(non_empty_cells)})")
-            streamlit_code = await generate_new_streamlit_code([cell], streamlit_app_prompt)
-        else:
-            # Subsequent cells: update existing app
-            print(f"Processing cell {i+1}/{len(non_empty_cells)}")
-            # Create an edit prompt that instructs to incorporate this cell
-            cell_source = ''.join(cell.get('source', []))
-            edit_prompt = f"Incorporate the following notebook cell into the existing Streamlit app, maintaining the app's structure and adding the new functionality:\n\n{cell_source}"
-            streamlit_code = await update_existing_streamlit_code([cell], streamlit_code, edit_prompt)
-    
-    return streamlit_code
-
-async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt: str) -> str:
-    """Send a query to the agent, get its response and parse the code"""
+async def _generate_streamlit_code_from_cells(notebook: List[dict], streamlit_app_prompt: str) -> str:
+    """Internal helper: Send a query to the agent with cells, get its response and parse the code"""
     
     prompt_text = get_streamlit_app_creation_prompt(notebook, streamlit_app_prompt)
     
@@ -93,6 +65,34 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
         converted_code = apply_search_replace(converted_code, search_replace_pairs)
                 
     return converted_code
+
+async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt: str) -> str:
+    """
+    Generate Streamlit code incrementally, processing one cell at a time.
+    First cell creates the app, subsequent cells update it.
+    """
+    # Filter out empty cells
+    non_empty_cells = _filter_empty_cells(notebook)
+    
+    if not non_empty_cells:
+        raise StreamlitConversionError("Notebook contains no non-empty cells", 400)
+    
+    streamlit_code = None
+    
+    for i, cell in enumerate(non_empty_cells):
+        if streamlit_code is None:
+            # First cell: generate initial Streamlit app
+            print(f"Processing first cell ({i+1}/{len(non_empty_cells)})")
+            streamlit_code = await _generate_streamlit_code_from_cells([cell], streamlit_app_prompt)
+        else:
+            # Subsequent cells: update existing app
+            print(f"Processing cell {i+1}/{len(non_empty_cells)}")
+            # Create an edit prompt that instructs to incorporate this cell
+            cell_source = ''.join(cell.get('source', []))
+            edit_prompt = f"Incorporate the following notebook cell into the existing Streamlit app, maintaining the app's structure and adding the new functionality:\n\n{cell_source}"
+            streamlit_code = await update_existing_streamlit_code([cell], streamlit_code, edit_prompt)
+    
+    return streamlit_code
 
 
 async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_code: str, edit_prompt: str) -> str:
@@ -148,7 +148,7 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
     
     if create_new_app:
         # Generate a new streamlit app incrementally, cell-by-cell
-        streamlit_code = await generate_new_streamlit_code_incremental(notebook_code, streamlit_app_prompt)
+        streamlit_code = await generate_new_streamlit_code(notebook_code, streamlit_app_prompt)
     else:
         # If the user is editing an existing streamlit app, use the update function
         existing_streamlit_code = get_app_code_from_file(app_path)
