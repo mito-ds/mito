@@ -16,6 +16,44 @@ from mito_ai.utils.error_classes import StreamlitConversionError
 from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
 from mito_ai.path_utils import AbsoluteNotebookPath, AppFileName, get_absolute_notebook_dir_path, get_absolute_app_path, get_app_file_name
 
+def _filter_empty_cells(notebook: List[dict]) -> List[dict]:
+    """Filter out empty cells (cells with empty source arrays)"""
+    filtered = []
+    for cell in notebook:
+        source = cell.get('source', [])
+        # Check if source is non-empty (has at least one non-whitespace character)
+        if source and any(line.strip() for line in source):
+            filtered.append(cell)
+    return filtered
+
+async def generate_new_streamlit_code_incremental(notebook: List[dict], streamlit_app_prompt: str) -> str:
+    """
+    Generate Streamlit code incrementally, processing one cell at a time.
+    First cell creates the app, subsequent cells update it.
+    """
+    # Filter out empty cells
+    non_empty_cells = _filter_empty_cells(notebook)
+    
+    if not non_empty_cells:
+        raise StreamlitConversionError("Notebook contains no non-empty cells", 400)
+    
+    streamlit_code = None
+    
+    for i, cell in enumerate(non_empty_cells):
+        if streamlit_code is None:
+            # First cell: generate initial Streamlit app
+            print(f"Processing first cell ({i+1}/{len(non_empty_cells)})")
+            streamlit_code = await generate_new_streamlit_code([cell], streamlit_app_prompt)
+        else:
+            # Subsequent cells: update existing app
+            print(f"Processing cell {i+1}/{len(non_empty_cells)}")
+            # Create an edit prompt that instructs to incorporate this cell
+            cell_source = ''.join(cell.get('source', []))
+            edit_prompt = f"Incorporate the following notebook cell into the existing Streamlit app, maintaining the app's structure and adding the new functionality:\n\n{cell_source}"
+            streamlit_code = await update_existing_streamlit_code([cell], streamlit_code, edit_prompt)
+    
+    return streamlit_code
+
 async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt: str) -> str:
     """Send a query to the agent, get its response and parse the code"""
     
@@ -109,8 +147,8 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
     app_path = get_absolute_app_path(app_directory, app_file_name)
     
     if create_new_app:
-        # Otherwise generate a new streamlit app
-        streamlit_code = await generate_new_streamlit_code(notebook_code, streamlit_app_prompt)
+        # Generate a new streamlit app incrementally, cell-by-cell
+        streamlit_code = await generate_new_streamlit_code_incremental(notebook_code, streamlit_app_prompt)
     else:
         # If the user is editing an existing streamlit app, use the update function
         existing_streamlit_code = get_app_code_from_file(app_path)
