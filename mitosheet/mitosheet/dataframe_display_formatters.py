@@ -80,7 +80,7 @@ def set_dataframe_display_formatters() -> None:
 
         # Register the custom formatters
         html_formatter.for_type(pd.DataFrame, mitosheet_display_formatter)
-        plain_formatter.for_type(pd.DataFrame, mitosheet_plain_formatter)
+        # plain_formatter.for_type(pd.DataFrame, mitosheet_plain_formatter)
     
     except:
         pass
