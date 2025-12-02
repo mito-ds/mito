@@ -16,6 +16,7 @@ from mito_ai.utils.error_classes import StreamlitConversionError
 from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
 from mito_ai.path_utils import AbsoluteNotebookPath, AppFileName, get_absolute_notebook_dir_path, get_absolute_app_path, get_app_file_name
 
+
 def _filter_empty_cells(notebook: List[dict]) -> List[dict]:
     """Filter out empty cells (cells with empty source arrays)"""
     filtered = []
@@ -25,6 +26,7 @@ def _filter_empty_cells(notebook: List[dict]) -> List[dict]:
         if source and any(line.strip() for line in source):
             filtered.append(cell)
     return filtered
+
 
 async def _generate_streamlit_code_from_cells(notebook: List[dict], streamlit_app_prompt: str) -> str:
     """Internal helper: Send a query to the agent with cells, get its response and parse the code"""
@@ -65,6 +67,7 @@ async def _generate_streamlit_code_from_cells(notebook: List[dict], streamlit_ap
         converted_code = apply_search_replace(converted_code, search_replace_pairs)
                 
     return converted_code
+
 
 async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt: str) -> str:
     """
@@ -137,6 +140,7 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
     streamlit_app_code = apply_search_replace(streamlit_app_code, search_replace_pairs)
 
     return streamlit_app_code
+
 
 async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNotebookPath, app_file_name: AppFileName, streamlit_app_prompt: str = "") -> None:
     """Handler function for streamlit code generation and validation"""
