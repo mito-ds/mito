@@ -34,6 +34,8 @@
     For a more thorough explanation of attempted solutions, see the comment here: https://github.com/mito-ds/mito/pull/1330#issuecomment-2386428760
     """
 
+from .formatter import format_dataframe
+
 def set_dataframe_display_formatters() -> None:
 
     try: 
@@ -52,7 +54,8 @@ def set_dataframe_display_formatters() -> None:
         def mitosheet_display_formatter(obj, include=None, exclude=None):
             if isinstance(obj, pd.DataFrame):
                 # Render the DataFrame using Mitosheet
-                return mitosheet.sheet(obj, input_cell_execution_count=ip.execution_count)
+                # return mitosheet.sheet(obj, input_cell_execution_count=ip.execution_count)
+                return format_dataframe(obj)
             # Returning None tells Jupyter that this formatter (the text/html one) didn’t produce any output for the given object.
             # This causes Jupyter to “fall back” to lower-priority formatters (like text/plain).
             return None
