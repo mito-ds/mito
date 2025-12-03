@@ -3,10 +3,9 @@
 
 from anthropic.types import MessageParam
 from typing import List, cast
-from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders, get_response_from_agent
+from mito_ai.streamlit_conversion.agent_utils import get_response_from_agent
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
-from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
 from mito_ai.streamlit_conversion.prompts.update_existing_app_prompt import get_update_existing_app_prompt
 from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
@@ -44,27 +43,6 @@ async def _generate_streamlit_code_from_cell(cell: dict, streamlit_app_prompt: s
     ]
     agent_response = await get_response_from_agent(messages)
     converted_code = extract_code_blocks(agent_response)
-    
-    # Extract the TODOs from the agent's response
-    todo_placeholders = extract_todo_placeholders(agent_response)
-    
-    for todo_placeholder in todo_placeholders:
-        print(f"Processing AI TODO: {todo_placeholder}")
-        todo_prompt = get_finish_todo_prompt(cell, converted_code, todo_placeholder)
-        todo_messages: List[MessageParam] = [
-            cast(MessageParam, {
-                "role": "user",
-                "content": [{
-                    "type": "text",
-                    "text": todo_prompt
-                }]
-            })
-        ]
-        todo_response = await get_response_from_agent(todo_messages)
-        
-        # Apply the search/replace to the streamlit app
-        search_replace_pairs = extract_search_replace_blocks(todo_response)
-        converted_code = apply_search_replace(converted_code, search_replace_pairs)
                 
     return converted_code
 
