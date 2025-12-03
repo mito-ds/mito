@@ -73,7 +73,7 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
             edit_prompt = f"Incorporate the following notebook cell into the existing Streamlit app, maintaining the app's structure and adding the new functionality:\n\n{cell_source}"
             streamlit_code = await update_existing_streamlit_code([cell], streamlit_code, edit_prompt)
     
-    return streamlit_code
+    return streamlit_code if streamlit_code else ""
 
 
 async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_code: str, edit_prompt: str) -> str:
