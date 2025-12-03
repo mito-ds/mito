@@ -75,7 +75,6 @@ class TestGetResponseFromAgent:
 
 class TestGenerateStreamlitCode:
     """Test cases for generate_new_streamlit_code function"""
-
     @pytest.mark.asyncio
     @patch('mito_ai.streamlit_conversion.agent_utils.stream_anthropic_completion_from_mito_server')
     async def test_generate_new_streamlit_code_success(self, mock_stream):
@@ -88,7 +87,7 @@ class TestGenerateStreamlitCode:
 
         mock_stream.return_value = mock_async_gen()
         
-        notebook_data: List[dict] = [{"cells": []}]
+        notebook_data: List[dict] = [{"cell_type": "markdown", "source": ["# Hello"]}]
         result = await generate_new_streamlit_code(notebook_data, '')
         
         expected_code = "import streamlit\nst.title('Hello')\n"
