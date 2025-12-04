@@ -94,7 +94,7 @@ class PlaceholderWidget extends Widget {
     container.style.padding = '20px';
     
     const message = document.createElement('div');
-    message.textContent = 'Building your app...';
+    message.textContent = 'Building your app. Depending on the size of your notebook, this might take a couple of minutes.';
     message.style.fontSize = '16px';
     message.style.color = 'var(--jp-content-font-color1)';
     message.style.marginBottom = '20px';
