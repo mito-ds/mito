@@ -101,7 +101,7 @@ class PlaceholderWidget extends Widget {
     emojiContainer.style.alignItems = 'center';
     emojiContainer.style.justifyContent = 'flex-start';
     
-    const emojis = ['🏗️', '⚙️', '🚀'] as const;
+    const emojis = ['🚧', '🏗️', '🚀'] as const;
     let currentEmojiIndex = 0;
     emojiContainer.textContent = emojis[currentEmojiIndex] ?? '';
     
