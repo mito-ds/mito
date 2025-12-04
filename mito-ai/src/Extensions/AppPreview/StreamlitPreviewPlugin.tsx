@@ -77,6 +77,40 @@ export interface IStreamlitPreviewManager {
 }
 
 /**
+ * Simple placeholder widget for loading state.
+ */
+class PlaceholderWidget extends Widget {
+  constructor() {
+    super();
+    this.addClass('jp-placeholder-widget');
+    
+    const container = document.createElement('div');
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'center';
+    container.style.height = '100%';
+    container.style.width = '100%';
+    container.style.padding = '20px';
+    
+    const message = document.createElement('div');
+    message.textContent = 'Building your app...';
+    message.style.fontSize = '16px';
+    message.style.color = 'var(--jp-content-font-color1)';
+    message.style.marginBottom = '20px';
+    
+    const gif = document.createElement('img');
+    gif.src = 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnJyNngycHNqbWN4ZnNvaGM1ZnBtaXJjOHh3Y3YzanQ4cW9ndDNjZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Mah9dFWo1WZX0WM62Q/giphy.gif';
+    gif.style.maxWidth = '300px';
+    gif.style.height = 'auto';
+    
+    container.appendChild(message);
+    container.appendChild(gif);
+    this.node.appendChild(container);
+  }
+}
+
+/**
  * Simple HTML widget for displaying iframe content.
  */
 class IFrameWidget extends Widget {
@@ -128,7 +162,22 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
       this.closeCurrentPreview();
     }
-    
+
+    // Create and show placeholder panel immediately
+    let placeholderWidget: MainAreaWidget | null = null;
+    if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
+      const placeholderContent = new PlaceholderWidget();
+      placeholderWidget = new MainAreaWidget({ content: placeholderContent });
+      placeholderWidget.title.label = getAppPreviewNameFromNotebookPanel(notebookPanel);
+      placeholderWidget.title.closable = true;
+      
+      // Add placeholder to main area with split-right mode
+      app.shell.add(placeholderWidget, 'main', {
+        mode: 'split-right',
+        ref: notebookPanel.id
+      });
+    }
+
     // First save the notebook to ensure the app is up to date
     await notebookPanel.context.save();
 
@@ -137,6 +186,10 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID, false, createStreamlitAppPrompt);
 
     if (streamlitPreviewResponse.type === 'error') {
+      // Close placeholder if there was an error
+      if (placeholderWidget) {
+        placeholderWidget.dispose();
+      }
       return streamlitPreviewResponse
     }
 
@@ -145,6 +198,11 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
       // then don't create a new widget. The backend will update the 
       // .py file and the app preview will update automatically
       return streamlitPreviewResponse
+    }
+    
+    // Close placeholder before creating real preview
+    if (placeholderWidget) {
+      placeholderWidget.dispose();
     }
     
     // Create the new preview widget
