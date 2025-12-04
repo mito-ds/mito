@@ -202,11 +202,12 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
     const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID, false, createStreamlitAppPrompt);
 
+    // Close placeholder before handling response (always dispose if it exists)
+    if (placeholderWidget) {
+      placeholderWidget.dispose();
+    }
+
     if (streamlitPreviewResponse.type === 'error') {
-      // Close placeholder if there was an error
-      if (placeholderWidget) {
-        placeholderWidget.dispose();
-      }
       return streamlitPreviewResponse
     }
 
@@ -215,11 +216,6 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
       // then don't create a new widget. The backend will update the 
       // .py file and the app preview will update automatically
       return streamlitPreviewResponse
-    }
-    
-    // Close placeholder before creating real preview
-    if (placeholderWidget) {
-      placeholderWidget.dispose();
     }
     
     // Create the new preview widget
