@@ -74,7 +74,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
   },
   { 
     displayName: 'Gemini 2.5 Pro', 
-    fullName: 'gemini-2.5-pro-preview-03-25', 
+    fullName: 'gemini-2.5-pro', 
     type: 'smart',
     goodFor: [
       'Complex data analysis',

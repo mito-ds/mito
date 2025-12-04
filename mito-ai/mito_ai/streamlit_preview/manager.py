@@ -3,6 +3,7 @@
 
 import socket
 import subprocess
+import sys
 import time
 import threading
 import requests
@@ -54,8 +55,10 @@ class StreamlitPreviewManager:
             port = self.get_free_port()
             
             # Start streamlit process
+            # Use sys.executable -m streamlit to ensure it works on Windows
+            # where streamlit may not be directly executable in PATH
             cmd = [
-                "streamlit", "run", app_file_name,
+                sys.executable, "-m", "streamlit", "run", app_file_name,
                 "--server.port", str(port),
                 "--server.headless", "true",
                 "--server.address", "localhost",
