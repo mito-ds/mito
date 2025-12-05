@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
-import { getRule, getRules, setRule } from '../../../restAPI/RestAPI';
+import { getRule, getRules, setRule, fetchGoogleDriveContent } from '../../../restAPI/RestAPI';
 import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
 
 export const RulesPage = (): JSX.Element => {
@@ -16,7 +16,10 @@ export const RulesPage = (): JSX.Element => {
 
     const [formData, setFormData] = useState<Rule>({
         name: '',
-        description: ''
+        description: '',
+        googleDriveUrl: '',
+        lastUpdated: '',
+        ruleType: 'manual'
     });
     const [formError, setFormError] = useState<string | null>(null);
 
@@ -30,7 +33,12 @@ export const RulesPage = (): JSX.Element => {
     };
 
     useEffect(() => {
-        void fetchRules();
+        const initializeRules = async () => {
+            // Then fetch all rules
+            await fetchRules();
+        };
+        
+        void initializeRules();
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
@@ -49,22 +57,57 @@ export const RulesPage = (): JSX.Element => {
             setFormError(null);
         }
 
-        await setRule(formData.name, formData.description);
+        await setRule(formData.name, formData.description, formData.ruleType, formData.googleDriveUrl);
         setModalStatus(undefined);
         setFormData({
             name: '',
-            description: ''
+            description: '',
+            googleDriveUrl: '',
+            lastUpdated: '',
+            ruleType: 'manual'
         });
         void fetchRules();
     };
 
     const handleRuleClick = async (rule: string): Promise<void> => {
-        const ruleContent = await getRule(rule);
-        setFormData({
-            name: stripFileEnding(rule),
-            description: ruleContent || ''
-        });
+        const ruleData = await getRule(rule);
+        if (ruleData) {
+            const formDataToSet: Rule = {
+                name: stripFileEnding(rule),
+                description: ruleData.content || '',
+                googleDriveUrl: ruleData.google_drive_url || '',
+                lastUpdated: ruleData.last_updated || '',
+                ruleType: ruleData.rule_type === 'google_doc' ? 'google_doc' : 'manual'
+            };
+            setFormData(formDataToSet);
+        } else {
+            setFormData({
+                name: stripFileEnding(rule),
+                description: '',
+                googleDriveUrl: '',
+                lastUpdated: '',
+                ruleType: 'manual'
+            });
+        }
         setModalStatus('edit rule');
+    };
+
+    const handleGoogleDriveUrlChange = (url: string): void => {
+        setFormData(prev => ({ ...prev, googleDriveUrl: url }));
+    };
+
+    const handleFetchGoogleDriveContent = async (url: string): Promise<void> => {
+        try {
+            const result = await fetchGoogleDriveContent(url);
+            setFormData(prev => ({
+                ...prev,
+                description: result.content,
+                lastUpdated: new Date().toISOString(),
+                ruleType: 'google_doc'
+            }));
+        } catch (error) {
+            setFormError(error instanceof Error ? error.message : 'Failed to fetch Google Docs content');
+        }
     };
 
     return (
@@ -120,10 +163,15 @@ export const RulesPage = (): JSX.Element => {
                                 setModalStatus(undefined);
                                 setFormData({
                                     name: '',
-                                    description: ''
+                                    description: '',
+                                    googleDriveUrl: '',
+                                    lastUpdated: '',
+                                    ruleType: 'manual'
                                 });
                             }}
                             isEditing={modalStatus === 'edit rule'}
+                            onGoogleDriveUrlChange={handleGoogleDriveUrlChange}
+                            onFetchGoogleDriveContent={handleFetchGoogleDriveContent}
                         />
                     </div>
                 </div>
