@@ -6,10 +6,12 @@
 import { ServerConnection } from '@jupyterlab/services';
 import { Notification } from '@jupyterlab/apputils';
 import * as semver from 'semver';
+import { isElectronBasedFrontend } from './user';
 
 const VERSION_CHECK_TIMEOUT = 5000;
 const VERSION_CHECK_ENDPOINT = 'mito-ai/version-check';
-const DOCS_UPDATE_URL = 'https://docs.trymito.io/getting-started/installing-mito';
+const DESKTOP_DOCS_UPDATE_URL = 'https://docs.trymito.io/getting-started/installing-mito/upgrading-mito-desktop#how-can-i-update-mito-ai';
+const PIP_DOCS_UPDATE_URL = 'https://docs.trymito.io/how-to/upgrading-mito';
 const RELEASE_NOTES_URL = 'https://docs.trymito.io/misc/release-notes';
 
 /**
@@ -22,7 +24,10 @@ export function showVersionOutdatedNotification(currentVersion: string, latestVe
       {
         label: 'Learn how to update',
         callback: () => {
-          window.open(DOCS_UPDATE_URL, '_blank');
+          window.open(
+            isElectronBasedFrontend() ? DESKTOP_DOCS_UPDATE_URL : PIP_DOCS_UPDATE_URL, 
+            '_blank'
+          );
         }
       },
       {
