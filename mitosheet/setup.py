@@ -70,6 +70,11 @@ setup_args = dict(
     author                  = package_json["author"]["name"],
     author_email            = package_json["author"]["email"],
     description             = package_json["description"],
+    project_urls            = {
+        "Homepage": package_json["homepage"],
+        "Repository": package_json["repository"]["url"],
+        "Issues": package_json["bugs"]["url"]
+    },
     license                 = "GNU Affero General Public License v3",
     long_description        = long_description,
     long_description_content_type = "text/markdown",
