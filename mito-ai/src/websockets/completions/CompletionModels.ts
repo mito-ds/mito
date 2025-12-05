@@ -47,7 +47,7 @@ export type AgentResponse = {
   get_cell_output_cell_id?: string | null | undefined
   next_steps?: string[] | null | undefined
   analysis_assumptions?: string[] | null | undefined
-  edit_streamlit_app_prompt?: string | null | undefined
+  streamlit_app_prompt?: string | null | undefined
 }
 
 /* 

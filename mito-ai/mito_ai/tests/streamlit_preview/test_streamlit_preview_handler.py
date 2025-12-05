@@ -99,9 +99,10 @@ class TestStreamlitPreviewHandler:
                     assert mock_streamlit_handler.called
                     # Verify it was called with the correct arguments
                     call_args = mock_streamlit_handler.call_args
-                    assert call_args[0][0] == os.path.abspath(notebook_path)  # First argument should be the absolute notebook path
-                    assert call_args[0][1] == app_file_name  # Second argument should be the app file name
-                    assert call_args[0][2] == ""  # Third argument should be the edit_prompt
+                    assert call_args[0][0] == True
+                    assert call_args[0][1] == os.path.abspath(notebook_path)  # First argument should be the absolute notebook path
+                    assert call_args[0][2] == app_file_name  # Second argument should be the app file name
+                    assert call_args[0][3] == ""  # Third argument should be the edit_prompt
                 else:
                     mock_streamlit_handler.assert_not_called()
                 

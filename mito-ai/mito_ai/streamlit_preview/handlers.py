@@ -22,12 +22,14 @@ class StreamlitPreviewHandler(APIHandler):
         self.preview_manager = StreamlitPreviewManager()
 
     @tornado.web.authenticated
+    
     async def post(self) -> None:
         """Start a new streamlit preview."""
         try:
+            
             # Parse and validate request
             body = self.get_json_body()
-            notebook_path, notebook_id, force_recreate, edit_prompt = validate_request_body(body)
+            notebook_path, notebook_id, force_recreate, streamlit_app_prompt = validate_request_body(body)
 
             # Ensure app exists
             absolute_notebook_path = get_absolute_notebook_path(notebook_path)
@@ -35,14 +37,19 @@ class StreamlitPreviewHandler(APIHandler):
             app_file_name = get_app_file_name(notebook_id)
             absolute_app_path = get_absolute_app_path(absolute_notebook_dir_path, app_file_name)
             app_path_exists = does_app_path_exist(absolute_app_path)
-
+            
             if not app_path_exists or force_recreate:
                 if not app_path_exists:
                     print("[Mito AI] App path not found, generating streamlit code")
                 else:
                     print("[Mito AI] Force recreating streamlit app")
 
-                await streamlit_handler(absolute_notebook_path, app_file_name, edit_prompt)
+                # Create a new app 
+                await streamlit_handler(True, absolute_notebook_path, app_file_name, streamlit_app_prompt)
+            elif streamlit_app_prompt != '':
+                # Update an existing app if there is a prompt provided. Otherwise, the user is just
+                # starting an existing app so we can skip the streamlit_handler all together
+                await streamlit_handler(False, absolute_notebook_path, app_file_name, streamlit_app_prompt)
 
             # Start preview
             # TODO: There's a bug here where when the user rebuilds and already running app. Instead of 
@@ -58,7 +65,7 @@ class StreamlitPreviewHandler(APIHandler):
                 "port": port, 
                 "url": f"http://localhost:{port}"
             })
-            log_streamlit_app_preview_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
+            log_streamlit_app_preview_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, streamlit_app_prompt)
 
         except StreamlitConversionError as e:
             print(e)
@@ -71,7 +78,7 @@ class StreamlitPreviewHandler(APIHandler):
                 MessageType.STREAMLIT_CONVERSION, 
                 error_message, 
                 formatted_traceback,
-                edit_prompt,
+                streamlit_app_prompt,
             )
         except StreamlitPreviewError as e:
             print(e)
@@ -79,7 +86,7 @@ class StreamlitPreviewHandler(APIHandler):
             formatted_traceback = traceback.format_exc()
             self.set_status(e.error_code)
             self.finish({"error": error_message})
-            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message, formatted_traceback, edit_prompt)
+            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message, formatted_traceback, streamlit_app_prompt)
         except Exception as e:
             print(f"Exception in streamlit preview handler: {e}")
             self.set_status(500)

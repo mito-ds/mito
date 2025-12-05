@@ -229,7 +229,7 @@ export const useAgentExecution = ({
             }
 
             // TODO: If we created a validated type in the agent response validation function, then we woulnd't need to do these checks
-            if (agentResponse.type === 'edit_streamlit_app' && (agentResponse.edit_streamlit_app_prompt === undefined || agentResponse.edit_streamlit_app_prompt === null)) {
+            if (agentResponse.type === 'edit_streamlit_app' && (agentResponse.streamlit_app_prompt === undefined || agentResponse.streamlit_app_prompt === null)) {
                 await markAgentForStopping();
                 isAgentFinished = true;
                 break;
@@ -310,13 +310,14 @@ export const useAgentExecution = ({
 
             if (agentResponse.type === 'create_streamlit_app') {
                 // Create new preview using the service
-                const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
+                const createStreamlitAppPrompt = agentResponse.streamlit_app_prompt || ''
+                const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current, createStreamlitAppPrompt);
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message;
                 }
             }
 
-            if (agentResponse.type === 'edit_streamlit_app' && agentResponse.edit_streamlit_app_prompt) {
+            if (agentResponse.type === 'edit_streamlit_app' && agentResponse.streamlit_app_prompt) {
                 // Ensure there is an active preview to edit
                 let streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
                 if (streamlitPreviewResponse.type === 'error') {
@@ -325,7 +326,7 @@ export const useAgentExecution = ({
                 }
 
                 // Edit the existing preview
-                streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(agentResponse.edit_streamlit_app_prompt, agentTargetNotebookPanelRef.current);
+                streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(agentResponse.streamlit_app_prompt, agentTargetNotebookPanelRef.current);
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message;
                 }
