@@ -19,6 +19,7 @@ import '../../../style/StreamlitPreviewPlugin.css';
 import { getAppPreviewNameFromNotebookPanel, showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
 import { showUpdateAppDropdown } from './UpdateAppDropdown';
 import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
+import { PlaceholderWidget } from './PlaceholderWidget';
 
 
 /**
@@ -128,13 +129,33 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
       this.closeCurrentPreview();
     }
-    
+
+    // Create and show placeholder panel immediately
+    let placeholderWidget: MainAreaWidget | null = null;
+    if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
+      const placeholderContent = new PlaceholderWidget();
+      placeholderWidget = new MainAreaWidget({ content: placeholderContent });
+      placeholderWidget.title.label = getAppPreviewNameFromNotebookPanel(notebookPanel);
+      placeholderWidget.title.closable = true;
+      
+      // Add placeholder to main area with split-right mode
+      app.shell.add(placeholderWidget, 'main', {
+        mode: 'split-right',
+        ref: notebookPanel.id
+      });
+    }
+
     // First save the notebook to ensure the app is up to date
     await notebookPanel.context.save();
 
     const notebookPath = notebookPanel.context.path;
     const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
     const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID, false, createStreamlitAppPrompt);
+
+    // Close placeholder before handling response (always dispose if it exists)
+    if (placeholderWidget) {
+      placeholderWidget.dispose();
+    }
 
     if (streamlitPreviewResponse.type === 'error') {
       return streamlitPreviewResponse
