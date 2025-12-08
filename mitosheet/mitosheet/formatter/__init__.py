@@ -1,10 +1,12 @@
 import pandas
 import uuid
+from .viewer import format_dataframe_viewer, register_ipython_formatter
 
 
 def format_dataframe(obj: pandas.DataFrame) -> str:
-    """"""
-
+    """
+    Legacy formatter using gridjs. Use format_dataframe_viewer for the new React-based viewer.
+    """
     uid = uuid.uuid4().hex
 
     # Dirty demo implementation using gridjs
@@ -31,6 +33,10 @@ def format_dataframe(obj: pandas.DataFrame) -> str:
         sort: true,
     }}).render(document.getElementById("gridjs-mitosheet-{uid}"));
 </script>"""
+
+
+# Register the new viewer formatter by default
+register_ipython_formatter()
 
 #
 # Alternative implementation using iframe and srcdoc
@@ -59,5 +65,5 @@ def format_dataframe(obj: pandas.DataFrame) -> str:
 #     </script>
 # </body>
 # </html>"""
-    
+
 #     return f'<iframe srcdoc="{srcdoc.replace(chr(34), "&quot;")}" style="width: 100%; height: 400px; border: none;"></iframe>'
