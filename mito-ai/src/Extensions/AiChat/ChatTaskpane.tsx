@@ -569,6 +569,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     newChatHistoryManager,
                     true
                 );
+                // Reset loading status when an error occurs
+                setLoadingStatus(undefined);
             }
         } else {
             // NON-STREAMING RESPONSES
