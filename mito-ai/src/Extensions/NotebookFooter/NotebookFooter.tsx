@@ -26,11 +26,17 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
 
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [hasMitosheet, setHasMitosheet] = useState(false);
     const { isSignedUp, refreshUserSignupState } = useUserSignup();
 
     useEffect(() => {
         void refreshUserSignupState();
     }, []);
+
+    // Check if mitosheet command exists
+    useEffect(() => {
+        setHasMitosheet(app.commands.hasCommand('mitosheet:create-empty-mitosheet'));
+    }, [app]);
 
     // Listen for signup success events from other components
     useEffect(() => {
@@ -195,18 +201,20 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
                 </button>
 
                 {/* Spreadsheet button */}
-                <button
-                    onClick={() => addCell('spreadsheet')}
-                    className="footer-button"
-                    onMouseDown={(e) => e.stopPropagation()}
-                >
-                    <div className="button-content">
-                        <div className="button-icon">
-                            <SpreadsheetIcon />
+                {hasMitosheet && (
+                    <button
+                        onClick={() => addCell('spreadsheet')}
+                        className="footer-button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                    >
+                        <div className="button-content">
+                            <div className="button-icon">
+                                <SpreadsheetIcon />
+                            </div>
+                            <span className="button-label">Spreadsheet</span>
                         </div>
-                        <span className="button-label">Spreadsheet</span>
-                    </div>
-                </button>                
+                    </button>
+                )}
             </div>
         </div>
     );
