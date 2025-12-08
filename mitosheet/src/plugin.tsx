@@ -6,9 +6,7 @@
 // Copyright (c) Mito
 
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
-import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
-import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { getArgsFromMitosheetCallCode, getCodeString, hasCodeCellBeenEditedByUser, getLastNonEmptyLine } from './jupyter/code';
 import { JupyterComm } from './jupyter/comm';
 import {
@@ -30,23 +28,6 @@ import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
 
-const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
-
-    // Whenever there is a new notebook, we add a new button to it's toolbar
-    tracker.widgetAdded.connect((_, newNotebook) => {
-        const button = new ToolbarButton({
-            className: 'toolbar-mito-button-class',
-            icon: mitoJLabIcon,
-            onClick: (): void => {
-                window.commands?.execute('mitosheet:create-empty-mitosheet');
-            },
-            tooltip: 'Create a blank Mitosheet below the active code cell',
-            label: 'New Mitosheet',
-        });
-        
-        newNotebook.toolbar.insertAfter('cellType', 'Create Mito Button', button);
-    })
-}
 
 /**
  * Activate the widget extension.
@@ -60,9 +41,6 @@ function activateMitosheetExtension(
 ): void {
 
     console.log('Mitosheet extension activated');
-
-    // Add the Create New Mitosheet button
-    registerMitosheetToolbarButtonAdder(notebookTracker);
 
     /**
      * This command creates a new comm for the mitosheet to talk to the mito backend. 
