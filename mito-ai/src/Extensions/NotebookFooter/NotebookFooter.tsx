@@ -12,6 +12,7 @@ import '../../../style/NotebookFooter.css';
 import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
+import SpreadsheetIcon from "../../icons/NotebookFooter/SpreadsheetIcon";
 import { userSignupEvents } from '../../utils/userSignupEvents';
 import { useUserSignup } from '../AiChat/hooks/useUserSignup';
 
@@ -60,13 +61,15 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
         }
     };
 
-    const addCell = (cellType: 'code' | 'markdown' = 'code'): void => {
+    const addCell = (cellType: 'code' | 'markdown' | 'spreadsheet' = 'code'): void => {
         if (notebook.widgets.length && notebook.widgets.length > 0) {
             notebook.activeCellIndex = notebook.widgets.length - 1;
         }
 
         if (cellType === 'code') {
             NotebookActions.insertBelow(notebook);
+        } else if (cellType === 'spreadsheet') {
+            void app.commands.execute('mitosheet:create-empty-mitosheet');
         } else {
             NotebookActions.insertBelow(notebook);
             // Change the cell type after insertion
@@ -190,6 +193,20 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
                         <span className="button-label">Text</span>
                     </div>
                 </button>
+
+                {/* Spreadsheet button */}
+                <button
+                    onClick={() => addCell('spreadsheet')}
+                    className="footer-button"
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    <div className="button-content">
+                        <div className="button-icon">
+                            <SpreadsheetIcon />
+                        </div>
+                        <span className="button-label">Spreadsheet</span>
+                    </div>
+                </button>                
             </div>
         </div>
     );
