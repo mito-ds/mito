@@ -43,6 +43,7 @@ dependencies = [
     # Mito App Dependencies
     "pipreqs",
     "streamlit",
+    "vizro",
     # LLM Dependencies
     "openai>=1.0.0",
     "google-genai",

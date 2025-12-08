@@ -38,36 +38,47 @@ class StreamlitPreviewManager:
         return port
     
     def start_streamlit_preview(self, app_directory: AbsoluteNotebookDirPath, app_file_name: AppFileName, preview_id: str) -> int:
-        """Start a streamlit preview process.
-        
+        """Start a vizro preview process.
+
         Args:
-            app_code: The streamlit app code to run
+            app_code: The vizro app code to run
             preview_id: Unique identifier for this preview
-            
+
         Returns:
             Tuple of (success, message, port)
         """
-        
+
         try:
-            
+
             # Get free port
             port = self.get_free_port()
-            
-            # Start streamlit process
+
+            # For Vizro, we need to modify the app.py to use the port we allocated
+            # Read the app file and inject the port configuration
+            import os
+            app_path = os.path.join(app_directory, app_file_name)
+            with open(app_path, 'r') as f:
+                app_code = f.read()
+
+            # Replace the run() call with run(port=X)
+            # Handle both .run() and .run(...)
+            import re
+            if re.search(r'\.run\(\s*\)', app_code):
+                # Simple case: .run() with no arguments
+                app_code = re.sub(r'\.run\(\s*\)', f'.run(port={port})', app_code)
+            elif re.search(r'\.run\(', app_code):
+                # Has arguments - insert port as first argument
+                app_code = re.sub(r'\.run\(', f'.run(port={port}, ', app_code)
+
+            # Write back the modified code
+            with open(app_path, 'w') as f:
+                f.write(app_code)
+
+            # Start python process to run the Vizro app
             cmd = [
-                "streamlit", "run", app_file_name,
-                "--server.port", str(port),
-                "--server.headless", "true",
-                "--server.address", "localhost",
-                "--server.enableXsrfProtection", "false",
-                "--server.runOnSave", "true",  # auto-reload when app is saved
-                "--logger.level", "error"
+                "python", app_file_name
             ]
-            
-            # TODO: Security considerations for production:
-            # - Consider enabling XSRF protection if needed, but we might already get this with the APIHandler?
-            # - Add authentication headers to streamlit
-            
+
             proc = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -81,7 +92,7 @@ class StreamlitPreviewManager:
             if not ready:
                 proc.terminate()
                 proc.wait()
-                raise StreamlitPreviewError("Streamlit app failed to start as app is not ready", 500)
+                raise StreamlitPreviewError("Vizro app failed to start as app is not ready", 500)
             
             # Register the process
             with self._lock:
@@ -90,11 +101,11 @@ class StreamlitPreviewManager:
                     port=port,
                 )
             
-            self.log.info(f"Started streamlit preview {preview_id} on port {port}")
+            self.log.info(f"Started vizro preview {preview_id} on port {port}")
             return port
-            
+
         except Exception as e:
-            self.log.error(f"Error starting streamlit preview: {e}")
+            self.log.error(f"Error starting vizro preview: {e}")
             raise StreamlitPreviewError(f"Failed to start preview: {str(e)}", 500)
     
     def _wait_for_app_ready(self, port: int, timeout: int = 30) -> bool:

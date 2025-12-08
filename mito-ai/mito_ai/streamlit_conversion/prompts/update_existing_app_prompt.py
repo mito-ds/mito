@@ -7,14 +7,14 @@ from mito_ai.streamlit_conversion.prompts.prompt_utils import add_line_numbers_t
 
 def get_update_existing_app_prompt(notebook: List[dict], streamlit_app_code: str, edit_prompt: str) -> str:
     """
-    This prompt is used to update an existing streamlit app.
+    This prompt is used to update an existing vizro app.
     """
-    
+
     existing_streamlit_app_code_with_line_numbers = add_line_numbers_to_code(streamlit_app_code)
-    
+
     return f"""
 
-GOAL: You've previously created a first draft of the Streamlit app. Now the user reviewed it and provided feedback.Update the existing streamlit app according to the feedback provided by the user. Use the input notebook to help you understand what code needs to be added, changed, or modified to fulfill the user's edit request.
+GOAL: You've previously created a first draft of the Vizro dashboard app. Now the user reviewed it and provided feedback. Update the existing vizro app according to the feedback provided by the user. Use the input notebook to help you understand what code needs to be added, changed, or modified to fulfill the user's edit request.
 
 **CRITICAL COMPLETION REQUIREMENT:**
 You have ONE and ONLY ONE opportunity to complete this edit request. If you do not finish the entire task completely, the application will be broken and unusable. This is your final chance to get it right.
@@ -34,12 +34,12 @@ You have ONE and ONLY ONE opportunity to complete this edit request. If you do n
 
 ===============================================
 
-INPUT NOTEBOOK: 
+INPUT NOTEBOOK:
 {notebook}
 
 ===============================================
 
-EXISTING STREAMLIT APP:
+EXISTING VIZRO APP:
 {existing_streamlit_app_code_with_line_numbers}
 
 ===============================================

@@ -120,24 +120,24 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, app_file_name: 
         # Otherwise generate a new streamlit app
         streamlit_code = await generate_new_streamlit_code(notebook_code)
        
-    # Then, after creating/updating the app, validate that the new code runs 
-    errors = validate_app(streamlit_code, notebook_path)
-    tries = 0
-    while len(errors)>0 and tries < 5:
-        for error in errors:
-            streamlit_code = await correct_error_in_generation(error, streamlit_code)
-        
-        errors = validate_app(streamlit_code, notebook_path)
-        
-        if len(errors)>0:
-            # TODO: We can't easily get the key type here, so for the beta release
-            # we are just defaulting to the mito server key since that is by far the most common.
-            log_streamlit_app_validation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, errors)
-        tries+=1
+    # Validation disabled for Vizro POC
+    # errors = validate_app(streamlit_code, notebook_path)
+    # tries = 0
+    # while len(errors)>0 and tries < 5:
+    #     for error in errors:
+    #         streamlit_code = await correct_error_in_generation(error, streamlit_code)
+    #
+    #     errors = validate_app(streamlit_code, notebook_path)
+    #
+    #     if len(errors)>0:
+    #         # TODO: We can't easily get the key type here, so for the beta release
+    #         # we are just defaulting to the mito server key since that is by far the most common.
+    #         log_streamlit_app_validation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, errors)
+    #     tries+=1
 
-    if len(errors)>0:
-        final_errors = ', '.join(errors)
-        raise StreamlitConversionError(f"Streamlit agent failed generating code after max retries. Errors: {final_errors}", 500)
+    # if len(errors)>0:
+    #     final_errors = ', '.join(errors)
+    #     raise StreamlitConversionError(f"Streamlit agent failed generating code after max retries. Errors: {final_errors}", 500)
     
     # Finally, update the app.py file with the new code
     create_app_file(app_path, streamlit_code)
