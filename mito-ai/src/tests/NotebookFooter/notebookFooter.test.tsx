@@ -90,7 +90,8 @@ const createMockNotebook = (widgetCount = 3) => {
 // Create mock app
 const createMockApp = () => ({
     commands: {
-        execute: jest.fn().mockResolvedValue(undefined)
+        execute: jest.fn().mockResolvedValue(undefined),
+        hasCommand: jest.fn().mockReturnValue(false)
     }
 }) as unknown as JupyterFrontEnd;
 
@@ -287,7 +288,8 @@ describe('NotebookFooter Component', () => {
 
             const mockApp = {
                 commands: {
-                    execute: jest.fn().mockReturnValue(mockPromise)
+                    execute: jest.fn().mockReturnValue(mockPromise),
+                    hasCommand: jest.fn().mockReturnValue(false)
                 }
             } as unknown as JupyterFrontEnd;
 
@@ -345,7 +347,8 @@ describe('NotebookFooter Component', () => {
 
             const mockApp = {
                 commands: {
-                    execute: jest.fn().mockReturnValue(mockPromise)
+                    execute: jest.fn().mockReturnValue(mockPromise),
+                    hasCommand: jest.fn().mockReturnValue(false)
                 }
             } as unknown as JupyterFrontEnd;
 
