@@ -514,7 +514,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         true,
                         chunk.error.title
                     );
-                    setLoadingStatus('inactive');
+                    setLoadingStatus(undefined);
                 } else if (chunk.done) {
                     // Reset states to allow future messages to show the "Apply" button
                     setCodeReviewStatus('chatPreview');
@@ -532,7 +532,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                     // Set loading to false after we receive the first chunk
                     if (streamingContentRef.current.length > 0) {
-                        setLoadingStatus('inactive');
+                        setLoadingStatus(undefined);
                     }
                 }
             };
@@ -651,7 +651,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } finally {
                 // Reset states to allow future messages to show the "Apply" button
                 setCodeReviewStatus('chatPreview');
-                setLoadingStatus('inactive');
+                setLoadingStatus(undefined);
             }
         }
 

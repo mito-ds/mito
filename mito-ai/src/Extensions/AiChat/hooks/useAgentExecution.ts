@@ -93,7 +93,7 @@ export const useAgentExecution = ({
         shouldContinueAgentExecution.current = false;
         // Update state/UI
         setAgentExecutionStatus('idle');
-        setLoadingStatus('inactive');
+        setLoadingStatus(undefined);
 
         if (reason === 'userStop') {
             // Immediately abort any ongoing requests
@@ -243,7 +243,7 @@ export const useAgentExecution = ({
                     agentResponse.cell_update,
                     agentTargetNotebookPanelRef.current,
                 );
-                setLoadingStatus('inactive');
+                setLoadingStatus(undefined);
 
                 const status = await retryIfExecutionError(
                     agentTargetNotebookPanelRef.current,
@@ -283,7 +283,7 @@ export const useAgentExecution = ({
             if (agentResponse.type === 'run_all_cells') {
                 setLoadingStatus('running-code');
                 const result = await runAllCells(app, agentTargetNotebookPanelRef.current);
-                setLoadingStatus('inactive');
+                setLoadingStatus(undefined);
 
                 // If run_all_cells resulted in an error, handle it through the error fixup process
                 if (!result.success && result.errorMessage && result.errorCellId) {

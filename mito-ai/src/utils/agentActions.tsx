@@ -128,7 +128,7 @@ export const retryIfExecutionError = async (
                     cellUpdate,
                     notebookPanel
                 )
-                setLoadingStatus('inactive');
+                setLoadingStatus(undefined);
             }
         } else if (agentResponse.type === 'run_all_cells') {
             // Prevent infinite loops by limiting run_all_cells attempts
@@ -141,7 +141,7 @@ export const retryIfExecutionError = async (
             // Execute runAllCells to fix NameError issues
             setLoadingStatus('running-code');
             const result = await runAllCells(app, notebookPanel);
-            setLoadingStatus('inactive');
+            setLoadingStatus(undefined);
             if (!result.success) {
                 // If run_all_cells resulted in an error, we should continue with error handling
                 // The error will be caught in the main loop

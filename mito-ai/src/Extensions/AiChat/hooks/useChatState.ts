@@ -8,7 +8,7 @@ import { ChatHistoryManager } from '../ChatHistoryManager';
 
 export type CodeReviewStatus = 'chatPreview' | 'codeCellPreview' | 'applied';
 export type AgentReviewStatus = 'pre-agent-code-review' | 'in-agent-code-review' | 'post-agent-code-review';
-export type LoadingStatus = 'inactive' | 'thinking' | 'running-code';
+export type LoadingStatus = 'thinking' | 'running-code' | undefined;
 
 /**
  * Hook to manage core chat state in the chat taskpane.
@@ -16,7 +16,7 @@ export type LoadingStatus = 'inactive' | 'thinking' | 'running-code';
  * Manages:
  * - chatHistoryManager: The main chat history manager instance
  * - chatHistoryManagerRef: Ref to access the latest chatHistoryManager value (for use in callbacks)
- * - loadingStatus: Current loading status ('inactive', 'thinking', or 'running-code')
+ * - loadingStatus: Current loading status (undefined, 'thinking', or 'running-code')
  * - codeReviewStatus: Current status of code review (preview, applied, etc.)
  * - agentReviewStatus: Current status of agent review
  * - nextSteps: Array of suggested next steps from the AI
@@ -46,7 +46,7 @@ export const useChatState = (
     const [chatHistoryManager, setChatHistoryManager] = useState<ChatHistoryManager>(initialChatHistoryManager);
     const chatHistoryManagerRef = useRef<ChatHistoryManager>(chatHistoryManager);
 
-    const [loadingStatus, setLoadingStatus] = useState<LoadingStatus>('inactive');
+    const [loadingStatus, setLoadingStatus] = useState<LoadingStatus>(undefined);
     const [codeReviewStatus, setCodeReviewStatus] = useState<CodeReviewStatus>('chatPreview');
     const [agentReviewStatus, setAgentReviewStatus] = useState<AgentReviewStatus>('pre-agent-code-review');
     const [nextSteps, setNextSteps] = useState<string[]>([]);
