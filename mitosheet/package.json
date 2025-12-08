@@ -8,7 +8,8 @@
   ],
   "jupyterlab": {
     "outputDir": "mitosheet/labextension",
-    "extension": "lib/plugin"
+    "extension": "lib/plugin",
+    "mimeExtension": "lib/viewer/renderer"
   },
   "name": "mitosheet",
   "license": "AGPL-3.0-only",
@@ -27,6 +28,8 @@
   "dependencies": {
     "@jupyterlab/application": "^4.0.0",
     "@jupyterlab/notebook": "^4.2.4",
+    "@jupyterlab/rendermime-interfaces": "^3.0.0",
+    "@jupyterlab/ui-components": "^4.0.0",
     "@types/fscreen": "^1.0.1",
     "@types/react-dom": "^18.3.0",
     "fscreen": "^1.1.0",

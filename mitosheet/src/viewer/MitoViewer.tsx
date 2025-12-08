@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 
 /**
  * Interface defining the metadata for each column in the DataFrame.
@@ -164,7 +164,7 @@ const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
       {payload.isTruncated && payload.truncationMessage && (
         <div style={{
           backgroundColor: 'var(--jp-warn-color0, #fff3cd)',
-          color: 'var(--jp-warn-color1, #856404)',
+          color: 'var(--jp-ui-inverse-font-color0, #ffffffff)',
           padding: '8px 12px',
           borderRadius: '4px',
           marginBottom: '12px',
@@ -192,7 +192,7 @@ const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         </div>
         
         <div style={{
-          position: 'relative',
+          display: 'inline-flex',
           flex: '0 0 200px'
         }}>
           <input

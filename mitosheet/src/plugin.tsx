@@ -43,7 +43,7 @@ const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
             tooltip: 'Create a blank Mitosheet below the active code cell',
             label: 'New Mitosheet',
         });
-        
+
         newNotebook.toolbar.insertAfter('cellType', 'Create Mito Button', button);
     })
 }
@@ -89,14 +89,14 @@ function activateMitosheetExtension(
                 currentKernel = currentNotebook?.sessionContext?.session?.kernel;
             }
 
-            
+
 
             // If there is no kernel with this ID, then we know the kernel has been restarted, and so 
             // we tell the user this
             if (currentKernel === undefined || currentKernel === null) {
                 return 'no_backend_comm_registered_error';
             }
-                        
+
             const comm = currentKernel.createComm(commTargetID);
             return (comm as unknown) as JupyterComm | undefined;
         }
@@ -111,12 +111,12 @@ function activateMitosheetExtension(
             const cellAndIndex = getMostLikelyMitosheetCallingCell(notebookTracker, analysisName);
 
             if (cellAndIndex) {
-                const [cell, ] = cellAndIndex;
+                const [cell,] = cellAndIndex;
                 const written = tryWriteAnalysisToReplayParameter(cell, analysisName);
                 if (written) {
                     return;
                 }
-            } 
+            }
 
             // Log if we are unable to write this param for any reason
             void mitoAPI.log('write_analysis_to_replay_to_mitosheet_call_failed');
@@ -136,7 +136,7 @@ function activateMitosheetExtension(
                 return;
             }
 
-            const [mitosheetCallCell, ] = mitosheetCallCellAndIndex;
+            const [mitosheetCallCell,] = mitosheetCallCellAndIndex;
 
             const overwritten = tryOverwriteAnalysisToReplayParameter(mitosheetCallCell, oldAnalysisName, newAnalysisName);
             if (!overwritten) {
@@ -159,7 +159,7 @@ function activateMitosheetExtension(
             // This is the last saved analysis' code, which we use to check if the user has changed
             // the code in the cell. If they have, we don't want to overwrite their changes automatically.
             const oldCode = args.oldCode as string[];
-            
+
             const code = getCodeString(analysisName, codeLines, telemetryEnabled, publicInterfaceVersion);
             // Find the cell that made the mitosheet.sheet call, and if it does not exist, give
             // up immediately
@@ -188,10 +188,10 @@ function activateMitosheetExtension(
             if (overwriteIfUserEditedCode === undefined && !isEmptyCell(codeCell) && hasCodeCellBeenEditedByUser(oldCode, codeCellText)) {
                 triggerUserEditedCodeDialog(oldCode, codeCellText.split('\n'));
                 return;
-            // Only write to the cell if either of the following are true:
-            // 1. The user has authorized overwriting the cell
-            // 2. The cell hasn't been edited by the user
-            // AND the cell exists. If the cell doesn't exist we can't write to it!
+                // Only write to the cell if either of the following are true:
+                // 1. The user has authorized overwriting the cell
+                // 2. The cell hasn't been edited by the user
+                // AND the cell exists. If the cell doesn't exist we can't write to it!
             } else if (codeCell !== undefined && (overwriteIfUserEditedCode || !hasCodeCellBeenEditedByUser(oldCode, codeCellText))) {
                 writeToCell(codeCell, code)
             } else {
@@ -225,7 +225,7 @@ function activateMitosheetExtension(
             const codeLines = args.code as string[];
             const telemetryEnabled = args.telemetryEnabled as boolean;
             const publicInterfaceVersion = args.publicInterfaceVersion as PublicInterfaceVersion;
-            const inputCellExecutionCount = args.inputCellExecutionCount as number | undefined; 
+            const inputCellExecutionCount = args.inputCellExecutionCount as number | undefined;
 
             // This is the last saved analysis' code, which we use to check if the user has changed
             // the code in the cell. If they have, we don't want to overwrite their changes automatically.
@@ -240,7 +240,7 @@ function activateMitosheetExtension(
 
             const cellIndexes = getCellIndexesByExecutionCount(cells, inputCellExecutionCount);
             const mimeRenderInputCellIndex = getMostLikelyCellIndexByExeuctionNumber(cellIndexes, notebook.activeCellIndex);
-            
+
             if (mimeRenderInputCellIndex === undefined) {
                 // If the code cell that created the mitosheet mime render does not exist, 
                 // just return. I don't think this should ever happen because you can't 
@@ -289,7 +289,7 @@ function activateMitosheetExtension(
         execute: (args: any) => {
             const analysisName = args.analysisName as string;
             const code = args.code as string;
-            
+
             // Find the cell that made the mitosheet.sheet call, and if it does not exist, give up immediately
             const mitosheetCallCellAndIndex = getCellCallingMitoshetWithAnalysis(notebookTracker, analysisName);
             if (mitosheetCallCellAndIndex === undefined) {
@@ -328,7 +328,7 @@ function activateMitosheetExtension(
             const analysisToReplayName = args.analysisToReplayName as string | undefined;
             const cellAndIndex = getMostLikelyMitosheetCallingCell(notebookTracker, analysisToReplayName);
             if (cellAndIndex) {
-                const [cell, ] = cellAndIndex;
+                const [cell,] = cellAndIndex;
                 return getArgsFromMitosheetCallCode(getCellText(cell));
             } else {
                 return [];
@@ -423,7 +423,7 @@ function activateMitosheetExtension(
                 args: {},
                 selector: '.mito-container',
                 // TODO: if there are multiple keys or the shortcut doesn't use the "accel" key, this won't work.
-                keys: ['Accel '+keyCombo.keys[0].toUpperCase()]
+                keys: ['Accel ' + keyCombo.keys[0].toUpperCase()]
             });
         }
     }
