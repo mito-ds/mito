@@ -16,6 +16,7 @@ import { checkForBlacklistedWords } from '../../../utils/blacklistedWords';
 import { getCodeBlockFromMessage } from '../../../utils/strings';
 import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } from '../../../utils/notebook';
 import { AgentReviewStatus } from '../ChatTaskpane';
+import { LoadingStatus } from './useChatState';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -29,7 +30,7 @@ interface UseAgentExecutionProps {
     chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>;
     activeThreadIdRef: React.MutableRefObject<string>;
     activeRequestControllerRef: React.MutableRefObject<AbortController | null>;
-    setLoadingAIResponse: (loading: boolean) => void;
+    setLoadingStatus: (status: LoadingStatus) => void;
     setAutoScrollFollowMode: (mode: boolean) => void;
     setHasCheckpoint: (hasCheckpoint: boolean) => void;
     addAIMessageFromResponseAndUpdateState: (
@@ -63,7 +64,7 @@ export const useAgentExecution = ({
     chatHistoryManagerRef,
     activeThreadIdRef,
     activeRequestControllerRef,
-    setLoadingAIResponse,
+    setLoadingStatus,
     setAutoScrollFollowMode,
     setHasCheckpoint,
     addAIMessageFromResponseAndUpdateState,
@@ -92,7 +93,7 @@ export const useAgentExecution = ({
         shouldContinueAgentExecution.current = false;
         // Update state/UI
         setAgentExecutionStatus('idle');
-        setLoadingAIResponse(false);
+        setLoadingStatus('inactive');
 
         if (reason === 'userStop') {
             // Immediately abort any ongoing requests
@@ -237,10 +238,12 @@ export const useAgentExecution = ({
 
             if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
                 // Run the code and handle any errors
+                setLoadingStatus('running-code');
                 await acceptAndRunCellUpdate(
                     agentResponse.cell_update,
                     agentTargetNotebookPanelRef.current,
                 );
+                setLoadingStatus('inactive');
 
                 const status = await retryIfExecutionError(
                     agentTargetNotebookPanelRef.current,
@@ -277,7 +280,9 @@ export const useAgentExecution = ({
             }
 
             if (agentResponse.type === 'run_all_cells') {
+                setLoadingStatus('running-code');
                 const result = await runAllCells(app, agentTargetNotebookPanelRef.current);
+                setLoadingStatus('inactive');
 
                 // If run_all_cells resulted in an error, handle it through the error fixup process
                 if (!result.success && result.errorMessage && result.errorCellId) {
