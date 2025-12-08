@@ -251,17 +251,18 @@ export const useAgentExecution = ({
                     sendAgentSmartDebugMessage,
                     shouldContinueAgentExecution,
                     markAgentForStopping,
-                    chatHistoryManagerRef
+                    chatHistoryManagerRef,
+                    setLoadingStatus
                 );
 
                 if (status === 'interupted') {
                     break;
                 }
 
-                // If we were not able to run the code, break out of the loop 
+                // If we were not able to run the code, break out of the loop
                 // so we don't continue to execute the plan. Instead, we encourage
-                // the user to update the plan and try again. 
-                // TODO: Save this message in backend also even if there is not another message sent. 
+                // the user to update the plan and try again.
+                // TODO: Save this message in backend also even if there is not another message sent.
                 // TODO: Move this into the retryIfExecutionError function?
                 if (status === 'failure') {
                     addAIMessageFromResponseAndUpdateState(
@@ -274,7 +275,7 @@ export const useAgentExecution = ({
             }
 
             if (agentResponse.type === 'get_cell_output' && agentResponse.get_cell_output_cell_id !== null && agentResponse.get_cell_output_cell_id !== undefined) {
-                // Mark that we should send the cell output to the agent 
+                // Mark that we should send the cell output to the agent
                 // in the next loop iteration
                 sendCellIDOutput = agentResponse.get_cell_output_cell_id;
             }
@@ -295,7 +296,8 @@ export const useAgentExecution = ({
                         sendAgentSmartDebugMessage,
                         shouldContinueAgentExecution,
                         markAgentForStopping,
-                        chatHistoryManagerRef
+                        chatHistoryManagerRef,
+                        setLoadingStatus
                     );
 
                     if (status === 'interupted') {

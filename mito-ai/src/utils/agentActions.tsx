@@ -19,6 +19,7 @@ import {
 import { ChatHistoryManager } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
+import { LoadingStatus } from "../Extensions/AiChat/hooks/useChatState"
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
@@ -75,12 +76,13 @@ export const acceptAndRunCellUpdate = async (
 
 
 export const retryIfExecutionError = async (
-    notebookPanel: NotebookPanel, 
+    notebookPanel: NotebookPanel,
     app: JupyterFrontEnd,
     sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>,
     shouldContinueAgentExecution: MutableRefObject<boolean>,
     markAgentForStopping: () => Promise<void>,
-    chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>
+    chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>,
+    setLoadingStatus: (status: LoadingStatus) => void
 ): Promise<'success' | 'failure' | 'interupted'> => {
 
     const cell = notebookPanel.content.activeCell as CodeCell;
@@ -119,12 +121,14 @@ export const retryIfExecutionError = async (
 
         if (agentResponse.type === 'cell_update') {
             const cellUpdate = agentResponse.cell_update
-            
+
             if (cellUpdate !== undefined && cellUpdate !== null) {
+                setLoadingStatus('running-code');
                 await acceptAndRunCellUpdate(
-                    cellUpdate, 
+                    cellUpdate,
                     notebookPanel
                 )
+                setLoadingStatus('inactive');
             }
         } else if (agentResponse.type === 'run_all_cells') {
             // Prevent infinite loops by limiting run_all_cells attempts
@@ -132,10 +136,12 @@ export const retryIfExecutionError = async (
                 console.log('Maximum run_all_cells attempts reached, treating as failure');
                 return 'failure';
             }
-            
+
             runAllCellsAttempts++;
             // Execute runAllCells to fix NameError issues
+            setLoadingStatus('running-code');
             const result = await runAllCells(app, notebookPanel);
+            setLoadingStatus('inactive');
             if (!result.success) {
                 // If run_all_cells resulted in an error, we should continue with error handling
                 // The error will be caught in the main loop
