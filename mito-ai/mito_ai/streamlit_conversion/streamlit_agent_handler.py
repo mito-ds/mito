@@ -8,7 +8,7 @@ from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import g
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
 from mito_ai.streamlit_conversion.prompts.update_existing_app_prompt import get_update_existing_app_prompt
-from mito_ai.streamlit_conversion.validate_streamlit_app import validate_app
+from mito_ai.streamlit_conversion.validate_vizro_app import validate_vizro_app
 from mito_ai.streamlit_conversion.streamlit_utils import extract_code_blocks, create_app_file, get_app_code_from_file, parse_jupyter_notebook_to_extract_required_content
 from mito_ai.streamlit_conversion.search_replace_utils import extract_search_replace_blocks, apply_search_replace
 from mito_ai.completions.models import MessageType
@@ -120,24 +120,24 @@ async def streamlit_handler(notebook_path: AbsoluteNotebookPath, app_file_name: 
         # Otherwise generate a new streamlit app
         streamlit_code = await generate_new_streamlit_code(notebook_code)
        
-    # Validation disabled for Vizro POC
-    # errors = validate_app(streamlit_code, notebook_path)
-    # tries = 0
-    # while len(errors)>0 and tries < 5:
-    #     for error in errors:
-    #         streamlit_code = await correct_error_in_generation(error, streamlit_code)
-    #
-    #     errors = validate_app(streamlit_code, notebook_path)
-    #
-    #     if len(errors)>0:
-    #         # TODO: We can't easily get the key type here, so for the beta release
-    #         # we are just defaulting to the mito server key since that is by far the most common.
-    #         log_streamlit_app_validation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, errors)
-    #     tries+=1
+    # Validate the generated Vizro app
+    errors = validate_vizro_app(streamlit_code, notebook_path)
+    tries = 0
+    while len(errors) > 0 and tries < 5:
+        for error in errors:
+            streamlit_code = await correct_error_in_generation(error, streamlit_code)
 
-    # if len(errors)>0:
-    #     final_errors = ', '.join(errors)
-    #     raise StreamlitConversionError(f"Streamlit agent failed generating code after max retries. Errors: {final_errors}", 500)
+        errors = validate_vizro_app(streamlit_code, notebook_path)
+
+        if len(errors) > 0:
+            # TODO: We can't easily get the key type here, so for the beta release
+            # we are just defaulting to the mito server key since that is by far the most common.
+            log_streamlit_app_validation_retry('mito_server_key', MessageType.STREAMLIT_CONVERSION, errors)
+        tries += 1
+
+    if len(errors) > 0:
+        final_errors = ', '.join(errors)
+        raise StreamlitConversionError(f"Vizro agent failed generating code after max retries. Errors: {final_errors}", 500)
     
     # Finally, update the app.py file with the new code
     create_app_file(app_path, streamlit_code)
