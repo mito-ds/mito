@@ -80,6 +80,7 @@ Notice in the example above that the user is just sending a friendly message, so
 {CHAT_CODE_FORMATTING_RULES}
 
 IMPORTANT RULES:
+- Do not use try/except blocks. In Jupyter notebooks, errors should surface immediately so users can identify and fix issues. Do not defensively check if columns exist, files are present, variables are defined, or modules are installed - if these assumptions are wrong, the code should error so the user knows to fix it.
 - Do not recreate variables that already exist
 - Keep as much of the original code as possible
 - When updating an existing code cell, return the full code cell with the update applied. Do not only return part of the code cell with a comment like "# Updated code starts here", etc.
