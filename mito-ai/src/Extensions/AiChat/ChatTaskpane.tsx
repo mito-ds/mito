@@ -1008,6 +1008,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 key={index}
                                 messages={displayOptimizedChat}
                                 renderMimeRegistry={renderMimeRegistry}
+                                notebookTracker={notebookTracker}
                             />
                         )
                     } else {
