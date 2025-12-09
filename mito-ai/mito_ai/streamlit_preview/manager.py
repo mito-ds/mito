@@ -3,6 +3,7 @@
 
 import socket
 import subprocess
+import sys
 import time
 import threading
 import requests
@@ -61,8 +62,15 @@ class StreamlitPreviewManager:
                 app_code = f.read()
 
             # Replace the run() call with run(port=X)
-            # Handle both .run() and .run(...)
+            # First, remove any existing port= arguments to avoid duplicates
             import re
+            # Remove existing port=XXXX arguments (with optional trailing comma and space)
+            app_code = re.sub(r'port=\d+,?\s*', '', app_code)
+            # Clean up any resulting empty parentheses or double commas
+            app_code = re.sub(r'\.run\(\s*,', '.run(', app_code)
+            app_code = re.sub(r',\s*\)', ')', app_code)
+
+            # Now inject the new port
             if re.search(r'\.run\(\s*\)', app_code):
                 # Simple case: .run() with no arguments
                 app_code = re.sub(r'\.run\(\s*\)', f'.run(port={port})', app_code)
@@ -75,8 +83,10 @@ class StreamlitPreviewManager:
                 f.write(app_code)
 
             # Start python process to run the Vizro app
+            # Use sys.executable to ensure we use the same Python interpreter
+            # that's running JupyterLab (with all dependencies installed)
             cmd = [
-                "python", app_file_name
+                sys.executable, app_file_name
             ]
 
             proc = subprocess.Popen(
