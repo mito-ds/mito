@@ -49,6 +49,33 @@
     flex-shrink: 0;
 }
 
+.agent-component-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.agent-component-header-action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--jp-ui-font-color2);
+    transition: background-color 0.15s ease, color 0.15s ease;
+    padding: 0;
+}
+
+.agent-component-header-action-button:hover {
+    background-color: var(--jp-layout-color3);
+    color: var(--jp-ui-font-color1);
+}
+
 .agent-component-header-expand-icon {
     flex-shrink: 0;
     transition: transform 0.2s ease;
