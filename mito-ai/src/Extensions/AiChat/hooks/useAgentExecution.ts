@@ -239,11 +239,14 @@ export const useAgentExecution = ({
             if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
                 // Run the code and handle any errors
                 setLoadingStatus('running-code');
-                await acceptAndRunCellUpdate(
-                    agentResponse.cell_update,
-                    agentTargetNotebookPanelRef.current,
-                );
-                setLoadingStatus(undefined);
+                try {
+                    await acceptAndRunCellUpdate(
+                        agentResponse.cell_update,
+                        agentTargetNotebookPanelRef.current,
+                    );
+                } finally {
+                    setLoadingStatus(undefined);
+                }
 
                 const status = await retryIfExecutionError(
                     agentTargetNotebookPanelRef.current,
@@ -282,8 +285,12 @@ export const useAgentExecution = ({
 
             if (agentResponse.type === 'run_all_cells') {
                 setLoadingStatus('running-code');
-                const result = await runAllCells(app, agentTargetNotebookPanelRef.current);
-                setLoadingStatus(undefined);
+                let result;
+                try {
+                    result = await runAllCells(app, agentTargetNotebookPanelRef.current);
+                } finally {
+                    setLoadingStatus(undefined);
+                }
 
                 // If run_all_cells resulted in an error, handle it through the error fixup process
                 if (!result.success && result.errorMessage && result.errorCellId) {
