@@ -123,7 +123,7 @@ interface IChatTaskpaneProps {
 }
 
 // Re-export types from hooks for backward compatibility
-export type { CodeReviewStatus, AgentReviewStatus } from './hooks/useChatState';
+export type { CodeReviewStatus, AgentReviewStatus, LoadingStatus } from './hooks/useChatState';
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle'
 export interface ChangedCell {
     cellId: string;
@@ -150,8 +150,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManager,
         chatHistoryManagerRef,
         setChatHistoryManager,
-        loadingAIResponse,
-        setLoadingAIResponse,
+        loadingStatus,
+        setLoadingStatus,
         codeReviewStatus,
         setCodeReviewStatus,
         agentReviewStatus,
@@ -287,7 +287,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(activeThreadIdRef.current, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
-        setLoadingAIResponse(true)
+        setLoadingStatus('thinking')
 
         // Step 2: Send the message to the AI
         const smartDebugCompletionRequest: ISmartDebugCompletionRequest = {
@@ -318,7 +318,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentTargetNotebookPanelRef.current
         )
         setChatHistoryManager(newChatHistoryManager);
-        setLoadingAIResponse(true);
+        setLoadingStatus('thinking');
 
         // Step 2: Send the message to the AI
         const smartDebugCompletionRequest: IAgentAutoErrorFixupCompletionRequest = {
@@ -342,7 +342,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage(activeThreadIdRef.current)
         setChatHistoryManager(newChatHistoryManager)
-        setLoadingAIResponse(true)
+        setLoadingStatus('thinking')
 
         // Step 2: Send the message to the AI
         const explainCompletionRequest: ICodeExplainCompletionRequest = {
@@ -393,7 +393,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanel, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
-        setLoadingAIResponse(true);
+        setLoadingStatus('thinking');
 
         // Step 2: Send the message to the AI
         const completionRequest: IAgentExecutionCompletionRequest = {
@@ -431,7 +431,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         )
 
         setChatHistoryManager(newChatHistoryManager)
-        setLoadingAIResponse(true)
+        setLoadingStatus('thinking')
 
         // Yield control briefly to allow React to re-render the UI
         // A timeout of 0ms pushes the rest of the function to the next event loop cycle
@@ -514,7 +514,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         true,
                         chunk.error.title
                     );
-                    setLoadingAIResponse(false);
+                    setLoadingStatus(undefined);
                 } else if (chunk.done) {
                     // Reset states to allow future messages to show the "Apply" button
                     setCodeReviewStatus('chatPreview');
@@ -532,7 +532,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                     // Set loading to false after we receive the first chunk
                     if (streamingContentRef.current.length > 0) {
-                        setLoadingAIResponse(false);
+                        setLoadingStatus(undefined);
                     }
                 }
             };
@@ -569,6 +569,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     newChatHistoryManager,
                     true
                 );
+                // Reset loading status when an error occurs
+                setLoadingStatus(undefined);
             }
         } else {
             // NON-STREAMING RESPONSES
@@ -651,7 +653,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } finally {
                 // Reset states to allow future messages to show the "Apply" button
                 setCodeReviewStatus('chatPreview');
-                setLoadingAIResponse(false);
+                setLoadingStatus(undefined);
             }
         }
 
@@ -692,7 +694,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef,
         activeThreadIdRef,
         activeRequestControllerRef,
-        setLoadingAIResponse,
+        setLoadingStatus,
         setAutoScrollFollowMode,
         setHasCheckpoint,
         addAIMessageFromResponseAndUpdateState,
@@ -1038,9 +1040,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         )
                     }
                 }).filter(message => message !== null)}
-                {loadingAIResponse &&
+                {loadingStatus === 'thinking' &&
                     <div className="chat-loading-message">
                         Thinking <LoadingDots />
+                    </div>
+                }
+                {loadingStatus === 'running-code' &&
+                    <div className="chat-loading-message">
+                        Running code <LoadingDots />
                     </div>
                 }
                 {/* Agent review panel - handles all agent review UI */}
