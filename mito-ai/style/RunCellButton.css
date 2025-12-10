@@ -1,0 +1,121 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mito-run-cell-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+.mito-run-cell-button {
+  display: flex;
+  align-items: center;
+  background-color: #1976d2; /* Blue color matching JupyterLab's run button */
+  border: none;
+  border-radius: 3px;
+  padding: 0;
+  cursor: pointer;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.mito-run-cell-button:hover {
+  background-color: #1565c0; /* Darker blue on hover */
+}
+
+.mito-run-cell-button-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+}
+
+.mito-run-cell-button-content svg {
+  color: white;
+  fill: white;
+}
+
+.mito-run-cell-button-content svg path {
+  fill: white;
+  stroke: white;
+}
+
+.mito-run-cell-button-text {
+  white-space: nowrap;
+}
+
+.mito-run-cell-button-separator {
+  width: 1px;
+  height: 16px;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 0 4px;
+}
+
+.mito-run-cell-button-chevron {
+  display: flex;
+  align-items: center;
+  padding-left: 4px;
+  cursor: pointer;
+  color: white;
+}
+
+.mito-run-cell-button-chevron svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mito-run-cell-button-chevron svg path {
+  stroke: white;
+}
+
+.mito-run-cell-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 1000;
+  background-color: var(--jp-layout-color1);
+  border: 1px solid var(--jp-layout-color2);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  min-width: 150px;
+  white-space: nowrap;
+}
+
+.mito-run-cell-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--jp-ui-font-color1);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.mito-run-cell-dropdown-item:hover {
+  background-color: var(--jp-layout-color2);
+}
+
+/* Position the button widget on the right side of the toolbar */
+.jp-Notebook-toolbar .mito-run-cell-button-widget {
+  margin-left: auto;
+  order: 9999; /* Ensure it appears last */
+}
+
+/* Ensure toolbar uses flexbox for proper alignment */
+.jp-Notebook-toolbar {
+  display: flex;
+  align-items: center;
+}
+
+/* Hide default JupyterLab run buttons when Mito Light theme is active */
+.jp-Toolbar [data-jp-item-name="run"],
+.jp-Toolbar [data-jp-item-name="run-all"],
+.jp-Toolbar [data-jp-item-name="restart-and-run"]
+{
+  display: none !important;
+}
