@@ -3,6 +3,7 @@
 
 from mito_ai.completions.prompt_builders.prompt_constants import (
     CITATION_RULES,
+    CELL_REFERENCE_RULES,
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
@@ -291,7 +292,7 @@ When you have completed the user's task, respond with a message in this format:
 
 Important information:
 1. The message is a short summary of the ALL the work that you've completed on this task. It should not just refer to the final message. It could be something like "I've completed the sales strategy analysis by exploring key relationships in the data and summarizing creating a report with three recommendations to boost sales.""
-2. The message should include citations for any insights that you shared with the user.
+2. The message should include citations for any insights that you shared with the user and cell references for whenever you refer to specific cells that you've updated or created.
 3. The next_steps is an optional list of 2 or 3 suggested follow-up tasks or analyses that the user might want to perform next. These should be concise, actionable suggestions that build on the work you've just completed. For example: ["Export the cleaned data to CSV", "Analyze revenue per customer", "Convert notebook into an app"].
 4. The next_steps should be as relevant to the user's actual task as possible. Try your best not to make generic suggestions like "Analyze the data" or "Visualize the results". For example, if the user just asked you to calculate LTV of their customers, you might suggest the following next steps: ["Graph key LTV drivers: churn and average transaction value", "Visualize LTV per age group"].
 5. If you are not sure what the user might want to do next, err on the side of suggesting next steps instead of making an assumption and using more CELL_UPDATES.
@@ -344,6 +345,9 @@ CODE STYLE
 
 ==== 
 {CITATION_RULES}
+
+====
+{CELL_REFERENCE_RULES}
 
 <Citation Example>
 
