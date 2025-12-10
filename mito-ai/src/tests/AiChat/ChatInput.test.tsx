@@ -816,6 +816,9 @@ describe('ChatInput Component', () => {
             const selectedContextContainer = screen.getByTestId('selected-context-container');
             expect(selectedContextContainer).toBeInTheDocument();
             expect(within(selectedContextContainer).getByText('Active Cell')).toBeInTheDocument();
+
+            // Should not show the notebook context container
+            expect(screen.queryByText('Notebook')).not.toBeInTheDocument();
         });
 
         it('does not show active cell context in Agent mode', () => {
@@ -823,9 +826,15 @@ describe('ChatInput Component', () => {
 
             // Should not show the active cell context container
             expect(screen.queryByText('Active Cell')).not.toBeInTheDocument();
+            
+            // Should show the active cell context container
+            const activeCellContainer = screen.getByText('Notebook');
+            expect(activeCellContainer).toBeInTheDocument();
 
-            // Should not have any SelectedContextContainer
-            expect(screen.queryByTestId('selected-context-container')).not.toBeInTheDocument();
+            // Should be inside a SelectedContextContainer
+            const selectedContextContainer = screen.getByTestId('selected-context-container');
+            expect(selectedContextContainer).toBeInTheDocument();
+            expect(within(selectedContextContainer).getByText('Notebook')).toBeInTheDocument();
         });
     });
 });
