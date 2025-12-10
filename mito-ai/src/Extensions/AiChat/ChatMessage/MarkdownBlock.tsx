@@ -8,6 +8,8 @@ import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 import { createPortal } from 'react-dom';
 import { Citation, CitationProps, CitationLine } from './Citation';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { parseCellReferences } from '../../../utils/cellReferences';
+import { scrollToCell } from '../../../utils/notebook';
 
 /**
  * React Portals in Markdown Rendering
@@ -145,10 +147,83 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             // Clear previous content
             containerRef.current.innerHTML = '';
             containerRef.current.appendChild(renderer.node.cloneNode(true));
+
+            // After rendering, make cell references clickable
+            makeCellReferencesClickable(containerRef.current);
         } catch (error) {
             console.error("Error rendering markdown:", error);
         }
-    }, [renderMimeRegistry]);
+    }, [renderMimeRegistry, notebookTracker]);
+
+    // Makes @Cell N references clickable in the rendered markdown
+    const makeCellReferencesClickable = useCallback((container: HTMLElement): void => {
+        if (!container || !notebookTracker.currentWidget) return;
+
+        // Find all text nodes that contain @Cell N patterns
+        const textNodes: Text[] = [];
+        const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+
+        let textNode;
+        while ((textNode = walker.nextNode() as Text)) {
+            if (textNode.nodeValue && /@[Cc]ell\s+\d+/.test(textNode.nodeValue)) {
+                textNodes.push(textNode);
+            }
+        }
+
+        // Process each text node that contains cell references
+        textNodes.forEach(node => {
+            if (!node.nodeValue || !node.parentNode) return;
+
+            const cellReferences = parseCellReferences(node.nodeValue, notebookTracker.currentWidget);
+            if (cellReferences.length === 0) return;
+
+            // Create a fragment to replace the text node
+            const fragment = document.createDocumentFragment();
+            let lastIndex = 0;
+
+            // Sort references by start index
+            const sortedRefs = [...cellReferences].sort((a, b) => a.startIndex - b.startIndex);
+
+            sortedRefs.forEach(ref => {
+                // Add text before the reference
+                if (ref.startIndex > lastIndex) {
+                    fragment.appendChild(
+                        document.createTextNode(node.nodeValue!.substring(lastIndex, ref.startIndex))
+                    );
+                }
+
+                // Create clickable span for the cell reference
+                const span = document.createElement('span');
+                span.className = 'cell-reference';
+                span.textContent = node.nodeValue!.substring(ref.startIndex, ref.endIndex);
+                span.style.cursor = 'pointer';
+                span.style.color = 'var(--jp-brand-color1)';
+                span.style.textDecoration = 'underline';
+                span.title = `Click to navigate to Cell ${ref.cellNumber}`;
+                
+                span.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (notebookTracker.currentWidget) {
+                        scrollToCell(notebookTracker.currentWidget, ref.cellId, undefined, 'center');
+                    }
+                });
+
+                fragment.appendChild(span);
+                lastIndex = ref.endIndex;
+            });
+
+            // Add any remaining text after the last reference
+            if (lastIndex < node.nodeValue.length) {
+                fragment.appendChild(
+                    document.createTextNode(node.nodeValue.substring(lastIndex))
+                );
+            }
+
+            // Replace the original text node
+            node.parentNode.replaceChild(fragment, node);
+        });
+    }, [notebookTracker]);
 
     // Replace the citation placeholders with Citation Components in the DOM
     const createCitationPortals = useCallback((citations: Citation[]): React.ReactElement[] => {

@@ -272,6 +272,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ...additionalContext,
                 { type: 'db', value: option.variable.value, display: option.variable.variable_name }
             ]);
+        } else if (option.type === 'cell') {
+            // For cells, add them as @Cell N mentions
+            contextChatRepresentation = `@Cell ${option.cellNumber}`
         }
 
         const newValue =
@@ -464,6 +467,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         isDropdownFromButton={isDropdownFromButton}
                         onFilterChange={setDropdownFilter}
                         onClose={handleDropdownClose}
+                        notebookTracker={notebookTracker}
                     />
                 )}
             </div>

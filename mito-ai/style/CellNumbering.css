@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Display cell numbers in the cell header */
+.jp-Cell-header {
+  display: block;
+  height: 32px;
+  line-height: 32px;
+}
+
+.jp-Cell-header::before {
+  content: "Cell " attr(data-cell-number);
+  padding-left: 8px;
+  font: 14px/32px var(--jp-ui-font-family);
+  color: var(--jp-ui-font-color2);
+  border-bottom: 1px solid var(--jp-border-color2);
+  user-select: none;
+}
+
+/* Only show cell numbers when the data-cell-number attribute is present */
+.jp-Cell-header:not([data-cell-number])::before {
+  content: "";
+}
+

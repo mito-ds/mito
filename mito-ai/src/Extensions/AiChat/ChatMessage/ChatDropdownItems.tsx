@@ -135,4 +135,54 @@ export const RuleDropdownItem: React.FC<RuleDropdownItemProps> = ({ rule, index,
             </span>
         </li>
     )
+}
+
+interface CellDropdownItemProps {
+    cellNumber: number;
+    cellId: string;
+    cellType: string;
+    index: number;
+    selectedIndex: number;
+    onSelect: (cellNumber: number, cellId: string) => void;
+}
+
+export const CellDropdownItem: React.FC<CellDropdownItemProps> = ({ 
+    cellNumber, 
+    cellId, 
+    cellType, 
+    index, 
+    selectedIndex, 
+    onSelect 
+}) => {
+    const getShortType = (type: string): string => {
+        if (type === 'code') {
+            return 'code';
+        } else if (type === 'markdown') {
+            return 'md';
+        } else {
+            return 'raw';
+        }
+    };
+
+    return (
+        <li
+            className={classNames("chat-dropdown-item", { selected: index === selectedIndex })}
+            onClick={() => onSelect(cellNumber, cellId)}
+            data-testid={`chat-dropdown-item-cell-${cellNumber}`}
+        >
+            <span className="chat-dropdown-item-type"
+                title={cellType}
+                data-testid={`chat-dropdown-item-type-cell-${cellNumber}`}
+            >
+                {getShortType(cellType)}
+            </span>
+            <span
+                className="chat-dropdown-item-name"
+                title={`Cell ${cellNumber}`}
+                data-testid={`chat-dropdown-item-name-cell-${cellNumber}`}
+            >
+                Cell {cellNumber}
+            </span>
+        </li>
+    )
 } 
