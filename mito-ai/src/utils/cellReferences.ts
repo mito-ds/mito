@@ -65,31 +65,39 @@ export function parseCellReferences(
 }
 
 /**
- * Converts cell references in a message to a format suitable for backend.
- * Replaces @Cell N mentions with cell IDs in a structured format.
+ * Converts @Cell N references in a message to [MITO_CELL_REF:cell_id] format.
+ * This ensures cell references are stable even if cells are reordered.
  * 
- * @param messageText - The original message text
- * @param references - Array of cell references found in the message
- * @returns Object with the processed message and cell reference metadata
+ * @param messageText - The original message text containing @Cell N references
+ * @param notebookPanel - The notebook panel to resolve cell IDs
+ * @returns The message with @Cell N replaced by [MITO_CELL_REF:cell_id]
  */
-export function processCellReferencesForBackend(
+export function convertCellReferencesToStableFormat(
   messageText: string,
-  references: CellReference[]
-): {
-  processedMessage: string;
-  cellReferences: Array<{ cellNumber: number; cellId: string }>;
-} {
-  // For now, keep the original message but extract references
-  // In the future, we might want to replace @Cell N with a structured format
-  const cellReferences = references.map(ref => ({
-    cellNumber: ref.cellNumber,
-    cellId: ref.cellId
-  }));
+  notebookPanel: NotebookPanel | null
+): string {
+  if (!notebookPanel) {
+    return messageText;
+  }
 
-  return {
-    processedMessage: messageText,
-    cellReferences
-  };
+  // Find all @Cell N references
+  const references = parseCellReferences(messageText, notebookPanel);
+  
+  if (references.length === 0) {
+    return messageText;
+  }
+
+  // Replace from end to start to preserve indices
+  let processedMessage = messageText;
+  for (let i = references.length - 1; i >= 0; i--) {
+    const ref = references[i];
+    if (!ref) continue;
+    const before = processedMessage.substring(0, ref.startIndex);
+    const after = processedMessage.substring(ref.endIndex);
+    processedMessage = before + `[MITO_CELL_REF:${ref.cellId}]` + after;
+  }
+
+  return processedMessage;
 }
 
 /**

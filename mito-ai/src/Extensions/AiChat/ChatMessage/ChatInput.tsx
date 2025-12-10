@@ -10,6 +10,7 @@ import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../ContextManager/VariableInspector';
 import { getActiveCellID, getActiveCellCode } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { convertCellReferencesToStableFormat } from '../../../utils/cellReferences';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
@@ -309,6 +310,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }));
     };
 
+    // Convert @Cell N references to [MITO_CELL_REF:cell_id] format before submitting
+    const processMessageForSubmission = (messageText: string): string => {
+        return convertCellReferencesToStableFormat(messageText, notebookTracker.currentWidget);
+    };
+
     const getExpandedVarialbes = (): ExpandedVariable[] => {
         const activeNotebookContext = contextManager?.getActiveNotebookContext();
         const expandedVariables: ExpandedVariable[] = [
@@ -443,8 +449,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
+                            const processedMessage = processMessageForSubmission(input);
                             const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
-                            handleSubmitUserMessage(input, messageIndex, additionalContextWithoutDisplayNames);
+                            handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
 
                             // Reset
                             setInput('')
@@ -475,8 +482,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
             {isEditing &&
                 <div className="message-edit-buttons">
                     <button onClick={() => {
+                        const processedMessage = processMessageForSubmission(input);
                         const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
-                        handleSubmitUserMessage(input, messageIndex, additionalContextWithoutDisplayNames);
+                        handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
                     }}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
