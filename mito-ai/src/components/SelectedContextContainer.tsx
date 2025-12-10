@@ -97,7 +97,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
                 }}
                 title={isHovered ? "Remove rule" : "Selected rule"}
             >
-                {isHovered && type !== 'active_cell' ? (
+                {isHovered && type !== 'active_cell' && type !== 'notebook' ? (
                     <span className="remove-icon">X</span>
                 ) : (
                     <span className="icon">{icon}</span>
