@@ -6,7 +6,7 @@
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import React from 'react';
-import MitoViewer from './MitoViewer';
+import { MitoViewer, type ViewerPayload } from './MitoViewer';
 
 /**
  * The default mime type for the Mito DataFrame viewer.
@@ -17,25 +17,6 @@ const MIME_TYPE = 'application/x.mito+json';
  * The class name added to the extension.
  */
 const CLASS_NAME = 'mito-mime-renderer';
-
-/**
- * Interface defining the data payload structure for the Mito viewer.
- * This matches the payload structure from the Python formatter.
- */
-interface MitoViewerPayload {
-    /** Array of column metadata containing name and dtype information */
-    columns: Array<{ name: string; dtype: string }>;
-    /** 2D array of string values representing the DataFrame data */
-    data: string[][];
-    /** Flag indicating whether the DataFrame was truncated */
-    isTruncated: boolean;
-    /** Optional warning message displayed when the DataFrame is truncated */
-    truncationMessage?: string;
-    /** Total number of rows in the original DataFrame */
-    totalRows: number;
-    /** Number of rows actually being displayed */
-    displayRows: number;
-}
 
 /**
  * A widget for rendering Mito DataFrame viewer.
@@ -55,7 +36,7 @@ export class MitoMimeRenderer extends ReactWidget implements IRenderMime.IRender
    * Render Mito DataFrame into this widget's node.
    */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        this._data = model.data[this._mimeType] as any as MitoViewerPayload;
+        this._data = model.data[this._mimeType] as any as ViewerPayload;
 
         return this.renderPromise ?? Promise.resolve();
     }
@@ -64,7 +45,7 @@ export class MitoMimeRenderer extends ReactWidget implements IRenderMime.IRender
         return (this._data ? <MitoViewer payload={this._data} /> : null);
     }
 
-    private _data: MitoViewerPayload | null = null;
+    private _data: ViewerPayload | null = null;
     private _mimeType: string;
 }
 

@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
-import MitoViewer from "../viewer/MitoViewer";
+import { MitoViewer } from "../viewer";
 
 describe("MitoViewer", () => {
     const mockPayload = {
@@ -12,14 +12,13 @@ describe("MitoViewer", () => {
             { name: "Age", dtype: "int64" },
             { name: "Score", dtype: "float64" },
         ],
-        data: [
-            ["0", "Alice", "25", "85.5"],
-            ["1", "Bob", "30", "92.0"],
-            ["2", "Charlie", "35", "78.2"],
-        ],
-        isTruncated: false,
+        data: `[
+            [0, "Alice", 25, 85.5],
+            [1, "Bob", 30, 92.0],
+            [2, "Charlie", 35, 78.2],
+        ]`,
         totalRows: 3,
-        displayRows: 3,
+        indexLevels: 1,        
     };
 
     it("renders the table with correct headers", () => {
@@ -59,11 +58,7 @@ describe("MitoViewer", () => {
     it("shows truncation message when data is truncated", () => {
         const truncatedPayload = {
             ...mockPayload,
-            isTruncated: true,
-            truncationMessage:
-        "Table truncated to 10 rows by pandas display.max_rows setting. Total rows: 100",
             totalRows: 100,
-            displayRows: 10,
         };
 
         render(<MitoViewer payload={truncatedPayload} />);
@@ -79,10 +74,9 @@ describe("MitoViewer", () => {
     it("handles empty dataframe", () => {
         const emptyPayload = {
             columns: [],
-            data: [],
-            isTruncated: false,
+            data: `[]`,
             totalRows: 0,
-            displayRows: 0,
+            indexLevels: 1,
         };
 
         render(<MitoViewer payload={emptyPayload} />);

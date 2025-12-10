@@ -31,7 +31,7 @@ def register_ipython_formatter():
         if ip is None:
             return
 
-        # Register formatter for pandas DataFrames with application/x.mito+json (new)
+        # Register formatter for pandas DataFrames with application/x.mito+json mimetype
         if getattr(ip, "display_formatter", None) is not None:
             formatter = getattr(ip.display_formatter, "formatters", None)
             if formatter is not None:
@@ -100,114 +100,26 @@ def format_dataframe_mimetype(obj: pd.DataFrame) -> dict | None:
     # Limit rows if necessary
     if max_rows is not None and total_rows > max_rows:
         display_df = obj.head(max_rows)
-        is_truncated = True
-        truncation_message = f"Table truncated to {max_rows} rows by pandas display.max_rows setting. Total rows: {total_rows}"
     else:
         display_df = obj
-        is_truncated = False
-        truncation_message = None
 
     # Convert DataFrame to JSON-serializable format using pandas.to_json
     try:
-        # Reset index to include it in the JSON data
-        display_df_reset = display_df.reset_index()
-
-        # Convert to JSON with orient='records' to get list of dicts
-        json_data = display_df_reset.to_json(orient="records", date_format="iso")
-        import json
-
-        if json_data is None:
-            raise ValueError("to_json returned None")
-        records = json.loads(json_data)
-
-        # Convert to expected 2D array format
-        data = []
-        for record in records:
-            row = []
-
-            # Handle index (could be multiple columns for MultiIndex)
-            if is_multi_index:
-                for i in range(index_levels):
-                    index_value = record.get(f"level_{i}", "")
-                    if pd.isna(index_value):
-                        row.append("")
-                    elif (
-                        isinstance(index_value, str) and "T" in index_value
-                    ):  # ISO datetime string
-                        # Parse and format datetime
-                        try:
-                            from datetime import datetime
-
-                            dt = datetime.fromisoformat(
-                                index_value.replace("Z", "+00:00")
-                            )
-                            row.append(dt.strftime("%Y-%m-%d %H:%M:%S"))
-                        except:
-                            row.append(str(index_value))
-                    else:
-                        row.append(str(index_value))
-            else:
-                # Single index
-                index_value = record.get("index", "")
-                if pd.isna(index_value):
-                    row.append("")
-                elif (
-                    isinstance(index_value, str) and "T" in index_value
-                ):  # ISO datetime string
-                    # Parse and format datetime
-                    try:
-                        from datetime import datetime
-
-                        dt = datetime.fromisoformat(index_value.replace("Z", "+00:00"))
-                        row.append(dt.strftime("%Y-%m-%d %H:%M:%S"))
-                    except:
-                        row.append(str(index_value))
-                else:
-                    row.append(str(index_value))
-
-            # Handle regular columns
-            for col in columns:
-                value = record.get(col, "")
-                if pd.isna(value):
-                    row.append("")
-                else:
-                    row.append(str(value))
-            data.append(row)
-
-    except Exception as e:
-        # Fallback to simple string conversion
-        if is_multi_index:
-            # For MultiIndex, convert each level to string
-            index_data = []
-            for i in range(index_levels):
-                level_data = obj.index.get_level_values(i).astype(str).values.tolist()
-                index_data.append(level_data)
-
-            # Zip index levels together
-            index_rows = list(zip(*index_data))
-            column_data = display_df.astype(str).values.tolist()
-            data = [
-                list(idx_row) + col_row
-                for idx_row, col_row in zip(index_rows, column_data)
-            ]
-        else:
-            # Single index fallback
-            index_data = display_df.index.astype(str).values.tolist()
-            column_data = display_df.astype(str).values.tolist()
-            data = [
-                list(idx_row) + col_row
-                for idx_row, col_row in zip(index_data, column_data)
-            ]
+        json_data = display_df.reset_index().to_json(orient="values", date_format="iso")
+    except Exception:
+        return None
 
     # Prepare column metadata - include index as first column(s)
     column_metadata = []
 
     # Add index column(s) first
-    if is_multi_index:
-        for i, name in enumerate(index_names):
-            column_metadata.append({"name": str(name), "dtype": f"level_{i}"})
-    else:
-        column_metadata.append({"name": str(index_name), "dtype": index_dtype})
+    for i, name in enumerate(index_names):
+        column_metadata.append(
+            {
+                "name": str(name),
+                "dtype": f"level_{i + 1}" if is_multi_index else index_dtype,
+            }
+        )
 
     # Add regular columns
     for col in columns:
@@ -217,12 +129,9 @@ def format_dataframe_mimetype(obj: pd.DataFrame) -> dict | None:
     # Prepare the data payload
     payload = {
         "columns": column_metadata,
-        "data": data,
-        "isTruncated": is_truncated,
+        "data": json_data,
         "totalRows": total_rows,
-        "displayRows": len(display_df),
-        "isMultiIndex": is_multi_index,
-        "indexLevels": index_levels if is_multi_index else None,
+        "indexLevels": index_levels if is_multi_index else 1,
     }
 
     # Return mimetype data for JupyterLab
