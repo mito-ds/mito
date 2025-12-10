@@ -6,20 +6,18 @@ def _is_describe_output(df: pd.DataFrame) -> bool:
     Detect if DataFrame is the result of a describe() call.
 
     describe() DataFrames have specific characteristics:
-    - Index contains statistical measures (count, mean, std, min, 25%, 50%, 75%, max)
-    - Mixed data types (numeric columns become float64)
-    - Specific index structure
+    - Index contains statistical measures (count, mean, std, min, max)
     """
-    if df.empty or len(df.index) < 2:
+    if df.empty or len(df.index) < 5:
         return False
 
     # Check if index contains typical describe() statistical measures
-    expected_stats = {"count", "mean", "std", "min", "25%", "50%", "75%", "max"}
+    expected_stats = {"count", "mean", "std", "min", "max"}
     index_values = set(str(idx).strip() for idx in df.index)
 
-    # If most of the expected stats are in the index, likely describe() output
-    matches = len(index_values & expected_stats)
-    return matches >= 5  # At least 5 matches indicate describe() output
+    # If the expected stats are in the index, likely describe() output
+    matches = expected_stats.intersection(index_values)
+    return len(matches) == 5
 
 
 def register_ipython_formatter():
