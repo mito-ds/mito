@@ -57,6 +57,13 @@ const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
         // Set initial visibility
         updateButtonVisibility();
         
+        // Handle race condition: mito-ai extension might load after mitosheet extension.
+        // Check again after a short delay to catch late-loading extensions.
+        // This ensures the button visibility is correct regardless of load order.
+        setTimeout(() => {
+            updateButtonVisibility();
+        }, 500);
+        
         newNotebook.toolbar.insertAfter('cellType', 'Create Mito Button', button);
     })
 }
