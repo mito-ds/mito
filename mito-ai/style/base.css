@@ -56,11 +56,17 @@
   --grey-300: #e1e7eb;
   --grey-200: #f8f9fa;
 
+  --purple-900: #3c06a8;
   --purple-700: #844af7;
   --purple-600: #9d6cff;
   --purple-500: #ba9bf8;
   --purple-400: #d0b9fe;
   --purple-300: #e9e0fd;
+
+  --blue-300: #EFF1F6;
+  --blue-400: #D4DBEF;
+  --blue-700: #2A6CDD;
+  --blue-900: #023180;
 }
 
 .text-muted {

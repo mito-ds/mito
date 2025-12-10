@@ -11,36 +11,41 @@
 .mito-run-cell-button {
   display: flex;
   align-items: center;
-  background-color: #1976d2; /* Blue color matching JupyterLab's run button */
-  border: none;
-  border-radius: 3px;
+  background-color: var(--blue-300); /* Light blue background */
+  border-radius: 4px;
+  border: .25px solid var(--blue-900);
   padding: 0;
   cursor: pointer;
-  color: white;
+  color: var(--blue-900); /* Dark blue text */
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
   transition: background-color 0.2s;
+  height: 20px; /* Match JupyterLab button height */
 }
 
 .mito-run-cell-button:hover {
-  background-color: #1565c0; /* Darker blue on hover */
+  background-color: var(--blue-400); /* Slightly darker blue on hover */
 }
 
 .mito-run-cell-button-content {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
+  gap: 8px;
+  padding: 6px 10px;
+  height: 100%;
 }
 
 .mito-run-cell-button-content svg {
-  color: white;
-  fill: white;
+  color: var(--blue-900); /* Dark purple icon */
+  fill: var(--blue-900);
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
 }
 
 .mito-run-cell-button-content svg path {
-  fill: white;
-  stroke: white;
+  fill: var(--blue-900);
+  stroke: var(--blue-900);
 }
 
 .mito-run-cell-button-text {
@@ -50,25 +55,22 @@
 .mito-run-cell-button-separator {
   width: 1px;
   height: 16px;
-  background-color: rgba(255, 255, 255, 0.3);
-  margin: 0 4px;
+  background-color: var(--blue-900); 
+  margin: 0 6px;
+  flex-shrink: 0;
 }
 
 .mito-run-cell-button-chevron {
   display: flex;
   align-items: center;
-  padding-left: 4px;
   cursor: pointer;
-  color: white;
+  color: var(--blue-900); /* Dark blue chevron */
+  flex-shrink: 0;
 }
 
 .mito-run-cell-button-chevron svg {
   width: 16px;
   height: 16px;
-}
-
-.mito-run-cell-button-chevron svg path {
-  stroke: white;
 }
 
 .mito-run-cell-dropdown-menu {
