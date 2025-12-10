@@ -415,8 +415,8 @@ describe('ChatInput Component', () => {
             // After clicking, dropdown should be closed
             expect(screen.queryByTestId('chat-dropdown')).not.toBeInTheDocument();
 
-            // Variable should be inserted with backticks
-            expect(textarea).toHaveValue('`df`');
+            // Variable should be inserted with backticks and a space
+            expect(textarea).toHaveValue('`df` ');
         });
     });
 
@@ -507,8 +507,8 @@ describe('ChatInput Component', () => {
             // After clicking, dropdown should be closed
             expect(screen.queryByTestId('chat-dropdown')).not.toBeInTheDocument();
 
-            // Rule should be inserted with backticks
-            expect(textarea).toHaveValue('Data Analysis');
+            // Rule should be inserted with a space after it
+            expect(textarea).toHaveValue('Data Analysis ');
 
             // Wait for the SelectedContextContainer to appear
             const selectedContextContainers = await screen.findAllByTestId('selected-context-container');
