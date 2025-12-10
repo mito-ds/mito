@@ -3,7 +3,8 @@
 
 from mito_ai.completions.prompt_builders.prompt_constants import (
     CHAT_CODE_FORMATTING_RULES,
-    CITATION_RULES, 
+    CITATION_RULES,
+    CELL_REFERENCE_RULES,
     ACTIVE_CELL_ID_SECTION_HEADING, 
     CODE_SECTION_HEADING,
     get_database_rules
@@ -27,6 +28,9 @@ Other useful information:
 
 ====
 {CITATION_RULES}
+
+====
+{CELL_REFERENCE_RULES}
 
 <Example 1> 
 {ACTIVE_CELL_ID_SECTION_HEADING}

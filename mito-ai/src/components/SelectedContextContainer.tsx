@@ -9,7 +9,7 @@ import RuleIcon from '../icons/RuleIcon';
 import CodeIcon from '../icons/CodeIcon';
 import DatabaseIcon from '../icons/DatabaseIcon';
 import PhotoIcon from '../icons/PhotoIcon';
-import { highlightCodeCell, getCellByID } from '../utils/notebook';
+import { highlightCodeCell, getCellByID, scrollToCell } from '../utils/notebook';
 
 interface SelectedContextContainerProps {
     title: string;
@@ -18,6 +18,7 @@ interface SelectedContextContainerProps {
     onClick?: () => void;
     notebookTracker?: any;
     activeCellID?: string;
+    value?: string;  // The underlying value (e.g., cellId for cell type)
 }
 
 const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
@@ -26,7 +27,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
     onRemove,
     onClick,
     notebookTracker,
-    activeCellID
+    activeCellID,
+    value
 }) => {
     const [isHovered, setIsHovered] = useState(false);
 
@@ -41,6 +43,10 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
     } else if (type === 'db') {
         icon = <DatabaseIcon />;
     } else if (type === 'active_cell') {
+        icon = <CodeIcon />;
+    } else if (type === 'notebook') {
+        icon = <CodeIcon />;
+    } else if (type === 'cell') {
         icon = <CodeIcon />;
     }
 
@@ -60,6 +66,15 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
                 }
             }
             // If notebookTracker or activeCellID are not available, do nothing
+        } else if (type === 'cell' && notebookTracker && value) {
+            // Handle cell context click - scroll to the cell
+            if (notebookTracker.currentWidget) {
+                scrollToCell(notebookTracker.currentWidget, value, undefined, 'center');
+            }
+            // Highlight the cell
+            setTimeout(() => {
+                highlightCodeCell(notebookTracker, value);
+            }, 500);
         } else if (onClick) {
             // Call the custom onClick handler for other context types
             onClick();
@@ -82,7 +97,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
                 }}
                 title={isHovered ? "Remove rule" : "Selected rule"}
             >
-                {isHovered && type !== 'active_cell' ? (
+                {isHovered && type !== 'active_cell' && type !== 'notebook' ? (
                     <span className="remove-icon">X</span>
                 ) : (
                     <span className="icon">{icon}</span>

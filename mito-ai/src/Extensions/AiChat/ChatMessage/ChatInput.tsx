@@ -10,6 +10,7 @@ import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../ContextManager/VariableInspector';
 import { getActiveCellID, getActiveCellCode } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { convertCellReferencesToStableFormat } from '../../../utils/cellReferences';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
@@ -226,6 +227,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         display: option.variable.variable_name
                     }
                 ]);
+            } else if (option.type === 'cell') {
+                setAdditionalContext(prev => [
+                    ...prev,
+                    {
+                        type: 'cell',
+                        value: option.cellId,
+                        display: `Cell ${option.cellNumber}`
+                    }
+                ]);
             }
             setDropdownVisible(false);
 
@@ -272,21 +282,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ...additionalContext,
                 { type: 'db', value: option.variable.value, display: option.variable.variable_name }
             ]);
+        } else if (option.type === 'cell') {
+            // For cells, add them as @CellN mentions (no space for easier filtering)
+            contextChatRepresentation = `@Cell${option.cellNumber}`
+            // Store the stable cell ID in additionalContext, not the @CellN format
+            setAdditionalContext([
+                ...additionalContext,
+                { type: 'cell', value: option.cellId, display: `Cell ${option.cellNumber}` }
+            ]);
         }
+
+        // Add a space after the selected item so user can continue typing
+        const contextChatRepresentationWithSpace = contextChatRepresentation + ' ';
 
         const newValue =
             input.slice(0, atIndex) +
-            contextChatRepresentation +
+            contextChatRepresentationWithSpace +
             textAfterCursor;
         setInput(newValue);
 
         setDropdownVisible(false);
 
-        // After updating the input value, set the cursor position after the inserted variable name
+        // After updating the input value, set the cursor position after the inserted item and space
         // We use setTimeout to ensure this happens after React's state update
         setTimeout(() => {
             if (textarea) {
-                const newCursorPosition = atIndex + contextChatRepresentation.length;
+                const newCursorPosition = atIndex + contextChatRepresentationWithSpace.length;
                 textarea.focus();
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }
@@ -304,6 +325,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
             type: contextItem.type,
             value: contextItem.value
         }));
+    };
+
+    // Convert @Cell N references to [MITO_CELL_REF:cell_id] format before submitting
+    const processMessageForSubmission = (messageText: string): string => {
+        return convertCellReferencesToStableFormat(messageText, notebookTracker.currentWidget);
     };
 
     const getExpandedVarialbes = (): ExpandedVariable[] => {
@@ -366,11 +392,27 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     display: 'Active Cell'
                 }]);
             }
+
+            // Remove the current notebook context item
+            const hasNotebookContext = additionalContext.some(context => context.type === 'notebook');
+            if (hasNotebookContext) {
+                setAdditionalContext(prev => prev.filter(context => context.type !== 'notebook'));
+            }
         } else if (agentModeEnabled) {
             // Remove active cell context when in agent mode
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
             if (hasActiveCellContext) {
                 setAdditionalContext(prev => prev.filter(context => context.type !== 'active_cell'));
+            }
+
+            const hasNotebookContext = additionalContext.some(context => context.type === 'notebook');
+            if (!hasNotebookContext) {
+            // Add a current notebook context item
+                setAdditionalContext(prev => [...prev, {
+                    type: 'notebook',
+                    value: 'Notebook',
+                    display: 'Notebook'
+                }]);
             }
         }
     }, [agentModeEnabled, additionalContext, activeCellCode]);
@@ -407,6 +449,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
                         notebookTracker={notebookTracker}
                         activeCellID={activeCellID}
+                        value={context.value}
                     />
                 ))}
             </div>
@@ -440,8 +483,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
+                            const processedMessage = processMessageForSubmission(input);
                             const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
-                            handleSubmitUserMessage(input, messageIndex, additionalContextWithoutDisplayNames);
+                            handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
 
                             // Reset
                             setInput('')
@@ -464,6 +508,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         isDropdownFromButton={isDropdownFromButton}
                         onFilterChange={setDropdownFilter}
                         onClose={handleDropdownClose}
+                        notebookTracker={notebookTracker}
                     />
                 )}
             </div>
@@ -471,8 +516,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
             {isEditing &&
                 <div className="message-edit-buttons">
                     <button onClick={() => {
+                        const processedMessage = processMessageForSubmission(input);
                         const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
-                        handleSubmitUserMessage(input, messageIndex, additionalContextWithoutDisplayNames);
+                        handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
                     }}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
