@@ -76,9 +76,6 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
             execute: async () => {
                 void app.commands.execute(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT);
             },
-            isVisible: () => {
-                return app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
-            }
         });
 
         // Check if the beta mode is enabled. After checking, tell Jupyter to 

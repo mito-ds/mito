@@ -35,7 +35,7 @@ class AgentResponse(BaseModel):
     get_cell_output_cell_id: Optional[str]
     next_steps: Optional[List[str]]
     analysis_assumptions: Optional[List[str]]
-    edit_streamlit_app_prompt: Optional[str]
+    streamlit_app_prompt: Optional[str]
     
     
 @dataclass(frozen=True)
@@ -97,13 +97,15 @@ class AgentExecutionMetadata():
     threadId: ThreadID
     input: str
     aiOptimizedCells: List[AIOptimizedCell]
+    activeCellId: str
     isChromeBrowser: bool
+    notebookPath: str
+    notebookID: str
     base64EncodedActiveCellOutput: Optional[str] = None
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     index: Optional[int] = None
     additionalContext: Optional[List[Dict[str, str]]] = None
-    streamlitAppIsOpen: Optional[bool] = None
     
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():

@@ -3,121 +3,154 @@
 
 MITO_TODO_PLACEHOLDER = "# MITO_TODO_PLACEHOLDER"
 
-unified_diff_instructions = f"""
-RESPONSE FORMAT: Return the changes you want to make to the streamlit app as a **unified diff (git-style patch)**:
+search_replace_instructions = f"""
+RESPONSE FORMAT: You can edit the existing code using the **SEARCH_REPLACE format** for exact string matching and replacement.
 
-A unified diff looks is the following and tells the system which lines of code to add, remove, or modify:
---- a/app.py
-+++ b/app.py
-@@ -START_LINE,1 +START_LINE,1 @@
- x = 1
- -y = 2
- +y = 3
- 
-The components of the unified diff are the following:
-- `--- a/app.py` -> The original file. We will always use the file app.py
-- `+++ b/app.py` -> The modified file. We will always use the file app.py
-- `@@ -START_LINE,1 +START_LINE,1 @@` -> The hunk header
-- `x = 1` -> The original context line
-- `-y = 2` -> The removed line
-- `+y = 3` -> The added line
+**STRUCTURE:**
+```search_replace
+>>>>>>> SEARCH
+[exact code currently in the file]
+=======
+[new code to replace it with]
+<<<<<<< REPLACE
+```
 
-When you create a unified diff, you must follow the following format:
-- Begin with a ```unified_diff marker and a ``` end marker.
-- Always, include the standard header. On line 1: `--- a/app.py` and on line 2: `+++ b/app.py` like in the example above.
-- Show only the modified hunks; each hunk must start with an `@@` header with line numbers.
-- Within each hunk:
-  * Unchanged context lines start with a single space ` `.
-  * Removed lines start with `-`.
-  * Added lines start with `+`.
-- If there are **no changes**, return an empty string.
-- Do not include the line numbers in your response.
+**COMPONENTS:**
+```search_replace - This is the start of the search/replace block
+- `>>>>>>> SEARCH` - Exact text that EXISTS NOW in the file (7 chevrons)
+- `=======` - Separator between the search and replace blocks (7 equals signs)  
+- `<<<<<<< REPLACE` - Replacement text (7 chevrons)
 
-**CRITICAL: INDENTATION HANDLING**
-When modifying indented code (like content inside tabs, functions, or loops), you MUST:
-- **Preserve exact indentation levels** in your added lines
-- **Show the complete indentation change** when moving code between indentation levels
-- **Include all whitespace** in your diff - indentation is part of the code structure
-- When unindenting code (removing tabs/context), show the original indented line with `-` and the unindented version with `+`
-- When indenting code (adding tabs/context), show the original unindented line with `-` and the indented version with `+`
+---
 
-**HUNK HEADER FORMAT:**
-Use `@@ -START_LINE,1 +START_LINE,1 @@` where:
-- START_LINE is the line number in the **original file** where this hunk begins
-- Always use `1` for both count values (the system will calculate correct counts later)
-- All line numbers must reference the **original file**, not the modified version
-- For example, if the hunk begins on line 12, use `@@ -12,1 +12,1 @@`
+**CRITICAL RULES - READ CAREFULLY:**
 
-**WRONG FORMATS (DO NOT USE):**
-`@@ -12:` -> This is wrong because it is using a colon, doesn't have the count value, and doesn't have both sets of start_line numbers and lines counts.
-`@@ -12,1` -> This is wrong because it doesn't have both sets of start_line numbers and lines counts.
-`@@ 12,1 12,1 @@` -> This is wrong because it doesn't use - and + before the start_line 
-`@@-12,1 +12,1@@` -> This is wrong because it doesn't have a space after the first @@ and doesn't have a space before the second @@.
+1. **SEARCH = CURRENT STATE ONLY**
+   - The SEARCH block must contain ONLY code that currently exists in the file
+   - NEVER include new code, future code, or code you wish existed in the SEARCH block
+   - Copy exact text from the current file, character-for-character
+   
+2. **EXACT MATCHING REQUIRED**
+   - Every space, tab, newline must match perfectly
+   - Preserve exact indentation (spaces vs tabs)
+   - Include trailing newlines if present
+   - No approximations - even one character difference will fail
 
-**MULTIPLE HUNKS:**
-- If changes are separated by 5+ unchanged lines, create separate hunks
-- Each hunk needs its own `@@` header with the correct START_LINE for that section
-- Hunks must be in ascending order by line number
+3. **SIZE LIMITS**
+   - There are no size limits to each search/replace block, however, it is generally preferable to keep the SEARCH blocks small and focused on one change. 
+   - For large changes, use multiple smaller search/replace blocks
 
-<Example 1: Single change in middle of file>
+4. **UNIQUENESS**
+   - Include enough context to make the SEARCH block unique
+   - If text appears multiple times, add surrounding lines
+   - Ensure there's only ONE match in the file
 
-Assume `data_list = [` is on line 57 of the original file:
-```unified_diff
---- a/app.py 
-+++ b/app.py
-@@ -57,1 +57,1 @@
- data_list = [
--    {{'id': 1, 'name': 'Old'}},
-+    {{'id': 1, 'name': 'New'}},
-+    {{'id': 2, 'name': 'Also New'}},
+5. **VERIFICATION CHECKLIST** (before generating each block):
+   ✓ Is every line in my SEARCH block currently in the file?
+   ✓ Did I copy the exact spacing and whitespace?
+   ✓ Will this match exactly once?
+   
+6. **SEARCH REPLACE BLOCK STRUCTURE**
+   - You must adhere to to the exact search_replace structure as shown in the examples.
+
+---
+
+**MULTIPLE REPLACEMENTS:**
+- You can include multiple search/replace blocks in one response
+- Each block is independent and processed separately
+- Use separate ```search_replace blocks for each change
+
+<Example 1: Updating existing content>
+
+```search_replace
+>>>>>>> SEARCH
+st.title("Old Title")
+=======
+st.title("New Title")
+<<<<<<< REPLACE
 ```
 </Example 1>
 
-<Example 2: Multiple separate changes>
-Assume the original file has:
+<Example 2: Adding new content>
 
-Line 5: import os
-Line 30: def process():
-
-```unified_diff
---- a/app.py 
-+++ b/app.py
-@@ -5,1 +5,1 @@
- import os
-+import sys
-@@ -30,1 +30,1 @@
--def process():
-+def process_data():
+```search_replace
+>>>>>>> SEARCH
+st.title("My App")
+=======
+st.title("My App")
+st.header("Welcome")
+st.write("This is a test app")
+<<<<<<< REPLACE
 ```
 </Example 2>
 
-<Example 3: Adding multiple entries to a list while respecting indentations>
+<Example 3: Deleting existing content>
 
-In the example below, assume that the line of code `data_list = [` is on line 57 of the existing streamlit app.
-
-```unified_diff
---- a/app.py 
-+++ b/app.py
-@@ -57,1 +57,1 @@
- data_list = [
-     {{'id': 1, 'name': 'Item A', 'category': 'Type 1', 'value': 100}},
-     {{'id': 2, 'name': 'Item B', 'category': 'Type 2', 'value': 200}},
--    {MITO_TODO_PLACEHOLDER}: Add remaining entries from notebook
-+    {{'id': 3, 'name': 'Item C', 'category': 'Type 3', 'value': 300}},
-+    {{'id': 4, 'name': 'Item D', 'category': 'Type 4', 'value': 400}},
-+    {{'id': 5, 'name': 'Item E', 'category': 'Type 5', 'value': 500}},
-+    {{'id': 6, 'name': 'Item F', 'category': 'Type 6', 'value': 600}},
-+    {{'id': 7, 'name': 'Item G', 'category': 'Type 7', 'value': 700}},
-+    {{'id': 8, 'name': 'Item H', 'category': 'Type 8', 'value': 800}},
-+    {{'id': 9, 'name': 'Item I', 'category': 'Type 9', 'value': 900}},
-+    {{'id': 10, 'name': 'Item J', 'category': 'Type 10', 'value': 1000}}
+```search_replace
+>>>>>>> SEARCH
+st.write("Old message")
+=======
+<<<<<<< REPLACE
 ```
 </Example 3>
 
-<Example 4: Consolidating tabs - removing tab structure and unindenting content>
+<Example 4: Multiple replacements in one response>
 
-Assume the original file has tabs starting at line 10:
-```python
+```search_replace
+>>>>>>> SEARCH
+st.title("Old Title")
+=======
+st.title("New Title")
+<<<<<<< REPLACE
+```
+
+```search_replace
+>>>>>>> SEARCH
+st.write("Old message")
+=======
+st.write("New message")
+<<<<<<< REPLACE
+```
+</Example 4>
+
+<Example 5: Using extra context to identify the correct code to replace>
+
+In the below example, assume that the code st.write("Old message") appears multiple times in the file, so we use extra context lines to identify the correct code to replace.
+
+```search_replace
+>>>>>>> SEARCH
+# This is a unique comment
+st.write("Old message")
+=======
+# This is a unique comment
+st.write("New message")
+<<<<<<< REPLACE
+```
+</Example 5>
+
+<Example 6: Search/replace while respecting whitespace and indentation>
+
+```search_replace
+>>>>>>> SEARCH
+data_list = [
+    {{'id': 1, 'name': 'Item A'}},
+    {MITO_TODO_PLACEHOLDER}: Add remaining entries from notebook
+]
+=======
+data_list = [
+    {{'id': 1, 'name': 'Item A'}},
+    {{'id': 2, 'name': 'Item B'}},
+    {{'id': 3, 'name': 'Item C'}},
+    {{'id': 4, 'name': 'Item D'}}
+]
+<<<<<<< REPLACE
+```
+</Example 6>
+
+<Example 7: Tab structure changes>
+
+```search_replace
+>>>>>>> SEARCH
 tab1, tab2 = st.tabs(["Cat", "Dog"])
 
 with tab1:
@@ -126,57 +159,14 @@ with tab1:
 with tab2:
     st.header("A dog")
     st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-```
-
-To consolidate into a single screen without tabs:
-```unified_diff
---- a/app.py 
-+++ b/app.py
-@@ -10,1 +10,1 @@
--tab1, tab2 = st.tabs(["Cat", "Dog"])
--
--with tab1:
--    st.header("A cat")
--    st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
--with tab2:
--    st.header("A dog")
--    st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-+st.header("A cat")
-+st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
-+st.header("A dog")
-+st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-```
-</Example 4>
-
-<Example 5: Adding tab structure - indenting existing content>
-
-Assume the original file has content starting at line 10:
-```python
+=======
 st.header("A cat")
 st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
 st.header("A dog")
 st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
+<<<<<<< REPLACE
 ```
+</Example 7>
 
-To add tab structure:
-```unified_diff
---- a/app.py 
-+++ b/app.py
-@@ -10,1 +10,1 @@
--st.header("A cat")
--st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
--st.header("A dog")
--st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-+tab1, tab2 = st.tabs(["Cat", "Dog"])
-+
-+with tab1:
-+    st.header("A cat")
-+    st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
-+with tab2:
-+    st.header("A dog")
-+    st.image("https://static.streamlit.io/examples/dog.jpg", width=200)
-```
-</Example 5>
-
-Your response must consist **only** of valid unified-diff block.
+Your response must consist **only** of valid search_replace blocks.
 """

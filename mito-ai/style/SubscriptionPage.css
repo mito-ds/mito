@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Subscription Page Styles */
+
+.subscription-page-card {
+    background: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.subscription-page-card-content {
+    margin-bottom: 20px;
+}
+
+.subscription-page-section-title {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.subscription-page-usage-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.subscription-page-usage-count {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--purple-600);
+}
+
+.subscription-page-usage-details {
+    font-size: 14px;
+    color: var(--jp-ui-font-color2);
+}
+
+.subscription-page-progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--jp-layout-color2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.subscription-page-progress-fill {
+    height: 100%;
+    background-color: var(--purple-600);
+    transition: width 0.3s ease;
+}
+
+.subscription-page-status-message {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--jp-ui-font-color1);
+}
+
+.subscription-page-status-warning {
+    font-size: 14px;
+    color: var(--red-500);
+    font-weight: 600;
+}
+
+.subscription-page-button-container {
+    display: flex;
+    gap: 12px;
+}
+
+.subscription-page-button-container form {
+    flex: 1;
+    margin: 0;
+}
+
+.subscription-page-button {
+    text-decoration: none;
+    text-align: center;
+    flex: 1;
+    width: 100%;
+}

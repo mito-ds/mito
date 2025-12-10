@@ -8,11 +8,18 @@ import { CodeCell } from "@jupyterlab/cells"
 import { NotebookActions, NotebookPanel } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
-import { createCodeCellAtIndexAndActivate, didCellExecutionError, getActiveCellIDInNotebookPanel, setActiveCellByIDInNotebookPanel, writeCodeToCellByIDInNotebookPanel } from "./notebook"
+import { 
+    createCodeCellAtIndexAndActivate, 
+    didCellExecutionError, 
+    getActiveCellIDInNotebookPanel, 
+    setActiveCellByIDInNotebookPanel, 
+    writeCodeToCellByIDInNotebookPanel, 
+    scrollToCell, 
+} from "./notebook"
 import { ChatHistoryManager } from "../Extensions/AiChat/ChatHistoryManager"
 import { MutableRefObject } from "react"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
-import { scrollToCell } from "./notebook"
+import { LoadingStatus } from "../Extensions/AiChat/hooks/useChatState"
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
@@ -69,12 +76,13 @@ export const acceptAndRunCellUpdate = async (
 
 
 export const retryIfExecutionError = async (
-    notebookPanel: NotebookPanel, 
+    notebookPanel: NotebookPanel,
     app: JupyterFrontEnd,
     sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>,
     shouldContinueAgentExecution: MutableRefObject<boolean>,
     markAgentForStopping: () => Promise<void>,
-    chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>
+    chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>,
+    setLoadingStatus: (status: LoadingStatus) => void
 ): Promise<'success' | 'failure' | 'interupted'> => {
 
     const cell = notebookPanel.content.activeCell as CodeCell;
@@ -113,12 +121,17 @@ export const retryIfExecutionError = async (
 
         if (agentResponse.type === 'cell_update') {
             const cellUpdate = agentResponse.cell_update
-            
+
             if (cellUpdate !== undefined && cellUpdate !== null) {
-                await acceptAndRunCellUpdate(
-                    cellUpdate, 
-                    notebookPanel
-                )
+                setLoadingStatus('running-code');
+                try {
+                    await acceptAndRunCellUpdate(
+                        cellUpdate,
+                        notebookPanel
+                    )
+                } finally {
+                    setLoadingStatus(undefined);
+                }
             }
         } else if (agentResponse.type === 'run_all_cells') {
             // Prevent infinite loops by limiting run_all_cells attempts
@@ -126,10 +139,16 @@ export const retryIfExecutionError = async (
                 console.log('Maximum run_all_cells attempts reached, treating as failure');
                 return 'failure';
             }
-            
+
             runAllCellsAttempts++;
             // Execute runAllCells to fix NameError issues
-            const result = await runAllCells(app, notebookPanel);
+            setLoadingStatus('running-code');
+            let result;
+            try {
+                result = await runAllCells(app, notebookPanel);
+            } finally {
+                setLoadingStatus(undefined);
+            }
             if (!result.success) {
                 // If run_all_cells resulted in an error, we should continue with error handling
                 // The error will be caught in the main loop
@@ -184,4 +203,3 @@ export const runAllCells = async (
     
     return { success: true };
 }
-

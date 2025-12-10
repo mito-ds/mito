@@ -3,7 +3,8 @@
 
 from mito_ai.completions.prompt_builders.prompt_constants import (
     CHAT_CODE_FORMATTING_RULES,
-    CITATION_RULES, 
+    CITATION_RULES,
+    CELL_REFERENCE_RULES,
     ACTIVE_CELL_ID_SECTION_HEADING, 
     CODE_SECTION_HEADING,
     get_database_rules
@@ -27,6 +28,9 @@ Other useful information:
 
 ====
 {CITATION_RULES}
+
+====
+{CELL_REFERENCE_RULES}
 
 <Example 1> 
 {ACTIVE_CELL_ID_SECTION_HEADING}
@@ -79,6 +83,18 @@ Notice in the example above that the user is just sending a friendly message, so
 ==== 
 {CHAT_CODE_FORMATTING_RULES}
 
+====
+
+CODE STYLE
+
+- Avoid using try/except blocks and other defensive programming patterns (like checking if files exist before reading them, verifying variables are defined before using them, etc.) unless there is a really good reason. In Jupyter notebooks, errors should surface immediately so users can identify and fix issues. When errors are caught and suppressed or when defensive checks hide problems, users continue running broken code without realizing it, and the agent's auto-error-fix loop cannot trigger. If a column doesn't exist, a file is missing, a variable isn't defined, or a module isn't installed, let it error. The user needs to know.
+- Write code that preserves the intent of the original code shared with you and the task to complete.
+- Make the solution as simple as possible.
+- Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
+- When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter.
+
+====
+
 IMPORTANT RULES:
 - Do not recreate variables that already exist
 - Keep as much of the original code as possible
@@ -87,6 +103,5 @@ IMPORTANT RULES:
 - Write code that preserves the intent of the original code shared with you and the task to complete.
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
-- Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
 - Whenever writing Python code, it should be a python code block starting with ```python and ending with ```
 """

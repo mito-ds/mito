@@ -1,0 +1,34 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Cell reference links in chat messages - styled as standard links */
+.cell-reference {
+    color: var(--purple-600);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 1px 5px;
+    border-radius: 3px;
+    position: relative;
+    vertical-align: baseline;
+}
+
+.cell-reference:hover {
+    background-color: var(--purple-300);
+    color: var(--purple-700);
+}
+
+/* Greyed out style for missing/unresolved cell references (deleted or in different notebook) */
+.cell-reference.cell-reference-missing {
+    color: var(--jp-ui-font-color2);
+    text-decoration: none;
+    cursor: default;
+    opacity: 0.6;
+}
+
+.cell-reference.cell-reference-missing:hover {
+    background-color: var(--jp-layout-color3);
+    color: var(--jp-ui-font-color2);
+}

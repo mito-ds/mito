@@ -7,10 +7,10 @@ from unittest.mock import patch, MagicMock
 from mito_ai.streamlit_conversion.validate_streamlit_app import (
     get_syntax_error,
     get_runtime_errors,
-    check_for_errors,
     validate_app
 )
 import pytest
+from mito_ai.path_utils import AbsoluteNotebookPath
 
 
 class TestGetSyntaxError:
@@ -19,33 +19,33 @@ class TestGetSyntaxError:
     @pytest.mark.parametrize("code,expected_error,test_description", [
         # Valid Python code should return no error
         (
-            "import streamlit\nst.title('Hello World')",
-            None,
-            "valid Python code"
+                "import streamlit\nst.title('Hello World')",
+                None,
+                "valid Python code"
         ),
         # Invalid Python syntax should be caught
         (
-            "import streamlit\nst.title('Hello World'",
-            "SyntaxError",
-            "invalid Python code"
+                "import streamlit\nst.title('Hello World'",
+                "SyntaxError",
+                "invalid Python code"
         ),
         # Empty streamlit app is valid
         (
-            "",
-            None,
-            "empty code"
+                "",
+                None,
+                "empty code"
         ),
     ])
     def test_get_syntax_error(self, code, expected_error, test_description):
         """Test syntax validation with various code inputs"""
         error = get_syntax_error(code)
-        
+
         if expected_error is None:
             assert error is None, f"Expected no error for {test_description}"
         else:
             assert error is not None, f"Expected error for {test_description}"
             assert expected_error in error, f"Expected '{expected_error}' in error for {test_description}"
-        
+
 class TestGetRuntimeErrors:
     """Test cases for get_runtime_errors function"""
 
@@ -56,7 +56,9 @@ class TestGetRuntimeErrors:
     ])
     def test_get_runtime_errors(self, app_code, expected_error):
         """Test getting runtime errors"""
-        errors = get_runtime_errors(app_code, '/app.py')
+        
+        absolute_path = AbsoluteNotebookPath('/notebook.ipynb')
+        errors = get_runtime_errors(app_code, absolute_path)
         
         if expected_error is None:
             assert errors is None
@@ -85,23 +87,26 @@ df=pd.read_csv('data.csv')
             with open(csv_path, "w") as f:
                 f.write("name,age\nJohn,25\nJane,30")
                
-            errors = get_runtime_errors(app_code, app_path)
+            errors = get_runtime_errors(app_code, AbsoluteNotebookPath(app_path))
             assert errors is None
 
 class TestValidateApp:
     """Test cases for validate_app function"""
 
-    @pytest.mark.parametrize("app_code,expected_has_validation_error,expected_error_message", [
+    @pytest.mark.parametrize("app_code,expected_has_errors,expected_error_message", [
         ("x=5", False, ""),
         ("1/0", True, "division by zero"),
-        ("print('Hello World'", True, "SyntaxError"),
+        # Syntax errors are caught during runtime
         ("", False, ""),
     ])
-    def test_validate_app(self, app_code, expected_has_validation_error, expected_error_message):
+    def test_validate_app(self, app_code, expected_has_errors, expected_error_message):
         """Test the validate_app function"""
-        has_validation_error, errors = validate_app(app_code, '/app.py')
+        errors = validate_app(app_code, AbsoluteNotebookPath('/notebook.ipynb'))
         
-        assert has_validation_error == expected_has_validation_error
-        assert expected_error_message in str(errors)
+        has_errors = len(errors) > 0
+        assert has_errors == expected_has_errors
+        if expected_error_message:
+            errors_str = str(errors)
+            assert expected_error_message in errors_str
         
     

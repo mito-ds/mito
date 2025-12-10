@@ -1,16 +1,16 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import os
 import socket
 import subprocess
-import tempfile
+import sys
 import time
 import threading
 import requests
 from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
 from mito_ai.logger import get_logger
+from mito_ai.path_utils import AbsoluteNotebookDirPath, AppFileName
 from mito_ai.utils.error_classes import StreamlitPreviewError
 
 
@@ -38,7 +38,7 @@ class StreamlitPreviewManager:
         
         return port
     
-    def start_streamlit_preview(self, app_directory: str, preview_id: str) -> int:
+    def start_streamlit_preview(self, app_directory: AbsoluteNotebookDirPath, app_file_name: AppFileName, preview_id: str) -> int:
         """Start a streamlit preview process.
         
         Args:
@@ -48,19 +48,22 @@ class StreamlitPreviewManager:
         Returns:
             Tuple of (success, message, port)
         """
+        
         try:
             
             # Get free port
             port = self.get_free_port()
             
             # Start streamlit process
+            # Use sys.executable -m streamlit to ensure it works on Windows
+            # where streamlit may not be directly executable in PATH
             cmd = [
-                "streamlit", "run", 'app.py', # Since we run this command from the app_directory, we always just run app.py 
+                sys.executable, "-m", "streamlit", "run", app_file_name,
                 "--server.port", str(port),
                 "--server.headless", "true",
                 "--server.address", "localhost",
                 "--server.enableXsrfProtection", "false",
-                "--server.runOnSave", "true",  # auto-reload when app.py is saved
+                "--server.runOnSave", "true",  # auto-reload when app is saved
                 "--logger.level", "error"
             ]
             
@@ -107,7 +110,7 @@ class StreamlitPreviewManager:
                 if response.status_code == 200:
                     return True
             except requests.exceptions.RequestException as e:
-                print(f"Waiting for app to be ready...")
+                self.log.info(f"Waiting for app to be ready...")
                 pass
             
             time.sleep(1)
@@ -123,7 +126,7 @@ class StreamlitPreviewManager:
         Returns:
             True if stopped successfully, False if not found
         """
-        print(f"Stopping preview {preview_id}")
+        self.log.info(f"Stopping preview {preview_id}")
         with self._lock:
             if preview_id not in self._previews:
                 return False
@@ -150,10 +153,3 @@ class StreamlitPreviewManager:
         """Get a preview process by ID."""
         with self._lock:
             return self._previews.get(preview_id)
-
-# Global instance
-_preview_manager = StreamlitPreviewManager()
-
-def get_preview_manager() -> StreamlitPreviewManager:
-    """Get the global preview manager instance."""
-    return _preview_manager 

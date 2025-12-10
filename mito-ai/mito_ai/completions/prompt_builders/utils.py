@@ -39,6 +39,7 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
     selected_files = [context["value"] for context in additional_context if context.get("type") == "file"]
     selected_db_connections = [context["value"] for context in additional_context if context.get("type") == "db"]
     selected_images = [context["value"] for context in additional_context if context.get("type", "").startswith("image/")]
+    selected_cells = [context["value"] for context in additional_context if context.get("type") == "cell"]
 
     # STEP 2: Create a list of strings (instructions) for each context type
     context_parts = []
@@ -66,20 +67,25 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
             "The following images have been selected by the user to be used in the task:\n"
             + "\n".join(selected_images)
         )
+        
+    if len(selected_cells) > 0:
+        context_parts.append(
+            "The following cells have been selected by the user to be used in the task:\n"
+            + "\n".join(selected_cells)
+        )
 
     # STEP 3: Combine into a single string
     return "\n\n".join(context_parts)
 
 
-def get_streamlit_app_status_str(streamlit_app_is_open: Optional[bool]) -> str:
+def get_streamlit_app_status_str(notebook_id: str, notebook_path: str) -> str:
     """
     Get the streamlit app status string.
     """
-    if streamlit_app_is_open is None:
-        return ""
-    
-    if streamlit_app_is_open:
-        return "A Streamlit app is currently open and running."
-    else:
-        return "No Streamlit app is currently open."
+    from mito_ai.path_utils import does_notebook_id_have_corresponding_app
+    if does_notebook_id_have_corresponding_app(notebook_id, notebook_path):
+        return "The notebook has an existing Streamlit app that you can edit"
+    return "The notebook does not have an existing Streamlit app. If you want to show an app to the user, you must create a new one."
+
+
 

@@ -3,9 +3,8 @@
 
 import re
 import json
-import os
-from typing import Dict, List, Optional, Tuple, Any
-from pathlib import Path
+from typing import Dict, List, Optional, Any
+from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookPath
 from mito_ai.utils.error_classes import StreamlitConversionError
 
 
@@ -30,60 +29,26 @@ def extract_code_blocks(message_content: str) -> str:
     result = '\n'.join(matches)
     return result
 
-def extract_unified_diff_blocks(message_content: str) -> str:
+def create_app_file(app_path: AbsoluteAppPath, code: str) -> None:
     """
-    Extract all unified_diff blocks from Claude's response.
-    """
-    if "```unified_diff" not in message_content:
-        return message_content
-    
-    pattern = r'```unified_diff\n(.*?)```'
-    matches = re.findall(pattern, message_content, re.DOTALL)
-    return '\n'.join(matches)
-
-
-def create_app_file(app_directory: str, code: str) -> str:
-    """
-    Create app.py file and write code to it with error handling
-
-    Args:
-        file_path (str): The actual content from the agent's response
-        code (str): The actual content from the agent's response
-
-    Returns:
-        str: Removes the ```python``` part to be able to parse the code
-
+    Create .py file and write code to it with error handling
     """
     try:
-        app_path = os.path.join(app_directory, "app.py")
         with open(app_path, 'w', encoding='utf-8') as f:
             f.write(code)
-        return app_path
     except IOError as e:
         raise StreamlitConversionError(f"Error creating app file: {str(e)}", 500)
     
-def get_app_code_from_file(app_directory: str) -> Optional[str]:
-    app_path = get_app_path(app_directory)
-    if app_path is None:
-        return None
+def get_app_code_from_file(app_path: AbsoluteAppPath) -> Optional[str]:
     with open(app_path, 'r', encoding='utf-8') as f:
         return f.read()
-    
-def get_app_path(app_directory: str) -> Optional[str]:
-    """
-    Check if the app.py file exists in the given directory.
-    """
-    app_path = os.path.join(app_directory, "app.py")
-    if not os.path.exists(app_path):
-        return None
-    return app_path
 
-def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> List[Dict[str, Any]]:
+def parse_jupyter_notebook_to_extract_required_content(notebook_path: AbsoluteNotebookPath) -> List[Dict[str, Any]]:
     """
     Read a Jupyter notebook and filter cells to keep only cell_type and source fields.
 
     Args:
-        notebook_path (str): Path to the .ipynb file (can be relative or absolute)
+        notebook_path: Absolute path to the .ipynb file
 
     Returns:
         dict: Filtered notebook dictionary with only cell_type and source in cells
@@ -93,10 +58,6 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Li
         json.JSONDecodeError: If the file is not valid JSON
         KeyError: If the notebook doesn't have the expected structure
     """
-    # Convert to absolute path if it's not already absolute
-    # Handle both Unix-style absolute paths (starting with /) and Windows-style absolute paths
-    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
-        notebook_path = os.path.join(os.getcwd(), notebook_path)
     
     try:
         # Read the notebook file
@@ -122,20 +83,3 @@ def parse_jupyter_notebook_to_extract_required_content(notebook_path: str) -> Li
         raise StreamlitConversionError(f"Notebook file not found: {notebook_path}", 404)
     except json.JSONDecodeError as e:
         raise StreamlitConversionError(f"Invalid JSON in notebook file: {str(e)}", 400)
-
-
-def resolve_notebook_path(notebook_path:str) -> str:
-    # Convert to absolute path if it's not already absolute
-    # Handle both Unix-style absolute paths (starting with /) and Windows-style absolute paths
-    if not (notebook_path.startswith('/') or (len(notebook_path) > 1 and notebook_path[1] == ':')):
-        notebook_path = os.path.join(os.getcwd(), notebook_path)
-    return notebook_path
-
-def clean_directory_check(notebook_path: str) -> None:
-    notebook_path = resolve_notebook_path(notebook_path)
-    # pathlib handles the cross OS path conversion automatically
-    path = Path(notebook_path).resolve()
-    dir_path = path.parent
-
-    if not dir_path.exists():
-        raise StreamlitConversionError(f"Directory does not exist: {dir_path}", 404)

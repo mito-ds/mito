@@ -16,6 +16,8 @@ describe('requirementsUtils', () => {
     let mockKernel: any;
     let mockSession: any;
     let testDir: string;
+    const TEST_APP_FILENAME = 'mito-app-test.py';
+    const getTestAppPath = () => path.join(process.cwd(), TEST_APP_FILENAME);
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -52,16 +54,16 @@ describe('requirementsUtils', () => {
             fs.rmSync(testDir, { recursive: true, force: true });
         }
         
-        // Clean up app.py file if it exists
-        const appPyPath = path.join(process.cwd(), 'app.py');
+        // Clean up app file if it exists
+        const appPyPath = getTestAppPath();
         if (fs.existsSync(appPyPath)) {
             fs.unlinkSync(appPyPath);
         }
     });
 
-    // Helper function to create mock app.py files in the current working directory
-    const createMockAppPy = (content: string): string => {
-        const appPyPath = path.join(process.cwd(), 'app.py');
+    // Helper function to create mock app files in the current working directory
+    const createMockAppFile = (content: string): string => {
+        const appPyPath = getTestAppPath();
         fs.writeFileSync(appPyPath, content);
         return appPyPath;
     };
@@ -95,9 +97,9 @@ describe('requirementsUtils', () => {
     describe('Simple app.py scenarios', () => {
         test('should verify app.py file exists before running pipreqs', async () => {
             // Don't create app.py file - test the file existence check
-            mockKernelExecution('Log: Error: app.py not found at app.py');
+            mockKernelExecution(`Log: Error: ${TEST_APP_FILENAME} not found at ${getTestAppPath()}`);
 
-            const result = await generateRequirementsTxt(mockNotebookPanel);
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
 
             // Should return fallback when app.py doesn't exist
             expect(result).toBe('streamlit>=1.28.0');
@@ -118,13 +120,13 @@ response = requests.get("https://api.example.com")
 return response.json()
 
 `;
-            createMockAppPy(appPyContent);
+            createMockAppFile(appPyContent);
 
             // Mock kernel execution with minimal pipreqs output
             const pipreqsOutput = 'requests==2.31.0\n';
             mockKernelExecution(pipreqsOutput);
 
-            const result = await generateRequirementsTxt(mockNotebookPanel);
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
 
             // Should include required packages (streamlit) even if not in pipreqs output
             expect(result).toContain('streamlit');
@@ -138,7 +140,7 @@ return response.json()
             // Set kernel to null
             mockSession.kernel = null;
 
-            const result = await generateRequirementsTxt(mockNotebookPanel);
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
 
             expect(result).toBe('streamlit>=1.28.0');
             expect(console.error).toHaveBeenCalledWith('No kernel found');
@@ -153,12 +155,12 @@ df = pd.DataFrame({"A": [1, 2, 3]})
 return df
 
 `;
-            createMockAppPy(appPyContent);
+            createMockAppFile(appPyContent);
 
             // Mock kernel execution that throws an error
             mockKernelExecution('', true);
 
-            const result = await generateRequirementsTxt(mockNotebookPanel);
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
 
             expect(result).toBe('streamlit>=1.28.0');
             expect(console.error).toHaveBeenCalledWith('Error generating requirements.txt:', expect.any(Error));
@@ -171,12 +173,12 @@ import pandas as pd
 df = pd.DataFrame({"A": [1, 2, 3]})
 df
 `;
-            createMockAppPy(appPyContent);
+            createMockAppFile(appPyContent);
 
             // Mock kernel execution that returns empty result
             mockKernelExecution('');
 
-            const result = await generateRequirementsTxt(mockNotebookPanel);
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
 
             expect(result).toBe('streamlit>=1.28.0');
         });
@@ -185,7 +187,7 @@ df
             // Set session to null
             mockNotebookPanel.sessionContext.session = null;
 
-            const result = await generateRequirementsTxt(mockNotebookPanel);
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
 
             expect(result).toBe('streamlit>=1.28.0');
         });
@@ -195,9 +197,9 @@ df
         test('should handle app.py file not found', async () => {
             // Don't create app.py file - simulate it not existing
             // Mock kernel execution that simulates app.py not found
-            mockKernelExecution('Log: Error: app.py not found at app.py');
+            mockKernelExecution(`Log: Error: ${TEST_APP_FILENAME} not found at ${getTestAppPath()}`);
 
-            const result = await generateRequirementsTxt(mockNotebookPanel);
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
 
             expect(result).toBe('streamlit>=1.28.0');
         });
@@ -210,7 +212,7 @@ import pandas as pd
 df = pd.DataFrame({"A": [1, 2, 3]})
 df
 `;
-            createMockAppPy(appPyContent);
+            createMockAppFile(appPyContent);
 
             // Mock kernel execution with stderr and stdout output
             let ioHandler: any = null;
@@ -240,7 +242,7 @@ df
 
             mockKernel.requestExecute.mockReturnValue(mockFuture);
 
-            const result = await generateRequirementsTxt(mockNotebookPanel);
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
 
             expect(result).toContain('pandas==2.0.3');
             expect(result).toContain('streamlit');

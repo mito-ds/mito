@@ -10,6 +10,7 @@ import ChatDropdown from './ChatDropdown';
 import { Variable } from '../../ContextManager/VariableInspector';
 import { getActiveCellID, getActiveCellCode } from '../../../utils/notebook';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { convertCellReferencesToStableFormat } from '../../../utils/cellReferences';
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
@@ -19,11 +20,12 @@ import AttachFileButton from '../../../components/AttachFileButton';
 import DatabaseButton from '../../../components/DatabaseButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { AgentExecutionStatus } from '../ChatTaskpane';
+import { uploadFileToBackend } from '../../../utils/fileUpload';
 
 interface ChatInputProps {
     app: JupyterFrontEnd;
     initialContent: string;
-    onSave: (content: string, index?: number, additionalContext?: Array<{ type: string, value: string }>) => void;
+    handleSubmitUserMessage: (newContent: string, messageIndex?: number,  additionalContext?: ContextItemAIOptimized[]) => void;
     onCancel?: () => void;
     isEditing: boolean;
     contextManager?: IContextManager;
@@ -34,6 +36,7 @@ interface ChatInputProps {
     displayOptimizedChatHistoryLength?: number;
     agentTargetNotebookPanelRef?: React.RefObject<any>;
     isSignedUp?: boolean;
+    messageIndex?: number;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -41,16 +44,24 @@ export interface ExpandedVariable extends Variable {
     file_name?: string;
 }
 
-interface ContextItem {
+interface ContextItemDisplayOptimized {
     type: string;
     value: string;
-    display?: string; // Optional display name, will fallback to value if not provided
+    // For databases, we want to show a display name like: "snowflake"
+    // But we need to send the AI the full connection string like: "e01f355d-9d31-4957-acb7-6c2a7a4d6e50 - snowflake"
+    // so that if there are multiple connections with the same , the AI can still identify the correct connection.
+    display?: string;
+}
+
+export interface ContextItemAIOptimized {
+    type: string;
+    value: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
     app,
     initialContent,
-    onSave,
+    handleSubmitUserMessage,
     onCancel,
     isEditing,
     contextManager,
@@ -61,6 +72,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     displayOptimizedChatHistoryLength = 0,
     agentTargetNotebookPanelRef,
     isSignedUp = true,
+    messageIndex,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -68,8 +80,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const activeCellCode = getActiveCellCode(notebookTracker) || '';
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [dropdownFilter, setDropdownFilter] = useState('');
-    const [additionalContext, setAdditionalContext] = useState<ContextItem[]>([]);
+    const [additionalContext, setAdditionalContext] = useState<ContextItemDisplayOptimized[]>([]);
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
+    const [isDragOver, setIsDragOver] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;
@@ -91,6 +105,44 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 display: file.name
             }
         ]);
+    };
+
+    // Drag and drop handlers
+    const handleDragOver = (e: React.DragEvent): void => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Only show drag over state if not currently uploading
+        if (!isUploading) {
+            setIsDragOver(true);
+        }
+    };
+
+    const handleDragLeave = (e: React.DragEvent): void => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+    };
+
+    const handleDrop = async (e: React.DragEvent): Promise<void> => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            if (file && !isUploading) {
+                setIsUploading(true);
+                try {
+                    // Upload file to backend using the shared utility
+                    await uploadFileToBackend(file, notebookTracker, handleFileUpload);
+                } catch (error) {
+                    // Error handling is already done in the utility function
+                } finally {
+                    setIsUploading(false);
+                }
+            }
+        }
     };
 
     // Debounce the active cell ID change to avoid multiple rerenders. 
@@ -175,6 +227,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         display: option.variable.variable_name
                     }
                 ]);
+            } else if (option.type === 'cell') {
+                setAdditionalContext(prev => [
+                    ...prev,
+                    {
+                        type: 'cell',
+                        value: option.cellId,
+                        display: `Cell ${option.cellNumber}`
+                    }
+                ]);
             }
             setDropdownVisible(false);
 
@@ -221,21 +282,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ...additionalContext,
                 { type: 'db', value: option.variable.value, display: option.variable.variable_name }
             ]);
+        } else if (option.type === 'cell') {
+            // For cells, add them as @CellN mentions (no space for easier filtering)
+            contextChatRepresentation = `@Cell${option.cellNumber}`
+            // Store the stable cell ID in additionalContext, not the @CellN format
+            setAdditionalContext([
+                ...additionalContext,
+                { type: 'cell', value: option.cellId, display: `Cell ${option.cellNumber}` }
+            ]);
         }
+
+        // Add a space after the selected item so user can continue typing
+        const contextChatRepresentationWithSpace = contextChatRepresentation + ' ';
 
         const newValue =
             input.slice(0, atIndex) +
-            contextChatRepresentation +
+            contextChatRepresentationWithSpace +
             textAfterCursor;
         setInput(newValue);
 
         setDropdownVisible(false);
 
-        // After updating the input value, set the cursor position after the inserted variable name
+        // After updating the input value, set the cursor position after the inserted item and space
         // We use setTimeout to ensure this happens after React's state update
         setTimeout(() => {
             if (textarea) {
-                const newCursorPosition = atIndex + contextChatRepresentation.length;
+                const newCursorPosition = atIndex + contextChatRepresentationWithSpace.length;
                 textarea.focus();
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }
@@ -248,21 +320,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setIsDropdownFromButton(false);
     };
 
-    const mapAdditionalContext = (): Array<{ type: string, value: string }> => {
-        const result: Array<{ type: string, value: string }> = [];
+    const getAdditionContextWithoutDisplayNames = (): ContextItemAIOptimized[] => {
+        return additionalContext.map(contextItem => ({
+            type: contextItem.type,
+            value: contextItem.value
+        }));
+    };
 
-        additionalContext.forEach(contextItem => {
-            if (contextItem.type === 'db') {
-                result.push({
-                    type: contextItem.type,
-                    value: contextItem.value
-                });
-            } else {
-                result.push(contextItem);
-            }
-        });
-
-        return result;
+    // Convert @Cell N references to [MITO_CELL_REF:cell_id] format before submitting
+    const processMessageForSubmission = (messageText: string): string => {
+        return convertCellReferencesToStableFormat(messageText, notebookTracker.currentWidget);
     };
 
     const getExpandedVarialbes = (): ExpandedVariable[] => {
@@ -325,18 +392,40 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     display: 'Active Cell'
                 }]);
             }
+
+            // Remove the current notebook context item
+            const hasNotebookContext = additionalContext.some(context => context.type === 'notebook');
+            if (hasNotebookContext) {
+                setAdditionalContext(prev => prev.filter(context => context.type !== 'notebook'));
+            }
         } else if (agentModeEnabled) {
             // Remove active cell context when in agent mode
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
             if (hasActiveCellContext) {
                 setAdditionalContext(prev => prev.filter(context => context.type !== 'active_cell'));
             }
+
+            const hasNotebookContext = additionalContext.some(context => context.type === 'notebook');
+            if (!hasNotebookContext) {
+            // Add a current notebook context item
+                setAdditionalContext(prev => [...prev, {
+                    type: 'notebook',
+                    value: 'Notebook',
+                    display: 'Notebook'
+                }]);
+            }
         }
     }, [agentModeEnabled, additionalContext, activeCellCode]);
 
     return (
         <div
-            className={classNames("chat-input-container", { "editing": isEditing })}
+            className={classNames("chat-input-container", { 
+                "editing": isEditing,
+                "drag-over": isDragOver 
+            })}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
@@ -360,6 +449,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
                         notebookTracker={notebookTracker}
                         activeCellID={activeCellID}
+                        value={context.value}
                     />
                 ))}
             </div>
@@ -393,7 +483,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             adjustHeight(true)
-                            onSave(input, undefined, mapAdditionalContext())
+                            const processedMessage = processMessageForSubmission(input);
+                            const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
+                            handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
 
                             // Reset
                             setInput('')
@@ -416,13 +508,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         isDropdownFromButton={isDropdownFromButton}
                         onFilterChange={setDropdownFilter}
                         onClose={handleDropdownClose}
+                        notebookTracker={notebookTracker}
                     />
                 )}
             </div>
 
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => onSave(input, undefined, mapAdditionalContext())}>Save</button>
+                    <button onClick={() => {
+                        const processedMessage = processMessageForSubmission(input);
+                        const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
+                        handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
+                    }}>Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

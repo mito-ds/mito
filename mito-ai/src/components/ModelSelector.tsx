@@ -3,10 +3,13 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import '../../style/ModelSelector.css';
 import NucleausIcon from '../icons/NucleausIcon';
-import { CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME } from '../utils/models';
+import BrainIcon from '../icons/BrainIcon';
+import LightningIcon from '../icons/LightningIcon';
+import { CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME, CLAUDE_HAIKU_DISPLAY_NAME, CLAUDE_HAIKU_MODEL_NAME } from '../utils/models';
 
 interface ModelConfig {
   model: string;
@@ -15,12 +18,90 @@ interface ModelConfig {
 interface ModelMapping {
   displayName: string;
   fullName: string;
+  type?: 'smart' | 'fast'; // 'smart' shows brain icon, 'fast' shows lightning icon
+  goodFor: string[]; // Array of use cases for bullet points
+  provider: string;
+  tokenLimit: string;
+  speed: 'Fast' | 'Medium' | 'Slow';
+  complexityHandling: 'High' | 'Medium' | 'Low';
 }
 
 const MODEL_MAPPINGS: ModelMapping[] = [
-  { displayName: 'GPT 4.1', fullName: 'gpt-4.1' },
-  { displayName: CLAUDE_SONNET_DISPLAY_NAME, fullName: CLAUDE_SONNET_MODEL_NAME },
-  { displayName: 'Gemini 2.5 Pro', fullName: 'gemini-2.5-pro-preview-03-25' }
+  { 
+    displayName: 'GPT 4.1', 
+    fullName: 'gpt-4.1', 
+    type: 'smart',
+    goodFor: [
+      'Complex data analysis',
+      'Advanced debugging',
+      'Statistical analysis and modeling',
+      'Multi-step data workflows'
+    ],
+    provider: 'OpenAI',
+    tokenLimit: '1M',
+    speed: 'Medium',
+    complexityHandling: 'High'
+  },
+  { 
+    displayName: CLAUDE_HAIKU_DISPLAY_NAME, 
+    fullName: CLAUDE_HAIKU_MODEL_NAME, 
+    type: 'fast',
+    goodFor: [
+      'Quick data exploration',
+      'Pandas operations',
+      'Basic data cleaning',
+      'Fast code iterations'
+    ],
+    provider: 'Anthropic',
+    tokenLimit: '200K',
+    speed: 'Fast',
+    complexityHandling: 'Medium'
+  },
+  { 
+    displayName: CLAUDE_SONNET_DISPLAY_NAME, 
+    fullName: CLAUDE_SONNET_MODEL_NAME, 
+    type: 'smart',
+    goodFor: [
+      'Complex data analysis',
+      'Advanced debugging',
+      'Statistical analysis and modeling',
+      'Multi-step data workflows'
+    ],
+    provider: 'Anthropic',
+    tokenLimit: '1M',
+    speed: 'Medium',
+    complexityHandling: 'High'
+  },
+  { 
+    displayName: 'Gemini 2.5 Pro', 
+    fullName: 'gemini-2.5-pro', 
+    type: 'smart',
+    goodFor: [
+      'Complex data analysis',
+      'Advanced debugging',
+      'Statistical analysis and modeling',
+      'Multi-step data workflows'
+    ],
+    provider: 'Google',
+    tokenLimit: '1M',
+    speed: 'Medium',
+    complexityHandling: 'High'
+  },
+  { 
+    displayName: 'Gemini 3 Pro', 
+    fullName: 'gemini-3-pro-preview', 
+    type: 'smart',
+    goodFor: [
+      'Most complex data analysis',
+      'Advanced debugging',
+      'Statistical analysis and modeling',
+      'Multi-step data workflows'
+    ],
+    provider: 'Google',
+    tokenLimit: '1M',
+    speed: 'Slow',
+    complexityHandling: 'High'
+  }
 ];
 
 const ALL_MODEL_DISPLAY_NAMES = MODEL_MAPPINGS.map(mapping => mapping.displayName);
@@ -35,6 +116,8 @@ interface ModelSelectorProps {
 const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [hoveredModel, setHoveredModel] = useState<ModelMapping | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Load config from localStorage on component mount and notify parent
   useEffect(() => {
@@ -95,12 +178,27 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     };
   }, []);
 
+  // Set CSS custom properties for tooltip positioning
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      // Align bottom of tooltip with bottom of dropdown (which is at rect.top)
+      // Tooltip height is approximately 180px
+      const tooltipHeight = 180;
+      const tooltipBottom = rect.top;
+      const tooltipTop = tooltipBottom - tooltipHeight;
+      
+      document.documentElement.style.setProperty('--tooltip-top', `${tooltipTop - 32}px`);
+      document.documentElement.style.setProperty('--tooltip-left', `${rect.left + 160}px`);
+    }
+  }, [isOpen]);
+
   return (
     <div className="model-selector">
       <div
+        ref={dropdownRef}
         className={`model-selector-dropdown`}
         onClick={() => setIsOpen(!isOpen)}
-        title={selectedModel}
         data-testid="model-selector"
       >
         <div className="selected-model">
@@ -114,24 +212,84 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
           <div
             className={`model-options dropup`}
             style={{ minWidth: '150px' }}
+            onMouseLeave={() => setHoveredModel(null)}
           >
-            {ALL_MODEL_DISPLAY_NAMES.map(model => (
-              <div
-                key={model}
-                className={`model-option ${model === selectedModel ? 'selected' : ''}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleModelChange(model);
-                }}
-                title={model} // Show full name on hover
-                data-testid="model-option"
-              >
-                {model}
-              </div>
-            ))}
+            {ALL_MODEL_DISPLAY_NAMES.map(model => {
+              const modelMapping = MODEL_MAPPINGS.find(m => m.displayName === model);
+              return (
+                <div
+                  key={model}
+                  className={`model-option ${model === selectedModel ? 'selected' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleModelChange(model);
+                  }}
+                  onMouseEnter={() => setHoveredModel(modelMapping || null)}
+                  data-testid="model-option"
+                >
+                  <span className="model-option-name">{model}</span>
+                  {modelMapping?.type === 'smart' && (
+                    <span className="model-type-icon">
+                      <BrainIcon height={12} width={12} />
+                    </span>
+                  )}
+                  {modelMapping?.type === 'fast' && (
+                    <span className="model-type-icon">
+                      <LightningIcon height={12} width={12} />
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
+      {isOpen && hoveredModel && ReactDOM.createPortal(
+        <div 
+          className="model-tooltip">
+          <div className="model-tooltip-content">
+            <div className="model-tooltip-header">
+              <div className="model-tooltip-title-row">
+                <span className="model-tooltip-title-icon">
+                  {hoveredModel.type === 'smart' ? (
+                    <BrainIcon height={16} width={16} />
+                  ) : (
+                    <LightningIcon height={16} width={16} />
+                  )}
+                </span>
+                <div className="model-tooltip-title">{hoveredModel.displayName}</div>
+              </div>
+              <div className="model-tooltip-metadata">
+                <div className="model-tooltip-metadata-item">
+                  <span className="model-tooltip-metadata-label">Provider:</span>
+                  <span className="model-tooltip-metadata-value">{hoveredModel.provider}</span>
+                </div>
+                <div className="model-tooltip-metadata-item">
+                  <span className="model-tooltip-metadata-label">Tokens:</span>
+                  <span className="model-tooltip-metadata-value">{hoveredModel.tokenLimit}</span>
+                </div>
+                <div className="model-tooltip-metadata-item">
+                  <span className="model-tooltip-metadata-label">Speed:</span>
+                  <span className="model-tooltip-metadata-value">{hoveredModel.speed}</span>
+                </div>
+                <div className="model-tooltip-metadata-item">
+                  <span className="model-tooltip-metadata-label">Complexity:</span>
+                  <span className="model-tooltip-metadata-value">{hoveredModel.complexityHandling}</span>
+                </div>
+              </div>
+            </div>
+            <div className="model-tooltip-section">
+              <div className="model-tooltip-section-label">Good For:</div>
+              <ul className="model-tooltip-bullet-list">
+                {hoveredModel.goodFor.map((item, index) => (
+                  <li key={index} className="model-tooltip-bullet-item">{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };

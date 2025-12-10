@@ -47,7 +47,7 @@ export type AgentResponse = {
   get_cell_output_cell_id?: string | null | undefined
   next_steps?: string[] | null | undefined
   analysis_assumptions?: string[] | null | undefined
-  edit_streamlit_app_prompt?: string | null | undefined
+  streamlit_app_prompt?: string | null | undefined
 }
 
 /* 
@@ -86,6 +86,9 @@ export interface IChatMessageMetadata {
 export interface IAgentExecutionMetadata {
   promptType: 'agent:execution'
   aiOptimizedCells: AIOptimizedCell[]
+  activeCellId: string;
+  notebookPath: string;
+  notebookID: string;
   base64EncodedActiveCellOutput?: string;
   variables?: Variable[];
   files?: File[];
@@ -94,7 +97,6 @@ export interface IAgentExecutionMetadata {
   threadId: string;
   isChromeBrowser: boolean;
   additionalContext?: Array<{type: string, value: string}>;
-  streamlitAppIsOpen?: boolean;
 }
 
 export interface IAgentSmartDebugMetadata {

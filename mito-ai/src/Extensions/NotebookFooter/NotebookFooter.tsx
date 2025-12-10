@@ -12,8 +12,9 @@ import '../../../style/NotebookFooter.css';
 import LoadingCircle from "../../components/LoadingCircle";
 import CodeIcon from "../../icons/NotebookFooter/CodeIcon";
 import TextIcon from "../../icons/NotebookFooter/TextIcon";
+import SpreadsheetIcon from "../../icons/NotebookFooter/SpreadsheetIcon";
 import { userSignupEvents } from '../../utils/userSignupEvents';
-import { checkUserSignupState } from '../../utils/userSignupState';
+import { useUserSignup } from '../AiChat/hooks/useUserSignup';
 
 interface NotebookFooterProps {
     notebookTracker: INotebookTracker;
@@ -25,17 +26,17 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
 
     const [inputValue, setInputValue] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-    const [isSignedUp, setIsSignedUp] = useState(true);
-
-    // Function to refresh user signup state using the shared helper
-    const refreshUserSignupState = async (): Promise<void> => {
-        const signupState = await checkUserSignupState();
-        setIsSignedUp(signupState.isSignedUp);
-    };
+    const [hasMitosheet, setHasMitosheet] = useState(false);
+    const { isSignedUp, refreshUserSignupState } = useUserSignup();
 
     useEffect(() => {
         void refreshUserSignupState();
     }, []);
+
+    // Check if mitosheet command exists
+    useEffect(() => {
+        setHasMitosheet(app.commands.hasCommand('mitosheet:create-empty-mitosheet'));
+    }, [app]);
 
     // Listen for signup success events from other components
     useEffect(() => {
@@ -66,13 +67,15 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
         }
     };
 
-    const addCell = (cellType: 'code' | 'markdown' = 'code'): void => {
+    const addCell = (cellType: 'code' | 'markdown' | 'spreadsheet' = 'code'): void => {
         if (notebook.widgets.length && notebook.widgets.length > 0) {
             notebook.activeCellIndex = notebook.widgets.length - 1;
         }
 
         if (cellType === 'code') {
             NotebookActions.insertBelow(notebook);
+        } else if (cellType === 'spreadsheet') {
+            void app.commands.execute('mitosheet:create-empty-mitosheet');
         } else {
             NotebookActions.insertBelow(notebook);
             // Change the cell type after insertion
@@ -196,6 +199,22 @@ const NotebookFooter: React.FC<NotebookFooterProps> = ({ notebookTracker, app })
                         <span className="button-label">Text</span>
                     </div>
                 </button>
+
+                {/* Spreadsheet button */}
+                {hasMitosheet && (
+                    <button
+                        onClick={() => addCell('spreadsheet')}
+                        className="footer-button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                    >
+                        <div className="button-content">
+                            <div className="button-icon">
+                                <SpreadsheetIcon />
+                            </div>
+                            <span className="button-label">Spreadsheet</span>
+                        </div>
+                    </button>
+                )}
             </div>
         </div>
     );

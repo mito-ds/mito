@@ -3,18 +3,21 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { startStreamlitPreview } from "../../restAPI/RestAPI";
-import { StreamlitPreviewResponse } from "./StreamlitPreviewPlugin";
+import { PathExt } from "@jupyterlab/coreutils";
+import { startStreamlitAppPreview } from "../../restAPI/RestAPI";
+import { StreamlitPreviewResponseError, StreamlitPreviewResponseSuccess } from "./StreamlitPreviewPlugin";
 import { Dialog, Notification, showDialog } from "@jupyterlab/apputils";
+import { NotebookPanel } from '@jupyterlab/notebook';
 
 
 export const startStreamlitPreviewAndNotify = async (
   notebookPath: string,
+  notebookID: string | undefined,
   force_recreate: boolean = false,
   edit_prompt: string = '',
   start_notification_message: string = 'Building App Preview...',
   success_notification_message: string = 'Streamlit preview started successfully!'
-): Promise<StreamlitPreviewResponse | undefined> => {
+): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> => {
 
   const notificationId = Notification.emit(
     start_notification_message,
@@ -22,9 +25,11 @@ export const startStreamlitPreviewAndNotify = async (
     { autoClose: false }
   );
 
-  try {
-    const previewData = await startStreamlitPreview(notebookPath, force_recreate, edit_prompt);
 
+  // TODO: I can have one function for creating new streamlit app and another function for editing a streamlit app
+  const previewData = await startStreamlitAppPreview(notebookPath, notebookID, force_recreate, edit_prompt);
+
+  if (previewData.type === 'success') {
     // Update notification to success
     Notification.update({
       id: notificationId,
@@ -32,25 +37,21 @@ export const startStreamlitPreviewAndNotify = async (
       type: 'success',
       autoClose: 5 * 1000
     });
-
-    return previewData;
-
-  } catch (error) {
-
+  } else {
     // Display error notification
     Notification.update({
       id: notificationId,
-      message: "Failed to start app preview: " + String(error),
+      message: "Failed to start app preview: " + String(previewData.message),
       type: 'error',
       autoClose: 5 * 1000
     });
-
-    return undefined;
   }
+
+  return previewData;
 }
 
 
-export async function showRecreateAppConfirmation(notebookPath: string): Promise<void> {
+export async function showRecreateAppConfirmation(notebookPath: string, notebookID: string | undefined): Promise<void> {
   const result = await showDialog({
     title: 'Recreate App',
     body: 'This will recreate the app from scratch, discarding all your current edits. This action cannot be undone. Are you sure you want to continue?',
@@ -62,6 +63,18 @@ export async function showRecreateAppConfirmation(notebookPath: string): Promise
   });
 
   if (result.button.accept) {
-    void startStreamlitPreviewAndNotify(notebookPath, true, undefined, 'Recreating app from scratch...', 'App recreated successfully!');
+    void startStreamlitPreviewAndNotify(notebookPath, notebookID, true, '', 'Recreating app from scratch...', 'App recreated successfully!');
   }
+}
+
+export const getAppPreviewNameFromNotebookPanel = (notebookPanel: NotebookPanel): string => {
+  const notebookPath = notebookPanel.context.path;
+  const notebookName = PathExt.basename(notebookPath, '.ipynb');
+  return `App Preview (${notebookName})`;
+}
+
+export const getAppNameFromNotebookID= (notebookID: string): string => {
+  let appName = notebookID.replace('mito-notebook-', 'mito-app-')
+  appName = appName + '.py'
+  return appName
 }

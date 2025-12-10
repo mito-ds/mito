@@ -5,10 +5,12 @@
 
 import React, { useState } from 'react';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { OpenAI } from 'openai';
 import { GroupedErrorMessages } from '../../utils/chatHistory';
 import { classNames } from '../../utils/classNames';
 import { getContentStringFromMessage } from '../../utils/strings';
+import { getCellIDByIndexInNotebookPanel } from '../../utils/notebook';
 import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
 import AssistantCodeBlock from '../../Extensions/AiChat/ChatMessage/AssistantCodeBlock';
 import AlertIcon from '../../icons/AlertIcon';
@@ -16,10 +18,23 @@ import AgentComponentHeader from './AgentComponentHeader';
 import '../../../style/ErrorFixupToolUI.css';
 import '../../../style/AgentComponentHeader.css';
 import RunAllCellsToolUI from './RunAllCellsToolUI';
+import { CellUpdate } from '../../websockets/completions/CompletionModels';
+
+const getCellIdFromCellUpdate = (cellUpdate: CellUpdate | null | undefined, notebookTracker: INotebookTracker): string | undefined => {
+    if (!cellUpdate) {
+        return undefined;
+    }
+    if (cellUpdate.type === 'modification') {
+        return cellUpdate.id;
+    }
+    // For 'new' type, get the cell ID by index
+    return getCellIDByIndexInNotebookPanel(notebookTracker.currentWidget, cellUpdate.index);
+};
 
 interface IErrorFixupToolUIProps {
     messages: GroupedErrorMessages;
     renderMimeRegistry: IRenderMimeRegistry;
+    notebookTracker: INotebookTracker;
 }
 
 const parsePythonErrorType = (content: string | undefined): string => {
@@ -78,6 +93,7 @@ const ErrorDetectedBlock = ({
 const GroupedErrorsAndFixes: React.FC<IErrorFixupToolUIProps> = ({
     messages,
     renderMimeRegistry,
+    notebookTracker,
 }) => {
     return (
         <div className="error-fixup-root">
@@ -116,6 +132,8 @@ const GroupedErrorsAndFixes: React.FC<IErrorFixupToolUIProps> = ({
                             codeReviewStatus="chatPreview"
                             agentModeEnabled={true}
                             isErrorFixup={true}
+                            cellId={getCellIdFromCellUpdate(messageItem.agentResponse?.cell_update, notebookTracker)}
+                            notebookPanel={notebookTracker.currentWidget}
                         />
                     );
                 })}

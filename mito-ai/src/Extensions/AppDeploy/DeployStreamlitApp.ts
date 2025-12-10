@@ -15,6 +15,8 @@ import { IDeployAppReply, IDeployAppRequest } from '../../websockets/appDeploy/a
 import {getJWTToken } from './auth';
 import { showAuthenticationPopup } from './authPopupUtils';
 import { fileSelectorPopup } from './FilesSelectorUtils';
+import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
+import { getAppNameFromNotebookID } from '../AppPreview/utils';
 
 
 /* 
@@ -46,26 +48,36 @@ export const deployStreamlitApp = async (
       }
     } catch (error) {
       console.log('Authentication cancelled or failed:', error);
+      const errorMsg = 'Authentication failed: ' + error
+      Notification.emit(errorMsg, 'error', {
+          autoClose: false
+      });
       return; // Exit early if authentication was cancelled
     }
   }
 
   const notebookPath = notebookPanel.context.path;
+  const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
+  const appFilename = notebookID ? getAppNameFromNotebookID(notebookID) : 'app.py';
 
   const notificationId = Notification.emit('Step 1/7: Gathering requirements...', 'in-progress', {
     autoClose: false
   });
 
   // Build the requirements.txt file
-  const requirementsContent = await generateRequirementsTxt(notebookPanel);
+  const requirementsContent = await generateRequirementsTxt(notebookPanel, appFilename);
 
   // Save the files to the current directory
   await saveFileWithKernel(notebookPanel, './requirements.txt', requirementsContent);
 
   try{
     Notification.dismiss(notificationId);
-    selectedFiles = await fileSelectorPopup(notebookPath);
+    selectedFiles = await fileSelectorPopup(notebookPanel);
   }catch (error) {
+      const errorMsg = 'Files selection failed: ' + error
+        Notification.emit(errorMsg, 'error', {
+            autoClose: false
+      });
       console.log('File selection failed:', error);
       return;
   }
@@ -83,6 +95,7 @@ export const deployStreamlitApp = async (
       type: 'deploy_app',
       message_id: UUID.uuid4(),
       notebook_path: notebookPath,
+      notebook_id: notebookID,
       jwt_token: jwtToken,
       selected_files: selectedFiles
     });

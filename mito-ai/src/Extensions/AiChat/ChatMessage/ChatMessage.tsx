@@ -27,7 +27,8 @@ import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
-import { AgentResponse } from '../../../websockets/completions/CompletionModels';
+import { AgentResponse, CellUpdate } from '../../../websockets/completions/CompletionModels';
+import { getCellIDByIndexInNotebookPanel } from '../../../utils/notebook';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI'
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
@@ -52,13 +53,24 @@ interface IChatMessageProps {
     previewAICode: () => void
     acceptAICode: () => void
     rejectAICode: () => void
-    onUpdateMessage: (messageIndex: number, newContent: string, additionalContext?: Array<{ type: string, value: string }>) => void
     contextManager?: IContextManager
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
     agentModeEnabled: boolean
     additionalContext?: Array<{ type: string, value: string }>
+    handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
 }
+
+const getCellIdFromCellUpdate = (cellUpdate: CellUpdate | null | undefined, notebookTracker: INotebookTracker): string | undefined => {
+    if (!cellUpdate) {
+        return undefined;
+    }
+    if (cellUpdate.type === 'modification') {
+        return cellUpdate.id;
+    }
+    // For 'new' type, get the cell ID by index
+    return getCellIDByIndexInNotebookPanel(notebookTracker.currentWidget, cellUpdate.index);
+};
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     app,
@@ -76,12 +88,12 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     previewAICode,
     acceptAICode,
     rejectAICode,
-    onUpdateMessage,
     contextManager,
     codeReviewStatus,
     setNextSteps,
     agentModeEnabled,
     additionalContext,
+    handleSubmitUserMessage,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -98,17 +110,13 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
         setIsEditing(true);
     };
 
-    const handleSave = (
-        content: string,
-        _index?: number,
-        additionalContext?: Array<{ type: string, value: string }>
-    ): void => {
-        onUpdateMessage(messageIndex, content, additionalContext);
+    const handleCancel = (): void => {
         setIsEditing(false);
     };
 
-    const handleCancel = (): void => {
+    const handleSubmitUserMessageAndCloseEditing = (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>): void => {
         setIsEditing(false);
+        handleSubmitUserMessage(newContent, messageIndex, additionalContext);
     };
 
     if (
@@ -130,12 +138,13 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             <ChatInput
                 app={app}
                 initialContent={(message.content as string).replace(/```[\s\S]*?```/g, '').trim()}
-                onSave={handleSave}
                 onCancel={handleCancel}
                 isEditing={isEditing}
                 contextManager={contextManager}
                 notebookTracker={notebookTracker}
                 agentModeEnabled={false}
+                handleSubmitUserMessage={handleSubmitUserMessageAndCloseEditing}
+                messageIndex={messageIndex}
             />
         );
     }
@@ -188,7 +197,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 ) : (
                                     <AssistantCodeBlock
                                         code={messagePart}
-                                        codeSummary={agentResponse?.cell_update?.code_summary ?? 
+                                        codeSummary={agentResponse?.cell_update?.code_summary ??
                                             (agentResponse?.type === 'run_all_cells' ? 'Running all cells' : undefined)}
                                         isCodeComplete={isCodeComplete}
                                         renderMimeRegistry={renderMimeRegistry}
@@ -198,6 +207,8 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         isLastAiMessage={isLastAiMessage}
                                         codeReviewStatus={codeReviewStatus}
                                         agentModeEnabled={agentModeEnabled}
+                                        cellId={getCellIdFromCellUpdate(agentResponse?.cell_update, notebookTracker)}
+                                        notebookPanel={notebookTracker.currentWidget}
                                     />
                                 )}
 

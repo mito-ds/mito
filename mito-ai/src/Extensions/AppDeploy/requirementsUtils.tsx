@@ -7,7 +7,8 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 
 // Function to generate requirements.txt content using the kernel with pipreqs
 export const generateRequirementsTxt = async (
-  notebookPanel: NotebookPanel
+  notebookPanel: NotebookPanel,
+  appFilename: string 
 ): Promise<string> => {
 
   // Initialize with fallback requirements in case kernel execution fails
@@ -17,31 +18,41 @@ export const generateRequirementsTxt = async (
     // Use the kernel to execute Python code using pipreqs
     const session = notebookPanel.sessionContext.session;
     if (session) {
-      const appPyPath = `app.py`;
+      const sanitizedAppFilename = JSON.stringify(appFilename);
 
-      // Create Python code to run pipreqs on the app.py file
+      // Create Python code to run pipreqs on the app file
       const pythonCode = `
 import subprocess
 import os
+import tempfile
+import shutil
 
-# Check if app.py exists in the notebook directory
-app_py_path = os.path.join(os.getcwd(), "${appPyPath}")
+# Check if the Streamlit app file exists in the notebook directory
+app_py_filename = ${sanitizedAppFilename}
+app_py_path = os.path.join(os.getcwd(), app_py_filename)
 if not os.path.exists(app_py_path):
-    print(f"Error: app.py not found at {app_py_path}")
+    print(f"Error: {app_py_filename} not found at {app_py_path}")
     exit(1)
+notebook_dir = os.path.dirname(app_py_path)
 
-# Make sure pipreqs is installed. Then
-# 1. Create a requirements.in file
-# 2. From the requirements.in file, generate the requirements.txt file with the canonical PyPI name of the packages
-# and the versions as they exist on the user's terminal
 try:
-    # Run pipreqs on the directory containing app.py
-    notebook_dir = os.path.dirname(app_py_path)
-    generate_req_in_file = subprocess.run(
-        ['pipreqs', '--encoding=utf-8', '--savepath', 'requirements.in', '--force', notebook_dir],
-        capture_output=True, 
-        text=True
-    )
+    # Create a temporary directory and copy the app file into it
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_app_path = os.path.join(tmpdir, app_py_filename)
+        shutil.copy(app_py_path, tmp_app_path)
+
+        # Run pipreqs on the temporary directory
+        generate_req_in_file = subprocess.run(
+            [
+                'pipreqs',
+                '--encoding=utf-8',
+                '--savepath', os.path.join(notebook_dir, 'requirements.in'),
+                '--force',
+                tmpdir
+            ],
+            capture_output=True,
+            text=True
+        )
 
     print("Log: ", generate_req_in_file.stderr)
 

@@ -17,10 +17,10 @@
     "email": "aaron@sagacollab.com"
   },
   "bugs": {
-    "url": "https://github.com/mito-ds/monorepo/issues"
+    "url": "https://github.com/mito-ds/mito/issues"
   },
   "repository": {
-    "url": "https://github.com/mito-ds/monorepo",
+    "url": "https://github.com/mito-ds/mito",
     "type": "git"
   },
   "version": "0.2.1",
@@ -100,7 +100,7 @@
     "typescript": "^5.5.4"
   },
   "main": "lib/index.js",
-  "homepage": "https://trymito.io",
+  "homepage": "https://github.com/mito-ds/mito",
   "types": "./lib/index.d.ts",
   "description": "The Mito Spreadsheet",
   "resolutions": {

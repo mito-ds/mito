@@ -1,15 +1,16 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import os
 import uuid
-from mito_ai.streamlit_preview.utils import ensure_app_exists, validate_request_body
+from mito_ai.streamlit_preview.utils import validate_request_body
 import tornado
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.streamlit_preview.manager import get_preview_manager
-from mito_ai.utils.error_classes import StreamlitPreviewError, StreamlitConversionError
+from mito_ai.streamlit_preview.manager import StreamlitPreviewManager
+from mito_ai.path_utils import get_absolute_notebook_dir_path, get_absolute_notebook_path, get_absolute_app_path, does_app_path_exist, get_app_file_name
 from mito_ai.utils.telemetry_utils import log_streamlit_app_conversion_error, log_streamlit_app_preview_failure, log_streamlit_app_preview_success
 from mito_ai.completions.models import MessageType
+from mito_ai.utils.error_classes import StreamlitConversionError, StreamlitPreviewError
+from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
 import traceback
 
 
@@ -18,86 +19,53 @@ class StreamlitPreviewHandler(APIHandler):
 
     def initialize(self) -> None:
         """Initialize the handler."""
-        self.preview_manager = get_preview_manager()
-
-    def _resolve_notebook_path(self, notebook_path: str) -> str:
-        """
-        Resolve the notebook path to an absolute path that can be found by the backend.
-
-        This method handles path resolution issues that can occur in different environments:
-
-        1. **Test Environment**: Playwright tests create temporary directories with complex
-           paths like 'mitoai_ui_tests-app_builde-ab3a5-n-Test-Preview-as-Streamlit-chromium/'
-           that the backend can't directly access.
-
-        2. **JupyterHub/Cloud Deployments**: In cloud environments, users may have notebooks
-           in subdirectories that aren't immediately accessible from the server root.
-
-        3. **Docker Containers**: When running in containers, the working directory and
-           file paths may not align with what the frontend reports.
-
-        4. **Multi-user Environments**: In enterprise deployments, users may have notebooks
-           in user-specific directories that require path resolution.
-
-        The method tries multiple strategies:
-        1. If the path is already absolute, return it as-is
-        2. Try to resolve relative to the Jupyter server's root directory
-        3. Search recursively through subdirectories for a file with the same name
-        4. Return the original path if not found (will cause a clear error message)
-
-        Args:
-            notebook_path (str): The notebook path from the frontend (may be relative or absolute)
-
-        Returns:
-            str: The resolved absolute path to the notebook file
-        """
-        # If the path is already absolute, return it
-        if os.path.isabs(notebook_path):
-            return notebook_path
-
-        # Get the Jupyter server's root directory
-        server_root = self.settings.get("server_root_dir", os.getcwd())
-
-        # Try to find the notebook file in the server root
-        resolved_path = os.path.join(server_root, notebook_path)
-        if os.path.exists(resolved_path):
-            return resolved_path
-
-        # If not found, try to find it in subdirectories
-        # This handles cases where the notebook is in a subdirectory that the frontend
-        # doesn't know about, or where the path structure differs between frontend and backend
-        for root, dirs, files in os.walk(server_root):
-            if os.path.basename(notebook_path) in files:
-                return os.path.join(root, os.path.basename(notebook_path))
-
-        # If still not found, return the original path (will cause a clear error)
-        # This ensures we get a meaningful error message rather than a generic "file not found"
-        return os.path.join(os.getcwd(), notebook_path)
+        self.preview_manager = StreamlitPreviewManager()
 
     @tornado.web.authenticated
+    
     async def post(self) -> None:
         """Start a new streamlit preview."""
         try:
+            
             # Parse and validate request
             body = self.get_json_body()
-            notebook_path, force_recreate, edit_prompt = validate_request_body(body)
+            notebook_path, notebook_id, force_recreate, streamlit_app_prompt = validate_request_body(body)
 
             # Ensure app exists
-            resolved_notebook_path = self._resolve_notebook_path(notebook_path)
+            absolute_notebook_path = get_absolute_notebook_path(notebook_path)
+            absolute_notebook_dir_path = get_absolute_notebook_dir_path(absolute_notebook_path)
+            app_file_name = get_app_file_name(notebook_id)
+            absolute_app_path = get_absolute_app_path(absolute_notebook_dir_path, app_file_name)
+            app_path_exists = does_app_path_exist(absolute_app_path)
+            
+            if not app_path_exists or force_recreate:
+                if not app_path_exists:
+                    print("[Mito AI] App path not found, generating streamlit code")
+                else:
+                    print("[Mito AI] Force recreating streamlit app")
 
-            await ensure_app_exists(resolved_notebook_path, force_recreate, edit_prompt)
+                # Create a new app 
+                await streamlit_handler(True, absolute_notebook_path, app_file_name, streamlit_app_prompt)
+            elif streamlit_app_prompt != '':
+                # Update an existing app if there is a prompt provided. Otherwise, the user is just
+                # starting an existing app so we can skip the streamlit_handler all together
+                await streamlit_handler(False, absolute_notebook_path, app_file_name, streamlit_app_prompt)
 
             # Start preview
             # TODO: There's a bug here where when the user rebuilds and already running app. Instead of 
             # creating a new process, we should update the existing process. The app displayed to the user 
             # does update, but that's just because of hot reloading when we overwrite the app.py file. 
             preview_id = str(uuid.uuid4())
-            resolved_app_directory = os.path.dirname(resolved_notebook_path)
-            port = self.preview_manager.start_streamlit_preview(resolved_app_directory, preview_id)
+            port = self.preview_manager.start_streamlit_preview(absolute_notebook_dir_path, app_file_name, preview_id)
 
             # Return success response
-            self.finish({"id": preview_id, "port": port, "url": f"http://localhost:{port}"})
-            log_streamlit_app_preview_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, edit_prompt)
+            self.finish({
+                "type": 'success',
+                "id": preview_id, 
+                "port": port, 
+                "url": f"http://localhost:{port}"
+            })
+            log_streamlit_app_preview_success('mito_server_key', MessageType.STREAMLIT_CONVERSION, streamlit_app_prompt)
 
         except StreamlitConversionError as e:
             print(e)
@@ -110,7 +78,7 @@ class StreamlitPreviewHandler(APIHandler):
                 MessageType.STREAMLIT_CONVERSION, 
                 error_message, 
                 formatted_traceback,
-                edit_prompt,
+                streamlit_app_prompt,
             )
         except StreamlitPreviewError as e:
             print(e)
@@ -118,7 +86,7 @@ class StreamlitPreviewHandler(APIHandler):
             formatted_traceback = traceback.format_exc()
             self.set_status(e.error_code)
             self.finish({"error": error_message})
-            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message, formatted_traceback, edit_prompt)
+            log_streamlit_app_preview_failure('mito_server_key', MessageType.STREAMLIT_CONVERSION, error_message, formatted_traceback, streamlit_app_prompt)
         except Exception as e:
             print(f"Exception in streamlit preview handler: {e}")
             self.set_status(500)

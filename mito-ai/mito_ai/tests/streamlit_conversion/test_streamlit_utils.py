@@ -11,6 +11,7 @@ from mito_ai.streamlit_conversion.streamlit_utils import (
     create_app_file,
     parse_jupyter_notebook_to_extract_required_content
 )
+from mito_ai.path_utils import AbsoluteAppPath, AbsoluteNotebookDirPath, AbsoluteNotebookPath, get_absolute_notebook_path
 from typing import Dict, Any
 
 class TestExtractCodeBlocks:
@@ -48,10 +49,10 @@ class TestCreateAppFile:
 
     def test_create_app_file_success(self, tmp_path):
         """Test successful file creation"""
-        file_path = str(tmp_path)
+        app_path = os.path.join(str(tmp_path), "app.py")
         code = "import streamlit\nst.title('Test')"
         
-        app_path = create_app_file(file_path, code)
+        create_app_file(AbsoluteAppPath(app_path), code)
         
         assert app_path is not None
         assert os.path.exists(app_path)
@@ -63,7 +64,7 @@ class TestCreateAppFile:
 
     def test_create_app_file_io_error(self):
         """Test file creation with IO error"""
-        file_path = "/nonexistent/path/that/should/fail"
+        file_path = AbsoluteAppPath("/nonexistent/path/that/should/fail")
         code = "import streamlit"
         
         with pytest.raises(Exception):
@@ -72,18 +73,18 @@ class TestCreateAppFile:
     @patch('builtins.open', side_effect=Exception("Unexpected error"))
     def test_create_app_file_unexpected_error(self, mock_open):
         """Test file creation with unexpected error"""
-        file_path = "/tmp/test"
+        app_path = AbsoluteAppPath("/tmp/test")
         code = "import streamlit"
         
         with pytest.raises(Exception, match="Unexpected error"):
-            create_app_file(file_path, code)
+            create_app_file(app_path, code)
 
     def test_create_app_file_empty_code(self, tmp_path):
         """Test creating file with empty code"""
-        file_path = str(tmp_path)
+        app_path = AbsoluteAppPath(os.path.join(str(tmp_path), "app.py"))
         code = ""
         
-        app_path = create_app_file(file_path, code)
+        create_app_file(app_path, code)
         
         assert app_path is not None
         assert os.path.exists(app_path)
@@ -120,7 +121,8 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         with open(notebook_path, 'w') as f:
             json.dump(notebook_data, f)
         
-        result = parse_jupyter_notebook_to_extract_required_content(str(notebook_path))
+        absolute_path = get_absolute_notebook_path(str(notebook_path))
+        result = parse_jupyter_notebook_to_extract_required_content(absolute_path)
         
         # Check that only cell_type and source are preserved
         assert len(result) == 2
@@ -137,7 +139,7 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         """Test parsing non-existent notebook file"""
         from mito_ai.utils.error_classes import StreamlitConversionError
         with pytest.raises(StreamlitConversionError, match="Notebook file not found"):
-            parse_jupyter_notebook_to_extract_required_content("/nonexistent/path/notebook.ipynb")
+            parse_jupyter_notebook_to_extract_required_content(AbsoluteNotebookPath("/nonexistent/path/notebook.ipynb"))
 
     def test_parse_notebook_with_missing_cell_fields(self, tmp_path):
         """Test parsing notebook where cells are missing cell_type or source"""
@@ -162,7 +164,8 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         with open(notebook_path, 'w') as f:
             json.dump(notebook_data, f)
         
-        result = parse_jupyter_notebook_to_extract_required_content(str(notebook_path))
+        absolute_path = get_absolute_notebook_path(str(notebook_path))
+        result = parse_jupyter_notebook_to_extract_required_content(absolute_path)
         
         assert len(result) == 3
         assert result[0]['cell_type'] == 'code'
@@ -184,6 +187,7 @@ class TestParseJupyterNotebookToExtractRequiredContent:
         with open(notebook_path, 'w') as f:
             json.dump(notebook_data, f)
         
-        result = parse_jupyter_notebook_to_extract_required_content(str(notebook_path))
+        absolute_path = get_absolute_notebook_path(str(notebook_path))
+        result = parse_jupyter_notebook_to_extract_required_content(absolute_path)
         
         assert result == []

@@ -8,7 +8,6 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Prism from 'prismjs';
 import { useEffect } from 'react';
-import CTAButtons from '../components/CTAButtons/CTAButtons';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import CaseStudies from '../components/CaseStudies/CaseStudies';
 import FAQCard from '../components/FAQCard/FAQCard';
@@ -22,6 +21,9 @@ import { classNames } from '../utils/classNames';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
+import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
+import DemoVideo from '../components/DemoVideo/DemoVideo';
+import WaitlistSignup from '../components/WaitlistSignup/WaitlistSignup';
 
 const Home: NextPage = () => {
 
@@ -40,33 +42,33 @@ const Home: NextPage = () => {
       <div className={pageStyles.container}>
 
         <main className={pageStyles.main}>
-          <section className={classNames(pageStyles.background_card, titleStyles.title_card)}>
-            <h1 className={titleStyles.title}>
-              {/* Other ideas:
-                - Automate your spreadsheets. No Computer Science Degree Required.
-                - Edit a spreadsheet. Generate Python code. 
-                - Automate your spreadsheets, but successfully
-                - All the tools you need to turn Excel reports into Python.
-                - Write Python, not Spreadsheets
-                - Write Python 4x faster 
-                - Write Python 4x faster. Take the test.
-                - Don't know how to code? Now you do.
-              */}
-              Cursor for Data Teams
-            </h1>
+          <section className={classNames(pageStyles.background_card, titleStyles.title_card, titleStyles.grid_card)}>
+            <div className={homeStyles.hero_content_container}>
+              <div className={homeStyles.hero_text_container}>
+                <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
+                  <span>From Data to{' '}</span>
+                  <span className={titleStyles.cycling_text}>
+                    <span className={titleStyles.cycling_word} data-word="insights">Insights</span>
+                    <span className={titleStyles.cycling_word} data-word="automations">Automations</span>
+                    <span className={titleStyles.cycling_word} data-word="dashboards">Dashboards</span>
+                    <span className={titleStyles.cycling_word} data-word="internal tools">Internal Tools</span>
+                    <span className={titleStyles.cycling_word} data-word="Agent">Agent</span>
+                  </span>
+                </h1>
+                <h1 className={classNames(titleStyles.title, 'only-on-mobile')}>
+                  From Data to Insights and Automations
+                </h1>
 
-            <h2 className={titleStyles.description}>
-              Go from raw data to presentation-ready insights 4x faster with AI that understands your data.
-            </h2>
-              
-            <div className={homeStyles.cta_button_and_video_spacer}>
-              <div className={homeStyles.cta_buttons_homepage_container}>
-                <CTAButtons 
-                  variant='download' 
-                  align='center' 
-                  displaySecondaryCTA={false} 
-                  textButtonClassName={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD}
-                  />
+                <h2 className={classNames(titleStyles.description)}>
+                  Go from raw data to presentation-ready insights 4x faster with AI that understands your data.
+                </h2>
+                  
+                <div className={homeStyles.cta_buttons_homepage_container}>
+                  <WaitlistSignup />
+                </div>
+              </div>
+              <div className={homeStyles.hero_video_container}>
+                <DemoVideo />
               </div>
             </div>
 
@@ -74,6 +76,10 @@ const Home: NextPage = () => {
           </section>
 
           <LogoSection></LogoSection>
+
+          <section>
+            <MadeWithMito />
+          </section>
 
           <section>
             <FeatureSquares />

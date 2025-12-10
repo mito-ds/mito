@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import IconButton from './IconButton';
 import DatabaseOutlineIcon from '../icons/DatabaseOutlineIcon';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { COMMAND_MITO_AI_SETTINGS } from '../Extensions/SettingsManager/SettingsManagerPlugin';
+import { COMMAND_MITO_AI_SETTINGS_DATABASE } from '../Extensions/SettingsManager/SettingsManagerPlugin';
 import { getDatabaseConnections } from '../restAPI/RestAPI';
 
 interface DatabaseButtonProps {
@@ -42,7 +42,7 @@ const DatabaseButton: React.FC<DatabaseButtonProps> = ({app}) => {
             icon={<DatabaseOutlineIcon />}
             title='Add Database'
             onClick={() => {
-                void app.commands.execute(COMMAND_MITO_AI_SETTINGS);
+                void app.commands.execute(COMMAND_MITO_AI_SETTINGS_DATABASE);
                 setIsIconVisible(false);
             }}
             notificationDotType={getNotificationDotType()}

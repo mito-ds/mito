@@ -3,23 +3,34 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/* Citation links - styled as superscript with background for visibility */
 .citation-button {
-    background-color: var(--purple-400);
     color: var(--purple-700);
-    height: 14px;
-    width: 14px;
-    border-radius: 2px;
-    font-size: 12px;
+    background-color: var(--purple-200);
+    text-decoration: underline;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
     position: relative;
-    top: -0.5em; /* Makes it appear as superscript */
+    top: -0.4em;
     vertical-align: baseline;
-    margin-right: 2px;
+    margin: 0 2px;
 }
 
 .citation-button:hover {
-    background-color: var(--purple-500);
+    background-color: var(--purple-300);
+}
+
+/* Greyed out style for missing/unresolved citations (deleted or in different notebook) */
+.citation-button.citation-missing {
+    color: var(--jp-ui-font-color2);
+    text-decoration: none;
+    cursor: default;
+    opacity: 0.6;
+}
+
+.citation-button.citation-missing:hover {
+    background-color: var(--jp-layout-color3);
 }

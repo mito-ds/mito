@@ -1,0 +1,66 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.agent-change-counts {
+    font-size: 12px;
+    margin-bottom: 4px;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: center;
+}
+
+.agent-change-count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.agent-change-count-number {
+    font-weight: bold;
+    font-size: 14px;
+    display: inline-block;
+    text-align: left;
+}
+
+.agent-change-count-text {
+    color: var(--muted-text-color);
+    font-size: 11px;
+}
+
+.agent-change-count-added {
+    color: var(--green-700);
+}
+
+.agent-change-count-modified {
+    color: var(--yellow-600);
+}
+
+.agent-change-count-removed {
+    color: var(--red-700);
+}
+
+.agent-change-count-separator {
+    color: var(--muted-text-color);
+    margin: 0 4px;
+}
+
+.agent-review-progress {
+    font-size: 12px;
+    color: var(--muted-text-color);
+}
+
+.agent-change-controls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.agent-change-controls-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+

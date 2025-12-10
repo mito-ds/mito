@@ -6,19 +6,20 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ICommandPalette, ToolbarButton } from '@jupyterlab/apputils';
-import { PathExt } from '@jupyterlab/coreutils';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { Widget } from '@lumino/widgets';
 import { Token } from '@lumino/coreutils';
-import { stopStreamlitPreview } from '../../restAPI/RestAPI';
+import { logEvent, stopStreamlitPreview } from '../../restAPI/RestAPI';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
-import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
+import { COMMAND_MITO_AI_BETA_MODE_ENABLED, COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import { DeployLabIcon, EditLabIcon, ResetCircleLabIcon } from '../../icons';
 import '../../../style/StreamlitPreviewPlugin.css';
-import { showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
+import { getAppPreviewNameFromNotebookPanel, showRecreateAppConfirmation, startStreamlitPreviewAndNotify } from './utils';
 import { showUpdateAppDropdown } from './UpdateAppDropdown';
+import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
+import { PlaceholderWidget } from './PlaceholderWidget';
 
 
 /**
@@ -32,10 +33,16 @@ export const IStreamlitPreviewManager = new Token<IStreamlitPreviewManager>(
 /**
  * Interface for the streamlit preview response.
  */
-export interface StreamlitPreviewResponse {
+export type StreamlitPreviewResponseSuccess = {
+  type: 'success'
   id: string;
   port: number;
   url: string;
+}
+
+export type StreamlitPreviewResponseError = {
+  type: 'error',
+  message: string
 }
 
 /**
@@ -47,8 +54,9 @@ export interface IStreamlitPreviewManager {
    */
   openAppPreview(
     app: JupyterFrontEnd,
-    notebookPanel: NotebookPanel
-  ): Promise<MainAreaWidget>;
+    notebookPanel: NotebookPanel,
+    createStreamlitAppPrompt?: string
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError>;
 
   /**
    * Edit the existing Streamlit app preview by updating the app.py file.
@@ -56,17 +64,12 @@ export interface IStreamlitPreviewManager {
   editExistingPreview(
     editPrompt: string,
     notebookPanel: NotebookPanel
-  ): Promise<void>;
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError>;
 
   /**
    * Close the current preview if one exists.
    */
   closeCurrentPreview(): void;
-
-  /**
-   * Check if there's an active preview.
-   */
-  hasActivePreview(): boolean;
 
   /**
    * Get the current preview widget.
@@ -119,26 +122,59 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   async openAppPreview(
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
-  ): Promise<MainAreaWidget> {
-    // Close existing preview if any
-    this.closeCurrentPreview();
+    createStreamlitAppPrompt: string = ''
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
+    
+    // If the user has a different app open, we first close that one
+    if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
+      this.closeCurrentPreview();
+    }
+
+    // Create and show placeholder panel immediately
+    let placeholderWidget: MainAreaWidget | null = null;
+    if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
+      const placeholderContent = new PlaceholderWidget();
+      placeholderWidget = new MainAreaWidget({ content: placeholderContent });
+      placeholderWidget.title.label = getAppPreviewNameFromNotebookPanel(notebookPanel);
+      placeholderWidget.title.closable = true;
+      
+      // Add placeholder to main area with split-right mode
+      app.shell.add(placeholderWidget, 'main', {
+        mode: 'split-right',
+        ref: notebookPanel.id
+      });
+    }
 
     // First save the notebook to ensure the app is up to date
     await notebookPanel.context.save();
 
     const notebookPath = notebookPanel.context.path;
-    const finalPreviewData = await startStreamlitPreviewAndNotify(notebookPath);
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
+    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(notebookPath, notebookID, false, createStreamlitAppPrompt);
 
-    if (finalPreviewData === undefined) {
-      throw new Error('Failed to create Streamlit preview');
+    // Close placeholder before handling response (always dispose if it exists)
+    if (placeholderWidget) {
+      placeholderWidget.dispose();
+    }
+
+    if (streamlitPreviewResponse.type === 'error') {
+      return streamlitPreviewResponse
+    }
+
+    if (this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
+      // If there is already a preview window for the current app, 
+      // then don't create a new widget. The backend will update the 
+      // .py file and the app preview will update automatically
+      return streamlitPreviewResponse
     }
     
     // Create the new preview widget
     const widget = this.createPreviewWidget(
+      app,
       notebookPanel,
       this.appDeployService,
       this.appManagerService,
-      finalPreviewData
+      streamlitPreviewResponse
     );
 
     // Store current preview info
@@ -150,7 +186,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
       ref: notebookPanel.id
     });
 
-    return widget;
+    return streamlitPreviewResponse;
   }
 
   /**
@@ -160,7 +196,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   async editExistingPreview(
     editPrompt: string,
     notebookPanel: NotebookPanel
-  ): Promise<void> {
+  ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
     if (!this.currentPreview) {
       throw new Error('No active preview to edit');
     }
@@ -170,15 +206,19 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     // Because we are parsing the notebook on the backend by reading 
     // the file system, it only sees the last saved version of the notebook.
     await notebookPanel.context.save();
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
 
     // Update the app with the edit prompt
-    await startStreamlitPreviewAndNotify(
+    const streamlitPreviewResponse = await startStreamlitPreviewAndNotify(
       notebookPanel.context.path, 
-      true, // force_recreate
+      notebookID,
+      false, // force_recreate
       editPrompt, 
       'Editing Streamlit app...', 
       'Streamlit app updated successfully!'
     );
+
+    return streamlitPreviewResponse
   }
 
   /**
@@ -193,35 +233,49 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   }
 
   /**
-   * Check if there's an active preview.
-   */
-  hasActivePreview(): boolean {
-    return this.currentPreview !== null;
-  }
-
-  /**
    * Get the current preview widget.
    */
   getCurrentPreview(): MainAreaWidget | null {
     return this.currentPreview;
   }
 
+  /** 
+   * Check if the current app preview is for the target notebook
+   */
+  isCurrentPreivewForCurrentNotebook(notebookPanel: NotebookPanel): boolean {
+    const currentPreivew = this.getCurrentPreview()
+    if (currentPreivew === null) {
+      return false
+    }
+
+    // Note we will identify a false position match when the user has two notebooks open
+    // that have the same name because they are in different folders. However, its so unlikely
+    // that a user two notebooks with the same name and one open as an app while trying to open the 
+    // app for the other one. We ignore this case for now. Its not a big deal if it happens anyways
+    const currentNotebookAppTitle = getAppPreviewNameFromNotebookPanel(notebookPanel)
+    return currentNotebookAppTitle === currentPreivew.title.label
+  }
+
   /**
    * Create a new preview widget with toolbar buttons.
    */
   private createPreviewWidget(
+    app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService,
-    previewData: StreamlitPreviewResponse
+    previewData: StreamlitPreviewResponseSuccess
   ): MainAreaWidget {
     const iframeWidget = new IFrameWidget(previewData.url);
+
+    // Log that the preview is open
+    void logEvent('opened_streamlit_app_preview')
 
     // Create main area widget
     const widget = new MainAreaWidget({ content: iframeWidget });
     const notebookPath = notebookPanel.context.path;
-    const notebookName = PathExt.basename(notebookPath, '.ipynb');
-    widget.title.label = `App Preview (${notebookName})`;
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel)
+    widget.title.label = getAppPreviewNameFromNotebookPanel(notebookPanel);
     widget.title.closable = true;
 
     // Create toolbar buttons
@@ -239,7 +293,7 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     const recreateAppButton = new ToolbarButton({
       className: 'text-button-mito-ai button-base button-small jp-ToolbarButton mito-deploy-button',
       onClick: async (): Promise<void> => {
-        await showRecreateAppConfirmation(notebookPath);
+        await showRecreateAppConfirmation(notebookPath, notebookID);
       },
       tooltip: 'Recreate new App from scratch based on the current state of the notebook',
       label: 'Recreate App',
@@ -261,7 +315,10 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     // Insert the buttons into the toolbar
     widget.toolbar.insertAfter('spacer', 'edit-app-button', editAppButton);
     widget.toolbar.insertAfter('edit-app-button', 'recreate-app-button', recreateAppButton);
-    widget.toolbar.insertAfter('recreate-app-button', 'deploy-app-button', deployButton);
+
+    if (app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED)) {
+      widget.toolbar.insertAfter('recreate-app-button', 'deploy-app-button', deployButton);
+    }
 
     // Handle widget disposal
     widget.disposed.connect(() => {
