@@ -187,7 +187,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         } catch (error) {
             console.error("Error rendering markdown:", error);
         }
-    }, [renderMimeRegistry, notebookTracker]);
+    }, [renderMimeRegistry]);
 
 
     // Replace the citation and cell reference placeholders with components in the DOM

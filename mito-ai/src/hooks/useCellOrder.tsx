@@ -55,7 +55,7 @@ export const useCellOrder = (notebookTracker: INotebookTracker): Map<string, num
         return () => {
             notebook.model?.cells.changed.disconnect(handleCellChange);
         };
-    }, [notebookTracker, notebookTracker.currentWidget]);
+    }, [notebookTracker]);
 
     // Also update when the current notebook changes
     useEffect(() => {
