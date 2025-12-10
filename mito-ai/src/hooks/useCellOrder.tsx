@@ -17,6 +17,9 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 export const useCellOrder = (notebookTracker: INotebookTracker): Map<string, number> => {
     const [cellOrderKey, setCellOrderKey] = useState(0);
 
+    // Track current widget ID to detect notebook switches
+    const currentWidgetId = notebookTracker.currentWidget?.id ?? null;
+
     // Compute the cell order mapping
     const cellOrder = useMemo(() => {
         const orderMap = new Map<string, number>();
@@ -33,9 +36,10 @@ export const useCellOrder = (notebookTracker: INotebookTracker): Map<string, num
         });
 
         return orderMap;
-    }, [notebookTracker, cellOrderKey]);
+    }, [notebookTracker, cellOrderKey, currentWidgetId]);
 
     // Listen to cell changes to trigger re-computation
+    // Include currentWidgetId in dependencies so listener re-attaches when switching notebooks
     useEffect(() => {
         const notebookPanel = notebookTracker.currentWidget;
         if (!notebookPanel) {
@@ -55,7 +59,7 @@ export const useCellOrder = (notebookTracker: INotebookTracker): Map<string, num
         return () => {
             notebook.model?.cells.changed.disconnect(handleCellChange);
         };
-    }, [notebookTracker]);
+    }, [notebookTracker, currentWidgetId]);
 
     // Also update when the current notebook changes
     useEffect(() => {
