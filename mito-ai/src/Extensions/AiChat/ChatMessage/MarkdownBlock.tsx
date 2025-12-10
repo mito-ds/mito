@@ -3,13 +3,13 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 import { createPortal } from 'react-dom';
 import { Citation, CitationProps, CitationLine } from './Citation';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { getCellNumberById } from '../../../utils/cellReferences';
 import { scrollToCell } from '../../../utils/notebook';
+import { useCellOrder } from '../../../hooks/useCellOrder';
 import '../../../../style/CellReference.css';
 
 /**
@@ -79,18 +79,17 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     const [citationPortals, setCitationPortals] = useState<React.ReactElement[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
     
-    // Track when notebook becomes available to re-render cell references
-    // (fixes race condition where chat history loads before notebook on page refresh)
-    const [notebookCellCount, setNotebookCellCount] = useState(0);
-
-    useEffect(() => {
-        const updateCellCount = (): void => {
-            setNotebookCellCount(notebookTracker.currentWidget?.content?.widgets?.length ?? 0);
-        };
-        updateCellCount();
-        notebookTracker.currentChanged.connect(updateCellCount);
-        return () => { notebookTracker.currentChanged.disconnect(updateCellCount); };
-    }, [notebookTracker]);
+    // Track cell order to update cell references when cells are reordered
+    const cellOrder = useCellOrder(notebookTracker);
+    
+    // Create a serialized version of cell order for dependency tracking
+    // This ensures re-renders when cells are reordered (even if count stays the same)
+    const cellOrderKey = useMemo(() => {
+        return Array.from(cellOrder.entries())
+            .sort((a, b) => a[0].localeCompare(b[0])) // Sort by cellId for stable string
+            .map(([cellId, cellNumber]) => `${cellId}:${cellNumber}`)
+            .join(',');
+    }, [cellOrder]);
 
     // Helper function to parse line numbers or ranges
     const parseLineNumber = (lineStr: string): CitationLine => {
@@ -277,7 +276,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                     );
                 } else if (cellRef) {
                     // Create clickable span for cell reference
-                    const cellNumber = getCellNumberById(cellRef.cellId, notebookTracker.currentWidget);
+                    const cellNumber = cellOrder.get(cellRef.cellId);
                     const isMissing = cellNumber === undefined;
                     const displayText = isMissing ? 'Cell' : `Cell ${cellNumber}`;
                     
@@ -319,10 +318,10 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         });
 
         return newPortals;
-    }, [notebookTracker]);
+    }, [notebookTracker, cellOrder]);
 
     // Process everything in one effect, but with clear separation via helper functions
-    // notebookCellCount triggers re-render when notebook loads (fixes race condition on refresh)
+    // cellOrderKey triggers re-render when notebook loads or cells are reordered (fixes race condition on refresh)
     useEffect(() => {
         const processMarkdown = async (): Promise<void> => {
             // Step 1: Extract citations and cell references, get processed markdown
@@ -337,7 +336,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         };
 
         void processMarkdown();
-    }, [markdown, extractCitationsAndCellRefs, renderMarkdownContent, createPortalsFromPlaceholders, notebookCellCount]);
+    }, [markdown, extractCitationsAndCellRefs, renderMarkdownContent, createPortalsFromPlaceholders, cellOrderKey]);
 
     return (
         <div ref={containerRef} className="markdown-block-with-citations">
