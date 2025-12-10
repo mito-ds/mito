@@ -31,15 +31,20 @@ function updateAllCellNumbers(notebookPanel: NotebookPanel): void {
 function setupCellNumbering(notebookPanel: NotebookPanel): void {
   const notebook = notebookPanel.content;
 
-  // Update when cells are added, removed, or moved
-  notebook.model?.cells.changed.connect(() => {
+  // Store handler references so they can be disconnected on cleanup
+  const handleCellsChanged = (): void => {
     updateAllCellNumbers(notebookPanel);
-  });
+  };
+
+  const handleActiveCellChanged = (): void => {
+    updateAllCellNumbers(notebookPanel);
+  };
+
+  // Update when cells are added, removed, or moved
+  notebook.model?.cells.changed.connect(handleCellsChanged);
 
   // Update when active cell changes (often happens when scrolling)
-  notebook.activeCellChanged.connect(() => {
-    updateAllCellNumbers(notebookPanel);
-  });
+  notebook.activeCellChanged.connect(handleActiveCellChanged);
 
   // Use MutationObserver to handle virtualization (cells being attached/detached)
   const observer = new MutationObserver(() => {
@@ -47,8 +52,10 @@ function setupCellNumbering(notebookPanel: NotebookPanel): void {
   });
   observer.observe(notebook.node, { childList: true, subtree: true });
 
-  // Cleanup observer when notebook is disposed
+  // Cleanup all handlers when notebook is disposed
   notebookPanel.disposed.connect(() => {
+    notebook.model?.cells.changed.disconnect(handleCellsChanged);
+    notebook.activeCellChanged.disconnect(handleActiveCellChanged);
     observer.disconnect();
   });
 
