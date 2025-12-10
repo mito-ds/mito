@@ -3,22 +3,19 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-/* Cell reference links in chat messages - styled to match citations */
+/* Cell reference links in chat messages - styled as standard links */
 .cell-reference {
-    background-color: var(--purple-400);
-    color: var(--purple-700);
-    padding: 1px 6px;
-    border-radius: 2px;
-    font-size: 12px;
+    color: var(--purple-600);
+    text-decoration: underline;
     cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    margin: 0 2px;
+    font-weight: 500;
+    padding: 1px 5px;
+    border-radius: 3px;
+    position: relative;
+    vertical-align: baseline;
 }
 
 .cell-reference:hover {
-    background-color: var(--purple-500);
+    background-color: var(--purple-300);
+    color: var(--purple-700);
 }
-
