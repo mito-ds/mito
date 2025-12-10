@@ -44,6 +44,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         icon = <DatabaseIcon />;
     } else if (type === 'active_cell') {
         icon = <CodeIcon />;
+    } else if (type === 'notebook') {
+        icon = <CodeIcon />;
     } else if (type === 'cell') {
         icon = <CodeIcon />;
     }

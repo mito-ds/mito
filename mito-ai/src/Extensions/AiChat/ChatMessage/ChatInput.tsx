@@ -392,11 +392,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     display: 'Active Cell'
                 }]);
             }
+
+            // Remove the current notebook context item
+            setAdditionalContext(prev => prev.filter(context => context.type !== 'notebook'));
         } else if (agentModeEnabled) {
             // Remove active cell context when in agent mode
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
             if (hasActiveCellContext) {
                 setAdditionalContext(prev => prev.filter(context => context.type !== 'active_cell'));
+            }
+
+            const hasNotebookContext = additionalContext.some(context => context.type === 'notebook');
+            if (!hasNotebookContext) {
+            // Add a current notebook context item
+                setAdditionalContext(prev => [...prev, {
+                    type: 'notebook',
+                    value: 'Notebook',
+                    display: 'Notebook'
+                }]);
             }
         }
     }, [agentModeEnabled, additionalContext, activeCellCode]);
