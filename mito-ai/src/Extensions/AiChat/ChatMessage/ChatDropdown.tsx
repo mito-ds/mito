@@ -372,7 +372,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                                     cellType={option.cellType}
                                     index={index}
                                     selectedIndex={selectedIndex}
-                                    onSelect={(cellNumber, cellId) => onSelect(option)}
+                                    onSelect={() => onSelect(option)}
                                 />
                             );
                         }
