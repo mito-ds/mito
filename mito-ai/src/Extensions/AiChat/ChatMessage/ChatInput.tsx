@@ -394,7 +394,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }
 
             // Remove the current notebook context item
-            setAdditionalContext(prev => prev.filter(context => context.type !== 'notebook'));
+            const hasNotebookContext = additionalContext.some(context => context.type === 'notebook');
+            if (hasNotebookContext) {
+                setAdditionalContext(prev => prev.filter(context => context.type !== 'notebook'));
+            }
         } else if (agentModeEnabled) {
             // Remove active cell context when in agent mode
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
