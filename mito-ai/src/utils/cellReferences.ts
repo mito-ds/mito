@@ -35,8 +35,8 @@ export function parseCellReferences(
     return references;
   }
 
-  // Match @Cell N or @cell N (case insensitive)
-  const cellReferenceRegex = /@[Cc]ell\s+(\d+)/g;
+  // Match @CellN or @cellN (case insensitive, no space)
+  const cellReferenceRegex = /@[Cc]ell(\d+)/g;
   let match;
 
   while ((match = cellReferenceRegex.exec(messageText)) !== null) {

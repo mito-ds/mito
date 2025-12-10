@@ -193,8 +193,8 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
             return option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) ||
                 option.variable.value.toLowerCase().includes(effectiveFilterText.toLowerCase());
         } else if (option.type === 'cell') {
-            // Match "Cell N" or just the number
-            const cellText = `cell ${option.cellNumber}`;
+            // Match "CellN" (no space)
+            const cellText = `cell${option.cellNumber}`;
             const numberText = String(option.cellNumber);
             return cellText.includes(effectiveFilterText.toLowerCase()) ||
                 numberText.includes(effectiveFilterText.toLowerCase());

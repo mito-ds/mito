@@ -181,7 +181,7 @@ export const CellDropdownItem: React.FC<CellDropdownItemProps> = ({
                 title={`Cell ${cellNumber}`}
                 data-testid={`chat-dropdown-item-name-cell-${cellNumber}`}
             >
-                Cell {cellNumber}
+                Cell{cellNumber}
             </span>
         </li>
     )

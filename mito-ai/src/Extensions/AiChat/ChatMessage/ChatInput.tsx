@@ -274,23 +274,26 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 { type: 'db', value: option.variable.value, display: option.variable.variable_name }
             ]);
         } else if (option.type === 'cell') {
-            // For cells, add them as @Cell N mentions
-            contextChatRepresentation = `@Cell ${option.cellNumber}`
+            // For cells, add them as @CellN mentions (no space for easier filtering)
+            contextChatRepresentation = `@Cell${option.cellNumber}`
         }
+
+        // Add a space after the selected item so user can continue typing
+        const contextChatRepresentationWithSpace = contextChatRepresentation + ' ';
 
         const newValue =
             input.slice(0, atIndex) +
-            contextChatRepresentation +
+            contextChatRepresentationWithSpace +
             textAfterCursor;
         setInput(newValue);
 
         setDropdownVisible(false);
 
-        // After updating the input value, set the cursor position after the inserted variable name
+        // After updating the input value, set the cursor position after the inserted item and space
         // We use setTimeout to ensure this happens after React's state update
         setTimeout(() => {
             if (textarea) {
-                const newCursorPosition = atIndex + contextChatRepresentation.length;
+                const newCursorPosition = atIndex + contextChatRepresentationWithSpace.length;
                 textarea.focus();
                 textarea.setSelectionRange(newCursorPosition, newCursorPosition);
             }
