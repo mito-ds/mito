@@ -19,3 +19,16 @@
     background-color: var(--purple-300);
     color: var(--purple-700);
 }
+
+/* Greyed out style for missing/unresolved cell references (deleted or in different notebook) */
+.cell-reference.cell-reference-missing {
+    color: var(--jp-ui-font-color2);
+    text-decoration: none;
+    cursor: default;
+    opacity: 0.6;
+}
+
+.cell-reference.cell-reference-missing:hover {
+    background-color: var(--jp-layout-color3);
+    color: var(--jp-ui-font-color2);
+}

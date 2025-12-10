@@ -347,20 +347,26 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                 } else if (cellRef) {
                     // Create clickable span for cell reference
                     const cellNumber = getCellNumberById(cellRef.cellId, notebookTracker.currentWidget);
-                    const displayText = cellNumber ? `Cell ${cellNumber}` : 'Cell';
+                    const isMissing = cellNumber === undefined;
+                    const displayText = isMissing ? 'Cell' : `Cell ${cellNumber}`;
                     
                     const span = document.createElement('span');
-                    span.className = 'cell-reference';
+                    span.className = isMissing ? 'cell-reference cell-reference-missing' : 'cell-reference';
                     span.textContent = displayText;
-                    span.title = `Click to navigate to ${displayText}`;
+                    span.title = isMissing 
+                        ? 'Cell not found (may have been deleted or is in a different notebook)'
+                        : `Click to navigate to ${displayText}`;
                     
-                    span.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (notebookTracker.currentWidget) {
-                            scrollToCell(notebookTracker.currentWidget, cellRef.cellId, undefined, 'center');
-                        }
-                    });
+                    // Only add click handler if cell exists
+                    if (!isMissing) {
+                        span.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (notebookTracker.currentWidget) {
+                                scrollToCell(notebookTracker.currentWidget, cellRef.cellId, undefined, 'center');
+                            }
+                        });
+                    }
 
                     fragment.appendChild(span);
                 }

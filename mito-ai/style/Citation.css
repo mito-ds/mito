@@ -22,3 +22,15 @@
 .citation-button:hover {
     background-color: var(--purple-300);
 }
+
+/* Greyed out style for missing/unresolved citations (deleted or in different notebook) */
+.citation-button.citation-missing {
+    color: var(--jp-ui-font-color2);
+    text-decoration: none;
+    cursor: default;
+    opacity: 0.6;
+}
+
+.citation-button.citation-missing:hover {
+    background-color: var(--jp-layout-color3);
+}
