@@ -8,7 +8,7 @@ import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 import { createPortal } from 'react-dom';
 import { Citation, CitationProps, CitationLine } from './Citation';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { scrollToCell } from '../../../utils/notebook';
+import { scrollToCell, highlightCodeCell } from '../../../utils/notebook';
 import { useCellOrder } from '../../../hooks/useCellOrder';
 import '../../../../style/CellReference.css';
 
@@ -294,6 +294,10 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                             e.stopPropagation();
                             if (notebookTracker.currentWidget) {
                                 scrollToCell(notebookTracker.currentWidget, cellRef.cellId, undefined, 'center');
+                                // Highlight the cell after scrolling
+                                setTimeout(() => {
+                                    highlightCodeCell(notebookTracker, cellRef.cellId);
+                                }, 500);
                             }
                         });
                     }
