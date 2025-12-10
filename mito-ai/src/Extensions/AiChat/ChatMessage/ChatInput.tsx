@@ -227,6 +227,15 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         display: option.variable.variable_name
                     }
                 ]);
+            } else if (option.type === 'cell') {
+                setAdditionalContext(prev => [
+                    ...prev,
+                    {
+                        type: 'cell',
+                        value: option.cellId,
+                        display: `Cell ${option.cellNumber}`
+                    }
+                ]);
             }
             setDropdownVisible(false);
 
@@ -276,6 +285,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
         } else if (option.type === 'cell') {
             // For cells, add them as @CellN mentions (no space for easier filtering)
             contextChatRepresentation = `@Cell${option.cellNumber}`
+            // Store the stable cell ID in additionalContext, not the @CellN format
+            setAdditionalContext([
+                ...additionalContext,
+                { type: 'cell', value: option.cellId, display: `Cell ${option.cellNumber}` }
+            ]);
         }
 
         // Add a space after the selected item so user can continue typing
@@ -419,6 +433,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         onRemove={() => setAdditionalContext(additionalContext.filter((_, i) => i !== index))}
                         notebookTracker={notebookTracker}
                         activeCellID={activeCellID}
+                        value={context.value}
                     />
                 ))}
             </div>

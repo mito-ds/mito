@@ -39,6 +39,7 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
     selected_files = [context["value"] for context in additional_context if context.get("type") == "file"]
     selected_db_connections = [context["value"] for context in additional_context if context.get("type") == "db"]
     selected_images = [context["value"] for context in additional_context if context.get("type", "").startswith("image/")]
+    selected_cells = [context["value"] for context in additional_context if context.get("type") == "cell"]
 
     # STEP 2: Create a list of strings (instructions) for each context type
     context_parts = []
@@ -65,6 +66,12 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
         context_parts.append(
             "The following images have been selected by the user to be used in the task:\n"
             + "\n".join(selected_images)
+        )
+        
+    if len(selected_cells) > 0:
+        context_parts.append(
+            "The following cells have been selected by the user to be used in the task:\n"
+            + "\n".join(selected_cells)
         )
 
     # STEP 3: Combine into a single string
