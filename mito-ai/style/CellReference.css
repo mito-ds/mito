@@ -1,0 +1,24 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Cell reference links in chat messages - styled to match citations */
+.cell-reference {
+    background-color: var(--purple-400);
+    color: var(--purple-700);
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    margin: 0 2px;
+}
+
+.cell-reference:hover {
+    background-color: var(--purple-500);
+}
+

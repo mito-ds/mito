@@ -10,6 +10,7 @@ import { Citation, CitationProps, CitationLine } from './Citation';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { parseCellReferences, getCellNumberById } from '../../../utils/cellReferences';
 import { scrollToCell } from '../../../utils/notebook';
+import '../../../../style/CellReference.css';
 
 /**
  * React Portals in Markdown Rendering
@@ -77,6 +78,19 @@ interface CellRef {
 const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry, notebookTracker }) => {
     const [citationPortals, setCitationPortals] = useState<React.ReactElement[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
+    
+    // Track when notebook becomes available to re-render cell references
+    // (fixes race condition where chat history loads before notebook on page refresh)
+    const [notebookCellCount, setNotebookCellCount] = useState(0);
+
+    useEffect(() => {
+        const updateCellCount = (): void => {
+            setNotebookCellCount(notebookTracker.currentWidget?.content?.widgets?.length ?? 0);
+        };
+        updateCellCount();
+        notebookTracker.currentChanged.connect(updateCellCount);
+        return () => { notebookTracker.currentChanged.disconnect(updateCellCount); };
+    }, [notebookTracker]);
 
     // Helper function to parse line numbers or ranges
     const parseLineNumber = (lineStr: string): CitationLine => {
@@ -220,9 +234,6 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                 const span = document.createElement('span');
                 span.className = 'cell-reference';
                 span.textContent = node.nodeValue!.substring(ref.startIndex, ref.endIndex);
-                span.style.cursor = 'pointer';
-                span.style.color = 'var(--jp-brand-color1)';
-                span.style.textDecoration = 'underline';
                 span.title = `Click to navigate to Cell ${ref.cellNumber}`;
                 
                 span.addEventListener('click', (e) => {
@@ -341,9 +352,6 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                     const span = document.createElement('span');
                     span.className = 'cell-reference';
                     span.textContent = displayText;
-                    span.style.cursor = 'pointer';
-                    span.style.color = 'var(--jp-brand-color1)';
-                    span.style.textDecoration = 'underline';
                     span.title = `Click to navigate to ${displayText}`;
                     
                     span.addEventListener('click', (e) => {
@@ -377,6 +385,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     }, [notebookTracker]);
 
     // Process everything in one effect, but with clear separation via helper functions
+    // notebookCellCount triggers re-render when notebook loads (fixes race condition on refresh)
     useEffect(() => {
         const processMarkdown = async (): Promise<void> => {
             // Step 1: Extract citations and cell references, get processed markdown
@@ -391,7 +400,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         };
 
         void processMarkdown();
-    }, [markdown, extractCitationsAndCellRefs, renderMarkdownContent, createPortalsFromPlaceholders]);
+    }, [markdown, extractCitationsAndCellRefs, renderMarkdownContent, createPortalsFromPlaceholders, notebookCellCount]);
 
     return (
         <div ref={containerRef} className="markdown-block-with-citations">
