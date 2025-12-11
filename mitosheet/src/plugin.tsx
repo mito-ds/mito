@@ -44,6 +44,26 @@ const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
             label: 'New Mitosheet',
         });
         
+        // Conditionally show/hide the button
+        const updateButtonVisibility = () => {
+            const mitoAIEnabled = window.commands?.hasCommand('mito_ai:open-chat') || false;
+            if (mitoAIEnabled) {
+                button.hide();
+            } else {
+                button.show();
+            }
+        };
+        
+        // Set initial visibility
+        updateButtonVisibility();
+        
+        // Handle race condition: mito-ai extension might load after mitosheet extension.
+        // Check again after a short delay to catch late-loading extensions.
+        // This ensures the button visibility is correct regardless of load order.
+        setTimeout(() => {
+            updateButtonVisibility();
+        }, 500);
+        
         newNotebook.toolbar.insertAfter('cellType', 'Create Mito Button', button);
     })
 }
