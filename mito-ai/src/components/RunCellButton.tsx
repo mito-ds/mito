@@ -16,6 +16,7 @@ import RestartIcon from '../icons/RestartIcon';
 import StopIcon from '../icons/StopIcon';
 import ClearIcon from '../icons/ClearIcon';
 import LoadingCircle from './LoadingCircle';
+import { classNames } from '../utils/classNames';
 
 interface RunCellButtonProps {
   app: JupyterFrontEnd;
@@ -233,7 +234,10 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
 
   const trigger = (
     <div className="mito-run-cell-button-container" ref={dropdownRef}>
-      <div className={`mito-run-cell-button-group ${isRunning ? 'mito-run-cell-button-running' : ''}`}>
+      <div className={classNames(
+        'mito-run-cell-button-group',
+        {'mito-run-cell-button-running': isRunning},
+      )}>
         <button
           className="mito-run-cell-button mito-run-cell-button-main"
           onClick={handleMainButtonClick}

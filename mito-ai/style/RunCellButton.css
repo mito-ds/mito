@@ -7,17 +7,17 @@
   position: relative;
   display: block;
   width: 160px;
-  background-color: var(--blue-300);
 }
 
 /* Button group - contains both buttons */
 .mito-run-cell-button-group {
   display: flex;
   align-items: center;
-  height: 24px;
+  height: var(--toolbar-button-height);
   width: 100%;
   border-radius: 4px;
   overflow: hidden;
+  background-color: var(--blue-300);
   border: 0.5px solid var(--blue-900);
 }
 
@@ -34,6 +34,7 @@
   font-weight: 400;
   transition: background-color 0.15s ease;
   height: 100%;
+  background-color: transparent;
 }
 
 .mito-run-cell-button:hover {
@@ -102,13 +103,14 @@
   border-color: var(--green-900);
 }
 
-.mito-run-cell-button-running .mito-run-cell-button {
+.mito-run-cell-button-running .mito-run-cell-button,
+.mito-run-cell-button-running .mito-run-cell-button-dropdown {
   background-color: var(--green-300);
   color: var(--green-900);
 }
 
-.mito-run-cell-button-running .mito-run-cell-button:hover {
-  background-color: var(--green-400);
+.mito-run-cell-button-running .mito-run-cell-button-dropdown:hover {
+  background-color: var(--green-500);
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-divider {
