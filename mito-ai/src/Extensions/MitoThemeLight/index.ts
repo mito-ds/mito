@@ -15,6 +15,7 @@ import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import React from 'react';
 import RunCellButton from '../../components/RunCellButton';
+import { enableLineNumbersIfNeeded } from '../../utils/lineNumbers';
 import '../../../style/RunCellButton.css';
 
 /**
@@ -100,6 +101,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const addButtonsToAllNotebooks = (): void => {
       notebookTracker.forEach(widget => {
         addRunCellButton(widget);
+        // Enable line numbers if needed
+        void enableLineNumbersIfNeeded(app, widget);
       });
 
       // Connect to new notebooks
@@ -108,6 +111,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
           // Only add if Mito Light theme is still active
           if (manager.theme === 'Mito Light') {
             addRunCellButton(widget);
+            // Enable line numbers if needed
+            void enableLineNumbersIfNeeded(app, widget);
           }
         }, 100);
       };
@@ -136,7 +141,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       load: async () => {
         // Load theme CSS (hides default buttons)
         await manager.loadCSS(style);
-        // Add Run Cell buttons to all notebooks
+        // Add Run Cell buttons to all notebooks and enable line numbers
         addButtonsToAllNotebooks();
       },
       unload: async () => {

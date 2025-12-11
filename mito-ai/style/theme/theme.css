@@ -33,3 +33,33 @@
 {
   display: none !important;
 }
+
+/*-----------------------------------------------------------------------------
+|| Mito Light Theme: Custom line number styling
+|| These styles only apply when the Mito Light theme is active
+||----------------------------------------------------------------------------*/
+.jp-Editor .cm-lineNumbers {
+  font-family: var(--jp-code-font-family);
+  font-size: 11px;
+  color: var(--blue-900);
+  opacity: 0.5;
+  background: transparent;
+  padding-right: 8px;
+  min-width: 2.5em;
+  width: var(--mito-line-number-gutter-width);
+  text-align: right;
+  user-select: none;
+}
+
+.jp-Editor .cm-lineNumbers .cm-gutterElement {
+  padding: 0 4px 0 8px;
+  min-width: 20px;
+  text-align: right;
+  line-height: var(--jp-code-line-height);
+  background: transparent;
+}
+
+/* Remove gutter background */
+.jp-Editor .cm-gutters {
+  background: transparent !important;
+}
