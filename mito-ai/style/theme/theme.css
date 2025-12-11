@@ -35,6 +35,19 @@
 }
 
 /*-----------------------------------------------------------------------------
+| Mito Light Theme: Hide default JupyterLab footer buttons
+| These styles only apply when the Mito Light theme is active
+|----------------------------------------------------------------------------*/
+
+.jp-StatusBar-Item[title^="Notebook is in"],
+.jp-StatusBar-Item:has(.jp-StatusBar-TextItem[title^="Go to line number"]),
+/* Hide the file path indicator in status bar by targeting title that ends with .ipynb*/
+.jp-StatusBar-Item:has(.jp-StatusBar-TextItem[title$=".ipynb"]) {
+  display: none !important;
+}
+
+
+/*-----------------------------------------------------------------------------
 || Mito Light Theme: Custom line number styling
 || These styles only apply when the Mito Light theme is active
 ||----------------------------------------------------------------------------*/
