@@ -1,7 +1,7 @@
 
 
 /* Remove borders and padding from the main area widget */
-.lm-SplitPanel-child {
+.lm-SplitPanel-child:not(#jp-right-stack, #jp-left-stack) {
     background-color: var(--jp-layout-color1) !important;
     border: none !important;
     margin: 0 !important;
@@ -11,7 +11,6 @@
 /* Remove borders and padding from the notebook panel */
 .jp-MainAreaWidget.jp-NotebookPanel {
     border: none;
-    border-left: 1px solid var(--jp-border-color1) !important;
     margin: 0 !important;
     padding: 0 !important;
 }

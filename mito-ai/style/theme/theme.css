@@ -7,6 +7,7 @@
 @import './componentStyling.css';
 @import './icons.css';
 
+
 /* Set the default typography for monospace elements */
 .jp-ThemedContainer tt,
 .jp-ThemedContainer code,
@@ -16,6 +17,22 @@
   font-family: var(--jp-code-font-family);
   font-size: var(--jp-code-font-size);
   line-height: var(--jp-code-line-height);
+}
+
+/*-----------------------------------------------------------------------------
+| Mito Light Theme: Custom top bar styling
+| These styles only apply when the Mito Light theme is active
+|----------------------------------------------------------------------------*/
+.lm-MenuBar, 
+#jp-top-bar,
+#jp-MainLogo,
+.jp-SideBar,
+.jp-SideBar .lm-TabBar-tab {
+  background-color: var(--jp-layout-color1) !important;
+}
+
+.jp-SideBar .lm-TabBar-tab.jp-mod-current {
+  background-color: var(--jp-layout-color2) !important;
 }
 
 /*-----------------------------------------------------------------------------
