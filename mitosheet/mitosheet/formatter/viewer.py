@@ -79,6 +79,8 @@ def format_dataframe_mimetype(obj: pd.DataFrame) -> dict | None:
 
     # Prepare data
     total_rows = len(obj)
+    has_multi_columns = isinstance(obj.columns, pd.MultiIndex)
+    column_levels = obj.columns.nlevels if has_multi_columns else 1
     columns = list(obj.columns)
 
     # Get index information - handle MultiIndex
@@ -86,8 +88,8 @@ def format_dataframe_mimetype(obj: pd.DataFrame) -> dict | None:
     index_dtype = str(obj.index.dtype)
 
     # Check if we have a MultiIndex
-    is_multi_index = isinstance(obj.index, pd.MultiIndex)
-    if is_multi_index:
+    has_multi_index = isinstance(obj.index, pd.MultiIndex)
+    if has_multi_index:
         index_levels = obj.index.nlevels
         index_names = [
             name if name is not None else f"level_{i}"
@@ -116,22 +118,25 @@ def format_dataframe_mimetype(obj: pd.DataFrame) -> dict | None:
     for i, name in enumerate(index_names):
         column_metadata.append(
             {
-                "name": str(name),
-                "dtype": f"level_{i + 1}" if is_multi_index else index_dtype,
+                "name": [str(name)],
+                "dtype": f"level_{i + 1}" if has_multi_index else index_dtype,
             }
         )
 
     # Add regular columns
     for col in columns:
         dtype = str(obj[col].dtype)
-        column_metadata.append({"name": str(col), "dtype": dtype})
+        column_metadata.append(
+            {"name": list(col) if has_multi_columns else [str(col)], "dtype": dtype}
+        )
 
     # Prepare the data payload
     payload = {
         "columns": column_metadata,
         "data": json_data,
         "totalRows": total_rows,
-        "indexLevels": index_levels if is_multi_index else 1,
+        "indexLevels": index_levels if has_multi_index else 1,
+        "columnLevels": column_levels,
     }
 
     # Return mimetype data for JupyterLab

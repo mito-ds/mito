@@ -8,10 +8,10 @@ import { MitoViewer } from "../viewer/MitoViewer";
 describe("MitoViewer", () => {
     const mockPayload = {
         columns: [
-            { name: "index", dtype: "int64" },
-            { name: "Name", dtype: "object" },
-            { name: "Age", dtype: "int64" },
-            { name: "Score", dtype: "float64" },
+            { name: ["index"], dtype: "int64" },
+            { name: ["Name"], dtype: "object" },
+            { name: ["Age"], dtype: "int64" },
+            { name: ["Score"], dtype: "float64" },
         ],
         data: '[[0, "Alice", 25, 85.5],[1, "Bob", 30, 92.0],[2, "Charlie", 35, 78.2]]',
         totalRows: 3,
@@ -21,39 +21,40 @@ describe("MitoViewer", () => {
         "columns": [
             {
                 "dtype": "level_1",
-                "name": "level_0"
+                "name": ["level_0"]
             },
             {
                 "dtype": "level_2",
-                "name": "level_1"
+                "name": ["level_1"]
             },
             {
                 "dtype": "level_3",
-                "name": "level_2"
+                "name": ["level_2"]
             },
             {
                 "dtype": "level_4",
-                "name": "level_3"
+                "name": ["level_3"]
             },
             {
                 "dtype": "int64",
-                "name": "('a', 'bar')"
+                "name": ["a", "bar"]
             },
             {
                 "dtype": "int64",
-                "name": "('a', 'foo')"
+                "name": ["a", "foo"]
             },
             {
                 "dtype": "int64",
-                "name": "('b', 'bah')"
+                "name": ["b", "bah"]
             },
             {
                 "dtype": "int64",
-                "name": "('b', 'foo')"
+                "name": ["b", "foo"]
             }
         ],
         "data": "[[\"A0\",\"B0\",\"C0\",\"D0\",1,0,3,2],[\"A0\",\"B0\",\"C0\",\"D1\",5,4,7,6],[\"A0\",\"B0\",\"C1\",\"D0\",9,8,11,10],[\"A0\",\"B0\",\"C1\",\"D1\",13,12,15,14],[\"A0\",\"B0\",\"C2\",\"D0\",17,16,19,18]]",
         "indexLevels": 4,
+        "columnLevels": 2,
         "totalRows": 5
     };
 
@@ -223,5 +224,9 @@ describe("MitoViewer", () => {
         expect(screen.getByText("C0")).toHaveAttribute("rowspan", "2");
         expect(screen.getByText("C1")).toHaveAttribute("rowspan", "2");
         expect(screen.getByText("C2")).not.toHaveAttribute("rowspan");
+
+        expect(screen.getByText("a", {exact: true})).toHaveAttribute("colspan", "2");
+        expect(screen.getByTitle("bar (int64)")).not.toHaveAttribute("colspan");
+        expect(screen.getByText("b", {exact: true})).toHaveAttribute("colspan", "2");
     });
 });

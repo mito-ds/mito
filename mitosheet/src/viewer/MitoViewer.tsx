@@ -5,9 +5,11 @@ import "./../../css/viewer.css";
  * Interface defining metadata for each column in the DataFrame.
  * Contains the column name and its pandas data type.
  */
-interface ColumnMetadata {
-  /** The display name of the column as it appears in the DataFrame */
-  name: string;
+export interface ColumnMetadata {
+  /** The display name of the column as it appears in the DataFrame
+   * (for MultiIndex, this is an array of level names)
+   */
+  name: string[];
   /** The pandas data type of the column (e.g., 'int64', 'float64', 'object', 'datetime64[ns]') */
   dtype: string;
 }
@@ -26,6 +28,8 @@ export interface ViewerPayload {
   totalRows: number;
   /** Number of index levels if MultiIndex */
   indexLevels?: number;
+  /** Number of column levels if MultiIndex */
+  columnLevels?: number;
 }
 
 /**
@@ -68,6 +72,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
   const data = JSON.parse(payload.data) as any[][];
   const isTruncated = data.length < payload.totalRows;
   const indexLevels = payload.indexLevels ?? 1;
+  const columnLevels = payload.columnLevels ?? 1;
 
   // Generate truncation message if needed
   const truncationMessage = isTruncated
@@ -75,10 +80,10 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     : undefined;
 
   /**
- * Memoized function to filter data based on search term.
- * Returns all data if search term is empty, otherwise filters rows
- * where any cell contains the search term (case-insensitive).
- */
+   * Memoized function to filter data based on search term.
+   * Returns all data if search term is empty, otherwise filters rows
+   * where any cell contains the search term (case-insensitive).
+   */
   const filteredData = useMemo(() => {
     if (!searchTerm.trim()) return data;
 
@@ -89,10 +94,10 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
   }, [data, searchTerm]);
 
   /**
- * Memoized function to sort filtered data based on current sort state.
- * Attempts numeric sorting first, falls back to string comparison.
- * Returns unsorted data if no column is actively being sorted.
- */
+   * Memoized function to sort filtered data based on current sort state.
+   * Attempts numeric sorting first, falls back to string comparison.
+   * Returns unsorted data if no column is actively being sorted.
+   */
   const sortedData = useMemo(() => {
     if (sort.columnIndex === null || sort.direction === null)
       return filteredData;
@@ -120,24 +125,76 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
    * Handles rowspan for MultiIndex columns.
    */
   const renderTableHeader = () => {
+    let colSpan = 0;
+    let skipColumns = 0;
     return (
       <thead>
-        <tr className="mito-viewer__header-row">
-          {payload.columns.map((column, index) => (
-            <th
-              key={index}
-              onClick={() => handleSort(index)}
-              className={
-                "mito-viewer__header-cell"
+        {Array.from({ length: columnLevels }).map((_, levelIndex) => (
+          <tr
+            className="mito-viewer__header-row"
+            key={`column-level-${levelIndex}`}
+          >
+            {payload.columns.map((column, index) => {
+              if (columnLevels > 1 && index >= indexLevels && skipColumns < 0) {
+                skipColumns = 1;
+                // Calculate colspan for MultiIndex columns
+                colSpan = 1;
+                for (
+                  let nextIndex = index + 1;
+                  nextIndex < payload.columns.length;
+                  nextIndex++
+                ) {
+                  const nextColumn = payload.columns[nextIndex];
+                  let allMatch = true;
+                  for (let l = 0; l <= levelIndex; l++) {
+                    if (nextColumn.name[l] !== column.name[l]) {
+                      allMatch = false;
+                      break;
+                    }
+                  }
+                  if (allMatch) {
+                    colSpan++;
+                  } else {
+                    break;
+                  }
+                }
+                if (colSpan > 1) {
+                  skipColumns = colSpan - 1;
+                }
               }
-              title={`${column.name} (${column.dtype})`}
-            >
-              <span>{column.name}</span>
-              {getSortIcon(index)}
-              <div className="mito-viewer__column-dtype">{column.dtype}</div>
-            </th>
-          ))}
-        </tr>
+              return levelIndex == columnLevels - 1 ? (
+                <th
+                  key={index}
+                  onClick={() => handleSort(index)}
+                  className={"mito-viewer__header-cell"}
+                  title={`${
+                    column.name[index < indexLevels ? 0 : levelIndex]
+                  } (${column.dtype})`}
+                >
+                  <span>
+                    {column.name[index < indexLevels ? 0 : levelIndex]}
+                  </span>
+                  {getSortIcon(index)}
+                  <div className="mito-viewer__column-dtype">
+                    {column.dtype}
+                  </div>
+                </th>
+              ) : skipColumns-- > 0 ? null : (
+                <th
+                  key={index}
+                  className={
+                    index >= indexLevels
+                      ? "mito-viewer__header-cell-multiindex"
+                      : "mito-viewer__header-cell"
+                  }
+                  colSpan={colSpan}
+                >
+                  {index >= indexLevels && column.name[levelIndex]}
+                </th>
+              );
+            })}
+          </tr>
+        ))}
       </thead>
     );
   };
@@ -147,7 +204,9 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
    * Handles rowspan for MultiIndex columns.
    */
   const renderTableBody = () => {
-    const isNumeric = payload.columns.map(col => col.dtype.includes("int") || col.dtype.includes("float"));
+    const isNumeric = payload.columns.map(
+      (col) => col.dtype.includes("int") || col.dtype.includes("float")
+    );
     const rowSpan = new Array(indexLevels).fill(0);
     return (
       <tbody>
@@ -164,10 +223,17 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
               {row.map((cell: string, cellIndex: number) => {
                 let cellRowSpan: number | undefined = undefined;
                 if (indexLevels > 1 && cellIndex < indexLevels) {
-                  if (rowSpan[cellIndex] == 0 && rowSpan.slice(0, cellIndex).every(rs => rs > 0)) {
+                  if (
+                    rowSpan[cellIndex] == 0 &&
+                    rowSpan.slice(0, cellIndex).every((rs) => rs > 0)
+                  ) {
                     // Count how many subsequent rows have the same value for this index level
                     let spanCount = 1;
-                    for (let nextRow = rowIndex + 1; nextRow < sortedData.length; nextRow++) {
+                    for (
+                      let nextRow = rowIndex + 1;
+                      nextRow < sortedData.length;
+                      nextRow++
+                    ) {
                       if (sortedData[nextRow][cellIndex] === cell) {
                         spanCount++;
                       } else {
@@ -176,15 +242,17 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                     }
                     cellRowSpan = spanCount;
                     rowSpan[cellIndex] = spanCount;
-                  } 
-                  
+                  }
+
                   const skip = rowSpan[cellIndex] > 0 && !cellRowSpan;
                   rowSpan[cellIndex]--;
                   if (skip) {
                     return null;
                   }
                 }
-                let className = `mito-viewer__body-cell mito-viewer__body-cell-${isNumeric[cellIndex] ? "numeric" : "text"}`;
+                let className = `mito-viewer__body-cell mito-viewer__body-cell-${
+                  isNumeric[cellIndex] ? "numeric" : "text"
+                }`;
                 if (cellIndex < indexLevels) {
                   className += " mito-viewer__body-cell-index";
                 }
@@ -200,18 +268,18 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                 );
               })}
             </tr>
-          )
+          );
         })}
       </tbody>
     );
   };
 
   /**
- * Handles column header clicks to toggle sorting.
- * Cycles through: unsorted -> ascending -> descending -> unsorted
- *
- * @param columnIndex - Index of the column to sort
- */
+   * Handles column header clicks to toggle sorting.
+   * Cycles through: unsorted -> ascending -> descending -> unsorted
+   *
+   * @param columnIndex - Index of the column to sort
+   */
   const handleSort = useCallback((columnIndex: number) => {
     setSort((prevSort) => {
       if (prevSort.columnIndex === columnIndex) {
@@ -227,29 +295,32 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
   }, []);
 
   /**
- * Returns the appropriate sort icon for a column based on current sort state.
- * Shows directional arrows for active sorts, dimmed icon for inactive columns.
- *
- * @param columnIndex - Index of the column to get icon for
- * @returns React element containing the sort icon or null
- */
-  const getSortIcon = useCallback((columnIndex: number) => {
-    if (sort.columnIndex !== columnIndex) {
-      return (
-        <span className="mito-viewer__sort-icon mito-viewer__sort-icon-inactive">
-          ⇅
-        </span>
-      );
-    }
+   * Returns the appropriate sort icon for a column based on current sort state.
+   * Shows directional arrows for active sorts, dimmed icon for inactive columns.
+   *
+   * @param columnIndex - Index of the column to get icon for
+   * @returns React element containing the sort icon or null
+   */
+  const getSortIcon = useCallback(
+    (columnIndex: number) => {
+      if (sort.columnIndex !== columnIndex) {
+        return (
+          <span className="mito-viewer__sort-icon mito-viewer__sort-icon-inactive">
+            ⇅
+          </span>
+        );
+      }
 
-    if (sort.direction === "asc") {
-      return <span className="mito-viewer__sort-icon">↑</span>;
-    } else if (sort.direction === "desc") {
-      return <span className="mito-viewer__sort-icon">↓</span>;
-    }
+      if (sort.direction === "asc") {
+        return <span className="mito-viewer__sort-icon">↑</span>;
+      } else if (sort.direction === "desc") {
+        return <span className="mito-viewer__sort-icon">↓</span>;
+      }
 
-    return null;
-  }, [sort]);
+      return null;
+    },
+    [sort]
+  );
 
   return (
     <div className="mito-viewer">

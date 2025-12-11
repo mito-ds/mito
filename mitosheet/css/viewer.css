@@ -76,7 +76,8 @@
 }
 
 /* Table header cells */
-.mito-viewer__header-cell {
+.mito-viewer__header-cell,
+.mito-viewer__header-cell-multiindex {
   padding: 8px 12px;
   text-align: left;
   font-weight: 600;
@@ -90,7 +91,8 @@
   max-width: 200px;
 }
 
-.mito-viewer__header-cell:last-child {
+.mito-viewer__header-cell:last-child,
+.mito-viewer__header-cell-multiindex:last-child {
   border-right: none;
 }
 
