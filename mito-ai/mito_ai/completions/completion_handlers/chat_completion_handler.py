@@ -114,7 +114,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, model, provider, metadata.threadId)
 
-        # copy the message history to clipboard
+        # TODO: Remove this
         import pyperclip
         pyperclip.copy(str(message_history.get_ai_optimized_history(metadata.threadId)))
         
