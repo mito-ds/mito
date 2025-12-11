@@ -107,7 +107,7 @@
   margin-left: 4px;
 }
 
-.mito-viewer__sort-icon--inactive {
+.mito-viewer__sort-icon-inactive {
   opacity: 0.3;
 }
 
@@ -116,12 +116,12 @@
   border-bottom: 1px solid var(--jp-border-color1, #f0f0f0);
 }
 
-.mito-viewer__body-row--even {
-  background-color: var(--jp-layout-color0, white);
+.mito-viewer__body-row-even {
+  background-color: var(--jp-layout-color1, white);
 }
 
-.mito-viewer__body-row--odd {
-  background-color: var(--jp-layout-color1, #f9f9f9);
+.mito-viewer__body-row-odd {
+  background-color: var(--jp-layout-color2, #eee);
 }
 
 /* Table body cells */
@@ -139,12 +139,12 @@
   border-right: none;
 }
 
-.mito-viewer__body-cell--numeric {
+.mito-viewer__body-cell-numeric {
   text-align: right;
   font-family: var(--jp-code-font-family, monospace);
 }
 
-.mito-viewer__body-cell--text {
+.mito-viewer__body-cell-text {
   text-align: left;
 }
 

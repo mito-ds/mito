@@ -120,73 +120,26 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
    * Handles rowspan for MultiIndex columns.
    */
   const renderTableHeader = () => {
-    if (indexLevels > 1) {
-      // MultiIndex header - render index columns with rowspan
-      const indexColumns = payload.columns.slice(0, indexLevels);
-      const dataColumns = payload.columns.slice(indexLevels);
-      return (
-        <thead>
-          <tr className="mito-viewer__header-row">
-            {/* Index columns with rowspan */}
-            {indexColumns.map((column, index) => (
-              <th
-                key={index}
-                onClick={() => handleSort(index)}
-                className="mito-viewer__header-cell"
-                title={`${column.name} (${column.dtype})`}
-              >
-                <span>{column.name}</span>
-                {getSortIcon(index)}
-                <div className="mito-viewer__column-dtype">{column.dtype}</div>
-              </th>
-            ))}
-
-            {/* Data columns */}
-            {dataColumns.map((column, index) => {
-              const columnIndex = payload.indexLevels! + index;
-              return (
-                <th
-                  key={columnIndex}
-                  onClick={() => handleSort(columnIndex)}
-                  className="mito-viewer__header-cell"
-                  title={`${column.name} (${column.dtype})`}
-                >
-                  <span>{column.name}</span>
-                  {getSortIcon(columnIndex)}
-                  <div className="mito-viewer__column-dtype">
-                    {column.dtype}
-                  </div>
-                </th>
-              );
-            })}
-          </tr>
-        </thead>
-      );
-    } else {
-      // Single index header - original implementation
-      return (
-        <thead>
-          <tr className="mito-viewer__header-row">
-            {payload.columns.map((column, index) => (
-              <th
-                key={index}
-                onClick={() => handleSort(index)}
-                className={
-                  index < payload.columns.length - 1
-                    ? "mito-viewer__header-cell"
-                    : "mito-viewer__header-cell mito-viewer__header-cell--last"
-                }
-                title={`${column.name} (${column.dtype})`}
-              >
-                <span>{column.name}</span>
-                {getSortIcon(index)}
-                <div className="mito-viewer__column-dtype">{column.dtype}</div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-      );
-    }
+    return (
+      <thead>
+        <tr className="mito-viewer__header-row">
+          {payload.columns.map((column, index) => (
+            <th
+              key={index}
+              onClick={() => handleSort(index)}
+              className={
+                "mito-viewer__header-cell"
+              }
+              title={`${column.name} (${column.dtype})`}
+            >
+              <span>{column.name}</span>
+              {getSortIcon(index)}
+              <div className="mito-viewer__column-dtype">{column.dtype}</div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+    );
   };
 
   /**
@@ -194,47 +147,59 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
    * Handles rowspan for MultiIndex columns.
    */
   const renderTableBody = () => {
-    if (false){//indexLevels > 1) {
-    } else {
-      // Single index body - original implementation
-      return (
-        <tbody>
-          {sortedData.map((row: string[], rowIndex: number) => (
+    const isNumeric = payload.columns.map(col => col.dtype.includes("int") || col.dtype.includes("float"));
+    const rowSpan = new Array(indexLevels).fill(0);
+    return (
+      <tbody>
+        {sortedData.map((row: string[], rowIndex: number) => {
+          return (
             <tr
               key={rowIndex}
               className={
                 rowIndex % 2 === 0
-                  ? "mito-viewer__body-row mito-viewer__body-row--even"
-                  : "mito-viewer__body-row mito-viewer__body-row--odd"
+                  ? "mito-viewer__body-row mito-viewer__body-row-even"
+                  : "mito-viewer__body-row mito-viewer__body-row-odd"
               }
             >
               {row.map((cell: string, cellIndex: number) => {
-                const isNumeric =
-                  payload.columns[cellIndex].dtype.includes("int") ||
-                  payload.columns[cellIndex].dtype.includes("float");
+                let cellRowSpan: number | undefined = undefined;
+                if (indexLevels > 1 && cellIndex < indexLevels) {
+                  if (rowSpan[cellIndex] == 0 && rowSpan.slice(0, cellIndex).every(rs => rs > 0)) {
+                    // Count how many subsequent rows have the same value for this index level
+                    let spanCount = 1;
+                    for (let nextRow = rowIndex + 1; nextRow < sortedData.length; nextRow++) {
+                      if (sortedData[nextRow][cellIndex] === cell) {
+                        spanCount++;
+                      } else {
+                        break;
+                      }
+                    }
+                    cellRowSpan = spanCount;
+                    rowSpan[cellIndex] = spanCount;
+                  } 
+                  
+                  const skip = rowSpan[cellIndex] > 0 && !cellRowSpan;
+                  rowSpan[cellIndex]--;
+                  if (skip) {
+                    return null;
+                  }
+                }
                 return (
                   <td
                     key={cellIndex}
-                    className={
-                      (cellIndex < row.length - 1
-                        ? "mito-viewer__body-cell"
-                        : "mito-viewer__body-cell mito-viewer__body-cell--last") +
-                      " " +
-                      (isNumeric
-                        ? "mito-viewer__body-cell--numeric"
-                        : "mito-viewer__body-cell--text")
-                    }
+                    className={`mito-viewer__body-cell mito-viewer__body-cell-${isNumeric[cellIndex] ? "numeric" : "text"}`}
                     title={cell}
+                    rowSpan={cellRowSpan}
                   >
                     {cell}
                   </td>
                 );
               })}
             </tr>
-          ))}
-        </tbody>
-      );
-    }
+          )
+        })}
+      </tbody>
+    );
   };
 
   /**
@@ -267,7 +232,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
   const getSortIcon = useCallback((columnIndex: number) => {
     if (sort.columnIndex !== columnIndex) {
       return (
-        <span className="mito-viewer__sort-icon mito-viewer__sort-icon--inactive">
+        <span className="mito-viewer__sort-icon mito-viewer__sort-icon-inactive">
           ⇅
         </span>
       );
