@@ -5,106 +5,137 @@
 
 .mito-run-cell-button-container {
   position: relative;
-  display: inline-block;
+  display: block;
+  width: 160px;
+  background-color: var(--blue-300);
 }
 
+/* Button group - contains both buttons */
+.mito-run-cell-button-group {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 0.5px solid var(--blue-900);
+}
+
+/* Shared button styles */
 .mito-run-cell-button {
   display: flex;
   align-items: center;
-  background-color: var(--blue-300); /* Light blue background */
-  border-radius: 4px;
-  border: .25px solid var(--blue-900);
+  border: none;
   padding: 0;
+  border-radius: 0;
   cursor: pointer;
-  color: var(--blue-900); /* Dark blue text */
+  color: var(--blue-900);
   font-size: 13px;
   font-weight: 400;
-  transition: background-color 0.2s;
-  height: 20px; /* Match JupyterLab button height */
-}
-
-.mito-run-cell-button:hover {
-  background-color: var(--blue-400); /* Slightly darker blue on hover */
-}
-
-.mito-run-cell-button-running {
-  background-color: var(--green-300) !important; /* Green background when running */
-  border-color: var(--green-900) !important;
-  color: var(--green-900) !important;
-}
-
-.mito-run-cell-button-running:hover {
-  background-color: var(--green-400) !important; /* Slightly darker green on hover */
-}
-
-.mito-run-cell-button-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  transition: background-color 0.15s ease;
   height: 100%;
 }
 
-.mito-run-cell-button-content svg {
-  color: var(--blue-900); /* Dark blue icon */
-  fill: var(--blue-900);
-  width: 10px;
-  height: 10px;
+.mito-run-cell-button:hover {
+  background-color: var(--blue-400);
+}
+
+/* Main button (left side - play icon + text) */
+.mito-run-cell-button-main {
+  flex: 1;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+/* Divider between buttons */
+.mito-run-cell-button-divider {
+  width: 1px;
+  height: 14px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--blue-900) 20%,
+    var(--blue-900) 80%,
+    transparent
+  );
+  opacity: 0.4;
   flex-shrink: 0;
 }
 
-.mito-run-cell-button-content svg path {
+/* Dropdown button (right side - chevron) */
+.mito-run-cell-button-dropdown {
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+}
+
+/* Play icon styling */
+.mito-run-cell-button-main > svg {
+  color: var(--blue-900);
   fill: var(--blue-900);
-  stroke: var(--blue-900);
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }
 
-/* LoadingCircle styling when running */
-.mito-run-cell-button-running .mito-run-cell-button-content svg {
-  color: var(--green-900);
-  width: 16px;
-  height: 16px;
+/* Chevron styling */
+.mito-run-cell-button-dropdown svg {
+  width: 14px;
+  height: 14px;
+  color: var(--blue-900);
 }
 
-.mito-run-cell-button-running .mito-run-cell-button-content svg path {
-  fill: var(--green-900);
-  stroke: var(--green-900);
-}
-
-.mito-run-cell-button-running .mito-run-cell-button-text {
-  color: var(--green-900);
-}
-
-.mito-run-cell-button-running .mito-run-cell-button-separator {
-  background-color: var(--green-900);
-}
-
-.mito-run-cell-button-running .mito-run-cell-button-chevron {
-  color: var(--green-900);
+/* Ensure chevron path only uses stroke, not fill */
+.mito-run-cell-button-dropdown svg path {
+  fill: none;
+  stroke: currentColor;
 }
 
 .mito-run-cell-button-text {
   white-space: nowrap;
 }
 
-.mito-run-cell-button-separator {
-  width: 1px;
-  height: 16px;
-  background-color: var(--blue-900); 
-  margin: 0 6px;
-  flex-shrink: 0;
+/* Running state - applied to the group */
+.mito-run-cell-button-running {
+  border-color: var(--green-900);
 }
 
-.mito-run-cell-button-chevron {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  color: var(--blue-900); /* Dark blue chevron */
-  flex-shrink: 0;
+.mito-run-cell-button-running .mito-run-cell-button {
+  background-color: var(--green-300);
+  color: var(--green-900);
 }
 
-.mito-run-cell-button-chevron svg {
+.mito-run-cell-button-running .mito-run-cell-button:hover {
+  background-color: var(--green-400);
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-divider {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--green-900) 20%,
+    var(--green-900) 80%,
+    transparent
+  );
+  opacity: 0.5;
+}
+
+/* LoadingCircle styling when running */
+.mito-run-cell-button-running .mito-run-cell-button-main > svg {
+  color: var(--green-900);
+  fill: var(--green-900);
   width: 16px;
   height: 16px;
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-text {
+  color: var(--green-900);
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-dropdown svg {
+  color: var(--green-900);
 }
 
 .mito-run-cell-dropdown-menu {

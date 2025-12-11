@@ -8,7 +8,6 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
 import { KernelMessage, Kernel } from '@jupyterlab/services';
 import type { ISessionContext } from '@jupyterlab/apputils';
-import PlayButtonIcon from '../icons/PlayButtonIcon';
 import ChevronIcon from '../icons/ChevronIcon';
 import RunAllIcon from '../icons/RunAllIcon';
 import RestartAndRunIcon from '../icons/RestartAndRunIcon';
@@ -152,31 +151,18 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
     return undefined;
   }, [isDropdownOpen]);
 
-  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    // When running, clicking anywhere opens the dropdown (so user can Stop)
-    // but we prevent it from running the cells again.
+  const handleMainButtonClick = (): void => {
+    // When running, clicking opens the dropdown (so user can Stop)
     if (isRunning) {
-      e.preventDefault();
-      e.stopPropagation();
       setIsDropdownOpen(!isDropdownOpen);
       return;
     }
+    // Otherwise, run the current cell
+    handleRunCurrentCell();
+  };
 
-    const button = e.currentTarget;
-    const rect = button.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const buttonWidth = rect.width;
-    
-    // If click is in the right 30% of the button (chevron area), open dropdown
-    // Otherwise, run all cells (main action)
-    if (clickX > buttonWidth * 0.7) {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDropdownOpen(!isDropdownOpen);
-    } else {
-      // Click on main button area - run all cells
-      handleRunCurrentCell();
-    }
+  const handleDropdownButtonClick = (): void => {
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
   const menuSections = [
@@ -247,33 +233,33 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
 
   const trigger = (
     <div className="mito-run-cell-button-container" ref={dropdownRef}>
-      <button
-        className={`mito-run-cell-button ${isRunning ? 'mito-run-cell-button-running' : ''}`}
-        onClick={handleButtonClick}
-        title={isRunning ? "Running Cells - Click to stop" : "Run Active Cell"}
-      >
-        <span className="mito-run-cell-button-content">
+      <div className={`mito-run-cell-button-group ${isRunning ? 'mito-run-cell-button-running' : ''}`}>
+        <button
+          className="mito-run-cell-button mito-run-cell-button-main"
+          onClick={handleMainButtonClick}
+          title={isRunning ? "Running Cells - Click to stop" : "Run Active Cell"}
+        >
           {isRunning ? (
             <>
               <LoadingCircle />
               <span className="mito-run-cell-button-text">Running Cells</span>
-              <span className="mito-run-cell-button-separator"></span>
-              <span className="mito-run-cell-button-chevron">
-                <ChevronIcon direction="down" />
-              </span>
             </>
           ) : (
             <>
-              <PlayButtonIcon />
+              <SimplePlayIcon />
               <span className="mito-run-cell-button-text">Run Active Cell</span>
-              <span className="mito-run-cell-button-separator"></span>
-              <span className="mito-run-cell-button-chevron">
-                <ChevronIcon direction="down" />
-              </span>
             </>
           )}
-        </span>
-      </button>
+        </button>
+        <span className="mito-run-cell-button-divider"></span>
+        <button
+          className="mito-run-cell-button mito-run-cell-button-dropdown"
+          onClick={handleDropdownButtonClick}
+          title="More actions"
+        >
+          <ChevronIcon direction="down" />
+        </button>
+      </div>
       {isDropdownOpen && (
         <div className="mito-run-cell-dropdown-menu">
           {menuSections.map((section, sectionIndex) => (
