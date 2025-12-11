@@ -115,7 +115,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
       }
 
       // String comparison for non-numeric values
-      const comparison = aValue.localeCompare(bValue);
+      const comparison = (aValue ?? "").localeCompare(bValue ?? "");
       return sort.direction === "asc" ? comparison : -comparison;
     });
   }, [filteredData, sort]);
