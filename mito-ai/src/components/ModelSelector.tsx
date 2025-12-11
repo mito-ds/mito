@@ -10,7 +10,6 @@ import NucleausIcon from '../icons/NucleausIcon';
 import BrainIcon from '../icons/BrainIcon';
 import LightningIcon from '../icons/LightningIcon';
 import { CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME, CLAUDE_HAIKU_DISPLAY_NAME, CLAUDE_HAIKU_MODEL_NAME } from '../utils/models';
-import { GOOD_FOR_FAST, GOOD_FOR_SMART } from '../utils/goodFor';
 
 interface ModelConfig {
   model: string;
@@ -26,6 +25,20 @@ interface ModelMapping {
   speed: 'Fast' | 'Medium' | 'Slow';
   complexityHandling: 'High' | 'Medium' | 'Low';
 }
+
+const GOOD_FOR_FAST = [
+  'Quick data exploration',
+  'Pandas operations',
+  'Basic data cleaning',
+  'Fast code iterations'
+]
+
+const GOOD_FOR_SMART = [
+  'Complex data analysis',
+  'Advanced debugging',
+  'Statistical analysis and modeling',
+  'Multi-step data workflows'
+]
 
 const MODEL_MAPPINGS: ModelMapping[] = [
   {
