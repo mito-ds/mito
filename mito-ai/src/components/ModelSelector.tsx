@@ -43,7 +43,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'High'
   },
   { 
-    displayName: 'GPT 5.2 (Fast)', 
+    displayName: 'GPT 5.2 Fast', 
     fullName: 'gpt-5.2-fast', 
     type: 'fast',
     goodFor: [
@@ -58,7 +58,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'Medium'
   },
   { 
-    displayName: 'GPT 5.2 (Balanced)', 
+    displayName: 'GPT 5.2 Balanced', 
     fullName: 'gpt-5.2-balanced', 
     type: 'smart',
     goodFor: [
@@ -73,7 +73,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'High'
   },
   { 
-    displayName: 'GPT 5.2 (Smart)', 
+    displayName: 'GPT 5.2 Smart', 
     fullName: 'gpt-5.2-smart', 
     type: 'smart',
     goodFor: [
