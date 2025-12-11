@@ -153,10 +153,12 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
   }, [isDropdownOpen]);
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    // Don't allow interactions when running
+    // When running, clicking anywhere opens the dropdown (so user can Stop)
+    // but we prevent it from running the cells again.
     if (isRunning) {
       e.preventDefault();
       e.stopPropagation();
+      setIsDropdownOpen(!isDropdownOpen);
       return;
     }
 
@@ -173,7 +175,7 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
       setIsDropdownOpen(!isDropdownOpen);
     } else {
       // Click on main button area - run all cells
-      handleRunAllCells();
+      handleRunCurrentCell();
     }
   };
 
@@ -248,19 +250,22 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
       <button
         className={`mito-run-cell-button ${isRunning ? 'mito-run-cell-button-running' : ''}`}
         onClick={handleButtonClick}
-        title={isRunning ? "Running Cells" : "Run all"}
-        disabled={isRunning}
+        title={isRunning ? "Running Cells - Click to stop" : "Run Active Cell"}
       >
         <span className="mito-run-cell-button-content">
           {isRunning ? (
             <>
               <LoadingCircle />
               <span className="mito-run-cell-button-text">Running Cells</span>
+              <span className="mito-run-cell-button-separator"></span>
+              <span className="mito-run-cell-button-chevron">
+                <ChevronIcon direction="down" />
+              </span>
             </>
           ) : (
             <>
               <PlayButtonIcon />
-              <span className="mito-run-cell-button-text">Run all</span>
+              <span className="mito-run-cell-button-text">Run Active Cell</span>
               <span className="mito-run-cell-button-separator"></span>
               <span className="mito-run-cell-button-chevron">
                 <ChevronIcon direction="down" />

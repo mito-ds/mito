@@ -23,13 +23,8 @@
   height: 20px; /* Match JupyterLab button height */
 }
 
-.mito-run-cell-button:hover:not(:disabled) {
+.mito-run-cell-button:hover {
   background-color: var(--blue-400); /* Slightly darker blue on hover */
-}
-
-.mito-run-cell-button:disabled {
-  cursor: not-allowed;
-  opacity: 1; /* Keep full opacity when disabled */
 }
 
 .mito-run-cell-button-running {
@@ -76,6 +71,14 @@
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-text {
+  color: var(--green-900);
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-separator {
+  background-color: var(--green-900);
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-chevron {
   color: var(--green-900);
 }
 
@@ -190,15 +193,4 @@
 .jp-Notebook-toolbar {
   display: flex;
   align-items: center;
-}
-
-/* Hide default JupyterLab run buttons when Mito Light theme is active */
-.jp-Toolbar [data-jp-item-name="run"],
-.jp-Toolbar [data-jp-item-name="run-all"],
-.jp-Toolbar [data-jp-item-name="restart-and-run"],
-.jp-Toolbar [data-jp-item-name="debugger-icon"],
-.jp-Toolbar [data-jp-item-name="kernelName"],
-.jp-Toolbar [data-jp-item-name="executionProgress"]
-{
-  display: none !important;
 }

@@ -17,3 +17,17 @@
   font-size: var(--jp-code-font-size);
   line-height: var(--jp-code-line-height);
 }
+
+/*-----------------------------------------------------------------------------
+| Mito Light Theme: Hide default JupyterLab toolbar buttons
+| These styles only apply when the Mito Light theme is active
+|----------------------------------------------------------------------------*/
+.jp-Toolbar [data-jp-item-name="run"],
+.jp-Toolbar [data-jp-item-name="run-all"],
+.jp-Toolbar [data-jp-item-name="restart-and-run"],
+.jp-Toolbar [data-jp-item-name="debugger-icon"],
+.jp-Toolbar [data-jp-item-name="kernelName"],
+.jp-Toolbar [data-jp-item-name="executionProgress"]
+{
+  display: none !important;
+}
