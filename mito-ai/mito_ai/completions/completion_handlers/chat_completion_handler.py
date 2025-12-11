@@ -113,10 +113,6 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput, metadata.additionalContext)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, model, provider, metadata.threadId)
-
-        # TODO: Remove this
-        import pyperclip
-        pyperclip.copy(str(message_history.get_ai_optimized_history(metadata.threadId)))
         
         # Stream the completions using the provider's stream method
         accumulated_response = await provider.stream_completions(
