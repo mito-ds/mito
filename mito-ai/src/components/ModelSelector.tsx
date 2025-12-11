@@ -56,7 +56,22 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     tokenLimit: '400K',
     speed: 'Fast',
     complexityHandling: 'Medium'
-  },    
+  },
+  { 
+    displayName: 'GPT 5.2 (Balanced)', 
+    fullName: 'gpt-5.2-balanced', 
+    type: 'smart',
+    goodFor: [
+      'Complex data analysis',
+      'Advanced debugging',
+      'Statistical analysis and modeling',
+      'Multi-step data workflows'
+    ],
+    provider: 'OpenAI',
+    tokenLimit: '400K',
+    speed: 'Medium',
+    complexityHandling: 'High'
+  },
   { 
     displayName: CLAUDE_HAIKU_DISPLAY_NAME, 
     fullName: CLAUDE_HAIKU_MODEL_NAME, 
