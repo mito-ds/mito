@@ -13,7 +13,8 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     STREAMLIT_APP_STATUS_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
-    CONTENT_REMOVED_PLACEHOLDER
+    CONTENT_REMOVED_PLACEHOLDER,
+    CODE_SECTION_HEADING,
 )
 
 
@@ -33,7 +34,8 @@ def trim_sections_from_message_content(content: str) -> str:
         GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
         ACTIVE_CELL_OUTPUT_SECTION_HEADING,
         ACTIVE_CELL_ID_SECTION_HEADING,
-        STREAMLIT_APP_STATUS_SECTION_HEADING
+        STREAMLIT_APP_STATUS_SECTION_HEADING,
+        CODE_SECTION_HEADING,
     ]
     
     for heading in section_headings:
