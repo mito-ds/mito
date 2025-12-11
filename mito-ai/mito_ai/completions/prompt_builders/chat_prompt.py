@@ -34,64 +34,6 @@ def create_chat_prompt(
     
 Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete.
 
-{CHAT_CODE_FORMATTING_RULES}
-
-<Example 1>
-
-{FILES_SECTION_HEADING}
-file_name: sales.csv
-
-{VARIABLES_SECTION_HEADING}
-{{
-    'loan_multiplier': 1.5,
-    'sales_df': pd.DataFrame({{
-        'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
-        'price_per_unit': [10, 9.99, 13.99, 21.00, 100],
-        'units_sold': [1, 2, 1, 4, 5],
-        'total_price': [10, 19.98, 13.99, 84.00, 500]
-    }})
-}}
-
-{ACTIVE_CELL_ID_SECTION_HEADING}
-'9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8'
-
-{CODE_SECTION_HEADING}
-```python
-import pandas as pd
-sales_df = pd.read_csv('./sales.csv')
-```
-
-Your task: convert the transaction_date column to datetime and then multiply the total_price column by the sales_multiplier.
-
-Output:
-```python
-import pandas as pd
-sales_df = pd.read_csv('./sales.csv')
-sales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])
-sales_df['total_price'] = sales_df['total_price'] * sales_multiplier
-```
-
-Applied datetime conversion to enable temporal analysis[MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2] and revenue adjustment using the 1.5x sales multiplier[MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:3], scaling total revenue from $627.97 to $941.96.
-
-</Example 1>
-
-<Example 2>
-
-{ACTIVE_CELL_ID_SECTION_HEADING}
-'1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6'
-
-{CODE_SECTION_HEADING}
-```python
-```
-
-Your task: Hello
-
-Output:
-Hey there! I'm Mito AI. How can I help you today? 
-
-</Example 2>
-
-
 {FILES_SECTION_HEADING}
 {files_str}
 
