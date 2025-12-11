@@ -10,6 +10,7 @@ import NucleausIcon from '../icons/NucleausIcon';
 import BrainIcon from '../icons/BrainIcon';
 import LightningIcon from '../icons/LightningIcon';
 import { CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME, CLAUDE_HAIKU_DISPLAY_NAME, CLAUDE_HAIKU_MODEL_NAME } from '../utils/models';
+import { GOOD_FOR_FAST, GOOD_FOR_SMART } from '../utils/goodFor';
 
 interface ModelConfig {
   model: string;
@@ -27,69 +28,49 @@ interface ModelMapping {
 }
 
 const MODEL_MAPPINGS: ModelMapping[] = [
-  { 
-    displayName: 'GPT 4.1', 
-    fullName: 'gpt-4.1', 
+  {
+    displayName: 'GPT 4.1',
+    fullName: 'gpt-4.1',
     type: 'smart',
-    goodFor: [
-      'Complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+    goodFor: [...GOOD_FOR_SMART],
     provider: 'OpenAI',
     tokenLimit: '1M',
     speed: 'Medium',
     complexityHandling: 'High'
   },
-  { 
-    displayName: 'GPT 5.2 Fast', 
-    fullName: 'gpt-5.2-fast', 
+  {
+    displayName: 'GPT 5.2 Fast',
+    fullName: 'gpt-5.2-fast',
     type: 'fast',
-    goodFor: [
-      'Quick data exploration',
-      'Pandas operations',
-      'Basic data cleaning',
-      'Fast code iterations'
-    ],
+    goodFor: [...GOOD_FOR_FAST],
     provider: 'OpenAI',
     tokenLimit: '400K',
     speed: 'Fast',
     complexityHandling: 'Medium'
   },
-  { 
-    displayName: 'GPT 5.2 Balanced', 
-    fullName: 'gpt-5.2-balanced', 
+  {
+    displayName: 'GPT 5.2 Balanced',
+    fullName: 'gpt-5.2-balanced',
     type: 'smart',
-    goodFor: [
-      'Complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+    goodFor: [...GOOD_FOR_SMART],
     provider: 'OpenAI',
     tokenLimit: '400K',
     speed: 'Slow',
     complexityHandling: 'High'
   },
-  { 
-    displayName: 'GPT 5.2 Smart', 
-    fullName: 'gpt-5.2-smart', 
+  {
+    displayName: 'GPT 5.2 Smart',
+    fullName: 'gpt-5.2-smart',
     type: 'smart',
-    goodFor: [
-      'Complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+    goodFor: [...GOOD_FOR_SMART],
     provider: 'OpenAI',
     tokenLimit: '400K',
     speed: 'Slow',
     complexityHandling: 'High'
-  },  
-  { 
-    displayName: CLAUDE_HAIKU_DISPLAY_NAME, 
-    fullName: CLAUDE_HAIKU_MODEL_NAME, 
+  },
+  {
+    displayName: CLAUDE_HAIKU_DISPLAY_NAME,
+    fullName: CLAUDE_HAIKU_MODEL_NAME,
     type: 'fast',
     goodFor: [
       'Quick data exploration',
@@ -102,46 +83,31 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     speed: 'Fast',
     complexityHandling: 'Medium'
   },
-  { 
-    displayName: CLAUDE_SONNET_DISPLAY_NAME, 
-    fullName: CLAUDE_SONNET_MODEL_NAME, 
+  {
+    displayName: CLAUDE_SONNET_DISPLAY_NAME,
+    fullName: CLAUDE_SONNET_MODEL_NAME,
     type: 'smart',
-    goodFor: [
-      'Complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+    goodFor: [...GOOD_FOR_SMART],
     provider: 'Anthropic',
     tokenLimit: '1M',
     speed: 'Medium',
     complexityHandling: 'High'
   },
-  { 
-    displayName: 'Gemini 2.5 Pro', 
-    fullName: 'gemini-2.5-pro', 
+  {
+    displayName: 'Gemini 2.5 Pro',
+    fullName: 'gemini-2.5-pro',
     type: 'smart',
-    goodFor: [
-      'Complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+    goodFor: [...GOOD_FOR_SMART],
     provider: 'Google',
     tokenLimit: '1M',
     speed: 'Medium',
     complexityHandling: 'High'
   },
-  { 
-    displayName: 'Gemini 3 Pro', 
-    fullName: 'gemini-3-pro-preview', 
+  {
+    displayName: 'Gemini 3 Pro',
+    fullName: 'gemini-3-pro-preview',
     type: 'smart',
-    goodFor: [
-      'Most complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+    goodFor: [...GOOD_FOR_SMART],
     provider: 'Google',
     tokenLimit: '1M',
     speed: 'Slow',
@@ -232,7 +198,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
       const tooltipHeight = 180;
       const tooltipBottom = rect.top;
       const tooltipTop = tooltipBottom - tooltipHeight;
-      
+
       document.documentElement.style.setProperty('--tooltip-top', `${tooltipTop - 32}px`);
       document.documentElement.style.setProperty('--tooltip-left', `${rect.left + 160}px`);
     }
@@ -290,7 +256,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
         )}
       </div>
       {isOpen && hoveredModel && ReactDOM.createPortal(
-        <div 
+        <div
           className="model-tooltip">
           <div className="model-tooltip-content">
             <div className="model-tooltip-header">
