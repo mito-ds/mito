@@ -43,6 +43,21 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'High'
   },
   { 
+    displayName: 'GPT 5.2 (Fast)', 
+    fullName: 'gpt-5.2-fast', 
+    type: 'fast',
+    goodFor: [
+      'Quick data exploration',
+      'Pandas operations',
+      'Basic data cleaning',
+      'Fast code iterations'
+    ],
+    provider: 'OpenAI',
+    tokenLimit: '400K',
+    speed: 'Fast',
+    complexityHandling: 'Medium'
+  },    
+  { 
     displayName: CLAUDE_HAIKU_DISPLAY_NAME, 
     fullName: CLAUDE_HAIKU_MODEL_NAME, 
     type: 'fast',
