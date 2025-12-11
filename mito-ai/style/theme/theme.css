@@ -41,11 +41,10 @@
 .jp-Editor .cm-lineNumbers {
   font-family: var(--jp-code-font-family);
   font-size: 11px;
-  color: var(--blue-900);
+  color: var(--purple-900);
   opacity: 0.5;
   background: transparent;
   padding-right: 8px;
-  min-width: 2.5em;
   width: var(--mito-line-number-gutter-width);
   text-align: right;
   user-select: none;
@@ -55,8 +54,10 @@
   padding: 0 4px 0 8px;
   min-width: 20px;
   text-align: right;
-  line-height: var(--jp-code-line-height);
   background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 /* Remove gutter background */
