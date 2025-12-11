@@ -117,7 +117,9 @@
 /* Hide default JupyterLab run buttons when Mito Light theme is active */
 .jp-Toolbar [data-jp-item-name="run"],
 .jp-Toolbar [data-jp-item-name="run-all"],
-.jp-Toolbar [data-jp-item-name="restart-and-run"]
+.jp-Toolbar [data-jp-item-name="restart-and-run"],
+.jp-Toolbar [data-jp-item-name="debugger-icon"],
+.jp-Toolbar [data-jp-item-name="kernelName"]
 {
   display: none !important;
 }
