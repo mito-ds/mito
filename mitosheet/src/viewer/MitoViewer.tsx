@@ -184,10 +184,14 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                     return null;
                   }
                 }
+                let className = `mito-viewer__body-cell mito-viewer__body-cell-${isNumeric[cellIndex] ? "numeric" : "text"}`;
+                if (cellIndex < indexLevels) {
+                  className += " mito-viewer__body-cell-index";
+                }
                 return (
                   <td
                     key={cellIndex}
-                    className={`mito-viewer__body-cell mito-viewer__body-cell-${isNumeric[cellIndex] ? "numeric" : "text"}`}
+                    className={className}
                     title={cell}
                     rowSpan={cellRowSpan}
                   >
