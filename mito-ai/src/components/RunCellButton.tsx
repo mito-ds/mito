@@ -9,6 +9,12 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { NotebookActions } from '@jupyterlab/notebook';
 import PlayButtonIcon from '../icons/PlayButtonIcon';
 import ChevronIcon from '../icons/ChevronIcon';
+import RunAllIcon from '../icons/RunAllIcon';
+import RestartAndRunIcon from '../icons/RestartAndRunIcon';
+import SimplePlayIcon from '../icons/SimplePlayIcon';
+import RestartIcon from '../icons/RestartIcon';
+import StopIcon from '../icons/StopIcon';
+import ClearIcon from '../icons/ClearIcon';
 
 interface RunCellButtonProps {
   app: JupyterFrontEnd;
@@ -52,7 +58,7 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookTracker }) =
     }
   };
 
-  const handleStopExecution = (): void => {
+  const handleStop = (): void => {
     const current = getCurrentNotebook();
     if (current) {
       void app.commands.execute('notebook:interrupt-kernel');
@@ -107,48 +113,69 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookTracker }) =
     }
   };
 
-  const menuItems = [
+  const menuSections = [
     {
-      label: 'Restart',
-      onClick: () => {
-        void handleRestart();
-        setIsDropdownOpen(false);
-      }
+      title: 'Run Code',
+      items: [
+        {
+          label: 'Run Current Cell',
+          icon: SimplePlayIcon,
+          onClick: () => {
+            handleRunCurrentCell();
+            setIsDropdownOpen(false);
+          }
+        },
+        {
+          label: 'Run All Cells',
+          icon: RunAllIcon,
+          onClick: () => {
+            handleRunAllCells();
+            setIsDropdownOpen(false);
+          }
+        },
+        {
+          label: 'Restart and Run All',
+          icon: RestartAndRunIcon,
+          onClick: () => {
+            void handleRestartAndRunAll();
+            setIsDropdownOpen(false);
+          }
+        }
+      ]
     },
     {
-      label: 'Restart and Run All',
-      onClick: () => {
-        void handleRestartAndRunAll();
-        setIsDropdownOpen(false);
-      }
+      title: 'Kernel',
+      items: [
+        {
+          label: 'Restart',
+          icon: RestartIcon,
+          onClick: () => {
+            void handleRestart();
+            setIsDropdownOpen(false);
+          }
+        },
+        {
+          label: 'Stop',
+          icon: StopIcon,
+          onClick: () => {
+            handleStop();
+            setIsDropdownOpen(false);
+          }
+        }
+      ]
     },
     {
-      label: 'Run Current Cell',
-      onClick: () => {
-        handleRunCurrentCell();
-        setIsDropdownOpen(false);
-      }
-    },
-    {
-      label: 'Run All Cells',
-      onClick: () => {
-        handleRunAllCells();
-        setIsDropdownOpen(false);
-      }
-    },
-    {
-      label: 'Stop Execution',
-      onClick: () => {
-        handleStopExecution();
-        setIsDropdownOpen(false);
-      }
-    },
-    {
-      label: 'Clear All Outputs',
-      onClick: () => {
-        handleClearAllOutputs();
-        setIsDropdownOpen(false);
-      }
+      title: 'Notebook',
+      items: [
+        {
+          label: 'Clear All Outputs',
+          icon: ClearIcon,
+          onClick: () => {
+            handleClearAllOutputs();
+            setIsDropdownOpen(false);
+          }
+        }
+      ]
     }
   ];
 
@@ -170,18 +197,29 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookTracker }) =
       </button>
       {isDropdownOpen && (
         <div className="mito-run-cell-dropdown-menu">
-          {menuItems.map((item, index) => (
-            <button
-              key={index}
-              className="mito-run-cell-dropdown-item"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                item.onClick();
-              }}
-            >
-              {item.label}
-            </button>
+          {menuSections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="mito-run-cell-dropdown-section">
+              {sectionIndex > 0 && <div className="mito-run-cell-dropdown-separator" />}
+              <div className="mito-run-cell-dropdown-section-header">
+                {section.title}
+              </div>
+              {section.items.map((item, itemIndex) => (
+                <button
+                  key={itemIndex}
+                  className="mito-run-cell-dropdown-item"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    item.onClick();
+                  }}
+                >
+                  <span className="mito-run-cell-dropdown-item-icon">
+                    {item.icon && React.createElement(item.icon)}
+                  </span>
+                  <span className="mito-run-cell-dropdown-item-label">{item.label}</span>
+                </button>
+              ))}
+            </div>
           ))}
         </div>
       )}

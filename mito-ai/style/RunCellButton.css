@@ -82,24 +82,71 @@
   border: 1px solid var(--jp-layout-color2);
   border-radius: 3px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  min-width: 150px;
+  min-width: 200px;
   white-space: nowrap;
+  padding: 4px 0;
+}
+
+.mito-run-cell-dropdown-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.mito-run-cell-dropdown-section-header {
+  padding: 6px 12px 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--jp-ui-font-color2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mito-run-cell-dropdown-separator {
+  height: 1px;
+  background-color: var(--jp-layout-color2);
+  margin: 4px 0;
 }
 
 .mito-run-cell-dropdown-item {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 8px 12px;
+  padding: 6px 12px;
   text-align: left;
   border: none;
   background: none;
   color: var(--jp-ui-font-color1);
   cursor: pointer;
   font-size: 13px;
+  font-weight: 400;
+  gap: 8px;
 }
 
 .mito-run-cell-dropdown-item:hover {
   background-color: var(--jp-layout-color2);
+}
+
+.mito-run-cell-dropdown-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; /* Fixed width to align all icons */
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--jp-ui-font-color1);
+  line-height: 0; /* Remove extra line height for better alignment */
+}
+
+.mito-run-cell-dropdown-item-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block; /* Remove inline spacing */
+  margin: 0 auto; /* Center the icon within the fixed width container */
+  color: var(--jp-ui-font-color1); /* Ensure consistent color */
+}
+
+.mito-run-cell-dropdown-item-label {
+  flex: 1;
 }
 
 /* Position the button widget on the right side of the toolbar */
