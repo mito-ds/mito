@@ -84,7 +84,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
 
     const lowerSearchTerm = searchTerm.toLowerCase();
     return data.filter((row) =>
-      row.some((cell) => cell.toLowerCase().includes(lowerSearchTerm))
+      row.some((cell) => `${cell}`.toLowerCase().includes(lowerSearchTerm))
     );
   }, [data, searchTerm]);
 

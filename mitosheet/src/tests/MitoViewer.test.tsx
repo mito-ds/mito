@@ -2,7 +2,8 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
-import { MitoViewer } from "../viewer";
+// Import specific component to avoid importing @jupyterlab package
+import { MitoViewer } from "../viewer/MitoViewer";
 
 describe("MitoViewer", () => {
     const mockPayload = {
@@ -12,13 +13,48 @@ describe("MitoViewer", () => {
             { name: "Age", dtype: "int64" },
             { name: "Score", dtype: "float64" },
         ],
-        data: `[
-            [0, "Alice", 25, 85.5],
-            [1, "Bob", 30, 92.0],
-            [2, "Charlie", 35, 78.2],
-        ]`,
+        data: '[[0, "Alice", 25, 85.5],[1, "Bob", 30, 92.0],[2, "Charlie", 35, 78.2]]',
         totalRows: 3,
-        indexLevels: 1,        
+        indexLevels: 1,
+    };
+    const multiIndexPayload = {
+        "columns": [
+            {
+                "dtype": "level_1",
+                "name": "level_0"
+            },
+            {
+                "dtype": "level_2",
+                "name": "level_1"
+            },
+            {
+                "dtype": "level_3",
+                "name": "level_2"
+            },
+            {
+                "dtype": "level_4",
+                "name": "level_3"
+            },
+            {
+                "dtype": "int64",
+                "name": "('a', 'bar')"
+            },
+            {
+                "dtype": "int64",
+                "name": "('a', 'foo')"
+            },
+            {
+                "dtype": "int64",
+                "name": "('b', 'bah')"
+            },
+            {
+                "dtype": "int64",
+                "name": "('b', 'foo')"
+            }
+        ],
+        "data": "[[\"A0\",\"B0\",\"C0\",\"D0\",1,0,3,2],[\"A0\",\"B0\",\"C0\",\"D1\",5,4,7,6],[\"A0\",\"B0\",\"C1\",\"D0\",9,8,11,10],[\"A0\",\"B0\",\"C1\",\"D1\",13,12,15,14],[\"A0\",\"B0\",\"C2\",\"D0\",17,16,19,18]]",
+        "indexLevels": 4,
+        "totalRows": 5
     };
 
     it("renders the table with correct headers", () => {
@@ -46,7 +82,7 @@ describe("MitoViewer", () => {
         expect(screen.getByText("85.5")).toBeInTheDocument();
         expect(screen.getByText("1")).toBeInTheDocument();
         expect(screen.getByText("30")).toBeInTheDocument();
-        expect(screen.getByText("92.0")).toBeInTheDocument();
+        expect(screen.getByText("92")).toBeInTheDocument();
     });
 
     it("displays row count information", () => {
@@ -65,10 +101,10 @@ describe("MitoViewer", () => {
 
         expect(
             screen.getByText(
-                "Table truncated to 10 rows by pandas display.max_rows setting. Total rows: 100"
+                "Table truncated to 3 rows by pandas display.max_rows setting. Total rows: 100"
             )
         ).toBeInTheDocument();
-        expect(screen.getByText("3 of 100 rows (showing 10)")).toBeInTheDocument();
+        expect(screen.getByText("3 of 3 rows (total 100 rows)")).toBeInTheDocument();
     });
 
     it("handles empty dataframe", () => {
@@ -166,10 +202,26 @@ describe("MitoViewer", () => {
         // Check that numeric columns are right-aligned
         const ageCells = screen.getAllByText("25");
         const scoreCells = screen.getAllByText("85.5");
+        const nameCells = screen.getAllByText("Bob");
 
         // These should have right text alignment (we can't easily test this with testing-library)
-        // but we can verify the content is there
-        expect(ageCells[0]).toBeInTheDocument();
-        expect(scoreCells[0]).toBeInTheDocument();
+        // but we can verify the class is set correctly
+        expect(ageCells[0]).toHaveClass('mito-viewer__body-cell-numeric');
+        expect(ageCells[0]).not.toHaveClass('mito-viewer__body-cell-text');
+        expect(scoreCells[0]).toHaveClass('mito-viewer__body-cell-numeric');
+        expect(scoreCells[0]).not.toHaveClass('mito-viewer__body-cell-text');
+        expect(nameCells[0]).toHaveClass('mito-viewer__body-cell-text');
+        expect(nameCells[0]).not.toHaveClass('mito-viewer__body-cell-numeric');
+    });
+
+    it("handles rowspan correctly with multi-index data", () => {
+        render(<MitoViewer payload={multiIndexPayload} />);
+
+        // Check that multi-index cells are rendered with correct row spans
+        expect(screen.getByText("A0")).toHaveAttribute("rowspan", "5");
+        expect(screen.getByText("B0")).toHaveAttribute("rowspan", "5");
+        expect(screen.getByText("C0")).toHaveAttribute("rowspan", "2");
+        expect(screen.getByText("C1")).toHaveAttribute("rowspan", "2");
+        expect(screen.getByText("C2")).not.toHaveAttribute("rowspan");
     });
 });
