@@ -5,8 +5,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { INotebookTracker } from '@jupyterlab/notebook';
-import { NotebookActions } from '@jupyterlab/notebook';
+import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
+import { KernelMessage, Kernel } from '@jupyterlab/services';
+import type { ISessionContext } from '@jupyterlab/apputils';
 import PlayButtonIcon from '../icons/PlayButtonIcon';
 import ChevronIcon from '../icons/ChevronIcon';
 import RunAllIcon from '../icons/RunAllIcon';
@@ -15,66 +16,122 @@ import SimplePlayIcon from '../icons/SimplePlayIcon';
 import RestartIcon from '../icons/RestartIcon';
 import StopIcon from '../icons/StopIcon';
 import ClearIcon from '../icons/ClearIcon';
+import LoadingCircle from './LoadingCircle';
 
 interface RunCellButtonProps {
   app: JupyterFrontEnd;
-  notebookTracker: INotebookTracker;
+  notebookPanel: NotebookPanel;
 }
 
-const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookTracker }) => {
-  const getCurrentNotebook = () => {
-    return notebookTracker.currentWidget;
-  };
+const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => {
 
   const handleRunCurrentCell = (): void => {
-    const current = getCurrentNotebook();
-    if (current) {
-      const notebook = current.content;
-      const sessionContext = current.context?.sessionContext;
-      void NotebookActions.run(notebook, sessionContext);
-    }
+    const notebook = notebookPanel.content;
+    const sessionContext = notebookPanel.context?.sessionContext;
+    void NotebookActions.run(notebook, sessionContext);
   };
 
   const handleRunAllCells = (): void => {
-    const current = getCurrentNotebook();
-    if (current) {
-      const notebook = current.content;
-      const sessionContext = current.context?.sessionContext;
-      void NotebookActions.runAll(notebook, sessionContext);
-    }
+    const notebook = notebookPanel.content;
+    const sessionContext = notebookPanel.context?.sessionContext;
+    void NotebookActions.runAll(notebook, sessionContext);
   };
 
   const handleRestart = async (): Promise<void> => {
-    const current = getCurrentNotebook();
-    if (current) {
-      await app.commands.execute('notebook:restart-kernel');
+    const sessionContext = notebookPanel.context?.sessionContext;
+    if (sessionContext) {
+      await sessionContext.restartKernel();
     }
   };
 
   const handleRestartAndRunAll = async (): Promise<void> => {
-    const current = getCurrentNotebook();
-    if (current) {
-      await app.commands.execute('notebook:restart-and-run-all');
+    // First restart, then run all
+    const sessionContext = notebookPanel.context?.sessionContext;
+    if (sessionContext) {
+      await sessionContext.restartKernel();
+      // Wait a bit for kernel to restart, then run all
+      const notebook = notebookPanel.content;
+      setTimeout(() => {
+        void NotebookActions.runAll(notebook, sessionContext);
+      }, 1000);
     }
   };
 
   const handleStop = (): void => {
-    const current = getCurrentNotebook();
-    if (current) {
-      void app.commands.execute('notebook:interrupt-kernel');
+    const sessionContext = notebookPanel.context?.sessionContext;
+    const kernel = sessionContext?.session?.kernel;
+    if (kernel) {
+      void kernel.interrupt();
     }
   };
 
   const handleClearAllOutputs = (): void => {
-    const current = getCurrentNotebook();
-    if (current) {
-      const notebook = current.content;
-      NotebookActions.clearAllOutputs(notebook);
-    }
+    const notebook = notebookPanel.content;
+    NotebookActions.clearAllOutputs(notebook);
   };
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const executionCountRef = useRef<number>(0);
+
+  // Track execution state for this specific notebook panel
+  useEffect(() => {
+    const sessionContext = notebookPanel.context?.sessionContext;
+    if (!sessionContext) {
+      setIsRunning(false);
+      return;
+    }
+
+    // Listen to iopub messages to track execution
+    const handleIOPubMessage = (sender: ISessionContext, msg: KernelMessage.IMessage): void => {
+      const msgType = msg.header.msg_type;
+      
+      // When a cell starts executing
+      if (msgType === 'execute_input') {
+        executionCountRef.current += 1;
+        setIsRunning(true);
+        setIsDropdownOpen(false); // Close dropdown when execution starts
+      }
+      
+      // When a cell finishes executing
+      if (msgType === 'execute_reply') {
+        executionCountRef.current = Math.max(0, executionCountRef.current - 1);
+        // Only set to not running if no cells are executing
+        if (executionCountRef.current === 0) {
+          setIsRunning(false);
+        }
+      }
+    };
+
+    // Listen to kernel status changes - this is the primary way to detect completion
+    const handleStatusChange = (sender: ISessionContext, status: Kernel.Status): void => {
+      // When kernel becomes idle, execution has finished - reset to "Run all" state
+      if (status === 'idle') {
+        executionCountRef.current = 0;
+        setIsRunning(false);
+      }
+    };
+
+    // Handle kernel disconnection
+    const handleKernelChange = (): void => {
+      const kernel = sessionContext.session?.kernel;
+      if (!kernel) {
+        executionCountRef.current = 0;
+        setIsRunning(false);
+      }
+    };
+
+    sessionContext.iopubMessage.connect(handleIOPubMessage);
+    sessionContext.statusChanged.connect(handleStatusChange);
+    sessionContext.kernelChanged.connect(handleKernelChange);
+
+    return () => {
+      sessionContext.iopubMessage.disconnect(handleIOPubMessage);
+      sessionContext.statusChanged.disconnect(handleStatusChange);
+      sessionContext.kernelChanged.disconnect(handleKernelChange);
+    };
+  }, [notebookPanel]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -96,6 +153,13 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookTracker }) =
   }, [isDropdownOpen]);
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    // Don't allow interactions when running
+    if (isRunning) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
     const button = e.currentTarget;
     const rect = button.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -182,17 +246,27 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookTracker }) =
   const trigger = (
     <div className="mito-run-cell-button-container" ref={dropdownRef}>
       <button
-        className="mito-run-cell-button"
+        className={`mito-run-cell-button ${isRunning ? 'mito-run-cell-button-running' : ''}`}
         onClick={handleButtonClick}
-        title="Run all"
+        title={isRunning ? "Running Cells" : "Run all"}
+        disabled={isRunning}
       >
         <span className="mito-run-cell-button-content">
-          <PlayButtonIcon />
-          <span className="mito-run-cell-button-text">Run all</span>
-          <span className="mito-run-cell-button-separator"></span>
-          <span className="mito-run-cell-button-chevron">
-            <ChevronIcon direction="down" />
-          </span>
+          {isRunning ? (
+            <>
+              <LoadingCircle />
+              <span className="mito-run-cell-button-text">Running Cells</span>
+            </>
+          ) : (
+            <>
+              <PlayButtonIcon />
+              <span className="mito-run-cell-button-text">Run all</span>
+              <span className="mito-run-cell-button-separator"></span>
+              <span className="mito-run-cell-button-chevron">
+                <ChevronIcon direction="down" />
+              </span>
+            </>
+          )}
         </span>
       </button>
       {isDropdownOpen && (

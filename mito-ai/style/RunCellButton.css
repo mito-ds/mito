@@ -23,8 +23,23 @@
   height: 20px; /* Match JupyterLab button height */
 }
 
-.mito-run-cell-button:hover {
+.mito-run-cell-button:hover:not(:disabled) {
   background-color: var(--blue-400); /* Slightly darker blue on hover */
+}
+
+.mito-run-cell-button:disabled {
+  cursor: not-allowed;
+  opacity: 1; /* Keep full opacity when disabled */
+}
+
+.mito-run-cell-button-running {
+  background-color: var(--green-300) !important; /* Green background when running */
+  border-color: var(--green-900) !important;
+  color: var(--green-900) !important;
+}
+
+.mito-run-cell-button-running:hover {
+  background-color: var(--green-400) !important; /* Slightly darker green on hover */
 }
 
 .mito-run-cell-button-content {
@@ -36,7 +51,7 @@
 }
 
 .mito-run-cell-button-content svg {
-  color: var(--blue-900); /* Dark purple icon */
+  color: var(--blue-900); /* Dark blue icon */
   fill: var(--blue-900);
   width: 10px;
   height: 10px;
@@ -46,6 +61,22 @@
 .mito-run-cell-button-content svg path {
   fill: var(--blue-900);
   stroke: var(--blue-900);
+}
+
+/* LoadingCircle styling when running */
+.mito-run-cell-button-running .mito-run-cell-button-content svg {
+  color: var(--green-900);
+  width: 16px;
+  height: 16px;
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-content svg path {
+  fill: var(--green-900);
+  stroke: var(--green-900);
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-text {
+  color: var(--green-900);
 }
 
 .mito-run-cell-button-text {
@@ -166,7 +197,8 @@
 .jp-Toolbar [data-jp-item-name="run-all"],
 .jp-Toolbar [data-jp-item-name="restart-and-run"],
 .jp-Toolbar [data-jp-item-name="debugger-icon"],
-.jp-Toolbar [data-jp-item-name="kernelName"]
+.jp-Toolbar [data-jp-item-name="kernelName"],
+.jp-Toolbar [data-jp-item-name="executionProgress"]
 {
   display: none !important;
 }

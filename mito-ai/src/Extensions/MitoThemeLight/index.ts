@@ -11,7 +11,7 @@ import {
 } from '@jupyterlab/application';
 import { IThemeManager } from '@jupyterlab/apputils';
 import { ITranslator } from '@jupyterlab/translation';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import React from 'react';
 import RunCellButton from '../../components/RunCellButton';
@@ -46,7 +46,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // which is loaded when the Mito Light theme is active.
 
     // Add Run Cell button to notebook toolbar
-    const addRunCellButton = (notebookPanel: any): void => {
+    const addRunCellButton = (notebookPanel: NotebookPanel): void => {
       const toolbar = notebookPanel.toolbar;
       if (!toolbar) {
         return;
@@ -57,19 +57,19 @@ const plugin: JupyterFrontEndPlugin<void> = {
         return;
       }
 
-      // Create React widget with notebookTracker
+      // Create React widget with the specific notebook panel
       class RunCellButtonWidget extends ReactWidget {
-        constructor() {
+        constructor(private panel: NotebookPanel) {
           super();
           this.addClass('mito-run-cell-button-widget');
         }
 
         render(): JSX.Element {
-          return React.createElement(RunCellButton, { app: app, notebookTracker: notebookTracker });
+          return React.createElement(RunCellButton, { app: app, notebookPanel: this.panel });
         }
       }
 
-      const runCellWidget = new RunCellButtonWidget();
+      const runCellWidget = new RunCellButtonWidget(notebookPanel);
       
       // Add to the right side of the toolbar by inserting after spacer or at the end
       // Try to insert after spacer first, otherwise add at the end
