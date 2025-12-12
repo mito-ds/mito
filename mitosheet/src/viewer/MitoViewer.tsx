@@ -170,105 +170,130 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     });
 
     /**
+   * Helper to render a full header cell with sort/resize functionality
+   */
+    const renderHeaderCell = (
+        index: number,
+        name: string,
+        rowSpan?: number
+    ) => (
+        <th
+            key={index}
+            className="mito-viewer__header-cell"
+            title={`${name} (${payload.columns[index].dtype})`}
+            rowSpan={rowSpan}
+            style={{
+                width: getColumnWidth(index),
+                minWidth: getColumnWidth(index),
+            }}
+        >
+            <span>{name}</span>
+            <span
+                className="mito-viewer__sort-icon-container"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleSort(index);
+                }}
+            >
+                {getSortIcon(index)}
+            </span>
+            <div className="mito-viewer__column-dtype">
+                {payload.columns[index].dtype}
+            </div>
+            <div
+                className="mito-viewer__resize-handle"
+                onMouseDown={(e) => {
+                    e.stopPropagation();
+                    handleResizeStart(index, e.clientX);
+                }}
+                onClick={(e) => e.stopPropagation()}
+                onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    handleResizeHandleDoubleClick(index, e);
+                }}
+            />
+        </th>
+    );
+
+    /**
    * Renders table header row with proper MultiIndex support.
-   * Handles rowspan for MultiIndex columns.
    */
     const renderTableHeader = () => {
-        let colSpan = 0;
-        let skipColumns = 0;
         return (
             <thead>
-                {Array.from({ length: columnLevels }).map((_, levelIndex) => (
-                    <tr
-                        className="mito-viewer__header-row"
-                        key={`column-level-${levelIndex}`}
-                    >
-                        {payload.columns.map((column, index) => {
-                            if (columnLevels > 1 && index >= indexLevels && skipColumns < 0) {
-                                skipColumns = 1;
-                                // Calculate colspan for MultiIndex columns
-                                colSpan = 1;
-                                for (
-                                    let nextIndex = index + 1;
-                                    nextIndex < payload.columns.length;
-                                    nextIndex++
-                                ) {
-                                    const nextColumn = payload.columns[nextIndex];
-                                    let allMatch = true;
-                                    for (let l = 0; l <= levelIndex; l++) {
-                                        if (nextColumn.name[l] !== column.name[l]) {
-                                            allMatch = false;
+                {Array.from({ length: columnLevels }).map((_, levelIndex) => {
+                    const isFinalLevel = levelIndex === columnLevels - 1;
+
+                    return (
+                        <tr
+                            className="mito-viewer__header-row"
+                            key={`column-level-${levelIndex}`}
+                        >
+                            {payload.columns.map((column, index) => {
+                                // Index columns: render only on first level with rowSpan
+                                if (index < indexLevels) {
+                                    return levelIndex === 0
+                                        ? renderHeaderCell(
+                                            index,
+                                            column.name[0],
+                                            columnLevels
+                                        )
+                                        : null;
+                                }
+
+                                // For MultiIndex: skip if previous column matches all levels up to this one
+                                if (columnLevels > 1 && index > indexLevels) {
+                                    const prev = payload.columns[index - 1];
+                                    if (
+                                        prev.name
+                                            .slice(0, levelIndex + 1)
+                                            .every((val, l) => val === column.name[l])
+                                    ) {
+                                        return null;
+                                    }
+                                }
+
+                                // Calculate colspan: count consecutive columns with matching values up to this level
+                                let colSpan = 1;
+                                if (columnLevels > 1) {
+                                    for (
+                                        let i = index + 1;
+                                        i < payload.columns.length;
+                                        i++
+                                    ) {
+                                        const next = payload.columns[i];
+                                        if (
+                                            next.name
+                                                .slice(0, levelIndex + 1)
+                                                .every((val, l) => val === column.name[l])
+                                        ) {
+                                            colSpan++;
+                                        } else {
                                             break;
                                         }
                                     }
-                                    if (allMatch) {
-                                        colSpan++;
-                                    } else {
-                                        break;
-                                    }
                                 }
-                                if (colSpan > 1) {
-                                    skipColumns = colSpan - 1;
+
+                                // Render cell
+                                if (isFinalLevel || columnLevels === 1) {
+                                    return renderHeaderCell(
+                                        index,
+                                        column.name[isFinalLevel ? levelIndex : 0]
+                                    );
                                 }
-                            }
-                            return levelIndex == columnLevels - 1 ? (
-                                <th
-                                    key={index}
-                                    className={"mito-viewer__header-cell"}
-                                    title={`${
-                                        column.name[index < indexLevels ? 0 : levelIndex]
-                                    } (${column.dtype})`}
-                                    style={{
-                                        width: getColumnWidth(index),
-                                        minWidth: getColumnWidth(index),
-                                    }}
-                                >
-                                    <span>
-                                        {column.name[index < indexLevels ? 0 : levelIndex]}
-                                    </span>
-                                    <span
-                                        className="mito-viewer__sort-icon-container"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleSort(index);
-                                        }}
+                                return (
+                                    <th
+                                        key={index}
+                                        className="mito-viewer__header-cell-multiindex"
+                                        colSpan={colSpan}
                                     >
-                                        {getSortIcon(index)}
-                                    </span>
-                                    <div className="mito-viewer__column-dtype">
-                                        {column.dtype}
-                                    </div>
-                                    <div
-                                        className="mito-viewer__resize-handle"
-                                        onMouseDown={(e) => {
-                                            e.stopPropagation();
-                                            handleResizeStart(index, e.clientX);
-                                        }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                        onDoubleClick={(e) => {
-                                            e.stopPropagation();
-                                            handleResizeHandleDoubleClick(index, e);
-                                        }}
-                                    />
-                                </th>
-                            ) : skipColumns-- > 0 ? null : (
-                                <th
-                                    key={index}
-                                    className={
-                                        index >= indexLevels
-                                            ? "mito-viewer__header-cell-multiindex"
-                                            : "mito-viewer__header-cell"
-                                    }
-                                    colSpan={colSpan}
-                                >
-                                    {index >= indexLevels && column.name[levelIndex]}
-                                </th>
-                            );
-                        })}
-                    </tr>
-                ))}
+                                        {column.name[levelIndex]}
+                                    </th>
+                                );
+                            })}
+                        </tr>
+                    );
+                })}
             </thead>
         );
     };
@@ -300,7 +325,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                 if (indexLevels > 1 && cellIndex < indexLevels) {
                                     if (
                                         rowSpan[cellIndex] == 0 &&
-                    rowSpan.slice(0, cellIndex).every((rs) => rs > 0)
+                                        rowSpan.slice(0, cellIndex).every((rs) => rs > 0)
                                     ) {
                                         // Count how many subsequent rows have the same value for this index level
                                         let spanCount = 1;
@@ -332,19 +357,18 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     cellIndex,
                                     payload.columns
                                 );
-                                let className = `mito-viewer__body-cell mito-viewer__body-cell-${
-                                    isNumeric[cellIndex] ? "numeric" : "text"
-                                }`;
+                                let className = `mito-viewer__body-cell mito-viewer__body-cell-${isNumeric[cellIndex] ? "numeric" : "text"
+                                    }`;
                                 if (cellIndex < indexLevels) {
                                     className += " mito-viewer__body-cell-index";
                                 }
 
                                 // For numeric columns that have any decimals, render all numbers with aligned structure
-                                const maxDecimals = cellIndex < maxDecimalPlaces.length 
-                                    ? maxDecimalPlaces[cellIndex] 
+                                const maxDecimals = cellIndex < maxDecimalPlaces.length
+                                    ? maxDecimalPlaces[cellIndex]
                                     : 0;
                                 const decimalPartWidth = maxDecimals > 0 ? `${maxDecimals}ch` : '0ch';
-                                
+
                                 /* 
                                 If this is a numeric column with decimals in the column, use aligned structure
                                 We do this because its hard to quickly scan numbers in a column if they have
@@ -355,7 +379,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                 is very confusing to the user.
                                 */
                                 const shouldUseAlignedStructure = numericParts && maxDecimals > 0;
-                                
+
                                 const cellContent = shouldUseAlignedStructure ? (
                                     <span className="mito-viewer__numeric-aligned">
                                         <span className="mito-viewer__numeric-integer">
@@ -364,7 +388,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                         {numericParts.hasDecimal && (
                                             <>
                                                 <span className="mito-viewer__numeric-decimal-separator">.</span>
-                                                <span 
+                                                <span
                                                     className="mito-viewer__numeric-decimal"
                                                     style={{ minWidth: decimalPartWidth }}
                                                 >
@@ -375,7 +399,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                         {!numericParts.hasDecimal && (
                                             <>
                                                 <span className="mito-viewer__numeric-decimal-separator" style={{ visibility: 'hidden' }}>.</span>
-                                                <span 
+                                                <span
                                                     className="mito-viewer__numeric-decimal"
                                                     style={{ minWidth: decimalPartWidth }}
                                                 >
@@ -441,7 +465,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             if (sort.columnIndex !== columnIndex) {
                 return (
                     <span className="mito-viewer__sort-icon mito-viewer__sort-icon-inactive">
-            ⇅
+                        ⇅
                     </span>
                 );
             }
@@ -499,7 +523,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             </div>
 
             {/* Table */}
-            <div 
+            <div
                 ref={tableContainerRef}
                 className={`mito-viewer__table-container ${isResizing ? 'mito-viewer__table-container--resizing' : ''}`}
             >
@@ -512,7 +536,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             {/* Footer info */}
             {sortedData.length === 0 && (
                 <div className="mito-viewer__empty-state">
-          No rows match the search criteria
+                    No rows match the search criteria
                 </div>
             )}
         </div>
