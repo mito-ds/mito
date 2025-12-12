@@ -7,6 +7,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
 import { KernelMessage, Kernel } from '@jupyterlab/services';
 import type { ISessionContext } from '@jupyterlab/apputils';
+import { SessionContextDialogs } from '@jupyterlab/apputils';
 import ChevronIcon from '../icons/ChevronIcon';
 import RunAllIcon from '../icons/RunAllIcon';
 import RestartAndRunIcon from '../icons/RestartAndRunIcon';
@@ -37,21 +38,30 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ notebookPanel }) => {
 
   const handleRestart = async (): Promise<void> => {
     const sessionContext = notebookPanel.context?.sessionContext;
-    if (sessionContext) {
-      await sessionContext.restartKernel();
+    if (!sessionContext) {
+      return;
     }
+
+    // Use SessionContextDialogs.restart() which handles the restart dialog
+    // and waits for the kernel to be ready, matching Jupyter Lab core behavior
+    const dialogs = new SessionContextDialogs();
+    await dialogs.restart(sessionContext);
   };
 
   const handleRestartAndRunAll = async (): Promise<void> => {
-    // First restart, then run all
     const sessionContext = notebookPanel.context?.sessionContext;
-    if (sessionContext) {
-      await sessionContext.restartKernel();
-      // Wait a bit for kernel to restart, then run all
+    if (!sessionContext) {
+      return;
+    }
+
+    // Use SessionContextDialogs.restart() which handles the restart dialog
+    // and waits for the kernel to be ready, matching Jupyter Lab core behavior
+    const dialogs = new SessionContextDialogs();
+    const restarted = await dialogs.restart(sessionContext);
+    
+    if (restarted) {
       const notebook = notebookPanel.content;
-      setTimeout(() => {
-        void NotebookActions.runAll(notebook, sessionContext);
-      }, 1000);
+      void NotebookActions.runAll(notebook, sessionContext);
     }
   };
 
