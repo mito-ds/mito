@@ -53,7 +53,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
   },
   {
     displayName: 'GPT 5.2',
-    fullName: 'gpt-5.2-fast',
+    fullName: 'gpt-5.2',
     type: 'fast',
     goodFor: [...GOOD_FOR_FAST],
     provider: 'OpenAI',

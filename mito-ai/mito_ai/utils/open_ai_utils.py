@@ -172,8 +172,7 @@ def get_open_ai_completion_function_params(
         "messages": messages,
     }
 
-    if model == "gpt-5.2-fast":
-        completion_function_params["model"] = "gpt-5.2"
+    if model == "gpt-5.2":
         completion_function_params["reasoning_effort"] = "low"
     
     # If a response format is provided, we need to convert it to a json schema.
