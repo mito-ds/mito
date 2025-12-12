@@ -1,7 +1,7 @@
 // Reusable canvas for text measurement to avoid creating new elements
 let measurementCanvas: HTMLCanvasElement | null = null;
 let measurementContext: CanvasRenderingContext2D | null = null;
-let currentFont: string = "";
+let currentFont = "";
 
 /**
  * Gets or creates a reusable canvas context for text measurement.
