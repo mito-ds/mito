@@ -55,11 +55,17 @@
   box-shadow: none;
 }
 
+.mito-viewer__table-container--resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
 /* Table */
 .mito-viewer__table {
   width: 100%;
   border-collapse: collapse;
   font-size: inherit;
+  table-layout: fixed;
 }
 
 /* Table header row */
@@ -75,12 +81,12 @@
   font-weight: 600;
   border-bottom: 1px solid var(--jp-border-color2, #e0e0e0);
   border-right: 1px solid var(--jp-border-color1, #f0f0f0);
-  cursor: pointer;
   user-select: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 200px;
+  position: relative;
 }
 
 .mito-viewer__header-cell:last-child,
@@ -96,13 +102,52 @@
   margin-top: 2px;
 }
 
+/* Sort icon container - clickable area for sorting */
+.mito-viewer__sort-icon-container {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 2px 4px;
+  margin-left: 4px;
+  border-radius: 2px;
+  user-select: none;
+}
+
+.mito-viewer__sort-icon-container:hover {
+  background-color: var(--jp-layout-color2, rgba(0, 0, 0, 0.05));
+}
+
 /* Sort icons */
 .mito-viewer__sort-icon {
-  margin-left: 4px;
+  display: inline-block;
+}
+
+.mito-viewer__sort-icon.active {
+  color: var(--jp-brand-color1, #2196F3) !important;
 }
 
 .mito-viewer__sort-icon-inactive {
   opacity: 0.3;
+}
+
+/* Resize handle */
+.mito-viewer__resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  background-color: transparent;
+  z-index: 1;
+}
+
+.mito-viewer__header-cell:hover .mito-viewer__resize-handle:not(:hover) {
+  background-color: var(--jp-border-color2, #e0e0e0) !important;
+}
+
+.mito-viewer__resize-handle:hover {
+  background-color: var(--jp-brand-color1, #2196F3) !important;
 }
 
 /* Table body rows */

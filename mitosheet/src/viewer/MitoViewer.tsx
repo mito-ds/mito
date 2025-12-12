@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import "./../../css/viewer.css";
+import { useColumnResize } from "./useColumnResize";
 
 /**
  * Interface defining metadata for each column in the DataFrame.
@@ -68,6 +69,8 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         columnIndex: null,
         direction: null,
     });
+    // Ref to the table container for font measurement
+    const tableContainerRef = useRef<HTMLDivElement>(null);
 
     const data = JSON.parse(payload.data) as any[][];
     const isTruncated = data.length < payload.totalRows;
@@ -115,6 +118,20 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         });
     }, [filteredData, sort]);
 
+    // Column resizing functionality - must be after sortedData is defined
+    const {
+        isResizing,
+        handleResizeStart,
+        getColumnWidth,
+        calculateAndAutoResizeColumn,
+    } = useColumnResize({
+        columns: payload.columns,
+        data: sortedData,
+        indexLevels,
+        columnLevels,
+        tableContainerRef,
+    });
+
     /**
    * Renders table header row with proper MultiIndex support.
    * Handles rowspan for MultiIndex columns.
@@ -160,19 +177,44 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                             return levelIndex == columnLevels - 1 ? (
                                 <th
                                     key={index}
-                                    onClick={() => handleSort(index)}
                                     className={"mito-viewer__header-cell"}
                                     title={`${
                                         column.name[index < indexLevels ? 0 : levelIndex]
                                     } (${column.dtype})`}
+                                    style={{
+                                        width: getColumnWidth(index),
+                                        minWidth: getColumnWidth(index),
+                                    }}
                                 >
                                     <span>
                                         {column.name[index < indexLevels ? 0 : levelIndex]}
                                     </span>
-                                    {getSortIcon(index)}
+                                    <span
+                                        className="mito-viewer__sort-icon-container"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSort(index);
+                                        }}
+                                    >
+                                        {getSortIcon(index)}
+                                    </span>
                                     <div className="mito-viewer__column-dtype">
                                         {column.dtype}
                                     </div>
+                                    <div
+                                        className="mito-viewer__resize-handle"
+                                        onMouseDown={(e) => {
+                                            e.stopPropagation();
+                                            handleResizeStart(index, e.clientX);
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                        }}
+                                        onDoubleClick={(e) => {
+                                            e.stopPropagation();
+                                            handleResizeHandleDoubleClick(index, e);
+                                        }}
+                                    />
                                 </th>
                             ) : skipColumns-- > 0 ? null : (
                                 <th
@@ -257,6 +299,10 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                         className={className}
                                         title={cell}
                                         rowSpan={cellRowSpan}
+                                        style={{
+                                            width: getColumnWidth(cellIndex),
+                                            minWidth: getColumnWidth(cellIndex),
+                                        }}
                                     >
                                         {cell}
                                     </td>
@@ -307,15 +353,31 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             }
 
             if (sort.direction === "asc") {
-                return <span className="mito-viewer__sort-icon">↑</span>;
+                return <span className="mito-viewer__sort-icon active">↑</span>;
             } else if (sort.direction === "desc") {
-                return <span className="mito-viewer__sort-icon">↓</span>;
+                return <span className="mito-viewer__sort-icon active">↓</span>;
             }
 
             return null;
         },
         [sort]
     );
+
+    /**
+   * Handles double-click on resize handle to auto-resize column.
+   * Calculates the maximum width needed and applies it.
+   *
+   * @param columnIndex - Index of the column to auto-resize
+   * @param e - Mouse event
+   */
+    const handleResizeHandleDoubleClick = useCallback(
+        (columnIndex: number, e: React.MouseEvent) => {
+            e.stopPropagation();
+            calculateAndAutoResizeColumn(columnIndex);
+        },
+        [calculateAndAutoResizeColumn]
+    );
+
 
     return (
         <div className="mito-viewer">
@@ -343,7 +405,10 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             </div>
 
             {/* Table */}
-            <div className="mito-viewer__table-container">
+            <div 
+                ref={tableContainerRef}
+                className={`mito-viewer__table-container ${isResizing ? 'mito-viewer__table-container--resizing' : ''}`}
+            >
                 <table className="mito-viewer__table">
                     {renderTableHeader()}
                     {renderTableBody()}
