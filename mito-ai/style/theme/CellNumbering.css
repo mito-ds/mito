@@ -3,6 +3,11 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/*-----------------------------------------------------------------------------
+|| Mito Light Theme: Cell Numbering
+|| These styles only apply when the Mito Light theme is active
+||----------------------------------------------------------------------------*/
+
 /* Add top padding to cells to make room for the cell number label */
 .jp-Cell {
   position: relative;
@@ -50,3 +55,4 @@
   content: "";
   display: none;
 }
+
