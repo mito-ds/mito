@@ -173,6 +173,8 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
         {
           label: 'Run Current Cell',
           icon: SimplePlayIcon,
+          shortcut: 'Shift+Enter',
+          tooltip: 'Run the currently selected cell',
           onClick: () => {
             handleRunCurrentCell();
             setIsDropdownOpen(false);
@@ -181,6 +183,7 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
         {
           label: 'Run All Cells',
           icon: RunAllIcon,
+          tooltip: 'Run all cells in the notebook from top to bottom',
           onClick: () => {
             handleRunAllCells();
             setIsDropdownOpen(false);
@@ -189,6 +192,7 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
         {
           label: 'Restart and Run All',
           icon: RestartAndRunIcon,
+          tooltip: 'Restart the kernel to clear all variables and state, and then run all cells in the notebook',
           onClick: () => {
             void handleRestartAndRunAll();
             setIsDropdownOpen(false);
@@ -202,6 +206,8 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
         {
           label: 'Restart',
           icon: RestartIcon,
+          shortcut: '0, 0',
+          tooltip: 'Restart the kernel, clearing all variables and state',
           onClick: () => {
             void handleRestart();
             setIsDropdownOpen(false);
@@ -210,6 +216,8 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
         {
           label: 'Stop',
           icon: StopIcon,
+          shortcut: 'I, I',
+          tooltip: 'Interrupt the kernel to stop the currently running cell',
           onClick: () => {
             handleStop();
             setIsDropdownOpen(false);
@@ -223,6 +231,7 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
         {
           label: 'Clear All Outputs',
           icon: ClearIcon,
+          tooltip: 'Clear all cell outputs in the notebook',
           onClick: () => {
             handleClearAllOutputs();
             setIsDropdownOpen(false);
@@ -276,6 +285,7 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
                 <button
                   key={itemIndex}
                   className="mito-run-cell-dropdown-item"
+                  title={item.tooltip}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -286,6 +296,9 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
                     {item.icon && React.createElement(item.icon)}
                   </span>
                   <span className="mito-run-cell-dropdown-item-label">{item.label}</span>
+                  {item.shortcut && (
+                    <span className="mito-run-cell-dropdown-item-shortcut">{item.shortcut}</span>
+                  )}
                 </button>
               ))}
             </div>
