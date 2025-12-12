@@ -5,7 +5,7 @@
     "incremental": true,
 
     "declaration": true,
-    "esModuleInterop":true,
+    "esModuleInterop": true,
     "lib": ["es2015", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
@@ -23,13 +23,7 @@
     "strictPropertyInitialization": false,
     "target": "es2017",
     "jsx": "react",
-    "types": [
-      "node",
-    ]
+    "types": ["node", "jest"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "css/**/*.css",
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "css/**/*.css"]
 }

@@ -1,0 +1,272 @@
+/* MitoViewer CSS Classes */
+
+/* Main container */
+.mito-viewer {
+  font-family: var(--jp-ui-font-family, system-ui, -apple-system, sans-serif);
+  font-size: var(--jp-ui-font-size1, 13px);
+  color: var(--jp-ui-font-color1, black);
+  background-color: var(--jp-layout-color0, white);
+  border-radius: 4px;
+}
+
+/* Controls container */
+.mito-viewer__controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+
+/* Row count info */
+.mito-viewer__row-info {
+  font-size: var(--jp-ui-font-size0, 11px);
+  color: var(--jp-ui-font-color2, #666);
+}
+
+/* Row info warning state (when truncated) */
+.mito-viewer__row-info--warning {
+  color: #a16207; /* yellow-700 */
+}
+
+/* Search container */
+.mito-viewer__search-container {
+  display: inline-flex;
+  flex: 0 0 200px;
+}
+
+/* Search input */
+.mito-viewer__search-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--jp-border-color2, #e0e0e0);
+  border-radius: 4px;
+  font-size: var(--jp-ui-font-size1, 13px);
+  font-family: inherit;
+  background-color: var(--jp-input-background, white);
+  color: inherit;
+}
+
+/* Table container */
+.mito-viewer__table-container {
+  overflow-y: auto;
+  max-height: 400px; /* Approximately 10 rows + header */
+  border: 1px solid var(--jp-border-color2, #e0e0e0);
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.mito-viewer__table-container--resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+/* Table */
+.mito-viewer__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: inherit;
+  table-layout: fixed;
+}
+
+/* Table header - sticky at top when scrolling */
+.mito-viewer__table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--jp-rendermime-table-row-background);
+}
+
+/* Table header row */
+.mito-viewer__header-row {
+  background-color: var(--jp-rendermime-table-row-background);
+}
+
+/* Table header cells */
+.mito-viewer__header-cell,
+.mito-viewer__header-cell-multiindex {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid var(--jp-border-color2, #e0e0e0);
+  border-right: 1px solid var(--jp-border-color1, #f0f0f0);
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  position: relative;
+  background-color: var(--jp-rendermime-table-row-background);
+}
+
+.mito-viewer__header-cell:last-child,
+.mito-viewer__header-cell-multiindex:last-child {
+  border-right: none;
+}
+
+/* Column dtype display */
+.mito-viewer__column-dtype {
+  font-size: var(--jp-ui-font-size0, 11px);
+  font-weight: normal;
+  color: var(--jp-ui-font-color2, #666);
+  margin-top: 2px;
+}
+
+/* Sort icon container - clickable area for sorting */
+.mito-viewer__sort-icon-container {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 2px 4px;
+  margin-left: 4px;
+  border-radius: 2px;
+  user-select: none;
+}
+
+.mito-viewer__sort-icon-container:hover {
+  background-color: var(--jp-layout-color2, rgba(0, 0, 0, 0.05));
+}
+
+/* Sort icons */
+.mito-viewer__sort-icon {
+  display: inline-block;
+}
+
+.mito-viewer__sort-icon.active {
+  color: var(--jp-brand-color1, #2196F3) !important;
+}
+
+.mito-viewer__sort-icon-inactive {
+  opacity: 0.3;
+}
+
+/* Resize handle */
+.mito-viewer__resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  background-color: transparent;
+  z-index: 1;
+}
+
+.mito-viewer__header-cell:hover .mito-viewer__resize-handle:not(:hover) {
+  background-color: var(--jp-border-color2, #e0e0e0) !important;
+}
+
+.mito-viewer__resize-handle:hover {
+  background-color: var(--jp-brand-color1, #2196F3) !important;
+}
+
+/* Table body rows */
+.mito-viewer__body-row {
+  border-bottom: 1px solid var(--jp-border-color1, #f0f0f0);
+}
+
+.mito-viewer__body-row-even {
+  background-color: var(--jp-layout-color1, white);
+}
+
+.mito-viewer__body-row-odd {
+  background-color: var(--jp-rendermime-table-row-background);
+}
+
+.mito-viewer__body-row:last-child,
+.mito-viewer__body-row:last-child .mito-viewer__body-cell {
+  border-bottom: none;
+}
+
+/* Table body cells */
+.mito-viewer__body-cell {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--jp-border-color1, #f0f0f0);
+  border-right: 1px solid var(--jp-border-color1, #f0f0f0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.mito-viewer__body-cell:last-child {
+  border-right: none;
+}
+
+.mito-viewer__body-cell-numeric {
+  text-align: right;
+  font-family: var(--jp-code-font-family, monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Numeric alignment structure for decimal point alignment */
+.mito-viewer__numeric-aligned {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 0;
+}
+
+.mito-viewer__numeric-integer {
+  text-align: right;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.mito-viewer__numeric-decimal-separator {
+  flex-shrink: 0;
+  width: 1ch; /* Fixed width for the decimal point */
+}
+
+.mito-viewer__numeric-decimal {
+  text-align: left;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.mito-viewer__body-cell-text {
+  text-align: left;
+}
+
+/* MultiIndex specific styles */
+.mito-viewer__group-header-row {
+  background-color: var(--jp-rendermime-table-row-background);
+  border-bottom: 1px solid var(--jp-border-color1, #f0f0f0);
+}
+
+.mito-viewer__index-cell {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--jp-border-color1, #f0f0f0);
+  border-right: 1px solid var(--jp-border-color1, #f0f0f0);
+  text-align: left;
+  font-weight: 600;
+  background-color: var(--jp-layout-color1, #f9f9f9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.mito-viewer__index-cell:last-child {
+  border-right: none;
+}
+
+.mito-viewer__empty-cell {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--jp-border-color1, #f0f0f0);
+  border-right: 1px solid var(--jp-border-color1, #f0f0f0);
+  background-color: var(--jp-layout-color1, #f9f9f9);
+}
+
+.mito-viewer__empty-cell:last-child {
+  border-right: none;
+}
+
+/* Empty state */
+.mito-viewer__empty-state {
+  text-align: center;
+  padding: 20px;
+  color: var(--jp-ui-font-color2, #666);
+  font-style: italic;
+}
