@@ -260,6 +260,20 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     };
 
     /**
+   * Formats a cell value for display, converting booleans to "True"/"False" strings.
+   * Handles null/undefined values and ensures all values are properly stringified.
+   */
+    const formatCellValue = (value: any): string => {
+        if (value === null || value === undefined) {
+            return "";
+        }
+        if (typeof value === "boolean") {
+            return value ? "True" : "False";
+        }
+        return String(value);
+    };
+
+    /**
    * Renders table body with proper MultiIndex support.
    * Handles rowspan for MultiIndex columns.
    */
@@ -270,7 +284,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         const rowSpan = new Array(indexLevels).fill(0);
         return (
             <tbody>
-                {sortedData.map((row: string[], rowIndex: number) => {
+                {sortedData.map((row: any[], rowIndex: number) => {
                     return (
                         <tr
                             key={rowIndex}
@@ -280,7 +294,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     : "mito-viewer__body-row mito-viewer__body-row-odd"
                             }
                         >
-                            {row.map((cell: string, cellIndex: number) => {
+                            {row.map((cell: any, cellIndex: number) => {
                                 let cellRowSpan: number | undefined = undefined;
                                 if (indexLevels > 1 && cellIndex < indexLevels) {
                                     if (
@@ -294,6 +308,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                             nextRow < sortedData.length;
                                             nextRow++
                                         ) {
+                                            // Use strict equality to handle booleans correctly
                                             if (sortedData[nextRow][cellIndex] === cell) {
                                                 spanCount++;
                                             } else {
@@ -310,6 +325,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                         return null;
                                     }
                                 }
+                                const formattedCell = formatCellValue(cell);
                                 let className = `mito-viewer__body-cell mito-viewer__body-cell-${
                                     isNumeric[cellIndex] ? "numeric" : "text"
                                 }`;
@@ -320,14 +336,14 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     <td
                                         key={cellIndex}
                                         className={className}
-                                        title={cell}
+                                        title={formattedCell}
                                         rowSpan={cellRowSpan}
                                         style={{
                                             width: getColumnWidth(cellIndex),
                                             minWidth: getColumnWidth(cellIndex),
                                         }}
                                     >
-                                        {cell}
+                                        {formattedCell}
                                     </td>
                                 );
                             })}
