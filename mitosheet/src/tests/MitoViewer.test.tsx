@@ -89,7 +89,7 @@ describe("MitoViewer", () => {
     it("displays row count information", () => {
         render(<MitoViewer payload={mockPayload} />);
 
-        expect(screen.getByText("3 of 3 rows")).toBeInTheDocument();
+        expect(screen.getByText("Total Rows: 3")).toBeInTheDocument();
     });
 
     it("shows truncation message when data is truncated", () => {
@@ -102,10 +102,9 @@ describe("MitoViewer", () => {
 
         expect(
             screen.getByText(
-                "Table truncated to 3 rows by pandas display.max_rows setting. Total rows: 100"
+                /⚠ Table truncated to first 3 \/ 100 rows\. Set pandas display\.max_rows to configure total rows\./
             )
         ).toBeInTheDocument();
-        expect(screen.getByText("3 of 3 rows (total 100 rows)")).toBeInTheDocument();
     });
 
     it("handles empty dataframe", () => {
@@ -118,7 +117,7 @@ describe("MitoViewer", () => {
 
         render(<MitoViewer payload={emptyPayload} />);
 
-        expect(screen.getByText("0 of 0 rows")).toBeInTheDocument();
+        expect(screen.getByText("Total Rows: 0")).toBeInTheDocument();
     });
 
     it("filters data based on search term", async () => {
@@ -131,7 +130,8 @@ describe("MitoViewer", () => {
         expect(screen.getByText("Alice")).toBeInTheDocument();
         expect(screen.queryByText("Bob")).not.toBeInTheDocument();
         expect(screen.queryByText("Charlie")).not.toBeInTheDocument();
-        expect(screen.getByText("1 of 3 rows")).toBeInTheDocument();
+        // Component shows total rows, not filtered count
+        expect(screen.getByText("Total Rows: 3")).toBeInTheDocument();
     });
 
     it("shows no results message when search has no matches", async () => {
@@ -219,14 +219,26 @@ describe("MitoViewer", () => {
         render(<MitoViewer payload={multiIndexPayload} />);
 
         // Check that multi-index cells are rendered with correct row spans
-        expect(screen.getByText("A0")).toHaveAttribute("rowspan", "5");
-        expect(screen.getByText("B0")).toHaveAttribute("rowspan", "5");
-        expect(screen.getByText("C0")).toHaveAttribute("rowspan", "2");
-        expect(screen.getByText("C1")).toHaveAttribute("rowspan", "2");
-        expect(screen.getByText("C2")).not.toHaveAttribute("rowspan");
+        // rowspan is on the <th> or <td> element, not the text
+        const a0Cell = screen.getByText("A0").closest("th") || screen.getByText("A0").closest("td");
+        const b0Cell = screen.getByText("B0").closest("th") || screen.getByText("B0").closest("td");
+        const c0Cell = screen.getByText("C0").closest("th") || screen.getByText("C0").closest("td");
+        const c1Cell = screen.getByText("C1").closest("th") || screen.getByText("C1").closest("td");
+        const c2Cell = screen.getByText("C2").closest("th") || screen.getByText("C2").closest("td");
 
-        expect(screen.getByText("a", {exact: true})).toHaveAttribute("colspan", "2");
-        expect(screen.getByTitle("bar (int64)")).not.toHaveAttribute("colspan");
-        expect(screen.getByText("b", {exact: true})).toHaveAttribute("colspan", "2");
+        expect(a0Cell).toHaveAttribute("rowspan", "5");
+        expect(b0Cell).toHaveAttribute("rowspan", "5");
+        expect(c0Cell).toHaveAttribute("rowspan", "2");
+        expect(c1Cell).toHaveAttribute("rowspan", "2");
+        expect(c2Cell).not.toHaveAttribute("rowspan");
+
+        // Check colspan for multi-index column headers
+        const aHeader = screen.getByText("a", {exact: true}).closest("th");
+        const barHeader = screen.getByTitle("bar (int64)").closest("th");
+        const bHeader = screen.getByText("b", {exact: true}).closest("th");
+
+        expect(aHeader).toHaveAttribute("colspan", "2");
+        expect(barHeader).not.toHaveAttribute("colspan");
+        expect(bHeader).toHaveAttribute("colspan", "2");
     });
 });
