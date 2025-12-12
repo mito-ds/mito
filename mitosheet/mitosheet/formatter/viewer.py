@@ -1,3 +1,8 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
+from typing import Dict, Optional
+
 import pandas as pd
 
 
@@ -60,7 +65,7 @@ def register_ipython_formatter():
         print(f"Warning: Could not register mito viewer formatter: {e}")
 
 
-def format_dataframe_mimetype(obj: pd.DataFrame) -> dict | None:
+def format_dataframe_mimetype(obj: pd.DataFrame) -> Optional[Dict]:
     """
     Format a pandas DataFrame as a mimetype object for JupyterLab rendering.
 
