@@ -69,6 +69,14 @@
   table-layout: fixed;
 }
 
+/* Table header - sticky at top when scrolling */
+.mito-viewer__table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--jp-rendermime-table-row-background);
+}
+
 /* Table header row */
 .mito-viewer__header-row {
   background-color: var(--jp-rendermime-table-row-background);
@@ -88,6 +96,7 @@
   text-overflow: ellipsis;
   max-width: 200px;
   position: relative;
+  background-color: var(--jp-rendermime-table-row-background);
 }
 
 .mito-viewer__header-cell:last-child,
