@@ -25,14 +25,14 @@ def _is_describe_output(df: pd.DataFrame) -> bool:
     return len(matches) == 5
 
 
-def register_ipython_formatter():
+def register_ipython_formatter() -> None:
     """
     Register custom formatter with IPython display system.
     """
     try:
         from IPython.core.getipython import get_ipython
 
-        ip = get_ipython()
+        ip = get_ipython() # type: ignore
         if ip is None:
             return
 
