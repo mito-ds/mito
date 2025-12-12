@@ -8,6 +8,8 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+import type { Kernel } from '@jupyterlab/services'
+import type { IExecuteReplyMsg } from '@jupyterlab/services/lib/kernel/messages';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { getArgsFromMitosheetCallCode, getCodeString, hasCodeCellBeenEditedByUser, getLastNonEmptyLine } from './jupyter/code';
 import { JupyterComm } from './jupyter/comm';
@@ -127,7 +129,7 @@ function activateMitosheetExtension(
             }
 
             function registerFormatter(
-                connection: IKernelConnection,
+                connection: Kernel.IKernelConnection,
                 registeredKernels: Set<string>,
                 kernelID: string
             ) {
@@ -140,7 +142,7 @@ function activateMitosheetExtension(
                         store_history: false,
                         allow_stdin: false,
                     });
-                    future.onReply = (msg) => {
+                    future.onReply = (msg: IExecuteReplyMsg) => {
                         if (msg.content.status != "ok") {
                             registeredKernels.delete(kernelID);
                             console.error(
