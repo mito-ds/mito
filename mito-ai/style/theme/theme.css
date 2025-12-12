@@ -46,7 +46,10 @@
 .jp-Toolbar [data-jp-item-name="kernelName"],
 .jp-Toolbar [data-jp-item-name="executionProgress"],
 .jp-Toolbar [data-jp-item-name="interrupt"],
-.jp-Toolbar [data-jp-item-name="restart"]
+.jp-Toolbar [data-jp-item-name="restart"],
+.jp-Toolbar [data-jp-item-name="cut"],
+.jp-Toolbar [data-jp-item-name="copy"],
+.jp-Toolbar [data-jp-item-name="paste"]
 {
   display: none !important;
 }
@@ -94,3 +97,5 @@
 .jp-Editor .cm-gutters {
   background: transparent !important;
 }
+
+
