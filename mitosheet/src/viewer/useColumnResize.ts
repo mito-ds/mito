@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { useState, useCallback, useEffect, RefObject } from "react";
 import { measureTextWidth, getFontStyle, getMonospaceFontStyle } from "./measureTextWidth";
 import type { ColumnMetadata } from "./MitoViewer";

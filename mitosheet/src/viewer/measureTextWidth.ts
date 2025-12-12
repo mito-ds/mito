@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 // Reusable canvas for text measurement to avoid creating new elements
 let measurementCanvas: HTMLCanvasElement | null = null;
 let measurementContext: CanvasRenderingContext2D | null = null;

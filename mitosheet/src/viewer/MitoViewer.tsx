@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import React, { useState, useMemo, useCallback, useRef } from "react";
 import "./../../css/viewer.css";
 import { useColumnResize } from "./useColumnResize";
