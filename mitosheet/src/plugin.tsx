@@ -81,6 +81,8 @@ function activateMitosheetExtension(
     // Register IPython formatter when kernel changes
     const registeredKernels = new Set<string>();
     app.serviceManager.kernels.runningChanged.connect((_, kernels) => {
+        // Read the specs on runningChanged as the list may change at runtime.
+        const specs = app.serviceManager.kernelspecs.specs;
         kernels.forEach((kernelModel) => {
             // Find the notebook that uses this kernel
             const notebook = notebookTracker.find(
@@ -88,7 +90,10 @@ function activateMitosheetExtension(
             );
 
             const connection = notebook?.sessionContext.session?.kernel;
-            if (connection) {
+            // If we fail to get the kernel language, assume it is Python.
+            const kernelLanguage =
+            specs?.kernelspecs[kernelModel.name]?.language ?? "python";
+            if (connection && kernelLanguage === "python") {
                 registerFormatter(connection, registeredKernels, kernelModel.id);
 
                 // If the kernel is not idle, wait for it to become idle
