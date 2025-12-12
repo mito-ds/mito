@@ -107,13 +107,36 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             // Try to parse as numbers for numeric sorting
             const aNum = parseFloat(aValue);
             const bNum = parseFloat(bValue);
+            const aIsNumeric = !isNaN(aNum) && aValue != null;
+            const bIsNumeric = !isNaN(bNum) && bValue != null;
 
-            if (!isNaN(aNum) && !isNaN(bNum)) {
+            // If both are numeric, compare numerically
+            if (aIsNumeric && bIsNumeric) {
                 return sort.direction === "asc" ? aNum - bNum : bNum - aNum;
             }
 
-            // String comparison for non-numeric values
-            const comparison = (aValue ?? "").localeCompare(bValue ?? "");
+            // Handle null/undefined values
+            // Ascending: nulls go to top (treated as smallest: None, 2, 123)
+            // Descending: nulls go to bottom (treated as largest: 123, 2, None)
+            if (aValue == null && bValue == null) return 0;
+            if (aValue == null) {
+                return sort.direction === "asc" ? -1 : 1;
+            }
+            if (bValue == null) {
+                return sort.direction === "asc" ? 1 : -1;
+            }
+
+            // If one is numeric and the other isn't, numeric comes first
+            if (aIsNumeric && !bIsNumeric) {
+                return sort.direction === "asc" ? -1 : 1;
+            }
+            if (!aIsNumeric && bIsNumeric) {
+                return sort.direction === "asc" ? 1 : -1;
+            }
+
+            // String comparison for non-numeric, non-null values
+            // Ensure both values are strings before calling localeCompare
+            const comparison = String(aValue).localeCompare(String(bValue));
             return sort.direction === "asc" ? comparison : -comparison;
         });
     }, [filteredData, sort]);
