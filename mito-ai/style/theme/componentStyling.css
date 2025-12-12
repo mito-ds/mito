@@ -52,7 +52,7 @@
 
 /* Add the warning icon to the output area */
 .lm-Widget.jp-OutputArea-output:has([data-mime-type="application/vnd.jupyter.stderr"])::before {
-    content: "⚠";
+    content: "\26A0";
     position: absolute;
     top: -12px; /* Adjust to sit on the border */
     left: 6px;

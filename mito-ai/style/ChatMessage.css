@@ -13,10 +13,6 @@
   padding: 0 var(--chat-taskpane-item-indent);
 }
 
-.message:not(.chat-input) {
-  margin-bottom: 20px;
-}
-
 .message:hover .message-start-editing-button {
   opacity: 1 !important;
 }
