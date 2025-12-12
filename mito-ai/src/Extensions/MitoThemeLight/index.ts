@@ -121,7 +121,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
 
         render(): JSX.Element {
-          return React.createElement(RunCellButton, { app: app, notebookPanel: this.panel });
+          return React.createElement(RunCellButton, { notebookPanel: this.panel });
         }
       }
 
@@ -187,6 +187,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
       // Connect to new notebooks
       widgetAddedConnection = (sender: INotebookTracker, widget: NotebookPanel): void => {
         setTimeout(() => {
+          // Check if widget is still valid before proceeding
+          if (widget.isDisposed) {
+            return;
+          }
           // Only add if Mito Light theme is still active
           if (manager.theme === 'Mito Light') {
             addRunCellButton(widget);

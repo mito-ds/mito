@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { JupyterFrontEnd } from '@jupyterlab/application';
 import { NotebookPanel, NotebookActions } from '@jupyterlab/notebook';
 import { KernelMessage, Kernel } from '@jupyterlab/services';
 import type { ISessionContext } from '@jupyterlab/apputils';
@@ -19,11 +18,10 @@ import LoadingCircle from './LoadingCircle';
 import { classNames } from '../utils/classNames';
 
 interface RunCellButtonProps {
-  app: JupyterFrontEnd;
   notebookPanel: NotebookPanel;
 }
 
-const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => {
+const RunCellButton: React.FC<RunCellButtonProps> = ({ notebookPanel }) => {
 
   const handleRunCurrentCell = (): void => {
     const notebook = notebookPanel.content;
@@ -250,7 +248,7 @@ const RunCellButton: React.FC<RunCellButtonProps> = ({ app, notebookPanel }) => 
         <button
           className="mito-run-cell-button mito-run-cell-button-main"
           onClick={handleMainButtonClick}
-          title={isRunning ? "Running Cells - Click to stop" : "Run Active Cell"}
+          title={isRunning ? "Running Cells" : "Run Active Cell"}
         >
           {isRunning ? (
             <>
