@@ -175,12 +175,6 @@ def get_open_ai_completion_function_params(
     if model == "gpt-5.2-fast":
         completion_function_params["model"] = "gpt-5.2"
         completion_function_params["reasoning_effort"] = "low"
-    elif model == "gpt-5.2-balanced":
-        completion_function_params["model"] = "gpt-5.2"
-        completion_function_params["reasoning_effort"] = "medium"
-    elif model == "gpt-5.2-smart":
-        completion_function_params["model"] = "gpt-5.2"
-        completion_function_params["reasoning_effort"] = "high"
     
     # If a response format is provided, we need to convert it to a json schema.
     # Pydantic models are supported by the OpenAI API, however, we need to be able to 

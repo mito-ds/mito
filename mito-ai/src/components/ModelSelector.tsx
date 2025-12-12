@@ -52,7 +52,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'High'
   },
   {
-    displayName: 'GPT 5.2 Fast',
+    displayName: 'GPT 5.2',
     fullName: 'gpt-5.2-fast',
     type: 'fast',
     goodFor: [...GOOD_FOR_FAST],
@@ -60,26 +60,6 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     tokenLimit: '400K',
     speed: 'Fast',
     complexityHandling: 'Medium'
-  },
-  {
-    displayName: 'GPT 5.2 Balanced',
-    fullName: 'gpt-5.2-balanced',
-    type: 'smart',
-    goodFor: [...GOOD_FOR_SMART],
-    provider: 'OpenAI',
-    tokenLimit: '400K',
-    speed: 'Slow',
-    complexityHandling: 'High'
-  },
-  {
-    displayName: 'GPT 5.2 Smart',
-    fullName: 'gpt-5.2-smart',
-    type: 'smart',
-    goodFor: [...GOOD_FOR_SMART],
-    provider: 'OpenAI',
-    tokenLimit: '400K',
-    speed: 'Slow',
-    complexityHandling: 'High'
   },
   {
     displayName: CLAUDE_HAIKU_DISPLAY_NAME,
