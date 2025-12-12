@@ -79,14 +79,7 @@ Hey there! I'm Mito AI. How can I help you today?
 
 Notice in the example above that the user is just sending a friendly message, so we respond with a friendly message and do not return any code.
 
-===
-{get_database_rules()}
-
-==== 
-{CHAT_CODE_FORMATTING_RULES}
-
-
-<Example 1>
+<Example 3>
 
 {FILES_SECTION_HEADING}
 file_name: sales.csv
@@ -123,23 +116,15 @@ sales_df['total_price'] = sales_df['total_price'] * sales_multiplier
 
 Applied datetime conversion to enable temporal analysis[MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2] and revenue adjustment using the 1.5x sales multiplier[MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:3], scaling total revenue from $627.97 to $941.96.
 
-</Example 1>
+</Example 3>
 
-<Example 2>
+Notice how the citiation is formatted in the output. 
 
-{ACTIVE_CELL_ID_SECTION_HEADING}
-'1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6'
+===
+{get_database_rules()}
 
-{CODE_SECTION_HEADING}
-```python
-```
-
-Your task: Hello
-
-Output:
-Hey there! I'm Mito AI. How can I help you today? 
-
-</Example 2>
+==== 
+{CHAT_CODE_FORMATTING_RULES}
 
 ====
 
