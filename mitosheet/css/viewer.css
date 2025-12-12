@@ -6,20 +6,7 @@
   font-size: var(--jp-ui-font-size1, 13px);
   color: var(--jp-ui-font-color1, black);
   background-color: var(--jp-layout-color0, white);
-  padding: 8px;
   border-radius: 4px;
-  border: 1px solid var(--jp-border-color2, #e0e0e0);
-}
-
-/* Truncation warning */
-.mito-viewer__warning {
-  background-color: var(--jp-warn-color0, #fff3cd);
-  color: var(--jp-ui-inverse-font-color0, #ffffffff);
-  padding: 8px 12px;
-  border-radius: 4px;
-  margin-bottom: 12px;
-  border: 1px solid var(--jp-warn-color2, #ffeaa7);
-  font-size: var(--jp-ui-font-size0, 11px);
 }
 
 /* Controls container */
@@ -27,7 +14,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   gap: 12px;
 }
 
@@ -35,6 +22,11 @@
 .mito-viewer__row-info {
   font-size: var(--jp-ui-font-size0, 11px);
   color: var(--jp-ui-font-color2, #666);
+}
+
+/* Row info warning state (when truncated) */
+.mito-viewer__row-info--warning {
+  color: #a16207; /* yellow-700 */
 }
 
 /* Search container */
@@ -60,6 +52,7 @@
   overflow: auto;
   border: 1px solid var(--jp-border-color2, #e0e0e0);
   border-radius: 4px;
+  box-shadow: none;
 }
 
 /* Table */
@@ -71,8 +64,7 @@
 
 /* Table header row */
 .mito-viewer__header-row {
-  background-color: var(--jp-layout-color2, #f5f5f5);
-  border-bottom: 2px solid var(--jp-border-color2, #e0e0e0);
+  background-color: var(--jp-rendermime-table-row-background);
 }
 
 /* Table header cells */
@@ -123,7 +115,12 @@
 }
 
 .mito-viewer__body-row-odd {
-  background-color: var(--jp-layout-color2, #eee);
+  background-color: var(--jp-rendermime-table-row-background);
+}
+
+.mito-viewer__body-row:last-child,
+.mito-viewer__body-row:last-child .mito-viewer__body-cell {
+  border-bottom: none;
 }
 
 /* Table body cells */
@@ -152,7 +149,7 @@
 
 /* MultiIndex specific styles */
 .mito-viewer__group-header-row {
-  background-color: var(--jp-layout-color2, #f5f5f5);
+  background-color: var(--jp-rendermime-table-row-background);
   border-bottom: 1px solid var(--jp-border-color1, #f0f0f0);
 }
 
