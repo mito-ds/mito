@@ -1,6 +1,11 @@
 import React, { useState, useMemo, useCallback, useRef } from "react";
 import "./../../css/viewer.css";
 import { useColumnResize } from "./useColumnResize";
+import {
+    calculateMaxDecimalPlaces,
+    parseNumericValue,
+    formatCellValue,
+} from "./numericFormatting";
 
 /**
  * Interface defining metadata for each column in the DataFrame.
@@ -76,6 +81,15 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     const isTruncated = data.length < payload.totalRows;
     const indexLevels = payload.indexLevels ?? 1;
     const columnLevels = payload.columnLevels ?? 1;
+
+    /**
+   * Memoized function to calculate maximum decimal places for each numeric column.
+   * This is used to align decimal points across all numbers in a column.
+   */
+    const maxDecimalPlaces = useMemo(
+        () => calculateMaxDecimalPlaces(data, payload.columns),
+        [data, payload.columns]
+    );
 
     /**
    * Memoized function to filter data based on search term.
@@ -259,19 +273,6 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         );
     };
 
-    /**
-   * Formats a cell value for display, converting booleans to "True"/"False" strings.
-   * Handles null/undefined values and ensures all values are properly stringified.
-   */
-    const formatCellValue = (value: any): string => {
-        if (value === null || value === undefined) {
-            return "";
-        }
-        if (typeof value === "boolean") {
-            return value ? "True" : "False";
-        }
-        return String(value);
-    };
 
     /**
    * Renders table body with proper MultiIndex support.
@@ -326,12 +327,66 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     }
                                 }
                                 const formattedCell = formatCellValue(cell);
+                                const numericParts = parseNumericValue(
+                                    cell,
+                                    cellIndex,
+                                    payload.columns
+                                );
                                 let className = `mito-viewer__body-cell mito-viewer__body-cell-${
                                     isNumeric[cellIndex] ? "numeric" : "text"
                                 }`;
                                 if (cellIndex < indexLevels) {
                                     className += " mito-viewer__body-cell-index";
                                 }
+
+                                // For numeric columns that have any decimals, render all numbers with aligned structure
+                                const maxDecimals = cellIndex < maxDecimalPlaces.length 
+                                    ? maxDecimalPlaces[cellIndex] 
+                                    : 0;
+                                const decimalPartWidth = maxDecimals > 0 ? `${maxDecimals}ch` : '0ch';
+                                
+                                /* 
+                                If this is a numeric column with decimals in the column, use aligned structure
+                                We do this because its hard to quickly scan numbers in a column if they have
+                                various number of decimal places. It makes 1.234 seem larger than 60 because it 
+                                ends up being further to the left. The simple solution is to pad all numbers with 0
+                                to have the same number of decimal places, but we don't want to change the view of the 
+                                data that we display. Any difference between the underlying data and the displayed data
+                                is very confusing to the user.
+                                */
+                                const shouldUseAlignedStructure = numericParts && maxDecimals > 0;
+                                
+                                const cellContent = shouldUseAlignedStructure ? (
+                                    <span className="mito-viewer__numeric-aligned">
+                                        <span className="mito-viewer__numeric-integer">
+                                            {numericParts.integerPart}
+                                        </span>
+                                        {numericParts.hasDecimal && (
+                                            <>
+                                                <span className="mito-viewer__numeric-decimal-separator">.</span>
+                                                <span 
+                                                    className="mito-viewer__numeric-decimal"
+                                                    style={{ minWidth: decimalPartWidth }}
+                                                >
+                                                    {numericParts.decimalPart}
+                                                </span>
+                                            </>
+                                        )}
+                                        {!numericParts.hasDecimal && (
+                                            <>
+                                                <span className="mito-viewer__numeric-decimal-separator" style={{ visibility: 'hidden' }}>.</span>
+                                                <span 
+                                                    className="mito-viewer__numeric-decimal"
+                                                    style={{ minWidth: decimalPartWidth }}
+                                                >
+                                                </span>
+                                            </>
+                                        )}
+                                    </span>
+                                ) : (
+                                    formattedCell
+                                );
+
                                 return (
                                     <td
                                         key={cellIndex}
@@ -343,7 +398,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                             minWidth: getColumnWidth(cellIndex),
                                         }}
                                     >
-                                        {formattedCell}
+                                        {cellContent}
                                     </td>
                                 );
                             })}

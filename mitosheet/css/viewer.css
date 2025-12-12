@@ -196,6 +196,33 @@
 .mito-viewer__body-cell-numeric {
   text-align: right;
   font-family: var(--jp-code-font-family, monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Numeric alignment structure for decimal point alignment */
+.mito-viewer__numeric-aligned {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 0;
+}
+
+.mito-viewer__numeric-integer {
+  text-align: right;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.mito-viewer__numeric-decimal-separator {
+  flex-shrink: 0;
+  width: 1ch; /* Fixed width for the decimal point */
+}
+
+.mito-viewer__numeric-decimal {
+  text-align: left;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 .mito-viewer__body-cell-text {
