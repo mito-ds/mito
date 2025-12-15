@@ -78,18 +78,18 @@ Some text after."""
     assert f"{VARIABLES_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
     assert f"{JUPYTER_NOTEBOOK_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
     assert f"{ACTIVE_CELL_ID_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
+    assert f"{CODE_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
     
     # Verify sections are not in the result anymore
     assert "file1.csv" not in result
     assert "var1 = 1" not in result
     assert "cell_type" not in result
     assert "cell1" not in result
+    assert "def hello():" not in result
     
     # Verify other content is preserved
     assert "Some text before." in result
     assert "Some text after." in result
-    assert f"{CODE_SECTION_HEADING}" in result
-    assert "def hello():" in result
 
 
 # Parameterized test cases for prompt builders (except inline completer)
