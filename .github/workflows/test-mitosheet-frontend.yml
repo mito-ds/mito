@@ -267,3 +267,23 @@ jobs:
         source venv/bin/activate
         python dash-test.py &
         npm run test:dash
+
+  test-mitosheet-jest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: mitosheet/package-lock.json
+    - name: Install dependencies
+      working-directory: mitosheet
+      run: |
+        npm install
+    - name: Run Jest tests
+      working-directory: mitosheet
+      run: |
+        npm run test

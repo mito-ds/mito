@@ -8,6 +8,8 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+import type { Kernel } from '@jupyterlab/services'
+import type { IExecuteReplyMsg } from '@jupyterlab/services/lib/kernel/messages';
 import { mitoJLabIcon } from './jupyter/MitoIcon';
 import { getArgsFromMitosheetCallCode, getCodeString, hasCodeCellBeenEditedByUser, getLastNonEmptyLine } from './jupyter/code';
 import { JupyterComm } from './jupyter/comm';
@@ -83,6 +85,81 @@ function activateMitosheetExtension(
 
     // Add the Create New Mitosheet button
     registerMitosheetToolbarButtonAdder(notebookTracker);
+
+    // Register IPython formatter when kernel changes
+    const registeredKernels = new Set<string>();
+    app.serviceManager.kernels.runningChanged.connect((_, kernels) => {
+        // Read the specs on runningChanged as the list may change at runtime.
+        const specs = app.serviceManager.kernelspecs.specs;
+        kernels.forEach((kernelModel) => {
+            // Find the notebook that uses this kernel
+            const notebook = notebookTracker.find(
+                (nb) => nb.sessionContext.session?.kernel?.id === kernelModel.id
+            );
+
+            const connection = notebook?.sessionContext.session?.kernel;
+            // If we fail to get the kernel language, assume it is Python.
+            const kernelLanguage =
+            specs?.kernelspecs[kernelModel.name]?.language ?? "python";
+            if (connection && kernelLanguage === "python") {
+                registerFormatter(connection, registeredKernels, kernelModel.id);
+
+                // If the kernel is not idle, wait for it to become idle
+                const onStatusChange = () => {
+                    switch (connection.status) {
+                        case "idle":
+                            // If we have already registered the formatter for this kernel, do nothing
+                            registerFormatter(connection, registeredKernels, kernelModel.id);
+                            break;
+                        case "dead":
+                        case "terminating":
+                        case "restarting":
+                        case "starting":
+                            // If the kernel is dead or restarting, we remove it from the registered kernels
+                            registeredKernels.delete(kernelModel.id);
+                            break;
+                    }
+                };
+
+                connection.statusChanged.connect(onStatusChange);
+                connection.disposed.connect(() => {
+                    connection.statusChanged.disconnect(onStatusChange);
+                    registeredKernels.delete(kernelModel.id);
+                });
+            }
+
+            function registerFormatter(
+                connection: Kernel.IKernelConnection,
+                registeredKernels: Set<string>,
+                kernelID: string
+            ) {
+                if (connection.status === "idle" && !registeredKernels.has(kernelID)) {
+                    // Mark this kernel as having the formatter registered
+                    registeredKernels.add(kernelModel.id);
+                    const future = connection.requestExecute({
+                        code: "from mitosheet.formatter import register_ipython_formatter\n\nregister_ipython_formatter()",
+                        silent: true,
+                        store_history: false,
+                        allow_stdin: false,
+                    });
+                    future.onReply = (msg: IExecuteReplyMsg) => {
+                        if (msg.content.status != "ok") {
+                            registeredKernels.delete(kernelID);
+                            console.error(
+                                "Failed to register Mito IPython formatter for kernel:",
+                                kernelID
+                            );
+                        } else {
+                            console.log(
+                                "Registered Mito IPython formatter for kernel:",
+                                kernelID
+                            );
+                        }
+                    };
+                }
+            }
+        });
+    });
 
     /**
      * This command creates a new comm for the mitosheet to talk to the mito backend. 

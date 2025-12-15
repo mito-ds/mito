@@ -171,6 +171,9 @@ def get_open_ai_completion_function_params(
         "stream": stream,
         "messages": messages,
     }
+
+    if model == "gpt-5.2":
+        completion_function_params["reasoning_effort"] = "low"
     
     # If a response format is provided, we need to convert it to a json schema.
     # Pydantic models are supported by the OpenAI API, however, we need to be able to 
