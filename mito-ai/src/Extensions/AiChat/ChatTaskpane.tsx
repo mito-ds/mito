@@ -175,6 +175,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Streaming response management
     const { streamingContentRef, streamHandlerRef, activeRequestControllerRef } = useStreamingResponse();
 
+    // Audio context management
+    const audioContextRef = useRef<AudioContext | null>(null);
+    useEffect(() => {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }, []);
+
     // Agent mode state management
     const {
         agentModeEnabled,
@@ -521,7 +527,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     setCodeReviewStatus('chatPreview');
 
                     // Play completion sound for streaming mode
-                    playCompletionSound();
+                    playCompletionSound(audioContextRef.current);
                 } else {
                     // Use a ref to accumulate the content properly
                     streamingContentRef.current += chunk.chunk.content;
@@ -697,7 +703,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendAgentSmartDebugMessage,
         agentReview,
         agentTargetNotebookPanelRef,
-        setAgentReviewStatus
+        setAgentReviewStatus,
+        audioContextRef
     });
 
     // Main initialization effect - runs once on mount

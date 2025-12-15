@@ -55,6 +55,7 @@ interface UseAgentExecutionProps {
     };
     agentTargetNotebookPanelRef: React.MutableRefObject<any>;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
+    audioContextRef: React.MutableRefObject<AudioContext | null>;
 }
 
 export const useAgentExecution = ({
@@ -73,7 +74,8 @@ export const useAgentExecution = ({
     sendAgentExecutionMessage,
     sendAgentSmartDebugMessage,
     agentReview,
-    agentTargetNotebookPanelRef
+    agentTargetNotebookPanelRef,
+    audioContextRef,
 }: UseAgentExecutionProps): {
     agentExecutionStatus: AgentExecutionStatus;
     shouldContinueAgentExecution: React.MutableRefObject<boolean>;
@@ -122,7 +124,7 @@ export const useAgentExecution = ({
             });
         }
 
-        playCompletionSound();
+        playCompletionSound(audioContextRef.current);
     };
 
     const startAgentExecution = async (
