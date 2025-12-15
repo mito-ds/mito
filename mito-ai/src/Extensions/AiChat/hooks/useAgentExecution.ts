@@ -13,6 +13,7 @@ import { ChatHistoryManager } from '../ChatHistoryManager';
 import { createCheckpoint } from '../../../utils/checkpoint';
 import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../../utils/agentActions';
 import { checkForBlacklistedWords } from '../../../utils/blacklistedWords';
+import { playCompletionSound } from '../../../utils/sound';
 import { getCodeBlockFromMessage } from '../../../utils/strings';
 import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } from '../../../utils/notebook';
 import { AgentReviewStatus } from '../ChatTaskpane';
@@ -120,7 +121,8 @@ export const useAgentExecution = ({
                 stream: false
             });
         }
-        return;
+
+        playCompletionSound();
     };
 
     const startAgentExecution = async (

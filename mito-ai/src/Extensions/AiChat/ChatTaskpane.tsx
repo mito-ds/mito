@@ -51,6 +51,7 @@ import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { logEvent } from '../../restAPI/RestAPI';
+import { playCompletionSound } from '../../utils/sound';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -518,6 +519,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else if (chunk.done) {
                     // Reset states to allow future messages to show the "Apply" button
                     setCodeReviewStatus('chatPreview');
+
+                    // Play completion sound for streaming mode
+                    playCompletionSound();
                 } else {
                     // Use a ref to accumulate the content properly
                     streamingContentRef.current += chunk.chunk.content;
@@ -571,7 +575,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 );
                 // Reset loading status when an error occurs
                 setLoadingStatus(undefined);
-            }
+            } 
         } else {
             // NON-STREAMING RESPONSES
             // Once we move everything to streaming, we can remove everything in this else block
