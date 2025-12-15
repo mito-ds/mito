@@ -179,6 +179,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const audioContextRef = useRef<AudioContext | null>(null);
     useEffect(() => {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+        return () => {
+            const audioContext = audioContextRef.current;
+            audioContextRef.current = null;
+            if (audioContext) {
+                void audioContext.close().catch(() => {
+                    // Ignore errors closing (e.g. already closed)
+                });
+            }
+        };
     }, []);
 
     // Agent mode state management
