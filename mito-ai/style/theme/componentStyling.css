@@ -41,7 +41,7 @@
 }
 
 /* Style output area only when it contains stderr content */
-.lm-Widget.jp-OutputArea-output:has([data-mime-type="application/vnd.jupyter.stderr"]) {
+.lm-Widget.jp-OutputArea-output:has([data-mime-type="application/vnd.jupyter.stderr"]):not(:has(.mito-warning-block)) {
     border-radius: 3px !important;
     padding: 6px;
     border: 1.5px solid var(--jp-error-color0) !important;
@@ -51,7 +51,7 @@
 }
 
 /* Add the warning icon to the output area */
-.lm-Widget.jp-OutputArea-output:has([data-mime-type="application/vnd.jupyter.stderr"])::before {
+.lm-Widget.jp-OutputArea-output:has([data-mime-type="application/vnd.jupyter.stderr"]):not(:has(.mito-warning-block))::before {
     content: "\26A0";
     position: absolute;
     top: -12px; /* Adjust to sit on the border */
