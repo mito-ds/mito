@@ -8,16 +8,17 @@
  * Uses the Web Audio API to generate a pleasant two-tone notification sound.
  */
 export const playCompletionSound = (): void => {
+    let audioContext: AudioContext | null = null;
     try {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
 
         // Create a pleasant two-note completion sound
         const playTone = (frequency: number, startTime: number, duration: number): void => {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            const oscillator = audioContext!.createOscillator();
+            const gainNode = audioContext!.createGain();
 
             oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+            gainNode.connect(audioContext!.destination);
 
             oscillator.frequency.value = frequency;
             oscillator.type = 'sine';
@@ -37,8 +38,18 @@ export const playCompletionSound = (): void => {
         playTone(523.25, now, 0.15);        // C5
         playTone(659.25, now + 0.12, 0.2);  // E5
 
+        // Close the audio context after the sound finishes playing
+        setTimeout(() => {
+            if (audioContext) {
+                audioContext.close();
+            }
+        }, 500);
+
     } catch (error) {
         // Silently fail if audio is not available
         console.debug('Could not play completion sound:', error);
+        if (audioContext) {
+            audioContext.close();
+        }
     }
 };

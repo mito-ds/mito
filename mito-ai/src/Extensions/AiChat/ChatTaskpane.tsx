@@ -541,25 +541,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             };
 
-            // Store the handler for later cleanup
-            streamHandlerRef.current = streamHandler;
-
-            // Connect the handler
-            websocketClient.stream.connect(streamHandler, null);
-
             try {
-                const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
-                
-                const content = aiResponse.items[0]?.content ?? '';
+                // Store the handler for later cleanup
+                streamHandlerRef.current = streamHandler;
 
-                if (
-                    completionRequest.metadata.promptType === 'agent:execution' ||
-                    completionRequest.metadata.promptType === 'agent:autoErrorFixup'
-                ) {
-                    // Agent:Execution prompts return a CellUpdate object that we need to parse
-                    const agentResponse: AgentResponse = JSON.parse(content)
-                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                }
+                // Connect the handler
+                websocketClient.stream.connect(streamHandler, null);
+
+                // Send the message to the AI and let the stream handler handle the rest
+                await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
             } catch (error) {
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).title ? (error as any).title : `${error}`,
