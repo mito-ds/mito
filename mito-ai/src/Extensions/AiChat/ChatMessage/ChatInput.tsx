@@ -129,18 +129,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
         setIsDragOver(false);
 
         const files = e.dataTransfer.files;
-        if (files && files.length > 0) {
-            const file = files[0];
-            if (file && !isUploading) {
-                setIsUploading(true);
-                try {
-                    // Upload file to backend using the shared utility
-                    await uploadFileToBackend(file, notebookTracker, handleFileUpload);
-                } catch (error) {
-                    // Error handling is already done in the utility function
-                } finally {
-                    setIsUploading(false);
-                }
+        if (files && files.length > 0 && !isUploading) {
+            setIsUploading(true);
+            try {
+                // Upload all files to backend using the shared utility
+                const uploadPromises = Array.from(files).map(file =>
+                    uploadFileToBackend(file, notebookTracker, handleFileUpload)
+                );
+                await Promise.all(uploadPromises);
+            } catch (error) {
+                // Error handling is already done in the utility function
+            } finally {
+                setIsUploading(false);
             }
         }
     };
