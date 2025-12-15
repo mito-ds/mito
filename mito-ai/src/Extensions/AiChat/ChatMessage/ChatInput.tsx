@@ -136,9 +136,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 const uploadPromises = Array.from(files).map(file =>
                     uploadFileToBackend(file, notebookTracker, handleFileUpload)
                 );
-                await Promise.all(uploadPromises);
-            } catch (error) {
-                // Error handling is already done in the utility function
+                // Use allSettled so we wait for all uploads to finish (success or failure)
+                // before clearing the uploading state. This avoids background uploads
+                // mutating state after isUploading becomes false.
+                await Promise.allSettled(uploadPromises);
             } finally {
                 setIsUploading(false);
             }
