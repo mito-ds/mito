@@ -21,6 +21,7 @@
   background-color: var(--chat-user-message-background-color);
   color: var(--chat-user-message-font-color);
   padding: 10px;
+  margin-bottom: 5px;
 }
 
 .message-assistant-chat {
