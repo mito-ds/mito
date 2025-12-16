@@ -8,6 +8,8 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     CODE_SECTION_HEADING,
+    SELECTED_CONTEXT_SECTION_HEADING,
+    TASK_SECTION_HEADING,
     get_active_cell_output_str,
 )
 from mito_ai.completions.prompt_builders.utils import (
@@ -30,6 +32,12 @@ def create_chat_prompt(
     selected_context_str = get_selected_context_str(additional_context)
     rules_str = get_rules_str(additional_context)
 
+    selected_context_section = (
+        f"{SELECTED_CONTEXT_SECTION_HEADING}\n{selected_context_str}\n"
+        if selected_context_str != ""
+        else ""
+    )
+
     prompt = f"""{rules_str}
     
 Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete.
@@ -48,11 +56,12 @@ Help me complete the following task. I will provide you with a set of variables,
 {active_cell_code}
 ```
 
-{selected_context_str}
+{selected_context_section}
 
 {get_active_cell_output_str(has_active_cell_output)}
 
-Your task: {input}
+{TASK_SECTION_HEADING}
+{input}
 """
 
     return prompt

@@ -6,7 +6,8 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     ACTIVE_CELL_ID_SECTION_HEADING,
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
-    CODE_SECTION_HEADING
+    CODE_SECTION_HEADING,
+    ERROR_TRACEBACK_SECTION_HEADING,
 )
 
 
@@ -47,7 +48,7 @@ revenue_multiplier =  1.5
 sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
 ```
 
-Error Traceback:
+{ERROR_TRACEBACK_SECTION_HEADING}
 Cell In[24], line 4
       1 import pandas as pd
       2 sales_df = pd.read_csv('./sales.csv')
@@ -95,7 +96,7 @@ The DataFrame contains 'total_price' rather than 'price'. Updated column referen
 df['date'] = pd.to_datetime(df['date'])
 ```
 
-Error Traceback:
+{ERROR_TRACEBACK_SECTION_HEADING}
 Cell In[27], line 1
 ----> 1 df['date'] = pd.to_datetime(df['date'])
 
@@ -173,7 +174,7 @@ Here is your task.
 {active_cell_code}
 ```
 
-Error Traceback:
+{ERROR_TRACEBACK_SECTION_HEADING}
 {error_message}
 
 ERROR ANALYSIS:

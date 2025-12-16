@@ -6,7 +6,9 @@ from mito_ai.completions.models import AgentSmartDebugMetadata
 from mito_ai.completions.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING
+    VARIABLES_SECTION_HEADING,
+    ERROR_PRODUCING_CELL_ID_SECTION_HEADING,
+    ERROR_TRACEBACK_SECTION_HEADING,
 )
 
 # TODO:
@@ -70,7 +72,7 @@ ERROR CORRECTION:
 {FILES_SECTION_HEADING}
 file_name: sales.csv
 
-Jupyter Notebook:
+{JUPYTER_NOTEBOOK_SECTION_HEADING}
 [
     {{
         cell_type: 'markdown'
@@ -102,10 +104,10 @@ Jupyter Notebook:
     }})
 }}
 
-Cell ID of the Error Producing Code Cell:
+{ERROR_PRODUCING_CELL_ID_SECTION_HEADING}
 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
 
-Error Traceback:
+{ERROR_TRACEBACK_SECTION_HEADING}
 Cell In[27], line 1
 ----> 1 df['date'] = pd.to_datetime(df['date'])
 
@@ -152,9 +154,9 @@ User is trying to convert the date column to a datetime object even though the d
 {VARIABLES_SECTION_HEADING}
 {variables_str}
 
-Cell ID of the Error Producing Code Cell:
+{ERROR_PRODUCING_CELL_ID_SECTION_HEADING}
 {md.error_message_producing_code_cell_id}
 
-Error Traceback:
+{ERROR_TRACEBACK_SECTION_HEADING}
 {md.errorMessage}
 """

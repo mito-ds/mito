@@ -9,6 +9,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     CODE_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     FILES_SECTION_HEADING,
+    TASK_SECTION_HEADING,
     get_database_rules
 )
 
@@ -47,7 +48,8 @@ peak_revenue = monthly_revenue.max()
 growth_rate = (monthly_revenue.iloc[-1] / monthly_revenue.iloc[0] - 1) * 100
 ```
 
-Your task: What are the key revenue insights from this sales data?
+{TASK_SECTION_HEADING}
+What are the key revenue insights from this sales data?
 
 Output:
 Peak monthly revenue reached $847,392 in March[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:2-3], representing a 23.8% year-over-year growth rate[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:4]. The revenue aggregation analysis[MITO_CITATION:7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2:1-2] reveals strong seasonal performance patterns.
@@ -70,7 +72,8 @@ Notice in the example above:
 ```python
 ```
 
-Your task: Hello
+{TASK_SECTION_HEADING}
+Hello
 
 Output:
 Hey there! I'm Mito AI. How can I help you today? 
@@ -104,7 +107,8 @@ import pandas as pd
 sales_df = pd.read_csv('./sales.csv')
 ```
 
-Your task: convert the transaction_date column to datetime and then multiply the total_price column by the sales_multiplier.
+{TASK_SECTION_HEADING}
+convert the transaction_date column to datetime and then multiply the total_price column by the sales_multiplier.
 
 Output:
 ```python

@@ -20,6 +20,15 @@ ACTIVE_CELL_OUTPUT_SECTION_HEADING = "Output of the active code cell:"
 GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING = "Output of the code cell you just applied the CELL_UPDATE to:"
 JUPYTER_NOTEBOOK_SECTION_HEADING = "Jupyter Notebook:"
 STREAMLIT_APP_STATUS_SECTION_HEADING = "Streamlit App Status:"
+SELECTED_CONTEXT_SECTION_HEADING = "Selected context:"
+TASK_SECTION_HEADING = "Your task:"
+ERROR_TRACEBACK_SECTION_HEADING = "Error Traceback:"
+ERROR_PRODUCING_CELL_ID_SECTION_HEADING = "Cell ID of the Error Producing Code Cell:"
+
+# Developer note:
+# If you add or change a prompt "section", it MUST start with a section heading constant
+# from this module (on its own line), and `trim_sections_from_message_content` must be
+# updated to register the new heading as a boundary (and optionally as a trimmed section).
 
 # Placeholder text used when trimming content from messages
 CONTENT_REMOVED_PLACEHOLDER = "Content removed to save space" 

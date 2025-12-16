@@ -8,6 +8,8 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     STREAMLIT_APP_STATUS_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
+    SELECTED_CONTEXT_SECTION_HEADING,
+    TASK_SECTION_HEADING,
     cell_update_output_str
 )
 from mito_ai.completions.prompt_builders.utils import (
@@ -24,6 +26,11 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     rules_str = get_rules_str(md.additionalContext)
     selected_context_str = get_selected_context_str(md.additionalContext)
     
+    selected_context_section = (
+        f"{SELECTED_CONTEXT_SECTION_HEADING}\n{selected_context_str}"
+        if selected_context_str != ""
+        else ""
+    )
 
     streamlit_status_str = get_streamlit_app_status_str(md.notebookID, md.notebookPath)    
     
@@ -47,11 +54,11 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
 {ACTIVE_CELL_ID_SECTION_HEADING}
 {md.activeCellId}
 
-{selected_context_str}
+{selected_context_section}
 
 {cell_update_output_str(md.base64EncodedActiveCellOutput is not None)}"""
 
-    task_str = '' if md.input == '' else f"""Your task: 
+    task_str = '' if md.input == '' else f"""{TASK_SECTION_HEADING}
 {md.input}"""
 
     return '\n\n'.join([context_str, task_str]).strip()

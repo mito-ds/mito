@@ -26,6 +26,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     ACTIVE_CELL_ID_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     CONTENT_REMOVED_PLACEHOLDER,
+    TASK_SECTION_HEADING,
 )
 
 
@@ -98,7 +99,7 @@ PROMPT_BUILDER_TEST_CASES = [
     # Chat prompt
     (
         lambda: create_chat_prompt(TEST_VARIABLES, TEST_FILES, TEST_CODE, "cell1", False, TEST_INPUT),
-        ["Your task: Calculate the mean of col1"],
+        [f"{TASK_SECTION_HEADING}\nCalculate the mean of col1"],
         ["data.csv\nscript.py", f"{VARIABLES_SECTION_HEADING}\n'df': pd.DataFrame"],
     ),
     # Agent execution prompt
@@ -119,7 +120,7 @@ PROMPT_BUILDER_TEST_CASES = [
                 isChromeBrowser=True
             )
         ),
-        ["Your task: \nCalculate the mean of col1"],
+        [f"{TASK_SECTION_HEADING}\nCalculate the mean of col1"],
         ["data.csv\nscript.py", f"'df': pd.DataFrame", "import pandas as pd"],
     ),
     # Smart debug prompt
@@ -135,8 +136,8 @@ PROMPT_BUILDER_TEST_CASES = [
     # Explain code prompt (doesn't have sections to trim)
     (
         lambda: create_explain_code_prompt(TEST_CODE),
+        [f"{CODE_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}"],
         ["import pandas as pd"],
-        [],
     ),
     # Agent smart debug prompt
     (
@@ -176,7 +177,14 @@ def test_prompt_builder_trimming(prompt_builder: Callable[[], str], expected_in_
     # If none of the section headings are present, the content shouldn't change
     has_sections_to_trim = any(
         heading in content 
-        for heading in [FILES_SECTION_HEADING, VARIABLES_SECTION_HEADING, JUPYTER_NOTEBOOK_SECTION_HEADING, ACTIVE_CELL_ID_SECTION_HEADING]
+        for heading in [
+            FILES_SECTION_HEADING,
+            VARIABLES_SECTION_HEADING,
+            JUPYTER_NOTEBOOK_SECTION_HEADING,
+            ACTIVE_CELL_ID_SECTION_HEADING,
+            CODE_SECTION_HEADING,
+            ACTIVE_CELL_OUTPUT_SECTION_HEADING,
+        ]
     )
     
     if not has_sections_to_trim:
@@ -273,6 +281,30 @@ After.
     assert "```" not in result
     assert "Before." in result
     assert "After." in result
+
+
+def test_trimming_code_section_does_not_remove_task_section() -> None:
+    """
+    If CODE_SECTION_HEADING is trimmed, content after it (like the task) must remain.
+    This relies on TASK_SECTION_HEADING being a registered section boundary.
+    """
+    content = f"""Preamble.
+
+{CODE_SECTION_HEADING}
+```python
+import pandas as pd
+
+def foo():
+    return 1
+```
+
+{TASK_SECTION_HEADING}
+Do something with the dataframe.
+"""
+
+    result = trim_sections_from_message_content(content)
+    assert f"{CODE_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
+    assert f"{TASK_SECTION_HEADING}\nDo something with the dataframe." in result
 
 
 # Tests for trim_old_messages function

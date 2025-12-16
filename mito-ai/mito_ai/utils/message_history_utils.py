@@ -15,6 +15,10 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     CONTENT_REMOVED_PLACEHOLDER,
     CODE_SECTION_HEADING,
+    SELECTED_CONTEXT_SECTION_HEADING,
+    TASK_SECTION_HEADING,
+    ERROR_TRACEBACK_SECTION_HEADING,
+    ERROR_PRODUCING_CELL_ID_SECTION_HEADING,
 )
 
 
@@ -38,6 +42,9 @@ def trim_sections_from_message_content(content: str, preserve_notebook: bool = F
     #
     # Instead, we trim from the heading until the next *known* section heading (or end of string),
     # matching across newlines safely.
+    # These headings define *section boundaries* in prompt content.
+    # If you add a new prompt section heading, you must add it here so trimming
+    # never accidentally consumes subsequent sections.
     all_section_headings = [
         FILES_SECTION_HEADING,
         VARIABLES_SECTION_HEADING,
@@ -47,6 +54,10 @@ def trim_sections_from_message_content(content: str, preserve_notebook: bool = F
         STREAMLIT_APP_STATUS_SECTION_HEADING,
         CODE_SECTION_HEADING,
         JUPYTER_NOTEBOOK_SECTION_HEADING,
+        SELECTED_CONTEXT_SECTION_HEADING,
+        TASK_SECTION_HEADING,
+        ERROR_TRACEBACK_SECTION_HEADING,
+        ERROR_PRODUCING_CELL_ID_SECTION_HEADING,
     ]
 
     section_headings = [
@@ -63,10 +74,41 @@ def trim_sections_from_message_content(content: str, preserve_notebook: bool = F
         section_headings.append(JUPYTER_NOTEBOOK_SECTION_HEADING)
 
     boundary_alternation = "|".join(re.escape(h) for h in all_section_headings)
-    
+
+    def _trim_fenced_block_section(text: str, heading: str) -> str:
+        """
+        Trims sections that commonly contain fenced blocks (```...```), which may include
+        blank lines. This avoids patterns that stop at the first empty line.
+        """
+        # Preferred: heading followed by a fenced block.
+        text = re.sub(
+            rf"^[ \t]*{re.escape(heading)}(?:\n|$)[ \t]*```.*?\n[ \t]*```[ \t]*(?:\n|$)",
+            f"{heading} {CONTENT_REMOVED_PLACEHOLDER}\n",
+            text,
+            flags=re.MULTILINE | re.DOTALL,
+        )
+
+        # Fallback: heading followed by arbitrary content until the next boundary heading,
+        # a paragraph break, or end of string.
+        return re.sub(
+            rf"^[ \t]*{re.escape(heading)}(?:\n|$).*?(?=^[ \t]*(?:{boundary_alternation})\n|\n{{2,}}|\Z)",
+            f"{heading} {CONTENT_REMOVED_PLACEHOLDER}\n",
+            text,
+            flags=re.MULTILINE | re.DOTALL,
+        )
+
     for heading in section_headings:
+        if heading in (
+            CODE_SECTION_HEADING,
+            ACTIVE_CELL_OUTPUT_SECTION_HEADING,
+            GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
+        ):
+            content = _trim_fenced_block_section(content, heading)
+            continue
+
+        # Default: trim until the next boundary heading, paragraph break, or end of string.
         content = re.sub(
-            rf"^{re.escape(heading)}(?:\n|$).*?(?=^(?:{boundary_alternation})\n|\Z)",
+            rf"^[ \t]*{re.escape(heading)}(?:\n|$).*?(?=^[ \t]*(?:{boundary_alternation})\n|\n{{2,}}|\Z)",
             f"{heading} {CONTENT_REMOVED_PLACEHOLDER}\n",
             content,
             flags=re.MULTILINE | re.DOTALL,

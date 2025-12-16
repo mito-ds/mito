@@ -7,6 +7,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
+    TASK_SECTION_HEADING,
     get_database_rules
 )
 
@@ -124,7 +125,7 @@ loan_multiplier = 1.5\"\"\"
 {FILES_SECTION_HEADING}
 file_name: sales.csv
 
-Your task: 
+{TASK_SECTION_HEADING}
 Convert the transaction_date column to datetime and then multiply the total_price column by the sales_multiplier.
 
 Output:
@@ -172,7 +173,7 @@ sales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\"\"\
 {FILES_SECTION_HEADING}
 file_name: sales.csv
 
-Your task: 
+{TASK_SECTION_HEADING}
 Graph the total_price for each sale
 
 Output:
@@ -246,7 +247,8 @@ Important information:
 
 <Example>
 
-Your task: Show me my notebook as an app.
+{TASK_SECTION_HEADING}
+Show me my notebook as an app.
 
 Output:
 {{
@@ -379,7 +381,7 @@ tesla_stock_prices_df = pd.read_csv('./tesla_stock_prices.csv)\"\"\"
 {FILES_SECTION_HEADING}
 file_name: tesla_stock_prices.csv
 
-Your task: 
+{TASK_SECTION_HEADING}
 Given the dataframe `tesla_stock_prices_df`, what day was Tesla's all time high closing price?
 
 Output:
@@ -432,7 +434,7 @@ all_time_high_price = tesla_stock_prices_df.at[all_time_high_row_idx, 'closing_p
 {FILES_SECTION_HEADING}
 file_name: tesla_stock_prices.csv
 
-Your task: 
+{TASK_SECTION_HEADING}
 
 Output:
 {{

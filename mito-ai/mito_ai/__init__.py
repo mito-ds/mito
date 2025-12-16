@@ -2,23 +2,6 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List, Dict
-from jupyter_server.utils import url_path_join
-from mito_ai.completions.handlers import CompletionHandler
-from mito_ai.completions.providers import OpenAIProvider
-from mito_ai.completions.message_history import GlobalMessageHistory
-from mito_ai.app_deploy.handlers import AppDeployHandler
-from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
-from mito_ai.log.urls import get_log_urls
-from mito_ai.version_check import VersionCheckHandler
-from mito_ai.db.urls import get_db_urls
-from mito_ai.settings.urls import get_settings_urls
-from mito_ai.rules.urls import get_rules_urls
-from mito_ai.auth.urls import get_auth_urls
-from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
-from mito_ai.app_manager.handlers import AppManagerHandler
-from mito_ai.file_uploads.urls import get_file_uploads_urls
-from mito_ai.user.urls import get_user_urls
-from mito_ai.chat_history.urls import get_chat_history_urls
 
 # Force Matplotlib to use the Jupyter inline backend.
 # Background: importing Streamlit sets os.environ["MPLBACKEND"] = "Agg" very early.
@@ -60,6 +43,26 @@ def _jupyter_server_extension_points() -> List[Dict[str, str]]:
 # For a further explanation of the Jupyter architecture watch the first 35 minutes
 # of this video: https://www.youtube.com/watch?v=9_-siU-_XoI
 def _load_jupyter_server_extension(server_app) -> None: # type: ignore
+    # Import heavy / optional dependencies lazily so importing `mito_ai` in unit tests
+    # (or lightweight tooling) doesn't require the full Jupyter/server dependency tree.
+    from jupyter_server.utils import url_path_join
+    from mito_ai.completions.handlers import CompletionHandler
+    from mito_ai.completions.providers import OpenAIProvider
+    from mito_ai.completions.message_history import GlobalMessageHistory
+    from mito_ai.app_deploy.handlers import AppDeployHandler
+    from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
+    from mito_ai.log.urls import get_log_urls
+    from mito_ai.version_check import VersionCheckHandler
+    from mito_ai.db.urls import get_db_urls
+    from mito_ai.settings.urls import get_settings_urls
+    from mito_ai.rules.urls import get_rules_urls
+    from mito_ai.auth.urls import get_auth_urls
+    from mito_ai.streamlit_preview.urls import get_streamlit_preview_urls
+    from mito_ai.app_manager.handlers import AppManagerHandler
+    from mito_ai.file_uploads.urls import get_file_uploads_urls
+    from mito_ai.user.urls import get_user_urls
+    from mito_ai.chat_history.urls import get_chat_history_urls
+
     host_pattern = ".*$"
     web_app = server_app.web_app
     base_url = web_app.settings["base_url"]
