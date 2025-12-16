@@ -30,7 +30,25 @@ def trim_sections_from_message_content(content: str, preserve_notebook: bool = F
         preserve_notebook: If True, preserves the JUPYTER_NOTEBOOK_SECTION_HEADING section
     """
 
-    # Replace metadata sections with placeholders
+    # Replace metadata sections with placeholders.
+    #
+    # Important: Section contents may contain blank lines (e.g. code blocks with spacing).
+    # We therefore cannot rely on a pattern like `(?:.+\n)+` which only matches consecutive
+    # non-empty lines and stops at the first empty line.
+    #
+    # Instead, we trim from the heading until the next *known* section heading (or end of string),
+    # matching across newlines safely.
+    all_section_headings = [
+        FILES_SECTION_HEADING,
+        VARIABLES_SECTION_HEADING,
+        GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
+        ACTIVE_CELL_OUTPUT_SECTION_HEADING,
+        ACTIVE_CELL_ID_SECTION_HEADING,
+        STREAMLIT_APP_STATUS_SECTION_HEADING,
+        CODE_SECTION_HEADING,
+        JUPYTER_NOTEBOOK_SECTION_HEADING,
+    ]
+
     section_headings = [
         FILES_SECTION_HEADING,
         VARIABLES_SECTION_HEADING,
@@ -43,12 +61,15 @@ def trim_sections_from_message_content(content: str, preserve_notebook: bool = F
     
     if not preserve_notebook:
         section_headings.append(JUPYTER_NOTEBOOK_SECTION_HEADING)
+
+    boundary_alternation = "|".join(re.escape(h) for h in all_section_headings)
     
     for heading in section_headings:
         content = re.sub(
-            f"{re.escape(heading)}\n(?:.+\n)+",
+            rf"^{re.escape(heading)}(?:\n|$).*?(?=^(?:{boundary_alternation})\n|\Z)",
             f"{heading} {CONTENT_REMOVED_PLACEHOLDER}\n",
             content,
+            flags=re.MULTILINE | re.DOTALL,
         )
 
     return content

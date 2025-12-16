@@ -22,6 +22,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     FILES_SECTION_HEADING,
     VARIABLES_SECTION_HEADING,
     CODE_SECTION_HEADING,
+    ACTIVE_CELL_OUTPUT_SECTION_HEADING,
     ACTIVE_CELL_ID_SECTION_HEADING,
     JUPYTER_NOTEBOOK_SECTION_HEADING,
     CONTENT_REMOVED_PLACEHOLDER,
@@ -214,6 +215,64 @@ def test_no_sections_to_trim() -> None:
     content = "This is a simple message with no sections to trim."
     result = trim_sections_from_message_content(content)
     assert result == content
+
+
+def test_trim_code_section_with_blank_lines_in_fenced_block() -> None:
+    """
+    Regression test: code sections can contain blank lines (e.g. between imports and defs).
+    Trimming should remove the *entire* section body, including fences, without leaving
+    orphaned fragments like closing ``` or partial code.
+    """
+    content = f"""Intro text.
+
+{CODE_SECTION_HEADING}
+```python
+import pandas as pd
+
+def foo():
+    return 1
+```
+
+Outro text.
+"""
+
+    result = trim_sections_from_message_content(content)
+
+    assert f"{CODE_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
+    assert "import pandas as pd" not in result
+    assert "def foo():" not in result
+    assert "```python" not in result
+    assert "```" not in result
+    assert "Intro text." in result
+    assert "Outro text." in result
+
+
+def test_trim_active_cell_output_with_blank_lines_and_fences() -> None:
+    """
+    Regression test: output sections can contain blank lines and fenced blocks.
+    Trimming should remove the entire section body.
+    """
+    content = f"""Before.
+
+{ACTIVE_CELL_OUTPUT_SECTION_HEADING}
+```text
+line 1
+
+line 3
+```
+
+After.
+"""
+
+    result = trim_sections_from_message_content(content)
+
+    assert f"{ACTIVE_CELL_OUTPUT_SECTION_HEADING} {CONTENT_REMOVED_PLACEHOLDER}" in result
+    assert "line 1" not in result
+    assert "line 3" not in result
+    assert "```text" not in result
+    assert "```" not in result
+    assert "Before." in result
+    assert "After." in result
 
 
 # Tests for trim_old_messages function
