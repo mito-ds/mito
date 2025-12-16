@@ -2,14 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List, Optional, Dict
-from mito_ai.completions.prompt_builders.prompt_constants import (
-    ACTIVE_CELL_ID_SECTION_HEADING,
-    CHAT_CODE_FORMATTING_RULES,
-    FILES_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING,
-    CODE_SECTION_HEADING,
-    get_active_cell_output_str,
-)
+from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.utils import (
     get_rules_str,
     get_selected_context_str,
@@ -30,29 +23,41 @@ def create_chat_prompt(
     selected_context_str = get_selected_context_str(additional_context)
     rules_str = get_rules_str(additional_context)
 
-    prompt = f"""{rules_str}
+    sections = []
     
-Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete.
+    # Add rules if present
+    if rules_str:
+        sections.append(SG.Rules(rules_str))
+    
+    # Add intro text
+    sections.append(SG.Task("Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete."))
+    
+    # Add files if present
+    if files_str:
+        sections.append(SG.Files(files_str))
+    
+    # Add variables if present
+    if variables_str:
+        sections.append(SG.Variables(variables_str))
+    
+    # Add active cell ID
+    if active_cell_id:
+        sections.append(SG.ActiveCellId(active_cell_id))
+    
+    # Add code section
+    code_content = f"```python\n{active_cell_code}\n```"
+    sections.append(SG.Code(code_content))
+    
+    # Add selected context if present
+    if selected_context_str:
+        sections.append(SG.SelectedContext(selected_context_str))
+    
+    # Add active cell output if present
+    if has_active_cell_output:
+        sections.append(SG.ActiveCellOutput("Attatched is an image of the output of the active code cell for your context."))
+    
+    # Add task
+    sections.append(SG.Task(f"Your task: {input}"))
 
-{FILES_SECTION_HEADING}
-{files_str}
-
-{VARIABLES_SECTION_HEADING}
-{variables_str}
-
-{ACTIVE_CELL_ID_SECTION_HEADING}
-{active_cell_id}
-
-{CODE_SECTION_HEADING}
-```python
-{active_cell_code}
-```
-
-{selected_context_str}
-
-{get_active_cell_output_str(has_active_cell_output)}
-
-Your task: {input}
-"""
-
-    return prompt
+    prompt = Prompt(sections)
+    return str(prompt)

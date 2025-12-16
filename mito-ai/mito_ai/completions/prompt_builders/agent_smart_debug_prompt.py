@@ -3,11 +3,7 @@
 
 from typing import List
 from mito_ai.completions.models import AgentSmartDebugMetadata
-from mito_ai.completions.prompt_builders.prompt_constants import (
-    FILES_SECTION_HEADING,
-    JUPYTER_NOTEBOOK_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING
-)
+from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 
 # TODO:
 # 1. In the future, it might make sense to pass the previous CELL_UPDATE to this prompt?
@@ -22,7 +18,10 @@ def create_agent_smart_debug_prompt(md: AgentSmartDebugMetadata) -> str:
     files_str = '\n'.join([f"{file}" for file in md.files or []])
     ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
     
-    return f"""I just applied and executed the CELL_UPDATE that you just shared with me, but it errored. Below I am sharing with you a strategy for how I want you to resolve this error and information about the actual error that occured.
+    sections = []
+    
+    # Add intro text
+    sections.append(SG.Task("""I just applied and executed the CELL_UPDATE that you just shared with me, but it errored. Below I am sharing with you a strategy for how I want you to resolve this error and information about the actual error that occured.
 
 Use this strategy for this message only. After this message, continue using the original set of instructions that I provided you.
 
@@ -47,8 +46,8 @@ INTENT PRESERVATION:
 
 ERROR CORRECTION:
 
-- Return the full, updated version of cell {md.error_message_producing_code_cell_id} with the error fixed and a short explanation of the error.
-- You can only update code in {md.error_message_producing_code_cell_id}. You are unable to edit the code in any other cell when resolving this error.
+- Return the full, updated version of cell {error_cell_id} with the error fixed and a short explanation of the error.
+- You can only update code in {error_cell_id}. You are unable to edit the code in any other cell when resolving this error.
 - Propose a solution that fixes the error and does not change the user's intent.
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
@@ -61,14 +60,12 @@ ERROR CORRECTION:
         type: 'run_all_cells',
         message: str
     }}
-    Note that if the name error persists even after using run_all_cells, it means that the variable is not defined in the notebook and you should not reuse this tool. Additionally, this tool could also be used to refresh the notebook state.
+    Note that if the name error persists even after using run_all_cells, it means that the variable is not defined in the notebook and you should not reuse this tool. Additionally, this tool could also be used to refresh the notebook state.""".format(error_cell_id=md.error_message_producing_code_cell_id)))
+    
+    # Add example
+    example_content = f"""<Input>
 
-<Example>
-
-<Input>
-
-{FILES_SECTION_HEADING}
-file_name: sales.csv
+{SG.Files("file_name: sales.csv")}
 
 Jupyter Notebook:
 [
@@ -93,14 +90,13 @@ Jupyter Notebook:
     }},
 ]
 
-{VARIABLES_SECTION_HEADING}
-{{
-    'df': pd.DataFrame({{
+{SG.Variables("""{
+    'df': pd.DataFrame({
         'order_id': [1, 2, 3, 4],
         'date': ['Mar 7, 2025', 'Sep 24, 2024', '25 June, 2024', 'June 29, 2024'],
         'amount': [100, 150, 299, 99]
-    }})
-}}
+    })
+}""")}
 
 Cell ID of the Error Producing Code Cell:
 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
@@ -139,22 +135,22 @@ User is trying to convert the date column to a datetime object even though the d
     }}
 }}
 
-</Output>
+</Output>"""
+    sections.append(SG.Example("Example", example_content))
+    
+    # Add actual task sections
+    if files_str:
+        sections.append(SG.Files(files_str))
+    
+    if ai_optimized_cells_str:
+        sections.append(SG.Notebook(ai_optimized_cells_str))
+    
+    if variables_str:
+        sections.append(SG.Variables(variables_str))
+    
+    sections.append(SG.Task(f"Cell ID of the Error Producing Code Cell:\n{md.error_message_producing_code_cell_id}"))
+    
+    sections.append(SG.ErrorTraceback(f"Error Traceback:\n{md.errorMessage}"))
 
-</Example>
-
-{FILES_SECTION_HEADING}
-{files_str}
-
-{JUPYTER_NOTEBOOK_SECTION_HEADING}
-{ai_optimized_cells_str}
-
-{VARIABLES_SECTION_HEADING}
-{variables_str}
-
-Cell ID of the Error Producing Code Cell:
-{md.error_message_producing_code_cell_id}
-
-Error Traceback:
-{md.errorMessage}
-"""
+    prompt = Prompt(sections)
+    return str(prompt)
