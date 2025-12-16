@@ -8,7 +8,8 @@ These constants ensure consistency between prompt building and message trimming.
 
 import os
 import json
-from typing import Final
+from dataclasses import dataclass
+from typing import Final, Iterable, List
 from mito_ai.utils.schema import MITO_FOLDER
 
 # Section headings used in prompts
@@ -25,10 +26,56 @@ TASK_SECTION_HEADING = "Your task:"
 ERROR_TRACEBACK_SECTION_HEADING = "Error Traceback:"
 ERROR_PRODUCING_CELL_ID_SECTION_HEADING = "Cell ID of the Error Producing Code Cell:"
 
+@dataclass(frozen=True)
+class PromptSectionHeading:
+    """
+    Central registry entry for prompt section headings.
+
+    This exists so we can:
+    - Iterate all headings as "section boundaries" when trimming messages.
+    - Mark which headings should actually be trimmed.
+    - Mark which headings commonly contain fenced blocks (```...```), so trimming can be
+      fence-aware and tolerate blank lines safely.
+    """
+
+    heading: str
+    trim: bool
+    is_fenced: bool = False
+
+
 # Developer note:
-# If you add or change a prompt "section", it MUST start with a section heading constant
-# from this module (on its own line), and `trim_sections_from_message_content` must be
-# updated to register the new heading as a boundary (and optionally as a trimmed section).
+# When you add a new prompt "section", you must:
+# - Define the <NAME>_SECTION_HEADING constant above
+# - Add it to PROMPT_SECTION_HEADINGS below (exactly once)
+#
+# The trimming logic iterates this registry, so you do NOT need to separately update
+# `trim_sections_from_message_content` when adding new section headings.
+PROMPT_SECTION_HEADINGS: Final[List[PromptSectionHeading]] = [
+    # Trimmed metadata sections
+    PromptSectionHeading(FILES_SECTION_HEADING, trim=True),
+    PromptSectionHeading(VARIABLES_SECTION_HEADING, trim=True),
+    PromptSectionHeading(GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING, trim=True, is_fenced=True),
+    PromptSectionHeading(ACTIVE_CELL_OUTPUT_SECTION_HEADING, trim=True, is_fenced=True),
+    PromptSectionHeading(ACTIVE_CELL_ID_SECTION_HEADING, trim=True),
+    PromptSectionHeading(STREAMLIT_APP_STATUS_SECTION_HEADING, trim=True),
+    PromptSectionHeading(CODE_SECTION_HEADING, trim=True, is_fenced=True),
+    PromptSectionHeading(JUPYTER_NOTEBOOK_SECTION_HEADING, trim=True),
+
+    # Non-trimmed (but must be boundaries)
+    PromptSectionHeading(SELECTED_CONTEXT_SECTION_HEADING, trim=False),
+    PromptSectionHeading(TASK_SECTION_HEADING, trim=False),
+    PromptSectionHeading(ERROR_TRACEBACK_SECTION_HEADING, trim=False),
+    PromptSectionHeading(ERROR_PRODUCING_CELL_ID_SECTION_HEADING, trim=False),
+]
+
+
+def iter_prompt_section_headings() -> Iterable[PromptSectionHeading]:
+    return PROMPT_SECTION_HEADINGS
+
+
+def get_prompt_section_boundary_headings() -> List[str]:
+    return [h.heading for h in PROMPT_SECTION_HEADINGS]
+
 
 # Placeholder text used when trimming content from messages
 CONTENT_REMOVED_PLACEHOLDER = "Content removed to save space" 

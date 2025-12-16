@@ -6,19 +6,10 @@ from typing import List
 from mito_ai.constants import MESSAGE_HISTORY_TRIM_THRESHOLD, NOTEBOOK_PRESERVATION_THRESHOLD
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.prompt_builders.prompt_constants import (
-    ACTIVE_CELL_ID_SECTION_HEADING,
-    ACTIVE_CELL_OUTPUT_SECTION_HEADING,
-    GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
-    FILES_SECTION_HEADING,
-    STREAMLIT_APP_STATUS_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING,
-    JUPYTER_NOTEBOOK_SECTION_HEADING,
     CONTENT_REMOVED_PLACEHOLDER,
-    CODE_SECTION_HEADING,
-    SELECTED_CONTEXT_SECTION_HEADING,
-    TASK_SECTION_HEADING,
-    ERROR_TRACEBACK_SECTION_HEADING,
-    ERROR_PRODUCING_CELL_ID_SECTION_HEADING,
+    JUPYTER_NOTEBOOK_SECTION_HEADING,
+    iter_prompt_section_headings,
+    get_prompt_section_boundary_headings,
 )
 
 
@@ -36,44 +27,11 @@ def trim_sections_from_message_content(content: str, preserve_notebook: bool = F
 
     # Replace metadata sections with placeholders.
     #
-    # Important: Section contents may contain blank lines (e.g. code blocks with spacing).
-    # We therefore cannot rely on a pattern like `(?:.+\n)+` which only matches consecutive
-    # non-empty lines and stops at the first empty line.
-    #
-    # Instead, we trim from the heading until the next *known* section heading (or end of string),
-    # matching across newlines safely.
-    # These headings define *section boundaries* in prompt content.
-    # If you add a new prompt section heading, you must add it here so trimming
-    # never accidentally consumes subsequent sections.
-    all_section_headings = [
-        FILES_SECTION_HEADING,
-        VARIABLES_SECTION_HEADING,
-        GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
-        ACTIVE_CELL_OUTPUT_SECTION_HEADING,
-        ACTIVE_CELL_ID_SECTION_HEADING,
-        STREAMLIT_APP_STATUS_SECTION_HEADING,
-        CODE_SECTION_HEADING,
-        JUPYTER_NOTEBOOK_SECTION_HEADING,
-        SELECTED_CONTEXT_SECTION_HEADING,
-        TASK_SECTION_HEADING,
-        ERROR_TRACEBACK_SECTION_HEADING,
-        ERROR_PRODUCING_CELL_ID_SECTION_HEADING,
-    ]
-
-    section_headings = [
-        FILES_SECTION_HEADING,
-        VARIABLES_SECTION_HEADING,
-        GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
-        ACTIVE_CELL_OUTPUT_SECTION_HEADING,
-        ACTIVE_CELL_ID_SECTION_HEADING,
-        STREAMLIT_APP_STATUS_SECTION_HEADING,
-        CODE_SECTION_HEADING,
-    ]
-    
-    if not preserve_notebook:
-        section_headings.append(JUPYTER_NOTEBOOK_SECTION_HEADING)
-
-    boundary_alternation = "|".join(re.escape(h) for h in all_section_headings)
+    # The prompt builder layer defines a single registry of all section headings
+    # (both "trimmed" metadata and "non-trimmed" content), which we use here for:
+    # - boundary detection, and
+    # - deciding which sections should be trimmed.
+    boundary_alternation = "|".join(re.escape(h) for h in get_prompt_section_boundary_headings())
 
     def _trim_fenced_block_section(text: str, heading: str) -> str:
         """
@@ -97,19 +55,20 @@ def trim_sections_from_message_content(content: str, preserve_notebook: bool = F
             flags=re.MULTILINE | re.DOTALL,
         )
 
-    for heading in section_headings:
-        if heading in (
-            CODE_SECTION_HEADING,
-            ACTIVE_CELL_OUTPUT_SECTION_HEADING,
-            GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING,
-        ):
-            content = _trim_fenced_block_section(content, heading)
+    for section in iter_prompt_section_headings():
+        if not section.trim:
+            continue
+        if preserve_notebook and section.heading == JUPYTER_NOTEBOOK_SECTION_HEADING:
+            continue
+
+        if section.is_fenced:
+            content = _trim_fenced_block_section(content, section.heading)
             continue
 
         # Default: trim until the next boundary heading, paragraph break, or end of string.
         content = re.sub(
-            rf"^[ \t]*{re.escape(heading)}(?:\n|$).*?(?=^[ \t]*(?:{boundary_alternation})\n|\n{{2,}}|\Z)",
-            f"{heading} {CONTENT_REMOVED_PLACEHOLDER}\n",
+            rf"^[ \t]*{re.escape(section.heading)}(?:\n|$).*?(?=^[ \t]*(?:{boundary_alternation})\n|\n{{2,}}|\Z)",
+            f"{section.heading} {CONTENT_REMOVED_PLACEHOLDER}\n",
             content,
             flags=re.MULTILINE | re.DOTALL,
         )
