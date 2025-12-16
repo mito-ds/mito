@@ -72,7 +72,7 @@ const ToolbarButtonsPlugin: JupyterFrontEndPlugin<void> = {
         commands.addCommand('toolbar-button:preview-as-streamlit', {
             label: 'App Mode',
             caption: 'Preview notebook as app and turn on App Mode',
-            className: 'text-button-mito-ai button-base button-purple button-small',
+            className: 'text-button-mito-ai button-base button-blue button-small',
             execute: async () => {
                 void app.commands.execute(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT);
             },

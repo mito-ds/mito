@@ -57,10 +57,6 @@ export const checkForBlacklistedWords = (code: string): { safe: boolean, reason?
             message: "This code contains an SQL DROP DATABASE command that could delete your entire database"
         },
         {
-            pattern: /\bformat\s*\(/,
-            message: "This code contains a format command that could potentially format your drives or storage devices"
-        },
-        {
             pattern: /\bsystem\s*\(/,
             message: "This code contains a system() call that could execute arbitrary system commands, which is a security risk"
         },

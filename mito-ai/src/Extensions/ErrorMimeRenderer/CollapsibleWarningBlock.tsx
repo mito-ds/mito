@@ -16,7 +16,7 @@ export const CollapsibleWarningBlock = ({ message }: CollapsibleWarningBlockProp
     const warningCount = lines.filter(line => line.includes("Warning: ")).length;
 
     return (
-        <div className="output-block">
+        <div className="output-block mito-warning-block">
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => setIsExpanded(!isExpanded)}>
                 <button className="collapse-button">
                     {isExpanded ? '▼' : '▶'}

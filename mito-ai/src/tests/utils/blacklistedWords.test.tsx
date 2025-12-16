@@ -167,14 +167,6 @@ describe('checkForBlacklistedWords', () => {
                 reason: "This code contains an exec() function that could execute arbitrary code, which is a security risk"
             });
         });
-
-        test('should detect format() calls', () => {
-            const code = 'format(drive)';
-            expect(checkForBlacklistedWords(code)).toEqual({
-                safe: false,
-                reason: "This code contains a format command that could potentially format your drives or storage devices"
-            });
-        });
     });
 
     // Edge Cases and Special Scenarios
@@ -192,26 +184,6 @@ describe('checkForBlacklistedWords', () => {
 
             test('should allow "delete" in comments without "from"', () => {
                 const code = '# This is a comment about delete functionality';
-                expect(checkForBlacklistedWords(code)).toEqual({ safe: true });
-            });
-
-            test('should allow "format" in variable names', () => {
-                const code = 'const dateFormat = "YYYY-MM-DD"';
-                expect(checkForBlacklistedWords(code)).toEqual({ safe: true });
-            });
-
-            test('show allow "format" used in pandas datetime', () => {
-                const code = 'pd.to_datetime("2024-01-01", format="%Y-%m-%d")';
-                expect(checkForBlacklistedWords(code)).toEqual({ safe: true });
-            });
-
-            test('show allow "format" used in pandas datetime with a space', () => {
-                const code = 'pd.to_datetime("2024-01-01", format = " %Y-%m-%d")';
-                expect(checkForBlacklistedWords(code)).toEqual({ safe: true });
-            });
-
-            test('show allow "format" used in pandas datetime with parentheses', () => {
-                const code = 'pd.to_datetime("2024-01-01", format = ( " %Y-%m-%d"))';
                 expect(checkForBlacklistedWords(code)).toEqual({ safe: true });
             });
             
