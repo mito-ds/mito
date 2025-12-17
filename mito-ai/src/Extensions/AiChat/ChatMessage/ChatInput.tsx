@@ -146,6 +146,31 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
+    const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>): Promise<void> => {
+        const mostRecentClipboardItem = e.clipboardData.items[0];
+        if (!mostRecentClipboardItem) return;
+
+        if (mostRecentClipboardItem.type.startsWith('image/')) {
+            e.preventDefault();
+            
+            const blob = mostRecentClipboardItem.getAsFile();
+            if (!blob) return;
+
+            const file = new File(
+                [blob], 
+                `pasted-image.${mostRecentClipboardItem.type.split('/')[1]}`, 
+                { type: mostRecentClipboardItem.type }
+            );
+            
+            setIsUploading(true);
+            try {
+                await uploadFileToBackend(file, notebookTracker, handleFileUpload);
+            } finally {
+                setIsUploading(false);
+            }
+        }
+    };
+
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
     const debouncedSetActiveCellID = useDebouncedFunction((newID: string | undefined) => {
@@ -469,6 +494,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     value={input}
                     disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
                     onChange={handleInputChange}
+                    onPaste={handlePaste}
                     onKeyDown={(e) => {
                         // If dropdown is visible, only handle escape to close it
                         if (isDropdownVisible) {
