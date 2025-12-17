@@ -3,7 +3,6 @@
 
 import re
 from typing import List, Dict, Optional
-from mito_ai.constants import MESSAGE_HISTORY_TRIM_THRESHOLD
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.prompt_builders.prompt_section_registry import get_all_section_classes
 
@@ -72,24 +71,23 @@ def trim_old_messages(messages: List[ChatCompletionMessageParam]) -> List[ChatCo
     
     Only trims user messages for now, but the design allows for easy extension to system/assistant messages.
     """
-    if len(messages) <= MESSAGE_HISTORY_TRIM_THRESHOLD:
-        return messages
         
     # Process all messages except the keep_recent most recent ones. 
     # Only trim user messages, which is where this metadata lives. 
     # We want to not edit the system messages, as they contain important information / examples.
-    for i in range(len(messages) - MESSAGE_HISTORY_TRIM_THRESHOLD):
+    total_messages = len(messages)
+    for i in range(total_messages):
+        
+        # Only trim user messages
         is_user_message = messages[i].get("role") == "user"
         if not is_user_message: 
             continue
         
         content = messages[i].get("content")
-        
         if content is None:
             continue
         
-        # Calculate message age (0 = most recent, higher = older)
-        message_age = i
+        message_age = total_messages - i - 1
         
         if isinstance(content, str):
             # If content is just a string, then we just trim the metadata sections
