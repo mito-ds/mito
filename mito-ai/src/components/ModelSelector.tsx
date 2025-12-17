@@ -9,7 +9,20 @@ import '../../style/ModelSelector.css';
 import NucleausIcon from '../icons/NucleausIcon';
 import BrainIcon from '../icons/BrainIcon';
 import LightningIcon from '../icons/LightningIcon';
-import { CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME, CLAUDE_HAIKU_DISPLAY_NAME, CLAUDE_HAIKU_MODEL_NAME } from '../utils/models';
+import { 
+  CLAUDE_SONNET_DISPLAY_NAME, 
+  CLAUDE_SONNET_MODEL_NAME, 
+  CLAUDE_HAIKU_DISPLAY_NAME, 
+  CLAUDE_HAIKU_MODEL_NAME,
+  GPT_4_1_DISPLAY_NAME,
+  GPT_4_1_MODEL_NAME,
+  GPT_5_2_DISPLAY_NAME,
+  GPT_5_2_MODEL_NAME,
+  GEMINI_3_FLASH_MODEL_NAME,
+  GEMINI_3_FLASH_DISPLAY_NAME,
+  GEMINI_3_PRO_DISPLAY_NAME,
+  GEMINI_3_PRO_MODEL_NAME,
+} from '../utils/models';
 
 interface ModelConfig {
   model: string;
@@ -42,8 +55,8 @@ const GOOD_FOR_SMART = [
 
 const MODEL_MAPPINGS: ModelMapping[] = [
   {
-    displayName: 'GPT 4.1',
-    fullName: 'gpt-4.1',
+    displayName: GPT_4_1_DISPLAY_NAME,
+    fullName: GPT_4_1_MODEL_NAME,
     type: 'smart',
     goodFor: [...GOOD_FOR_SMART],
     provider: 'OpenAI',
@@ -52,8 +65,8 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'High'
   },
   {
-    displayName: 'GPT 5.2',
-    fullName: 'gpt-5.2',
+    displayName: GPT_5_2_DISPLAY_NAME,
+    fullName: GPT_5_2_MODEL_NAME,
     type: 'fast',
     goodFor: [...GOOD_FOR_FAST],
     provider: 'OpenAI',
@@ -87,8 +100,8 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'High'
   },
   {
-    displayName: 'Gemini 3 Flash',
-    fullName: 'gemini-3-flash-preview',
+    displayName: GEMINI_3_FLASH_DISPLAY_NAME,
+    fullName: GEMINI_3_FLASH_MODEL_NAME,
     type: 'fast',
     goodFor: [...GOOD_FOR_FAST],
     provider: 'Google',
@@ -97,8 +110,8 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'Medium'
   },
   {
-    displayName: 'Gemini 3 Pro',
-    fullName: 'gemini-3-pro-preview',
+    displayName: GEMINI_3_PRO_DISPLAY_NAME,
+    fullName: GEMINI_3_PRO_MODEL_NAME,
     type: 'smart',
     goodFor: [...GOOD_FOR_SMART],
     provider: 'Google',
