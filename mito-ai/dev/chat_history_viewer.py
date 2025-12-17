@@ -78,15 +78,6 @@ def format_message_content(content: Any) -> str:
     # Handle different content types
     if isinstance(content, (dict, list)):
         return json.dumps(content, indent=2)
-    elif isinstance(content, str):
-        # Try to parse as JSON if it looks like JSON
-        if content.strip().startswith('{') or content.strip().startswith('['):
-            try:
-                parsed = json.loads(content)
-                return json.dumps(parsed, indent=2)
-            except:
-                pass
-        return content
     else:
         return str(content)
 
@@ -96,19 +87,9 @@ def display_message_content(content: Any):
     # Handle different content types
     if isinstance(content, (dict, list)):
         st.json(content)
-    elif isinstance(content, str):
-        # Try to display as JSON if it looks like JSON
-        if content.strip().startswith('{') or content.strip().startswith('['):
-            try:
-                parsed = json.loads(content)
-                st.json(parsed)
-            except:
-                st.code(content, language="text")
-        else:
-            st.markdown(content)
     else:
         st.code(str(content), language="text")
-
+        
 
 def main():
     st.set_page_config(
