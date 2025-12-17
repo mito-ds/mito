@@ -14,6 +14,7 @@ from .rules import RulesSection
 from .task import TaskSection
 from .error_traceback import ErrorTracebackSection
 from .example import ExampleSection
+from .generic import GenericSection
 from .base import Prompt
 
 
@@ -32,6 +33,7 @@ class SectionRegistry:
     Task = TaskSection
     ErrorTraceback = ErrorTracebackSection
     Example = ExampleSection
+    Generic = GenericSection
 
 
 # Export as SG (Section Generator) for easy usage

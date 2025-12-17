@@ -14,14 +14,10 @@ from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prom
 # graph of cells that we calculate ourselves, not relying on the AI. 
 
 def create_agent_smart_debug_prompt(md: AgentSmartDebugMetadata) -> str:
-    variables_str = '\n'.join([f"{variable}" for variable in md.variables or []])
-    files_str = '\n'.join([f"{file}" for file in md.files or []])
-    ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
-    
     sections = []
     
     # Add intro text
-    sections.append(SG.Task("""I just applied and executed the CELL_UPDATE that you just shared with me, but it errored. Below I am sharing with you a strategy for how I want you to resolve this error and information about the actual error that occured.
+    sections.append(SG.Task(f"""I just applied and executed the CELL_UPDATE that you just shared with me, but it errored. Below I am sharing with you a strategy for how I want you to resolve this error and information about the actual error that occured.
 
 Use this strategy for this message only. After this message, continue using the original set of instructions that I provided you.
 
@@ -32,7 +28,7 @@ Step 1: ERROR ANALYSIS: Analyze the error message to identify why the code cell 
 Step 2: INTENT PRESERVATION: Make sure you understand the intent of the CELL_UPDATE so that you can be sure to preserve it when you create a new CELL_UPDATE
 Step 3: ERROR CORRECTION: Respond with a new CELL_UPDATE that is applied to the same cell as the erroring CELL_UPDATE.
 
-<Instructions for each Phase />
+INSTRUCTIONS FOR EACH PHASE
 
 ERROR ANALYSIS:
 
@@ -46,8 +42,8 @@ INTENT PRESERVATION:
 
 ERROR CORRECTION:
 
-- Return the full, updated version of cell {error_cell_id} with the error fixed and a short explanation of the error.
-- You can only update code in {error_cell_id}. You are unable to edit the code in any other cell when resolving this error.
+- Return the full, updated version of cell {md.error_message_producing_code_cell_id} with the error fixed and a short explanation of the error.
+- You can only update code in {md.error_message_producing_code_cell_id}. You are unable to edit the code in any other cell when resolving this error.
 - Propose a solution that fixes the error and does not change the user's intent.
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
@@ -60,7 +56,7 @@ ERROR CORRECTION:
         type: 'run_all_cells',
         message: str
     }}
-    Note that if the name error persists even after using run_all_cells, it means that the variable is not defined in the notebook and you should not reuse this tool. Additionally, this tool could also be used to refresh the notebook state.""".format(error_cell_id=md.error_message_producing_code_cell_id)))
+    Note that if the name error persists even after using run_all_cells, it means that the variable is not defined in the notebook and you should not reuse this tool. Additionally, this tool could also be used to refresh the notebook state."""))
     
     # Add example
     example_content = f"""<Input>
@@ -137,20 +133,10 @@ User is trying to convert the date column to a datetime object even though the d
 
 </Output>"""
     sections.append(SG.Example("Example", example_content))
-    
-    # Add actual task sections
-    if files_str:
-        sections.append(SG.Files(files_str))
-    
-    if ai_optimized_cells_str:
-        sections.append(SG.Notebook(ai_optimized_cells_str))
-    
-    if variables_str:
-        sections.append(SG.Variables(variables_str))
-    
-    sections.append(SG.Task(f"Cell ID of the Error Producing Code Cell:\n{md.error_message_producing_code_cell_id}"))
-    
-    sections.append(SG.ErrorTraceback(f"Error Traceback:\n{md.errorMessage}"))
+    sections.append(SG.Files(md.files))
+    sections.append(SG.Notebook(md.aiOptimizedCells))
+    sections.append(SG.Variables(md.variables))
+    sections.append(SG.ErrorTraceback(md.error_message_producing_code_cell_id, md.errorMessage))
 
     prompt = Prompt(sections)
     return str(prompt)

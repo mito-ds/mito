@@ -295,7 +295,8 @@ Important information:
 5. If you are not sure what the user might want to do next, err on the side of suggesting next steps instead of making an assumption and using more CELL_UPDATES.
 6. If the user's task doesn't involve creating or modifying a code cell, you should respond with a FINISHED_TASK response. 
 7. If the user is just sending a friendly greeting (like "Hello", "Hi", "Hey", "How are you?", "What can you help me with?", etc.), you must respond with a FINISHED_TASK response message with a friendly message like this: "Hello! I'm Mito AI, your AI assistant for data analysis and Python programming in Jupyter notebooks. I can help you analyze datasets, create visualizations, clean data, and much more. What would you like to work on today?"
-8. Do not include any analysis_assumptions in the FINISHED_TASK response."""))
+8. Do not include any analysis_assumptions in the FINISHED_TASK response.
+"""))
     
     # Finished Task Example 1
     finished_task_ex1_content = """{{
@@ -341,7 +342,8 @@ RULES
 ===="""))
     
     # CITATION_RULES and CELL_REFERENCE_RULES
-    sections.append(SG.Rules(f"==== \n{CITATION_RULES}\n\n====\n{CELL_REFERENCE_RULES}"))
+    sections.append(SG.Generic("CitationRules", CITATION_RULES))
+    sections.append(SG.Generic("CellReferenceRules", CELL_REFERENCE_RULES))
     
     # Citation Example
     citation_example_content = f"""### User Message 1:
@@ -430,14 +432,10 @@ Output:
     sections.append(SG.Example("Citation Example", citation_example_content))
     
     # Database rules
-    db_rules = get_database_rules()
-    if db_rules:
-        sections.append(SG.Rules(f"===\n{db_rules}\n===="))
+    sections.append(SG.Generic("DatabaseRules", get_database_rules()))
     
     # RULES OF YOUR WORKING PROCESS
-    sections.append(SG.Task(f"""RULES OF YOUR WORKING PROCESS
-
-The user is going to ask you to guide them as through the process of completing a task. You will help them complete a task over the course of an entire conversation with them. The user will first share with you what they want to accomplish. You will then use a tool to execute the first step of the task, they will execute the tool and return to you the updated notebook state with you, and then you will give them the next step of the task. You will continue to give them the next step of the task until they have completed the task.
+    sections.append(SG.Generic("RulesOfWorkingProcess", f"""The user is going to ask you to guide them as through the process of completing a task. You will help them complete a task over the course of an entire conversation with them. The user will first share with you what they want to accomplish. You will then use a tool to execute the first step of the task, they will execute the tool and return to you the updated notebook state with you, and then you will give them the next step of the task. You will continue to give them the next step of the task until they have completed the task.
 
 As you are guiding the user through the process of completing the task, send them TOOL messages to give them the next step of the task. When you have finished the task, send a FINISHED_TASK tool message. 
 
@@ -465,11 +463,9 @@ REMEMBER, YOU ARE GOING TO COMPLETE THE USER'S TASK OVER THE COURSE OF THE ENTIR
 - Wait for the user to send you back the updated variables and notebook state.
 {'' if not isChromeBrowser else '- Send a GET_CELL_OUTPUT tool message to get the output of the cell you just created and check if you can improve the graph to make it more readable, informative, or professional.'}
 - If after reviewing the updates you decide that you've completed the task, send a FINISHED_TASK tool message.
+"""))
 
-====
+    sections.append(SG.Generic("OtherUsefulInformation", """1. The active cell ID is shared with you so that when the user refers to "this cell" or similar phrases, you know which cell they mean. However, you are free to edit any cell that you see fit."""))
 
-OTHER USEFUL INFORMATION:
-1. The active cell ID is shared with you so that when the user refers to "this cell" or similar phrases, you know which cell they mean. However, you are free to edit any cell that you see fit."""))
-    
     prompt = Prompt(sections)
     return str(prompt)

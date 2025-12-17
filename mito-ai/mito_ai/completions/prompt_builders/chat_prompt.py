@@ -3,9 +3,6 @@
 
 from typing import List, Optional, Dict
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
-from mito_ai.completions.prompt_builders.utils import (
-    get_rules_str,
-)
 
 
 def create_chat_prompt(
@@ -17,34 +14,23 @@ def create_chat_prompt(
     input: str,
     additional_context: Optional[List[Dict[str, str]]] = None,
 ) -> str:
-    variables_str = "\n".join([f"{variable}" for variable in variables])
-    files_str = "\n".join([f"{file}" for file in files])
-    rules_str = get_rules_str(additional_context)
-
     sections = []
     
     # Add rules if present
-    if rules_str:
-        sections.append(SG.Rules(rules_str))
+    sections.append(SG.Rules(additional_context))
     
     # Add intro text
     sections.append(SG.Task("Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete."))
     
     # Add files if present
-    if files_str:
-        sections.append(SG.Files(files_str))
+    sections.append(SG.Files(files))
     
     # Add variables if present
-    if variables_str:
-        sections.append(SG.Variables(variables_str))
-    
-    # Add active cell ID
-    if active_cell_id:
-        sections.append(SG.ActiveCellId(active_cell_id))
+    sections.append(SG.Variables(variables))
+    sections.append(SG.ActiveCellId(active_cell_id))
     
     # Add code section
-    code_content = f"```python\n{active_cell_code}\n```"
-    sections.append(SG.Code(code_content))
+    sections.append(SG.Code(active_cell_code))
     
     # Add selected context if present
     sections.append(SG.SelectedContext(additional_context))

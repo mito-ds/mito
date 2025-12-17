@@ -7,7 +7,7 @@ from typing import Optional, List, Dict
 
 class SelectedContextSection(PromptSection):
     """Section for selected context - never trimmed."""
-    trim_after_messages: Optional[int] = None
+    trim_after_messages: Optional[int] = 6
     
     def __init__(self, additional_context: Optional[List[Dict[str, str]]]):
         """

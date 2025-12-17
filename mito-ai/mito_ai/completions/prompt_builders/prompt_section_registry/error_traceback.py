@@ -8,4 +8,17 @@ from typing import Optional
 class ErrorTracebackSection(PromptSection):
     """Section for error traceback - never trimmed."""
     trim_after_messages: Optional[int] = None
+    
+    def __init__(self, code_cell_id: str, traceback: str):
+        """
+        Initialize ErrorTracebackSection with code cell ID and traceback.
+        
+        Args:
+            code_cell_id: The ID of the code cell that produced the error
+            traceback: The error traceback message
+        """
+        self.code_cell_id = code_cell_id
+        self.traceback = traceback
+        self.content = f"Cell ID: {code_cell_id}\n\n{traceback}"
+        self.name = "Error"
 

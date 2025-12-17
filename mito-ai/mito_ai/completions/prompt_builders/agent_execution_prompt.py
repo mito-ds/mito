@@ -3,43 +3,28 @@
 
 from mito_ai.completions.models import AgentExecutionMetadata
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
-from mito_ai.completions.prompt_builders.utils import (
-    get_rules_str,
-    get_streamlit_app_status_str
-)
 
 
 def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
-    variables_str = '\n'.join([f"{variable}" for variable in md.variables or []])
-    files_str = '\n'.join([f"{file}" for file in md.files or []])
-    ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
-    rules_str = get_rules_str(md.additionalContext)
-    streamlit_status_str = get_streamlit_app_status_str(md.notebookID, md.notebookPath)
-    
     sections = []
     
     # Add intro text
     sections.append(SG.Task("Remember to choose the correct tool to respond with."))
     
     # Add rules if present
-    if rules_str:
-        sections.append(SG.Rules(rules_str))
+    sections.append(SG.Rules(md.additionalContext))
     
     # Add notebook if present
-    if ai_optimized_cells_str:
-        sections.append(SG.Notebook(ai_optimized_cells_str))
+    sections.append(SG.Notebook(md.aiOptimizedCells))
     
     # Add variables if present
-    if variables_str:
-        sections.append(SG.Variables(variables_str))
+    sections.append(SG.Variables(md.variables))
     
     # Add files if present
-    if files_str:
-        sections.append(SG.Files(files_str))
+    sections.append(SG.Files(md.files))
     
     # Add streamlit status if present
-    if streamlit_status_str:
-        sections.append(SG.StreamlitAppStatus(streamlit_status_str))
+    sections.append(SG.StreamlitAppStatus(md.notebookID, md.notebookPath))
     
     # Add active cell ID
     if md.activeCellId:

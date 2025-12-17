@@ -12,9 +12,6 @@ def create_error_prompt(
     variables: List[str],
     files: List[str]
 ) -> str:
-    variables_str = '\n'.join([f"{variable}" for variable in variables])
-    files_str = '\n'.join([f"{file}" for file in files])
-    
     sections = []
     
     # Add intro text
@@ -33,7 +30,7 @@ def create_error_prompt(
 }""")}
 {SG.ActiveCellId("'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'")}
 {SG.Code("```python\nimport pandas as pd\nsales_df = pd.read_csv('./sales.csv')\nrevenue_multiplier =  1.5\nsales_df['total_revenue'] = sales_df['price'] * revenue_multiplier\n```")}
-{SG.ErrorTraceback("""Error Traceback:
+{SG.ErrorTraceback(code_cell_id="'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'", traceback="""
 Cell In[24], line 4
       1 import pandas as pd
       2 sales_df = pd.read_csv('./sales.csv')
@@ -70,7 +67,7 @@ The DataFrame contains 'total_price' rather than 'price'. Updated column referen
 }""")}
 {SG.ActiveCellId("'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'")}
 {SG.Code("```python\ndf['date'] = pd.to_datetime(df['date'])\n```")}
-{SG.ErrorTraceback("""Error Traceback:
+{SG.ErrorTraceback("'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'", """
 Cell In[27], line 1
 ----> 1 df['date'] = pd.to_datetime(df['date'])
 
@@ -135,19 +132,11 @@ Solution Requirements:
 Here is your task."""))
     
     # Add actual task sections
-    if files_str:
-        sections.append(SG.Files(files_str))
-    
-    if variables_str:
-        sections.append(SG.Variables(variables_str))
-    
-    if active_cell_id:
-        sections.append(SG.ActiveCellId(active_cell_id))
-    
-    code_content = f"```python\n{active_cell_code}\n```"
-    sections.append(SG.Code(code_content))
-    
-    sections.append(SG.ErrorTraceback(f"Error Traceback:\n{error_message}"))
+    sections.append(SG.Files(files))
+    sections.append(SG.Variables(variables))
+    sections.append(SG.ActiveCellId(active_cell_id))
+    sections.append(SG.Code(active_cell_code))
+    sections.append(SG.ErrorTraceback(active_cell_id, error_message))
     
     sections.append(SG.Task("ERROR ANALYSIS:"))
     sections.append(SG.Task("INTENT ANALYSIS:"))

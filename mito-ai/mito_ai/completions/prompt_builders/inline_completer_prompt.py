@@ -11,9 +11,6 @@ def create_inline_prompt(
     variables: List[str],
     files: List[str]
 ) -> str:
-    variables_str = '\n'.join([f"{variable}" for variable in variables])
-    files_str = '\n'.join([f"file_name: {file}" for file in files])
-    
     sections = []
     
     # Add intro text
@@ -112,13 +109,10 @@ days_in_week = 7
     # Add task sections
     sections.append(SG.Task("Your Task:"))
     
-    if files_str:
-        sections.append(SG.Files(files_str))
+    sections.append(SG.Files(files))
+    sections.append(SG.Variables(variables))
     
-    if variables_str:
-        sections.append(SG.Variables(variables_str))
-    
-    code_content = f"```python\n{prefix}<cursor>{suffix}\n```"
+    code_content = f"{prefix}<cursor>{suffix}\n"
     sections.append(SG.Code(code_content))
     
     sections.append(SG.Task("Output:"))
