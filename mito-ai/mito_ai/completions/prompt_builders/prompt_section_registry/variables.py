@@ -7,8 +7,8 @@ from .base import PromptSection
 
 class VariablesSection(PromptSection):
     """Section for defined variables."""
-    trim_after_messages: int = 3
-    
+    trim_after_messages: int = 6
+    exclude_if_empty: bool = False
     
     def __init__(self, variables: List[str]):
         """

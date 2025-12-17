@@ -7,4 +7,5 @@ from .base import PromptSection
 class GetCellOutputToolResponseSection(PromptSection):
     """Section for output of the code cell after applying CELL_UPDATE."""
     trim_after_messages: int = 3
+    exclude_if_empty: bool = True
 
