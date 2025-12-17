@@ -97,6 +97,16 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'High'
   },
   {
+    displayName: 'Gemini 3 Flash',
+    fullName: 'gemini-3-flash-preview',
+    type: 'fast',
+    goodFor: [...GOOD_FOR_FAST],
+    provider: 'Google',
+    tokenLimit: '1M',
+    speed: 'Fast',
+    complexityHandling: 'Medium'
+  },
+  {
     displayName: 'Gemini 3 Pro',
     fullName: 'gemini-3-pro-preview',
     type: 'smart',
