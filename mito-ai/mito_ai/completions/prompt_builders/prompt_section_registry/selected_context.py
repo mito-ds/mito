@@ -59,7 +59,7 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
 
 class SelectedContextSection(PromptSection):
     """Section for selected context - never trimmed."""
-    trim_after_messages: Optional[int] = 6
+    trim_after_messages: Optional[int] = None
     exclude_if_empty: bool = True
     
     def __init__(self, additional_context: Optional[List[Dict[str, str]]]):

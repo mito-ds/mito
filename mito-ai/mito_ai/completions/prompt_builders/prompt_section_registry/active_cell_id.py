@@ -6,5 +6,5 @@ from .base import PromptSection
 
 class ActiveCellIdSection(PromptSection):
     """Section for the ID of the active code cell."""
-    trim_after_messages: int = 3
+    trim_after_messages: int = None
 

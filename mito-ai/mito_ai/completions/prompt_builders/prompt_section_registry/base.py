@@ -10,6 +10,7 @@ class PromptSection(ABC):
     
     # Class variable: trimming threshold (None = never trim)
     trim_after_messages: Optional[int] = 3
+    
     # Class variable: if True, exclude XML tags when content is empty
     exclude_if_empty: bool = False
     
