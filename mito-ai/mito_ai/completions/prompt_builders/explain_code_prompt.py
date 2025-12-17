@@ -11,8 +11,7 @@ def create_explain_code_prompt(active_cell_code: str) -> str:
     sections.append(SG.Task("Explain the code in the active code cell to me like I have a basic understanding of Python. Don't explain each line, but instead explain the overall logic of the code."))
     
     # Add example
-    example_code = "def multiply(x, y):\n    return x * y"
-    example_content = f"""{SG.Code("```python\ndef multiply(x, y):\n    return x * y\n```")}
+    example_content = f"""{SG.ActiveCellCode("def multiply(x, y):\n    return x * y")}
 
 Output:
 
@@ -20,8 +19,7 @@ This code creates a function called `multiply` that takes two arguments `x` and 
     sections.append(SG.Example("Example", example_content))
     
     # Add actual code section
-    code_content = f"```python\n{active_cell_code}\n```"
-    sections.append(SG.Code(code_content))
+    sections.append(SG.ActiveCellCode(active_cell_code))
     
     # Add output prompt
     sections.append(SG.Task("Output:"))

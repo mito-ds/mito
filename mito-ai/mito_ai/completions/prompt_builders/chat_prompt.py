@@ -27,13 +27,14 @@ def create_chat_prompt(
     
     # Add variables if present
     sections.append(SG.Variables(variables))
-    sections.append(SG.ActiveCellId(active_cell_id))
-    
-    # Add code section
-    sections.append(SG.Code(active_cell_code))
     
     # Add selected context if present
     sections.append(SG.SelectedContext(additional_context))
+    
+    # Add code section
+    sections.append(SG.ActiveCellId(active_cell_id))
+    sections.append(SG.ActiveCellCode(active_cell_code))
+    
     
     # Add active cell output if present
     if has_active_cell_output:

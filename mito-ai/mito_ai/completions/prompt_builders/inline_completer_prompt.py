@@ -36,7 +36,7 @@ Your job is to complete the code that matches the user's intent. Write the minim
         'total_price': [10, 19.98, 13.99, 84.00, 500]
     })
 }""")}
-{SG.Code("```python\nimport pandas as pd\nsales_df = pd.read_csv('./sales.csv')\n\n# Multiply the total_price column by the loan_multiplier<cursor>\n```")}
+{SG.ActiveCellCode("import pandas as pd\nsales_df = pd.read_csv('./sales.csv')\n\n# Multiply the total_price column by the loan_multiplier<cursor>")}
 Output:
 ```python
 
@@ -53,7 +53,7 @@ sales_df['total_price'] = sales_df['total_price'] * loan_multiplier
         'name': ['Nawaz', 'Aaron', 'Charlie', 'Tamir', 'Eve'],
     })
 }""")}
-{SG.Code("```python\ndf['age'] = df[<cursor>['age'] > 23]\n```")}
+{SG.ActiveCellCode("df['age'] = df[<cursor>['age'] > 23]")}
 Output:
 ```python
 df['age'] = df[df['age'] > 23]
@@ -64,7 +64,7 @@ df['age'] = df[df['age'] > 23]
     # Example 3
     example3_content = f"""{SG.Files("file_name: voters.csv")}
 {SG.Variables("{}")}
-{SG.Code("```python\nvoters = pd.read_csv('./voters.csv')\n\n# Create a variable for pennsylvania voters, ohio voters, california voters, and texas voters\npa_voters = voters[voters['state'] == 'PA']\nohio_voters<cursor>\n```")}
+{SG.ActiveCellCode("voters = pd.read_csv('./voters.csv')\n\n# Create a variable for pennsylvania voters, ohio voters, california voters, and texas voters\npa_voters = voters[voters['state'] == 'PA']\nohio_voters<cursor>")}
 Output:
 ```python
 ohio_voters = voters[voters['state'] == 'OH']
@@ -77,7 +77,7 @@ tx_voters = voters[voters['state'] == 'TX']
     # Example 4
     example4_content = f"""{SG.Files("file_name: july_2025.xlsx\nfile_name: august_2025.xlsx")}
 {SG.Variables("{}")}
-{SG.Code("```python\n# Display the first 5 rows of the dataframe\ndf.head()\n<cursor>\n```")}
+{SG.ActiveCellCode("# Display the first 5 rows of the dataframe\ndf.head()\n<cursor>")}
 Output:
 ```python
 ```"""
@@ -87,7 +87,7 @@ Output:
     # Example 5
     example5_content = f"""{SG.Files("")}
 {SG.Variables("{}")}
-{SG.Code("```python\ndef even_and_odd():\n    for i in range(10):\n        if i % 2 == 0:\n            print(f\"Even: {{i}}\")\n        else:\n            pri<cursor>\n```")}
+{SG.ActiveCellCode("def even_and_odd():\n    for i in range(10):\n        if i % 2 == 0:\n            print(f\"Even: {{i}}\")\n        else:\n            pri<cursor>")}
 Output:
 ```python
             print(f"Odd: {{i}}")
@@ -98,7 +98,7 @@ Output:
     # Example 6
     example6_content = f"""{SG.Files("")}
 {SG.Variables("{}")}
-{SG.Code("```python\ndays_in_week <cursor>\n```")}
+{SG.ActiveCellCode("days_in_week <cursor>")}
 Output:
 ```python
 days_in_week = 7
@@ -113,7 +113,7 @@ days_in_week = 7
     sections.append(SG.Variables(variables))
     
     code_content = f"{prefix}<cursor>{suffix}\n"
-    sections.append(SG.Code(code_content))
+    sections.append(SG.ActiveCellCode(code_content))
     
     sections.append(SG.Task("Output:"))
 

@@ -37,7 +37,7 @@ Other useful information:
     
     # Example 1
     example1_content = f"""{SG.ActiveCellId("'7b3a9e2c-5d14-4c83-b2f9-d67891e4a5f2'")}
-{SG.Code("```python\nsales_df = pd.read_csv('sales_data.csv')\nmonthly_revenue = sales_df.groupby('month')['revenue'].sum()\ntop_month = monthly_revenue.idxmax()\npeak_revenue = monthly_revenue.max()\ngrowth_rate = (monthly_revenue.iloc[-1] / monthly_revenue.iloc[0] - 1) * 100\n```")}
+{SG.ActiveCellCode("sales_df = pd.read_csv('sales_data.csv')\nmonthly_revenue = sales_df.groupby('month')['revenue'].sum()\ntop_month = monthly_revenue.idxmax()\npeak_revenue = monthly_revenue.max()\ngrowth_rate = (monthly_revenue.iloc[-1] / monthly_revenue.iloc[0] - 1) * 100")}
 Your task: What are the key revenue insights from this sales data?
 
 Output:
@@ -53,7 +53,7 @@ Peak monthly revenue reached $847,392 in March[MITO_CITATION:7b3a9e2c-5d14-4c83-
     
     # Example 2
     example2_content = f"""{SG.ActiveCellId("'1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6'")}
-{SG.Code("```python\n```")}
+{SG.ActiveCellCode("")}
 Your task: Hello
 
 Output:
@@ -74,7 +74,7 @@ Hey there! I'm Mito AI. How can I help you today?"""
     })
 }""")}
 {SG.ActiveCellId("'9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8'")}
-{SG.Code("```python\nimport pandas as pd\nsales_df = pd.read_csv('./sales.csv')\n```")}
+{SG.ActiveCellCode("import pandas as pd\nsales_df = pd.read_csv('./sales.csv')")}
 Your task: convert the transaction_date column to datetime and then multiply the total_price column by the sales_multiplier.
 
 Output:

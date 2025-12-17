@@ -4,15 +4,15 @@
 from .base import PromptSection
 
 
-class CodeSection(PromptSection):
+class ActiveCellCodeSection(PromptSection):
     """Section for code in the active code cell."""
     trim_after_messages: int = 3
     
     def __init__(self, code: str):
         """
-        Initialize CodeSection with code.
+        Initialize ActiveCellCodeSection with code.
         """
         self.code = code
         self.content = f"```python\n{code}\n```"
-        self.name = "Code"
+        self.name = "ActiveCellCode"
 
