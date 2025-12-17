@@ -185,7 +185,8 @@ Important information:
             code_summary: "Plotting total_price",
             cell_type: 'code'
         }}
-    }}"""))
+    }}
+    </Cell Addition Example>"""))
     
     # GET_CELL_OUTPUT tool (conditional)
     if isChromeBrowser:
@@ -327,7 +328,7 @@ Important information:
 - When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter."""))
     
     # CITATION_RULES 
-    sections.append(SG.Generic("CitationRules", f"""{CITATION_RULES}
+    sections.append(SG.Generic("Citation Rules", f"""{CITATION_RULES}
                                         
     <Example>
     Jupyter Notebook:
@@ -375,13 +376,13 @@ Important information:
         next_steps: ["Create a visualization of Tesla's stock price over time", "Calculate the percentage change from the lowest to highest price", "Analyze the volatility of Tesla's stock"]
     }}
     </Example>"""))
-    sections.append(SG.Generic("CellReferenceRules", CELL_REFERENCE_RULES))
+    sections.append(SG.Generic("Cell Reference Rules", CELL_REFERENCE_RULES))
     
     # Database rules
-    sections.append(SG.Generic("DatabaseRules", get_database_rules()))
+    sections.append(SG.Generic("Database Rules", get_database_rules()))
     
     # RULES OF YOUR WORKING PROCESS
-    sections.append(SG.Generic("RulesOfWorkingProcess", f"""The user is going to ask you to guide them as through the process of completing a task. You will help them complete a task over the course of an entire conversation with them. The user will first share with you what they want to accomplish. You will then use a tool to execute the first step of the task, they will execute the tool and return to you the updated notebook state with you, and then you will give them the next step of the task. You will continue to give them the next step of the task until they have completed the task.
+    sections.append(SG.Generic("Rules Of Working Process", f"""The user is going to ask you to guide them as through the process of completing a task. You will help them complete a task over the course of an entire conversation with them. The user will first share with you what they want to accomplish. You will then use a tool to execute the first step of the task, they will execute the tool and return to you the updated notebook state with you, and then you will give them the next step of the task. You will continue to give them the next step of the task until they have completed the task.
 
 As you are guiding the user through the process of completing the task, send them TOOL messages to give them the next step of the task. When you have finished the task, send a FINISHED_TASK tool message. 
 
@@ -411,7 +412,8 @@ REMEMBER, YOU ARE GOING TO COMPLETE THE USER'S TASK OVER THE COURSE OF THE ENTIR
 - If after reviewing the updates you decide that you've completed the task, send a FINISHED_TASK tool message.
 """))
 
-    sections.append(SG.Generic("OtherUsefulInformation", """1. The active cell ID is shared with you so that when the user refers to "this cell" or similar phrases, you know which cell they mean. However, you are free to edit any cell that you see fit."""))
+    sections.append(SG.Generic("Other Useful Information", """
+1. The active cell ID is shared with you so that when the user refers to "this cell" or similar phrases, you know which cell they mean. However, you are free to edit any cell that you see fit."""))
 
     prompt = Prompt(sections)
     return str(prompt)
