@@ -14,8 +14,7 @@ from mito_ai.utils.schema import MITO_FOLDER
 # Note: Section headings are now defined in prompt_section_registry/
 # This file only contains non-section constants like rules and formatting guidelines. 
 
-CITATION_RULES = """RULES FOR CITING YOUR WORK
-
+CITATION_RULES = """
 It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use one of the following formats inline in your response:
 
 Single line citation:
@@ -36,8 +35,7 @@ Citation Rules:
 8. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
 """
 
-CELL_REFERENCE_RULES = """RULES FOR REFERENCING CELLS
-
+CELL_REFERENCE_RULES = """
 When referring to specific cells in the notebook in your messages, use cell references so the user can easily navigate to the cell you're talking about. The user sees cells numbered as "Cell 1", "Cell 2", etc., but internally cells are identified by their unique IDs.
 
 To reference a cell, use this format inline in your message:
