@@ -78,6 +78,15 @@ def format_message_content(content: Any) -> str:
     # Handle different content types
     if isinstance(content, (dict, list)):
         return json.dumps(content, indent=2)
+    elif isinstance(content, str):
+        # Try to parse as JSON if it looks like JSON
+        if content.strip().startswith('{') or content.strip().startswith('['):
+            try:
+                parsed = json.loads(content)
+                return json.dumps(parsed, indent=2)
+            except:
+                pass
+        return content
     else:
         return str(content)
 
@@ -87,9 +96,55 @@ def display_message_content(content: Any):
     # Handle different content types
     if isinstance(content, (dict, list)):
         st.json(content)
+    elif isinstance(content, str):
+        # Try to display as JSON if it looks like JSON
+        if content.strip().startswith('{') or content.strip().startswith('['):
+            try:
+                parsed = json.loads(content)
+                st.json(parsed)
+            except:
+                st.code(content, language="text")
+        else:
+            st.markdown(content)
     else:
         st.code(str(content), language="text")
-        
+
+
+def is_json_object(content: Any) -> bool:
+    """Check if content is or can be parsed as a JSON object (dict or list)."""
+    if isinstance(content, (dict, list)):
+        return True
+    elif isinstance(content, str):
+        stripped = content.strip()
+        if stripped.startswith('{') or stripped.startswith('['):
+            try:
+                parsed = json.loads(content)
+                return isinstance(parsed, (dict, list))
+            except:
+                return False
+    return False
+
+
+def display_user_message_content(content: Any):
+    """Display user message content: JSON objects as JSON, everything else as code."""
+    if is_json_object(content):
+        # If it's a JSON object, display as JSON
+        if isinstance(content, (dict, list)):
+            st.json(content)
+        else:
+            # Parse and display as JSON
+            try:
+                parsed = json.loads(content)
+                st.json(parsed)
+            except:
+                st.code(content, language="text")
+    else:
+        # If it's not JSON, display as code
+        if isinstance(content, str):
+            st.code(content, language="text")
+        else:
+            st.code(str(content), language="text")
+
 
 def main():
     st.set_page_config(
@@ -102,6 +157,7 @@ def main():
     
     # Get list of chat files
     chat_files = get_chat_files()
+    most_recent = get_most_recent_chat_file()
     
     if not chat_files:
         st.warning(f"No chat history files found in `{CHATS_DIR}`")
@@ -110,7 +166,6 @@ def main():
     
     # Get the most recently edited file (only on first load or if not set)
     if 'file_selector' not in st.session_state:
-        most_recent = get_most_recent_chat_file()
         st.session_state.file_selector = most_recent if most_recent else chat_files[0]
     
     # Find the index of the selected file in the chat_files list
@@ -127,6 +182,9 @@ def main():
             format_func=lambda x: x,
             key="file_selector"
         )
+        
+        if selected_file == most_recent:
+            st.success("✅ This is the most recently modified chat")
     
     if not selected_file:
         st.info("Please select a chat file from the sidebar.")
@@ -183,7 +241,7 @@ def main():
                 st.markdown("---")
                 with st.expander(f"👤 **User Message** (Message {idx + 1}/{len(ai_history)})", expanded=False):
                     st.markdown("**Content:**")
-                    display_message_content(content)
+                    display_user_message_content(content)
             elif role == "assistant":
                 st.markdown("---")
                 with st.expander(f"🤖 **Assistant Message** (Message {idx + 1}/{len(ai_history)})", expanded=False):
