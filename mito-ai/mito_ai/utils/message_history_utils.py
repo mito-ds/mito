@@ -26,10 +26,9 @@ def trim_message_content(content: str, message_age: int) -> str:
         message_age: The age of the message (0 = most recent, higher = older)
     
     Returns:
-        The content with trimmed sections removed and replaced with placeholder
+        The content with trimmed sections removed
     """
     section_mapping = build_section_to_trim_message_index_mapping()
-    trimmed_section_names = []
     
     # Special handling for Example sections - remove entirely if they should be trimmed
     # Match: <Example name="...">...</Example> or <Example>...</Example>
@@ -41,7 +40,6 @@ def trim_message_content(content: str, message_age: int) -> str:
         if example_threshold is not None and message_age >= example_threshold:
             # Remove the entire Example block
             content = content[:match.start()] + content[match.end():]
-            trimmed_section_names.append("Example")
     
     # For other sections, parse and trim based on section_mapping
     # Match XML tags like <SectionName>...</SectionName>
@@ -63,13 +61,6 @@ def trim_message_content(content: str, message_age: int) -> str:
             
             for match in reversed(matches):  # Process from end to start
                 content = content[:match.start()] + content[match.end():]
-                if section_name not in trimmed_section_names:
-                    trimmed_section_names.append(section_name)
-    
-    # Add placeholder message if any sections were trimmed
-    if trimmed_section_names:
-        placeholder = f"\n\nThe following sections have been removed to save space: {', '.join(trimmed_section_names)}\n"
-        content = content + placeholder
     
     return content
 

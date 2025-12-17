@@ -5,7 +5,6 @@ from mito_ai.completions.models import AgentExecutionMetadata
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.utils import (
     get_rules_str,
-    get_selected_context_str,
     get_streamlit_app_status_str
 )
 
@@ -15,7 +14,6 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
     files_str = '\n'.join([f"{file}" for file in md.files or []])
     ai_optimized_cells_str = '\n'.join([f"{cell}" for cell in md.aiOptimizedCells or []])
     rules_str = get_rules_str(md.additionalContext)
-    selected_context_str = get_selected_context_str(md.additionalContext)
     streamlit_status_str = get_streamlit_app_status_str(md.notebookID, md.notebookPath)
     
     sections = []
@@ -48,8 +46,7 @@ def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
         sections.append(SG.ActiveCellId(md.activeCellId))
     
     # Add selected context if present
-    if selected_context_str:
-        sections.append(SG.SelectedContext(selected_context_str))
+    sections.append(SG.SelectedContext(md.additionalContext))
     
     # Add cell update output if present
     if md.base64EncodedActiveCellOutput is not None and md.base64EncodedActiveCellOutput != '':

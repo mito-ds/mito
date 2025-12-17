@@ -71,10 +71,6 @@ Some text after."""
     assert "<ActiveCellId>" not in result
     assert "cell1" not in result
     
-    # Verify placeholder message is added
-    assert "The following sections have been removed to save space" in result
-    assert "Files" in result or "Variables" in result or "Notebook" in result
-    
     # Verify other content is preserved
     assert "Some text before." in result
     assert "Some text after." in result
@@ -170,7 +166,7 @@ def test_prompt_builder_trimming(prompt_builder: Callable[[], str], expected_in_
     )
     
     if not has_sections_to_trim:
-        # If no sections to trim, content might be unchanged or have placeholder
+        # If no sections to trim, content should be unchanged
         # Verify expected content is still in the result
         for expected in expected_in_result:
             assert expected in result
@@ -178,16 +174,16 @@ def test_prompt_builder_trimming(prompt_builder: Callable[[], str], expected_in_
 
     # Check that sections were removed (XML tags should not be in result)
     if "<Files>" in content:
-        assert "<Files>" not in result or "The following sections have been removed" in result
+        assert "<Files>" not in result
         
     if "<Variables>" in content:
-        assert "<Variables>" not in result or "The following sections have been removed" in result
+        assert "<Variables>" not in result
         
     if "<Notebook>" in content:
-        assert "<Notebook>" not in result or "The following sections have been removed" in result
+        assert "<Notebook>" not in result
 
     if "<ActiveCellId>" in content:
-        assert "<ActiveCellId>" not in result or "The following sections have been removed" in result
+        assert "<ActiveCellId>" not in result
 
     # Verify expected content is still in the result
     for expected in expected_in_result:
@@ -209,7 +205,7 @@ def test_no_sections_to_trim() -> None:
     """Test trimming content with no sections to trim."""
     content = "This is a simple message with no sections to trim."
     result = trim_message_content(content, message_age=5)
-    # Content without sections should remain unchanged (no placeholder added)
+    # Content without sections should remain unchanged
     assert result == content
 
 
@@ -253,8 +249,8 @@ file2.txt</Files>
     assert result[1]["role"] == "user"
     user_content = result[1].get("content")
     assert isinstance(user_content, str)
-    # Sections should be removed and placeholder added
-    assert "<Files>" not in user_content or "The following sections have been removed" in user_content
+    # Sections should be removed
+    assert "<Files>" not in user_content
     assert "file1.csv" not in user_content
     
     # Assistant message should remain unchanged even though it's old
@@ -312,12 +308,12 @@ def test_trim_old_messages_preserves_recent_messages() -> None:
     # Old messages should be trimmed
     old_content_1 = result[0].get("content")
     assert isinstance(old_content_1, str)
-    assert "<Files>" not in old_content_1 or "The following sections have been removed" in old_content_1
+    assert "<Files>" not in old_content_1
     assert "file1.csv" not in old_content_1
     
     old_content_2 = result[1].get("content")
     assert isinstance(old_content_2, str)
-    assert "<Files>" not in old_content_2 or "The following sections have been removed" in old_content_2
+    assert "<Files>" not in old_content_2
     assert "file2.csv" not in old_content_2
     
     # Recent messages should remain unchanged

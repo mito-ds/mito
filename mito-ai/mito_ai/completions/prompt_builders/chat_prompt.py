@@ -5,7 +5,6 @@ from typing import List, Optional, Dict
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.utils import (
     get_rules_str,
-    get_selected_context_str,
 )
 
 
@@ -20,7 +19,6 @@ def create_chat_prompt(
 ) -> str:
     variables_str = "\n".join([f"{variable}" for variable in variables])
     files_str = "\n".join([f"{file}" for file in files])
-    selected_context_str = get_selected_context_str(additional_context)
     rules_str = get_rules_str(additional_context)
 
     sections = []
@@ -49,8 +47,7 @@ def create_chat_prompt(
     sections.append(SG.Code(code_content))
     
     # Add selected context if present
-    if selected_context_str:
-        sections.append(SG.SelectedContext(selected_context_str))
+    sections.append(SG.SelectedContext(additional_context))
     
     # Add active cell output if present
     if has_active_cell_output:
