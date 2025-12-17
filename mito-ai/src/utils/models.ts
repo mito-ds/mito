@@ -15,9 +15,6 @@ export const GPT_4_1_MODEL_NAME = 'gpt-4.1';
 export const GPT_5_2_DISPLAY_NAME = 'GPT 5.2';
 export const GPT_5_2_MODEL_NAME = 'gpt-5.2';
 
-export const GEMINI_2_5_PRO_DISPLAY_NAME = 'Gemini 2.5 Pro';
-export const GEMINI_2_5_PRO_MODEL_NAME = 'gemini-2.5-pro';
-
 export const GEMINI_3_FLASH_DISPLAY_NAME = 'Gemini 3 Flash';
 export const GEMINI_3_FLASH_MODEL_NAME = 'gemini-3-flash-preview';
 
