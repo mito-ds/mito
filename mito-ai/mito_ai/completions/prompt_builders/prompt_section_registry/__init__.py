@@ -3,7 +3,7 @@
 
 from .files import FilesSection
 from .variables import VariablesSection
-from .code import ActiveCellCodeSection
+from .active_cell_code import ActiveCellCodeSection
 from .notebook import NotebookSection
 from .active_cell_id import ActiveCellIdSection
 from .active_cell_output import ActiveCellOutputSection
