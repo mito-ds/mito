@@ -27,6 +27,36 @@ def get_chat_files() -> List[str]:
         return []
 
 
+def get_most_recent_chat_file() -> str:
+    """Get the filename of the most recently edited chat file based on last_interaction_ts."""
+    chat_files = get_chat_files()
+    
+    if not chat_files:
+        return None
+    
+    most_recent_file = None
+    most_recent_ts = 0
+    
+    for filename in chat_files:
+        try:
+            chat_data = load_chat_file(filename)
+            last_ts = chat_data.get("last_interaction_ts", 0)
+            
+            # Use file modification time as fallback if last_interaction_ts is missing
+            if last_ts == 0:
+                filepath = os.path.join(CHATS_DIR, filename)
+                last_ts = os.path.getmtime(filepath)
+            
+            if last_ts > most_recent_ts:
+                most_recent_ts = last_ts
+                most_recent_file = filename
+        except Exception:
+            # If we can't load the file, skip it
+            continue
+    
+    return most_recent_file
+
+
 def load_chat_file(filename: str) -> Dict[str, Any]:
     """Load a chat history JSON file."""
     filepath = os.path.join(CHATS_DIR, filename)
@@ -43,16 +73,41 @@ def format_timestamp(ts: float) -> str:
         return str(ts)
 
 
-def format_message_content(content: str) -> str:
+def format_message_content(content: Any) -> str:
     """Format message content for display."""
-    # Try to parse as JSON if it looks like JSON
-    if content.strip().startswith('{') or content.strip().startswith('['):
-        try:
-            parsed = json.loads(content)
-            return json.dumps(parsed, indent=2)
-        except:
-            pass
-    return content
+    # Handle different content types
+    if isinstance(content, (dict, list)):
+        return json.dumps(content, indent=2)
+    elif isinstance(content, str):
+        # Try to parse as JSON if it looks like JSON
+        if content.strip().startswith('{') or content.strip().startswith('['):
+            try:
+                parsed = json.loads(content)
+                return json.dumps(parsed, indent=2)
+            except:
+                pass
+        return content
+    else:
+        return str(content)
+
+
+def display_message_content(content: Any):
+    """Display message content in the appropriate format."""
+    # Handle different content types
+    if isinstance(content, (dict, list)):
+        st.json(content)
+    elif isinstance(content, str):
+        # Try to display as JSON if it looks like JSON
+        if content.strip().startswith('{') or content.strip().startswith('['):
+            try:
+                parsed = json.loads(content)
+                st.json(parsed)
+            except:
+                st.code(content, language="text")
+        else:
+            st.markdown(content)
+    else:
+        st.code(str(content), language="text")
 
 
 def main():
@@ -63,7 +118,6 @@ def main():
     )
     
     st.title("💬 Chat History Viewer")
-    st.markdown("Browse and explore chat histories from `.mito/ai-chats` folder")
     
     # Get list of chat files
     chat_files = get_chat_files()
@@ -73,15 +127,24 @@ def main():
         st.info("Make sure the directory exists and contains JSON files.")
         return
     
+    # Get the most recently edited file (only on first load or if not set)
+    if 'file_selector' not in st.session_state:
+        most_recent = get_most_recent_chat_file()
+        st.session_state.file_selector = most_recent if most_recent else chat_files[0]
+    
+    # Find the index of the selected file in the chat_files list
+    default_index = 0
+    if st.session_state.file_selector and st.session_state.file_selector in chat_files:
+        default_index = chat_files.index(st.session_state.file_selector)
+    
     # Sidebar for file selection
     with st.sidebar:
-        st.header("📁 Chat Files")
-        st.caption(f"Found {len(chat_files)} chat history files")
-        
         selected_file = st.selectbox(
             "Select a chat file:",
             options=chat_files,
-            format_func=lambda x: x
+            index=default_index,
+            format_func=lambda x: x,
+            key="file_selector"
         )
     
     if not selected_file:
@@ -96,23 +159,24 @@ def main():
         return
     
     # Display metadata
-    st.header("📋 Chat Metadata")
+    thread_id = chat_data.get("thread_id", "N/A")
+    creation_ts = chat_data.get("creation_ts", 0)
+    last_ts = chat_data.get("last_interaction_ts", 0)
+    name = chat_data.get("name", "N/A")
+    version = chat_data.get("chat_history_version", "N/A")
     
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.metric("Thread ID", chat_data.get("thread_id", "N/A"))
-    
-    with col2:
-        creation_ts = chat_data.get("creation_ts", 0)
-        st.metric("Created", format_timestamp(creation_ts))
-    
-    with col3:
-        last_ts = chat_data.get("last_interaction_ts", 0)
-        st.metric("Last Interaction", format_timestamp(last_ts))
-    
-    st.markdown(f"**Name:** {chat_data.get('name', 'N/A')}")
-    st.markdown(f"**Version:** {chat_data.get('chat_history_version', 'N/A')}")
+    metadata_text = f"""
+**Thread ID:** {thread_id} 
+
+**Created:** {format_timestamp(creation_ts)}
+
+**Last Interaction:** {format_timestamp(last_ts)}
+
+**Name:** {name}
+
+**Version:** {version}
+"""
+    st.info(metadata_text)
     
     st.divider()
     
@@ -124,103 +188,26 @@ def main():
     if not ai_history:
         st.info("No AI optimized history found in this chat.")
     else:
-        st.caption(f"Total messages: {len(ai_history)}")
-        
-        # Navigation controls
-        col1, col2, col3 = st.columns([2, 1, 1])
-        
-        with col1:
-            message_index = st.number_input(
-                "Jump to message:",
-                min_value=0,
-                max_value=len(ai_history) - 1,
-                value=0,
-                step=1,
-                help="Enter a message number to jump to that message"
-            )
-        
-        with col2:
-            messages_per_page = st.selectbox(
-                "Messages per page:",
-                options=[5, 10, 20, 50, 100],
-                index=1,  # Default to 10
-                help="How many messages to show at once"
-            )
-        
-        with col3:
-            show_all = st.checkbox("Show all", value=False, help="Show all messages at once")
-        
-        # Filter by role
-        roles = set(msg.get("role", "unknown") for msg in ai_history)
-        selected_roles = st.multiselect(
-            "Filter by role:",
-            options=sorted(roles),
-            default=sorted(roles),
-            help="Select which message roles to display"
-        )
-        
-        # Calculate display range
-        if show_all:
-            start_idx = 0
-            end_idx = len(ai_history)
-        else:
-            start_idx = message_index
-            end_idx = min(message_index + messages_per_page, len(ai_history))
-        
-        # Display messages
-        displayed_count = 0
+        # Display all messages
         for idx, message in enumerate(ai_history):
-            # Skip if before start or after end
-            if idx < start_idx or idx >= end_idx:
-                continue
-            
             role = message.get("role", "unknown")
-            
-            # Skip if role is filtered out
-            if role not in selected_roles:
-                continue
-            
             content = message.get("content", "")
             
             # Color code by role
             if role == "system":
                 st.markdown("---")
-                with st.expander(f"🔧 **System Message** (Message {idx + 1}/{len(ai_history)})", expanded=(idx == message_index)):
+                with st.expander(f"🔧 **System Message** (Message {idx + 1}/{len(ai_history)})", expanded=False):
                     st.code(format_message_content(content), language="text")
             elif role == "user":
                 st.markdown("---")
-                with st.expander(f"👤 **User Message** (Message {idx + 1}/{len(ai_history)})", expanded=(idx == message_index)):
+                with st.expander(f"👤 **User Message** (Message {idx + 1}/{len(ai_history)})", expanded=False):
                     st.markdown("**Content:**")
-                    # Try to display as code if it looks like JSON
-                    if content.strip().startswith('{') or content.strip().startswith('['):
-                        try:
-                            parsed = json.loads(content)
-                            st.json(parsed)
-                        except:
-                            st.code(content, language="text")
-                    else:
-                        st.markdown(content)
+                    display_message_content(content)
             elif role == "assistant":
                 st.markdown("---")
-                with st.expander(f"🤖 **Assistant Message** (Message {idx + 1}/{len(ai_history)})", expanded=(idx == message_index)):
+                with st.expander(f"🤖 **Assistant Message** (Message {idx + 1}/{len(ai_history)})", expanded=False):
                     st.markdown("**Content:**")
-                    # Try to parse as JSON
-                    if content.strip().startswith('{') or content.strip().startswith('['):
-                        try:
-                            parsed = json.loads(content)
-                            st.json(parsed)
-                        except:
-                            st.code(content, language="text")
-                    else:
-                        st.markdown(content)
-            
-            displayed_count += 1
-            
-            # Stop if we've shown enough messages (unless show_all is True)
-            if not show_all and displayed_count >= messages_per_page:
-                if end_idx < len(ai_history):
-                    st.info(f"Showing messages {start_idx + 1}-{end_idx} of {len(ai_history)}. Use navigation controls to see more.")
-                break
+                    display_message_content(content)
     
     st.divider()
     
