@@ -21,7 +21,7 @@ class PromptSection(ABC):
         # If exclude_if_empty is True and content is empty, return empty string
         if self.exclude_if_empty and (self.content is None or self.content.strip() == ""):
             return ""
-        return f"<{self.name}>{self.content}\n</{self.name}>"
+        return f"<{self.name}>\n{self.content}\n</{self.name}>"
 
 
 class Prompt:
