@@ -15,7 +15,7 @@ def create_error_prompt(
     sections = []
     
     # Add intro text
-    sections.append(SG.Task("Help me debug this code in JupyterLab. Analyze the error and provide a solution that maintains the original intent."))
+    sections.append(SG.Generic("Instructions", "Help me debug this code in JupyterLab. Analyze the error and provide a solution that maintains the original intent."))
     
     # Example 1
     example1_content = f"""{SG.Files("file_name: sales.csv")}
@@ -104,11 +104,9 @@ Since the dates are not in a consistent format, we need to first figure out whic
 
 The best way to do this is with a function. We can call this function `parse_date`."""
     sections.append(SG.Example("Example 2", example2_content))
-    
-    # Add guidelines
-    sections.append(SG.Task("""Guidelines for Solutions:
 
-Error Analysis:
+    # Add guidelines
+    sections.append(SG.Generic("Guidelines for Solutions", """Error Analysis:
 
 - Identify error type (Syntax, Runtime, Logic).
 - Use the defined variables and code in the active cell to understand the error.
@@ -128,8 +126,7 @@ Solution Requirements:
 - Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
 - The code in the SOLUTION section should be a python code block starting with ```python and ending with ```
 - If you encounter a ModuleNotFoundError, you can install the package by adding the the following line to the top of the code cell: `!pip install <package_name> --quiet`.
-
-Here is your task."""))
+"""))
     
     # Add actual task sections
     sections.append(SG.Files(files))
@@ -138,9 +135,7 @@ Here is your task."""))
     sections.append(SG.ActiveCellCode(active_cell_code))
     sections.append(SG.ErrorTraceback(active_cell_id, error_message))
     
-    sections.append(SG.Task("ERROR ANALYSIS:"))
-    sections.append(SG.Task("INTENT ANALYSIS:"))
-    sections.append(SG.Task("SOLUTION:"))
+    sections.append(SG.Task("Perform the ERROR ANALYSIS, INTENT ANALYSIS, and SOLUTION steps to fix the error."))
 
     prompt = Prompt(sections)
     return str(prompt)

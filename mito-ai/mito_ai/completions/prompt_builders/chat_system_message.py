@@ -91,26 +91,21 @@ Applied datetime conversion to enable temporal analysis[MITO_CITATION:9c0d5fda-2
     sections.append(SG.Task("Notice how the citiation is formatted in the output."))
     
     # Add database rules
-    db_rules = get_database_rules()
-    if db_rules:
-        sections.append(SG.Rules(f"===\n{db_rules}"))
-    
+    sections.append(SG.Generic("DatabaseRules", get_database_rules()))
+
     # Add code formatting rules
-    sections.append(SG.Rules(f"==== \n{CHAT_CODE_FORMATTING_RULES}\n===="))
+    sections.append(SG.Generic("CHAT_CODE_FORMATTING_RULES", CHAT_CODE_FORMATTING_RULES))
     
     # Add code style
-    sections.append(SG.Task("""CODE STYLE
-
+    sections.append(SG.Generic("CODE STYLE", """
 - Avoid using try/except blocks and other defensive programming patterns (like checking if files exist before reading them, verifying variables are defined before using them, etc.) unless there is a really good reason. In Jupyter notebooks, errors should surface immediately so users can identify and fix issues. When errors are caught and suppressed or when defensive checks hide problems, users continue running broken code without realizing it, and the agent's auto-error-fix loop cannot trigger. If a column doesn't exist, a file is missing, a variable isn't defined, or a module isn't installed, let it error. The user needs to know.
 - Write code that preserves the intent of the original code shared with you and the task to complete.
 - Make the solution as simple as possible.
 - Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
-- When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter.
-
-===="""))
+- When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter."""))
     
     # Add important rules
-    sections.append(SG.Task("""IMPORTANT RULES:
+    sections.append(SG.Generic("IMPORTANT RULES", """
 - Do not recreate variables that already exist
 - Keep as much of the original code as possible
 - When updating an existing code cell, return the full code cell with the update applied. Do not only return part of the code cell with a comment like "# Updated code starts here", etc.

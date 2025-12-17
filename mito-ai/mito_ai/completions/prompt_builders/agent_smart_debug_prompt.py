@@ -17,7 +17,7 @@ def create_agent_smart_debug_prompt(md: AgentSmartDebugMetadata) -> str:
     sections = []
     
     # Add intro text
-    sections.append(SG.Task(f"""I just applied and executed the CELL_UPDATE that you just shared with me, but it errored. Below I am sharing with you a strategy for how I want you to resolve this error and information about the actual error that occured.
+    sections.append(SG.Generic("Instructions", f"""I just applied and executed the CELL_UPDATE that you just shared with me, but it errored. Below I am sharing with you a strategy for how I want you to resolve this error and information about the actual error that occured.
 
 Use this strategy for this message only. After this message, continue using the original set of instructions that I provided you.
 

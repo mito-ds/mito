@@ -13,6 +13,7 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
         return ""
     
     # STEP 1: Extract each context type into a separate list
+    # Filter out any non-dict items and ensure we only process dictionaries
     selected_variables = [context["value"] for context in additional_context if context.get("type") == "variable"]
     selected_files = [context["value"] for context in additional_context if context.get("type") == "file"]
     selected_db_connections = [context["value"] for context in additional_context if context.get("type") == "db"]

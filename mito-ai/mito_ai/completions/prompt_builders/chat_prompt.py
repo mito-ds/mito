@@ -20,7 +20,7 @@ def create_chat_prompt(
     sections.append(SG.Rules(additional_context))
     
     # Add intro text
-    sections.append(SG.Task("Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete."))
+    sections.append(SG.Generic("Instructions", "Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete."))
     
     # Add files if present
     sections.append(SG.Files(files))
@@ -35,13 +35,12 @@ def create_chat_prompt(
     sections.append(SG.ActiveCellId(active_cell_id))
     sections.append(SG.ActiveCellCode(active_cell_code))
     
-    
     # Add active cell output if present
     if has_active_cell_output:
         sections.append(SG.ActiveCellOutput("Attatched is an image of the output of the active code cell for your context."))
     
     # Add task
-    sections.append(SG.Task(f"Your task: {input}"))
+    sections.append(SG.Task(input))
 
     prompt = Prompt(sections)
     return str(prompt)
