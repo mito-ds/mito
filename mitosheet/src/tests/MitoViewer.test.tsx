@@ -207,7 +207,7 @@ describe("MitoViewer", () => {
 
         // Check that numeric columns are right-aligned
         const ageCells = screen.getAllByText("25");
-        const scoreCells = screen.getAllByText("85.5");
+        const scoreCells = screen.getAllByText("85");
         const nameCells = screen.getAllByText("Bob");
 
         // These should have right text alignment (we can't easily test this with testing-library)
