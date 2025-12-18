@@ -29,7 +29,10 @@ def create_error_prompt(
     })
 }""")}
 {SG.ActiveCellId("'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'")}
-{SG.ActiveCellCode("import pandas as pd\nsales_df = pd.read_csv('./sales.csv')\nrevenue_multiplier =  1.5\nsales_df['total_revenue'] = sales_df['price'] * revenue_multiplier")}
+{SG.ActiveCellCode("""import pandas as pd
+sales_df = pd.read_csv('./sales.csv')
+revenue_multiplier =  1.5
+sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier""")}
 {SG.ErrorTraceback(code_cell_id="'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'", traceback="""Cell In[24], line 4
       1 import pandas as pd
       2 sales_df = pd.read_csv('./sales.csv')
