@@ -9,7 +9,7 @@ to the actual user experience of typing in a notebook and seeing
 inline completions. 
 */
 
-import { expect, galata, test } from '@jupyterlab/galata';
+import { test, expect, galata } from '../fixtures';
 import {
     createAndRunNotebookWithCells,
     waitForIdle,
