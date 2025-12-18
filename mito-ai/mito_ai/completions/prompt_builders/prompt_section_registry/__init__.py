@@ -49,3 +49,22 @@ def get_all_section_classes():
             section_classes.append(attr_value)
     return section_classes
 
+
+def get_max_trim_after_messages() -> int:
+    """
+    Returns the maximum trim_after_messages value from all section classes.
+    
+    This is used for cache boundary calculation - we cache messages that are
+    older than the max trim threshold, since those messages are stable and
+    won't be edited anymore.
+    
+    Returns 0 if all sections have trim_after_messages = None.
+    """
+    section_classes = get_all_section_classes()
+    max_value = 0
+    for section_class in section_classes:
+        trim_value = getattr(section_class, 'trim_after_messages', None)
+        if trim_value is not None and trim_value > max_value:
+            max_value = trim_value
+    return max_value
+
