@@ -108,7 +108,12 @@ export const getCodeFromCell = async (page: IJupyterLabPageFixture, cellIndex: n
         return ''
     }
 
-    const cellText = await cellInput.innerText();
+    // Get the cm-content element which contains only the code, excluding line numbers
+    // which we turn on in the new theme 
+    const cellText = await cellInput.evaluate((element) => {
+        const cmContent = element.querySelector('.cm-content');
+        return cmContent?.textContent || '';
+    });
     return cellText
 }
 
