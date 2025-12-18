@@ -5,8 +5,12 @@
 
 import { IJupyterLabPageFixture } from "@jupyterlab/galata";
 
-export const runCell = async (page: IJupyterLabPageFixture, cellIndex: number) => {
-    await page.notebook.runCell(cellIndex);
+export const runCell = async (page: IJupyterLabPageFixture, cellIndex: number, inplace?: boolean) => {
+    // We use our own implementation instead of page.notebook.runCell() because
+    // Galata's version internally calls waitForRun() which waits for the status bar
+    // to be visible, but our theme may hide it.
+    await page.notebook.selectCells(cellIndex);
+    await page.keyboard.press(inplace === true ? 'Control+Enter' : 'Shift+Enter');
     await waitForIdle(page);
 }
 
@@ -37,7 +41,9 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
 
         await page.keyboard.type(cellContents[i], {delay: 50});
         await page.notebook.leaveCellEditingMode(i);
-        await page.notebook.runCell(i);
+        // Use our runCell instead of page.notebook.runCell() to avoid Galata's
+        // internal waitForRun() which waits for visibility of hidden status bar
+        await runCell(page, i);
         await waitForIdle(page)
     }
     await waitForIdle(page)
@@ -92,7 +98,7 @@ export const typeInNotebookCell = async (
     await page.keyboard.type(cellValue, {delay: 50}); // Type with a small delay
     
     if (runAfterTyping) {
-        await page.notebook.runCell(cellIndex);
+        await runCell(page, cellIndex);
     }
 }
 
