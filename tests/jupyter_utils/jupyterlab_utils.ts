@@ -44,8 +44,11 @@ export const createAndRunNotebookWithCells = async (page: IJupyterLabPageFixture
 }
 
 export const waitForIdle = async (page: IJupyterLabPageFixture) => {
+    // Wait for the status bar to show "Idle", indicating the kernel is ready.
+    // We use state: 'attached' instead of 'visible' because the status bar
+    // may be styled as hidden in certain themes while still existing in the DOM.
     const idleLocator = page.locator('#jp-main-statusbar >> text=Idle');
-    await idleLocator.waitFor();
+    await idleLocator.waitFor({ state: 'attached' });
 }
 
 export const waitForCodeToBeWritten = async (page: IJupyterLabPageFixture, cellIndex: number) => {
