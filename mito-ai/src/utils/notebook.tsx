@@ -10,6 +10,7 @@ import { AIOptimizedCell } from '../websockets/completions/CompletionModels';
 import { AgentReviewStatus, ChangedCell } from '../Extensions/AiChat/ChatTaskpane';
 import { WindowedList } from '@jupyterlab/ui-components';
 import { Compartment, StateEffect } from '@codemirror/state';
+import { EditorView } from '@codemirror/view';
 
 export const getActiveCell = (notebookTracker: INotebookTracker): Cell | undefined => {
     const notebookPanel = notebookTracker.currentWidget;
@@ -46,6 +47,13 @@ export const getActiveCellIDInNotebookPanel = (notebookPanel: NotebookPanel | nu
 export const getActiveCellCode = (notebookTracker: INotebookTracker): string | undefined => {
     const activeCell = getActiveCell(notebookTracker)
     return activeCell?.model.sharedModel.source
+}
+
+export const getEditorViewFromCell = (cell: Cell | undefined): EditorView | undefined => {
+    if (!cell || cell.model.type !== 'code') return undefined;
+    const codeCell = cell as CodeCell;
+    const cmEditor = codeCell.editor as any;
+    return cmEditor?.editor;
 }
 
 export const getCellCodeByID = (notebookTracker: INotebookTracker, codeCellID: string | undefined): string | undefined => {

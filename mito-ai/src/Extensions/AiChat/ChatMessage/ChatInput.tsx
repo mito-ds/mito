@@ -14,6 +14,8 @@ import { convertCellReferencesToStableFormat } from '../../../utils/cellReferenc
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
+import { useCellOrder } from '../../../hooks/useCellOrder';
+import { useLineSelection } from '../../../hooks/useLineSelection';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import AttachFileButton from '../../../components/AttachFileButton';
@@ -84,6 +86,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+
+    // Track cell order and line selection
+    const cellOrder = useCellOrder(notebookTracker);
+    const lineSelection = useLineSelection(notebookTracker, cellOrder);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;
@@ -417,6 +423,47 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }
         }
     }, [agentModeEnabled, additionalContext, activeCellCode]);
+
+    // Manage line selection context - shows selected lines when user has text selected in a code cell
+    useEffect(() => {
+        const LINE_SELECTION_TYPE = 'line_selection';
+
+        // Remove existing line selection context
+        const hasLineSelectionContext = additionalContext.some(context => context.type === LINE_SELECTION_TYPE);
+
+        if (lineSelection.hasSelection) {
+            // Build display text: "Cell X line Y" or "Cell X line Y-Z"
+            const displayText = lineSelection.startLine === lineSelection.endLine
+                ? `Cell ${lineSelection.cellNumber} line ${lineSelection.startLine}`
+                : `Cell ${lineSelection.cellNumber} line ${lineSelection.startLine}-${lineSelection.endLine}`;
+
+            // Store structured data in value for backend processing
+            const valueData = JSON.stringify({
+                cellId: lineSelection.cellId,
+                startLine: lineSelection.startLine,
+                endLine: lineSelection.endLine
+            });
+
+            if (hasLineSelectionContext) {
+                // Update existing line selection context
+                setAdditionalContext(prev => prev.map(context =>
+                    context.type === LINE_SELECTION_TYPE
+                        ? { type: LINE_SELECTION_TYPE, value: valueData, display: displayText }
+                        : context
+                ));
+            } else {
+                // Add new line selection context
+                setAdditionalContext(prev => [...prev, {
+                    type: LINE_SELECTION_TYPE,
+                    value: valueData,
+                    display: displayText
+                }]);
+            }
+        } else if (hasLineSelectionContext) {
+            // Remove line selection context when no text is selected
+            setAdditionalContext(prev => prev.filter(context => context.type !== LINE_SELECTION_TYPE));
+        }
+    }, [lineSelection]);
 
     return (
         <div
