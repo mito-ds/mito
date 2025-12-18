@@ -41,9 +41,8 @@ export const useLineSelection = (
     const [selection, setSelection] = useState<LineSelectionInfo>(NO_SELECTION);
 
     // Debounce selection updates to avoid excessive re-renders during text selection
-    const debouncedSetSelection = useDebouncedFunction((newSelection: LineSelectionInfo) => {
-        setSelection(newSelection);
-    }, 100);
+    // `setSelection` is stable, so this keeps the debounced function stable too.
+    const debouncedSetSelection = useDebouncedFunction(setSelection, 100);
 
     // Get current selection from active cell
     const checkSelection = useCallback(() => {
