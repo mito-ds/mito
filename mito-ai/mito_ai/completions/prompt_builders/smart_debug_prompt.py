@@ -18,7 +18,7 @@ def create_error_prompt(
     sections.append(SG.Generic("Instructions", "Help me debug this code in JupyterLab. Analyze the error and provide a solution that maintains the original intent."))
     
     # Example 1
-    example1_content = f"""{SG.Files("file_name: sales.csv")}
+    example1_content = f'''{SG.Files("file_name: sales.csv")}
 {SG.Variables("""{
     'revenue_multiplier': 1.5,
     'sales_df': pd.DataFrame({
@@ -30,8 +30,7 @@ def create_error_prompt(
 }""")}
 {SG.ActiveCellId("'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'")}
 {SG.ActiveCellCode("import pandas as pd\nsales_df = pd.read_csv('./sales.csv')\nrevenue_multiplier =  1.5\nsales_df['total_revenue'] = sales_df['price'] * revenue_multiplier")}
-{SG.ErrorTraceback(code_cell_id="'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'", traceback="""
-Cell In[24], line 4
+{SG.ErrorTraceback(code_cell_id="'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'", traceback="""Cell In[24], line 4
       1 import pandas as pd
       2 sales_df = pd.read_csv('./sales.csv')
       3 revenue_multiplier =  1.5
@@ -53,11 +52,11 @@ revenue_multiplier =  1.5
 sales_df['total_revenue'] = sales_df['total_price'] * revenue_multiplier
 ```
 
-The DataFrame contains 'total_price' rather than 'price'. Updated column reference to match existing data structure."""
+The DataFrame contains 'total_price' rather than 'price'. Updated column reference to match existing data structure.'''
     sections.append(SG.Example("Example 1", example1_content))
     
     # Example 2
-    example2_content = f"""{SG.Files("")}
+    example2_content = f'''{SG.Files("")}
 {SG.Variables("""{
     'df': pd.DataFrame({
         'order_id': [1, 2, 3, 4],
@@ -67,8 +66,7 @@ The DataFrame contains 'total_price' rather than 'price'. Updated column referen
 }""")}
 {SG.ActiveCellId("'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'")}
 {SG.ActiveCellCode("df['date'] = pd.to_datetime(df['date'])")}
-{SG.ErrorTraceback("'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'", """
-Cell In[27], line 1
+{SG.ErrorTraceback("'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'", traceback="""Cell In[27], line 1
 ----> 1 df['date'] = pd.to_datetime(df['date'])
 
 ValueError: time data "25 June, 2024" doesn't match format "%b %d, %Y", at position 2. You might want to try:
@@ -102,7 +100,7 @@ df['date'] = df['date'].apply(lambda x: parse_date(x))
 
 Since the dates are not in a consistent format, we need to first figure out which format to use for each date string and then use that format to convert the date.
 
-The best way to do this is with a function. We can call this function `parse_date`."""
+The best way to do this is with a function. We can call this function `parse_date`.'''
     sections.append(SG.Example("Example 2", example2_content))
 
     # Add guidelines
