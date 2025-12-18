@@ -3,6 +3,7 @@
 
 from typing import List
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
+from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 
 def create_error_prompt(
@@ -12,14 +13,18 @@ def create_error_prompt(
     variables: List[str],
     files: List[str]
 ) -> str:
-    sections = []
+    sections: List[PromptSection] = []
     
     # Add intro text
     sections.append(SG.Generic("Instructions", "Help me debug this code in JupyterLab. Analyze the error and provide a solution that maintains the original intent."))
     
     # Example 1
-    example1_content = f'''{SG.Files("file_name: sales.csv")}
-{SG.Variables("""{
+    sections.append(SG.Example("Example 1", '''
+Files: 
+"file_name: sales.csv"
+
+Variables:
+{{
     'revenue_multiplier': 1.5,
     'sales_df': pd.DataFrame({
         'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
@@ -27,19 +32,30 @@ def create_error_prompt(
         'units_sold': [1, 2, 1, 4, 5],
         'total_price': [10, 19.98, 13.99, 84.00, 500]
     })
-}""")}
-{SG.ActiveCellId("'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'")}
-{SG.ActiveCellCode("""import pandas as pd
+}}
+
+Active Cell ID: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
+
+Active Cell Code:
+```python
+import pandas as pd
 sales_df = pd.read_csv('./sales.csv')
 revenue_multiplier =  1.5
-sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier""")}
-{SG.ErrorTraceback(code_cell_id="'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'", traceback="""Cell In[24], line 4
+sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
+```
+
+Error Traceback:
+Cell ID: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
+Traceback:
+```
+    Cell In[24], line 4
       1 import pandas as pd
       2 sales_df = pd.read_csv('./sales.csv')
       3 revenue_multiplier =  1.5
 ----> 4 sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
 
-KeyError: 'price'""")}
+KeyError: 'price'
+```
 
 ERROR ANALYSIS:
 Runtime error: Attempted to access non-existent DataFrame column
@@ -55,27 +71,39 @@ revenue_multiplier =  1.5
 sales_df['total_revenue'] = sales_df['total_price'] * revenue_multiplier
 ```
 
-The DataFrame contains 'total_price' rather than 'price'. Updated column reference to match existing data structure.'''
-    sections.append(SG.Example("Example 1", example1_content))
+The DataFrame contains 'total_price' rather than 'price'. Updated column reference to match existing data structure.'''))
+
     
     # Example 2
-    example2_content = f'''{SG.Files("")}
-{SG.Variables("""{
+    sections.append(SG.Example("Example 2", '''Files: 
+"file_name: sales.csv"
+
+Variables:
+{{
     'df': pd.DataFrame({
         'order_id': [1, 2, 3, 4],
         'date': ['Mar 7, 2025', 'Sep 24, 2024', '25 June, 2024', 'June 29, 2024'],
         'amount': [100, 150, 299, 99]
     })
-}""")}
-{SG.ActiveCellId("'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'")}
-{SG.ActiveCellCode("df['date'] = pd.to_datetime(df['date'])")}
-{SG.ErrorTraceback("'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'", traceback="""Cell In[27], line 1
+}}
+
+Active Cell ID: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
+
+Active Cell Code:
+```python
+df['date'] = pd.to_datetime(df['date'])
+```
+
+Error Traceback:
+Cell ID: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
+Traceback:
+Cell In[27], line 1
 ----> 1 df['date'] = pd.to_datetime(df['date'])
 
 ValueError: time data "25 June, 2024" doesn't match format "%b %d, %Y", at position 2. You might want to try:
     - passing `format` if your strings have a consistent format;
     - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
-    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.""")}
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
 
 ERROR ANALYSIS:
 This is a ValueError caused by applying the wrong format to a specific date string. Because it was triggered at position 2, the first date string must have successfully converted. By looking at the defined variables, I can see that first date string is in the format "Mar 7, 2025", but the third date string is in the format "25 June, 2024". Those dates are not in the same format, so the conversion failed.
@@ -103,8 +131,7 @@ df['date'] = df['date'].apply(lambda x: parse_date(x))
 
 Since the dates are not in a consistent format, we need to first figure out which format to use for each date string and then use that format to convert the date.
 
-The best way to do this is with a function. We can call this function `parse_date`.'''
-    sections.append(SG.Example("Example 2", example2_content))
+The best way to do this is with a function. We can call this function `parse_date`.'''))
 
     # Add guidelines
     sections.append(SG.Generic("Guidelines for Solutions", """Error Analysis:

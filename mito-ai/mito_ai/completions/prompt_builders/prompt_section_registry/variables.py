@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List
+from typing import List, Optional
 from .base import PromptSection
 
 
@@ -10,7 +10,7 @@ class VariablesSection(PromptSection):
     trim_after_messages: int = 6
     exclude_if_empty: bool = False
     
-    def __init__(self, variables: List[str]):
+    def __init__(self, variables: Optional[List[str]]):
         """
         Initialize VariablesSection with list of variables.
         """

@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
+
+from mito_ai.completions.models import AIOptimizedCell
 from .base import PromptSection
 
 
@@ -10,7 +12,7 @@ class NotebookSection(PromptSection):
     trim_after_messages: int = 6
     exclude_if_empty: bool = False
     
-    def __init__(self, cells: List[str]):
+    def __init__(self, cells: List[AIOptimizedCell]):
         """
         Initialize NotebookSection with list of cells.
         """

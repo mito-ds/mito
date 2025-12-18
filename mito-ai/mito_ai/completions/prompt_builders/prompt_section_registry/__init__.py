@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import List, Type
 from .files import FilesSection
 from .variables import VariablesSection
 from .active_cell_code import ActiveCellCodeSection
@@ -40,7 +41,7 @@ class SectionRegistry:
 SG = SectionRegistry()
 
 # Also export function to get all section classes for trimming
-def get_all_section_classes():
+def get_all_section_classes() -> List[Type[PromptSection]]:
     """Returns all section classes for building trimming mapping."""
     import inspect
     section_classes = []

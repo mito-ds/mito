@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List
+from typing import List, Optional
 from .base import PromptSection
 
 
@@ -10,7 +10,7 @@ class FilesSection(PromptSection):
     trim_after_messages: int = 3
     exclude_if_empty: bool = True
     
-    def __init__(self, files: List[str]):
+    def __init__(self, files: Optional[List[str]]):
         """
         Initialize FilesSection with list of files.
         """

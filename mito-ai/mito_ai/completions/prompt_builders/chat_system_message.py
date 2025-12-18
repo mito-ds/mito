@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import List
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.prompt_constants import (
     CHAT_CODE_FORMATTING_RULES,
@@ -8,9 +9,10 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     CELL_REFERENCE_RULES,
     get_database_rules
 )
+from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 def create_chat_system_message_prompt() -> str:
-    sections = []
+    sections: List[PromptSection] = []
     
     # Add intro text
     sections.append(SG.Generic("Instructions", """You are Mito Data Copilot, an AI assistant for Jupyter. You're a great python programmer, a seasoned data scientist and a subject matter expert.

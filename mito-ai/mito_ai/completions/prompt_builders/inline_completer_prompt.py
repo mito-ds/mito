@@ -3,6 +3,7 @@
 
 from typing import List
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
+from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 
 def create_inline_prompt(
@@ -11,7 +12,7 @@ def create_inline_prompt(
     variables: List[str],
     files: List[str]
 ) -> str:
-    sections = []
+    sections: List[PromptSection] = []
     
     # Add intro text
     sections.append(SG.Task("""You are a coding assistant that lives inside of JupyterLab. Your job is to help the user write code.
@@ -26,8 +27,12 @@ CRITICAL FORMATTING RULES:
 Your job is to complete the code that matches the user's intent. Write the minimal code to achieve the user's intent. Don't expand upon the user's intent."""))
     
     # Example 1
-    example1_content = f"""{SG.Files("file_name: sales.csv")}
-{SG.Variables("""{
+    example1_content = f"""
+Files:
+"file_name: sales.csv")
+
+Variables:
+{{
     'loan_multiplier': 1.5,
     'sales_df': pd.DataFrame({
         'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
@@ -35,76 +40,118 @@ Your job is to complete the code that matches the user's intent. Write the minim
         'units_sold': [1, 2, 1, 4, 5],
         'total_price': [10, 19.98, 13.99, 84.00, 500]
     })
-}""")}
-{SG.ActiveCellCode("import pandas as pd\nsales_df = pd.read_csv('./sales.csv')\n\n# Multiply the total_price column by the loan_multiplier<cursor>")}
+}}
+
+Active Cell Code:
+```python
+import pandas as pd
+sales_df = pd.read_csv('./sales.csv')
+
+
+# Multiply the total_price column by the loan_multiplier<cursor>
+```
+
 Output:
 ```python
 
 sales_df['total_price'] = sales_df['total_price'] * loan_multiplier
-```"""
+```
+
+Notice in Example 1 that the output starts with a newline because the cursor was at the end of a comment. This newline is REQUIRED to maintain proper Python formatting."""
+
     sections.append(SG.Example("Example 1", example1_content))
-    sections.append(SG.Task("IMPORTANT: Notice in Example 1 that the output starts with a newline because the cursor was at the end of a comment. This newline is REQUIRED to maintain proper Python formatting."))
     
     # Example 2
-    example2_content = f"""{SG.Files("")}
-{SG.Variables("""{
-    df: pd.DataFrame({
-        'age': [20, 25, 22, 23, 29],
-        'name': ['Nawaz', 'Aaron', 'Charlie', 'Tamir', 'Eve'],
-    })
-}""")}
-{SG.ActiveCellCode("df['age'] = df[<cursor>['age'] > 23]")}
+    example2_content = """
+Files:
+
+Variables:
+df: pd.DataFrame({
+    'age': [20, 25, 22, 23, 29],
+    'name': ['Nawaz', 'Aaron', 'Charlie', 'Tamir', 'Eve'],
+})
+
+Active Cell Code:
+```python
+df['age'] = df[<cursor>['age'] > 23]
+```
+
 Output:
 ```python
 df['age'] = df[df['age'] > 23]
-```"""
+```
+
+IMPORTANT: Notice in Example 2 that the output does NOT start with a newline because the cursor is in the middle of existing code."
+"""
     sections.append(SG.Example("Example 2", example2_content))
-    sections.append(SG.Task("IMPORTANT: Notice in Example 2 that the output does NOT start with a newline because the cursor is in the middle of existing code."))
     
     # Example 3
-    example3_content = f"""{SG.Files("file_name: voters.csv")}
-{SG.Variables("{}")}
-{SG.ActiveCellCode("voters = pd.read_csv('./voters.csv')\n\n# Create a variable for pennsylvania voters, ohio voters, california voters, and texas voters\npa_voters = voters[voters['state'] == 'PA']\nohio_voters<cursor>")}
+    example3_content = f"""
+Files:
+"file_name: voters.csv"
+
+Variables:
+{{}}
+
+Active Cell Code:
+```python
+voters = pd.read_csv('./voters.csv')
+
+# Create a variable for pennsylvania voters, ohio voters, california voters, and texas voters
+pa_voters = voters[voters['state'] == 'PA']
+ohio_voters<cursor>
+```
+
 Output:
 ```python
 ohio_voters = voters[voters['state'] == 'OH']
 ca_voters = voters[voters['state'] == 'CA']
 tx_voters = voters[voters['state'] == 'TX']
-```"""
+```
+
+IMPORTANT: Notice in Example 3 that output does not start with a newline character because it wasnts to continue the line of code that the user started. Also notice the output contains three lines of code because that is the minimal code to achieve the user's intent."""
     sections.append(SG.Example("Example 3", example3_content))
-    sections.append(SG.Task("IMPORTANT: Notice in Example 3 that output does not start with a newline character because it wasnts to continue the line of code that the user started. Also notice the output contains three lines of code because that is the minimal code to achieve the user's intent."))
     
     # Example 4
-    example4_content = f"""{SG.Files("file_name: july_2025.xlsx\nfile_name: august_2025.xlsx")}
-{SG.Variables("{}")}
-{SG.ActiveCellCode("# Display the first 5 rows of the dataframe\ndf.head()\n<cursor>")}
-Output:
+    example4_content = f"""
+Files:
+"file_name: july_2025.xlsx"
+"file_name: august_2025.xlsx"
+
+Variables:
+{{}}
+
+Active Cell Code:
 ```python
 ```"""
     sections.append(SG.Example("Example 4", example4_content))
-    sections.append(SG.Task("IMPORTANT: Notice in Example 4 that the output is empty becuase the user's intent is already complete."))
     
     # Example 5
-    example5_content = f"""{SG.Files("")}
-{SG.Variables("{}")}
-{SG.ActiveCellCode("def even_and_odd():\n    for i in range(10):\n        if i % 2 == 0:\n            print(f\"Even: {{i}}\")\n        else:\n            pri<cursor>")}
-Output:
+    example5_content = f"""
+Files:
+{{}}
+
+Active Cell Code:
 ```python
-            print(f"Odd: {{i}}")
-```"""
+def even_and_odd():\n    for i in range(10):\n        if i % 2 == 0:\n            print(f\"Even: {{i}}\")\n        else:\n            pri<cursor>
+```
+
+Output:
+```python"""
     sections.append(SG.Example("Example 5", example5_content))
-    sections.append(SG.Task("IMPORTANT: Notice in Example 5 that the output is indented several times because the code must be executed as part of the else block."))
     
     # Example 6
-    example6_content = f"""{SG.Files("")}
-{SG.Variables("{}")}
-{SG.ActiveCellCode("days_in_week <cursor>")}
-Output:
+    example6_content = f"""
+Files:
+{{}}
+
+Active Cell Code:
 ```python
 days_in_week = 7
-```"""
+```
+
+IMPORTANT: Notice in Example 6 that inorder to finish the variable declaration, the output continues the existing line of code and does not start with a new line character."""
     sections.append(SG.Example("Example 6", example6_content))
-    sections.append(SG.Task("IMPORTANT: Notice in Example 6 that inorder to finish the variable declaration, the output continues the existing line of code and does not start with a new line character."))
     
     # Add task sections
     sections.append(SG.Task("Your Task:"))

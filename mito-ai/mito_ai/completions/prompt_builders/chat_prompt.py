@@ -3,6 +3,7 @@
 
 from typing import List, Optional, Dict
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
+from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 
 def create_chat_prompt(
@@ -14,7 +15,7 @@ def create_chat_prompt(
     input: str,
     additional_context: Optional[List[Dict[str, str]]] = None,
 ) -> str:
-    sections = []
+    sections: List[PromptSection] = []
     
     # Add rules if present
     sections.append(SG.Rules(additional_context))

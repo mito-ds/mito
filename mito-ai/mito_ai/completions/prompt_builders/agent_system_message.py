@@ -1,12 +1,14 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import List
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.prompt_constants import (
     CITATION_RULES,
     CELL_REFERENCE_RULES,
     get_database_rules
 )
+from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 
 def create_agent_system_message_prompt(isChromeBrowser: bool) -> str:
@@ -16,7 +18,7 @@ def create_agent_system_message_prompt(isChromeBrowser: bool) -> str:
     # throughout the prompt
     OR_GET_CELL_OUTPUT = 'or GET_CELL_OUTPUT' if isChromeBrowser else ''
     
-    sections = []
+    sections: List[PromptSection] = []
     
     # Add intro text
     sections.append(SG.Generic("Instructions", """You are Mito Data Copilot, an AI assistant for Jupyter. You're a great python programmer, a seasoned data scientist and a subject matter expert.

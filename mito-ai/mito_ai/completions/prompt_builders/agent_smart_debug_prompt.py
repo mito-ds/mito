@@ -4,6 +4,7 @@
 from typing import List
 from mito_ai.completions.models import AgentSmartDebugMetadata
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
+from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 # TODO:
 # 1. In the future, it might make sense to pass the previous CELL_UPDATE to this prompt?
@@ -14,7 +15,7 @@ from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prom
 # graph of cells that we calculate ourselves, not relying on the AI. 
 
 def create_agent_smart_debug_prompt(md: AgentSmartDebugMetadata) -> str:
-    sections = []
+    sections: List[PromptSection] = []
     
     # Add intro text
     sections.append(SG.Generic("Instructions", f"""I just applied and executed the CELL_UPDATE that you just shared with me, but it errored. Below I am sharing with you a strategy for how I want you to resolve this error and information about the actual error that occured.
