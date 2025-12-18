@@ -13,6 +13,7 @@ interface AgentComponentHeaderProps {
     isExpanded: boolean;
     displayBorder?: boolean;
     className?: string;
+    actionButtons?: React.ReactNode;
 }
 
 const AgentComponentHeader: React.FC<AgentComponentHeaderProps> = ({
@@ -21,7 +22,8 @@ const AgentComponentHeader: React.FC<AgentComponentHeaderProps> = ({
     onClick,
     isExpanded,
     displayBorder = true,
-    className
+    className,
+    actionButtons
 }): JSX.Element => {
     return (
         <div
@@ -35,25 +37,28 @@ const AgentComponentHeader: React.FC<AgentComponentHeaderProps> = ({
                 {icon}
                 {text}
             </span>
-            <svg
-                className={classNames('agent-component-header-expand-icon', {
-                    expanded: isExpanded
-                })}
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path
-                    d="M4 6L8 10L12 6"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    transform={isExpanded ? 'rotate(90 8 8)' : 'rotate(0 8 8)'}
-                />
-            </svg>
+            <div className="agent-component-header-actions">
+                {actionButtons}
+                <svg
+                    className={classNames('agent-component-header-expand-icon', {
+                        expanded: isExpanded
+                    })}
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        d="M4 6L8 10L12 6"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        transform={isExpanded ? 'rotate(90 8 8)' : 'rotate(0 8 8)'}
+                    />
+                </svg>
+            </div>
         </div>
     );
 };

@@ -13,9 +13,11 @@ import { ChatHistoryManager } from '../ChatHistoryManager';
 import { createCheckpoint } from '../../../utils/checkpoint';
 import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../../utils/agentActions';
 import { checkForBlacklistedWords } from '../../../utils/blacklistedWords';
+import { playCompletionSound } from '../../../utils/sound';
 import { getCodeBlockFromMessage } from '../../../utils/strings';
 import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } from '../../../utils/notebook';
 import { AgentReviewStatus } from '../ChatTaskpane';
+import { LoadingStatus } from './useChatState';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -29,7 +31,7 @@ interface UseAgentExecutionProps {
     chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>;
     activeThreadIdRef: React.MutableRefObject<string>;
     activeRequestControllerRef: React.MutableRefObject<AbortController | null>;
-    setLoadingAIResponse: (loading: boolean) => void;
+    setLoadingStatus: (status: LoadingStatus) => void;
     setAutoScrollFollowMode: (mode: boolean) => void;
     setHasCheckpoint: (hasCheckpoint: boolean) => void;
     addAIMessageFromResponseAndUpdateState: (
@@ -53,6 +55,7 @@ interface UseAgentExecutionProps {
     };
     agentTargetNotebookPanelRef: React.MutableRefObject<any>;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
+    audioContextRef: React.MutableRefObject<AudioContext | null>;
 }
 
 export const useAgentExecution = ({
@@ -63,7 +66,7 @@ export const useAgentExecution = ({
     chatHistoryManagerRef,
     activeThreadIdRef,
     activeRequestControllerRef,
-    setLoadingAIResponse,
+    setLoadingStatus,
     setAutoScrollFollowMode,
     setHasCheckpoint,
     addAIMessageFromResponseAndUpdateState,
@@ -71,7 +74,8 @@ export const useAgentExecution = ({
     sendAgentExecutionMessage,
     sendAgentSmartDebugMessage,
     agentReview,
-    agentTargetNotebookPanelRef
+    agentTargetNotebookPanelRef,
+    audioContextRef,
 }: UseAgentExecutionProps): {
     agentExecutionStatus: AgentExecutionStatus;
     shouldContinueAgentExecution: React.MutableRefObject<boolean>;
@@ -92,7 +96,7 @@ export const useAgentExecution = ({
         shouldContinueAgentExecution.current = false;
         // Update state/UI
         setAgentExecutionStatus('idle');
-        setLoadingAIResponse(false);
+        setLoadingStatus(undefined);
 
         if (reason === 'userStop') {
             // Immediately abort any ongoing requests
@@ -119,7 +123,8 @@ export const useAgentExecution = ({
                 stream: false
             });
         }
-        return;
+
+        playCompletionSound(audioContextRef.current);
     };
 
     const startAgentExecution = async (
@@ -237,10 +242,15 @@ export const useAgentExecution = ({
 
             if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
                 // Run the code and handle any errors
-                await acceptAndRunCellUpdate(
-                    agentResponse.cell_update,
-                    agentTargetNotebookPanelRef.current,
-                );
+                setLoadingStatus('running-code');
+                try {
+                    await acceptAndRunCellUpdate(
+                        agentResponse.cell_update,
+                        agentTargetNotebookPanelRef.current,
+                    );
+                } finally {
+                    setLoadingStatus(undefined);
+                }
 
                 const status = await retryIfExecutionError(
                     agentTargetNotebookPanelRef.current,
@@ -248,17 +258,18 @@ export const useAgentExecution = ({
                     sendAgentSmartDebugMessage,
                     shouldContinueAgentExecution,
                     markAgentForStopping,
-                    chatHistoryManagerRef
+                    chatHistoryManagerRef,
+                    setLoadingStatus
                 );
 
                 if (status === 'interupted') {
                     break;
                 }
 
-                // If we were not able to run the code, break out of the loop 
+                // If we were not able to run the code, break out of the loop
                 // so we don't continue to execute the plan. Instead, we encourage
-                // the user to update the plan and try again. 
-                // TODO: Save this message in backend also even if there is not another message sent. 
+                // the user to update the plan and try again.
+                // TODO: Save this message in backend also even if there is not another message sent.
                 // TODO: Move this into the retryIfExecutionError function?
                 if (status === 'failure') {
                     addAIMessageFromResponseAndUpdateState(
@@ -271,13 +282,19 @@ export const useAgentExecution = ({
             }
 
             if (agentResponse.type === 'get_cell_output' && agentResponse.get_cell_output_cell_id !== null && agentResponse.get_cell_output_cell_id !== undefined) {
-                // Mark that we should send the cell output to the agent 
+                // Mark that we should send the cell output to the agent
                 // in the next loop iteration
                 sendCellIDOutput = agentResponse.get_cell_output_cell_id;
             }
 
             if (agentResponse.type === 'run_all_cells') {
-                const result = await runAllCells(app, agentTargetNotebookPanelRef.current);
+                setLoadingStatus('running-code');
+                let result;
+                try {
+                    result = await runAllCells(app, agentTargetNotebookPanelRef.current);
+                } finally {
+                    setLoadingStatus(undefined);
+                }
 
                 // If run_all_cells resulted in an error, handle it through the error fixup process
                 if (!result.success && result.errorMessage && result.errorCellId) {
@@ -290,7 +307,8 @@ export const useAgentExecution = ({
                         sendAgentSmartDebugMessage,
                         shouldContinueAgentExecution,
                         markAgentForStopping,
-                        chatHistoryManagerRef
+                        chatHistoryManagerRef,
+                        setLoadingStatus
                     );
 
                     if (status === 'interupted') {

@@ -8,7 +8,6 @@ import type {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { checkForUpdates } from '../../utils/version_check';
-import { isElectronBasedFrontend } from '../../utils/user';
 
 // Check interval - once per day in milliseconds
 const CHECK_INTERVAL = 24 * 60 * 60 * 1000; 
@@ -90,13 +89,6 @@ function updateLastCheckTime(): void {
  * Performs the version check
  */
 async function performVersionCheck(app: JupyterFrontEnd): Promise<void> {
-  // Skip version check when running in Electron (desktop app).
-  // Desktop users only need a single notification - when a new desktop app version is available.
-  // That new version of the desktop app will handle updating mito-ai automatically.
-  if (isElectronBasedFrontend()) {
-    return;
-  }
-
   return checkForUpdates(app.serviceManager.serverSettings);
 }
 

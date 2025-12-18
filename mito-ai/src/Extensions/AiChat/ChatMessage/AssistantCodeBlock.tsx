@@ -13,6 +13,9 @@ import { CodeReviewStatus } from '../ChatTaskpane';
 import CodeIcon from '../../../icons/CodeIcon';
 import CodeBlockToolbar from './CodeBlockToolbar';
 import AgentComponentHeader from '../../../components/AgentComponents/AgentComponentHeader';
+import GoToCellIcon from '../../../icons/GoToCellIcon';
+import { NotebookPanel } from '@jupyterlab/notebook';
+import { scrollToCell, setActiveCellByIDInNotebookPanel } from '../../../utils/notebook';
 
 interface IAssistantCodeBlockProps {
     code: string;
@@ -26,6 +29,8 @@ interface IAssistantCodeBlockProps {
     codeReviewStatus: CodeReviewStatus;
     agentModeEnabled: boolean;
     isErrorFixup?: boolean;
+    cellId?: string;
+    notebookPanel?: NotebookPanel | null;
 }
 
 const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
@@ -40,9 +45,34 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
     codeReviewStatus,
     agentModeEnabled,
     isErrorFixup,
+    cellId,
+    notebookPanel,
 }) => {
     const [isCodeExpanded, setIsCodeExpanded] = useState(false);
     const shouldShowToolbar = isLastAiMessage || isCodeComplete;
+
+    const handleGoToCell = (e: React.MouseEvent): void => {
+        e.stopPropagation();
+        if (cellId && notebookPanel) {
+            setActiveCellByIDInNotebookPanel(notebookPanel, cellId);
+            scrollToCell(notebookPanel, cellId, undefined, 'center');
+        }
+    };
+
+    const renderActionButtons = (): React.ReactNode => {
+        if (!cellId || !notebookPanel) {
+            return null;
+        }
+        return (
+            <button
+                className="agent-component-header-action-button"
+                onClick={handleGoToCell}
+                title="Go to cell"
+            >
+                <GoToCellIcon />
+            </button>
+        );
+    };
 
     if (agentModeEnabled) {
 
@@ -58,6 +88,7 @@ const AssistantCodeBlock: React.FC<IAssistantCodeBlockProps> = ({
                     isExpanded={isCodeExpanded}
                     displayBorder={!isErrorFixup}
                     className={isErrorFixup ? 'error-fixup' : undefined}
+                    actionButtons={renderActionButtons()}
                 />
                 {isCodeExpanded && (
                     <PythonCode

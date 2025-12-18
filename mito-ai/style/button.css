@@ -55,6 +55,17 @@
   background-color: var(--purple-400);
 }
 
+.button-blue {
+  background-color: var(--blue-300);
+  color: var(--blue-900) !important;
+  border: 0.5px solid var(--blue-900);
+  border-radius: 4px;
+}
+
+.button-blue:hover {
+  background-color: var(--blue-400);
+}
+
 .button-dark-purple {
   background-color: var(--purple-500);
   color: var(--white) !important;
@@ -73,7 +84,7 @@
 }
 
 .button-small {
-  height: 20px;
+  height: var(--toolbar-button-height);
   font-size: 12px;
   padding: 2px 5px;
 }

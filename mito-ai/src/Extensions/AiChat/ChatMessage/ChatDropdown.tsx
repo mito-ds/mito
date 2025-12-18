@@ -6,7 +6,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ExpandedVariable } from './ChatInput';
 import { getDatabaseConnections, getRules } from '../../../restAPI/RestAPI';
-import { VariableDropdownItem, FileDropdownItem, RuleDropdownItem } from './ChatDropdownItems';
+import { VariableDropdownItem, FileDropdownItem, RuleDropdownItem, CellDropdownItem } from './ChatDropdownItems';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { getAllCellReferences } from '../../../utils/cellReferences';
 
 interface ChatDropdownProps {
     options: ExpandedVariable[];
@@ -16,6 +18,7 @@ interface ChatDropdownProps {
     isDropdownFromButton?: boolean;
     onFilterChange?: (filterText: string) => void;
     onClose?: () => void;
+    notebookTracker?: INotebookTracker;
 }
 
 interface ChatDropdownVariableOption {
@@ -38,11 +41,19 @@ interface ChatDropdownFileOption {
     file: ExpandedVariable;
 }
 
+interface ChatDropdownCellOption {
+    type: 'cell'
+    cellNumber: number;
+    cellId: string;
+    cellType: string;
+}
+
 export type ChatDropdownOption =
     | ChatDropdownVariableOption
     | ChatDropdownRuleOption
     | ChatDropdownFileOption
-    | ChatDropdownDatabaseOption;
+    | ChatDropdownDatabaseOption
+    | ChatDropdownCellOption;
 
 const priortizeByType = (options: ChatDropdownOption[], maxPerType: number): ChatDropdownOption[] => {
     /* 
@@ -76,6 +87,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     isDropdownFromButton = false,
     onFilterChange,
     onClose,
+    notebookTracker,
 }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [localFilterText, setLocalFilterText] = useState(filterText);
@@ -107,15 +119,28 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     // Use local filter text when search input is shown, otherwise use prop
     const effectiveFilterText = isDropdownFromButton ? localFilterText : filterText;
 
+    // Get cell references if notebook tracker is available
+    const cellReferences = notebookTracker?.currentWidget 
+        ? getAllCellReferences(notebookTracker.currentWidget)
+        : [];
+
     // Create a list of all options with the format 
     // ['type': 'variable', "expandedVariable": variable]
     // ['type': 'rule', "rule": rule]
     // ['type': 'file', "file": file]
+    // ['type': 'cell', "cellNumber": number, "cellId": string]
     const allOptions: ChatDropdownOption[] = [
         // Rules first
         ...rules.map((rule): ChatDropdownRuleOption => ({
             type: 'rule',
             rule: rule
+        })),
+        // Cells second (when user types @Cell or @cell)
+        ...cellReferences.map((cell): ChatDropdownCellOption => ({
+            type: 'cell',
+            cellNumber: cell.cellNumber,
+            cellId: cell.cellId,
+            cellType: cell.cellType
         })),
         // Files second
         ...options
@@ -167,6 +192,12 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         } else if (option.type === 'db') {
             return option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) ||
                 option.variable.value.toLowerCase().includes(effectiveFilterText.toLowerCase());
+        } else if (option.type === 'cell') {
+            // Match "CellN" (no space)
+            const cellText = `cell${option.cellNumber}`;
+            const numberText = String(option.cellNumber);
+            return cellText.includes(effectiveFilterText.toLowerCase()) ||
+                numberText.includes(effectiveFilterText.toLowerCase());
         } else {
             return option.rule.toLowerCase().includes(effectiveFilterText.toLowerCase());
         }
@@ -325,6 +356,20 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
                                 <VariableDropdownItem
                                     key={uniqueKey}
                                     variable={option.variable}
+                                    index={index}
+                                    selectedIndex={selectedIndex}
+                                    onSelect={() => onSelect(option)}
+                                />
+                            );
+                        }
+                        case 'cell': {
+                            const uniqueKey = `cell-${option.cellNumber}`;
+                            return (
+                                <CellDropdownItem
+                                    key={uniqueKey}
+                                    cellNumber={option.cellNumber}
+                                    cellId={option.cellId}
+                                    cellType={option.cellType}
                                     index={index}
                                     selectedIndex={selectedIndex}
                                     onSelect={() => onSelect(option)}

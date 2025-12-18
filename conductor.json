@@ -1,0 +1,6 @@
+{
+    "scripts": {
+        "setup": "cd mito-ai && (test -d venv || python3 -m venv venv) && source venv/bin/activate && pip install -e \".[test]\" && touch yarn.lock && jlpm install && jlpm build && jupyter labextension develop . --overwrite && jupyter server extension enable --py mito_ai",
+        "run": "cd mito-ai && source venv/bin/activate && jlpm build && jupyter lab --browser=chrome"
+    }
+}

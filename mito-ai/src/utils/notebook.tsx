@@ -84,6 +84,21 @@ export const getCellIndexByIDInNotebookPanel = (notebookPanel: NotebookPanel | n
     return undefined
 }
 
+export const getCellIDByIndex = (notebookTracker: INotebookTracker, index: number): string | undefined => {
+    const notebookPanel = notebookTracker.currentWidget
+    return getCellIDByIndexInNotebookPanel(notebookPanel, index)
+}
+
+export const getCellIDByIndexInNotebookPanel = (notebookPanel: NotebookPanel | null, index: number): string | undefined => {
+    const cellList = notebookPanel?.model?.cells
+
+    if (cellList === undefined || index < 0 || index >= cellList.length) {
+        return undefined
+    }
+
+    return cellList.get(index)?.id
+}
+
 export const setActiveCellByID = (notebookTracker: INotebookTracker, cellID: string | undefined): void => {
     const notebookPanel = notebookTracker.currentWidget
     setActiveCellByIDInNotebookPanel(notebookPanel, cellID)

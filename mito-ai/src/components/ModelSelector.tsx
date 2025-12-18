@@ -9,7 +9,20 @@ import '../../style/ModelSelector.css';
 import NucleausIcon from '../icons/NucleausIcon';
 import BrainIcon from '../icons/BrainIcon';
 import LightningIcon from '../icons/LightningIcon';
-import { CLAUDE_SONNET_DISPLAY_NAME, CLAUDE_SONNET_MODEL_NAME, CLAUDE_HAIKU_DISPLAY_NAME, CLAUDE_HAIKU_MODEL_NAME } from '../utils/models';
+import { 
+  CLAUDE_SONNET_DISPLAY_NAME, 
+  CLAUDE_SONNET_MODEL_NAME, 
+  CLAUDE_HAIKU_DISPLAY_NAME, 
+  CLAUDE_HAIKU_MODEL_NAME,
+  GPT_4_1_DISPLAY_NAME,
+  GPT_4_1_MODEL_NAME,
+  GPT_5_2_DISPLAY_NAME,
+  GPT_5_2_MODEL_NAME,
+  GEMINI_3_FLASH_MODEL_NAME,
+  GEMINI_3_FLASH_DISPLAY_NAME,
+  GEMINI_3_PRO_DISPLAY_NAME,
+  GEMINI_3_PRO_MODEL_NAME,
+} from '../utils/models';
 
 interface ModelConfig {
   model: string;
@@ -26,25 +39,44 @@ interface ModelMapping {
   complexityHandling: 'High' | 'Medium' | 'Low';
 }
 
+const GOOD_FOR_FAST = [
+  'Quick data exploration',
+  'Pandas operations',
+  'Basic data cleaning',
+  'Fast code iterations'
+]
+
+const GOOD_FOR_SMART = [
+  'Complex data analysis',
+  'Advanced debugging',
+  'Statistical analysis and modeling',
+  'Multi-step data workflows'
+]
+
 const MODEL_MAPPINGS: ModelMapping[] = [
-  { 
-    displayName: 'GPT 4.1', 
-    fullName: 'gpt-4.1', 
+  {
+    displayName: GPT_4_1_DISPLAY_NAME,
+    fullName: GPT_4_1_MODEL_NAME,
     type: 'smart',
-    goodFor: [
-      'Complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+    goodFor: [...GOOD_FOR_SMART],
     provider: 'OpenAI',
     tokenLimit: '1M',
     speed: 'Medium',
     complexityHandling: 'High'
   },
-  { 
-    displayName: CLAUDE_HAIKU_DISPLAY_NAME, 
-    fullName: CLAUDE_HAIKU_MODEL_NAME, 
+  {
+    displayName: GPT_5_2_DISPLAY_NAME,
+    fullName: GPT_5_2_MODEL_NAME,
+    type: 'fast',
+    goodFor: [...GOOD_FOR_FAST],
+    provider: 'OpenAI',
+    tokenLimit: '400K',
+    speed: 'Fast',
+    complexityHandling: 'Medium'
+  },
+  {
+    displayName: CLAUDE_HAIKU_DISPLAY_NAME,
+    fullName: CLAUDE_HAIKU_MODEL_NAME,
     type: 'fast',
     goodFor: [
       'Quick data exploration',
@@ -57,46 +89,31 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     speed: 'Fast',
     complexityHandling: 'Medium'
   },
-  { 
-    displayName: CLAUDE_SONNET_DISPLAY_NAME, 
-    fullName: CLAUDE_SONNET_MODEL_NAME, 
+  {
+    displayName: CLAUDE_SONNET_DISPLAY_NAME,
+    fullName: CLAUDE_SONNET_MODEL_NAME,
     type: 'smart',
-    goodFor: [
-      'Complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+    goodFor: [...GOOD_FOR_SMART],
     provider: 'Anthropic',
     tokenLimit: '1M',
     speed: 'Medium',
     complexityHandling: 'High'
   },
-  { 
-    displayName: 'Gemini 2.5 Pro', 
-    fullName: 'gemini-2.5-pro', 
-    type: 'smart',
-    goodFor: [
-      'Complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+  {
+    displayName: GEMINI_3_FLASH_DISPLAY_NAME,
+    fullName: GEMINI_3_FLASH_MODEL_NAME,
+    type: 'fast',
+    goodFor: [...GOOD_FOR_FAST],
     provider: 'Google',
     tokenLimit: '1M',
-    speed: 'Medium',
-    complexityHandling: 'High'
+    speed: 'Fast',
+    complexityHandling: 'Medium'
   },
-  { 
-    displayName: 'Gemini 3 Pro', 
-    fullName: 'gemini-3-pro-preview', 
+  {
+    displayName: GEMINI_3_PRO_DISPLAY_NAME,
+    fullName: GEMINI_3_PRO_MODEL_NAME,
     type: 'smart',
-    goodFor: [
-      'Most complex data analysis',
-      'Advanced debugging',
-      'Statistical analysis and modeling',
-      'Multi-step data workflows'
-    ],
+    goodFor: [...GOOD_FOR_SMART],
     provider: 'Google',
     tokenLimit: '1M',
     speed: 'Slow',
@@ -187,7 +204,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
       const tooltipHeight = 180;
       const tooltipBottom = rect.top;
       const tooltipTop = tooltipBottom - tooltipHeight;
-      
+
       document.documentElement.style.setProperty('--tooltip-top', `${tooltipTop - 32}px`);
       document.documentElement.style.setProperty('--tooltip-left', `${rect.left + 160}px`);
     }
@@ -245,7 +262,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
         )}
       </div>
       {isOpen && hoveredModel && ReactDOM.createPortal(
-        <div 
+        <div
           className="model-tooltip">
           <div className="model-tooltip-content">
             <div className="model-tooltip-header">

@@ -51,6 +51,7 @@ import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { logEvent } from '../../restAPI/RestAPI';
+import { playCompletionSound } from '../../utils/sound';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -123,7 +124,7 @@ interface IChatTaskpaneProps {
 }
 
 // Re-export types from hooks for backward compatibility
-export type { CodeReviewStatus, AgentReviewStatus } from './hooks/useChatState';
+export type { CodeReviewStatus, AgentReviewStatus, LoadingStatus } from './hooks/useChatState';
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle'
 export interface ChangedCell {
     cellId: string;
@@ -150,8 +151,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManager,
         chatHistoryManagerRef,
         setChatHistoryManager,
-        loadingAIResponse,
-        setLoadingAIResponse,
+        loadingStatus,
+        setLoadingStatus,
         codeReviewStatus,
         setCodeReviewStatus,
         agentReviewStatus,
@@ -173,6 +174,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Streaming response management
     const { streamingContentRef, streamHandlerRef, activeRequestControllerRef } = useStreamingResponse();
+
+    // Audio context management
+    const audioContextRef = useRef<AudioContext | null>(null);
+    useEffect(() => {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+        return () => {
+            const audioContext = audioContextRef.current;
+            audioContextRef.current = null;
+            if (audioContext) {
+                void audioContext.close().catch(() => {
+                    // Ignore errors closing (e.g. already closed)
+                });
+            }
+        };
+    }, []);
 
     // Agent mode state management
     const {
@@ -287,7 +304,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const smartDebugMetadata = newChatHistoryManager.addSmartDebugMessage(activeThreadIdRef.current, errorMessage)
         setChatHistoryManager(newChatHistoryManager);
-        setLoadingAIResponse(true)
+        setLoadingStatus('thinking')
 
         // Step 2: Send the message to the AI
         const smartDebugCompletionRequest: ISmartDebugCompletionRequest = {
@@ -318,7 +335,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentTargetNotebookPanelRef.current
         )
         setChatHistoryManager(newChatHistoryManager);
-        setLoadingAIResponse(true);
+        setLoadingStatus('thinking');
 
         // Step 2: Send the message to the AI
         const smartDebugCompletionRequest: IAgentAutoErrorFixupCompletionRequest = {
@@ -342,7 +359,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const explainCodeMetadata = newChatHistoryManager.addExplainCodeMessage(activeThreadIdRef.current)
         setChatHistoryManager(newChatHistoryManager)
-        setLoadingAIResponse(true)
+        setLoadingStatus('thinking')
 
         // Step 2: Send the message to the AI
         const explainCompletionRequest: ICodeExplainCompletionRequest = {
@@ -393,7 +410,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanel, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
-        setLoadingAIResponse(true);
+        setLoadingStatus('thinking');
 
         // Step 2: Send the message to the AI
         const completionRequest: IAgentExecutionCompletionRequest = {
@@ -431,7 +448,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         )
 
         setChatHistoryManager(newChatHistoryManager)
-        setLoadingAIResponse(true)
+        setLoadingStatus('thinking')
 
         // Yield control briefly to allow React to re-render the UI
         // A timeout of 0ms pushes the rest of the function to the next event loop cycle
@@ -514,10 +531,13 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         true,
                         chunk.error.title
                     );
-                    setLoadingAIResponse(false);
+                    setLoadingStatus(undefined);
                 } else if (chunk.done) {
                     // Reset states to allow future messages to show the "Apply" button
                     setCodeReviewStatus('chatPreview');
+
+                    // Play completion sound for streaming mode
+                    playCompletionSound(audioContextRef.current);
                 } else {
                     // Use a ref to accumulate the content properly
                     streamingContentRef.current += chunk.chunk.content;
@@ -532,30 +552,20 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                     // Set loading to false after we receive the first chunk
                     if (streamingContentRef.current.length > 0) {
-                        setLoadingAIResponse(false);
+                        setLoadingStatus(undefined);
                     }
                 }
             };
 
-            // Store the handler for later cleanup
-            streamHandlerRef.current = streamHandler;
-
-            // Connect the handler
-            websocketClient.stream.connect(streamHandler, null);
-
             try {
-                const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
-                
-                const content = aiResponse.items[0]?.content ?? '';
+                // Store the handler for later cleanup
+                streamHandlerRef.current = streamHandler;
 
-                if (
-                    completionRequest.metadata.promptType === 'agent:execution' ||
-                    completionRequest.metadata.promptType === 'agent:autoErrorFixup'
-                ) {
-                    // Agent:Execution prompts return a CellUpdate object that we need to parse
-                    const agentResponse: AgentResponse = JSON.parse(content)
-                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                }
+                // Connect the handler
+                websocketClient.stream.connect(streamHandler, null);
+
+                // Send the message to the AI and let the stream handler handle the rest
+                await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
             } catch (error) {
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).title ? (error as any).title : `${error}`,
@@ -569,7 +579,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     newChatHistoryManager,
                     true
                 );
-            }
+                // Reset loading status when an error occurs
+                setLoadingStatus(undefined);
+            } 
         } else {
             // NON-STREAMING RESPONSES
             // Once we move everything to streaming, we can remove everything in this else block
@@ -651,7 +663,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             } finally {
                 // Reset states to allow future messages to show the "Apply" button
                 setCodeReviewStatus('chatPreview');
-                setLoadingAIResponse(false);
+                setLoadingStatus(undefined);
             }
         }
 
@@ -692,7 +704,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         chatHistoryManagerRef,
         activeThreadIdRef,
         activeRequestControllerRef,
-        setLoadingAIResponse,
+        setLoadingStatus,
         setAutoScrollFollowMode,
         setHasCheckpoint,
         addAIMessageFromResponseAndUpdateState,
@@ -701,7 +713,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendAgentSmartDebugMessage,
         agentReview,
         agentTargetNotebookPanelRef,
-        setAgentReviewStatus
+        setAgentReviewStatus,
+        audioContextRef
     });
 
     // Main initialization effect - runs once on mount
@@ -1006,6 +1019,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 key={index}
                                 messages={displayOptimizedChat}
                                 renderMimeRegistry={renderMimeRegistry}
+                                notebookTracker={notebookTracker}
                             />
                         )
                     } else {
@@ -1038,9 +1052,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         )
                     }
                 }).filter(message => message !== null)}
-                {loadingAIResponse &&
+                {loadingStatus === 'thinking' &&
                     <div className="chat-loading-message">
                         Thinking <LoadingDots />
+                    </div>
+                }
+                {loadingStatus === 'running-code' &&
+                    <div className="chat-loading-message">
+                        Running code <LoadingDots />
                     </div>
                 }
                 {/* Agent review panel - handles all agent review UI */}

@@ -46,6 +46,28 @@ Citation Rules:
 8. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
 """
 
+CELL_REFERENCE_RULES = """RULES FOR REFERENCING CELLS
+
+When referring to specific cells in the notebook in your messages, use cell references so the user can easily navigate to the cell you're talking about. The user sees cells numbered as "Cell 1", "Cell 2", etc., but internally cells are identified by their unique IDs.
+
+To reference a cell, use this format inline in your message:
+[MITO_CELL_REF:cell_id]
+
+This will be displayed to the user as a clickable "Cell N" link that navigates to the referenced cell.
+
+Cell Reference Rules:
+
+1. Use cell references when discussing specific cells you've created or modified (e.g., "I've added the data cleaning code in [MITO_CELL_REF:abc123]").
+2. Use cell references when referring to cells the user mentioned or that contain relevant context.
+3. The cell_id must be an actual cell ID from the notebook - do not make up IDs.
+4. Place the reference inline where it makes sense in your message, similar to how you would write "Cell 3" in natural language.
+5. Do not use cell references in code - only in the message field of your responses.
+6. Cell references are different from citations. Use citations for specific line-level insights; use cell references for general cell-level navigation.
+
+Example:
+"I've loaded the sales data in [MITO_CELL_REF:c68fdf19-db8c-46dd-926f-d90ad35bb3bc] and will now calculate the monthly totals."
+"""
+
 def get_active_cell_output_str(has_active_cell_output: bool) -> str:
     """
     Used to tell the AI about the output of the active code cell. 
