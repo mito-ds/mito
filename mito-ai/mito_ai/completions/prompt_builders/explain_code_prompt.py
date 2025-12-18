@@ -11,7 +11,8 @@ def create_explain_code_prompt(active_cell_code: str) -> str:
     sections.append(SG.Generic("Instructions", "Explain the code in the active code cell to me like I have a basic understanding of Python. Don't explain each line, but instead explain the overall logic of the code."))
     
     # Add example
-    example_content = f"""{SG.ActiveCellCode("def multiply(x, y):\n    return x * y")}
+    example_content = f"""{SG.ActiveCellCode('''def multiply(x, y):
+    return x * y''')}
 
 Output:
 
