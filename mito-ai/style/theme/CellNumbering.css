@@ -3,6 +3,11 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/*-----------------------------------------------------------------------------
+|| Mito Light Theme: Cell Numbering
+|| These styles only apply when the Mito Light theme is active
+||----------------------------------------------------------------------------*/
+
 /* Add top padding to cells to make room for the cell number label */
 .jp-Cell {
   position: relative;
@@ -32,7 +37,9 @@
   content: "Cell " attr(data-cell-number);
   position: absolute;
   top: 15px;  /* Position so label sits on the cell border at 24px */
-  left: calc(var(--jp-cell-collapser-width) + var(--jp-cell-prompt-width) + 10px);
+
+  /* If the Mito theme is applied, then the mito-line-number-gutter-width is set and we can use it */
+  left: calc(var(--jp-cell-collapser-width) + var(--jp-cell-prompt-width) + var(--mito-line-number-gutter-width, 10px));
   background-color: var(--jp-layout-color0);  /* Solid background to mask the border */
   padding: 2px 8px;
   font-size: 11px;
@@ -48,3 +55,4 @@
   content: "";
   display: none;
 }
+

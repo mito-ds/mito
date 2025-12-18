@@ -67,7 +67,7 @@ def _get_all_analysis_filenames():
     Returns the names of the files in the SAVED_ANALYSIS_FOLDER
     """
     if not os.path.exists(SAVED_ANALYSIS_FOLDER):
-        return []
+        return set()
 
     file_names = set([
         f for f in os.listdir(SAVED_ANALYSIS_FOLDER) 

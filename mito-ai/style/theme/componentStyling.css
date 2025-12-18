@@ -1,0 +1,82 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+
+
+/* Remove borders and padding from the main area widget */
+.lm-SplitPanel-child:not(#jp-right-stack, #jp-left-stack) {
+    background-color: var(--jp-layout-color1) !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove borders and padding from the notebook panel */
+.jp-MainAreaWidget.jp-NotebookPanel {
+    border: none;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove top border from tabs so there is no double border */
+.lm-DockPanel-tabBar .lm-TabBar-tab {
+    border-top: none !important;
+}
+
+.jp-InputArea-editor {
+    border-radius: 3px !important;
+}
+
+/* Remove the collapser next to the active cell */ 
+.jp-Collapser {
+    display: none !important;
+}
+
+/* Update the color of the top nav bar (File, Edit, etc.) */
+.lm-MenuBar,
+#jp-top-bar,
+#jp-MainLogo {
+    background-color: var(--jp-layout-color2) !important;
+}
+
+.jp-Notebook.jp-mod-editMode .jp-Cell.jp-mod-active .jp-InputArea-editor {
+    border-width: 1.5px !important;
+}
+
+/* Style output area only when it contains stderr content */
+.lm-Widget.jp-OutputArea-output:has([data-mime-type="application/vnd.jupyter.stderr"]):not(:has(.mito-warning-block)) {
+    border-radius: 3px !important;
+    padding: 6px;
+    border: 1.5px solid var(--jp-error-color0) !important;
+    background-color: None !important;
+    overflow: visible !important; /* Allow content to extend beyond boundaries */
+    margin-top: 10px !important; /* Make room for the warning icon*/
+}
+
+/* Add the warning icon to the output area */
+.lm-Widget.jp-OutputArea-output:has([data-mime-type="application/vnd.jupyter.stderr"]):not(:has(.mito-warning-block))::before {
+    content: "\26A0";
+    position: absolute;
+    top: -12px; /* Adjust to sit on the border */
+    left: 6px;
+    background-color: var(--jp-layout-color1); /* Background color to "cut" the border */
+    padding: 0 3px;
+    font-size: 16px;
+    color: var(--jp-error-color0);
+    font-weight: bold;
+    z-index: 10;
+}
+
+.error-mime-renderer-container,
+.jp-RenderedText[data-mime-type='application/vnd.jupyter.stderr'] {
+    background: None !important;
+}
+
+/* Hiide the simple toggle because the theme only works with non-simple mode */
+#jp-single-document-mode,
+.jp-StatusBar-Item#jp-single-document-mode,
+.lm-Widget.jp-StatusBar-Item#jp-single-document-mode {
+  display: none !important;
+}

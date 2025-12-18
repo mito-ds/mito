@@ -13,6 +13,7 @@ import { ChatHistoryManager } from '../ChatHistoryManager';
 import { createCheckpoint } from '../../../utils/checkpoint';
 import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../../utils/agentActions';
 import { checkForBlacklistedWords } from '../../../utils/blacklistedWords';
+import { playCompletionSound } from '../../../utils/sound';
 import { getCodeBlockFromMessage } from '../../../utils/strings';
 import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } from '../../../utils/notebook';
 import { AgentReviewStatus } from '../ChatTaskpane';
@@ -54,6 +55,7 @@ interface UseAgentExecutionProps {
     };
     agentTargetNotebookPanelRef: React.MutableRefObject<any>;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
+    audioContextRef: React.MutableRefObject<AudioContext | null>;
 }
 
 export const useAgentExecution = ({
@@ -72,7 +74,8 @@ export const useAgentExecution = ({
     sendAgentExecutionMessage,
     sendAgentSmartDebugMessage,
     agentReview,
-    agentTargetNotebookPanelRef
+    agentTargetNotebookPanelRef,
+    audioContextRef,
 }: UseAgentExecutionProps): {
     agentExecutionStatus: AgentExecutionStatus;
     shouldContinueAgentExecution: React.MutableRefObject<boolean>;
@@ -120,7 +123,8 @@ export const useAgentExecution = ({
                 stream: false
             });
         }
-        return;
+
+        playCompletionSound(audioContextRef.current);
     };
 
     const startAgentExecution = async (

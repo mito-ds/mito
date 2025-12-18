@@ -51,6 +51,7 @@ import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { logEvent } from '../../restAPI/RestAPI';
+import { playCompletionSound } from '../../utils/sound';
 
 // Internal imports - Websockets
 import type { CompletionWebsocketClient } from '../../websockets/completions/CompletionsWebsocketClient';
@@ -173,6 +174,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Streaming response management
     const { streamingContentRef, streamHandlerRef, activeRequestControllerRef } = useStreamingResponse();
+
+    // Audio context management
+    const audioContextRef = useRef<AudioContext | null>(null);
+    useEffect(() => {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+        return () => {
+            const audioContext = audioContextRef.current;
+            audioContextRef.current = null;
+            if (audioContext) {
+                void audioContext.close().catch(() => {
+                    // Ignore errors closing (e.g. already closed)
+                });
+            }
+        };
+    }, []);
 
     // Agent mode state management
     const {
@@ -518,6 +535,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else if (chunk.done) {
                     // Reset states to allow future messages to show the "Apply" button
                     setCodeReviewStatus('chatPreview');
+
+                    // Play completion sound for streaming mode
+                    playCompletionSound(audioContextRef.current);
                 } else {
                     // Use a ref to accumulate the content properly
                     streamingContentRef.current += chunk.chunk.content;
@@ -537,25 +557,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 }
             };
 
-            // Store the handler for later cleanup
-            streamHandlerRef.current = streamHandler;
-
-            // Connect the handler
-            websocketClient.stream.connect(streamHandler, null);
-
             try {
-                const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
-                
-                const content = aiResponse.items[0]?.content ?? '';
+                // Store the handler for later cleanup
+                streamHandlerRef.current = streamHandler;
 
-                if (
-                    completionRequest.metadata.promptType === 'agent:execution' ||
-                    completionRequest.metadata.promptType === 'agent:autoErrorFixup'
-                ) {
-                    // Agent:Execution prompts return a CellUpdate object that we need to parse
-                    const agentResponse: AgentResponse = JSON.parse(content)
-                    newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
-                }
+                // Connect the handler
+                websocketClient.stream.connect(streamHandler, null);
+
+                // Send the message to the AI and let the stream handler handle the rest
+                await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
             } catch (error) {
                 addAIMessageFromResponseAndUpdateState(
                     (error as any).title ? (error as any).title : `${error}`,
@@ -571,7 +581,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 );
                 // Reset loading status when an error occurs
                 setLoadingStatus(undefined);
-            }
+            } 
         } else {
             // NON-STREAMING RESPONSES
             // Once we move everything to streaming, we can remove everything in this else block
@@ -703,7 +713,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendAgentSmartDebugMessage,
         agentReview,
         agentTargetNotebookPanelRef,
-        setAgentReviewStatus
+        setAgentReviewStatus,
+        audioContextRef
     });
 
     // Main initialization effect - runs once on mount
