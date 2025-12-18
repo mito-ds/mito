@@ -428,40 +428,46 @@ const ChatInput: React.FC<ChatInputProps> = ({
     useEffect(() => {
         const LINE_SELECTION_TYPE = 'line_selection';
 
-        // Remove existing line selection context
-        const hasLineSelectionContext = additionalContext.some(context => context.type === LINE_SELECTION_TYPE);
-
-        if (lineSelection.hasSelection) {
-            // Build display text: "Cell X line Y" or "Cell X line Y-Z"
-            const displayText = lineSelection.startLine === lineSelection.endLine
-                ? `Cell ${lineSelection.cellNumber} line ${lineSelection.startLine}`
-                : `Cell ${lineSelection.cellNumber} line ${lineSelection.startLine}-${lineSelection.endLine}`;
-
-            // Store structured data in value for backend processing
-            const valueData = JSON.stringify({
+        // Build the new value data for comparison (lines are 0-indexed internally)
+        const newValueData = lineSelection.hasSelection
+            ? JSON.stringify({
                 cellId: lineSelection.cellId,
                 startLine: lineSelection.startLine,
-                endLine: lineSelection.endLine
-            });
+                endLine: lineSelection.endLine,
+                selectedCode: lineSelection.selectedCode
+            })
+            : null;
 
-            if (hasLineSelectionContext) {
-                // Update existing line selection context
-                setAdditionalContext(prev => prev.map(context =>
-                    context.type === LINE_SELECTION_TYPE
-                        ? { type: LINE_SELECTION_TYPE, value: valueData, display: displayText }
-                        : context
-                ));
-            } else {
-                // Add new line selection context
-                setAdditionalContext(prev => [...prev, {
-                    type: LINE_SELECTION_TYPE,
-                    value: valueData,
-                    display: displayText
-                }]);
+        // Find existing line selection context
+        const existingContext = additionalContext.find(context => context.type === LINE_SELECTION_TYPE);
+        const existingValue = existingContext?.value;
+
+        // Only update if the selection has changed
+        if (newValueData !== existingValue) {
+            let additonalContextCopy = [...additionalContext];
+
+            // Remove old line selection context if it exists
+            if (existingContext) {
+                additonalContextCopy = additonalContextCopy.filter(context => context.type !== LINE_SELECTION_TYPE);
             }
-        } else if (hasLineSelectionContext) {
-            // Remove line selection context when no text is selected
-            setAdditionalContext(prev => prev.filter(context => context.type !== LINE_SELECTION_TYPE));
+
+            // Add new line selection context if there is text selected
+            if (newValueData) {
+                // Build display text with 1-indexed lines for user display
+                const displayStartLine = lineSelection.startLine + 1;
+                const displayEndLine = lineSelection.endLine + 1;
+                const displayText = displayStartLine === displayEndLine
+                    ? `Cell ${lineSelection.cellNumber} line ${displayStartLine}`
+                    : `Cell ${lineSelection.cellNumber} line ${displayStartLine}-${displayEndLine}`;
+
+                additonalContextCopy.push({
+                    type: LINE_SELECTION_TYPE,
+                    value: newValueData,
+                    display: displayText
+                });
+            } 
+
+            setAdditionalContext(additonalContextCopy);
         }
     }, [lineSelection]);
 

@@ -13,8 +13,9 @@ import { useDebouncedFunction } from './useDebouncedFunction';
 export interface LineSelectionInfo {
     cellId: string;
     cellNumber: number;  // 1-indexed for display
-    startLine: number;   // 1-indexed for display
-    endLine: number;     // 1-indexed for display
+    startLine: number;   // 0-indexed for backend consistency with citations
+    endLine: number;     // 0-indexed for backend consistency with citations
+    selectedCode: string;  // The actual selected lines of code
     hasSelection: boolean;
 }
 
@@ -23,6 +24,7 @@ const NO_SELECTION: LineSelectionInfo = {
     cellNumber: 0,
     startLine: 0,
     endLine: 0,
+    selectedCode: '',
     hasSelection: false
 };
 
@@ -72,16 +74,28 @@ export const useLineSelection = (
             return;
         }
 
-        // Get 1-indexed line numbers
-        const startLine = state.doc.lineAt(mainSelection.from).number;
-        const endLine = state.doc.lineAt(mainSelection.to).number;
+        // Get 0-indexed line numbers (matching citation format)
+        // CodeMirror's lineAt().number is 1-indexed, so subtract 1
+        const startLineInfo = state.doc.lineAt(mainSelection.from);
+        const endLineInfo = state.doc.lineAt(mainSelection.to);
+        const startLine = startLineInfo.number - 1;
+        const endLine = endLineInfo.number - 1;
         const cellNumber = cellOrder.get(cellId) || 0;
+
+        // Extract the full lines that contain the selection
+        const selectedLines: string[] = [];
+        for (let lineNum = startLineInfo.number; lineNum <= endLineInfo.number; lineNum++) {
+            const line = state.doc.line(lineNum);
+            selectedLines.push(line.text);
+        }
+        const selectedCode = selectedLines.join('\n');
 
         debouncedSetSelection({
             cellId,
             cellNumber,
             startLine,
             endLine,
+            selectedCode,
             hasSelection: true
         });
     }, [notebookTracker, cellOrder, debouncedSetSelection]);

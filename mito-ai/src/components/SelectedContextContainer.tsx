@@ -81,17 +81,23 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             // Handle line selection context click - scroll to and highlight selected lines
             try {
                 const selectionInfo = JSON.parse(value);
-                if (notebookTracker.currentWidget) {
+                const currentWidget = notebookTracker.currentWidget;
+                if (currentWidget) {
                     // Scroll to the cell, positioning based on the start line
-                    scrollToCell(notebookTracker.currentWidget, selectionInfo.cellId, selectionInfo.startLine - 1, 'center');
-                    // Highlight the selected lines (convert to 0-indexed)
+                    // Lines are stored 0-indexed, matching the citation format
+                    scrollToCell(currentWidget, selectionInfo.cellId, selectionInfo.startLine, 'center');
+                    // Highlight the selected lines
                     setTimeout(() => {
-                        highlightLinesOfCodeInCodeCell(
-                            notebookTracker.currentWidget!,
-                            selectionInfo.cellId,
-                            selectionInfo.startLine - 1,
-                            selectionInfo.endLine - 1
-                        );
+                        // Re-check currentWidget inside the callback since it may have changed
+                        const widget = notebookTracker.currentWidget;
+                        if (widget) {
+                            highlightLinesOfCodeInCodeCell(
+                                widget,
+                                selectionInfo.cellId,
+                                selectionInfo.startLine,
+                                selectionInfo.endLine
+                            );
+                        }
                     }, 500);
                 }
             } catch {
