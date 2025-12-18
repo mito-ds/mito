@@ -24,6 +24,9 @@ import { Page } from '@playwright/test';
  * The default Galata waitForApplication checks for a Simple mode toggle switch,
  * but we've removed that from our theme. This custom fixture provides the same
  * functionality without that check.
+ * 
+ * We use direct DOM checks instead of Galata's helper functions because
+ * those helpers internally call isInSimpleMode which looks for the Simple toggle.
  */
 export const test = base.extend({
   waitForApplication: async ({ baseURL }, use) => {
@@ -34,15 +37,16 @@ export const test = base.extend({
       // Wait for the splash screen to disappear
       await page.locator('#jupyterlab-splash').waitFor({ state: 'detached' });
       
-      // Wait for the Launcher tab to be active
-      await helpers.waitForCondition(() => {
-        return helpers.activity.isTabActive('Launcher');
-      });
+      // Wait for the Launcher tab to be visible and active using direct DOM check
+      // We avoid using helpers.activity.isTabActive() because it internally
+      // calls isInSimpleMode which looks for the Simple toggle we removed
+      await page.locator('.jp-Launcher').waitFor({ state: 'visible' });
       
-      // Activate the Launcher tab to ensure it's properly focused
-      // (This was previously conditional on not being in Simple mode,
-      // but since we removed Simple mode, we always do this)
-      await helpers.activity.activateTab('Launcher');
+      // Click the Launcher tab to ensure it's properly focused
+      const launcherTab = page.locator('.lm-TabBar-tab[data-id="launcher"]');
+      if (await launcherTab.count() > 0) {
+        await launcherTab.click();
+      }
     };
     await use(waitIsReady);
   },
