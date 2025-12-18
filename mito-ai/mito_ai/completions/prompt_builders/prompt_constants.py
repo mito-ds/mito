@@ -11,9 +11,6 @@ import json
 from typing import Final
 from mito_ai.utils.schema import MITO_FOLDER
 
-# Note: Section headings are now defined in prompt_section_registry/
-# This file only contains non-section constants like rules and formatting guidelines. 
-
 CITATION_RULES = """
 It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use one of the following formats inline in your response:
 

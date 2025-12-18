@@ -59,79 +59,81 @@ ERROR CORRECTION:
     Note that if the name error persists even after using run_all_cells, it means that the variable is not defined in the notebook and you should not reuse this tool. Additionally, this tool could also be used to refresh the notebook state."""))
     
     # Add example
-    example_content = f"""<Input>
+    example_content = f"""
+    <Input>
+    
+    Files:
+    "file_name: sales.csv"
 
-{SG.Files("file_name: sales.csv")}
-
-Jupyter Notebook:
-[
+    Jupyter Notebook:
+    [
+        {{
+            cell_type: 'markdown'
+            id: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
+            code: \"\"\"# Transaction Analysis \"\"\"
+        }},
+        {{
+            cell_type: 'code'
+            id: 'adslkaf-jf73-l8xn-92j7-kjd8kdcnd2kso'
+            code: \"\"\" 'df' = pd.DataFrame({{
+                'order_id': [1, 2, 3, 4],
+                'date': ['Mar 7, 2025', 'Sep 24, 2024', '25 June, 2024', 'June 29, 2024'],
+                'amount': [100, 150, 299, 99]
+            }})
+        }},
+        {{
+            cell_type: 'code'
+            id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
+            code: \"\"\"df['date'] = pd.to_datetime(df['date'])\"\"\"
+        }},
+    ]
+    
+    Variables:
     {{
-        cell_type: 'markdown'
-        id: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
-        code: \"\"\"# Transaction Analysis \"\"\"
-    }},
-    {{
-        cell_type: 'code'
-        id: 'adslkaf-jf73-l8xn-92j7-kjd8kdcnd2kso'
-        code: \"\"\" 'df' = pd.DataFrame({{
-    'order_id': [1, 2, 3, 4],
-    'date': ['Mar 7, 2025', 'Sep 24, 2024', '25 June, 2024', 'June 29, 2024'],
-    'amount': [100, 150, 299, 99]
-}})
-    }},
-    {{
-        cell_type: 'code'
-        id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
-        code: \"\"\"df['date'] = pd.to_datetime(df['date'])\"\"\"
-    }},
-]
-
-{SG.Variables("""{
-    'df': pd.DataFrame({
-        'order_id': [1, 2, 3, 4],
-        'date': ['Mar 7, 2025', 'Sep 24, 2024', '25 June, 2024', 'June 29, 2024'],
-        'amount': [100, 150, 299, 99]
-    })
-}""")}
-
-Cell ID of the Error Producing Code Cell:
-'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
-
-Error Traceback:
-Cell In[27], line 1
-----> 1 df['date'] = pd.to_datetime(df['date'])
-
-ValueError: time data "25 June, 2024" doesn't match format "%b %d, %Y", at position 2. You might want to try:
-    - passing `format` if your strings have a consistent format;
-    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
-    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
-
-
-</ Input>
-
-< Your Thinking >
-
-ERROR ANALYSIS
-This is a ValueError caused by applying the wrong format to a specific date string. Because it was triggered at position 2, the first date string must have successfully converted. By looking at the defined variables, I can see that first date string is in the format "Mar 7, 2025", but the third date string is in the format "25 June, 2024". Those dates are not in the same format, so the conversion failed.
-
-INTENT PRESERVATION:
-User is trying to convert the date column to a datetime object even though the dates are not in the same starting format. 
-
-</ Your Thinking >
-
-<Output>
-
-
-{{
-    is_finished: false, 
-    cell_update: {{
-        type: 'modification'
-        id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
-        code: "def parse_date(date_str):\n    formats = ['%b %d, %Y', '%d %B, %Y']\n\n    for fmt in formats:\n        try:\n            return pd.to_datetime(date_str, format=fmt)\n        except ValueError:\n            # Try next format\n            continue\n\n    # If not format worked, return Not a Time\n    return pd.NaT\n\ndf['date'] = df['date'].apply(lambda x: parse_date(x))"
+        'df': pd.DataFrame({{
+            'order_id': [1, 2, 3, 4],
+            'date': ['Mar 7, 2025', 'Sep 24, 2024', '25 June, 2024', 'June 29, 2024'],
+            'amount': [100, 150, 299, 99]
+        }})
     }}
-}}
 
-</Output>"""
+    Cell ID of the Error Producing Code Cell:
+    'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
+
+    Error Traceback:
+    Cell In[27], line 1
+    ----> 1 df['date'] = pd.to_datetime(df['date'])
+
+    ValueError: time data "25 June, 2024" doesn't match format "%b %d, %Y", at position 2. You might want to try:
+        - passing `format` if your strings have a consistent format;
+        - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+        - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
+
+
+    </ Input>
+
+    < Your Thinking >
+
+    ERROR ANALYSIS
+    This is a ValueError caused by applying the wrong format to a specific date string. Because it was triggered at position 2, the first date string must have successfully converted. By looking at the defined variables, I can see that first date string is in the format "Mar 7, 2025", but the third date string is in the format "25 June, 2024". Those dates are not in the same format, so the conversion failed.
+
+    INTENT PRESERVATION:
+    User is trying to convert the date column to a datetime object even though the dates are not in the same starting format. 
+
+    </ Your Thinking >
+
+    <Output>
+
+    {{
+        is_finished: false, 
+        cell_update: {{
+            type: 'modification'
+            id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
+            code: "def parse_date(date_str):\n    formats = ['%b %d, %Y', '%d %B, %Y']\n\n    for fmt in formats:\n        try:\n            return pd.to_datetime(date_str, format=fmt)\n        except ValueError:\n            # Try next format\n            continue\n\n    # If not format worked, return Not a Time\n    return pd.NaT\n\ndf['date'] = df['date'].apply(lambda x: parse_date(x))"
+        }}
+    }}
+
+    </Output>"""
     sections.append(SG.Example("Example", example_content))
     sections.append(SG.Files(md.files))
     sections.append(SG.Notebook(md.aiOptimizedCells))
