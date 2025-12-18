@@ -214,7 +214,7 @@ describe("MitoViewer", () => {
         // but we can verify the class is set correctly
         expect(ageCells[0]).toHaveClass('mito-viewer__body-cell-numeric');
         expect(ageCells[0]).not.toHaveClass('mito-viewer__body-cell-text');
-        expect(scoreCells[0]).toHaveClass('mito-viewer__body-cell-numeric');
+        expect(scoreCells[0]).toHaveClass('mito-viewer__numeric-integer');
         expect(scoreCells[0]).not.toHaveClass('mito-viewer__body-cell-text');
         expect(nameCells[0]).toHaveClass('mito-viewer__body-cell-text');
         expect(nameCells[0]).not.toHaveClass('mito-viewer__body-cell-numeric');
