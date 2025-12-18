@@ -158,7 +158,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             const file = new File(
                 [blob], 
-                `pasted-image.${mostRecentClipboardItem.type.split('/')[1]}`, 
+                blob.name, 
                 { type: mostRecentClipboardItem.type }
             );
             
