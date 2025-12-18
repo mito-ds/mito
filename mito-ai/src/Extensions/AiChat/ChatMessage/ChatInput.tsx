@@ -438,21 +438,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
             })
             : null;
 
-        // Find existing line selection context
-        const existingContext = additionalContext.find(context => context.type === LINE_SELECTION_TYPE);
-        const existingValue = existingContext?.value;
+        // Treat null and undefined as the same "no selection" state
+        const normalizedNewValue = newValueData ?? null;
 
-        // Only update if the selection has changed
-        if (newValueData !== existingValue) {
-            let additonalContextCopy = [...additionalContext];
+        setAdditionalContext(prev => {
+            // Find existing line selection context in the latest state (avoid stale render closures)
+            const existingContext = prev.find(context => context.type === LINE_SELECTION_TYPE);
+            const normalizedExistingValue = existingContext?.value ?? null;
 
-            // Remove old line selection context if it exists
-            if (existingContext) {
-                additonalContextCopy = additonalContextCopy.filter(context => context.type !== LINE_SELECTION_TYPE);
+            // Only update if the selection has changed (null and undefined are equivalent)
+            if (normalizedNewValue === normalizedExistingValue) {
+                return prev;
             }
 
+            // Remove old line selection context if it exists
+            let additionalContextCopy = prev.filter(context => context.type !== LINE_SELECTION_TYPE);
+
             // Add new line selection context if there is text selected
-            if (newValueData) {
+            if (normalizedNewValue) {
                 // Build display text with 1-indexed lines for user display
                 const displayStartLine = lineSelection.startLine + 1;
                 const displayEndLine = lineSelection.endLine + 1;
@@ -460,15 +463,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     ? `Cell ${lineSelection.cellNumber} line ${displayStartLine}`
                     : `Cell ${lineSelection.cellNumber} line ${displayStartLine}-${displayEndLine}`;
 
-                additonalContextCopy.push({
-                    type: LINE_SELECTION_TYPE,
-                    value: newValueData,
-                    display: displayText
-                });
-            } 
+                additionalContextCopy = [
+                    ...additionalContextCopy,
+                    {
+                        type: LINE_SELECTION_TYPE,
+                        value: normalizedNewValue,
+                        display: displayText
+                    }
+                ];
+            }
 
-            setAdditionalContext(additonalContextCopy);
-        }
+            return additionalContextCopy;
+        });
     }, [lineSelection]);
 
     return (
