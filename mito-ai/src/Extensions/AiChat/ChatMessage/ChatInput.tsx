@@ -147,20 +147,34 @@ const ChatInput: React.FC<ChatInputProps> = ({
     };
 
     const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>): Promise<void> => {
-        const mostRecentClipboardItem = e.clipboardData.items[0];
-        if (!mostRecentClipboardItem) return;
+        const items = e.clipboardData.items;
+        const clipboardItem = items?.[items.length - 1];
+        if (!clipboardItem) return;
 
-        if (mostRecentClipboardItem.type.startsWith('image/')) {
+        // Check if it's a file (images are also files)
+        if (clipboardItem.kind === 'file') {
             e.preventDefault();
             
-            const blob = mostRecentClipboardItem.getAsFile();
+            const blob = clipboardItem.getAsFile();
             if (!blob) return;
+
+            // Determine file name - use blob name if available, otherwise generate one
+            let fileName = blob.name;
+            if (!fileName) {
+                // Generate a filename based on the MIME type
+                const extension = clipboardItem.type.startsWith('image/') 
+                    ? clipboardItem.type.split('/')[1] 
+                    : 'file';
+                fileName = `pasted-${Date.now()}.${extension}`;
+            }
 
             const file = new File(
                 [blob], 
-                blob.name, 
-                { type: mostRecentClipboardItem.type }
+                fileName, 
+                { type: clipboardItem.type }
             );
+            
+            if (isUploading) return; // Prevent multiple simultaneous uploads
             
             setIsUploading(true);
             try {
