@@ -21,6 +21,7 @@ import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { setDefaultWindowingMode, setRenameUntitledFileOnSave } from './jupyterSettingsManager';
 import { IDocumentManager } from '@jupyterlab/docmanager';
+import { Token } from '@lumino/coreutils';
 
 // The Widget Rank determins where the ChatIcon is displayed
 // in the left hand toolbar
@@ -41,7 +42,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     IContextManager,
     IStreamlitPreviewManager,
     ISettingRegistry,
-    IDocumentManager
+    IDocumentManager as unknown as Token<any>
   ],
   optional: [ILayoutRestorer],
   provides: IChatTracker,

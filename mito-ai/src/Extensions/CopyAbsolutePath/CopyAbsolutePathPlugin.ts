@@ -11,6 +11,7 @@ import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { Clipboard } from '@jupyterlab/apputils';
 import { PageConfig, PathExt } from '@jupyterlab/coreutils';
 import { fileIcon } from '@jupyterlab/ui-components';
+import { Token } from '@lumino/coreutils';
 
 const COMMAND_COPY_ABSOLUTE_PATH = 'mito_ai:copy-absolute-path';
 
@@ -23,7 +24,7 @@ const CopyAbsolutePathPlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito_ai:copy-absolute-path',
   description: 'Add Copy Absolute Path to file browser context menu',
   autoStart: true,
-  requires: [IFileBrowserFactory],
+  requires: [IFileBrowserFactory as unknown as Token<any>],
   activate: (app: JupyterFrontEnd, factory: IFileBrowserFactory) => {
     // Get the server root path - this is the absolute path where the Jupyter server is running
     const serverRoot = PageConfig.getOption('serverRoot');
