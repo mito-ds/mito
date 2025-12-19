@@ -5,6 +5,15 @@
     "type": "object",
     "properties": {},
     "additionalProperties": false,
+    "jupyter.lab.menus": {
+        "context": [
+            {
+                "command": "mito_ai:copy-absolute-path",
+                "selector": ".jp-DirListing-item",
+                "rank": 15
+            }
+        ]
+    },
     "jupyter.lab.toolbars": {
       "Cell": [
         {
