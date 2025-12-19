@@ -15,33 +15,17 @@ def create_chat_prompt(
     input: str,
     additional_context: Optional[List[Dict[str, str]]] = None,
 ) -> str:
-    sections: List[PromptSection] = []
+    sections: List[PromptSection] = [
+        SG.Rules(additional_context),
+        SG.Generic("Instructions", "Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete."),
+        SG.Files(files),
+        SG.Variables(variables),
+        SG.SelectedContext(additional_context),
+        SG.ActiveCellId(active_cell_id),
+        SG.ActiveCellCode(active_cell_code),
+        SG.ActiveCellOutput("Attatched is an image of the output of the active code cell for your context."),
+        SG.Task(input),
+    ]
     
-    # Add rules if present
-    sections.append(SG.Rules(additional_context))
-    
-    # Add intro text
-    sections.append(SG.Generic("Instructions", "Help me complete the following task. I will provide you with a set of variables, existing code, and a task to complete."))
-    
-    # Add files if present
-    sections.append(SG.Files(files))
-    
-    # Add variables if present
-    sections.append(SG.Variables(variables))
-    
-    # Add selected context if present
-    sections.append(SG.SelectedContext(additional_context))
-    
-    # Add code section
-    sections.append(SG.ActiveCellId(active_cell_id))
-    sections.append(SG.ActiveCellCode(active_cell_code))
-    
-    # Add active cell output if present
-    if has_active_cell_output:
-        sections.append(SG.ActiveCellOutput("Attatched is an image of the output of the active code cell for your context."))
-    
-    # Add task
-    sections.append(SG.Task(input))
-
     prompt = Prompt(sections)
     return str(prompt)

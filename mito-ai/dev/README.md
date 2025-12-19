@@ -5,7 +5,7 @@
 A Streamlit app that helps you explore the chat history of a Mito AI chat file.
 
 ```bash
-python dev/view_chat_history.py
+streamlit run dev/chat_history_viewer.py
 ```
 
 ### Generate AI Chats

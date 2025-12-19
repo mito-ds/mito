@@ -8,38 +8,18 @@ from mito_ai.completions.prompt_builders.prompt_section_registry.base import Pro
 
 
 def create_agent_execution_prompt(md: AgentExecutionMetadata) -> str:
-    sections: List[PromptSection] = []
-    
-    # Add intro text
-    sections.append(SG.Generic("Reminder", "Remember to choose the correct tool to respond with."))
-    
-    # Add rules if present
-    sections.append(SG.Rules(md.additionalContext))
-    
-    # Add streamlit status if present
-    sections.append(SG.StreamlitAppStatus(md.notebookID, md.notebookPath))
-    
-    # Add files if present
-    sections.append(SG.Files(md.files))
-    
-    # Add variables if present
-    sections.append(SG.Variables(md.variables))
-    
-    # Add selected context if present
-    sections.append(SG.SelectedContext(md.additionalContext))
-    
-    # Add active cell ID
-    sections.append(SG.ActiveCellId(md.activeCellId))
-    
-    # Add notebook if present
-    sections.append(SG.Notebook(md.aiOptimizedCells))
-    
-    # Add cell update output if present
-    if md.base64EncodedActiveCellOutput is not None and md.base64EncodedActiveCellOutput != '':
-        sections.append(SG.GetCellOutputToolResponse("Attatched is an image of code cell output that you requested."))
-    
-    # Add task if present
-    sections.append(SG.Task(f"{md.input}"))
+    sections: List[PromptSection] = [
+        SG.Generic("Reminder", "Remember to choose the correct tool to respond with."),
+        SG.Rules(md.additionalContext),
+        SG.StreamlitAppStatus(md.notebookID, md.notebookPath),
+        SG.Files(md.files),
+        SG.Variables(md.variables),
+        SG.SelectedContext(md.additionalContext),
+        SG.ActiveCellId(md.activeCellId),
+        SG.Notebook(md.aiOptimizedCells),
+        SG.GetCellOutputToolResponse(md.base64EncodedActiveCellOutput),
+        SG.Task(f"{md.input}"),
+    ]
 
     prompt = Prompt(sections)
     return str(prompt)

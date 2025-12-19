@@ -29,7 +29,7 @@ Your job is to complete the code that matches the user's intent. Write the minim
     # Example 1
     example1_content = f"""
 Files:
-"file_name: sales.csv")
+"file_name: sales.csv"
 
 Variables:
 {{

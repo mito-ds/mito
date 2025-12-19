@@ -1,6 +1,9 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
+
+
 from typing import List, Type
 from .files import FilesSection
 from .variables import VariablesSection
@@ -43,12 +46,8 @@ SG = SectionRegistry()
 # Also export function to get all section classes for trimming
 def get_all_section_classes() -> List[Type[PromptSection]]:
     """Returns all section classes for building trimming mapping."""
-    import inspect
-    section_classes = []
-    for attr_value in SectionRegistry.__dict__.values():
-        if inspect.isclass(attr_value) and issubclass(attr_value, PromptSection) and attr_value is not PromptSection:
-            section_classes.append(attr_value)
-    return section_classes
+    prompt_section_classes: List[Type[PromptSection]] = PromptSection.__subclasses__()
+    return prompt_section_classes
 
 
 def get_max_trim_after_messages() -> int:
