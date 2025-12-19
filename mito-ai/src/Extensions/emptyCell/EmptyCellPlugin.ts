@@ -15,7 +15,7 @@ import {
   IEditorExtensionRegistry
 } from '@jupyterlab/codemirror';
 import { CommandRegistry } from '@lumino/commands';
-import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
+import { COMMAND_MITO_AI_OPEN_CHAT, COMMAND_MITO_AI_START_NEW_CHAT } from '../../commands';
 import { IChatTracker } from '../AiChat/token';
 import { advicePlugin } from './emptyCell';
 
@@ -31,15 +31,28 @@ export const emptyCellPlaceholder: JupyterFrontEndPlugin<void> = {
     tracker: WidgetTracker,
     extensions: IEditorExtensionRegistry
   ): void => {
-    const keyBindings = app.commands.keyBindings.find(
+    const openChatKeyBindings = app.commands.keyBindings.find(
       b => b.command === COMMAND_MITO_AI_OPEN_CHAT
     );
-    const pythonAdvice = `Start writing python or Press ${CommandRegistry.formatKeystroke(
-      keyBindings?.keys[0] ?? 'Accel E'
+    const newChatKeyBindings = app.commands.keyBindings.find(
+      b => b.command === COMMAND_MITO_AI_START_NEW_CHAT
+    );
+    
+    const openChatKeystroke = CommandRegistry.formatKeystroke(
+      openChatKeyBindings?.keys[0] ?? 'Accel E'
     )
       .split(/[+\s]/)
       .map(s => `<kbd>${s}</kbd>`)
-      .join(' + ')} to ask Mito AI to write code for you.`;
+      .join(' + ');
+    
+    const newChatKeystroke = CommandRegistry.formatKeystroke(
+      newChatKeyBindings?.keys[0] ?? 'Accel K'
+    )
+      .split(/[+\s]/)
+      .map(s => `<kbd>${s}</kbd>`)
+      .join(' + ');
+
+    const pythonAdvice = `Start writing python or Press ${openChatKeystroke} to open Mito AI, ${newChatKeystroke} to start a new chat.`;
     extensions.addExtension({
       name: 'mito-ai:empty-editor-advice',
       factory: options => {
