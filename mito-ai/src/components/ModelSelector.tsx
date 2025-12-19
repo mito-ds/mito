@@ -124,7 +124,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
 const ALL_MODEL_DISPLAY_NAMES = MODEL_MAPPINGS.map(mapping => mapping.displayName);
 
 // Maximum length for displayed model name before truncating
-export const DEFAULT_MODEL = CLAUDE_SONNET_DISPLAY_NAME;
+export const DEFAULT_MODEL = CLAUDE_HAIKU_DISPLAY_NAME;
 
 interface ModelSelectorProps {
   onConfigChange: (config: ModelConfig) => void;
