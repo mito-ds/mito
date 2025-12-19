@@ -17,7 +17,7 @@ ThreadID = NewType('ThreadID', str)
     
 class CellUpdate(BaseModel):
     type: Literal['modification', 'new']
-    index: Optional[int]
+    after_cell_id: Optional[str]
     id: Optional[str]
     code: str
     code_summary: str

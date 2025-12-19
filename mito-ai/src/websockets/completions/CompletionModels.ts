@@ -32,7 +32,7 @@ export type CellUpdateModification = {
 
 export type CellUpdateNew = {
   type: 'new'
-  index: number,
+  after_cell_id: string,
   code: string,
   code_summary: string,
   cell_type: 'code' | 'markdown',
