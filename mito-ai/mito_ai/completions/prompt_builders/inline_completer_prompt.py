@@ -2,11 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
-from mito_ai.completions.prompt_builders.prompt_constants import (
-    FILES_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING,
-    CODE_SECTION_HEADING
-)
+from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
+from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 
 def create_inline_prompt(
@@ -15,10 +12,10 @@ def create_inline_prompt(
     variables: List[str],
     files: List[str]
 ) -> str:
-    variables_str = '\n'.join([f"{variable}" for variable in variables])
-    files_str = '\n'.join([f"file_name: {file}" for file in files])
+    sections: List[PromptSection] = []
     
-    prompt = f"""You are a coding assistant that lives inside of JupyterLab. Your job is to help the user write code.
+    # Add intro text
+    sections.append(SG.Task("""You are a coding assistant that lives inside of JupyterLab. Your job is to help the user write code.
 
 You're given the current code cell, the user's cursor position, and the variables defined in the notebook. The user's cursor is signified by the symbol <cursor>.
 
@@ -27,27 +24,29 @@ CRITICAL FORMATTING RULES:
 2. If you are finishing a line of code that the user started, return the full line of code with no newline character at the start or end.
 3. Your response must preserve correct Python indentation and spacing. For example, if you're completing a line of indented code, you must preserve the indentation.
 
-Your job is to complete the code that matches the user's intent. Write the minimal code to achieve the user's intent. Don't expand upon the user's intent.
+Your job is to complete the code that matches the user's intent. Write the minimal code to achieve the user's intent. Don't expand upon the user's intent."""))
+    
+    # Example 1
+    example1_content = f"""
+Files:
+"file_name: sales.csv"
 
-<Example 1>
-{FILES_SECTION_HEADING}
-file_name: sales.csv
-
-{VARIABLES_SECTION_HEADING} 
+Variables:
 {{
     'loan_multiplier': 1.5,
-    'sales_df': pd.DataFrame({{
+    'sales_df': pd.DataFrame({
         'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
         'price_per_unit': [10, 9.99, 13.99, 21.00, 100],
         'units_sold': [1, 2, 1, 4, 5],
         'total_price': [10, 19.98, 13.99, 84.00, 500]
-    }})
+    })
 }}
 
-{CODE_SECTION_HEADING}
+Active Cell Code:
 ```python
 import pandas as pd
 sales_df = pd.read_csv('./sales.csv')
+
 
 # Multiply the total_price column by the loan_multiplier<cursor>
 ```
@@ -57,23 +56,22 @@ Output:
 
 sales_df['total_price'] = sales_df['total_price'] * loan_multiplier
 ```
-</Example 1>
 
-IMPORTANT: Notice in Example 1 that the output starts with a newline because the cursor was at the end of a comment. This newline is REQUIRED to maintain proper Python formatting.
+Notice in Example 1 that the output starts with a newline because the cursor was at the end of a comment. This newline is REQUIRED to maintain proper Python formatting."""
 
-<Example 2>
-{FILES_SECTION_HEADING}
+    sections.append(SG.Example("Example 1", example1_content))
+    
+    # Example 2
+    example2_content = """
+Files:
 
+Variables:
+df: pd.DataFrame({
+    'age': [20, 25, 22, 23, 29],
+    'name': ['Nawaz', 'Aaron', 'Charlie', 'Tamir', 'Eve'],
+})
 
-{VARIABLES_SECTION_HEADING} 
-{{
-    df: pd.DataFrame({{
-        'age': [20, 25, 22, 23, 29],
-        'name': ['Nawaz', 'Aaron', 'Charlie', 'Tamir', 'Eve'],
-    }})
-}}
-
-{CODE_SECTION_HEADING}
+Active Cell Code:
 ```python
 df['age'] = df[<cursor>['age'] > 23]
 ```
@@ -82,18 +80,20 @@ Output:
 ```python
 df['age'] = df[df['age'] > 23]
 ```
-</Example 2>
 
-IMPORTANT: Notice in Example 2 that the output does NOT start with a newline because the cursor is in the middle of existing code.
+IMPORTANT: Notice in Example 2 that the output does NOT start with a newline because the cursor is in the middle of existing code."
+"""
+    sections.append(SG.Example("Example 2", example2_content))
+    
+    # Example 3
+    example3_content = f"""
+Files:
+"file_name: voters.csv"
 
-<Example 3>
-{FILES_SECTION_HEADING}
-file_name: voters.csv
-
-{VARIABLES_SECTION_HEADING} 
+Variables:
 {{}}
 
-{CODE_SECTION_HEADING}
+Active Cell Code:
 ```python
 voters = pd.read_csv('./voters.csv')
 
@@ -108,90 +108,61 @@ ohio_voters = voters[voters['state'] == 'OH']
 ca_voters = voters[voters['state'] == 'CA']
 tx_voters = voters[voters['state'] == 'TX']
 ```
-</Example 3>
 
-IMPORTANT: Notice in Example 3 that output does not start with a newline character because it wasnts to continue the line of code that the user started. Also notice the output contains three lines of code because that is the minimal code to achieve the user's intent.
+IMPORTANT: Notice in Example 3 that output does not start with a newline character because it wasnts to continue the line of code that the user started. Also notice the output contains three lines of code because that is the minimal code to achieve the user's intent."""
+    sections.append(SG.Example("Example 3", example3_content))
+    
+    # Example 4
+    example4_content = f"""
+Files:
+"file_name: july_2025.xlsx"
+"file_name: august_2025.xlsx"
 
-<Example 4>
-{FILES_SECTION_HEADING}
-file_name: july_2025.xlsx
-file_name: august_2025.xlsx
-
-{VARIABLES_SECTION_HEADING} 
+Variables:
 {{}}
 
-{CODE_SECTION_HEADING}
+Active Cell Code:
 ```python
-# Display the first 5 rows of the dataframe
-df.head()
-<cursor>
+```"""
+    sections.append(SG.Example("Example 4", example4_content))
+    
+    # Example 5
+    example5_content = f"""
+Files:
+{{}}
+
+Active Cell Code:
+```python
+def even_and_odd():\n    for i in range(10):\n        if i % 2 == 0:\n            print(f\"Even: {{i}}\")\n        else:\n            pri<cursor>
 ```
 
 Output:
-```python
-```
-</Example 4>
-
-IMPORTANT: Notice in Example 4 that the output is empty becuase the user's intent is already complete.
-
-<Example 5>
-{FILES_SECTION_HEADING}
-
-
-{VARIABLES_SECTION_HEADING} 
+```python"""
+    sections.append(SG.Example("Example 5", example5_content))
+    
+    # Example 6
+    example6_content = f"""
+Files:
 {{}}
 
-{CODE_SECTION_HEADING}
-```python
-def even_and_odd():
-    for i in range(10):
-        if i % 2 == 0:
-            print(f"Even: {{i}}")
-        else:
-            pri<cursor>
-```
-
-Output:
-```python
-            print(f"Odd: {{i}}")
-```
-</Example 5>
-
-IMPORTANT: Notice in Example 5 that the output is indented several times because the code must be executed as part of the else block.
-
-<Example 6>
-{FILES_SECTION_HEADING}
-
-
-{VARIABLES_SECTION_HEADING} 
-{{}}
-
-{CODE_SECTION_HEADING}
-```python
-days_in_week <cursor>
-```
-
-Output:
+Active Cell Code:
 ```python
 days_in_week = 7
 ```
-</Example 6>
 
-IMPORTANT: Notice in Example 6 that inorder to finish the variable declaration, the output continues the existing line of code and does not start with a new line character.
+IMPORTANT: Notice in Example 6 that inorder to finish the variable declaration, the output continues the existing line of code and does not start with a new line character."""
+    sections.append(SG.Example("Example 6", example6_content))
+    
+    # Add task sections
+    sections.append(SG.Task("Your Task:"))
+    
+    sections.append(SG.Files(files))
+    sections.append(SG.Variables(variables))
+    
+    code_content = f"{prefix}<cursor>{suffix}\n"
+    sections.append(SG.ActiveCellCode(code_content))
+    
+    sections.append(SG.Task("Output:"))
 
-Your Task:
-
-{FILES_SECTION_HEADING}
-{files_str}
-
-{VARIABLES_SECTION_HEADING} 
-{variables_str}
-
-{CODE_SECTION_HEADING}
-```python
-{prefix}<cursor>{suffix}
-```
-
-Output:
-"""
-    return prompt
+    prompt = Prompt(sections)
+    return str(prompt)
