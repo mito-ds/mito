@@ -11,9 +11,6 @@ class FilesSection(PromptSection):
     exclude_if_empty: bool = True
     
     def __init__(self, files: Optional[List[str]]):
-        """
-        Initialize FilesSection with list of files.
-        """
         self.files = files
         self.content = '\n'.join([f"file_name: {file}" for file in files or []])
         self.name = "Files"

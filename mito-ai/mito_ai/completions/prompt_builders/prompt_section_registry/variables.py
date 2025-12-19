@@ -11,9 +11,6 @@ class VariablesSection(PromptSection):
     exclude_if_empty: bool = False
     
     def __init__(self, variables: Optional[List[str]]):
-        """
-        Initialize VariablesSection with list of variables.
-        """
         self.variables = variables
         self.content = '\n'.join([f"{variable}" for variable in variables or []])
         self.name = "Variables"

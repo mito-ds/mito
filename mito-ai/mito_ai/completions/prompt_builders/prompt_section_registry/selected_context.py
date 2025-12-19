@@ -63,10 +63,6 @@ class SelectedContextSection(PromptSection):
     exclude_if_empty: bool = True
     
     def __init__(self, additional_context: Optional[List[Dict[str, str]]]):
-        """
-        Initialize with additional_context list. The content will be generated
-        from the context items.
-        """
         self.additional_context = additional_context
         self.content = get_selected_context_str(additional_context)
         self.name = "SelectedContext"

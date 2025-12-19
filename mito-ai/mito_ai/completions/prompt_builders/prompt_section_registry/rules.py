@@ -33,9 +33,6 @@ class RulesSection(PromptSection):
     exclude_if_empty: bool = True
     
     def __init__(self, additional_context: Optional[List[Dict[str, str]]]):
-        """
-        Initialize RulesSection with additional_context list.
-        """
         self.additional_context = additional_context
         self.content = get_rules_str(additional_context)
         self.name = "Rules"

@@ -18,9 +18,6 @@ class StreamlitAppStatusSection(PromptSection):
     trim_after_messages: int = 3
     
     def __init__(self, notebook_id: str, notebook_path: str):
-        """
-        Initialize StreamlitAppStatusSection with notebook_id and notebook_path.
-        """
         self.notebook_id = notebook_id
         self.notebook_path = notebook_path
         self.content = get_streamlit_app_status_str(notebook_id, notebook_path)

@@ -10,6 +10,7 @@ class GetCellOutputToolResponseSection(PromptSection):
     exclude_if_empty: bool = True
     
     def __init__(self, base64EncodedCellOutput: str):
+        self.name = "GetCellOutputToolResponse"
         self.base64EncodedCellOutput = base64EncodedCellOutput
         
         self.content = ""

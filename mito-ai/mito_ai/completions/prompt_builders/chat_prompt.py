@@ -23,7 +23,7 @@ def create_chat_prompt(
         SG.SelectedContext(additional_context),
         SG.ActiveCellId(active_cell_id),
         SG.ActiveCellCode(active_cell_code),
-        SG.ActiveCellOutput("Attatched is an image of the output of the active code cell for your context."),
+        SG.ActiveCellOutput(has_active_cell_output),
         SG.Task(input),
     ]
     

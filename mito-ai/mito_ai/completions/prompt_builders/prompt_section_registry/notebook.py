@@ -13,9 +13,6 @@ class NotebookSection(PromptSection):
     exclude_if_empty: bool = False
     
     def __init__(self, cells: List[AIOptimizedCell]):
-        """
-        Initialize NotebookSection with list of cells.
-        """
         self.cells = cells
         self.content = '\n'.join([f"{cell}" for cell in cells or []])
         self.name = "Notebook"

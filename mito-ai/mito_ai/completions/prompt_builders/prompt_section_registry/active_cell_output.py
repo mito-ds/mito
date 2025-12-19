@@ -7,13 +7,14 @@ from .base import PromptSection
 class ActiveCellOutputSection(PromptSection):
     """Section for output of the active code cell."""
     trim_after_messages: int = 3
+    exclude_if_empty: bool = True
     
-    def __init__(self, base64EncodedActiveCellOutput: str):
-        
-        self.base64EncodedActiveCellOutput = base64EncodedActiveCellOutput
-        
+    def __init__(self, has_active_cell_output: bool):
+        self.name = "ActiveCellOutput"
+        self.has_active_cell_output = has_active_cell_output
         self.content = ""
-        if base64EncodedActiveCellOutput is not None and base64EncodedActiveCellOutput != '':
+        if has_active_cell_output:
             # The actual image is attatched to the message, its not part of the text content
             self.content = f"Attatched is an image of the output of the active code cell."
+
 
