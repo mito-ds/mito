@@ -4,7 +4,7 @@
  */
 
 import { IJupyterLabPageFixture } from "@jupyterlab/galata";
-import { waitForIdle } from "./jupyterlab_utils";
+import { waitForIdle, runCell } from "./jupyterlab_utils";
 
 export const dfCreationCode = `import pandas as pd
 df = pd.DataFrame({'a': [1], 'b': [4]})\n`;
@@ -24,7 +24,7 @@ export const createNewMitosheetOnlyTest = async (page: IJupyterLabPageFixture, f
   
     if (firstCellCode) {
       await page.notebook.setCell(0, 'code', firstCellCode);
-      await page.notebook.runCell(0);
+      await runCell(page, 0);
     }
 
     await page.locator('.mito-container').click();
