@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+from typing import Optional
 from .base import PromptSection
 
 
@@ -9,7 +10,7 @@ class GetCellOutputToolResponseSection(PromptSection):
     trim_after_messages: int = 3
     exclude_if_empty: bool = True
     
-    def __init__(self, base64EncodedCellOutput: str):
+    def __init__(self, base64EncodedCellOutput: Optional[str]):
         self.name = "GetCellOutputToolResponse"
         self.base64EncodedCellOutput = base64EncodedCellOutput
         
