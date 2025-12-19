@@ -5,9 +5,29 @@ Streamlit app to view and explore chat histories from .mito/ai-chats folder.
 import streamlit as st
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any
+
+# Try to import tiktoken for accurate token counting
+# If not available, attempt to install it automatically
+try:
+    import tiktoken
+    TIKTOKEN_AVAILABLE = True
+except ImportError:
+    TIKTOKEN_AVAILABLE = False
+    # Attempt to install tiktoken automatically
+    try:
+        print("Installing tiktoken...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "tiktoken>=0.5.0", "--quiet"])
+        print("tiktoken installed successfully")
+        import tiktoken
+        TIKTOKEN_AVAILABLE = True
+    except (subprocess.CalledProcessError, ImportError):
+        # Installation failed or import still fails - will use fallback estimation
+        TIKTOKEN_AVAILABLE = False
 
 # Get the chat history directory
 HOME_FOLDER = os.path.expanduser("~")
@@ -146,6 +166,47 @@ def display_user_message_content(content: Any):
             st.code(str(content), language="text")
 
 
+def count_tokens_in_content(content: Any) -> int:
+    """Count tokens in message content."""
+    if TIKTOKEN_AVAILABLE:
+        try:
+            encoding = tiktoken.get_encoding("cl100k_base")  # Used by GPT-4 and GPT-3.5-turbo
+            # Convert content to string for token counting
+            if isinstance(content, (dict, list)):
+                content_str = json.dumps(content)
+            elif isinstance(content, str):
+                content_str = content
+            else:
+                content_str = str(content)
+            return len(encoding.encode(content_str))
+        except Exception:
+            # Fallback to character-based estimation
+            pass
+    
+    # Fallback: rough estimation (1 token ≈ 3 characters)
+    if isinstance(content, (dict, list)):
+        content_str = json.dumps(content)
+    elif isinstance(content, str):
+        content_str = content
+    else:
+        content_str = str(content)
+    return int(len(content_str) / 3)
+
+
+def count_tokens_in_message(message: Dict[str, Any]) -> int:
+    """Count tokens in a single message."""
+    content = message.get("content", "")
+    return count_tokens_in_content(content)
+
+
+def count_total_tokens_in_history(messages: List[Dict[str, Any]]) -> int:
+    """Count total tokens in a message history."""
+    total = 0
+    for message in messages:
+        total += count_tokens_in_message(message)
+    return total
+
+
 def main():
     st.set_page_config(
         page_title="Chat History Viewer",
@@ -227,24 +288,32 @@ def main():
     if not ai_history:
         st.info("No AI optimized history found in this chat.")
     else:
+        # Calculate total tokens for the AI Optimized History
+        total_tokens = count_total_tokens_in_history(ai_history)
+        token_info = f"**Total Tokens:** {total_tokens:,}"
+        if not TIKTOKEN_AVAILABLE:
+            token_info += " (estimated - install tiktoken for accurate counts)"
+        st.info(token_info)
+        
         # Display all messages
         for idx, message in enumerate(ai_history):
             role = message.get("role", "unknown")
             content = message.get("content", "")
+            message_tokens = count_tokens_in_message(message)
             
             # Color code by role
             if role == "system":
                 st.markdown("---")
-                with st.expander(f"🔧 **System Message** (Message {idx + 1}/{len(ai_history)})", expanded=False):
+                with st.expander(f"🔧 **System Message** (Message {idx + 1}/{len(ai_history)}) - {message_tokens:,} tokens", expanded=False):
                     st.code(format_message_content(content), language="text")
             elif role == "user":
                 st.markdown("---")
-                with st.expander(f"👤 **User Message** (Message {idx + 1}/{len(ai_history)})", expanded=False):
+                with st.expander(f"👤 **User Message** (Message {idx + 1}/{len(ai_history)}) - {message_tokens:,} tokens", expanded=False):
                     st.markdown("**Content:**")
                     display_user_message_content(content)
             elif role == "assistant":
                 st.markdown("---")
-                with st.expander(f"🤖 **Assistant Message** (Message {idx + 1}/{len(ai_history)})", expanded=False):
+                with st.expander(f"🤖 **Assistant Message** (Message {idx + 1}/{len(ai_history)}) - {message_tokens:,} tokens", expanded=False):
                     st.markdown("**Content:**")
                     display_message_content(content)
     
