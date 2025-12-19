@@ -207,14 +207,14 @@ describe("MitoViewer", () => {
 
         // Check that numeric columns are right-aligned
         const ageCells = screen.getAllByText("25");
-        const scoreCells = screen.getAllByText("85.5");
+        const scoreCells = screen.getAllByText("85");
         const nameCells = screen.getAllByText("Bob");
 
         // These should have right text alignment (we can't easily test this with testing-library)
         // but we can verify the class is set correctly
         expect(ageCells[0]).toHaveClass('mito-viewer__body-cell-numeric');
         expect(ageCells[0]).not.toHaveClass('mito-viewer__body-cell-text');
-        expect(scoreCells[0]).toHaveClass('mito-viewer__body-cell-numeric');
+        expect(scoreCells[0]).toHaveClass('mito-viewer__numeric-integer');
         expect(scoreCells[0]).not.toHaveClass('mito-viewer__body-cell-text');
         expect(nameCells[0]).toHaveClass('mito-viewer__body-cell-text');
         expect(nameCells[0]).not.toHaveClass('mito-viewer__body-cell-numeric');

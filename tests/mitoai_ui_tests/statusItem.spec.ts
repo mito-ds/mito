@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { expect, galata, test } from "@jupyterlab/galata";
+import { test, expect, galata } from "../fixtures";
 import { PromiseDelegate } from "@lumino/coreutils";
 
 test.describe("Mito AI status item", () => {

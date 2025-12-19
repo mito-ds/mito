@@ -152,6 +152,45 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
+    const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>): Promise<void> => {
+        const items = e.clipboardData.items;
+        const clipboardItem = items?.[items.length - 1];
+        if (!clipboardItem) return;
+
+        // Check if it's a file (images are also files)
+        if (clipboardItem.kind === 'file') {
+            e.preventDefault();
+            
+            const blob = clipboardItem.getAsFile();
+            if (!blob) return;
+
+            // Determine file name - use blob name if available, otherwise generate one
+            let fileName = blob.name;
+            if (!fileName) {
+                // Generate a filename based on the MIME type
+                const extension = clipboardItem.type.startsWith('image/') 
+                    ? clipboardItem.type.split('/')[1] 
+                    : 'file';
+                fileName = `pasted-${Date.now()}.${extension}`;
+            }
+
+            const file = new File(
+                [blob], 
+                fileName, 
+                { type: clipboardItem.type }
+            );
+            
+            if (isUploading) return; // Prevent multiple simultaneous uploads
+            
+            setIsUploading(true);
+            try {
+                await uploadFileToBackend(file, notebookTracker, handleFileUpload);
+            } finally {
+                setIsUploading(false);
+            }
+        }
+    };
+
     // Debounce the active cell ID change to avoid multiple rerenders. 
     // We use this to avoid a flickering screen when the active cell changes. 
     const debouncedSetActiveCellID = useDebouncedFunction((newID: string | undefined) => {
@@ -528,6 +567,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     value={input}
                     disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
                     onChange={handleInputChange}
+                    onPaste={handlePaste}
                     onKeyDown={(e) => {
                         // If dropdown is visible, only handle escape to close it
                         if (isDropdownVisible) {
