@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 """
 Streamlit app to view and explore chat histories from .mito/ai-chats folder.
 """
