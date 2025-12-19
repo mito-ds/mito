@@ -9,7 +9,7 @@ import {
 } from '@jupyterlab/application';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { Clipboard } from '@jupyterlab/apputils';
-import { PageConfig } from '@jupyterlab/coreutils';
+import { PageConfig, PathExt } from '@jupyterlab/coreutils';
 import { fileIcon } from '@jupyterlab/ui-components';
 
 const COMMAND_COPY_ABSOLUTE_PATH = 'mito_ai:copy-absolute-path';
@@ -46,9 +46,10 @@ const CopyAbsolutePathPlugin: JupyterFrontEndPlugin<void> = {
 
         // Construct the absolute path by combining server root with the relative path
         // item.path is the path relative to the server root
+        // Use PathExt.join to handle trailing slashes properly
         const absolutePath = serverRoot
-          ? `${serverRoot}/${item.path}`
-          : `/${item.path}`;
+          ? PathExt.join(serverRoot, item.path)
+          : PathExt.join('/', item.path);
 
         // Copy to clipboard
         Clipboard.copyToSystem(absolutePath);
