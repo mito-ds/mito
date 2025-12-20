@@ -10,6 +10,7 @@ import { Token } from '@lumino/coreutils';
 import { fetchVariablesAndUpdateState, Variable } from './VariableInspector';
 import { getFiles, File } from './FileInspector';
 import { KernelMessage } from '@jupyterlab/services';
+import { refreshGoogleDriveRules } from '../../restAPI/RestAPI';
 
 // The provides field in JupyterLab's JupyterFrontEndPlugin expects a token 
 // that can be used to look up the service in the dependency injection system,
@@ -43,7 +44,10 @@ export class ContextManager implements IContextManager {
         this.notebookTracker = notebookTracker;
         
         // Setup the kernel listener to update context as kernel messages are received
-        this.setupKernelListener(app, notebookTracker); 
+        this.setupKernelListener(app, notebookTracker);
+        
+        // Refresh Google Drive rules on startup (non-blocking)
+        void this.refreshGoogleDriveRulesOnStartup();
     }
 
     getNotebookContext(notebookId: string): NotebookContext | undefined {
@@ -69,6 +73,20 @@ export class ContextManager implements IContextManager {
         context.files = files;
         this.notebookContexts.set(notebookID, context);
     }
+
+    private refreshGoogleDriveRulesOnStartup = async (): Promise<void> => {
+        try {
+            const results = await refreshGoogleDriveRules();
+            if (results.success.length > 0) {
+                console.log('Successfully refreshed Google Drive rules on startup:', results.success);
+            }
+            if (results.errors.length > 0) {
+                console.warn('Some Google Drive rules failed to refresh on startup:', results.errors);
+            }
+        } catch (error) {
+            console.warn('Error refreshing Google Drive rules on startup:', error);
+        }
+    };
 
     private _startKernelListener = async (app: JupyterFrontEnd, notebookPanel: NotebookPanel | null): Promise<void> => {
         if (notebookPanel === null) {
