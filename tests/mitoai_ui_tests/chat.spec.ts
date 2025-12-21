@@ -40,8 +40,8 @@ test.describe.parallel('Mito AI Chat', () => {
   test('AI Chat should open on Jupyter Launch', async ({ page }) => {
     // Expect the AI Chat is open
     // Locate the "Clear the chat history" button
-    const clearButton = page.locator('button[title="Start New Chat"]');
-    expect(clearButton).toBeVisible()
+    const clearButton = page.locator('button[title^="Start New Chat"]');
+    await expect(clearButton).toBeVisible();
 
   })
 
