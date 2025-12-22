@@ -27,8 +27,8 @@ import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
-import { AgentResponse, CellUpdate } from '../../../websockets/completions/CompletionModels';
-import { getCellIDByIndexInNotebookPanel } from '../../../utils/notebook';
+import { AgentResponse } from '../../../websockets/completions/CompletionModels';
+import { getCellIdFromCellUpdate } from '../cellUpdateUtils';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI'
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
@@ -61,16 +61,6 @@ interface IChatMessageProps {
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
 }
 
-const getCellIdFromCellUpdate = (cellUpdate: CellUpdate | null | undefined, notebookTracker: INotebookTracker): string | undefined => {
-    if (!cellUpdate) {
-        return undefined;
-    }
-    if (cellUpdate.type === 'modification') {
-        return cellUpdate.id;
-    }
-    // For 'new' type, get the cell ID by index
-    return getCellIDByIndexInNotebookPanel(notebookTracker.currentWidget, cellUpdate.index);
-};
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     app,

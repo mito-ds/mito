@@ -214,7 +214,18 @@ class Evals:
         response = self.immediate_next_response
         expected_cell_index = input_params["index_expecting_change"]
         if response["type"] == "cell_update" and response["cell_update"]["type"] == "new":
-            return response["cell_update"]["index"] == expected_cell_index
+            after_cell_id = response["cell_update"].get("after_cell_id")
+            
+            # If expecting cell at index 0, after_cell_id should be 'new cell'
+            if expected_cell_index == 0:
+                return after_cell_id == "new cell"
+            
+            # Otherwise, find the cell ID at (expected_cell_index - 1) in the input notebook
+            if expected_cell_index > 0 and expected_cell_index - 1 < len(self.input_nb.cells):
+                expected_after_cell_id = self.input_nb.cells[expected_cell_index - 1].get("id")
+                return after_cell_id == expected_after_cell_id
+            
+            return False
         return False
 
     def test_correct_cell_edit(self, input_params):

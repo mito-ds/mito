@@ -76,7 +76,7 @@ Format:
     message: str,
     cell_update: {{
         type: 'new'
-        index: int
+        after_cell_id: str
         code: str   
         code_summary: str
         cell_type: 'code' | 'markdown'
@@ -85,7 +85,7 @@ Format:
 }}
 
 Important information:
-1. The index should be the 0-index position of where you want the new code cell to be added in the notebook.
+1. The after_cell_id should be the id of the cell that you want to insert the new cell after. The after_cell_id MUST already be part of the original Jupyter Notebook that your colleague shared with you. If you want to insert at the very top of the notebook (before all existing cells), use the special value 'new cell'.
 2. The message is a short summary of your thought process that helped you decide what to update in cell_update.
 3. The code should be the full contents of that updated code cell. The code that you return will overwrite the existing contents of the code cell so it must contain all necessary code.
 4. code_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Loading data", "Filtering rows", "Calculating average", "Plotting revenue"). Avoid full sentences or explanations—this should read like a quick commit message or code label, not a description.
@@ -182,7 +182,7 @@ Important information:
         message: "I'll create a graph using matplotlib with sale index on the x axis and total_price on the y axis.",
         cell_update: {{
             type: 'new',
-            index: 2,
+            after_cell_id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc',
             code: "import matplotlib.pyplot as plt\\n\\nplt.bar(sales_df.index, sales_df['total_price'])\\nplt.title('Total Price per Sale')\\nplt.xlabel('Transaction Number')\\nplt.ylabel('Sales Price ($)')\\nplt.show()",
             code_summary: "Plotting total_price",
             cell_type: 'code'

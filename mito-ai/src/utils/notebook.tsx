@@ -170,9 +170,11 @@ export const getAIOptimizedCellsInNotebookPanel = (notebookPanel: NotebookPanel 
     return cells
 }
 
-export function createCodeCellAtIndexAndActivate(notebookPanel: NotebookPanel, index: number): void {
+
+export function createCodeCellAfterCellIDAndActivate(notebookPanel: NotebookPanel, afterCellID: string | 'new cell'): void {
     /* 
-        Create a new code cell at index and make it the active cell.
+        Create a new code cell after the cell with the given ID and make it the active cell.
+        If afterCellID is 'new cell', insert at the very top of the notebook.
     */
 
     const notebook = notebookPanel.content
@@ -180,16 +182,24 @@ export function createCodeCellAtIndexAndActivate(notebookPanel: NotebookPanel, i
         return;
     }
 
-    if (index > 0) {
-        notebook.activeCellIndex = index - 1;
-
-        // insertBelow makes the new cell the active cell
-        NotebookActions.insertBelow(notebook);
-    } else {
+    if (afterCellID === 'new cell') {
+        // Insert at the very top of the notebook
         notebook.activeCellIndex = 0
-
         // insertAbove makes the new cell the active cell
         NotebookActions.insertAbove(notebook)
+    } else {
+        // Find the cell by ID and get its index
+        const cellIndex = getCellIndexByIDInNotebookPanel(notebookPanel, afterCellID)
+        
+        if (cellIndex === undefined) {
+            console.error(`Cell with ID ${afterCellID} not found`)
+            return
+        }
+
+        // Set the active cell to the cell we want to insert after
+        notebook.activeCellIndex = cellIndex
+        // insertBelow makes the new cell the active cell
+        NotebookActions.insertBelow(notebook)
     }
 }
 

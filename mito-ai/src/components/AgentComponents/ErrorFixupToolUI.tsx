@@ -10,7 +10,7 @@ import { OpenAI } from 'openai';
 import { GroupedErrorMessages } from '../../utils/chatHistory';
 import { classNames } from '../../utils/classNames';
 import { getContentStringFromMessage } from '../../utils/strings';
-import { getCellIDByIndexInNotebookPanel } from '../../utils/notebook';
+import { getCellIdFromCellUpdate } from '../../Extensions/AiChat/cellUpdateUtils';
 import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
 import AssistantCodeBlock from '../../Extensions/AiChat/ChatMessage/AssistantCodeBlock';
 import AlertIcon from '../../icons/AlertIcon';
@@ -18,18 +18,7 @@ import AgentComponentHeader from './AgentComponentHeader';
 import '../../../style/ErrorFixupToolUI.css';
 import '../../../style/AgentComponentHeader.css';
 import RunAllCellsToolUI from './RunAllCellsToolUI';
-import { CellUpdate } from '../../websockets/completions/CompletionModels';
 
-const getCellIdFromCellUpdate = (cellUpdate: CellUpdate | null | undefined, notebookTracker: INotebookTracker): string | undefined => {
-    if (!cellUpdate) {
-        return undefined;
-    }
-    if (cellUpdate.type === 'modification') {
-        return cellUpdate.id;
-    }
-    // For 'new' type, get the cell ID by index
-    return getCellIDByIndexInNotebookPanel(notebookTracker.currentWidget, cellUpdate.index);
-};
 
 interface IErrorFixupToolUIProps {
     messages: GroupedErrorMessages;
