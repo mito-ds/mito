@@ -3,14 +3,13 @@
 
 from .base import PromptSection
 from typing import Optional, List, Dict
-
+import json
 
 def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]]) -> str:
     """
     Render the selected context from the additional context array.
     """
-    import json
-
+    
     if not additional_context:
         return ""
     
