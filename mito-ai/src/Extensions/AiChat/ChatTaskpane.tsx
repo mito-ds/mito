@@ -24,6 +24,7 @@ import {
     COMMAND_MITO_AI_SEND_AGENT_MESSAGE,
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
+    COMMAND_MITO_AI_START_NEW_CHAT,
 } from '../../commands';
 
 // Internal imports - Components
@@ -879,6 +880,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             execute: rejectAICode,
             isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, agentReview.changedCellsRef.current)
         });
+
+        /*
+            Register global command for starting a new chat.
+            This can be triggered from anywhere with CMD+K (Mac) or Ctrl+K (Windows/Linux).
+        */
+        app.commands.addCommand(COMMAND_MITO_AI_START_NEW_CHAT, {
+            label: 'Start New Chat',
+            execute: async () => {
+                await startNewChat();
+                // Focus the chat input after starting new chat
+                const chatInput: HTMLTextAreaElement | null = document.querySelector('.chat-input');
+                chatInput?.focus();
+            }
+        });
+
+        app.commands.addKeyBinding({
+            command: COMMAND_MITO_AI_START_NEW_CHAT,
+            keys: ['Accel K'],
+            selector: 'body',
+        });
     }, []);
 
     useEffect(() => {
@@ -971,7 +992,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <div className="chat-taskpane-header-right">
                     <IconButton
                         icon={<addIcon.react />}
-                        title="Start New Chat"
+                        title={`Start New Chat (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}K)`}
                         onClick={async () => { await startNewChat() }}
                     />
                     <DropdownMenu

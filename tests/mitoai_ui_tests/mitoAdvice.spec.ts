@@ -15,7 +15,7 @@ test('should display an advice message in empty code cell', async ({
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
     .toContainText(
-      'Start writing python or Press'
+      'Write Python or Press'
     );
 
   await page.notebook.setCell(0, 'code', '\nprint("Hello, World!")');
@@ -32,7 +32,7 @@ test('should display an advice message in empty code cell', async ({
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
     .toContainText(
-      'Start writing python or Press'
+      'Write Python or Press'
     );
 
   await page.keyboard.press('ControlOrMeta+e');
