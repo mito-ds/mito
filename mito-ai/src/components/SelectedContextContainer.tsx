@@ -9,7 +9,7 @@ import RuleIcon from '../icons/RuleIcon';
 import CodeIcon from '../icons/CodeIcon';
 import DatabaseIcon from '../icons/DatabaseIcon';
 import PhotoIcon from '../icons/PhotoIcon';
-import { highlightCodeCell, getCellByID, scrollToCell } from '../utils/notebook';
+import { highlightCodeCell, getCellByID, scrollToCell, highlightLinesOfCodeInCodeCell } from '../utils/notebook';
 
 interface SelectedContextContainerProps {
     title: string;
@@ -48,6 +48,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         icon = <CodeIcon />;
     } else if (type === 'cell') {
         icon = <CodeIcon />;
+    } else if (type === 'line_selection') {
+        icon = <CodeIcon />;
     }
 
     const handleClick = (): void => {
@@ -75,6 +77,32 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             setTimeout(() => {
                 highlightCodeCell(notebookTracker, value);
             }, 500);
+        } else if (type === 'line_selection' && notebookTracker && value) {
+            // Handle line selection context click - scroll to and highlight selected lines
+            try {
+                const selectionInfo = JSON.parse(value);
+                const currentWidget = notebookTracker.currentWidget;
+                if (currentWidget) {
+                    // Scroll to the cell, positioning based on the start line
+                    // Lines are stored 0-indexed, matching the citation format
+                    scrollToCell(currentWidget, selectionInfo.cellId, selectionInfo.startLine, 'center');
+                    // Highlight the selected lines
+                    setTimeout(() => {
+                        // Re-check currentWidget inside the callback since it may have changed
+                        const widget = notebookTracker.currentWidget;
+                        if (widget) {
+                            highlightLinesOfCodeInCodeCell(
+                                widget,
+                                selectionInfo.cellId,
+                                selectionInfo.startLine,
+                                selectionInfo.endLine
+                            );
+                        }
+                    }, 500);
+                }
+            } catch {
+                // Ignore JSON parse errors
+            }
         } else if (onClick) {
             // Call the custom onClick handler for other context types
             onClick();
@@ -97,7 +125,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
                 }}
                 title={isHovered ? "Remove rule" : "Selected rule"}
             >
-                {isHovered && type !== 'active_cell' && type !== 'notebook' ? (
+                {isHovered && type !== 'active_cell' && type !== 'notebook' && type !== 'line_selection' ? (
                     <span className="remove-icon">X</span>
                 ) : (
                     <span className="icon">{icon}</span>

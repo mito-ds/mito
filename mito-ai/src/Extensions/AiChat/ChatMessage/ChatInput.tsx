@@ -14,6 +14,8 @@ import { convertCellReferencesToStableFormat } from '../../../utils/cellReferenc
 import '../../../../style/ChatInput.css';
 import '../../../../style/ChatDropdown.css';
 import { useDebouncedFunction } from '../../../hooks/useDebouncedFunction';
+import { useCellOrder } from '../../../hooks/useCellOrder';
+import { useLineSelection } from '../../../hooks/useLineSelection';
 import { ChatDropdownOption } from './ChatDropdown';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import AttachFileButton from '../../../components/AttachFileButton';
@@ -84,6 +86,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [isDropdownFromButton, setIsDropdownFromButton] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+
+    // Track cell order and line selection
+    const cellOrder = useCellOrder(notebookTracker);
+    const lineSelection = useLineSelection(notebookTracker, cellOrder);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;
@@ -456,6 +462,59 @@ const ChatInput: React.FC<ChatInputProps> = ({
             }
         }
     }, [agentModeEnabled, additionalContext, activeCellCode]);
+
+    // Manage line selection context - shows selected lines when user has text selected in a code cell
+    useEffect(() => {
+        const LINE_SELECTION_TYPE = 'line_selection';
+
+        // Build the new value data for comparison (lines are 0-indexed internally)
+        const newValueData = lineSelection.hasSelection
+            ? JSON.stringify({
+                cellId: lineSelection.cellId,
+                startLine: lineSelection.startLine,
+                endLine: lineSelection.endLine,
+                selectedCode: lineSelection.selectedCode
+            })
+            : null;
+
+        // Treat null and undefined as the same "no selection" state
+        const normalizedNewValue = newValueData ?? null;
+
+        setAdditionalContext(prev => {
+            // Find existing line selection context in the latest state (avoid stale render closures)
+            const existingContext = prev.find(context => context.type === LINE_SELECTION_TYPE);
+            const normalizedExistingValue = existingContext?.value ?? null;
+
+            // Only update if the selection has changed (null and undefined are equivalent)
+            if (normalizedNewValue === normalizedExistingValue) {
+                return prev;
+            }
+
+            // Remove old line selection context if it exists
+            let additionalContextCopy = prev.filter(context => context.type !== LINE_SELECTION_TYPE);
+
+            // Add new line selection context if there is text selected
+            if (normalizedNewValue) {
+                // Build display text with 1-indexed lines for user display
+                const displayStartLine = lineSelection.startLine + 1;
+                const displayEndLine = lineSelection.endLine + 1;
+                const displayText = displayStartLine === displayEndLine
+                    ? `Cell ${lineSelection.cellNumber} line ${displayStartLine}`
+                    : `Cell ${lineSelection.cellNumber} line ${displayStartLine}-${displayEndLine}`;
+
+                additionalContextCopy = [
+                    ...additionalContextCopy,
+                    {
+                        type: LINE_SELECTION_TYPE,
+                        value: normalizedNewValue,
+                        display: displayText
+                    }
+                ];
+            }
+
+            return additionalContextCopy;
+        });
+    }, [lineSelection]);
 
     return (
         <div
