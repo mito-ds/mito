@@ -385,11 +385,15 @@ def test_caching_system_prompt_scenarios(messages, expected_system_type, expecte
 @pytest.mark.parametrize("message_count,expected_cache_boundary", [
     (1, None),  # 1 message, No cache boundary
     (3, None),  # 3 messages, No cache boundary
-    (5, 1),  # 5 messages, cache at index 2
-    (10, 6),  # 10 messages, cache at index 6
+    (5, 1),  # 5 messages, cache at index 1 (5 - 3 - 1 = 1)
+    (10, 6),  # 10 messages, cache at index 6 (10 - 3 - 1 = 6)
 ])
-def test_caching_conversation_history(message_count, expected_cache_boundary):
+def test_caching_conversation_history(message_count, expected_cache_boundary, monkeypatch):
     """Test that conversation history is cached at the keep_recent boundary for different message counts."""
+    
+    # Mock MAX_TRIM_THRESHOLD to use a fixed value for testing
+    import mito_ai.anthropic_client as anthropic_client_module
+    monkeypatch.setattr(anthropic_client_module, 'MAX_TRIM_THRESHOLD', 3)
     
     # Create messages based on the parameter
     messages: List[ChatCompletionMessageParam] = [

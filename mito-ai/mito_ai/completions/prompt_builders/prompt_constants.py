@@ -11,21 +11,7 @@ import json
 from typing import Final
 from mito_ai.utils.schema import MITO_FOLDER
 
-# Section headings used in prompts
-FILES_SECTION_HEADING = "Files in the current directory:"
-VARIABLES_SECTION_HEADING = "Defined Variables:"
-CODE_SECTION_HEADING = "Code in the active code cell:"
-ACTIVE_CELL_ID_SECTION_HEADING = "The ID of the active code cell:"
-ACTIVE_CELL_OUTPUT_SECTION_HEADING = "Output of the active code cell:"
-GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING = "Output of the code cell you just applied the CELL_UPDATE to:"
-JUPYTER_NOTEBOOK_SECTION_HEADING = "Jupyter Notebook:"
-STREAMLIT_APP_STATUS_SECTION_HEADING = "Streamlit App Status:"
-
-# Placeholder text used when trimming content from messages
-CONTENT_REMOVED_PLACEHOLDER = "Content removed to save space" 
-
-CITATION_RULES = """RULES FOR CITING YOUR WORK
-
+CITATION_RULES = """
 It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use one of the following formats inline in your response:
 
 Single line citation:
@@ -46,8 +32,7 @@ Citation Rules:
 8. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
 """
 
-CELL_REFERENCE_RULES = """RULES FOR REFERENCING CELLS
-
+CELL_REFERENCE_RULES = """
 When referring to specific cells in the notebook in your messages, use cell references so the user can easily navigate to the cell you're talking about. The user sees cells numbered as "Cell 1", "Cell 2", etc., but internally cells are identified by their unique IDs.
 
 To reference a cell, use this format inline in your message:
@@ -67,25 +52,6 @@ Cell Reference Rules:
 Example:
 "I've loaded the sales data in [MITO_CELL_REF:c68fdf19-db8c-46dd-926f-d90ad35bb3bc] and will now calculate the monthly totals."
 """
-
-def get_active_cell_output_str(has_active_cell_output: bool) -> str:
-    """
-    Used to tell the AI about the output of the active code cell. 
-    We use this in the chat prompt.
-    """
-    if has_active_cell_output:
-        return f"{ACTIVE_CELL_OUTPUT_SECTION_HEADING}\nAttatched is an image of the output of the active code cell for your context."
-    else:
-        return ""
-    
-def cell_update_output_str(has_cell_update_output: bool) -> str:
-    """
-    Used to respond to the GET_CELL_OUTPUT tool, telling the agent the output of the cell it requested
-    """
-    if has_cell_update_output:
-        return f"{GET_CELL_OUTPUT_TOOL_RESPONSE_SECTION_HEADING}\nAttatched is an image of code cell output that you requested."
-    else:
-        return ""
 
 def redact_sensitive_info(connections: dict) -> dict:
     """
@@ -184,7 +150,7 @@ Here is the schema:
     return DATABASE_RULES
 
 
-CHAT_CODE_FORMATTING_RULES = """CRITICAL CODE UPDATE RULES:
+CHAT_CODE_FORMATTING_RULES = """
 - COMPLETE REPLACEMENT: Your code will COMPLETELY REPLACE the entire contents of the active code cell. 
 - INCLUDE ALL CODE: You MUST return the COMPLETE, FULL contents of the entire code cell - including ALL existing code that should remain plus your modifications.
 - NEVER PARTIAL CODE: NEVER return only a portion, snippet, or subset of the code cell. Partial responses will break the user's notebook by deleting important code.
