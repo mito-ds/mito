@@ -130,7 +130,7 @@ test.describe.parallel('Mito AI Chat', () => {
     const code = await getCodeFromCell(page, 0);
     expect(code).not.toContain('x');
     expect(code).not.toContain('1');
-    expect(code?.trim()).toContain("Start writing python") // The placeholder ghost text
+    expect(code?.trim()).toContain("Write Python or Press") // The placeholder ghost text
   });
 
   test('Edit Message', async ({ page }) => {
