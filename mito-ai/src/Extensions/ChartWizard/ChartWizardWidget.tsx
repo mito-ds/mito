@@ -94,6 +94,20 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         }, 500); // 500ms debounce
     };
 
+    // Helper function to check if a string is a hex color code
+    const isHexColor = (value: string): boolean => {
+        const hexPattern = /^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+        return hexPattern.test(value);
+    };
+
+    // Helper function to normalize hex color (ensure it has #)
+    const normalizeHexColor = (value: string): string => {
+        if (value.startsWith('#')) {
+            return value;
+        }
+        return `#${value}`;
+    };
+
     const renderInputField = (variable: ChartConfigVariable) => {
         const label = variable.name.replace(/_/g, ' ').toLowerCase()
             .replace(/\b\w/g, l => l.toUpperCase());
@@ -158,13 +172,69 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             );
         }
 
-        // String input
+        // String input - check if it's a hex color
+        const stringValue = variable.value as string;
+        const isColor = isHexColor(stringValue);
+
+        if (isColor) {
+            // Color picker for hex colors
+            const normalizedColor = normalizeHexColor(stringValue);
+            
+            return (
+                <div key={variable.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                    <label style={{ minWidth: '150px', fontWeight: '500' }}>{label}:</label>
+                    <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flex: 1 }}>
+                        <input
+                            type="color"
+                            value={normalizedColor}
+                            onChange={(e) => {
+                                // Color picker returns #RRGGBB, store with #
+                                handleVariableChange(variable.name, e.target.value);
+                            }}
+                            style={{ 
+                                width: '50px', 
+                                height: '35px', 
+                                padding: '2px',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}
+                        />
+                        <input
+                            type="text"
+                            value={normalizedColor}
+                            onChange={(e) => {
+                                let newValue = e.target.value.trim();
+                                // Normalize: ensure it has # for valid hex colors
+                                if (newValue && !newValue.startsWith('#')) {
+                                    if (isHexColor(newValue)) {
+                                        newValue = `#${newValue}`;
+                                    }
+                                }
+                                // Only update if it's a valid hex color
+                                if (isHexColor(newValue) || newValue === '') {
+                                    handleVariableChange(variable.name, newValue);
+                                }
+                            }}
+                            placeholder="#RRGGBB"
+                            style={{ 
+                                flex: 1, 
+                                padding: '5px',
+                                fontFamily: 'monospace'
+                            }}
+                        />
+                    </div>
+                </div>
+            );
+        }
+
+        // Regular string input
         return (
             <div key={variable.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                 <label style={{ minWidth: '150px', fontWeight: '500' }}>{label}:</label>
                 <input
                     type="text"
-                    value={variable.value as string}
+                    value={stringValue}
                     onChange={(e) => handleVariableChange(variable.name, e.target.value)}
                     style={{ flex: 1, padding: '5px' }}
                 />
