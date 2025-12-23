@@ -16,7 +16,6 @@ import '../../../style/ChartWizardPlugin.css';
  */
 export class ChartWizardWidget extends ReactWidget {
     private chartData: ChartWizardData | null = null;
-    private closeHandler: (() => void) | null = null;
 
     constructor() {
         super();
@@ -28,22 +27,16 @@ export class ChartWizardWidget extends ReactWidget {
         this.update();
     }
 
-    setCloseHandler(handler: () => void): void {
-        this.closeHandler = handler;
-        this.update();
-    }
-
     render(): React.ReactElement {
-        return <ChartWizardContent chartData={this.chartData} onClose={this.closeHandler} />;
+        return <ChartWizardContent chartData={this.chartData} />;
     }
 }
 
 interface ChartWizardContentProps {
     chartData: ChartWizardData | null;
-    onClose: (() => void) | null;
 }
 
-const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData, onClose }) => {
+const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) => {
     const [configVariables, setConfigVariables] = useState<ChartConfigVariable[]>([]);
     const executeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -244,18 +237,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData, onCl
     if (!chartData) {
         return (
             <div className="chart-wizard-empty-state">
-                <div className="chart-wizard-header">
-                    <h2>Chart Wizard</h2>
-                    {onClose && (
-                        <button 
-                            className="chart-wizard-close-button"
-                            onClick={onClose}
-                            title="Close Chart Wizard"
-                        >
-                            ×
-                        </button>
-                    )}
-                </div>
+                <h2>Chart Wizard</h2>
                 <p>Click the Chart Wizard button on a matplotlib chart to get started.</p>
             </div>
         );
@@ -263,18 +245,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData, onCl
 
     return (
         <div className="chart-wizard-widget">
-            <div className="chart-wizard-header">
-                <h2>Chart Wizard</h2>
-                {onClose && (
-                    <button 
-                        className="chart-wizard-close-button"
-                        onClick={onClose}
-                        title="Close Chart Wizard"
-                    >
-                        ×
-                    </button>
-                )}
-            </div>
+            <h2>Chart Wizard</h2>
             
             {hasConfig ? (
                 <div className="chart-wizard-config-container">

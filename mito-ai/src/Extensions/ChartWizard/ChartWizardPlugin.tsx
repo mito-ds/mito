@@ -70,24 +70,27 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
                 void tracker.add(widget);
             }
 
-            // Add the widget to the right sidebar if not already attached
+            // Get the current notebook panel for split-right mode
+            const notebookPanel = notebookTracker.currentWidget;
+            const refId = notebookPanel?.id;
+
+            // Add the widget to main area with split-right mode (like StreamlitPreviewPlugin)
             if (!widget.isAttached) {
-                void app.shell.add(widget, 'right');
+                if (refId) {
+                    app.shell.add(widget, 'main', {
+                        mode: 'split-right',
+                        ref: refId
+                    });
+                } else {
+                    // Fallback to right sidebar if no notebook is open
+                    app.shell.add(widget, 'right');
+                }
             }
 
             // Activate the widget
             app.shell.activateById(widget.id);
         };
 
-        // Function to close the Chart Wizard panel
-        const closeChartWizard = (): void => {
-            if (widget && widget.isAttached) {
-                widget.close();
-            }
-        };
-
-        // Pass close function to widget
-        widget.setCloseHandler(closeChartWizard);
 
         // Add an application command
         app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHART_WIZARD, {
