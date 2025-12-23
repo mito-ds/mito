@@ -3,3 +3,109 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+.chart-wizard-widget {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 100%;
+  overflow: auto;
+}
+
+.chart-wizard-widget h2 {
+  margin-top: 0;
+}
+
+.chart-wizard-empty-state {
+  padding: 20px;
+}
+
+.chart-wizard-config-container {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.chart-wizard-config-container h3 {
+  margin-top: 0;
+}
+
+.chart-wizard-config-description {
+  font-size: 12px;
+  color: #666;
+  margin-top: -10px;
+  margin-bottom: 15px;
+}
+
+.chart-wizard-no-config {
+  padding: 10px;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+}
+
+.chart-wizard-no-config p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.chart-wizard-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.chart-wizard-input-label {
+  min-width: 150px;
+  font-weight: 500;
+}
+
+.chart-wizard-checkbox {
+  width: 20px;
+  height: 20px;
+}
+
+.chart-wizard-number-input {
+  flex: 1;
+  padding: 5px;
+}
+
+.chart-wizard-text-input {
+  flex: 1;
+  padding: 5px;
+}
+
+.chart-wizard-tuple-container {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.chart-wizard-tuple-input {
+  width: 60px;
+  padding: 5px;
+}
+
+.chart-wizard-color-container {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex: 1;
+}
+
+.chart-wizard-color-picker {
+  width: 50px;
+  height: 35px;
+  padding: 2px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.chart-wizard-color-input {
+  flex: 1;
+  padding: 5px;
+  font-family: monospace;
+}

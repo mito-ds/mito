@@ -9,6 +9,7 @@ import { NotebookActions } from '@jupyterlab/notebook';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './chartConfigParser';
 import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
+import '../../../style/ChartWizardPlugin.css';
 
 /**
  * Widget for the Chart Wizard panel that displays config inputs.
@@ -114,13 +115,13 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
 
         if (variable.type === 'boolean') {
             return (
-                <div key={variable.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <label style={{ minWidth: '150px', fontWeight: '500' }}>{label}:</label>
+                <div key={variable.name} className="chart-wizard-input-row">
+                    <label className="chart-wizard-input-label">{label}:</label>
                     <input
                         type="checkbox"
                         checked={variable.value as boolean}
                         onChange={(e) => handleVariableChange(variable.name, e.target.checked)}
-                        style={{ width: '20px', height: '20px' }}
+                        className="chart-wizard-checkbox"
                     />
                 </div>
             );
@@ -129,9 +130,9 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         if (variable.type === 'tuple') {
             const tupleValue = variable.value as [number, number];
             return (
-                <div key={variable.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <label style={{ minWidth: '150px', fontWeight: '500' }}>{label}:</label>
-                    <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                <div key={variable.name} className="chart-wizard-input-row">
+                    <label className="chart-wizard-input-label">{label}:</label>
+                    <div className="chart-wizard-tuple-container">
                         <span>(</span>
                         <input
                             type="number"
@@ -140,7 +141,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                                 const newValue: [number, number] = [parseFloat(e.target.value) || 0, tupleValue[1]];
                                 handleVariableChange(variable.name, newValue);
                             }}
-                            style={{ width: '60px', padding: '5px' }}
+                            className="chart-wizard-tuple-input"
                         />
                         <span>,</span>
                         <input
@@ -150,7 +151,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                                 const newValue: [number, number] = [tupleValue[0], parseFloat(e.target.value) || 0];
                                 handleVariableChange(variable.name, newValue);
                             }}
-                            style={{ width: '60px', padding: '5px' }}
+                            className="chart-wizard-tuple-input"
                         />
                         <span>)</span>
                     </div>
@@ -160,13 +161,13 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
 
         if (variable.type === 'number') {
             return (
-                <div key={variable.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <label style={{ minWidth: '150px', fontWeight: '500' }}>{label}:</label>
+                <div key={variable.name} className="chart-wizard-input-row">
+                    <label className="chart-wizard-input-label">{label}:</label>
                     <input
                         type="number"
                         value={variable.value as number}
                         onChange={(e) => handleVariableChange(variable.name, parseFloat(e.target.value) || 0)}
-                        style={{ flex: 1, padding: '5px' }}
+                        className="chart-wizard-number-input"
                     />
                 </div>
             );
@@ -181,9 +182,9 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             const normalizedColor = normalizeHexColor(stringValue);
             
             return (
-                <div key={variable.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <label style={{ minWidth: '150px', fontWeight: '500' }}>{label}:</label>
-                    <div style={{ display: 'flex', gap: '5px', alignItems: 'center', flex: 1 }}>
+                <div key={variable.name} className="chart-wizard-input-row">
+                    <label className="chart-wizard-input-label">{label}:</label>
+                    <div className="chart-wizard-color-container">
                         <input
                             type="color"
                             value={normalizedColor}
@@ -191,14 +192,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                                 // Color picker returns #RRGGBB, store with #
                                 handleVariableChange(variable.name, e.target.value);
                             }}
-                            style={{ 
-                                width: '50px', 
-                                height: '35px', 
-                                padding: '2px',
-                                border: '1px solid #ccc',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
+                            className="chart-wizard-color-picker"
                         />
                         <input
                             type="text"
@@ -217,11 +211,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                                 }
                             }}
                             placeholder="#RRGGBB"
-                            style={{ 
-                                flex: 1, 
-                                padding: '5px',
-                                fontFamily: 'monospace'
-                            }}
+                            className="chart-wizard-color-input"
                         />
                     </div>
                 </div>
@@ -230,13 +220,13 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
 
         // Regular string input
         return (
-            <div key={variable.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <label style={{ minWidth: '150px', fontWeight: '500' }}>{label}:</label>
+            <div key={variable.name} className="chart-wizard-input-row">
+                <label className="chart-wizard-input-label">{label}:</label>
                 <input
                     type="text"
                     value={stringValue}
                     onChange={(e) => handleVariableChange(variable.name, e.target.value)}
-                    style={{ flex: 1, padding: '5px' }}
+                    className="chart-wizard-text-input"
                 />
             </div>
         );
@@ -246,7 +236,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
 
     if (!chartData) {
         return (
-            <div style={{ padding: '20px' }}>
+            <div className="chart-wizard-empty-state">
                 <h2>Chart Wizard</h2>
                 <p>Click the Chart Wizard button on a matplotlib chart to get started.</p>
             </div>
@@ -254,20 +244,20 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     }
 
     return (
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px', height: '100%', overflow: 'auto' }}>
-            <h2 style={{ marginTop: 0 }}>Chart Wizard</h2>
+        <div className="chart-wizard-widget">
+            <h2>Chart Wizard</h2>
             
             {hasConfig ? (
-                <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
-                    <h3 style={{ marginTop: 0 }}>Chart Configuration</h3>
-                    <p style={{ fontSize: '12px', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
+                <div className="chart-wizard-config-container">
+                    <h3>Chart Configuration</h3>
+                    <p className="chart-wizard-config-description">
                         Edit values below to customize your chart. Changes will be reflected in the notebook.
                     </p>
                     {configVariables.map(renderInputField)}
                 </div>
             ) : (
-                <div style={{ padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffc107', borderRadius: '4px' }}>
-                    <p style={{ margin: 0, fontSize: '14px' }}>
+                <div className="chart-wizard-no-config">
+                    <p>
                         No chart configuration found. Make sure your code includes a section between <code># === CHART CONFIG ===</code> and <code># === END CONFIG ===</code>.
                     </p>
                 </div>
