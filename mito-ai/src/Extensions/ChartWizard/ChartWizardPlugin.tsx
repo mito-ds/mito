@@ -79,6 +79,16 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
             app.shell.activateById(widget.id);
         };
 
+        // Function to close the Chart Wizard panel
+        const closeChartWizard = (): void => {
+            if (widget && widget.isAttached) {
+                widget.close();
+            }
+        };
+
+        // Pass close function to widget
+        widget.setCloseHandler(closeChartWizard);
+
         // Add an application command
         app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHART_WIZARD, {
             label: 'Open Chart Wizard',

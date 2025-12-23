@@ -12,8 +12,38 @@
   overflow: auto;
 }
 
+.chart-wizard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .chart-wizard-widget h2 {
   margin-top: 0;
+  margin-bottom: 0;
+}
+
+.chart-wizard-close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.chart-wizard-close-button:hover {
+  background-color: #e0e0e0;
+  color: #333;
 }
 
 .chart-wizard-empty-state {
