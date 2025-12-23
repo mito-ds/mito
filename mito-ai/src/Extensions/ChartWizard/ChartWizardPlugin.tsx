@@ -20,6 +20,7 @@ export interface ChartWizardData {
     imageData: string; // base64 encoded image
     sourceCode: string;
     cellId?: string;
+    notebookTracker?: INotebookTracker;
 }
 
 interface ChartWizardButtonProps {
@@ -212,7 +213,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         }
 
         // Open the Chart Wizard with the extracted data
-        this.openChartWizard({ imageData, sourceCode, cellId });
+        this.openChartWizard({ imageData, sourceCode, cellId, notebookTracker: this.notebookTracker });
     }
 }
   
