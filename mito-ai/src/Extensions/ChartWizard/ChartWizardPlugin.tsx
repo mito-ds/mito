@@ -7,12 +7,20 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { CodeCell } from '@jupyterlab/cells';
 import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
 import { ChartWizardWidget } from './ChartWizardWidget';
 import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
 import '../../../style/ChartWizardPlugin.css'
+
+export interface ChartWizardData {
+    imageData: string; // base64 encoded image
+    sourceCode: string;
+    cellId?: string;
+}
 
 interface ChartWizardButtonProps {
     onButtonClick: () => void;
@@ -36,12 +44,12 @@ const ChartWizardButton: React.FC<ChartWizardButtonProps> = ({ onButtonClick }) 
 const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mito-ai:chart-wizard',
     autoStart: true,
-    requires: [IRenderMimeRegistry, ICommandPalette],
+    requires: [IRenderMimeRegistry, ICommandPalette, INotebookTracker],
     optional: [ILayoutRestorer],
-    activate: (app: JupyterFrontEnd, rendermime: IRenderMimeRegistry, palette: ICommandPalette, restorer: ILayoutRestorer | null) => {
+    activate: (app: JupyterFrontEnd, rendermime: IRenderMimeRegistry, palette: ICommandPalette, notebookTracker: INotebookTracker, restorer: ILayoutRestorer | null) => {
         // Create a widget creator function
-        const newWidget = (): MainAreaWidget => {
-            const content = new ChartWizardWidget();
+        const newWidget = (chartData?: ChartWizardData): MainAreaWidget => {
+            const content = new ChartWizardWidget(chartData);
             const widget = new MainAreaWidget({ content });
             widget.id = 'mito-ai-chart-wizard';
             widget.title.label = 'Chart Wizard';
@@ -57,12 +65,12 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
         });
 
         // Function to open the Chart Wizard panel
-        const openChartWizard = (): void => {
+        const openChartWizard = (chartData?: ChartWizardData): void => {
             // Dispose the old widget and create a new one if needed
             if (widget && !widget.isDisposed) {
                 widget.dispose();
             }
-            widget = newWidget();
+            widget = newWidget(chartData);
 
             // Add the widget to the tracker
             if (!tracker.has(widget)) {
@@ -109,7 +117,7 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
                 mimeTypes: ['image/png'],
                 createRenderer: (options: IRenderMime.IRendererOptions) => {
                     const originalRenderer = factory.createRenderer(options);
-                    return new AugmentedImageRenderer(app, originalRenderer);
+                    return new AugmentedImageRenderer(app, originalRenderer, notebookTracker, openChartWizard);
                 }
             }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
         }
@@ -122,12 +130,14 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
 */
 class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private originalRenderer: IRenderMime.IRenderer;
-    private app: JupyterFrontEnd;
+    private notebookTracker: INotebookTracker;
+    private openChartWizard: (chartData?: ChartWizardData) => void;
   
-    constructor(app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer) {
+    constructor(_app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer, notebookTracker: INotebookTracker, openChartWizard: (chartData?: ChartWizardData) => void) {
         super();
-        this.app = app;
         this.originalRenderer = originalRenderer;
+        this.notebookTracker = notebookTracker;
+        this.openChartWizard = openChartWizard;
     }
   
     /**
@@ -156,10 +166,53 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
 
     /* 
         Handle the Chart Wizard button click.
+        Extracts chart data and source code, then opens the Chart Wizard panel.
     */
-    handleButtonClick(_model: IRenderMime.IMimeModel): void {
-        // Execute the command to open the Chart Wizard panel
-        void this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHART_WIZARD);
+    handleButtonClick(model: IRenderMime.IMimeModel): void {
+        // Extract image data from the model
+        const imageData = model.data['image/png'] as string | undefined;
+        if (!imageData) {
+            console.error('No image data found in model');
+            this.openChartWizard();
+            return;
+        }
+
+        // Get the notebook panel
+        const notebookPanel = this.notebookTracker.currentWidget;
+        if (!notebookPanel) {
+            console.error('No active notebook panel');
+            this.openChartWizard({ imageData, sourceCode: '' });
+            return;
+        }
+
+        // Find the cell that contains this output by traversing up the DOM tree
+        const cellElement = this.node.closest('.jp-Cell') as HTMLElement | null;
+        if (!cellElement) {
+            console.error('Could not find cell element');
+            this.openChartWizard({ imageData, sourceCode: '' });
+            return;
+        }
+
+        // Find the cell widget by checking which cell's node contains our element
+        const cellWidget = notebookPanel.content.widgets.find(cell => {
+            if (cell instanceof CodeCell) {
+                return cell.node.contains(cellElement) || cellElement.contains(cell.node);
+            }
+            return false;
+        });
+        
+        let sourceCode = '';
+        let cellId: string | undefined;
+        
+        if (cellWidget instanceof CodeCell) {
+            sourceCode = cellWidget.model.sharedModel.source;
+            cellId = cellWidget.model.id;
+        } else {
+            console.warn('Could not find CodeCell widget for this output');
+        }
+
+        // Open the Chart Wizard with the extracted data
+        this.openChartWizard({ imageData, sourceCode, cellId });
     }
 }
   
