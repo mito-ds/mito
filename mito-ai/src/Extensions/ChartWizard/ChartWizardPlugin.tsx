@@ -6,7 +6,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
-import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
+import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
 import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
@@ -17,10 +17,9 @@ import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
 import '../../../style/ChartWizardPlugin.css'
 
 export interface ChartWizardData {
-    imageData: string; // base64 encoded image
     sourceCode: string;
-    cellId?: string;
-    notebookTracker?: INotebookTracker;
+    cellId: string;
+    notebookTracker: INotebookTracker;
 }
 
 interface ChartWizardButtonProps {
@@ -48,39 +47,32 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
     requires: [IRenderMimeRegistry, ICommandPalette, INotebookTracker],
     optional: [ILayoutRestorer],
     activate: (app: JupyterFrontEnd, rendermime: IRenderMimeRegistry, palette: ICommandPalette, notebookTracker: INotebookTracker, restorer: ILayoutRestorer | null) => {
-        // Create a widget creator function
-        const newWidget = (chartData?: ChartWizardData): MainAreaWidget => {
-            const content = new ChartWizardWidget(chartData);
-            const widget = new MainAreaWidget({ content });
-            widget.id = 'mito-ai-chart-wizard';
-            widget.title.label = 'Chart Wizard';
-            widget.title.closable = true;
-            return widget;
-        };
-
-        let widget = newWidget();
+        // Create the Chart Wizard widget
+        const widget = new ChartWizardWidget();
+        widget.id = 'mito-ai-chart-wizard';
+        widget.title.label = 'Chart Wizard';
+        widget.title.closable = true;
 
         // Track and restore the widget state
-        const tracker = new WidgetTracker<MainAreaWidget>({
+        const tracker = new WidgetTracker<ChartWizardWidget>({
             namespace: widget.id
         });
 
-        // Function to open the Chart Wizard panel
+        // Function to open/update the Chart Wizard panel
         const openChartWizard = (chartData?: ChartWizardData): void => {
-            // Dispose the old widget and create a new one if needed
-            if (widget && !widget.isDisposed) {
-                widget.dispose();
+            // Update widget with new data if provided
+            if (chartData) {
+                widget.updateChartData(chartData);
             }
-            widget = newWidget(chartData);
 
-            // Add the widget to the tracker
+            // Add the widget to the tracker if not already there
             if (!tracker.has(widget)) {
                 void tracker.add(widget);
             }
 
-            // Add the widget to the app
+            // Add the widget to the right sidebar if not already attached
             if (!widget.isAttached) {
-                void app.shell.add(widget, 'main');
+                void app.shell.add(widget, 'right');
             }
 
             // Activate the widget
@@ -169,20 +161,11 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         Handle the Chart Wizard button click.
         Extracts chart data and source code, then opens the Chart Wizard panel.
     */
-    handleButtonClick(model: IRenderMime.IMimeModel): void {
-        // Extract image data from the model
-        const imageData = model.data['image/png'] as string | undefined;
-        if (!imageData) {
-            console.error('No image data found in model');
-            this.openChartWizard();
-            return;
-        }
-
+    handleButtonClick(_model: IRenderMime.IMimeModel): void {
         // Get the notebook panel
         const notebookPanel = this.notebookTracker.currentWidget;
         if (!notebookPanel) {
             console.error('No active notebook panel');
-            this.openChartWizard({ imageData, sourceCode: '' });
             return;
         }
 
@@ -190,7 +173,6 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         const cellElement = this.node.closest('.jp-Cell') as HTMLElement | null;
         if (!cellElement) {
             console.error('Could not find cell element');
-            this.openChartWizard({ imageData, sourceCode: '' });
             return;
         }
 
@@ -202,18 +184,16 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
             return false;
         });
         
-        let sourceCode = '';
-        let cellId: string | undefined;
-        
-        if (cellWidget instanceof CodeCell) {
-            sourceCode = cellWidget.model.sharedModel.source;
-            cellId = cellWidget.model.id;
-        } else {
+        if (!(cellWidget instanceof CodeCell)) {
             console.warn('Could not find CodeCell widget for this output');
+            return;
         }
 
+        const sourceCode = cellWidget.model.sharedModel.source;
+        const cellId = cellWidget.model.id;
+
         // Open the Chart Wizard with the extracted data
-        this.openChartWizard({ imageData, sourceCode, cellId, notebookTracker: this.notebookTracker });
+        this.openChartWizard({ sourceCode, cellId, notebookTracker: this.notebookTracker });
     }
 }
   

@@ -5,20 +5,25 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
-import { KernelMessage } from '@jupyterlab/services';
+import { NotebookActions } from '@jupyterlab/notebook';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './chartConfigParser';
+import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
 
 /**
- * Widget for the Chart Wizard panel that displays a chart and its source code.
+ * Widget for the Chart Wizard panel that displays config inputs.
  */
 export class ChartWizardWidget extends ReactWidget {
-    private chartData: ChartWizardData | undefined;
+    private chartData: ChartWizardData | null = null;
 
-    constructor(chartData?: ChartWizardData) {
+    constructor() {
         super();
         this.addClass('chart-wizard-widget');
+    }
+
+    updateChartData(chartData: ChartWizardData): void {
         this.chartData = chartData;
+        this.update();
     }
 
     render(): React.ReactElement {
@@ -27,121 +32,47 @@ export class ChartWizardWidget extends ReactWidget {
 }
 
 interface ChartWizardContentProps {
-    chartData?: ChartWizardData;
+    chartData: ChartWizardData | null;
 }
 
 const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) => {
-    const [sourceCode, setSourceCode] = useState(chartData?.sourceCode || '');
     const [configVariables, setConfigVariables] = useState<ChartConfigVariable[]>([]);
-    const [currentImageData, setCurrentImageData] = useState<string | null>(chartData?.imageData || null);
-    const [isExecuting, setIsExecuting] = useState(false);
     const executeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const configChangedRef = useRef(false); // Track if config variables changed (not manual code edit)
 
-    // Parse config when source code changes
+    // Parse config when chart data changes
     useEffect(() => {
-        const parsed = parseChartConfig(sourceCode);
+        if (!chartData?.sourceCode) {
+            setConfigVariables([]);
+            return;
+        }
+
+        const parsed = parseChartConfig(chartData.sourceCode);
         if (parsed) {
             setConfigVariables(parsed.variables);
         } else {
             setConfigVariables([]);
         }
-    }, [sourceCode]);
+    }, [chartData?.sourceCode]);
 
-    // Execute code and update chart preview
-    const executeCodeAndUpdateChart = async (code: string) => {
-        const notebookTracker = chartData?.notebookTracker;
-        const notebookPanel = notebookTracker?.currentWidget;
-        
-        if (!notebookPanel || !notebookPanel.context.sessionContext.session?.kernel) {
-            console.warn('No kernel available to execute code');
-            return;
-        }
+    // Update notebook cell and re-execute when config variables change
+    const updateNotebookCell = (updatedCode: string) => {
+        if (!chartData) return;
 
-        setIsExecuting(true);
-        const kernel = notebookPanel.context.sessionContext.session.kernel;
+        const notebookPanel = chartData.notebookTracker.currentWidget;
+        if (!notebookPanel) return;
 
-        try {
-            const future = kernel.requestExecute({
-                code: code,
-                silent: false,
-                store_history: false
-            });
+        // Update the cell code
+        writeCodeToCellByIDInNotebookPanel(notebookPanel, updatedCode, chartData.cellId);
 
-            let imageData: string | null = null;
-
-            future.onIOPub = (msg: KernelMessage.IMessage) => {
-                // Check for display_data messages which contain matplotlib images
-                if (KernelMessage.isDisplayDataMsg(msg)) {
-                    const data = msg.content.data;
-                    const imagePng = data['image/png'];
-                    if (imagePng) {
-                        // Extract base64 data - handle string or array format
-                        if (typeof imagePng === 'string') {
-                            imageData = imagePng;
-                        } else if (Array.isArray(imagePng) && imagePng.length > 0) {
-                            imageData = imagePng[0] as string;
-                        }
-                    }
-                }
-                // Also check execute_result messages
-                if (KernelMessage.isExecuteResultMsg(msg)) {
-                    const data = msg.content.data;
-                    const imagePng = data['image/png'];
-                    if (imagePng) {
-                        if (typeof imagePng === 'string') {
-                            imageData = imagePng;
-                        } else if (Array.isArray(imagePng) && imagePng.length > 0) {
-                            imageData = imagePng[0] as string;
-                        }
-                    }
-                }
-            };
-
-            await future.done;
-
-            if (imageData) {
-                setCurrentImageData(imageData);
-            }
-        } catch (error) {
-            console.error('Error executing code:', error);
-        } finally {
-            setIsExecuting(false);
-        }
+        // Re-execute the cell to show updated chart
+        const notebook = notebookPanel.content;
+        const sessionContext = notebookPanel.context?.sessionContext;
+        void NotebookActions.run(notebook, sessionContext);
     };
 
-    // Debounced execution when config variables change (not manual code edits)
-    useEffect(() => {
-        // Only execute if config variables changed (via input fields), not manual code edits
-        if (!configChangedRef.current || configVariables.length === 0 || !chartData?.notebookTracker) {
-            configChangedRef.current = false; // Reset flag
-            return;
-        }
-
-        // Clear previous timeout
-        if (executeTimeoutRef.current) {
-            clearTimeout(executeTimeoutRef.current);
-        }
-
-        // Execute after a short delay (debounce)
-        executeTimeoutRef.current = setTimeout(() => {
-            void executeCodeAndUpdateChart(sourceCode);
-            configChangedRef.current = false; // Reset after execution
-        }, 500); // 500ms debounce
-
-        return () => {
-            if (executeTimeoutRef.current) {
-                clearTimeout(executeTimeoutRef.current);
-            }
-        };
-    }, [sourceCode, configVariables]);
-
-    // Convert base64 image data to data URL
-    const imageSrc = currentImageData 
-        ? `data:image/png;base64,${currentImageData}` 
-        : null;
-
     const handleVariableChange = (variableName: string, newValue: string | number | boolean | [number, number]) => {
+        if (!chartData?.sourceCode) return;
+
         const updated = configVariables.map(v => 
             v.name === variableName 
                 ? { ...v, value: newValue }
@@ -149,12 +80,18 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         );
         setConfigVariables(updated);
         
-        // Mark that config changed (not manual code edit)
-        configChangedRef.current = true;
-        
         // Update the source code
-        const updatedCode = updateChartConfig(sourceCode, updated);
-        setSourceCode(updatedCode);
+        const updatedCode = updateChartConfig(chartData.sourceCode, updated);
+        
+        // Clear previous timeout
+        if (executeTimeoutRef.current) {
+            clearTimeout(executeTimeoutRef.current);
+        }
+
+        // Debounce the cell update and execution
+        executeTimeoutRef.current = setTimeout(() => {
+            updateNotebookCell(updatedCode);
+        }, 500); // 500ms debounce
     };
 
     const renderInputField = (variable: ChartConfigVariable) => {
@@ -237,35 +174,24 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
 
     const hasConfig = configVariables.length > 0;
 
-    return (
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px', height: '100%', overflow: 'auto' }}>
-            <h2>Chart Wizard</h2>
-            
-            {imageSrc ? (
-                <div style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '4px', position: 'relative' }}>
-                    <h3>Chart Preview {isExecuting && <span style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>(updating...)</span>}</h3>
-                    <img 
-                        src={imageSrc} 
-                        alt="Chart" 
-                        style={{ 
-                            maxWidth: '100%', 
-                            height: 'auto',
-                            opacity: isExecuting ? 0.6 : 1,
-                            transition: 'opacity 0.2s'
-                        }}
-                    />
-                </div>
-            ) : (
-                <div>
-                    <p>No chart data available. Click the Chart Wizard button on a matplotlib chart to get started.</p>
-                </div>
-            )}
+    if (!chartData) {
+        return (
+            <div style={{ padding: '20px' }}>
+                <h2>Chart Wizard</h2>
+                <p>Click the Chart Wizard button on a matplotlib chart to get started.</p>
+            </div>
+        );
+    }
 
+    return (
+        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px', height: '100%', overflow: 'auto' }}>
+            <h2 style={{ marginTop: 0 }}>Chart Wizard</h2>
+            
             {hasConfig ? (
                 <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '4px', backgroundColor: '#f9f9f9' }}>
                     <h3 style={{ marginTop: 0 }}>Chart Configuration</h3>
                     <p style={{ fontSize: '12px', color: '#666', marginTop: '-10px', marginBottom: '15px' }}>
-                        Edit values below to customize your chart
+                        Edit values below to customize your chart. Changes will be reflected in the notebook.
                     </p>
                     {configVariables.map(renderInputField)}
                 </div>
@@ -276,29 +202,6 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                     </p>
                 </div>
             )}
-
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', minHeight: '200px' }}>
-                <h3>Source Code</h3>
-                <textarea
-                    value={sourceCode}
-                    onChange={(e) => setSourceCode(e.target.value)}
-                    style={{
-                        flex: 1,
-                        fontFamily: 'monospace',
-                        fontSize: '14px',
-                        padding: '10px',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                        resize: 'none',
-                        whiteSpace: 'pre',
-                        overflowWrap: 'normal',
-                        overflowX: 'auto',
-                        minHeight: '200px'
-                    }}
-                    placeholder="Source code will appear here..."
-                />
-            </div>
         </div>
     );
 };
-
