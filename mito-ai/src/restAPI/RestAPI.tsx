@@ -213,3 +213,20 @@ export const getChatHistoryThread = async (threadId: string): Promise<ChatThread
     }
     return resp.data!;
 }
+
+/************************************
+
+CHART WIZARD ENDPOINTS
+
+************************************/
+
+export const getChartWizard = async (sourceCode: string): Promise<string> => {
+    const resp = await requestAPI<string>('chart-wizard', {
+        method: 'POST',
+        body: JSON.stringify({ source_code: sourceCode })
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data || '';
+}

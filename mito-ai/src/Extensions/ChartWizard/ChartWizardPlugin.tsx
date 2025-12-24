@@ -15,6 +15,7 @@ import { Widget } from '@lumino/widgets';
 import { ChartWizardWidget } from './ChartWizardWidget';
 import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
 import '../../../style/ChartWizardPlugin.css'
+import { getChartWizard } from '../../restAPI/RestAPI';
 
 export interface ChartWizardData {
     sourceCode: string;
@@ -204,6 +205,13 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
 
         const sourceCode = cellWidget.model.sharedModel.source;
         const cellId = cellWidget.model.id;
+
+        // Call the getChartWizard endpoint with the source code
+        getChartWizard(sourceCode).then((response) => {
+            console.log('Chart Wizard response:', response);
+        }).catch((error) => {
+            console.error('Error calling getChartWizard:', error);
+        });
 
         // Open the Chart Wizard with the extracted data
         this.openChartWizard({ sourceCode, cellId, notebookTracker: this.notebookTracker });
