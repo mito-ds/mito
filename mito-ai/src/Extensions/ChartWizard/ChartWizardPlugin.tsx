@@ -15,12 +15,13 @@ import { Widget } from '@lumino/widgets';
 import { ChartWizardWidget } from './ChartWizardWidget';
 import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
 import '../../../style/ChartWizardPlugin.css'
-import { getChartWizard } from '../../restAPI/RestAPI';
+import { getChartWizard, ChartWizardParameter } from '../../restAPI/RestAPI';
 
 export interface ChartWizardData {
     sourceCode: string;
     cellId: string;
     notebookTracker: INotebookTracker;
+    parameters?: ChartWizardParameter[];
 }
 
 interface ChartWizardButtonProps {
@@ -209,12 +210,22 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         // Call the getChartWizard endpoint with the source code
         getChartWizard(sourceCode).then((response) => {
             console.log('Chart Wizard response:', response);
+            // Open the Chart Wizard with the extracted data and parameters
+            this.openChartWizard({ 
+                sourceCode, 
+                cellId, 
+                notebookTracker: this.notebookTracker,
+                parameters: response.parameters
+            });
         }).catch((error) => {
             console.error('Error calling getChartWizard:', error);
+            // Open Chart Wizard even if API call fails (with no parameters)
+            this.openChartWizard({ 
+                sourceCode, 
+                cellId, 
+                notebookTracker: this.notebookTracker 
+            });
         });
-
-        // Open the Chart Wizard with the extracted data
-        this.openChartWizard({ sourceCode, cellId, notebookTracker: this.notebookTracker });
     }
 }
   

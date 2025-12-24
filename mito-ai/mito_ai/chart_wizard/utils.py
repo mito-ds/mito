@@ -44,5 +44,4 @@ async def process_chart_code(source_code: str) -> ChartWizardResponse:
 
     # Parse the JSON response and create ChartWizardResponse
     response_data = json.loads(response_str)
-    print(response_data)
     return ChartWizardResponse(**response_data)

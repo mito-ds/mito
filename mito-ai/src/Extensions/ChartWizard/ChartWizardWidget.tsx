@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { NotebookActions } from '@jupyterlab/notebook';
 import { ChartWizardData } from './ChartWizardPlugin';
-import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './chartConfigParser';
+import { ChartConfigVariable } from './chartConfigParser';
 import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
 import '../../../style/ChartWizardPlugin.css';
 
@@ -36,24 +36,77 @@ interface ChartWizardContentProps {
     chartData: ChartWizardData | null;
 }
 
+/**
+ * Converts backend ChartWizardParameter to frontend ChartConfigVariable
+ */
+function convertParameterToConfigVariable(param: { name: string; value: string; parameter_type: string }): ChartConfigVariable | null {
+    // Parse the value string to determine type and convert to appropriate type
+    const valueStr = param.value.trim();
+    
+    // Boolean
+    if (valueStr === 'True' || valueStr === 'False') {
+        return {
+            name: param.name,
+            value: valueStr === 'True',
+            type: 'boolean',
+            rawValue: valueStr
+        };
+    }
+    
+    // Tuple (e.g., (12, 6))
+    const tupleMatch = valueStr.match(/^\((\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\)$/);
+    if (tupleMatch) {
+        return {
+            name: param.name,
+            value: [parseFloat(tupleMatch[1] || '0'), parseFloat(tupleMatch[2] || '0')],
+            type: 'tuple',
+            rawValue: valueStr
+        };
+    }
+    
+    // Number
+    if (/^-?\d+(?:\.\d+)?$/.test(valueStr)) {
+        return {
+            name: param.name,
+            value: parseFloat(valueStr),
+            type: 'number',
+            rawValue: valueStr
+        };
+    }
+    
+    // String (remove quotes if present)
+    const stringMatch = valueStr.match(/^['"](.*)['"]$/);
+    const stringValue = stringMatch && stringMatch[1] !== undefined ? stringMatch[1] : valueStr;
+    
+    return {
+        name: param.name,
+        value: stringValue,
+        type: 'string',
+        rawValue: valueStr
+    };
+}
+
 const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) => {
     const [configVariables, setConfigVariables] = useState<ChartConfigVariable[]>([]);
     const executeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Parse config when chart data changes
+    // Use backend parameters when available, otherwise fall back to empty
     useEffect(() => {
-        if (!chartData?.sourceCode) {
+        if (!chartData) {
             setConfigVariables([]);
             return;
         }
 
-        const parsed = parseChartConfig(chartData.sourceCode);
-        if (parsed) {
-            setConfigVariables(parsed.variables);
+        if (chartData.parameters && chartData.parameters.length > 0) {
+            // Convert backend parameters to frontend format
+            const converted = chartData.parameters
+                .map(convertParameterToConfigVariable)
+                .filter((v): v is ChartConfigVariable => v !== null);
+            setConfigVariables(converted);
         } else {
             setConfigVariables([]);
         }
-    }, [chartData?.sourceCode]);
+    }, [chartData?.parameters]);
 
     // Update notebook cell and re-execute when config variables change
     const updateNotebookCell = (updatedCode: string) => {
@@ -71,18 +124,41 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         void NotebookActions.run(notebook, sessionContext);
     };
 
+    /**
+     * Updates a parameter value in the source code by finding and replacing the assignment
+     */
+    const updateParameterInCode = (sourceCode: string, paramName: string, newValue: string | number | boolean | [number, number]): string => {
+        // Format the value for Python code
+        let formattedValue: string;
+        if (typeof newValue === 'boolean') {
+            formattedValue = newValue ? 'True' : 'False';
+        } else if (Array.isArray(newValue)) {
+            formattedValue = `(${newValue[0]}, ${newValue[1]})`;
+        } else if (typeof newValue === 'number') {
+            formattedValue = String(newValue);
+        } else {
+            // String - add quotes and escape if needed
+            formattedValue = `'${String(newValue).replace(/'/g, "\\'")}'`;
+        }
+
+        // Find the parameter assignment and replace it
+        // Match patterns like: PARAM_NAME = value or PARAM_NAME=value
+        const regex = new RegExp(`(${paramName}\\s*=\\s*)(['"][^'"]*['"]|True|False|\\d+(?:\\.\\d+)?|\\([^)]+\\)|[^\\n,]+)`, 'g');
+        return sourceCode.replace(regex, `$1${formattedValue}`);
+    };
+
     const handleVariableChange = (variableName: string, newValue: string | number | boolean | [number, number]) => {
         if (!chartData?.sourceCode) return;
 
         const updated = configVariables.map(v => 
             v.name === variableName 
-                ? { ...v, value: newValue }
+                ? { ...v, value: newValue, rawValue: String(newValue) }
                 : v
         );
         setConfigVariables(updated);
         
-        // Update the source code
-        const updatedCode = updateChartConfig(chartData.sourceCode, updated);
+        // Update the source code by replacing the parameter value
+        const updatedCode = updateParameterInCode(chartData.sourceCode, variableName, newValue);
         
         // Clear previous timeout
         if (executeTimeoutRef.current) {
@@ -258,7 +334,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             ) : (
                 <div className="chart-wizard-no-config">
                     <p>
-                        No chart configuration found. Make sure your code includes a section between <code># === CHART CONFIG ===</code> and <code># === END CONFIG ===</code>.
+                        No chart parameters found. The Chart Wizard will analyze your code and extract customizable parameters.
                     </p>
                 </div>
             )}
