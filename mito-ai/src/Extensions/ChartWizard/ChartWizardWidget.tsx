@@ -7,9 +7,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { NotebookActions } from '@jupyterlab/notebook';
 import { ChartWizardData } from './ChartWizardPlugin';
-import { ChartConfigVariable } from './chartConfigParser';
 import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
 import '../../../style/ChartWizardPlugin.css';
+
+export interface ChartConfigVariable {
+    name: string;
+    value: string | number | boolean | [number, number];
+    type: 'string' | 'number' | 'boolean' | 'tuple';
+    rawValue: string; // Original string representation
+}
 
 /**
  * Widget for the Chart Wizard panel that displays config inputs.
