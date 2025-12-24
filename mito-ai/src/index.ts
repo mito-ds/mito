@@ -6,6 +6,7 @@
 import AiChatPlugin from './Extensions/AiChat/AiChatPlugin';
 import ContextManagerPlugin from './Extensions/ContextManager/ContextManagerPlugin';
 import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRendererPlugin';
+import ChartWizardPlugin from './Extensions/ChartWizard/ChartWizardPlugin';
 import ToolbarButtonsPlugin from './Extensions/ToolbarButtons/ToolbarButtonsPlugin';
 import AppDeployPlugin from './Extensions/AppDeploy/AppDeployPlugin';
 import StreamlitPreviewPlugin from './Extensions/AppPreview/StreamlitPreviewPlugin';
@@ -22,6 +23,7 @@ import ManageAppsPlugin from "./Extensions/AppManager/ManageAppsPlugin"
 export default [
   AiChatPlugin,
   ErrorMimeRendererPlugin,
+  ChartWizardPlugin,
   ContextManagerPlugin,
   AppDeployPlugin,
   StreamlitPreviewPlugin,

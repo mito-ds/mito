@@ -25,3 +25,6 @@ export const COMMAND_MITO_AI_BETA_MODE_ENABLED = `${MITO_AI}:beta-mode-enabled`
 
 // Streamlit commands
 export const COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT = 'mito-ai:preview-as-streamlit';
+
+// Chart Wizard commands
+export const COMMAND_MITO_AI_OPEN_CHART_WIZARD = 'mito-ai:open-chart-wizard';
