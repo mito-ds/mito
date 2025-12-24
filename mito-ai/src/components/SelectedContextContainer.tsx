@@ -109,6 +109,27 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         }
     };
 
+    const getTooltipText = (): string => {
+        if (type.startsWith('image/')) {
+            return `The AI will be able to view the ${title} image before deciding how to respond`;
+        } else if (type === 'file') {
+            return `The path ${title} will be shared with the AI`;
+        } else if (type === 'notebook') {
+            return "The AI will be able to read all of the code and markdown in your notebook. It is included by default in Agent mode.";
+        } else if (type === 'active_cell') {
+            return "The AI will write its code based on the currently active cell. It is included by default in Chat mode.";
+        } else if (type === 'cell') {
+            return `The AI will be able to see the code in ${title}`;
+        } else if (type === 'variable') {
+            return `The AI will receive a summary of the ${title} variable`;
+        } else if (type === 'rule') {
+            return `The AI will be guided by the ${title} rule`;
+        } else if (type === 'db') {
+            return `The AI will be able to access the ${title} database connection`;
+        }
+        return "This context will be included in your message to help the AI understand what you're working with";
+    };
+
     return (
         <button
             className="selected-context-container"
@@ -116,6 +137,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleClick}
             data-testid="selected-context-container"
+            data-type={type}
+            title={getTooltipText()}
         >
             <div
                 className={`icon`}

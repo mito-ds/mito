@@ -21,7 +21,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  background-color: var(--jp-layout-color2);
+  background-color: var(--purple-300);
   border-radius: 3px;
   padding: 4px 8px;
   margin: 2px;
@@ -31,17 +31,23 @@
   max-width: 100%;
   min-width: 0;
 
-  border: 1px solid var(--jp-border-color1);
+  border: none;
   cursor: pointer;
 }
 
 .selected-context-container:hover {
-  background-color: var(--jp-layout-color3);
+  background-color: var(--purple-400);
+}
+
+/* Disable hover effect for notebook and active_cell types since they don't have user actions */
+.selected-context-container[data-type="notebook"]:hover,
+.selected-context-container[data-type="active_cell"]:hover {
+  background-color: var(--purple-300);
 }
 
 .selected-context-container .rule-name {
   margin-left: 6px;
-  color: var(--jp-content-font-color1);
+  color: var(--purple-700);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -54,5 +60,5 @@
   justify-content: center;
   width: 12px;
   max-height: 14px;
-  color: var(--jp-content-font-color3);
+  color: var(--purple-700);
 }
