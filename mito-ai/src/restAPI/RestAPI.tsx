@@ -220,13 +220,18 @@ CHART WIZARD ENDPOINTS
 
 ************************************/
 
+export interface ChartWizardResponse {
+    status: string;
+    summary: string;
+}
+
 export const getChartWizard = async (sourceCode: string): Promise<string> => {
-    const resp = await requestAPI<string>('chart-wizard', {
+    const resp = await requestAPI<ChartWizardResponse>('chart-wizard', {
         method: 'POST',
         body: JSON.stringify({ source_code: sourceCode })
     })
     if (resp.error) {
         throw new Error(resp.error.message);
     }
-    return resp.data || '';
+    return resp.data?.summary || '';
 }

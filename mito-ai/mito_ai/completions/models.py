@@ -65,6 +65,7 @@ class MessageType(Enum):
     DELETE_THREAD = "delete_thread"
     UPDATE_MODEL_CONFIG = "update_model_config"
     STREAMLIT_CONVERSION = "streamlit_conversion"
+    CHART_WIZARD = "chart_wizard"
     STOP_AGENT = "stop_agent"
     DEPLOY_APP = "deploy_app"
 
