@@ -24,12 +24,12 @@ class ChartWizardHandler(APIHandler):
             
             print(f"ChartWizardHandler: post - received source code ({len(source_code)} characters)")
             
-            # Get summary from LLM
-            summary = await process_chart_code(source_code)
+            # Get structured response from LLM
+            chart_response = await process_chart_code(source_code)
             
             self.finish(json.dumps({
                 "status": "success", 
-                "summary": summary
+                "parameters": [param.model_dump() for param in chart_response.parameters],
             }))
         except Exception as e:
             print(f"Error in ChartWizardHandler: {e}")
