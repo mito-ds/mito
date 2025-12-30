@@ -41,31 +41,7 @@ export function parseChartConfig(sourceCode: string): ParsedChartConfig | null {
             continue;
         }
 
-        // Handle tuple unpacking (e.g., X_LABEL, Y_LABEL = 'Year', 'Gross Earnings ($)')
-        const tupleMatch = line.match(/^([A-Z_][A-Z0-9_]+(?:\s*,\s*[A-Z_][A-Z0-9_]+)+)\s*=\s*(.+)$/);
-        if (tupleMatch && tupleMatch[1] && tupleMatch[2]) {
-            const varNames = tupleMatch[1];
-            const valuesStr = tupleMatch[2];
-            const varNameList = varNames.split(',').map(n => n.trim());
-            // Simple split on comma - works for most cases
-            const valuesList = valuesStr.split(',').map(v => v.trim());
-
-            if (varNameList.length === valuesList.length) {
-                for (let i = 0; i < varNameList.length; i++) {
-                    const parsed = parseValue(valuesList[i] || '');
-                    if (parsed) {
-                        variables.push({
-                            name: varNameList[i] || '',
-                            value: parsed.value,
-                            type: parsed.type
-                        });
-                    }
-                }
-            }
-            continue;
-        }
-
-        // Parse single variable assignments
+        // Parse single variable assignments (one variable per line)
         const match = line.match(/^([A-Z_][A-Z0-9_]*)\s*=\s*(.+)$/);
         if (match && match[1] && match[2]) {
             const varName = match[1];
@@ -73,7 +49,7 @@ export function parseChartConfig(sourceCode: string): ParsedChartConfig | null {
             const parsed = parseValue(valueStr.trim());
             if (parsed) {
                 variables.push({
-                    name: varName || '',
+                    name: varName,
                     value: parsed.value,
                     type: parsed.type
                 });
