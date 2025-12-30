@@ -7,7 +7,6 @@ export interface ChartConfigVariable {
     name: string;
     value: string | number | boolean | [number, number];
     type: 'string' | 'number' | 'boolean' | 'tuple';
-    rawValue: string; // Original string representation
 }
 
 export interface ParsedChartConfig {
@@ -42,12 +41,14 @@ export function parseChartConfig(sourceCode: string): ParsedChartConfig | null {
             continue;
         }
 
-        // Handle tuple unpacking first (e.g., X_LABEL, Y_LABEL = 'Year', 'Gross Earnings ($)')
+        // Handle tuple unpacking (e.g., X_LABEL, Y_LABEL = 'Year', 'Gross Earnings ($)')
         const tupleMatch = line.match(/^([A-Z_][A-Z0-9_]+(?:\s*,\s*[A-Z_][A-Z0-9_]+)+)\s*=\s*(.+)$/);
-        if (tupleMatch) {
-            const [, varNames, valuesStr] = tupleMatch;
-            const varNameList = varNames?.split(',').map(n => n.trim()) || [];
-            const valuesList = parseTupleValues(valuesStr?.trim() || '');
+        if (tupleMatch && tupleMatch[1] && tupleMatch[2]) {
+            const varNames = tupleMatch[1];
+            const valuesStr = tupleMatch[2];
+            const varNameList = varNames.split(',').map(n => n.trim());
+            // Simple split on comma - works for most cases
+            const valuesList = valuesStr.split(',').map(v => v.trim());
 
             if (varNameList.length === valuesList.length) {
                 for (let i = 0; i < varNameList.length; i++) {
@@ -56,26 +57,25 @@ export function parseChartConfig(sourceCode: string): ParsedChartConfig | null {
                         variables.push({
                             name: varNameList[i] || '',
                             value: parsed.value,
-                            type: parsed.type,
-                            rawValue: valuesList[i] || ''
+                            type: parsed.type
                         });
                     }
                 }
             }
-            continue; // Skip single variable parsing for this line
+            continue;
         }
 
         // Parse single variable assignments
         const match = line.match(/^([A-Z_][A-Z0-9_]*)\s*=\s*(.+)$/);
-        if (match) {
-            const [, varName, valueStr] = match;
-            const parsed = parseValue(valueStr?.trim() || '');
+        if (match && match[1] && match[2]) {
+            const varName = match[1];
+            const valueStr = match[2];
+            const parsed = parseValue(valueStr.trim());
             if (parsed) {
                 variables.push({
                     name: varName || '',
                     value: parsed.value,
-                    type: parsed.type,
-                    rawValue: valueStr?.trim() || ''
+                    type: parsed.type
                 });
             }
         }
@@ -127,48 +127,10 @@ function parseValue(valueStr: string): { value: string | number | boolean | [num
     return { value: valueStr, type: 'string' };
 }
 
-/**
- * Parses tuple values from a string like "'Year', 'Gross Earnings ($)'"
- */
-function parseTupleValues(valuesStr: string): string[] {
-    const values: string[] = [];
-    let current = '';
-    let inQuotes = false;
-    let quoteChar = '';
-
-    for (let i = 0; i < valuesStr.length; i++) {
-        const char = valuesStr[i];
-
-        if (!inQuotes && (char === '"' || char === "'")) {
-            inQuotes = true;
-            quoteChar = char;
-            current += char;
-        } else if (inQuotes && char === quoteChar) {
-            // Check if it's escaped
-            if (i > 0 && valuesStr[i - 1] === '\\') {
-                current += char;
-            } else {
-                inQuotes = false;
-                current += char;
-            }
-        } else if (!inQuotes && char === ',') {
-            values.push(current.trim());
-            current = '';
-        } else {
-            current += char;
-        }
-    }
-
-    if (current.trim()) {
-        values.push(current.trim());
-    }
-
-    return values;
-}
 
 /**
  * Updates the chart configuration section with new variable values.
- * Tries to preserve the original format (tuple unpacking vs single assignments).
+ * Regenerates the config section in a simple, consistent format.
  */
 export function updateChartConfig(sourceCode: string, variables: ChartConfigVariable[]): string {
     const parsed = parseChartConfig(sourceCode);
@@ -180,44 +142,17 @@ export function updateChartConfig(sourceCode: string, variables: ChartConfigVari
     const varMap = new Map<string, ChartConfigVariable>();
     variables.forEach(v => varMap.set(v.name, v));
 
-    // Get the original config section to preserve formatting
+    // Build new config section - simple one variable per line format
     const configStartMarker = '# === CHART CONFIG ===';
     const configEndMarker = '# === END CONFIG ===';
-    const originalConfigSection = sourceCode.substring(
-        parsed.configStartIndex + configStartMarker.length,
-        parsed.configEndIndex - configEndMarker.length
-    ).trim();
-
-    const originalLines = originalConfigSection.split('\n').map(line => line.trim()).filter(line => line.length > 0 && !line.startsWith('#'));
-
     let newConfigSection = configStartMarker + '\n\n';
 
-    // Try to preserve original format - check if variables were on the same line
-    for (const originalLine of originalLines) {
-        // Check if this was a tuple unpacking line
-        const tupleMatch = originalLine.match(/^([A-Z_][A-Z0-9_]+(?:\s*,\s*[A-Z_][A-Z0-9_]+)+)\s*=\s*(.+)$/);
-        if (tupleMatch) {
-            const [, varNames] = tupleMatch;
-            const varNameList = varNames?.split(',').map(n => n.trim()) || [];
-            const updatedVars = varNameList.map(name => varMap.get(name) || parsed.variables.find(v => v.name === name)).filter(Boolean) as ChartConfigVariable[];
+    // Use updated variables if available, otherwise keep original
+    const variablesToWrite = parsed.variables.map(v => varMap.get(v.name) || v);
 
-            if (updatedVars.length === varNameList.length) {
-                const varNamesStr = updatedVars.map(v => v.name).join(', ');
-                const valuesStr = updatedVars.map(v => formatValue(v.value, v.type)).join(', ');
-                newConfigSection += `${varNamesStr} = ${valuesStr}\n`;
-            }
-        } else {
-            // Single variable assignment
-            const match = originalLine.match(/^([A-Z_][A-Z0-9_]*)\s*=\s*(.+)$/);
-            if (match) {
-                const [, varName] = match;
-                const updatedVar = varMap.get(varName || '') || parsed.variables.find(v => v.name === varName);
-                if (updatedVar) {
-                    const formattedValue = formatValue(updatedVar.value, updatedVar.type);
-                    newConfigSection += `${updatedVar.name || ''} = ${formattedValue}\n`;
-                }
-            }
-        }
+    for (const variable of variablesToWrite) {
+        const formattedValue = formatValue(variable.value, variable.type);
+        newConfigSection += `${variable.name} = ${formattedValue}\n`;
     }
 
     newConfigSection += '\n' + configEndMarker;
@@ -242,6 +177,6 @@ function formatValue(value: string | number | boolean | [number, number], type: 
     if (type === 'number') {
         return String(value);
     }
-    // String - add quotes
+    // String - escape single quotes and wrap in single quotes
     return `'${String(value).replace(/'/g, "\\'")}'`;
 }
