@@ -1,0 +1,51 @@
+.chart-wizard-widget {
+    padding: 10px;
+}
+
+.chart-wizard-input-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    gap: 5px;
+}
+
+.chart-wizard-input-label {
+    color: var(--jp-content-font-color2);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: none;
+}
+
+.chart-wizard-checkbox,
+.chart-wizard-number-input,
+.chart-wizard-text-input,
+.chart-wizard-color-input,
+.chart-wizard-tuple-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.chart-wizard-color-container {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.chart-wizard-color-picker {
+    flex-shrink: 0;
+}
+
+.chart-wizard-color-input {
+    flex: 1;
+}
+
+.chart-wizard-tuple-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+}
+
+.chart-wizard-tuple-input {
+    flex: 1;
+}

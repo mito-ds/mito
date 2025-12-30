@@ -9,7 +9,7 @@ import { NotebookActions } from '@jupyterlab/notebook';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './parser';
 import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
-import '../../../style/ChartWizardPlugin.css';
+import '../../../style/ChartWizardWidget.css';
 
 /**
  * Widget for the Chart Wizard panel that displays config inputs.
@@ -116,7 +116,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         if (variable.type === 'boolean') {
             return (
                 <div key={variable.name} className="chart-wizard-input-row">
-                    <label className="chart-wizard-input-label">{label}:</label>
+                    <label className="chart-wizard-input-label">{label}</label>
                     <input
                         type="checkbox"
                         checked={variable.value as boolean}
@@ -131,7 +131,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             const tupleValue = variable.value as [number, number];
             return (
                 <div key={variable.name} className="chart-wizard-input-row">
-                    <label className="chart-wizard-input-label">{label}:</label>
+                    <label className="chart-wizard-input-label">{label}</label>
                     <div className="chart-wizard-tuple-container">
                         <span>(</span>
                         <input
@@ -162,7 +162,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         if (variable.type === 'number') {
             return (
                 <div key={variable.name} className="chart-wizard-input-row">
-                    <label className="chart-wizard-input-label">{label}:</label>
+                    <label className="chart-wizard-input-label">{label}</label>
                     <input
                         type="number"
                         value={variable.value as number}
@@ -183,7 +183,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             
             return (
                 <div key={variable.name} className="chart-wizard-input-row">
-                    <label className="chart-wizard-input-label">{label}:</label>
+                    <label className="chart-wizard-input-label">{label}</label>
                     <div className="chart-wizard-color-container">
                         <input
                             type="color"
@@ -221,7 +221,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         // Regular string input
         return (
             <div key={variable.name} className="chart-wizard-input-row">
-                <label className="chart-wizard-input-label">{label}:</label>
+                <label className="chart-wizard-input-label">{label}</label>
                 <input
                     type="text"
                     value={stringValue}
@@ -249,7 +249,6 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             
             {hasConfig ? (
                 <div className="chart-wizard-config-container">
-                    <h3>Chart Configuration</h3>
                     <p className="chart-wizard-config-description">
                         Edit values below to customize your chart. Changes will be reflected in the notebook.
                     </p>
