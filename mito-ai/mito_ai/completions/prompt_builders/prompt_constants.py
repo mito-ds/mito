@@ -11,6 +11,24 @@ import json
 from typing import Final
 from mito_ai.utils.schema import MITO_FOLDER
 
+CHART_CONFIG_RULES = """
+When creating a matplotlib chart, you must use the `# === CHART CONFIG ===` and `# === END CONFIG ===` markers to indicate the start and end of the chart configuration section.
+
+The chart configuration section is a list of variables used to customize the chart. This includes the titles, labels, colors, and any variables that affect the chart's appearance.
+
+Rules:
+- Variables with multiple words should be underscore-separated.
+- All colors should be in hex format.
+
+Example:
+# === CHART CONFIG ===
+TITLE = "Sales by Product"
+X_LABEL = "Product"
+Y_LABEL = "Sales"
+BAR_COLOR = "#000000"
+# === END CONFIG ===
+"""
+
 CITATION_RULES = """
 It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use one of the following formats inline in your response:
 
