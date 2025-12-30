@@ -16,6 +16,7 @@ import { versionCheckPlugin } from './Extensions/VersionCheck';
 import NotebookFooterPlugin from './Extensions/NotebookFooter';
 import mitoThemePlugin from './Extensions/MitoThemeLight';
 import ManageAppsPlugin from "./Extensions/AppManager/ManageAppsPlugin"
+import ChartWizardPlugin from './Extensions/ChartWizard/ChartWizardPlugin';
 
 // This is the main entry point to the mito-ai extension. It must export all of the top level
 // extensions that we want to load.
@@ -32,5 +33,6 @@ export default [
   versionCheckPlugin,
   NotebookFooterPlugin,
   ManageAppsPlugin,
-  mitoThemePlugin
+  mitoThemePlugin,
+  ChartWizardPlugin
 ];
