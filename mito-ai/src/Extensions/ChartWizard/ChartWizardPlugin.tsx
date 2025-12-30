@@ -6,13 +6,21 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
-import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
+import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
+import { INotebookTracker } from '@jupyterlab/notebook';
+import { CodeCell } from '@jupyterlab/cells';
 import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
 import { ChartWizardWidget } from './ChartWizardWidget';
 import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
 import '../../../style/ChartWizardPlugin.css'
+
+export interface ChartWizardData {
+    sourceCode: string;
+    cellId: string;
+    notebookTracker: INotebookTracker;
+}
 
 interface ChartWizardButtonProps {
     onButtonClick: () => void;
@@ -36,47 +44,53 @@ const ChartWizardButton: React.FC<ChartWizardButtonProps> = ({ onButtonClick }) 
 const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mito-ai:chart-wizard',
     autoStart: true,
-    requires: [IRenderMimeRegistry, ICommandPalette],
+    requires: [IRenderMimeRegistry, ICommandPalette, INotebookTracker],
     optional: [ILayoutRestorer],
-    activate: (app: JupyterFrontEnd, rendermime: IRenderMimeRegistry, palette: ICommandPalette, restorer: ILayoutRestorer | null) => {
-        // Create a widget creator function
-        const newWidget = (): MainAreaWidget => {
-            const content = new ChartWizardWidget();
-            const widget = new MainAreaWidget({ content });
-            widget.id = 'mito-ai-chart-wizard';
-            widget.title.label = 'Chart Wizard';
-            widget.title.closable = true;
-            return widget;
-        };
-
-        let widget = newWidget();
+    activate: (app: JupyterFrontEnd, rendermime: IRenderMimeRegistry, palette: ICommandPalette, notebookTracker: INotebookTracker, restorer: ILayoutRestorer | null) => {
+        // Create the Chart Wizard widget
+        const widget = new ChartWizardWidget();
+        widget.id = 'mito-ai-chart-wizard';
+        widget.title.label = 'Chart Wizard';
+        widget.title.closable = true;
 
         // Track and restore the widget state
-        const tracker = new WidgetTracker<MainAreaWidget>({
+        const tracker = new WidgetTracker<ChartWizardWidget>({
             namespace: widget.id
         });
 
-        // Function to open the Chart Wizard panel
-        const openChartWizard = (): void => {
-            // Dispose the old widget and create a new one if needed
-            if (widget && !widget.isDisposed) {
-                widget.dispose();
+        // Function to open/update the Chart Wizard panel
+        const openChartWizard = (chartData?: ChartWizardData): void => {
+            // Update widget with new data if provided
+            if (chartData) {
+                widget.updateChartData(chartData);
             }
-            widget = newWidget();
 
-            // Add the widget to the tracker
+            // Add the widget to the tracker if not already there
             if (!tracker.has(widget)) {
                 void tracker.add(widget);
             }
 
-            // Add the widget to the app
+            // Get the current notebook panel for split-right mode
+            const notebookPanel = notebookTracker.currentWidget;
+            const refId = notebookPanel?.id;
+
+            // Add the widget to main area with split-right mode (like StreamlitPreviewPlugin)
             if (!widget.isAttached) {
-                void app.shell.add(widget, 'main');
+                if (refId) {
+                    app.shell.add(widget, 'main', {
+                        mode: 'split-right',
+                        ref: refId
+                    });
+                } else {
+                    // Fallback to right sidebar if no notebook is open
+                    app.shell.add(widget, 'right');
+                }
             }
 
             // Activate the widget
             app.shell.activateById(widget.id);
         };
+
 
         // Add an application command
         app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHART_WIZARD, {
@@ -109,7 +123,7 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
                 mimeTypes: ['image/png'],
                 createRenderer: (options: IRenderMime.IRendererOptions) => {
                     const originalRenderer = factory.createRenderer(options);
-                    return new AugmentedImageRenderer(app, originalRenderer);
+                    return new AugmentedImageRenderer(app, originalRenderer, notebookTracker, openChartWizard);
                 }
             }, -1);  // Giving this renderer a lower rank than the default renderer gives this default priority
         }
@@ -122,12 +136,14 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
 */
 class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private originalRenderer: IRenderMime.IRenderer;
-    private app: JupyterFrontEnd;
+    private notebookTracker: INotebookTracker;
+    private openChartWizard: (chartData?: ChartWizardData) => void;
   
-    constructor(app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer) {
+    constructor(_app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer, notebookTracker: INotebookTracker, openChartWizard: (chartData?: ChartWizardData) => void) {
         super();
-        this.app = app;
         this.originalRenderer = originalRenderer;
+        this.notebookTracker = notebookTracker;
+        this.openChartWizard = openChartWizard;
     }
   
     /**
@@ -156,10 +172,41 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
 
     /* 
         Handle the Chart Wizard button click.
+        Extracts chart data and source code, then opens the Chart Wizard panel.
     */
     handleButtonClick(_model: IRenderMime.IMimeModel): void {
-        // Execute the command to open the Chart Wizard panel
-        void this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHART_WIZARD);
+        // Get the notebook panel
+        const notebookPanel = this.notebookTracker.currentWidget;
+        if (!notebookPanel) {
+            console.error('No active notebook panel');
+            return;
+        }
+
+        // Find the cell that contains this output by traversing up the DOM tree
+        const cellElement = this.node.closest('.jp-Cell') as HTMLElement | null;
+        if (!cellElement) {
+            console.error('Could not find cell element');
+            return;
+        }
+
+        // Find the cell widget by checking which cell's node contains our element
+        const cellWidget = notebookPanel.content.widgets.find(cell => {
+            if (cell instanceof CodeCell) {
+                return cell.node.contains(cellElement) || cellElement.contains(cell.node);
+            }
+            return false;
+        });
+        
+        if (!(cellWidget instanceof CodeCell)) {
+            console.warn('Could not find CodeCell widget for this output');
+            return;
+        }
+
+        const sourceCode = cellWidget.model.sharedModel.source;
+        const cellId = cellWidget.model.id;
+
+        // Open the Chart Wizard with the extracted data
+        this.openChartWizard({ sourceCode, cellId, notebookTracker: this.notebookTracker });
     }
 }
   
