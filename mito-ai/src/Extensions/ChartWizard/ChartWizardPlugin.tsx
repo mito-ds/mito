@@ -5,10 +5,13 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
+import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
+import { ICommandPalette, WidgetTracker, MainAreaWidget } from '@jupyterlab/apputils';
 import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
+import { ChartWizardWidget } from './ChartWizardWidget';
+import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
 import '../../../style/ChartWizardPlugin.css'
 
 interface ChartWizardButtonProps {
@@ -33,8 +36,71 @@ const ChartWizardButton: React.FC<ChartWizardButtonProps> = ({ onButtonClick }) 
 const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mito-ai:chart-wizard',
     autoStart: true,
-    requires: [IRenderMimeRegistry],
-    activate: (app: JupyterFrontEnd, rendermime: IRenderMimeRegistry) => {
+    requires: [IRenderMimeRegistry, ICommandPalette],
+    optional: [ILayoutRestorer],
+    activate: (app: JupyterFrontEnd, rendermime: IRenderMimeRegistry, palette: ICommandPalette, restorer: ILayoutRestorer | null) => {
+        // Create a widget creator function
+        const newWidget = (): MainAreaWidget => {
+            const content = new ChartWizardWidget();
+            const widget = new MainAreaWidget({ content });
+            widget.id = 'mito-ai-chart-wizard';
+            widget.title.label = 'Chart Wizard';
+            widget.title.closable = true;
+            return widget;
+        };
+
+        let widget = newWidget();
+
+        // Track and restore the widget state
+        const tracker = new WidgetTracker<MainAreaWidget>({
+            namespace: widget.id
+        });
+
+        // Function to open the Chart Wizard panel
+        const openChartWizard = (): void => {
+            // Dispose the old widget and create a new one if needed
+            if (widget && !widget.isDisposed) {
+                widget.dispose();
+            }
+            widget = newWidget();
+
+            // Add the widget to the tracker
+            if (!tracker.has(widget)) {
+                void tracker.add(widget);
+            }
+
+            // Add the widget to the app
+            if (!widget.isAttached) {
+                void app.shell.add(widget, 'main');
+            }
+
+            // Activate the widget
+            app.shell.activateById(widget.id);
+        };
+
+        // Add an application command
+        app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHART_WIZARD, {
+            label: 'Open Chart Wizard',
+            execute: () => {
+                openChartWizard();
+            }
+        });
+
+        // Add the command to the palette
+        palette.addItem({
+            command: COMMAND_MITO_AI_OPEN_CHART_WIZARD,
+            category: 'Mito AI'
+        });
+
+        if (!tracker.has(widget)) {
+            void tracker.add(widget);
+        }
+
+        if (restorer) {
+            restorer.add(widget, 'mito-ai-chart-wizard');
+        }
+
+        // Set up the image renderer factory
         const factory = rendermime.getFactory('image/png');
         
         if (factory) {
@@ -56,9 +122,11 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
 */
 class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private originalRenderer: IRenderMime.IRenderer;
+    private app: JupyterFrontEnd;
   
-    constructor(_app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer) {
+    constructor(app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer) {
         super();
+        this.app = app;
         this.originalRenderer = originalRenderer;
     }
   
@@ -89,8 +157,9 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     /* 
         Handle the Chart Wizard button click.
     */
-    handleButtonClick(model: IRenderMime.IMimeModel): void {
-        console.log('Chart Wizard button clicked!', model);
+    handleButtonClick(_model: IRenderMime.IMimeModel): void {
+        // Execute the command to open the Chart Wizard panel
+        void this.app.commands.execute(COMMAND_MITO_AI_OPEN_CHART_WIZARD);
     }
 }
   
