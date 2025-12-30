@@ -19,6 +19,7 @@ The chart configuration section is a list of variables used to customize the cha
 Rules:
 - Variables with multiple words should be underscore-separated.
 - All colors should be in hex format.
+- Each line should contain only one variable assignment.
 
 Example:
 # === CHART CONFIG ===
