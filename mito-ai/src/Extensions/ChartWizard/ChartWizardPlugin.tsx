@@ -9,7 +9,7 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyte
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
-import { IRenderMimeRegistry} from '@jupyterlab/rendermime';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
 import { ChartWizardWidget } from './ChartWizardWidget';
@@ -28,19 +28,14 @@ interface ChartWizardButtonProps {
 
 const ChartWizardButton: React.FC<ChartWizardButtonProps> = ({ onButtonClick }) => {
     return (
-        <div className="chart-wizard-container">
+        <>
             <button onClick={onButtonClick} className='chart-wizard-button'>
                 <p>Chart Wizard</p>
             </button>
-        </div>
+        </>
     )
 };
-  
-/**
- * A mime renderer plugin for matplotlib charts (image/png)
- * 
- * This plugin augments matplotlib chart outputs with a Chart Wizard button.
-*/
+
 const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
     id: 'mito-ai:chart-wizard',
     autoStart: true,
@@ -116,7 +111,7 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
 
         // Set up the image renderer factory
         const factory = rendermime.getFactory('image/png');
-        
+
         if (factory) {
             rendermime.addFactory({
                 safe: true,
@@ -130,7 +125,7 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
         console.log("mito-ai: ChartWizardPlugin activated");
     }
 };
-  
+
 /**
  * A widget that extends the default ImageRenderer for matplotlib charts.
 */
@@ -138,14 +133,14 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private originalRenderer: IRenderMime.IRenderer;
     private notebookTracker: INotebookTracker;
     private openChartWizard: (chartData?: ChartWizardData) => void;
-  
+
     constructor(_app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer, notebookTracker: INotebookTracker, openChartWizard: (chartData?: ChartWizardData) => void) {
         super();
         this.originalRenderer = originalRenderer;
         this.notebookTracker = notebookTracker;
         this.openChartWizard = openChartWizard;
     }
-  
+
     /**
      * Render the original image and append the Chart Wizard button.
      */
@@ -162,7 +157,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
 
         // Append the button container before rendering the original output
         this.node.appendChild(chartWizardDiv);
-        
+
         // Render the original image content
         await this.originalRenderer.renderModel(model);
 
@@ -196,7 +191,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
             }
             return false;
         });
-        
+
         if (!(cellWidget instanceof CodeCell)) {
             console.warn('Could not find CodeCell widget for this output');
             return;
@@ -209,5 +204,5 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         this.openChartWizard({ sourceCode, cellId, notebookTracker: this.notebookTracker });
     }
 }
-  
+
 export default ChartWizardPlugin;

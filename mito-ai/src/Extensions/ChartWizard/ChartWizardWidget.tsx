@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { NotebookActions } from '@jupyterlab/notebook';
 import { ChartWizardData } from './ChartWizardPlugin';
-import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './chartConfigParser';
+import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './parser';
 import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
 import '../../../style/ChartWizardPlugin.css';
 
