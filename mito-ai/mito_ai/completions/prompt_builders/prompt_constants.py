@@ -22,18 +22,18 @@ Multiline citation (for citing a range of lines):
 
 Citation Rules:
 
-1. Every fact or statement derived from the user's notebook must include a citation. 
+1. Every fact or conclusion you draw based on the user's notebook must include a MITO_CITATION so that the user can verify your work.
 2. When choosing the citation, select the code that will most help the user validate the fact or statement that you shared with them.
 3. Place the citation immediately after the statement it supports. Do not explain the citation with phrases like "See", "Derived from", etc. Just provide the citation object.
 4. For the "line_number" field, use the line number within the cell that is most relevant to the citation. Important: The cell line number should be 0-indexed and should not skip comments.
 5. For multiline citations, use the "first_line-last_line" format when the insight spans multiple lines of code. Both line numbers should be 0-indexed.
 6. If you cannot find relevant information in the notebook to answer a question, clearly state this and do not provide a citation.
-7. You ONLY need to provide a citation when sharing an insight from the data in the message part of the response. If all you are doing is writing/updating code, then there is no need to provide a citation.
+7. You only need to provide a citation when sharing an insight with the user. For example you should use a MITO_CITATION when you writing insights like any of the following: "The highest trading volume day was on January 15th, 2025", "The MSE was 6.8", "Apple's COGS are represented by the Orange bar in the graph". If you are not writing a quantitative insight and instead are just referring to a block of code like "I updated Cell 5 to include a graph", then you should instead use a MITO_CELL_REF.
 8. Do not include the citation in the code block as a comment. ONLY include the citation in the message field of your response.
 """
 
 CELL_REFERENCE_RULES = """
-When referring to specific cells in the notebook in your messages, use cell references so the user can easily navigate to the cell you're talking about. The user sees cells numbered as "Cell 1", "Cell 2", etc., but internally cells are identified by their unique IDs.
+When referring to specific cells in the notebook in your messages, use cell references so the user can easily navigate to the cell you're talking about. Cell references are displayed to the user  "Cell 1", "Cell 2", etc., but internally cells are identified by their unique IDs.
 
 To reference a cell, use this format inline in your message:
 [MITO_CELL_REF:cell_id]
@@ -43,14 +43,10 @@ This will be displayed to the user as a clickable "Cell N" link that navigates t
 Cell Reference Rules:
 
 1. Use cell references when discussing specific cells you've created or modified (e.g., "I've added the data cleaning code in [MITO_CELL_REF:abc123]").
-2. Use cell references when referring to cells the user mentioned or that contain relevant context.
-3. The cell_id must be an actual cell ID from the notebook - do not make up IDs.
-4. Place the reference inline where it makes sense in your message, similar to how you would write "Cell 3" in natural language.
-5. Do not use cell references in code - only in the message field of your responses.
-6. Cell references are different from citations. Use citations for specific line-level insights; use cell references for general cell-level navigation.
-
-Example:
-"I've loaded the sales data in [MITO_CELL_REF:c68fdf19-db8c-46dd-926f-d90ad35bb3bc] and will now calculate the monthly totals."
+2. The cell_id must be an actual cell ID from the notebook - do not make up IDs.
+3. Place the reference inline where it makes sense in your message, similar to how you would write "Cell 3" in natural language.
+4. Do not use cell references in code - only in the message field of your responses.
+5. You only need to provide a cell reference when you want to make it easy for the user to navigate to a specific cell in the notebook. For example you should use a MITO_CELL_REF when you are stating things like: "I've loaded the sales data in [MITO_CELL_REF:c68fdf19-db8c-46dd-926f-d90ad35bb3bc]" or "[MITO_CELL_REF:a91fde20-cc7f-g6ee-146g-e10bc34abdbh] creates the graph showing the total highest closing stock price for each company". If you are not referencing an entire code block and instead of providing justification for a specific conclucions that you drew like "The most common used car in the lot is a 2005 Honda CRV", then you should instead use a MITO_CITATION.
 """
 
 def redact_sensitive_info(connections: dict) -> dict:
