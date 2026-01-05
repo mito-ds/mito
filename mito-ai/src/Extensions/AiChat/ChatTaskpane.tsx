@@ -9,8 +9,9 @@ import React, { useEffect, useRef } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { INotebookTracker } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { addIcon, historyIcon, deleteIcon, settingsIcon } from '@jupyterlab/ui-components';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
 
@@ -122,6 +123,7 @@ interface IChatTaskpaneProps {
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
     websocketClient: CompletionWebsocketClient
+    documentManager: IDocumentManager
 }
 
 // Re-export types from hooks for backward compatibility
@@ -142,6 +144,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     app,
     operatingSystem,
     websocketClient,
+    documentManager,
 }) => {
 
     // User signup state
@@ -374,6 +377,46 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: No post processing step needed for explaining code. 
     }
 
+    /* 
+        Ensure a notebook exists. If no notebook is open, create a new one.
+        Returns the notebook panel.
+    */
+    const ensureNotebookExists = async (): Promise<NotebookPanel> => {
+        // Check if a notebook already exists
+        let notebookPanel = notebookTracker.currentWidget;
+        
+        if (notebookPanel !== null) {
+            return notebookPanel;
+        }
+
+        // No notebook exists, create a new one
+        try {
+            // Create a new notebook model (Contents.IModel has a path property)
+            const model = await documentManager.newUntitled({ type: 'notebook' });
+            
+            // Open the notebook using the path from the model
+            await documentManager.open(model.path);
+            
+            // Wait for the notebook to appear in the tracker and be ready
+            await waitForNotebookReady(notebookTracker);
+            
+            // Get the notebook panel from the tracker
+            notebookPanel = notebookTracker.currentWidget;
+            
+            if (notebookPanel === null) {
+                throw new Error('Failed to get notebook panel after creation');
+            }
+
+            // Set the notebook ID if it doesn't exist
+            setNotebookID(notebookPanel);
+            
+            return notebookPanel;
+        } catch (error) {
+            console.error('Error creating new notebook:', error);
+            throw error;
+        }
+    };
+
     const sendAgentExecutionMessage = async (
         input: string,
         messageIndex?: number,
@@ -384,11 +427,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
-        const agentTargetNotebookPanel = agentTargetNotebookPanelRef.current
-
-        if (agentTargetNotebookPanel === null) {
-            return
-        }
+        // Ensure a notebook exists before proceeding
+        const agentTargetNotebookPanel = await ensureNotebookExists();
+        agentTargetNotebookPanelRef.current = agentTargetNotebookPanel;
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -429,6 +470,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendChatInputMessage = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
+
+        // Ensure a notebook exists before proceeding
+        await ensureNotebookExists();
 
         // Enable follow mode when user sends a new message
         setAutoScrollFollowMode(true);
