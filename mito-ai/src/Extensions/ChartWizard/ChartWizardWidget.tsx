@@ -56,7 +56,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     }, [chartData?.sourceCode]);
 
     // Update notebook cell and re-execute when config variables change
-    const updateNotebookCell = (updatedCode: string) => {
+    const updateNotebookCell = (updatedCode: string): void => {
         if (!chartData) return;
 
         const notebookPanel = chartData.notebookTracker.currentWidget;
@@ -71,19 +71,21 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         void NotebookActions.run(notebook, sessionContext);
     };
 
-    const handleVariableChange = (variableName: string, newValue: string | number | boolean | [number, number]) => {
+    const handleVariableChange = (
+        variableName: string, newValue: string | number | boolean | [number, number]
+    ): void => {
         if (!chartData?.sourceCode) return;
 
-        const updated = configVariables.map(v => 
-            v.name === variableName 
+        const updated = configVariables.map(v =>
+            v.name === variableName
                 ? { ...v, value: newValue }
                 : v
         );
         setConfigVariables(updated);
-        
+
         // Update the source code
         const updatedCode = updateChartConfig(chartData.sourceCode, updated);
-        
+
         // Clear previous timeout
         if (executeTimeoutRef.current) {
             clearTimeout(executeTimeoutRef.current);
@@ -109,7 +111,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         return `#${value}`;
     };
 
-    const renderInputField = (variable: ChartConfigVariable) => {
+    const renderInputField = (variable: ChartConfigVariable): React.ReactElement => {
         const label = variable.name.replace(/_/g, ' ').toLowerCase()
             .replace(/\b\w/g, l => l.toUpperCase());
 
@@ -180,7 +182,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         if (isColor) {
             // Color picker for hex colors
             const normalizedColor = normalizeHexColor(stringValue);
-            
+
             return (
                 <div key={variable.name} className="chart-wizard-input-row">
                     <label className="chart-wizard-input-label">{label}</label>
@@ -246,7 +248,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     return (
         <div className="chart-wizard-widget">
             <h2>Chart Wizard</h2>
-            
+
             {hasConfig ? (
                 <div className="chart-wizard-config-container">
                     <p className="chart-wizard-config-description">
