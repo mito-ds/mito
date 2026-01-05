@@ -153,12 +153,14 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
      */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
         const chartWizardDiv = document.createElement('div');
+        chartWizardDiv.className = 'chart-wizard-button-container';
         const originalNode = this.originalRenderer.node;
 
         createRoot(chartWizardDiv).render(
             <ChartWizardButton onButtonClick={() => this.handleButtonClick(model)} />
         );
 
+        this.node.style.position = 'relative';
         this.node.appendChild(chartWizardDiv);
         await this.originalRenderer.renderModel(model);
         this.node.appendChild(originalNode);
