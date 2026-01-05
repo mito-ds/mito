@@ -137,9 +137,9 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private openChartWizard: (chartData?: ChartWizardData) => void;
 
     constructor(
-        _app: JupyterFrontEnd, 
-        originalRenderer: IRenderMime.IRenderer, 
-        notebookTracker: INotebookTracker, 
+        _app: JupyterFrontEnd,
+        originalRenderer: IRenderMime.IRenderer,
+        notebookTracker: INotebookTracker,
         openChartWizard: (chartData?: ChartWizardData) => void
     ) {
         super();
