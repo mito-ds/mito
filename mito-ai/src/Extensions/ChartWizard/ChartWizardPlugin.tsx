@@ -41,7 +41,13 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
     autoStart: true,
     requires: [IRenderMimeRegistry, ICommandPalette, INotebookTracker],
     optional: [ILayoutRestorer],
-    activate: (app: JupyterFrontEnd, rendermime: IRenderMimeRegistry, palette: ICommandPalette, notebookTracker: INotebookTracker, restorer: ILayoutRestorer | null) => {
+    activate: (
+        app: JupyterFrontEnd,
+        rendermime: IRenderMimeRegistry,
+        palette: ICommandPalette,
+        notebookTracker: INotebookTracker,
+        restorer: ILayoutRestorer | null
+    ): void => {
         // Create the Chart Wizard widget
         const widget = new ChartWizardWidget();
         widget.id = 'mito-ai-chart-wizard';
@@ -86,8 +92,6 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
             app.shell.activateById(widget.id);
         };
 
-
-        // Add an application command
         app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHART_WIZARD, {
             label: 'Open Chart Wizard',
             execute: () => {
@@ -95,7 +99,6 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
             }
         });
 
-        // Add the command to the palette
         palette.addItem({
             command: COMMAND_MITO_AI_OPEN_CHART_WIZARD,
             category: 'Mito AI'
@@ -109,7 +112,6 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
             restorer.add(widget, 'mito-ai-chart-wizard');
         }
 
-        // Set up the image renderer factory
         const factory = rendermime.getFactory('image/png');
 
         if (factory) {
@@ -134,7 +136,12 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private notebookTracker: INotebookTracker;
     private openChartWizard: (chartData?: ChartWizardData) => void;
 
-    constructor(_app: JupyterFrontEnd, originalRenderer: IRenderMime.IRenderer, notebookTracker: INotebookTracker, openChartWizard: (chartData?: ChartWizardData) => void) {
+    constructor(
+        _app: JupyterFrontEnd, 
+        originalRenderer: IRenderMime.IRenderer, 
+        notebookTracker: INotebookTracker, 
+        openChartWizard: (chartData?: ChartWizardData) => void
+    ) {
         super();
         this.originalRenderer = originalRenderer;
         this.notebookTracker = notebookTracker;
@@ -145,23 +152,15 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
      * Render the original image and append the Chart Wizard button.
      */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-        // Create the container for the Chart Wizard button
         const chartWizardDiv = document.createElement('div');
-
         const originalNode = this.originalRenderer.node;
 
-        // Render the Chart Wizard button
         createRoot(chartWizardDiv).render(
             <ChartWizardButton onButtonClick={() => this.handleButtonClick(model)} />
         );
 
-        // Append the button container before rendering the original output
         this.node.appendChild(chartWizardDiv);
-
-        // Render the original image content
         await this.originalRenderer.renderModel(model);
-
-        // Append the original image rendered node
         this.node.appendChild(originalNode);
     }
 
