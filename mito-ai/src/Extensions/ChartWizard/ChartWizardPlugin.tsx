@@ -14,7 +14,10 @@ import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
 import { ChartWizardWidget } from './ChartWizardWidget';
 import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
+import TextAndIconButton from '../../components/TextAndIconButton';
+import MagicWand from '../../icons/MagicWand'
 import '../../../style/ChartWizardPlugin.css'
+
 
 export interface ChartWizardData {
     sourceCode: string;
@@ -29,9 +32,15 @@ interface ChartWizardButtonProps {
 const ChartWizardButton: React.FC<ChartWizardButtonProps> = ({ onButtonClick }) => {
     return (
         <>
-            <button onClick={onButtonClick} className='chart-wizard-button'>
-                <p>Chart Wizard</p>
-            </button>
+            <TextAndIconButton 
+                icon={MagicWand}
+                text="Chart Wizard"
+                title="Chart Wizard"
+                onClick={onButtonClick} 
+                variant='purple'
+                width='fit-contents'
+                iconPosition='left'
+            />
         </>
     )
 };
