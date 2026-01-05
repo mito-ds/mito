@@ -170,6 +170,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         );
 
         this.node.style.position = 'relative';
+        this.node.classList.add('chart-wizard-output-container');
         this.node.appendChild(chartWizardDiv);
         await this.originalRenderer.renderModel(model);
         this.node.appendChild(originalNode);
