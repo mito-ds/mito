@@ -67,7 +67,12 @@ export function parseChartConfig(sourceCode: string): ParsedChartConfig | null {
 /**
  * Parses a Python value string into its appropriate type.
  */
-function parseValue(valueStr: string): { value: string | number | boolean | [number, number]; type: 'string' | 'number' | 'boolean' | 'tuple' } | null {
+function parseValue(
+    valueStr: string
+): {
+    value: string | number | boolean | [number, number];
+    type: 'string' | 'number' | 'boolean' | 'tuple';
+} | null {
     // Remove surrounding whitespace
     valueStr = valueStr.trim();
 
