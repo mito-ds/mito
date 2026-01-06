@@ -6,6 +6,7 @@
 import { useRef, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { UUID } from '@lumino/coreutils';
 import { IStreamlitPreviewManager } from '../../AppPreview/StreamlitPreviewPlugin';
 import { CompletionWebsocketClient } from '../../../websockets/completions/CompletionsWebsocketClient';
@@ -18,6 +19,7 @@ import { getCodeBlockFromMessage } from '../../../utils/strings';
 import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } from '../../../utils/notebook';
 import { AgentReviewStatus } from '../ChatTaskpane';
 import { LoadingStatus } from './useChatState';
+import { ensureNotebookExists } from '../utils';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -28,6 +30,7 @@ interface UseAgentExecutionProps {
     app: JupyterFrontEnd;
     streamlitPreviewManager: IStreamlitPreviewManager;
     websocketClient: CompletionWebsocketClient;
+    documentManager: IDocumentManager;
     chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>;
     activeThreadIdRef: React.MutableRefObject<string>;
     activeRequestControllerRef: React.MutableRefObject<AbortController | null>;
@@ -63,6 +66,7 @@ export const useAgentExecution = ({
     app,
     streamlitPreviewManager,
     websocketClient,
+    documentManager,
     chatHistoryManagerRef,
     activeThreadIdRef,
     activeRequestControllerRef,
@@ -133,7 +137,10 @@ export const useAgentExecution = ({
         messageIndex?: number,
         additionalContext?: Array<{ type: string, value: string }>
     ): Promise<void> => {
-        agentTargetNotebookPanelRef.current = notebookTracker.currentWidget;
+        
+        // Ensure a notebook exists before proceeding with agent execution
+        const agentTargetNotebookPanel = await ensureNotebookExists(notebookTracker, documentManager);
+        agentTargetNotebookPanelRef.current = agentTargetNotebookPanel;
 
         agentReview.acceptAllAICode();
         agentReview.setNotebookSnapshotPreAgentExecution(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));

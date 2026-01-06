@@ -389,10 +389,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
-        // Ensure a notebook exists before proceeding
-        const agentTargetNotebookPanel = await ensureNotebookExists(notebookTracker, documentManager);
-        agentTargetNotebookPanelRef.current = agentTargetNotebookPanel;
-
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
 
@@ -403,7 +399,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(
             activeThreadIdRef.current, 
-            agentTargetNotebookPanel,
+            agentTargetNotebookPanelRef.current,
             input,
             additionalContext
         )
@@ -411,7 +407,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanel, sendCellIDOutput)
+        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingStatus('thinking');
@@ -708,6 +704,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app,
         streamlitPreviewManager,
         websocketClient,
+        documentManager,
         chatHistoryManagerRef,
         activeThreadIdRef,
         activeRequestControllerRef,
