@@ -61,40 +61,38 @@ jest.mock('../../components/AgentComponents/GetCellOutputToolUI', () => {
     };
 });
 
-const mockChatInput = jest.fn(props => {
-    // Store callbacks for later access in tests
-    (window as any).__chatInputCallbacks = {
-        handleSubmitUserMessage: props.handleSubmitUserMessage,
-        onCancel: props.onCancel
-    };
-    // Store props for verification in tests
-    (window as any).__chatInputProps = props;
-    return (
-        <div data-testid="chat-input">
-            <textarea
-                data-testid="chat-input-textarea"
-                defaultValue={props.initialContent}
-            />
-            <button
-                data-testid="save-button"
-                onClick={() => props.handleSubmitUserMessage(props.initialContent, props.messageIndex)}
-            >
-                Save
-            </button>
-            <button
-                data-testid="cancel-button"
-                onClick={props.onCancel}
-            >
-                Cancel
-            </button>
-        </div>
-    );
-});
-
 jest.mock('../../Extensions/AiChat/ChatMessage/ChatInput', () => {
     return {
         __esModule: true,
-        default: mockChatInput
+        default: jest.fn(props => {
+            // Store callbacks for later access in tests
+            (window as any).__chatInputCallbacks = {
+                handleSubmitUserMessage: props.handleSubmitUserMessage,
+                onCancel: props.onCancel
+            };
+            // Store props for verification in tests
+            (window as any).__chatInputProps = props;
+            return (
+                <div data-testid="chat-input">
+                    <textarea
+                        data-testid="chat-input-textarea"
+                        defaultValue={props.initialContent}
+                    />
+                    <button
+                        data-testid="save-button"
+                        onClick={() => props.handleSubmitUserMessage(props.initialContent, props.messageIndex)}
+                    >
+                        Save
+                    </button>
+                    <button
+                        data-testid="cancel-button"
+                        onClick={props.onCancel}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            );
+        })
     };
 });
 
