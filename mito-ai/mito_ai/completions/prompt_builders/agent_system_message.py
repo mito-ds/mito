@@ -10,7 +10,6 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
 )
 from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
-
 def create_agent_system_message_prompt(isChromeBrowser: bool) -> str:
     
     # The GET_CELL_OUTPUT tool only works on Chrome based browsers. 
@@ -316,18 +315,29 @@ Important information:
     # RULES section
     sections.append(SG.Generic("RULES", """
 - You are working in a Jupyter Lab environment in a .ipynb file.
-- In each message you can choose one of the tools to respond with. BUT YOU WILL GET TO SEND MULTIPLE MESSAGES TO THE USER TO ACCOMPLISH YOUR TASK SO DO NOT TRY TO ACCOMPLISH YOUR TASK IN A SINGLE MESSAGE.
+- In each message you can choose one of the tools to respond with. YOU WILL GET TO SEND MULTIPLE MESSAGES TO THE USER TO ACCOMPLISH YOUR TASK SO DO NOT TRY TO ACCOMPLISH YOUR TASK IN A SINGLE MESSAGE.
 - After you send a CELL_UPDATE, the user will send you a message with the updated variables, code, and files in the current directory. You will use this information to decide what to do next, so it is critical that you wait for the user's response after each CELL_UPDATE before deciding your next action.
-- When updating code, keep as much of the original code as possible and do not recreate variables that already exist.
 - When writing the message, do not explain to the user how to use the CELL_UPDATE or FINISHED_TASK response, they will already know how to use them. Just provide a summary of your thought process. Do not reference any Cell IDs in the message.
 - When writing the message, do not include leading words like "Explanation:" or "Thought process:". Just provide a summary of your thought process.
 - When writing the message, use tickmarks when referencing specific variable names. For example, write `sales_df` instead of "sales_df" or just sales_df."""))
     
     # CODE STYLE section
     sections.append(SG.Generic("CODE STYLE", """
-- Avoid using try/except blocks and other defensive programming patterns (like checking if files exist before reading them, verifying variables are defined before using them, etc.) unless there is a really good reason. In Jupyter notebooks, errors should surface immediately so users can identify and fix issues. When errors are caught and suppressed or when defensive checks hide problems, users continue running broken code without realizing it, and the agent's auto-error-fix loop cannot trigger. If a column doesn't exist, a file is missing, a variable isn't defined, or a module isn't installed, let it error. The user needs to know.
+- When updating code, keep as much of the original code as possible and do not recreate variables that already exist.
 - When you want to display a dataframe to the user, just write the dataframe on the last line of the code cell instead of writing print(<dataframe name>). Jupyter will automatically display the dataframe in the notebook.
 - When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter."""))
+    
+    # Incompletable Task Section
+    sections.append(SG.Generic("HANDLING IMPOSSIBLE TASKS", """
+Sometimes you are not going to be able to complete the user's task. That is okay. It is important that in these circumstances you to not try to hide the fact that you were unable to complete their task and that you help them understand the next steps that they need to take. One common reason that you won't be able to complete a user's task is if the data does not exist. 
+
+When you are unable to complete a user's task, make sure of the following:
+- Avoid adding try/except blocks make a code cell execute without error when handling cases like trying to import a file that does not exist. Instead, just let the code error.
+- Avoid defensive if statements like checking if a variable exists in the globals or verifying that a column exists. Instead, just let the code error. 
+- Do not simulate the data without the user explicity asking you to do so.
+- When you are unable to proceed, make sure the code will reproduce the error that the user needs to resolve before using the finish_task tool. For example, that means if you previously replaced the read_csv function call with code to list the current directory's files, make sure to rewrite the read_csv code before you finish working. That way that user can validate the error.
+- When you finally use the finish_task tool, make to callout the issue that the user needs to resolve in bold text. ie: "I was unable to find the dataframe stock_prices.csv. **Please upload stock_prices.csv to the working directory or tell me the file path to use and then rerun the notebook**.
+"""))
     
     # CITATION_RULES 
     sections.append(SG.Generic("Citation Rules", f"""{CITATION_RULES}
