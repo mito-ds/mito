@@ -127,3 +127,7 @@ dmypy.json
 # Secrets
 .env
 secrets.tsx
+
+# Development-only Jupyter config (contains fixed token for Cursor testing)
+jupyter-config/jupyter_server_config.d/mito_ai_dev.py
+.cursor-jupyter-token
