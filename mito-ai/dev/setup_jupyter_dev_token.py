@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 """
 Setup script to configure Jupyter Lab with a fixed token for Cursor agent testing.
 
