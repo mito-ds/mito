@@ -132,7 +132,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 isEditing={isEditing}
                 contextManager={contextManager}
                 notebookTracker={notebookTracker}
-                agentModeEnabled={false}
+                agentModeEnabled={agentModeEnabled}
                 handleSubmitUserMessage={handleSubmitUserMessageAndCloseEditing}
                 messageIndex={messageIndex}
             />
