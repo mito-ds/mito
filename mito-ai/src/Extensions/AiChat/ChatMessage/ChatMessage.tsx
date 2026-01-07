@@ -317,7 +317,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                     answers={agentResponse.answers}
                     isLastMessage={isLastMessage}
                     onAnswerSelected={(answer) => {
-                        handleSubmitUserMessage(answer, messageIndex);
+                        handleSubmitUserMessage(answer);
                     }}
                 />
             }

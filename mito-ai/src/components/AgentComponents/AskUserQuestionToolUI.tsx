@@ -30,16 +30,33 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
         }
     };
 
+    // Collapsed mode: show question + answers as bullet points
+    if (!isLastMessage) {
+        return (
+            <div className={classNames('agent-tool-ui-container', 'ask-user-question-container', 'ask-user-question-collapsed')}>
+                <div className="agent-tool-ui-content">
+                    <QuestionIcon />
+                    <div className="ask-user-question-collapsed-content">
+                        <span className="ask-user-question-question">{question}</span>
+                        {answers && answers.length > 0 && (
+                            <ul className="ask-user-question-collapsed-answers">
+                                {answers.map((answer, index) => (
+                                    <li key={index}>{answer}</li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Active mode: show interactive UI with clickable buttons
     return (
         <div className={classNames('agent-tool-ui-container', 'ask-user-question-container')}>
             <div className="agent-tool-ui-content">
                 <QuestionIcon />
                 <div className="ask-user-question-content">
-                    {message && (
-                        <div className="ask-user-question-message">
-                            {message}
-                        </div>
-                    )}
                     <div className="ask-user-question-question">
                         {question}
                     </div>

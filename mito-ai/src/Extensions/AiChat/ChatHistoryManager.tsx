@@ -383,15 +383,6 @@ export class ChatHistoryManager {
             }
         }
 
-        if (agentResponse.type === 'ask_user_question') {
-            let formattedAnswers = ""
-            if (agentResponse.answers !== null && agentResponse.answers !== undefined && agentResponse.answers.length > 0) {
-                const answers = agentResponse.answers.map(answer => `- ${answer}`)
-                formattedAnswers = `\n\nAvailable options:\n${answers.join('\n')}`
-            }
-            content = `${agentResponse.message}\n\n${agentResponse.question}${formattedAnswers}`
-        }
-
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
             role: 'assistant',
             content: content

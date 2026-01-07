@@ -91,3 +91,43 @@
 .ask-user-question-answer-button:hover:not(:disabled) .ask-user-question-answer-arrow {
     color: var(--jp-brand-color1);
 }
+
+/* Collapsed mode styles */
+.ask-user-question-collapsed {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.ask-user-question-collapsed .agent-tool-ui-content {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+}
+
+.ask-user-question-collapsed-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.ask-user-question-collapsed .ask-user-question-question {
+    color: var(--jp-ui-font-color1);
+    font-size: var(--jp-ui-font-size1);
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.ask-user-question-collapsed-answers {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--jp-ui-font-color1);
+    font-size: var(--jp-ui-font-size1);
+    line-height: 1.5;
+    list-style-type: disc;
+}
+
+.ask-user-question-collapsed-answers li {
+    margin: 4px 0;
+}
