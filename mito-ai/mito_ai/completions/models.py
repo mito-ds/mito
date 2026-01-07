@@ -36,6 +36,8 @@ class AgentResponse(BaseModel):
     next_steps: Optional[List[str]]
     analysis_assumptions: Optional[List[str]]
     streamlit_app_prompt: Optional[str]
+    question: Optional[str]
+    answers: Optional[List[str]]
     
     
 @dataclass(frozen=True)

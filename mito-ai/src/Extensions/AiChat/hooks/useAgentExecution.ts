@@ -326,6 +326,13 @@ export const useAgentExecution = ({
                 }
             }
 
+            if (agentResponse.type === 'ask_user_question') {
+                // TODO: For testing purposes, just stop the agent
+                await markAgentForStopping();
+                isAgentFinished = true;
+                break; 
+            }
+
             if (agentResponse.type === 'create_streamlit_app') {
                 // Create new preview using the service
                 const createStreamlitAppPrompt = agentResponse.streamlit_app_prompt || ''

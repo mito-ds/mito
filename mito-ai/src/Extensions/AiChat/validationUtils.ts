@@ -17,7 +17,15 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     const correctedResponse: AgentResponse = { ...agentResponse };
     
     // Ensure type is valid. Default to finished_task if not valid.
-    const validTypes = ['cell_update', 'get_cell_output', 'run_all_cells', 'finished_task', 'create_streamlit_app', 'edit_streamlit_app'];
+    const validTypes = [
+        'cell_update', 
+        'get_cell_output', 
+        'run_all_cells', 
+        'ask_user_question',
+        'finished_task', 
+        'create_streamlit_app', 
+        'edit_streamlit_app'
+    ];
     correctedResponse.type = (correctedResponse.type && validTypes.includes(correctedResponse.type)) 
         ? correctedResponse.type 
         : 'finished_task';
@@ -34,6 +42,11 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     // Correct next_steps - handle string to array conversion
     if (correctedResponse.next_steps !== undefined && correctedResponse.next_steps !== null) {
         correctedResponse.next_steps = correctStringArray(correctedResponse.next_steps);
+    }
+
+    // Correct ask_user_question
+    if (correctedResponse.answers !== undefined && correctedResponse.answers !== null) {
+        correctedResponse.answers = correctStringArray(correctedResponse.answers);
     }
     
     // Correct analysis_assumptions - handle string to array conversion

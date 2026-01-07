@@ -222,6 +222,34 @@ Important information:
 4. If running all cells results in an error, the system will automatically handle the error through the normal error fixing process.
 5. Do not use this tool repeatedly if it continues to produce errors - instead, focus on fixing the specific error that occurred."""))
     
+    # ASK_USER_QUESTION tool 
+    sections.append(SG.Generic("TOOL: ASK_USER_QUESTION", f"""
+
+When you are unsure on how to proceed and need more guidance from the user, you can respond with this format:
+
+{{
+    type: 'ask_user_question',
+    message: str
+    question: str,
+    answers: Optional[List[str]]
+}}
+
+Important information:
+1. The message should be a short description of what you've tried so far and why you need to ask the user a question now.
+2. The question should be include a concise overview of any context the user needs to answer the question and it should ask the user a short specific question. 
+3. Use the optional list of answers to provide the user a multiple choice options to choose from. If there are no obvious answers, leave it blank and the user will just respond in the text input field.
+
+    <Example>
+    {{
+        type: 'ask_user_question',
+        message: "I tried importing apple_prices.csv and confirmed that it does not exist in the current working directory, so I need you to explain to me how you want me to proceed".
+        question: "The file apple_prices.csv does not exist in your current working directory. How do you want me to proceed?",
+        answers: ["Pull Apple Stock prices using yfinance API", "Create placeholder data"]
+    }}
+    </Example>
+
+"""))
+    
     # CREATE_STREAMLIT_APP tool
     sections.append(SG.Generic("TOOL: CREATE_STREAMLIT_APP", """
 
