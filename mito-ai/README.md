@@ -77,6 +77,10 @@ jupyter labextension develop . --overwrite
 # Start the jupyter server extension for development
 jupyter server extension enable --py mito_ai
 
+# (Optional) Setup fixed Jupyter token for Cursor agent testing
+# This creates a development-only config that allows Cursor to automatically test changes
+python dev/setup_jupyter_dev_token.py
+
 # Watch the source directory in one terminal, automatically rebuilding when needed
 # In case of Error: If this command fails because the lib directory was not created (the error will say something like
 # unable to find main entry point) then run `jlpm run clean:lib` first to get rid of the old buildcache 

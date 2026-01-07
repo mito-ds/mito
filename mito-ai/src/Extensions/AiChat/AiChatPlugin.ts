@@ -68,6 +68,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         rendermime,
         contextManager,
         streamlitPreviewManager,
+        documentManager,
       );
       return chatWidget;
     };

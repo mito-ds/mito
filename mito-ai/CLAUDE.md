@@ -24,6 +24,10 @@ jlpm build
 jupyter labextension develop . --overwrite
 jupyter server extension enable --py mito_ai
 
+# (Optional) Setup fixed Jupyter token for Cursor agent testing
+# This creates a development-only config that allows Cursor to automatically test changes
+python dev/setup_jupyter_dev_token.py
+
 # Start development environment
 jlpm watch  # Terminal 1: auto-rebuild frontend
 jupyter lab --autoreload  # Terminal 2: run JupyterLab with backend hot reload

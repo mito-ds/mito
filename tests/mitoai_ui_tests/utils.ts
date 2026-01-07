@@ -53,8 +53,8 @@ export const startNewMitoAIChat = async (page: IJupyterLabPageFixture, model?: s
     // Open the Mito AI chat tab
     await clickOnMitoAIChatTab(page);
   
-    // Locate the "Clear the chat history" button
-    const clearButton = page.locator('button[title="Start New Chat"]');
+    // Locate the "Start New Chat" button (title includes keyboard shortcut)
+    const clearButton = page.locator('button[title^="Start New Chat"]');
     
     // Wait for the button to be visible, then click
     await clearButton.waitFor({ state: 'visible' });

@@ -2,12 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
-from mito_ai.completions.prompt_builders.prompt_constants import (
-    ACTIVE_CELL_ID_SECTION_HEADING,
-    FILES_SECTION_HEADING,
-    VARIABLES_SECTION_HEADING,
-    CODE_SECTION_HEADING
-)
+from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
+from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 
 def create_error_prompt(
@@ -17,29 +13,30 @@ def create_error_prompt(
     variables: List[str],
     files: List[str]
 ) -> str:
-    variables_str = '\n'.join([f"{variable}" for variable in variables])
-    files_str = '\n'.join([f"{file}" for file in files])
-    return f"""Help me debug this code in JupyterLab. Analyze the error and provide a solution that maintains the original intent.
+    sections: List[PromptSection] = []
+    
+    # Add intro text
+    sections.append(SG.Generic("Instructions", "Help me debug this code in JupyterLab. Analyze the error and provide a solution that maintains the original intent."))
+    
+    # Example 1
+    sections.append(SG.Example("Example 1", '''
+Files: 
+"file_name: sales.csv"
 
-<Example 1>
-{FILES_SECTION_HEADING}
-file_name: sales.csv
-
-{VARIABLES_SECTION_HEADING}
+Variables:
 {{
     'revenue_multiplier': 1.5,
-    'sales_df': pd.DataFrame({{
+    'sales_df': pd.DataFrame({
         'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
         'price_per_unit': [10, 9.99, 13.99, 21.00, 100],
         'units_sold': [1, 2, 1, 4, 5],
         'total_price': [10, 19.98, 13.99, 84.00, 500]
-    }})
+    })
 }}
 
-{ACTIVE_CELL_ID_SECTION_HEADING}
-'9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
+Active Cell ID: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
 
-{CODE_SECTION_HEADING}
+Active Cell Code:
 ```python
 import pandas as pd
 sales_df = pd.read_csv('./sales.csv')
@@ -48,14 +45,17 @@ sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
 ```
 
 Error Traceback:
-Cell In[24], line 4
+Cell ID: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
+Traceback:
+```
+    Cell In[24], line 4
       1 import pandas as pd
       2 sales_df = pd.read_csv('./sales.csv')
       3 revenue_multiplier =  1.5
 ----> 4 sales_df['total_revenue'] = sales_df['price'] * revenue_multiplier
 
 KeyError: 'price'
-
+```
 
 ERROR ANALYSIS:
 Runtime error: Attempted to access non-existent DataFrame column
@@ -71,31 +71,32 @@ revenue_multiplier =  1.5
 sales_df['total_revenue'] = sales_df['total_price'] * revenue_multiplier
 ```
 
-The DataFrame contains 'total_price' rather than 'price'. Updated column reference to match existing data structure.
-</Example 1>
+The DataFrame contains 'total_price' rather than 'price'. Updated column reference to match existing data structure.'''))
 
-<Example 2>
-{FILES_SECTION_HEADING}
+    
+    # Example 2
+    sections.append(SG.Example("Example 2", '''Files: 
+"file_name: sales.csv"
 
-
-{VARIABLES_SECTION_HEADING}
+Variables:
 {{
-    'df': pd.DataFrame({{
+    'df': pd.DataFrame({
         'order_id': [1, 2, 3, 4],
         'date': ['Mar 7, 2025', 'Sep 24, 2024', '25 June, 2024', 'June 29, 2024'],
         'amount': [100, 150, 299, 99]
-    }})
+    })
 }}
 
-{ACTIVE_CELL_ID_SECTION_HEADING}
-'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
+Active Cell ID: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
 
-{CODE_SECTION_HEADING}
+Active Cell Code:
 ```python
 df['date'] = pd.to_datetime(df['date'])
 ```
 
 Error Traceback:
+Cell ID: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
+Traceback:
 Cell In[27], line 1
 ----> 1 df['date'] = pd.to_datetime(df['date'])
 
@@ -130,13 +131,10 @@ df['date'] = df['date'].apply(lambda x: parse_date(x))
 
 Since the dates are not in a consistent format, we need to first figure out which format to use for each date string and then use that format to convert the date.
 
-The best way to do this is with a function. We can call this function `parse_date`.
-</Example 2>
+The best way to do this is with a function. We can call this function `parse_date`.'''))
 
-
-Guidelines for Solutions:
-
-Error Analysis:
+    # Add guidelines
+    sections.append(SG.Generic("Guidelines for Solutions", """Error Analysis:
 
 - Identify error type (Syntax, Runtime, Logic).
 - Use the defined variables and code in the active cell to understand the error.
@@ -156,32 +154,19 @@ Solution Requirements:
 - Do not add temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
 - The code in the SOLUTION section should be a python code block starting with ```python and ending with ```
 - If you encounter a ModuleNotFoundError, you can install the package by adding the the following line to the top of the code cell: `!pip install <package_name> --quiet`.
+"""))
+    
+    # Add actual task sections
+    sections.append(SG.Files(files))
+    sections.append(SG.Variables(variables))
+    sections.append(SG.ActiveCellId(active_cell_id))
+    sections.append(SG.ActiveCellCode(active_cell_code))
+    sections.append(SG.ErrorTraceback(active_cell_id, error_message))
+    
+    sections.append(SG.Task("Perform the ERROR ANALYSIS, INTENT ANALYSIS, and SOLUTION steps to fix the error."))
 
-Here is your task. 
-
-{FILES_SECTION_HEADING}
-{files_str}
-
-{VARIABLES_SECTION_HEADING}
-{variables_str}
-
-{ACTIVE_CELL_ID_SECTION_HEADING}
-{active_cell_id}
-
-{CODE_SECTION_HEADING}
-```python
-{active_cell_code}
-```
-
-Error Traceback:
-{error_message}
-
-ERROR ANALYSIS:
-
-INTENT ANALYSIS:
-
-SOLUTION:
-"""
+    prompt = Prompt(sections)
+    return str(prompt)
 
 
 def remove_inner_thoughts_from_message(message: str) -> str:

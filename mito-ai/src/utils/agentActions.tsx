@@ -9,7 +9,7 @@ import { NotebookActions, NotebookPanel } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
 import { 
-    createCodeCellAtIndexAndActivate, 
+    createCodeCellAfterCellIDAndActivate,
     didCellExecutionError, 
     getActiveCellIDInNotebookPanel, 
     setActiveCellByIDInNotebookPanel, 
@@ -32,7 +32,11 @@ export const acceptAndRunCellUpdate = async (
     // in other notebooks.
     if (cellUpdate.type === 'new' ) {
         // makes the cell the active cell
-        createCodeCellAtIndexAndActivate(notebookPanel, cellUpdate.index)
+        if (cellUpdate.after_cell_id === undefined || cellUpdate.after_cell_id === null) {
+            console.error('after_cell_id is required for new cell creation')
+            return
+        }
+        createCodeCellAfterCellIDAndActivate(notebookPanel, cellUpdate.after_cell_id)
     } else {
         setActiveCellByIDInNotebookPanel(notebookPanel, cellUpdate.id)
     }

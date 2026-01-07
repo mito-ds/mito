@@ -11,6 +11,7 @@ import React, { useEffect, useRef } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { addIcon, historyIcon, deleteIcon, settingsIcon } from '@jupyterlab/ui-components';
 import { ReadonlyPartialJSONObject, UUID } from '@lumino/coreutils';
 
@@ -24,6 +25,7 @@ import {
     COMMAND_MITO_AI_SEND_AGENT_MESSAGE,
     COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE,
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
+    COMMAND_MITO_AI_START_NEW_CHAT,
 } from '../../commands';
 
 // Internal imports - Components
@@ -48,6 +50,7 @@ import {
 import { getActiveCellOutput } from '../../utils/cellOutput';
 import { OperatingSystem } from '../../utils/user';
 import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
+import { ensureNotebookExists } from './utils';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { logEvent } from '../../restAPI/RestAPI';
@@ -121,6 +124,7 @@ interface IChatTaskpaneProps {
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
     websocketClient: CompletionWebsocketClient
+    documentManager: IDocumentManager
 }
 
 // Re-export types from hooks for backward compatibility
@@ -141,6 +145,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     app,
     operatingSystem,
     websocketClient,
+    documentManager,
 }) => {
 
     // User signup state
@@ -373,6 +378,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 3: No post processing step needed for explaining code. 
     }
 
+
     const sendAgentExecutionMessage = async (
         input: string,
         messageIndex?: number,
@@ -382,12 +388,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Step 0: reset the state for a new message
         resetForNewMessage()
-
-        const agentTargetNotebookPanel = agentTargetNotebookPanelRef.current
-
-        if (agentTargetNotebookPanel === null) {
-            return
-        }
 
         // Step 1: Add the user's message to the chat history
         const newChatHistoryManager = getDuplicateChatHistoryManager()
@@ -399,7 +399,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(
             activeThreadIdRef.current, 
-            agentTargetNotebookPanel,
+            agentTargetNotebookPanelRef.current,
             input,
             additionalContext
         )
@@ -407,7 +407,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanel, sendCellIDOutput)
+        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingStatus('thinking');
@@ -428,6 +428,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendChatInputMessage = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
+
+        // Ensure a notebook exists before proceeding
+        await ensureNotebookExists(notebookTracker, documentManager);
 
         // Enable follow mode when user sends a new message
         setAutoScrollFollowMode(true);
@@ -701,6 +704,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         app,
         streamlitPreviewManager,
         websocketClient,
+        documentManager,
         chatHistoryManagerRef,
         activeThreadIdRef,
         activeRequestControllerRef,
@@ -879,6 +883,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             execute: rejectAICode,
             isVisible: () => shouldShowDiffToolbarButtons(notebookTracker, cellStateBeforeDiff.current, agentReview.changedCellsRef.current)
         });
+
+        /*
+            Register global command for starting a new chat.
+            This can be triggered from anywhere with CMD+K (Mac) or Ctrl+K (Windows/Linux).
+        */
+        app.commands.addCommand(COMMAND_MITO_AI_START_NEW_CHAT, {
+            label: 'Start New Chat',
+            execute: async () => {
+                await startNewChat();
+                // Focus the chat input after starting new chat
+                const chatInput: HTMLTextAreaElement | null = document.querySelector('.chat-input');
+                chatInput?.focus();
+            }
+        });
+
+        app.commands.addKeyBinding({
+            command: COMMAND_MITO_AI_START_NEW_CHAT,
+            keys: ['Accel K'],
+            selector: 'body',
+        });
     }, []);
 
     useEffect(() => {
@@ -971,7 +995,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 <div className="chat-taskpane-header-right">
                     <IconButton
                         icon={<addIcon.react />}
-                        title="Start New Chat"
+                        title={`Start New Chat (${operatingSystem === 'mac' ? '⌘' : 'Ctrl'}K)`}
                         onClick={async () => { await startNewChat() }}
                     />
                     <DropdownMenu

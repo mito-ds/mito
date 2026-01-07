@@ -1,0 +1,17 @@
+# Cursor Rules for mito-ai Development
+
+## Jupyter Lab Access Token
+
+When testing Jupyter extension changes, use the token from `.cursor-jupyter-token` file.
+
+The Jupyter Lab URL format is:
+```
+http://localhost:8888/lab?token={token}
+```
+
+To get the token, read it from `.cursor-jupyter-token` in the repo root.
+
+**Important**: 
+1. This token configuration is development-only and will not affect production installations.
+The dev config file (`jupyter-config/jupyter_server_config.d/mito_ai_dev.json`) is gitignored.
+2. If the token is not there, tell the user to run dev/setup_jupyter_dev_token.py and relaunch Jupyter Lab.

@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { expect, test } from '@jupyterlab/galata';
+import { test, expect } from '../fixtures';
 
 test('should display an advice message in empty code cell', async ({
   page
@@ -15,7 +15,7 @@ test('should display an advice message in empty code cell', async ({
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
     .toContainText(
-      'Start writing python or Press'
+      'Write Python or Press'
     );
 
   await page.notebook.setCell(0, 'code', '\nprint("Hello, World!")');
@@ -32,7 +32,7 @@ test('should display an advice message in empty code cell', async ({
   await expect
     .soft((await page.notebook.getCellLocator(0))!.getByRole('textbox'))
     .toContainText(
-      'Start writing python or Press'
+      'Write Python or Press'
     );
 
   await page.keyboard.press('ControlOrMeta+e');

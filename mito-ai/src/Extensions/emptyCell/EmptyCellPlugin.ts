@@ -31,15 +31,18 @@ export const emptyCellPlaceholder: JupyterFrontEndPlugin<void> = {
     tracker: WidgetTracker,
     extensions: IEditorExtensionRegistry
   ): void => {
-    const keyBindings = app.commands.keyBindings.find(
+    const openChatKeyBindings = app.commands.keyBindings.find(
       b => b.command === COMMAND_MITO_AI_OPEN_CHAT
     );
-    const pythonAdvice = `Start writing python or Press ${CommandRegistry.formatKeystroke(
-      keyBindings?.keys[0] ?? 'Accel E'
+    
+    const openChatKeystroke = CommandRegistry.formatKeystroke(
+      openChatKeyBindings?.keys[0] ?? 'Accel E'
     )
       .split(/[+\s]/)
       .map(s => `<kbd>${s}</kbd>`)
-      .join(' + ')} to ask Mito AI to write code for you.`;
+      .join(' + ');
+
+    const pythonAdvice = `Write Python or Press ${openChatKeystroke} to open Mito AI`;
     extensions.addExtension({
       name: 'mito-ai:empty-editor-advice',
       factory: options => {

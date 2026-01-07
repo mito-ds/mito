@@ -3,8 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { expect, test } from '@jupyterlab/galata';
-import { createAndRunNotebookWithCells, waitForIdle } from '../jupyter_utils/jupyterlab_utils';
+import { test, expect } from '../fixtures';
+import { createAndRunNotebookWithCells, waitForIdle, runCell } from '../jupyter_utils/jupyterlab_utils';
 import { updateCellValue } from '../jupyter_utils/mitosheet_utils';
 const placeholderCellText = '# Empty code cell';
 
@@ -74,7 +74,7 @@ test.describe.skip('Dataframe renders as mitosheet', () => {
 
     // Edit the Mitosheet -> rerun df -> edit again
     await updateCellValue(page, 'Aaron', '"Jon"')
-    await page.notebook.runCell(0);
+    await runCell(page, 0);
     await updateCellValue(page, '4', '10')
 
     // Check that there are now two Mito generated code cells

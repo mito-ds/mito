@@ -250,6 +250,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
         removeButtonsFromAllNotebooks();
       }
     });
+
+    // Set Mito Light as default theme if user hasn't explicitly chosen a different theme
+    // This runs after registration so the theme is available
+    if (manager.theme === 'JupyterLab Light' || !manager.theme) {
+      void manager.setTheme('Mito Light');
+    }
   },
   autoStart: true
 };

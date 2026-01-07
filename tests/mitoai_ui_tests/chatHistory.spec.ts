@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { expect, test } from '@jupyterlab/galata';
+import { test, expect } from '../fixtures';
 import {
     createAndRunNotebookWithCells,
     waitForIdle,
