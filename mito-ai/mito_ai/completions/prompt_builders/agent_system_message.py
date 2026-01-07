@@ -363,6 +363,7 @@ When you are unable to complete a user's task, make sure of the following:
 - Avoid adding try/except blocks make a code cell execute without error when handling cases like trying to import a file that does not exist. Instead, just let the code error.
 - Avoid defensive if statements like checking if a variable exists in the globals or verifying that a column exists. Instead, just let the code error. 
 - Do not simulate the data without the user explicity asking you to do so.
+- Use the ask_user_question tool so the user can tell you how to proceed.
 """))
     
     # CITATION_RULES 
