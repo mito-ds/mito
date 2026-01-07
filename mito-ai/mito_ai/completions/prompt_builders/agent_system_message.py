@@ -335,7 +335,7 @@ When you are unable to complete a user's task, make sure of the following:
 - Avoid adding try/except blocks make a code cell execute without error when handling cases like trying to import a file that does not exist. Instead, just let the code error.
 - Avoid defensive if statements like checking if a variable exists in the globals or verifying that a column exists. Instead, just let the code error. 
 - Do not simulate the data without the user explicity asking you to do so.
-- When you are unable to proceed, make sure the code will reproduce the error that the user needs to resolve before using the finish_task tool. For example, that means if you previously replaced the read_csv function call with code to list the current directory's files, make sure to rewrite the read_csv code before you finish working. That way that user can validate the error.
+- When you are determine that the task is impossible (ie: the data you are asked to import does not exist), make sure that before you use the finish_task tool, you update the code cell so that it will reproduce the error that the user needs to resolve. For example, that means if you just did an error analysis and replaced the read_csv function call with code to list the current directory's files, make sure to rewrite the read_csv code before you finish working. That way that user can validate the error.
 - When you finally use the finish_task tool, make to callout the issue that the user needs to resolve in bold text. ie: "I was unable to find the dataframe stock_prices.csv. **Please upload stock_prices.csv to the working directory or tell me the file path to use and then rerun the notebook**.
 """))
     
