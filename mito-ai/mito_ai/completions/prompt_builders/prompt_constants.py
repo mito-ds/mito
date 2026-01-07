@@ -20,6 +20,7 @@ Rules:
 - Variables with multiple words should be underscore-separated.
 - All colors should be in hex format.
 - Each line should contain only one variable assignment.
+- Variables can only be strings, numbers, booleans, tuples, or lists. 
 
 Example:
 # === CHART CONFIG ===
