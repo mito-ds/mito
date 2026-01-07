@@ -158,6 +158,8 @@ export const retryIfExecutionError = async (
                 // The error will be caught in the main loop
                 console.log('Error after running all cells:', result.errorMessage);
             }
+        } else if (agentResponse.type === 'ask_user_question' || agentResponse.type === 'finished_task') {
+            return 'success'
         } else {
             // Agent responded with an unexpected type for error fixing
             return 'failure'

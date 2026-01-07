@@ -386,7 +386,12 @@ export class ChatHistoryManager {
         if (agentResponse.type === 'ask_user_question') {
             // For ask_user_question for now, we just add the question and answers into the content
             // and see if the AI can use this to resolve issues. If so, we will polish the UI.
-            content = `${agentResponse.message}\n ${agentResponse.question}\n ${agentResponse.answers ? agentResponse.answers.join("\n") : ''}`
+            let formattedAnswers = ""
+            if (agentResponse.answers !== null && agentResponse.answers !== undefined) {
+                const answers = agentResponse.answers.map(answer => `\n\n- ${answer}`)
+                formattedAnswers = answers.join()
+            }
+            content = `${agentResponse.message}\n ${agentResponse.question}\n ${formattedAnswers}`
         }
 
         const aiMessage: OpenAI.Chat.ChatCompletionMessageParam = {
