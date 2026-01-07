@@ -389,7 +389,7 @@ export class ChatHistoryManager {
             let formattedAnswers = ""
             if (agentResponse.answers !== null && agentResponse.answers !== undefined) {
                 const answers = agentResponse.answers.map(answer => `\n\n- ${answer}`)
-                formattedAnswers = answers.join()
+                formattedAnswers = answers.join('')
             }
             content = `${agentResponse.message}\n ${agentResponse.question}\n ${formattedAnswers}`
         }

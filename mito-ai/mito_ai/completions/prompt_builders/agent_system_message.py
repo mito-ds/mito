@@ -229,7 +229,7 @@ When you are unsure on how to proceed and need more guidance from the user, you 
 
 {{
     type: 'ask_user_question',
-    message: str
+    message: str,
     question: str,
     answers: Optional[List[str]]
 }}

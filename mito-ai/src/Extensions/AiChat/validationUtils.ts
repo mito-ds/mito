@@ -48,6 +48,9 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     if (correctedResponse.answers !== undefined && correctedResponse.answers !== null) {
         correctedResponse.answers = correctStringArray(correctedResponse.answers);
     }
+    if (correctedResponse.type === 'ask_user_question' && typeof correctedResponse.question !== 'string') {
+        correctedResponse.question = ""
+    }
     
     // Correct analysis_assumptions - handle string to array conversion
     if (correctedResponse.analysis_assumptions !== undefined && correctedResponse.analysis_assumptions !== null) {

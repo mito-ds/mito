@@ -49,7 +49,7 @@ ERROR CORRECTION:
 - Propose a solution that fixes the error and does not change the user's intent.
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
-- DO NOT ADD TEMPORARY COMMENTS like '# Fixed the typo here' or '# Added this line to fix the error'\
+- DO NOT ADD TEMPORARY COMMENTS like '# Fixed the typo here' or '# Added this line to fix the error'
 - If you encounter a ModuleNotFoundError, you can install the package by adding the the following line to the top of the code cell: `!pip install <package_name> --quiet`.
 - If the error is not resolvable without getting more information from the user, you can respond with a ASK_USER_QUESTION tool call.
 - If you encounter a NameError, you can use the RUN_ALL_CELLS tool to run all cells from the top of the notebook to the bottom to bring the variable into scope.
