@@ -6,7 +6,21 @@
 .ask-user-question-container {
     flex-direction: column;
     align-items: flex-start;
-    padding: 12px;
+    padding: 8px var(--chat-taskpane-tool-call-horizontal-padding);
+    border: 1px solid var(--jp-brand-color1) !important;
+    position: relative;
+}
+
+.ask-user-question-header-label {
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    background-color: var(--chat-background-color);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--jp-ui-font-color2);
+    font-style: italic;
 }
 
 .ask-user-question-container .agent-tool-ui-content {
@@ -14,6 +28,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+    margin-top: 0;
 }
 
 .ask-user-question-content {
@@ -22,6 +37,7 @@
     gap: 10px;
     width: 100%;
     margin-left: 0;
+    padding: 10px 10px 5px 10px;
 }
 
 .ask-user-question-message {
@@ -103,6 +119,8 @@
     align-items: flex-start;
     gap: 10px;
     width: 100%;
+    margin-top: 0;
+    padding: 10px 10px 5px 10px;
 }
 
 .ask-user-question-collapsed-content {

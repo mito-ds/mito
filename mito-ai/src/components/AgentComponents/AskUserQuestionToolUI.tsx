@@ -7,7 +7,6 @@ import React from 'react';
 import { classNames } from '../../utils/classNames';
 import '../../../style/AgentToolUIComponent.css';
 import '../../../style/AskUserQuestionToolUI.css';
-import QuestionIcon from '../../icons/QuestionIcon';
 
 interface AskUserQuestionToolUIProps {
     message: string;
@@ -34,8 +33,10 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
     if (!isLastMessage) {
         return (
             <div className={classNames('agent-tool-ui-container', 'ask-user-question-container', 'ask-user-question-collapsed')}>
+                <div className="ask-user-question-header-label">
+                    [Action Required]: Question for you
+                </div>
                 <div className="agent-tool-ui-content">
-                    <QuestionIcon />
                     <div className="ask-user-question-collapsed-content">
                         <span className="ask-user-question-question">{question}</span>
                         {answers && answers.length > 0 && (
@@ -54,8 +55,10 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
     // Active mode: show interactive UI with clickable buttons
     return (
         <div className={classNames('agent-tool-ui-container', 'ask-user-question-container')}>
+            <div className="ask-user-question-header-label">
+                [Action Required]: Question for you
+            </div>
             <div className="agent-tool-ui-content">
-                <QuestionIcon />
                 <div className="ask-user-question-content">
                     <div className="ask-user-question-question">
                         {question}
