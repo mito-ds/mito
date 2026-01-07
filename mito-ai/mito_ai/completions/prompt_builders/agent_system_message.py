@@ -354,9 +354,17 @@ Important information:
 - When updating code, keep as much of the original code as possible and do not recreate variables that already exist.
 - When you want to display a dataframe to the user, just write the dataframe on the last line of the code cell instead of writing print(<dataframe name>). Jupyter will automatically display the dataframe in the notebook.
 - When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter.
-- Avoid adding try/except blocks make a code cell execute without error when handling cases like trying to import a file that does not exist. Instead, just let the code error and use the ask_user_question tool to figure out how to proceed.
+- Avoid adding try/except blocks unless there is a very good reason. Do not use them for things like: 
+    ```
+    try: 
+        df = pd.read_csv('my_data.csv')
+    except: 
+        print("File not found")
+    ```
+    Instead, just let the cell error and use the ask_user_question tool to figure out how to proceed.
 - Avoid defensive if statements like checking if a variable exists in the globals or verifying that a column exists. Instead, just let the code error and use the ask_user_question tool to figure out how to proceed.
 - Do not simulate the data without the user explicity asking you to do so.
+- Do not replace broken code with print statements that explain the issue. Instead, leave the broken code in the notebook and use the ask_user_question tools to communicate the issue to the user and figure out how to proceed.
 """))
     
     # CITATION_RULES 
