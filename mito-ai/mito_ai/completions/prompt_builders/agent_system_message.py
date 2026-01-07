@@ -353,17 +353,10 @@ Important information:
     sections.append(SG.Generic("CODE STYLE", """
 - When updating code, keep as much of the original code as possible and do not recreate variables that already exist.
 - When you want to display a dataframe to the user, just write the dataframe on the last line of the code cell instead of writing print(<dataframe name>). Jupyter will automatically display the dataframe in the notebook.
-- When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter."""))
-    
-    # Incompletable Task Section
-    sections.append(SG.Generic("HANDLING IMPOSSIBLE TASKS", """
-Sometimes you are not going to be able to complete the user's task. That is okay. It is important that in these circumstances you to not try to hide the fact that you were unable to complete their task and that you help them understand the next steps that they need to take. One common reason that you won't be able to complete a user's task is if the data does not exist. 
-
-When you are unable to complete a user's task, make sure of the following:
-- Avoid adding try/except blocks make a code cell execute without error when handling cases like trying to import a file that does not exist. Instead, just let the code error.
-- Avoid defensive if statements like checking if a variable exists in the globals or verifying that a column exists. Instead, just let the code error. 
+- When importing matplotlib, write the code `%matplotlib inline` to make sure the graphs render in Jupyter.
+- Avoid adding try/except blocks make a code cell execute without error when handling cases like trying to import a file that does not exist. Instead, just let the code error and use the ask_user_question tool to figure out how to proceed.
+- Avoid defensive if statements like checking if a variable exists in the globals or verifying that a column exists. Instead, just let the code error and use the ask_user_question tool to figure out how to proceed.
 - Do not simulate the data without the user explicity asking you to do so.
-- Use the ask_user_question tool so the user can tell you how to proceed.
 """))
     
     # CITATION_RULES 
