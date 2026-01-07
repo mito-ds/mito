@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.ask-user-question-container {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+}
+
+.ask-user-question-container .agent-tool-ui-content {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.ask-user-question-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-left: 0;
+}
+
+.ask-user-question-message {
+    color: var(--jp-ui-font-color1);
+    font-size: var(--jp-ui-font-size1);
+    line-height: 1.5;
+}
+
+.ask-user-question-question {
+    color: var(--jp-ui-font-color0);
+    font-size: var(--jp-ui-font-size1);
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.ask-user-question-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.ask-user-question-answer-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background-color: var(--jp-layout-color1);
+    border: 1px solid var(--jp-cell-editor-border-color);
+    border-radius: 4px;
+    color: var(--jp-ui-font-color1);
+    font-size: var(--jp-ui-font-size1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.ask-user-question-answer-button:hover:not(:disabled) {
+    background-color: var(--jp-layout-color2);
+    border-color: var(--jp-brand-color1);
+    color: var(--jp-ui-font-color0);
+}
+
+.ask-user-question-answer-button:active:not(:disabled) {
+    background-color: var(--jp-layout-color3);
+    border-color: var(--jp-brand-color1);
+}
+
+.ask-user-question-answer-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ask-user-question-answer-text {
+    flex: 1;
+    text-align: left;
+}
+
+.ask-user-question-answer-arrow {
+    color: var(--jp-ui-font-color2);
+    font-size: var(--jp-ui-font-size1);
+    margin-left: auto;
+}
+
+.ask-user-question-answer-button:hover:not(:disabled) .ask-user-question-answer-arrow {
+    color: var(--jp-brand-color1);
+}

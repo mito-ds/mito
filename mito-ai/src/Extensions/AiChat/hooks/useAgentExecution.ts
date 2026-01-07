@@ -327,7 +327,8 @@ export const useAgentExecution = ({
             }
 
             if (agentResponse.type === 'ask_user_question') {
-                // TODO: For testing purposes, just stop the agent
+                // When the agent asks a question, we stop execution and wait for the user's response.
+                // The agent will automatically resume when the user responds
                 await markAgentForStopping();
                 isAgentFinished = true;
                 break; 

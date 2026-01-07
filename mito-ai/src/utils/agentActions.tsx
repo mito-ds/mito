@@ -159,7 +159,10 @@ export const retryIfExecutionError = async (
                 console.log('Error after running all cells:', result.errorMessage);
             }
         } else if (agentResponse.type === 'ask_user_question' || agentResponse.type === 'finished_task') {
-            return 'success'
+            // When the agent asks a question during error retry, we should stop the agent execution
+            // and wait for the user's response, just like in the main execution loop
+            await markAgentForStopping();
+            return 'interupted'
         } else {
             // Agent responded with an unexpected type for error fixing
             return 'failure'

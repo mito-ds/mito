@@ -235,16 +235,23 @@ When you are unsure on how to proceed and need more guidance from the user, you 
 }}
 
 Important information:
-1. The message should be a short description of what you've tried so far and why you need to ask the user a question now.
-2. The question should be include a concise overview of any context the user needs to answer the question and it should ask the user a short specific question. 
-3. Use the optional list of answers to provide the user a multiple choice options to choose from. If there are no obvious answers, leave it blank and the user will just respond in the text input field.
+1. Use this tool when you need clarification from the user on how to proceed. Common scenarios include:
+   - A file or resource doesn't exist and you need to know how to proceed
+   - There are multiple valid approaches and you want the user to choose
+   - You need clarification on ambiguous requirements
+   - You encounter an error that requires user input to resolve
+2. The message should be a short description of what you've tried so far and why you need to ask the user a question now. This helps the user understand the context.
+3. The question should include a concise overview of any context the user needs to answer the question, and it should ask the user a short, specific question. Be clear and direct.
+4. Use the optional list of answers to provide the user multiple choice options to choose from. This makes it easier for the user to respond. If there are no obvious predefined answers, leave it blank and the user will respond in the text input field.
+5. After the user responds to your question, you will receive their response in the next message and can continue with the task based on their answer.
+6. Do not use this tool for trivial questions that you can reasonably infer from context. Only use it when you genuinely cannot proceed without user input.
 
     <Example>
     {{
         type: 'ask_user_question',
-        message: "I tried importing apple_prices.csv and confirmed that it does not exist in the current working directory, so I need you to explain to me how you want me to proceed".
+        message: "I tried importing apple_prices.csv and confirmed that it does not exist in the current working directory, so I need you to explain to me how you want me to proceed",
         question: "The file apple_prices.csv does not exist in your current working directory. How do you want me to proceed?",
-        answers: ["Pull Apple Stock prices using yfinance API", "Create placeholder data"]
+        answers: ["Pull Apple Stock prices using yfinance API", "Create placeholder data", "Skip this step"]
     }}
     </Example>
 

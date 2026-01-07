@@ -8,10 +8,12 @@ import { IDisplayOptimizedChatItem } from '../../Extensions/AiChat/ChatHistoryMa
 import { OpenAI } from 'openai';
 
 // Helper function to create mock chat items
+// Note: This function is used for testing processChatHistoryForErrorGrouping, which only runs in agent mode.
+// Therefore, the default promptType is 'agent:execution' instead of 'chat'.
 const createMockChatItem = (
     role: 'user' | 'assistant',
     content: string,
-    promptType: 'chat' | 'agent:autoErrorFixup' | 'smartDebug' = 'chat'
+    promptType: 'chat' | 'agent:execution' | 'agent:autoErrorFixup' | 'smartDebug' = 'agent:execution'
 ): IDisplayOptimizedChatItem => ({
     message: {
         role,
@@ -33,6 +35,25 @@ const createAgentAutoErrorFixupMessage = (content: string): IDisplayOptimizedCha
     codeCellID: undefined
 });
 
+// Helper function to create assistant message with specific agentResponse type
+const createAssistantMessageWithAgentResponse = (
+    content: string,
+    agentResponseType: 'cell_update' | 'run_all_cells' | 'finished_task' | 'ask_user_question',
+    agentResponse?: any
+): IDisplayOptimizedChatItem => ({
+    message: {
+        role: 'assistant',
+        content
+    } as OpenAI.Chat.ChatCompletionMessageParam,
+    type: 'openai message',
+    promptType: 'agent:execution',
+    codeCellID: undefined,
+    agentResponse: agentResponse || {
+        type: agentResponseType,
+        message: content
+    }
+});
+
 describe('processChatHistoryForErrorGrouping', () => {
     describe('basic functionality', () => {
         test('should handle empty chat history', () => {
@@ -40,15 +61,15 @@ describe('processChatHistoryForErrorGrouping', () => {
             expect(result).toEqual([]);
         });
 
-        test('should handle chat with no errors', () => {
-            const chatHistory = [
-                createMockChatItem('user', 'Hello, can you help me?'),
-                createMockChatItem('assistant', 'Of course! What do you need help with?'),
-                createMockChatItem('user', 'I need to analyze some data'),
-                createMockChatItem('assistant', 'Sure, I can help you with data analysis.')
-            ];
-
+        test('should handle agent execution with no errors', () => {
+            // In agent mode, messages are agent execution messages with structured responses
+            const userMessage = createMockChatItem('user', 'Import data from stocks.csv');
+            const agentResponse = createAssistantMessageWithAgentResponse('I will import the data.', 'cell_update');
+            
+            const chatHistory = [userMessage, agentResponse];
             const result = processChatHistoryForErrorGrouping(chatHistory);
+            
+            // No errors, so no grouping - messages remain as-is
             expect(result).toEqual(chatHistory);
         });
     });
@@ -57,7 +78,7 @@ describe('processChatHistoryForErrorGrouping', () => {
 
         test('should group agent auto error fixup message with AI response', () => {
             const errorMessage = createAgentAutoErrorFixupMessage('ValueError: invalid literal for int()');
-            const aiResponse = createMockChatItem('assistant', 'I found the issue and will fix it.');
+            const aiResponse = createAssistantMessageWithAgentResponse('I found the issue and will fix it.', 'cell_update');
             
             const chatHistory = [errorMessage, aiResponse];
             const result = processChatHistoryForErrorGrouping(chatHistory);
@@ -67,7 +88,7 @@ describe('processChatHistoryForErrorGrouping', () => {
 
         test('should handle error fixup message with caret pattern', () => {
             const errorMessage = createAgentAutoErrorFixupMessage('SyntaxError: invalid syntax\n  x = 1 +\n        ^\nSyntaxError: message');
-            const aiResponse = createMockChatItem('assistant', 'I see the syntax error. Let me fix it.');
+            const aiResponse = createAssistantMessageWithAgentResponse('I see the syntax error. Let me fix it.', 'cell_update');
             
             const chatHistory = [errorMessage, aiResponse];
             const result = processChatHistoryForErrorGrouping(chatHistory);
@@ -99,9 +120,9 @@ describe('processChatHistoryForErrorGrouping', () => {
 
         test('should handle back-to-back error messages', () => {
             const errorMessage1 = createAgentAutoErrorFixupMessage('NameError: name "df" is not defined -> line 1');
-            const aiResponse1 = createMockChatItem('assistant', 'I see the first error, let me fix it.');
+            const aiResponse1 = createAssistantMessageWithAgentResponse('I see the first error, let me fix it.', 'cell_update');
             const errorMessage2 = createAgentAutoErrorFixupMessage('KeyError: column not found -> line 10');
-            const aiResponse2 = createMockChatItem('assistant', 'Now I see another error, fixing that too.');
+            const aiResponse2 = createAssistantMessageWithAgentResponse('Now I see another error, fixing that too.', 'cell_update');
             
             const chatHistory = [errorMessage1, aiResponse1, errorMessage2, aiResponse2];
             const result = processChatHistoryForErrorGrouping(chatHistory);
@@ -110,66 +131,68 @@ describe('processChatHistoryForErrorGrouping', () => {
             expect(result).toEqual([[errorMessage1, aiResponse1, errorMessage2, aiResponse2]]);
         });
 
-        test('should separate error groups when interrupted by normal messages', () => {
+        test('should separate error groups when interrupted by agent execution messages', () => {
+            // In agent mode, messages between errors would be agent execution messages, not regular chat
             const errorMessage1 = createAgentAutoErrorFixupMessage('TypeError: bad operand -> line 2');
-            const aiResponse1 = createMockChatItem('assistant', 'Fixed the first error.');
-            const normalMessage = createMockChatItem('user', 'Great! Now can you add a plot?');
-            const normalResponse = createMockChatItem('assistant', 'Sure, I will add a plot.');
+            const aiResponse1 = createAssistantMessageWithAgentResponse('Fixed the first error.', 'cell_update');
+            const userMessage = createMockChatItem('user', 'Great! Now can you add a plot?');
+            const agentResponse = createAssistantMessageWithAgentResponse('Sure, I will add a plot.', 'cell_update');
             const errorMessage2 = createAgentAutoErrorFixupMessage('ImportError: module not found');
-            const aiResponse2 = createMockChatItem('assistant', 'I will fix this import error.');
+            const aiResponse2 = createAssistantMessageWithAgentResponse('I will fix this import error.', 'cell_update');
             
-            const chatHistory = [errorMessage1, aiResponse1, normalMessage, normalResponse, errorMessage2, aiResponse2];
+            const chatHistory = [errorMessage1, aiResponse1, userMessage, agentResponse, errorMessage2, aiResponse2];
             const result = processChatHistoryForErrorGrouping(chatHistory);
             
             expect(result).toEqual([
                 [errorMessage1, aiResponse1], // First error group
-                normalMessage,                 // Normal message
-                normalResponse,               // Normal response
+                userMessage,                   // User message (not grouped)
+                agentResponse,                 // Agent response (not grouped, no error before it)
                 [errorMessage2, aiResponse2]  // Second error group
             ]);
         });
     });
 
     describe('complex scenarios', () => {
-        test('should handle mixed chat with multiple error patterns', () => {
-            const normalMessage1 = createMockChatItem('user', 'Can you help me analyze this data?');
-            const normalResponse1 = createMockChatItem('assistant', 'Of course! Let me start.');
+        test('should handle agent execution with multiple error patterns', () => {
+            // In agent mode, all messages are part of agent execution flow
+            const userMessage1 = createMockChatItem('user', 'Can you help me analyze this data?');
+            const agentResponse1 = createAssistantMessageWithAgentResponse('Of course! Let me start.', 'cell_update');
             const errorMessage1 = createAgentAutoErrorFixupMessage('ValueError: could not convert string to float -> line 5');
-            const aiResponse1 = createMockChatItem('assistant', 'I see the conversion error, fixing it now.');
+            const aiResponse1 = createAssistantMessageWithAgentResponse('I see the conversion error, fixing it now.', 'cell_update');
             const errorMessage2 = createAgentAutoErrorFixupMessage('AttributeError: DataFrame object has no attribute');
-            const aiResponse2 = createMockChatItem('assistant', 'Fixed the attribute error.');
-            const normalMessage2 = createMockChatItem('user', 'Perfect! Can you also create a summary?');
-            const normalResponse2 = createMockChatItem('assistant', 'Here is your summary.');
+            const aiResponse2 = createAssistantMessageWithAgentResponse('Fixed the attribute error.', 'cell_update');
+            const userMessage2 = createMockChatItem('user', 'Perfect! Can you also create a summary?');
+            const agentResponse2 = createAssistantMessageWithAgentResponse('Here is your summary.', 'finished_task');
             
             const chatHistory = [
-                normalMessage1, normalResponse1, 
+                userMessage1, agentResponse1, 
                 errorMessage1, aiResponse1, errorMessage2, aiResponse2,
-                normalMessage2, normalResponse2
+                userMessage2, agentResponse2
             ];
             const result = processChatHistoryForErrorGrouping(chatHistory);
             
             expect(result).toEqual([
-                normalMessage1,
-                normalResponse1,
+                userMessage1,
+                agentResponse1,
                 [errorMessage1, aiResponse1, errorMessage2, aiResponse2], // Grouped errors
-                normalMessage2,
-                normalResponse2
+                userMessage2,
+                agentResponse2
             ]);
         });
 
-        test('should handle chat ending with error messages', () => {
-            const normalMessage = createMockChatItem('user', 'Let me try this code');
-            const normalResponse = createMockChatItem('assistant', 'Good idea, let me help.');
+        test('should handle agent execution ending with error messages', () => {
+            const userMessage = createMockChatItem('user', 'Let me try this code');
+            const agentResponse = createAssistantMessageWithAgentResponse('Good idea, let me help.', 'cell_update');
             const errorMessage1 = createAgentAutoErrorFixupMessage('ZeroDivisionError: division by zero -> line 8');
-            const aiResponse1 = createMockChatItem('assistant', 'I see the division error.');
+            const aiResponse1 = createAssistantMessageWithAgentResponse('I see the division error.', 'cell_update');
             const errorMessage2 = createAgentAutoErrorFixupMessage('RuntimeError: operation failed');
             
-            const chatHistory = [normalMessage, normalResponse, errorMessage1, aiResponse1, errorMessage2];
+            const chatHistory = [userMessage, agentResponse, errorMessage1, aiResponse1, errorMessage2];
             const result = processChatHistoryForErrorGrouping(chatHistory);
             
             expect(result).toEqual([
-                normalMessage,
-                normalResponse,
+                userMessage,
+                agentResponse,
                 [errorMessage1, aiResponse1, errorMessage2] // Error messages at the end are grouped
             ]);
         });
@@ -177,70 +200,193 @@ describe('processChatHistoryForErrorGrouping', () => {
 
     describe('undefined or null handling', () => {
         test('should skip undefined items in chat history', () => {
-            const normalMessage = createMockChatItem('user', 'Hello');
+            const userMessage = createMockChatItem('user', 'Hello');
             const errorMessage = createAgentAutoErrorFixupMessage('Error: something went wrong -> line 1');
-            const aiResponse = createMockChatItem('assistant', 'Fixed the error');
+            const aiResponse = createAssistantMessageWithAgentResponse('Fixed the error', 'cell_update');
             
-            const chatHistory = [normalMessage, undefined, errorMessage, aiResponse] as (IDisplayOptimizedChatItem | undefined)[];
+            const chatHistory = [userMessage, undefined, errorMessage, aiResponse] as (IDisplayOptimizedChatItem | undefined)[];
             const result = processChatHistoryForErrorGrouping(chatHistory as IDisplayOptimizedChatItem[]);
             
             expect(result).toEqual([
-                normalMessage,
+                userMessage,
                 [errorMessage, aiResponse]
             ]);
         });
     });
 
     describe('agent mode behavior simulation', () => {
-        test('should demonstrate that when agent mode is disabled, error messages are not grouped (this function should not be called)', () => {
-            // This test documents the expected behavior when agentModeEnabled is false
-            // In ChatTaskpane.tsx, when agentModeEnabled is false, this function is not called
-            // and the original chat history is used as-is, treating error messages as individual items
+        test('should demonstrate that this function only runs in agent mode', () => {
+            // This test documents that processChatHistoryForErrorGrouping is only called when agentModeEnabled is true
+            // In ChatTaskpane.tsx, when agentModeEnabled is false, this function is not called at all
+            // All messages in agent mode should have structured agentResponse types
             
-            const normalMessage = createMockChatItem('user', 'Hello');
+            const userMessage = createMockChatItem('user', 'Hello');
             const errorMessage = createAgentAutoErrorFixupMessage('NameError: name "x" is not defined');
-            const aiResponse = createMockChatItem('assistant', 'I see the error. Let me fix that.');
+            const aiResponse = createAssistantMessageWithAgentResponse('I see the error. Let me fix that.', 'cell_update');
             const followupMessage = createMockChatItem('user', 'Thanks!');
             
-            const originalChatHistory = [normalMessage, errorMessage, aiResponse, followupMessage];
+            const agentModeChatHistory = [userMessage, errorMessage, aiResponse, followupMessage];
             
-            // When agent mode is disabled, the original chat history should be used as-is
-            // without any grouping (this simulates the behavior in ChatTaskpane.tsx)
-            const resultWhenAgentModeDisabled = originalChatHistory;
+            // When agent mode is enabled, error messages are grouped with their responses
+            const resultWhenAgentModeEnabled = processChatHistoryForErrorGrouping(agentModeChatHistory);
             
-            // When agent mode is enabled, the error messages would be grouped
-            const resultWhenAgentModeEnabled = processChatHistoryForErrorGrouping(originalChatHistory);
-            
-            // Verify that they produce different results
-            expect(resultWhenAgentModeDisabled).toEqual([normalMessage, errorMessage, aiResponse, followupMessage]);
-            expect(resultWhenAgentModeEnabled).toEqual([normalMessage, [errorMessage, aiResponse], followupMessage]);
-            
-            // This demonstrates that error grouping only happens when agent mode is enabled
-            expect(resultWhenAgentModeDisabled).not.toEqual(resultWhenAgentModeEnabled);
+            // Verify grouping behavior in agent mode
+            expect(resultWhenAgentModeEnabled).toEqual([userMessage, [errorMessage, aiResponse], followupMessage]);
         });
 
-        test('should show that error fixup messages remain individual when agent mode is disabled', () => {
-            // This test simulates the scenario where we have error fixup messages
-            // but they should be treated as individual messages (like when agent mode is off)
+        test('should handle consecutive error messages without assistant responses', () => {
+            // In agent mode, error messages should always be followed by assistant responses.
+            // However, if we encounter consecutive error messages (edge case - e.g., agent was stopped),
+            // each should be treated as a standalone error group since there's no assistant response to group with.
             
             const errorMessage1 = createAgentAutoErrorFixupMessage('TypeError: unsupported operand -> line 3');
             const errorMessage2 = createAgentAutoErrorFixupMessage('ValueError: invalid literal -> line 8');
-            const normalMessage = createMockChatItem('user', 'Let me try a different approach');
+            const userMessage = createMockChatItem('user', 'Let me try a different approach');
             
-            const chatHistory = [errorMessage1, errorMessage2, normalMessage];
+            const chatHistory = [errorMessage1, errorMessage2, userMessage];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
             
-            // The original behavior (what would happen if agent mode was disabled)
-            const originalBehavior = chatHistory;
-            
-            // The grouped behavior (what happens when agent mode is enabled and this function is called)
-            const groupedBehavior = processChatHistoryForErrorGrouping(chatHistory);
-            
-            // Verify the difference
-            expect(originalBehavior).toEqual([errorMessage1, errorMessage2, normalMessage]);
-            expect(groupedBehavior).toEqual([[errorMessage1, errorMessage2], normalMessage]);
-            
-            // This documents that when agent mode is disabled, even consecutive error messages
-            // should remain as individual items rather than being grouped together
+            // Each error message should be in its own group since there's no assistant response to group with
+            expect(result).toEqual([[errorMessage1], [errorMessage2], userMessage]);
+        });
+    });
+
+    describe('agent response type filtering', () => {
+        test('should group error with cell_update response', () => {
+            const errorMessage = createAgentAutoErrorFixupMessage('FileNotFoundError: stocks.csv not found');
+            const cellUpdateResponse = createAssistantMessageWithAgentResponse(
+                'I will fix the file path issue.',
+                'cell_update',
+                {
+                    type: 'cell_update',
+                    message: 'I will fix the file path issue.',
+                    cell_update: {
+                        type: 'new',
+                        after_cell_id: 'some-cell-id',
+                        code: 'df = pd.read_csv("stocks.csv")',
+                        code_summary: 'Loading stocks data',
+                        cell_type: 'code'
+                    }
+                }
+            );
+
+            const chatHistory = [errorMessage, cellUpdateResponse];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // Error and cell_update should be grouped together
+            expect(result).toEqual([[errorMessage, cellUpdateResponse]]);
+        });
+
+        test('should group multiple error/cell_update cycles', () => {
+            const error1 = createAgentAutoErrorFixupMessage('FileNotFoundError: stocks.csv not found');
+            const cellUpdate1 = createAssistantMessageWithAgentResponse('Fixing file path', 'cell_update');
+            const error2 = createAgentAutoErrorFixupMessage('KeyError: column not found');
+            const cellUpdate2 = createAssistantMessageWithAgentResponse('Fixing column name', 'cell_update');
+            const error3 = createAgentAutoErrorFixupMessage('ValueError: invalid data type');
+            const cellUpdate3 = createAssistantMessageWithAgentResponse('Fixing data type', 'cell_update');
+
+            const chatHistory = [error1, cellUpdate1, error2, cellUpdate2, error3, cellUpdate3];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // All error/cell_update pairs should be grouped together
+            expect(result).toEqual([[error1, cellUpdate1, error2, cellUpdate2, error3, cellUpdate3]]);
+        });
+
+        test('should NOT group error with finished_task response', () => {
+            const errorMessage = createAgentAutoErrorFixupMessage('FileNotFoundError: stocks.csv not found');
+            const finishedTaskResponse = createAssistantMessageWithAgentResponse(
+                'I cannot proceed without the file. Please provide the file path.',
+                'finished_task',
+                {
+                    type: 'finished_task',
+                    message: 'I cannot proceed without the file. Please provide the file path.',
+                    next_steps: ['Provide the file path', 'Create sample data']
+                }
+            );
+
+            const chatHistory = [errorMessage, finishedTaskResponse];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // Error should be standalone, finished_task should be separate (not grouped)
+            expect(result).toEqual([[errorMessage], finishedTaskResponse]);
+        });
+
+        test('should NOT group error with ask_user_question response', () => {
+            const errorMessage = createAgentAutoErrorFixupMessage('FileNotFoundError: stocks.csv not found');
+            const askUserQuestionResponse = createAssistantMessageWithAgentResponse(
+                'I need to know how to proceed.',
+                'ask_user_question',
+                {
+                    type: 'ask_user_question',
+                    message: 'The file stocks.csv does not exist.',
+                    question: 'Where is the stocks.csv file located, or would you like me to create sample stock data?',
+                    answers: ['The file is in a different folder', 'Create sample stock data']
+                }
+            );
+
+            const chatHistory = [errorMessage, askUserQuestionResponse];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // Error should be standalone, ask_user_question should be separate (not grouped)
+            expect(result).toEqual([[errorMessage], askUserQuestionResponse]);
+        });
+
+        test('should group error with run_all_cells response', () => {
+            const errorMessage = createAgentAutoErrorFixupMessage('NameError: name "df" is not defined');
+            const runAllCellsResponse = createAssistantMessageWithAgentResponse(
+                'I will run all cells to bring variables into scope.',
+                'run_all_cells',
+                {
+                    type: 'run_all_cells',
+                    message: 'I will run all cells to bring variables into scope.'
+                }
+            );
+
+            const chatHistory = [errorMessage, runAllCellsResponse];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // Error and run_all_cells should be grouped together
+            expect(result).toEqual([[errorMessage, runAllCellsResponse]]);
+        });
+
+        test('should handle mixed response types in error sequence', () => {
+            const error1 = createAgentAutoErrorFixupMessage('FileNotFoundError: stocks.csv not found');
+            const cellUpdate1 = createAssistantMessageWithAgentResponse('Fixing file path', 'cell_update');
+            const error2 = createAgentAutoErrorFixupMessage('KeyError: column not found');
+            const askUserQuestion = createAssistantMessageWithAgentResponse(
+                'I need clarification.',
+                'ask_user_question',
+                {
+                    type: 'ask_user_question',
+                    message: 'I need to know which column to use.',
+                    question: 'Which column should I use?',
+                    answers: ['Column A', 'Column B']
+                }
+            );
+            const error3 = createAgentAutoErrorFixupMessage('ValueError: invalid data');
+            const finishedTask = createAssistantMessageWithAgentResponse(
+                'Task completed.',
+                'finished_task',
+                {
+                    type: 'finished_task',
+                    message: 'Task completed.',
+                    next_steps: []
+                }
+            );
+
+            const chatHistory = [error1, cellUpdate1, error2, askUserQuestion, error3, finishedTask];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // All consecutive error messages and their cell_update responses are grouped together.
+            // This keeps the error-fixing flow collapsed in the UI.
+            // When a non-groupable response (ask_user_question, finished_task) appears,
+            // it ends the group and displays separately with its dedicated UI component.
+            expect(result).toEqual([
+                [error1, cellUpdate1, error2],  // All error-fixing grouped together
+                askUserQuestion,                 // Separate: ask_user_question with UI
+                [error3],                        // Standalone: error (finished_task not grouped)
+                finishedTask                     // Separate: finished_task with UI
+            ]);
         });
     });
 });
