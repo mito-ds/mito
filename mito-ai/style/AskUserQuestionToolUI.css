@@ -130,6 +130,20 @@
     text-align: left;
 }
 
+.ask-user-question-subtext {
+    color: var(--jp-ui-font-color2);
+    font-size: 11px;
+    line-height: 1.4;
+    margin-top: 8px;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Align subtext with radio button circles when options are present */
+.ask-user-question-answers + .ask-user-question-subtext {
+    padding-left: 14px; /* Matches button left padding to align with radio button circles */
+}
+
 /* Collapsed mode styles */
 .ask-user-question-collapsed {
     display: flex;

@@ -93,6 +93,9 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
                             ))}
                         </div>
                     )}
+                    <div className="ask-user-question-subtext">
+                        {answers && answers.length > 0 ? 'Or respond in the Chat Input below' : 'Respond in the Chat Input below'}
+                    </div>
                 </div>
             </div>
         </div>
