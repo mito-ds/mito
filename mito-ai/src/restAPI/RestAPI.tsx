@@ -63,10 +63,14 @@ RULES ENDPOINTS
 
 ************************************/
 
-export const setRule = async(ruleName: string, ruleContent: string): Promise<string> => {
+export const setRule = async(ruleName: string, ruleContent: string, ruleType: string = 'manual', googleDriveUrl?: string): Promise<string> => {
     const resp = await requestAPI<string>(`rules/${ruleName}`, {
         method: 'PUT',
-        body: JSON.stringify({ content: ruleContent }),
+        body: JSON.stringify({ 
+            content: ruleContent,
+            rule_type: ruleType,
+            google_drive_url: googleDriveUrl || null
+        }),
     })
     if (resp.error) {
         throw new Error(resp.error.message);
@@ -75,13 +79,22 @@ export const setRule = async(ruleName: string, ruleContent: string): Promise<str
     return resp.data || '';
 }
 
-export const getRule = async(ruleName: string): Promise<string | undefined> => {
-    const resp = await requestAPI<{key: string, content: string}>(`rules/${ruleName}`)
+export const getRule = async(ruleName: string): Promise<{content: string, rule_type?: string, google_drive_url?: string, last_updated?: string} | undefined> => {
+    const resp = await requestAPI<{key: string, content: string, rule_type?: string, google_drive_url?: string, last_updated?: string}>(`rules/${ruleName}`)
     if (resp.error) {
         throw new Error(resp.error.message);
     }
 
-    return resp.data?.content;
+    if (!resp.data) {
+        return undefined;
+    }
+
+    return {
+        content: resp.data.content,
+        rule_type: resp.data.rule_type,
+        google_drive_url: resp.data.google_drive_url,
+        last_updated: resp.data.last_updated
+    };
 }
 
 export const getRules = async(): Promise<string[]> => {
@@ -90,6 +103,33 @@ export const getRules = async(): Promise<string[]> => {
         throw new Error(resp.error.message);
     }
     return resp.data || [];
+}
+
+export const fetchGoogleDriveContent = async (url: string): Promise<{content: string, file_type: string, file_id: string}> => {
+    const resp = await requestAPI<{content: string, file_type: string, file_id: string}>(`rules`, {
+        method: 'POST',
+        body: JSON.stringify({
+            action: 'fetch_google_drive_content',
+            url: url
+        }),
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data!;
+}
+
+export const refreshGoogleDriveRules = async (): Promise<{success: string[], errors: Array<{rule: string, error: string}>}> => {
+    const resp = await requestAPI<{success: string[], errors: Array<{rule: string, error: string}>}>(`rules`, {
+        method: 'POST',
+        body: JSON.stringify({
+            action: 'refresh_google_drive_rules'
+        }),
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data!;
 }
 
 /************************************
