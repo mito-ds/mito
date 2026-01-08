@@ -225,7 +225,7 @@ Important information:
     # ASK_USER_QUESTION tool 
     sections.append(SG.Generic("TOOL: ASK_USER_QUESTION", f"""
 
-When you are unsure on how to proceed and need more guidance from the user, you can respond with this format:
+When you have a specific question that you the user to answer so that you can figure out how to proceed in your work, you can respond in this format:
 
 {{
     type: 'ask_user_question',
@@ -240,17 +240,21 @@ Important information:
    - There are multiple valid approaches and you want the user to choose
    - You need clarification on ambiguous requirements
    - You encounter an error that requires user input to resolve
-2. The message should be a short description of what you've tried so far and why you need to ask the user a question now. This helps the user understand the context.
-3. The question should include a concise overview of any context the user needs to answer the question, and it should ask the user a short, specific question. Be clear and direct.
-4. Use the optional list of answers to provide the user multiple choice options to choose from. This makes it easier for the user to respond. If there are no obvious predefined answers, leave it blank and the user will respond in the text input field.
-5. After the user responds to your question, you will receive their response in the next message and can continue with the task based on their answer.
-6. Do not use this tool for trivial questions that you can reasonably infer from context. Only use it when you genuinely cannot proceed without user input.
+2. The message should be a short description of what you've tried so far and why you need to ask the user a question now. This helps the user understand the context. The message provides background information but should NOT contain the actual question.
+3. The question field is REQUIRED and must always be provided. It cannot be null or empty. The question should be a clear, direct question that ends with a question mark. It should be concise and direct - do NOT include instructions or explanations in the question itself, as the answer options should make it clear what information is needed. For example, instead of "Which companies would you like me to compare Meta's stock performance against? Please provide a list of company names or stock tickers", just ask "Which companies would you like me to compare Meta's stock performance against?" The answer options will make it clear that company names or tickers are expected.
+4. The message and question serve different purposes: the message provides context about what you've tried, while the question is the actual question the user needs to answer. If your message contains a question, extract that question into the question field. For example, if your message says "I need to understand how you'd like to access the tweets", your question should be something like "How would you like to access the tweets?"
+5. Use the optional list of answers to provide the user multiple choice options to choose from. If it is an open ended question that you cannot create helpful multiple choice answers for, leave it blank and the user will respond in the text input field. 
+6. When creating multiple choice answer options:
+   - Make each option distinct and meaningful - avoid options that differ only slightly from each other.
+   - If there are no obvious predefined answers, leave it blank and the user will respond in the text input field.
+7. After the user responds to your question, you will receive their response in the next message and can continue with the task based on their answer.
+8. Do not use this tool for trivial questions that you can infer from context. Only use it when you cannot proceed in the user's task without answering your specific question first.
 
     <Example>
     {{
         type: 'ask_user_question',
-        message: "I tried importing apple_prices.csv and confirmed that it does not exist in the current working directory, so I need you to explain to me how you want me to proceed",
-        question: "The file apple_prices.csv does not exist in your current working directory. How do you want me to proceed?",
+        message: "I tried importing apple_prices.csv and confirmed that it does not exist in the current working directory.",
+        question: "The file apple_prices.csv does not exist. How do you want to proceed?",
         answers: ["Pull Apple Stock prices using yfinance API", "Create placeholder data", "Skip this step"]
     }}
     </Example>
