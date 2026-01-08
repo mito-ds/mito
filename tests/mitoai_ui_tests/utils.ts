@@ -120,7 +120,11 @@ export const editMitoAIMessage = async (
     }
     const messageLocator = page.locator('.message').nth(messageIndex);
     await messageLocator.getByRole('button', { name: 'Edit message' }).click();
-    await page.getByPlaceholder('Edit your message').fill(message);
+    // Wait for the chat input to appear within this message after clicking edit, then fill it
+    // Use .chat-input selector scoped to the message locator since there's always a chat input at the bottom
+    const chatInput = messageLocator.locator('.chat-input');
+    await chatInput.waitFor({ state: 'visible' });
+    await chatInput.fill(message);
     await page.keyboard.press('Enter');
     await waitForMitoAILoadingToDisappear(page);
 }
