@@ -33,6 +33,10 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
         }
     };
 
+    if (question.trim() === '') {
+        return null;
+    }
+
     // Collapsed mode: show as expandable item like Cell Updates
     if (!isLastMessage) {
         return (
