@@ -312,7 +312,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             }
             {agentResponse?.type === 'ask_user_question' &&
                 <AskUserQuestionToolUI
-                    message={agentResponse.message}
                     question={agentResponse.question || ''}
                     answers={agentResponse.answers}
                     isLastMessage={isLastMessage}

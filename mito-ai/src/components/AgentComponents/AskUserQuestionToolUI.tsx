@@ -11,7 +11,6 @@ import QuestionIcon from '../../icons/QuestionIcon';
 import AgentComponentHeader from './AgentComponentHeader';
 
 interface AskUserQuestionToolUIProps {
-    message: string;
     question: string;
     answers?: string[] | null;
     onAnswerSelected?: (answer: string) => void;
@@ -19,13 +18,14 @@ interface AskUserQuestionToolUIProps {
 }
 
 const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
-    message,
     question,
     answers,
     onAnswerSelected,
     isLastMessage = false,
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+
+    const cleanedAnswers = answers?.filter(answer => answer.trim() !== '');
 
     const handleAnswerClick = (answer: string): void => {
         if (onAnswerSelected) {
@@ -44,10 +44,10 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
                     isExpanded={isExpanded}
                     displayBorder={true}
                 />
-                {isExpanded && answers && answers.length > 0 && (
+                {isExpanded && cleanedAnswers && cleanedAnswers.length > 0 && (
                     <div className="ask-user-question-expanded-content">
                         <ul className="ask-user-question-collapsed-answers">
-                            {answers.map((answer, index) => (
+                            {cleanedAnswers.map((answer, index) => (
                                 <li key={index}>{answer}</li>
                             ))}
                         </ul>
@@ -69,9 +69,9 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
                     <div className="ask-user-question-question">
                         {question}
                     </div>
-                    {answers && answers.length > 0 && (
+                    {cleanedAnswers && cleanedAnswers.length > 0 && (
                         <div className="ask-user-question-answers">
-                            {answers.map((answer, index) => (
+                            {cleanedAnswers.map((answer, index) => (
                                 <button
                                     key={index}
                                     className="ask-user-question-answer-button"
@@ -94,7 +94,7 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
                         </div>
                     )}
                     <div className="ask-user-question-subtext">
-                        {answers && answers.length > 0 ? 'Or respond in the Chat Input below' : 'Respond in the Chat Input below'}
+                        {cleanedAnswers && cleanedAnswers.length > 0 ? 'Or respond in the Chat Input below' : 'Respond in the Chat Input below'}
                     </div>
                 </div>
             </div>
