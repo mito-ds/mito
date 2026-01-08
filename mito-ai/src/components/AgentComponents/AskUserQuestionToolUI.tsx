@@ -7,9 +7,8 @@ import React, { useState } from 'react';
 import { classNames } from '../../utils/classNames';
 import '../../../style/AgentToolUIComponent.css';
 import '../../../style/AskUserQuestionToolUI.css';
-import '../../../style/AgentComponentHeader.css';
-import AgentComponentHeader from './AgentComponentHeader';
 import QuestionIcon from '../../icons/QuestionIcon';
+import AgentComponentHeader from './AgentComponentHeader';
 
 interface AskUserQuestionToolUIProps {
     message: string;
@@ -34,40 +33,68 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
         }
     };
 
-    return (
-        <div className={classNames('ask-user-question-container', {
-            'ask-user-question-container-active': isLastMessage,
-        })}>
-            {isLastMessage && (
-                <div className="ask-user-question-header-label">
-                    [Action Required]: Question for you
-                </div>
-            )}
-            <AgentComponentHeader
-                icon={<QuestionIcon />}
-                text={question}
-                onClick={() => setIsExpanded(!isExpanded)}
-                isExpanded={isExpanded}
-                displayBorder={true}
-            />
-            {isExpanded && (
-                <div className="ask-user-question-content">
-                    {answers && answers.length > 0 && (
-                        <ul className="ask-user-question-answers">
+    // Collapsed mode: show as expandable item like Cell Updates
+    if (!isLastMessage) {
+        return (
+            <div className={classNames('ask-user-question-collapsed', { expanded: isExpanded })}>
+                <AgentComponentHeader
+                    icon={<QuestionIcon />}
+                    text={question}
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    isExpanded={isExpanded}
+                    displayBorder={true}
+                />
+                {isExpanded && answers && answers.length > 0 && (
+                    <div className="ask-user-question-expanded-content">
+                        <ul className="ask-user-question-collapsed-answers">
                             {answers.map((answer, index) => (
-                                <li
-                                    key={index}
-                                    className={isLastMessage ? "ask-user-question-answer-text-clickable" : "ask-user-question-answer-text"}
-                                    onClick={isLastMessage ? () => handleAnswerClick(answer) : undefined}
-                                    title={isLastMessage ? answer : undefined}
-                                >
-                                    {answer}
-                                </li>
+                                <li key={index}>{answer}</li>
                             ))}
                         </ul>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // Active mode: show interactive UI with clickable buttons and purple glow
+    return (
+        <div className={classNames('agent-tool-ui-container', 'ask-user-question-container', 'ask-user-question-active')}>
+            <div className="agent-tool-ui-content">
+                <div className="ask-user-question-pill">
+                    <QuestionIcon />
+                    <span className="ask-user-question-pill-text">User Question</span>
+                </div>
+                <div className="ask-user-question-content">
+                    <div className="ask-user-question-question">
+                        {question}
+                    </div>
+                    {answers && answers.length > 0 && (
+                        <div className="ask-user-question-answers">
+                            {answers.map((answer, index) => (
+                                <button
+                                    key={index}
+                                    className="ask-user-question-answer-button"
+                                    onClick={() => handleAnswerClick(answer)}
+                                    title={answer}
+                                >
+                                    <svg 
+                                        className="ask-user-question-radio-icon"
+                                        width="16" 
+                                        height="16" 
+                                        viewBox="0 0 16 16" 
+                                        fill="none" 
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                                    </svg>
+                                    <span className="ask-user-question-answer-text">{answer}</span>
+                                </button>
+                            ))}
+                        </div>
                     )}
                 </div>
-            )}
+            </div>
         </div>
     );
 };

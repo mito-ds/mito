@@ -3,58 +3,57 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/* Active mode: purple border with glow effect */
+.ask-user-question-active {
+    border: 2px solid var(--jp-brand-color1) !important;
+    border-radius: 5px !important;
+    box-shadow: 0 0 8px rgba(76, 29, 149, 0.2), 0 0 16px rgba(76, 29, 149, 0.1), 0 0 2px rgba(76, 29, 149, 0.15) inset;
+    background-color: var(--jp-layout-color1);
+}
+
 .ask-user-question-container {
-    display: flex;
     flex-direction: column;
-    margin: 10px 0;
-    position: relative;
+    align-items: flex-start;
+    padding: 12px;
 }
 
-.ask-user-question-container-active {
-    border: 1px solid var(--jp-brand-color1) !important;
-    border-radius: var(--chat-taskpane-item-border-radius);
+.ask-user-question-container .agent-tool-ui-content {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
 }
 
-.ask-user-question-container-active .agent-component-header {
-    border-color: var(--jp-brand-color1) !important;
+/* Purple pill badge for active mode */
+.ask-user-question-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background-color: var(--purple-300);
+    border-radius: 12px;
+    color: var(--purple-700);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
 }
 
-.ask-user-question-container-active .agent-component-header.expanded {
-    border: 1px solid var(--jp-brand-color1) !important;
-    border-bottom: none !important;
-    border-radius: var(--chat-taskpane-item-border-radius) var(--chat-taskpane-item-border-radius) 0 0 !important;
+.ask-user-question-pill svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
 }
 
-.ask-user-question-header-label {
-    position: absolute;
-    top: -10px;
-    left: 12px;
-    background-color: var(--chat-background-color);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    color: var(--jp-ui-font-color2);
-    font-style: italic;
-    z-index: 1;
+.ask-user-question-pill-text {
+    white-space: nowrap;
 }
 
 .ask-user-question-content {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
-    padding: 10px var(--chat-taskpane-tool-call-horizontal-padding);
-    border: 1px solid var(--jp-cell-editor-border-color);
-    border-top: none;
-    border-radius: 0 0 var(--chat-taskpane-item-border-radius) var(--chat-taskpane-item-border-radius);
-    background-color: var(--jp-layout-color1);
-}
-
-.ask-user-question-container-active .ask-user-question-content {
-    border-color: var(--jp-brand-color1);
-    border-left-color: var(--jp-brand-color1);
-    border-right-color: var(--jp-brand-color1);
-    border-bottom-color: var(--jp-brand-color1);
+    margin-left: 0;
 }
 
 .ask-user-question-message {
@@ -71,41 +70,43 @@
 }
 
 .ask-user-question-answers {
-    list-style-type: disc;
-    margin: 0;
-    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     width: 100%;
-}
-
-.ask-user-question-answers li {
-    margin: 4px 0;
+    margin-top: 4px;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
 .ask-user-question-answer-button {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 10px;
     padding: 10px 14px;
     background-color: var(--jp-layout-color1);
-    border: 1px solid var(--jp-cell-editor-border-color);
-    border-radius: 4px;
+    border: none;
+    border-bottom: 1px solid var(--jp-border-color2);
+    border-radius: 0;
     color: var(--jp-ui-font-color1);
     font-size: var(--jp-ui-font-size1);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
     text-align: left;
     width: 100%;
 }
 
+.ask-user-question-answer-button:last-child {
+    border-bottom: none;
+}
+
 .ask-user-question-answer-button:hover:not(:disabled) {
     background-color: var(--jp-layout-color2);
-    border-color: var(--jp-brand-color1);
     color: var(--jp-ui-font-color0);
 }
 
 .ask-user-question-answer-button:active:not(:disabled) {
     background-color: var(--jp-layout-color3);
-    border-color: var(--jp-brand-color1);
 }
 
 .ask-user-question-answer-button:disabled {
@@ -113,23 +114,75 @@
     cursor: not-allowed;
 }
 
-.ask-user-question-answer-text {
-    color: var(--jp-ui-font-color1);
-    font-size: var(--jp-ui-font-size1);
-    line-height: 1.5;
-    padding: 4px 0;
+.ask-user-question-radio-icon {
+    flex-shrink: 0;
+    color: var(--jp-ui-font-color2);
+    width: 16px;
+    height: 16px;
 }
 
-.ask-user-question-answer-text-clickable {
-    color: var(--jp-ui-font-color1);
-    font-size: var(--jp-ui-font-size1);
-    line-height: 1.5;
-    padding: 4px 0;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.ask-user-question-answer-text-clickable:hover {
+.ask-user-question-answer-button:hover:not(:disabled) .ask-user-question-radio-icon {
     color: var(--jp-brand-color1);
 }
 
+.ask-user-question-answer-text {
+    flex: 1;
+    text-align: left;
+}
+
+/* Collapsed mode styles */
+.ask-user-question-collapsed {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: start;
+    background-color: transparent;
+    margin: 0 0;
+    color: var(--jp-ui-font-color2);
+    overflow: hidden;
+}
+
+.ask-user-question-collapsed.expanded {
+    border: 1px solid var(--jp-cell-editor-border-color);
+    border-radius: 5px;
+    background-color: var(--jp-layout-color2);
+    margin-bottom: 5px;
+}
+
+.ask-user-question-collapsed-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.ask-user-question-collapsed .ask-user-question-question {
+    color: var(--jp-ui-font-color1);
+    font-size: var(--jp-ui-font-size1);
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.ask-user-question-collapsed-answers {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--jp-ui-font-color1);
+    font-size: var(--jp-ui-font-size1);
+    line-height: 1.5;
+    list-style-type: disc;
+}
+
+.ask-user-question-collapsed-answers li {
+    margin: 4px 0;
+}
+
+/* Expanded content for collapsed mode */
+.ask-user-question-expanded-content {
+    padding: 10px var(--chat-taskpane-tool-call-horizontal-padding);
+    background-color: white;
+    color: var(--jp-ui-font-color1);
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: none;
+    border-radius: 0;
+}
