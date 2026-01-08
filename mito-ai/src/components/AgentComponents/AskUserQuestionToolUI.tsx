@@ -3,10 +3,13 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { classNames } from '../../utils/classNames';
 import '../../../style/AgentToolUIComponent.css';
 import '../../../style/AskUserQuestionToolUI.css';
+import '../../../style/AgentComponentHeader.css';
+import AgentComponentHeader from './AgentComponentHeader';
+import QuestionIcon from '../../icons/QuestionIcon';
 
 interface AskUserQuestionToolUIProps {
     message: string;
@@ -23,63 +26,48 @@ const AskUserQuestionToolUI: React.FC<AskUserQuestionToolUIProps> = ({
     onAnswerSelected,
     isLastMessage = false,
 }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
     const handleAnswerClick = (answer: string): void => {
         if (onAnswerSelected) {
             onAnswerSelected(answer);
         }
     };
 
-    // Collapsed mode: show question + answers as bullet points
-    if (!isLastMessage) {
-        return (
-            <div className={classNames('agent-tool-ui-container', 'ask-user-question-container', 'ask-user-question-collapsed')}>
+    return (
+        <div className={classNames('ask-user-question-container', {
+            'ask-user-question-container-active': isLastMessage,
+        })}>
+            {isLastMessage && (
                 <div className="ask-user-question-header-label">
                     [Action Required]: Question for you
                 </div>
-                <div className="agent-tool-ui-content">
-                    <div className="ask-user-question-collapsed-content">
-                        <span className="ask-user-question-question">{question}</span>
-                        {answers && answers.length > 0 && (
-                            <ul className="ask-user-question-collapsed-answers">
-                                {answers.map((answer, index) => (
-                                    <li key={index}>{answer}</li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    // Active mode: show interactive UI with clickable buttons
-    return (
-        <div className={classNames('agent-tool-ui-container', 'ask-user-question-container')}>
-            <div className="ask-user-question-header-label">
-                [Action Required]: Question for you
-            </div>
-            <div className="agent-tool-ui-content">
+            )}
+            <AgentComponentHeader
+                icon={<QuestionIcon />}
+                text={question}
+                onClick={() => setIsExpanded(!isExpanded)}
+                isExpanded={isExpanded}
+                displayBorder={true}
+            />
+            {isExpanded && (
                 <div className="ask-user-question-content">
-                    <div className="ask-user-question-question">
-                        {question}
-                    </div>
                     {answers && answers.length > 0 && (
-                        <div className="ask-user-question-answers">
+                        <ul className="ask-user-question-answers">
                             {answers.map((answer, index) => (
-                                <button
+                                <li
                                     key={index}
-                                    className="ask-user-question-answer-button"
-                                    onClick={() => handleAnswerClick(answer)}
-                                    title={answer}
+                                    className={isLastMessage ? "ask-user-question-answer-text-clickable" : "ask-user-question-answer-text"}
+                                    onClick={isLastMessage ? () => handleAnswerClick(answer) : undefined}
+                                    title={isLastMessage ? answer : undefined}
                                 >
-                                    <span className="ask-user-question-answer-text">{answer}</span>
-                                    <span className="ask-user-question-answer-arrow">→</span>
-                                </button>
+                                    {answer}
+                                </li>
                             ))}
-                        </div>
+                        </ul>
                     )}
                 </div>
-            </div>
+            )}
         </div>
     );
 };
