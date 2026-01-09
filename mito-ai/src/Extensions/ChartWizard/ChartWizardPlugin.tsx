@@ -18,7 +18,6 @@ import TextAndIconButton from '../../components/TextAndIconButton';
 import MagicWand from '../../icons/MagicWand'
 import '../../../style/ChartWizardPlugin.css'
 
-
 export interface ChartWizardData {
     sourceCode: string;
     cellId: string;
