@@ -333,6 +333,14 @@ export const useAgentExecution = ({
                 }
             }
 
+            if (agentResponse.type === 'ask_user_question') {
+                // When the agent asks a question, we stop execution and wait for the user's response.
+                // The agent will automatically resume when the user responds
+                await markAgentForStopping();
+                isAgentFinished = true;
+                break; 
+            }
+
             if (agentResponse.type === 'create_streamlit_app') {
                 // Create new preview using the service
                 const createStreamlitAppPrompt = agentResponse.streamlit_app_prompt || ''

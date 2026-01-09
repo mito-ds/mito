@@ -33,6 +33,7 @@ import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutp
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
+import AskUserQuestionToolUI from '../../../components/AgentComponents/AskUserQuestionToolUI';
 import CreateStreamlitAppToolUI from '../../../components/AgentComponents/CreateStreamlitAppToolUI';
 import EditStreamlitAppToolUI from '../../../components/AgentComponents/EditStreamlitAppToolUI';
 
@@ -308,6 +309,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             }
             {agentResponse?.type === 'run_all_cells' && agentModeEnabled &&
                 <RunAllCellsToolUI />
+            }
+            {agentResponse?.type === 'ask_user_question' &&
+                <AskUserQuestionToolUI
+                    question={agentResponse.question || ''}
+                    answers={agentResponse.answers}
+                    isLastMessage={isLastMessage}
+                    onAnswerSelected={(answer) => {
+                        handleSubmitUserMessage(answer);
+                    }}
+                />
             }
             {agentResponse?.type === 'create_streamlit_app' && agentModeEnabled &&
                 <CreateStreamlitAppToolUI isRunning={isLastMessage} />
