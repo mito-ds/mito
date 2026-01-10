@@ -49,7 +49,7 @@
   display: none;
 }
 
-/* Make active cell more visible in Mito theme - Fix for issue #2134 */
+/* Make active cell more visible in Mito theme */
 .jp-Cell.jp-mod-active {
   border: 2px solid var(--purple-500, #ba9bf8) !important;
   border-radius: 4px !important;
