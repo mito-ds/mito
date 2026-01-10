@@ -8,7 +8,7 @@ Miscellaneous tests that don't fit into other test files,
 but still need to be run if changes are made in mito-ai/
 */
 
-import { expect, test } from '@jupyterlab/galata';
+import { test, expect } from '../fixtures';
 import {
     createAndRunNotebookWithCells,
     waitForIdle,

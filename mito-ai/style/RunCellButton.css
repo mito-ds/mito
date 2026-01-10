@@ -1,0 +1,236 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mito-run-cell-button-container {
+  position: relative;
+  display: block;
+  width: 160px;
+}
+
+/* Button group - contains both buttons */
+.mito-run-cell-button-group {
+  display: flex;
+  align-items: center;
+  height: var(--toolbar-button-height);
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--blue-300);
+  border: 0.5px solid var(--blue-900);
+}
+
+/* Shared button styles */
+.mito-run-cell-button {
+  display: flex;
+  align-items: center;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  cursor: pointer;
+  color: var(--blue-900);
+  font-size: 13px;
+  font-weight: 400;
+  transition: background-color 0.15s ease;
+  height: 100%;
+  background-color: transparent;
+}
+
+.mito-run-cell-button:hover {
+  background-color: var(--blue-400);
+}
+
+/* Main button (left side - play icon + text) */
+.mito-run-cell-button-main {
+  flex: 1;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+/* Divider between buttons */
+.mito-run-cell-button-divider {
+  width: 1px;
+  height: 14px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--blue-900) 20%,
+    var(--blue-900) 80%,
+    transparent
+  );
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+/* Dropdown button (right side - chevron) */
+.mito-run-cell-button-dropdown {
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+}
+
+/* Play icon styling */
+.mito-run-cell-button-main > svg {
+  color: var(--blue-900);
+  fill: var(--blue-900);
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/* Chevron styling */
+.mito-run-cell-button-dropdown svg {
+  width: 14px;
+  height: 14px;
+  color: var(--blue-900);
+}
+
+/* Ensure chevron path only uses stroke, not fill */
+.mito-run-cell-button-dropdown svg path {
+  fill: none;
+  stroke: currentColor;
+}
+
+.mito-run-cell-button-text {
+  white-space: nowrap;
+}
+
+/* Running state - applied to the group */
+.mito-run-cell-button-running {
+  border-color: var(--green-900);
+}
+
+.mito-run-cell-button-running .mito-run-cell-button,
+.mito-run-cell-button-running .mito-run-cell-button-dropdown {
+  background-color: var(--green-300);
+  color: var(--green-900);
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-dropdown:hover {
+  background-color: var(--green-500);
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-divider {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--green-900) 20%,
+    var(--green-900) 80%,
+    transparent
+  );
+  opacity: 0.5;
+}
+
+/* LoadingCircle styling when running */
+.mito-run-cell-button-running .mito-run-cell-button-main > svg {
+  color: var(--green-900);
+  fill: var(--green-900);
+  width: 16px;
+  height: 16px;
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-text {
+  color: var(--green-900);
+}
+
+.mito-run-cell-button-running .mito-run-cell-button-dropdown svg {
+  color: var(--green-900);
+}
+
+.mito-run-cell-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 1000;
+  background-color: var(--jp-layout-color1);
+  border: 1px solid var(--jp-layout-color2);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  min-width: 200px;
+  white-space: nowrap;
+  padding: 4px 0;
+}
+
+.mito-run-cell-dropdown-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.mito-run-cell-dropdown-section-header {
+  padding: 6px 12px 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--jp-ui-font-color2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mito-run-cell-dropdown-separator {
+  height: 1px;
+  background-color: var(--jp-layout-color2);
+  margin: 4px 0;
+}
+
+.mito-run-cell-dropdown-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 12px;
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--jp-ui-font-color1);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 400;
+  gap: 8px;
+}
+
+.mito-run-cell-dropdown-item:hover {
+  background-color: var(--jp-layout-color2);
+}
+
+.mito-run-cell-dropdown-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; /* Fixed width to align all icons */
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--jp-ui-font-color1);
+  line-height: 0; /* Remove extra line height for better alignment */
+}
+
+.mito-run-cell-dropdown-item-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block; /* Remove inline spacing */
+  margin: 0 auto; /* Center the icon within the fixed width container */
+  color: var(--jp-ui-font-color1); 
+}
+
+.mito-run-cell-dropdown-item-label {
+  flex: 1;
+}
+
+.mito-run-cell-dropdown-item-shortcut {
+  color: var(--jp-ui-font-color2);
+  font-size: 11px;
+  margin-left: 10px;
+  opacity: 0.7;
+}
+
+/* Position the button widget on the right side of the toolbar */
+.jp-Notebook-toolbar .mito-run-cell-button-widget {
+  margin-left: auto;
+  order: 9999; /* Ensure it appears last */
+}
+
+/* Ensure toolbar uses flexbox for proper alignment */
+.jp-Notebook-toolbar {
+  display: flex;
+  align-items: center;
+}

@@ -27,12 +27,13 @@ import copyToClipboard from '../../../utils/copyToClipboard';
 import TextButton from '../../../components/TextButton';
 import '../../../../style/ChatMessage.css';
 import '../../../../style/MarkdownMessage.css'
-import { AgentResponse, CellUpdate } from '../../../websockets/completions/CompletionModels';
-import { getCellIDByIndexInNotebookPanel } from '../../../utils/notebook';
+import { AgentResponse } from '../../../websockets/completions/CompletionModels';
+import { getCellIdFromCellUpdate } from '../cellUpdateUtils';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI'
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
+import AskUserQuestionToolUI from '../../../components/AgentComponents/AskUserQuestionToolUI';
 import CreateStreamlitAppToolUI from '../../../components/AgentComponents/CreateStreamlitAppToolUI';
 import EditStreamlitAppToolUI from '../../../components/AgentComponents/EditStreamlitAppToolUI';
 
@@ -61,16 +62,6 @@ interface IChatMessageProps {
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
 }
 
-const getCellIdFromCellUpdate = (cellUpdate: CellUpdate | null | undefined, notebookTracker: INotebookTracker): string | undefined => {
-    if (!cellUpdate) {
-        return undefined;
-    }
-    if (cellUpdate.type === 'modification') {
-        return cellUpdate.id;
-    }
-    // For 'new' type, get the cell ID by index
-    return getCellIDByIndexInNotebookPanel(notebookTracker.currentWidget, cellUpdate.index);
-};
 
 const ChatMessage: React.FC<IChatMessageProps> = ({
     app,
@@ -142,7 +133,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 isEditing={isEditing}
                 contextManager={contextManager}
                 notebookTracker={notebookTracker}
-                agentModeEnabled={false}
+                agentModeEnabled={agentModeEnabled}
                 handleSubmitUserMessage={handleSubmitUserMessageAndCloseEditing}
                 messageIndex={messageIndex}
             />
@@ -318,6 +309,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             }
             {agentResponse?.type === 'run_all_cells' && agentModeEnabled &&
                 <RunAllCellsToolUI />
+            }
+            {agentResponse?.type === 'ask_user_question' &&
+                <AskUserQuestionToolUI
+                    question={agentResponse.question || ''}
+                    answers={agentResponse.answers}
+                    isLastMessage={isLastMessage}
+                    onAnswerSelected={(answer) => {
+                        handleSubmitUserMessage(answer);
+                    }}
+                />
             }
             {agentResponse?.type === 'create_streamlit_app' && agentModeEnabled &&
                 <CreateStreamlitAppToolUI isRunning={isLastMessage} />

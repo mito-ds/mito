@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { expect, test } from '@jupyterlab/galata';
+import { test, expect } from '../fixtures';
 import {
   createAndRunNotebookWithCells,
   getCodeFromCell,
@@ -40,8 +40,8 @@ test.describe.parallel('Mito AI Chat', () => {
   test('AI Chat should open on Jupyter Launch', async ({ page }) => {
     // Expect the AI Chat is open
     // Locate the "Clear the chat history" button
-    const clearButton = page.locator('button[title="Start New Chat"]');
-    expect(clearButton).toBeVisible()
+    const clearButton = page.locator('button[title^="Start New Chat"]');
+    await expect(clearButton).toBeVisible();
 
   })
 
@@ -130,7 +130,7 @@ test.describe.parallel('Mito AI Chat', () => {
     const code = await getCodeFromCell(page, 0);
     expect(code).not.toContain('x');
     expect(code).not.toContain('1');
-    expect(code?.trim()).toContain("Start writing python") // The placeholder ghost text
+    expect(code?.trim()).toContain("Write Python or Press") // The placeholder ghost text
   });
 
   test('Edit Message', async ({ page }) => {

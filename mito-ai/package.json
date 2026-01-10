@@ -138,7 +138,8 @@
   "jupyterlab": {
     "extension": true,
     "outputDir": "mito_ai/labextension",
-    "schemaDir": "schema"
+    "schemaDir": "schema",
+    "themePath": "style/theme/theme.css"
   },
   "eslintIgnore": [
     "node_modules",

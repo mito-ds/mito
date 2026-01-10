@@ -11,7 +11,7 @@ service's behavior in a more controlled way.
 For a more practical integration test, see basicInlineComplete.spec.ts.
 */
 
-import { expect, galata, test } from "@jupyterlab/galata";
+import { test, expect, galata } from "../fixtures";
 import { PromiseDelegate } from "@lumino/coreutils";
 
 const GHOST_SELECTOR = ".jp-GhostText";

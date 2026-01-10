@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { expect, test } from '@jupyterlab/galata';
+import { test, expect } from '../fixtures';
 import {
     createAndRunNotebookWithCells,
     getCodeFromCell,
@@ -49,7 +49,7 @@ test.describe.parallel("Background Agent functionality", () => {
 
         // Verify we're now in the second notebook (it should be empty)
         const secondNotebookCodeCell = await getCodeFromCell(page, 0);
-        expect(secondNotebookCodeCell).toContain('Start writing python or Press');
+        expect(secondNotebookCodeCell).toContain('Write Python or Press');
 
         // Switch back to the original notebook
         await page.getByRole('tab', { name: /\.ipynb$/ }).last().click();
@@ -90,7 +90,7 @@ test.describe.parallel("Background Agent functionality", () => {
 
         // Verify we're now in the second notebook (it should be empty)
         const secondNotebookCodeCell = await getCodeFromCell(page, 0);
-        expect(secondNotebookCodeCell).toContain('Start writing python or Press');
+        expect(secondNotebookCodeCell).toContain('Write Python or Press');
 
         // Switch back to the original notebook
         await page.getByRole('tab', { name: /\.ipynb$/ }).last().click();

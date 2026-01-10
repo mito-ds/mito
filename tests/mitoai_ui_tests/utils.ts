@@ -53,8 +53,8 @@ export const startNewMitoAIChat = async (page: IJupyterLabPageFixture, model?: s
     // Open the Mito AI chat tab
     await clickOnMitoAIChatTab(page);
   
-    // Locate the "Clear the chat history" button
-    const clearButton = page.locator('button[title="Start New Chat"]');
+    // Locate the "Start New Chat" button (title includes keyboard shortcut)
+    const clearButton = page.locator('button[title^="Start New Chat"]');
     
     // Wait for the button to be visible, then click
     await clearButton.waitFor({ state: 'visible' });
@@ -120,7 +120,14 @@ export const editMitoAIMessage = async (
     }
     const messageLocator = page.locator('.message').nth(messageIndex);
     await messageLocator.getByRole('button', { name: 'Edit message' }).click();
-    await page.getByPlaceholder('Edit your message').fill(message);
+    // When editing, the ChatMessage component is replaced with a ChatInput component
+    // which has a .chat-input-container.editing wrapper. Wait for this container to appear,
+    // then find the .chat-input within it.
+    const editingContainer = page.locator('.chat-input-container.editing');
+    await editingContainer.waitFor({ state: 'visible' });
+    const chatInput = editingContainer.locator('.chat-input');
+    await chatInput.waitFor({ state: 'visible' });
+    await chatInput.fill(message);
     await page.keyboard.press('Enter');
     await waitForMitoAILoadingToDisappear(page);
 }

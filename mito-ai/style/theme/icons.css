@@ -1,0 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.jp-notebook-icon-color[fill] {
+    fill: var(--jp-brand-color1) !important;
+}

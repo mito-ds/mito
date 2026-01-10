@@ -9,7 +9,7 @@ import RuleIcon from '../icons/RuleIcon';
 import CodeIcon from '../icons/CodeIcon';
 import DatabaseIcon from '../icons/DatabaseIcon';
 import PhotoIcon from '../icons/PhotoIcon';
-import { highlightCodeCell, getCellByID, scrollToCell } from '../utils/notebook';
+import { highlightCodeCell, getCellByID, scrollToCell, highlightLinesOfCodeInCodeCell } from '../utils/notebook';
 
 interface SelectedContextContainerProps {
     title: string;
@@ -48,6 +48,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         icon = <CodeIcon />;
     } else if (type === 'cell') {
         icon = <CodeIcon />;
+    } else if (type === 'line_selection') {
+        icon = <CodeIcon />;
     }
 
     const handleClick = (): void => {
@@ -75,10 +77,57 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             setTimeout(() => {
                 highlightCodeCell(notebookTracker, value);
             }, 500);
+        } else if (type === 'line_selection' && notebookTracker && value) {
+            // Handle line selection context click - scroll to and highlight selected lines
+            try {
+                const selectionInfo = JSON.parse(value);
+                const currentWidget = notebookTracker.currentWidget;
+                if (currentWidget) {
+                    // Scroll to the cell, positioning based on the start line
+                    // Lines are stored 0-indexed, matching the citation format
+                    scrollToCell(currentWidget, selectionInfo.cellId, selectionInfo.startLine, 'center');
+                    // Highlight the selected lines
+                    setTimeout(() => {
+                        // Re-check currentWidget inside the callback since it may have changed
+                        const widget = notebookTracker.currentWidget;
+                        if (widget) {
+                            highlightLinesOfCodeInCodeCell(
+                                widget,
+                                selectionInfo.cellId,
+                                selectionInfo.startLine,
+                                selectionInfo.endLine
+                            );
+                        }
+                    }, 500);
+                }
+            } catch {
+                // Ignore JSON parse errors
+            }
         } else if (onClick) {
             // Call the custom onClick handler for other context types
             onClick();
         }
+    };
+
+    const getTooltipText = (): string => {
+        if (type.startsWith('image/')) {
+            return `The AI will be able to view the ${title} image before deciding how to respond`;
+        } else if (type === 'file') {
+            return `The path ${title} will be shared with the AI`;
+        } else if (type === 'notebook') {
+            return "The AI will be able to read all of the code and markdown in your notebook. It is included by default in Agent mode.";
+        } else if (type === 'active_cell') {
+            return "The AI will write its code based on the currently active cell. It is included by default in Chat mode.";
+        } else if (type === 'cell') {
+            return `The AI will be able to see the code in ${title}`;
+        } else if (type === 'variable') {
+            return `The AI will receive a summary of the ${title} variable`;
+        } else if (type === 'rule') {
+            return `The AI will be guided by the ${title} rule`;
+        } else if (type === 'db') {
+            return `The AI will be able to access the ${title} database connection`;
+        }
+        return "This context will be included in your message to help the AI understand what you're working with";
     };
 
     return (
@@ -88,6 +137,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleClick}
             data-testid="selected-context-container"
+            data-type={type}
+            title={getTooltipText()}
         >
             <div
                 className={`icon`}
@@ -97,7 +148,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
                 }}
                 title={isHovered ? "Remove rule" : "Selected rule"}
             >
-                {isHovered && type !== 'active_cell' && type !== 'notebook' ? (
+                {isHovered && type !== 'active_cell' && type !== 'notebook' && type !== 'line_selection' ? (
                     <span className="remove-icon">X</span>
                 ) : (
                     <span className="icon">{icon}</span>

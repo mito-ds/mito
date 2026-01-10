@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { expect, test } from '@jupyterlab/galata';
+import { test, expect } from '../fixtures';
 import {
     createAndRunNotebookWithCells,
     waitForIdle,
@@ -38,7 +38,7 @@ test.describe.parallel("Agent mode basic functionality", () => {
         await waitForIdle(page);
     });
 
-    test("Run agent's plan", async ({ page }) => {
+    test("Run simple agent", async ({ page }) => {
 
         // Wait until the agent is done executing
         await waitForAgentToFinish(page);
@@ -56,12 +56,12 @@ test.describe.parallel("Agent mode basic functionality", () => {
         // Keep track of the original messages in the agent's plan.
         const oldPlanMessages: string[] = [];
         const messages = await page.locator('.message-assistant-chat').all();
-        messages.forEach(async (message) => {
+        for (const message of messages) {
             const messageText = await message.textContent();
             if (messageText) {
                 oldPlanMessages.push(messageText);
             }
-        });
+        }
 
         // Edit the message
         await editMitoAIMessage(page, newMessage, 0);
@@ -70,12 +70,12 @@ test.describe.parallel("Agent mode basic functionality", () => {
         // Track new plan.  
         const newPlanMessages: string[] = [];
         const newMessages = await page.locator('.message-assistant-chat').all();
-        newMessages.forEach(async (message) => {
+        for (const message of newMessages) {
             const messageText = await message.textContent();
             if (messageText) {
                 newPlanMessages.push(messageText);
             }
-        });
+        }
 
         // By editing the original agent message, we should see a new plan
         // and the old plan messages should be wiped. 

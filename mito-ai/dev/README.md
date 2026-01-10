@@ -1,5 +1,13 @@
 # Mito AI Dev Scripts
 
+### View Chat History
+
+A Streamlit app that helps you explore the chat history of a Mito AI chat file.
+
+```bash
+streamlit run dev/chat_history_viewer.py
+```
+
 ### Generate AI Chats
 
 A simple script that creates a bunch of fake Mito AI chat files so you can quickly generate a fully populated chat history.

@@ -15,8 +15,21 @@ def process_notebook_update(notebook, cell_update):
         source=code)
 
     if update_type == "new":
-        index = cell_update["index"]
-        notebook.cells.insert(index, new_cell)
+        after_cell_id = cell_update.get("after_cell_id")
+        if after_cell_id == "new cell":
+            # Insert at the very top of the notebook
+            notebook.cells.insert(0, new_cell)
+        else:
+            # Find the cell by ID and get its index
+            target_cell_index = None
+            for i, cell in enumerate(notebook.cells):
+                if cell.get("id") == after_cell_id:
+                    target_cell_index = i
+                    break
+            if target_cell_index is None:
+                raise ValueError(f"Cell with ID {after_cell_id} not found in notebook")
+            # Insert after the target cell
+            notebook.cells.insert(target_cell_index + 1, new_cell)
     elif update_type == "modification":
         target_cell_id = cell_update["id"]
         for cell in notebook.cells:

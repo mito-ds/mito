@@ -9,7 +9,7 @@ import { NotebookActions, NotebookPanel } from "@jupyterlab/notebook"
 import { getFullErrorMessageFromTraceback } from "../Extensions/ErrorMimeRenderer/errorUtils"
 import { sleep } from "./sleep"
 import { 
-    createCodeCellAtIndexAndActivate, 
+    createCodeCellAfterCellIDAndActivate,
     didCellExecutionError, 
     getActiveCellIDInNotebookPanel, 
     setActiveCellByIDInNotebookPanel, 
@@ -32,7 +32,11 @@ export const acceptAndRunCellUpdate = async (
     // in other notebooks.
     if (cellUpdate.type === 'new' ) {
         // makes the cell the active cell
-        createCodeCellAtIndexAndActivate(notebookPanel, cellUpdate.index)
+        if (cellUpdate.after_cell_id === undefined || cellUpdate.after_cell_id === null) {
+            console.error('after_cell_id is required for new cell creation')
+            return
+        }
+        createCodeCellAfterCellIDAndActivate(notebookPanel, cellUpdate.after_cell_id)
     } else {
         setActiveCellByIDInNotebookPanel(notebookPanel, cellUpdate.id)
     }
@@ -154,6 +158,11 @@ export const retryIfExecutionError = async (
                 // The error will be caught in the main loop
                 console.log('Error after running all cells:', result.errorMessage);
             }
+        } else if (agentResponse.type === 'ask_user_question' || agentResponse.type === 'finished_task') {
+            // When the agent asks a question during error retry, we should stop the agent execution
+            // and wait for the user's response, just like in the main execution loop
+            await markAgentForStopping();
+            return 'interupted'
         } else {
             // Agent responded with an unexpected type for error fixing
             return 'failure'

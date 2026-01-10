@@ -83,7 +83,19 @@ const createMockCell = (code: string, cellId: string) => ({
 jest.mock('../../utils/notebook', () => ({
     getActiveCellID: jest.fn((id) => id === EMPTY_CELL_ID ? EMPTY_CELL_ID : TEST_CELL_ID),
     getCellCodeByID: jest.fn((id) => id === EMPTY_CELL_ID ? '' : TEST_CELL_CODE),
-    getActiveCellCode: jest.fn(() => TEST_CELL_CODE)
+    getActiveCellCode: jest.fn(() => TEST_CELL_CODE),
+    getActiveCell: jest.fn(() => ({
+        model: {
+            value: { text: TEST_CELL_CODE },
+            id: TEST_CELL_ID,
+            type: 'code'
+        },
+        editor: {
+            model: {
+                value: { text: TEST_CELL_CODE }
+            }
+        }
+    }))
 }));
 
 // Base props for ChatInput component
@@ -110,11 +122,24 @@ const createMockProps = (overrides = {}) => ({
             connect: jest.fn(),
             disconnect: jest.fn()
         },
+        currentChanged: {
+            connect: jest.fn(),
+            disconnect: jest.fn()
+        },
         activeCell: createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell,
         currentWidget: {
+            id: 'test-notebook-id',
             content: {
                 activeCell: createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell,
-                widgets: [createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell]
+                widgets: [createMockCell(TEST_CELL_CODE, TEST_CELL_ID) as unknown as CodeCell],
+                model: {
+                    cells: {
+                        changed: {
+                            connect: jest.fn(),
+                            disconnect: jest.fn()
+                        }
+                    }
+                }
             },
             context: {
                 path: '/test/notebook.ipynb'

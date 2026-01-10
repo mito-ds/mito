@@ -13,6 +13,7 @@ import chatIconSvg from '../../../src/icons/ChatIcon.svg';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { getOperatingSystem, OperatingSystem } from '../../utils/user';
 import type { IChatWidget as IChatWidget } from './token';
 import { Signal, type ISignal } from '@lumino/signaling';
@@ -40,6 +41,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
       contextManager: IContextManager;
       streamlitPreviewManager: IStreamlitPreviewManager;
       operatingSystem: OperatingSystem;
+      documentManager: IDocumentManager;
     }
   ) {
     super();
@@ -93,6 +95,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
         streamlitPreviewManager={this.options.streamlitPreviewManager}
         operatingSystem={this.options.operatingSystem}
         websocketClient={this.websocketClient}
+        documentManager={this.options.documentManager}
       />
     );
   }
@@ -118,6 +121,7 @@ export function buildChatWidget(
   renderMimeRegistry: IRenderMimeRegistry,
   contextManager: IContextManager,
   streamlitPreviewManager: IStreamlitPreviewManager,
+  documentManager: IDocumentManager,
 ): ChatWidget {
   // Get the operating system here so we don't have to do it each time the chat changes.
   // The operating system won't change, duh.
@@ -129,7 +133,8 @@ export function buildChatWidget(
     renderMimeRegistry,
     contextManager,
     streamlitPreviewManager: streamlitPreviewManager,
-    operatingSystem
+    operatingSystem,
+    documentManager
   });
   chatWidget.id = 'mito_ai';
   return chatWidget;

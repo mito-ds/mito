@@ -6,6 +6,7 @@
 import { useRef, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { UUID } from '@lumino/coreutils';
 import { IStreamlitPreviewManager } from '../../AppPreview/StreamlitPreviewPlugin';
 import { CompletionWebsocketClient } from '../../../websockets/completions/CompletionsWebsocketClient';
@@ -13,10 +14,12 @@ import { ChatHistoryManager } from '../ChatHistoryManager';
 import { createCheckpoint } from '../../../utils/checkpoint';
 import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../../utils/agentActions';
 import { checkForBlacklistedWords } from '../../../utils/blacklistedWords';
+import { playCompletionSound } from '../../../utils/sound';
 import { getCodeBlockFromMessage } from '../../../utils/strings';
 import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } from '../../../utils/notebook';
 import { AgentReviewStatus } from '../ChatTaskpane';
 import { LoadingStatus } from './useChatState';
+import { ensureNotebookExists } from '../utils';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -27,6 +30,7 @@ interface UseAgentExecutionProps {
     app: JupyterFrontEnd;
     streamlitPreviewManager: IStreamlitPreviewManager;
     websocketClient: CompletionWebsocketClient;
+    documentManager: IDocumentManager;
     chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>;
     activeThreadIdRef: React.MutableRefObject<string>;
     activeRequestControllerRef: React.MutableRefObject<AbortController | null>;
@@ -54,6 +58,7 @@ interface UseAgentExecutionProps {
     };
     agentTargetNotebookPanelRef: React.MutableRefObject<any>;
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
+    audioContextRef: React.MutableRefObject<AudioContext | null>;
 }
 
 export const useAgentExecution = ({
@@ -61,6 +66,7 @@ export const useAgentExecution = ({
     app,
     streamlitPreviewManager,
     websocketClient,
+    documentManager,
     chatHistoryManagerRef,
     activeThreadIdRef,
     activeRequestControllerRef,
@@ -72,7 +78,8 @@ export const useAgentExecution = ({
     sendAgentExecutionMessage,
     sendAgentSmartDebugMessage,
     agentReview,
-    agentTargetNotebookPanelRef
+    agentTargetNotebookPanelRef,
+    audioContextRef,
 }: UseAgentExecutionProps): {
     agentExecutionStatus: AgentExecutionStatus;
     shouldContinueAgentExecution: React.MutableRefObject<boolean>;
@@ -120,7 +127,8 @@ export const useAgentExecution = ({
                 stream: false
             });
         }
-        return;
+
+        playCompletionSound(audioContextRef.current);
     };
 
     const startAgentExecution = async (
@@ -129,7 +137,10 @@ export const useAgentExecution = ({
         messageIndex?: number,
         additionalContext?: Array<{ type: string, value: string }>
     ): Promise<void> => {
-        agentTargetNotebookPanelRef.current = notebookTracker.currentWidget;
+        
+        // Ensure a notebook exists before proceeding with agent execution
+        const agentTargetNotebookPanel = await ensureNotebookExists(notebookTracker, documentManager);
+        agentTargetNotebookPanelRef.current = agentTargetNotebookPanel;
 
         agentReview.acceptAllAICode();
         agentReview.setNotebookSnapshotPreAgentExecution(getAIOptimizedCellsInNotebookPanel(agentTargetNotebookPanelRef.current));
@@ -320,6 +331,14 @@ export const useAgentExecution = ({
                         break;
                     }
                 }
+            }
+
+            if (agentResponse.type === 'ask_user_question') {
+                // When the agent asks a question, we stop execution and wait for the user's response.
+                // The agent will automatically resume when the user responds
+                await markAgentForStopping();
+                isAgentFinished = true;
+                break; 
             }
 
             if (agentResponse.type === 'create_streamlit_app') {

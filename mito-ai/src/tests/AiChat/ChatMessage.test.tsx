@@ -70,6 +70,8 @@ jest.mock('../../Extensions/AiChat/ChatMessage/ChatInput', () => {
                 handleSubmitUserMessage: props.handleSubmitUserMessage,
                 onCancel: props.onCancel
             };
+            // Store props for verification in tests
+            (window as any).__chatInputProps = props;
             return (
                 <div data-testid="chat-input">
                     <textarea
@@ -147,8 +149,9 @@ describe('ChatMessage Component', () => {
     beforeEach(() => {
         cleanup();
         jest.clearAllMocks();
-        // Clear previous callbacks
+        // Clear previous callbacks and props
         (window as any).__chatInputCallbacks = null;
+        (window as any).__chatInputProps = null;
     });
 
     afterEach(() => {
@@ -336,6 +339,56 @@ describe('ChatMessage Component', () => {
 
             // Verify that onUpdateMessage was called with the additional context
             expect(handleSubmitUserMessageMock).toHaveBeenCalledWith('Updated message content', 0, mockAdditionalContext);
+        });
+
+        it('passes agentModeEnabled prop correctly when editing in agent mode', () => {
+            const handleSubmitUserMessageMock = jest.fn();
+
+            renderChatMessage({
+                message: createMockMessage('user', 'Hello, can you help me with pandas?'),
+                handleSubmitUserMessage: handleSubmitUserMessageMock,
+                agentModeEnabled: true
+            });
+
+            // Find and click the edit button
+            const editButton = screen.getByTitle('Edit message');
+
+            // Use act to wrap the state change
+            act(() => {
+                fireEvent.click(editButton);
+            });
+
+            // Should show the ChatInput component for editing
+            expect(screen.getByTestId('chat-input')).toBeInTheDocument();
+
+            // Verify that ChatInput was called with agentModeEnabled=true
+            const chatInputProps = (window as any).__chatInputProps;
+            expect(chatInputProps.agentModeEnabled).toBe(true);
+        });
+
+        it('passes agentModeEnabled prop correctly when editing in chat mode', () => {
+            const handleSubmitUserMessageMock = jest.fn();
+
+            renderChatMessage({
+                message: createMockMessage('user', 'Hello, can you help me with pandas?'),
+                handleSubmitUserMessage: handleSubmitUserMessageMock,
+                agentModeEnabled: false
+            });
+
+            // Find and click the edit button
+            const editButton = screen.getByTitle('Edit message');
+
+            // Use act to wrap the state change
+            act(() => {
+                fireEvent.click(editButton);
+            });
+
+            // Should show the ChatInput component for editing
+            expect(screen.getByTestId('chat-input')).toBeInTheDocument();
+
+            // Verify that ChatInput was called with agentModeEnabled=false
+            const chatInputProps = (window as any).__chatInputProps;
+            expect(chatInputProps.agentModeEnabled).toBe(false);
         });
 
         it('displays additionalContext containers in user messages', () => {

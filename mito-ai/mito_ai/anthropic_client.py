@@ -7,13 +7,17 @@ from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
 
 from anthropic.types import Message, MessageParam, TextBlockParam
 from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
-from mito_ai.constants import MESSAGE_HISTORY_TRIM_THRESHOLD
+from mito_ai.completions.prompt_builders.prompt_section_registry import get_max_trim_after_messages
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
 
 # Max tokens is a required parameter for the Anthropic API. 
 # We set it to a high number so that we can edit large code cells
 MAX_TOKENS = 64_000
+
+# Calculate the max trim threshold once at module load time.
+# This is used for cache boundary calculation - messages older than this threshold are stable.
+MAX_TRIM_THRESHOLD = get_max_trim_after_messages()
 
 def extract_and_parse_anthropic_json_response(response: Message) -> Union[object, Any]:
     """
@@ -170,9 +174,6 @@ def get_anthropic_system_prompt_and_messages_with_caching(messages: List[ChatCom
     1. System prompt (static) → Always cached
     2. Stable conversation history → Cache at keep_recent boundary
     3. Recent messages → Never cached (always fresh)
-    
-    The keep_recent parameter determines which messages are stable and won't be trimmed.
-    We cache at the keep_recent boundary because those messages are guaranteed to be stable.
     """
     
     # Get the base system prompt and messages
@@ -189,14 +190,14 @@ def get_anthropic_system_prompt_and_messages_with_caching(messages: List[ChatCom
         }]
     
     # 2. Cache conversation history at the boundary where the messages are stable.
-    # Messages are stable after they are more than MESSAGE_HISTORY_TRIM_THRESHOLD old.
+    # Messages are stable after they are older than the max trim_after_messages threshold.
     # At this point, the messages are not edited anymore, so they will not invalidate the cache.
     # If we included the messages before the boundary in the cache, then every time we send a new
     # message, we would invalidate the cache and we would never get a cache hit except for the system prompt.
     messages_with_cache = []
     
     if len(anthropic_messages) > 0:
-        cache_boundary = len(anthropic_messages) - MESSAGE_HISTORY_TRIM_THRESHOLD - 1
+        cache_boundary = len(anthropic_messages) - MAX_TRIM_THRESHOLD - 1
         
         # Add all messages, but only add cache_control to the message at the boundary
         for i, msg in enumerate(anthropic_messages):
