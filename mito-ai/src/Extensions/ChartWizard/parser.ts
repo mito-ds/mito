@@ -84,8 +84,8 @@ function parseValue(
         return { value: false, type: 'boolean' };
     }
 
-    // Tuple (e.g., (12, 6))
-    const tupleMatch = valueStr.match(/^\((\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\)$/);
+    // Tuple (e.g., (12, 6) or (-10, 6))
+    const tupleMatch = valueStr.match(/^\((-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\)$/);
     if (tupleMatch) {
         return {
             value: [parseFloat(tupleMatch[1] || '0'), parseFloat(tupleMatch[2] || '0')],
