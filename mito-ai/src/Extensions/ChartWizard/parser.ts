@@ -6,7 +6,7 @@
 export interface ChartConfigVariable {
     name: string;
     value: string | number | boolean | [number, number];
-    type: 'string' | 'number' | 'boolean' | 'tuple';
+    type: 'string' | 'number' | 'boolean' | 'tuple' | 'expression';
 }
 
 export interface ParsedChartConfig {
@@ -71,7 +71,7 @@ function parseValue(
     valueStr: string
 ): {
     value: string | number | boolean | [number, number];
-    type: 'string' | 'number' | 'boolean' | 'tuple';
+    type: 'string' | 'number' | 'boolean' | 'tuple' | 'expression';
 } | null {
     // Remove surrounding whitespace
     valueStr = valueStr.trim();
@@ -104,8 +104,42 @@ function parseValue(
         return { value: stringMatch[1] || '', type: 'string' };
     }
 
+    // Check if it's a Python expression (contains function calls, operators, etc.)
+    // This includes things like pd.to_datetime('2012-04-09'), list comprehensions, etc.
+    if (isPythonExpression(valueStr)) {
+        return { value: valueStr, type: 'expression' };
+    }
+
     // If it doesn't match any pattern, treat as string literal
     return { value: valueStr, type: 'string' };
+}
+
+/**
+ * Determines if a string is a Python expression (function call, operator, etc.)
+ * rather than a simple string literal.
+ */
+function isPythonExpression(valueStr: string): boolean {
+    // Check for function calls (e.g., pd.to_datetime(...), datetime(...))
+    if (/[a-zA-Z_][a-zA-Z0-9_]*\s*\(/.test(valueStr)) {
+        return true;
+    }
+    
+    // Check for operators (arithmetic, comparison, etc.)
+    if (/[+\-*/%<>=!&|]/.test(valueStr)) {
+        return true;
+    }
+    
+    // Check for list/dict comprehensions, slices, etc.
+    if (/\[.*\]|{.*}/.test(valueStr) && !/^['"]/.test(valueStr)) {
+        return true;
+    }
+    
+    // Check for attribute access (e.g., obj.attr)
+    if (/\.[a-zA-Z_][a-zA-Z0-9_]*/.test(valueStr)) {
+        return true;
+    }
+    
+    return false;
 }
 
 
@@ -156,6 +190,10 @@ function formatValue(value: string | number | boolean | [number, number], type: 
         return `(${value[0]}, ${value[1]})`;
     }
     if (type === 'number') {
+        return String(value);
+    }
+    if (type === 'expression') {
+        // Python expressions should be preserved as-is without quotes
         return String(value);
     }
     // String - escape single quotes and wrap in single quotes
