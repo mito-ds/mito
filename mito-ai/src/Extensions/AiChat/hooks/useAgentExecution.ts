@@ -20,6 +20,7 @@ import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } 
 import { AgentReviewStatus } from '../ChatTaskpane';
 import { LoadingStatus } from './useChatState';
 import { ensureNotebookExists } from '../utils';
+import { executeScratchpadCode } from '../../../utils/scratchpadExecution';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -363,6 +364,48 @@ export const useAgentExecution = ({
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message;
                 }
+            }
+
+            if (agentResponse.type === 'scratchpad' && agentResponse.scratchpad_code) {
+                // Execute scratchpad code silently
+                setLoadingStatus('running-code');
+                let scratchpadResult;
+                try {
+                    scratchpadResult = await executeScratchpadCode(
+                        agentTargetNotebookPanelRef.current,
+                        agentResponse.scratchpad_code
+                    );
+                } finally {
+                    setLoadingStatus(undefined);
+                }
+
+                // Format the results for the agent
+                let resultMessage = 'Scratchpad Results:\n';
+                
+                if (scratchpadResult.success) {
+                    if (scratchpadResult.stdout) {
+                        resultMessage += `\n${scratchpadResult.stdout}`;
+                    }
+                    if (scratchpadResult.stderr) {
+                        resultMessage += `\n[stderr]\n${scratchpadResult.stderr}`;
+                    }
+                } else {
+                    resultMessage += '\n[Execution Error]\n';
+                    if (scratchpadResult.error) {
+                        resultMessage += `${scratchpadResult.error}\n`;
+                    }
+                    if (scratchpadResult.traceback) {
+                        resultMessage += `\n${scratchpadResult.traceback}`;
+                    }
+                    if (scratchpadResult.stdout) {
+                        resultMessage += `\n[stdout before error]\n${scratchpadResult.stdout}`;
+                    }
+                    if (scratchpadResult.stderr) {
+                        resultMessage += `\n[stderr]\n${scratchpadResult.stderr}`;
+                    }
+                }
+
+                messageToShareWithAgent = resultMessage;
             }
         }
 

@@ -24,7 +24,8 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
         'ask_user_question',
         'finished_task', 
         'create_streamlit_app', 
-        'edit_streamlit_app'
+        'edit_streamlit_app',
+        'scratchpad'
     ];
     correctedResponse.type = (correctedResponse.type && validTypes.includes(correctedResponse.type)) 
         ? correctedResponse.type 
@@ -64,6 +65,12 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     // Correct streamlit_app_prompt - ensure it's a string when present
     const editStreamlitAppPromptType = typeof correctedResponse.streamlit_app_prompt;
     correctedResponse.streamlit_app_prompt = editStreamlitAppPromptType === 'string' ? correctedResponse.streamlit_app_prompt : undefined;
+
+    // Correct scratchpad_code - ensure it's a string when present
+    if (correctedResponse.type === 'scratchpad') {
+        const scratchpadCodeType = typeof correctedResponse.scratchpad_code;
+        correctedResponse.scratchpad_code = scratchpadCodeType === 'string' ? correctedResponse.scratchpad_code : undefined;
+    }
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 
     // not caused issues thus far.

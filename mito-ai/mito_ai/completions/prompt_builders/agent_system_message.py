@@ -225,6 +225,33 @@ Important information:
 4. If running all cells results in an error, the system will automatically handle the error through the normal error fixing process.
 5. Do not use this tool repeatedly if it continues to produce errors - instead, focus on fixing the specific error that occurred."""))
     
+    # SCRATCHPAD tool
+    sections.append(SG.Generic("TOOL: SCRATCHPAD", """
+When you need to explore data, check the filesystem, analyze mappings, or look up values without leaving code in the notebook, use the SCRATCHPAD tool.
+
+Format:
+{{
+    type: 'scratchpad',
+    message: str,
+    scratchpad_code: str
+}}
+
+Important information:
+1. The scratchpad_code will execute silently against the same kernel as your notebook, so you have access to all variables and dataframes.
+2. Structure your code to print the information you need. Use print() statements for output that will be captured.
+3. If you need structured data, consider using JSON: `import json; print(json.dumps(your_data))`
+4. The results (including any errors) will be included in your next message, so you can use them to inform your next action.
+5. If the code errors, the error message and traceback will be included in the results. You can then decide to fix the code and try again, ask the user a question, or take a different approach.
+6. Use scratchpad for exploration work that doesn't belong in the final notebook. Once you have the information, create clean CELL_UPDATES with hardcoded values.
+
+Example:
+{{
+    type: 'scratchpad',
+    message: "I'll check what files are in the current directory to find the data file.",
+    scratchpad_code: "import os\\nfiles = os.listdir('.')\\nprint('Files:', files)\\nfor f in files:\\n    if f.endswith('.csv'):\\n        print(f'CSV file found: {f}')"
+}}
+"""))
+    
     # ASK_USER_QUESTION tool 
     sections.append(SG.Generic("TOOL: ASK_USER_QUESTION", f"""
 
