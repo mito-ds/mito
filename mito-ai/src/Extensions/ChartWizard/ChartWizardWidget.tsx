@@ -27,22 +27,25 @@ interface ChartWizardContentProps {
 
 const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) => {
     const [configVariables, setConfigVariables] = useState<ChartConfigVariable[]>([]);
+    const [isConverting, setIsConverting] = useState(false);
+    const [currentSourceCode, setCurrentSourceCode] = useState<string | null>(null);
     const executeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Parse config when chart data changes
+    // Parse config when chart data or current source code changes
     useEffect(() => {
-        if (!chartData?.sourceCode) {
+        const codeToParse = currentSourceCode || chartData?.sourceCode;
+        if (!codeToParse) {
             setConfigVariables([]);
             return;
         }
 
-        const parsed = parseChartConfig(chartData.sourceCode);
+        const parsed = parseChartConfig(codeToParse);
         if (parsed) {
             setConfigVariables(parsed.variables);
         } else {
             setConfigVariables([]);
         }
-    }, [chartData?.sourceCode]);
+    }, [chartData?.sourceCode, currentSourceCode]);
 
     // Cleanup timeout on unmount
     useEffect(() => {
@@ -72,7 +75,8 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     const handleVariableChange = (
         variableName: string, newValue: string | number | boolean | [number, number]
     ): void => {
-        if (!chartData?.sourceCode) return;
+        const codeToUse = currentSourceCode || chartData?.sourceCode;
+        if (!codeToUse) return;
 
         const updated = configVariables.map(v =>
             v.name === variableName
@@ -82,7 +86,8 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         setConfigVariables(updated);
 
         // Update the source code
-        const updatedCode = updateChartConfig(chartData.sourceCode, updated);
+        const updatedCode = updateChartConfig(codeToUse, updated);
+        setCurrentSourceCode(updatedCode);
 
         // Clear previous timeout
         if (executeTimeoutRef.current) {
@@ -157,26 +162,32 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                         No chart configuration found. Convert your chart using the utility below, or have Mito AI convert it for you. In both cases, the chart will remain visually unchanged.
                     </p>
                     <button
+                        disabled={isConverting}
                         onClick={async () => {
                             if (!chartData?.sourceCode) {
                                 console.error('No source code available');
                                 return;
                             }
+                            setIsConverting(true);
                             try {
                                 const response = await convertChartCode(chartData.sourceCode);
                                 console.log('Chart conversion response:', response);
                                 if (response.converted_code) {
                                     // Extract code from markdown code blocks if present
                                     const extractedCode = removeMarkdownCodeFormatting(response.converted_code);
+                                    // Update current source code so the useEffect will parse it
+                                    setCurrentSourceCode(extractedCode);
                                     // Update the cell with the converted code and re-execute
                                     updateNotebookCell(extractedCode);
                                 }
                             } catch (error) {
                                 console.error('Error converting chart code:', error);
+                            } finally {
+                                setIsConverting(false);
                             }
                         }}
                     >
-                        Convert
+                        {isConverting ? 'Converting...' : 'Convert'}
                     </button>
                 </div>
             )}
