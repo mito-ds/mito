@@ -178,6 +178,23 @@ export const setUserKey = async (key: string, value: string): Promise<string> =>
 
 /************************************
 
+CHART WIZARD ENDPOINTS
+
+************************************/
+
+export const convertChartCode = async (code: string): Promise<{message: string, code_length?: number}> => {
+    const resp = await requestAPI<{message: string, code_length?: number}>('chart-wizard', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data!;
+}
+
+/************************************
+
 CHAT HISTORY ENDPOINTS
 
 ************************************/

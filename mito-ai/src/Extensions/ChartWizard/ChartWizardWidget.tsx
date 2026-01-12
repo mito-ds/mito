@@ -9,6 +9,7 @@ import { NotebookActions } from '@jupyterlab/notebook';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './parser';
 import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
+import { convertChartCode } from '../../restAPI/RestAPI';
 import {
     BooleanInputRow,
     TupleInputRow,
@@ -155,8 +156,18 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                         No chart configuration found. Convert your chart using the utility below, or have Mito AI convert it for you. In both cases, the chart will remain visually unchanged.
                     </p>
                     <button
-                        onClick={() => {
-                            console.log('Convert button clicked');
+                        onClick={async () => {
+                            if (!chartData?.sourceCode) {
+                                console.error('No source code available');
+                                return;
+                            }
+                            try {
+                                const response = await convertChartCode(chartData.sourceCode);
+                                console.log('Chart conversion response:', response);
+                                // TODO: Handle the response (e.g., update the cell with converted code)
+                            } catch (error) {
+                                console.error('Error converting chart code:', error);
+                            }
                         }}
                     >
                         Convert
