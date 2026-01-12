@@ -67,6 +67,7 @@ type CompletionRequestMetadata =
   IFetchHistoryMetadata |
   IStartNewChatMetadata |
   IGetThreadsMetadata |
+  IScratchpadResultMetadata |
   IDeleteThreadMetadata |
   IAgentExecutionMetadata | 
   IAgentSmartDebugMetadata |
@@ -100,6 +101,13 @@ export interface IAgentExecutionMetadata {
   threadId: string;
   isChromeBrowser: boolean;
   additionalContext?: Array<{type: string, value: string}>;
+}
+
+export interface IScratchpadResultMetadata {
+  promptType: 'agent:scratchpad-result'
+  threadId: string;
+  scratchpadResult: string;
+  index?: number;
 }
 
 export interface IAgentSmartDebugMetadata {
@@ -225,6 +233,11 @@ export interface ICodeExplainCompletionRequest extends ICompletionRequest {
 export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
   type: 'agent:execution'
   metadata: IAgentExecutionMetadata
+}
+
+export interface IAgentScratchpadResultCompletionRequest extends ICompletionRequest {
+  type: 'agent:scratchpad-result'
+  metadata: IScratchpadResultMetadata
 }
 
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {

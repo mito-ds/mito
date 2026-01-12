@@ -20,7 +20,7 @@ import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } 
 import { AgentReviewStatus } from '../ChatTaskpane';
 import { LoadingStatus } from './useChatState';
 import { ensureNotebookExists } from '../utils';
-import { executeScratchpadCode } from '../../../utils/scratchpadExecution';
+import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -52,6 +52,7 @@ interface UseAgentExecutionProps {
         sendCellIDOutput?: string,
         additionalContext?: Array<{ type: string, value: string }>
     ) => Promise<void>;
+    sendScratchpadResultMessage: (scratchpadResult: string) => Promise<void>;
     sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>;
     agentReview: {
         acceptAllAICode: () => void;
@@ -77,6 +78,7 @@ export const useAgentExecution = ({
     addAIMessageFromResponseAndUpdateState,
     getDuplicateChatHistoryManager,
     sendAgentExecutionMessage,
+    sendScratchpadResultMessage,
     sendAgentSmartDebugMessage,
     agentReview,
     agentTargetNotebookPanelRef,
@@ -158,6 +160,7 @@ export const useAgentExecution = ({
         let isAgentFinished = false;
         let agentExecutionDepth = 1;
         let sendCellIDOutput: string | undefined = undefined;
+        let processedScratchpadResult: string | undefined = undefined;
 
         // Sometimes its useful to send extra information back to the agent. For example, 
         // if the agent tries to create a streamlit app and it errors, we want to let the 
@@ -180,6 +183,10 @@ export const useAgentExecution = ({
             // All other messages only contain updated information about the state of the notebook.
             if (agentExecutionDepth === 1) {
                 await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext);
+            } else if (processedScratchpadResult !== undefined) {
+                // If we have scratchpad results, send them using the scratchpad result message type
+                await sendScratchpadResultMessage(processedScratchpadResult);
+                processedScratchpadResult = undefined;
             } else {
                 await sendAgentExecutionMessage(messageToShareWithAgent || '', undefined, sendCellIDOutput);
                 // Reset flag back to false until the agent requests the active cell output again
@@ -380,32 +387,7 @@ export const useAgentExecution = ({
                 }
 
                 // Format the results for the agent
-                let resultMessage = 'Scratchpad Results:\n';
-                
-                if (scratchpadResult.success) {
-                    if (scratchpadResult.stdout) {
-                        resultMessage += `\n${scratchpadResult.stdout}`;
-                    }
-                    if (scratchpadResult.stderr) {
-                        resultMessage += `\n[stderr]\n${scratchpadResult.stderr}`;
-                    }
-                } else {
-                    resultMessage += '\n[Execution Error]\n';
-                    if (scratchpadResult.error) {
-                        resultMessage += `${scratchpadResult.error}\n`;
-                    }
-                    if (scratchpadResult.traceback) {
-                        resultMessage += `\n${scratchpadResult.traceback}`;
-                    }
-                    if (scratchpadResult.stdout) {
-                        resultMessage += `\n[stdout before error]\n${scratchpadResult.stdout}`;
-                    }
-                    if (scratchpadResult.stderr) {
-                        resultMessage += `\n[stderr]\n${scratchpadResult.stderr}`;
-                    }
-                }
-
-                messageToShareWithAgent = resultMessage;
+                processedScratchpadResult = formatScratchpadResult(scratchpadResult);
             }
         }
 

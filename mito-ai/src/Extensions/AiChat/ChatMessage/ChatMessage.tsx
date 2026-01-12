@@ -34,6 +34,7 @@ import AssumptionToolUI from '../../../components/AgentComponents/AssumptionTool
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
 import AskUserQuestionToolUI from '../../../components/AgentComponents/AskUserQuestionToolUI';
+import ScratchpadToolUI from '../../../components/AgentComponents/ScratchpadToolUI';
 import CreateStreamlitAppToolUI from '../../../components/AgentComponents/CreateStreamlitAppToolUI';
 import EditStreamlitAppToolUI from '../../../components/AgentComponents/EditStreamlitAppToolUI';
 
@@ -306,6 +307,9 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             }
             {agentResponse?.type === 'get_cell_output' &&
                 <GetCellOutputToolUI />
+            }
+            {agentResponse?.type === 'scratchpad' &&
+                <ScratchpadToolUI />
             }
             {agentResponse?.type === 'run_all_cells' && agentModeEnabled &&
                 <RunAllCellsToolUI />

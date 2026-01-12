@@ -36,7 +36,14 @@ def does_message_require_fast_model(message_type: MessageType) -> bool:
     so they don't slow down the user's experience.
     """
     
-    if message_type in (MessageType.CHAT, MessageType.SMART_DEBUG, MessageType.CODE_EXPLAIN, MessageType.AGENT_EXECUTION, MessageType.AGENT_AUTO_ERROR_FIXUP):
+    if message_type in (
+        MessageType.CHAT,
+        MessageType.SMART_DEBUG,
+        MessageType.CODE_EXPLAIN,
+        MessageType.AGENT_EXECUTION,
+        MessageType.AGENT_SCRATCHPAD_RESULT,
+        MessageType.AGENT_AUTO_ERROR_FIXUP,
+    ):
         return False
     elif message_type in (MessageType.INLINE_COMPLETION, MessageType.CHAT_NAME_GENERATION):
         return True
