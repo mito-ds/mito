@@ -110,7 +110,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_file_uploads_urls(base_url)) # type: ignore
     handlers.extend(get_user_urls(base_url)) # type: ignore
     handlers.extend(get_chat_history_urls(base_url, global_message_history)) # type: ignore
-    handlers.extend(get_chart_wizard_urls(base_url)) # type: ignore
+    handlers.extend(get_chart_wizard_urls(base_url, open_ai_provider)) # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")

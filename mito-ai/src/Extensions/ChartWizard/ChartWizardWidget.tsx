@@ -164,7 +164,10 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                             try {
                                 const response = await convertChartCode(chartData.sourceCode);
                                 console.log('Chart conversion response:', response);
-                                // TODO: Handle the response (e.g., update the cell with converted code)
+                                if (response.converted_code) {
+                                    console.log('Converted code:', response.converted_code);
+                                    // TODO: Update the cell with converted_code
+                                }
                             } catch (error) {
                                 console.error('Error converting chart code:', error);
                             }

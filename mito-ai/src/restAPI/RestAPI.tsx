@@ -182,8 +182,8 @@ CHART WIZARD ENDPOINTS
 
 ************************************/
 
-export const convertChartCode = async (code: string): Promise<{message: string, code_length?: number}> => {
-    const resp = await requestAPI<{message: string, code_length?: number}>('chart-wizard', {
+export const convertChartCode = async (code: string): Promise<{message: string, converted_code?: string}> => {
+    const resp = await requestAPI<{message: string, converted_code?: string}>('chart-wizard', {
         method: 'POST',
         body: JSON.stringify({ code }),
     })
