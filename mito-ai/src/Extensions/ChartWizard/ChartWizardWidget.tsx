@@ -152,8 +152,15 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             ) : (
                 <div className="chart-wizard-no-config">
                     <p>
-                        No chart configuration found. Make sure your code includes a section between <code># === CHART CONFIG ===</code> and <code># === END CONFIG ===</code>.
+                        No chart configuration found. Convert your chart using the utility below, or have Mito AI convert it for you. In both cases, the chart will remain visually unchanged.
                     </p>
+                    <button
+                        onClick={() => {
+                            console.log('Convert button clicked');
+                        }}
+                    >
+                        Convert
+                    </button>
                 </div>
             )}
         </div>
