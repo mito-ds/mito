@@ -168,8 +168,8 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                                 if (response.converted_code) {
                                     // Extract code from markdown code blocks if present
                                     const extractedCode = removeMarkdownCodeFormatting(response.converted_code);
-                                    console.log('Extracted code:', extractedCode);
-                                    // TODO: Update the cell with extractedCode
+                                    // Update the cell with the converted code and re-execute
+                                    updateNotebookCell(extractedCode);
                                 }
                             } catch (error) {
                                 console.error('Error converting chart code:', error);
