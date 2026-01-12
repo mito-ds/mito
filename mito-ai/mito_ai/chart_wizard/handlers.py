@@ -6,6 +6,7 @@ import tornado
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.completions.models import MessageType
+from mito_ai.completions.prompt_builders.chart_conversion_prompt import create_chart_conversion_prompt
 
 
 class ChartWizardHandler(APIHandler):
@@ -29,15 +30,9 @@ class ChartWizardHandler(APIHandler):
             
             # Hardcoded values for now
             model = "gpt-4.1"  # Default model
-            prompt = f"""Convert the following matplotlib chart code to use configurable variables that can be edited in a UI.
-The chart should remain visually unchanged, but the code should be refactored to use variables for customizable parameters.
-
-Here is the code:
-```python
-{code}
-```
-
-Return only the converted Python code, with no explanations or markdown formatting."""
+            
+            # Create prompt using the prompt builder
+            prompt = create_chart_conversion_prompt(code)
             
             # Call LLM
             messages = [{"role": "user", "content": prompt}]
