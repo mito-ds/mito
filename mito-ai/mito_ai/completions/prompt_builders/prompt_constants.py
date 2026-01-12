@@ -16,28 +16,11 @@ When creating a matplotlib chart, you must use the `# === CHART CONFIG ===` and 
 
 The chart configuration section is a list of variables used to customize the chart. This includes the titles, labels, colors, and any variables that affect the chart's appearance.
 
-CRITICAL REQUIREMENT: You MUST always include ALL of the following standard configuration variables in the exact order shown below, even if you don't use all of them in your chart code. This ensures users have consistent access to customization options.
-
-Required Standard Variables (in this exact order):
-1. TITLE - Chart title (string, e.g., "Sales by Product")
-2. X_LABEL - X-axis label (string, e.g., "Product")
-3. Y_LABEL - Y-axis label (string, e.g., "Sales")
-4. FIGURE_SIZE - Figure size as a tuple (tuple, e.g., (10, 6))
-5. COLOR - Primary color in hex format (string, e.g., "#3498db")
-6. X_TICK_ROTATION - Rotation angle for x-axis tick labels in degrees (number, 0-90, e.g., 45)
-7. GRID - Whether to show grid lines (boolean, True or False)
-8. LEGEND - Whether to show legend (boolean, True or False)
-9. LEGEND_LOCATION - Legend location if legend is shown (string, e.g., "upper right", "best", "lower left")
-10. FONT_SIZE - Font size for labels and title (number, e.g., 12)
-
 Rules:
 - Variables with multiple words should be underscore-separated.
 - All colors should be in hex format (e.g., "#3498db"). Use quotes around the hex string: COLOR = "#3498db" or COLOR = '#3498db'. Do NOT nest quotes.
-- Each line should contain only one variable assignment.
+- Variables can only be strings, numbers, booleans, tuples, or lists. 
 - NEVER include comments on the same line as a variable assignment. Each variable assignment must be on its own line with no trailing comments.
-- Variables can only be strings, numbers, booleans, tuples, or lists.
-- You may include additional chart-specific variables after the standard ones (e.g., BAR_COLOR, LINE_WIDTH, etc.).
-- Set default values for variables you don't use, but still include them in the config section.
 - For string values, use either single or double quotes (e.g., TITLE = "Sales by Product" or TITLE = 'Sales by Product'). Do not use nested quotes (e.g., do NOT use '"value"').
 
 Common Mistakes to Avoid:
@@ -51,14 +34,7 @@ Example:
 TITLE = "Sales by Product"
 X_LABEL = "Product"
 Y_LABEL = "Sales"
-FIGURE_SIZE = (10, 6)
-COLOR = "#3498db"
-X_TICK_ROTATION = 0
-GRID = True
-LEGEND = False
-LEGEND_LOCATION = "upper right"
-FONT_SIZE = 12
-BAR_COLOR = "#3498db"
+BAR_COLOR = "#000000"
 # === END CONFIG ===
 """
 
