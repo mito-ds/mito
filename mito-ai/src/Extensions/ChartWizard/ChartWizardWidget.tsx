@@ -10,6 +10,7 @@ import { ChartWizardData } from './ChartWizardPlugin';
 import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './parser';
 import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
 import { convertChartCode } from '../../restAPI/RestAPI';
+import { removeMarkdownCodeFormatting } from '../../utils/strings';
 import {
     BooleanInputRow,
     TupleInputRow,
@@ -165,8 +166,10 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                                 const response = await convertChartCode(chartData.sourceCode);
                                 console.log('Chart conversion response:', response);
                                 if (response.converted_code) {
-                                    console.log('Converted code:', response.converted_code);
-                                    // TODO: Update the cell with converted_code
+                                    // Extract code from markdown code blocks if present
+                                    const extractedCode = removeMarkdownCodeFormatting(response.converted_code);
+                                    console.log('Extracted code:', extractedCode);
+                                    // TODO: Update the cell with extractedCode
                                 }
                             } catch (error) {
                                 console.error('Error converting chart code:', error);
