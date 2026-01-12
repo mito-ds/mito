@@ -42,6 +42,15 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         }
     }, [chartData?.sourceCode]);
 
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (executeTimeoutRef.current) {
+                clearTimeout(executeTimeoutRef.current);
+            }
+        };
+    }, []);
+
     // Update notebook cell and re-execute when config variables change
     const updateNotebookCell = (updatedCode: string): void => {
         if (!chartData) return;
