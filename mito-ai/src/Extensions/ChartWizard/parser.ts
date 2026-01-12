@@ -98,10 +98,14 @@ function parseValue(
         return { value: parseFloat(valueStr), type: 'number' };
     }
 
-    // String (remove quotes)
-    const stringMatch = valueStr.match(/^['"](.*)['"]$/);
-    if (stringMatch) {
-        return { value: stringMatch[1] || '', type: 'string' };
+    // String (remove quotes and unescape)
+    const stringMatch = valueStr.match(/^(['"])(.*)\1$/);
+    if (stringMatch && stringMatch[1]) {
+        const quoteChar = stringMatch[1];
+        const stringContent = stringMatch[2] || '';
+        // Unescape the string content (convert \' to ', \\ to \, etc.)
+        const unescaped = unescapePythonString(stringContent, quoteChar);
+        return { value: unescaped, type: 'string' };
     }
 
     // Check if it's a Python expression (contains function calls, operators, etc.)
@@ -112,6 +116,64 @@ function parseValue(
 
     // If it doesn't match any pattern, treat as string literal
     return { value: valueStr, type: 'string' };
+}
+
+/**
+ * Unescapes a Python string content, converting escape sequences to their actual characters.
+ */
+function unescapePythonString(content: string, quoteChar: string): string {
+    let result = '';
+    let i = 0;
+    while (i < content.length) {
+        if (content[i] === '\\' && i + 1 < content.length) {
+            const next = content[i + 1];
+            if (next !== undefined) {
+                switch (next) {
+                    case '\\':
+                        result += '\\';
+                        i += 2;
+                        break;
+                    case quoteChar:
+                        result += quoteChar;
+                        i += 2;
+                        break;
+                    case 'n':
+                        result += '\n';
+                        i += 2;
+                        break;
+                    case 't':
+                        result += '\t';
+                        i += 2;
+                        break;
+                    case 'r':
+                        result += '\r';
+                        i += 2;
+                        break;
+                    default:
+                        // Unknown escape sequence, keep as-is
+                        result += content[i] + next;
+                        i += 2;
+                        break;
+                }
+            } else {
+                result += content[i];
+                i += 1;
+            }
+        } else {
+            result += content[i];
+            i += 1;
+        }
+    }
+    return result;
+}
+
+/**
+ * Escapes a string for use in a Python single-quoted string literal.
+ */
+function escapePythonString(content: string): string {
+    return content
+        .replace(/\\/g, '\\\\')  // Escape backslashes first
+        .replace(/'/g, "\\'");    // Then escape single quotes
 }
 
 /**
@@ -196,6 +258,6 @@ function formatValue(value: string | number | boolean | [number, number], type: 
         // Python expressions should be preserved as-is without quotes
         return String(value);
     }
-    // String - escape single quotes and wrap in single quotes
-    return `'${String(value).replace(/'/g, "\\'")}'`;
+    // String - escape properly and wrap in single quotes
+    return `'${escapePythonString(String(value))}'`;
 }
