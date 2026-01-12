@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, Root } from 'react-dom/client';
 import { JupyterFrontEnd, JupyterFrontEndPlugin, ILayoutRestorer } from '@jupyterlab/application';
 import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
@@ -143,6 +143,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private originalRenderer: IRenderMime.IRenderer;
     private notebookTracker: INotebookTracker;
     private openChartWizard: (chartData?: ChartWizardData) => void;
+    private reactRoot: Root | null = null;
 
     constructor(
         _app: JupyterFrontEnd,
@@ -160,11 +161,19 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
      * Render the original image and append the Chart Wizard button.
      */
     async renderModel(model: IRenderMime.IMimeModel): Promise<void> {
+        // Clean up any existing React root before creating a new one
+        if (this.reactRoot) {
+            this.reactRoot.unmount();
+            this.reactRoot = null;
+        }
+
         const chartWizardDiv = document.createElement('div');
         chartWizardDiv.className = 'chart-wizard-button-container';
         const originalNode = this.originalRenderer.node;
 
-        createRoot(chartWizardDiv).render(
+        // Store the root reference so we can unmount it later
+        this.reactRoot = createRoot(chartWizardDiv);
+        this.reactRoot.render(
             <ChartWizardButton onButtonClick={() => this.handleButtonClick(model)} />
         );
 
@@ -173,6 +182,17 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         this.node.appendChild(chartWizardDiv);
         await this.originalRenderer.renderModel(model);
         this.node.appendChild(originalNode);
+    }
+
+    /**
+     * Dispose of the widget and clean up the React root.
+     */
+    dispose(): void {
+        if (this.reactRoot) {
+            this.reactRoot.unmount();
+            this.reactRoot = null;
+        }
+        super.dispose();
     }
 
     /* 
