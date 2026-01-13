@@ -1,6 +1,3 @@
-# Ignore all the scratch files
-scratch*
-
 # Ignore all the ipynb files in mitosheet and mito-ai
 mitosheet/**/*.ipynb
 mito-ai/**/*.ipynb

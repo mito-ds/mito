@@ -41,7 +41,7 @@ export type CellUpdateNew = {
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question'
+  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad'
   message: string,
   cell_update?: CellUpdate | null | undefined
   get_cell_output_cell_id?: string | null | undefined
@@ -50,6 +50,8 @@ export type AgentResponse = {
   streamlit_app_prompt?: string | null | undefined
   question?: string | null | undefined
   answers?: string[] | null | undefined
+  scratchpad_code?: string | null | undefined
+  scratchpad_summary?: string | null | undefined
 }
 
 /* 
@@ -66,6 +68,7 @@ type CompletionRequestMetadata =
   IFetchHistoryMetadata |
   IStartNewChatMetadata |
   IGetThreadsMetadata |
+  IScratchpadResultMetadata |
   IDeleteThreadMetadata |
   IAgentExecutionMetadata | 
   IAgentSmartDebugMetadata |
@@ -99,6 +102,13 @@ export interface IAgentExecutionMetadata {
   threadId: string;
   isChromeBrowser: boolean;
   additionalContext?: Array<{type: string, value: string}>;
+}
+
+export interface IScratchpadResultMetadata {
+  promptType: 'agent:scratchpad-result'
+  threadId: string;
+  scratchpadResult: string;
+  index?: number;
 }
 
 export interface IAgentSmartDebugMetadata {
@@ -224,6 +234,11 @@ export interface ICodeExplainCompletionRequest extends ICompletionRequest {
 export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
   type: 'agent:execution'
   metadata: IAgentExecutionMetadata
+}
+
+export interface IAgentScratchpadResultCompletionRequest extends ICompletionRequest {
+  type: 'agent:scratchpad-result'
+  metadata: IScratchpadResultMetadata
 }
 
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {

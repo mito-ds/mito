@@ -29,7 +29,16 @@ class CellUpdate(BaseModel):
 # for now and rely on the AI to respond with the correct types, following the format
 # that we show it in the system prompt.
 class AgentResponse(BaseModel):
-    type: Literal['cell_update', 'get_cell_output', 'run_all_cells', 'finished_task', 'create_streamlit_app', 'edit_streamlit_app', 'ask_user_question']
+    type: Literal[
+        'cell_update', 
+        'get_cell_output', 
+        'run_all_cells', 
+        'finished_task', 
+        'create_streamlit_app', 
+        'edit_streamlit_app', 
+        'ask_user_question', 
+        'scratchpad',
+    ]
     message: str
     cell_update: Optional[CellUpdate]
     get_cell_output_cell_id: Optional[str]
@@ -38,6 +47,8 @@ class AgentResponse(BaseModel):
     streamlit_app_prompt: Optional[str]
     question: Optional[str]
     answers: Optional[List[str]]
+    scratchpad_code: Optional[str]
+    scratchpad_summary: Optional[str]
     
     
 @dataclass(frozen=True)
@@ -69,6 +80,7 @@ class MessageType(Enum):
     STREAMLIT_CONVERSION = "streamlit_conversion"
     STOP_AGENT = "stop_agent"
     DEPLOY_APP = "deploy_app"
+    AGENT_SCRATCHPAD_RESULT = "agent:scratchpad-result"
 
     
 @dataclass(frozen=True)
@@ -138,12 +150,19 @@ class CodeExplainMetadata():
     activeCellCode: Optional[str] = None
     
 @dataclass(frozen=True)
-class InlineCompleterMetadata():
+class InlineCompleterMetadata():    
     promptType: Literal['inline_completion']
     prefix: str 
     suffix: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
+
+@dataclass(frozen=True)
+class ScratchpadResultMetadata():
+    promptType: Literal['agent:scratchpad-result']
+    threadId: ThreadID
+    scratchpadResult: str
+    index: Optional[int] = None
 
 @dataclass(frozen=True)
 class CompletionRequest:

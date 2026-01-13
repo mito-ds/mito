@@ -34,6 +34,7 @@ from mito_ai.completions.models import (
     CodeExplainMetadata,
     AgentExecutionMetadata,
     InlineCompleterMetadata,
+    ScratchpadResultMetadata,
     MessageType
 )
 from mito_ai.completions.providers import OpenAIProvider
@@ -45,6 +46,7 @@ from mito_ai.completions.completion_handlers.code_explain_handler import get_cod
 from mito_ai.completions.completion_handlers.inline_completer_handler import get_inline_completion
 from mito_ai.completions.completion_handlers.agent_execution_handler import get_agent_execution_completion
 from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
+from mito_ai.completions.completion_handlers.scratchpad_result_handler import get_scratchpad_result_completion
 from mito_ai.utils.telemetry_utils import identify
 
 FALLBACK_MODEL = "gpt-4.1"  # Default model to use for safety
@@ -314,6 +316,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
                 agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
                 completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, self._message_history, model)
+            elif type == MessageType.AGENT_SCRATCHPAD_RESULT:
+                scratchpad_result_metadata = ScratchpadResultMetadata(**metadata_dict)
+                completion = await get_scratchpad_result_completion(scratchpad_result_metadata, self._llm, self._message_history, model)
             elif type == MessageType.INLINE_COMPLETION:
                 inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
                 completion = await get_inline_completion(inline_completer_metadata, self._llm, self._message_history, model)

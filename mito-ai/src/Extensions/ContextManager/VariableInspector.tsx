@@ -76,6 +76,10 @@ def structured_globals():
         if is_from_mitosheet(v):
             continue
 
+        if k.startswith("scratch_"):
+            # Skip scratchpad variables the agent creates
+            continue
+
         if not k.startswith("_") and k not in ("In", "Out", "json") and not callable(v):
             
             if _is_pandas_imported and isinstance(v, pd.DataFrame):
