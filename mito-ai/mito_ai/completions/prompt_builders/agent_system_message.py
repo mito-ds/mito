@@ -239,19 +239,29 @@ Format:
 
 Important information:
 1. The scratchpad_code will execute silently against the same kernel as your notebook, so you have access to all variables and dataframes.
-2. Structure your code to print the information you need. Use print() statements for output that will be captured.
-3. If you need structured data, consider using JSON: `import json; print(json.dumps(your_data))`
-4. The results (including any errors) will be included in your next message, so you can use them to inform your next action.
-5. If the code errors, the error message and traceback will be included in the results. You can then decide to fix the code and try again, ask the user a question, or take a different approach.
-6. Use scratchpad for exploration work that doesn't belong in the final notebook. Once you have the information, create clean CELL_UPDATES with hardcoded values.
-7. The scratchpad_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Checking files", "Exploring data", "Analyzing mappings", "Looking up values"). Avoid full sentences or explanations. This should read like a quick commit message or code label, not a description.
+2. Any variables you create in scratchpad code MUST be prefixed with "scratch_" (e.g., use "scratch_temp_df" not "temp_df", use "scratch_files" not "files"). This prevents them from appearing in the variable list and confusing future decisions.
+3. CRITICAL: Do NOT modify existing variables. If you need to explore or modify data, create a copy with the scratch_ prefix first. For example, use "scratch_df = df.copy()" and then modify scratch_df, rather than modifying df directly. This ensures existing variables remain unchanged.
+4. Structure your code to print the information you need. Use print() statements for output that will be captured.
+5. If you need structured data, consider using JSON: `import json; print(json.dumps(your_data))`
+6. The results (including any errors) will be included in your next message, so you can use them to inform your next action.
+7. If the code errors, the error message and traceback will be included in the results. You can then decide to fix the code and try again, ask the user a question, or take a different approach.
+8. Use scratchpad for exploration work that doesn't belong in the final notebook. Once you have the information, create clean CELL_UPDATES with hardcoded values.
+9. The scratchpad_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Checking files", "Exploring data", "Analyzing mappings", "Looking up values"). Avoid full sentences or explanations. This should read like a quick commit message or code label, not a description.
 
 Example:
 {{
     type: 'scratchpad',
     message: "I'll check what files are in the current directory to find the data file.",
-    scratchpad_code: "import os\\nfiles = os.listdir('.')\\nprint('Files:', files)\\nfor f in files:\\n    if f.endswith('.csv'):\\n        print(f'CSV file found: {f}')",
+    scratchpad_code: "import os\\nscratch_files = os.listdir('.')\\nprint('Files:', scratch_files)\\nfor scratch_file in scratch_files:\\n    if scratch_file.endswith('.csv'):\\n        print(f'CSV file found: {scratch_file}')",
     scratchpad_summary: "Checking files"
+}}
+
+Example with dataframe exploration:
+{{
+    type: 'scratchpad',
+    message: "I'll explore the dataframe structure to understand the columns.",
+    scratchpad_code: "scratch_df = df.copy()\\nprint('Columns:', scratch_df.columns.tolist())\\nprint('Shape:', scratch_df.shape)\\nprint('First few rows:')\\nprint(scratch_df.head())",
+    scratchpad_summary: "Exploring dataframe"
 }}
 """))
     
