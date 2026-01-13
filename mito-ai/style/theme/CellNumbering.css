@@ -55,20 +55,3 @@
   content: "";
   display: none;
 }
-
-/* Make active cell more visible in Mito theme */
-.jp-Cell.jp-mod-active {
-  border: 2px solid var(--purple-500, #ba9bf8) !important;
-  border-radius: 4px !important;
-  box-shadow: 0 0 0 1px var(--purple-400, #d0b9fe) !important;
-  background-color: rgba(157, 108, 255, 0.05) !important;
-}
-
-/* Enhanced styling for cells in edit mode */
-.jp-Cell.jp-mod-active.jp-mod-editMode,
-.jp-Cell.jp-mod-editMode {
-  border: 2px solid var(--purple-400, #d0b9fe) !important;
-  border-radius: 4px !important;
-  box-shadow: 0 0 0 2px var(--purple-300, #e9e0fd) !important;
-  background-color: rgba(157, 108, 255, 0.08) !important;
-}
