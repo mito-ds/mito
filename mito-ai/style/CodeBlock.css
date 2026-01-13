@@ -154,3 +154,8 @@
   overflow-y: auto;
 }
 
+.scratchpad-result-warning {
+  color: var(--jp-warn-color1, #f0a000);
+  font-style: italic;
+}
+
