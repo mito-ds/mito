@@ -4,10 +4,10 @@
 import json
 import tornado
 from jupyter_server.base.handlers import APIHandler
+from mito_ai.openai_client import OPENAI_MODEL_FALLBACK
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.completions.models import MessageType
 from mito_ai.completions.prompt_builders.chart_conversion_prompt import create_chart_conversion_prompt
-
 
 class ChartWizardHandler(APIHandler):
     def initialize(self, llm: OpenAIProvider) -> None:
@@ -28,9 +28,6 @@ class ChartWizardHandler(APIHandler):
             data = json.loads(self.request.body.decode('utf-8'))
             code = data.get('code', '')
             
-            # Hardcoded values for now
-            model = "gpt-4.1"  # Default model
-            
             # Create prompt using the prompt builder
             prompt = create_chart_conversion_prompt(code)
             
@@ -38,7 +35,7 @@ class ChartWizardHandler(APIHandler):
             messages = [{"role": "user", "content": prompt}]
             converted_code = await self._llm.request_completions(
                 messages=messages,
-                model=model,
+                model=OPENAI_MODEL_FALLBACK,
                 message_type=MessageType.CHAT,
                 thread_id=None
             )
