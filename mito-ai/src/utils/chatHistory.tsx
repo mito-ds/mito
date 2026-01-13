@@ -32,12 +32,15 @@ export const processChatHistoryForErrorGrouping = (
         // Associate scratchpad results with their corresponding scratchpad tool calls
         // The scratchpad result is stored in the next message (the user message that follows the AI's scratchpad response)
         if (displayOptimizedChatItem.agentResponse?.type === 'scratchpad') {
-            const nextItem = displayOptimizedChatHistory[i + 1];
-            if (nextItem?.scratchpadResult) {
-                displayOptimizedChatItem = {
-                    ...displayOptimizedChatItem,
-                    scratchpadResult: nextItem.scratchpadResult
-                };
+            const nextIndex = i + 1;
+            if (nextIndex < displayOptimizedChatHistory.length) {
+                const nextItem = displayOptimizedChatHistory[nextIndex];
+                if (nextItem?.scratchpadResult) {
+                    displayOptimizedChatItem = {
+                        ...displayOptimizedChatItem,
+                        scratchpadResult: nextItem.scratchpadResult
+                    };
+                }
             }
         }
 
