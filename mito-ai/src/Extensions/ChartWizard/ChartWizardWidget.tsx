@@ -32,6 +32,11 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     const [currentSourceCode, setCurrentSourceCode] = useState<string | null>(null);
     const executeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+    // Reset currentSourceCode when switching to a different chart
+    useEffect(() => {
+        setCurrentSourceCode(null);
+    }, [chartData?.sourceCode]);
+
     // Parse config when chart data or current source code changes
     useEffect(() => {
         const codeToParse = currentSourceCode || chartData?.sourceCode;
