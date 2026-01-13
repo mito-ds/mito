@@ -43,7 +43,8 @@ export interface IDisplayOptimizedChatItem {
     mitoAIConnectionErrorType?: string | null,
     codeCellID?: string | undefined,
     agentResponse?: AgentResponse,
-    additionalContext?: Array<{type: string, value: string}>
+    additionalContext?: Array<{type: string, value: string}>,
+    scratchpadResult?: string  // Store the scratchpad execution result
 }
 
 /* 
@@ -247,7 +248,8 @@ export class ChatHistoryManager {
             {
                 message: userMessage,
                 type: 'openai message',
-                promptType: 'chat',
+                promptType: 'agent:scratchpad-result',
+                scratchpadResult: scratchpadResult,
             }
         )
 

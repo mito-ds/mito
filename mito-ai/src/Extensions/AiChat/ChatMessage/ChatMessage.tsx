@@ -61,6 +61,7 @@ interface IChatMessageProps {
     agentModeEnabled: boolean
     additionalContext?: Array<{ type: string, value: string }>
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
+    scratchpadResult?: string
 }
 
 
@@ -86,6 +87,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     agentModeEnabled,
     additionalContext,
     handleSubmitUserMessage,
+    scratchpadResult,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -312,6 +314,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 <ScratchpadToolUI 
                     scratchpadCode={agentResponse.scratchpad_code}
                     scratchpadSummary={agentResponse.scratchpad_summary}
+                    scratchpadResult={scratchpadResult}
                     renderMimeRegistry={renderMimeRegistry}
                 />
             }

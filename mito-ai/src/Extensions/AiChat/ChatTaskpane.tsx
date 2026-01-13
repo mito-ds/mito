@@ -1077,6 +1077,16 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                             />
                         )
                     } else {
+                        // Get scratchpad result from the next message if this is a scratchpad tool call
+                        let scratchpadResult: string | undefined = undefined;
+                        if (displayOptimizedChat.agentResponse?.type === 'scratchpad') {
+                            // Look at the next message (index + 1) to find the scratchpad result
+                            const nextItem = processedDisplayOptimizedChatHistory[index + 1];
+                            if (nextItem && !isGroupedErrorMessages(nextItem) && nextItem.scratchpadResult) {
+                                scratchpadResult = nextItem.scratchpadResult;
+                            }
+                        }
+
                         return (
                             <ChatMessage
                                 key={index}
@@ -1102,6 +1112,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 setNextSteps={setNextSteps}
                                 agentModeEnabled={agentModeEnabled}
                                 additionalContext={displayOptimizedChat.additionalContext}
+                                scratchpadResult={scratchpadResult}
                             />
                         )
                     }

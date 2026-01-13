@@ -16,12 +16,14 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 interface ScratchpadToolUIProps {
     scratchpadCode?: string | null;
     scratchpadSummary?: string | null;
+    scratchpadResult?: string;
     renderMimeRegistry: IRenderMimeRegistry;
 }
 
 const ScratchpadToolUI: React.FC<ScratchpadToolUIProps> = ({
     scratchpadCode,
     scratchpadSummary,
+    scratchpadResult,
     renderMimeRegistry,
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -42,10 +44,17 @@ const ScratchpadToolUI: React.FC<ScratchpadToolUIProps> = ({
                 displayBorder={true}
             />
             {isExpanded && (
-                <PythonCode
-                    code={scratchpadCode}
-                    renderMimeRegistry={renderMimeRegistry}
-                />
+                <>
+                    <PythonCode
+                        code={scratchpadCode}
+                        renderMimeRegistry={renderMimeRegistry}
+                    />
+                    {scratchpadResult && (
+                        <div className="scratchpad-result">
+                            <pre>{scratchpadResult}</pre>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
