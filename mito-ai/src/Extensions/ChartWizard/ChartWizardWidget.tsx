@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { ChartWizardData } from './ChartWizardPlugin';
-import { updateChartConfig, ChartConfigVariable } from './parser';
+import { updateChartConfig, ChartConfigVariable } from './utils/parser';
 import { convertChartCode } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting } from '../../utils/strings';
 import LoadingDots from '../../components/LoadingDots';

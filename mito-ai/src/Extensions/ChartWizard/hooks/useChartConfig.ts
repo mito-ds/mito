@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { parseChartConfig, ChartConfigVariable } from '../parser';
+import { parseChartConfig, ChartConfigVariable } from '../utils/parser';
 
 interface UseChartConfigProps {
     sourceCode: string | null | undefined;
