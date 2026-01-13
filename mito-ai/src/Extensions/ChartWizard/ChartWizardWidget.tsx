@@ -3,12 +3,13 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ReactWidget } from '@jupyterlab/apputils';
-import { NotebookActions } from '@jupyterlab/notebook';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { ReactWidget, Notification } from '@jupyterlab/apputils';
 import { ChartWizardData } from './ChartWizardPlugin';
-import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './parser';
-import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
+import { updateChartConfig, ChartConfigVariable } from './utils/parser';
+import { convertChartCode } from '../../restAPI/RestAPI';
+import { removeMarkdownCodeFormatting } from '../../utils/strings';
+import LoadingDots from '../../components/LoadingDots';
 import {
     BooleanInputRow,
     TupleInputRow,
@@ -17,118 +18,166 @@ import {
     StringInputRow,
     isHexColor
 } from './inputs';
+import { useChartConfig, useDebouncedNotebookUpdate } from './hooks';
 import '../../../style/ChartWizardWidget.css';
 
 interface ChartWizardContentProps {
     chartData: ChartWizardData | null;
 }
 
-const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) => {
-    const [configVariables, setConfigVariables] = useState<ChartConfigVariable[]>([]);
-    const executeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+/**
+ * Formats a variable name into a human-readable label.
+ * Converts snake_case to Title Case (e.g., "figure_size" -> "Figure Size").
+ */
+const formatVariableLabel = (variableName: string): string => {
+    return variableName
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, (l) => l.toUpperCase());
+};
 
-    // Parse config when chart data changes
+const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) => {
+    const [isConverting, setIsConverting] = useState(false);
+    const [currentSourceCode, setCurrentSourceCode] = useState<string | null>(null);
+
+    // Reset currentSourceCode when switching to a different chart
     useEffect(() => {
+        setCurrentSourceCode(null);
+    }, [chartData?.sourceCode]);
+
+    // Use custom hook for chart config management
+    const { configVariables, setConfigVariables, hasConfig } = useChartConfig({
+        sourceCode: chartData?.sourceCode,
+        currentSourceCode,
+    });
+
+    // Use custom hook for debounced notebook updates
+    const { updateNotebookCell, scheduleUpdate, clearPendingUpdate } = useDebouncedNotebookUpdate({
+        chartData,
+        debounceDelay: 500,
+    });
+
+    /**
+     * Handles variable value changes with debounced notebook updates.
+     */
+    const handleVariableChange = useCallback(
+        (
+            variableName: string,
+            newValue: string | number | boolean | [number, number]
+        ): void => {
+            const codeToUse = currentSourceCode || chartData?.sourceCode;
+            if (!codeToUse) return;
+
+            // Update config variables state
+            const updated = configVariables.map((v) =>
+                v.name === variableName ? { ...v, value: newValue } : v
+            );
+            setConfigVariables(updated);
+
+            // Update the source code
+            const updatedCode = updateChartConfig(codeToUse, updated);
+            setCurrentSourceCode(updatedCode);
+
+            // Schedule debounced notebook update
+            scheduleUpdate(updatedCode);
+        },
+        [chartData?.sourceCode, currentSourceCode, configVariables, setConfigVariables, scheduleUpdate]
+    );
+
+    /**
+     * Handles chart conversion from matplotlib to Chart Wizard format.
+     */
+    const handleConvertChart = useCallback(async (): Promise<void> => {
         if (!chartData?.sourceCode) {
-            setConfigVariables([]);
+            console.error('No source code available');
             return;
         }
 
-        const parsed = parseChartConfig(chartData.sourceCode);
-        if (parsed) {
-            setConfigVariables(parsed.variables);
-        } else {
-            setConfigVariables([]);
-        }
-    }, [chartData?.sourceCode]);
+        // Clear any pending debounced updates to prevent race conditions
+        clearPendingUpdate();
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (executeTimeoutRef.current) {
-                clearTimeout(executeTimeoutRef.current);
+        setIsConverting(true);
+        try {
+            const response = await convertChartCode(chartData.sourceCode);
+            if (response.converted_code) {
+                // Extract code from markdown code blocks if present
+                const extractedCode = removeMarkdownCodeFormatting(response.converted_code);
+                // Validate that extracted code is not empty to prevent deleting user's code
+                if (!extractedCode || extractedCode.trim().length === 0) {
+                    console.error('Error: Extracted code is empty. Cannot update notebook cell.');
+                    Notification.emit(
+                        'Chart conversion failed: The converted code is empty. Please try again or check your chart code.',
+                        'error',
+                        {
+                            autoClose: 5000
+                        }
+                    );
+                    return;
+                }
+                // Update current source code so the useEffect will parse it
+                setCurrentSourceCode(extractedCode);
+                // Update the cell with the converted code and re-execute
+                updateNotebookCell(extractedCode);
             }
-        };
-    }, []);
-
-    // Update notebook cell and re-execute when config variables change
-    const updateNotebookCell = (updatedCode: string): void => {
-        if (!chartData) return;
-
-        const notebookPanel = chartData.notebookTracker.currentWidget;
-        if (!notebookPanel) return;
-
-        // Update the cell code
-        writeCodeToCellByIDInNotebookPanel(notebookPanel, updatedCode, chartData.cellId);
-
-        // Re-execute the cell to show updated chart
-        const notebook = notebookPanel.content;
-        const sessionContext = notebookPanel.context?.sessionContext;
-        void NotebookActions.run(notebook, sessionContext);
-    };
-
-    const handleVariableChange = (
-        variableName: string, newValue: string | number | boolean | [number, number]
-    ): void => {
-        if (!chartData?.sourceCode) return;
-
-        const updated = configVariables.map(v =>
-            v.name === variableName
-                ? { ...v, value: newValue }
-                : v
-        );
-        setConfigVariables(updated);
-
-        // Update the source code
-        const updatedCode = updateChartConfig(chartData.sourceCode, updated);
-
-        // Clear previous timeout
-        if (executeTimeoutRef.current) {
-            clearTimeout(executeTimeoutRef.current);
+        } catch (error) {
+            console.error('Error converting chart code:', error);
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            Notification.emit(
+                `Chart conversion failed: ${errorMessage}. Please try again.`,
+                'error',
+                {
+                    autoClose: 5000
+                }
+            );
+        } finally {
+            setIsConverting(false);
         }
+    }, [chartData?.sourceCode, clearPendingUpdate, updateNotebookCell]);
 
-        // Debounce the cell update and execution
-        executeTimeoutRef.current = setTimeout(() => {
-            updateNotebookCell(updatedCode);
-        }, 500); // 500ms debounce
-    };
+    /**
+     * Renders the appropriate input field component based on variable type.
+     */
+    const renderInputField = useCallback(
+        (variable: ChartConfigVariable): React.ReactElement => {
+            const label = formatVariableLabel(variable.name);
 
-    const renderInputField = (variable: ChartConfigVariable): React.ReactElement => {
-        const label = variable.name.replace(/_/g, ' ').toLowerCase()
-            .replace(/\b\w/g, l => l.toUpperCase());
+            const commonProps = {
+                variable,
+                label,
+                onVariableChange: handleVariableChange,
+            };
 
-        const commonProps = {
-            variable,
-            label,
-            onVariableChange: handleVariableChange
-        };
+            switch (variable.type) {
+                case 'boolean':
+                    return <BooleanInputRow key={variable.name} {...commonProps} />;
+                case 'tuple':
+                    return <TupleInputRow key={variable.name} {...commonProps} />;
+                case 'number':
+                    return <NumberInputRow key={variable.name} {...commonProps} />;
+                case 'string': {
+                    // String input - check if it's a hex color
+                    const stringValue = variable.value as string;
+                    const isColor = isHexColor(stringValue);
 
-        if (variable.type === 'boolean') {
-            return <BooleanInputRow {...commonProps} />;
-        }
+                    if (isColor) {
+                        return <ColorInputRow key={variable.name} {...commonProps} />;
+                    }
+                    return <StringInputRow key={variable.name} {...commonProps} />;
+                }
+                default:
+                    return <StringInputRow key={variable.name} {...commonProps} />;
+            }
+        },
+        [handleVariableChange]
+    );
 
-        if (variable.type === 'tuple') {
-            return <TupleInputRow {...commonProps} />;
-        }
+    // Memoize input fields to prevent unnecessary re-renders
+    const inputFields = useMemo(
+        () => configVariables.map(renderInputField),
+        [configVariables, renderInputField]
+    );
 
-        if (variable.type === 'number') {
-            return <NumberInputRow {...commonProps} />;
-        }
-
-        // String input - check if it's a hex color
-        const stringValue = variable.value as string;
-        const isColor = isHexColor(stringValue);
-
-        if (isColor) {
-            return <ColorInputRow {...commonProps} />;
-        }
-
-        // Regular string input
-        return <StringInputRow {...commonProps} />;
-    };
-
-    const hasConfig = configVariables.length > 0;
-
+    // Early return for empty state
     if (!chartData) {
         return (
             <div className="chart-wizard-empty-state">
@@ -147,13 +196,32 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                     <p className="chart-wizard-config-description">
                         Edit values below to customize your chart. Changes will be reflected in the notebook.
                     </p>
-                    {configVariables.map(renderInputField)}
+                    {inputFields}
                 </div>
             ) : (
                 <div className="chart-wizard-no-config">
                     <p>
-                        No chart configuration found. Make sure your code includes a section between <code># === CHART CONFIG ===</code> and <code># === END CONFIG ===</code>.
+                        <strong>This chart isn&apos;t ready for Chart Wizard yet.</strong>
+                        <br />
+                        Run the converter below or let Mito AI handle it automatically.
                     </p>
+                    <button
+                        className="button-base button-purple"
+                        disabled={isConverting}
+                        onClick={handleConvertChart}
+                        type="button"
+                    >
+                        {isConverting ? (
+                            <>
+                                Converting{' '}
+                                <span className="chart-wizard-loading-dots">
+                                    <LoadingDots />
+                                </span>
+                            </>
+                        ) : (
+                            'Convert'
+                        )}
+                    </button>
                 </div>
             )}
         </div>

@@ -146,3 +146,13 @@
     flex-direction: column;
     justify-content: center;
 }
+
+.chart-wizard-no-config p {
+    text-align: center;
+}
+
+.chart-wizard-loading-dots {
+    display: inline-block;
+    min-width: 1.5em;
+    text-align: left;
+}
