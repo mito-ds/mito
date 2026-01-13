@@ -101,6 +101,29 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         }, 500); // 500ms debounce
     };
 
+    const handleConvertChart = async (): Promise<void> => {
+        if (!chartData?.sourceCode) {
+            console.error('No source code available');
+            return;
+        }
+        setIsConverting(true);
+        try {
+            const response = await convertChartCode(chartData.sourceCode);
+            if (response.converted_code) {
+                // Extract code from markdown code blocks if present
+                const extractedCode = removeMarkdownCodeFormatting(response.converted_code);
+                // Update current source code so the useEffect will parse it
+                setCurrentSourceCode(extractedCode);
+                // Update the cell with the converted code and re-execute
+                updateNotebookCell(extractedCode);
+            }
+        } catch (error) {
+            console.error('Error converting chart code:', error);
+        } finally {
+            setIsConverting(false);
+        }
+    };
+
     const renderInputField = (variable: ChartConfigVariable): React.ReactElement => {
         const label = variable.name.replace(/_/g, ' ').toLowerCase()
             .replace(/\b\w/g, l => l.toUpperCase());
@@ -167,31 +190,18 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                     <button
                         className="button-base button-purple"
                         disabled={isConverting}
-                        onClick={async () => {
-                            if (!chartData?.sourceCode) {
-                                console.error('No source code available');
-                                return;
-                            }
-                            setIsConverting(true);
-                            try {
-                                const response = await convertChartCode(chartData.sourceCode);
-                                console.log('Chart conversion response:', response);
-                                if (response.converted_code) {
-                                    // Extract code from markdown code blocks if present
-                                    const extractedCode = removeMarkdownCodeFormatting(response.converted_code);
-                                    // Update current source code so the useEffect will parse it
-                                    setCurrentSourceCode(extractedCode);
-                                    // Update the cell with the converted code and re-execute
-                                    updateNotebookCell(extractedCode);
-                                }
-                            } catch (error) {
-                                console.error('Error converting chart code:', error);
-                            } finally {
-                                setIsConverting(false);
-                            }
-                        }}
+                        onClick={handleConvertChart}
                     >
-                        {isConverting ? <>Converting <span className="chart-wizard-loading-dots"><LoadingDots /></span></> : 'Convert'}
+                        {isConverting ? (
+                            <>
+                                Converting{' '}
+                                <span className="chart-wizard-loading-dots">
+                                    <LoadingDots />
+                                </span>
+                            </>
+                        ) : (
+                            'Convert'
+                        )}
                     </button>
                 </div>
             )}
