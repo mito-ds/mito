@@ -238,7 +238,7 @@ test.describe.parallel("Agent mode blacklisted words", () => {
         await expect(async () => {
             const messages = await page.locator('.message-assistant-chat').all();
             const messageTexts = await Promise.all(messages.map(msg => msg.textContent()));
-            if (!messageTexts.some(text => text?.includes("I cannot execute this code"))) {
+            if (!messageTexts.some(text => text?.includes("I cannot automatically execute this code"))) {
                 throw new Error('Expected message not found');
             }
         }).toPass({ timeout: 45000 }); // Increase timeout if needed
