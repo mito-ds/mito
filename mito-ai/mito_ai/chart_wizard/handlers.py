@@ -18,12 +18,6 @@ class ChartWizardHandler(APIHandler):
         self._llm = llm
 
     @tornado.web.authenticated
-    def get(self) -> None:
-        """Simple GET endpoint that returns hello world."""
-        self.write({"message": "hello world"})
-        self.finish()
-
-    @tornado.web.authenticated
     async def post(self) -> None:
         """POST endpoint that receives code from the frontend and sends it to LLM."""
         try:
