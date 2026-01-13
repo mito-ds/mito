@@ -3,7 +3,9 @@
 
 import json
 import tornado
+from typing import List
 from jupyter_server.base.handlers import APIHandler
+from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.openai_client import OPENAI_MODEL_FALLBACK
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.completions.models import MessageType
@@ -32,7 +34,7 @@ class ChartWizardHandler(APIHandler):
             prompt = create_chart_conversion_prompt(code)
             
             # Call LLM
-            messages = [{"role": "user", "content": prompt}]
+            messages: List[ChatCompletionMessageParam] = [{"role": "user", "content": prompt}]
             converted_code = await self._llm.request_completions(
                 messages=messages,
                 model=OPENAI_MODEL_FALLBACK,
