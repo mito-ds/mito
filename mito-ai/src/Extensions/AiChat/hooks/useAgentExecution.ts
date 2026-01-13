@@ -208,7 +208,7 @@ export const useAgentExecution = ({
                     if (!securityCheck.safe) {
                         console.error('Security Warning:', securityCheck.reason);
                         addAIMessageFromResponseAndUpdateState(
-                            `I cannot execute this code without your approval because this code did not pass my security checks. ${securityCheck.reason}. For your safety, I am stopping execution of this plan.`,
+                            `I cannot automatically execute this code because it did not pass my security checks. ${securityCheck.reason}. If you decide that this code is safe, you can manually run it.`,
                             'agent:execution',
                             chatHistoryManagerRef.current
                         );
@@ -374,6 +374,19 @@ export const useAgentExecution = ({
             }
 
             if (agentResponse.type === 'scratchpad' && agentResponse.scratchpad_code) {
+                // Check the scratchpad code for blacklisted words before executing it
+                const securityCheck = checkForBlacklistedWords(agentResponse.scratchpad_code);
+                if (!securityCheck.safe) {
+                    console.error('Security Warning:', securityCheck.reason);
+                    addAIMessageFromResponseAndUpdateState(
+                        `I cannot automatically execute this code because it did not pass my security checks. ${securityCheck.reason}. If you decide that this code is safe, you can manually run it.`,
+                        'agent:execution',
+                        chatHistoryManagerRef.current
+                    );
+                    await markAgentForStopping();
+                    break;
+                }
+
                 // Execute scratchpad code silently
                 setLoadingStatus('running-code');
                 let scratchpadResult;
