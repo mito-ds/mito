@@ -165,6 +165,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                         Run the converter below or let Mito AI handle it automatically.
                     </p>
                     <button
+                        className="button-base button-purple"
                         disabled={isConverting}
                         onClick={async () => {
                             if (!chartData?.sourceCode) {
