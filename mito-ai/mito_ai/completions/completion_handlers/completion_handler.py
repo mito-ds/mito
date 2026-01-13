@@ -3,11 +3,20 @@
 
 from typing import Protocol, TypeVar
 from abc import abstractmethod, ABCMeta
-from mito_ai.completions.models import ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, InlineCompleterMetadata, AgentSmartDebugMetadata
+from mito_ai.completions.models import ChatMessageMetadata, ScratchpadResultMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, InlineCompleterMetadata, AgentSmartDebugMetadata
 from mito_ai.completions.providers import OpenAIProvider
 from mito_ai.completions.message_history import GlobalMessageHistory
 
-T = TypeVar('T', ChatMessageMetadata, SmartDebugMetadata, CodeExplainMetadata, AgentExecutionMetadata, AgentSmartDebugMetadata, InlineCompleterMetadata, contravariant=True)
+T = TypeVar('T', 
+            ChatMessageMetadata, 
+            SmartDebugMetadata, 
+            CodeExplainMetadata, 
+            AgentExecutionMetadata, 
+            AgentSmartDebugMetadata, 
+            InlineCompleterMetadata,
+            ScratchpadResultMetadata,
+            contravariant=True
+        )
 
 class CompletionHandler(Protocol[T], metaclass=ABCMeta):
     """Protocol defining the interface for completion handlers.
