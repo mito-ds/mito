@@ -102,6 +102,12 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             if (response.converted_code) {
                 // Extract code from markdown code blocks if present
                 const extractedCode = removeMarkdownCodeFormatting(response.converted_code);
+                // Validate that extracted code is not empty to prevent deleting user's code
+                if (!extractedCode || extractedCode.trim().length === 0) {
+                    console.error('Error: Extracted code is empty. Cannot update notebook cell.');
+                    // TODO: Consider adding user-facing error notification
+                    return;
+                }
                 // Update current source code so the useEffect will parse it
                 setCurrentSourceCode(extractedCode);
                 // Update the cell with the converted code and re-execute
