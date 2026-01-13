@@ -11,6 +11,12 @@ interface UseChartConfigProps {
     currentSourceCode: string | null;
 }
 
+interface UseChartConfigReturn {
+    configVariables: ChartConfigVariable[];
+    setConfigVariables: React.Dispatch<React.SetStateAction<ChartConfigVariable[]>>;
+    hasConfig: boolean;
+}
+
 /**
  * Hook to manage chart configuration parsing and state.
  * 
@@ -18,7 +24,7 @@ interface UseChartConfigProps {
  * - configVariables: Array of parsed configuration variables
  * - hasConfig: Boolean indicating if configuration exists
  */
-export const useChartConfig = ({ sourceCode, currentSourceCode }: UseChartConfigProps) => {
+export const useChartConfig = ({ sourceCode, currentSourceCode }: UseChartConfigProps): UseChartConfigReturn => {
     const [configVariables, setConfigVariables] = useState<ChartConfigVariable[]>([]);
 
     // Parse config when chart data or current source code changes

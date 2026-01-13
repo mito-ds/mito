@@ -13,6 +13,12 @@ interface UseDebouncedNotebookUpdateProps {
     debounceDelay?: number;
 }
 
+interface UseDebouncedNotebookUpdateReturn {
+    updateNotebookCell: (updatedCode: string) => void;
+    scheduleUpdate: (updatedCode: string) => void;
+    clearPendingUpdate: () => void;
+}
+
 /**
  * Hook to manage debounced notebook cell updates.
  * 
@@ -23,7 +29,7 @@ interface UseDebouncedNotebookUpdateProps {
 export const useDebouncedNotebookUpdate = ({
     chartData,
     debounceDelay = 500,
-}: UseDebouncedNotebookUpdateProps) => {
+}: UseDebouncedNotebookUpdateProps): UseDebouncedNotebookUpdateReturn => {
     const executeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Cleanup timeout on unmount
