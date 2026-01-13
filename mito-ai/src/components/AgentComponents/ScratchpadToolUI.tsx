@@ -9,7 +9,7 @@ import '../../../style/AgentToolUIComponent.css';
 import '../../../style/AgentComponentHeader.css';
 import '../../../style/CodeBlock.css';
 import AgentComponentHeader from './AgentComponentHeader';
-import CodeIcon from '../../icons/CodeIcon';
+import NotepadIcon from '../../icons/NotepadIcon';
 import PythonCode from '../../Extensions/AiChat/ChatMessage/PythonCode';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
@@ -33,7 +33,7 @@ const ScratchpadToolUI: React.FC<ScratchpadToolUIProps> = ({
             'agent-mode-collapsed': !isExpanded,
         })}>
             <AgentComponentHeader
-                icon={<CodeIcon />}
+                icon={<NotepadIcon />}
                 text="Exploration code"
                 onClick={() => setIsExpanded(!isExpanded)}
                 isExpanded={isExpanded}
