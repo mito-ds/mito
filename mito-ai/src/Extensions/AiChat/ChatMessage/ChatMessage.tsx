@@ -311,6 +311,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             {agentResponse?.type === 'scratchpad' &&
                 <ScratchpadToolUI 
                     scratchpadCode={agentResponse.scratchpad_code}
+                    scratchpadSummary={agentResponse.scratchpad_summary}
                     renderMimeRegistry={renderMimeRegistry}
                 />
             }

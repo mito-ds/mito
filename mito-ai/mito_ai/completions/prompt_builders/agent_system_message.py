@@ -233,7 +233,8 @@ Format:
 {{
     type: 'scratchpad',
     message: str,
-    scratchpad_code: str
+    scratchpad_code: str,
+    scratchpad_summary: str
 }}
 
 Important information:
@@ -243,12 +244,14 @@ Important information:
 4. The results (including any errors) will be included in your next message, so you can use them to inform your next action.
 5. If the code errors, the error message and traceback will be included in the results. You can then decide to fix the code and try again, ask the user a question, or take a different approach.
 6. Use scratchpad for exploration work that doesn't belong in the final notebook. Once you have the information, create clean CELL_UPDATES with hardcoded values.
+7. The scratchpad_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Checking files", "Exploring data", "Analyzing mappings", "Looking up values"). Avoid full sentences or explanations. This should read like a quick commit message or code label, not a description.
 
 Example:
 {{
     type: 'scratchpad',
     message: "I'll check what files are in the current directory to find the data file.",
-    scratchpad_code: "import os\\nfiles = os.listdir('.')\\nprint('Files:', files)\\nfor f in files:\\n    if f.endswith('.csv'):\\n        print(f'CSV file found: {f}')"
+    scratchpad_code: "import os\\nfiles = os.listdir('.')\\nprint('Files:', files)\\nfor f in files:\\n    if f.endswith('.csv'):\\n        print(f'CSV file found: {f}')",
+    scratchpad_summary: "Checking files"
 }}
 """))
     

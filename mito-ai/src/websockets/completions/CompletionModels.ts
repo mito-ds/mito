@@ -51,6 +51,7 @@ export type AgentResponse = {
   question?: string | null | undefined
   answers?: string[] | null | undefined
   scratchpad_code?: string | null | undefined
+  scratchpad_summary?: string | null | undefined
 }
 
 /* 

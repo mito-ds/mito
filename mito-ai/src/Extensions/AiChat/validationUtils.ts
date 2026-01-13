@@ -66,10 +66,13 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     const editStreamlitAppPromptType = typeof correctedResponse.streamlit_app_prompt;
     correctedResponse.streamlit_app_prompt = editStreamlitAppPromptType === 'string' ? correctedResponse.streamlit_app_prompt : undefined;
 
-    // Correct scratchpad_code - ensure it's a string when present
+    // Correct scratchpad_code and scratchpad_summary - ensure they're strings when present
     if (correctedResponse.type === 'scratchpad') {
         const scratchpadCodeType = typeof correctedResponse.scratchpad_code;
         correctedResponse.scratchpad_code = scratchpadCodeType === 'string' ? correctedResponse.scratchpad_code : undefined;
+        
+        const scratchpadSummaryType = typeof correctedResponse.scratchpad_summary;
+        correctedResponse.scratchpad_summary = scratchpadSummaryType === 'string' ? correctedResponse.scratchpad_summary : undefined;
     }
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 

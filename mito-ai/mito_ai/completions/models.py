@@ -48,6 +48,7 @@ class AgentResponse(BaseModel):
     question: Optional[str]
     answers: Optional[List[str]]
     scratchpad_code: Optional[str]
+    scratchpad_summary: Optional[str]
     
     
 @dataclass(frozen=True)

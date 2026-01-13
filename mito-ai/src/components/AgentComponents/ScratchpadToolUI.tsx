@@ -15,11 +15,13 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 interface ScratchpadToolUIProps {
     scratchpadCode?: string | null;
+    scratchpadSummary?: string | null;
     renderMimeRegistry: IRenderMimeRegistry;
 }
 
 const ScratchpadToolUI: React.FC<ScratchpadToolUIProps> = ({
     scratchpadCode,
+    scratchpadSummary,
     renderMimeRegistry,
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -34,7 +36,7 @@ const ScratchpadToolUI: React.FC<ScratchpadToolUIProps> = ({
         })}>
             <AgentComponentHeader
                 icon={<NotepadIcon />}
-                text="Exploration code"
+                text={scratchpadSummary || "Exploration code"}
                 onClick={() => setIsExpanded(!isExpanded)}
                 isExpanded={isExpanded}
                 displayBorder={true}
