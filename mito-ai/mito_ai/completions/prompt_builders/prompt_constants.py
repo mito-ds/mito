@@ -17,6 +17,7 @@ When creating a matplotlib chart, you must use the `# === CHART CONFIG ===` and 
 The chart configuration section is a list of variables used to customize the chart. This includes the titles, labels, colors, and any variables that affect the chart's appearance.
 
 Rules:
+- All imports must appear at the top, before the chart configuration section.
 - Variables with multiple words should be underscore-separated.
 - All colors should be in hex format (e.g., "#3498db"). Use quotes around the hex string: COLOR = "#3498db" or COLOR = '#3498db'. Do NOT nest quotes.
 - Variables can only be strings, numbers, booleans, tuples, or lists. 
