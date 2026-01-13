@@ -111,6 +111,13 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             console.error('No source code available');
             return;
         }
+        
+        // Clear any pending debounced updates to prevent race conditions
+        if (executeTimeoutRef.current) {
+            clearTimeout(executeTimeoutRef.current);
+            executeTimeoutRef.current = null;
+        }
+        
         setIsConverting(true);
         try {
             const response = await convertChartCode(chartData.sourceCode);
