@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { ReactWidget } from '@jupyterlab/apputils';
+import { ReactWidget, Notification } from '@jupyterlab/apputils';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { updateChartConfig, ChartConfigVariable } from './utils/parser';
 import { convertChartCode } from '../../restAPI/RestAPI';
@@ -105,7 +105,13 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                 // Validate that extracted code is not empty to prevent deleting user's code
                 if (!extractedCode || extractedCode.trim().length === 0) {
                     console.error('Error: Extracted code is empty. Cannot update notebook cell.');
-                    // TODO: Consider adding user-facing error notification
+                    Notification.emit(
+                        'Chart conversion failed: The converted code is empty. Please try again or check your chart code.',
+                        'error',
+                        {
+                            autoClose: 5000
+                        }
+                    );
                     return;
                 }
                 // Update current source code so the useEffect will parse it
@@ -115,7 +121,14 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             }
         } catch (error) {
             console.error('Error converting chart code:', error);
-            // TODO: Consider adding user-facing error notification
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            Notification.emit(
+                `Chart conversion failed: ${errorMessage}. Please try again.`,
+                'error',
+                {
+                    autoClose: 5000
+                }
+            );
         } finally {
             setIsConverting(false);
         }
