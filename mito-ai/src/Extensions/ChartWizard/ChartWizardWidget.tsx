@@ -11,6 +11,7 @@ import { parseChartConfig, updateChartConfig, ChartConfigVariable } from './pars
 import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
 import { convertChartCode } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting } from '../../utils/strings';
+import LoadingDots from '../../components/LoadingDots';
 import {
     BooleanInputRow,
     TupleInputRow,
@@ -187,7 +188,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                             }
                         }}
                     >
-                        {isConverting ? 'Converting...' : 'Convert'}
+                        {isConverting ? <>Converting <span className="chart-wizard-loading-dots"><LoadingDots /></span></> : 'Convert'}
                     </button>
                 </div>
             )}
