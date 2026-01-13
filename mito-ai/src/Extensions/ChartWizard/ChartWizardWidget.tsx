@@ -160,7 +160,9 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             ) : (
                 <div className="chart-wizard-no-config">
                     <p>
-                        No chart configuration found. Convert your chart using the utility below, or have Mito AI convert it for you. In both cases, the chart will remain visually unchanged.
+                        <strong>This chart isn't ready for Chart Wizard yet.</strong>
+                        <br />
+                        Run the converter below or let Mito AI handle it automatically.
                     </p>
                     <button
                         disabled={isConverting}
