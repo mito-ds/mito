@@ -309,7 +309,10 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 <GetCellOutputToolUI />
             }
             {agentResponse?.type === 'scratchpad' &&
-                <ScratchpadToolUI />
+                <ScratchpadToolUI 
+                    scratchpadCode={agentResponse.scratchpad_code}
+                    renderMimeRegistry={renderMimeRegistry}
+                />
             }
             {agentResponse?.type === 'run_all_cells' && agentModeEnabled &&
                 <RunAllCellsToolUI />
