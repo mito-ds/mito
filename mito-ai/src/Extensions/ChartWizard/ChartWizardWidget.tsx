@@ -183,7 +183,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             ) : (
                 <div className="chart-wizard-no-config">
                     <p>
-                        <strong>This chart isn't ready for Chart Wizard yet.</strong>
+                        <strong>This chart isn&apos;t ready for Chart Wizard yet.</strong>
                         <br />
                         Run the converter below or let Mito AI handle it automatically.
                     </p>
