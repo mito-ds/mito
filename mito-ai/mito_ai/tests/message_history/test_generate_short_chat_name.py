@@ -37,10 +37,10 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     
     # Set up environment variables for all providers
     monkeypatch.setenv("OPENAI_API_KEY", "fake-openai-key")
-    monkeypatch.setenv("CLAUDE_API_KEY", "fake-claude-key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "fake-claude-key")
     monkeypatch.setenv("GEMINI_API_KEY", "fake-gemini-key")
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", "fake-openai-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "fake-claude-key")
+    monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", "fake-claude-key")
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", "fake-gemini-key")
     
     # Create mock client for the specific provider being tested

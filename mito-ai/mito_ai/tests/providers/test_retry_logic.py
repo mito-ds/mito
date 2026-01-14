@@ -326,9 +326,9 @@ class TestRetryLogic:
         monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
         
         # Clear other API keys to ensure OpenAI path is used
-        monkeypatch.delenv("CLAUDE_API_KEY", raising=False)
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
         monkeypatch.delenv("GEMINI_API_KEY", raising=False)
-        monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+        monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", None)
         monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
         
         # Enable print logs to capture telemetry output

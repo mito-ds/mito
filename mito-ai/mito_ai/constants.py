@@ -5,7 +5,7 @@ import os
 from typing import Union
 
 # Claude
-CLAUDE_API_KEY = os.environ.get("CLAUDE_API_KEY")
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
 # Gemini
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")

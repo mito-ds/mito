@@ -71,7 +71,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 configuration={"model": "<dynamic>"},
                 provider="OpenAI",
             )
-        if constants.CLAUDE_API_KEY:
+        if constants.ANTHROPIC_API_KEY:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="Claude",
@@ -91,7 +91,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def key_type(self) -> str:
-        if constants.CLAUDE_API_KEY or constants.GEMINI_API_KEY or constants.OPENAI_API_KEY or constants.OLLAMA_MODEL:  
+        if constants.ANTHROPIC_API_KEY or constants.GEMINI_API_KEY or constants.OPENAI_API_KEY or constants.OLLAMA_MODEL:  
             return USER_KEY
         
         return MITO_SERVER_KEY
@@ -118,7 +118,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         for attempt in range(max_retries + 1):
             try:
                 if model_type == "claude":
-                    api_key = constants.CLAUDE_API_KEY
+                    api_key = constants.ANTHROPIC_API_KEY
                     anthropic_client = AnthropicClient(api_key=api_key)
                     completion = await anthropic_client.request_completions(messages, model, response_format_info, message_type)
                 elif model_type == "gemini":
@@ -205,7 +205,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         try:
             if model_type == "claude":
-                api_key = constants.CLAUDE_API_KEY
+                api_key = constants.ANTHROPIC_API_KEY
                 anthropic_client = AnthropicClient(api_key=api_key)
                 accumulated_response = await anthropic_client.stream_completions(
                     messages=messages,

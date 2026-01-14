@@ -40,7 +40,7 @@ def provider_config() -> Config:
 def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
     """Reset all environment variables before each test."""
     for var in [
-        "OPENAI_API_KEY", "CLAUDE_API_KEY", "GEMINI_API_KEY", "OLLAMA_MODEL",
+        "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "OLLAMA_MODEL",
         "AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_MODEL", 
         "AZURE_OPENAI_API_VERSION"
     ]:
@@ -554,8 +554,8 @@ class TestAzureOpenAIConfigurationPriority:
         """Test that Azure OpenAI is used even when Claude key is available."""
         
         # Set Claude key (this should be overridden by Azure OpenAI)
-        monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-        monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "claude-key")
+        monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", "claude-key")
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
             openai_client = OpenAIClient(config=provider_config)

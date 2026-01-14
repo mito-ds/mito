@@ -22,7 +22,7 @@ def provider_config() -> Config:
         "name": "mito_server_fallback_no_keys",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": None, 
+            "ANTHROPIC_API_KEY": None, 
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
@@ -33,7 +33,7 @@ def provider_config() -> Config:
         "name": "claude_when_only_claude_key",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": "claude-test-key",
+            "ANTHROPIC_API_KEY": "claude-test-key",
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
@@ -44,7 +44,7 @@ def provider_config() -> Config:
         "name": "gemini_when_only_gemini_key",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": None,
+            "ANTHROPIC_API_KEY": None,
             "GEMINI_API_KEY": "gemini-test-key",
             "is_azure_configured": False,
         },
@@ -55,7 +55,7 @@ def provider_config() -> Config:
         "name": "openai_when_openai_key",
         "setup": {
             "OPENAI_API_KEY": 'openai-test-key',
-            "CLAUDE_API_KEY": None,
+            "ANTHROPIC_API_KEY": None,
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
@@ -66,7 +66,7 @@ def provider_config() -> Config:
         "name": "claude_priority_over_gemini",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": "claude-test-key",
+            "ANTHROPIC_API_KEY": "claude-test-key",
             "GEMINI_API_KEY": "gemini-test-key",
             "is_azure_configured": False,
         },
