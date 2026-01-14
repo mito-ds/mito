@@ -283,7 +283,6 @@ async def test_mito_server_fallback_completion_request(
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
     monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-    provider_config.OpenAIProvider.api_key = None
 
     # Mock the appropriate Mito server function
     with patch(mito_server_config["mock_function"], new_callable=AsyncMock) as mock_mito_function:
@@ -341,7 +340,6 @@ async def test_mito_server_fallback_stream_completion(
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
     monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-    provider_config.OpenAIProvider.api_key = None
 
     # Create an async generator that yields chunks for streaming
     async def mock_stream_generator():

@@ -98,7 +98,6 @@ def test_provider_capabilities_real_logic(
             monkeypatch.setattr(f"mito_ai.constants.{key}", value)
     
     # Clear the provider config API key to ensure it uses constants
-    provider_config.OpenAIProvider.api_key = None
     
     # Mock HTTP calls but let the real logic run
     with patch("openai.OpenAI") as mock_openai_constructor:

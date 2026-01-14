@@ -6,7 +6,7 @@ import asyncio
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
-from traitlets import Instance, Unicode, default, validate
+from traitlets import Instance
 from traitlets.config import LoggingConfigurable
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -45,12 +45,6 @@ __all__ = ["OpenAIProvider"]
 class OpenAIProvider(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
 
-    api_key = Unicode(
-        config=True,
-        allow_none=True,
-        help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
-    )
-
     last_error = Instance(
         CompletionError,
         allow_none=True,
@@ -61,8 +55,6 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         config = kwargs.get('config', {})
-        if 'api_key' in kwargs:
-            config['OpenAIClient'] = {'api_key': kwargs['api_key']}
         kwargs['config'] = config
 
         super().__init__(log=get_logger(), **kwargs)
@@ -74,12 +66,17 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         Returns the capabilities of the AI provider.
         """
-        if constants.CLAUDE_API_KEY and not self.api_key:
+        if constants.OPENAI_API_KEY:
+            return AICapabilities(
+                configuration={"model": "<dynamic>"},
+                provider="OpenAI",
+            )
+        if constants.CLAUDE_API_KEY:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="Claude",
             )
-        if constants.GEMINI_API_KEY and not self.api_key:
+        if constants.GEMINI_API_KEY:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="Gemini",
@@ -94,9 +91,12 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def key_type(self) -> str:
-        if constants.CLAUDE_API_KEY and not self.api_key:
+        # TODO: Should the key_type be openai, claude, etc. or just MITO_SERVER vs USER_KEY?
+        if constants.OPENAI_API_KEY:
+            return "openai"
+        if constants.CLAUDE_API_KEY:
             return "claude"
-        if constants.GEMINI_API_KEY and not self.api_key:
+        if constants.GEMINI_API_KEY:
             return "gemini"
         if self._openai_client:
             return self._openai_client.key_type
