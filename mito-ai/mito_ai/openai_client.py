@@ -193,12 +193,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                 timeout=self.timeout,
             )
         
-        elif constants.OLLAMA_MODEL and not self.api_key:
+        elif constants.OLLAMA_MODEL:
             base_url = constants.OLLAMA_BASE_URL
             llm_api_key = "ollama"
             self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
-        elif self.api_key:
-            llm_api_key = self.api_key
+        elif constants.OPENAI_API_KEY:
+            llm_api_key = constants.OPENAI_API_KEY
             self.log.debug("Using OpenAI with user-provided API key")
         else:
             self.log.warning("No valid API key or model configuration provided")
