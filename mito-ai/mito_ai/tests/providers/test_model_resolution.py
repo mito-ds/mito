@@ -9,7 +9,7 @@ import pytest
 from mito_ai.utils.provider_utils import does_message_require_fast_model
 from mito_ai.completions.models import MessageType
 from unittest.mock import AsyncMock, MagicMock, patch
-from mito_ai.completions.providers import ProviderManager
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.provider_utils import does_message_require_fast_model
 from traitlets.config import Config

@@ -5,7 +5,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from traitlets.config import Config
 from mito_ai.completions.message_history import generate_short_chat_name
-from mito_ai.completions.providers import ProviderManager
+from mito_ai.provider_manager import ProviderManager
 
 
 @pytest.fixture
@@ -20,9 +20,9 @@ def provider_config() -> Config:
 # Test cases for different models and their expected providers/fast models
 PROVIDER_TEST_CASES = [
     # (model, client_patch_path)
-    ("gpt-4.1", "mito_ai.completions.providers.OpenAIClient"),
-    ("claude-3-5-sonnet-20241022", "mito_ai.completions.providers.AnthropicClient"),
-    ("gemini-2.0-flash-exp", "mito_ai.completions.providers.GeminiClient")
+    ("gpt-4.1", "mito_ai.provider_manager.OpenAIClient"),
+    ("claude-3-5-sonnet-20241022", "mito_ai.provider_manager.AnthropicClient"),
+    ("gemini-2.0-flash-exp", "mito_ai.provider_manager.GeminiClient")
 ]
 
 @pytest.mark.parametrize("selected_model,client_patch_path", PROVIDER_TEST_CASES)

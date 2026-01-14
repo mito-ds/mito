@@ -281,4 +281,3 @@ This attribute is observed by the websocket provider to push the error to the cl
                 error=CompletionError.from_exception(e),
             ))
             raise
-

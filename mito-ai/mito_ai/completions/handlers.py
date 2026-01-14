@@ -37,7 +37,7 @@ from mito_ai.completions.models import (
     ScratchpadResultMetadata,
     MessageType
 )
-from mito_ai.completions.providers import ProviderManager
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.completions.completion_handlers.chat_completion_handler import get_chat_completion, stream_chat_completion

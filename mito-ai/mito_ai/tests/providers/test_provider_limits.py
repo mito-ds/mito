@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.completions.providers import ProviderManager
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.tests.providers.utils import mock_openai_client, patch_server_limits
 from mito_ai.utils.server_limits import OS_MONTHLY_AI_COMPLETIONS_LIMIT
 from traitlets.config import Config

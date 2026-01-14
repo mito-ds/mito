@@ -4,7 +4,7 @@
 import pytest
 import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
-from mito_ai.completions.providers import ProviderManager
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.models import MessageType, CompletionError
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
 from mito_ai.tests.providers.utils import mock_openai_client, patch_server_limits

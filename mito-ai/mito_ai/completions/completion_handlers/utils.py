@@ -5,7 +5,7 @@ import base64
 from typing import Optional, Union, List, Dict, Any, cast
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import ThreadID
-from mito_ai.completions.providers import ProviderManager
+from mito_ai.provider_manager import ProviderManager
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.prompt_builders.chat_system_message import (
     create_chat_system_message_prompt,

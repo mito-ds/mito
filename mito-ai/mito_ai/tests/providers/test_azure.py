@@ -9,7 +9,7 @@ import pytest
 from traitlets.config import Config
 from openai.types.chat import ChatCompletionMessageParam
 
-from mito_ai.completions.providers import ProviderManager
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.models import (
     MessageType,
     AICapabilities,

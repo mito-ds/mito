@@ -4,7 +4,7 @@
 from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
-from mito_ai.completions.providers import ProviderManager
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
 from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler

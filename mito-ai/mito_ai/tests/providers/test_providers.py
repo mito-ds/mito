@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from mito_ai.tests.providers.utils import mock_azure_openai_client, mock_openai_client, patch_server_limits
 import pytest
 from traitlets.config import Config
-from mito_ai.completions.providers import ProviderManager
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.models import (
     MessageType,
     AICapabilities,
@@ -50,7 +50,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "env_vars": {"OPENAI_API_KEY": FAKE_API_KEY},
         "constants": {"OPENAI_API_KEY": FAKE_API_KEY},
         "model": "gpt-4o-mini",
-        "mock_patch": "mito_ai.completions.providers.OpenAIClient",
+        "mock_patch": "mito_ai.provider_manager.OpenAIClient",
         "mock_method": "request_completions",
         "provider_name": "OpenAI with user key",
         "key_type": "user"
@@ -60,7 +60,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "env_vars": {"CLAUDE_API_KEY": "claude-key"},
         "constants": {"CLAUDE_API_KEY": "claude-key", "OPENAI_API_KEY": None},
         "model": "claude-3-opus-20240229",
-        "mock_patch": "mito_ai.completions.providers.AnthropicClient",
+        "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "request_completions",
         "provider_name": "Claude",
         "key_type": "claude"
@@ -70,7 +70,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "env_vars": {"GEMINI_API_KEY": "gemini-key"},
         "constants": {"GEMINI_API_KEY": "gemini-key", "OPENAI_API_KEY": None},
         "model": "gemini-2.0-flash",
-        "mock_patch": "mito_ai.completions.providers.GeminiClient",
+        "mock_patch": "mito_ai.provider_manager.GeminiClient",
         "mock_method": "request_completions",
         "provider_name": "Gemini",
         "key_type": "gemini"
@@ -80,7 +80,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "env_vars": {"AZURE_OPENAI_API_KEY": "azure-key"},
         "constants": {"AZURE_OPENAI_API_KEY": "azure-key", "OPENAI_API_KEY": None},
         "model": "gpt-4o",
-        "mock_patch": "mito_ai.completions.providers.OpenAIClient",
+        "mock_patch": "mito_ai.provider_manager.OpenAIClient",
         "mock_method": "request_completions",
         "provider_name": "Azure OpenAI",
         "key_type": "azure"
@@ -134,7 +134,7 @@ async def test_completion_request(
         "env_vars": {"OPENAI_API_KEY": FAKE_API_KEY},
         "constants": {"OPENAI_API_KEY": FAKE_API_KEY},
         "model": "gpt-4o-mini",
-        "mock_patch": "mito_ai.completions.providers.OpenAIClient",
+        "mock_patch": "mito_ai.provider_manager.OpenAIClient",
         "mock_method": "stream_completions",
         "provider_name": "OpenAI with user key",
         "key_type": "user"
@@ -144,7 +144,7 @@ async def test_completion_request(
         "env_vars": {"CLAUDE_API_KEY": "claude-key"},
         "constants": {"CLAUDE_API_KEY": "claude-key", "OPENAI_API_KEY": None},
         "model": "claude-3-opus-20240229",
-        "mock_patch": "mito_ai.completions.providers.AnthropicClient",
+        "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "stream_completions", 
         "provider_name": "Claude",
         "key_type": "claude"
@@ -154,7 +154,7 @@ async def test_completion_request(
         "env_vars": {"GEMINI_API_KEY": "gemini-key"},
         "constants": {"GEMINI_API_KEY": "gemini-key", "OPENAI_API_KEY": None},
         "model": "gemini-2.0-flash",
-        "mock_patch": "mito_ai.completions.providers.GeminiClient",
+        "mock_patch": "mito_ai.provider_manager.GeminiClient",
         "mock_method": "stream_completions",
         "provider_name": "Gemini",
         "key_type": "gemini"
@@ -224,7 +224,7 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
     mock_client.key_type = "user"
     mock_client.request_completions.side_effect = Exception("API error")
 
-    with patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client):
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
         llm = ProviderManager(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
 
@@ -242,7 +242,7 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
     mock_client.key_type = "claude"
     mock_client.request_completions.side_effect = Exception("API error")
 
-    with patch("mito_ai.completions.providers.AnthropicClient", return_value=mock_client):
+    with patch("mito_ai.provider_manager.AnthropicClient", return_value=mock_client):
         llm = ProviderManager(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
 
