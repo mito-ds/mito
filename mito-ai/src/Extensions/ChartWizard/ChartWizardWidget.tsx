@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ReactWidget, Notification } from '@jupyterlab/apputils';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { updateChartConfig, ChartConfigVariable } from './utils/parser';
-import { convertChartCode } from '../../restAPI/RestAPI';
+import { convertChartCode, logEvent } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting } from '../../utils/strings';
 import LoadingDots from '../../components/LoadingDots';
 import {
@@ -88,6 +88,8 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
      * Handles chart conversion from matplotlib to Chart Wizard format.
      */
     const handleConvertChart = useCallback(async (): Promise<void> => {
+        void logEvent('clicked_convert_chart_button');
+
         if (!chartData?.sourceCode) {
             console.error('No source code available');
             return;
