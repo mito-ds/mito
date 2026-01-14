@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.tests.providers.utils import mock_openai_client, patch_server_limits
 from mito_ai.utils.server_limits import OS_MONTHLY_AI_COMPLETIONS_LIMIT
 from traitlets.config import Config
@@ -11,9 +11,9 @@ FAKE_API_KEY = "sk-1234567890"
 
 @pytest.fixture
 def provider_config() -> Config:
-    """Create a proper Config object for the OpenAIProvider."""
+    """Create a proper Config object for the ProviderManager."""
     config = Config()
-    config.OpenAIProvider = Config()
+    config.ProviderManager = Config()
     config.OpenAIClient = Config()
     return config
 
@@ -36,7 +36,7 @@ def test_openai_provider_with_limits(
         patch_server_limits(is_pro=is_pro, completion_count=completion_count),
         mock_openai_client()
     ):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderManager(config=provider_config)
         capabilities = llm.capabilities
         assert "user key" in capabilities.provider
         assert llm.last_error is None

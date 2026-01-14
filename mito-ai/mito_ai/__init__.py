@@ -4,7 +4,7 @@
 from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
 from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
@@ -55,7 +55,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     web_app = server_app.web_app
     base_url = web_app.settings["base_url"]
 
-    open_ai_provider = OpenAIProvider(config=server_app.config)
+    provider_manager = ProviderManager(config=server_app.config)
     
     # Create a single GlobalMessageHistory instance for the entire server
     # This ensures thread-safe access to the .mito/ai-chats directory
@@ -66,7 +66,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
         (
             url_path_join(base_url, "mito-ai", "completions"),
             CompletionHandler,
-            {"llm": open_ai_provider, "message_history": global_message_history},
+            {"llm": provider_manager, "message_history": global_message_history},
         ),
         (
             url_path_join(base_url, "mito-ai", "app-deploy"),
@@ -94,13 +94,13 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_db_urls(base_url))  # type: ignore
     handlers.extend(get_settings_urls(base_url))  # type: ignore
     handlers.extend(get_rules_urls(base_url))  # type: ignore
-    handlers.extend(get_log_urls(base_url, open_ai_provider.key_type))  # type: ignore
+    handlers.extend(get_log_urls(base_url, provider_manager.key_type))  # type: ignore
     handlers.extend(get_auth_urls(base_url))  # type: ignore
     handlers.extend(get_streamlit_preview_urls(base_url))  # type: ignore
     handlers.extend(get_file_uploads_urls(base_url)) # type: ignore
     handlers.extend(get_user_urls(base_url)) # type: ignore
     handlers.extend(get_chat_history_urls(base_url, global_message_history)) # type: ignore
-    handlers.extend(get_chart_wizard_urls(base_url, open_ai_provider)) # type: ignore
+    handlers.extend(get_chart_wizard_urls(base_url, provider_manager)) # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
     server_app.log.info("Loaded the mito_ai server extension")
