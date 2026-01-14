@@ -33,6 +33,8 @@ import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutp
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
 import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
+import AskUserQuestionToolUI from '../../../components/AgentComponents/AskUserQuestionToolUI';
+import ScratchpadToolUI from '../../../components/AgentComponents/ScratchpadToolUI';
 import CreateStreamlitAppToolUI from '../../../components/AgentComponents/CreateStreamlitAppToolUI';
 import EditStreamlitAppToolUI from '../../../components/AgentComponents/EditStreamlitAppToolUI';
 
@@ -59,6 +61,7 @@ interface IChatMessageProps {
     agentModeEnabled: boolean
     additionalContext?: Array<{ type: string, value: string }>
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
+    scratchpadResult?: string
 }
 
 
@@ -84,6 +87,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     agentModeEnabled,
     additionalContext,
     handleSubmitUserMessage,
+    scratchpadResult,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -132,7 +136,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 isEditing={isEditing}
                 contextManager={contextManager}
                 notebookTracker={notebookTracker}
-                agentModeEnabled={false}
+                agentModeEnabled={agentModeEnabled}
                 handleSubmitUserMessage={handleSubmitUserMessageAndCloseEditing}
                 messageIndex={messageIndex}
             />
@@ -306,8 +310,26 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
             {agentResponse?.type === 'get_cell_output' &&
                 <GetCellOutputToolUI />
             }
+            {agentResponse?.type === 'scratchpad' &&
+                <ScratchpadToolUI 
+                    scratchpadCode={agentResponse.scratchpad_code}
+                    scratchpadSummary={agentResponse.scratchpad_summary}
+                    scratchpadResult={scratchpadResult}
+                    renderMimeRegistry={renderMimeRegistry}
+                />
+            }
             {agentResponse?.type === 'run_all_cells' && agentModeEnabled &&
                 <RunAllCellsToolUI />
+            }
+            {agentResponse?.type === 'ask_user_question' &&
+                <AskUserQuestionToolUI
+                    question={agentResponse.question || ''}
+                    answers={agentResponse.answers}
+                    isLastMessage={isLastMessage}
+                    onAnswerSelected={(answer) => {
+                        handleSubmitUserMessage(answer);
+                    }}
+                />
             }
             {agentResponse?.type === 'create_streamlit_app' && agentModeEnabled &&
                 <CreateStreamlitAppToolUI isRunning={isLastMessage} />

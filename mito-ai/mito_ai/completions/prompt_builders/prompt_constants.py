@@ -11,6 +11,34 @@ import json
 from typing import Final
 from mito_ai.utils.schema import MITO_FOLDER
 
+CHART_CONFIG_RULES = """
+When creating a matplotlib chart, you must use the `# === CHART CONFIG ===` and `# === END CONFIG ===` markers to indicate the start and end of the chart configuration section.
+
+The chart configuration section is a list of variables used to customize the chart. This includes the titles, labels, colors, and any variables that affect the chart's appearance.
+
+Rules:
+- All imports must appear at the top, before the chart configuration section.
+- Variables with multiple words should be underscore-separated.
+- All colors should be in hex format (e.g., "#3498db"). Use quotes around the hex string: COLOR = "#3498db" or COLOR = '#3498db'. Do NOT nest quotes.
+- Variables can only be strings, numbers, booleans, tuples, or lists. 
+- NEVER include comments on the same line as a variable assignment. Each variable assignment must be on its own line with no trailing comments.
+- For string values, use either single or double quotes (e.g., TITLE = "Sales by Product" or TITLE = 'Sales by Product'). Do not use nested quotes (e.g., do NOT use '"value"').
+
+Common Mistakes to Avoid:
+- WRONG: COLOR = '"#1877F2" # Meta Blue'  (nested quotes and inline comment)
+- WRONG: COLOR = "#1877F2" # Meta Blue  (inline comment)
+- WRONG: COLOR = '"#1877F2"'  (nested quotes)
+- CORRECT: COLOR = "#1877F2"  (simple hex string, no nested quotes, no inline comments)
+
+Example:
+# === CHART CONFIG ===
+TITLE = "Sales by Product"
+X_LABEL = "Product"
+Y_LABEL = "Sales"
+BAR_COLOR = "#000000"
+# === END CONFIG ===
+"""
+
 CITATION_RULES = """
 It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use one of the following formats inline in your response:
 

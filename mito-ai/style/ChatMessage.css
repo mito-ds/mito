@@ -11,6 +11,7 @@
   font-size: 14px;
   border-radius: var(--chat-taskpane-item-border-radius);
   padding: 0 var(--chat-taskpane-item-indent);
+  margin-bottom: 10px;
 }
 
 .message:hover .message-start-editing-button {

@@ -19,6 +19,12 @@
   padding: 5px 10px;
 }
 
+.button-base:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .button-green {
   background-color: var(--green-400);
   color: var(--green-900) !important;
@@ -53,6 +59,10 @@
 
 .button-purple:hover {
   background-color: var(--purple-400);
+}
+
+.button-purple:disabled:hover {
+  background-color: var(--purple-300);
 }
 
 .button-blue {

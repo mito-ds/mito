@@ -45,6 +45,13 @@
     border-width: 1.5px !important;
 }
 
+/* Make active cell more visible in Mito theme */
+.jp-Notebook:not(.jp-mod-editMode) .jp-Cell.jp-mod-active {
+    border: .5px solid var(--purple-700) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 0 0 1px var(--purple-700) !important;
+}
+
 /* Style output area only when it contains stderr content */
 .lm-Widget.jp-OutputArea-output:has([data-mime-type="application/vnd.jupyter.stderr"]):not(:has(.mito-warning-block)) {
     border-radius: 3px !important;

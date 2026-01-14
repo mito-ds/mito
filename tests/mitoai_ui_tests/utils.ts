@@ -120,7 +120,14 @@ export const editMitoAIMessage = async (
     }
     const messageLocator = page.locator('.message').nth(messageIndex);
     await messageLocator.getByRole('button', { name: 'Edit message' }).click();
-    await page.getByPlaceholder('Edit your message').fill(message);
+    // When editing, the ChatMessage component is replaced with a ChatInput component
+    // which has a .chat-input-container.editing wrapper. Wait for this container to appear,
+    // then find the .chat-input within it.
+    const editingContainer = page.locator('.chat-input-container.editing');
+    await editingContainer.waitFor({ state: 'visible' });
+    const chatInput = editingContainer.locator('.chat-input');
+    await chatInput.waitFor({ state: 'visible' });
+    await chatInput.fill(message);
     await page.keyboard.press('Enter');
     await waitForMitoAILoadingToDisappear(page);
 }

@@ -22,12 +22,12 @@ def create_agent_smart_debug_prompt(md: AgentSmartDebugMetadata) -> str:
 
 Use this strategy for this message only. After this message, continue using the original set of instructions that I provided you.
 
-It is very important that When fixing this error, you do not change the original intent of the code cell. 
+It is very important that when fixing this error, you do not change the original intent of the code cell. 
 
 To fix this error, take the following approach: 
 Step 1: ERROR ANALYSIS: Analyze the error message to identify why the code cell errored.
 Step 2: INTENT PRESERVATION: Make sure you understand the intent of the CELL_UPDATE so that you can be sure to preserve it when you create a new CELL_UPDATE
-Step 3: ERROR CORRECTION: Respond with a new CELL_UPDATE that is applied to the same cell as the erroring CELL_UPDATE.
+Step 3: ERROR CORRECTION: Respond with a new CELL_UPDATE that is applied to the same cell as the erroring CELL_UPDATE or use the ASK_USER_QUESTION tool to get more information about how to proceed.
 
 INSTRUCTIONS FOR EACH PHASE
 
@@ -43,13 +43,15 @@ INTENT PRESERVATION:
 
 ERROR CORRECTION:
 
-- Return the full, updated version of cell {md.error_message_producing_code_cell_id} with the error fixed and a short explanation of the error.
+- Use one of your tools to correct the error or get more information from the user on how to proceed.
+- If you use the CELL_UPDATE tool, you must reutn the full updated version of cell {md.error_message_producing_code_cell_id} with the error fixed and a short explanation of the error.
 - You can only update code in {md.error_message_producing_code_cell_id}. You are unable to edit the code in any other cell when resolving this error.
 - Propose a solution that fixes the error and does not change the user's intent.
 - Make the solution as simple as possible.
 - Reuse as much of the existing code as possible.
 - DO NOT ADD TEMPORARY COMMENTS like '# Fixed the typo here' or '# Added this line to fix the error'
 - If you encounter a ModuleNotFoundError, you can install the package by adding the the following line to the top of the code cell: `!pip install <package_name> --quiet`.
+- If the error is not resolvable without getting more information from the user, you can respond with a ASK_USER_QUESTION tool call.
 - If you encounter a NameError, you can use the RUN_ALL_CELLS tool to run all cells from the top of the notebook to the bottom to bring the variable into scope.
     RUN_ALL_CELLS:
     When you want to execute all cells in the notebook from top to bottom, respond with this format:

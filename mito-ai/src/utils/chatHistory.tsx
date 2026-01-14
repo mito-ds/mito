@@ -24,9 +24,24 @@ export const processChatHistoryForErrorGrouping = (
     let groupedErrorMessages: GroupedErrorMessages = [];
 
     for (let i = 0; i < displayOptimizedChatHistory.length; i++) {
-        const displayOptimizedChatItem = displayOptimizedChatHistory[i];
+        let displayOptimizedChatItem = displayOptimizedChatHistory[i];
         if (!displayOptimizedChatItem) {
             continue;
+        }
+
+        // Associate scratchpad results with their corresponding scratchpad tool calls
+        // The scratchpad result is stored in the next message (the user message that follows the AI's scratchpad response)
+        if (displayOptimizedChatItem.agentResponse?.type === 'scratchpad') {
+            const nextIndex = i + 1;
+            if (nextIndex < displayOptimizedChatHistory.length) {
+                const nextItem = displayOptimizedChatHistory[nextIndex];
+                if (nextItem?.scratchpadResult) {
+                    displayOptimizedChatItem = {
+                        ...displayOptimizedChatItem,
+                        scratchpadResult: nextItem.scratchpadResult
+                    };
+                }
+            }
         }
 
         const messageContent = getContentStringFromMessage(displayOptimizedChatItem.message);
@@ -37,22 +52,44 @@ export const processChatHistoryForErrorGrouping = (
         );
 
         if (_isErrorFixupMessage) {
-            // If the current message is an error fixup message, we need to group it with the next message
-            // which is the ai response to the error fixup message.
+            // If the current message is an error fixup message, we add it to the current group.
+            // This allows consecutive error/cell_update cycles to be grouped together, which
+            // results in a collapsed UI that keeps the error-fixing flow out of the way for users.
+            // For example: [error1, cellUpdate1, error2, askUserQuestion] →
+            //   [[error1, cellUpdate1, error2], askUserQuestion]
+            // All the error-fixing is grouped together, and askUserQuestion displays separately with its UI.
             groupedErrorMessages.push(displayOptimizedChatItem);
             
             // Note: We check that the next message is an ai response to the error fixup message.
             // If the user has stopped the agent, it might not be an ai response to the error fixup message.
 
             const next_index = i + 1;
+            const nextItem = displayOptimizedChatHistory[next_index];
             if (
                 next_index < displayOptimizedChatHistory.length &&
-                displayOptimizedChatHistory[next_index]?.type === 'openai message' &&
-                displayOptimizedChatHistory[next_index]?.message.role === 'assistant'
+                nextItem?.type === 'openai message' &&
+                nextItem?.message.role === 'assistant'
             ) {
-                groupedErrorMessages.push(displayOptimizedChatHistory[next_index]!);
-                i = next_index;
-            } 
+                // Only group if the agent response is cell_update or run_all_cells.
+                // Other types (finished_task, ask_user_question) should be displayed normally
+                // with their UI components, not grouped with the error message.
+                const agentResponseType = nextItem.agentResponse?.type;
+                if (agentResponseType === 'cell_update' || agentResponseType === 'run_all_cells') {
+                    groupedErrorMessages.push(nextItem);
+                    i = next_index;
+                } else {
+                    // Don't group - push the error message as a standalone item and let the next message
+                    // be displayed normally with its UI component (finished_task, ask_user_question, etc.)
+                    processedDisplayOptimizedChatHistory.push(groupedErrorMessages);
+                    groupedErrorMessages = new Array<IDisplayOptimizedChatItem>();
+                    // Continue to next iteration - don't skip the next item, let it be processed normally
+                }
+            } else {
+                // No next message or next message is not an assistant message
+                // Push the error message as a standalone item
+                processedDisplayOptimizedChatHistory.push(groupedErrorMessages);
+                groupedErrorMessages = new Array<IDisplayOptimizedChatItem>();
+            }
         } else {
             if (groupedErrorMessages.length > 0) {
                 processedDisplayOptimizedChatHistory.push(groupedErrorMessages);

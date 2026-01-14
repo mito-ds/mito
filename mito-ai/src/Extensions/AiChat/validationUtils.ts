@@ -17,7 +17,16 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     const correctedResponse: AgentResponse = { ...agentResponse };
     
     // Ensure type is valid. Default to finished_task if not valid.
-    const validTypes = ['cell_update', 'get_cell_output', 'run_all_cells', 'finished_task', 'create_streamlit_app', 'edit_streamlit_app'];
+    const validTypes = [
+        'cell_update', 
+        'get_cell_output', 
+        'run_all_cells', 
+        'ask_user_question',
+        'finished_task', 
+        'create_streamlit_app', 
+        'edit_streamlit_app',
+        'scratchpad'
+    ];
     correctedResponse.type = (correctedResponse.type && validTypes.includes(correctedResponse.type)) 
         ? correctedResponse.type 
         : 'finished_task';
@@ -35,6 +44,14 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     if (correctedResponse.next_steps !== undefined && correctedResponse.next_steps !== null) {
         correctedResponse.next_steps = correctStringArray(correctedResponse.next_steps);
     }
+
+    // Correct ask_user_question
+    if (correctedResponse.answers !== undefined && correctedResponse.answers !== null) {
+        correctedResponse.answers = correctStringArray(correctedResponse.answers);
+    }
+    if (correctedResponse.type === 'ask_user_question' && typeof correctedResponse.question !== 'string') {
+        correctedResponse.question = ""
+    }
     
     // Correct analysis_assumptions - handle string to array conversion
     if (correctedResponse.analysis_assumptions !== undefined && correctedResponse.analysis_assumptions !== null) {
@@ -48,6 +65,15 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     // Correct streamlit_app_prompt - ensure it's a string when present
     const editStreamlitAppPromptType = typeof correctedResponse.streamlit_app_prompt;
     correctedResponse.streamlit_app_prompt = editStreamlitAppPromptType === 'string' ? correctedResponse.streamlit_app_prompt : undefined;
+
+    // Correct scratchpad_code and scratchpad_summary - ensure they're strings when present
+    if (correctedResponse.type === 'scratchpad') {
+        const scratchpadCodeType = typeof correctedResponse.scratchpad_code;
+        correctedResponse.scratchpad_code = scratchpadCodeType === 'string' ? correctedResponse.scratchpad_code : undefined;
+        
+        const scratchpadSummaryType = typeof correctedResponse.scratchpad_summary;
+        correctedResponse.scratchpad_summary = scratchpadSummaryType === 'string' ? correctedResponse.scratchpad_summary : undefined;
+    }
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 
     // not caused issues thus far.

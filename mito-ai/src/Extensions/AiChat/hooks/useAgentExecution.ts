@@ -20,6 +20,7 @@ import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } 
 import { AgentReviewStatus } from '../ChatTaskpane';
 import { LoadingStatus } from './useChatState';
 import { ensureNotebookExists } from '../utils';
+import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -51,6 +52,7 @@ interface UseAgentExecutionProps {
         sendCellIDOutput?: string,
         additionalContext?: Array<{ type: string, value: string }>
     ) => Promise<void>;
+    sendScratchpadResultMessage: (scratchpadResult: string) => Promise<void>;
     sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>;
     agentReview: {
         acceptAllAICode: () => void;
@@ -76,6 +78,7 @@ export const useAgentExecution = ({
     addAIMessageFromResponseAndUpdateState,
     getDuplicateChatHistoryManager,
     sendAgentExecutionMessage,
+    sendScratchpadResultMessage,
     sendAgentSmartDebugMessage,
     agentReview,
     agentTargetNotebookPanelRef,
@@ -157,6 +160,7 @@ export const useAgentExecution = ({
         let isAgentFinished = false;
         let agentExecutionDepth = 1;
         let sendCellIDOutput: string | undefined = undefined;
+        let processedScratchpadResult: string | undefined = undefined;
 
         // Sometimes its useful to send extra information back to the agent. For example, 
         // if the agent tries to create a streamlit app and it errors, we want to let the 
@@ -179,6 +183,10 @@ export const useAgentExecution = ({
             // All other messages only contain updated information about the state of the notebook.
             if (agentExecutionDepth === 1) {
                 await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext);
+            } else if (processedScratchpadResult !== undefined) {
+                // If we have scratchpad results, send them using the scratchpad result message type
+                await sendScratchpadResultMessage(processedScratchpadResult);
+                processedScratchpadResult = undefined;
             } else {
                 await sendAgentExecutionMessage(messageToShareWithAgent || '', undefined, sendCellIDOutput);
                 // Reset flag back to false until the agent requests the active cell output again
@@ -200,7 +208,7 @@ export const useAgentExecution = ({
                     if (!securityCheck.safe) {
                         console.error('Security Warning:', securityCheck.reason);
                         addAIMessageFromResponseAndUpdateState(
-                            `I cannot execute this code without your approval because this code did not pass my security checks. ${securityCheck.reason}. For your safety, I am stopping execution of this plan.`,
+                            `I cannot automatically execute this code because it did not pass my security checks. ${securityCheck.reason}. If you decide that this code is safe, you can manually run it.`,
                             'agent:execution',
                             chatHistoryManagerRef.current
                         );
@@ -333,6 +341,14 @@ export const useAgentExecution = ({
                 }
             }
 
+            if (agentResponse.type === 'ask_user_question') {
+                // When the agent asks a question, we stop execution and wait for the user's response.
+                // The agent will automatically resume when the user responds
+                await markAgentForStopping();
+                isAgentFinished = true;
+                break; 
+            }
+
             if (agentResponse.type === 'create_streamlit_app') {
                 // Create new preview using the service
                 const createStreamlitAppPrompt = agentResponse.streamlit_app_prompt || ''
@@ -355,6 +371,36 @@ export const useAgentExecution = ({
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message;
                 }
+            }
+
+            if (agentResponse.type === 'scratchpad' && agentResponse.scratchpad_code) {
+                // Check the scratchpad code for blacklisted words before executing it
+                const securityCheck = checkForBlacklistedWords(agentResponse.scratchpad_code);
+                if (!securityCheck.safe) {
+                    console.error('Security Warning:', securityCheck.reason);
+                    addAIMessageFromResponseAndUpdateState(
+                        `I cannot automatically execute this code because it did not pass my security checks. ${securityCheck.reason}. If you decide that this code is safe, you can manually run it.`,
+                        'agent:execution',
+                        chatHistoryManagerRef.current
+                    );
+                    await markAgentForStopping();
+                    break;
+                }
+
+                // Execute scratchpad code silently
+                setLoadingStatus('running-code');
+                let scratchpadResult;
+                try {
+                    scratchpadResult = await executeScratchpadCode(
+                        agentTargetNotebookPanelRef.current,
+                        agentResponse.scratchpad_code
+                    );
+                } finally {
+                    setLoadingStatus(undefined);
+                }
+
+                // Format the results for the agent
+                processedScratchpadResult = formatScratchpadResult(scratchpadResult);
             }
         }
 

@@ -17,6 +17,7 @@
 
 .agent-component-header:hover {
     background-color: var(--jp-layout-color3);
+    opacity: 0.75;
 }
 
 .agent-component-header.no-border {
@@ -27,6 +28,7 @@
     border: none;
     border-radius: 5px 5px 0 0;
     background-color: var(--jp-layout-color2);
+    opacity: 0.85;
 }
 
 .agent-component-header.error-fixup {

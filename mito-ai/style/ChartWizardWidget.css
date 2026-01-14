@@ -1,0 +1,158 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.chart-wizard-widget {
+    padding: 10px;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.chart-wizard-input-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    gap: 5px;
+}
+
+.chart-wizard-boolean-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.chart-wizard-input-label {
+    color: var(--jp-content-font-color2);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: none;
+}
+
+.chart-wizard-boolean-label {
+    flex: 1;
+    margin: 0;
+    cursor: pointer;
+}
+
+.chart-wizard-toggle-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.chart-wizard-toggle-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    width: 0;
+    height: 0;
+    margin: 0;
+}
+
+.chart-wizard-toggle-slider {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    background-color: var(--jp-border-color2);
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.chart-wizard-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 2px;
+    top: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.chart-wizard-toggle-input:checked + .chart-wizard-toggle-slider {
+    background-color: var(--jp-brand-color1);
+}
+
+.chart-wizard-toggle-input:checked + .chart-wizard-toggle-slider::before {
+    transform: translateX(20px);
+}
+
+.chart-wizard-toggle-input:focus + .chart-wizard-toggle-slider {
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+}
+
+.chart-wizard-toggle-input:hover + .chart-wizard-toggle-slider {
+    background-color: var(--jp-border-color1);
+}
+
+.chart-wizard-toggle-input:checked:hover + .chart-wizard-toggle-slider {
+    background-color: var(--jp-brand-color0);
+}
+
+.chart-wizard-number-input,
+.chart-wizard-text-input,
+.chart-wizard-color-input,
+.chart-wizard-tuple-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.chart-wizard-color-container {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.chart-wizard-color-picker {
+    flex-shrink: 0;
+}
+
+.chart-wizard-color-input {
+    flex: 1;
+}
+
+.chart-wizard-tuple-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+}
+
+.chart-wizard-tuple-input {
+    flex: 1;
+}
+
+.chart-wizard-config-container {
+    flex: 1;
+    min-height: 0;
+}
+
+.chart-wizard-empty-state,
+.chart-wizard-no-config {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.chart-wizard-no-config p {
+    text-align: center;
+}
+
+.chart-wizard-loading-dots {
+    display: inline-block;
+    min-width: 1.5em;
+    text-align: left;
+}

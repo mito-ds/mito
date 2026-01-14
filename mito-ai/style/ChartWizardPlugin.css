@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Position the button container in the upper right */
+.chart-wizard-button-container {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.chart-wizard-output-container:hover .chart-wizard-button-container {
+    opacity: 1;
+}
