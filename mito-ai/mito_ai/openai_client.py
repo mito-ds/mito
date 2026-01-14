@@ -161,19 +161,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         if not self._async_client or self._async_client.is_closed():
             self._async_client = self._build_openai_client()
         return self._async_client
-    
-    
-    @property
-    def key_type(self) -> str:
-        """Returns the authentication key type being used."""
-        
-        if constants.OPENAI_API_KEY:
-            return USER_KEY
-
-        if constants.OLLAMA_MODEL:
-            return "ollama"
-
-        return MITO_SERVER_KEY
 
     def _build_openai_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]]:
         base_url = None
