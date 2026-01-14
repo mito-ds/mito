@@ -66,6 +66,9 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         Returns the capabilities of the AI provider.
         """
+        # TODO: We should validate that these keys are actually valid for the provider
+        # otherwise it will look like we are using the user_key when actually falling back 
+        # to the mito server because the key is invalid. 
         if constants.OPENAI_API_KEY:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
@@ -91,6 +94,9 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def key_type(self) -> str:
+        # TODO: We should validate that these keys are actually valid for the provider
+        # otherwise it will look like we are using the user_key when actually falling back 
+        # to the mito server because the key is invalid. 
         if constants.ANTHROPIC_API_KEY or constants.GEMINI_API_KEY or constants.OPENAI_API_KEY or constants.OLLAMA_MODEL:  
             return USER_KEY
         
