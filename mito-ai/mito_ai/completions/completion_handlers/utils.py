@@ -5,7 +5,7 @@ import base64
 from typing import Optional, Union, List, Dict, Any, cast
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import ThreadID
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.providers import ProviderManager
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.prompt_builders.chat_system_message import (
     create_chat_system_message_prompt,
@@ -18,7 +18,7 @@ from mito_ai.completions.prompt_builders.agent_system_message import (
 async def append_chat_system_message(
     message_history: GlobalMessageHistory,
     model: str,
-    provider: OpenAIProvider,
+    provider: ProviderManager,
     thread_id: ThreadID,
 ) -> None:
 
@@ -48,7 +48,7 @@ async def append_chat_system_message(
 async def append_agent_system_message(
     message_history: GlobalMessageHistory,
     model: str,
-    provider: OpenAIProvider,
+    provider: ProviderManager,
     thread_id: ThreadID,
     isChromeBrowser: bool,
 ) -> None:

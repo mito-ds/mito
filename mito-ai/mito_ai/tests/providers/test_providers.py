@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from mito_ai.tests.providers.utils import mock_azure_openai_client, mock_openai_client, patch_server_limits
 import pytest
 from traitlets.config import Config
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.providers import ProviderManager
 from mito_ai.completions.models import (
     MessageType,
     AICapabilities,
@@ -24,9 +24,9 @@ FAKE_API_KEY = "sk-1234567890"
 
 @pytest.fixture
 def provider_config() -> Config:
-    """Create a proper Config object for the OpenAIProvider."""
+    """Create a proper Config object for the ProviderManager."""
     config = Config()
-    config.OpenAIProvider = Config()
+    config.ProviderManager = Config()
     config.OpenAIClient = Config()
     return config
 
@@ -113,7 +113,7 @@ async def test_completion_request(
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
 
     with patch(provider_config_data["mock_patch"], return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderManager(config=provider_config)
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
         ]
@@ -188,7 +188,7 @@ async def test_stream_completion_parameterized(
     mock_client.stream_response = AsyncMock(return_value="Test completion")  # For Claude
 
     with patch(provider_config_data["mock_patch"], return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderManager(config=provider_config)
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
         ]
@@ -225,7 +225,7 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
     mock_client.request_completions.side_effect = Exception("API error")
 
     with patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderManager(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
 
 def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
@@ -243,7 +243,7 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
     mock_client.request_completions.side_effect = Exception("API error")
 
     with patch("mito_ai.completions.providers.AnthropicClient", return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderManager(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
 
 
@@ -283,7 +283,7 @@ async def test_mito_server_fallback_completion_request(
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
     monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-    provider_config.OpenAIProvider.api_key = None
+    provider_config.ProviderManager.api_key = None
 
     # Mock the appropriate Mito server function
     with patch(mito_server_config["mock_function"], new_callable=AsyncMock) as mock_mito_function:
@@ -294,7 +294,7 @@ async def test_mito_server_fallback_completion_request(
         ]
 
         with patch_server_limits():
-                llm = OpenAIProvider(config=provider_config)
+                llm = ProviderManager(config=provider_config)
 
                 completion = await llm.request_completions(
                     message_type=MessageType.CHAT,
@@ -341,7 +341,7 @@ async def test_mito_server_fallback_stream_completion(
     monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
     monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-    provider_config.OpenAIProvider.api_key = None
+    provider_config.ProviderManager.api_key = None
 
     # Create an async generator that yields chunks for streaming
     async def mock_stream_generator():
@@ -364,7 +364,7 @@ async def test_mito_server_fallback_stream_completion(
         # Apply patch_server_limits for all cases, not just openai_fallback
         # Also patch update_mito_server_quota where it's actually used in openai_client
         with patch_server_limits(), patch("mito_ai.openai_client.update_mito_server_quota", MagicMock(return_value=None)):
-            llm = OpenAIProvider(config=provider_config)                
+            llm = ProviderManager(config=provider_config)                
 
             completion = await llm.stream_completions(
                 message_type=MessageType.CHAT,

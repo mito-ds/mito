@@ -5,14 +5,14 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from traitlets.config import Config
 from mito_ai.completions.message_history import generate_short_chat_name
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.providers import ProviderManager
 
 
 @pytest.fixture
 def provider_config() -> Config:
-    """Create a proper Config object for the OpenAIProvider."""
+    """Create a proper Config object for the ProviderManager."""
     config = Config()
-    config.OpenAIProvider = Config()
+    config.ProviderManager = Config()
     config.OpenAIClient = Config()
     return config
 
@@ -48,10 +48,10 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     mock_client.request_completions = AsyncMock(return_value="Test Chat Name")
     
     # Patch the specific client class that should be used based on the model
-    # We need to patch before creating the OpenAIProvider since OpenAI client is created in constructor
+    # We need to patch before creating the ProviderManager since OpenAI client is created in constructor
     with patch(client_patch_path, return_value=mock_client):
-        # Create the OpenAIProvider after patching so the mock client is used
-        llm_provider = OpenAIProvider(config=provider_config)
+        # Create the ProviderManager after patching so the mock client is used
+        llm_provider = ProviderManager(config=provider_config)
         
         # Test the function
         result = await generate_short_chat_name(
@@ -74,7 +74,7 @@ async def test_generate_short_chat_name_cleans_gemini_response() -> None:
     """Test that generate_short_chat_name properly cleans Gemini-style responses with quotes and newlines."""
     
     # Create mock llm_provider that returns a response with quotes and newlines
-    mock_llm_provider = MagicMock(spec=OpenAIProvider)
+    mock_llm_provider = MagicMock(spec=ProviderManager)
     mock_llm_provider.request_completions = AsyncMock(return_value='"France Geography Discussion\n"')
     
     result = await generate_short_chat_name(
@@ -95,7 +95,7 @@ async def test_generate_short_chat_name_handles_empty_response() -> None:
     """Test that generate_short_chat_name handles empty or None responses gracefully."""
     
     # Test with empty string response
-    mock_llm_provider = MagicMock(spec=OpenAIProvider)
+    mock_llm_provider = MagicMock(spec=ProviderManager)
     mock_llm_provider.request_completions = AsyncMock(return_value="")
     
     result = await generate_short_chat_name(

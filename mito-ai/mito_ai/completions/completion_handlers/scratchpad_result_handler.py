@@ -5,7 +5,7 @@ from typing import List, Literal, Union
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import ScratchpadResultMetadata, MessageType, ResponseFormatInfo, AgentResponse
 from mito_ai.completions.prompt_builders.scratchpad_result_prompt import create_scratchpad_result_prompt
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.completions.providers import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
 from mito_ai.completions.completion_handlers.utils import append_agent_system_message, create_ai_optimized_message
@@ -18,7 +18,7 @@ class ScratchpadResultHandler(CompletionHandler[ScratchpadResultMetadata]):
     @staticmethod
     async def get_completion(
         metadata: ScratchpadResultMetadata,
-        provider: OpenAIProvider,
+        provider: ProviderManager,
         message_history: GlobalMessageHistory,
         model: str
     ) -> str:
