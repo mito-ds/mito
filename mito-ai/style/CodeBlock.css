@@ -137,5 +137,25 @@
   margin: 0 0;
 }
 
+.scratchpad-result {
+  padding: 8px 12px;
+  border-top: 1px solid var(--jp-cell-editor-border-color);
+  background-color: var(--jp-layout-color1);
+}
 
+.scratchpad-result pre {
+  margin: 0;
+  font-family: var(--jp-code-font-family);
+  font-size: var(--jp-code-font-size);
+  color: var(--jp-ui-font-color2);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.scratchpad-result-warning {
+  color: var(--jp-warn-color1, #f0a000);
+  font-style: italic;
+}
 

@@ -251,6 +251,152 @@ describe('processChatHistoryForErrorGrouping', () => {
         });
     });
 
+    describe('scratchpad result association', () => {
+        // Helper function to create a scratchpad tool call message
+        const createScratchpadMessage = (
+            code: string
+        ): IDisplayOptimizedChatItem => ({
+            message: {
+                role: 'assistant',
+                content: `Executing scratchpad code: ${code}`
+            } as OpenAI.Chat.ChatCompletionMessageParam,
+            type: 'openai message',
+            promptType: 'agent:execution',
+            codeCellID: undefined,
+            agentResponse: {
+                type: 'scratchpad',
+                message: 'Running scratchpad code',
+                scratchpad_code: code
+            }
+        });
+
+        // Helper function to create a user message with scratchpad result
+        const createScratchpadResultMessage = (
+            result: string
+        ): IDisplayOptimizedChatItem => ({
+            message: {
+                role: 'user',
+                content: `Scratchpad result: ${result}`
+            } as OpenAI.Chat.ChatCompletionMessageParam,
+            type: 'openai message',
+            promptType: 'agent:scratchpad-result',
+            codeCellID: undefined,
+            scratchpadResult: result
+        });
+
+        test('should associate scratchpad result with scratchpad tool call', () => {
+            const userMessage = createMockChatItem('user', 'Calculate the sum of column A');
+            const scratchpadMessage = createScratchpadMessage('df["A"].sum()');
+            const scratchpadResultMessage = createScratchpadResultMessage('150');
+            const finishedTask = createAssistantMessageWithAgentResponse(
+                'The sum is 150.',
+                'finished_task'
+            );
+
+            const chatHistory = [userMessage, scratchpadMessage, scratchpadResultMessage, finishedTask];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // Verify scratchpad message now has the scratchpadResult attached
+            expect(result).toHaveLength(4);
+            expect(result[0]).toEqual(userMessage);
+            
+            // The scratchpad message should have scratchpadResult copied from the next message
+            const processedScratchpadMessage = result[1] as IDisplayOptimizedChatItem;
+            expect(processedScratchpadMessage.scratchpadResult).toBe('150');
+            expect(processedScratchpadMessage.agentResponse?.type).toBe('scratchpad');
+            
+            expect(result[2]).toEqual(scratchpadResultMessage);
+            expect(result[3]).toEqual(finishedTask);
+        });
+
+        test('should not modify scratchpad message when no result follows', () => {
+            const userMessage = createMockChatItem('user', 'Calculate something');
+            const scratchpadMessage = createScratchpadMessage('df.shape');
+
+            const chatHistory = [userMessage, scratchpadMessage];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // Scratchpad message at end of history should not have scratchpadResult
+            expect(result).toHaveLength(2);
+            const processedScratchpadMessage = result[1] as IDisplayOptimizedChatItem;
+            expect(processedScratchpadMessage.scratchpadResult).toBeUndefined();
+        });
+
+        test('should not associate result when next message is not a scratchpad result', () => {
+            const userMessage = createMockChatItem('user', 'Calculate something');
+            const scratchpadMessage = createScratchpadMessage('df.shape');
+            const regularMessage = createMockChatItem('user', 'Thanks for the help!');
+
+            const chatHistory = [userMessage, scratchpadMessage, regularMessage];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // Scratchpad message should not have scratchpadResult when next message doesn't have one
+            expect(result).toHaveLength(3);
+            const processedScratchpadMessage = result[1] as IDisplayOptimizedChatItem;
+            expect(processedScratchpadMessage.scratchpadResult).toBeUndefined();
+        });
+
+        test('should handle multiple scratchpad calls in sequence', () => {
+            const userMessage = createMockChatItem('user', 'Analyze this data');
+            const scratchpad1 = createScratchpadMessage('df.shape');
+            const scratchpadResult1 = createScratchpadResultMessage('(100, 5)');
+            const scratchpad2 = createScratchpadMessage('df.dtypes');
+            const scratchpadResult2 = createScratchpadResultMessage('A: int64, B: float64');
+            const finishedTask = createAssistantMessageWithAgentResponse(
+                'Analysis complete.',
+                'finished_task'
+            );
+
+            const chatHistory = [
+                userMessage, 
+                scratchpad1, scratchpadResult1, 
+                scratchpad2, scratchpadResult2, 
+                finishedTask
+            ];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // Both scratchpad messages should have their results associated
+            expect(result).toHaveLength(6);
+            
+            const processedScratchpad1 = result[1] as IDisplayOptimizedChatItem;
+            expect(processedScratchpad1.scratchpadResult).toBe('(100, 5)');
+            
+            const processedScratchpad2 = result[3] as IDisplayOptimizedChatItem;
+            expect(processedScratchpad2.scratchpadResult).toBe('A: int64, B: float64');
+        });
+
+        test('should handle scratchpad followed by error fixup', () => {
+            const userMessage = createMockChatItem('user', 'Process data');
+            const scratchpadMessage = createScratchpadMessage('df["missing_col"]');
+            const scratchpadResultMessage = createScratchpadResultMessage('KeyError: missing_col');
+            const errorMessage = createAgentAutoErrorFixupMessage('KeyError: missing_col not found');
+            const errorFixResponse = createAssistantMessageWithAgentResponse('Fixing the error', 'cell_update');
+
+            const chatHistory = [
+                userMessage, 
+                scratchpadMessage, 
+                scratchpadResultMessage, 
+                errorMessage, 
+                errorFixResponse
+            ];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            // Scratchpad should have result, and error messages should be grouped
+            expect(result).toHaveLength(4);
+            expect(result[0]).toEqual(userMessage);
+            
+            const processedScratchpad = result[1] as IDisplayOptimizedChatItem;
+            expect(processedScratchpad.scratchpadResult).toBe('KeyError: missing_col');
+            
+            expect(result[2]).toEqual(scratchpadResultMessage);
+            
+            // Error messages should be grouped together
+            const errorGroup = result[3] as IDisplayOptimizedChatItem[];
+            expect(Array.isArray(errorGroup)).toBe(true);
+            expect(errorGroup).toHaveLength(2);
+        });
+    });
+
     describe('agent response type filtering', () => {
         test('should group error with cell_update response', () => {
             const errorMessage = createAgentAutoErrorFixupMessage('FileNotFoundError: stocks.csv not found');
