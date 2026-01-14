@@ -38,7 +38,7 @@ def provider_config() -> Config:
             "is_azure_configured": False,
         },
         "expected_provider": "Claude",
-        "expected_key_type": "claude"
+        "expected_key_type": "user_key"
     },
     {
         "name": "gemini_when_only_gemini_key",
@@ -49,7 +49,7 @@ def provider_config() -> Config:
             "is_azure_configured": False,
         },
         "expected_provider": "Gemini", 
-        "expected_key_type": "gemini"
+        "expected_key_type": "user_key"
     },
     {
         "name": "openai_when_openai_key",
@@ -59,7 +59,7 @@ def provider_config() -> Config:
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
-        "expected_provider": "OpenAI (user key)",
+        "expected_provider": "OpenAI",
         "expected_key_type": "user_key"
     },
     {
@@ -71,7 +71,7 @@ def provider_config() -> Config:
             "is_azure_configured": False,
         },
         "expected_provider": "Claude",
-        "expected_key_type": "claude"
+        "expected_key_type": "user_key"
     },
 ])
 def test_provider_capabilities_real_logic(

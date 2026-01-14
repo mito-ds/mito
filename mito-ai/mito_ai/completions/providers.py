@@ -92,12 +92,9 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def key_type(self) -> str:
         # TODO: Should the key_type be openai, claude, etc. or just MITO_SERVER vs USER_KEY?
-        if constants.OPENAI_API_KEY:
-            return "openai"
-        if constants.CLAUDE_API_KEY:
-            return "claude"
-        if constants.GEMINI_API_KEY:
-            return "gemini"
+        if constants.CLAUDE_API_KEY or constants.GEMINI_API_KEY:  
+            return USER_KEY
+        
         if self._openai_client:
             return self._openai_client.key_type
         return MITO_SERVER_KEY

@@ -7,7 +7,7 @@ from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
 import openai
 from openai.types.chat import ChatCompletionMessageParam
-from traitlets import Instance, Unicode, default, validate
+from traitlets import Instance, default, validate
 from traitlets.config import LoggingConfigurable
 
 from mito_ai import constants
@@ -39,12 +39,6 @@ OPENAI_MODEL_FALLBACK = "gpt-4.1"
 
 class OpenAIClient(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
-
-    api_key = Unicode(
-        config=True,
-        allow_none=True,
-        help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
-    )
 
     last_error = Instance(
         CompletionError,
@@ -133,7 +127,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Azure OpenAI",
             )
 
-        if constants.OLLAMA_MODEL and not self.api_key:
+        if constants.OLLAMA_MODEL:
             return AICapabilities(
                 configuration={
                     "model": constants.OLLAMA_MODEL
@@ -141,14 +135,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Ollama",
             )
 
-        if self.api_key:
-            self._validate_api_key(self.api_key)
-
+        if constants.OPENAI_API_KEY:
             return AICapabilities(
                 configuration={
-                    "model": OPENAI_MODEL_FALLBACK,
+                    "model": "<dynamic>"
                 },
-                provider="OpenAI (user key)",
+                provider="OpenAI",
             )
 
         try:
@@ -174,8 +166,8 @@ This attribute is observed by the websocket provider to push the error to the cl
     @property
     def key_type(self) -> str:
         """Returns the authentication key type being used."""
-
-        if self.api_key:
+        
+        if constants.OPENAI_API_KEY:
             return USER_KEY
 
         if constants.OLLAMA_MODEL:
