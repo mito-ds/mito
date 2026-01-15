@@ -38,7 +38,7 @@ def mock_openai_client() -> Any:
     mock_client.key_type = "user"
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
-    return patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client)
+    return patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client)
 
 
 def mock_gemini_client() -> Any:
@@ -52,7 +52,7 @@ def mock_gemini_client() -> Any:
     mock_client.key_type = "gemini"
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
-    return patch("mito_ai.completions.providers.GeminiClient", return_value=mock_client)
+    return patch("mito_ai.provider_manager.GeminiClient", return_value=mock_client)
 
 
 def mock_azure_openai_client() -> Any:
@@ -66,7 +66,7 @@ def mock_azure_openai_client() -> Any:
     mock_client.key_type = "azure"
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
-    return patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client)
+    return patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client)
 
 
 
@@ -82,4 +82,4 @@ def mock_claude_client() -> Any:
     mock_client.request_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
     mock_client.stream_response = AsyncMock(return_value="Test completion")
-    return patch("mito_ai.completions.providers.AnthropicClient", return_value=mock_client)
+    return patch("mito_ai.provider_manager.AnthropicClient", return_value=mock_client)

@@ -9,16 +9,16 @@ import pytest
 from mito_ai.utils.provider_utils import does_message_require_fast_model
 from mito_ai.completions.models import MessageType
 from unittest.mock import AsyncMock, MagicMock, patch
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.provider_utils import does_message_require_fast_model
 from traitlets.config import Config
 
 @pytest.fixture
 def provider_config() -> Config:
-    """Create a proper Config object for the OpenAIProvider."""
+    """Create a proper Config object for the ProviderManager."""
     config = Config()
-    config.OpenAIProvider = Config()
+    config.ProviderManager = Config()
     config.OpenAIClient = Config()
     return config
 
@@ -72,7 +72,7 @@ async def test_request_completions_calls_does_message_require_fast_model(provide
                 mock_sync_client.models.list.return_value = MagicMock()
                 mock_sync_openai_class.return_value = mock_sync_client
                 
-                provider = OpenAIProvider(config=provider_config)
+                provider = ProviderManager(config=provider_config)
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
@@ -114,7 +114,7 @@ async def test_stream_completions_calls_does_message_require_fast_model(provider
                 mock_sync_client.models.list.return_value = MagicMock()
                 mock_sync_openai_class.return_value = mock_sync_client
                 
-                provider = OpenAIProvider(config=provider_config)
+                provider = ProviderManager(config=provider_config)
                 await provider.stream_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,

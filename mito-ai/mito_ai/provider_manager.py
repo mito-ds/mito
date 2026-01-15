@@ -40,10 +40,10 @@ from mito_ai.utils.telemetry_utils import (
 from mito_ai.utils.provider_utils import get_model_provider
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
 
-__all__ = ["OpenAIProvider"]
+__all__ = ["ProviderManager"]
 
-class OpenAIProvider(LoggingConfigurable):
-    """Provide AI feature through OpenAI services."""
+class ProviderManager(LoggingConfigurable):
+    """Manage AI providers (Claude, Gemini, OpenAI) and route requests to the appropriate client."""
 
     last_error = Instance(
         CompletionError,
@@ -281,4 +281,3 @@ This attribute is observed by the websocket provider to push the error to the cl
                 error=CompletionError.from_exception(e),
             ))
             raise
-

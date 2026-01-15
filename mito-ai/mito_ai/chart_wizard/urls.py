@@ -4,10 +4,10 @@
 from typing import List, Tuple, Any
 from jupyter_server.utils import url_path_join
 from mito_ai.chart_wizard.handlers import ChartWizardHandler
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 
 
-def get_chart_wizard_urls(base_url: str, llm: OpenAIProvider) -> List[Tuple[str, Any, dict]]:
+def get_chart_wizard_urls(base_url: str, llm: ProviderManager) -> List[Tuple[str, Any, dict]]:
     """Get all chart wizard related URL patterns.
 
     Args:

@@ -37,7 +37,7 @@ from mito_ai.completions.models import (
     ScratchpadResultMetadata,
     MessageType
 )
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
 from mito_ai.completions.completion_handlers.chat_completion_handler import get_chat_completion, stream_chat_completion
@@ -61,7 +61,7 @@ FALLBACK_MODEL = "gpt-4.1"  # Default model to use for safety
 class CompletionHandler(JupyterHandler, WebSocketHandler):
     """Completion websocket handler."""
 
-    def initialize(self, llm: OpenAIProvider, message_history: GlobalMessageHistory) -> None:
+    def initialize(self, llm: ProviderManager, message_history: GlobalMessageHistory) -> None:
         super().initialize()
         self.log.debug("Initializing websocket connection %s", self.request.path)
         self._llm = llm

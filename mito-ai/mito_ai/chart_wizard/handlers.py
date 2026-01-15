@@ -6,13 +6,13 @@ import tornado
 from typing import List
 from jupyter_server.base.handlers import APIHandler
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.utils.anthropic_utils import FAST_ANTHROPIC_MODEL
 from mito_ai.completions.models import MessageType
 from mito_ai.completions.prompt_builders.chart_conversion_prompt import create_chart_conversion_prompt
 
 class ChartWizardHandler(APIHandler):
-    def initialize(self, llm: OpenAIProvider) -> None:
+    def initialize(self, llm: ProviderManager) -> None:
         """Initialize the handler with the LLM provider."""
         super().initialize()
         self._llm = llm
