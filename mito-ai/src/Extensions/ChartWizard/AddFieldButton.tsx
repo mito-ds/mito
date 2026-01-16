@@ -57,7 +57,7 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
                 }
             }, []);
 
-            const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+            const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
                 const newValue = e.target.value;
                 setValue(newValue);
                 inputValueRef.current = newValue;
