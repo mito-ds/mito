@@ -166,6 +166,16 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
                         autoClose: 3000
                     }
                 );
+            } else {
+                // Handle case where updated_code is missing, null, or empty
+                console.error('Error: No updated code returned from server.');
+                Notification.emit(
+                    'Failed to add field: The server did not return updated code. Please try again.',
+                    'error',
+                    {
+                        autoClose: 5000
+                    }
+                );
             }
         } catch (error) {
             console.error('Error adding field:', error);
