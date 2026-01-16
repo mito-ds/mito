@@ -17,6 +17,7 @@ import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import MagicWand from '../../icons/MagicWand'
 import { logEvent } from '../../restAPI/RestAPI';
+import { setActiveCellByIDInNotebookPanel } from '../../utils/notebook';
 import '../../../style/ChartWizardPlugin.css'
 
 export interface ChartWizardData {
@@ -231,11 +232,17 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
             return;
         }
 
+        const sourceCode = cellWidget.model.sharedModel.source;
+        const cellId = cellWidget.model.id;
+
+        // Set the cell as active before collapsing and scrolling
+        setActiveCellByIDInNotebookPanel(notebookPanel, cellId);
+
         // Collapse the code cell when opening the chart wizard
         cellWidget.inputHidden = true;
 
-        const sourceCode = cellWidget.model.sharedModel.source;
-        const cellId = cellWidget.model.id;
+        // Scroll to the top of the cell
+        void notebookPanel.content.scrollToCell(cellWidget, 'start');
 
         // Open the Chart Wizard with the extracted data
         this.openChartWizard({ sourceCode, cellId, notebookTracker: this.notebookTracker });
