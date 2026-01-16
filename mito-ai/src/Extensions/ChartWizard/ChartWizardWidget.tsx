@@ -39,6 +39,7 @@ const formatVariableLabel = (variableName: string): string => {
 
 const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) => {
     const [isConverting, setIsConverting] = useState(false);
+    const [isAddingField, setIsAddingField] = useState(false);
     const [currentSourceCode, setCurrentSourceCode] = useState<string | null>(null);
 
     // Reset currentSourceCode when switching to a different chart
@@ -201,7 +202,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     }
 
     return (
-        <div className="chart-wizard-widget">
+        <div className="chart-wizard-widget" style={{ position: 'relative' }}>
             <h2>Chart Wizard</h2>
 
             {hasConfig ? (
@@ -214,6 +215,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                         code={currentSourceCode || chartData?.sourceCode || null}
                         onFieldAdded={handleFieldAdded}
                         clearPendingUpdate={clearPendingUpdate}
+                        onLoadingStateChange={setIsAddingField}
                     />
                 </div>
             ) : (
@@ -240,6 +242,17 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                             'Convert'
                         )}
                     </button>
+                </div>
+            )}
+
+            {isAddingField && (
+                <div className="chart-wizard-overlay">
+                    <div className="chart-wizard-overlay-text">
+                        Adding new field{' '}
+                        <span className="chart-wizard-loading-dots">
+                            <LoadingDots />
+                        </span>
+                    </div>
                 </div>
             )}
         </div>

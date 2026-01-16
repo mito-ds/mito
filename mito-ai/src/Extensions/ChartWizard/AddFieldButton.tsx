@@ -8,12 +8,12 @@ import { Notification, showDialog, Dialog } from '@jupyterlab/apputils';
 import { parseChartConfig } from './utils/parser';
 import { addChartField, logEvent } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting } from '../../utils/strings';
-import LoadingDots from '../../components/LoadingDots';
 
 interface AddFieldButtonProps {
     code: string | null;
     onFieldAdded: (updatedCode: string) => void;
     clearPendingUpdate: () => void;
+    onLoadingStateChange: (isLoading: boolean) => void;
 }
 
 /**
@@ -23,9 +23,9 @@ interface AddFieldButtonProps {
 const AddFieldButton: React.FC<AddFieldButtonProps> = ({
     code,
     onFieldAdded,
-    clearPendingUpdate
+    clearPendingUpdate,
+    onLoadingStateChange
 }) => {
-    const [isAddingField, setIsAddingField] = useState(false);
 
     /**
      * Handles adding a new field to the chart configuration.
@@ -131,7 +131,7 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
         // Clear any pending debounced updates
         clearPendingUpdate();
 
-        setIsAddingField(true);
+        onLoadingStateChange(true);
         try {
             // Get existing variable names
             const parsed = parseChartConfig(code);
@@ -174,29 +174,19 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
                 }
             );
         } finally {
-            setIsAddingField(false);
+            onLoadingStateChange(false);
         }
-    }, [code, onFieldAdded, clearPendingUpdate]);
+    }, [code, onFieldAdded, clearPendingUpdate, onLoadingStateChange]);
 
     return (
         <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e0e0e0' }}>
             <button
                 className="button-base button-purple"
-                disabled={isAddingField}
                 onClick={handleAddField}
                 type="button"
                 style={{ width: '100%' }}
             >
-                {isAddingField ? (
-                    <>
-                        Adding Field{' '}
-                        <span className="chart-wizard-loading-dots">
-                            <LoadingDots />
-                        </span>
-                    </>
-                ) : (
-                    '+ Add New Field'
-                )}
+                + Add New Field
             </button>
         </div>
     );
