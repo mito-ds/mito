@@ -10,6 +10,7 @@ import { updateChartConfig, ChartConfigVariable } from './utils/parser';
 import { convertChartCode, logEvent } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting } from '../../utils/strings';
 import LoadingDots from '../../components/LoadingDots';
+import AddFieldButton from './AddFieldButton';
 import {
     BooleanInputRow,
     TupleInputRow,
@@ -137,6 +138,16 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     }, [chartData?.sourceCode, clearPendingUpdate, updateNotebookCell]);
 
     /**
+     * Handles when a new field is added via the AddFieldButton component.
+     */
+    const handleFieldAdded = useCallback((updatedCode: string): void => {
+        // Update current source code so the useEffect will parse it
+        setCurrentSourceCode(updatedCode);
+        // Update the cell with the updated code
+        updateNotebookCell(updatedCode);
+    }, [updateNotebookCell]);
+
+    /**
      * Renders the appropriate input field component based on variable type.
      */
     const renderInputField = useCallback(
@@ -199,6 +210,11 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                         Edit values below to customize your chart. Changes will be reflected in the notebook.
                     </p>
                     {inputFields}
+                    <AddFieldButton
+                        code={currentSourceCode || chartData?.sourceCode || null}
+                        onFieldAdded={handleFieldAdded}
+                        clearPendingUpdate={clearPendingUpdate}
+                    />
                 </div>
             ) : (
                 <div className="chart-wizard-no-config">
