@@ -12,7 +12,7 @@ from mito_ai.completions.models import MessageType
 from mito_ai.completions.prompt_builders.chart_conversion_prompt import create_chart_conversion_prompt
 from mito_ai.completions.prompt_builders.chart_add_field_prompt import create_chart_add_field_prompt
 
-class ChartWizardHandler(APIHandler):
+class ConvertChartHandler(APIHandler):
     def initialize(self, llm: ProviderManager) -> None:
         """Initialize the handler with the LLM provider."""
         super().initialize()
@@ -53,7 +53,7 @@ class ChartWizardHandler(APIHandler):
             self.finish()
 
 
-class ChartAddFieldHandler(APIHandler):
+class AddFieldHandler(APIHandler):
     def initialize(self, llm: ProviderManager) -> None:
         """Initialize the handler with the LLM provider."""
         super().initialize()
