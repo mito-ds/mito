@@ -20,7 +20,7 @@ def create_chart_add_field_prompt(code: str, user_description: str, existing_var
     """
     sections: List[PromptSection] = []
 
-    sections.append(SG.Generic("Instructions", "The user wants to add a new field to the chart configuration. You need to:\n1. Understand what field the user wants to add based on their description\n2. Add the appropriate variable to the chart configuration section\n3. Use the variable in the chart code where appropriate\n4. Return the complete updated code"))
+    sections.append(SG.Generic("Instructions", "The user wants to add a new field to the chart configuration. You need to:\n1. Understand what field the user wants to add based on their description\n2. Add the appropriate variable to the chart configuration section\n3. Use the variable in the chart code where appropriate\n4. Return the complete updated code\n\nIMPORTANT: If you cannot add the requested field (e.g., the request is unclear, ambiguous, or not applicable to chart configuration), do NOT return any code block. Simply respond with a brief explanation without including any Python code blocks."))
     
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
     
@@ -30,8 +30,6 @@ def create_chart_add_field_prompt(code: str, user_description: str, existing_var
     sections.append(SG.Generic("User Request", f"The user wants to add a field for: {user_description}"))
     
     sections.append(SG.Generic("Current Code", f"```python\n{code}\n```"))
-    
-    sections.append(SG.Generic("Requirements", "1. Add a new variable to the CHART CONFIG section following the naming conventions described in the Chart Config Rules\n2. Choose an appropriate default value based on the user's description\n3. Use the new variable in the chart code where it makes sense\n4. Return the complete code with the new field added\n5. Make sure the variable name is descriptive and follows the existing naming pattern"))
     
     prompt = Prompt(sections)
     return str(prompt)

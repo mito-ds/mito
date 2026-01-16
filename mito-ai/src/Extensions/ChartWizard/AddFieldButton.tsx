@@ -7,7 +7,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Notification, showDialog, Dialog } from '@jupyterlab/apputils';
 import { parseChartConfig } from './utils/parser';
 import { addChartField, logEvent } from '../../restAPI/RestAPI';
-import { removeMarkdownCodeFormatting } from '../../utils/strings';
+import { removeMarkdownCodeFormatting, PYTHON_CODE_BLOCK_START_WITH_NEW_LINE } from '../../utils/strings';
 
 interface AddFieldButtonProps {
     code: string | null;
@@ -142,6 +142,23 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
 
             const response = await addChartField(code, description, existingVariables);
             if (response.updated_code) {
+                // Check if the response contains a code block
+                // If no code block is found, the AI couldn't add the field
+                const hasCodeBlock = response.updated_code.includes(PYTHON_CODE_BLOCK_START_WITH_NEW_LINE);
+                
+                if (!hasCodeBlock) {
+                    // AI couldn't add the field and didn't return a code block
+                    console.log('AI response does not contain a code block - field addition was not possible.');
+                    Notification.emit(
+                        'Unable to add the requested field. Please try a different description or ensure your request is clear and applicable to chart configuration.',
+                        'warning',
+                        {
+                            autoClose: 5000
+                        }
+                    );
+                    return;
+                }
+
                 // Extract code from markdown code blocks if present
                 const extractedCode = removeMarkdownCodeFormatting(response.updated_code);
                 // Validate that extracted code is not empty
