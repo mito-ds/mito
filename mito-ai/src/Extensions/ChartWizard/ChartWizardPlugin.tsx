@@ -104,7 +104,7 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
         app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHART_WIZARD, {
             label: 'Open Chart Wizard',
             execute: () => {
-                void logEvent('clicked_chart_wizard_button', { source: 'command_palette' });
+                void logEvent('chart_wizard_opened', { source: 'command_palette' });
                 openChartWizard();
             }
         });
@@ -202,7 +202,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         Extracts chart data and source code, then opens the Chart Wizard panel.
     */
     handleButtonClick(_model: IRenderMime.IMimeModel): void {
-        void logEvent('clicked_chart_wizard_button', { source: 'chart_output_button' });
+        void logEvent('chart_wizard_opened', { source: 'chart_output_button' });
 
         // Get the notebook panel
         const notebookPanel = this.notebookTracker.currentWidget;

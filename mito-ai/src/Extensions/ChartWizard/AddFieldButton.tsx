@@ -31,8 +31,6 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
      * Handles adding a new field to the chart configuration.
      */
     const handleAddField = useCallback(async (): Promise<void> => {
-        void logEvent('clicked_add_field_button');
-
         if (!code) {
             Notification.emit(
                 'No source code available',
@@ -128,6 +126,11 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
             return;
         }
 
+        // Log the field addition event with user input
+        void logEvent('chart_wizard_add_chart_field', {
+            user_input: description
+        });
+
         // Clear any pending debounced updates
         clearPendingUpdate();
 
@@ -155,6 +158,7 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
                 }
                 // Notify parent component of the updated code
                 onFieldAdded(extractedCode);
+
                 Notification.emit(
                     'Field added successfully!',
                     'success',

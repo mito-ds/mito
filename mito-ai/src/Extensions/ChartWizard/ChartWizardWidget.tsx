@@ -90,7 +90,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
      * Handles chart conversion from matplotlib to Chart Wizard format.
      */
     const handleConvertChart = useCallback(async (): Promise<void> => {
-        void logEvent('clicked_convert_chart_button');
+        void logEvent('chart_wizard_convert_chart');
 
         if (!chartData?.sourceCode) {
             console.error('No source code available');
