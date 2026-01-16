@@ -7,7 +7,9 @@ from mito_ai.chart_wizard.handlers import ConvertChartHandler, AddFieldHandler
 from mito_ai.provider_manager import ProviderManager
 
 
-def get_chart_wizard_urls(base_url: str, llm: ProviderManager) -> List[Tuple[str, Any, dict]]:
+def get_chart_wizard_urls(
+    base_url: str, llm: ProviderManager
+) -> List[Tuple[str, Any, dict]]:
     """Get all chart wizard related URL patterns.
 
     Args:

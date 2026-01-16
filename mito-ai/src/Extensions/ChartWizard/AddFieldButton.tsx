@@ -51,7 +51,7 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
         const InputDialogBody: React.FC = () => {
             const [value, setValue] = useState('');
             const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-            
+
             useEffect(() => {
                 // Focus the textarea when component mounts
                 if (textareaRef.current) {

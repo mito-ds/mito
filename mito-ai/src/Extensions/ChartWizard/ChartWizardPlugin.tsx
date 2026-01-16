@@ -32,11 +32,11 @@ interface ChartWizardButtonProps {
 const ChartWizardButton: React.FC<ChartWizardButtonProps> = ({ onButtonClick }) => {
     return (
         <>
-            <TextAndIconButton 
+            <TextAndIconButton
                 icon={MagicWand}
                 text="Chart Wizard"
                 title="Chart Wizard"
-                onClick={onButtonClick} 
+                onClick={onButtonClick}
                 variant='purple'
                 width='fit-contents'
                 iconPosition='left'
@@ -203,7 +203,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     */
     handleButtonClick(_model: IRenderMime.IMimeModel): void {
         void logEvent('clicked_chart_wizard_button', { source: 'chart_output_button' });
-        
+
         // Get the notebook panel
         const notebookPanel = this.notebookTracker.currentWidget;
         if (!notebookPanel) {
