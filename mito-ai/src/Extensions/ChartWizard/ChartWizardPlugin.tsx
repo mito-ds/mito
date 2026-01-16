@@ -231,6 +231,9 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
             return;
         }
 
+        // Collapse the code cell when opening the chart wizard
+        cellWidget.inputHidden = true;
+
         const sourceCode = cellWidget.model.sharedModel.source;
         const cellId = cellWidget.model.id;
 
