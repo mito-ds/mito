@@ -20,6 +20,7 @@ import {
     isHexColor
 } from './inputs';
 import { useChartConfig, useDebouncedNotebookUpdate } from './hooks';
+import { getActiveCellID } from '../../utils/notebook';
 import '../../../style/ChartWizardWidget.css';
 
 interface ChartWizardContentProps {
@@ -43,11 +44,37 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     const [currentSourceCode, setCurrentSourceCode] = useState<string | null>(null);
     const widgetRef = useRef<HTMLDivElement>(null);
     const [overlayHeight, setOverlayHeight] = useState<number>(0);
+    const [isActiveCellMismatch, setIsActiveCellMismatch] = useState(false);
 
     // Reset currentSourceCode when switching to a different chart
     useEffect(() => {
         setCurrentSourceCode(null);
     }, [chartData?.sourceCode]);
+
+    // Track active cell changes and compare with chart cell
+    useEffect(() => {
+        if (!chartData) {
+            setIsActiveCellMismatch(false);
+            return;
+        }
+
+        const checkActiveCell = (): void => {
+            const activeCellId = getActiveCellID(chartData.notebookTracker);
+            const chartCellId = chartData.cellId;
+            // Show warning if active cell exists and doesn't match the chart cell
+            setIsActiveCellMismatch(activeCellId !== undefined && activeCellId !== chartCellId);
+        };
+
+        // Initial check
+        checkActiveCell();
+
+        // Listen to active cell changes
+        chartData.notebookTracker.activeCellChanged.connect(checkActiveCell);
+
+        return () => {
+            chartData.notebookTracker.activeCellChanged.disconnect(checkActiveCell);
+        };
+    }, [chartData]);
 
     // Update overlay height to cover full scrollable content
     useEffect(() => {
@@ -243,6 +270,12 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     return (
         <div className="chart-wizard-widget" ref={widgetRef} style={{ position: 'relative' }}>
             <h2>Chart Wizard</h2>
+
+            {isActiveCellMismatch && (
+                <div className="chart-wizard-warning">
+                    <strong>Warning:</strong> The active cell is no longer the chart cell. Changes may not be applied correctly.
+                </div>
+            )}
 
             {hasConfig ? (
                 <div className="chart-wizard-config-container">

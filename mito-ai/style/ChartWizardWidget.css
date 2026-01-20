@@ -177,3 +177,18 @@
     font-weight: 500;
     color: #333;
 }
+
+.chart-wizard-warning {
+    background-color: var(--yellow-100);
+    color: var(--yellow-900);
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    line-height: 1.4;
+    border: 1px solid var(--yellow-300);
+}
+
+.chart-wizard-warning strong {
+    font-weight: 600;
+}
