@@ -249,7 +249,8 @@ class AnthropicClient:
         if self.api_key:
             # Unpack provider_data for direct API call
             assert self.client is not None
-            response = self.client.beta.messages.create(**provider_data)
+            # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
+            response = self.client.beta.messages.create(**provider_data)  # type: ignore[arg-type]
             
             if provider_data.get("tool_choice") is not None:
                 result = extract_and_parse_anthropic_json_response(response)
@@ -284,21 +285,23 @@ class AnthropicClient:
 
             if self.api_key:
                 assert self.client is not None
+                # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
                 stream = self.client.beta.messages.create(
                     model=model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
                     system=anthropic_system_prompt,
-                    messages=anthropic_messages,
+                    messages=anthropic_messages,  # type: ignore[arg-type]
                     stream=True
                 )
 
                 for chunk in stream:
-                    if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
-                        content = chunk.delta.text
+                    # Type checking for beta API streaming chunks (runtime type checking, types are compatible)
+                    if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":  # type: ignore[union-attr]
+                        content = chunk.delta.text  # type: ignore[union-attr]
                         accumulated_response += content
 
-                        is_finished = chunk.type == "message_stop"
+                        is_finished = chunk.type == "message_stop"  # type: ignore[union-attr]
 
                         reply_fn(CompletionStreamChunk(
                             parent_id=message_id,
