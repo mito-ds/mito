@@ -255,9 +255,6 @@ class AnthropicClient:
             # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
             response = self.client.beta.messages.create(**provider_data)  # type: ignore[arg-type]
             
-            print("RESPONSE")
-            print(response)
-            
             if provider_data.get("tool_choice") is not None:
                 result = extract_and_parse_anthropic_json_response(response)
                 return json.dumps(result) if not isinstance(result, str) else result
