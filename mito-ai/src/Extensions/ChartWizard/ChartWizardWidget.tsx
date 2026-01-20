@@ -20,7 +20,7 @@ import {
     isHexColor
 } from './inputs';
 import { useChartConfig, useDebouncedNotebookUpdate } from './hooks';
-import { getActiveCellID, setActiveCellByID } from '../../utils/notebook';
+import { getActiveCellID, scrollToCell } from '../../utils/notebook';
 import '../../../style/ChartWizardWidget.css';
 
 interface ChartWizardContentProps {
@@ -289,9 +289,14 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                                     // Activate the notebook panel if it's not the current one
                                     if (chartData.notebookTracker.currentWidget?.id !== notebookPanel.id) {
                                         chartData.app.shell.activateById(notebookPanel.id);
+                                        // Wait a bit for the notebook to activate before scrolling
+                                        setTimeout(() => {
+                                            scrollToCell(notebookPanel, chartData.cellId, undefined, 'start');
+                                        }, 100);
+                                    } else {
+                                        // Navigate to and scroll to the chart cell
+                                        scrollToCell(notebookPanel, chartData.cellId, undefined, 'start');
                                     }
-                                    // Navigate to the chart cell
-                                    setActiveCellByID(chartData.notebookTracker, chartData.cellId);
                                 }
                             }
                         }}
