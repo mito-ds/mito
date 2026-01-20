@@ -3,11 +3,13 @@
 
 from typing import List, Tuple, Any
 from jupyter_server.utils import url_path_join
-from mito_ai.chart_wizard.handlers import ChartWizardHandler
+from mito_ai.chart_wizard.handlers import ConvertChartHandler, AddFieldHandler
 from mito_ai.provider_manager import ProviderManager
 
 
-def get_chart_wizard_urls(base_url: str, llm: ProviderManager) -> List[Tuple[str, Any, dict]]:
+def get_chart_wizard_urls(
+    base_url: str, llm: ProviderManager
+) -> List[Tuple[str, Any, dict]]:
     """Get all chart wizard related URL patterns.
 
     Args:
@@ -17,7 +19,8 @@ def get_chart_wizard_urls(base_url: str, llm: ProviderManager) -> List[Tuple[str
     Returns:
         List of (url_pattern, handler_class, handler_kwargs) tuples
     """
-    BASE_URL = base_url + "/mito-ai"
+    BASE_URL = base_url + "/mito-ai/chart-wizard"
     return [
-        (url_path_join(BASE_URL, "chart-wizard"), ChartWizardHandler, {"llm": llm}),
+        (url_path_join(BASE_URL, "convert"), ConvertChartHandler, {"llm": llm}),
+        (url_path_join(BASE_URL, "add-field"), AddFieldHandler, {"llm": llm}),
     ]

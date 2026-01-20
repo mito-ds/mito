@@ -17,6 +17,7 @@ import { COMMAND_MITO_AI_OPEN_CHART_WIZARD } from '../../commands';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import MagicWand from '../../icons/MagicWand'
 import { logEvent } from '../../restAPI/RestAPI';
+import { setActiveCellByIDInNotebookPanel } from '../../utils/notebook';
 import '../../../style/ChartWizardPlugin.css'
 
 export interface ChartWizardData {
@@ -32,11 +33,11 @@ interface ChartWizardButtonProps {
 const ChartWizardButton: React.FC<ChartWizardButtonProps> = ({ onButtonClick }) => {
     return (
         <>
-            <TextAndIconButton 
+            <TextAndIconButton
                 icon={MagicWand}
                 text="Chart Wizard"
                 title="Chart Wizard"
-                onClick={onButtonClick} 
+                onClick={onButtonClick}
                 variant='purple'
                 width='fit-contents'
                 iconPosition='left'
@@ -104,7 +105,7 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
         app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHART_WIZARD, {
             label: 'Open Chart Wizard',
             execute: () => {
-                void logEvent('clicked_chart_wizard_button', { source: 'command_palette' });
+                void logEvent('chart_wizard_opened', { source: 'command_palette' });
                 openChartWizard();
             }
         });
@@ -202,8 +203,8 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         Extracts chart data and source code, then opens the Chart Wizard panel.
     */
     handleButtonClick(_model: IRenderMime.IMimeModel): void {
-        void logEvent('clicked_chart_wizard_button', { source: 'chart_output_button' });
-        
+        void logEvent('chart_wizard_opened', { source: 'chart_output_button' });
+
         // Get the notebook panel
         const notebookPanel = this.notebookTracker.currentWidget;
         if (!notebookPanel) {
@@ -233,6 +234,15 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
 
         const sourceCode = cellWidget.model.sharedModel.source;
         const cellId = cellWidget.model.id;
+
+        // Set the cell as active before collapsing and scrolling
+        setActiveCellByIDInNotebookPanel(notebookPanel, cellId);
+
+        // Collapse the code cell when opening the chart wizard
+        cellWidget.inputHidden = true;
+
+        // Scroll to the top of the cell
+        void notebookPanel.content.scrollToCell(cellWidget, 'start');
 
         // Open the Chart Wizard with the extracted data
         this.openChartWizard({ sourceCode, cellId, notebookTracker: this.notebookTracker });

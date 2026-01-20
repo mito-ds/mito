@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.add-field-container {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.add-field-button {
+    width: 100%;
+}
+
+.add-field-dialog-textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-height: 100px;
+    resize: vertical;
+    font-family: inherit;
+    box-sizing: border-box;
+}
