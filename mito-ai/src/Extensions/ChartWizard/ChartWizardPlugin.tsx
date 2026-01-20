@@ -24,6 +24,8 @@ export interface ChartWizardData {
     sourceCode: string;
     cellId: string;
     notebookTracker: INotebookTracker;
+    notebookPanelId: string;
+    app: JupyterFrontEnd;
 }
 
 interface ChartWizardButtonProps {
@@ -145,11 +147,12 @@ const ChartWizardPlugin: JupyterFrontEndPlugin<void> = {
 class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
     private originalRenderer: IRenderMime.IRenderer;
     private notebookTracker: INotebookTracker;
+    private app: JupyterFrontEnd;
     private openChartWizard: (chartData?: ChartWizardData) => void;
     private reactRoot: Root | null = null;
 
     constructor(
-        _app: JupyterFrontEnd,
+        app: JupyterFrontEnd,
         originalRenderer: IRenderMime.IRenderer,
         notebookTracker: INotebookTracker,
         openChartWizard: (chartData?: ChartWizardData) => void
@@ -157,6 +160,7 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         super();
         this.originalRenderer = originalRenderer;
         this.notebookTracker = notebookTracker;
+        this.app = app;
         this.openChartWizard = openChartWizard;
     }
 
@@ -245,7 +249,13 @@ class AugmentedImageRenderer extends Widget implements IRenderMime.IRenderer {
         void notebookPanel.content.scrollToCell(cellWidget, 'start');
 
         // Open the Chart Wizard with the extracted data
-        this.openChartWizard({ sourceCode, cellId, notebookTracker: this.notebookTracker });
+        this.openChartWizard({ 
+            sourceCode, 
+            cellId, 
+            notebookTracker: this.notebookTracker,
+            notebookPanelId: notebookPanel.id,
+            app: this.app
+        });
     }
 }
 

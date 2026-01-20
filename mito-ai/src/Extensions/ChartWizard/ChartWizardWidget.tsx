@@ -280,7 +280,19 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                         className="chart-wizard-warning-button"
                         onClick={() => {
                             if (chartData) {
-                                setActiveCellByID(chartData.notebookTracker, chartData.cellId);
+                                // Find the notebook panel by ID
+                                const notebookPanel = chartData.notebookTracker.find(
+                                    panel => panel.id === chartData.notebookPanelId
+                                );
+                                
+                                if (notebookPanel) {
+                                    // Activate the notebook panel if it's not the current one
+                                    if (chartData.notebookTracker.currentWidget?.id !== notebookPanel.id) {
+                                        chartData.app.shell.activateById(notebookPanel.id);
+                                    }
+                                    // Navigate to the chart cell
+                                    setActiveCellByID(chartData.notebookTracker, chartData.cellId);
+                                }
                             }
                         }}
                         type="button"
