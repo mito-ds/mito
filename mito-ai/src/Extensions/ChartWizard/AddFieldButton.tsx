@@ -8,6 +8,7 @@ import { Notification, showDialog, Dialog } from '@jupyterlab/apputils';
 import { parseChartConfig } from './utils/parser';
 import { addChartField, logEvent } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting, PYTHON_CODE_BLOCK_START_WITH_NEW_LINE } from '../../utils/strings';
+import '../../../style/AddFieldButton.css';
 
 interface AddFieldButtonProps {
     code: string | null;
@@ -71,20 +72,10 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
                         value={value}
                         onChange={handleChange}
                         placeholder="e.g., font size for the title, background color, grid visibility..."
-                        style={{
-                            width: '100%',
-                            padding: '8px',
-                            marginTop: '10px',
-                            fontSize: '14px',
-                            border: '1px solid #ccc',
-                            borderRadius: '4px',
-                            minHeight: '100px',
-                            resize: 'vertical',
-                            fontFamily: 'inherit'
-                        }}
+                        className="add-field-dialog-textarea"
                         onKeyDown={(e) => {
-                            // Allow Ctrl/Cmd + Enter to submit
-                            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                            // Submit on Enter, allow Shift+Enter for new line
+                            if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
                                 // Trigger the OK button
                                 const dialog = document.querySelector('.jp-Dialog');
@@ -210,12 +201,11 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
     }, [code, onFieldAdded, clearPendingUpdate, onLoadingStateChange]);
 
     return (
-        <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e0e0e0' }}>
+        <div className="add-field-container">
             <button
-                className="button-base button-purple"
+                className="button-base button-purple add-field-button"
                 onClick={handleAddField}
                 type="button"
-                style={{ width: '100%' }}
             >
                 + Add New Field
             </button>
