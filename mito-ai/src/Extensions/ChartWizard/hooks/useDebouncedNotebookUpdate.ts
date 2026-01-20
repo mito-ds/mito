@@ -32,14 +32,14 @@ export const useDebouncedNotebookUpdate = ({
 }: UseDebouncedNotebookUpdateProps): UseDebouncedNotebookUpdateReturn => {
     const executeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Cleanup timeout on unmount
+    // Cleanup timeout on unmount or when chartData changes
     useEffect(() => {
         return () => {
             if (executeTimeoutRef.current) {
                 clearTimeout(executeTimeoutRef.current);
             }
         };
-    }, []);
+    }, [chartData]);
 
     const updateNotebookCell = useCallback(
         (updatedCode: string): void => {
