@@ -53,9 +53,16 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
 
             useEffect(() => {
                 // Focus the textarea when component mounts
-                if (textareaRef.current) {
-                    textareaRef.current.focus();
-                }
+                // Use a small timeout to ensure the dialog is fully rendered and focusable
+                const timeoutId = setTimeout(() => {
+                    if (textareaRef.current) {
+                        textareaRef.current.focus();
+                        // Also select any existing text for better UX
+                        textareaRef.current.select();
+                    }
+                }, 100);
+
+                return () => clearTimeout(timeoutId);
             }, []);
 
             const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
@@ -73,16 +80,6 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({
                         onChange={handleChange}
                         placeholder="e.g., font size for the title, background color, grid visibility..."
                         className="add-field-dialog-textarea"
-                        onKeyDown={(e) => {
-                            // Submit on Enter, allow Shift+Enter for new line
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                // Trigger the OK button
-                                const dialog = document.querySelector('.jp-Dialog');
-                                const okButton = dialog?.querySelector('.jp-mod-accept') as HTMLElement;
-                                okButton?.click();
-                            }
-                        }}
                     />
                 </div>
             );
