@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ReactWidget, Notification } from '@jupyterlab/apputils';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { updateChartConfig, ChartConfigVariable } from './utils/parser';
@@ -41,11 +41,50 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     const [isConverting, setIsConverting] = useState(false);
     const [isAddingField, setIsAddingField] = useState(false);
     const [currentSourceCode, setCurrentSourceCode] = useState<string | null>(null);
+    const widgetRef = useRef<HTMLDivElement>(null);
+    const [overlayHeight, setOverlayHeight] = useState<number>(0);
 
     // Reset currentSourceCode when switching to a different chart
     useEffect(() => {
         setCurrentSourceCode(null);
     }, [chartData?.sourceCode]);
+
+    // Update overlay height to cover full scrollable content
+    useEffect(() => {
+        if (!isAddingField) {
+            setOverlayHeight(0);
+            return;
+        }
+
+        const updateOverlayHeight = (): void => {
+            if (widgetRef.current) {
+                // Use scrollHeight to get the full scrollable content height
+                setOverlayHeight(widgetRef.current.scrollHeight);
+            }
+        };
+
+        // Initial update
+        updateOverlayHeight();
+
+        // Use ResizeObserver to watch for content size changes
+        let resizeObserver: ResizeObserver | null = null;
+        if (widgetRef.current && typeof ResizeObserver !== 'undefined') {
+            resizeObserver = new ResizeObserver(() => {
+                updateOverlayHeight();
+            });
+            resizeObserver.observe(widgetRef.current);
+        }
+
+        // Fallback: Update on window resize
+        window.addEventListener('resize', updateOverlayHeight);
+
+        return () => {
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+            window.removeEventListener('resize', updateOverlayHeight);
+        };
+    }, [isAddingField]);
 
     // Use custom hook for chart config management
     const { configVariables, setConfigVariables, hasConfig } = useChartConfig({
@@ -202,7 +241,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     }
 
     return (
-        <div className="chart-wizard-widget" style={{ position: 'relative' }}>
+        <div className="chart-wizard-widget" ref={widgetRef} style={{ position: 'relative' }}>
             <h2>Chart Wizard</h2>
 
             {hasConfig ? (
@@ -246,7 +285,10 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             )}
 
             {isAddingField && (
-                <div className="chart-wizard-overlay">
+                <div 
+                    className="chart-wizard-overlay"
+                    style={{ height: overlayHeight > 0 ? `${overlayHeight}px` : '100%' }}
+                >
                     <div className="chart-wizard-overlay-text">
                         Adding new field{' '}
                         <span className="chart-wizard-loading-dots">

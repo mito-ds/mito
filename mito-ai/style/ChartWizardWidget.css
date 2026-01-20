@@ -162,7 +162,8 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    /* Height is set dynamically via inline style to cover full scrollable content */
+    min-height: 100%;
     background-color: rgba(255, 255, 255, 0.8);
     display: flex;
     align-items: center;
