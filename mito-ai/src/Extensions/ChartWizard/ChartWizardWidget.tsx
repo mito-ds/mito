@@ -20,7 +20,7 @@ import {
     isHexColor
 } from './inputs';
 import { useChartConfig, useDebouncedNotebookUpdate } from './hooks';
-import { getActiveCellID } from '../../utils/notebook';
+import { getActiveCellID, setActiveCellByID } from '../../utils/notebook';
 import '../../../style/ChartWizardWidget.css';
 
 interface ChartWizardContentProps {
@@ -273,7 +273,20 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
 
             {isActiveCellMismatch && (
                 <div className="chart-wizard-warning">
-                    <strong>Warning:</strong> The active cell is no longer the chart cell. Changes may not be applied correctly.
+                    <div className="chart-wizard-warning-content">
+                        The active cell is no longer the chart cell. Changes may not be applied correctly.
+                    </div>
+                    <button
+                        className="chart-wizard-warning-button"
+                        onClick={() => {
+                            if (chartData) {
+                                setActiveCellByID(chartData.notebookTracker, chartData.cellId);
+                            }
+                        }}
+                        type="button"
+                    >
+                        Go to Chart Cell
+                    </button>
                 </div>
             )}
 
