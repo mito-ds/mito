@@ -18,10 +18,9 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  min-width: 200px;
+  min-width: 225px;
   white-space: nowrap;
   height: 400px;
-  min-width: 225px;
   max-width: 350px;
   overflow-y: auto;
 }
@@ -36,6 +35,22 @@
 .dropdown-menu-right {
   right: 0;
   left: auto;
+}
+
+/* Responsive width based on chat taskpane container width */
+/* Make dropdown width relative to container width, accounting for padding */
+/* At minimum taskpane width (350px), dropdown should fit within available space (330px accounting for 20px padding) */
+@container (max-width: 350px) {
+  .dropdown-menu {
+    max-width: calc(100cqw - 20px);
+  }
+}
+
+/* For wider taskpanes, allow dropdown to use up to 350px but still respect container width */
+@container (min-width: 351px) {
+  .dropdown-menu {
+    max-width: min(350px, calc(100cqw - 20px));
+  }
 }
 
 .dropdown-item-row {
