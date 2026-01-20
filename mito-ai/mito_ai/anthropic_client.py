@@ -249,7 +249,7 @@ class AnthropicClient:
         if self.api_key:
             # Unpack provider_data for direct API call
             assert self.client is not None
-            response = self.client.messages.create(**provider_data)
+            response = self.client.beta.messages.create(**provider_data)
             
             if provider_data.get("tool_choice") is not None:
                 result = extract_and_parse_anthropic_json_response(response)
@@ -284,7 +284,7 @@ class AnthropicClient:
 
             if self.api_key:
                 assert self.client is not None
-                stream = self.client.messages.create(
+                stream = self.client.beta.messages.create(
                     model=model,
                     max_tokens=MAX_TOKENS,
                     temperature=0,
