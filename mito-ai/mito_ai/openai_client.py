@@ -30,10 +30,6 @@ from mito_ai.utils.open_ai_utils import (
     stream_ai_completion_from_mito_server,
 )
 from mito_ai.utils.server_limits import update_mito_server_quota
-from mito_ai.utils.telemetry_utils import (
-    MITO_SERVER_KEY,
-    USER_KEY,
-)
 
 OPENAI_MODEL_FALLBACK = "gpt-4.1"
 
@@ -59,61 +55,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
-
-    @default("api_key")
-    def _api_key_default(self) -> Optional[str]:
-        default_key = constants.OPENAI_API_KEY
-        return self._validate_api_key(default_key)
-
-    @validate("api_key")
-    def _validate_api_key(self, api_key: Optional[str]) -> Optional[str]:
-        if not api_key:
-            self.log.debug(
-                "No OpenAI API key provided; following back to Mito server API."
-            )
-            return None
-
-        client = openai.OpenAI(api_key=api_key)
-        try:
-            # Make an http request to OpenAI to make sure it works
-            client.models.list()
-        except openai.AuthenticationError as e:
-            self.log.warning(
-                "Invalid OpenAI API key provided.",
-                exc_info=e,
-            )
-            self.last_error = CompletionError.from_exception(
-                e,
-                hint="You're missing the OPENAI_API_KEY environment variable. Run the following code in your terminal to set the environment variable and then relaunch the jupyter server `export OPENAI_API_KEY=<your-api-key>`",
-            )
-            return None
-        except openai.PermissionDeniedError as e:
-            self.log.warning(
-                "Invalid OpenAI API key provided.",
-                exc_info=e,
-            )
-            self.last_error = CompletionError.from_exception(e)
-            return None
-        except openai.InternalServerError as e:
-            self.log.debug(
-                "Unable to get OpenAI models due to OpenAI error.", exc_info=e
-            )
-            return api_key
-        except openai.RateLimitError as e:
-            self.log.debug(
-                "Unable to get OpenAI models due to rate limit error.", exc_info=e
-            )
-            return api_key
-        except openai.APIConnectionError as e:
-            self.log.warning(
-                "Unable to connect to OpenAI API.",
-                exec_info=e,
-            )
-            self.last_error = CompletionError.from_exception(e)
-            return None
-        else:
-            self.log.debug("User OpenAI API key validated.")
-            return api_key
         
     @property
     def capabilities(self) -> AICapabilities:
