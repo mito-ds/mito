@@ -220,7 +220,10 @@ class AnthropicClient:
         self.max_retries = max_retries
         self.client: Optional[anthropic.Anthropic]
         if api_key:
-            self.client = anthropic.Anthropic(api_key=api_key)
+            # Use a higher timeout to avoid the 10-minute streaming requirement for long requests
+            # The default SDK timeout is 600s (10 minutes), but we set it higher for agent mode
+            # TODO: We should update agent mode to use streaming like anthropic suggests
+            self.client = anthropic.Anthropic(api_key=api_key, timeout=1200.0)  # 20 minutes
         else:
             self.client = None
 
@@ -251,6 +254,9 @@ class AnthropicClient:
             assert self.client is not None
             # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
             response = self.client.beta.messages.create(**provider_data)  # type: ignore[arg-type]
+            
+            print("RESPONSE")
+            print(response)
             
             if provider_data.get("tool_choice") is not None:
                 result = extract_and_parse_anthropic_json_response(response)
