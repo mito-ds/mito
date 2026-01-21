@@ -7,7 +7,6 @@ from mito_ai.completions.handlers import CompletionHandler
 from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
-from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
 from mito_ai.log.urls import get_log_urls
 from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
@@ -73,11 +72,6 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
         (
             url_path_join(base_url, "mito-ai", "app-deploy"),
             AppDeployHandler,
-            {}
-        ),
-        (
-            url_path_join(base_url, "mito-ai", "streamlit-preview"),
-            StreamlitPreviewHandler,
             {}
         ),
         (
