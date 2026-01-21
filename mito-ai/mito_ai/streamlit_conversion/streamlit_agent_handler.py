@@ -1,9 +1,9 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from anthropic.types import MessageParam
-from typing import List, cast
-from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders, get_response_from_agent
+from typing import List
+from openai.types.chat import ChatCompletionMessageParam
+from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders
 from mito_ai.provider_manager import ProviderManager
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
@@ -22,16 +22,15 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
     
     prompt_text = get_streamlit_app_creation_prompt(notebook, streamlit_app_prompt)
     
-    messages: List[MessageParam] = [
-        cast(MessageParam, {
-            "role": "user",
-            "content": [{
-                "type": "text",
-                "text": prompt_text
-            }]
-        })
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": prompt_text}
     ]
-    agent_response = await get_response_from_agent(messages, provider)
+    agent_response = await provider.request_completions(
+        message_type=MessageType.STREAMLIT_CONVERSION,
+        messages=messages,
+        use_fast_model=True,
+        thread_id=None
+    )
     converted_code = extract_code_blocks(agent_response)
     
     # Extract the TODOs from the agent's response
@@ -40,16 +39,15 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
     for todo_placeholder in todo_placeholders:
         print(f"Processing AI TODO: {todo_placeholder}")
         todo_prompt = get_finish_todo_prompt(notebook, converted_code, todo_placeholder)
-        todo_messages: List[MessageParam] = [
-            cast(MessageParam, {
-                "role": "user",
-                "content": [{
-                    "type": "text",
-                    "text": todo_prompt
-                }]
-            })
+        todo_messages: List[ChatCompletionMessageParam] = [
+            {"role": "user", "content": todo_prompt}
         ]
-        todo_response = await get_response_from_agent(todo_messages, provider)
+        todo_response = await provider.request_completions(
+            message_type=MessageType.STREAMLIT_CONVERSION,
+            messages=todo_messages,
+            use_fast_model=True,
+            thread_id=None
+        )
         
         # Apply the search/replace to the streamlit app
         search_replace_pairs = extract_search_replace_blocks(todo_response)
@@ -62,17 +60,16 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
     """Send a query to the agent, get its response and parse the code"""
     prompt_text = get_update_existing_app_prompt(notebook, streamlit_app_code, edit_prompt)
     
-    messages: List[MessageParam] = [
-        cast(MessageParam, {
-            "role": "user",
-            "content": [{
-                "type": "text",
-                "text": prompt_text
-            }]
-        })
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": prompt_text}
     ]
     
-    agent_response = await get_response_from_agent(messages, provider)
+    agent_response = await provider.request_completions(
+        message_type=MessageType.STREAMLIT_CONVERSION,
+        messages=messages,
+        use_fast_model=True,
+        thread_id=None
+    )
     print(f"[Mito AI Search/Replace Tool]:\n {agent_response}")
 
     # Apply the search/replace to the streamlit app
@@ -84,16 +81,15 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
 
 async def correct_error_in_generation(error: str, streamlit_app_code: str, provider: ProviderManager) -> str:
     """If errors are present, send it back to the agent to get corrections in code"""
-    messages: List[MessageParam] = [
-        cast(MessageParam, {
-            "role": "user",
-            "content": [{
-                "type": "text",
-                "text": get_streamlit_error_correction_prompt(error, streamlit_app_code)
-            }]
-        })
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": get_streamlit_error_correction_prompt(error, streamlit_app_code)}
     ]
-    agent_response = await get_response_from_agent(messages, provider)
+    agent_response = await provider.request_completions(
+        message_type=MessageType.STREAMLIT_CONVERSION,
+        messages=messages,
+        use_fast_model=True,
+        thread_id=None
+    )
     
     # Apply the search/replace to the streamlit app
     search_replace_pairs = extract_search_replace_blocks(agent_response)
