@@ -70,7 +70,6 @@ class TestRetryLogic:
             result = await provider.request_completions(
                 message_type=MessageType.CHAT,
                 messages=mock_messages,
-                model="gpt-4o-mini",
                 max_retries=max_retries
             )
             
@@ -121,7 +120,6 @@ class TestRetryLogic:
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=max_retries
                 )
             
@@ -164,7 +162,6 @@ class TestRetryLogic:
             result = await provider.request_completions(
                 message_type=MessageType.CHAT,
                 messages=mock_messages,
-                model="gpt-4o-mini",
                 max_retries=3
             )
             
@@ -198,7 +195,6 @@ class TestRetryLogic:
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=0  # No retries to fail quickly
                 )
             
@@ -211,7 +207,6 @@ class TestRetryLogic:
             result = await provider.request_completions(
                 message_type=MessageType.CHAT,
                 messages=mock_messages,
-                model="gpt-4o-mini",
                 max_retries=3
             )
             
@@ -243,7 +238,6 @@ class TestRetryLogic:
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=0
                 )
             
@@ -279,7 +273,6 @@ class TestRetryLogic:
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=2
                 )
             
@@ -352,7 +345,6 @@ class TestRetryLogic:
                 result = await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=max_retries
                 )
                 
@@ -365,7 +357,6 @@ class TestRetryLogic:
                     await provider.request_completions(
                         message_type=MessageType.CHAT,
                         messages=mock_messages,
-                        model="gpt-4o-mini",
                         max_retries=max_retries
                     )
                 
