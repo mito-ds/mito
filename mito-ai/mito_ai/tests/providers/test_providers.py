@@ -33,7 +33,7 @@ def provider_config() -> Config:
 @pytest.fixture(autouse=True)
 def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
     for var in [
-        "OPENAI_API_KEY", "CLAUDE_API_KEY",
+        "OPENAI_API_KEY", "ANTHROPIC_API_KEY",
         "GEMINI_API_KEY", "OLLAMA_MODEL",
         "AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_MODEL"
     ]:
@@ -57,8 +57,8 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
     },
     {
         "name": "claude", 
-        "env_vars": {"CLAUDE_API_KEY": "claude-key"},
-        "constants": {"CLAUDE_API_KEY": "claude-key", "OPENAI_API_KEY": None},
+        "env_vars": {"ANTHROPIC_API_KEY": "claude-key"},
+        "constants": {"ANTHROPIC_API_KEY": "claude-key", "OPENAI_API_KEY": None},
         "model": "claude-3-opus-20240229",
         "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "request_completions",
@@ -141,8 +141,8 @@ async def test_completion_request(
     },
     {
         "name": "claude", 
-        "env_vars": {"CLAUDE_API_KEY": "claude-key"},
-        "constants": {"CLAUDE_API_KEY": "claude-key", "OPENAI_API_KEY": None},
+        "env_vars": {"ANTHROPIC_API_KEY": "claude-key"},
+        "constants": {"ANTHROPIC_API_KEY": "claude-key", "OPENAI_API_KEY": None},
         "model": "claude-3-opus-20240229",
         "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "stream_completions", 
@@ -229,8 +229,8 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
         assert llm.last_error is None  # Error should be None until a request is made
 
 def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
-    monkeypatch.setenv("CLAUDE_API_KEY", "invalid-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "invalid-key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "invalid-key")
+    monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", "invalid-key")
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
 
     mock_client = MagicMock()
@@ -280,10 +280,9 @@ async def test_mito_server_fallback_completion_request(
     """Test that completion requests fallback to Mito server when no API keys are set."""
     # Clear all API keys to force Mito server fallback
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", None)
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
     monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-    provider_config.ProviderManager.api_key = None
 
     # Mock the appropriate Mito server function
     with patch(mito_server_config["mock_function"], new_callable=AsyncMock) as mock_mito_function:
@@ -338,10 +337,9 @@ async def test_mito_server_fallback_stream_completion(
     """Test that stream completions fallback to Mito server when no API keys are set."""
     # Clear all API keys to force Mito server fallback
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", None)
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
     monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-    provider_config.ProviderManager.api_key = None
 
     # Create an async generator that yields chunks for streaming
     async def mock_stream_generator():

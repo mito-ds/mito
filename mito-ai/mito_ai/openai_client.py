@@ -7,7 +7,7 @@ from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
 import openai
 from openai.types.chat import ChatCompletionMessageParam
-from traitlets import Instance, Unicode, default, validate
+from traitlets import Instance, default, validate
 from traitlets.config import LoggingConfigurable
 
 from mito_ai import constants
@@ -30,21 +30,11 @@ from mito_ai.utils.open_ai_utils import (
     stream_ai_completion_from_mito_server,
 )
 from mito_ai.utils.server_limits import update_mito_server_quota
-from mito_ai.utils.telemetry_utils import (
-    MITO_SERVER_KEY,
-    USER_KEY,
-)
 
 OPENAI_MODEL_FALLBACK = "gpt-4.1"
 
 class OpenAIClient(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
-
-    api_key = Unicode(
-        config=True,
-        allow_none=True,
-        help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
-    )
 
     last_error = Instance(
         CompletionError,
@@ -65,61 +55,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
-
-    @default("api_key")
-    def _api_key_default(self) -> Optional[str]:
-        default_key = constants.OPENAI_API_KEY
-        return self._validate_api_key(default_key)
-
-    @validate("api_key")
-    def _validate_api_key(self, api_key: Optional[str]) -> Optional[str]:
-        if not api_key:
-            self.log.debug(
-                "No OpenAI API key provided; following back to Mito server API."
-            )
-            return None
-
-        client = openai.OpenAI(api_key=api_key)
-        try:
-            # Make an http request to OpenAI to make sure it works
-            client.models.list()
-        except openai.AuthenticationError as e:
-            self.log.warning(
-                "Invalid OpenAI API key provided.",
-                exc_info=e,
-            )
-            self.last_error = CompletionError.from_exception(
-                e,
-                hint="You're missing the OPENAI_API_KEY environment variable. Run the following code in your terminal to set the environment variable and then relaunch the jupyter server `export OPENAI_API_KEY=<your-api-key>`",
-            )
-            return None
-        except openai.PermissionDeniedError as e:
-            self.log.warning(
-                "Invalid OpenAI API key provided.",
-                exc_info=e,
-            )
-            self.last_error = CompletionError.from_exception(e)
-            return None
-        except openai.InternalServerError as e:
-            self.log.debug(
-                "Unable to get OpenAI models due to OpenAI error.", exc_info=e
-            )
-            return api_key
-        except openai.RateLimitError as e:
-            self.log.debug(
-                "Unable to get OpenAI models due to rate limit error.", exc_info=e
-            )
-            return api_key
-        except openai.APIConnectionError as e:
-            self.log.warning(
-                "Unable to connect to OpenAI API.",
-                exec_info=e,
-            )
-            self.last_error = CompletionError.from_exception(e)
-            return None
-        else:
-            self.log.debug("User OpenAI API key validated.")
-            return api_key
         
     @property
     def capabilities(self) -> AICapabilities:
@@ -133,7 +68,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Azure OpenAI",
             )
 
-        if constants.OLLAMA_MODEL and not self.api_key:
+        if constants.OLLAMA_MODEL:
             return AICapabilities(
                 configuration={
                     "model": constants.OLLAMA_MODEL
@@ -141,14 +76,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Ollama",
             )
 
-        if self.api_key:
-            self._validate_api_key(self.api_key)
-
+        if constants.OPENAI_API_KEY:
             return AICapabilities(
                 configuration={
-                    "model": OPENAI_MODEL_FALLBACK,
+                    "model": "<dynamic>"
                 },
-                provider="OpenAI (user key)",
+                provider="OpenAI",
             )
 
         try:
@@ -169,19 +102,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         if not self._async_client or self._async_client.is_closed():
             self._async_client = self._build_openai_client()
         return self._async_client
-    
-    
-    @property
-    def key_type(self) -> str:
-        """Returns the authentication key type being used."""
-
-        if self.api_key:
-            return USER_KEY
-
-        if constants.OLLAMA_MODEL:
-            return "ollama"
-
-        return MITO_SERVER_KEY
 
     def _build_openai_client(self) -> Optional[Union[openai.AsyncOpenAI, openai.AsyncAzureOpenAI]]:
         base_url = None
@@ -201,12 +121,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                 timeout=self.timeout,
             )
         
-        elif constants.OLLAMA_MODEL and not self.api_key:
+        elif constants.OLLAMA_MODEL:
             base_url = constants.OLLAMA_BASE_URL
             llm_api_key = "ollama"
             self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
-        elif self.api_key:
-            llm_api_key = self.api_key
+        elif constants.OPENAI_API_KEY:
+            llm_api_key = constants.OPENAI_API_KEY
             self.log.debug("Using OpenAI with user-provided API key")
         else:
             self.log.warning("No valid API key or model configuration provided")

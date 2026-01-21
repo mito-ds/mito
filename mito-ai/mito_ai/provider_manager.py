@@ -6,7 +6,7 @@ import asyncio
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
-from traitlets import Instance, Unicode, default, validate
+from traitlets import Instance
 from traitlets.config import LoggingConfigurable
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -45,12 +45,6 @@ __all__ = ["ProviderManager"]
 class ProviderManager(LoggingConfigurable):
     """Manage AI providers (Claude, Gemini, OpenAI) and route requests to the appropriate client."""
 
-    api_key = Unicode(
-        config=True,
-        allow_none=True,
-        help="OpenAI API key. Default value is read from the OPENAI_API_KEY environment variable.",
-    )
-
     last_error = Instance(
         CompletionError,
         allow_none=True,
@@ -61,8 +55,6 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         config = kwargs.get('config', {})
-        if 'api_key' in kwargs:
-            config['OpenAIClient'] = {'api_key': kwargs['api_key']}
         kwargs['config'] = config
 
         super().__init__(log=get_logger(), **kwargs)
@@ -74,12 +66,20 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         Returns the capabilities of the AI provider.
         """
-        if constants.CLAUDE_API_KEY and not self.api_key:
+        # TODO: We should validate that these keys are actually valid for the provider
+        # otherwise it will look like we are using the user_key when actually falling back 
+        # to the mito server because the key is invalid. 
+        if constants.OPENAI_API_KEY:
+            return AICapabilities(
+                configuration={"model": "<dynamic>"},
+                provider="OpenAI",
+            )
+        if constants.ANTHROPIC_API_KEY:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="Claude",
             )
-        if constants.GEMINI_API_KEY and not self.api_key:
+        if constants.GEMINI_API_KEY:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="Gemini",
@@ -94,12 +94,12 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def key_type(self) -> str:
-        if constants.CLAUDE_API_KEY and not self.api_key:
-            return "claude"
-        if constants.GEMINI_API_KEY and not self.api_key:
-            return "gemini"
-        if self._openai_client:
-            return self._openai_client.key_type
+        # TODO: We should validate that these keys are actually valid for the provider
+        # otherwise it will look like we are using the user_key when actually falling back 
+        # to the mito server because the key is invalid. 
+        if constants.ANTHROPIC_API_KEY or constants.GEMINI_API_KEY or constants.OPENAI_API_KEY or constants.OLLAMA_MODEL:  
+            return USER_KEY
+        
         return MITO_SERVER_KEY
 
     async def request_completions(
@@ -124,7 +124,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         for attempt in range(max_retries + 1):
             try:
                 if model_type == "claude":
-                    api_key = constants.CLAUDE_API_KEY
+                    api_key = constants.ANTHROPIC_API_KEY
                     anthropic_client = AnthropicClient(api_key=api_key)
                     completion = await anthropic_client.request_completions(messages, model, response_format_info, message_type)
                 elif model_type == "gemini":
@@ -211,7 +211,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         try:
             if model_type == "claude":
-                api_key = constants.CLAUDE_API_KEY
+                api_key = constants.ANTHROPIC_API_KEY
                 anthropic_client = AnthropicClient(api_key=api_key)
                 accumulated_response = await anthropic_client.stream_completions(
                     messages=messages,

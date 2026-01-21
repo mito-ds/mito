@@ -38,5 +38,5 @@ def test_openai_provider_with_limits(
     ):
         llm = ProviderManager(config=provider_config)
         capabilities = llm.capabilities
-        assert "user key" in capabilities.provider
+        assert "OpenAI" in capabilities.provider
         assert llm.last_error is None

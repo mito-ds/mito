@@ -22,7 +22,7 @@ def provider_config() -> Config:
         "name": "mito_server_fallback_no_keys",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": None, 
+            "ANTHROPIC_API_KEY": None, 
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
@@ -33,45 +33,45 @@ def provider_config() -> Config:
         "name": "claude_when_only_claude_key",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": "claude-test-key",
+            "ANTHROPIC_API_KEY": "claude-test-key",
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
         "expected_provider": "Claude",
-        "expected_key_type": "claude"
+        "expected_key_type": "user_key"
     },
     {
         "name": "gemini_when_only_gemini_key",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": None,
+            "ANTHROPIC_API_KEY": None,
             "GEMINI_API_KEY": "gemini-test-key",
             "is_azure_configured": False,
         },
         "expected_provider": "Gemini", 
-        "expected_key_type": "gemini"
+        "expected_key_type": "user_key"
     },
     {
         "name": "openai_when_openai_key",
         "setup": {
             "OPENAI_API_KEY": 'openai-test-key',
-            "CLAUDE_API_KEY": None,
+            "ANTHROPIC_API_KEY": None,
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
-        "expected_provider": "OpenAI (user key)",
+        "expected_provider": "OpenAI",
         "expected_key_type": "user_key"
     },
     {
         "name": "claude_priority_over_gemini",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": "claude-test-key",
+            "ANTHROPIC_API_KEY": "claude-test-key",
             "GEMINI_API_KEY": "gemini-test-key",
             "is_azure_configured": False,
         },
         "expected_provider": "Claude",
-        "expected_key_type": "claude"
+        "expected_key_type": "user_key"
     },
 ])
 def test_provider_capabilities_real_logic(
@@ -96,9 +96,6 @@ def test_provider_capabilities_real_logic(
                 monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
         else:
             monkeypatch.setattr(f"mito_ai.constants.{key}", value)
-    
-    # Clear the provider config API key to ensure it uses constants
-    provider_config.ProviderManager.api_key = None
     
     # Mock HTTP calls but let the real logic run
     with patch("openai.OpenAI") as mock_openai_constructor:
