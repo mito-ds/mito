@@ -26,6 +26,7 @@ from mito_ai.completions.models import (
     MessageType,
     ResponseFormatInfo,
 )
+from mito_ai.utils.litellm_utils import is_litellm_configured
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
     MITO_AI_COMPLETION_ERROR,
@@ -40,6 +41,7 @@ from mito_ai.utils.telemetry_utils import (
 from mito_ai.utils.provider_utils import get_model_provider
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
 from mito_ai.utils.model_utils import get_available_models, get_fast_model_for_selected_model
+from mito_ai.utils.version_utils import is_enterprise
 
 __all__ = ["ProviderManager"]
 
@@ -82,21 +84,30 @@ This attribute is observed by the websocket provider to push the error to the cl
         # TODO: We should validate that these keys are actually valid for the provider
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
+        if is_litellm_configured():
+            return AICapabilities(
+                configuration={"model": "<dynamic>"},
+                provider="LiteLLM",
+            )
+            
         if constants.OPENAI_API_KEY:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="OpenAI",
             )
+            
         if constants.ANTHROPIC_API_KEY:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="Claude",
             )
+            
         if constants.GEMINI_API_KEY:
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="Gemini",
             )
+            
         if self._openai_client:
             return self._openai_client.capabilities
         
@@ -110,6 +121,9 @@ This attribute is observed by the websocket provider to push the error to the cl
         # TODO: We should validate that these keys are actually valid for the provider
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
+        if is_litellm_configured():
+            return MITO_SERVER_KEY
+        
         if constants.ANTHROPIC_API_KEY or constants.GEMINI_API_KEY or constants.OPENAI_API_KEY or constants.OLLAMA_MODEL:  
             return USER_KEY
         

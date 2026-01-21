@@ -7,8 +7,12 @@ from typing import Dict, Any, List, Optional
 from openai.types.chat import ChatCompletionMessageParam
 import copy
 
+from mito_ai import constants
 from mito_ai.completions.models import ResponseFormatInfo
+from mito_ai.utils.version_utils import is_enterprise
 
+def is_litellm_configured() -> bool:
+    return all([constants.LITELLM_API_KEY, constants.LITELLM_BASE_URL, constants.LITELLM_MODELS, is_enterprise()])
 
 def get_litellm_completion_function_params(
     model: str,
