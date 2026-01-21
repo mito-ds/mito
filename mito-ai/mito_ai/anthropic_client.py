@@ -300,7 +300,7 @@ class AnthropicClient:
                 }
                 if model == LARGE_CONTEXT_MODEL:
                     create_params["betas"] = [EXTENDED_CONTEXT_BETA]
-                stream = self.client.beta.messages.create(**create_params)
+                stream = self.client.beta.messages.create(**create_params)  # type: ignore[call-overload]
 
                 for chunk in stream:
                     # Type checking for beta API streaming chunks (runtime type checking, types are compatible)
