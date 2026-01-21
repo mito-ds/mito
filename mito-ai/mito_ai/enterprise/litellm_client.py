@@ -10,8 +10,8 @@ from mito_ai.completions.models import (
     CompletionStreamChunk,
     CompletionItem,
 )
+from mito_ai.utils.litellm_utils import get_litellm_completion_function_params
 import litellm
-import copy
 
 class LiteLLMClient:
     """
@@ -45,41 +45,15 @@ class LiteLLMClient:
             The completion text response
         """
         # Prepare parameters for LiteLLM
-        params: Dict[str, Any] = {
-            "model": model,
-            "messages": messages,
-            "api_key": self.api_key,
-            "api_base": self.base_url,
-            "timeout": self.timeout,
-        }
-        
-        # Handle response format if specified
-        if response_format_info:
-            # LiteLLM supports response_format for structured outputs
-            # Convert ResponseFormatInfo to LiteLLM format
-            if hasattr(response_format_info.format, 'model_json_schema'):
-                # Pydantic model - get JSON schema
-                # Make a deep copy to avoid mutating the original schema
-                schema = copy.deepcopy(response_format_info.format.model_json_schema())
-                
-                # Add additionalProperties: False to the top-level schema
-                # This is required by OpenAI's JSON schema mode
-                schema["additionalProperties"] = False
-                
-                # Nested object definitions in $defs need to have additionalProperties set to False also
-                if "$defs" in schema:
-                    for def_name, def_schema in schema["$defs"].items():
-                        if def_schema.get("type") == "object":
-                            def_schema["additionalProperties"] = False
-                
-                params["response_format"] = {
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name": response_format_info.name,
-                        "schema": schema,
-                        "strict": True
-                    }
-                }
+        params = get_litellm_completion_function_params(
+            model=model,
+            messages=messages,
+            api_key=self.api_key,
+            api_base=self.base_url,
+            timeout=self.timeout,
+            stream=False,
+            response_format_info=response_format_info,
+        )
         
         try:
             # Use LiteLLM's acompletion function
@@ -120,41 +94,15 @@ class LiteLLMClient:
         accumulated_response = ""
         
         # Prepare parameters for LiteLLM
-        params: Dict[str, Any] = {
-            "model": model,
-            "messages": messages,
-            "api_key": self.api_key,
-            "api_base": self.base_url,
-            "timeout": self.timeout,
-            "stream": True,
-        }
-        
-        # Handle response format if specified
-        if response_format_info:
-            # LiteLLM supports response_format for structured outputs
-            if hasattr(response_format_info.format, 'model_json_schema'):
-                # Pydantic model - get JSON schema
-                # Make a deep copy to avoid mutating the original schema
-                schema = copy.deepcopy(response_format_info.format.model_json_schema())
-                
-                # Add additionalProperties: False to the top-level schema
-                # This is required by OpenAI's JSON schema mode
-                schema["additionalProperties"] = False
-                
-                # Nested object definitions in $defs need to have additionalProperties set to False also
-                if "$defs" in schema:
-                    for def_name, def_schema in schema["$defs"].items():
-                        if def_schema.get("type") == "object":
-                            def_schema["additionalProperties"] = False
-                
-                params["response_format"] = {
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name": response_format_info.name,
-                        "schema": schema,
-                        "strict": True
-                    }
-                }
+        params = get_litellm_completion_function_params(
+            model=model,
+            messages=messages,
+            api_key=self.api_key,
+            api_base=self.base_url,
+            timeout=self.timeout,
+            stream=True,
+            response_format_info=response_format_info,
+        )
         
         try:
             # Use LiteLLM's acompletion with stream=True
