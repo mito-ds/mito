@@ -28,25 +28,16 @@ from mito_ai.completions.models import (
 )
 from mito_ai.utils.litellm_utils import is_litellm_configured
 from mito_ai.utils.telemetry_utils import (
-    KEY_TYPE_PARAM,
-    MITO_AI_COMPLETION_ERROR,
-    MITO_AI_COMPLETION_RETRY,
     MITO_SERVER_KEY,
     USER_KEY,
-    log,
     log_ai_completion_error,
     log_ai_completion_retry,
     log_ai_completion_success,
 )
 from mito_ai.utils.provider_utils import get_model_provider
-from mito_ai.utils.mito_server_utils import ProviderCompletionException
 from mito_ai.utils.model_utils import get_available_models, get_fast_model_for_selected_model
-from mito_ai.utils.version_utils import is_enterprise
 
 __all__ = ["ProviderManager"]
-
-# Default fallback model
-FALLBACK_MODEL = "gpt-4.1"
 
 class ProviderManager(LoggingConfigurable):
     """Manage AI providers (Claude, Gemini, OpenAI) and route requests to the appropriate client."""
@@ -66,7 +57,11 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._openai_client: Optional[OpenAIClient] = OpenAIClient(**config)
-        self._selected_model: str = FALLBACK_MODEL
+        # Initialize with the first available model to ensure it's always valid
+        # This respects LiteLLM configuration: if LiteLLM is configured, uses first LiteLLM model
+        # Otherwise, uses first standard model
+        available_models = get_available_models()
+        self._selected_model: str = available_models[0] if available_models else "gpt-4.1"
     
     def get_selected_model(self) -> str:
         """Get the currently selected model."""
@@ -122,7 +117,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
         if is_litellm_configured():
-            return MITO_SERVER_KEY
+            return USER_KEY
         
         if constants.ANTHROPIC_API_KEY or constants.GEMINI_API_KEY or constants.OPENAI_API_KEY or constants.OLLAMA_MODEL:  
             return USER_KEY

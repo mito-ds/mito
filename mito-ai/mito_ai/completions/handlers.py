@@ -50,8 +50,6 @@ from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler impo
 from mito_ai.completions.completion_handlers.scratchpad_result_handler import get_scratchpad_result_completion
 from mito_ai.utils.telemetry_utils import identify
 
-FALLBACK_MODEL = "gpt-4.1"  # Default model to use for safety
-
 # The GlobalMessageHistory is now created in __init__.py and passed to handlers
 # to ensure there's only one instance managing the .mito/ai-chats directory locks
 
