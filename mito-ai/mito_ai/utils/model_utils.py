@@ -51,10 +51,10 @@ def get_available_models() -> List[str]:
 
 def get_fast_model_for_selected_model(selected_model: str) -> str:
     """
-    Get the fastest model for the provider of the selected model.
+    Get the fastest model for the client of the selected model.
     
     - For standard providers, returns the first (fastest) model from that provider's order.
-    - For LiteLLM models, finds the fastest available model by comparing indices in the model order lists.
+    - For LiteLLM models, finds the fastest available model from LiteLLM by comparing indices in the model order lists.
     """
     # Check if this is a LiteLLM model (has provider prefix like "openai/gpt-4o")
     if "/" in selected_model:
@@ -64,7 +64,7 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
         if not available_models:
             return selected_model
         
-        available_provider_model_pairs: List[Tuple[str, str]] = [cast(Tuple[str, str], tuple[str, ...](model.split("/", 1))) for model in available_models]
+        available_provider_model_pairs: List[List[str]] = [model.split("/", 1) for model in available_models]
 
         fastest_pair = min(available_provider_model_pairs, key=get_model_order_index)
         fastest_model = f"{fastest_pair[0]}/{fastest_pair[1]}"
@@ -88,7 +88,7 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
 
     return selected_model
 
-def get_model_order_index(pair: Tuple[str, str]) -> int | float:
+def get_model_order_index(pair: List[str]) -> int | float:
     provider, model_name = pair
     if provider == "openai":
         try:
