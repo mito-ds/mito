@@ -13,6 +13,12 @@ def get_model_provider(model: str) -> Union[str, None]:
     if not model:
         return None
 
+    # Check if model is a LiteLLM model (has provider prefix)
+    if "/" in model and any(
+        model.startswith(prefix) for prefix in ["openai/", "anthropic/", "google/", "ollama/"]
+    ):
+        return 'litellm'
+
     model_lower = model.lower()
 
     if model_lower.startswith('claude'):

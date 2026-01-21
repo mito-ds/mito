@@ -24,7 +24,7 @@ from mito_ai.completions.models import (
     CompletionReply,
     CompletionStreamChunk,
     MessageType,
-    ResponseFormatInfo, CompletionItemError,
+    ResponseFormatInfo,
 )
 from mito_ai.utils.telemetry_utils import (
     KEY_TYPE_PARAM,
@@ -153,46 +153,27 @@ This attribute is observed by the websocket provider to push the error to the cl
         if resolved_model not in available_models:
             raise ValueError(f"Model {resolved_model} is not in the allowed model list: {available_models}")
         
-        # Check if model is a LiteLLM model (has provider prefix)
-        is_litellm_model = "/" in resolved_model and any(
-            resolved_model.startswith(prefix) for prefix in ["openai/", "anthropic/", "google/", "ollama/"]
-        )
-        
-        if is_litellm_model:
-            # Route to LiteLLM client
-            from mito_ai.enterprise.litellm_client import LiteLLMClient
-            if not constants.LITELLM_BASE_URL:
-                raise ValueError("LITELLM_BASE_URL is required for LiteLLM models")
-            litellm_client = LiteLLMClient(
-                api_key=constants.LITELLM_API_KEY,
-                base_url=constants.LITELLM_BASE_URL
-            )
-            completion = await litellm_client.request_completions(
-                message_type=message_type,
-                messages=messages,
-                model=resolved_model,
-                response_format_info=response_format_info
-            )
-            
-            # Log success
-            log_ai_completion_success(
-                key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
-                message_type=message_type,
-                last_message_content=last_message_content,
-                response={"completion": completion},
-                user_input=user_input or "",
-                thread_id=thread_id or "",
-                model=resolved_model
-            )
-            return completion
-        
-        # Continue with normal routing based on model name
+        # Get model provider type
         model_type = get_model_provider(resolved_model)
         
         # Retry loop
         for attempt in range(max_retries + 1):
             try:
-                if model_type == "claude":
+                if model_type == "litellm":
+                    from mito_ai.enterprise.litellm_client import LiteLLMClient
+                    if not constants.LITELLM_BASE_URL:
+                        raise ValueError("LITELLM_BASE_URL is required for LiteLLM models")
+                    litellm_client = LiteLLMClient(
+                        api_key=constants.LITELLM_API_KEY,
+                        base_url=constants.LITELLM_BASE_URL
+                    )
+                    completion = await litellm_client.request_completions(
+                        message_type=message_type,
+                        messages=messages,
+                        model=resolved_model,
+                        response_format_info=response_format_info
+                    )
+                elif model_type == "claude":
                     api_key = constants.ANTHROPIC_API_KEY
                     anthropic_client = AnthropicClient(api_key=api_key)
                     completion = await anthropic_client.request_completions(messages, resolved_model, response_format_info, message_type)
@@ -294,42 +275,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         if resolved_model not in available_models:
             raise ValueError(f"Model {resolved_model} is not in the allowed model list: {available_models}")
         
-        # Check if model is a LiteLLM model (has provider prefix)
-        is_litellm_model = "/" in resolved_model and any(
-            resolved_model.startswith(prefix) for prefix in ["openai/", "anthropic/", "google/", "ollama/"]
-        )
-        
-        if is_litellm_model:
-            # Route to LiteLLM client
-            from mito_ai.enterprise.litellm_client import LiteLLMClient
-            if not constants.LITELLM_BASE_URL:
-                raise ValueError("LITELLM_BASE_URL is required for LiteLLM models")
-            litellm_client = LiteLLMClient(
-                api_key=constants.LITELLM_API_KEY,
-                base_url=constants.LITELLM_BASE_URL
-            )
-            accumulated_response = await litellm_client.stream_completions(
-                message_type=message_type,
-                messages=messages,
-                model=resolved_model,
-                message_id=message_id,
-                reply_fn=reply_fn,
-                response_format_info=response_format_info
-            )
-            
-            # Log success
-            log_ai_completion_success(
-                key_type=USER_KEY if self.key_type == "user" else MITO_SERVER_KEY,
-                message_type=message_type,
-                last_message_content=last_message_content,
-                response={"completion": accumulated_response},
-                user_input=user_input or "",
-                thread_id=thread_id,
-                model=resolved_model
-            )
-            return accumulated_response
-        
-        # Continue with normal routing based on model name
+        # Get model provider type
         model_type = get_model_provider(resolved_model)
         reply_fn(CompletionReply(
             items=[
@@ -339,7 +285,23 @@ This attribute is observed by the websocket provider to push the error to the cl
         ))
 
         try:
-            if model_type == "claude":
+            if model_type == "litellm":
+                from mito_ai.enterprise.litellm_client import LiteLLMClient
+                if not constants.LITELLM_BASE_URL:
+                    raise ValueError("LITELLM_BASE_URL is required for LiteLLM models")
+                litellm_client = LiteLLMClient(
+                    api_key=constants.LITELLM_API_KEY,
+                    base_url=constants.LITELLM_BASE_URL
+                )
+                accumulated_response = await litellm_client.stream_completions(
+                    message_type=message_type,
+                    messages=messages,
+                    model=resolved_model,
+                    message_id=message_id,
+                    reply_fn=reply_fn,
+                    response_format_info=response_format_info
+                )
+            elif model_type == "claude":
                 api_key = constants.ANTHROPIC_API_KEY
                 anthropic_client = AnthropicClient(api_key=api_key)
                 accumulated_response = await anthropic_client.stream_completions(
