@@ -6,6 +6,7 @@ These tests ensure that the correct model is chosen for each message type, for e
 """
 
 import pytest
+from mito_ai.utils.model_utils import get_fast_model_for_selected_model
 from mito_ai.utils.provider_utils import does_message_require_fast_model
 from mito_ai.completions.models import MessageType
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -73,16 +74,17 @@ async def test_request_completions_calls_does_message_require_fast_model(provide
                 mock_sync_openai_class.return_value = mock_sync_client
                 
                 provider = ProviderManager(config=provider_config)
+                provider.set_selected_model("gpt-5.2")
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-3.5",
+                    use_fast_model=True
                 )
                 
                 mock_does_message_require_fast_model.assert_called_once_with(MessageType.CHAT)
                 # Verify the model passed to the API call
                 call_args = mock_openai_client.chat.completions.create.call_args
-                assert call_args[1]['model'] == "gpt-3.5"
+                assert call_args[1]['model'] == get_fast_model_for_selected_model(provider.get_selected_model())
 
 @pytest.mark.asyncio
 async def test_stream_completions_calls_does_message_require_fast_model(provider_config: Config, mock_messages, monkeypatch: pytest.MonkeyPatch):
@@ -115,16 +117,17 @@ async def test_stream_completions_calls_does_message_require_fast_model(provider
                 mock_sync_openai_class.return_value = mock_sync_client
                 
                 provider = ProviderManager(config=provider_config)
+                provider.set_selected_model("gpt-5.2")
                 await provider.stream_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-3.5",
                     message_id="test_id",
                     thread_id="test_thread",
-                    reply_fn=lambda x: None
+                    reply_fn=lambda x: None,
+                    use_fast_model=True
                 )
                 
                 mock_does_message_require_fast_model.assert_called_once_with(MessageType.CHAT)
                 # Verify the model passed to the API call
                 call_args = mock_openai_client.chat.completions.create.call_args
-                assert call_args[1]['model'] == "gpt-3.5"
+                assert call_args[1]['model'] == get_fast_model_for_selected_model(provider.get_selected_model())
