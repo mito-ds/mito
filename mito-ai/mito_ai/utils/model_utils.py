@@ -64,7 +64,12 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
         if not available_models:
             return selected_model
         
-        available_provider_model_pairs: List[List[str]] = [model.split("/", 1) for model in available_models]
+        # Filter to only LiteLLM models (those with "/") before splitting
+        litellm_models = [model for model in available_models if "/" in model]
+        if not litellm_models:
+            return selected_model
+        
+        available_provider_model_pairs: List[List[str]] = [model.split("/", 1) for model in litellm_models]
 
         fastest_pair = min(available_provider_model_pairs, key=get_model_order_index)
         fastest_model = f"{fastest_pair[0]}/{fastest_pair[1]}"

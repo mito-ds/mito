@@ -109,82 +109,83 @@ class TestGetFastModelForSelectedModel:
         assert result == "gemini-3-flash-preview"
     
     @patch('mito_ai.utils.model_utils.get_available_models')
-    def test_litellm_openai_model_returns_fastest_overall(self, mock_get_available_models):
-        """Test that LiteLLM OpenAI model returns fastest model from all available models (across providers)."""
-        mock_get_available_models.return_value = ["openai/gpt-4.1", "openai/gpt-5.2", "anthropic/claude-sonnet-4-5-20250929"]
+    @pytest.mark.parametrize(
+        "selected_model,available_models,expected_result",
+        [
+            # Test case 1: LiteLLM OpenAI model returns fastest overall
+            (
+                "openai/gpt-5.2",
+                ["openai/gpt-4.1", "openai/gpt-5.2", "anthropic/claude-sonnet-4-5-20250929"],
+                "openai/gpt-4.1",
+            ),
+            # Test case 2: LiteLLM Anthropic model returns fastest overall
+            (
+                "anthropic/claude-sonnet-4-5-20250929",
+                ["openai/gpt-4.1", "anthropic/claude-sonnet-4-5-20250929", "anthropic/claude-haiku-4-5-20251001"],
+                "openai/gpt-4.1",
+            ),
+            # Test case 3: LiteLLM Google model returns fastest overall
+            (
+                "google/gemini-3-pro-preview",
+                ["google/gemini-3-pro-preview", "google/gemini-3-flash-preview"],
+                "google/gemini-3-flash-preview",
+            ),
+            # Test case 4: Unknown LiteLLM model returns fastest known
+            (
+                "unknown/provider/model",
+                ["openai/gpt-4.1", "unknown/provider/model"],
+                "openai/gpt-4.1",
+            ),
+            # Test case 5: Single LiteLLM model returns itself
+            (
+                "openai/gpt-4o",
+                ["openai/gpt-4o"],
+                "openai/gpt-4o",
+            ),
+            # Test case 6: Cross-provider comparison - OpenAI is faster
+            (
+                "anthropic/claude-sonnet-4-5-20250929",
+                [
+                    "openai/gpt-4.1",  # Index 0 in OPENAI_MODEL_ORDER
+                    "anthropic/claude-sonnet-4-5-20250929",  # Index 1 in ANTHROPIC_MODEL_ORDER
+                ],
+                "openai/gpt-4.1",
+            ),
+            # Test case 7: Cross-provider comparison - Anthropic is faster
+            (
+                "openai/gpt-5.2",
+                [
+                    "openai/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
+                    "anthropic/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
+                ],
+                "anthropic/claude-haiku-4-5-20251001",
+            ),
+        ],
+        ids=[
+            "litellm_openai_model_returns_fastest_overall",
+            "litellm_anthropic_model_returns_fastest_overall",
+            "litellm_google_model_returns_fastest_overall",
+            "litellm_unknown_model_returns_fastest_known",
+            "litellm_single_model_returns_itself",
+            "litellm_cross_provider_comparison_openai_faster",
+            "litellm_returns_fastest_when_anthropic_is_faster",
+        ]
+    )
+    def test_litellm_model_returns_fastest(
+        self,
+        mock_get_available_models,
+        selected_model,
+        available_models,
+        expected_result,
+    ):
+        """Test that LiteLLM models return fastest model from all available models."""
+        mock_get_available_models.return_value = available_models
         
-        result = get_fast_model_for_selected_model("openai/gpt-5.2")
+        result = get_fast_model_for_selected_model(selected_model)
         
-        # Should return openai/gpt-4.1 (fastest model overall - index 0 in OPENAI_MODEL_ORDER)
-        assert result == "openai/gpt-4.1"
-    
-    @patch('mito_ai.utils.model_utils.get_available_models')
-    def test_litellm_anthropic_model_returns_fastest_overall(self, mock_get_available_models):
-        """Test that LiteLLM Anthropic model returns fastest model from all available models (across providers)."""
-        mock_get_available_models.return_value = ["openai/gpt-4.1", "anthropic/claude-sonnet-4-5-20250929", "anthropic/claude-haiku-4-5-20251001"]
-        
-        result = get_fast_model_for_selected_model("anthropic/claude-sonnet-4-5-20250929")
-        
-        # Should return anthropic/claude-haiku-4-5-20251001 (fastest model overall - index 0 in ANTHROPIC_MODEL_ORDER)
-        assert result == "anthropic/claude-haiku-4-5-20251001"
-    
-    @patch('mito_ai.utils.model_utils.get_available_models')
-    def test_litellm_google_model_returns_fastest_overall(self, mock_get_available_models):
-        """Test that LiteLLM Google model returns fastest model from all available models (across providers)."""
-        mock_get_available_models.return_value = ["google/gemini-3-pro-preview", "google/gemini-3-flash-preview"]
-        
-        result = get_fast_model_for_selected_model("google/gemini-3-pro-preview")
-        
-        # Should return google/gemini-3-flash-preview (fastest model overall - index 0 in GEMINI_MODEL_ORDER)
-        assert result == "google/gemini-3-flash-preview"
-    
-    @patch('mito_ai.utils.model_utils.get_available_models')
-    def test_litellm_unknown_model_returns_fastest_known(self, mock_get_available_models):
-        """Test that unknown LiteLLM model returns fastest known model from available models."""
-        mock_get_available_models.return_value = ["openai/gpt-4.1", "unknown/provider/model"]
-        
-        result = get_fast_model_for_selected_model("unknown/provider/model")
-        
-        # Should return openai/gpt-4.1 (fastest known model - unknown models have index inf)
-        assert result == "openai/gpt-4.1"
+        assert result == expected_result
     
     def test_unknown_standard_model_returns_itself(self):
         """Test that unknown standard model returns itself."""
         result = get_fast_model_for_selected_model("unknown-model")
         assert result == "unknown-model"
-    
-    @patch('mito_ai.utils.model_utils.get_available_models')
-    def test_litellm_single_model_returns_itself(self, mock_get_available_models):
-        """Test that when only one LiteLLM model is available, it returns itself."""
-        mock_get_available_models.return_value = ["openai/gpt-4o"]
-        
-        result = get_fast_model_for_selected_model("openai/gpt-4o")
-        
-        assert result == "openai/gpt-4o"
-    
-    @patch('mito_ai.utils.model_utils.get_available_models')
-    def test_litellm_cross_provider_comparison(self, mock_get_available_models):
-        """Test that LiteLLM fast model selection compares across providers correctly."""
-        # When multiple providers are available, should return fastest from all available models
-        mock_get_available_models.return_value = [
-            "openai/gpt-4.1",  # Index 0 in OPENAI_MODEL_ORDER
-            "anthropic/claude-sonnet-4-5-20250929",  # Index 1 in ANTHROPIC_MODEL_ORDER
-        ]
-        
-        # Should return openai/gpt-4.1 (fastest overall - index 0 < index 1)
-        result = get_fast_model_for_selected_model("anthropic/claude-sonnet-4-5-20250929")
-        
-        assert result == "openai/gpt-4.1"
-    
-    @patch('mito_ai.utils.model_utils.get_available_models')
-    def test_litellm_returns_fastest_when_anthropic_is_faster(self, mock_get_available_models):
-        """Test that LiteLLM returns fastest model when Anthropic is faster than OpenAI."""
-        mock_get_available_models.return_value = [
-            "openai/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
-            "anthropic/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
-        ]
-        
-        # Should return anthropic/claude-haiku-4-5-20251001 (fastest overall - index 0 < index 1)
-        result = get_fast_model_for_selected_model("openai/gpt-5.2")
-        
-        assert result == "anthropic/claude-haiku-4-5-20251001"

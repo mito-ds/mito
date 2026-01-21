@@ -46,9 +46,13 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     
     # Set up LiteLLM constants if testing LiteLLM
     if "LiteLLMClient" in client_patch_path:
+        # Patch constants both at the source and where they're imported in model_utils
         monkeypatch.setattr("mito_ai.constants.LITELLM_BASE_URL", "https://litellm-server.com")
         monkeypatch.setattr("mito_ai.constants.LITELLM_API_KEY", "fake-litellm-key")
         monkeypatch.setattr("mito_ai.constants.LITELLM_MODELS", ["openai/gpt-4o", "anthropic/claude-3-5-sonnet"])
+        # Also patch where constants is imported in model_utils (where get_available_models uses it)
+        monkeypatch.setattr("mito_ai.utils.model_utils.constants.LITELLM_BASE_URL", "https://litellm-server.com")
+        monkeypatch.setattr("mito_ai.utils.model_utils.constants.LITELLM_MODELS", ["openai/gpt-4o", "anthropic/claude-3-5-sonnet"])
         # Mock is_enterprise to return True so LiteLLM models are available
         monkeypatch.setattr("mito_ai.utils.version_utils.is_enterprise", lambda: True)
     
@@ -81,7 +85,9 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
             )
     elif "LiteLLMClient" in client_patch_path:
         # Patch LiteLLMClient where it's defined (it's imported inside request_completions)
-        with patch("mito_ai.enterprise.litellm_client.LiteLLMClient", return_value=mock_client):
+        # Also patch get_available_models to return LiteLLM models
+        with patch("mito_ai.enterprise.litellm_client.LiteLLMClient", return_value=mock_client), \
+             patch("mito_ai.provider_manager.get_available_models", return_value=["openai/gpt-4o", "anthropic/claude-3-5-sonnet"]):
             result = await generate_short_chat_name(
                 user_message="What is the capital of France?",
                 assistant_message="The capital of France is Paris.",

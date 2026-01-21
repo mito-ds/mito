@@ -3,11 +3,21 @@
 
 import pytest
 from unittest.mock import patch, MagicMock
+from traitlets.config import Config
 from mito_ai.utils.telemetry_utils import telemetry_turned_on, identify, log
 from mito_ai.utils.model_utils import get_available_models
 from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.models import MessageType
 from openai.types.chat import ChatCompletionMessageParam
+
+
+@pytest.fixture
+def provider_config() -> Config:
+    """Create a proper Config object for the ProviderManager."""
+    config = Config()
+    config.ProviderManager = Config()
+    config.OpenAIClient = Config()
+    return config
 
 
 class TestEnterpriseModeDetection:
@@ -22,7 +32,7 @@ class TestEnterpriseModeDetection:
         
         assert result is False
     
-    @patch('mito_ai.utils.version_utils.is_enterprise')
+    @patch('mito_ai.utils.telemetry_utils.is_enterprise')
     def test_telemetry_enabled_when_not_enterprise(self, mock_is_enterprise):
         """Test that telemetry can be enabled when enterprise mode is not enabled."""
         mock_is_enterprise.return_value = False
@@ -68,13 +78,13 @@ class TestModelValidation:
     
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
-    def test_provider_manager_validates_model(self, mock_constants, mock_is_enterprise):
+    def test_provider_manager_validates_model(self, mock_constants, mock_is_enterprise, provider_config: Config):
         """Test that ProviderManager validates models against available models."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = "https://litellm-server.com"
         mock_constants.LITELLM_MODELS = ["openai/gpt-4o", "openai/gpt-4o-mini"]
         
-        provider_manager = ProviderManager()
+        provider_manager = ProviderManager(config=provider_config)
         provider_manager.set_selected_model("openai/gpt-4o")
         
         # Should not raise an error for valid model
@@ -84,14 +94,14 @@ class TestModelValidation:
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
     @pytest.mark.asyncio
-    async def test_provider_manager_rejects_invalid_model(self, mock_constants, mock_is_enterprise):
+    async def test_provider_manager_rejects_invalid_model(self, mock_constants, mock_is_enterprise, provider_config: Config):
         """Test that ProviderManager rejects invalid models."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = "https://litellm-server.com"
         mock_constants.LITELLM_MODELS = ["openai/gpt-4o"]
         mock_constants.LITELLM_API_KEY = "test-key"
         
-        provider_manager = ProviderManager()
+        provider_manager = ProviderManager(config=provider_config)
         provider_manager.set_selected_model("invalid-model")
         
         messages: list[ChatCompletionMessageParam] = [{"role": "user", "content": "test"}]
@@ -132,9 +142,9 @@ class TestModelValidation:
 class TestModelStorage:
     """Tests for model storage in ProviderManager."""
     
-    def test_provider_manager_stores_model(self):
+    def test_provider_manager_stores_model(self, provider_config: Config):
         """Test that ProviderManager can store and retrieve selected model."""
-        provider_manager = ProviderManager()
+        provider_manager = ProviderManager(config=provider_config)
         
         provider_manager.set_selected_model("gpt-4.1")
         assert provider_manager.get_selected_model() == "gpt-4.1"
@@ -142,9 +152,9 @@ class TestModelStorage:
         provider_manager.set_selected_model("claude-sonnet-4-5-20250929")
         assert provider_manager.get_selected_model() == "claude-sonnet-4-5-20250929"
     
-    def test_provider_manager_default_model(self):
+    def test_provider_manager_default_model(self, provider_config: Config):
         """Test that ProviderManager has a default model."""
-        provider_manager = ProviderManager()
+        provider_manager = ProviderManager(config=provider_config)
         
         # Should have default model
         default_model = provider_manager.get_selected_model()
