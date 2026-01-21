@@ -4,6 +4,7 @@
 from anthropic.types import MessageParam
 from typing import List, cast
 from mito_ai.streamlit_conversion.agent_utils import extract_todo_placeholders, get_response_from_agent
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.streamlit_conversion.prompts.streamlit_app_creation_prompt import get_streamlit_app_creation_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_error_correction_prompt import get_streamlit_error_correction_prompt
 from mito_ai.streamlit_conversion.prompts.streamlit_finish_todo_prompt import get_finish_todo_prompt
@@ -16,7 +17,7 @@ from mito_ai.utils.error_classes import StreamlitConversionError
 from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
 from mito_ai.path_utils import AbsoluteNotebookPath, AppFileName, get_absolute_notebook_dir_path, get_absolute_app_path, get_app_file_name
 
-async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt: str) -> str:
+async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt: str, provider: ProviderManager) -> str:
     """Send a query to the agent, get its response and parse the code"""
     
     prompt_text = get_streamlit_app_creation_prompt(notebook, streamlit_app_prompt)
@@ -30,7 +31,7 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
             }]
         })
     ]
-    agent_response = await get_response_from_agent(messages)
+    agent_response = await get_response_from_agent(messages, provider)
     converted_code = extract_code_blocks(agent_response)
     
     # Extract the TODOs from the agent's response
@@ -48,7 +49,7 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
                 }]
             })
         ]
-        todo_response = await get_response_from_agent(todo_messages)
+        todo_response = await get_response_from_agent(todo_messages, provider)
         
         # Apply the search/replace to the streamlit app
         search_replace_pairs = extract_search_replace_blocks(todo_response)
@@ -57,7 +58,7 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
     return converted_code
 
 
-async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_code: str, edit_prompt: str) -> str:
+async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_code: str, edit_prompt: str, provider: ProviderManager) -> str:
     """Send a query to the agent, get its response and parse the code"""
     prompt_text = get_update_existing_app_prompt(notebook, streamlit_app_code, edit_prompt)
     
@@ -71,7 +72,7 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
         })
     ]
     
-    agent_response = await get_response_from_agent(messages)
+    agent_response = await get_response_from_agent(messages, provider)
     print(f"[Mito AI Search/Replace Tool]:\n {agent_response}")
 
     # Apply the search/replace to the streamlit app
@@ -81,7 +82,7 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
     return converted_code
 
 
-async def correct_error_in_generation(error: str, streamlit_app_code: str) -> str:
+async def correct_error_in_generation(error: str, streamlit_app_code: str, provider: ProviderManager) -> str:
     """If errors are present, send it back to the agent to get corrections in code"""
     messages: List[MessageParam] = [
         cast(MessageParam, {
@@ -92,7 +93,7 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
             }]
         })
     ]
-    agent_response = await get_response_from_agent(messages)
+    agent_response = await get_response_from_agent(messages, provider)
     
     # Apply the search/replace to the streamlit app
     search_replace_pairs = extract_search_replace_blocks(agent_response)
@@ -100,7 +101,7 @@ async def correct_error_in_generation(error: str, streamlit_app_code: str) -> st
 
     return streamlit_app_code
 
-async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNotebookPath, app_file_name: AppFileName, streamlit_app_prompt: str = "") -> None:
+async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNotebookPath, app_file_name: AppFileName, streamlit_app_prompt: str, provider: ProviderManager) -> None:
     """Handler function for streamlit code generation and validation"""
 
     # Convert to absolute path for consistent handling
@@ -110,7 +111,7 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
     
     if create_new_app:
         # Otherwise generate a new streamlit app
-        streamlit_code = await generate_new_streamlit_code(notebook_code, streamlit_app_prompt)
+        streamlit_code = await generate_new_streamlit_code(notebook_code, streamlit_app_prompt, provider)
     else:
         # If the user is editing an existing streamlit app, use the update function
         existing_streamlit_code = get_app_code_from_file(app_path)
@@ -118,14 +119,14 @@ async def streamlit_handler(create_new_app: bool, notebook_path: AbsoluteNoteboo
         if existing_streamlit_code is None:
             raise StreamlitConversionError("Error updating existing streamlit app because app.py file was not found.", 404)
         
-        streamlit_code = await update_existing_streamlit_code(notebook_code, existing_streamlit_code, streamlit_app_prompt) 
+        streamlit_code = await update_existing_streamlit_code(notebook_code, existing_streamlit_code, streamlit_app_prompt, provider) 
        
     # Then, after creating/updating the app, validate that the new code runs 
     errors = validate_app(streamlit_code, notebook_path)
     tries = 0
     while len(errors) > 0 and tries < 5:
         for error in errors:
-            streamlit_code = await correct_error_in_generation(error, streamlit_code)
+            streamlit_code = await correct_error_in_generation(error, streamlit_code, provider)
         
         errors = validate_app(streamlit_code, notebook_path)
         

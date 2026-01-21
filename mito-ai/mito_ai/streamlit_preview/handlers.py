@@ -11,15 +11,18 @@ from mito_ai.utils.telemetry_utils import log_streamlit_app_conversion_error, lo
 from mito_ai.completions.models import MessageType
 from mito_ai.utils.error_classes import StreamlitConversionError, StreamlitPreviewError
 from mito_ai.streamlit_conversion.streamlit_agent_handler import streamlit_handler
+from mito_ai.provider_manager import ProviderManager
 import traceback
 
 
 class StreamlitPreviewHandler(APIHandler):
     """REST handler for streamlit preview operations."""
 
-    def initialize(self) -> None:
+    def initialize(self, llm: ProviderManager) -> None:
         """Initialize the handler."""
+        super().initialize()
         self.preview_manager = StreamlitPreviewManager()
+        self._llm = llm
 
     @tornado.web.authenticated
     
@@ -45,11 +48,11 @@ class StreamlitPreviewHandler(APIHandler):
                     print("[Mito AI] Force recreating streamlit app")
 
                 # Create a new app 
-                await streamlit_handler(True, absolute_notebook_path, app_file_name, streamlit_app_prompt)
+                await streamlit_handler(True, absolute_notebook_path, app_file_name, streamlit_app_prompt, self._llm)
             elif streamlit_app_prompt != '':
                 # Update an existing app if there is a prompt provided. Otherwise, the user is just
                 # starting an existing app so we can skip the streamlit_handler all together
-                await streamlit_handler(False, absolute_notebook_path, app_file_name, streamlit_app_prompt)
+                await streamlit_handler(False, absolute_notebook_path, app_file_name, streamlit_app_prompt, self._llm)
 
             # Start preview
             # TODO: There's a bug here where when the user rebuilds and already running app. Instead of 

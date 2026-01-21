@@ -20,6 +20,8 @@ from mito_ai.file_uploads.urls import get_file_uploads_urls
 from mito_ai.user.urls import get_user_urls
 from mito_ai.chat_history.urls import get_chat_history_urls
 from mito_ai.chart_wizard.urls import get_chart_wizard_urls
+from mito_ai.utils.version_utils import is_enterprise
+from mito_ai import constants
 
 # Force Matplotlib to use the Jupyter inline backend.
 # Background: importing Streamlit sets os.environ["MPLBACKEND"] = "Agg" very early.
@@ -96,11 +98,18 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_rules_urls(base_url))  # type: ignore
     handlers.extend(get_log_urls(base_url, provider_manager.key_type))  # type: ignore
     handlers.extend(get_auth_urls(base_url))  # type: ignore
-    handlers.extend(get_streamlit_preview_urls(base_url))  # type: ignore
+    handlers.extend(get_streamlit_preview_urls(base_url, provider_manager))  # type: ignore
     handlers.extend(get_file_uploads_urls(base_url)) # type: ignore
     handlers.extend(get_user_urls(base_url)) # type: ignore
     handlers.extend(get_chat_history_urls(base_url, global_message_history)) # type: ignore
     handlers.extend(get_chart_wizard_urls(base_url, provider_manager)) # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
+    
+    # Log enterprise mode status and LiteLLM configuration
+    if is_enterprise():
+        server_app.log.info("Enterprise mode enabled")
+        if constants.LITELLM_BASE_URL and constants.LITELLM_MODELS:
+            server_app.log.info(f"LiteLLM configured: endpoint={constants.LITELLM_BASE_URL}, models={constants.LITELLM_MODELS}")
+    
     server_app.log.info("Loaded the mito_ai server extension")

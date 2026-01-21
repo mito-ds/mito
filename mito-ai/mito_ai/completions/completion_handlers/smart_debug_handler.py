@@ -59,7 +59,6 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(thread_id),
-            model=model,
             message_type=MessageType.SMART_DEBUG,
             user_input=error_message,
             thread_id=thread_id
@@ -129,11 +128,10 @@ class SmartDebugHandler(CompletionHandler[SmartDebugMetadata]):
         accumulated_response = await provider.stream_completions(
             message_type=MessageType.SMART_DEBUG,
             messages=message_history.get_ai_optimized_history(thread_id),
-            model=model,
             message_id=message_id,
+            thread_id=thread_id,
             reply_fn=reply_fn,
-            user_input=error_message,
-            thread_id=thread_id
+            user_input=error_message
         )
 
         # Process the completion to remove inner thoughts

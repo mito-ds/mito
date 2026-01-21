@@ -39,7 +39,6 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
-            model=model,
             response_format_info=ResponseFormatInfo(
                 name='agent_response',
                 format=AgentResponse

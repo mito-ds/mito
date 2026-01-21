@@ -54,7 +54,6 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         # Get the completion (non-streaming)
         completion = await provider.request_completions(
             messages=message_history.get_ai_optimized_history(metadata.threadId), 
-            model=model,
             message_type=MessageType.CHAT,
             user_input=metadata.input,
             thread_id=metadata.threadId
@@ -118,11 +117,10 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
         accumulated_response = await provider.stream_completions(
             message_type=MessageType.CHAT,
             messages=message_history.get_ai_optimized_history(metadata.threadId),
-            model=model,
             message_id=message_id,
+            thread_id=metadata.threadId,
             reply_fn=reply_fn,
-            user_input=metadata.input,
-            thread_id=metadata.threadId
+            user_input=metadata.input
         )
 
         # Save the accumulated response to message history
