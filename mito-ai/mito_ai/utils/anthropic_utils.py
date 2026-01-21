@@ -20,6 +20,7 @@ max_retries = 1
 
 FAST_ANTHROPIC_MODEL = "claude-haiku-4-5-20251001" # This should be in sync with ModelSelector.tsx
 LARGE_CONTEXT_MODEL = "claude-sonnet-4-5-20250929" # This should be in sync with ModelSelector.tsx
+EXTENDED_CONTEXT_BETA = "context-1m-2025-08-07" # Beta feature for extended context window support
 
 def does_message_exceed_max_tokens(system: Union[str, List[TextBlockParam], anthropic.Omit], messages: List[MessageParam]) -> bool:
     token_estimation = get_rough_token_estimatation_anthropic(system, messages)
@@ -66,7 +67,7 @@ def _prepare_anthropic_request_data_and_headers(
         "max_tokens": max_tokens,
         "temperature": temperature,
         "messages": messages,
-        "betas": ["context-1m-2025-08-07"]
+        "betas": [EXTENDED_CONTEXT_BETA]
     }
     
     # Add system to inner_data only if it is not anthropic.Omit
@@ -173,6 +174,12 @@ def get_anthropic_completion_function_params(
         "messages": messages,
         "system": system,
     }
+    
+    # Enable extended context beta when using LARGE_CONTEXT_MODEL
+    # This is required for messages exceeding the standard context limit
+    if model == LARGE_CONTEXT_MODEL:
+        provider_data["betas"] = [EXTENDED_CONTEXT_BETA]
+    
     if tools:
         provider_data["tools"] = tools
     if response_format_info and response_format_info.name == "agent_response":

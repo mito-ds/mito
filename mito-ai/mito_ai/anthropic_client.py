@@ -9,7 +9,7 @@ from anthropic.types import Message, MessageParam, TextBlockParam
 from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from mito_ai.completions.prompt_builders.prompt_section_registry import get_max_trim_after_messages
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
+from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params, LARGE_CONTEXT_MODEL, EXTENDED_CONTEXT_BETA
 
 # Max tokens is a required parameter for the Anthropic API. 
 # We set it to a high number so that we can edit large code cells
@@ -289,14 +289,18 @@ class AnthropicClient:
             if self.api_key:
                 assert self.client is not None
                 # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
-                stream = self.client.beta.messages.create(
-                    model=model,
-                    max_tokens=MAX_TOKENS,
-                    temperature=0,
-                    system=anthropic_system_prompt,
-                    messages=anthropic_messages,  # type: ignore[arg-type]
-                    stream=True
-                )
+                # Enable extended context beta when using LARGE_CONTEXT_MODEL
+                create_params = {
+                    "model": model,
+                    "max_tokens": MAX_TOKENS,
+                    "temperature": 0,
+                    "system": anthropic_system_prompt,
+                    "messages": anthropic_messages,  # type: ignore[arg-type]
+                    "stream": True
+                }
+                if model == LARGE_CONTEXT_MODEL:
+                    create_params["betas"] = [EXTENDED_CONTEXT_BETA]
+                stream = self.client.beta.messages.create(**create_params)
 
                 for chunk in stream:
                     # Type checking for beta API streaming chunks (runtime type checking, types are compatible)
