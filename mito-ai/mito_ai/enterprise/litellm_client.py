@@ -27,19 +27,19 @@ class LiteLLMClient:
     
     async def request_completions(
         self,
-        message_type: MessageType,
         messages: List[ChatCompletionMessageParam],
         model: str,  # Should include provider prefix (e.g., "openai/gpt-4o")
-        response_format_info: Optional[ResponseFormatInfo] = None
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        message_type: MessageType = MessageType.CHAT
     ) -> str:
         """
         Request completions from LiteLLM server.
         
         Args:
-            message_type: Type of message (chat, agent execution, etc.)
             messages: List of chat messages
             model: Model name with provider prefix (e.g., "openai/gpt-4o")
             response_format_info: Optional response format specification
+            message_type: Type of message (chat, agent execution, etc.)
             
         Returns:
             The completion text response
@@ -96,9 +96,9 @@ class LiteLLMClient:
     
     async def stream_completions(
         self,
-        message_type: MessageType,
         messages: List[ChatCompletionMessageParam],
         model: str,
+        message_type: MessageType,
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
         response_format_info: Optional[ResponseFormatInfo] = None
@@ -107,9 +107,9 @@ class LiteLLMClient:
         Stream completions from LiteLLM server.
         
         Args:
-            message_type: Type of message (chat, agent execution, etc.)
             messages: List of chat messages
             model: Model name with provider prefix (e.g., "openai/gpt-4o")
+            message_type: Type of message (chat, agent execution, etc.)
             message_id: ID of the message being processed
             reply_fn: Function to call with each chunk for streaming replies
             response_format_info: Optional response format specification

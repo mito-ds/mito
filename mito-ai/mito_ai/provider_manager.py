@@ -163,15 +163,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                     from mito_ai.enterprise.litellm_client import LiteLLMClient
                     if not constants.LITELLM_BASE_URL:
                         raise ValueError("LITELLM_BASE_URL is required for LiteLLM models")
-                    litellm_client = LiteLLMClient(
-                        api_key=constants.LITELLM_API_KEY,
-                        base_url=constants.LITELLM_BASE_URL
-                    )
+                    litellm_client = LiteLLMClient(api_key=constants.LITELLM_API_KEY, base_url=constants.LITELLM_BASE_URL)
                     completion = await litellm_client.request_completions(
-                        message_type=message_type,
                         messages=messages,
                         model=resolved_model,
-                        response_format_info=response_format_info
+                        response_format_info=response_format_info,
+                        message_type=message_type
                     )
                 elif model_type == "claude":
                     api_key = constants.ANTHROPIC_API_KEY
@@ -294,9 +291,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                     base_url=constants.LITELLM_BASE_URL
                 )
                 accumulated_response = await litellm_client.stream_completions(
-                    message_type=message_type,
                     messages=messages,
                     model=resolved_model,
+                    message_type=message_type,
                     message_id=message_id,
                     reply_fn=reply_fn,
                     response_format_info=response_format_info
