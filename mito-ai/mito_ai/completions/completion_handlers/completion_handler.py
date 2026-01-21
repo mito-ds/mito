@@ -30,8 +30,7 @@ class CompletionHandler(Protocol[T], metaclass=ABCMeta):
     async def get_completion(
         metadata: T,
         provider: ProviderManager,
-        message_history: GlobalMessageHistory,
-        model: str
+        message_history: GlobalMessageHistory
     ) -> str:
         """Get a completion from the AI provider.
         
@@ -39,7 +38,6 @@ class CompletionHandler(Protocol[T], metaclass=ABCMeta):
             metadata: Metadata about the completion request
             provider: The AI provider to use
             message_history: The history of messages in the conversation
-            model: The model to use for the completion
             
         Returns:
             The completion string from the AI

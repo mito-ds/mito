@@ -264,7 +264,6 @@ class GlobalMessageHistory:
         self, 
         ai_optimized_message: ChatCompletionMessageParam, 
         display_message: ChatCompletionMessageParam, 
-        model: str,
         llm_provider: ProviderManager,
         thread_id: ThreadID
     ) -> None:

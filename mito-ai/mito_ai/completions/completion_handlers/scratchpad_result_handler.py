@@ -19,8 +19,7 @@ class ScratchpadResultHandler(CompletionHandler[ScratchpadResultMetadata]):
     async def get_completion(
         metadata: ScratchpadResultMetadata,
         provider: ProviderManager,
-        message_history: GlobalMessageHistory,
-        model: str
+        message_history: GlobalMessageHistory
     ) -> str:
         """Get a scratchpad result completion from the AI provider."""
 
@@ -31,7 +30,7 @@ class ScratchpadResultHandler(CompletionHandler[ScratchpadResultMetadata]):
             )
 
         # Add the system message if it doesn't already exist
-        await append_agent_system_message(message_history, model, provider, metadata.threadId, True)
+        await append_agent_system_message(message_history, provider, metadata.threadId, True)
         
         # Create the prompt
         prompt = create_scratchpad_result_prompt(metadata)
@@ -41,7 +40,7 @@ class ScratchpadResultHandler(CompletionHandler[ScratchpadResultMetadata]):
         new_ai_optimized_message = create_ai_optimized_message(prompt, None, None)
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, model, provider, metadata.threadId)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Get the completion
         completion = await provider.request_completions(
@@ -57,7 +56,7 @@ class ScratchpadResultHandler(CompletionHandler[ScratchpadResultMetadata]):
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         
-        await message_history.append_message(ai_response_message, ai_response_message, model, provider, metadata.threadId)
+        await message_history.append_message(ai_response_message, ai_response_message, provider, metadata.threadId)
         
         return completion
 

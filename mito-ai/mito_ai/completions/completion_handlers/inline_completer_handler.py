@@ -18,8 +18,7 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
     async def get_completion(
         metadata: InlineCompleterMetadata,
         provider: ProviderManager,
-        message_history: GlobalMessageHistory,
-        model: str
+        message_history: GlobalMessageHistory
     ) -> str:
         """Get an inline completion from the AI provider."""
         

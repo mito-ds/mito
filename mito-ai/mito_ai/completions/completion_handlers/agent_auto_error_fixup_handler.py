@@ -18,13 +18,12 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
     async def get_completion(
         metadata: AgentSmartDebugMetadata,
         provider: ProviderManager,
-        message_history: GlobalMessageHistory,
-        model: str
+        message_history: GlobalMessageHistory
     ) -> str:
         """Get an agent auto error fixup completion from the AI provider."""
         
         # Add the system message if it doesn't alredy exist
-        await append_agent_system_message(message_history, model, provider, metadata.threadId, metadata.isChromeBrowser)
+        await append_agent_system_message(message_history, provider, metadata.threadId, metadata.isChromeBrowser)
         
         # Create the prompt
         prompt = create_agent_smart_debug_prompt(metadata)
@@ -34,7 +33,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         new_ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         
-        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, model, provider, metadata.threadId)
+        await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
         # Get the completion
         completion = await provider.request_completions(
@@ -50,7 +49,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
         
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         
-        await message_history.append_message(ai_response_message, ai_response_message, model, provider, metadata.threadId)
+        await message_history.append_message(ai_response_message, ai_response_message, provider, metadata.threadId)
         
         return completion
 
