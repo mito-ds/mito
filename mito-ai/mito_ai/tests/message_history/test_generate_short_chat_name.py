@@ -22,7 +22,8 @@ PROVIDER_TEST_CASES = [
     # (model, client_patch_path) - patch where the classes are used (in provider_manager)
     ("gpt-4.1", "mito_ai.provider_manager.OpenAIClient"),
     ("claude-sonnet-4-5-20250929", "mito_ai.provider_manager.AnthropicClient"),
-    ("gemini-3-flash-preview", "mito_ai.provider_manager.GeminiClient")
+    ("gemini-3-flash-preview", "mito_ai.provider_manager.GeminiClient"),
+    ("openai/gpt-4o", "mito_ai.provider_manager.LiteLLMClient"),  # LiteLLM test case
 ]
 
 @pytest.mark.parametrize("selected_model,client_patch_path", PROVIDER_TEST_CASES)
@@ -43,6 +44,14 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", "fake-claude-key")
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", "fake-gemini-key")
     
+    # Set up LiteLLM constants if testing LiteLLM
+    if "LiteLLMClient" in client_patch_path:
+        monkeypatch.setattr("mito_ai.constants.LITELLM_BASE_URL", "https://litellm-server.com")
+        monkeypatch.setattr("mito_ai.constants.LITELLM_API_KEY", "fake-litellm-key")
+        monkeypatch.setattr("mito_ai.constants.LITELLM_MODELS", ["openai/gpt-4o", "anthropic/claude-3-5-sonnet"])
+        # Mock is_enterprise to return True so LiteLLM models are available
+        monkeypatch.setattr("mito_ai.utils.version_utils.is_enterprise", lambda: True)
+    
     # Create mock client for the specific provider being tested
     mock_client = MagicMock()
     mock_client.request_completions = AsyncMock(return_value="Test Chat Name")
@@ -54,7 +63,7 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     llm_provider.set_selected_model(selected_model)
     
     # Patch the specific client class that should be used based on the model
-    # For Anthropic and Gemini, new instances are created in request_completions, so we patch the class
+    # For Anthropic, Gemini, and LiteLLM, new instances are created in request_completions, so we patch the class
     # For OpenAI, the instance is created in __init__, so we patch the instance's method
     if "AnthropicClient" in client_patch_path:
         with patch(client_patch_path, return_value=mock_client):
@@ -65,6 +74,14 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
             )
     elif "GeminiClient" in client_patch_path:
         with patch(client_patch_path, return_value=mock_client):
+            result = await generate_short_chat_name(
+                user_message="What is the capital of France?",
+                assistant_message="The capital of France is Paris.",
+                llm_provider=llm_provider
+            )
+    elif "LiteLLMClient" in client_patch_path:
+        # Patch LiteLLMClient where it's defined (it's imported inside request_completions)
+        with patch("mito_ai.enterprise.litellm_client.LiteLLMClient", return_value=mock_client):
             result = await generate_short_chat_name(
                 user_message="What is the capital of France?",
                 assistant_message="The capital of France is Paris.",
@@ -85,7 +102,7 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
             assert result == "Test Chat Name"
             return
     
-    # Verify that the correct client's request_completions was called (for Anthropic and Gemini)
+    # Verify that the correct client's request_completions was called (for Anthropic, Gemini, and LiteLLM)
     mock_client.request_completions.assert_called_once()
 
     # As a double check, if we have used the correct client, then we must get the correct result
