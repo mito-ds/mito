@@ -21,12 +21,14 @@ const COMPANY_LOGOS = [
   { src: '/customers/wayfair.png', alt: 'Wayfair' },
   { src: '/customers/sap.png', alt: 'SAP' },
   { src: '/customers/cytiva.png', alt: 'Cytiva' },
+  { src: '/customers/ibm.png', alt: 'IBM' },
+  { src: '/customers/wells-fargo-bank.png', alt: 'Wells Fargo' },
 ];
 
 const SocialProofCarousel = (): JSX.Element => {
   return (
     <div className={styles.container}>
-      <p className={styles.tagline}>Trusted Fortune 500 companies</p>
+      <p className={styles.tagline}>Trusted by Fortune 500 companies</p>
       <div className={styles.carouselWrapper}>
         <Marquee direction="left" speed={30}>
           {COMPANY_LOGOS.map((logo, index) => (
@@ -34,8 +36,8 @@ const SocialProofCarousel = (): JSX.Element => {
               <Image
                 src={logo.src}
                 alt={logo.alt}
-                width={100}
-                height={50}
+                width={80}
+                height={40}
                 className={styles.logo}
                 unoptimized
               />
