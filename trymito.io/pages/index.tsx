@@ -24,6 +24,7 @@ import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
 import DemoVideo from '../components/DemoVideo/DemoVideo';
 import WaitlistSignup from '../components/WaitlistSignup/WaitlistSignup';
+import SocialProofCarousel from '../components/SocialProofCarousel/SocialProofCarousel';
 
 const Home: NextPage = () => {
 
@@ -72,10 +73,12 @@ const Home: NextPage = () => {
               </div>
             </div>
 
+            <SocialProofCarousel />
+
             {/* <AIInputField autoLaunchJupyterLab={true} /> */}
           </section>
 
-          <LogoSection></LogoSection>
+          {false && <LogoSection></LogoSection>}
 
           <section>
             <MadeWithMito />
