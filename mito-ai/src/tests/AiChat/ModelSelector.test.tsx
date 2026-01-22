@@ -95,4 +95,45 @@ describe('ModelSelector', () => {
       expect(mockOnConfigChange).toHaveBeenCalledWith(savedConfig);
     });
   });
+
+  it('defaults to default model when no storedConfig exists and GPT 4.1 is first in available models', async () => {
+    // Mock models with GPT 4.1 first (simulating the bug scenario)
+    mockRequestAPI.mockResolvedValue({
+      data: {
+        models: [
+          GPT_4_1_MODEL_NAME,
+          GPT_5_2_MODEL_NAME,
+          CLAUDE_SONNET_MODEL_NAME,
+          CLAUDE_HAIKU_MODEL_NAME,
+          GEMINI_3_FLASH_MODEL_NAME,
+          GEMINI_3_PRO_MODEL_NAME,
+        ]
+      }
+    });
+
+    // Ensure localStorage is empty (no storedConfig)
+    localStorage.clear();
+
+    render(<ModelSelector onConfigChange={mockOnConfigChange} />);
+
+    // Wait for models to load
+    await waitFor(() => {
+      expect(screen.queryByText('Loading models...')).not.toBeInTheDocument();
+    });
+
+    // Verify that the default model (Haiku 4.5) is selected, not GPT 4.1
+    expect(screen.getByText(DEFAULT_MODEL)).toBeInTheDocument();
+    
+    // Verify onConfigChange was called with Haiku model, not GPT 4.1
+    await waitFor(() => {
+      expect(mockOnConfigChange).toHaveBeenCalledWith({
+        model: DEFAULT_MODEL
+      });
+    });
+
+    // Ensure it was NOT called with GPT 4.1
+    expect(mockOnConfigChange).not.toHaveBeenCalledWith({
+      model: GPT_4_1_MODEL_NAME
+    });
+  });
 }); 

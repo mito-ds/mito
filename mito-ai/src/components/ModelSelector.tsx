@@ -176,16 +176,24 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
           }
         }
 
-        // Fallback to first available model if not found or invalid
+        // Fallback to default model or first available model if not found or invalid
         if (!fullModelName || !displayName || (fullModelName && !models.includes(fullModelName))) {
           if (models.length > 0) {
-            const firstModel = models[0];
-            fullModelName = firstModel;
-            // Check if it's a LiteLLM model
-            if (firstModel && firstModel.includes('/')) {
-              displayName = firstModel;
+            // First, try to use the default model if it's available
+            const defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL);
+            if (defaultMapping && models.includes(defaultMapping.fullName)) {
+              fullModelName = defaultMapping.fullName;
+              displayName = defaultMapping.displayName;
             } else {
-              displayName = MODEL_MAPPINGS.find(m => m.fullName === firstModel)?.displayName || firstModel;
+              // Fallback to first available model
+              const firstModel = models[0];
+              fullModelName = firstModel;
+              // Check if it's a LiteLLM model
+              if (firstModel && firstModel.includes('/')) {
+                displayName = firstModel;
+              } else {
+                displayName = MODEL_MAPPINGS.find(m => m.fullName === firstModel)?.displayName || firstModel;
+              }
             }
           } else {
             // Fallback to default if no models available
