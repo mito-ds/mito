@@ -40,6 +40,7 @@ class ConvertChartHandler(APIHandler):
                 messages=messages,
                 message_type=MessageType.CHAT,
                 thread_id=None,
+                use_fast_model=True,
             )
 
             # Return the converted code
@@ -94,6 +95,7 @@ class AddFieldHandler(APIHandler):
                 messages=messages,
                 message_type=MessageType.CHAT,
                 thread_id=None,
+                use_fast_model=True,
             )
 
             # Return the updated code

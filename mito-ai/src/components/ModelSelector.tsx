@@ -141,7 +141,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
 
   // Fetch available models from backend on mount
   useEffect(() => {
-    const fetchModels = async () => {
+    const fetchModels = async (): Promise<void> => {
       try {
         setIsLoadingModels(true);
         const models = await getAvailableModels();
@@ -216,7 +216,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
       }
     };
 
-    fetchModels();
+    void fetchModels();
   }, [onConfigChange]);
 
   const handleModelChange = (modelName: string): void => {
