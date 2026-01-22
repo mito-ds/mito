@@ -1,4 +1,4 @@
-# Enterprise Deployment Guide
+# LiteLLM Enterprise Deployment Guide
 
 This guide explains how to configure Mito AI for enterprise deployments with strict data privacy and security requirements.
 
