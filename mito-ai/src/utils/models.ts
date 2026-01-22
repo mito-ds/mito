@@ -21,8 +21,6 @@ export const GEMINI_3_FLASH_MODEL_NAME = 'gemini-3-flash-preview';
 export const GEMINI_3_PRO_DISPLAY_NAME = 'Gemini 3 Pro';
 export const GEMINI_3_PRO_MODEL_NAME = 'gemini-3-pro-preview';
 
-import { requestAPI } from '../restAPI/utils';
-
 /**
  * Fetch available models from the backend API.
  * Returns the list of model names that are available based on enterprise mode and LiteLLM configuration.
@@ -30,6 +28,8 @@ import { requestAPI } from '../restAPI/utils';
  * @returns Promise resolving to an array of model names
  */
 export async function getAvailableModels(): Promise<string[]> {
+    // Lazy import to avoid loading JupyterLab dependencies when only constants are needed
+    const { requestAPI } = await import('../restAPI/utils');
     const response = await requestAPI<{ models: string[] }>('available-models', {
         method: 'GET'
     });
