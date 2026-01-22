@@ -127,7 +127,7 @@ describe('ModelSelector', () => {
     // Verify onConfigChange was called with Haiku model, not GPT 4.1
     await waitFor(() => {
       expect(mockOnConfigChange).toHaveBeenCalledWith({
-        model: DEFAULT_MODEL
+        model: CLAUDE_HAIKU_MODEL_NAME
       });
     });
 
