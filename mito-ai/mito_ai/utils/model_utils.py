@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Tuple, cast
+from typing import List, Tuple, Union, cast
 from mito_ai import constants
 from mito_ai.utils.version_utils import is_enterprise
 
@@ -137,7 +137,7 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
 
     return selected_model
 
-def get_model_order_index(pair: List[str]) -> int | float:
+def get_model_order_index(pair: List[str]) -> Union[int, float]:
     provider, model_name = pair
     if provider == "openai":
         try:
