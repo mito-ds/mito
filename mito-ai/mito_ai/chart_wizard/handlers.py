@@ -7,7 +7,6 @@ from typing import List
 from jupyter_server.base.handlers import APIHandler
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.provider_manager import ProviderManager
-from mito_ai.utils.anthropic_utils import FAST_ANTHROPIC_MODEL
 from mito_ai.completions.models import MessageType
 from mito_ai.completions.prompt_builders.chart_conversion_prompt import (
     create_chart_conversion_prompt,
@@ -39,9 +38,9 @@ class ConvertChartHandler(APIHandler):
             ]
             converted_code = await self._llm.request_completions(
                 messages=messages,
-                model=FAST_ANTHROPIC_MODEL,
                 message_type=MessageType.CHAT,
                 thread_id=None,
+                use_fast_model=True,
             )
 
             # Return the converted code
@@ -94,9 +93,9 @@ class AddFieldHandler(APIHandler):
             ]
             updated_code = await self._llm.request_completions(
                 messages=messages,
-                model=FAST_ANTHROPIC_MODEL,
                 message_type=MessageType.CHAT,
                 thread_id=None,
+                use_fast_model=True,
             )
 
             # Return the updated code

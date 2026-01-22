@@ -40,6 +40,7 @@ from mito_ai.completions.models import (
 from mito_ai.provider_manager import ProviderManager
 from mito_ai.utils.create import initialize_user
 from mito_ai.utils.version_utils import is_pro
+from mito_ai.utils.model_utils import get_available_models
 from mito_ai.completions.completion_handlers.chat_completion_handler import get_chat_completion, stream_chat_completion
 from mito_ai.completions.completion_handlers.smart_debug_handler import get_smart_debug_completion, stream_smart_debug_completion
 from mito_ai.completions.completion_handlers.code_explain_handler import get_code_explain_completion, stream_code_explain_completion
@@ -48,8 +49,6 @@ from mito_ai.completions.completion_handlers.agent_execution_handler import get_
 from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 from mito_ai.completions.completion_handlers.scratchpad_result_handler import get_scratchpad_result_completion
 from mito_ai.utils.telemetry_utils import identify
-
-FALLBACK_MODEL = "gpt-4.1"  # Default model to use for safety
 
 # The GlobalMessageHistory is now created in __init__.py and passed to handlers
 # to ensure there's only one instance managing the .mito/ai-chats directory locks
@@ -67,7 +66,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self._llm = llm
         self._message_history = message_history
         self.is_pro = is_pro()
-        self._selected_model = FALLBACK_MODEL
         self.is_electron = False
         identify(llm.key_type)
         
@@ -202,7 +200,25 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if type == MessageType.UPDATE_MODEL_CONFIG:
             model = metadata_dict.get('model')
             if model:
-                self._selected_model = model
+                # Validate model is in allowed list
+                available_models = get_available_models()
+                if model not in available_models:
+                    error = CompletionError(
+                        error_type="InvalidModelConfig",
+                        title="Invalid model configuration",
+                        traceback="",
+                        hint=f"Model '{model}' is not in the allowed model list. Available models: {', '.join(available_models)}"
+                    )
+                    reply = CompletionReply(
+                        items=[],
+                        error=error,
+                        parent_id=parsed_message.get('message_id')
+                    )
+                    self.reply(reply)
+                    return
+                
+                # Set the model in ProviderManager
+                self._llm.set_selected_model(model)
                 self.log.info(f"Model updated to: {model}")
                 reply = CompletionReply(
                     items=[CompletionItem(content=f"Model updated to {model}", isIncomplete=False)],
@@ -241,7 +257,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 await self._message_history.append_message(
                     ai_optimized_message=ai_optimized_message,
                     display_message=display_optimized_message,
-                    model=self._selected_model,
                     llm_provider=self._llm,
                     thread_id=thread_id_to_stop
                 )
@@ -255,8 +270,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             message_id = parsed_message.get('message_id')
             stream = parsed_message.get('stream')
 
-            # When handling completions, always use the selected model
-            model = self._selected_model
             if type == MessageType.CHAT:
                 chat_metadata = ChatMessageMetadata(**metadata_dict)
                 
@@ -268,13 +281,12 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                         self._llm, 
                         self._message_history, 
                         message_id,
-                        self.reply,
-                        model
+                        self.reply
                     )
                     return
                 else:
                     # Regular non-streaming completion
-                    completion = await get_chat_completion(chat_metadata, self._llm, self._message_history, model)
+                    completion = await get_chat_completion(chat_metadata, self._llm, self._message_history)
             elif type == MessageType.SMART_DEBUG:
                 smart_debug_metadata = SmartDebugMetadata(**metadata_dict)
                 # Handle streaming if requested and available
@@ -285,13 +297,12 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                         self._llm, 
                         self._message_history, 
                         message_id,
-                        self.reply,
-                        model
+                        self.reply
                     )
                     return
                 else:
                     # Regular non-streaming completion
-                    completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, self._message_history, model)
+                    completion = await get_smart_debug_completion(smart_debug_metadata, self._llm, self._message_history)
             elif type == MessageType.CODE_EXPLAIN:
                 code_explain_metadata = CodeExplainMetadata(**metadata_dict)
 
@@ -303,25 +314,24 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                         self._llm, 
                         self._message_history,
                         message_id,
-                        self.reply,
-                        model
+                        self.reply
                     )
                     return
                 else:
                     # Regular non-streaming completion
-                    completion = await get_code_explain_completion(code_explain_metadata, self._llm, self._message_history, model)
+                    completion = await get_code_explain_completion(code_explain_metadata, self._llm, self._message_history)
             elif type == MessageType.AGENT_EXECUTION:
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
-                completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, self._message_history, model)
+                completion = await get_agent_execution_completion(agent_execution_metadata, self._llm, self._message_history)
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
                 agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
-                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, self._message_history, model)
+                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, self._message_history)
             elif type == MessageType.AGENT_SCRATCHPAD_RESULT:
                 scratchpad_result_metadata = ScratchpadResultMetadata(**metadata_dict)
-                completion = await get_scratchpad_result_completion(scratchpad_result_metadata, self._llm, self._message_history, model)
+                completion = await get_scratchpad_result_completion(scratchpad_result_metadata, self._llm, self._message_history)
             elif type == MessageType.INLINE_COMPLETION:
                 inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
-                completion = await get_inline_completion(inline_completer_metadata, self._llm, self._message_history, model)
+                completion = await get_inline_completion(inline_completer_metadata, self._llm, self._message_history)
             else:
                 raise ValueError(f"Invalid message type: {type}")
             

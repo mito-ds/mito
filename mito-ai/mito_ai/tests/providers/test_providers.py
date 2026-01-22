@@ -49,7 +49,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "name": "openai",
         "env_vars": {"OPENAI_API_KEY": FAKE_API_KEY},
         "constants": {"OPENAI_API_KEY": FAKE_API_KEY},
-        "model": "gpt-4o-mini",
+        "model": "gpt-4.1",
         "mock_patch": "mito_ai.provider_manager.OpenAIClient",
         "mock_method": "request_completions",
         "provider_name": "OpenAI with user key",
@@ -59,7 +59,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "name": "claude", 
         "env_vars": {"ANTHROPIC_API_KEY": "claude-key"},
         "constants": {"ANTHROPIC_API_KEY": "claude-key", "OPENAI_API_KEY": None},
-        "model": "claude-3-opus-20240229",
+        "model": "claude-sonnet-4-5-20250929",
         "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "request_completions",
         "provider_name": "Claude",
@@ -69,7 +69,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "name": "gemini",
         "env_vars": {"GEMINI_API_KEY": "gemini-key"},
         "constants": {"GEMINI_API_KEY": "gemini-key", "OPENAI_API_KEY": None},
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3-flash-preview",
         "mock_patch": "mito_ai.provider_manager.GeminiClient",
         "mock_method": "request_completions",
         "provider_name": "Gemini",
@@ -79,7 +79,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "name": "azure",
         "env_vars": {"AZURE_OPENAI_API_KEY": "azure-key"},
         "constants": {"AZURE_OPENAI_API_KEY": "azure-key", "OPENAI_API_KEY": None},
-        "model": "gpt-4o",
+        "model": "gpt-4.1",
         "mock_patch": "mito_ai.provider_manager.OpenAIClient",
         "mock_method": "request_completions",
         "provider_name": "Azure OpenAI",
@@ -114,14 +114,14 @@ async def test_completion_request(
 
     with patch(provider_config_data["mock_patch"], return_value=mock_client):
         llm = ProviderManager(config=provider_config)
+        llm.set_selected_model(provider_config_data["model"])
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
         ]
 
         completion = await llm.request_completions(
             message_type=MessageType.CHAT,
-            messages=messages,
-            model=provider_config_data["model"]
+            messages=messages
         )
 
         assert completion == "Test completion"
@@ -133,7 +133,7 @@ async def test_completion_request(
         "name": "openai",
         "env_vars": {"OPENAI_API_KEY": FAKE_API_KEY},
         "constants": {"OPENAI_API_KEY": FAKE_API_KEY},
-        "model": "gpt-4o-mini",
+        "model": "gpt-4.1",
         "mock_patch": "mito_ai.provider_manager.OpenAIClient",
         "mock_method": "stream_completions",
         "provider_name": "OpenAI with user key",
@@ -143,7 +143,7 @@ async def test_completion_request(
         "name": "claude", 
         "env_vars": {"ANTHROPIC_API_KEY": "claude-key"},
         "constants": {"ANTHROPIC_API_KEY": "claude-key", "OPENAI_API_KEY": None},
-        "model": "claude-3-opus-20240229",
+        "model": "claude-sonnet-4-5-20250929",
         "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "stream_completions", 
         "provider_name": "Claude",
@@ -153,7 +153,7 @@ async def test_completion_request(
         "name": "gemini",
         "env_vars": {"GEMINI_API_KEY": "gemini-key"},
         "constants": {"GEMINI_API_KEY": "gemini-key", "OPENAI_API_KEY": None},
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3-flash-preview",
         "mock_patch": "mito_ai.provider_manager.GeminiClient",
         "mock_method": "stream_completions",
         "provider_name": "Gemini",
@@ -189,6 +189,7 @@ async def test_stream_completion_parameterized(
 
     with patch(provider_config_data["mock_patch"], return_value=mock_client):
         llm = ProviderManager(config=provider_config)
+        llm.set_selected_model(provider_config_data["model"])
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
         ]
@@ -200,7 +201,6 @@ async def test_stream_completion_parameterized(
         completion = await llm.stream_completions(
             message_type=MessageType.CHAT,
             messages=messages,
-            model=provider_config_data["model"],
             message_id="test-id",
             thread_id="test-thread",
             reply_fn=mock_reply
@@ -217,7 +217,7 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", "invalid-key")
     mock_client = MagicMock()
     mock_client.capabilities = AICapabilities(
-        configuration={"model": "gpt-4o-mini"},
+        configuration={"model": "gpt-4.1"},
         provider="OpenAI with user key",
         type="ai_capabilities"
     )
@@ -235,7 +235,7 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
 
     mock_client = MagicMock()
     mock_client.capabilities = AICapabilities(
-        configuration={"model": "claude-3-opus-20240229"},
+        configuration={"model": "claude-sonnet-4-5-20250929"},
         provider="Claude",
         type="ai_capabilities"
     )
@@ -251,21 +251,21 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
 @pytest.mark.parametrize("mito_server_config", [
     {
         "name": "openai_fallback",
-        "model": "gpt-4o-mini",
+        "model": "gpt-4.1",
         "mock_function": "mito_ai.openai_client.get_ai_completion_from_mito_server",
         "provider_name": "Mito server",
         "key_type": "mito_server"
     },
     {
         "name": "claude_fallback", 
-        "model": "claude-3-opus-20240229",
+        "model": "claude-sonnet-4-5-20250929",
         "mock_function": "mito_ai.anthropic_client.get_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
     },
     {
         "name": "gemini_fallback",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3-flash-preview",
         "mock_function": "mito_ai.gemini_client.get_gemini_completion_from_mito_server",
         "provider_name": "Gemini",
         "key_type": "gemini"
@@ -294,11 +294,11 @@ async def test_mito_server_fallback_completion_request(
 
         with patch_server_limits():
                 llm = ProviderManager(config=provider_config)
+                llm.set_selected_model(mito_server_config["model"])
 
                 completion = await llm.request_completions(
                     message_type=MessageType.CHAT,
-                    messages=messages,
-                    model=mito_server_config["model"]
+                    messages=messages
                 )
 
                 assert completion == "Mito server response"
@@ -308,21 +308,21 @@ async def test_mito_server_fallback_completion_request(
 @pytest.mark.parametrize("mito_server_config", [
     {
         "name": "openai_fallback",
-        "model": "gpt-4o-mini",
+        "model": "gpt-4.1",
         "mock_function": "mito_ai.openai_client.stream_ai_completion_from_mito_server",
         "provider_name": "Mito server",
         "key_type": "mito_server"
     },
     {
         "name": "claude_fallback", 
-        "model": "claude-3-opus-20240229",
+        "model": "claude-sonnet-4-5-20250929",
         "mock_function": "mito_ai.anthropic_client.stream_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
     },
     {
         "name": "gemini_fallback",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3-flash-preview",
         "mock_function": "mito_ai.gemini_client.stream_gemini_completion_from_mito_server",
         "provider_name": "Gemini",
         "key_type": "gemini"
@@ -362,12 +362,12 @@ async def test_mito_server_fallback_stream_completion(
         # Apply patch_server_limits for all cases, not just openai_fallback
         # Also patch update_mito_server_quota where it's actually used in openai_client
         with patch_server_limits(), patch("mito_ai.openai_client.update_mito_server_quota", MagicMock(return_value=None)):
-            llm = ProviderManager(config=provider_config)                
+            llm = ProviderManager(config=provider_config)
+            llm.set_selected_model(mito_server_config["model"])
 
             completion = await llm.stream_completions(
                 message_type=MessageType.CHAT,
                 messages=messages,
-                model=mito_server_config["model"],
                 message_id="test-id",
                 thread_id="test-thread",
                 reply_fn=mock_reply

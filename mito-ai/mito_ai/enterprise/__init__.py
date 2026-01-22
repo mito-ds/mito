@@ -1,3 +1,3 @@
 # Copyright (c) Saga Inc.
-# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+# Distributed under the terms of the Enterprise License at the root of this repository.
 

@@ -7,8 +7,8 @@ from mito_ai.completions.handlers import CompletionHandler
 from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
-from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
 from mito_ai.log.urls import get_log_urls
+from mito_ai.utils.litellm_utils import is_litellm_configured
 from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
 from mito_ai.settings.urls import get_settings_urls
@@ -20,6 +20,8 @@ from mito_ai.file_uploads.urls import get_file_uploads_urls
 from mito_ai.user.urls import get_user_urls
 from mito_ai.chat_history.urls import get_chat_history_urls
 from mito_ai.chart_wizard.urls import get_chart_wizard_urls
+from mito_ai.utils.version_utils import is_enterprise
+from mito_ai import constants
 
 # Force Matplotlib to use the Jupyter inline backend.
 # Background: importing Streamlit sets os.environ["MPLBACKEND"] = "Agg" very early.
@@ -74,11 +76,6 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             {}
         ),
         (
-            url_path_join(base_url, "mito-ai", "streamlit-preview"),
-            StreamlitPreviewHandler,
-            {}
-        ),
-        (
             url_path_join(base_url, "mito-ai", "version-check"),
             VersionCheckHandler,
             {},
@@ -96,11 +93,18 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_rules_urls(base_url))  # type: ignore
     handlers.extend(get_log_urls(base_url, provider_manager.key_type))  # type: ignore
     handlers.extend(get_auth_urls(base_url))  # type: ignore
-    handlers.extend(get_streamlit_preview_urls(base_url))  # type: ignore
+    handlers.extend(get_streamlit_preview_urls(base_url, provider_manager))  # type: ignore
     handlers.extend(get_file_uploads_urls(base_url)) # type: ignore
     handlers.extend(get_user_urls(base_url)) # type: ignore
     handlers.extend(get_chat_history_urls(base_url, global_message_history)) # type: ignore
     handlers.extend(get_chart_wizard_urls(base_url, provider_manager)) # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
+    
+    # Log enterprise mode status and LiteLLM configuration
+    if is_enterprise():
+        server_app.log.info("Enterprise mode enabled")
+        if is_litellm_configured():
+            server_app.log.info(f"LiteLLM configured: endpoint={constants.LITELLM_BASE_URL}, models={constants.LITELLM_MODELS}")
+    
     server_app.log.info("Loaded the mito_ai server extension")

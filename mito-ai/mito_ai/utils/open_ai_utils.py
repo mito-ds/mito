@@ -160,11 +160,8 @@ def get_open_ai_completion_function_params(
     response_format_info: Optional[ResponseFormatInfo] = None,
 ) -> Dict[str, Any]:
     
-    print("MESSAGE TYPE: ", message_type)
     message_requires_fast_model = does_message_require_fast_model(message_type)
     model = FAST_OPENAI_MODEL if message_requires_fast_model else model
-    
-    print(f"model: {model}")
     
     completion_function_params = {
         "model": model,

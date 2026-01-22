@@ -429,6 +429,7 @@ class TestAzureOpenAIProviderIntegration:
             mock_azure_client_class.return_value = mock_azure_client
             
             provider = ProviderManager(config=provider_config)
+            provider.set_selected_model("gpt-4.1")
             
             messages: List[ChatCompletionMessageParam] = [
                 {"role": "user", "content": "Test message"}
@@ -437,7 +438,6 @@ class TestAzureOpenAIProviderIntegration:
             completion = await provider.request_completions(
                 message_type=message_type,
                 messages=messages,
-                model="gpt-4.1"
             )
             
             # Verify the completion was returned
@@ -485,6 +485,7 @@ class TestAzureOpenAIProviderIntegration:
             mock_azure_client_class.return_value = mock_azure_client
             
             provider = ProviderManager(config=provider_config)
+            provider.set_selected_model("gpt-4.1")
             
             messages: List[ChatCompletionMessageParam] = [
                 {"role": "user", "content": "Test message"}
@@ -497,7 +498,6 @@ class TestAzureOpenAIProviderIntegration:
             completion = await provider.stream_completions(
                 message_type=message_type,
                 messages=messages,
-                model="gpt-4.1",
                 message_id="test-id",
                 thread_id="test-thread",
                 reply_fn=mock_reply

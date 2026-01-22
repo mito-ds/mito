@@ -63,12 +63,15 @@ class TestStreamlitPreviewHandler:
             mock_request.connection = MagicMock()
             mock_request.connection.context = MagicMock()
             
+            # Create a mock ProviderManager for the llm parameter
+            mock_llm = MagicMock()
+
             # Create handler instance  
             handler = StreamlitPreviewHandler(
                 application=mock_application,
                 request=mock_request,
+                llm=mock_llm
             )
-            handler.initialize()
             
             # Mock authentication - set current_user to bypass @tornado.web.authenticated
             handler.current_user = "test_user"  # type: ignore

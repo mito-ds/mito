@@ -23,6 +23,13 @@ AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION")
 AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_MODEL = os.environ.get("AZURE_OPENAI_MODEL")
 
+# LiteLLM Config (Enterprise mode only)
+LITELLM_BASE_URL = os.environ.get("LITELLM_BASE_URL")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY")
+LITELLM_MODELS_STR = os.environ.get("LITELLM_MODELS", "")
+# Parse comma-separated string into list, strip whitespace
+LITELLM_MODELS = [model.strip() for model in LITELLM_MODELS_STR.split(",") if model.strip()] if LITELLM_MODELS_STR else []
+
 # Mito AI Base URLs and Endpoint Paths
 MITO_PROD_BASE_URL = "https://7eax4i53f5odkshhlry4gw23by0yvnuv.lambda-url.us-east-1.on.aws/v2"
 MITO_DEV_BASE_URL = "https://g5vwmogjg7gh7aktqezyrvcq6a0hyfnr.lambda-url.us-east-1.on.aws/v2"
