@@ -16,6 +16,7 @@ from mito_ai.completions.models import MessageType
 from mito_ai.utils.error_classes import StreamlitConversionError
 from mito_ai.utils.telemetry_utils import log_streamlit_app_validation_retry, log_streamlit_app_conversion_success
 from mito_ai.path_utils import AbsoluteNotebookPath, AppFileName, get_absolute_notebook_dir_path, get_absolute_app_path, get_app_file_name
+from mito_ai.streamlit_conversion.prompts.streamlit_system_prompt import streamlit_system_prompt
 
 async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt: str, provider: ProviderManager) -> str:
     """Send a query to the agent, get its response and parse the code"""
@@ -23,12 +24,13 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
     prompt_text = get_streamlit_app_creation_prompt(notebook, streamlit_app_prompt)
     
     messages: List[ChatCompletionMessageParam] = [
+        {"role": "system", "content": streamlit_system_prompt},
         {"role": "user", "content": prompt_text}
     ]
     agent_response = await provider.request_completions(
         message_type=MessageType.STREAMLIT_CONVERSION,
         messages=messages,
-        use_fast_model=True,
+        use_smartest_model=True,
         thread_id=None
     )
     converted_code = extract_code_blocks(agent_response)
@@ -40,12 +42,13 @@ async def generate_new_streamlit_code(notebook: List[dict], streamlit_app_prompt
         print(f"Processing AI TODO: {todo_placeholder}")
         todo_prompt = get_finish_todo_prompt(notebook, converted_code, todo_placeholder)
         todo_messages: List[ChatCompletionMessageParam] = [
+            {"role": "system", "content": streamlit_system_prompt},
             {"role": "user", "content": todo_prompt}
         ]
         todo_response = await provider.request_completions(
             message_type=MessageType.STREAMLIT_CONVERSION,
             messages=todo_messages,
-            use_fast_model=True,
+            use_smartest_model=True,
             thread_id=None
         )
         
@@ -61,13 +64,14 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
     prompt_text = get_update_existing_app_prompt(notebook, streamlit_app_code, edit_prompt)
     
     messages: List[ChatCompletionMessageParam] = [
+        {"role": "system", "content": streamlit_system_prompt},
         {"role": "user", "content": prompt_text}
     ]
     
     agent_response = await provider.request_completions(
         message_type=MessageType.STREAMLIT_CONVERSION,
         messages=messages,
-        use_fast_model=True,
+        use_smartest_model=True,
         thread_id=None
     )
     print(f"[Mito AI Search/Replace Tool]:\n {agent_response}")
@@ -82,12 +86,13 @@ async def update_existing_streamlit_code(notebook: List[dict], streamlit_app_cod
 async def correct_error_in_generation(error: str, streamlit_app_code: str, provider: ProviderManager) -> str:
     """If errors are present, send it back to the agent to get corrections in code"""
     messages: List[ChatCompletionMessageParam] = [
+        {"role": "system", "content": streamlit_system_prompt},
         {"role": "user", "content": get_streamlit_error_correction_prompt(error, streamlit_app_code)}
     ]
     agent_response = await provider.request_completions(
         message_type=MessageType.STREAMLIT_CONVERSION,
         messages=messages,
-        use_fast_model=True,
+        use_smartest_model=True,
         thread_id=None
     )
     

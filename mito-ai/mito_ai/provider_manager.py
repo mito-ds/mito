@@ -35,7 +35,7 @@ from mito_ai.utils.telemetry_utils import (
     log_ai_completion_success,
 )
 from mito_ai.utils.provider_utils import get_model_provider
-from mito_ai.utils.model_utils import get_available_models, get_fast_model_for_selected_model
+from mito_ai.utils.model_utils import get_available_models, get_fast_model_for_selected_model, get_smartest_model_for_selected_model
 
 __all__ = ["ProviderManager"]
 
@@ -132,7 +132,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         user_input: Optional[str] = None,
         thread_id: Optional[str] = None,
         max_retries: int = 3,
-        use_fast_model: bool = False
+        use_fast_model: bool = False,
+        use_smartest_model: bool = False
     ) -> str:
         """
         Request completions from the AI provider.
@@ -145,14 +146,17 @@ This attribute is observed by the websocket provider to push the error to the cl
             thread_id: Optional thread ID for logging
             max_retries: Maximum number of retries
             use_fast_model: If True, use the fastest model from the selected provider
+            use_smartest_model: If True, use the smartest model from the selected provider
         """
         self.last_error = None
         completion = None
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
         
-        # Get the model to use (selected model or fast model if requested)
+        # Get the model to use (selected model, fast model, or smartest model if requested)
         selected_model = self.get_selected_model()
-        if use_fast_model:
+        if use_smartest_model:
+            resolved_model = get_smartest_model_for_selected_model(selected_model)
+        elif use_fast_model:
             resolved_model = get_fast_model_for_selected_model(selected_model)
         else:
             resolved_model = selected_model
@@ -248,7 +252,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
         user_input: Optional[str] = None,
         response_format_info: Optional[ResponseFormatInfo] = None,
-        use_fast_model: bool = False
+        use_fast_model: bool = False,
+        use_smartest_model: bool = False
     ) -> str:
         """
         Stream completions from the AI provider and return the accumulated response.
@@ -262,6 +267,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             user_input: Optional user input for logging
             response_format_info: Optional response format specification
             use_fast_model: If True, use the fastest model from the selected provider
+            use_smartest_model: If True, use the smartest model from the selected provider
             
         Returns: The accumulated response string.
         """
@@ -269,9 +275,11 @@ This attribute is observed by the websocket provider to push the error to the cl
         accumulated_response = ""
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
         
-        # Get the model to use (selected model or fast model if requested)
+        # Get the model to use (selected model, fast model, or smartest model if requested)
         selected_model = self.get_selected_model()
-        if use_fast_model:
+        if use_smartest_model:
+            resolved_model = get_smartest_model_for_selected_model(selected_model)
+        elif use_fast_model:
             resolved_model = get_fast_model_for_selected_model(selected_model)
         else:
             resolved_model = selected_model

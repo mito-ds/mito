@@ -93,6 +93,50 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
 
     return selected_model
 
+def get_smartest_model_for_selected_model(selected_model: str) -> str:
+    """
+    Get the smartest model for the client of the selected model.
+    
+    - For standard providers, returns the last (smartest) model from that provider's order.
+    - For LiteLLM models, finds the smartest available model from LiteLLM by comparing indices in the model order lists.
+    """
+    # Check if this is a LiteLLM model (has provider prefix like "openai/gpt-4o")
+    if "/" in selected_model:
+        
+        # Find the smartest model from available LiteLLM models
+        available_models = get_available_models()
+        if not available_models:
+            return selected_model
+        
+        # Filter to only LiteLLM models (those with "/") before splitting
+        litellm_models = [model for model in available_models if "/" in model]
+        if not litellm_models:
+            return selected_model
+        
+        available_provider_model_pairs: List[List[str]] = [model.split("/", 1) for model in litellm_models]
+
+        smartest_pair = max(available_provider_model_pairs, key=get_model_order_index)
+        smartest_model = f"{smartest_pair[0]}/{smartest_pair[1]}"
+        
+        # If we found a smartest model, return it. Otherwise, use the selected model
+        if smartest_model:
+            return smartest_model
+        else:
+            return selected_model
+    
+    # Standard provider logic
+    model_lower = selected_model.lower()
+    
+    # Determine provider and get smartest model
+    if model_lower.startswith('claude') and selected_model in ANTHROPIC_MODEL_ORDER:
+        return ANTHROPIC_MODEL_ORDER[-1]
+    elif model_lower.startswith('gpt') and selected_model in OPENAI_MODEL_ORDER:
+        return OPENAI_MODEL_ORDER[-1]
+    elif model_lower.startswith('gemini') and selected_model in GEMINI_MODEL_ORDER:
+        return GEMINI_MODEL_ORDER[-1]
+
+    return selected_model
+
 def get_model_order_index(pair: List[str]) -> int | float:
     provider, model_name = pair
     if provider == "openai":
