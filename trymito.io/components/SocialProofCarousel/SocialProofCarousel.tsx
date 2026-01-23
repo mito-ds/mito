@@ -8,8 +8,7 @@ import Image from 'next/image';
 import Marquee from '../Marquee/Marquee';
 import styles from './SocialProofCarousel.module.css';
 
-// Company logos - only including logos that currently exist
-// TODO: Add Apple, Qualcomm, IBM, Apollo, Manpower, Wells Fargo when logo files are available
+// Company logos
 const COMPANY_LOGOS = [
   { src: '/customers/accenture.png', alt: 'Accenture' },
   { src: '/customers/amazon.png', alt: 'Amazon' },
@@ -36,8 +35,8 @@ const SocialProofCarousel = (): JSX.Element => {
               <Image
                 src={logo.src}
                 alt={logo.alt}
-                width={80}
-                height={40}
+                width={56}
+                height={28}
                 className={styles.logo}
                 unoptimized
               />
