@@ -107,7 +107,7 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
     Get the smartest model for the client of the selected model.
     
     - For standard providers, returns the last (smartest) model from that provider's order.
-    - For LiteLLM models, finds the smartest available model from LiteLLM from the same provider by comparing indices in the model order lists.
+    - For LiteLLM models, finds the smartest available model from LiteLLM by comparing indices in the model order lists.
     """
     # Check if this is a LiteLLM model (has provider prefix like "openai/gpt-4o")
     if "/" in selected_model:
@@ -115,12 +115,12 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
         # Extract provider from selected model
         selected_provider, _ = selected_model.split("/", 1)
         
-        # Find the smartest model from available LiteLLM models from the same provider
+        # Find the smartest model from available LiteLLM models
         available_models = get_available_models()
         if not available_models:
             return selected_model
         
-        # Filter to only LiteLLM models (those with "/") from the same provider
+        # Filter to only LiteLLM models (those with "/")
         litellm_models = [model for model in available_models if "/" in model and model.startswith(f"{selected_provider}/")]
         if not litellm_models:
             return selected_model
