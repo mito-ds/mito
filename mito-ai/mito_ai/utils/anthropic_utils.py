@@ -5,7 +5,6 @@ import anthropic
 from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable
 from anthropic.types import MessageParam, TextBlockParam, ToolUnionParam
 from mito_ai.utils.mito_server_utils import get_response_from_mito_server, stream_response_from_mito_server
-from mito_ai.utils.provider_utils import does_message_require_fast_model
 from mito_ai.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
@@ -36,10 +35,6 @@ def select_correct_model(default_model: str, message_type: MessageType, system: 
         # Anthropic lets us use beta mode to extend context window for sonnet class models
         # but not haiku models
         return LARGE_CONTEXT_MODEL
-    
-    message_requires_fast_model = does_message_require_fast_model(message_type)
-    if message_requires_fast_model:
-        return FAST_ANTHROPIC_MODEL
     
     return default_model    
 

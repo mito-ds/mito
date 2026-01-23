@@ -182,7 +182,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         # Handle other providers as before
         completion_function_params = get_open_ai_completion_function_params(
-            message_type, model, messages, False, response_format_info
+            model, messages, False, response_format_info
         )
         
         # If they have set an Azure OpenAI or Ollama model, then we use it
@@ -233,7 +233,7 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         # Handle other providers as before
         completion_function_params = get_open_ai_completion_function_params(
-            message_type, model, messages, True, response_format_info
+            model, messages, True, response_format_info
         )
         
         completion_function_params["model"] = self._adjust_model_for_azure_or_ollama(completion_function_params["model"])

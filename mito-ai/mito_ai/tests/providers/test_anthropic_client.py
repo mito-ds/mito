@@ -3,11 +3,10 @@
 
 import pytest
 from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, get_anthropic_system_prompt_and_messages_with_caching, add_cache_control_to_message, extract_and_parse_anthropic_json_response, AnthropicClient
-from mito_ai.utils.anthropic_utils import FAST_ANTHROPIC_MODEL
 from anthropic.types import Message, TextBlock, ToolUseBlock, Usage, ToolUseBlock, Message, Usage, TextBlock
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
 from mito_ai.completions.models import MessageType
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 import anthropic
 from typing import List, Dict, cast
 
@@ -233,19 +232,20 @@ def test_tool_use_without_agent_response():
     assert "No valid AgentResponse format found" in str(exc_info.value)
 
 CUSTOM_MODEL = "smart-anthropic-model"
-@pytest.mark.parametrize("message_type, expected_model", [
-    (MessageType.CHAT, CUSTOM_MODEL),  #
-    (MessageType.SMART_DEBUG, CUSTOM_MODEL),  #
-    (MessageType.CODE_EXPLAIN, CUSTOM_MODEL),  #
-    (MessageType.AGENT_EXECUTION, CUSTOM_MODEL),  #
-    (MessageType.AGENT_AUTO_ERROR_FIXUP, CUSTOM_MODEL),  #
-    (MessageType.INLINE_COMPLETION, FAST_ANTHROPIC_MODEL),  #
-    (MessageType.CHAT_NAME_GENERATION, FAST_ANTHROPIC_MODEL),  #
+@pytest.mark.parametrize("message_type", [
+    MessageType.CHAT,
+    MessageType.SMART_DEBUG,
+    MessageType.CODE_EXPLAIN,
+    MessageType.AGENT_EXECUTION,
+    MessageType.AGENT_AUTO_ERROR_FIXUP,
+    MessageType.INLINE_COMPLETION,
+    MessageType.CHAT_NAME_GENERATION,
 ])
 @pytest.mark.asyncio 
-async def test_model_selection_based_on_message_type(message_type, expected_model):
+async def test_model_selection_uses_passed_model(message_type):
     """
-    Tests that the correct model is selected based on the message type.
+    Tests that the model passed to the client is used as-is.
+    Model selection based on message type is now handled by ProviderManager.
     """
     client = AnthropicClient(api_key="test_key")
     
@@ -269,10 +269,168 @@ async def test_model_selection_based_on_message_type(message_type, expected_mode
             response_format_info=None
         )
         
-        # Verify that create was called with the expected model
+        # Verify that create was called with the model that was passed (not overridden)
         mock_create.assert_called_once()
         call_args = mock_create.call_args
-        assert call_args[1]['model'] == expected_model
+        assert call_args[1]['model'] == CUSTOM_MODEL
+
+@pytest.mark.asyncio
+async def test_anthropic_client_uses_fast_model_from_provider_manager_without_override():
+    """Test that Anthropic client uses the fast model passed from ProviderManager without internal override."""
+    from mito_ai.utils.model_utils import get_fast_model_for_selected_model
+    
+    client = AnthropicClient(api_key="test_key")
+    
+    # Mock the beta.messages.create method directly (we now use beta API)
+    with patch.object(client.client.beta.messages, 'create') as mock_create: # type: ignore
+        # Create a mock response
+        mock_response = Message(
+            id="test_id",
+            role="assistant",
+            content=[TextBlock(type="text", text="test")], 
+            model='anthropic-model-we-do-not-check', 
+            type="message",
+            usage=Usage(input_tokens=0, output_tokens=0)
+        )
+        mock_create.return_value = mock_response
+
+        # Use a fast model that would be selected by ProviderManager
+        fast_model = get_fast_model_for_selected_model("claude-sonnet-4-5-20250929")
+        
+        await client.request_completions(
+            messages=[{"role": "user", "content": "Test message"}],
+            model=fast_model,
+            message_type=MessageType.CHAT,
+            response_format_info=None
+        )
+        
+        # Verify that create was called with the fast model that was passed (not overridden)
+        mock_create.assert_called_once()
+        call_args = mock_create.call_args
+        assert call_args[1]['model'] == fast_model
+
+@pytest.mark.asyncio
+async def test_anthropic_client_uses_smartest_model_from_provider_manager_without_override():
+    """Test that Anthropic client uses the smartest model passed from ProviderManager without internal override."""
+    from mito_ai.utils.model_utils import get_smartest_model_for_selected_model
+    
+    client = AnthropicClient(api_key="test_key")
+    
+    # Mock the beta.messages.create method directly (we now use beta API)
+    with patch.object(client.client.beta.messages, 'create') as mock_create: # type: ignore
+        # Create a mock response
+        mock_response = Message(
+            id="test_id",
+            role="assistant",
+            content=[TextBlock(type="text", text="test")], 
+            model='anthropic-model-we-do-not-check', 
+            type="message",
+            usage=Usage(input_tokens=0, output_tokens=0)
+        )
+        mock_create.return_value = mock_response
+
+        # Use a smartest model that would be selected by ProviderManager
+        smartest_model = get_smartest_model_for_selected_model("claude-haiku-4-5-20251001")
+        
+        await client.request_completions(
+            messages=[{"role": "user", "content": "Test message"}],
+            model=smartest_model,
+            message_type=MessageType.CHAT,
+            response_format_info=None
+        )
+        
+        # Verify that create was called with the smartest model that was passed (not overridden)
+        mock_create.assert_called_once()
+        call_args = mock_create.call_args
+        assert call_args[1]['model'] == smartest_model
+
+@pytest.mark.asyncio
+async def test_anthropic_client_stream_uses_fast_model_from_provider_manager_without_override():
+    """Test that Anthropic client stream_completions uses the fast model passed from ProviderManager without internal override."""
+    from mito_ai.utils.model_utils import get_fast_model_for_selected_model
+    
+    client = AnthropicClient(api_key="test_key")
+    
+    # Mock the beta.messages.create method for streaming
+    with patch.object(client.client.beta.messages, 'create') as mock_create: # type: ignore
+        # Create a mock stream response
+        class MockStreamChunk:
+            def __init__(self, chunk_type, text=""):
+                self.type = chunk_type
+                if chunk_type == "content_block_delta":
+                    self.delta = MagicMock()
+                    self.delta.type = "text_delta"
+                    self.delta.text = text
+        
+        mock_stream = [
+            MockStreamChunk("content_block_delta", "test"),
+            MockStreamChunk("message_stop")
+        ]
+        mock_create.return_value = iter(mock_stream)
+
+        # Use a fast model that would be selected by ProviderManager
+        fast_model = get_fast_model_for_selected_model("claude-sonnet-4-5-20250929")
+        
+        reply_chunks = []
+        def mock_reply(chunk):
+            reply_chunks.append(chunk)
+        
+        await client.stream_completions(
+            messages=[{"role": "user", "content": "Test message"}],
+            model=fast_model,
+            message_id="test-id",
+            message_type=MessageType.CHAT,
+            reply_fn=mock_reply
+        )
+        
+        # Verify that create was called with the fast model that was passed (not overridden)
+        mock_create.assert_called_once()
+        call_args = mock_create.call_args
+        assert call_args[1]['model'] == fast_model
+
+@pytest.mark.asyncio
+async def test_anthropic_client_stream_uses_smartest_model_from_provider_manager_without_override():
+    """Test that Anthropic client stream_completions uses the smartest model passed from ProviderManager without internal override."""
+    from mito_ai.utils.model_utils import get_smartest_model_for_selected_model
+    
+    client = AnthropicClient(api_key="test_key")
+    
+    # Mock the beta.messages.create method for streaming
+    with patch.object(client.client.beta.messages, 'create') as mock_create: # type: ignore
+        # Create a mock stream response
+        class MockStreamChunk:
+            def __init__(self, chunk_type, text=""):
+                self.type = chunk_type
+                if chunk_type == "content_block_delta":
+                    self.delta = MagicMock()
+                    self.delta.type = "text_delta"
+                    self.delta.text = text
+        
+        mock_stream = [
+            MockStreamChunk("content_block_delta", "test"),
+            MockStreamChunk("message_stop")
+        ]
+        mock_create.return_value = iter(mock_stream)
+
+        # Use a smartest model that would be selected by ProviderManager
+        smartest_model = get_smartest_model_for_selected_model("claude-haiku-4-5-20251001")
+        
+        reply_chunks = []
+        def mock_reply(chunk):
+            reply_chunks.append(chunk)
+        
+        await client.stream_completions(
+            messages=[{"role": "user", "content": "Test message"}],
+            model=smartest_model,
+            message_id="test-id",
+            message_type=MessageType.CHAT,
+            reply_fn=mock_reply
+        )
+        
+        # Verify that create was called with the smartest model that was passed (not overridden)
+        mock_create.assert_called_once()
+        call_args = mock_create.call_args
+        assert call_args[1]['model'] == smartest_model
 
 
 # Caching Tests

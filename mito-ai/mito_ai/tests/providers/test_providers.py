@@ -378,3 +378,183 @@ async def test_mito_server_fallback_stream_completion(
             # Verify that reply chunks were generated
             assert len(reply_chunks) > 0
             assert isinstance(reply_chunks[0], CompletionReply)
+
+
+# Fast and Smartest Model Tests
+@pytest.mark.asyncio
+async def test_provider_manager_uses_fast_model_for_request_completions(
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that ProviderManager correctly sets and uses fast model for request_completions when requested."""
+    # Set up environment variables to ensure OpenAI provider is used
+    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    
+    from mito_ai.utils.model_utils import get_fast_model_for_selected_model
+    
+    # Create mock client
+    mock_client = MagicMock()
+    mock_client.capabilities = AICapabilities(
+        configuration={"model": "gpt-4.1"},
+        provider="OpenAI with user key",
+        type="ai_capabilities"
+    )
+    mock_client.request_completions = AsyncMock(return_value="Test completion")
+    
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": "Test message"}
+    ]
+    
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
+        provider = ProviderManager(config=provider_config)
+        provider.set_selected_model("gpt-5.2")
+        
+        await provider.request_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            use_fast_model=True
+        )
+        
+        # Verify that request_completions was called with the fast model
+        mock_client.request_completions.assert_called_once()
+        call_args = mock_client.request_completions.call_args
+        expected_fast_model = get_fast_model_for_selected_model("gpt-5.2")
+        assert call_args[1]['model'] == expected_fast_model
+
+@pytest.mark.asyncio
+async def test_provider_manager_uses_smartest_model_for_request_completions(
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that ProviderManager correctly sets and uses smartest model for request_completions when requested."""
+    # Set up environment variables to ensure OpenAI provider is used
+    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    
+    from mito_ai.utils.model_utils import get_smartest_model_for_selected_model
+    
+    # Create mock client
+    mock_client = MagicMock()
+    mock_client.capabilities = AICapabilities(
+        configuration={"model": "gpt-4.1"},
+        provider="OpenAI with user key",
+        type="ai_capabilities"
+    )
+    mock_client.request_completions = AsyncMock(return_value="Test completion")
+    
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": "Test message"}
+    ]
+    
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
+        provider = ProviderManager(config=provider_config)
+        provider.set_selected_model("gpt-4.1")
+        
+        await provider.request_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            use_smartest_model=True
+        )
+        
+        # Verify that request_completions was called with the smartest model
+        mock_client.request_completions.assert_called_once()
+        call_args = mock_client.request_completions.call_args
+        expected_smartest_model = get_smartest_model_for_selected_model("gpt-4.1")
+        assert call_args[1]['model'] == expected_smartest_model
+
+@pytest.mark.asyncio
+async def test_provider_manager_uses_fast_model_for_stream_completions(
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that ProviderManager correctly sets and uses fast model for stream_completions when requested."""
+    # Set up environment variables to ensure OpenAI provider is used
+    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    
+    from mito_ai.utils.model_utils import get_fast_model_for_selected_model
+    
+    # Create mock client
+    mock_client = MagicMock()
+    mock_client.capabilities = AICapabilities(
+        configuration={"model": "gpt-4.1"},
+        provider="OpenAI with user key",
+        type="ai_capabilities"
+    )
+    mock_client.stream_completions = AsyncMock(return_value="Test completion")
+    
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": "Test message"}
+    ]
+    
+    reply_chunks = []
+    def mock_reply(chunk):
+        reply_chunks.append(chunk)
+    
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
+        provider = ProviderManager(config=provider_config)
+        provider.set_selected_model("gpt-5.2")
+        
+        await provider.stream_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            message_id="test-id",
+            thread_id="test-thread",
+            reply_fn=mock_reply,
+            use_fast_model=True
+        )
+        
+        # Verify that stream_completions was called with the fast model
+        mock_client.stream_completions.assert_called_once()
+        call_args = mock_client.stream_completions.call_args
+        expected_fast_model = get_fast_model_for_selected_model("gpt-5.2")
+        assert call_args[1]['model'] == expected_fast_model
+
+@pytest.mark.asyncio
+async def test_provider_manager_uses_smartest_model_for_stream_completions(
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that ProviderManager correctly sets and uses smartest model for stream_completions when requested."""
+    # Set up environment variables to ensure OpenAI provider is used
+    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    
+    from mito_ai.utils.model_utils import get_smartest_model_for_selected_model
+    
+    # Create mock client
+    mock_client = MagicMock()
+    mock_client.capabilities = AICapabilities(
+        configuration={"model": "gpt-4.1"},
+        provider="OpenAI with user key",
+        type="ai_capabilities"
+    )
+    mock_client.stream_completions = AsyncMock(return_value="Test completion")
+    
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": "Test message"}
+    ]
+    
+    reply_chunks = []
+    def mock_reply(chunk):
+        reply_chunks.append(chunk)
+    
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
+        provider = ProviderManager(config=provider_config)
+        provider.set_selected_model("gpt-4.1")
+        
+        await provider.stream_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            message_id="test-id",
+            thread_id="test-thread",
+            reply_fn=mock_reply,
+            use_smartest_model=True
+        )
+        
+        # Verify that stream_completions was called with the smartest model
+        mock_client.stream_completions.assert_called_once()
+        call_args = mock_client.stream_completions.call_args
+        expected_smartest_model = get_smartest_model_for_selected_model("gpt-4.1")
+        assert call_args[1]['model'] == expected_smartest_model

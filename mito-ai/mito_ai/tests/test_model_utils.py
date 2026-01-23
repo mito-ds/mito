@@ -189,3 +189,83 @@ class TestGetFastModelForSelectedModel:
         """Test that unknown standard model returns itself."""
         result = get_fast_model_for_selected_model("unknown-model")
         assert result == "unknown-model"
+    
+    def test_claude_model_not_in_order_returns_fastest_anthropic(self):
+        """Test that a Claude model not in ANTHROPIC_MODEL_ORDER still returns fastest Anthropic model."""
+        # Test with a Claude model that isn't in the order list
+        result = get_fast_model_for_selected_model("claude-3-opus-20240229")
+        # Should return fastest Anthropic model (claude-haiku-4-5-20251001)
+        assert result == "claude-haiku-4-5-20251001"
+        assert result.startswith("claude")
+    
+    def test_gpt_model_not_in_order_returns_fastest_openai(self):
+        """Test that a GPT model not in OPENAI_MODEL_ORDER still returns fastest OpenAI model."""
+        # Test with a GPT model that isn't in the order list
+        result = get_fast_model_for_selected_model("gpt-4o-mini")
+        # Should return fastest OpenAI model (gpt-4.1)
+        assert result == "gpt-4.1"
+        assert result.startswith("gpt")
+    
+    def test_gemini_model_not_in_order_returns_fastest_gemini(self):
+        """Test that a Gemini model not in GEMINI_MODEL_ORDER still returns fastest Gemini model."""
+        # Test with a Gemini model that isn't in the order list
+        result = get_fast_model_for_selected_model("gemini-1.5-pro")
+        # Should return fastest Gemini model (gemini-3-flash-preview)
+        assert result == "gemini-3-flash-preview"
+        assert result.startswith("gemini")
+    
+    def test_claude_model_variations_return_same_provider(self):
+        """Test that various Claude model name variations return Anthropic models."""
+        test_cases = [
+            "claude-3-5-sonnet",
+            "claude-3-opus",
+            "claude-instant",
+            "claude-v2",
+        ]
+        for model in test_cases:
+            result = get_fast_model_for_selected_model(model)
+            # Should always return an Anthropic model (starts with "claude")
+            assert result.startswith("claude"), f"Model {model} should return Anthropic model, got {result}"
+            # Should return the fastest Anthropic model
+            assert result == "claude-haiku-4-5-20251001", f"Model {model} should return fastest Anthropic model"
+    
+    def test_gpt_model_variations_return_same_provider(self):
+        """Test that various GPT model name variations return OpenAI models."""
+        test_cases = [
+            "gpt-4o",
+            "gpt-4-turbo",
+            "gpt-3.5-turbo",
+            "gpt-4o-mini",
+        ]
+        for model in test_cases:
+            result = get_fast_model_for_selected_model(model)
+            # Should always return an OpenAI model (starts with "gpt")
+            assert result.startswith("gpt"), f"Model {model} should return OpenAI model, got {result}"
+            # Should return the fastest OpenAI model
+            assert result == "gpt-4.1", f"Model {model} should return fastest OpenAI model"
+    
+    def test_gemini_model_variations_return_same_provider(self):
+        """Test that various Gemini model name variations return Gemini models."""
+        test_cases = [
+            "gemini-1.5-pro",
+            "gemini-1.5-flash",
+            "gemini-pro",
+            "gemini-ultra",
+        ]
+        for model in test_cases:
+            result = get_fast_model_for_selected_model(model)
+            # Should always return a Gemini model (starts with "gemini")
+            assert result.startswith("gemini"), f"Model {model} should return Gemini model, got {result}"
+            # Should return the fastest Gemini model
+            assert result == "gemini-3-flash-preview", f"Model {model} should return fastest Gemini model"
+    
+    def test_case_insensitive_provider_matching(self):
+        """Test that provider matching is case-insensitive."""
+        test_cases = [
+            ("CLAUDE-sonnet-4-5-20250929", "claude-haiku-4-5-20251001"),
+            ("GPT-4.1", "gpt-4.1"),
+            ("GEMINI-3-flash-preview", "gemini-3-flash-preview"),
+        ]
+        for model, expected in test_cases:
+            result = get_fast_model_for_selected_model(model)
+            assert result == expected, f"Case-insensitive matching failed for {model}"

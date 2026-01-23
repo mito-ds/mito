@@ -32,7 +32,7 @@ class LogHandler(APIHandler):
         log_event = data['log_event']
         params = data.get('params', {})
         
-        key_type = MITO_SERVER_KEY if self.key_type == "mito_server_key" else USER_KEY
+        key_type = MITO_SERVER_KEY if self.key_type == MITO_SERVER_KEY else USER_KEY
         log(log_event, params, key_type=key_type)
 
 
