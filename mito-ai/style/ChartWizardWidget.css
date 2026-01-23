@@ -156,3 +156,67 @@
     min-width: 1.5em;
     text-align: left;
 }
+
+.chart-wizard-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    /* Height is set dynamically via inline style to cover full scrollable content */
+    min-height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: all;
+}
+
+.chart-wizard-overlay-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.chart-wizard-warning {
+    background-color: var(--yellow-100);
+    color: var(--yellow-900);
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    line-height: 1.4;
+    border: 1px solid var(--yellow-300);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chart-wizard-warning-content {
+    flex: 1;
+}
+
+.chart-wizard-warning strong {
+    font-weight: 600;
+}
+
+.chart-wizard-warning-button {
+    background-color: var(--yellow-600);
+    color: var(--yellow-900);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background-color 0.2s ease;
+}
+
+.chart-wizard-warning-button:hover {
+    background-color: var(--yellow-500);
+}
+
+.chart-wizard-warning-button:active {
+    background-color: var(--yellow-300);
+}

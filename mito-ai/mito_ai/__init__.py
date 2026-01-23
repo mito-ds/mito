@@ -4,11 +4,11 @@
 from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
-from mito_ai.streamlit_preview.handlers import StreamlitPreviewHandler
 from mito_ai.log.urls import get_log_urls
+from mito_ai.utils.litellm_utils import is_litellm_configured
 from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
 from mito_ai.settings.urls import get_settings_urls
@@ -20,6 +20,8 @@ from mito_ai.file_uploads.urls import get_file_uploads_urls
 from mito_ai.user.urls import get_user_urls
 from mito_ai.chat_history.urls import get_chat_history_urls
 from mito_ai.chart_wizard.urls import get_chart_wizard_urls
+from mito_ai.utils.version_utils import is_enterprise
+from mito_ai import constants
 
 # Force Matplotlib to use the Jupyter inline backend.
 # Background: importing Streamlit sets os.environ["MPLBACKEND"] = "Agg" very early.
@@ -32,16 +34,6 @@ from mito_ai.chart_wizard.urls import get_chart_wizard_urls
 
 import os
 os.environ["MPLBACKEND"] = "module://matplotlib_inline.backend_inline"
-
-try:
-    from _version import __version__
-except ImportError:
-    # Fallback when using the package in dev mode without installing in editable mode with pip. It is highly recommended to install
-    # the package from a stable release or in editable mode: https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs
-    import warnings
-    
-    warnings.warn("Importing 'mito_ai' outside a proper installation.")
-    __version__ = "dev"
 
 def _jupyter_labextension_paths() -> List[Dict[str, str]]:
     return [{"src": "labextension", "dest": "mito_ai"}]
@@ -65,7 +57,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     web_app = server_app.web_app
     base_url = web_app.settings["base_url"]
 
-    open_ai_provider = OpenAIProvider(config=server_app.config)
+    provider_manager = ProviderManager(config=server_app.config)
     
     # Create a single GlobalMessageHistory instance for the entire server
     # This ensures thread-safe access to the .mito/ai-chats directory
@@ -76,16 +68,11 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
         (
             url_path_join(base_url, "mito-ai", "completions"),
             CompletionHandler,
-            {"llm": open_ai_provider, "message_history": global_message_history},
+            {"llm": provider_manager, "message_history": global_message_history},
         ),
         (
             url_path_join(base_url, "mito-ai", "app-deploy"),
             AppDeployHandler,
-            {}
-        ),
-        (
-            url_path_join(base_url, "mito-ai", "streamlit-preview"),
-            StreamlitPreviewHandler,
             {}
         ),
         (
@@ -104,13 +91,20 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_db_urls(base_url))  # type: ignore
     handlers.extend(get_settings_urls(base_url))  # type: ignore
     handlers.extend(get_rules_urls(base_url))  # type: ignore
-    handlers.extend(get_log_urls(base_url, open_ai_provider.key_type))  # type: ignore
+    handlers.extend(get_log_urls(base_url, provider_manager.key_type))  # type: ignore
     handlers.extend(get_auth_urls(base_url))  # type: ignore
-    handlers.extend(get_streamlit_preview_urls(base_url))  # type: ignore
+    handlers.extend(get_streamlit_preview_urls(base_url, provider_manager))  # type: ignore
     handlers.extend(get_file_uploads_urls(base_url)) # type: ignore
     handlers.extend(get_user_urls(base_url)) # type: ignore
     handlers.extend(get_chat_history_urls(base_url, global_message_history)) # type: ignore
-    handlers.extend(get_chart_wizard_urls(base_url, open_ai_provider)) # type: ignore
+    handlers.extend(get_chart_wizard_urls(base_url, provider_manager)) # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
+    
+    # Log enterprise mode status and LiteLLM configuration
+    if is_enterprise():
+        server_app.log.info("Enterprise mode enabled")
+        if is_litellm_configured():
+            server_app.log.info(f"LiteLLM configured: endpoint={constants.LITELLM_BASE_URL}, models={constants.LITELLM_MODELS}")
+    
     server_app.log.info("Loaded the mito_ai server extension")

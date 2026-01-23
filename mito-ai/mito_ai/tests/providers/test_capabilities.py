@@ -3,7 +3,7 @@
 
 import pytest
 from unittest.mock import MagicMock, patch
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.tests.providers.utils import mock_azure_openai_client, mock_openai_client, patch_server_limits
 from traitlets.config import Config
 
@@ -11,9 +11,9 @@ FAKE_API_KEY = "sk-1234567890"
 
 @pytest.fixture
 def provider_config() -> Config:
-    """Create a proper Config object for the OpenAIProvider."""
+    """Create a proper Config object for the ProviderManager."""
     config = Config()
-    config.OpenAIProvider = Config()
+    config.ProviderManager = Config()
     config.OpenAIClient = Config()
     return config
 
@@ -22,7 +22,7 @@ def provider_config() -> Config:
         "name": "mito_server_fallback_no_keys",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": None, 
+            "ANTHROPIC_API_KEY": None, 
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
@@ -33,45 +33,45 @@ def provider_config() -> Config:
         "name": "claude_when_only_claude_key",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": "claude-test-key",
+            "ANTHROPIC_API_KEY": "claude-test-key",
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
         "expected_provider": "Claude",
-        "expected_key_type": "claude"
+        "expected_key_type": "user_key"
     },
     {
         "name": "gemini_when_only_gemini_key",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": None,
+            "ANTHROPIC_API_KEY": None,
             "GEMINI_API_KEY": "gemini-test-key",
             "is_azure_configured": False,
         },
         "expected_provider": "Gemini", 
-        "expected_key_type": "gemini"
+        "expected_key_type": "user_key"
     },
     {
         "name": "openai_when_openai_key",
         "setup": {
             "OPENAI_API_KEY": 'openai-test-key',
-            "CLAUDE_API_KEY": None,
+            "ANTHROPIC_API_KEY": None,
             "GEMINI_API_KEY": None,
             "is_azure_configured": False,
         },
-        "expected_provider": "OpenAI (user key)",
+        "expected_provider": "OpenAI",
         "expected_key_type": "user_key"
     },
     {
         "name": "claude_priority_over_gemini",
         "setup": {
             "OPENAI_API_KEY": None,
-            "CLAUDE_API_KEY": "claude-test-key",
+            "ANTHROPIC_API_KEY": "claude-test-key",
             "GEMINI_API_KEY": "gemini-test-key",
             "is_azure_configured": False,
         },
         "expected_provider": "Claude",
-        "expected_key_type": "claude"
+        "expected_key_type": "user_key"
     },
 ])
 def test_provider_capabilities_real_logic(
@@ -79,7 +79,7 @@ def test_provider_capabilities_real_logic(
     monkeypatch: pytest.MonkeyPatch, 
     provider_config: Config
 ) -> None:
-    """Test the actual provider selection logic in OpenAIProvider.capabilities"""
+    """Test the actual provider selection logic in ProviderManager.capabilities"""
     
     # Set up the environment based on test case
     setup = test_case["setup"]
@@ -97,9 +97,6 @@ def test_provider_capabilities_real_logic(
         else:
             monkeypatch.setattr(f"mito_ai.constants.{key}", value)
     
-    # Clear the provider config API key to ensure it uses constants
-    provider_config.OpenAIProvider.api_key = None
-    
     # Mock HTTP calls but let the real logic run
     with patch("openai.OpenAI") as mock_openai_constructor:
         with patch("openai.AsyncOpenAI") as mock_async_openai:
@@ -112,7 +109,7 @@ def test_provider_capabilities_real_logic(
                 # Mock server limits for Mito server fallback
                 with patch_server_limits():
                     # NOW create the provider after ALL mocks are set up
-                    llm = OpenAIProvider(config=provider_config)
+                    llm = ProviderManager(config=provider_config)
                     
                     # Test capabilities 
                     capabilities = llm.capabilities

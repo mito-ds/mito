@@ -4,7 +4,7 @@
 import json
 import os
 from typing import Any, Dict, Literal, Optional, List
-from mito_ai.utils.version_utils import MITOSHEET_HELPER_PRIVATE, is_pro
+from mito_ai.utils.version_utils import MITOSHEET_HELPER_PRIVATE, is_pro, is_enterprise
 from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
 from mito_ai.utils.db import get_user_field
 from mito_ai._version import __version__
@@ -83,9 +83,13 @@ def telemetry_turned_on(key_type: Optional[str] = None) -> bool:
     Helper function that tells you if logging is turned on or
     turned off on the entire Mito instance
     """
+    # Enterprise mode disables all telemetry
+    if is_enterprise():
+        return False
+    
     # If the user is on the Mito server, then they are sending
     # us their information already
-    if key_type == 'mito_server_key':
+    if key_type == MITO_SERVER_KEY:
         return True
     
     # If private helper is installed, then we don't log anything
@@ -109,6 +113,10 @@ def identify(key_type: Optional[str] = None, is_electron: Optional[bool] = None)
     Helper function for identifying a user. We just take
     their python version, mito version, and email.
     """
+    # Skip entirely if enterprise mode is enabled
+    if is_enterprise():
+        return
+    
     if not telemetry_turned_on(key_type):
         return
 
@@ -208,6 +216,10 @@ def log(
         del final_params[param_name]
     final_params.update(params_to_add)
             
+    # Skip entirely if enterprise mode is enabled
+    if is_enterprise():
+        return
+    
     # Finally, do the acutal logging. We do not log anything when tests are
     # running, or if telemetry is turned off
     if not is_running_test() and telemetry_turned_on(key_type):

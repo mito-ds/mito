@@ -11,7 +11,6 @@ import json
 import time
 from typing import Any, Dict, List, Optional, Final, Union, AsyncGenerator, Tuple, Callable
 from mito_ai.utils.mito_server_utils import get_response_from_mito_server, stream_response_from_mito_server
-from mito_ai.utils.provider_utils import does_message_require_fast_model
 from tornado.httpclient import AsyncHTTPClient
 from openai.types.chat import ChatCompletionMessageParam
 
@@ -153,18 +152,11 @@ async def stream_ai_completion_from_mito_server(
 
 
 def get_open_ai_completion_function_params(
-    message_type: MessageType,
     model: str, 
     messages: List[ChatCompletionMessageParam], 
     stream: bool,
     response_format_info: Optional[ResponseFormatInfo] = None,
 ) -> Dict[str, Any]:
-    
-    print("MESSAGE TYPE: ", message_type)
-    message_requires_fast_model = does_message_require_fast_model(message_type)
-    model = FAST_OPENAI_MODEL if message_requires_fast_model else model
-    
-    print(f"model: {model}")
     
     completion_function_params = {
         "model": model,

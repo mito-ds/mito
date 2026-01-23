@@ -11,7 +11,7 @@ from typing import Dict, List, Optional
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import CompletionRequest, ChatThreadMetadata, MessageType, ThreadID
 from mito_ai.completions.prompt_builders.chat_name_prompt import create_chat_name_prompt
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.utils.schema import MITO_FOLDER
 from mito_ai.utils.message_history_utils import trim_old_messages
 
@@ -19,16 +19,15 @@ CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 NEW_CHAT_NAME = "(New Chat)"
 NUMBER_OF_THREADS_CUT_OFF = 50
 
-async def generate_short_chat_name(user_message: str, assistant_message: str, model: str, llm_provider: OpenAIProvider) -> str:
+async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider: ProviderManager) -> str:
     prompt = create_chat_name_prompt(user_message, assistant_message)
 
     completion = await llm_provider.request_completions(
         messages=[{"role": "user", "content": prompt}], 
-        # We set the model so we can use the correct model provider, but request_completions will decide to 
-        # use the fast model from that provider to make the request.
-        model=model, 
+        # Use fast model from the selected provider for chat name generation
         message_type=MessageType.CHAT_NAME_GENERATION,
-        thread_id=None
+        thread_id=None,
+        use_fast_model=True
     )
     
     # Do a little cleanup of the completion. Gemini seems to return the string
@@ -135,7 +134,7 @@ class GlobalMessageHistory:
             Returns the AI-optimized history for the specified thread or newest thread.
         get_display_history(thread_id: Optional[ThreadID] = None) -> List[ChatCompletionMessageParam]:
             Returns the display-optimized history for the specified thread or newest thread.
-        append_message(ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider: OpenAIProvider, thread_id: Optional[ThreadID] = None) -> None:
+        append_message(ai_optimized_message: ChatCompletionMessageParam, display_message: ChatCompletionMessageParam, llm_provider: ProviderManager, thread_id: Optional[ThreadID] = None) -> None:
             Appends messages to the specified thread (or newest thread) and generates a name if needed.
         truncate_histories(index: int, thread_id: Optional[ThreadID] = None) -> None:
             Truncates messages at the given index for the specified thread.
@@ -265,8 +264,7 @@ class GlobalMessageHistory:
         self, 
         ai_optimized_message: ChatCompletionMessageParam, 
         display_message: ChatCompletionMessageParam, 
-        model: str,
-        llm_provider: OpenAIProvider,
+        llm_provider: ProviderManager,
         thread_id: ThreadID
     ) -> None:
         """
@@ -305,7 +303,7 @@ class GlobalMessageHistory:
 
         # Outside the lock, await the name generation if needed
         if name_gen_input:
-            new_name = await generate_short_chat_name(str(name_gen_input[0]), str(name_gen_input[1]), model, llm_provider)
+            new_name = await generate_short_chat_name(str(name_gen_input[0]), str(name_gen_input[1]), llm_provider)
             with self._lock:
                 # Update the thread's name if still required
                 thread = self._chat_threads[thread_id]

@@ -5,7 +5,7 @@ from typing import List
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import InlineCompleterMetadata, MessageType
 from mito_ai.completions.prompt_builders.inline_completer_prompt import create_inline_prompt
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
 
@@ -17,9 +17,8 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
     @staticmethod
     async def get_completion(
         metadata: InlineCompleterMetadata,
-        provider: OpenAIProvider,
-        message_history: GlobalMessageHistory,
-        model: str
+        provider: ProviderManager,
+        message_history: GlobalMessageHistory
     ) -> str:
         """Get an inline completion from the AI provider."""
         
@@ -37,9 +36,9 @@ class InlineCompleterHandler(CompletionHandler[InlineCompleterMetadata]):
         # Get the completion
         completion = await provider.request_completions(
             messages=messages, 
-            model=model,
             message_type=MessageType.INLINE_COMPLETION,
-            thread_id=None
+            thread_id=None,
+            use_fast_model=True
         )
         
         return completion

@@ -3,13 +3,14 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ReactWidget, Notification } from '@jupyterlab/apputils';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { updateChartConfig, ChartConfigVariable } from './utils/parser';
 import { convertChartCode, logEvent } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting } from '../../utils/strings';
 import LoadingDots from '../../components/LoadingDots';
+import AddFieldButton from './AddFieldButton';
 import {
     BooleanInputRow,
     TupleInputRow,
@@ -19,6 +20,7 @@ import {
     isHexColor
 } from './inputs';
 import { useChartConfig, useDebouncedNotebookUpdate } from './hooks';
+import { getActiveCellID, scrollToCell } from '../../utils/notebook';
 import '../../../style/ChartWizardWidget.css';
 
 interface ChartWizardContentProps {
@@ -38,12 +40,78 @@ const formatVariableLabel = (variableName: string): string => {
 
 const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) => {
     const [isConverting, setIsConverting] = useState(false);
+    const [isAddingField, setIsAddingField] = useState(false);
     const [currentSourceCode, setCurrentSourceCode] = useState<string | null>(null);
+    const widgetRef = useRef<HTMLDivElement>(null);
+    const [overlayHeight, setOverlayHeight] = useState<number>(0);
+    const [isActiveCellMismatch, setIsActiveCellMismatch] = useState(false);
 
     // Reset currentSourceCode when switching to a different chart
     useEffect(() => {
         setCurrentSourceCode(null);
     }, [chartData?.sourceCode]);
+
+    // Track active cell changes and compare with chart cell
+    useEffect(() => {
+        if (!chartData) {
+            setIsActiveCellMismatch(false);
+            return;
+        }
+
+        const checkActiveCell = (): void => {
+            const activeCellId = getActiveCellID(chartData.notebookTracker);
+            const chartCellId = chartData.cellId;
+            // Show warning if active cell exists and doesn't match the chart cell
+            setIsActiveCellMismatch(activeCellId !== undefined && activeCellId !== chartCellId);
+        };
+
+        // Initial check
+        checkActiveCell();
+
+        // Listen to active cell changes
+        chartData.notebookTracker.activeCellChanged.connect(checkActiveCell);
+
+        return () => {
+            chartData.notebookTracker.activeCellChanged.disconnect(checkActiveCell);
+        };
+    }, [chartData]);
+
+    // Update overlay height to cover full scrollable content
+    useEffect(() => {
+        if (!isAddingField) {
+            setOverlayHeight(0);
+            return;
+        }
+
+        const updateOverlayHeight = (): void => {
+            if (widgetRef.current) {
+                // Use scrollHeight to get the full scrollable content height
+                setOverlayHeight(widgetRef.current.scrollHeight);
+            }
+        };
+
+        // Initial update
+        updateOverlayHeight();
+
+        // Use ResizeObserver to watch for content size changes
+        let resizeObserver: ResizeObserver | null = null;
+        if (widgetRef.current && typeof ResizeObserver !== 'undefined') {
+            resizeObserver = new ResizeObserver(() => {
+                updateOverlayHeight();
+            });
+            resizeObserver.observe(widgetRef.current);
+        }
+
+        // Fallback: Update on window resize
+        window.addEventListener('resize', updateOverlayHeight);
+
+        return () => {
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
+            window.removeEventListener('resize', updateOverlayHeight);
+        };
+    }, [isAddingField]);
 
     // Use custom hook for chart config management
     const { configVariables, setConfigVariables, hasConfig } = useChartConfig({
@@ -88,7 +156,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
      * Handles chart conversion from matplotlib to Chart Wizard format.
      */
     const handleConvertChart = useCallback(async (): Promise<void> => {
-        void logEvent('clicked_convert_chart_button');
+        void logEvent('chart_wizard_convert_chart');
 
         if (!chartData?.sourceCode) {
             console.error('No source code available');
@@ -135,6 +203,16 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
             setIsConverting(false);
         }
     }, [chartData?.sourceCode, clearPendingUpdate, updateNotebookCell]);
+
+    /**
+     * Handles when a new field is added via the AddFieldButton component.
+     */
+    const handleFieldAdded = useCallback((updatedCode: string): void => {
+        // Update current source code so the useEffect will parse it
+        setCurrentSourceCode(updatedCode);
+        // Update the cell with the updated code
+        updateNotebookCell(updatedCode);
+    }, [updateNotebookCell]);
 
     /**
      * Renders the appropriate input field component based on variable type.
@@ -190,8 +268,44 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     }
 
     return (
-        <div className="chart-wizard-widget">
+        <div className="chart-wizard-widget" ref={widgetRef} style={{ position: 'relative' }}>
             <h2>Chart Wizard</h2>
+
+            {isActiveCellMismatch && (
+                <div className="chart-wizard-warning">
+                    <div className="chart-wizard-warning-content">
+                        The active cell is no longer the chart cell. Changes may not be applied correctly.
+                    </div>
+                    <button
+                        className="chart-wizard-warning-button"
+                        onClick={() => {
+                            if (chartData) {
+                                // Find the notebook panel by ID
+                                const notebookPanel = chartData.notebookTracker.find(
+                                    panel => panel.id === chartData.notebookPanelId
+                                );
+                                
+                                if (notebookPanel) {
+                                    // Activate the notebook panel if it's not the current one
+                                    if (chartData.notebookTracker.currentWidget?.id !== notebookPanel.id) {
+                                        chartData.app.shell.activateById(notebookPanel.id);
+                                        // Wait a bit for the notebook to activate before scrolling
+                                        setTimeout(() => {
+                                            scrollToCell(notebookPanel, chartData.cellId, undefined, 'start');
+                                        }, 100);
+                                    } else {
+                                        // Navigate to and scroll to the chart cell
+                                        scrollToCell(notebookPanel, chartData.cellId, undefined, 'start');
+                                    }
+                                }
+                            }
+                        }}
+                        type="button"
+                    >
+                        Go to Chart Cell
+                    </button>
+                </div>
+            )}
 
             {hasConfig ? (
                 <div className="chart-wizard-config-container">
@@ -199,6 +313,12 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                         Edit values below to customize your chart. Changes will be reflected in the notebook.
                     </p>
                     {inputFields}
+                    <AddFieldButton
+                        code={currentSourceCode || chartData?.sourceCode || null}
+                        onFieldAdded={handleFieldAdded}
+                        clearPendingUpdate={clearPendingUpdate}
+                        onLoadingStateChange={setIsAddingField}
+                    />
                 </div>
             ) : (
                 <div className="chart-wizard-no-config">
@@ -224,6 +344,20 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                             'Convert'
                         )}
                     </button>
+                </div>
+            )}
+
+            {isAddingField && (
+                <div 
+                    className="chart-wizard-overlay"
+                    style={{ height: overlayHeight > 0 ? `${overlayHeight}px` : '100%' }}
+                >
+                    <div className="chart-wizard-overlay-text">
+                        Adding new field{' '}
+                        <span className="chart-wizard-loading-dots">
+                            <LoadingDots />
+                        </span>
+                    </div>
                 </div>
             )}
         </div>

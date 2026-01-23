@@ -33,6 +33,9 @@
   --jupyter-orange: #F37726;
   --streamlit-red: #FF4B4B;
 
+  /* Hero content left margin - shared between hero_content_container and carousel */
+  --hero-content-left-margin: 2rem;
+
   /* 
     We can't currently use css variables in media queries unforuntetly! 
     See here: https://bholmes.dev/blog/alternative-to-css-variable-media-queries/

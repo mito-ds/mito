@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from mito_ai.tests.providers.utils import mock_azure_openai_client, mock_openai_client, patch_server_limits
 import pytest
 from traitlets.config import Config
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.models import (
     MessageType,
     AICapabilities,
@@ -24,16 +24,16 @@ FAKE_API_KEY = "sk-1234567890"
 
 @pytest.fixture
 def provider_config() -> Config:
-    """Create a proper Config object for the OpenAIProvider."""
+    """Create a proper Config object for the ProviderManager."""
     config = Config()
-    config.OpenAIProvider = Config()
+    config.ProviderManager = Config()
     config.OpenAIClient = Config()
     return config
 
 @pytest.fixture(autouse=True)
 def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
     for var in [
-        "OPENAI_API_KEY", "CLAUDE_API_KEY",
+        "OPENAI_API_KEY", "ANTHROPIC_API_KEY",
         "GEMINI_API_KEY", "OLLAMA_MODEL",
         "AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_MODEL"
     ]:
@@ -49,18 +49,18 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "name": "openai",
         "env_vars": {"OPENAI_API_KEY": FAKE_API_KEY},
         "constants": {"OPENAI_API_KEY": FAKE_API_KEY},
-        "model": "gpt-4o-mini",
-        "mock_patch": "mito_ai.completions.providers.OpenAIClient",
+        "model": "gpt-4.1",
+        "mock_patch": "mito_ai.provider_manager.OpenAIClient",
         "mock_method": "request_completions",
         "provider_name": "OpenAI with user key",
         "key_type": "user"
     },
     {
         "name": "claude", 
-        "env_vars": {"CLAUDE_API_KEY": "claude-key"},
-        "constants": {"CLAUDE_API_KEY": "claude-key", "OPENAI_API_KEY": None},
-        "model": "claude-3-opus-20240229",
-        "mock_patch": "mito_ai.completions.providers.AnthropicClient",
+        "env_vars": {"ANTHROPIC_API_KEY": "claude-key"},
+        "constants": {"ANTHROPIC_API_KEY": "claude-key", "OPENAI_API_KEY": None},
+        "model": "claude-sonnet-4-5-20250929",
+        "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "request_completions",
         "provider_name": "Claude",
         "key_type": "claude"
@@ -69,8 +69,8 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "name": "gemini",
         "env_vars": {"GEMINI_API_KEY": "gemini-key"},
         "constants": {"GEMINI_API_KEY": "gemini-key", "OPENAI_API_KEY": None},
-        "model": "gemini-2.0-flash",
-        "mock_patch": "mito_ai.completions.providers.GeminiClient",
+        "model": "gemini-3-flash-preview",
+        "mock_patch": "mito_ai.provider_manager.GeminiClient",
         "mock_method": "request_completions",
         "provider_name": "Gemini",
         "key_type": "gemini"
@@ -79,8 +79,8 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "name": "azure",
         "env_vars": {"AZURE_OPENAI_API_KEY": "azure-key"},
         "constants": {"AZURE_OPENAI_API_KEY": "azure-key", "OPENAI_API_KEY": None},
-        "model": "gpt-4o",
-        "mock_patch": "mito_ai.completions.providers.OpenAIClient",
+        "model": "gpt-4.1",
+        "mock_patch": "mito_ai.provider_manager.OpenAIClient",
         "mock_method": "request_completions",
         "provider_name": "Azure OpenAI",
         "key_type": "azure"
@@ -113,15 +113,15 @@ async def test_completion_request(
     mock_client.stream_completions = AsyncMock(return_value="Test completion")
 
     with patch(provider_config_data["mock_patch"], return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderManager(config=provider_config)
+        llm.set_selected_model(provider_config_data["model"])
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
         ]
 
         completion = await llm.request_completions(
             message_type=MessageType.CHAT,
-            messages=messages,
-            model=provider_config_data["model"]
+            messages=messages
         )
 
         assert completion == "Test completion"
@@ -133,18 +133,18 @@ async def test_completion_request(
         "name": "openai",
         "env_vars": {"OPENAI_API_KEY": FAKE_API_KEY},
         "constants": {"OPENAI_API_KEY": FAKE_API_KEY},
-        "model": "gpt-4o-mini",
-        "mock_patch": "mito_ai.completions.providers.OpenAIClient",
+        "model": "gpt-4.1",
+        "mock_patch": "mito_ai.provider_manager.OpenAIClient",
         "mock_method": "stream_completions",
         "provider_name": "OpenAI with user key",
         "key_type": "user"
     },
     {
         "name": "claude", 
-        "env_vars": {"CLAUDE_API_KEY": "claude-key"},
-        "constants": {"CLAUDE_API_KEY": "claude-key", "OPENAI_API_KEY": None},
-        "model": "claude-3-opus-20240229",
-        "mock_patch": "mito_ai.completions.providers.AnthropicClient",
+        "env_vars": {"ANTHROPIC_API_KEY": "claude-key"},
+        "constants": {"ANTHROPIC_API_KEY": "claude-key", "OPENAI_API_KEY": None},
+        "model": "claude-sonnet-4-5-20250929",
+        "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "stream_completions", 
         "provider_name": "Claude",
         "key_type": "claude"
@@ -153,8 +153,8 @@ async def test_completion_request(
         "name": "gemini",
         "env_vars": {"GEMINI_API_KEY": "gemini-key"},
         "constants": {"GEMINI_API_KEY": "gemini-key", "OPENAI_API_KEY": None},
-        "model": "gemini-2.0-flash",
-        "mock_patch": "mito_ai.completions.providers.GeminiClient",
+        "model": "gemini-3-flash-preview",
+        "mock_patch": "mito_ai.provider_manager.GeminiClient",
         "mock_method": "stream_completions",
         "provider_name": "Gemini",
         "key_type": "gemini"
@@ -188,7 +188,8 @@ async def test_stream_completion_parameterized(
     mock_client.stream_response = AsyncMock(return_value="Test completion")  # For Claude
 
     with patch(provider_config_data["mock_patch"], return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+        llm = ProviderManager(config=provider_config)
+        llm.set_selected_model(provider_config_data["model"])
         messages: List[ChatCompletionMessageParam] = [
             {"role": "user", "content": "Test message"}
         ]
@@ -200,7 +201,6 @@ async def test_stream_completion_parameterized(
         completion = await llm.stream_completions(
             message_type=MessageType.CHAT,
             messages=messages,
-            model=provider_config_data["model"],
             message_id="test-id",
             thread_id="test-thread",
             reply_fn=mock_reply
@@ -217,33 +217,33 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", "invalid-key")
     mock_client = MagicMock()
     mock_client.capabilities = AICapabilities(
-        configuration={"model": "gpt-4o-mini"},
+        configuration={"model": "gpt-4.1"},
         provider="OpenAI with user key",
         type="ai_capabilities"
     )
     mock_client.key_type = "user"
     mock_client.request_completions.side_effect = Exception("API error")
 
-    with patch("mito_ai.completions.providers.OpenAIClient", return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
+        llm = ProviderManager(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
 
 def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
-    monkeypatch.setenv("CLAUDE_API_KEY", "invalid-key")
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "invalid-key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "invalid-key")
+    monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", "invalid-key")
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
 
     mock_client = MagicMock()
     mock_client.capabilities = AICapabilities(
-        configuration={"model": "claude-3-opus-20240229"},
+        configuration={"model": "claude-sonnet-4-5-20250929"},
         provider="Claude",
         type="ai_capabilities"
     )
     mock_client.key_type = "claude"
     mock_client.request_completions.side_effect = Exception("API error")
 
-    with patch("mito_ai.completions.providers.AnthropicClient", return_value=mock_client):
-        llm = OpenAIProvider(config=provider_config)
+    with patch("mito_ai.provider_manager.AnthropicClient", return_value=mock_client):
+        llm = ProviderManager(config=provider_config)
         assert llm.last_error is None  # Error should be None until a request is made
 
 
@@ -251,21 +251,21 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
 @pytest.mark.parametrize("mito_server_config", [
     {
         "name": "openai_fallback",
-        "model": "gpt-4o-mini",
+        "model": "gpt-4.1",
         "mock_function": "mito_ai.openai_client.get_ai_completion_from_mito_server",
         "provider_name": "Mito server",
         "key_type": "mito_server"
     },
     {
         "name": "claude_fallback", 
-        "model": "claude-3-opus-20240229",
+        "model": "claude-sonnet-4-5-20250929",
         "mock_function": "mito_ai.anthropic_client.get_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
     },
     {
         "name": "gemini_fallback",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3-flash-preview",
         "mock_function": "mito_ai.gemini_client.get_gemini_completion_from_mito_server",
         "provider_name": "Gemini",
         "key_type": "gemini"
@@ -280,10 +280,9 @@ async def test_mito_server_fallback_completion_request(
     """Test that completion requests fallback to Mito server when no API keys are set."""
     # Clear all API keys to force Mito server fallback
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", None)
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
     monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-    provider_config.OpenAIProvider.api_key = None
 
     # Mock the appropriate Mito server function
     with patch(mito_server_config["mock_function"], new_callable=AsyncMock) as mock_mito_function:
@@ -294,12 +293,12 @@ async def test_mito_server_fallback_completion_request(
         ]
 
         with patch_server_limits():
-                llm = OpenAIProvider(config=provider_config)
+                llm = ProviderManager(config=provider_config)
+                llm.set_selected_model(mito_server_config["model"])
 
                 completion = await llm.request_completions(
                     message_type=MessageType.CHAT,
-                    messages=messages,
-                    model=mito_server_config["model"]
+                    messages=messages
                 )
 
                 assert completion == "Mito server response"
@@ -309,21 +308,21 @@ async def test_mito_server_fallback_completion_request(
 @pytest.mark.parametrize("mito_server_config", [
     {
         "name": "openai_fallback",
-        "model": "gpt-4o-mini",
+        "model": "gpt-4.1",
         "mock_function": "mito_ai.openai_client.stream_ai_completion_from_mito_server",
         "provider_name": "Mito server",
         "key_type": "mito_server"
     },
     {
         "name": "claude_fallback", 
-        "model": "claude-3-opus-20240229",
+        "model": "claude-sonnet-4-5-20250929",
         "mock_function": "mito_ai.anthropic_client.stream_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
     },
     {
         "name": "gemini_fallback",
-        "model": "gemini-2.0-flash",
+        "model": "gemini-3-flash-preview",
         "mock_function": "mito_ai.gemini_client.stream_gemini_completion_from_mito_server",
         "provider_name": "Gemini",
         "key_type": "gemini"
@@ -338,10 +337,9 @@ async def test_mito_server_fallback_stream_completion(
     """Test that stream completions fallback to Mito server when no API keys are set."""
     # Clear all API keys to force Mito server fallback
     monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
-    monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+    monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", None)
     monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
     monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-    provider_config.OpenAIProvider.api_key = None
 
     # Create an async generator that yields chunks for streaming
     async def mock_stream_generator():
@@ -364,12 +362,12 @@ async def test_mito_server_fallback_stream_completion(
         # Apply patch_server_limits for all cases, not just openai_fallback
         # Also patch update_mito_server_quota where it's actually used in openai_client
         with patch_server_limits(), patch("mito_ai.openai_client.update_mito_server_quota", MagicMock(return_value=None)):
-            llm = OpenAIProvider(config=provider_config)                
+            llm = ProviderManager(config=provider_config)
+            llm.set_selected_model(mito_server_config["model"])
 
             completion = await llm.stream_completions(
                 message_type=MessageType.CHAT,
                 messages=messages,
-                model=mito_server_config["model"],
                 message_id="test-id",
                 thread_id="test-thread",
                 reply_fn=mock_reply
@@ -380,3 +378,183 @@ async def test_mito_server_fallback_stream_completion(
             # Verify that reply chunks were generated
             assert len(reply_chunks) > 0
             assert isinstance(reply_chunks[0], CompletionReply)
+
+
+# Fast and Smartest Model Tests
+@pytest.mark.asyncio
+async def test_provider_manager_uses_fast_model_for_request_completions(
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that ProviderManager correctly sets and uses fast model for request_completions when requested."""
+    # Set up environment variables to ensure OpenAI provider is used
+    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    
+    from mito_ai.utils.model_utils import get_fast_model_for_selected_model
+    
+    # Create mock client
+    mock_client = MagicMock()
+    mock_client.capabilities = AICapabilities(
+        configuration={"model": "gpt-4.1"},
+        provider="OpenAI with user key",
+        type="ai_capabilities"
+    )
+    mock_client.request_completions = AsyncMock(return_value="Test completion")
+    
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": "Test message"}
+    ]
+    
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
+        provider = ProviderManager(config=provider_config)
+        provider.set_selected_model("gpt-5.2")
+        
+        await provider.request_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            use_fast_model=True
+        )
+        
+        # Verify that request_completions was called with the fast model
+        mock_client.request_completions.assert_called_once()
+        call_args = mock_client.request_completions.call_args
+        expected_fast_model = get_fast_model_for_selected_model("gpt-5.2")
+        assert call_args[1]['model'] == expected_fast_model
+
+@pytest.mark.asyncio
+async def test_provider_manager_uses_smartest_model_for_request_completions(
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that ProviderManager correctly sets and uses smartest model for request_completions when requested."""
+    # Set up environment variables to ensure OpenAI provider is used
+    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    
+    from mito_ai.utils.model_utils import get_smartest_model_for_selected_model
+    
+    # Create mock client
+    mock_client = MagicMock()
+    mock_client.capabilities = AICapabilities(
+        configuration={"model": "gpt-4.1"},
+        provider="OpenAI with user key",
+        type="ai_capabilities"
+    )
+    mock_client.request_completions = AsyncMock(return_value="Test completion")
+    
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": "Test message"}
+    ]
+    
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
+        provider = ProviderManager(config=provider_config)
+        provider.set_selected_model("gpt-4.1")
+        
+        await provider.request_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            use_smartest_model=True
+        )
+        
+        # Verify that request_completions was called with the smartest model
+        mock_client.request_completions.assert_called_once()
+        call_args = mock_client.request_completions.call_args
+        expected_smartest_model = get_smartest_model_for_selected_model("gpt-4.1")
+        assert call_args[1]['model'] == expected_smartest_model
+
+@pytest.mark.asyncio
+async def test_provider_manager_uses_fast_model_for_stream_completions(
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that ProviderManager correctly sets and uses fast model for stream_completions when requested."""
+    # Set up environment variables to ensure OpenAI provider is used
+    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    
+    from mito_ai.utils.model_utils import get_fast_model_for_selected_model
+    
+    # Create mock client
+    mock_client = MagicMock()
+    mock_client.capabilities = AICapabilities(
+        configuration={"model": "gpt-4.1"},
+        provider="OpenAI with user key",
+        type="ai_capabilities"
+    )
+    mock_client.stream_completions = AsyncMock(return_value="Test completion")
+    
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": "Test message"}
+    ]
+    
+    reply_chunks = []
+    def mock_reply(chunk):
+        reply_chunks.append(chunk)
+    
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
+        provider = ProviderManager(config=provider_config)
+        provider.set_selected_model("gpt-5.2")
+        
+        await provider.stream_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            message_id="test-id",
+            thread_id="test-thread",
+            reply_fn=mock_reply,
+            use_fast_model=True
+        )
+        
+        # Verify that stream_completions was called with the fast model
+        mock_client.stream_completions.assert_called_once()
+        call_args = mock_client.stream_completions.call_args
+        expected_fast_model = get_fast_model_for_selected_model("gpt-5.2")
+        assert call_args[1]['model'] == expected_fast_model
+
+@pytest.mark.asyncio
+async def test_provider_manager_uses_smartest_model_for_stream_completions(
+    monkeypatch: pytest.MonkeyPatch, 
+    provider_config: Config
+) -> None:
+    """Test that ProviderManager correctly sets and uses smartest model for stream_completions when requested."""
+    # Set up environment variables to ensure OpenAI provider is used
+    monkeypatch.setenv("OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
+    
+    from mito_ai.utils.model_utils import get_smartest_model_for_selected_model
+    
+    # Create mock client
+    mock_client = MagicMock()
+    mock_client.capabilities = AICapabilities(
+        configuration={"model": "gpt-4.1"},
+        provider="OpenAI with user key",
+        type="ai_capabilities"
+    )
+    mock_client.stream_completions = AsyncMock(return_value="Test completion")
+    
+    messages: List[ChatCompletionMessageParam] = [
+        {"role": "user", "content": "Test message"}
+    ]
+    
+    reply_chunks = []
+    def mock_reply(chunk):
+        reply_chunks.append(chunk)
+    
+    with patch("mito_ai.provider_manager.OpenAIClient", return_value=mock_client):
+        provider = ProviderManager(config=provider_config)
+        provider.set_selected_model("gpt-4.1")
+        
+        await provider.stream_completions(
+            message_type=MessageType.CHAT,
+            messages=messages,
+            message_id="test-id",
+            thread_id="test-thread",
+            reply_fn=mock_reply,
+            use_smartest_model=True
+        )
+        
+        # Verify that stream_completions was called with the smartest model
+        mock_client.stream_completions.assert_called_once()
+        call_args = mock_client.stream_completions.call_args
+        expected_smartest_model = get_smartest_model_for_selected_model("gpt-4.1")
+        assert call_args[1]['model'] == expected_smartest_model

@@ -183,9 +183,28 @@ CHART WIZARD ENDPOINTS
 ************************************/
 
 export const convertChartCode = async (code: string): Promise<{message: string, converted_code?: string}> => {
-    const resp = await requestAPI<{message: string, converted_code?: string}>('chart-wizard', {
+    const resp = await requestAPI<{message: string, converted_code?: string}>('chart-wizard/convert', {
         method: 'POST',
         body: JSON.stringify({ code }),
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data!;
+}
+
+export const addChartField = async (
+    code: string, 
+    userDescription: string, 
+    existingVariables: string[]
+): Promise<{message: string, updated_code?: string}> => {
+    const resp = await requestAPI<{message: string, updated_code?: string}>('chart-wizard/add-field', {
+        method: 'POST',
+        body: JSON.stringify({ 
+            code, 
+            user_description: userDescription,
+            existing_variables: existingVariables
+        }),
     })
     if (resp.error) {
         throw new Error(resp.error.message);

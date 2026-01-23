@@ -9,7 +9,7 @@ from anthropic.types import Message, MessageParam, TextBlockParam
 from mito_ai.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from mito_ai.completions.prompt_builders.prompt_section_registry import get_max_trim_after_messages
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params
+from mito_ai.utils.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params, LARGE_CONTEXT_MODEL, EXTENDED_CONTEXT_BETA
 
 # Max tokens is a required parameter for the Anthropic API. 
 # We set it to a high number so that we can edit large code cells
@@ -220,7 +220,10 @@ class AnthropicClient:
         self.max_retries = max_retries
         self.client: Optional[anthropic.Anthropic]
         if api_key:
-            self.client = anthropic.Anthropic(api_key=api_key)
+            # Use a higher timeout to avoid the 10-minute streaming requirement for long requests
+            # The default SDK timeout is 600s (10 minutes), but we set it higher for agent mode
+            # TODO: We should update agent mode to use streaming like anthropic suggests
+            self.client = anthropic.Anthropic(api_key=api_key, timeout=1200.0)  # 20 minutes
         else:
             self.client = None
 
@@ -249,7 +252,8 @@ class AnthropicClient:
         if self.api_key:
             # Unpack provider_data for direct API call
             assert self.client is not None
-            response = self.client.messages.create(**provider_data)
+            # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
+            response = self.client.beta.messages.create(**provider_data)  # type: ignore[arg-type]
             
             if provider_data.get("tool_choice") is not None:
                 result = extract_and_parse_anthropic_json_response(response)
@@ -284,21 +288,27 @@ class AnthropicClient:
 
             if self.api_key:
                 assert self.client is not None
-                stream = self.client.messages.create(
-                    model=model,
-                    max_tokens=MAX_TOKENS,
-                    temperature=0,
-                    system=anthropic_system_prompt,
-                    messages=anthropic_messages,
-                    stream=True
-                )
+                # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
+                # Enable extended context beta when using LARGE_CONTEXT_MODEL
+                create_params = {
+                    "model": model,
+                    "max_tokens": MAX_TOKENS,
+                    "temperature": 0,
+                    "system": anthropic_system_prompt,
+                    "messages": anthropic_messages,  # type: ignore[arg-type]
+                    "stream": True
+                }
+                if model == LARGE_CONTEXT_MODEL:
+                    create_params["betas"] = [EXTENDED_CONTEXT_BETA]
+                stream = self.client.beta.messages.create(**create_params)  # type: ignore[call-overload]
 
                 for chunk in stream:
-                    if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
-                        content = chunk.delta.text
+                    # Type checking for beta API streaming chunks (runtime type checking, types are compatible)
+                    if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":  # type: ignore[union-attr]
+                        content = chunk.delta.text  # type: ignore[union-attr]
                         accumulated_response += content
 
-                        is_finished = chunk.type == "message_stop"
+                        is_finished = chunk.type == "message_stop"  # type: ignore[union-attr]
 
                         reply_fn(CompletionStreamChunk(
                             parent_id=message_id,

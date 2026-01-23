@@ -42,17 +42,24 @@ After each interaction:
 
 ### 7. Rebuild and Re-test
 
-After making fixes:
+After making code changes and before testing again:
 
-1. **Setup Environment**: 
-   - For frontend changes: Wait a few seconds for rebuild to complete
-   - For backend changes: Restart and relaunch the server 
+1. **For Frontend Changes** (TypeScript/React/CSS/JavaScript):
+   - Wait a few seconds for the build to complete (check the TypeScript terminal)
+   - **Refresh the browser** to load the updated code:
+     - Use browser navigation to reload the page, or
+     - Use browser refresh functionality
+   - Retest the feature
 
-2. **Refresh browser**: 
-   - Take new snapshot
+
+2. **For Backend Changes** (Python/server code):
+   - **Shut down the Jupyter server** (stop the running JupyterLab process)
+   - **Relaunch the Jupyter server** to load the updated backend code
+   - Navigate to the JupyterLab URL again
+   - Wait 3-5 seconds for full page load
+   - Take a new snapshot
    - Re-test the feature
-   - Verify fix worked
 
 ### 8. Iterate Until Complete
 
-Repeat steps 4-7 until the feature works correctly.
+Repeat steps 4-7 until the feature works correctly. 

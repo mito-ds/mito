@@ -6,7 +6,7 @@ import ast
 import inspect
 import requests
 from mito_ai.gemini_client import GeminiClient, get_gemini_system_prompt_and_messages
-from mito_ai.utils.gemini_utils import get_gemini_completion_function_params, FAST_GEMINI_MODEL
+from mito_ai.utils.gemini_utils import get_gemini_completion_function_params
 from google.genai.types import Part, GenerateContentResponse, Candidate, Content
 from mito_ai.completions.models import ResponseFormatInfo, AgentResponse
 from unittest.mock import MagicMock, patch
@@ -156,19 +156,20 @@ async def test_json_response_handling_with_multiple_parts():
     assert result == 'Here is the JSON: {"key": "value"} End of response' 
     
 CUSTOM_MODEL = "smart-gemini-model"
-@pytest.mark.parametrize("message_type, expected_model", [
-    (MessageType.CHAT, CUSTOM_MODEL),  #
-    (MessageType.SMART_DEBUG, CUSTOM_MODEL),  #
-    (MessageType.CODE_EXPLAIN, CUSTOM_MODEL),  #
-    (MessageType.AGENT_EXECUTION, CUSTOM_MODEL),  #
-    (MessageType.AGENT_AUTO_ERROR_FIXUP, CUSTOM_MODEL),  #
-    (MessageType.INLINE_COMPLETION, FAST_GEMINI_MODEL),  #
-    (MessageType.CHAT_NAME_GENERATION, FAST_GEMINI_MODEL),  #
+@pytest.mark.parametrize("message_type", [
+    MessageType.CHAT,
+    MessageType.SMART_DEBUG,
+    MessageType.CODE_EXPLAIN,
+    MessageType.AGENT_EXECUTION,
+    MessageType.AGENT_AUTO_ERROR_FIXUP,
+    MessageType.INLINE_COMPLETION,
+    MessageType.CHAT_NAME_GENERATION,
 ])
 @pytest.mark.asyncio 
-async def test_get_completion_model_selection_based_on_message_type(message_type, expected_model):
+async def test_get_completion_model_selection_uses_passed_model(message_type):
     """
-    Tests that the correct model is selected based on the message type.
+    Tests that the model passed to the client is used as-is.
+    Model selection based on message type is now handled by ProviderManager.
     """
     with patch('google.genai.Client') as mock_genai_class:
         mock_client = MagicMock()
@@ -189,7 +190,7 @@ async def test_get_completion_model_selection_based_on_message_type(message_type
             response_format_info=None
         )
         
-        # Verify that generate_content was called with the expected model
+        # Verify that generate_content was called with the model that was passed (not overridden)
         mock_models.generate_content.assert_called_once()
         call_args = mock_models.generate_content.call_args
-        assert call_args[1]['model'] == expected_model 
+        assert call_args[1]['model'] == CUSTOM_MODEL 

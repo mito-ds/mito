@@ -4,7 +4,7 @@
 import pytest
 import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.models import MessageType, CompletionError
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
 from mito_ai.tests.providers.utils import mock_openai_client, patch_server_limits
@@ -14,9 +14,9 @@ FAKE_API_KEY = "sk-1234567890"
 
 @pytest.fixture
 def provider_config() -> Config:
-    """Create a proper Config object for the OpenAIProvider."""
+    """Create a proper Config object for the ProviderManager."""
     config = Config()
-    config.OpenAIProvider = Config()
+    config.ProviderManager = Config()
     config.OpenAIClient = Config()
     return config
 
@@ -32,7 +32,7 @@ def mock_sleep():
         yield mock
 
 class TestRetryLogic:
-    """Test retry logic in OpenAIProvider.request_completions."""
+    """Test retry logic in ProviderManager.request_completions."""
 
     @pytest.mark.parametrize("attempts_before_success,max_retries,expected_call_count", [
         (0, 3, 1),  # Success on first try
@@ -64,13 +64,12 @@ class TestRetryLogic:
         ):
             mock_client.return_value.request_completions = AsyncMock(side_effect=side_effects)
             
-            provider = OpenAIProvider(config=provider_config)
+            provider = ProviderManager(config=provider_config)
             
             # Test successful completion
             result = await provider.request_completions(
                 message_type=MessageType.CHAT,
                 messages=mock_messages,
-                model="gpt-4o-mini",
                 max_retries=max_retries
             )
             
@@ -114,14 +113,13 @@ class TestRetryLogic:
         ):
             mock_client.return_value.request_completions = AsyncMock(side_effect=test_exception)
             
-            provider = OpenAIProvider(config=provider_config)
+            provider = ProviderManager(config=provider_config)
             
             # Test failure after all retries
             with pytest.raises(exception_type):
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=max_retries
                 )
             
@@ -158,13 +156,12 @@ class TestRetryLogic:
         ):
             mock_client.return_value.request_completions = AsyncMock(side_effect=side_effects)
             
-            provider = OpenAIProvider(config=provider_config)
+            provider = ProviderManager(config=provider_config)
             
             # Should succeed after 3 retries with mixed exceptions
             result = await provider.request_completions(
                 message_type=MessageType.CHAT,
                 messages=mock_messages,
-                model="gpt-4o-mini",
                 max_retries=3
             )
             
@@ -189,7 +186,7 @@ class TestRetryLogic:
             patch_server_limits(),
             mock_openai_client() as mock_client
         ):
-            provider = OpenAIProvider(config=provider_config)
+            provider = ProviderManager(config=provider_config)
             
             # First request fails to set an error
             mock_client.return_value.request_completions = AsyncMock(side_effect=Exception("First error"))
@@ -198,7 +195,6 @@ class TestRetryLogic:
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=0  # No retries to fail quickly
                 )
             
@@ -211,7 +207,6 @@ class TestRetryLogic:
             result = await provider.request_completions(
                 message_type=MessageType.CHAT,
                 messages=mock_messages,
-                model="gpt-4o-mini",
                 max_retries=3
             )
             
@@ -236,14 +231,13 @@ class TestRetryLogic:
         ):
             mock_client.return_value.request_completions = AsyncMock(side_effect=Exception("Test error"))
             
-            provider = OpenAIProvider(config=provider_config)
+            provider = ProviderManager(config=provider_config)
             
             # Should fail immediately with no retries
             with pytest.raises(Exception):
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=0
                 )
             
@@ -272,14 +266,13 @@ class TestRetryLogic:
         ):
             mock_client.return_value.request_completions = AsyncMock(side_effect=provider_exception)
             
-            provider = OpenAIProvider(config=provider_config)
+            provider = ProviderManager(config=provider_config)
             
             # Should fail after retries
             with pytest.raises(ProviderCompletionException):
                 await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=2
                 )
             
@@ -326,9 +319,9 @@ class TestRetryLogic:
         monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", FAKE_API_KEY)
         
         # Clear other API keys to ensure OpenAI path is used
-        monkeypatch.delenv("CLAUDE_API_KEY", raising=False)
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
         monkeypatch.delenv("GEMINI_API_KEY", raising=False)
-        monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", None)
+        monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", None)
         monkeypatch.setattr("mito_ai.constants.GEMINI_API_KEY", None)
         
         # Enable print logs to capture telemetry output
@@ -341,7 +334,7 @@ class TestRetryLogic:
             mock_client.key_type = "user"
             
             # Create the provider and set the mock client
-            provider = OpenAIProvider(config=provider_config)
+            provider = ProviderManager(config=provider_config)
             provider._openai_client = mock_client
             
             # Determine if we expect success or failure
@@ -352,7 +345,6 @@ class TestRetryLogic:
                 result = await provider.request_completions(
                     message_type=MessageType.CHAT,
                     messages=mock_messages,
-                    model="gpt-4o-mini",
                     max_retries=max_retries
                 )
                 
@@ -365,7 +357,6 @@ class TestRetryLogic:
                     await provider.request_completions(
                         message_type=MessageType.CHAT,
                         messages=mock_messages,
-                        model="gpt-4o-mini",
                         max_retries=max_retries
                     )
                 

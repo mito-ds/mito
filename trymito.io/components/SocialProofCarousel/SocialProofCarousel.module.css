@@ -1,0 +1,123 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 4rem;
+  padding-right: 2rem;
+  position: relative;
+  gap: 2rem;
+}
+
+.tagline {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+  text-align: left;
+  z-index: 2;
+  position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.carouselWrapper {
+  position: relative !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+}
+
+/* Fade effect on the left side (where text is) - only fade when very close to text */
+.carouselWrapper::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 150px;
+  background: linear-gradient(to right, var(--color-light-background) 0%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Style the marquee container and children */
+.carouselWrapper :global(.marquee_container) {
+  align-items: center;
+}
+
+.carouselWrapper :global(.marquee) {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+  margin: 0 1.5rem;
+}
+
+.logoContainer:hover {
+  opacity: 1;
+}
+
+.logo {
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  width: 56px;
+  height: 28px;
+}
+
+.logoContainer:hover .logo {
+  opacity: 1;
+  filter: grayscale(0%);
+}
+
+/* Ensure logos are visible above the fade overlay */
+.carouselWrapper :global(.marquee) > * {
+  position: relative;
+  z-index: 2;
+}
+
+@media only screen and (min-width: 75em) {
+  .tagline {
+    font-size: 1.1rem;
+  }
+  
+  .container {
+    gap: 2.5rem;
+    margin-left: 0;
+    padding-right: 3rem;
+    margin-top: 2rem;
+  }
+  
+  .carouselWrapper::before {
+    width: 180px;
+  }
+  
+  .logoContainer {
+    height: 40px;
+    margin: 0 2.5rem;
+  }
+  
+  .logo {
+    width: 80px;
+    height: 40px;
+  }
+}

@@ -22,6 +22,7 @@ import {
   GEMINI_3_FLASH_DISPLAY_NAME,
   GEMINI_3_PRO_DISPLAY_NAME,
   GEMINI_3_PRO_MODEL_NAME,
+  getAvailableModels,
 } from '../utils/models';
 
 interface ModelConfig {
@@ -121,7 +122,7 @@ const MODEL_MAPPINGS: ModelMapping[] = [
   }
 ];
 
-const ALL_MODEL_DISPLAY_NAMES = MODEL_MAPPINGS.map(mapping => mapping.displayName);
+// Removed ALL_MODEL_DISPLAY_NAMES - now using availableModels from backend
 
 // Maximum length for displayed model name before truncating
 export const DEFAULT_MODEL = CLAUDE_HAIKU_DISPLAY_NAME;
@@ -134,43 +135,117 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [hoveredModel, setHoveredModel] = useState<ModelMapping | null>(null);
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState<boolean>(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Load config from localStorage on component mount and notify parent
+  // Fetch available models from backend on mount
   useEffect(() => {
-    const storedConfig = localStorage.getItem('llmModelConfig');
-    let fullModelName: string | undefined;
-    let displayName: string | undefined;
-
-    if (storedConfig) {
+    const fetchModels = async (): Promise<void> => {
       try {
-        const parsedConfig = JSON.parse(storedConfig);
-        fullModelName = parsedConfig.model;
-        displayName = MODEL_MAPPINGS.find(m => m.fullName === fullModelName)?.displayName;
-      } catch (e) {
-        console.error('Failed to parse stored LLM config', e);
+        setIsLoadingModels(true);
+        const models = await getAvailableModels();
+        setAvailableModels(models);
+        
+        // Load config from localStorage and validate against available models
+        const storedConfig = localStorage.getItem('llmModelConfig');
+        let fullModelName: string | undefined;
+        let displayName: string | undefined;
+
+        if (storedConfig) {
+          try {
+            const parsedConfig = JSON.parse(storedConfig);
+            const storedModel = parsedConfig.model;
+            if (storedModel && typeof storedModel === 'string') {
+              fullModelName = storedModel;
+              
+              // Check if model is in available models list
+              if (models.includes(fullModelName)) {
+                // Check if it's a LiteLLM model (has provider prefix)
+                if (fullModelName.includes('/')) {
+                  // LiteLLM model - use model name directly as display name
+                  displayName = fullModelName;
+                } else {
+                  // Standard model - find display name from MODEL_MAPPINGS
+                  displayName = MODEL_MAPPINGS.find(m => m.fullName === fullModelName)?.displayName;
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Failed to parse stored LLM config', e);
+          }
+        }
+
+        // Fallback to default model or first available model if not found or invalid
+        if (!fullModelName || !displayName || (fullModelName && !models.includes(fullModelName))) {
+          if (models.length > 0) {
+            // First, try to use the default model if it's available
+            const defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL);
+            if (defaultMapping && models.includes(defaultMapping.fullName)) {
+              fullModelName = defaultMapping.fullName;
+              displayName = defaultMapping.displayName;
+            } else {
+              // Fallback to first available model
+              const firstModel = models[0];
+              fullModelName = firstModel;
+              // Check if it's a LiteLLM model
+              if (firstModel && firstModel.includes('/')) {
+                displayName = firstModel;
+              } else {
+                displayName = MODEL_MAPPINGS.find(m => m.fullName === firstModel)?.displayName || firstModel;
+              }
+            }
+          } else {
+            // Fallback to default if no models available
+            const defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL) || MODEL_MAPPINGS[0];
+            if (defaultMapping) {
+              fullModelName = defaultMapping.fullName;
+              displayName = defaultMapping.displayName;
+            } else {
+              // Ultimate fallback
+              fullModelName = GPT_4_1_MODEL_NAME;
+              displayName = GPT_4_1_DISPLAY_NAME;
+            }
+          }
+        }
+
+        if (displayName && fullModelName) {
+          setSelectedModel(displayName);
+          onConfigChange({ model: fullModelName });
+        }
+      } catch (error) {
+        console.error('Failed to fetch available models:', error);
+        // Fallback to default models
+        const defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL) || MODEL_MAPPINGS[0];
+        setSelectedModel(defaultMapping!.displayName);
+        onConfigChange({ model: defaultMapping!.fullName });
+      } finally {
+        setIsLoadingModels(false);
       }
-    }
+    };
 
-    // Fallback to default if not found
-    let defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL);
-    if (!defaultMapping) {
-      defaultMapping = MODEL_MAPPINGS[0];
-    }
-    if (!fullModelName || !displayName) {
-      fullModelName = defaultMapping!.fullName;
-      displayName = defaultMapping!.displayName;
-    }
-
-    setSelectedModel(displayName);
-    onConfigChange({ model: fullModelName });
+    void fetchModels();
   }, [onConfigChange]);
 
-  const handleModelChange = (displayName: string): void => {
-    setSelectedModel(displayName);
+  const handleModelChange = (modelName: string): void => {
+    if (!modelName) {
+      return;
+    }
+    
+    setSelectedModel(modelName);
     setIsOpen(false);
 
-    const fullModelName = MODEL_MAPPINGS.find(m => m.displayName === displayName)?.fullName || displayName;
+    // For LiteLLM models (with provider prefix), modelName is already the full model name
+    // For standard models, we need to find the full name from MODEL_MAPPINGS
+    let fullModelName: string;
+    if (modelName.includes('/')) {
+      // LiteLLM model - use model name directly
+      fullModelName = modelName;
+    } else {
+      // Standard model - find full name from MODEL_MAPPINGS
+      fullModelName = MODEL_MAPPINGS.find(m => m.displayName === modelName)?.fullName || modelName;
+    }
+
     const newConfig = {
       model: fullModelName
     };
@@ -231,33 +306,50 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
             style={{ minWidth: '150px' }}
             onMouseLeave={() => setHoveredModel(null)}
           >
-            {ALL_MODEL_DISPLAY_NAMES.map(model => {
-              const modelMapping = MODEL_MAPPINGS.find(m => m.displayName === model);
-              return (
-                <div
-                  key={model}
-                  className={`model-option ${model === selectedModel ? 'selected' : ''}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleModelChange(model);
-                  }}
-                  onMouseEnter={() => setHoveredModel(modelMapping || null)}
-                  data-testid="model-option"
-                >
-                  <span className="model-option-name">{model}</span>
-                  {modelMapping?.type === 'smart' && (
-                    <span className="model-type-icon">
-                      <BrainIcon height={12} width={12} />
-                    </span>
-                  )}
-                  {modelMapping?.type === 'fast' && (
-                    <span className="model-type-icon">
-                      <LightningIcon height={12} width={12} />
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+            {isLoadingModels ? (
+              <div className="model-option">Loading models...</div>
+            ) : (
+              availableModels.map(modelName => {
+                // Check if it's a LiteLLM model (has provider prefix)
+                const isLiteLLMModel = modelName.includes('/');
+                let displayName: string;
+                let modelMapping: ModelMapping | undefined;
+
+                if (isLiteLLMModel) {
+                  // LiteLLM model - use model name directly as display name
+                  displayName = modelName;
+                } else {
+                  // Standard model - find display name from MODEL_MAPPINGS
+                  modelMapping = MODEL_MAPPINGS.find(m => m.fullName === modelName);
+                  displayName = modelMapping?.displayName || modelName;
+                }
+
+                return (
+                  <div
+                    key={modelName}
+                    className={`model-option ${displayName === selectedModel ? 'selected' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleModelChange(displayName);
+                    }}
+                    onMouseEnter={() => setHoveredModel(modelMapping || null)}
+                    data-testid="model-option"
+                  >
+                    <span className="model-option-name">{displayName}</span>
+                    {modelMapping?.type === 'smart' && (
+                      <span className="model-type-icon">
+                        <BrainIcon height={12} width={12} />
+                      </span>
+                    )}
+                    {modelMapping?.type === 'fast' && (
+                      <span className="model-type-icon">
+                        <LightningIcon height={12} width={12} />
+                      </span>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
       </div>
@@ -302,6 +394,22 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
                   <li key={index} className="model-tooltip-bullet-item">{item}</li>
                 ))}
               </ul>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+      {isOpen && !hoveredModel && selectedModel.includes('/') && ReactDOM.createPortal(
+        <div
+          className="model-tooltip">
+          <div className="model-tooltip-content">
+            <div className="model-tooltip-header">
+              <div className="model-tooltip-title-row">
+                <div className="model-tooltip-title">{selectedModel}</div>
+              </div>
+            </div>
+            <div className="model-tooltip-section">
+              <div className="model-tooltip-section-label">No additional information available</div>
             </div>
           </div>
         </div>,

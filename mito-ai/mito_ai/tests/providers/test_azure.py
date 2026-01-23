@@ -9,7 +9,7 @@ import pytest
 from traitlets.config import Config
 from openai.types.chat import ChatCompletionMessageParam
 
-from mito_ai.completions.providers import OpenAIProvider
+from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.models import (
     MessageType,
     AICapabilities,
@@ -29,9 +29,9 @@ FAKE_AZURE_API_VERSION = "2024-12-01-preview"
 
 @pytest.fixture
 def provider_config() -> Config:
-    """Create a proper Config object for the OpenAIProvider."""
+    """Create a proper Config object for the ProviderManager."""
     config = Config()
-    config.OpenAIProvider = Config()
+    config.ProviderManager = Config()
     config.OpenAIClient = Config()
     return config
 
@@ -40,7 +40,7 @@ def provider_config() -> Config:
 def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
     """Reset all environment variables before each test."""
     for var in [
-        "OPENAI_API_KEY", "CLAUDE_API_KEY", "GEMINI_API_KEY", "OLLAMA_MODEL",
+        "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "OLLAMA_MODEL",
         "AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_MODEL", 
         "AZURE_OPENAI_API_VERSION"
     ]:
@@ -405,7 +405,7 @@ class TestAzureOpenAIStreamCompletions:
 
 
 class TestAzureOpenAIProviderIntegration:
-    """Test Azure OpenAI integration through the OpenAIProvider."""
+    """Test Azure OpenAI integration through the ProviderManager."""
     
     @pytest.mark.asyncio
     @pytest.mark.parametrize("message_type", COMPLETION_MESSAGE_TYPES)
@@ -415,7 +415,7 @@ class TestAzureOpenAIProviderIntegration:
         provider_config: Config,
         message_type: MessageType
     ) -> None:
-        """Test that OpenAIProvider uses Azure OpenAI when gpt-4.1 is requested and Azure is configured."""
+        """Test that ProviderManager uses Azure OpenAI when gpt-4.1 is requested and Azure is configured."""
         
         # Mock the response
         mock_response = MagicMock()
@@ -428,7 +428,8 @@ class TestAzureOpenAIProviderIntegration:
             mock_azure_client.is_closed.return_value = False
             mock_azure_client_class.return_value = mock_azure_client
             
-            provider = OpenAIProvider(config=provider_config)
+            provider = ProviderManager(config=provider_config)
+            provider.set_selected_model("gpt-4.1")
             
             messages: List[ChatCompletionMessageParam] = [
                 {"role": "user", "content": "Test message"}
@@ -437,7 +438,6 @@ class TestAzureOpenAIProviderIntegration:
             completion = await provider.request_completions(
                 message_type=message_type,
                 messages=messages,
-                model="gpt-4.1"
             )
             
             # Verify the completion was returned
@@ -461,7 +461,7 @@ class TestAzureOpenAIProviderIntegration:
         provider_config: Config,
         message_type: MessageType
     ) -> None:
-        """Test that OpenAIProvider stream_completions uses Azure OpenAI when gpt-4.1 is requested and Azure is configured."""
+        """Test that ProviderManager stream_completions uses Azure OpenAI when gpt-4.1 is requested and Azure is configured."""
         
         # Mock the streaming response
         mock_chunk1 = MagicMock()
@@ -484,7 +484,8 @@ class TestAzureOpenAIProviderIntegration:
             mock_azure_client.is_closed.return_value = False
             mock_azure_client_class.return_value = mock_azure_client
             
-            provider = OpenAIProvider(config=provider_config)
+            provider = ProviderManager(config=provider_config)
+            provider.set_selected_model("gpt-4.1")
             
             messages: List[ChatCompletionMessageParam] = [
                 {"role": "user", "content": "Test message"}
@@ -497,7 +498,6 @@ class TestAzureOpenAIProviderIntegration:
             completion = await provider.stream_completions(
                 message_type=message_type,
                 messages=messages,
-                model="gpt-4.1",
                 message_id="test-id",
                 thread_id="test-thread",
                 reply_fn=mock_reply
@@ -554,8 +554,8 @@ class TestAzureOpenAIConfigurationPriority:
         """Test that Azure OpenAI is used even when Claude key is available."""
         
         # Set Claude key (this should be overridden by Azure OpenAI)
-        monkeypatch.setenv("CLAUDE_API_KEY", "claude-key")
-        monkeypatch.setattr("mito_ai.constants.CLAUDE_API_KEY", "claude-key")
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "claude-key")
+        monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", "claude-key")
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
             openai_client = OpenAIClient(config=provider_config)

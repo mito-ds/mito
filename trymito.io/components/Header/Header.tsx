@@ -13,6 +13,7 @@ import TranslucentButton from "../Buttons/TranslucentButton/TranslucentButton"
 import { classNames } from "../../utils/classNames"
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER } from "../../utils/plausible"
 import GithubButton, { MITO_GITHUB_LINK } from "../Buttons/GithubButton/GithubButton"
+import { getABTestVariant } from "../../utils/abTestUtils"
 
 export const MITO_INSTALLATION_DOCS_LINK = 'https://docs.trymito.io/getting-started/installing-mito'
 export const JOBS_BOARD_LINK = 'https://www.ycombinator.com/companies/mito/jobs'
@@ -70,6 +71,17 @@ const HeaderDropdown = (props: {
 const Header = (): JSX.Element => {
 
     const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
+
+    const handleDownloadCTAClick = () => {
+      // Track Download CTA click with A/B test variant
+      if (typeof window !== 'undefined' && window.analytics) {
+        window.analytics.track('Download CTA Clicked', {
+          location: 'header',
+          abTestVariant: getABTestVariant(),
+          timestamp: new Date().toISOString(),
+        });
+      }
+    };
 
     return (
       <header className={headerStyles.header}>
@@ -175,6 +187,7 @@ const Header = (): JSX.Element => {
               <TranslucentButton
                 className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER}
                 variant='downloads'
+                onClick={handleDownloadCTAClick}
               >
                 <>
                   Download
