@@ -48,12 +48,29 @@ test.describe('App Mode Button Integration Test', () => {
     expect(hasPreviewTab || hasIframeWidget || hasPlaceholder).toBeTruthy();
     
     // If we have an iframe, verify it has a src attribute (the streamlit app URL)
+    // and that the Streamlit app has actually loaded inside the iframe
     if (hasIframeWidget) {
       const iframe = page.locator('.jp-iframe-widget iframe').first();
       const src = await iframe.getAttribute('src');
       expect(src).toBeTruthy();
       // The src should be a localhost URL for the streamlit app
       expect(src).toMatch(/http:\/\/localhost:\d+/);
+      
+      // Verify that the Streamlit app has actually loaded by checking for Streamlit-specific elements
+      // The app always includes .stMainBlockContainer (from streamlit_system_prompt.py)
+      // We can also check for other Streamlit elements like [data-testid="stApp"]
+      // Use frameLocator to access content inside the iframe
+      const streamlitFrame = page.frameLocator('.jp-iframe-widget iframe');
+      
+      // Wait for Streamlit app to load - check for the main container that's always present
+      // This proves the Streamlit app has rendered, not just that the iframe exists
+      const streamlitMainContainer = streamlitFrame.locator('.stMainBlockContainer');
+      await streamlitMainContainer.waitFor({ state: 'visible', timeout: 60000 });
+      expect(await streamlitMainContainer.count()).toBeGreaterThan(0);
+      
+      // Also verify we can find the Streamlit app root element
+      const streamlitApp = streamlitFrame.locator('[data-testid="stApp"]');
+      expect(await streamlitApp.count()).toBeGreaterThan(0);
     }
   });
 });
