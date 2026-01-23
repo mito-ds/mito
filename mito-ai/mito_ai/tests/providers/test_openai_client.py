@@ -3,25 +3,25 @@
 
 import pytest
 from mito_ai.openai_client import OpenAIClient
-from mito_ai.utils.open_ai_utils import FAST_OPENAI_MODEL
 from mito_ai.completions.models import MessageType
 from unittest.mock import MagicMock, patch, AsyncMock
 from openai.types.chat import ChatCompletion, ChatCompletionMessageParam
 
 CUSTOM_MODEL = "smart-openai-model"
-@pytest.mark.parametrize("message_type, expected_model", [
-    (MessageType.CHAT, CUSTOM_MODEL),  #
-    (MessageType.SMART_DEBUG, CUSTOM_MODEL),  #
-    (MessageType.CODE_EXPLAIN, CUSTOM_MODEL),  #
-    (MessageType.AGENT_EXECUTION, CUSTOM_MODEL),  #
-    (MessageType.AGENT_AUTO_ERROR_FIXUP, CUSTOM_MODEL),  #
-    (MessageType.INLINE_COMPLETION, FAST_OPENAI_MODEL),  #
-    (MessageType.CHAT_NAME_GENERATION, FAST_OPENAI_MODEL),  #
+@pytest.mark.parametrize("message_type", [
+    MessageType.CHAT,
+    MessageType.SMART_DEBUG,
+    MessageType.CODE_EXPLAIN,
+    MessageType.AGENT_EXECUTION,
+    MessageType.AGENT_AUTO_ERROR_FIXUP,
+    MessageType.INLINE_COMPLETION,
+    MessageType.CHAT_NAME_GENERATION,
 ])
 @pytest.mark.asyncio 
-async def test_model_selection_based_on_message_type(message_type, expected_model):
+async def test_model_selection_uses_passed_model(message_type):
     """
-    Tests that the correct model is selected based on the message type.
+    Tests that the model passed to the client is used as-is.
+    Model selection based on message type is now handled by ProviderManager.
     """
     client = OpenAIClient(api_key="test_key") # type: ignore
     
@@ -51,7 +51,7 @@ async def test_model_selection_based_on_message_type(message_type, expected_mode
             response_format_info=None
         )
         
-        # Verify that create was called with the expected model
+        # Verify that create was called with the model that was passed (not overridden)
         mock_create.assert_called_once()
         call_args = mock_create.call_args
-        assert call_args[1]['model'] == expected_model
+        assert call_args[1]['model'] == CUSTOM_MODEL
