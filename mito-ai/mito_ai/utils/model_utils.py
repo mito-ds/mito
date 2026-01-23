@@ -80,7 +80,7 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
         else:
             return selected_model
     
-    # Standard provider logic
+    # Standard provider logic - ensure we return a model from the same provider
     model_lower = selected_model.lower()
     
     # Determine provider and get fastest model
