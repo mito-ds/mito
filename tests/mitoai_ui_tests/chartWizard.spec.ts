@@ -14,20 +14,17 @@ test.describe('Chart Wizard', () => {
 
   test('Create graph, open Chart Wizard, change title, verify update', async ({ page }) => {
     // Create a notebook with a pandas chart that uses the Chart Wizard config format
-    const chartCode = `import pandas as pd
-
-# === CHART CONFIG ===
-
-TITLE = 'Original Title'
-X_LABEL = 'X Axis'
-Y_LABEL = 'Y Axis'
-
-# === END CONFIG ===
-
-df = pd.DataFrame({'x': [1, 2, 3, 4, 5], 'y': [2, 4, 1, 5, 3]})
-ax = df.plot(x='x', y='y', kind='line', title=TITLE)
-ax.set_xlabel(X_LABEL)
-ax.set_ylabel(Y_LABEL)`;
+    // Use \n for newlines since page.keyboard.type() handles them as Enter key presses
+    const chartCode = "import pandas as pd\n" +
+      "# === CHART CONFIG ===\n" +
+      "TITLE = 'Original Title'\n" +
+      "X_LABEL = 'X Axis'\n" +
+      "Y_LABEL = 'Y Axis'\n" +
+      "# === END CONFIG ===\n" +
+      "df = pd.DataFrame({'x': [1, 2, 3, 4, 5], 'y': [2, 4, 1, 5, 3]})\n" +
+      "ax = df.plot(x='x', y='y', kind='line', title=TITLE)\n" +
+      "ax.set_xlabel(X_LABEL)\n" +
+      "ax.set_ylabel(Y_LABEL)";
 
     await createAndRunNotebookWithCells(page, [chartCode]);
     await waitForIdle(page);
