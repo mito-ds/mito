@@ -24,8 +24,11 @@ import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
 import DemoVideo from '../components/DemoVideo/DemoVideo';
 import WaitlistSignup from '../components/WaitlistSignup/WaitlistSignup';
+import SocialProofCarousel from '../components/SocialProofCarousel/SocialProofCarousel';
+import { useABTest } from '../utils/useABTest';
 
 const Home: NextPage = () => {
+  const abTestVariant = useABTest();
 
   useEffect(() => {
     Prism.highlightAll();
@@ -72,11 +75,12 @@ const Home: NextPage = () => {
               </div>
             </div>
 
+            {abTestVariant === 'carousel' && <SocialProofCarousel />}
+
             {/* <AIInputField autoLaunchJupyterLab={true} /> */}
           </section>
 
-          <LogoSection></LogoSection>
-
+          {abTestVariant === 'logo' && <LogoSection />}
           <section>
             <MadeWithMito />
           </section>

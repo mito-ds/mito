@@ -33,7 +33,10 @@ const TranslucentButton = (props: {
         if (props.variant === 'downloads') {
             return (
                 <Link href={href}>
-                    <a className={classNames(props.className, translucentButtonStyles.translucent_button)}>
+                    <a 
+                        className={classNames(props.className, translucentButtonStyles.translucent_button)}
+                        onClick={props.onClick}
+                    >
                         {props.children}
                     </a>
                 </Link>
