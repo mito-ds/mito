@@ -84,11 +84,11 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
     model_lower = selected_model.lower()
     
     # Determine provider and get fastest model
-    if model_lower.startswith('claude') and selected_model in ANTHROPIC_MODEL_ORDER:
+    if model_lower.startswith('claude'):
         return ANTHROPIC_MODEL_ORDER[0]
-    elif model_lower.startswith('gpt') and selected_model in OPENAI_MODEL_ORDER:
+    elif model_lower.startswith('gpt'):
         return OPENAI_MODEL_ORDER[0]
-    elif model_lower.startswith('gemini') and selected_model in GEMINI_MODEL_ORDER:
+    elif model_lower.startswith('gemini'):
         return GEMINI_MODEL_ORDER[0]
 
     return selected_model
@@ -128,11 +128,11 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
     model_lower = selected_model.lower()
     
     # Determine provider and get smartest model
-    if model_lower.startswith('claude') and selected_model in ANTHROPIC_MODEL_ORDER:
+    if model_lower.startswith('claude'):
         return ANTHROPIC_MODEL_ORDER[-1]
-    elif model_lower.startswith('gpt') and selected_model in OPENAI_MODEL_ORDER:
+    elif model_lower.startswith('gpt'):
         return OPENAI_MODEL_ORDER[-1]
-    elif model_lower.startswith('gemini') and selected_model in GEMINI_MODEL_ORDER:
+    elif model_lower.startswith('gemini'):
         return GEMINI_MODEL_ORDER[-1]
 
     return selected_model

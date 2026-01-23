@@ -6,7 +6,7 @@ from mito_ai.anthropic_client import get_anthropic_system_prompt_and_messages, g
 from anthropic.types import Message, TextBlock, ToolUseBlock, Usage, ToolUseBlock, Message, Usage, TextBlock
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionSystemMessageParam
 from mito_ai.completions.models import MessageType
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 import anthropic
 from typing import List, Dict, cast
 
