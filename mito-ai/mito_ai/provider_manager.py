@@ -283,7 +283,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             resolved_model = get_fast_model_for_selected_model(selected_model)
         else:
             resolved_model = selected_model
-        
+                    
         # Validate model is in allowed list (uses same function as endpoint)
         available_models = get_available_models()
         if resolved_model not in available_models:

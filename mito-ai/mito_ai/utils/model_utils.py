@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Tuple, Union, cast
+from typing import List, Tuple, Union, Optional, cast
 from mito_ai import constants
 from mito_ai.utils.version_utils import is_enterprise
 
@@ -13,6 +13,7 @@ ANTHROPIC_MODEL_ORDER = [
 
 OPENAI_MODEL_ORDER = [
     "gpt-4.1",      # Fastest
+    "gpt-5",
     "gpt-5.2",      # Slower
 ]
 
@@ -70,8 +71,16 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
             return selected_model
         
         available_provider_model_pairs: List[List[str]] = [model.split("/", 1) for model in litellm_models]
+        
+        # Get indices for all pairs and filter out None indices (unknown models)
+        pairs_with_indices = [(pair, get_model_order_index(pair)) for pair in available_provider_model_pairs]
+        valid_pairs_with_indices = [(pair, index) for pair, index in pairs_with_indices if index is not None]
+        
+        if not valid_pairs_with_indices:
+            return selected_model
 
-        fastest_pair = min(available_provider_model_pairs, key=get_model_order_index)
+        # Find the pair with the minimum index (fastest model)
+        fastest_pair, _ = min(valid_pairs_with_indices, key=lambda x: x[1])
         fastest_model = f"{fastest_pair[0]}/{fastest_pair[1]}"
         
         # If we found a fastest model, return it. Otherwise, use the selected model
@@ -98,24 +107,35 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
     Get the smartest model for the client of the selected model.
     
     - For standard providers, returns the last (smartest) model from that provider's order.
-    - For LiteLLM models, finds the smartest available model from LiteLLM by comparing indices in the model order lists.
+    - For LiteLLM models, finds the smartest available model from LiteLLM from the same provider by comparing indices in the model order lists.
     """
     # Check if this is a LiteLLM model (has provider prefix like "openai/gpt-4o")
     if "/" in selected_model:
         
-        # Find the smartest model from available LiteLLM models
+        # Extract provider from selected model
+        selected_provider, _ = selected_model.split("/", 1)
+        
+        # Find the smartest model from available LiteLLM models from the same provider
         available_models = get_available_models()
         if not available_models:
             return selected_model
         
-        # Filter to only LiteLLM models (those with "/") before splitting
-        litellm_models = [model for model in available_models if "/" in model]
+        # Filter to only LiteLLM models (those with "/") from the same provider
+        litellm_models = [model for model in available_models if "/" in model and model.startswith(f"{selected_provider}/")]
         if not litellm_models:
             return selected_model
         
         available_provider_model_pairs: List[List[str]] = [model.split("/", 1) for model in litellm_models]
+        
+        # Get indices for all pairs and filter out None indices (unknown models)
+        pairs_with_indices = [(pair, get_model_order_index(pair)) for pair in available_provider_model_pairs]
+        valid_pairs_with_indices = [(pair, index) for pair, index in pairs_with_indices if index is not None]
+        
+        if not valid_pairs_with_indices:
+            return selected_model
 
-        smartest_pair = max(available_provider_model_pairs, key=get_model_order_index)
+        # Find the pair with the maximum index (smartest model)
+        smartest_pair, _ = max(valid_pairs_with_indices, key=lambda x: x[1])
         smartest_model = f"{smartest_pair[0]}/{smartest_pair[1]}"
         
         # If we found a smartest model, return it. Otherwise, use the selected model
@@ -137,22 +157,22 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
 
     return selected_model
 
-def get_model_order_index(pair: List[str]) -> Union[int, float]:
+def get_model_order_index(pair: List[str]) -> Optional[int]:
     provider, model_name = pair
     if provider == "openai":
         try:
             return OPENAI_MODEL_ORDER.index(model_name)
         except ValueError:
-            return float('inf')
+            return None
     elif provider == "anthropic":
         try:
             return ANTHROPIC_MODEL_ORDER.index(model_name)
         except ValueError:
-            return float('inf')
+            return None
     elif provider == "google":
         try:
             return GEMINI_MODEL_ORDER.index(model_name)
         except ValueError:
-            return float('inf')
+            return None
     else:
-        return float('inf')
+        return None
