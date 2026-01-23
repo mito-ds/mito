@@ -6,6 +6,7 @@
 import { useState, FormEvent, KeyboardEvent } from 'react';
 import waitlistStyles from './WaitlistSignup.module.css';
 import { classNames } from '../../utils/classNames';
+import { getABTestVariant } from '../../utils/abTestUtils';
 
 declare global {
   interface Window {
@@ -50,6 +51,7 @@ const WaitlistSignup = (): JSX.Element => {
           location: 'homepage_hero',
           email: email,
           timestamp: new Date().toISOString(),
+          abTestVariant: getABTestVariant(),
         });
       }
 
@@ -94,6 +96,7 @@ const WaitlistSignup = (): JSX.Element => {
           lastName: lastName,
           company: company,
           timestamp: new Date().toISOString(),
+          abTestVariant: getABTestVariant(),
         });
       }
 
