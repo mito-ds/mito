@@ -15,6 +15,7 @@ import SettingsManagerPlugin from './Extensions/SettingsManager/SettingsManagerP
 import { versionCheckPlugin } from './Extensions/VersionCheck';
 import NotebookFooterPlugin from './Extensions/NotebookFooter';
 import mitoThemePlugin from './Extensions/MitoThemeLight';
+import mitoThemeDarkPlugin from './Extensions/MitoThemeDark';
 import ManageAppsPlugin from "./Extensions/AppManager/ManageAppsPlugin"
 import ChartWizardPlugin from './Extensions/ChartWizard/ChartWizardPlugin';
 
@@ -34,5 +35,6 @@ export default [
   NotebookFooterPlugin,
   ManageAppsPlugin,
   mitoThemePlugin,
+  mitoThemeDarkPlugin,
   ChartWizardPlugin
 ];

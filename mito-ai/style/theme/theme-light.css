@@ -4,9 +4,9 @@
  */
 
 /*-----------------------------------------------------------------------------
-| Copyright (c) Jupyter Development Team.
-| Distributed under the terms of the Modified BSD License.
-|----------------------------------------------------------------------------*/
+|| Copyright (c) Jupyter Development Team.
+|| Distributed under the terms of the Modified BSD License.
+||----------------------------------------------------------------------------*/
 
 @import './variables-light.css';
 @import './componentStyling.css';
@@ -26,9 +26,9 @@
 }
 
 /*-----------------------------------------------------------------------------
-| Mito Light Theme: Custom top bar styling
-| These styles only apply when the Mito Light theme is active
-|----------------------------------------------------------------------------*/
+|| Mito Light Theme: Custom top bar styling
+|| These styles only apply when the Mito Light theme is active
+||----------------------------------------------------------------------------*/
 .lm-MenuBar, 
 #jp-top-bar,
 #jp-MainLogo,
@@ -42,9 +42,9 @@
 }
 
 /*-----------------------------------------------------------------------------
-| Mito Light Theme: Hide default JupyterLab toolbar buttons
-| These styles only apply when the Mito Light theme is active
-|----------------------------------------------------------------------------*/
+|| Mito Light Theme: Hide default JupyterLab toolbar buttons
+|| These styles only apply when the Mito Light theme is active
+||----------------------------------------------------------------------------*/
 .jp-Toolbar [data-jp-item-name="run"],
 .jp-Toolbar [data-jp-item-name="run-all"],
 .jp-Toolbar [data-jp-item-name="restart-and-run"],
@@ -60,9 +60,9 @@
 }
 
 /*-----------------------------------------------------------------------------
-| Mito Light Theme: Hide default JupyterLab footer buttons
-| These styles only apply when the Mito Light theme is active
-|----------------------------------------------------------------------------*/
+|| Mito Light Theme: Hide default JupyterLab footer buttons
+|| These styles only apply when the Mito Light theme is active
+||----------------------------------------------------------------------------*/
 
 .jp-StatusBar-Item[title^="Notebook is in"],
 .jp-StatusBar-Item:has(.jp-StatusBar-TextItem[title^="Go to line number"]),
@@ -73,9 +73,9 @@
 
 
 /*-----------------------------------------------------------------------------
-|| Mito Light Theme: Custom line number styling
-|| These styles only apply when the Mito Light theme is active
-||----------------------------------------------------------------------------*/
+||| Mito Light Theme: Custom line number styling
+||| These styles only apply when the Mito Light theme is active
+|||----------------------------------------------------------------------------*/
 .jp-Editor .cm-lineNumbers {
   font-family: var(--jp-code-font-family);
   font-size: 11px;
@@ -102,5 +102,3 @@
 .jp-Editor .cm-gutters {
   background: transparent !important;
 }
-
-
