@@ -29,7 +29,7 @@ class LiteLLMClient:
     async def request_completions(
         self,
         messages: List[ChatCompletionMessageParam],
-        model: str,  # Should include provider prefix (e.g., "openai/gpt-4o")
+        model: str,  # Should include provider prefix (e.g., "LiteLLM/openai/gpt-4o")
         response_format_info: Optional[ResponseFormatInfo] = None,
         message_type: MessageType = MessageType.CHAT
     ) -> str:
@@ -38,7 +38,7 @@ class LiteLLMClient:
         
         Args:
             messages: List of chat messages
-            model: Model name with router and provider prefix (e.g., "LiteLLM/openai/gpt-4o" or legacy "openai/gpt-4o")
+            model: Model name with router and provider prefix (e.g., "LiteLLM/openai/gpt-4o")
             response_format_info: Optional response format specification
             message_type: Type of message (chat, agent execution, etc.)
             
@@ -86,7 +86,7 @@ class LiteLLMClient:
         
         Args:
             messages: List of chat messages
-            model: Model name with router and provider prefix (e.g., "LiteLLM/openai/gpt-4o" or legacy "openai/gpt-4o")
+            model: Model name with router and provider prefix (e.g., "LiteLLM/openai/gpt-4o")
             message_type: Type of message (chat, agent execution, etc.)
             message_id: ID of the message being processed
             reply_fn: Function to call with each chunk for streaming replies

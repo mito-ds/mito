@@ -22,11 +22,11 @@ class TestGetAvailableModels:
         """Test that LiteLLM models are returned when enterprise mode is enabled and LiteLLM is configured."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = "https://litellm-server.com"
-        mock_constants.LITELLM_MODELS = ["openai/gpt-4o", "anthropic/claude-3-5-sonnet"]
+        mock_constants.LITELLM_MODELS = ["litellm/openai/gpt-4o", "litellm/anthropic/claude-3-5-sonnet"]
         
         result = get_available_models()
         
-        assert result == ["openai/gpt-4o", "anthropic/claude-3-5-sonnet"]
+        assert result == ["litellm/openai/gpt-4o", "litellm/anthropic/claude-3-5-sonnet"]
     
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
@@ -56,7 +56,7 @@ class TestGetAvailableModels:
         """Test that standard models are returned when enterprise mode is enabled but LITELLM_BASE_URL is not set."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = None
-        mock_constants.LITELLM_MODELS = ["openai/gpt-4o"]
+        mock_constants.LITELLM_MODELS = ["litellm/openai/gpt-4o"]
         
         result = get_available_models()
         
@@ -128,51 +128,51 @@ class TestGetFastModelForSelectedModel:
         [
             # Test case 1: LiteLLM OpenAI model returns fastest overall
             (
-                "openai/gpt-5.2",
-                ["openai/gpt-4.1", "openai/gpt-5.2", "anthropic/claude-sonnet-4-5-20250929"],
-                "openai/gpt-4.1",
+                "litellm/openai/gpt-5.2",
+                ["litellm/openai/gpt-4.1", "litellm/openai/gpt-5.2", "litellm/anthropic/claude-sonnet-4-5-20250929"],
+                "litellm/openai/gpt-4.1",
             ),
             # Test case 2: LiteLLM Anthropic model returns fastest overall
             (
-                "anthropic/claude-sonnet-4-5-20250929",
-                ["openai/gpt-4.1", "anthropic/claude-sonnet-4-5-20250929", "anthropic/claude-haiku-4-5-20251001"],
-                "openai/gpt-4.1",
+                "litellm/anthropic/claude-sonnet-4-5-20250929",
+                ["litellm/openai/gpt-4.1", "litellm/anthropic/claude-sonnet-4-5-20250929", "litellm/anthropic/claude-haiku-4-5-20251001"],
+                "litellm/openai/gpt-4.1",
             ),
             # Test case 3: LiteLLM Google model returns fastest overall
             (
-                "google/gemini-3-pro-preview",
-                ["google/gemini-3-pro-preview", "google/gemini-3-flash-preview"],
-                "google/gemini-3-flash-preview",
+                "litellm/google/gemini-3-pro-preview",
+                ["litellm/google/gemini-3-pro-preview", "litellm/google/gemini-3-flash-preview"],
+                "litellm/google/gemini-3-flash-preview",
             ),
             # Test case 4: Unknown LiteLLM model returns fastest known
             (
                 "unknown/provider/model",
-                ["openai/gpt-4.1", "unknown/provider/model"],
-                "openai/gpt-4.1",
+                ["litellm/openai/gpt-4.1", "unknown/provider/model"],
+                "litellm/openai/gpt-4.1",
             ),
             # Test case 5: Single LiteLLM model returns itself
             (
                 "openai/gpt-4o",
-                ["openai/gpt-4o"],
-                "openai/gpt-4o",
+                ["litellm/openai/gpt-4o"],
+                "litellm/openai/gpt-4o",
             ),
             # Test case 6: Cross-provider comparison - OpenAI is faster
             (
-                "anthropic/claude-sonnet-4-5-20250929",
+                "litellm/anthropic/claude-sonnet-4-5-20250929",
                 [
-                    "openai/gpt-4.1",  # Index 0 in OPENAI_MODEL_ORDER
-                    "anthropic/claude-sonnet-4-5-20250929",  # Index 1 in ANTHROPIC_MODEL_ORDER
+                    "litellm/openai/gpt-4.1",  # Index 0 in OPENAI_MODEL_ORDER
+                    "litellm/anthropic/claude-sonnet-4-5-20250929",  # Index 1 in ANTHROPIC_MODEL_ORDER
                 ],
-                "openai/gpt-4.1",
+                "litellm/openai/gpt-4.1",
             ),
             # Test case 7: Cross-provider comparison - Anthropic is faster
             (
-                "openai/gpt-5.2",
+                "litellm/openai/gpt-5.2",
                 [
-                    "openai/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
-                    "anthropic/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
+                    "litellm/openai/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
+                    "litellm/anthropic/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
                 ],
-                "anthropic/claude-haiku-4-5-20251001",
+                "litellm/anthropic/claude-haiku-4-5-20251001",
             ),
         ],
         ids=[

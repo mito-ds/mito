@@ -176,11 +176,11 @@ class TestAzureOpenAIClientCreation:
             openai_client = OpenAIClient(config=provider_config)
             
             # Test with gpt-4.1 model
-            resolved_model = openai_client._adjust_model_for_azure_or_ollama("gpt-4.1")
+            resolved_model = openai_client._adjust_model_for_provider("gpt-4.1")
             assert resolved_model == FAKE_AZURE_MODEL
             
             # Test with any other model
-            resolved_model = openai_client._adjust_model_for_azure_or_ollama("gpt-3.5-turbo")
+            resolved_model = openai_client._adjust_model_for_provider("gpt-3.5-turbo")
             assert resolved_model == FAKE_AZURE_MODEL
 
 
