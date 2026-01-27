@@ -73,6 +73,20 @@ class TestGetAvailableModels:
         result = get_available_models()
         
         assert result == STANDARD_MODELS
+    
+    @patch('mito_ai.utils.model_utils.is_abacus_configured')
+    @patch('mito_ai.utils.model_utils.is_enterprise')
+    @patch('mito_ai.utils.model_utils.constants')
+    def test_returns_abacus_models_when_configured(self, mock_constants, mock_is_enterprise, mock_is_abacus_configured):
+        """Test that Abacus models are returned when Abacus is configured (highest priority)."""
+        mock_is_abacus_configured.return_value = True
+        mock_is_enterprise.return_value = True
+        mock_constants.ABACUS_BASE_URL = "https://routellm.abacus.ai/v1"
+        mock_constants.ABACUS_MODELS = ["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"]
+        
+        result = get_available_models()
+        
+        assert result == ["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"]
 
 
 class TestGetFastModelForSelectedModel:
@@ -269,3 +283,80 @@ class TestGetFastModelForSelectedModel:
         for model, expected in test_cases:
             result = get_fast_model_for_selected_model(model)
             assert result == expected, f"Case-insensitive matching failed for {model}"
+    
+    @patch('mito_ai.utils.model_utils.get_available_models')
+    @pytest.mark.parametrize(
+        "selected_model,available_models,expected_result",
+        [
+            # Test case 1: Abacus GPT model returns fastest overall
+            (
+                "Abacus/gpt-5.2",
+                ["Abacus/gpt-4.1", "Abacus/gpt-5.2", "Abacus/claude-sonnet-4-5-20250929"],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 2: Abacus Claude model returns fastest overall
+            (
+                "Abacus/claude-sonnet-4-5-20250929",
+                ["Abacus/gpt-4.1", "Abacus/claude-sonnet-4-5-20250929", "Abacus/claude-haiku-4-5-20251001"],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 3: Abacus Gemini model returns fastest overall
+            (
+                "Abacus/gemini-3-pro-preview",
+                ["Abacus/gemini-3-pro-preview", "Abacus/gemini-3-flash-preview"],
+                "Abacus/gemini-3-flash-preview",
+            ),
+            # Test case 4: Unknown Abacus model returns fastest known
+            (
+                "Abacus/unknown-model",
+                ["Abacus/gpt-4.1", "Abacus/unknown-model"],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 5: Single Abacus model returns itself
+            (
+                "Abacus/gpt-4.1",
+                ["Abacus/gpt-4.1"],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 6: Cross-provider comparison - OpenAI is faster
+            (
+                "Abacus/claude-sonnet-4-5-20250929",
+                [
+                    "Abacus/gpt-4.1",  # Index 0 in OPENAI_MODEL_ORDER
+                    "Abacus/claude-sonnet-4-5-20250929",  # Index 1 in ANTHROPIC_MODEL_ORDER
+                ],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 7: Cross-provider comparison - Anthropic is faster
+            (
+                "Abacus/gpt-5.2",
+                [
+                    "Abacus/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
+                    "Abacus/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
+                ],
+                "Abacus/claude-haiku-4-5-20251001",
+            ),
+        ],
+        ids=[
+            "abacus_gpt_model_returns_fastest_overall",
+            "abacus_anthropic_model_returns_fastest_overall",
+            "abacus_google_model_returns_fastest_overall",
+            "abacus_unknown_model_returns_fastest_known",
+            "abacus_single_model_returns_itself",
+            "abacus_cross_provider_comparison_openai_faster",
+            "abacus_returns_fastest_when_anthropic_is_faster",
+        ]
+    )
+    def test_abacus_model_returns_fastest(
+        self,
+        mock_get_available_models,
+        selected_model,
+        available_models,
+        expected_result,
+    ):
+        """Test that Abacus models return fastest model from all available models."""
+        mock_get_available_models.return_value = available_models
+        
+        result = get_fast_model_for_selected_model(selected_model)
+        
+        assert result == expected_result
