@@ -8,7 +8,7 @@
 || Distributed under the terms of the Modified BSD License.
 ||----------------------------------------------------------------------------*/
 
-@import './variables-light.css';
+@import './variables.css';
 @import './componentStyling.css';
 @import './icons.css';
 @import './CellNumbering.css';
