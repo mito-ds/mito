@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import os
-from typing import Union
+from typing import Union, List
 
 # Claude
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
@@ -23,19 +23,34 @@ AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION")
 AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_MODEL = os.environ.get("AZURE_OPENAI_MODEL")
 
+def parse_comma_separated_models(models_str: str) -> List[str]:
+    """
+    Parse a comma-separated string of model names into a list.
+    Handles quoted and unquoted values, stripping whitespace and quotes.
+    
+    Args:
+        models_str: Comma-separated string of model names (e.g., "model1,model2" or '"model1","model2"')
+    
+    Returns:
+        List of model names with whitespace and quotes stripped
+    """
+    if not models_str:
+        return []
+    return [model.strip().strip('"\'') for model in models_str.split(",") if model.strip()]
+
 # LiteLLM Config (Enterprise mode only)
 LITELLM_BASE_URL = os.environ.get("LITELLM_BASE_URL")
 LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY")
 LITELLM_MODELS_STR = os.environ.get("LITELLM_MODELS", "")
-# Parse comma-separated string into list, strip whitespace
-LITELLM_MODELS = [model.strip() for model in LITELLM_MODELS_STR.split(",") if model.strip()] if LITELLM_MODELS_STR else []
+# Parse comma-separated string into list, strip whitespace and quotes
+LITELLM_MODELS = parse_comma_separated_models(LITELLM_MODELS_STR)
 
 # Abacus AI Config (Enterprise mode only)
 ABACUS_BASE_URL = os.environ.get("ABACUS_BASE_URL")
 ABACUS_API_KEY = os.environ.get("ABACUS_API_KEY")
 ABACUS_MODELS_STR = os.environ.get("ABACUS_MODELS", "")
-# Parse comma-separated string into list, strip whitespace
-ABACUS_MODELS = [model.strip() for model in ABACUS_MODELS_STR.split(",") if model.strip()] if ABACUS_MODELS_STR else []
+# Parse comma-separated string into list, strip whitespace and quotes
+ABACUS_MODELS = parse_comma_separated_models(ABACUS_MODELS_STR)
 
 # Mito AI Base URLs and Endpoint Paths
 MITO_PROD_BASE_URL = "https://7eax4i53f5odkshhlry4gw23by0yvnuv.lambda-url.us-east-1.on.aws/v2"
