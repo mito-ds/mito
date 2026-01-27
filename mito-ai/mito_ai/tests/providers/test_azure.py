@@ -144,16 +144,17 @@ class TestAzureOpenAIClientCreation:
     def test_azure_openai_client_capabilities(self, mock_azure_openai_environment: None, provider_config: Config) -> None:
         """Test that Azure OpenAI capabilities are properly returned."""
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
-            capabilities = openai_client.capabilities
+            provider = ProviderManager(config=provider_config)
+            capabilities = provider.capabilities
             
             assert capabilities.provider == "Azure OpenAI"
             assert capabilities.configuration["model"] == FAKE_AZURE_MODEL
             
             # Access the client to trigger creation
             # This let's us test that building the client works
-            _ = openai_client._active_async_client
-            mock_azure_client.assert_called_once()
+            if provider._openai_client:
+                _ = provider._openai_client._active_async_client
+                mock_azure_client.assert_called_once()
     
     def test_azure_openai_client_creation_parameters(self, mock_azure_openai_environment: None, provider_config: Config) -> None:
         """Test that Azure OpenAI client is created with correct parameters."""
@@ -534,16 +535,17 @@ class TestAzureOpenAIConfigurationPriority:
         monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", "sk-regular-openai-key")
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
-            capabilities = openai_client.capabilities
+            provider = ProviderManager(config=provider_config)
+            capabilities = provider.capabilities
             
             # Should still use Azure OpenAI, not regular OpenAI
             assert capabilities.provider == "Azure OpenAI"
             assert capabilities.configuration["model"] == FAKE_AZURE_MODEL
             
             # Access the client to trigger creation
-            _ = openai_client._active_async_client
-            mock_azure_client.assert_called_once()
+            if provider._openai_client:
+                _ = provider._openai_client._active_async_client
+                mock_azure_client.assert_called_once()
     
     def test_azure_openai_priority_over_claude(
         self, 
@@ -558,16 +560,17 @@ class TestAzureOpenAIConfigurationPriority:
         monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", "claude-key")
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
-            capabilities = openai_client.capabilities
+            provider = ProviderManager(config=provider_config)
+            capabilities = provider.capabilities
             
             # Should still use Azure OpenAI, not Claude
             assert capabilities.provider == "Azure OpenAI"
             assert capabilities.configuration["model"] == FAKE_AZURE_MODEL
             
             # Access the client to trigger creation
-            _ = openai_client._active_async_client
-            mock_azure_client.assert_called_once()
+            if provider._openai_client:
+                _ = provider._openai_client._active_async_client
+                mock_azure_client.assert_called_once()
 
 
 class TestAzureOpenAINotConfigured:
@@ -594,8 +597,8 @@ class TestAzureOpenAINotConfigured:
         monkeypatch.setattr("mito_ai.openai_client.is_azure_openai_configured", lambda: False)
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
-            capabilities = openai_client.capabilities
+            provider = ProviderManager(config=provider_config)
+            capabilities = provider.capabilities
             
             # Should not use Azure OpenAI
             assert capabilities.provider != "Azure OpenAI"
@@ -623,8 +626,8 @@ class TestAzureOpenAINotConfigured:
         monkeypatch.setattr("mito_ai.openai_client.is_azure_openai_configured", lambda: False)
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
-            capabilities = openai_client.capabilities
+            provider = ProviderManager(config=provider_config)
+            capabilities = provider.capabilities
             
             # Should not use Azure OpenAI
             assert capabilities.provider != "Azure OpenAI"

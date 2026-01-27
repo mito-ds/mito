@@ -15,7 +15,6 @@ from mito_ai.enterprise.utils import is_azure_openai_configured, is_abacus_confi
 from mito_ai.logger import get_logger
 from mito_ai.utils.model_utils import strip_router_prefix
 from mito_ai.completions.models import (
-    AICapabilities,
     CompletionError,
     CompletionItem,
     CompletionItemError,
@@ -29,9 +28,7 @@ from mito_ai.utils.open_ai_utils import (
     get_open_ai_completion_function_params,
     stream_ai_completion_from_mito_server,
 )
-from mito_ai.utils.server_limits import update_mito_server_quota, check_mito_server_quota
-
-OPENAI_MODEL_FALLBACK = "gpt-4.1"
+from mito_ai.utils.server_limits import update_mito_server_quota
 
 class OpenAIClient(LoggingConfigurable):
     """Provide AI feature through OpenAI services."""
@@ -56,55 +53,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
         
-    @property
-    def capabilities(self) -> AICapabilities:
-        """Get the provider capabilities."""
-
-        if is_azure_openai_configured():
-            return AICapabilities(
-                configuration={
-                    "model": constants.AZURE_OPENAI_MODEL
-                },
-                provider="Azure OpenAI",
-            )
-
-        if is_abacus_configured():
-            return AICapabilities(
-                configuration={
-                    "model": "<dynamic>"
-                },
-                provider="Abacus AI",
-            )
-
-        if constants.OLLAMA_MODEL:
-            return AICapabilities(
-                configuration={
-                    "model": constants.OLLAMA_MODEL
-                },
-                provider="Ollama",
-            )
-
-        if constants.OPENAI_API_KEY:
-            return AICapabilities(
-                configuration={
-                    "model": "<dynamic>"
-                },
-                provider="OpenAI",
-            )
-
-        try:
-            check_mito_server_quota(MessageType.CHAT)
-        except Exception as e:
-            self.log.warning("Failed to set first usage date in user.json", exc_info=e)
-            self.last_error = CompletionError.from_exception(e)
-
-        return AICapabilities(
-            configuration={
-                "model": OPENAI_MODEL_FALLBACK,
-            },
-            provider="Mito server",
-        )
-
     @property
     def _active_async_client(self) -> Optional[openai.AsyncOpenAI]:
         if not self._async_client or self._async_client.is_closed():

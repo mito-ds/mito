@@ -37,6 +37,7 @@ from mito_ai.utils.telemetry_utils import (
 )
 from mito_ai.utils.provider_utils import get_model_provider
 from mito_ai.utils.model_utils import get_available_models, get_fast_model_for_selected_model, get_smartest_model_for_selected_model
+from mito_ai.utils.server_limits import check_mito_server_quota
 
 __all__ = ["ProviderManager"]
 
@@ -80,6 +81,14 @@ This attribute is observed by the websocket provider to push the error to the cl
         # TODO: We should validate that these keys are actually valid for the provider
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
+        if is_azure_openai_configured():
+            return AICapabilities(
+                configuration={
+                    "model": constants.AZURE_OPENAI_MODEL
+                },
+                provider="Azure OpenAI",
+            )
+            
         if is_abacus_configured():
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
@@ -90,6 +99,14 @@ This attribute is observed by the websocket provider to push the error to the cl
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="LiteLLM",
+            )
+            
+        if constants.OLLAMA_MODEL:
+            return AICapabilities(
+                configuration={
+                    "model": constants.OLLAMA_MODEL
+                },
+                provider="Ollama",
             )
             
         if constants.OPENAI_API_KEY:
@@ -109,9 +126,13 @@ This attribute is observed by the websocket provider to push the error to the cl
                 configuration={"model": "<dynamic>"},
                 provider="Gemini",
             )
-            
-        if self._openai_client:
-            return self._openai_client.capabilities
+        
+        # Fallback to Mito server - check quota before returning
+        try:
+            check_mito_server_quota(MessageType.CHAT)
+        except Exception as e:
+            self.log.warning("Failed to set first usage date in user.json", exc_info=e)
+            self.last_error = CompletionError.from_exception(e)
         
         return AICapabilities(
             configuration={"model": "<dynamic>"},
