@@ -15,7 +15,7 @@
   width: 100%;
   max-width: 1200px;
   border-radius: 1rem;
-  border: 5px solid color-mix(in srgb, var(--color-light-purple) 25%, transparent);
+  border: 5px solid color-mix(in srgb, var(--color-brand-secondary) 30%, transparent);
   cursor: pointer;
   overflow: hidden;
 }
@@ -106,8 +106,8 @@
   max-width: 90vw;
   max-height: 90vh;
   border-radius: 1rem;
-  background: var(--color-video-background);
-  border: 5px solid var(--color-light-purple);
+  background: var(--color-surface);
+  border: 5px solid color-mix(in srgb, var(--color-brand-secondary) 45%, transparent);
 }
 
 @media only screen and (min-width: 50em) {

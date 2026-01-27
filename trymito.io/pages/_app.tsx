@@ -8,6 +8,7 @@ import '../styles/margins.css'
 import type { AppProps } from 'next/app'
 import React from 'react';
 import Head from 'next/head';
+import { ThemeProvider } from '../utils/ThemeContext';
 
 const DOMAIN = "trymito.io";
 const URL = `https://${DOMAIN}`;
@@ -40,7 +41,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name="twitter:description" content={DESCRIPTION} />
         <meta name="twitter:image" content={IMAGE} />
       </Head>
-      <Component {...pageProps} />
+      <ThemeProvider>
+        <Component {...pageProps} />
+      </ThemeProvider>
 
     </>
   )

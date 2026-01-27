@@ -4,30 +4,7 @@
  */
 
 :root {
-  /* 
-    Leaving old colors here for testing. 
-    TODO: Remove before merging
-
-    --color-background: #2D2D2D;
-    --color-light-background: #363637; 
-    --color-light-background-accent: #3a3a3a; 
-  */
-  --color-background: #1c1824;
-  --color-light-background: #130f1a; 
-  --color-light-background-accent: #221b2e; 
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #D0D0D0;
-  --color-purple: #9D6CFF; 
-  --color-light-purple: #ac84fc; 
-
-  --color-text-gradient: linear-gradient(180deg, #9D6CFF 0.63%, rgba(157, 108, 255, 0.39) 100%);
-  --color-twitter-blue: #479BE9;
-
-  --color-yellow: #F2C94C;
-  
-  --color-video-background: #1c1824;
-  --color-video-border: #7D68A8;
-
+  color-scheme: light dark;
   --mito-light-blue: #E8EBF8;
   --mito-gray: #494650;
   --jupyter-orange: #F37726;
@@ -36,6 +13,14 @@
   /* Hero content left margin - shared between hero_content_container and carousel */
   --hero-content-left-margin: 2rem;
 
+  /* Gradients */
+  --color-text-gradient: linear-gradient(
+    135deg,
+    var(--color-brand-primary) 0%,
+    var(--color-brand-secondary) 45%,
+    var(--color-accent-teal) 100%
+  );
+
   /* 
     We can't currently use css variables in media queries unforuntetly! 
     See here: https://bholmes.dev/blog/alternative-to-css-variable-media-queries/
@@ -43,6 +28,88 @@
     So we leave documentation here to say that the breakpoint used in this project
     to swtich between mobile and desktop views is 50rem. It should be used everywhere!
   */
+}
+
+[data-theme="dark"] {
+  /* Backgrounds (from app: #1e1e1e, #252526, #2d2d2d) */
+  --color-background: #1e1e1e;
+  --color-surface: #252526;
+  --color-surface-elevated: #2d2d2d;
+  --color-border: #3c3c3c;
+
+  /* Text (from app: opacity-based hierarchy) */
+  --color-text-primary: rgba(255, 255, 255, 1);
+  --color-text-secondary: rgba(255, 255, 255, 0.87);
+  --color-text-tertiary: rgba(255, 255, 255, 0.6);
+  --color-text-disabled: rgba(255, 255, 255, 0.4);
+
+  /* Brand (from app: pink-purple gradient) */
+  --color-brand-primary: #C65FAA;
+  --color-brand-secondary: #D97BC0;
+  --color-brand-tertiary: #E8A3D5;
+  --color-brand-light: #F4D1EA;
+  --color-brand-lightest: #FAE8F5;
+
+  /* Accent palette (supplementary colors for variety) */
+  --color-accent-teal: #4ECDC4;
+  --color-accent-amber: #F2C94C;
+  --color-accent-blue: #7c93ee;
+
+  /* Buttons (from app) */
+  --color-button-bg: #F4D1EA;
+  --color-button-border: #C65FAA;
+  --color-button-text: rgba(0, 0, 0, 0.87);
+  --color-button-hover: #FAE8F5;
+
+  /* Links (from app) */
+  --color-link: #7c93ee;
+
+  /* Glow/overlay */
+  --color-glow-brand: rgba(198, 95, 170, 0.15);
+  --color-glow-teal: rgba(78, 205, 196, 0.12);
+
+  --color-dot-grid: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="light"] {
+  /* Backgrounds (from app: white, #eee, #f5f5f5) */
+  --color-background: #ffffff;
+  --color-surface: #f5f5f5;
+  --color-surface-elevated: #eeeeee;
+  --color-border: #e0e0e0;
+
+  /* Text (from app: opacity-based) */
+  --color-text-primary: rgba(0, 0, 0, 1);
+  --color-text-secondary: rgba(0, 0, 0, 0.87);
+  --color-text-tertiary: rgba(0, 0, 0, 0.54);
+  --color-text-disabled: rgba(0, 0, 0, 0.38);
+
+  /* Brand (from app: Material Design purple) */
+  --color-brand-primary: #7b1fa2;
+  --color-brand-secondary: #9c27b0;
+  --color-brand-tertiary: #ba68c8;
+  --color-brand-light: #e1bee7;
+  --color-brand-lightest: #f3e5f5;
+
+  /* Accent palette */
+  --color-accent-teal: #0D9488;
+  --color-accent-amber: #D97706;
+  --color-accent-blue: #0d47a1;
+
+  /* Buttons (from app: blue for light mode) */
+  --color-button-bg: #64b5f6;
+  --color-button-border: #0d47a1;
+  --color-button-text: #0d47a1;
+  --color-button-hover: #42a5f5;
+
+  /* Links (from app) */
+  --color-link: #0d47a1;
+
+  /* Glow/overlay */
+  --color-glow-brand: rgba(123, 31, 162, 0.08);
+  --color-glow-teal: rgba(13, 148, 136, 0.06);
+
+  --color-dot-grid: rgba(0, 0, 0, 0.04);
 }
 
 /* 
@@ -86,7 +153,10 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   background-color: var(--color-background);
+  color: var(--color-text-primary);
   font-size: 8px;
+  background-image: radial-gradient(var(--color-dot-grid) 1px, transparent 1px);
+  background-size: 28px 28px;
 
   /* 
     Overflow-x: hidden was important for the Tweets section to work properly. It cut the tweets off at the border of the page
@@ -255,7 +325,11 @@ a {
 
   .code-highlight {
     font-family: monospace;
-    background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(177, 120, 252, 0.39));
+    background: -webkit-linear-gradient(
+      -90deg,
+      var(--color-brand-primary),
+      color-mix(in srgb, var(--color-brand-primary) 40%, transparent)
+    );
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -299,6 +373,45 @@ a {
 
 }
 
+.gradient-heading {
+  background-image: var(--color-text-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.animate-fade-in-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  transition-delay: var(--delay, 0s);
+  will-change: opacity, transform;
+}
+
+.animate-fade-in-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 .center {
   text-align: center;
 }
@@ -313,11 +426,11 @@ a {
 */
 
 .text-highlight {
-  color: var(--color-purple)
+  color: var(--color-brand-primary)
 }
 
 .highlight-on-hover:hover {
-  color: var(--color-purple)
+  color: var(--color-brand-secondary)
 }
 
 .text-primary {
@@ -333,11 +446,11 @@ a {
 }
 
 .text-twitter-blue {
-  color: var(--color-twitter-blue)
+  color: var(--color-accent-blue)
 }
 
 .text-color-purple {
-  color: var(--color-purple)
+  color: var(--color-brand-primary)
 }
 
 .text-color-jupyter-orange {
@@ -361,8 +474,8 @@ a.anchor {
 
 .code-background {
   font-family: monospace;
-  background-color: #D0D0D0;
-  color: #494650;
+  background-color: var(--color-surface-elevated);
+  color: var(--mito-gray);
   font-size: 1rem;
   padding: .25rem .5rem;
   border-radius: 2px;
@@ -370,7 +483,7 @@ a.anchor {
 }
 
 .code-background:hover {
-  background-color: var(--color-light-purple);
+  background-color: var(--color-brand-tertiary);
 }
 
 /* We don't want a video player to appear below the gifs on our blog, and so we globally hide them */

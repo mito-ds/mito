@@ -14,6 +14,7 @@ import { classNames } from "../../utils/classNames"
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER } from "../../utils/plausible"
 import GithubButton, { MITO_GITHUB_LINK } from "../Buttons/GithubButton/GithubButton"
 import { getABTestVariant } from "../../utils/abTestUtils"
+import ThemeToggle from "../ThemeToggle/ThemeToggle"
 
 export const MITO_INSTALLATION_DOCS_LINK = 'https://docs.trymito.io/getting-started/installing-mito'
 export const JOBS_BOARD_LINK = 'https://www.ycombinator.com/companies/mito/jobs'
@@ -184,6 +185,7 @@ const Header = (): JSX.Element => {
                 variant='Star'
                 text='Github'
               />              
+              <ThemeToggle />
               <TranslucentButton
                 className={PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_HEADER}
                 variant='downloads'
@@ -216,6 +218,9 @@ const Header = (): JSX.Element => {
                 onClick={() => setMobileMenuVisible(false)}
               >
                 <Image src={CloseButton} alt='close mobile navbar' width={30} height={30} />
+              </div>
+              <div className={headerStyles.mobile_theme_toggle}>
+                <ThemeToggle />
               </div>
             </div>
             <nav>

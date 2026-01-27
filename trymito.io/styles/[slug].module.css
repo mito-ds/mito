@@ -37,7 +37,7 @@
 }
 
 .post a:not(.suggested_post):hover, .suggested_post:hover h4 {
-    text-decoration-color: rgba(var(--color-purple), 1);
+    text-decoration-color: var(--color-brand-primary);
 }
 
 .post strong {
@@ -49,7 +49,7 @@
 
 /* Post Banner */
 .post_banner {
-    background-color: var(--color-purple);
+    background-color: var(--color-brand-primary);
     padding: 5rem 20rem;
     width: 100%;
     display: flex;
@@ -126,7 +126,7 @@
 .post_content pre {
     padding: 1rem;
     border-radius: 0.3rem;
-    background-color:var(--color-light-background);
+    background-color: var(--color-surface);
 }
 
 .post_content h1 {
@@ -149,7 +149,7 @@
     font-size: 1rem;
 }
 .post_content a {
-    color: var(--color-purple);
+    color: var(--color-link);
 }
 
 .post_content blockquote {
@@ -255,7 +255,7 @@
 }
 
 .share_section a:hover {
-    background-color: var(--color-light-background);
+    background-color: var(--color-surface);
 }
 
 /* Suggested Posts */

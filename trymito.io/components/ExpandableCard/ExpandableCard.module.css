@@ -19,11 +19,11 @@
 }
 
 .expandable_card_container:hover {
-    background-color: var(--color-light-background-accent);
+    background-color: var(--color-surface-elevated);
 }
 
 .expandable_card_container_selected {
-    background-color: var(--color-light-background-accent);
+    background-color: var(--color-surface-elevated);
     padding-bottom: 2rem;
 }
 

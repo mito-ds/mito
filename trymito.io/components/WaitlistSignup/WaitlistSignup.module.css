@@ -31,8 +31,8 @@
   padding: 10px 15px;
   font-size: 1.5rem;
   border-radius: 10px;
-  border: 1px solid rgba(157, 108, 255, 0.4);
-  background: rgba(28, 24, 36, 0.8);
+  border: 1px solid color-mix(in srgb, var(--color-brand-secondary) 45%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
   color: var(--color-text-primary);
   font-family: inherit;
   box-sizing: border-box;
@@ -41,8 +41,8 @@
 
 .email_input:focus {
   outline: none;
-  border-color: var(--color-purple);
-  box-shadow: 0 0 0 3px rgba(157, 108, 255, 0.2);
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px var(--color-glow-brand);
 }
 
 .email_input::placeholder {
@@ -61,12 +61,12 @@
   font-size: 1.5rem;
   font-weight: 400;
   border-radius: 10px;
-  border: 1px solid rgba(157, 108, 255, 0.4);
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 45%, transparent);
   background: linear-gradient(
     135deg,
-    rgba(157, 108, 255, 0.4) 0%,
-    rgba(172, 132, 252, 0.3) 50%,
-    rgba(192, 132, 252, 0.4) 100%
+    color-mix(in srgb, var(--color-brand-primary) 40%, transparent) 0%,
+    color-mix(in srgb, var(--color-brand-secondary) 35%, transparent) 50%,
+    color-mix(in srgb, var(--color-accent-teal) 35%, transparent) 100%
   );
   color: #ffffff;
   cursor: pointer;
@@ -77,23 +77,23 @@
   box-shadow: 
     0 2px 8px rgba(0, 0, 0, 0.3),
     0 1px 4px rgba(0, 0, 0, 0.2),
-    0 1px 8px rgba(157, 108, 255, 0.15),
+    0 1px 8px color-mix(in srgb, var(--color-brand-primary) 30%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .submit_button:hover:not(:disabled) {
   background: linear-gradient(
     135deg,
-    rgba(157, 108, 255, 0.5) 0%,
-    rgba(172, 132, 252, 0.4) 50%,
-    rgba(192, 132, 252, 0.5) 100%
+    color-mix(in srgb, var(--color-brand-primary) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-brand-secondary) 45%, transparent) 50%,
+    color-mix(in srgb, var(--color-accent-teal) 45%, transparent) 100%
   );
-  border-color: rgba(157, 108, 255, 0.6);
+  border-color: color-mix(in srgb, var(--color-brand-primary) 65%, transparent);
   transform: translateY(-1px);
   box-shadow: 
     0 4px 16px rgba(0, 0, 0, 0.4),
     0 2px 8px rgba(0, 0, 0, 0.3),
-    0 2px 12px rgba(157, 108, 255, 0.2),
+    0 2px 12px color-mix(in srgb, var(--color-brand-primary) 35%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
@@ -147,16 +147,16 @@
   border-radius: 50%;
   background: linear-gradient(
     135deg,
-    rgba(157, 108, 255, 0.2) 0%,
-    rgba(172, 132, 252, 0.15) 50%,
-    rgba(192, 132, 252, 0.2) 100%
+    color-mix(in srgb, var(--color-brand-primary) 25%, transparent) 0%,
+    color-mix(in srgb, var(--color-brand-secondary) 20%, transparent) 50%,
+    color-mix(in srgb, var(--color-accent-teal) 20%, transparent) 100%
   );
-  border: 2px solid var(--color-purple);
+  border: 2px solid var(--color-brand-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
-  color: var(--color-purple);
+  color: var(--color-brand-primary);
   flex-shrink: 0;
   animation: scaleIn 0.5s ease-out 0.2s both;
 }

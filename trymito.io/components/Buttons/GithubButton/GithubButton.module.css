@@ -7,7 +7,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: var(--color-light-background);
+    background-color: var(--color-surface);
     border-radius: 10px;
     margin-right: 10px;
     padding: 0 10px;
@@ -17,7 +17,7 @@
 }
 
 .github_button:hover {
-    background-color: var(--color-light-background-accent)
+    background-color: var(--color-surface-elevated)
 }
 
 .github_button p {

@@ -98,16 +98,16 @@
 /* Icon color shifting */
 @keyframes iconColorShift {
     0%, 100% {
-        color: var(--color-purple, #9D6CFF);
+        color: var(--color-brand-primary, #9D6CFF);
     }
     25% {
-        color: var(--color-light-purple, #ac84fc);
+        color: var(--color-brand-secondary, #ac84fc);
     }
     50% {
         color: #c084fc;
     }
     75% {
-        color: var(--color-light-purple, #ac84fc);
+        color: var(--color-brand-secondary, #ac84fc);
     }
 }
 
@@ -326,7 +326,7 @@
 /* Left icon with enhanced animations for dark mode */
 .input_icon_left {
     font-size: 20px;
-    color: var(--color-purple, #9D6CFF); /* Use CSS variable with fallback */
+    color: var(--color-brand-primary, #9D6CFF); /* Use CSS variable with fallback */
     display: flex;
     align-items: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -344,7 +344,7 @@
 /* Stop icon animations when input has content */
 .input_wrapper:has(.prompt_input:not(:placeholder-shown)) .input_icon_left {
     animation: none;
-    color: var(--color-purple, #9D6CFF); /* Keep consistent color when typing */
+    color: var(--color-brand-primary, #9D6CFF); /* Keep consistent color when typing */
 }
 
 /* Sparkle effects around the icon */
@@ -355,7 +355,7 @@
     font-size: 8px;
     pointer-events: none;
     animation: sparkle 6s ease-in-out infinite;
-    color: var(--color-light-purple, #ac84fc);
+    color: var(--color-brand-secondary, #ac84fc);
 }
 
 /* Hide sparkles when input has content */
@@ -378,7 +378,7 @@
 }
 
 .input_wrapper:focus-within .input_icon_left {
-    color: var(--color-light-purple, #ac84fc);
+    color: var(--color-brand-secondary, #ac84fc);
     transform: scale(1.15);
     filter: drop-shadow(0 4px 8px rgba(157, 108, 255, 0.5));
     animation: none; /* Stop default animations when focused */
@@ -388,7 +388,7 @@
 .input_wrapper:hover .input_action_button,
 .generating .input_icon_left,
 .generating .input_action_button {
-    color: var(--color-purple, #9D6CFF);
+    color: var(--color-brand-primary, #9D6CFF);
     transform: scale(1.08);
     filter: drop-shadow(0 3px 6px rgba(157, 108, 255, 0.4));
 }
@@ -440,7 +440,7 @@
         rgba(157, 108, 255, 0.2) 0%,
         rgba(172, 132, 252, 0.15) 100%
     );
-    color: var(--color-purple, #9D6CFF); /* Purple color for dark mode */
+    color: var(--color-brand-primary, #9D6CFF); /* Purple color for dark mode */
     cursor: pointer;
     display: flex;
     align-items: center;

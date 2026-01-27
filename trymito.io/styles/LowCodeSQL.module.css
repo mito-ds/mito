@@ -17,7 +17,7 @@
 }
 
 .sql_python_card_container_dark {
-    background-color: var(--color-light-background);
+    background-color: var(--color-surface);
 }
 
 .sql_python_card_container_dark p,

@@ -17,8 +17,20 @@ class MyDocument extends Document {
 
   render() {
     return (
-      <Html>
+      <Html data-theme="dark">
         <Head>
+            <script dangerouslySetInnerHTML={{
+              __html: `(function() {
+                try {
+                  var storedTheme = localStorage.getItem('theme');
+                  var theme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'system';
+                  if (theme === 'system') {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                  }
+                  document.documentElement.setAttribute('data-theme', theme);
+                } catch (e) {}
+              })();`
+            }}></script>
             {/* Google Tag Manager */}
             <script dangerouslySetInnerHTML={{
             __html: `(function (w, d, s, l, i) {

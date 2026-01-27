@@ -23,7 +23,7 @@
     margin-top: 5rem;
     padding: 5rem;
     border-radius: 3rem;
-    background-color: var(--color-light-background);
+    background-color: var(--color-surface);
 }
 
 .tweet_card + .tweet_card {

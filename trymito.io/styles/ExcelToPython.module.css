@@ -82,7 +82,7 @@
 .section_copy {
     display: none;
     margin-left: 1rem;
-    color: var(--color-purple);
+    color: var(--color-brand-primary);
     position: absolute;
     top: 0;
     right: 0;
@@ -112,7 +112,7 @@
     display: flex;
     flex-direction: column;
     align-items: baseline;
-    background-color: var(--color-light-background);
+    background-color: var(--color-surface);
     border-radius: 5px;
     padding: 2rem;
     width: 100%;
@@ -121,12 +121,12 @@
 }
 
 .glossary_page_card_container:hover {
-    background-color: var(--color-light-background-accent);
+    background-color: var(--color-surface-elevated);
 }
 
 
 .glossary_page_card_function_name {
-    color: var(--color-purple);
+    color: var(--color-brand-primary);
     font-size: 2.5rem;
     margin-top: 0rem;
 }

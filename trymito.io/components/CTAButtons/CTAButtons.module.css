@@ -27,12 +27,12 @@
 }
     
 .cta_subbutton {
-    color: var(--color-purple);
+    color: var(--color-link);
     padding-top: 1rem;
 }
 
 .cta_subbutton:hover {
-    color: var(--color-light-purple)
+    color: var(--color-brand-secondary)
 }
 
 .pro_cta_text {

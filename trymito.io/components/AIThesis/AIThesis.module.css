@@ -23,11 +23,11 @@
 }
 
 .ai_thesis_bullet:hover {
-    color: var(--color-light-purple);
+    color: var(--color-brand-secondary);
 }
 
 .ai_thesis_bullet_selected {
-    color: var(--color-purple);
+    color: var(--color-brand-primary);
 }
 
 .ai_preview_video_container {  
@@ -38,6 +38,6 @@
     max-width: 100%;
     border-radius: 2rem;
     padding: .5rem 1rem; 
-    background: var(--color-video-background);
-    border: 5px solid rgba(198, 169, 255, 0.25);
+    background: var(--color-surface);
+    border: 5px solid color-mix(in srgb, var(--color-brand-secondary) 35%, transparent);
 }

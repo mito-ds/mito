@@ -4,6 +4,6 @@
  */
 
 .item:hover {
-    color: var(--color-purple);
+    color: var(--color-brand-primary);
     cursor: pointer;
 }

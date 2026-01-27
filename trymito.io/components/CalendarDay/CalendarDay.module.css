@@ -4,7 +4,7 @@
  */
 
 .calendar_day_card {
-    background-color: var(--color-light-background);
+    background-color: var(--color-surface);
     padding: 1rem;
     text-align: center;
 

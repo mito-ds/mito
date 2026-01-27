@@ -13,7 +13,7 @@
 }
 
 .display_quiz_answer {
-    color: var(--color-purple) !important;
+    color: var(--color-brand-primary) !important;
 }
 
 .mobile_bottom_margin {

@@ -65,7 +65,7 @@
 }
 
 .nav_item:hover {
-    color: var(--color-purple) !important;
+    color: var(--color-brand-primary) !important;
 }
 
 @media only screen and (min-width: 50em) {

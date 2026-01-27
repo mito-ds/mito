@@ -44,7 +44,7 @@
   top: 0;
   bottom: 0;
   width: 150px;
-  background: linear-gradient(to right, var(--color-light-background) 0%, transparent 100%);
+  background: linear-gradient(to right, var(--color-surface) 0%, transparent 100%);
   z-index: 1;
   pointer-events: none;
 }

@@ -30,22 +30,22 @@
   background-color: none;
 
   text-decoration: underline;
-  text-decoration-color: var(--color-purple);
+  text-decoration-color: var(--color-brand-primary);
   text-decoration-thickness: 0.2em;
   text-underline-offset: 0.2em;
 }
 
 .secondary:hover {
-  color: var(--color-light-purple);
+  color: var(--color-brand-secondary);
 }
 
 .highlight {
   color: var(--color-text-primary);
-  background-color: var(--color-purple);
+  background-color: var(--color-brand-primary);
 }
 
 .highlight:hover {
-  background-color: var(--color-light-purple);
+  background-color: var(--color-brand-secondary);
 }
 
 .primary {
@@ -61,11 +61,11 @@
   color: #ffffff;
   background: linear-gradient(
     135deg,
-    rgba(157, 108, 255, 0.4) 0%,
-    rgba(172, 132, 252, 0.3) 50%,
-    rgba(192, 132, 252, 0.4) 100%
+    color-mix(in srgb, var(--color-brand-primary) 40%, transparent) 0%,
+    color-mix(in srgb, var(--color-brand-secondary) 35%, transparent) 50%,
+    color-mix(in srgb, var(--color-accent-teal) 35%, transparent) 100%
   );
-  border: 1px solid rgba(157, 108, 255, 0.4);
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 45%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -74,24 +74,24 @@
   box-shadow: 
     0 2px 8px rgba(0, 0, 0, 0.3),
     0 1px 4px rgba(0, 0, 0, 0.2),
-    0 1px 8px rgba(157, 108, 255, 0.15),
+    0 1px 8px color-mix(in srgb, var(--color-brand-primary) 30%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .purple:hover {
   background: linear-gradient(
     135deg,
-    rgba(157, 108, 255, 0.5) 0%,
-    rgba(172, 132, 252, 0.4) 50%,
-    rgba(192, 132, 252, 0.5) 100%
+    color-mix(in srgb, var(--color-brand-primary) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-brand-secondary) 45%, transparent) 50%,
+    color-mix(in srgb, var(--color-accent-teal) 45%, transparent) 100%
   );
-  border-color: rgba(157, 108, 255, 0.6);
+  border-color: color-mix(in srgb, var(--color-brand-primary) 65%, transparent);
   transform: translateY(-1px);
   
   box-shadow: 
     0 4px 16px rgba(0, 0, 0, 0.4),
     0 2px 8px rgba(0, 0, 0, 0.3),
-    0 2px 12px rgba(157, 108, 255, 0.2),
+    0 2px 12px color-mix(in srgb, var(--color-brand-primary) 35%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 

@@ -9,20 +9,20 @@
     justify-content: space-around;
     align-items: center;
 
-    background: rgba(157, 108, 255, 0.1);
-    border: 2px solid rgba(157, 108, 255, 0.4);
+    background: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+    border: 2px solid color-mix(in srgb, var(--color-brand-primary) 40%, transparent);
     box-sizing: border-box;
     border-radius: 10px;
     width: 125px;
     font-size: 2rem;
     height: 35px;
-    color: var(--color-purple);
+    color: var(--color-brand-primary);
     
     cursor: pointer;
 }
 
 .translucent_button:hover {
-    background: var(--color-background)
+    background: var(--color-surface)
 }
 
 .translucent_button p {

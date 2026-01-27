@@ -22,7 +22,7 @@
     border-radius: 2rem;
     margin-bottom: 1rem;
     width: 100%;
-    background-color: var(--color-light-background);
+    background-color: var(--color-surface);
     cursor: pointer;
 }
 
@@ -38,7 +38,7 @@
 }
 
 .published_at {
-    color: var(--color-purple);
+    color: var(--color-brand-primary);
     margin-right: .35rem;
 }
 

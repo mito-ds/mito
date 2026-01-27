@@ -81,7 +81,7 @@
 }
 
 .release_notes_link:hover {
-  color: var(--color-purple);
+  color: var(--color-brand-primary);
 }
 
 .latest_badge {
@@ -103,10 +103,10 @@
 }
 
 .download_card {
-  background-color: var(--color-light-background-accent);
+  background-color: var(--color-surface-elevated);
   border-radius: 0.5rem;
   padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
   transition: all 0.2s ease;
 }
 
@@ -154,19 +154,19 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.8rem 1rem;
-  background-color: var(--color-light-background);
+  background-color: var(--color-surface);
   border-radius: 0.3rem;
   text-decoration: none;
   color: var(--color-text-primary);
   font-size: 0.9rem;
   transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
   min-height: 2.5rem;
 }
 
 .download_option:hover {
-  background-color: var(--color-background);
-  border-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--color-surface-elevated);
+  border-color: color-mix(in srgb, var(--color-brand-primary) 35%, var(--color-border));
   color: var(--color-text-primary);
 }
 
