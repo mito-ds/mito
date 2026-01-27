@@ -152,7 +152,7 @@ class TestGetFastModelForSelectedModel:
             ),
             # Test case 5: Single LiteLLM model returns itself
             (
-                "openai/gpt-4o",
+                "litellm/openai/gpt-4o",
                 ["litellm/openai/gpt-4o"],
                 "litellm/openai/gpt-4o",
             ),
