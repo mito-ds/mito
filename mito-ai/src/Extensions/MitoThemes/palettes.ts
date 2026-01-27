@@ -70,7 +70,7 @@ export class MitoPalettes {
 
     // Rendermime colors
     document.documentElement.style.setProperty('--mito-theme-rendermime-error-background', '#fdd');
-    document.documentElement.style.setProperty('--mito-theme-rendermime-table-row-background', '#cfd8dc');
+    document.documentElement.style.setProperty('--mito-theme-rendermime-table-row-background', '#ebebeb');
     document.documentElement.style.setProperty('--mito-theme-rendermime-table-row-hover-background', '#e1f5fe');
 
     // Dialog colors
@@ -84,6 +84,9 @@ export class MitoPalettes {
     document.documentElement.style.setProperty('--mito-theme-editor-selected-background', '#d9d9d9');
     document.documentElement.style.setProperty('--mito-theme-editor-selected-focused-background', '#d7d4f0');
     document.documentElement.style.setProperty('--mito-theme-editor-cursor-color', 'var(--mito-theme-ui-font-color0)');
+
+    // Line number colors (grey/white/blue instead of pink)
+    document.documentElement.style.setProperty('--mito-theme-line-number-color', '#92999F');
 
     // Code mirror colors
     document.documentElement.style.setProperty('--mito-theme-mirror-editor-keyword-color', '#008000');
@@ -156,12 +159,12 @@ export class MitoPalettes {
     document.documentElement.style.setProperty('--mito-theme-inverse-layout-color3', '#a0a0a0');
     document.documentElement.style.setProperty('--mito-theme-inverse-layout-color4', '#6e6e6e');
 
-    // Brand colors (purple theme for dark)
-    document.documentElement.style.setProperty('--mito-theme-brand-color0', '#9333ea');
-    document.documentElement.style.setProperty('--mito-theme-brand-color1', '#a855f7');
-    document.documentElement.style.setProperty('--mito-theme-brand-color2', '#c084fc');
-    document.documentElement.style.setProperty('--mito-theme-brand-color3', '#e9d5ff');
-    document.documentElement.style.setProperty('--mito-theme-brand-color4', '#f3e8ff');
+    // Brand colors (pink-purple theme for dark, starting with #C65FAA)
+    document.documentElement.style.setProperty('--mito-theme-brand-color0', '#C65FAA');
+    document.documentElement.style.setProperty('--mito-theme-brand-color1', '#D97BC0');
+    document.documentElement.style.setProperty('--mito-theme-brand-color2', '#E8A3D5');
+    document.documentElement.style.setProperty('--mito-theme-brand-color3', '#F4D1EA');
+    document.documentElement.style.setProperty('--mito-theme-brand-color4', '#FAE8F5');
 
     // Cell editor colors
     document.documentElement.style.setProperty('--mito-theme-cell-editor-background', '#1e1e1e');
@@ -172,7 +175,7 @@ export class MitoPalettes {
 
     // Notebook colors
     document.documentElement.style.setProperty('--mito-theme-notebook-select-background', '#2d2d2d');
-    document.documentElement.style.setProperty('--mito-theme-notebook-multiselected-color', 'rgba(168, 85, 247, 0.2)');
+    document.documentElement.style.setProperty('--mito-theme-notebook-multiselected-color', 'rgba(198, 95, 170, 0.2)');
 
     // Rendermime colors
     document.documentElement.style.setProperty('--mito-theme-rendermime-error-background', 'rgba(244, 67, 54, 0.2)');
@@ -188,8 +191,11 @@ export class MitoPalettes {
 
     // Editor colors
     document.documentElement.style.setProperty('--mito-theme-editor-selected-background', '#3c3c3c');
-    document.documentElement.style.setProperty('--mito-theme-editor-selected-focused-background', '#4a3f6b');
+    document.documentElement.style.setProperty('--mito-theme-editor-selected-focused-background', '#3d4a5c');
     document.documentElement.style.setProperty('--mito-theme-editor-cursor-color', '#ffffff');
+    
+    // Line number colors (grey/white/blue instead of pink)
+    document.documentElement.style.setProperty('--mito-theme-line-number-color', '#92999F');
 
     // Code mirror colors
     document.documentElement.style.setProperty('--mito-theme-mirror-editor-keyword-color', '#c586c0');
