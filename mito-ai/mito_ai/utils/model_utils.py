@@ -91,7 +91,7 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
                 pair = model_without_router.split("/", 1)
             else:
                 # Abacus format: just model name, need to determine provider
-                provider = get_model_provider(model)
+                provider = get_underlying_model_provider(model)
                 if provider:
                     pair = [provider, model_without_router]
                 else:
@@ -132,7 +132,7 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
     # Check if this is an enterprise router model (has "/" or router prefix)
     if "/" in selected_model or selected_model.lower().startswith(('abacus/', 'litellm/')):
         # Extract underlying provider from selected model
-        selected_provider = get_model_provider(selected_model)
+        selected_provider = get_underlying_model_provider(selected_model)
         if not selected_provider:
             return selected_model
         
@@ -145,7 +145,7 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
         router_models = []
         for model in available_models:
             if "/" in model:
-                model_provider = get_model_provider(model)
+                model_provider = get_underlying_model_provider(model)
                 if model_provider == selected_provider:
                     router_models.append(model)
         
@@ -207,12 +207,12 @@ def strip_router_prefix(model: str) -> str:
         return model[8:]  # Strip "LiteLLM/"
     return model
 
-def get_model_provider(full_model_provider_id: str) -> Optional[str]:
+def get_underlying_model_provider(full_model_provider_id: str) -> Optional[str]:
     """
-    Removes the router prefix from a full model provider id.
+    Determine the underlying AI provider from a model identifier.
     
-    For Abacus models (Abacus/model), determines provider from model name pattern.
-    For LiteLLM models (LiteLLM/provider/model), extracts provider from the prefix.
+    For Abacus models (Abacus/model), determine the provider from model name pattern.
+    For LiteLLM models (LiteLLM/provider/model), extract the provider from the prefix.
     
     Returns:
         Provider name ("openai", "anthropic", "google") or None if cannot determine.
