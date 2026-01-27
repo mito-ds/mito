@@ -66,14 +66,16 @@
 }
 
 .button-blue {
-  background-color: var(--blue-300);
-  color: var(--blue-900) !important;
-  border: 0.5px solid var(--blue-900);
+  /* Theme-aware button colors set by Mito palettes */
+  background-color: var(--mito-theme-button-background, var(--blue-300));
+  color: var(--mito-theme-button-text, var(--blue-900)) !important;
+  border: 0.5px solid var(--mito-theme-button-border, var(--blue-900));
   border-radius: 4px;
+  transition: all 0.15s ease;
 }
 
 .button-blue:hover {
-  background-color: var(--blue-400);
+  background-color: var(--mito-theme-button-hover-background, var(--blue-400));
 }
 
 .button-dark-purple {

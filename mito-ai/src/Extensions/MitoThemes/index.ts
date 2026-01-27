@@ -7,7 +7,7 @@
 // Distributed under the terms of the Modified BSD License.
 /**
  * @packageDocumentation
- * @module mito-theme-extension
+ * @module mito-themes-extension
  */
 
 import {
@@ -21,6 +21,7 @@ import { ReactWidget } from '@jupyterlab/ui-components';
 import React from 'react';
 import RunCellButton from '../../components/RunCellButton';
 import { enableLineNumbersIfNeeded } from '../../utils/lineNumbers';
+import { MitoPalettes } from './palettes';
 import '../../../style/RunCellButton.css';
 
 /**
@@ -66,6 +67,9 @@ function setupCellNumbering(notebookPanel: NotebookPanel): (() => void) | null {
   });
   observer.observe(notebook.node, { childList: true, subtree: true });
 
+  // Initial update
+  updateAllCellNumbers(notebookPanel);
+
   // Return cleanup function
   return () => {
     notebook.model?.cells.changed.disconnect(handleCellsChanged);
@@ -82,14 +86,15 @@ function setupCellNumbering(notebookPanel: NotebookPanel): (() => void) | null {
 }
 
 /**
- * A plugin for the Mito Light Theme.
+ * A plugin for the Mito Themes (Light and Dark).
  * 
- * The Run Cell Button, cell numbering, and hidden default toolbar buttons only apply
- * when the Mito Light theme is active.
+ * Registers both Mito Light and Mito Dark themes.
+ * The Run Cell Button, cell numbering, and hidden default toolbar buttons apply
+ * when either Mito theme is active.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'mito_ai:theme',
-  description: 'Adds the Mito Light theme.',
+  id: 'mito_ai:themes',
+  description: 'Adds the Mito Light and Dark themes.',
   requires: [IThemeManager, ITranslator, INotebookTracker],
   activate: (
     app: JupyterFrontEnd,
@@ -98,10 +103,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
     notebookTracker: INotebookTracker
   ) => {
     const trans = translator.load('jupyterlab');
-    const style = 'mito_ai/index.css';
     
-    // Store connection for cleanup
-    let widgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
+    // CSS path - single CSS file for both themes (uses CSS variables set by palettes)
+    const style = 'mito_ai/index.css';
+    const palettes = new MitoPalettes();
+    
+    // Store connections for cleanup
+    let lightWidgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
+    let darkWidgetAddedConnection: ((sender: INotebookTracker, widget: NotebookPanel) => void) | null = null;
     
     // Store cell numbering cleanup functions for each notebook
     const cellNumberingCleanups = new Map<NotebookPanel, () => void>();
@@ -172,56 +181,68 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     };
 
-    // Add buttons and cell numbering to all notebooks
-    const addButtonsToAllNotebooks = (): void => {
+    // Add cell numbering to a notebook panel (guard against duplicates)
+    const addCellNumbering = (notebookPanel: NotebookPanel): void => {
+      if (cellNumberingCleanups.has(notebookPanel)) {
+        return;
+      }
+      const cleanup = setupCellNumbering(notebookPanel);
+      if (cleanup) {
+        cellNumberingCleanups.set(notebookPanel, cleanup);
+        // Also cleanup when notebook is disposed
+        notebookPanel.disposed.connect(() => {
+          cellNumberingCleanups.delete(notebookPanel);
+        });
+      }
+    };
+
+    // Add buttons and cell numbering to all notebooks (for a specific theme)
+    const addButtonsToAllNotebooks = (themeName: string): void => {
       notebookTracker.forEach(widget => {
         addRunCellButton(widget);
         // Enable line numbers if needed
         void enableLineNumbersIfNeeded(app, widget);
         // Setup cell numbering
-        const cleanup = setupCellNumbering(widget);
-        if (cleanup) {
-          cellNumberingCleanups.set(widget, cleanup);
-          // Also cleanup when notebook is disposed
-          widget.disposed.connect(() => {
-            cellNumberingCleanups.delete(widget);
-          });
-        }
+        addCellNumbering(widget);
       });
 
       // Connect to new notebooks
-      widgetAddedConnection = (sender: INotebookTracker, widget: NotebookPanel): void => {
+      const widgetAddedHandler = (sender: INotebookTracker, widget: NotebookPanel): void => {
         setTimeout(() => {
           // Check if widget is still valid before proceeding
           if (widget.isDisposed) {
             return;
           }
-          // Only add if Mito Light theme is still active
-          if (manager.theme === 'Mito Light') {
+          // Only add if the specified theme is still active
+          if (manager.theme === themeName) {
             addRunCellButton(widget);
             // Enable line numbers if needed
             void enableLineNumbersIfNeeded(app, widget);
             // Setup cell numbering
-            const cleanup = setupCellNumbering(widget);
-            if (cleanup) {
-              cellNumberingCleanups.set(widget, cleanup);
-              // Also cleanup when notebook is disposed
-              widget.disposed.connect(() => {
-                cellNumberingCleanups.delete(widget);
-              });
-            }
+            addCellNumbering(widget);
           }
         }, 100);
       };
-      notebookTracker.widgetAdded.connect(widgetAddedConnection);
+
+      if (themeName === 'Mito Light') {
+        lightWidgetAddedConnection = widgetAddedHandler;
+        notebookTracker.widgetAdded.connect(lightWidgetAddedConnection);
+      } else if (themeName === 'Mito Dark') {
+        darkWidgetAddedConnection = widgetAddedHandler;
+        notebookTracker.widgetAdded.connect(darkWidgetAddedConnection);
+      }
     };
 
     // Remove buttons and cell numbering from all notebooks
     const removeButtonsFromAllNotebooks = (): void => {
       // Disconnect from new notebooks
-      if (widgetAddedConnection) {
-        notebookTracker.widgetAdded.disconnect(widgetAddedConnection);
-        widgetAddedConnection = null;
+      if (lightWidgetAddedConnection) {
+        notebookTracker.widgetAdded.disconnect(lightWidgetAddedConnection);
+        lightWidgetAddedConnection = null;
+      }
+      if (darkWidgetAddedConnection) {
+        notebookTracker.widgetAdded.disconnect(darkWidgetAddedConnection);
+        darkWidgetAddedConnection = null;
       }
 
       // Remove from all existing notebooks
@@ -234,16 +255,19 @@ const plugin: JupyterFrontEndPlugin<void> = {
       cellNumberingCleanups.clear();
     };
 
+    // Register Mito Light theme
     manager.register({
       name: 'Mito Light',
       displayName: trans.__('Mito Light'),
       isLight: true,
       themeScrollbars: false,
       load: async () => {
-        // Load theme CSS (hides default buttons)
+        // Set CSS variables for light theme before loading CSS
+        palettes.setColorsLight();
+        // Load theme CSS (hides default buttons, applies light theme variables)
         await manager.loadCSS(style);
         // Add Run Cell buttons to all notebooks and enable line numbers
-        addButtonsToAllNotebooks();
+        addButtonsToAllNotebooks('Mito Light');
       },
       unload: async () => {
         // Remove Run Cell buttons from all notebooks
@@ -251,11 +275,79 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     });
 
-    // Set Mito Light as default theme if user hasn't explicitly chosen a different theme
-    // This runs after registration so the theme is available
-    if (manager.theme === 'JupyterLab Light' || !manager.theme) {
-      void manager.setTheme('Mito Light');
-    }
+    // Register Mito Dark theme
+    manager.register({
+      name: 'Mito Dark',
+      displayName: trans.__('Mito Dark'),
+      isLight: false,
+      themeScrollbars: false,
+      load: async () => {
+        // Set CSS variables for dark theme before loading CSS
+        palettes.setColorsDark();
+        // Load theme CSS (hides default buttons, applies dark theme variables)
+        await manager.loadCSS(style);
+        // Add Run Cell buttons to all notebooks and enable line numbers
+        addButtonsToAllNotebooks('Mito Dark');
+      },
+      unload: async () => {
+        // Remove Run Cell buttons from all notebooks
+        removeButtonsFromAllNotebooks();
+      }
+    });
+
+    // Flag to prevent infinite recursion when we convert themes
+    let isConvertingTheme = false;
+
+    // Helper function to convert non-Mito themes to corresponding Mito theme
+    const convertToMitoTheme = (themeName: string | null): void => {
+      // Prevent infinite recursion - if we're already converting, don't do it again
+      if (isConvertingTheme) {
+        return;
+      }
+
+      if (!themeName) {
+        // No theme set, default to Mito Light
+        isConvertingTheme = true;
+        void manager.setTheme('Mito Light').finally(() => {
+          isConvertingTheme = false;
+        });
+        return;
+      }
+
+      const isMitoTheme = themeName === 'Mito Light' || themeName === 'Mito Dark';
+      if (isMitoTheme) {
+        // Already a Mito theme, don't change - this ensures user's Mito theme preference is preserved
+        return;
+      }
+
+      // Convert non-Mito themes to corresponding Mito theme
+      isConvertingTheme = true;
+      if (themeName === 'JupyterLab Dark' || themeName.includes('Dark')) {
+        void manager.setTheme('Mito Dark').finally(() => {
+          isConvertingTheme = false;
+        });
+      } else {
+        // Default to light theme for any other non-Mito theme (including JupyterLab Light)
+        void manager.setTheme('Mito Light').finally(() => {
+          isConvertingTheme = false;
+        });
+      }
+    };
+
+    // Wait for app restoration to complete before checking/setting theme
+    // This ensures saved theme preferences are loaded first
+    void app.restored.then(() => {
+      // Convert theme on initial load if needed
+      convertToMitoTheme(manager.theme);
+    });
+
+    // Listen for theme changes and automatically convert to Mito theme
+    // This ensures that when users switch themes, they get converted to Mito themes
+    // and the preference is saved properly
+    manager.themeChanged.connect(() => {
+      // Use manager.theme to get the current theme after the change
+      convertToMitoTheme(manager.theme);
+    });
   },
   autoStart: true
 };
