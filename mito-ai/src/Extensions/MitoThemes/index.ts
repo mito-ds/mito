@@ -291,11 +291,59 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     });
 
-    // Set Mito Light as default theme if user hasn't explicitly chosen a different theme
-    // This runs after registration so the theme is available
-    if (manager.theme === 'JupyterLab Light' || !manager.theme) {
-      void manager.setTheme('Mito Light');
-    }
+    // Flag to prevent infinite recursion when we convert themes
+    let isConvertingTheme = false;
+
+    // Helper function to convert non-Mito themes to corresponding Mito theme
+    const convertToMitoTheme = (themeName: string | null): void => {
+      // Prevent infinite recursion - if we're already converting, don't do it again
+      if (isConvertingTheme) {
+        return;
+      }
+
+      if (!themeName) {
+        // No theme set, default to Mito Light
+        isConvertingTheme = true;
+        void manager.setTheme('Mito Light').then(() => {
+          isConvertingTheme = false;
+        });
+        return;
+      }
+
+      const isMitoTheme = themeName === 'Mito Light' || themeName === 'Mito Dark';
+      if (isMitoTheme) {
+        // Already a Mito theme, don't change - this ensures user's Mito theme preference is preserved
+        return;
+      }
+
+      // Convert non-Mito themes to corresponding Mito theme
+      isConvertingTheme = true;
+      if (themeName === 'JupyterLab Dark' || themeName.includes('Dark')) {
+        void manager.setTheme('Mito Dark').then(() => {
+          isConvertingTheme = false;
+        });
+      } else {
+        // Default to light theme for any other non-Mito theme (including JupyterLab Light)
+        void manager.setTheme('Mito Light').then(() => {
+          isConvertingTheme = false;
+        });
+      }
+    };
+
+    // Wait for app restoration to complete before checking/setting theme
+    // This ensures saved theme preferences are loaded first
+    void app.restored.then(() => {
+      // Convert theme on initial load if needed
+      convertToMitoTheme(manager.theme);
+    });
+
+    // Listen for theme changes and automatically convert to Mito theme
+    // This ensures that when users switch themes, they get converted to Mito themes
+    // and the preference is saved properly
+    manager.themeChanged.connect(() => {
+      // Use manager.theme to get the current theme after the change
+      convertToMitoTheme(manager.theme);
+    });
   },
   autoStart: true
 };
