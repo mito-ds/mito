@@ -3,4 +3,53 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-/* css for cta card */
+.download_cta_card {
+    position: relative;
+    padding: 3rem 2rem;
+    border-radius: 1.5rem;
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-brand-primary) 20%, transparent) 0%,
+        color-mix(in srgb, var(--color-brand-secondary) 12%, transparent) 45%,
+        color-mix(in srgb, var(--color-accent-teal) 16%, transparent) 100%
+    );
+    border: 1px solid color-mix(in srgb, var(--color-brand-secondary) 35%, var(--color-border));
+    overflow: hidden;
+}
+
+.download_cta_card::before {
+    content: '';
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    top: -240px;
+    right: -160px;
+    background: radial-gradient(circle, var(--color-glow-brand) 0%, transparent 70%);
+    filter: blur(120px);
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+.download_cta_card::after {
+    content: '';
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    bottom: -260px;
+    left: -180px;
+    background: radial-gradient(circle, var(--color-glow-teal) 0%, transparent 70%);
+    filter: blur(120px);
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.download_cta_card > * {
+    position: relative;
+    z-index: 1;
+}
+
+@media (min-width: 50em) {
+    .download_cta_card {
+        padding: 4rem 3rem;
+    }
+}

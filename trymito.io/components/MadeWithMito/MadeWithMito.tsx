@@ -52,7 +52,7 @@ const MadeWithMito = ({ title, subtitle }: MadeWithMitoProps = {}): JSX.Element 
 
     return (
         <div className={madeWithMitoStyles.container}>
-            <h2>{title || 'Made with Mito'}</h2>
+            <h2 className="gradient-heading">{title || 'Made with Mito'}</h2>
             {subtitle && (
                 <p>{subtitle}</p>
             )}

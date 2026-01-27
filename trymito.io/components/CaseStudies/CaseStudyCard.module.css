@@ -4,9 +4,44 @@
  */
 
 .case_study_card_container {
-    transition: transform .25s ease-in-out; /* Adjust duration as needed */
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    transition: transform .25s ease-in-out, box-shadow 0.25s ease;
     cursor: pointer;
 
+}
+
+.case_study_card_container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        color-mix(in srgb, var(--color-brand-primary) 18%, transparent) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.case_study_card_container:hover {
+    box-shadow: 0 18px 40px color-mix(in srgb, var(--color-brand-primary) 20%, transparent);
+}
+
+.case_study_card_container:hover::after {
+    opacity: 0.45;
+}
+
+.case_study_card_container :global(img) {
+    transition: transform 0.3s ease;
+}
+
+.case_study_card_container:hover :global(img) {
+    transform: scale(1.03);
 }
 
 .scale_small_on_hover:hover {

@@ -16,6 +16,12 @@
     /* When we scroll to a card, make sure its not cutoff by the header */
     scroll-margin-top: 7rem; 
 
+    border-left: 4px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.faq_card_container_open {
+    border-left-color: var(--color-brand-primary);
 }
 
 .header {
@@ -28,6 +34,11 @@
     cursor: pointer;
 }
 
+.header:focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 4px;
+}
+
 .faq_card_container li {
     list-style-position: outside;
     margin-left: 4rem;
@@ -35,11 +46,24 @@
 
 .faq_card_header_text {
     font-size: 2rem;
-    color: white;
+    color: var(--color-text-primary);
 }
 
 .faq_card_container *:first-child {
     margin-top: 0;
+}
+
+.content {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+.content_open {
+    max-height: 1000px;
+    opacity: 1;
+    padding-top: 1.5rem;
 }
 
 

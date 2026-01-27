@@ -8,6 +8,7 @@
     flex-direction: column;
     align-items: center;
     padding: 2rem;
+    width: 100%;
 }
 
 .buttons_container {
@@ -23,16 +24,16 @@
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     border-radius: 8px;
-    border: 2px solid color-mix(in srgb, var(--color-purple) 40%, transparent);
-    background: color-mix(in srgb, var(--color-purple) 10%, transparent);
+    border: 2px solid color-mix(in srgb, var(--color-brand-primary) 40%, transparent);
+    background: color-mix(in srgb, var(--color-brand-primary) 18%, transparent);
     color: var(--color-text-primary);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .video_button:hover {
-    background: color-mix(in srgb, var(--color-purple) 20%, transparent);
-    border-color: color-mix(in srgb, var(--color-purple) 60%, transparent);
+    background: color-mix(in srgb, var(--color-brand-primary) 20%, transparent);
+    border-color: color-mix(in srgb, var(--color-brand-primary) 60%, transparent);
     transform: translateY(-2px);
 }
 
@@ -50,11 +51,24 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+}
+
+.video_container::before {
+    content: '';
+    position: absolute;
+    inset: -10%;
+    background: radial-gradient(circle, var(--color-glow-brand) 0%, transparent 65%);
+    opacity: 0.6;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
 }
 
 .video_wrapper {
     position: relative;
     width: 100%;
+    z-index: 1;
 }
 
 .video_wrapper_ended .video {
@@ -66,8 +80,8 @@
     width: 100%;
     height: auto;
     border-radius: 1rem;
-    background: var(--color-video-background);
-    border: 5px solid color-mix(in srgb, var(--color-light-purple) 25%, transparent);
+    background: var(--color-surface);
+    border: 5px solid color-mix(in srgb, var(--color-brand-secondary) 25%, transparent);
     display: block;
     transition: opacity 0.3s ease;
 }
@@ -79,8 +93,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 1rem;
-    background: var(--color-video-background);
-    border: 5px solid color-mix(in srgb, var(--color-light-purple) 25%, transparent);
+    background: var(--color-surface);
+    border: 5px solid color-mix(in srgb, var(--color-brand-secondary) 25%, transparent);
     color: var(--color-text-secondary);
     font-size: 1.25rem;
 }
@@ -93,8 +107,8 @@
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     border-radius: 8px;
-    border: 2px solid color-mix(in srgb, var(--color-purple) 40%, transparent);
-    background: color-mix(in srgb, var(--color-purple) 85%, transparent);
+    border: 2px solid color-mix(in srgb, var(--color-brand-primary) 40%, transparent);
+    background: color-mix(in srgb, var(--color-brand-primary) 85%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     color: var(--color-text-primary);
@@ -108,8 +122,8 @@
 }
 
 .replay_button:hover {
-    background: color-mix(in srgb, var(--color-purple) 95%, transparent);
-    border-color: var(--color-purple);
+    background: color-mix(in srgb, var(--color-brand-primary) 95%, transparent);
+    border-color: var(--color-brand-primary);
     transform: translate(-50%, -52%);
     box-shadow: 0 4px 12px color-mix(in srgb, black 40%, transparent);
 }

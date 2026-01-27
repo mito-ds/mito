@@ -10,6 +10,43 @@
   gap: 2rem;
 }
 
+.hero_background {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero_background::before,
+.hero_background::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 999px;
+  filter: blur(120px);
+  opacity: 0.8;
+  z-index: 0;
+  pointer-events: none;
+  animation: heroGlowDrift 30s ease-in-out infinite;
+}
+
+.hero_background::before {
+  background: radial-gradient(circle, var(--color-glow-brand) 0%, transparent 70%);
+  top: -200px;
+  left: -150px;
+}
+
+.hero_background::after {
+  background: radial-gradient(circle, var(--color-glow-teal) 0%, transparent 70%);
+  bottom: -220px;
+  right: -120px;
+  animation-delay: 8s;
+}
+
+.hero_background > * {
+  position: relative;
+  z-index: 1;
+}
+
 .hero_text_container {
   display: flex;
   flex-direction: column;
@@ -42,8 +79,8 @@
   max-width: 100%;
   border-radius: 2rem;
   padding: 1.5rem 2rem; 
-  background: var(--color-video-background);
-  border: 5px solid var(--color-light-purple);
+  background: var(--color-surface-elevated);
+  border: 5px solid color-mix(in srgb, var(--color-brand-secondary) 45%, transparent);
 }
 
 .metrics_container {
@@ -61,7 +98,7 @@
 .metric_number_text {
   font-size: 5rem;
   font-weight: bolder;
-  background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(125, 26, 255, 0.39));
+  background: -webkit-linear-gradient(-90deg, var(--color-brand-primary), rgba(198, 95, 170, 0.39));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -92,7 +129,7 @@
 }
 
 .case_study_headshot {
-  border: 4px solid var(--color-purple);
+  border: 4px solid var(--color-brand-primary);
   border-radius: 50%;
   overflow: hidden;
 }
@@ -150,5 +187,24 @@
 
   .tweet_section {
     max-width: 80vw;
+  }
+}
+
+@keyframes heroGlowDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(40px, -30px, 0) scale(1.05);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero_background::before,
+  .hero_background::after {
+    animation: none;
   }
 }

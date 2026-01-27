@@ -8,6 +8,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Prism from 'prismjs';
 import { useEffect } from 'react';
+import type { ReactNode } from 'react';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import CaseStudies from '../components/CaseStudies/CaseStudies';
 import FAQCard from '../components/FAQCard/FAQCard';
@@ -18,7 +19,6 @@ import homeStyles from '../styles/Home.module.css';
 import pageStyles from '../styles/Page.module.css';
 import titleStyles from '../styles/Title.module.css';
 import { classNames } from '../utils/classNames';
-import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
@@ -26,6 +26,28 @@ import DemoVideo from '../components/DemoVideo/DemoVideo';
 import WaitlistSignup from '../components/WaitlistSignup/WaitlistSignup';
 import SocialProofCarousel from '../components/SocialProofCarousel/SocialProofCarousel';
 import { useABTest } from '../utils/useABTest';
+import { useInView } from '../utils/useInView';
+import DataSources from '../components/DataSources/DataSources';
+import EnterpriseLLM from '../components/EnterpriseLLM/EnterpriseLLM';
+
+const AnimatedSection = (props: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) => {
+  const { children, className, delay = 0 } = props;
+  const { ref, isInView } = useInView({ threshold: 0.2 });
+
+  return (
+    <section
+      ref={ref}
+      className={classNames(className, 'animate-fade-in-up', { 'is-visible': isInView })}
+      style={{ '--delay': `${delay}s` } as React.CSSProperties}
+    >
+      {children}
+    </section>
+  );
+};
 
 const Home: NextPage = () => {
   const abTestVariant = useABTest();
@@ -45,7 +67,16 @@ const Home: NextPage = () => {
       <div className={pageStyles.container}>
 
         <main className={pageStyles.main}>
-          <section className={classNames(pageStyles.background_card, titleStyles.title_card, titleStyles.grid_card)}>
+          <AnimatedSection
+            className={classNames(
+              pageStyles.section,
+              pageStyles.section_surface,
+              pageStyles.section_glow_brand,
+              titleStyles.title_card,
+              titleStyles.grid_card,
+              homeStyles.hero_background
+            )}
+          >
             <div className={homeStyles.hero_content_container}>
               <div className={homeStyles.hero_text_container}>
                 <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
@@ -78,27 +109,59 @@ const Home: NextPage = () => {
             {abTestVariant === 'carousel' && <SocialProofCarousel />}
 
             {/* <AIInputField autoLaunchJupyterLab={true} /> */}
-          </section>
+          </AnimatedSection>
 
-          {abTestVariant === 'logo' && <LogoSection />}
-          <section>
+          {abTestVariant === 'logo' && (
+            <>
+              <div className={pageStyles.section_divider} />
+              <AnimatedSection className={classNames(pageStyles.section, pageStyles.section_background)}>
+                <LogoSection />
+              </AnimatedSection>
+            </>
+          )}
+          <div className={pageStyles.section_divider} />
+          <AnimatedSection className={classNames(pageStyles.section, pageStyles.section_background)}>
             <MadeWithMito />
-          </section>
+          </AnimatedSection>
 
-          <section>
+          <div className={pageStyles.section_divider} />
+          <AnimatedSection
+            className={classNames(pageStyles.section, pageStyles.section_surface, pageStyles.section_glow_brand)}
+          >
+            <h2 className={classNames('center', 'gradient-heading', pageStyles.section_heading)}>
+              Six ways Mito accelerates your workflow
+            </h2>
             <FeatureSquares />
-          </section>
+          </AnimatedSection>
 
-          <section>
+          <div className={pageStyles.section_divider} />
+          <AnimatedSection
+            className={classNames(pageStyles.section, pageStyles.section_background, pageStyles.section_glow_teal)}
+          >
+            <DataSources />
+          </AnimatedSection>
+
+          <div className={pageStyles.section_divider} />
+          <AnimatedSection className={classNames(pageStyles.section, pageStyles.section_surface)}>
+            <EnterpriseLLM />
+          </AnimatedSection>
+
+          <div className={pageStyles.section_divider} />
+          <AnimatedSection className={classNames(pageStyles.section, pageStyles.section_background)}>
+            <h2 className={classNames('center', 'gradient-heading', pageStyles.section_heading)}>
+              Case Studies
+            </h2>
             <CaseStudies />
-          </section>
+          </AnimatedSection>
 
-          <section className={pageStyles.background_card}>
+          <div className={pageStyles.section_divider} />
+          <AnimatedSection className={classNames(pageStyles.section, pageStyles.section_surface)}>
             <DownloadCTACard />
-          </section>
+          </AnimatedSection>
 
-          <section style={{marginBottom: '60px'}}>
-            <h2 className='center'>
+          <div className={pageStyles.section_divider} />
+          <AnimatedSection className={classNames(pageStyles.section, pageStyles.section_background)} >
+            <h2 className={classNames('center', 'gradient-heading', pageStyles.section_heading)}>
               Frequently Asked Questions
             </h2>
             <FAQCard title='Is Mito open source?'>
@@ -157,8 +220,7 @@ const Home: NextPage = () => {
                 </p>
               </div>
             </FAQCard>
-            
-          </section>
+          </AnimatedSection>
         </main>
         <Footer />
       </div>

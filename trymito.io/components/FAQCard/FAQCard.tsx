@@ -22,13 +22,26 @@ const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JS
 
     return (
         <div 
-            className={classNames(pageStyles.background_card, faqCardStyles.faq_card_container)}
+            className={classNames(
+                pageStyles.background_card,
+                faqCardStyles.faq_card_container,
+                { [faqCardStyles.faq_card_container_open]: faqCardOpen }
+            )}
             id={props.id}
         >
             <div 
                 className={faqCardStyles.header}
                 onClick={() => {
                     setFaqCardOpen(prevFaqCardOpen => !prevFaqCardOpen)
+                }}
+                role="button"
+                tabIndex={0}
+                aria-expanded={faqCardOpen}
+                onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setFaqCardOpen(prevFaqCardOpen => !prevFaqCardOpen)
+                    }
                 }}
             >
                 <h3 className={faqCardStyles.faq_card_header_text}>
@@ -43,9 +56,14 @@ const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JS
                     />
                 </div>
             </div>
-            {faqCardOpen &&
-                props.children
-            }
+            <div
+                className={classNames(
+                    faqCardStyles.content,
+                    { [faqCardStyles.content_open]: faqCardOpen }
+                )}
+            >
+                {props.children}
+            </div>
         </div>
     )
     

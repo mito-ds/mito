@@ -1,0 +1,163 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  width: 100%;
+  text-align: center;
+}
+
+.header {
+  max-width: 55rem;
+}
+
+.header p {
+  margin-top: 1.5rem;
+  color: var(--color-text-secondary);
+  font-size: 1.6rem;
+}
+
+.heading {
+  background-image: linear-gradient(135deg, var(--color-accent-teal), var(--color-accent-blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card {
+  width: 100%;
+  border-radius: 1.5rem;
+  background: var(--color-surface-elevated);
+  border: 1px solid color-mix(in srgb, var(--color-accent-teal) 35%, var(--color-border));
+  padding: 2.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, color-mix(in srgb, var(--color-accent-teal) 20%, transparent), transparent 60%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.points {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  text-align: left;
+}
+
+.point {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.point h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+}
+
+.point p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 1.6rem;
+}
+
+.point_icon {
+  width: 32px;
+  height: 32px;
+  color: var(--color-accent-teal);
+  flex-shrink: 0;
+}
+
+.point_icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.providers {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.provider_card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.provider_card span {
+  color: var(--color-text-secondary);
+  font-size: 1.4rem;
+}
+
+.diagram {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent-teal) 12%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 1.5rem;
+}
+
+.diagram_arrow {
+  color: var(--color-accent-blue);
+}
+
+@media (min-width: 50em) {
+  .card {
+    padding: 3rem;
+  }
+
+  .points {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .point h3 {
+    font-size: 1.2rem;
+  }
+
+  .point p {
+    font-size: 1rem;
+  }
+
+  .provider_card span {
+    font-size: 1rem;
+  }
+
+  .diagram {
+    font-size: 1rem;
+  }
+
+  .header p {
+    font-size: 1rem;
+  }
+}

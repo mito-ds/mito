@@ -107,11 +107,11 @@
     animation-delay: 0s;
     background: linear-gradient(
         135deg, 
-        #9D6CFF 0%, 
-        #ac84fc 25%,
-        #ffffff 50%,
-        #ac84fc 75%,
-        #F2C94C 100%
+        var(--color-brand-primary) 0%, 
+        var(--color-brand-secondary) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-brand-tertiary) 75%,
+        var(--color-accent-amber) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -124,11 +124,11 @@
     animation-delay: 4s;
     background: linear-gradient(
         135deg, 
-        #ac84fc 0%, 
-        #9D6CFF 25%,
-        #ffffff 50%,
-        #9D6CFF 75%,
-        #479BE9 100%
+        var(--color-brand-tertiary) 0%, 
+        var(--color-brand-primary) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-brand-secondary) 75%,
+        var(--color-accent-blue) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -142,11 +142,11 @@
     animation-delay: 8s;
     background: linear-gradient(
         135deg, 
-        #F2C94C 0%, 
-        #9D6CFF 25%,
-        #ffffff 50%,
-        #9D6CFF 75%,
-        #ac84fc 100%
+        var(--color-accent-amber) 0%, 
+        var(--color-brand-primary) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-brand-secondary) 75%,
+        var(--color-brand-tertiary) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -160,11 +160,11 @@
     animation-delay: 12s;
     background: linear-gradient(
         135deg, 
-        #479BE9 0%, 
-        #9D6CFF 25%,
-        #ffffff 50%,
-        #9D6CFF 75%,
-        #F2C94C 100%
+        var(--color-accent-blue) 0%, 
+        var(--color-brand-primary) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-brand-secondary) 75%,
+        var(--color-accent-amber) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -178,11 +178,11 @@
     animation-delay: 16s;
     background: linear-gradient(
         135deg, 
-        #ac84fc 0%, 
-        #F2C94C 25%,
-        #ffffff 50%,
-        #F2C94C 75%,
-        #9D6CFF 100%
+        var(--color-brand-tertiary) 0%, 
+        var(--color-accent-amber) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-accent-amber) 75%,
+        var(--color-brand-primary) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -227,15 +227,15 @@
     background-image:
         repeating-linear-gradient(
             0deg,
-            rgba(255, 255, 255, 0.035) 0px,
-            rgba(255, 255, 255, 0.035) 1px,
+            color-mix(in srgb, var(--color-text-primary) 6%, transparent) 0px,
+            color-mix(in srgb, var(--color-text-primary) 6%, transparent) 1px,
             transparent 1px,
             transparent 80px
         ),
         repeating-linear-gradient(
             90deg,
-            rgba(255, 255, 255, 0.035) 0px,
-            rgba(255, 255, 255, 0.035) 1px,
+            color-mix(in srgb, var(--color-text-primary) 6%, transparent) 0px,
+            color-mix(in srgb, var(--color-text-primary) 6%, transparent) 1px,
             transparent 1px,
             transparent 80px
         );
@@ -264,5 +264,15 @@
 @media (prefers-reduced-motion: reduce) {
     .grid_card::before {
         animation: none;
+    }
+
+    .cycling_word {
+        animation: none !important;
+        opacity: 0;
+        transform: none;
+    }
+
+    .cycling_word:nth-child(1) {
+        opacity: 1;
     }
 }

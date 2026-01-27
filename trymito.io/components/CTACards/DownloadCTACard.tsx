@@ -6,6 +6,7 @@
 import titleStyles from '../../styles/Title.module.css';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD } from '../../utils/plausible';
 import CTAButtons from '../CTAButtons/CTAButtons';
+import ctaCardStyles from './CTACard.module.css';
 
 const DownloadCTACard = (props: { 
     headerStyle?: React.CSSProperties, 
@@ -14,12 +15,17 @@ const DownloadCTACard = (props: {
 }): JSX.Element => {
 
     return (
-        <div> 
+        <div className={ctaCardStyles.download_cta_card}> 
             <h2 style={props.headerStyle} className={titleStyles.title}>
                 Ready to write Python code 4x faster?
             </h2>
             <div className='center'>
-                <CTAButtons style={props.buttonContainerStyle} variant='download' align='center' textButtonClassName={props.textButtonClassName || PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD}/>
+                <CTAButtons
+                    style={props.buttonContainerStyle}
+                    variant='download'
+                    align='center'
+                    textButtonClassName={props.textButtonClassName || PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_FOOTER_CARD}
+                />
             </div>  
         </div>
     )

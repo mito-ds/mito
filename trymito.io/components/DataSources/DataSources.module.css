@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  width: 100%;
+  text-align: center;
+}
+
+.header {
+  max-width: 50rem;
+}
+
+.header p {
+  margin-top: 1.5rem;
+  color: var(--color-text-secondary);
+  font-size: 1.6rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--color-accent-teal) 15%, transparent);
+}
+
+.card span {
+  font-size: 1.6rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 50em) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
+  .card span {
+    font-size: 1rem;
+  }
+
+  .header p {
+    font-size: 1rem;
+  }
+}
