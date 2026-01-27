@@ -67,6 +67,9 @@ function setupCellNumbering(notebookPanel: NotebookPanel): (() => void) | null {
   });
   observer.observe(notebook.node, { childList: true, subtree: true });
 
+  // Initial update
+  updateAllCellNumbers(notebookPanel);
+
   // Return cleanup function
   return () => {
     notebook.model?.cells.changed.disconnect(handleCellsChanged);
@@ -304,7 +307,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       if (!themeName) {
         // No theme set, default to Mito Light
         isConvertingTheme = true;
-        void manager.setTheme('Mito Light').then(() => {
+        void manager.setTheme('Mito Light').finally(() => {
           isConvertingTheme = false;
         });
         return;
@@ -319,12 +322,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
       // Convert non-Mito themes to corresponding Mito theme
       isConvertingTheme = true;
       if (themeName === 'JupyterLab Dark' || themeName.includes('Dark')) {
-        void manager.setTheme('Mito Dark').then(() => {
+        void manager.setTheme('Mito Dark').finally(() => {
           isConvertingTheme = false;
         });
       } else {
         // Default to light theme for any other non-Mito theme (including JupyterLab Light)
-        void manager.setTheme('Mito Light').then(() => {
+        void manager.setTheme('Mito Light').finally(() => {
           isConvertingTheme = false;
         });
       }
