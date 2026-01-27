@@ -79,7 +79,7 @@
 .jp-Editor .cm-lineNumbers {
   font-family: var(--jp-code-font-family);
   font-size: 11px;
-  color: var(--purple-900);
+  color: var(--mito-theme-line-number-color, var(--jp-content-link-color));
   opacity: 0.5;
   background: transparent;
   padding-right: 8px;
