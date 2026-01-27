@@ -181,6 +181,21 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     };
 
+    // Add cell numbering to a notebook panel (guard against duplicates)
+    const addCellNumbering = (notebookPanel: NotebookPanel): void => {
+      if (cellNumberingCleanups.has(notebookPanel)) {
+        return;
+      }
+      const cleanup = setupCellNumbering(notebookPanel);
+      if (cleanup) {
+        cellNumberingCleanups.set(notebookPanel, cleanup);
+        // Also cleanup when notebook is disposed
+        notebookPanel.disposed.connect(() => {
+          cellNumberingCleanups.delete(notebookPanel);
+        });
+      }
+    };
+
     // Add buttons and cell numbering to all notebooks (for a specific theme)
     const addButtonsToAllNotebooks = (themeName: string): void => {
       notebookTracker.forEach(widget => {
@@ -188,14 +203,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         // Enable line numbers if needed
         void enableLineNumbersIfNeeded(app, widget);
         // Setup cell numbering
-        const cleanup = setupCellNumbering(widget);
-        if (cleanup) {
-          cellNumberingCleanups.set(widget, cleanup);
-          // Also cleanup when notebook is disposed
-          widget.disposed.connect(() => {
-            cellNumberingCleanups.delete(widget);
-          });
-        }
+        addCellNumbering(widget);
       });
 
       // Connect to new notebooks
@@ -211,14 +219,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
             // Enable line numbers if needed
             void enableLineNumbersIfNeeded(app, widget);
             // Setup cell numbering
-            const cleanup = setupCellNumbering(widget);
-            if (cleanup) {
-              cellNumberingCleanups.set(widget, cleanup);
-              // Also cleanup when notebook is disposed
-              widget.disposed.connect(() => {
-                cellNumberingCleanups.delete(widget);
-              });
-            }
+            addCellNumbering(widget);
           }
         }, 100);
       };
