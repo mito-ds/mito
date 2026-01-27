@@ -86,6 +86,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     // This ensures re-renders when cells are reordered (even if count stays the same)
     const cellOrderKey = useMemo(() => {
         return Array.from(cellOrder.entries())
+            .filter(([cellId]) => cellId != null) // Filter out entries with undefined/null keys
             .sort((a, b) => a[0].localeCompare(b[0])) // Sort by cellId for stable string
             .map(([cellId, cellNumber]) => `${cellId}:${cellNumber}`)
             .join(',');
