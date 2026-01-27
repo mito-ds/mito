@@ -57,6 +57,12 @@ export class MitoPalettes {
     document.documentElement.style.setProperty('--mito-theme-brand-color3', 'var(--purple-300)');
     document.documentElement.style.setProperty('--mito-theme-brand-color4', 'var(--purple-300)');
 
+    // Primary button colors (light mode: blue theme to avoid pinkish-purple)
+    document.documentElement.style.setProperty('--mito-theme-button-background', 'var(--blue-300)');
+    document.documentElement.style.setProperty('--mito-theme-button-border', 'var(--blue-900)');
+    document.documentElement.style.setProperty('--mito-theme-button-text', 'var(--blue-900)');
+    document.documentElement.style.setProperty('--mito-theme-button-hover-background', 'var(--blue-400)');
+
     // Cell editor colors
     document.documentElement.style.setProperty('--mito-theme-cell-editor-background', '#f5f5f5');
     document.documentElement.style.setProperty('--mito-theme-cell-editor-border-color', '#e0e0e0');
@@ -165,6 +171,12 @@ export class MitoPalettes {
     document.documentElement.style.setProperty('--mito-theme-brand-color2', '#E8A3D5');
     document.documentElement.style.setProperty('--mito-theme-brand-color3', '#F4D1EA');
     document.documentElement.style.setProperty('--mito-theme-brand-color4', '#FAE8F5');
+
+    // Primary button colors (dark mode: lighter brand background, dark brand border)
+    document.documentElement.style.setProperty('--mito-theme-button-background', '#F4D1EA');
+    document.documentElement.style.setProperty('--mito-theme-button-border', '#C65FAA');
+    document.documentElement.style.setProperty('--mito-theme-button-text', 'rgba(0, 0, 0, 0.87)');
+    document.documentElement.style.setProperty('--mito-theme-button-hover-background', '#FAE8F5');
 
     // Cell editor colors
     document.documentElement.style.setProperty('--mito-theme-cell-editor-background', '#1e1e1e');
