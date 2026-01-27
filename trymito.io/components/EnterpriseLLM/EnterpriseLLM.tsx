@@ -49,7 +49,7 @@ const EnterpriseLLM = (): JSX.Element => {
             </span>
             <div>
               <h3>Azure OpenAI Enterprise</h3>
-              <p>Connect to your organization's Azure OpenAI deployment with full compliance.</p>
+              <p>Connect to your organization&apos;s Azure OpenAI deployment with full compliance.</p>
             </div>
           </div>
           <div className={enterpriseLLMStyles.point}>
