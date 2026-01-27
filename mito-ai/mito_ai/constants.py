@@ -30,6 +30,13 @@ LITELLM_MODELS_STR = os.environ.get("LITELLM_MODELS", "")
 # Parse comma-separated string into list, strip whitespace
 LITELLM_MODELS = [model.strip() for model in LITELLM_MODELS_STR.split(",") if model.strip()] if LITELLM_MODELS_STR else []
 
+# Abacus AI Config (Enterprise mode only)
+ABACUS_BASE_URL = os.environ.get("ABACUS_BASE_URL")
+ABACUS_API_KEY = os.environ.get("ABACUS_API_KEY")
+ABACUS_MODELS_STR = os.environ.get("ABACUS_MODELS", "")
+# Parse comma-separated string into list, strip whitespace
+ABACUS_MODELS = [model.strip() for model in ABACUS_MODELS_STR.split(",") if model.strip()] if ABACUS_MODELS_STR else []
+
 # Mito AI Base URLs and Endpoint Paths
 MITO_PROD_BASE_URL = "https://7eax4i53f5odkshhlry4gw23by0yvnuv.lambda-url.us-east-1.on.aws/v2"
 MITO_DEV_BASE_URL = "https://g5vwmogjg7gh7aktqezyrvcq6a0hyfnr.lambda-url.us-east-1.on.aws/v2"

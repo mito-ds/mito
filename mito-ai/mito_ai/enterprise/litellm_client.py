@@ -11,6 +11,7 @@ from mito_ai.completions.models import (
     CompletionItem,
 )
 from mito_ai.utils.litellm_utils import get_litellm_completion_function_params
+from mito_ai.utils.model_utils import strip_router_prefix
 import litellm
 
 class LiteLLMClient:
@@ -37,16 +38,19 @@ class LiteLLMClient:
         
         Args:
             messages: List of chat messages
-            model: Model name with provider prefix (e.g., "openai/gpt-4o")
+            model: Model name with router and provider prefix (e.g., "LiteLLM/openai/gpt-4o" or legacy "openai/gpt-4o")
             response_format_info: Optional response format specification
             message_type: Type of message (chat, agent execution, etc.)
             
         Returns:
             The completion text response
         """
+        # Strip router prefix if present (LiteLLM/ prefix)
+        model_for_litellm = strip_router_prefix(model)
+        
         # Prepare parameters for LiteLLM
         params = get_litellm_completion_function_params(
-            model=model,
+            model=model_for_litellm,
             messages=messages,
             api_key=self.api_key,
             api_base=self.base_url,
@@ -82,7 +86,7 @@ class LiteLLMClient:
         
         Args:
             messages: List of chat messages
-            model: Model name with provider prefix (e.g., "openai/gpt-4o")
+            model: Model name with router and provider prefix (e.g., "LiteLLM/openai/gpt-4o" or legacy "openai/gpt-4o")
             message_type: Type of message (chat, agent execution, etc.)
             message_id: ID of the message being processed
             reply_fn: Function to call with each chunk for streaming replies
@@ -93,9 +97,12 @@ class LiteLLMClient:
         """
         accumulated_response = ""
         
+        # Strip router prefix if present (LiteLLM/ prefix)
+        model_for_litellm = strip_router_prefix(model)
+        
         # Prepare parameters for LiteLLM
         params = get_litellm_completion_function_params(
-            model=model,
+            model=model_for_litellm,
             messages=messages,
             api_key=self.api_key,
             api_base=self.base_url,

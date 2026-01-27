@@ -6,29 +6,17 @@
 
 # Copyright (c) Saga Inc.
 
-import asyncio
-import json
-import time
-from typing import Any, Dict, List, Optional, Final, Union, AsyncGenerator, Tuple, Callable
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable
 from mito_ai.utils.mito_server_utils import get_response_from_mito_server, stream_response_from_mito_server
-from tornado.httpclient import AsyncHTTPClient
 from openai.types.chat import ChatCompletionMessageParam
-
-from mito_ai.utils.utils import is_running_test
-from mito_ai.completions.models import MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem
+from mito_ai.completions.models import MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk
 from mito_ai.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
 from mito_ai.utils.db import get_user_field
-from mito_ai.utils.version_utils import is_pro
-from mito_ai.utils.server_limits import check_mito_server_quota
-from mito_ai.utils.telemetry_utils import log_ai_completion_success
-from .utils import _create_http_client
+from mito_ai.enterprise.utils import is_abacus_configured
 from mito_ai.constants import MITO_OPENAI_URL
-
 
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
-
-FAST_OPENAI_MODEL = "gpt-4.1-nano"
 
 def _prepare_request_data_and_headers(
     last_message_content: Union[str, None],
@@ -171,25 +159,33 @@ def get_open_ai_completion_function_params(
     # Pydantic models are supported by the OpenAI API, however, we need to be able to 
     # serialize it for requests that are going to be sent to the mito server. 
     # OpenAI expects a very specific schema as seen below. 
+    # Note: Abacus only supports {"type": "json"} format, not the full JSON schema format.
     if response_format_info:
-        json_schema = response_format_info.format.schema()
-        
-        # Add additionalProperties: False to the top-level schema
-        json_schema["additionalProperties"] = False
-        
-        # Nested object definitions in $defs need to have additionalProperties set to False also
-        if "$defs" in json_schema:
-            for def_name, def_schema in json_schema["$defs"].items():
-                if def_schema.get("type") == "object":
-                    def_schema["additionalProperties"] = False
-        
-        completion_function_params["response_format"] = {
-            "type": "json_schema",
-            "json_schema": {
-                "name": f"{response_format_info.name}",
-                "schema": json_schema,
-                "strict": True
+        # Check if we're using Abacus - it only supports simple {"type": "json"} format
+        if is_abacus_configured() or model.lower().startswith('abacus/'):
+            completion_function_params["response_format"] = {
+                "type": "json"
             }
-        }
+        else:
+            # For OpenAI and other providers, use the full JSON schema format
+            json_schema = response_format_info.format.schema()
+            
+            # Add additionalProperties: False to the top-level schema
+            json_schema["additionalProperties"] = False
+            
+            # Nested object definitions in $defs need to have additionalProperties set to False also
+            if "$defs" in json_schema:
+                for def_name, def_schema in json_schema["$defs"].items():
+                    if def_schema.get("type") == "object":
+                        def_schema["additionalProperties"] = False
+            
+            completion_function_params["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": f"{response_format_info.name}",
+                    "schema": json_schema,
+                    "strict": True
+                }
+            }
 
     return completion_function_params

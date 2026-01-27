@@ -9,6 +9,7 @@ from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
 from mito_ai.log.urls import get_log_urls
 from mito_ai.utils.litellm_utils import is_litellm_configured
+from mito_ai.enterprise.utils import is_abacus_configured
 from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
 from mito_ai.settings.urls import get_settings_urls
@@ -101,10 +102,12 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
     
-    # Log enterprise mode status and LiteLLM configuration
+    # Log enterprise mode status and router configuration
     if is_enterprise():
         server_app.log.info("Enterprise mode enabled")
-        if is_litellm_configured():
+        if is_abacus_configured():
+            server_app.log.info(f"Abacus AI configured: endpoint={constants.ABACUS_BASE_URL}, models={constants.ABACUS_MODELS}")
+        elif is_litellm_configured():
             server_app.log.info(f"LiteLLM configured: endpoint={constants.LITELLM_BASE_URL}, models={constants.LITELLM_MODELS}")
     
     server_app.log.info("Loaded the mito_ai server extension")

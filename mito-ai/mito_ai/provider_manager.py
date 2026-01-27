@@ -27,6 +27,7 @@ from mito_ai.completions.models import (
     ResponseFormatInfo,
 )
 from mito_ai.utils.litellm_utils import is_litellm_configured
+from mito_ai.enterprise.utils import is_abacus_configured
 from mito_ai.utils.telemetry_utils import (
     MITO_SERVER_KEY,
     USER_KEY,
@@ -79,6 +80,12 @@ This attribute is observed by the websocket provider to push the error to the cl
         # TODO: We should validate that these keys are actually valid for the provider
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
+        if is_abacus_configured():
+            return AICapabilities(
+                configuration={"model": "<dynamic>"},
+                provider="Abacus AI",
+            )
+            
         if is_litellm_configured():
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
@@ -116,6 +123,9 @@ This attribute is observed by the websocket provider to push the error to the cl
         # TODO: We should validate that these keys are actually valid for the provider
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
+        if is_abacus_configured():
+            return USER_KEY
+            
         if is_litellm_configured():
             return USER_KEY
         
@@ -172,7 +182,16 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Retry loop
         for attempt in range(max_retries + 1):
             try:
-                if model_type == "litellm":
+                if model_type == "abacus":
+                    if not self._openai_client:
+                        raise RuntimeError("OpenAI client is not initialized.")
+                    completion = await self._openai_client.request_completions(
+                        message_type=message_type,
+                        messages=messages,
+                        model=resolved_model,
+                        response_format_info=response_format_info
+                    )
+                elif model_type == "litellm":
                     from mito_ai.enterprise.litellm_client import LiteLLMClient
                     if not constants.LITELLM_BASE_URL:
                         raise ValueError("LITELLM_BASE_URL is required for LiteLLM models")
@@ -299,7 +318,20 @@ This attribute is observed by the websocket provider to push the error to the cl
         ))
 
         try:
-            if model_type == "litellm":
+            if model_type == "abacus":
+                if not self._openai_client:
+                    raise RuntimeError("OpenAI client is not initialized.")
+                accumulated_response = await self._openai_client.stream_completions(
+                    message_type=message_type,
+                    messages=messages,
+                    model=resolved_model,
+                    message_id=message_id,
+                    thread_id=thread_id,
+                    reply_fn=reply_fn,
+                    user_input=user_input,
+                    response_format_info=response_format_info
+                )
+            elif model_type == "litellm":
                 from mito_ai.enterprise.litellm_client import LiteLLMClient
                 if not constants.LITELLM_BASE_URL:
                     raise ValueError("LITELLM_BASE_URL is required for LiteLLM models")
