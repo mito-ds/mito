@@ -1,12 +1,12 @@
 # Cursor Rules for Mito Project
 
-## Validation Mode
+## Verify Mode
 
-When creating plans or implementing features, use validation mode to ensure quality:
+When creating plans or implementing features, use verify mode to ensure quality:
 
 ### Automatic Validation Step Insertion
 - After each implementation task in a plan, automatically insert a validation step
-- Validation steps should specify which app to validate (JupyterLab or trymito.io) based on:
+- Validation steps should specify which app to verify (JupyterLab or trymito.io) based on:
   - Files being modified: `mito-ai/` → JupyterLab, `trymito.io/` → trymito.io website
   - Context from the implementation task
   - User specification if provided
@@ -22,9 +22,9 @@ When executing validation steps:
 7. **Completion**: Mark validation complete and move to next task
 
 ### Validation Command
-- Use the `validate` command (`.cursor/commands/validate.md`) for manual validation
+- Use the `verify` command (`.cursor/commands/verify.md`) for manual validation
 - The command automatically detects which app to use based on file paths
-- Follow the validation workflow: baseline → improvements → prioritize → implement → verify
+- Follow the verify workflow: baseline → improvements → prioritize → implement → verify
 
 ### App-Specific Notes
 - **JupyterLab**: Runs on `localhost:8888`, token: `dev-token-for-cursor-testing-12345`

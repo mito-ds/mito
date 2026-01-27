@@ -1,12 +1,12 @@
-# Validate Feature Command
+# Verify Feature Command
 
-When invoked, automatically validate a feature or change by launching the appropriate app (JupyterLab or trymito.io), testing baseline functionality, and fixing issues until the feature works correctly.
+When invoked, automatically verify a feature or change by launching the appropriate app (JupyterLab or trymito.io), testing baseline functionality, and fixing issues until the feature works correctly.
 
 ## App Detection
 
-Automatically determine which app to validate based on:
-- Files in `mito-ai/` → Validate in JupyterLab
-- Files in `trymito.io/` → Validate in trymito.io website
+Automatically determine which app to verify based on:
+- Files in `mito-ai/` → Verify in JupyterLab
+- Files in `trymito.io/` → Verify in trymito.io website
 - User specification or plan context if provided
 
 ## Execution Steps
