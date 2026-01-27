@@ -25,7 +25,7 @@ import {
   selectModel
 } from '../mitoai_ui_tests/utils';
 
-const MODEL = 'litellm/openai/gpt-4.1'
+const MODEL = 'litellm/openai/gpt-4o'
 
 test.describe.serial('LiteLLM Integration Tests', () => {
   test('chat mode basic functionality with LiteLLM', async ({ page }) => {
