@@ -17,8 +17,14 @@
   width: 100%;
   border-radius: 4px;
   overflow: hidden;
-  background-color: var(--blue-300);
-  border: 0.5px solid var(--blue-900);
+  /* Theme-aware button colors set by Mito palettes */
+  background-color: var(--mito-theme-button-background, var(--blue-300));
+  border: 0.5px solid var(--mito-theme-button-border, var(--blue-900));
+  transition: all 0.15s ease;
+}
+
+.mito-run-cell-button-group:hover {
+  background-color: var(--mito-theme-button-hover-background, var(--blue-400));
 }
 
 /* Shared button styles */
@@ -29,7 +35,8 @@
   padding: 0;
   border-radius: 0;
   cursor: pointer;
-  color: var(--blue-900);
+  /* Theme-aware text color */
+  color: var(--mito-theme-button-text, var(--blue-900));
   font-size: 13px;
   font-weight: 400;
   transition: background-color 0.15s ease;
@@ -38,7 +45,7 @@
 }
 
 .mito-run-cell-button:hover {
-  background-color: var(--blue-400);
+  background-color: transparent;
 }
 
 /* Main button (left side - play icon + text) */
@@ -55,8 +62,8 @@
   background: linear-gradient(
     to bottom,
     transparent,
-    var(--blue-900) 20%,
-    var(--blue-900) 80%,
+    var(--mito-theme-button-border, var(--blue-900)) 20%,
+    var(--mito-theme-button-border, var(--blue-900)) 80%,
     transparent
   );
   opacity: 0.4;
@@ -74,8 +81,8 @@
 
 /* Play icon styling */
 .mito-run-cell-button-main > svg {
-  color: var(--blue-900);
-  fill: var(--blue-900);
+  color: var(--mito-theme-button-text, var(--blue-900));
+  fill: var(--mito-theme-button-text, var(--blue-900));
   width: 12px;
   height: 12px;
   flex-shrink: 0;
@@ -85,7 +92,7 @@
 .mito-run-cell-button-dropdown svg {
   width: 14px;
   height: 14px;
-  color: var(--blue-900);
+  color: var(--mito-theme-button-text, var(--blue-900));
 }
 
 /* Ensure chevron path only uses stroke, not fill */
@@ -96,6 +103,7 @@
 
 .mito-run-cell-button-text {
   white-space: nowrap;
+  color: var(--mito-theme-button-text, var(--blue-900));
 }
 
 /* Running state - applied to the group */

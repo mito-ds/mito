@@ -1,5 +1,34 @@
 # Cursor Rules for Mito Project
 
-## Virtual Environment
-- ALWAYS activate the virtual environment before running any Python commands: `cd mito-ai && source venv/bin/activate`
-- For other components: check for venv directories and activate appropriately
+## Verify Mode
+
+When creating plans or implementing features, use verify mode to ensure quality:
+
+### Automatic Validation Step Insertion
+- After each implementation task in a plan, automatically insert a validation step
+- Validation steps should specify which app to verify (JupyterLab or trymito.io) based on:
+  - Files being modified: `mito-ai/` → JupyterLab, `trymito.io/` → trymito.io website
+  - Context from the implementation task
+  - User specification if provided
+
+### Validation Workflow
+When executing validation steps:
+1. **App Detection**: Determine target app (JupyterLab: localhost:8888, trymito.io: localhost:3000)
+2. **Baseline Validation**: Ensure existing functionality still works
+3. **Improvement Analysis**: Identify potential improvements (bugs, UX, code quality)
+4. **Prioritization**: Create prioritized list (P0 Critical → P1 High → P2 Medium → P3 Low)
+5. **Decision**: Decide if improvements are worth implementing now
+6. **Implementation Loop**: If yes, implement highest priority, rebuild, re-validate (repeat)
+7. **Completion**: Mark validation complete and move to next task
+
+### Validation Command
+- Use the `verify` command (`.cursor/commands/verify.md`) for manual validation
+- The command automatically detects which app to use based on file paths
+- Follow the verify workflow: baseline → improvements → prioritize → implement → verify
+
+### App-Specific Notes
+- **JupyterLab**: Runs on `localhost:8888`, token: `dev-token-for-cursor-testing-12345`
+- **trymito.io**: Next.js app runs on `localhost:3000`, start with `cd trymito.io && npm run dev`
+- Always check app is running before validation
+- For frontend changes: wait for build, refresh browser
+- For backend changes: restart server if needed, reload page

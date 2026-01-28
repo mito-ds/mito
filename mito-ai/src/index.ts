@@ -14,7 +14,7 @@ import { statusItem } from './Extensions/status';
 import SettingsManagerPlugin from './Extensions/SettingsManager/SettingsManagerPlugin';
 import { versionCheckPlugin } from './Extensions/VersionCheck';
 import NotebookFooterPlugin from './Extensions/NotebookFooter';
-import mitoThemePlugin from './Extensions/MitoThemeLight';
+import mitoThemesPlugin from './Extensions/MitoThemes';
 import ManageAppsPlugin from "./Extensions/AppManager/ManageAppsPlugin"
 import ChartWizardPlugin from './Extensions/ChartWizard/ChartWizardPlugin';
 
@@ -33,6 +33,6 @@ export default [
   versionCheckPlugin,
   NotebookFooterPlugin,
   ManageAppsPlugin,
-  mitoThemePlugin,
+  mitoThemesPlugin,
   ChartWizardPlugin
 ];

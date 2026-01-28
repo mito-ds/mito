@@ -47,9 +47,9 @@
 
 /* Make active cell more visible in Mito theme */
 .jp-Notebook:not(.jp-mod-editMode) .jp-Cell.jp-mod-active {
-    border: .5px solid var(--purple-700) !important;
+    border: .5px solid var(--jp-brand-color1) !important;
     border-radius: 4px !important;
-    box-shadow: 0 0 0 1px var(--purple-700) !important;
+    box-shadow: 0 0 0 1px var(--jp-brand-color1) !important;
 }
 
 /* Style output area only when it contains stderr content */
