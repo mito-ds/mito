@@ -25,15 +25,15 @@ import {
   selectModel
 } from '../mitoai_ui_tests/utils';
 
-const MODEL = 'litellm/openai/gpt-4.1'
+const MODEL = 'Abacus/gpt-4.1'
 
-test.describe.serial('LiteLLM Integration Tests', () => {
-  test('chat mode basic functionality with LiteLLM', async ({ page }) => {
-    // Create a notebook for LiteLLM testing
-    await createAndRunNotebookWithCells(page, ['# Test notebook for LiteLLM']);
+test.describe.serial('Abacus AI Integration Tests', () => {
+  test('chat mode basic functionality with Abacus AI', async ({ page }) => {
+    // Create a notebook for Abacus AI testing
+    await createAndRunNotebookWithCells(page, ['# Test notebook for Abacus AI']);
     await waitForIdle(page);
 
-    // Switch to GPT 4.1 model (which should use LiteLLM when configured)
+    // Switch to GPT 4.1 model (which should use Abacus when configured)
     await selectModel(page, MODEL);
 
     // Start a new chat
@@ -45,7 +45,7 @@ test.describe.serial('LiteLLM Integration Tests', () => {
     await selectCell(page, 0);
 
     // Send a message and verify the response
-    await sendMessagetoAIChat(page, 'print hello world from litellm');
+    await sendMessagetoAIChat(page, 'print hello world from abacus');
     await waitForMitoAILoadingToDisappear(page);
 
     // Accept the generated code
@@ -61,12 +61,12 @@ test.describe.serial('LiteLLM Integration Tests', () => {
     expect(codeLower).toContain('world');
   });
 
-  test('agent mode basic functionality with LiteLLM', async ({ page }) => {
-    // Create a notebook for LiteLLM testing
-    await createAndRunNotebookWithCells(page, ['# Test notebook for LiteLLM Agent']);
+  test('agent mode basic functionality with Abacus AI', async ({ page }) => {
+    // Create a notebook for Abacus AI testing
+    await createAndRunNotebookWithCells(page, ['# Test notebook for Abacus AI Agent']);
     await waitForIdle(page);
 
-    // Switch to GPT 4.1 model (which should use LiteLLM when configured)
+    // Switch to GPT 4.1 model (which should use Abacus when configured)
     await selectModel(page, MODEL);
 
     // Start a new chat and switch to agent mode
@@ -75,7 +75,7 @@ test.describe.serial('LiteLLM Integration Tests', () => {
     await turnOnAgentMode(page);
 
     // Send a message to the agent
-    await sendMessageToAgent(page, 'create a simple function that prints hello litellm');
+    await sendMessageToAgent(page, 'create a simple function that prints hello abacus');
     await waitForAgentToFinish(page);
 
     // Verify the code was added to the notebook
@@ -86,17 +86,17 @@ test.describe.serial('LiteLLM Integration Tests', () => {
     expect(joinedCode).toContain('hello');
   });
 
-  test('model capabilities reporting for LiteLLM', async ({ page }) => {
+  test('model capabilities reporting for Abacus AI', async ({ page }) => {
     // Create a notebook for testing model capabilities
-    await createAndRunNotebookWithCells(page, ['# Test LiteLLM model capabilities']);
+    await createAndRunNotebookWithCells(page, ['# Test Abacus AI model capabilities']);
     await waitForIdle(page);
 
-    // Switch to GPT 4.1 model (which should use LiteLLM when configured)
+    // Switch to GPT 4.1 model (which should use Abacus when configured)
     await selectModel(page, MODEL);
 
     // Check the status button
     await page.getByRole('button', { name: 'Mito AI', exact: true }).click();
     await expect(page.locator(".mito-ai-status-popup")).toBeVisible();
-    await expect(page.locator(".mito-ai-status-popup")).toContainText("LiteLLM")
+    await expect(page.locator(".mito-ai-status-popup")).toContainText("Abacus AI")
   });
 });

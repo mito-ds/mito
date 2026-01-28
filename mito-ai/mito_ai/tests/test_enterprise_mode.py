@@ -137,6 +137,61 @@ class TestModelValidation:
         
         from mito_ai.utils.model_utils import STANDARD_MODELS
         assert result == STANDARD_MODELS
+    
+    @patch('mito_ai.utils.model_utils.is_enterprise')
+    @patch('mito_ai.utils.model_utils.constants')
+    @patch('mito_ai.utils.model_utils.is_abacus_configured')
+    def test_provider_manager_validates_abacus_model(self, mock_is_abacus_configured, mock_constants, mock_is_enterprise, provider_config: Config):
+        """Test that ProviderManager validates Abacus models against available models."""
+        mock_is_abacus_configured.return_value = True
+        mock_is_enterprise.return_value = True
+        mock_constants.ABACUS_BASE_URL = "https://routellm.abacus.ai/v1"
+        mock_constants.ABACUS_MODELS = ["Abacus/gpt-4.1", "Abacus/gpt-5.2"]
+        
+        provider_manager = ProviderManager(config=provider_config)
+        provider_manager.set_selected_model("Abacus/gpt-4.1")
+        
+        # Should not raise an error for valid model
+        available_models = get_available_models()
+        assert "Abacus/gpt-4.1" in available_models
+    
+    @patch('mito_ai.utils.model_utils.is_enterprise')
+    @patch('mito_ai.utils.model_utils.constants')
+    @patch('mito_ai.utils.model_utils.is_abacus_configured')
+    @pytest.mark.asyncio
+    async def test_provider_manager_rejects_invalid_abacus_model(self, mock_is_abacus_configured, mock_constants, mock_is_enterprise, provider_config: Config):
+        """Test that ProviderManager rejects invalid Abacus models."""
+        mock_is_abacus_configured.return_value = True
+        mock_is_enterprise.return_value = True
+        mock_constants.ABACUS_BASE_URL = "https://routellm.abacus.ai/v1"
+        mock_constants.ABACUS_MODELS = ["Abacus/gpt-4.1"]
+        mock_constants.ABACUS_API_KEY = "test-key"
+        
+        provider_manager = ProviderManager(config=provider_config)
+        provider_manager.set_selected_model("invalid-model")
+        
+        messages: list[ChatCompletionMessageParam] = [{"role": "user", "content": "test"}]
+        
+        # Should raise ValueError for invalid model
+        with pytest.raises(ValueError, match="is not in the allowed model list"):
+            await provider_manager.request_completions(
+                message_type=MessageType.CHAT,
+                messages=messages
+            )
+    
+    @patch('mito_ai.utils.model_utils.is_enterprise')
+    @patch('mito_ai.utils.model_utils.constants')
+    @patch('mito_ai.utils.model_utils.is_abacus_configured')
+    def test_available_models_endpoint_returns_abacus_models(self, mock_is_abacus_configured, mock_constants, mock_is_enterprise):
+        """Test that /available-models endpoint returns Abacus models when configured."""
+        mock_is_abacus_configured.return_value = True
+        mock_is_enterprise.return_value = True
+        mock_constants.ABACUS_BASE_URL = "https://routellm.abacus.ai/v1"
+        mock_constants.ABACUS_MODELS = ["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"]
+        
+        result = get_available_models()
+        
+        assert result == ["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"]
 
 
 class TestModelStorage:

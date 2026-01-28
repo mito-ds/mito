@@ -23,7 +23,8 @@ PROVIDER_TEST_CASES = [
     ("gpt-4.1", "mito_ai.provider_manager.OpenAIClient"),
     ("claude-sonnet-4-5-20250929", "mito_ai.provider_manager.AnthropicClient"),
     ("gemini-3-flash-preview", "mito_ai.provider_manager.GeminiClient"),
-    ("openai/gpt-4o", "mito_ai.provider_manager.LiteLLMClient"),  # LiteLLM test case
+    ("litellm/openai/gpt-4o", "mito_ai.provider_manager.LiteLLMClient"),  # LiteLLM test case
+    ("Abacus/gpt-4.1", "mito_ai.provider_manager.OpenAIClient"),  # Abacus test case (uses OpenAIClient)
 ]
 
 @pytest.mark.parametrize("selected_model,client_patch_path", PROVIDER_TEST_CASES)
@@ -49,11 +50,25 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
         # Patch constants both at the source and where they're imported in model_utils
         monkeypatch.setattr("mito_ai.constants.LITELLM_BASE_URL", "https://litellm-server.com")
         monkeypatch.setattr("mito_ai.constants.LITELLM_API_KEY", "fake-litellm-key")
-        monkeypatch.setattr("mito_ai.constants.LITELLM_MODELS", ["openai/gpt-4o", "anthropic/claude-3-5-sonnet"])
+        monkeypatch.setattr("mito_ai.constants.LITELLM_MODELS", ["litellm/openai/gpt-4o", "litellm/anthropic/claude-3-5-sonnet"])
         # Also patch where constants is imported in model_utils (where get_available_models uses it)
         monkeypatch.setattr("mito_ai.utils.model_utils.constants.LITELLM_BASE_URL", "https://litellm-server.com")
-        monkeypatch.setattr("mito_ai.utils.model_utils.constants.LITELLM_MODELS", ["openai/gpt-4o", "anthropic/claude-3-5-sonnet"])
+        monkeypatch.setattr("mito_ai.utils.model_utils.constants.LITELLM_MODELS", ["litellm/openai/gpt-4o", "litellm/anthropic/claude-3-5-sonnet"])
         # Mock is_enterprise to return True so LiteLLM models are available
+        monkeypatch.setattr("mito_ai.utils.version_utils.is_enterprise", lambda: True)
+    
+    # Set up Abacus constants if testing Abacus
+    if selected_model.startswith("Abacus/"):
+        # Patch constants both at the source and where they're imported in model_utils
+        monkeypatch.setattr("mito_ai.constants.ABACUS_BASE_URL", "https://routellm.abacus.ai/v1")
+        monkeypatch.setattr("mito_ai.constants.ABACUS_API_KEY", "fake-abacus-key")
+        monkeypatch.setattr("mito_ai.constants.ABACUS_MODELS", ["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"])
+        # Also patch where constants is imported in model_utils (where get_available_models uses it)
+        monkeypatch.setattr("mito_ai.utils.model_utils.constants.ABACUS_BASE_URL", "https://routellm.abacus.ai/v1")
+        monkeypatch.setattr("mito_ai.utils.model_utils.constants.ABACUS_MODELS", ["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"])
+        # Mock is_abacus_configured to return True so Abacus models are available
+        monkeypatch.setattr("mito_ai.utils.model_utils.is_abacus_configured", lambda: True)
+        # Mock is_enterprise to return True so enterprise models are available
         monkeypatch.setattr("mito_ai.utils.version_utils.is_enterprise", lambda: True)
     
     # Create mock client for the specific provider being tested
@@ -87,12 +102,28 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
         # Patch LiteLLMClient where it's defined (it's imported inside request_completions)
         # Also patch get_available_models to return LiteLLM models
         with patch("mito_ai.enterprise.litellm_client.LiteLLMClient", return_value=mock_client), \
-             patch("mito_ai.provider_manager.get_available_models", return_value=["openai/gpt-4o", "anthropic/claude-3-5-sonnet"]):
+             patch("mito_ai.provider_manager.get_available_models", return_value=["litellm/openai/gpt-4o", "litellm/anthropic/claude-3-5-sonnet"]):
             result = await generate_short_chat_name(
                 user_message="What is the capital of France?",
                 assistant_message="The capital of France is Paris.",
                 llm_provider=llm_provider
             )
+    elif selected_model.startswith("Abacus/"):
+        # For Abacus, it uses OpenAIClient, so patch the instance's method
+        # Also patch get_available_models to return Abacus models
+        assert llm_provider._openai_client is not None, "OpenAI client should be initialized for Abacus"
+        with patch.object(llm_provider._openai_client, 'request_completions', new_callable=AsyncMock, return_value="Test Chat Name") as mock_abacus_request, \
+             patch("mito_ai.provider_manager.get_available_models", return_value=["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"]):
+            result = await generate_short_chat_name(
+                user_message="What is the capital of France?",
+                assistant_message="The capital of France is Paris.",
+                llm_provider=llm_provider
+            )
+            # Verify that the OpenAI client's request_completions was called (Abacus uses OpenAIClient)
+            mock_abacus_request.assert_called_once()  # type: ignore
+            # As a double check, if we have used the correct client, then we must get the correct result
+            assert result == "Test Chat Name"
+            return
     else:  # OpenAI
         # For OpenAI, patch the instance's method since the client is created in __init__
         assert llm_provider._openai_client is not None, "OpenAI client should be initialized"

@@ -22,11 +22,11 @@ class TestGetAvailableModels:
         """Test that LiteLLM models are returned when enterprise mode is enabled and LiteLLM is configured."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = "https://litellm-server.com"
-        mock_constants.LITELLM_MODELS = ["openai/gpt-4o", "anthropic/claude-3-5-sonnet"]
+        mock_constants.LITELLM_MODELS = ["litellm/openai/gpt-4o", "litellm/anthropic/claude-3-5-sonnet"]
         
         result = get_available_models()
         
-        assert result == ["openai/gpt-4o", "anthropic/claude-3-5-sonnet"]
+        assert result == ["litellm/openai/gpt-4o", "litellm/anthropic/claude-3-5-sonnet"]
     
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
@@ -56,7 +56,7 @@ class TestGetAvailableModels:
         """Test that standard models are returned when enterprise mode is enabled but LITELLM_BASE_URL is not set."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = None
-        mock_constants.LITELLM_MODELS = ["openai/gpt-4o"]
+        mock_constants.LITELLM_MODELS = ["litellm/openai/gpt-4o"]
         
         result = get_available_models()
         
@@ -73,6 +73,20 @@ class TestGetAvailableModels:
         result = get_available_models()
         
         assert result == STANDARD_MODELS
+    
+    @patch('mito_ai.utils.model_utils.is_abacus_configured')
+    @patch('mito_ai.utils.model_utils.is_enterprise')
+    @patch('mito_ai.utils.model_utils.constants')
+    def test_returns_abacus_models_when_configured(self, mock_constants, mock_is_enterprise, mock_is_abacus_configured):
+        """Test that Abacus models are returned when Abacus is configured (highest priority)."""
+        mock_is_abacus_configured.return_value = True
+        mock_is_enterprise.return_value = True
+        mock_constants.ABACUS_BASE_URL = "https://routellm.abacus.ai/v1"
+        mock_constants.ABACUS_MODELS = ["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"]
+        
+        result = get_available_models()
+        
+        assert result == ["Abacus/gpt-4.1", "Abacus/claude-haiku-4-5-20251001"]
 
 
 class TestGetFastModelForSelectedModel:
@@ -114,51 +128,51 @@ class TestGetFastModelForSelectedModel:
         [
             # Test case 1: LiteLLM OpenAI model returns fastest overall
             (
-                "openai/gpt-5.2",
-                ["openai/gpt-4.1", "openai/gpt-5.2", "anthropic/claude-sonnet-4-5-20250929"],
-                "openai/gpt-4.1",
+                "litellm/openai/gpt-5.2",
+                ["litellm/openai/gpt-4.1", "litellm/openai/gpt-5.2", "litellm/anthropic/claude-sonnet-4-5-20250929"],
+                "litellm/openai/gpt-4.1",
             ),
             # Test case 2: LiteLLM Anthropic model returns fastest overall
             (
-                "anthropic/claude-sonnet-4-5-20250929",
-                ["openai/gpt-4.1", "anthropic/claude-sonnet-4-5-20250929", "anthropic/claude-haiku-4-5-20251001"],
-                "openai/gpt-4.1",
+                "litellm/anthropic/claude-sonnet-4-5-20250929",
+                ["litellm/openai/gpt-4.1", "litellm/anthropic/claude-sonnet-4-5-20250929", "litellm/anthropic/claude-haiku-4-5-20251001"],
+                "litellm/openai/gpt-4.1",
             ),
             # Test case 3: LiteLLM Google model returns fastest overall
             (
-                "google/gemini-3-pro-preview",
-                ["google/gemini-3-pro-preview", "google/gemini-3-flash-preview"],
-                "google/gemini-3-flash-preview",
+                "litellm/google/gemini-3-pro-preview",
+                ["litellm/google/gemini-3-pro-preview", "litellm/google/gemini-3-flash-preview"],
+                "litellm/google/gemini-3-flash-preview",
             ),
             # Test case 4: Unknown LiteLLM model returns fastest known
             (
                 "unknown/provider/model",
-                ["openai/gpt-4.1", "unknown/provider/model"],
-                "openai/gpt-4.1",
+                ["litellm/openai/gpt-4.1", "unknown/provider/model"],
+                "litellm/openai/gpt-4.1",
             ),
             # Test case 5: Single LiteLLM model returns itself
             (
-                "openai/gpt-4o",
-                ["openai/gpt-4o"],
-                "openai/gpt-4o",
+                "litellm/openai/gpt-4o",
+                ["litellm/openai/gpt-4o"],
+                "litellm/openai/gpt-4o",
             ),
             # Test case 6: Cross-provider comparison - OpenAI is faster
             (
-                "anthropic/claude-sonnet-4-5-20250929",
+                "litellm/anthropic/claude-sonnet-4-5-20250929",
                 [
-                    "openai/gpt-4.1",  # Index 0 in OPENAI_MODEL_ORDER
-                    "anthropic/claude-sonnet-4-5-20250929",  # Index 1 in ANTHROPIC_MODEL_ORDER
+                    "litellm/openai/gpt-4.1",  # Index 0 in OPENAI_MODEL_ORDER
+                    "litellm/anthropic/claude-sonnet-4-5-20250929",  # Index 1 in ANTHROPIC_MODEL_ORDER
                 ],
-                "openai/gpt-4.1",
+                "litellm/openai/gpt-4.1",
             ),
             # Test case 7: Cross-provider comparison - Anthropic is faster
             (
-                "openai/gpt-5.2",
+                "litellm/openai/gpt-5.2",
                 [
-                    "openai/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
-                    "anthropic/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
+                    "litellm/openai/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
+                    "litellm/anthropic/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
                 ],
-                "anthropic/claude-haiku-4-5-20251001",
+                "litellm/anthropic/claude-haiku-4-5-20251001",
             ),
         ],
         ids=[
@@ -269,3 +283,80 @@ class TestGetFastModelForSelectedModel:
         for model, expected in test_cases:
             result = get_fast_model_for_selected_model(model)
             assert result == expected, f"Case-insensitive matching failed for {model}"
+    
+    @patch('mito_ai.utils.model_utils.get_available_models')
+    @pytest.mark.parametrize(
+        "selected_model,available_models,expected_result",
+        [
+            # Test case 1: Abacus GPT model returns fastest overall
+            (
+                "Abacus/gpt-5.2",
+                ["Abacus/gpt-4.1", "Abacus/gpt-5.2", "Abacus/claude-sonnet-4-5-20250929"],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 2: Abacus Claude model returns fastest overall
+            (
+                "Abacus/claude-sonnet-4-5-20250929",
+                ["Abacus/gpt-4.1", "Abacus/claude-sonnet-4-5-20250929", "Abacus/claude-haiku-4-5-20251001"],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 3: Abacus Gemini model returns fastest overall
+            (
+                "Abacus/gemini-3-pro-preview",
+                ["Abacus/gemini-3-pro-preview", "Abacus/gemini-3-flash-preview"],
+                "Abacus/gemini-3-flash-preview",
+            ),
+            # Test case 4: Unknown Abacus model returns fastest known
+            (
+                "Abacus/unknown-model",
+                ["Abacus/gpt-4.1", "Abacus/unknown-model"],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 5: Single Abacus model returns itself
+            (
+                "Abacus/gpt-4.1",
+                ["Abacus/gpt-4.1"],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 6: Cross-provider comparison - OpenAI is faster
+            (
+                "Abacus/claude-sonnet-4-5-20250929",
+                [
+                    "Abacus/gpt-4.1",  # Index 0 in OPENAI_MODEL_ORDER
+                    "Abacus/claude-sonnet-4-5-20250929",  # Index 1 in ANTHROPIC_MODEL_ORDER
+                ],
+                "Abacus/gpt-4.1",
+            ),
+            # Test case 7: Cross-provider comparison - Anthropic is faster
+            (
+                "Abacus/gpt-5.2",
+                [
+                    "Abacus/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
+                    "Abacus/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
+                ],
+                "Abacus/claude-haiku-4-5-20251001",
+            ),
+        ],
+        ids=[
+            "abacus_gpt_model_returns_fastest_overall",
+            "abacus_anthropic_model_returns_fastest_overall",
+            "abacus_google_model_returns_fastest_overall",
+            "abacus_unknown_model_returns_fastest_known",
+            "abacus_single_model_returns_itself",
+            "abacus_cross_provider_comparison_openai_faster",
+            "abacus_returns_fastest_when_anthropic_is_faster",
+        ]
+    )
+    def test_abacus_model_returns_fastest(
+        self,
+        mock_get_available_models,
+        selected_model,
+        available_models,
+        expected_result,
+    ):
+        """Test that Abacus models return fastest model from all available models."""
+        mock_get_available_models.return_value = available_models
+        
+        result = get_fast_model_for_selected_model(selected_model)
+        
+        assert result == expected_result
