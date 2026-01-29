@@ -104,17 +104,16 @@ def test_prepare_request_data_and_headers_null_message() -> None:
     with patch("mito_ai.utils.open_ai_utils.get_user_field") as mock_get_user_field:
         mock_get_user_field.side_effect = ["test@example.com", "user123"]
         
-        with patch("mito_ai.utils.open_ai_utils.check_mito_server_quota"):
-            data, _ = _prepare_request_data_and_headers(
-                last_message_content=None,
-                ai_completion_data={},
-                timeout=30,
-                max_retries=3,
-                message_type=MessageType.CHAT
-            )
+        data, _ = _prepare_request_data_and_headers(
+            last_message_content=None,
+            ai_completion_data={},
+            timeout=30,
+            max_retries=3,
+            message_type=MessageType.CHAT
+        )
 
-            # Verify empty string is used for null message
-            assert data["user_input"] == ""
+        # Verify empty string is used for null message
+        assert data["user_input"] == ""
 
 def test_prepare_request_data_and_headers_caches_user_info() -> None:
     """Test that user info is cached after first call"""
@@ -125,28 +124,27 @@ def test_prepare_request_data_and_headers_caches_user_info() -> None:
         
         mock_get_user_field.side_effect = ["test@example.com", "user123"]
         
-        with patch("mito_ai.utils.open_ai_utils.check_mito_server_quota"):
-            # First call
-            data1, _ = _prepare_request_data_and_headers(
-                last_message_content="test",
-                ai_completion_data={},
-                timeout=30,
-                max_retries=3,
-                message_type=MessageType.CHAT
-            )
+        # First call
+        data1, _ = _prepare_request_data_and_headers(
+            last_message_content="test",
+            ai_completion_data={},
+            timeout=30,
+            max_retries=3,
+            message_type=MessageType.CHAT
+        )
 
-            # Second call
-            data2, _ = _prepare_request_data_and_headers(
-                last_message_content="test",
-                ai_completion_data={},
-                timeout=30,
-                max_retries=3,
-                message_type=MessageType.CHAT
-            )
+        # Second call
+        data2, _ = _prepare_request_data_and_headers(
+            last_message_content="test",
+            ai_completion_data={},
+            timeout=30,
+            max_retries=3,
+            message_type=MessageType.CHAT
+        )
 
-            # Verify get_user_field was only called twice (once for email, once for user_id)
-            assert mock_get_user_field.call_count == 2
-            
-            # Verify both calls return same user info
-            assert data1["email"] == data2["email"] == "test@example.com"
-            assert data1["user_id"] == data2["user_id"] == "user123"
+        # Verify get_user_field was only called twice (once for email, once for user_id)
+        assert mock_get_user_field.call_count == 2
+        
+        # Verify both calls return same user info
+        assert data1["email"] == data2["email"] == "test@example.com"
+        assert data1["user_id"] == data2["user_id"] == "user123"

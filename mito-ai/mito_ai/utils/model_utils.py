@@ -4,6 +4,7 @@
 from typing import List, Tuple, Union, Optional, cast
 from mito_ai import constants
 from mito_ai.utils.version_utils import is_enterprise
+from mito_ai.enterprise.utils import is_abacus_configured
 
 # Model ordering: [fastest, ..., slowest] for each provider
 ANTHROPIC_MODEL_ORDER = [
@@ -35,15 +36,23 @@ STANDARD_MODELS = [
 
 def get_available_models() -> List[str]:
     """
-    Determine which models are available based on enterprise mode and LiteLLM configuration.
+    Determine which models are available based on enterprise mode and router configuration.
+    
+    Priority order:
+    1. Abacus (if configured)
+    2. LiteLLM (if configured)
+    3. Standard models
     
     Returns:
-        List of available model names. If enterprise mode is enabled AND LiteLLM is configured,
-        returns LiteLLM models. Otherwise, returns standard models.
+        List of available model names with appropriate prefixes.
     """
+    # Check if enterprise mode is enabled AND Abacus is configured (highest priority)
+    if is_abacus_configured():
+        # Return Abacus models (with Abacus/ prefix)
+        return constants.ABACUS_MODELS
     # Check if enterprise mode is enabled AND LiteLLM is configured
-    if is_enterprise() and constants.LITELLM_BASE_URL and constants.LITELLM_MODELS:
-        # Return LiteLLM models (with provider prefixes)
+    elif is_enterprise() and constants.LITELLM_BASE_URL and constants.LITELLM_MODELS:
+        # Return LiteLLM models (with LiteLLM/provider/ prefix or legacy provider/ prefix)
         return constants.LITELLM_MODELS
     else:
         # Return standard models
@@ -55,39 +64,50 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
     Get the fastest model for the client of the selected model.
     
     - For standard providers, returns the first (fastest) model from that provider's order.
-    - For LiteLLM models, finds the fastest available model from LiteLLM by comparing indices in the model order lists.
+    - For enterprise router models (Abacus/LiteLLM), finds the fastest available model by comparing indices.
     """
-    # Check if this is a LiteLLM model (has provider prefix like "openai/gpt-4o")
-    if "/" in selected_model:
-        
-        # Find the fastest model from available LiteLLM models
+    # Check if this is an enterprise router model (has "/" or router prefix)
+    if "/" in selected_model or selected_model.lower().startswith(('abacus/', 'litellm/')):
+        # Find the fastest model from available models
         available_models = get_available_models()
         if not available_models:
             return selected_model
         
-        # Filter to only LiteLLM models (those with "/") before splitting
-        litellm_models = [model for model in available_models if "/" in model]
-        if not litellm_models:
+        # Filter to only router models (those with "/")
+        router_models = [model for model in available_models if "/" in model]
+        if not router_models:
             return selected_model
         
-        available_provider_model_pairs: List[List[str]] = [model.split("/", 1) for model in litellm_models]
+        # Extract provider/model pairs for ordering
+        pairs_with_indices = []
+        for model in router_models:
+            # Strip router prefix to get underlying model info
+            model_without_router = strip_router_prefix(model)
+            
+            # For Abacus: model_without_router is just the model name (e.g., "gpt-4.1")
+            # For LiteLLM: model_without_router is "provider/model" (e.g., "openai/gpt-4.1")
+            if "/" in model_without_router:
+                # LiteLLM format: provider/model
+                pair = model_without_router.split("/", 1)
+            else:
+                # Abacus format: just model name, need to determine provider
+                provider = get_underlying_model_provider(model)
+                if provider:
+                    pair = [provider, model_without_router]
+                else:
+                    continue
+            
+            index = get_model_order_index(pair)
+            if index is not None:
+                pairs_with_indices.append((model, index))
         
-        # Get indices for all pairs and filter out None indices (unknown models)
-        pairs_with_indices = [(pair, get_model_order_index(pair)) for pair in available_provider_model_pairs]
-        valid_pairs_with_indices = [(pair, index) for pair, index in pairs_with_indices if index is not None]
-        
-        if not valid_pairs_with_indices:
+        if not pairs_with_indices:
             return selected_model
 
-        # Find the pair with the minimum index (fastest model)
-        fastest_pair, _ = min(valid_pairs_with_indices, key=lambda x: x[1])
-        fastest_model = f"{fastest_pair[0]}/{fastest_pair[1]}"
+        # Find the model with the minimum index (fastest model)
+        fastest_model, _ = min(pairs_with_indices, key=lambda x: x[1])
         
-        # If we found a fastest model, return it. Otherwise, use the selected model
-        if fastest_model:
-            return fastest_model
-        else:
-            return selected_model
+        return fastest_model
     
     # Standard provider logic - ensure we return a model from the same provider
     model_lower = selected_model.lower()
@@ -107,42 +127,57 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
     Get the smartest model for the client of the selected model.
     
     - For standard providers, returns the last (smartest) model from that provider's order.
-    - For LiteLLM models, finds the smartest available model from LiteLLM by comparing indices in the model order lists.
+    - For enterprise router models (Abacus/LiteLLM), finds the smartest available model by comparing indices.
     """
-    # Check if this is a LiteLLM model (has provider prefix like "openai/gpt-4o")
-    if "/" in selected_model:
+    # Check if this is an enterprise router model (has "/" or router prefix)
+    if "/" in selected_model or selected_model.lower().startswith(('abacus/', 'litellm/')):
+        # Extract underlying provider from selected model
+        selected_provider = get_underlying_model_provider(selected_model)
+        if not selected_provider:
+            return selected_model
         
-        # Extract provider from selected model
-        selected_provider, _ = selected_model.split("/", 1)
-        
-        # Find the smartest model from available LiteLLM models
+        # Find the smartest model from available models
         available_models = get_available_models()
         if not available_models:
             return selected_model
         
-        # Filter to only LiteLLM models (those with "/")
-        litellm_models = [model for model in available_models if "/" in model and model.startswith(f"{selected_provider}/")]
-        if not litellm_models:
+        # Filter to only router models with the same underlying provider
+        router_models = []
+        for model in available_models:
+            if "/" in model:
+                model_provider = get_underlying_model_provider(model)
+                if model_provider == selected_provider:
+                    router_models.append(model)
+        
+        if not router_models:
             return selected_model
         
-        available_provider_model_pairs: List[List[str]] = [model.split("/", 1) for model in litellm_models]
+        # Extract provider/model pairs for ordering
+        pairs_with_indices = []
+        for model in router_models:
+            # Strip router prefix to get underlying model info
+            model_without_router = strip_router_prefix(model)
+            
+            # For Abacus: model_without_router is just the model name (e.g., "gpt-4.1")
+            # For LiteLLM: model_without_router is "provider/model" (e.g., "openai/gpt-4.1")
+            if "/" in model_without_router:
+                # LiteLLM format: provider/model
+                pair = model_without_router.split("/", 1)
+            else:
+                # Abacus format: just model name, provider already determined
+                pair = [selected_provider, model_without_router]
+            
+            index = get_model_order_index(pair)
+            if index is not None:
+                pairs_with_indices.append((model, index))
         
-        # Get indices for all pairs and filter out None indices (unknown models)
-        pairs_with_indices = [(pair, get_model_order_index(pair)) for pair in available_provider_model_pairs]
-        valid_pairs_with_indices = [(pair, index) for pair, index in pairs_with_indices if index is not None]
-        
-        if not valid_pairs_with_indices:
+        if not pairs_with_indices:
             return selected_model
 
-        # Find the pair with the maximum index (smartest model)
-        smartest_pair, _ = max(valid_pairs_with_indices, key=lambda x: x[1])
-        smartest_model = f"{smartest_pair[0]}/{smartest_pair[1]}"
+        # Find the model with the maximum index (smartest model)
+        smartest_model, _ = max(pairs_with_indices, key=lambda x: x[1])
         
-        # If we found a smartest model, return it. Otherwise, use the selected model
-        if smartest_model:
-            return smartest_model
-        else:
-            return selected_model
+        return smartest_model
     
     # Standard provider logic
     model_lower = selected_model.lower()
@@ -156,6 +191,50 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
         return GEMINI_MODEL_ORDER[-1]
 
     return selected_model
+
+def strip_router_prefix(model: str) -> str:
+    """
+    Strip router prefix from model name.
+    
+    Examples:
+    - "Abacus/gpt-4.1" -> "gpt-4.1"
+    - "LiteLLM/openai/gpt-4.1" -> "openai/gpt-4.1"
+    - "gpt-4.1" -> "gpt-4.1" (no prefix, return as-is)
+    """
+    if model.lower().startswith('abacus/'):
+        return model[7:]  # Strip "Abacus/"
+    elif model.lower().startswith('litellm/'):
+        return model[8:]  # Strip "LiteLLM/"
+    return model
+
+def get_underlying_model_provider(full_model_provider_id: str) -> Optional[str]:
+    """
+    Determine the underlying AI provider from a model identifier.
+    
+    For Abacus models (Abacus/model), determine the provider from model name pattern.
+    For LiteLLM models (LiteLLM/provider/model), extract the provider from the prefix.
+    
+    Returns:
+        Provider name ("openai", "anthropic", "google") or None if cannot determine.
+    """
+    # Strip router prefix first
+    model_without_router = strip_router_prefix(full_model_provider_id)
+    
+    # Check if it's a LiteLLM format (provider/model)
+    if "/" in model_without_router:
+        provider, _ = model_without_router.split("/", 1)
+        return provider.lower()
+    
+    # For Abacus models without provider prefix, determine from model name
+    model_lower = model_without_router.lower()
+    if model_lower.startswith('gpt'):
+        return 'openai'
+    elif model_lower.startswith('claude'):
+        return 'anthropic'
+    elif model_lower.startswith('gemini'):
+        return 'google'
+    
+    return None
 
 def get_model_order_index(pair: List[str]) -> Optional[int]:
     provider, model_name = pair

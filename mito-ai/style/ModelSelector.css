@@ -109,12 +109,11 @@
 
 .model-option:hover {
   background-color: var(--jp-layout-color2);
-  color: var(--purple-700);
 }
 
 .model-option.selected {
   background-color: var(--jp-layout-color2);
-  color: var(--purple-700);
+  color: var(--jp-brand-color2);
 }
 
 /* When inside chat-controls - ensure proper alignment with other controls */

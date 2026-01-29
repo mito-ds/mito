@@ -20,6 +20,8 @@ Rules:
 - All imports must appear at the top, before the chart configuration section.
 - Variables with multiple words should be underscore-separated.
 - All colors should be in hex format (e.g., "#3498db"). Use quotes around the hex string: COLOR = "#3498db" or COLOR = '#3498db'. Do NOT nest quotes.
+- Never use RGB/RGBA tuples/lists for colors (e.g. (0, 0.4, 0.8, 0.8) is forbidden).
+- If transparency is needed, store it separately as ALPHA = 0.8 and apply it in code (e.g. to_rgba(HEX_COLOR, ALPHA)).
 - Variables can only be strings, numbers, booleans, tuples, or lists. 
 - NEVER include comments on the same line as a variable assignment. Each variable assignment must be on its own line with no trailing comments.
 - For string values, use either single or double quotes (e.g., TITLE = "Sales by Product" or TITLE = 'Sales by Product'). Do not use nested quotes (e.g., do NOT use '"value"').

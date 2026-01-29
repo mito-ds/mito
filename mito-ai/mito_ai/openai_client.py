@@ -11,8 +11,9 @@ from traitlets import Instance, default, validate
 from traitlets.config import LoggingConfigurable
 
 from mito_ai import constants
-from mito_ai.enterprise.utils import is_azure_openai_configured
+from mito_ai.enterprise.utils import is_azure_openai_configured, is_abacus_configured
 from mito_ai.logger import get_logger
+from mito_ai.utils.model_utils import strip_router_prefix
 from mito_ai.completions.models import (
     AICapabilities,
     CompletionError,
@@ -24,12 +25,11 @@ from mito_ai.completions.models import (
     ResponseFormatInfo,
 )
 from mito_ai.utils.open_ai_utils import (
-    check_mito_server_quota,
     get_ai_completion_from_mito_server,
     get_open_ai_completion_function_params,
     stream_ai_completion_from_mito_server,
 )
-from mito_ai.utils.server_limits import update_mito_server_quota
+from mito_ai.utils.server_limits import update_mito_server_quota, check_mito_server_quota
 
 OPENAI_MODEL_FALLBACK = "gpt-4.1"
 
@@ -66,6 +66,14 @@ This attribute is observed by the websocket provider to push the error to the cl
                     "model": constants.AZURE_OPENAI_MODEL
                 },
                 provider="Azure OpenAI",
+            )
+
+        if is_abacus_configured():
+            return AICapabilities(
+                configuration={
+                    "model": "<dynamic>"
+                },
+                provider="Abacus AI",
             )
 
         if constants.OLLAMA_MODEL:
@@ -121,6 +129,10 @@ This attribute is observed by the websocket provider to push the error to the cl
                 timeout=self.timeout,
             )
         
+        elif is_abacus_configured():
+            base_url = constants.ABACUS_BASE_URL
+            llm_api_key = constants.ABACUS_API_KEY
+            self.log.debug(f"Using Abacus AI with base URL: {constants.ABACUS_BASE_URL}")
         elif constants.OLLAMA_MODEL:
             base_url = constants.OLLAMA_BASE_URL
             llm_api_key = "ollama"
@@ -141,16 +153,24 @@ This attribute is observed by the websocket provider to push the error to the cl
         )
         return client
 
-    def _adjust_model_for_azure_or_ollama(self, model: str) -> str:
+    def _adjust_model_for_provider(self, model: str) -> str:
         
         # If they have set an Azure OpenAI model, then we always use it
         if is_azure_openai_configured() and constants.AZURE_OPENAI_MODEL is not None:
             self.log.debug(f"Resolving to Azure OpenAI model: {constants.AZURE_OPENAI_MODEL}")
+            # TODO: We should update Azure so it works the way LiteLLM and Abacus do: 
+            # when configured, we only show models from Azure in the UI. 
             return constants.AZURE_OPENAI_MODEL
         
         # If they have set an Ollama model, then we use it
         if constants.OLLAMA_MODEL is not None:
             return constants.OLLAMA_MODEL
+        
+        # If using Abacus, strip the "Abacus/" prefix from the model name
+        if is_abacus_configured() and model.lower().startswith('abacus/'):
+            stripped_model = strip_router_prefix(model)
+            self.log.debug(f"Stripping Abacus prefix: {model} -> {stripped_model}")
+            return stripped_model
         
         # Otherwise, we use the model they provided
         return model
@@ -186,7 +206,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         )
         
         # If they have set an Azure OpenAI or Ollama model, then we use it
-        completion_function_params["model"] = self._adjust_model_for_azure_or_ollama(completion_function_params["model"])
+        completion_function_params["model"] = self._adjust_model_for_provider(completion_function_params["model"])
 
         if self._active_async_client is not None:
             response = await self._active_async_client.chat.completions.create(**completion_function_params)
@@ -236,7 +256,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             model, messages, True, response_format_info
         )
         
-        completion_function_params["model"] = self._adjust_model_for_azure_or_ollama(completion_function_params["model"])
+        completion_function_params["model"] = self._adjust_model_for_provider(completion_function_params["model"])
 
         try:
             if self._active_async_client is not None:
