@@ -14,11 +14,11 @@ import os
 from typing import Literal, Optional
 
 from mito_ai.utils.db import (MITO_FOLDER, USER_JSON_PATH, set_user_field)
-from mito_ai.utils.schema import (GITHUB_ACTION_EMAIL, GITHUB_ACTION_ID,
-                                    UJ_STATIC_USER_ID, UJ_USER_EMAIL,
-                                    USER_JSON_DEFAULT)
+from mito_ai.utils.schema import (GITHUB_ACTION_EMAIL,
+                                    GITHUB_ACTION_ID, UJ_STATIC_USER_ID,
+                                    UJ_USER_EMAIL, USER_JSON_DEFAULT)
 from mito_ai.utils.telemetry_utils import identify
-from mito_ai.utils.utils import is_running_test
+from mito_ai.utils.utils import is_github_actions, is_running_test
 
 
 def is_user_json_exists_and_valid_json() -> bool:
@@ -66,8 +66,7 @@ def try_create_user_json_file() -> None:
         if temp_user_id:
             set_user_field(UJ_STATIC_USER_ID, temp_user_id)
 
-        # Finally, we take special care to put all the testing/CI environments 
-        # (e.g. Github actions) under one ID and email
+        # Finally, we take special care to put CI under a known ID and email.
         if is_running_test():
             set_user_field(UJ_STATIC_USER_ID, GITHUB_ACTION_ID)
             set_user_field(UJ_USER_EMAIL, GITHUB_ACTION_EMAIL)
