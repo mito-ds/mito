@@ -1,0 +1,214 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Layout modelled on Hex "Loved by the best data teams" showcase:
+ * Centered two-line headline (decorative + bold), centered subtitle,
+ * horizontal row of surface cards (desktop) with logo, title, description.
+ * Teal/blue accent to differentiate from brand sections.
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  max-width: 42rem;
+}
+
+.headline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 0 0.75rem;
+  line-height: 1.2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25em;
+}
+
+.headlineDecorative {
+  font-family: "Cormorant", Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  opacity: 0.95;
+}
+
+.headlineBold {
+  font-family: Graphik, -apple-system, sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+/* Mobile: stacked cards, single column */
+.cards {
+  width: 100%;
+  max-width: 72rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-text-primary-alpha-10);
+  border-radius: 1rem;
+  padding: 1.5rem 1.25rem;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-teal), var(--color-accent-blue));
+  opacity: 0.7;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--shadow-overlay);
+  border-color: var(--color-accent-teal);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.cardIconRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cardIcon {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: var(--color-text-primary);
+}
+
+.cardIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.providerIcons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.providerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  background: var(--color-text-primary-alpha-10);
+  color: var(--color-text-primary);
+  overflow: hidden;
+}
+
+.providerIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cardTitle {
+  color: var(--color-text-primary);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+}
+
+.cardDescription {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+/* Desktop: horizontal row of cards, 3 columns */
+@media (min-width: 50em) {
+  .container {
+    padding: 5rem 2rem;
+  }
+
+  .header {
+    margin-bottom: 3rem;
+  }
+
+  .headlineDecorative {
+    font-size: 3rem;
+  }
+
+  .headlineBold {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1.125rem;
+  }
+
+  .cards {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 1.25rem;
+    justify-content: center;
+  }
+
+  .card {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 1.75rem 1.5rem;
+  }
+
+  .cardTitle {
+    font-size: 1.125rem;
+  }
+
+  .cardDescription {
+    font-size: 0.9375rem;
+  }
+}

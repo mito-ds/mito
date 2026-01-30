@@ -5,7 +5,6 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { classNames } from '../../utils/classNames';
 import dataSourceStyles from './DataSources.module.css';
 
 export type DataSourceCategory = 'all' | 'warehouses' | 'databases' | 'files' | 'version-control';
@@ -72,11 +71,15 @@ const DataSources = (): JSX.Element => {
 
   return (
     <div className={dataSourceStyles.container}>
-      <h2 className={dataSourceStyles.heading}>Connect to your stack</h2>
+      <header className={dataSourceStyles.header}>
+        <h2 className={dataSourceStyles.heading}>Connect to your stack</h2>
+        <p className={dataSourceStyles.subheading}>
+          Mito works with the databases and data warehouses your team already uses.
+        </p>
+      </header>
 
       <div className={dataSourceStyles.layout}>
-        <div className="only-on-desktop">
-          <nav className={dataSourceStyles.nav} role="tablist" aria-label="Integration categories">
+        <nav className={dataSourceStyles.nav} role="tablist" aria-label="Integration categories">
             {SECTIONS.map(({ id, label }) => (
               <div
                 key={id}
@@ -90,8 +93,7 @@ const DataSources = (): JSX.Element => {
                 {label}
               </div>
             ))}
-          </nav>
-        </div>
+        </nav>
 
         <div
           id="integrations-panel"
@@ -104,7 +106,7 @@ const DataSources = (): JSX.Element => {
             {INTEGRATIONS.map(({ name, icon, category, categoryLabel, builtIn }) => (
               <div
                 key={name}
-                className={classNames(dataSourceStyles.iconCard, { 'only-on-desktop': !builtIn })}
+                className={dataSourceStyles.iconCard}
                 data-category={category}
               >
                 <div className={dataSourceStyles.iconCardInner}>

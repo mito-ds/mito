@@ -22,22 +22,15 @@ import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausib
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import DataSources from '../components/DataSources/DataSources';
+import EnterpriseLLM from '../components/EnterpriseLLM/EnterpriseLLM';
 import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
 import DemoVideo from '../components/DemoVideo/DemoVideo';
 import WaitlistSignup from '../components/WaitlistSignup/WaitlistSignup';
 import SocialProofCarousel from '../components/SocialProofCarousel/SocialProofCarousel';
 import { useABTest } from '../utils/useABTest';
-import { useInView } from '../utils/useInView';
 
 const Home: NextPage = () => {
   const abTestVariant = useABTest();
-  const heroInView = useInView();
-  const madeWithMitoInView = useInView();
-  const featureSquaresInView = useInView();
-  const dataSourcesInView = useInView();
-  const caseStudiesInView = useInView();
-  const downloadCTAInView = useInView();
-  const faqInView = useInView();
 
   useEffect(() => {
     Prism.highlightAll();
@@ -52,13 +45,7 @@ const Home: NextPage = () => {
       <Header/>
     
       <div className={pageStyles.container}>
-
         <main className={pageStyles.main}>
-          <div
-            ref={heroInView.ref}
-            className={classNames('animate-fade-in-up', { 'is-visible': heroInView.isInView })}
-            style={{ ['--delay']: '0ms' } as React.CSSProperties}
-          >
             <section className={classNames(pageStyles.background_card, titleStyles.title_card, titleStyles.grid_card)}>
             <div className={homeStyles.hero_content_container}>
               <div className={homeStyles.hero_text_container}>
@@ -93,64 +80,31 @@ const Home: NextPage = () => {
 
             {/* <AIInputField autoLaunchJupyterLab={true} /> */}
           </section>
-          </div>
 
           {abTestVariant === 'logo' && <LogoSection />}
-          <div
-            ref={madeWithMitoInView.ref}
-            className={classNames('animate-fade-in-up', { 'is-visible': madeWithMitoInView.isInView })}
-            style={{ ['--delay']: '100ms' } as React.CSSProperties}
-          >
+
           <section>
             <MadeWithMito />
           </section>
-          </div>
-
-          <div
-            ref={featureSquaresInView.ref}
-            className={classNames('animate-fade-in-up', { 'is-visible': featureSquaresInView.isInView })}
-            style={{ ['--delay']: '200ms' } as React.CSSProperties}
-          >
           <section>
             <FeatureSquares />
           </section>
-          </div>
-
-          <div
-            ref={dataSourcesInView.ref}
-            className={classNames('animate-fade-in-up', { 'is-visible': dataSourcesInView.isInView })}
-            style={{ ['--delay']: '300ms' } as React.CSSProperties}
-          >
           <section>
             <DataSources />
           </section>
-          </div>
 
-          <div
-            ref={caseStudiesInView.ref}
-            className={classNames('animate-fade-in-up', { 'is-visible': caseStudiesInView.isInView })}
-            style={{ ['--delay']: '400ms' } as React.CSSProperties}
-          >
+          <section>
+            <EnterpriseLLM />
+          </section>
+
           <section>
             <CaseStudies />
           </section>
-          </div>
 
-          <div
-            ref={downloadCTAInView.ref}
-            className={classNames('animate-fade-in-up', { 'is-visible': downloadCTAInView.isInView })}
-            style={{ ['--delay']: '500ms' } as React.CSSProperties}
-          >
           <section className={pageStyles.background_card}>
             <DownloadCTACard />
           </section>
-          </div>
 
-          <div
-            ref={faqInView.ref}
-            className={classNames('animate-fade-in-up', { 'is-visible': faqInView.isInView })}
-            style={{ ['--delay']: '600ms' } as React.CSSProperties}
-          >
           <section style={{marginBottom: '60px'}}>
             <h2 className='center'>
               Frequently Asked Questions
@@ -213,8 +167,8 @@ const Home: NextPage = () => {
             </FAQCard>
             
           </section>
-          </div>
-        </main>
+          </main>
+
         <Footer />
       </div>
     </>

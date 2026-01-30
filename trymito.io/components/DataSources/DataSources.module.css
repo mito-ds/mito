@@ -12,6 +12,14 @@
   text-align: center;
 }
 
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
 .heading {
   color: var(--color-text-primary);
   font-size: 1.75rem;
@@ -24,7 +32,7 @@
   color: var(--color-text-secondary);
   font-size: 1rem;
   font-weight: 400;
-  margin: 0 0 2rem;
+  margin: 0;
   max-width: 42rem;
   line-height: 1.5;
   opacity: 0.9;
@@ -79,6 +87,16 @@
   width: 100%;
   min-width: 0;
 }
+
+/* Category filter: apply at all breakpoints so tab switching works on mobile and desktop */
+.gridWrap[data-active="warehouses"] .iconCard { display: none !important; }
+.gridWrap[data-active="warehouses"] .iconCard[data-category="warehouses"] { display: flex !important; }
+.gridWrap[data-active="databases"] .iconCard { display: none !important; }
+.gridWrap[data-active="databases"] .iconCard[data-category="databases"] { display: flex !important; }
+.gridWrap[data-active="files"] .iconCard { display: none !important; }
+.gridWrap[data-active="files"] .iconCard[data-category="files"] { display: flex !important; }
+.gridWrap[data-active="version-control"] .iconCard { display: none !important; }
+.gridWrap[data-active="version-control"] .iconCard[data-category="version-control"] { display: flex !important; }
 
 /* Flex row with wrap: cards have min-width so they wrap (e.g. 3 per row on smaller screens) */
 .grid {
@@ -154,10 +172,13 @@
   color: var(--color-text-primary);
 }
 
+/* Fixed icon size so it stays consistent when switching tabs */
 .iconWrapper img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  min-width: 0;
+  min-height: 0;
 }
 
 .label {
@@ -215,6 +236,10 @@
     text-align: left;
   }
 
+  .header {
+    margin-bottom: 2.5rem;
+  }
+
   .heading {
     font-size: 2.25rem;
     margin-bottom: 1rem;
@@ -223,7 +248,6 @@
 
   .subheading {
     font-size: 1.125rem;
-    margin-bottom: 2.5rem;
     text-align: center;
   }
 
@@ -289,14 +313,4 @@
   .categoryLabel {
     font-size: 0.8125rem;
   }
-
-  /* Desktop: filter cards by selected category (mobile shows all built-in via only-on-desktop on non-built-in cards) */
-  .gridWrap[data-active="warehouses"] .iconCard { display: none !important; }
-  .gridWrap[data-active="warehouses"] .iconCard[data-category="warehouses"] { display: flex !important; }
-  .gridWrap[data-active="databases"] .iconCard { display: none !important; }
-  .gridWrap[data-active="databases"] .iconCard[data-category="databases"] { display: flex !important; }
-  .gridWrap[data-active="files"] .iconCard { display: none !important; }
-  .gridWrap[data-active="files"] .iconCard[data-category="files"] { display: flex !important; }
-  .gridWrap[data-active="version-control"] .iconCard { display: none !important; }
-  .gridWrap[data-active="version-control"] .iconCard[data-category="version-control"] { display: flex !important; }
 }
