@@ -19,6 +19,82 @@ function decimalStep(min: number, max: number): number {
     return range <= 1 ? 0.01 : 0.1;
 }
 
+interface SliderWithNumberInputProps {
+    value: number;
+    min: number;
+    max: number;
+    step: number;
+    label: string;
+    onChange: (value: number) => void;
+}
+
+const SliderWithNumberInput: React.FC<SliderWithNumberInputProps> = ({
+    value,
+    min,
+    max,
+    step,
+    label,
+    onChange
+}) => (
+    <div className="chart-wizard-number-slider-row">
+        <input
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            onChange={(e) => onChange(clamp(parseFloat(e.target.value), min, max))}
+            className="chart-wizard-range-slider"
+            aria-label={label}
+        />
+        <input
+            type="number"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            onChange={(e) => {
+                let v = parseFloat(e.target.value);
+                if (Number.isNaN(v)) v = min;
+                onChange(clamp(v, min, max));
+            }}
+            className="chart-wizard-number-input chart-wizard-number-input-narrow"
+            aria-label={`${label} (number)`}
+        />
+    </div>
+);
+
+interface NumberInputOnlyProps {
+    value: number;
+    min?: number;
+    max?: number;
+    step: number;
+    onChange: (value: number) => void;
+}
+
+const NumberInputOnly: React.FC<NumberInputOnlyProps> = ({
+    value,
+    min,
+    max,
+    step,
+    onChange
+}) => (
+    <input
+        type="number"
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        onChange={(e) => {
+            let v = parseFloat(e.target.value);
+            if (Number.isNaN(v)) v = min ?? 0;
+            if (min !== undefined && max !== undefined) v = clamp(v, min, max);
+            onChange(v);
+        }}
+        className="chart-wizard-number-input"
+    />
+);
+
 export const NumberInputRow: React.FC<InputRowProps> = ({ variable, label, onVariableChange }) => {
     const numValue = variable.value as number;
     const min = variable.min;
@@ -28,57 +104,29 @@ export const NumberInputRow: React.FC<InputRowProps> = ({ variable, label, onVar
     const useSlider = hasRange && rangeSpan <= SLIDER_RANGE_THRESHOLD;
     const step = useSlider ? decimalStep(min as number, max as number) : 1;
 
-    const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        let value = parseFloat(e.target.value);
-        if (Number.isNaN(value)) {
-            value = min ?? 0;
-        }
-        if (hasRange) {
-            value = clamp(value, min as number, max as number);
-        }
+    const handleChange = (value: number): void => {
         onVariableChange(variable.name, value);
-    };
-
-    const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        const value = parseFloat(e.target.value);
-        onVariableChange(variable.name, clamp(value, min as number, max as number));
     };
 
     return (
         <div key={variable.name} className="chart-wizard-input-row">
             <label className="chart-wizard-input-label">{label}</label>
-            {useSlider ? (
-                <div className="chart-wizard-number-slider-row">
-                    <input
-                        type="range"
-                        min={min}
-                        max={max}
-                        step={step}
-                        value={numValue}
-                        onChange={handleSliderChange}
-                        className="chart-wizard-range-slider"
-                        aria-label={label}
-                    />
-                    <input
-                        type="number"
-                        min={min}
-                        max={max}
-                        step={step}
-                        value={numValue}
-                        onChange={handleNumberChange}
-                        className="chart-wizard-number-input chart-wizard-number-input-narrow"
-                        aria-label={`${label} (number)`}
-                    />
-                </div>
-            ) : (
-                <input
-                    type="number"
+            {useSlider && min !== undefined && max !== undefined ? (
+                <SliderWithNumberInput
                     value={numValue}
                     min={min}
                     max={max}
                     step={step}
-                    onChange={handleNumberChange}
-                    className="chart-wizard-number-input"
+                    label={label}
+                    onChange={handleChange}
+                />
+            ) : (
+                <NumberInputOnly
+                    value={numValue}
+                    min={min}
+                    max={max}
+                    step={step}
+                    onChange={handleChange}
                 />
             )}
         </div>
