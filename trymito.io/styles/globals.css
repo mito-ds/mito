@@ -304,6 +304,10 @@ a {
     margin-top: 10rem;
   }
 
+  .animate-fade-in-up + .animate-fade-in-up {
+    margin-top: 10rem;
+  }
+
   .display-inline-block {
     display: inline-block !important;
   }
@@ -450,4 +454,38 @@ a.anchor {
   font-size: .8rem !important;
   color: var(--color-text-secondary) !important;
   text-align: center;
+}
+
+/*
+ * Scroll-triggered fade-in-up animation.
+ * Use with useInView: add .animate-fade-in-up and toggle .is-visible when in view.
+ * Stagger via --delay (e.g. style={{ ['--delay']: '100ms' }}).
+ * Disabled when prefers-reduced-motion: reduce.
+ */
+.animate-fade-in-up {
+  opacity: 0;
+  transform: translateY(2rem);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+  transition-delay: var(--delay, 0ms);
+}
+
+.animate-fade-in-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Preserve section spacing when sections are wrapped for scroll animation */
+.animate-fade-in-up + .animate-fade-in-up {
+  margin-top: 12rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in-up.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
