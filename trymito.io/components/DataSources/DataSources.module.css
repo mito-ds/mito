@@ -1,0 +1,118 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.heading {
+  color: var(--color-text-primary);
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  line-height: 1.2;
+}
+
+.subheading {
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  font-weight: 400;
+  margin: 0 0 2.5rem;
+  max-width: 36rem;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+/* Mobile: 2-column grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 72rem;
+}
+
+.iconCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-text-primary-alpha-10);
+  border-radius: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.iconCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--shadow-overlay);
+  border-color: var(--color-brand-alpha-20);
+}
+
+.iconWrapper {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+}
+
+.iconWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.label {
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.2;
+}
+
+@media (min-width: 50em) {
+  .container {
+    padding: 5rem 2rem;
+  }
+
+  .heading {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .subheading {
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+  }
+
+  /* Desktop: 4-column grid */
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+
+  .iconCard {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .iconWrapper {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .label {
+    font-size: 0.875rem;
+  }
+}

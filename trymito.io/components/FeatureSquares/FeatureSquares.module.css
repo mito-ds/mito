@@ -3,98 +3,181 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.feature_squares_container {
+.feature_squares_wrapper {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 60px;
 }
 
-.feature_card_container {
+.feature_squares_heading {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    width: 100%;
+}
+
+/* Mobile-first: single column */
+.feature_squares_container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 1100px;
+}
+
+.feature_card {
+    display: flex;
     flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-text-primary-alpha-15);
+    border-radius: 1rem;
+    padding: 1rem;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow-overlay);
+}
+
+.feature_card_header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature_card_icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
-    border-radius: 0px;
-    max-width: 60rem;
-    width: 100%;
-    padding: 60px;
-    flex-grow: 1;
-    border-radius: 2rem;
+    justify-content: center;
+}
+
+.feature_card_icon img,
+.feature_card_icon_img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
 }
 
 .feature_card_text_container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 90%;
-    margin-bottom: 20px;
+    flex: 1;
+    min-width: 0;
+    text-align: left;
 }
 
 .feature_card_text_container h2 {
-    margin-bottom: 16px;
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 .feature_card_text_container p {
-    margin-bottom: 0;
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
 }
 
-.feature_card_container .link {
-    margin-top: 24px;
-    font-size: 1.1rem;
+.feature_card .link {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
 }
 
 .feature_card_image_container {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: var(--color-background);
+    /* Use aspect-ratio for proper video sizing */
+    aspect-ratio: 16 / 9;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    margin-top: 48px;
 }
 
+.feature_card_image_container video,
 .feature_card_image_container img {
     width: 100%;
-    height: auto;
-    max-width: 580px;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0.5rem;
 }
 
 .feature_squares_container a {
-    font-size: 1.5rem;
+    font-size: inherit;
 }
 
-@media only screen and (min-width: 50em) {
+/* Desktop: 3-column bento with proper aspect ratios */
+@media (min-width: 50em) {
+    .feature_squares_heading {
+        margin-bottom: 1.25rem;
+        font-size: 1.75rem;
+    }
+
     .feature_squares_container {
-        gap: 80px;
+        /* 3 columns, hero spans 2 cols × 2 rows */
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 0.75rem;
     }
 
-    .feature_card_container {
-        max-width: 70rem;
-        padding: 80px;
+    .feature_card_hero {
+        grid-column: 1 / 3;
+        grid-row: 1 / 3;
     }
 
-    .feature_card_text_container {
-        height: auto;
-        min-height: 6rem;
-        margin-bottom: 24px;
+    .feature_card {
+        padding: 1rem;
+        /* Let grid control height via rows */
+        min-height: 0;
     }
 
-    .feature_card_container .link {
-        margin: 32px 0 48px 0 !important;
-        margin-bottom: 48px !important;
-        font-size: inherit;
+    /* Hero card: larger video area */
+    .feature_card_hero .feature_card_image_container {
+        aspect-ratio: 16 / 9;
+        flex: 1;
+        min-height: 0;
     }
 
+    /* Regular cards: smaller video thumbnail with proper aspect */
     .feature_card_image_container {
-        margin-top: 48px;
-        height: auto;
+        aspect-ratio: 16 / 9;
+        max-height: 120px;
     }
 
-    .feature_card_image_container img {
-        max-width: 700px;
+    .feature_card_text_container h2 {
+        font-size: 1rem;
     }
 
-    .feature_squares_container a {
-        font-size: inherit;
+    .feature_card_text_container p {
+        font-size: 0.8rem;
+        line-height: 1.35;
+    }
+}
+
+/* Large screens: constrain max-width */
+@media (min-width: 80em) {
+    .feature_squares_container {
+        max-width: 1100px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .feature_card {
+        transition: none;
+    }
+    .feature_card:hover {
+        transform: none;
     }
 }

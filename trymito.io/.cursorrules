@@ -6,3 +6,7 @@
 The structure of the codebase is mobile first! Specifically, if you removed all of the css code inside of the media queries, you'd be left with a mobile-only website. This approach worked well because basic, non-formatted HTML is mobile friendly, so if we designed the desktop version first, actually, we are adding css that makes the website non-mobile friendly, and then in the media queries, we're remaking it mobile friendly. Its a waste of code. 
 
 When using media queries to add desktop-specific styling, you should use the desktop cutoff at 50em.
+
+### Media and grid layouts 
+
+For any section with images, video, or a card grid, set aspect-ratio on media containers and max-width on the section container from the start. Relying only on max-height or flexible rows tends to cause stretched or distorted media and extra fix iterations.

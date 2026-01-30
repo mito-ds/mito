@@ -21,6 +21,7 @@ import { classNames } from '../utils/classNames';
 import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
+import DataSources from '../components/DataSources/DataSources';
 import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
 import DemoVideo from '../components/DemoVideo/DemoVideo';
 import WaitlistSignup from '../components/WaitlistSignup/WaitlistSignup';
@@ -33,6 +34,7 @@ const Home: NextPage = () => {
   const heroInView = useInView();
   const madeWithMitoInView = useInView();
   const featureSquaresInView = useInView();
+  const dataSourcesInView = useInView();
   const caseStudiesInView = useInView();
   const downloadCTAInView = useInView();
   const faqInView = useInView();
@@ -115,9 +117,19 @@ const Home: NextPage = () => {
           </div>
 
           <div
+            ref={dataSourcesInView.ref}
+            className={classNames('animate-fade-in-up', { 'is-visible': dataSourcesInView.isInView })}
+            style={{ ['--delay']: '300ms' } as React.CSSProperties}
+          >
+          <section>
+            <DataSources />
+          </section>
+          </div>
+
+          <div
             ref={caseStudiesInView.ref}
             className={classNames('animate-fade-in-up', { 'is-visible': caseStudiesInView.isInView })}
-            style={{ ['--delay']: '300ms' } as React.CSSProperties}
+            style={{ ['--delay']: '400ms' } as React.CSSProperties}
           >
           <section>
             <CaseStudies />
@@ -127,7 +139,7 @@ const Home: NextPage = () => {
           <div
             ref={downloadCTAInView.ref}
             className={classNames('animate-fade-in-up', { 'is-visible': downloadCTAInView.isInView })}
-            style={{ ['--delay']: '400ms' } as React.CSSProperties}
+            style={{ ['--delay']: '500ms' } as React.CSSProperties}
           >
           <section className={pageStyles.background_card}>
             <DownloadCTACard />
@@ -137,7 +149,7 @@ const Home: NextPage = () => {
           <div
             ref={faqInView.ref}
             className={classNames('animate-fade-in-up', { 'is-visible': faqInView.isInView })}
-            style={{ ['--delay']: '500ms' } as React.CSSProperties}
+            style={{ ['--delay']: '600ms' } as React.CSSProperties}
           >
           <section style={{marginBottom: '60px'}}>
             <h2 className='center'>
