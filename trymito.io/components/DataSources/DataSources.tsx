@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import styles from './DataSources.module.css';
+import dataSourceStyles from './DataSources.module.css';
 
 export type DataSourceCategory = 'all' | 'warehouses' | 'databases' | 'files' | 'version-control';
 
@@ -43,7 +43,7 @@ const INTEGRATIONS: Integration[] = [
   /* Files */
   { name: 'Amazon S3', icon: '/data-sources/aws.svg', category: 'files', categoryLabel: 'Files', builtIn: true },
   { name: 'Google Drive', icon: '/data-sources/drive.svg', category: 'files', categoryLabel: 'Files', builtIn: true },
-  { name: 'Google Cloud Storage', icon: '/data-sources/gcs.svg', category: 'files', categoryLabel: 'Files', builtIn: true },
+  { name: 'GC Storage', icon: '/data-sources/gcs.svg', category: 'files', categoryLabel: 'Files', builtIn: true },
   { name: 'Dropbox', icon: '/data-sources/dropbox.svg', category: 'files', categoryLabel: 'Files' },
   { name: 'Microsoft OneDrive', icon: '/data-sources/onedrive.svg', category: 'files', categoryLabel: 'Files' },
   { name: 'Azure Blob Storage', icon: '/data-sources/azure-blob-storage.svg', category: 'files', categoryLabel: 'Files' },
@@ -60,7 +60,7 @@ const INTEGRATIONS: Integration[] = [
 
 const SECTIONS: { id: DataSourceCategory; label: string }[] = [
   { id: 'all', label: 'All' },
-  { id: 'warehouses', label: 'Data warehouses & lakes' },
+  { id: 'warehouses', label: 'Data warehouses' },
   { id: 'databases', label: 'Databases' },
   { id: 'files', label: 'Files' },
   { id: 'version-control', label: 'Version control' },
@@ -75,27 +75,23 @@ const DataSources = (): JSX.Element => {
       : INTEGRATIONS.filter((i) => i.category === activeSection);
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.heading}>Connect to your stack</h2>
-      <p className={styles.subheading}>
-        Mito works with any programming language, framework, and database. Explore our built-in integrations and connection guides.
-      </p>
+    <div className={dataSourceStyles.container}>
+      <h2 className={dataSourceStyles.heading}>Connect to your stack</h2>
 
-      <div className={styles.layout}>
-        <nav className={styles.nav} role="tablist" aria-label="Integration categories">
+      <div className={dataSourceStyles.layout}>
+        <nav className={dataSourceStyles.nav} role="tablist" aria-label="Integration categories">
           {SECTIONS.map(({ id, label }) => (
-            <button
+            <div
               key={id}
-              type="button"
               role="tab"
               aria-selected={activeSection === id}
               aria-controls="integrations-panel"
               id={`tab-${id}`}
-              className={activeSection === id ? styles.navItemActive : styles.navItem}
+              className={activeSection === id ? dataSourceStyles.navItemActive : dataSourceStyles.navItem}
               onClick={() => setActiveSection(id)}
             >
               {label}
-            </button>
+            </div>
           ))}
         </nav>
 
@@ -103,18 +99,20 @@ const DataSources = (): JSX.Element => {
           id="integrations-panel"
           role="tabpanel"
           aria-labelledby={`tab-${activeSection}`}
-          className={styles.gridWrap}
+          className={dataSourceStyles.gridWrap}
         >
-          <div className={styles.grid}>
+          <div className={dataSourceStyles.grid}>
             {filtered.map(({ name, icon, categoryLabel, builtIn }) => (
-              <div key={name} className={styles.iconCard}>
-                <div className={styles.iconCardInner}>
-                  {builtIn && <span className={styles.builtIn}>Built-in</span>}
-                  <div className={styles.iconWrapper}>
+              <div key={name} className={dataSourceStyles.iconCard}>
+                <div className={dataSourceStyles.iconCardInner}>
+                  {builtIn && <span className={dataSourceStyles.builtIn}>Built-in</span>}
+                  <div className={dataSourceStyles.iconWrapper}>
                     <Image src={icon} alt={name} width={48} height={48} unoptimized />
                   </div>
-                  <span className={styles.label}>{name}</span>
-                  <span className={styles.categoryLabel}>{categoryLabel}</span>
+                  <div className={dataSourceStyles.labelContainer}>
+                    <span className={dataSourceStyles.label}>{name}</span>
+                    <span className={dataSourceStyles.categoryLabel}>{categoryLabel}</span>
+                  </div>
                 </div>
               </div>
             ))}
