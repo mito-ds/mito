@@ -26,6 +26,17 @@ Rules:
 - NEVER include comments on the same line as a variable assignment. Each variable assignment must be on its own line with no trailing comments.
 - For string values, use either single or double quotes (e.g., TITLE = "Sales by Product" or TITLE = 'Sales by Product'). Do not use nested quotes (e.g., do NOT use '"value"').
 
+Fixed acceptable ranges (matplotlib constraints):
+- For numeric variables that have a fixed acceptable range, add a line immediately AFTER the variable assignment: # RANGE VARIABLE_NAME MIN MAX
+- This allows the Chart Wizard to clamp inputs and prevent invalid values. Use the following ranges when you use these variables:
+  - ALPHA (opacity): 0 1
+  - FIGURE_SIZE (tuple width, height in inches): 1 24 (each element)
+  - LINE_WIDTH, LINEWIDTH, LWD: 0 20
+  - FONT_SIZE, FONTSIZE, FONT_SIZE_TITLE, FONT_SIZE_LABEL: 0.1 72
+  - MARKER_SIZE, MARKERSIZE, S: 0 1000
+  - DPI: 1 600
+  - Any other numeric or tuple variable that you know has matplotlib constraints: add # RANGE VARIABLE_NAME MIN MAX with the appropriate min and max.
+
 Common Mistakes to Avoid:
 - WRONG: COLOR = '"#1877F2" # Meta Blue'  (nested quotes and inline comment)
 - WRONG: COLOR = "#1877F2" # Meta Blue  (inline comment)
@@ -38,6 +49,10 @@ TITLE = "Sales by Product"
 X_LABEL = "Product"
 Y_LABEL = "Sales"
 BAR_COLOR = "#000000"
+ALPHA = 0.8
+# RANGE ALPHA 0 1
+FIGURE_SIZE = (12, 6)
+# RANGE FIGURE_SIZE 1 24
 # === END CONFIG ===
 """
 

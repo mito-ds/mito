@@ -7,6 +7,10 @@ export interface ChartConfigVariable {
     name: string;
     value: string | number | boolean | [number, number];
     type: 'string' | 'number' | 'boolean' | 'tuple' | 'expression';
+    /** Optional min value for numeric/tuple params (matplotlib constraints). */
+    min?: number;
+    /** Optional max value for numeric/tuple params (matplotlib constraints). */
+    max?: number;
 }
 
 export interface ParsedChartConfig {
@@ -33,10 +37,23 @@ export function parseChartConfig(sourceCode: string): ParsedChartConfig | null {
     const configSection = sourceCode.substring(startIndex + configStartMarker.length, endIndex).trim();
     const lines = configSection.split('\n').map(line => line.trim()).filter(line => line.length > 0);
 
+    // First pass: collect # RANGE lines (format: # RANGE VARIABLE_NAME MIN MAX)
+    const rangeByVar = new Map<string, { min: number; max: number }>();
+    const rangeRegex = /^#\s*RANGE\s+([A-Z_][A-Z0-9_]*)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s*$/;
+    for (const line of lines) {
+        const rangeMatch = line.match(rangeRegex);
+        if (rangeMatch && rangeMatch[1] && rangeMatch[2] !== undefined && rangeMatch[3] !== undefined) {
+            const varName = rangeMatch[1];
+            const minVal = parseFloat(rangeMatch[2]);
+            const maxVal = parseFloat(rangeMatch[3]);
+            rangeByVar.set(varName, { min: minVal, max: maxVal });
+        }
+    }
+
     const variables: ChartConfigVariable[] = [];
 
     for (const line of lines) {
-        // Skip comment lines
+        // Skip comment-only lines (RANGE lines already processed above)
         if (line.startsWith('#')) {
             continue;
         }
@@ -48,10 +65,12 @@ export function parseChartConfig(sourceCode: string): ParsedChartConfig | null {
             const valueStr = match[2];
             const parsed = parseValue(valueStr.trim());
             if (parsed) {
+                const range = rangeByVar.get(varName);
                 variables.push({
                     name: varName,
                     value: parsed.value,
-                    type: parsed.type
+                    type: parsed.type,
+                    ...(range && { min: range.min, max: range.max })
                 });
             }
         }
@@ -230,6 +249,9 @@ export function updateChartConfig(sourceCode: string, variables: ChartConfigVari
     for (const variable of variablesToWrite) {
         const formattedValue = formatValue(variable.value, variable.type);
         newConfigSection += `${variable.name} = ${formattedValue}\n`;
+        if (variable.min !== undefined && variable.max !== undefined) {
+            newConfigSection += `# RANGE ${variable.name} ${variable.min} ${variable.max}\n`;
+        }
     }
 
     newConfigSection += '\n' + configEndMarker;
