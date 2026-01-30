@@ -77,14 +77,14 @@
 
 .gridWrap {
   width: 100%;
-  min-width: 0; /* allow flex shrink so grid always fills same width regardless of card count */
+  min-width: 0;
 }
 
-/* Mobile: 2-column grid; fixed row height so card/icon size stays same when switching tabs */
+/* Flex row with wrap: cards have min-width so they wrap (e.g. 3 per row on smaller screens) */
 .grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: minmax(8.5rem, auto);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 1rem;
   width: 100%;
 }
@@ -93,9 +93,10 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  min-width: 10rem;
+  flex: 1 1 10rem;
+  min-height: 8.5rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  height: 180px;
-  width: 200px;
 }
 
 .iconCard:hover {
@@ -176,7 +177,38 @@
   opacity: 0.85;
 }
 
-/* Desktop: two-column layout (nav left, grid right) */
+/* Medium: slightly larger card min so we get a comfortable wrap */
+@media (min-width: 40em) {
+  .grid {
+    gap: 1.125rem;
+  }
+
+  .iconCard {
+    min-width: 11rem;
+    flex: 1 1 11rem;
+    min-height: 9rem;
+  }
+
+  .iconCardInner {
+    padding: 1.25rem 1rem;
+  }
+
+  .iconWrapper {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .label {
+    font-size: 0.875rem;
+  }
+
+  .categoryLabel {
+    font-size: 0.75rem;
+  }
+}
+
+/* Desktop: two-column layout (nav left, grid right), 4-column grid */
 @media (min-width: 50em) {
   .container {
     padding: 5rem 2rem;
@@ -229,11 +261,14 @@
     min-width: 0;
   }
 
-  /* Desktop: 4-column grid; fixed row height so card/icon size stays same when switching tabs */
   .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-auto-rows: minmax(9.5rem, auto);
     gap: 1.25rem;
+  }
+
+  .iconCard {
+    min-width: 12rem;
+    flex: 1 1 12rem;
+    min-height: 9.5rem;
   }
 
   .iconCardInner {
@@ -254,4 +289,14 @@
   .categoryLabel {
     font-size: 0.8125rem;
   }
+
+  /* Desktop: filter cards by selected category (mobile shows all built-in via only-on-desktop on non-built-in cards) */
+  .gridWrap[data-active="warehouses"] .iconCard { display: none !important; }
+  .gridWrap[data-active="warehouses"] .iconCard[data-category="warehouses"] { display: flex !important; }
+  .gridWrap[data-active="databases"] .iconCard { display: none !important; }
+  .gridWrap[data-active="databases"] .iconCard[data-category="databases"] { display: flex !important; }
+  .gridWrap[data-active="files"] .iconCard { display: none !important; }
+  .gridWrap[data-active="files"] .iconCard[data-category="files"] { display: flex !important; }
+  .gridWrap[data-active="version-control"] .iconCard { display: none !important; }
+  .gridWrap[data-active="version-control"] .iconCard[data-category="version-control"] { display: flex !important; }
 }

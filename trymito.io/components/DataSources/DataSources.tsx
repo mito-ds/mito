@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { classNames } from '../../utils/classNames';
 import dataSourceStyles from './DataSources.module.css';
 
 export type DataSourceCategory = 'all' | 'warehouses' | 'databases' | 'files' | 'version-control';
@@ -37,7 +38,7 @@ const INTEGRATIONS: Integration[] = [
   { name: 'Supabase', icon: '/data-sources/supabase.png', category: 'databases', categoryLabel: 'Database' },
   { name: 'InfluxDB', icon: '/data-sources/influxdb.svg', category: 'databases', categoryLabel: 'Database' },
   { name: 'Google AlloyDB', icon: '/data-sources/alloydb.svg', category: 'databases', categoryLabel: 'Database', builtIn: false },
-  { name: 'Google Cloud SQL', icon: '/data-sources/cloud-sql.svg', category: 'databases', categoryLabel: 'Database', builtIn: false },
+  { name: 'GC SQL', icon: '/data-sources/cloud-sql.svg', category: 'databases', categoryLabel: 'Database', builtIn: false },
   { name: 'Google Spanner', icon: '/data-sources/spanner.svg', category: 'databases', categoryLabel: 'Database', builtIn: false },
   { name: 'Materialize', icon: '/data-sources/materialize.svg', category: 'databases', categoryLabel: 'Database', builtIn: false },
   /* Files */
@@ -49,8 +50,8 @@ const INTEGRATIONS: Integration[] = [
   { name: 'Google Drive', icon: '/data-sources/drive.svg', category: 'files', categoryLabel: 'Files', builtIn: true },
   { name: 'GC Storage', icon: '/data-sources/gcs.svg', category: 'files', categoryLabel: 'Files', builtIn: false },
   { name: 'Dropbox', icon: '/data-sources/dropbox.svg', category: 'files', categoryLabel: 'Files' },
-  { name: 'Microsoft OneDrive', icon: '/data-sources/onedrive.svg', category: 'files', categoryLabel: 'Files' },
-  { name: 'Azure Blob Storage', icon: '/data-sources/azure-blob-storage.svg', category: 'files', categoryLabel: 'Files' },
+  { name: 'OneDrive', icon: '/data-sources/onedrive.svg', category: 'files', categoryLabel: 'Files' },
+  { name: 'Azure Blob', icon: '/data-sources/azure-blob-storage.svg', category: 'files', categoryLabel: 'Files' },
   { name: 'Google Sheets', icon: '/data-sources/google-sheets.svg', category: 'files', categoryLabel: 'Files' },
   { name: 'Box', icon: '/data-sources/box.svg', category: 'files', categoryLabel: 'Files' },
   /* Version control */
@@ -69,41 +70,43 @@ const SECTIONS: { id: DataSourceCategory; label: string }[] = [
 const DataSources = (): JSX.Element => {
   const [activeSection, setActiveSection] = useState<DataSourceCategory>('all');
 
-  const filtered =
-    activeSection === 'all'
-      ? INTEGRATIONS
-      : INTEGRATIONS.filter((i) => i.category === activeSection);
-
   return (
     <div className={dataSourceStyles.container}>
       <h2 className={dataSourceStyles.heading}>Connect to your stack</h2>
 
       <div className={dataSourceStyles.layout}>
-        <nav className={dataSourceStyles.nav} role="tablist" aria-label="Integration categories">
-          {SECTIONS.map(({ id, label }) => (
-            <div
-              key={id}
-              role="tab"
-              aria-selected={activeSection === id}
-              aria-controls="integrations-panel"
-              id={`tab-${id}`}
-              className={activeSection === id ? dataSourceStyles.navItemActive : dataSourceStyles.navItem}
-              onClick={() => setActiveSection(id)}
-            >
-              {label}
-            </div>
-          ))}
-        </nav>
+        <div className="only-on-desktop">
+          <nav className={dataSourceStyles.nav} role="tablist" aria-label="Integration categories">
+            {SECTIONS.map(({ id, label }) => (
+              <div
+                key={id}
+                role="tab"
+                aria-selected={activeSection === id}
+                aria-controls="integrations-panel"
+                id={`tab-${id}`}
+                className={activeSection === id ? dataSourceStyles.navItemActive : dataSourceStyles.navItem}
+                onClick={() => setActiveSection(id)}
+              >
+                {label}
+              </div>
+            ))}
+          </nav>
+        </div>
 
         <div
           id="integrations-panel"
           role="tabpanel"
           aria-labelledby={`tab-${activeSection}`}
           className={dataSourceStyles.gridWrap}
+          data-active={activeSection}
         >
           <div className={dataSourceStyles.grid}>
-            {filtered.map(({ name, icon, categoryLabel, builtIn }) => (
-              <div key={name} className={dataSourceStyles.iconCard}>
+            {INTEGRATIONS.map(({ name, icon, category, categoryLabel, builtIn }) => (
+              <div
+                key={name}
+                className={classNames(dataSourceStyles.iconCard, { 'only-on-desktop': !builtIn })}
+                data-category={category}
+              >
                 <div className={dataSourceStyles.iconCardInner}>
                   {builtIn && <span className={dataSourceStyles.builtIn}>Built-in</span>}
                   <div className={dataSourceStyles.iconWrapper}>
