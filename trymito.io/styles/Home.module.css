@@ -61,11 +61,11 @@
 .metric_number_text {
   font-size: 5rem;
   font-weight: bolder;
-  background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(125, 26, 255, 0.39));
+  background: -webkit-linear-gradient(-90deg, var(--color-brand), var(--color-glow-brand));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: linear-gradient(180deg, #FFFFFF, #000000)
+  color: var(--color-text-primary);
 }
 
 .metrics_label {

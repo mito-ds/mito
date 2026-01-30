@@ -35,7 +35,7 @@
 
 .faq_card_header_text {
     font-size: 2rem;
-    color: white;
+    color: var(--color-text-primary);
 }
 
 .faq_card_container *:first-child {
