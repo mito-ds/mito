@@ -2,19 +2,50 @@
  * Copyright (c) Saga Inc.
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  *
- * Layout modelled on Hex "Loved by the best data teams" showcase:
- * Centered two-line headline (decorative + bold), centered subtitle,
- * horizontal row of surface cards (desktop) with logo, title, description.
- * Teal/blue accent to differentiate from brand sections.
+ * Integrated grid layout (no card boxes): centered headline, 2-column grid of
+ * content blocks on a subtle grid-pattern background. Content sits directly
+ * on the section for a unified look.
  */
 
 .container {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   padding: 4rem 2rem;
   text-align: center;
+  overflow: hidden;
+}
+
+/* Subtle grid pattern on section background */
+.container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      var(--color-grid-overlay) 0px,
+      var(--color-grid-overlay) 1px,
+      transparent 1px,
+      transparent 64px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--color-grid-overlay) 0px,
+      var(--color-grid-overlay) 1px,
+      transparent 1px,
+      transparent 64px
+    );
+  background-repeat: repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container > * {
+  position: relative;
+  z-index: 1;
 }
 
 .header {
@@ -31,7 +62,6 @@
   align-items: center;
   margin: 0 0 0.75rem;
   line-height: 1.2;
-  display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.25em;
@@ -62,45 +92,33 @@
   opacity: 0.9;
 }
 
-/* Mobile: stacked cards, single column */
+/* Grid of content blocks — solid card background so grid doesn’t show through */
 .cards {
   width: 100%;
   max-width: 72rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem 2.5rem;
 }
 
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-text-primary-alpha-10);
-  border-radius: 1rem;
+  border-radius: 0;
   padding: 1.5rem 1.25rem;
   text-align: left;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  position: relative;
-  overflow: hidden;
+  min-width: 0;
 }
 
-.card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--color-accent-teal), var(--color-accent-blue));
-  opacity: 0.7;
+/* Stacked on mobile: round only top card top corners, bottom card bottom corners */
+.card:first-child {
+  border-radius: 0.5rem 0.5rem 0 0;
 }
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--shadow-overlay);
-  border-color: var(--color-accent-teal);
+.card:last-child {
+  border-radius: 0 0 0.5rem 0.5rem;
 }
-
-.card:hover::before {
-  opacity: 1;
+.card:first-child:last-child {
+  border-radius: 0.5rem;
 }
 
 .cardIconRow {
@@ -169,7 +187,7 @@
   opacity: 0.9;
 }
 
-/* Desktop: horizontal row of cards, 3 columns */
+/* Desktop: 2-column grid, integrated blocks */
 @media (min-width: 50em) {
   .container {
     padding: 5rem 2rem;
@@ -192,16 +210,24 @@
   }
 
   .cards {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: 1.25rem;
-    justify-content: center;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--color-text-primary-alpha-10);
+    border-radius: 0.5rem;
+    overflow: hidden;
   }
 
   .card {
-    flex: 1 1 0;
-    min-width: 0;
     padding: 1.75rem 1.5rem;
+    border: none;
+    border-radius: 0;
+    border-right: 1px solid var(--color-text-primary-alpha-10);
+  }
+  .card:last-child {
+    border-right: none;
+  }
+  .card:first-child:last-child {
+    border-radius: 0;
   }
 
   .cardTitle {
