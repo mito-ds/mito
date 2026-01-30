@@ -24,37 +24,113 @@
   color: var(--color-text-secondary);
   font-size: 1rem;
   font-weight: 400;
-  margin: 0 0 2.5rem;
-  max-width: 36rem;
+  margin: 0 0 2rem;
+  max-width: 42rem;
   line-height: 1.5;
   opacity: 0.9;
 }
 
-/* Mobile: 2-column grid */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+/* Mobile: nav as horizontal scroll above grid */
+.layout {
   width: 100%;
   max-width: 72rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.5rem;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.25rem 0;
+}
+
+.navItem,
+.navItemActive {
+  appearance: none;
+  border: 1px solid var(--color-text-primary-alpha-15);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.navItem:hover {
+  background: var(--color-surface-accent);
+  border-color: var(--color-brand-alpha-20);
+  color: var(--color-text-primary);
+}
+
+.navItemActive {
+  background: var(--color-brand-alpha-15);
+  border-color: var(--color-brand-alpha-30);
+  color: var(--color-text-primary);
+}
+
+.gridWrap {
+  width: 100%;
+  min-width: 0; /* allow flex shrink so grid always fills same width regardless of card count */
+}
+
+/* Mobile: 2-column grid; fixed row height so card/icon size stays same when switching tabs */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(8.5rem, auto);
+  gap: 1rem;
+  width: 100%;
 }
 
 .iconCard {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+}
+
+.iconCard:hover {
+  transform: translateY(-2px);
+}
+
+.iconCardInner {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 1.25rem 1rem;
   background: var(--color-surface);
   border: 1px solid var(--color-text-primary-alpha-10);
   border-radius: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 8.5rem;
+  min-height: 8.5rem;
+  position: relative;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-sizing: border-box;
 }
 
-.iconCard:hover {
-  transform: translateY(-4px);
+.iconCard:hover .iconCardInner {
   box-shadow: 0 8px 24px var(--shadow-overlay);
   border-color: var(--color-brand-alpha-20);
+}
+
+.builtIn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-accent-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .iconWrapper {
@@ -74,36 +150,86 @@
 }
 
 .label {
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   font-size: 0.8125rem;
-  font-weight: 500;
-  margin: 0;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
   line-height: 1.2;
 }
 
+.categoryLabel {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.2;
+  opacity: 0.85;
+}
+
+/* Desktop: two-column layout (nav left, grid right) */
 @media (min-width: 50em) {
   .container {
     padding: 5rem 2rem;
+    text-align: left;
   }
 
   .heading {
     font-size: 2.25rem;
     margin-bottom: 1rem;
+    text-align: center;
   }
 
   .subheading {
     font-size: 1.125rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
+    text-align: center;
   }
 
-  /* Desktop: 4-column grid */
+  .layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 76rem;
+    text-align: left;
+  }
+
+  .nav {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: 12rem;
+    flex-shrink: 0;
+    gap: 0.25rem;
+    padding: 0;
+    position: sticky;
+    top: 6rem;
+  }
+
+  .navItem,
+  .navItemActive {
+    text-align: left;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    white-space: normal;
+  }
+
+  .gridWrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Desktop: 4-column grid; fixed row height so card/icon size stays same when switching tabs */
   .grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(9.5rem, auto);
     gap: 1.25rem;
   }
 
-  .iconCard {
+  .iconCardInner {
     padding: 1.5rem 1.25rem;
+    height: 9.5rem;
+    min-height: 9.5rem;
   }
 
   .iconWrapper {
@@ -113,6 +239,10 @@
   }
 
   .label {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
+  }
+
+  .categoryLabel {
+    font-size: 0.8125rem;
   }
 }
