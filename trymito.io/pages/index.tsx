@@ -42,9 +42,10 @@ const Home: NextPage = () => {
         <title>Best Python Spreadsheet Automation & Code Generation | Mito </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <Header/>
+      <div className={homeStyles.pageWithTexture}>
+        <Header/>
     
-      <div className={pageStyles.container}>
+        <div className={pageStyles.container}>
         <main className={pageStyles.main}>
             <section className={classNames(pageStyles.background_card, titleStyles.title_card, titleStyles.grid_card)}>
             <div className={homeStyles.hero_content_container}>
@@ -170,6 +171,7 @@ const Home: NextPage = () => {
           </main>
 
         <Footer />
+        </div>
       </div>
     </>
   )

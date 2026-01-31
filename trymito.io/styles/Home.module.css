@@ -3,6 +3,25 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/* Natural noise background texture (Hex-style polish), scoped to homepage */
+.pageWithTexture {
+  min-height: 100vh;
+  background-color: var(--color-background);
+  position: relative;
+}
+
+/* Irregular, paper-like noise overlay via SVG feTurbulence – not grid-like */
+.pageWithTexture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' result='t'/%3E%3CfeColorMatrix in='t' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  opacity: 0.2;
+}
+
 .hero_content_container {
   display: flex;
   flex-direction: column;
