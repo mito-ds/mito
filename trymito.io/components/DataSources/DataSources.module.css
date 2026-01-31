@@ -114,11 +114,6 @@
   min-width: 10rem;
   flex: 1 1 10rem;
   min-height: 8.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.iconCard:hover {
-  transform: translateY(-2px);
 }
 
 .iconCardInner {
@@ -128,18 +123,19 @@
   justify-content: space-between;
   padding: 1.25rem 1rem;
   background: var(--color-surface);
-  border: 1px solid var(--color-text-primary-alpha-10);
+  border: 1px solid var(--color-text-primary-alpha-15);
   border-radius: 1rem;
   height: 100%;
   width: 100%;
   position: relative;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
 }
 
+/* Match bento (FeatureSquares) hover: lift + shadow, no border change */
 .iconCard:hover .iconCardInner {
+  transform: translateY(-2px);
   box-shadow: 0 8px 24px var(--shadow-overlay);
-  border-color: var(--color-brand-alpha-20);
 }
 
 .labelContainer {
@@ -196,6 +192,15 @@
   margin: 0;
   line-height: 1.2;
   opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iconCardInner {
+    transition: none;
+  }
+  .iconCard:hover .iconCardInner {
+    transform: none;
+  }
 }
 
 /* Medium: slightly larger card min so we get a comfortable wrap */

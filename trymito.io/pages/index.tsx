@@ -43,7 +43,7 @@ const Home: NextPage = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div className={homeStyles.pageWithTexture}>
-        <Header/>
+        <Header usePageTexture />
     
         <div className={pageStyles.container}>
         <main className={pageStyles.main}>
@@ -90,12 +90,13 @@ const Home: NextPage = () => {
           <section>
             <FeatureSquares />
           </section>
-          <section>
-            <DataSources />
-          </section>
 
           <section>
             <EnterpriseLLM />
+          </section>
+
+          <section>
+            <DataSources />
           </section>
 
           <section>
