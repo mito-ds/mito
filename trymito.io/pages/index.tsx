@@ -44,7 +44,8 @@ const Home: NextPage = () => {
       </Head>
       <div className={homeStyles.pageWithTexture}>
         <Header usePageTexture />
-    
+        <div className={homeStyles.pageGlow} aria-hidden="true" />
+
         <div className={pageStyles.container}>
         <main className={pageStyles.main}>
             <section className={classNames(pageStyles.background_card, titleStyles.title_card, titleStyles.grid_card)}>
