@@ -3,64 +3,55 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
 import enterpriseStyles from './EnterpriseLLM.module.css';
 
-interface ProviderIcon {
-  src: string;
-  alt: string;
-}
-
-interface KeyPoint {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  iconAlt: string;
-  providerIcons?: ProviderIcon[];
-}
-
-const KEY_POINTS: KeyPoint[] = [
-  {
-    id: 'any-model',
-    title: 'Any Model',
-    description: 'Use the best model for each task. Switch between OpenAI, Anthropic, Gemini, Qwen, and more without changing your code or workflows.',
-    icon: '/enterprise-llm/openai-compatible.svg',
-    iconAlt: 'Models',
-    providerIcons: [
-      { src: '/enterprise-llm/openai.svg', alt: 'OpenAI' },
-      { src: '/enterprise-llm/anthropic.svg', alt: 'Anthropic' },
-      { src: '/enterprise-llm/gemini.svg', alt: 'Gemini' },
-      { src: '/enterprise-llm/qwen.svg', alt: 'Qwen' },
-    ],
-  },
-  {
-    id: 'any-provider',
-    title: 'Any Provider',
-    description: 'Connect through your existing contracts. LiteLLM, Azure OpenAI Enterprise, AWS Bedrock, Microsoft Copilot — one interface, your choice of provider.',
-    icon: '/enterprise-llm/litellm.svg',
-    iconAlt: 'LiteLLM',
-    providerIcons: [
-      { src: '/enterprise-llm/litellm.svg', alt: 'LiteLLM' },
-      { src: '/enterprise-llm/azure.svg', alt: 'Azure OpenAI' },
-      { src: '/enterprise-llm/aws-bedrock.svg', alt: 'AWS Bedrock' },
-      { src: '/enterprise-llm/copilot.svg', alt: 'Microsoft Copilot' },
-      { src: '/enterprise-llm/openai.svg', alt: 'OpenAI' },
-      { src: '/enterprise-llm/anthropic.svg', alt: 'Anthropic' },
-      { src: '/enterprise-llm/gemini.svg', alt: 'Gemini' },
-    ],
-  },
-  {
-    id: 'no-code-prompts',
-    title: 'No Spying',
-    description: 'We don\'t see your code or prompts. When you bring your own inference, data flows from you to your provider. We\'re not in the middle.',
-    icon: '/icon-squares/SecurityIcon.svg',
-    iconAlt: 'Security',
-  },
+const modelCarouselItems = [
+  { name: 'Opus 4.5', src: '/enterprise-llm/anthropic.svg' },
+  { name: 'DeepSeek v3.2', src: '/enterprise-llm/DeepSeek.png' },
+  { name: 'GPT 5.2 Codex', src: '/enterprise-llm/openai.svg' },
+  { name: 'Gemini 3 Pro', src: '/enterprise-llm/GoogleAIStudio.svg' },
+  { name: 'Kimi K2', src: '/enterprise-llm/kimi-color.svg' },
 ];
 
+const modelIcons = [
+  { name: 'Microsoft', src: '/enterprise-llm/microsoft.svg' },
+  { name: 'Nvidia', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'Meta', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'Gemini', src: '/enterprise-llm/gemini.svg' },
+  { name: 'Mistral', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'DeepSeek', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'LiteLLM', src: '/enterprise-llm/litellm.svg' },
+  { name: 'OpenRouter', src: '/enterprise-llm/openai-compatible.svg' },
+  { name: 'ElevenLabs', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'Z.AI', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'Anthropic', src: '/enterprise-llm/anthropic.svg' },
+  { name: 'AI21', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'OpenAI', src: '/enterprise-llm/openai.svg' },
+  { name: 'Spark', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'xAI', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'Cohere', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'Poe', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'Snowflake', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'Perplexity', src: '/enterprise-llm/perplexity.svg' },
+  { name: 'Together', src: '/enterprise-llm/placeholder.svg' },
+  { name: 'Qwen', src: '/enterprise-llm/qwen.svg' },
+  { name: 'Perplexity', src: '/enterprise-llm/perplexity.svg' },
+  { name: 'AWS', src: '/enterprise-llm/aws-bedrock.svg' },
+  { name: 'Azure', src: '/enterprise-llm/azure.svg' },
+  { name: 'Google', src: '/enterprise-llm/placeholder.svg' },
+].slice(0, 20);
+
 const EnterpriseLLM = (): JSX.Element => {
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCarouselIndex((i) => (i + 1) % modelCarouselItems.length);
+    }, 2500);
+    return () => clearInterval(t);
+  }, []);
+
   return (
     <div className={enterpriseStyles.container}>
       <header className={enterpriseStyles.header}>
@@ -74,26 +65,58 @@ const EnterpriseLLM = (): JSX.Element => {
       </header>
 
       <div className={enterpriseStyles.cards}>
-        {KEY_POINTS.map((point) => (
-          <article key={point.id} className={enterpriseStyles.card}>
-            <div className={enterpriseStyles.cardIconRow}>
-              <div className={enterpriseStyles.cardIcon}>
-                <Image src={point.icon} alt={point.iconAlt} width={48} height={48} unoptimized />
-              </div>
-              {point.providerIcons && point.providerIcons.length > 0 && (
-                <div className={enterpriseStyles.providerIcons} aria-hidden>
-                  {point.providerIcons.map((p) => (
-                    <span key={p.src + p.alt} className={enterpriseStyles.providerIcon}>
-                      <Image src={p.src} alt={p.alt} width={24} height={24} unoptimized />
-                    </span>
-                  ))}
+        <article className={enterpriseStyles.card}>
+          <h3 className={enterpriseStyles.cardTitle}>Any Model</h3>
+          <p className={enterpriseStyles.cardDescription}>
+            Use the best model for each task. Switch between OpenAI, Anthropic, Gemini, Qwen, and more without changing your code or workflows.
+          </p>
+          <div className={enterpriseStyles.modelCarousel} aria-label="Featured models">
+            <div className={enterpriseStyles.modelCarouselTrack} style={{ transform: `translateX(-${carouselIndex * 100}%)` }}>
+              {modelCarouselItems.map((item, index) => (
+                <div className={enterpriseStyles.modelCarouselSlide} key={item.name}>
+                  <div className={enterpriseStyles.modelCarouselIcon}>
+                    <img src={item.src} alt="" />
+                  </div>
+                  <span className={enterpriseStyles.modelCarouselName}>{item.name}</span>
                 </div>
-              )}
+              ))}
             </div>
-            <h3 className={enterpriseStyles.cardTitle}>{point.title}</h3>
-            <p className={enterpriseStyles.cardDescription}>{point.description}</p>
-          </article>
-        ))}
+            <div className={enterpriseStyles.modelCarouselDots} role="tablist" aria-label="Carousel position">
+              {modelCarouselItems.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  role="tab"
+                  aria-selected={index === carouselIndex}
+                  aria-label={`Slide ${index + 1}`}
+                  className={enterpriseStyles.modelCarouselDot}
+                  onClick={() => setCarouselIndex(index)}
+                />
+              ))}
+            </div>
+          </div>
+        </article>
+
+        <article className={enterpriseStyles.card}>
+          <h3 className={enterpriseStyles.cardTitle}>Any Provider</h3>
+          <p className={enterpriseStyles.cardDescription}>
+            Connect through your existing contracts. LiteLLM, Azure OpenAI Enterprise, AWS Bedrock, Microsoft Copilot — one interface, your choice of provider.
+          </p>
+          <div className={enterpriseStyles.modelIconCloud} aria-hidden="true">
+            {modelIcons.map((icon, index) => (
+              <div className={enterpriseStyles.modelIcon} key={`${icon.name}-${index}`}>
+                <img src={icon.src} alt="" loading="lazy" />
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className={enterpriseStyles.card}>
+          <h3 className={enterpriseStyles.cardTitle}>No Spying</h3>
+          <p className={enterpriseStyles.cardDescription}>
+            We don&apos;t see your code or prompts. When you bring your own inference, data flows from you to your provider. We&apos;re not in the middle.
+          </p>
+        </article>
       </div>
     </div>
   );

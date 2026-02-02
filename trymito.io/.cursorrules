@@ -23,6 +23,8 @@ Instead of using js to check the viewport size (e.g. `useIsMobile`), we use css 
 - **Hide on mobile:** `className="only-on-desktop"` (or `only-on-desktop-inline-block`). See `styles/globals.css`: hidden by default, visible at 50em.
 - **Show only on mobile:** `only-on-mobile`, `only-on-mobile-block`, `only-on-mobile-inline-block`.
 
+### Assets 
+- All icons should be stored in the public folder. Do not use a src from another website like 'https://openrouter.ai/images/icons/DeepSeek.png'. Instead, download the icon and store it in the public folder.
 
 ## Validating website changes
 - Check wide desktop, medium, small, and mobile. Confirm nothing overlaps and visibility matches intent at each size.
