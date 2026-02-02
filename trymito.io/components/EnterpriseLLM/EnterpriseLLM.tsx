@@ -12,6 +12,7 @@ const modelCarouselItems = [
   { name: 'GPT 5.2 Codex', src: '/enterprise-llm/openai.svg' },
   { name: 'Gemini 3 Pro', src: '/enterprise-llm/GoogleAIStudio.svg' },
   { name: 'Kimi K2', src: '/enterprise-llm/kimi-color.svg' },
+  { name: 'Grok Code Fast 1', src: '/enterprise-llm/grok-color.svg' },
 ];
 
 const modelIcons = [
@@ -113,41 +114,41 @@ const EnterpriseLLM = (): JSX.Element => {
             We don&apos;t see your code or prompts. When you bring your own inference, data flows from you to your provider. We&apos;re not in the middle.
           </p>
           <div className={enterpriseStyles.dataFlowDiagram} aria-label="Data flows directly between your analysis and your LLM">
-            {/* Left: Your Analysis wireframe */}
+            {/* Grid: 3 columns. Each side cell = icon + label stacked and centered together */}
             <div className={enterpriseStyles.analysisCard}>
-              <div className={enterpriseStyles.analysisHeader}>
-                <div className={enterpriseStyles.windowDots}>
-                  <span className={enterpriseStyles.windowDot}></span>
-                  <span className={enterpriseStyles.windowDot}></span>
-                  <span className={enterpriseStyles.windowDot}></span>
+              <div className={enterpriseStyles.analysisIconWrap}>
+                <div className={enterpriseStyles.analysisHeader}>
+                  <div className={enterpriseStyles.windowDots}>
+                    <span className={enterpriseStyles.windowDot}></span>
+                    <span className={enterpriseStyles.windowDot}></span>
+                    <span className={enterpriseStyles.windowDot}></span>
+                  </div>
                 </div>
-              </div>
-              <div className={enterpriseStyles.analysisContent}>
-                <div className={enterpriseStyles.analysisTitle}></div>
-                <div className={enterpriseStyles.analysisChart}>
-                  <div className={enterpriseStyles.chartBar} style={{ height: '40%' }}></div>
-                  <div className={enterpriseStyles.chartBar} style={{ height: '70%' }}></div>
-                  <div className={enterpriseStyles.chartBar} style={{ height: '55%' }}></div>
-                  <div className={enterpriseStyles.chartBar} style={{ height: '85%' }}></div>
-                  <div className={enterpriseStyles.chartBar} style={{ height: '60%' }}></div>
-                  <div className={enterpriseStyles.chartBar} style={{ height: '45%' }}></div>
-                </div>
-                <div className={enterpriseStyles.analysisLines}>
-                  <div className={enterpriseStyles.analysisLine}></div>
-                  <div className={enterpriseStyles.analysisLine} style={{ width: '60%' }}></div>
+                <div className={enterpriseStyles.analysisContent}>
+                  <div className={enterpriseStyles.analysisTitle}></div>
+                  <div className={enterpriseStyles.analysisChart}>
+                    <div className={enterpriseStyles.chartBar} style={{ height: '40%' }}></div>
+                    <div className={enterpriseStyles.chartBar} style={{ height: '70%' }}></div>
+                    <div className={enterpriseStyles.chartBar} style={{ height: '55%' }}></div>
+                    <div className={enterpriseStyles.chartBar} style={{ height: '85%' }}></div>
+                    <div className={enterpriseStyles.chartBar} style={{ height: '60%' }}></div>
+                    <div className={enterpriseStyles.chartBar} style={{ height: '45%' }}></div>
+                  </div>
+                  <div className={enterpriseStyles.analysisLines}>
+                    <div className={enterpriseStyles.analysisLine}></div>
+                    <div className={enterpriseStyles.analysisLine} style={{ width: '60%' }}></div>
+                  </div>
                 </div>
               </div>
               <span className={enterpriseStyles.analysisLabel}>Your Analysis</span>
             </div>
 
-            {/* Center: Data flow lines with animated dot */}
             <div className={enterpriseStyles.dataFlowLines}>
               <div className={enterpriseStyles.flowLine}></div>
               <div className={enterpriseStyles.flowLine}></div>
               <span className={enterpriseStyles.flowDotAnimated}></span>
             </div>
 
-            {/* Right: LLM with OpenAI icon */}
             <div className={enterpriseStyles.llmCard}>
               <div className={enterpriseStyles.llmIconWrapper}>
                 <div className={enterpriseStyles.llmGlow}></div>
