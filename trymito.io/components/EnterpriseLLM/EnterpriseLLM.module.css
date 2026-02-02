@@ -186,14 +186,15 @@
   opacity: 0.9;
 }
 
+/* Any Provider card: mobile-first — base = small viewport */
 .modelIconCloud {
   margin-top: auto;
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: repeat(5, 2.7rem);
-  grid-auto-rows: 2.7rem;
-  column-gap: 1.35rem;
-  row-gap: 0.95rem;
+  grid-template-columns: repeat(5, 2.25rem);
+  grid-auto-rows: 2.25rem;
+  column-gap: 0.65rem;
+  row-gap: 0.5rem;
   justify-content: center;
   align-items: center;
   align-content: center;
@@ -201,8 +202,8 @@
   border-radius: 0.5rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  height: 11.25rem;
-  min-height: 11.25rem;
+  height: auto;
+  min-height: 8.5rem;
   box-sizing: border-box;
 }
 
@@ -219,8 +220,8 @@
 }
 
 .modelIcon {
-  width: 2.7rem;
-  height: 2.7rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 999px;
   background: #f8fafc;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -330,17 +331,20 @@
   /* Keep circular so it reads as a dot, not a dash */
 }
 
-@media (max-width: 40em) {
+/* Tablet and up: larger icons and fixed height */
+@media (min-width: 40em) {
   .modelIconCloud {
-    grid-template-columns: repeat(4, 2.5rem);
-    grid-auto-rows: 2.5rem;
-    column-gap: 1.1rem;
-    row-gap: 0.75rem;
+    grid-template-columns: repeat(5, 2.7rem);
+    grid-auto-rows: 2.7rem;
+    column-gap: 1.35rem;
+    row-gap: 0.95rem;
+    height: 11.25rem;
+    min-height: 11.25rem;
   }
 
   .modelIcon {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.7rem;
+    height: 2.7rem;
   }
 }
 
