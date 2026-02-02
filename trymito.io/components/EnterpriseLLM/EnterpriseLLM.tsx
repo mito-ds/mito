@@ -12,7 +12,7 @@ const modelCarouselItems = [
   { name: 'GPT 5.2 Codex', src: '/enterprise-llm/openai.svg' },
   { name: 'Gemini 3 Pro', src: '/enterprise-llm/GoogleAIStudio.svg' },
   { name: 'Kimi K2', src: '/enterprise-llm/kimi-color.svg' },
-  { name: 'Grok Code Fast 1', src: '/enterprise-llm/grok-color.svg' },
+  { name: 'Grok Code Fast 1', src: '/enterprise-llm/xai.svg' },
 ];
 
 const modelIcons = [

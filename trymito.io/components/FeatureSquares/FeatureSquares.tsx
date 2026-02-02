@@ -15,61 +15,54 @@ interface FeatureCardData {
     link?: { href: string; label: string };
     videoSrc: string;
     posterSrc?: string;
-    iconSrc: string;
     isHero?: boolean;
 }
 
 const FEATURES: FeatureCardData[] = [
     {
-        id: 'ai-chat',
-        title: 'AI Chat',
-        description: 'Chat is like collaborating with a colleague who sees your code, knows your data, and is a Python expert. It\'s ChatGPT integrated directly into Jupyter.',
+        id: 'jupyter-agent',
+        title: 'Jupyter Agent',
+        description: 'ChatGPT in Jupyter. Your personal coding assistant that sees your and data, writes Python with you.',
         link: { href: 'https://docs.trymito.io/mito-ai/agent', label: 'Learn more about Mito AI →' },
         videoSrc: '/chat-1080-website.mp4',
         posterSrc: '/features/ai-chat.png',
-        iconSrc: '/icon-squares/ChatBubblesIcon.svg',
         isHero: true,
     },
     {
         id: 'smart-debugging',
         title: 'Smart Debugging',
-        description: 'Fix your code with the click of a button and let the AI explain your error to you.',
+        description: 'One-click fix and explanation for any error.',
         videoSrc: '/smart-debug-1080-website.mp4',
         posterSrc: '/features/smart-debugging.png',
-        iconSrc: '/icon-squares/BugIcon.svg',
     },
     {
         id: 'chart-wizard',
         title: 'Chart Wizard',
-        description: 'Create publication-ready charts from your data with a few clicks. Every chart is generated as Python code.',
+        description: 'Point-and-click charts, exported as Python.',
         videoSrc: '/mitosheet-1080-website.mp4',
         posterSrc: '/visualizations_vertical.png',
-        iconSrc: '/icon-squares/ChartWizardIcon.svg',
     },
     {
         id: 'spreadsheet-editor',
         title: 'Spreadsheet Editor',
-        description: 'Write spreadsheet formulas like VLOOKUP, build pivot tables, and create graphs. Every edit is automatically converted to Python.',
+        description: 'Formulas, pivots, and graphs — every edit becomes Python.',
         link: { href: 'https://docs.trymito.io/how-to/importing-data-to-mito', label: 'View 100+ transformations →' },
         videoSrc: '/mitosheet-1080-website.mp4',
         posterSrc: '/features/spreadsheet-editor.png',
-        iconSrc: '/icon-squares/SpreadsheetIcon.svg',
     },
     {
         id: 'mito-desktop',
         title: 'Mito Desktop App',
-        description: 'Run Mito as a standalone desktop application. No Jupyter required — perfect for analysts and teams.',
+        description: 'Standalone desktop app. No Jupyter required.',
         videoSrc: '/mitosheet-1080-website.mp4',
         posterSrc: '/Mito_in_jupyter.png',
-        iconSrc: '/icon-squares/ComputerIcon.svg',
     },
     {
         id: 'app-mode',
         title: 'App Mode',
-        description: 'Turn your Mito spreadsheet into a deployable Streamlit app. Share dashboards and tools with one click.',
+        description: 'Deploy as a Streamlit app. Share dashboards in one click.',
         videoSrc: '/data-app/data-verification-app.mp4',
         posterSrc: '/data-app/script-to-app.png',
-        iconSrc: '/icon-squares/AppModeIcon.svg',
     },
 ];
 
@@ -100,9 +93,6 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
             onMouseLeave={handlePause}
         >
             <div className={featureSquaresStyles.feature_card_header}>
-                <div className={featureSquaresStyles.feature_card_icon}>
-                    <img src={feature.iconSrc} alt="" width={24} height={24} className={featureSquaresStyles.feature_card_icon_img} />
-                </div>
                 <div className={featureSquaresStyles.feature_card_text_container}>
                     <h2>{feature.title}</h2>
                     <p>{feature.description}</p>

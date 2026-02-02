@@ -35,11 +35,9 @@ const INTEGRATIONS: Integration[] = [
   { name: 'MongoDB', icon: '/data-sources/mongodb.svg', category: 'databases', categoryLabel: 'Database' },
   { name: 'SQLite', icon: '/data-sources/sqlite.png', category: 'databases', categoryLabel: 'Database' },
   { name: 'Supabase', icon: '/data-sources/supabase.png', category: 'databases', categoryLabel: 'Database' },
-  { name: 'InfluxDB', icon: '/data-sources/influxdb.svg', category: 'databases', categoryLabel: 'Database' },
   { name: 'Google AlloyDB', icon: '/data-sources/alloydb.svg', category: 'databases', categoryLabel: 'Database'},
   { name: 'GC SQL', icon: '/data-sources/cloud-sql.svg', category: 'databases', categoryLabel: 'Database' },
   { name: 'Google Spanner', icon: '/data-sources/spanner.svg', category: 'databases', categoryLabel: 'Database' },
-  { name: 'Materialize', icon: '/data-sources/materialize.svg', category: 'databases', categoryLabel: 'Database' },
   /* Files */
   { name: 'Excel', icon: '/data-sources/excel.png', category: 'files', categoryLabel: 'Files' },
   { name: 'CSV', icon: '/data-sources/excel.png', category: 'files', categoryLabel: 'Files' },

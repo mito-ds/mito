@@ -24,7 +24,7 @@
     grid-template-columns: 1fr;
     gap: 0.75rem;
     width: 100%;
-    max-width: 1100px;
+    max-width: 1320px;
 }
 
 .feature_card {
@@ -46,26 +46,7 @@
 }
 
 .feature_card_header {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
     margin-bottom: 0.5rem;
-}
-
-.feature_card_icon {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.feature_card_icon img,
-.feature_card_icon_img {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
 }
 
 .feature_card_text_container {
@@ -153,7 +134,7 @@
     /* Regular cards: smaller video thumbnail with proper aspect */
     .feature_card_image_container {
         aspect-ratio: 16 / 9;
-        max-height: 120px;
+        max-height: 160px;
     }
 
     .feature_card_text_container h2 {
@@ -166,10 +147,10 @@
     }
 }
 
-/* Large screens: constrain max-width */
+/* Large screens: use more horizontal space */
 @media (min-width: 80em) {
     .feature_squares_container {
-        max-width: 1100px;
+        max-width: 1320px;
     }
 }
 

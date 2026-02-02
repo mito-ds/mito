@@ -88,6 +88,7 @@ const Home: NextPage = () => {
           <section>
             <MadeWithMito />
           </section>
+          
           <section>
             <FeatureSquares />
           </section>
