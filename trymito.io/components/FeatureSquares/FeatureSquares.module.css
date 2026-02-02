@@ -78,7 +78,6 @@
     padding-top: 0.75rem;
     border-radius: 0.5rem;
     overflow: hidden;
-    background: var(--color-background);
     /* Use aspect-ratio for proper video sizing */
     aspect-ratio: 16 / 9;
     display: flex;
@@ -93,6 +92,11 @@
     object-fit: cover;
     display: block;
     border-radius: 0.5rem;
+}
+
+/* Hero card: size video to fit container (no crop), preserve aspect ratio */
+.feature_card_hero .feature_card_image_container video {
+    object-fit: contain;
 }
 
 .feature_squares_container a {
@@ -134,7 +138,7 @@
     /* Regular cards: smaller video thumbnail with proper aspect */
     .feature_card_image_container {
         aspect-ratio: 16 / 9;
-        max-height: 160px;
+
     }
 
     .feature_card_text_container h2 {
@@ -149,9 +153,6 @@
 
 /* Large screens: use more horizontal space */
 @media (min-width: 80em) {
-    .feature_squares_container {
-        max-width: 1320px;
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {

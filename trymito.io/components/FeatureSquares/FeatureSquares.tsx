@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { classNames } from '../../utils/classNames';
 import featureSquaresStyles from './FeatureSquares.module.css';
 import pageStyles from '../../styles/Page.module.css';
@@ -24,7 +24,7 @@ const FEATURES: FeatureCardData[] = [
         title: 'Jupyter Agent',
         description: 'ChatGPT in Jupyter. Your personal coding assistant that sees your and data, writes Python with you.',
         link: { href: 'https://docs.trymito.io/mito-ai/agent', label: 'Learn more about Mito AI →' },
-        videoSrc: '/chat-1080-website.mp4',
+        videoSrc: '/bitcoin-candlestick-chart.mov',
         posterSrc: '/features/ai-chat.png',
         isHero: true,
     },
@@ -68,12 +68,30 @@ const FEATURES: FeatureCardData[] = [
 
 function FeatureCard({ feature }: { feature: FeatureCardData }) {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isInView, setIsInView] = useState(false);
+
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) setIsInView(true);
+            },
+            { rootMargin: '100px', threshold: 0 }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
 
     const handlePlay = useCallback(() => {
         if (videoRef.current && feature.videoSrc) {
+            if (feature.isHero) {
+                videoRef.current.playbackRate = 2;
+            }
             videoRef.current.play().catch(() => {});
         }
-    }, [feature.videoSrc]);
+    }, [feature.videoSrc, feature.isHero]);
 
     const handlePause = useCallback(() => {
         if (videoRef.current) {
@@ -88,6 +106,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
 
     return (
         <div
+            ref={containerRef}
             className={cardClassName}
             onMouseEnter={handlePlay}
             onMouseLeave={handlePause}
@@ -110,20 +129,31 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
             )}
             <div className={featureSquaresStyles.feature_card_image_container}>
                 {feature.videoSrc ? (
-                    <video
-                        ref={videoRef}
-                        src={feature.videoSrc}
-                        poster={feature.posterSrc}
-                        loop
-                        muted
-                        playsInline
-                        preload="metadata"
-                        onClick={handlePlay}
-                        onTouchEnd={(e) => {
-                            e.preventDefault();
-                            handlePlay();
-                        }}
-                    />
+                    <>
+                        {!isInView && feature.posterSrc ? (
+                            <img src={feature.posterSrc} alt="" />
+                        ) : (
+                            <video
+                                ref={videoRef}
+                                src={isInView ? feature.videoSrc : undefined}
+                                poster={feature.posterSrc}
+                                loop
+                                muted
+                                playsInline
+                                preload={isInView ? 'metadata' : 'none'}
+                                onClick={handlePlay}
+                                onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    handlePlay();
+                                }}
+                                onLoadedMetadata={(e) => {
+                                    if (feature.isHero) {
+                                        e.currentTarget.playbackRate = 2;
+                                    }
+                                }}
+                            />
+                        )}
+                    </>
                 ) : (
                     feature.posterSrc && (
                         <img src={feature.posterSrc} alt="" />
