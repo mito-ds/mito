@@ -94,8 +94,14 @@ const EnterpriseLLM = (): JSX.Element => {
           </p>
           <div className={enterpriseStyles.modelIconCloud} aria-hidden="true">
             {modelIcons.map((icon, index) => (
-              <div className={enterpriseStyles.modelIcon} key={`${icon.name}-${index}`}>
-                <img src={icon.src} alt="" loading="lazy" />
+              <div
+                className={enterpriseStyles.modelIconWrapper}
+                key={`${icon.name}-${index}`}
+                title={icon.name}
+              >
+                <div className={enterpriseStyles.modelIcon}>
+                  <img src={icon.src} alt="" loading="lazy" />
+                </div>
               </div>
             ))}
           </div>
