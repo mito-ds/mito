@@ -985,7 +985,6 @@ const FEATURES: FeatureCardData[] = [
 ];
 
 function FeatureCard({ feature }: { feature: FeatureCardData }) {
-    const containerRef = useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = useState(false);
     const isChartWizard = feature.id === 'chart-wizard';
     const isSmartDebugging = feature.id === 'smart-debugging';
@@ -1022,7 +1021,6 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
 
     return (
         <div
-            ref={containerRef}
             className={cardClassName}
             onMouseEnter={handlePlay}
             onMouseLeave={handlePause}
@@ -1030,7 +1028,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
             <div className={featureSquaresStyles.feature_card_header}>
                 <div className={featureSquaresStyles.feature_card_text_container}>
                     <h2>{feature.title}</h2>
-                    <p>{feature.description}</p>
+                    <p className={featureSquaresStyles.feature_card_description}>{feature.description}</p>
                 </div>
             </div>
             <div className={featureSquaresStyles.feature_card_image_container}>
