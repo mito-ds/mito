@@ -12,9 +12,6 @@ interface FeatureCardData {
     id: string;
     title: string;
     description: string;
-    link?: { href: string; label: string };
-    videoSrc: string;
-    posterSrc?: string;
     isHero?: boolean;
 }
 
@@ -958,51 +955,37 @@ const FEATURES: FeatureCardData[] = [
         id: 'jupyter-agent',
         title: 'Jupyter Agent',
         description: 'ChatGPT in Jupyter. Your personal coding assistant that sees your and data, writes Python with you.',
-        videoSrc: '/bitcoin-candlestick-chart.mov',
-        posterSrc: '/features/ai-chat.png',
-        isHero: true,
+        isHero: true
     },
     {
         id: 'smart-debugging',
         title: 'Smart Debugging',
-        description: 'One-click fix and explanation for any error.',
-        videoSrc: '/smart-debug-1080-website.mp4',
-        posterSrc: '/features/smart-debugging.png',
+        description: 'One-click fix and explanation for any error.'
     },
     {
         id: 'chart-wizard',
         title: 'Chart Wizard',
-        description: 'Point-and-click charts, exported as Python.',
-        videoSrc: '/mitosheet-1080-website.mp4',
-        posterSrc: '/visualizations_vertical.png',
+        description: 'Point-and-click charts, exported as Python.'
     },
     {
         id: 'spreadsheet-editor',
         title: 'Spreadsheet Editor',
-        description: 'Formulas, pivots, and graphs — every edit becomes Python.',
-        videoSrc: '/mitosheet-1080-website.mp4',
-        posterSrc: '/features/spreadsheet-editor.png',
+        description: 'Formulas, pivots, and graphs — every edit becomes Python.'
     },
     {
         id: 'database-connections',
         title: 'Database Connections',
-        description: 'Connect to your databases and run SQL queries.',
-        videoSrc: '/mitosheet-1080-website.mp4',
-        posterSrc: '/Mito_in_jupyter.png',
+        description: 'Connect to your databases and run SQL queries.'
     },
     {
         id: 'app-mode',
         title: 'App Mode',
-        description: 'Deploy as a Streamlit app. Share dashboards in one click.',
-        videoSrc: '/data-app/data-verification-app.mp4',
-        posterSrc: '/data-app/script-to-app.png',
-    },
+        description: 'Deploy as a Streamlit app. Share dashboards in one click.'
+    }
 ];
 
 function FeatureCard({ feature }: { feature: FeatureCardData }) {
-    const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [isInView, setIsInView] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const isChartWizard = feature.id === 'chart-wizard';
     const isSmartDebugging = feature.id === 'smart-debugging';
@@ -1011,39 +994,18 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     const isAppMode = feature.id === 'app-mode';
     const isJupyterAgent = feature.id === 'jupyter-agent';
 
-    useEffect(() => {
-        const el = containerRef.current;
-        if (!el) return;
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) setIsInView(true);
-            },
-            { rootMargin: '100px', threshold: 0 }
-        );
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, []);
 
     const handlePlay = useCallback(() => {
         if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor || isAppMode || isJupyterAgent) {
             setIsHovered(true);
             return;
         }
-        if (videoRef.current && feature.videoSrc) {
-            if (feature.isHero) {
-                videoRef.current.playbackRate = 2;
-            }
-            videoRef.current.play().catch(() => {});
-        }
-    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor, isAppMode, isJupyterAgent]);
+    }, [isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor, isAppMode, isJupyterAgent]);
 
     const handlePause = useCallback(() => {
         if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor || isAppMode || isJupyterAgent) {
             setIsHovered(false);
             return;
-        }
-        if (videoRef.current) {
-            videoRef.current.pause();
         }
     }, [isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor, isAppMode, isJupyterAgent]);
 
@@ -1071,16 +1033,6 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
                     <p>{feature.description}</p>
                 </div>
             </div>
-            {feature.link && (
-                <a
-                    href={feature.link.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={pageStyles.link}
-                >
-                    {feature.link.label}
-                </a>
-            )}
             <div className={featureSquaresStyles.feature_card_image_container}>
                 {isJupyterAgent ? (
                     <JupyterAgentPreview isHovered={isHovered} />
@@ -1094,37 +1046,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
                     <SpreadsheetEditorPreview isHovered={isHovered} />
                 ) : isAppMode ? (
                     <AppModePreview isHovered={isHovered} />
-                ) : feature.videoSrc ? (
-                    <>
-                        {!isInView && feature.posterSrc ? (
-                            <img src={feature.posterSrc} alt="" />
-                        ) : (
-                            <video
-                                ref={videoRef}
-                                src={isInView ? feature.videoSrc : undefined}
-                                poster={feature.posterSrc}
-                                loop
-                                muted
-                                playsInline
-                                preload={isInView ? 'metadata' : 'none'}
-                                onClick={handlePlay}
-                                onTouchEnd={(e) => {
-                                    e.preventDefault();
-                                    handlePlay();
-                                }}
-                                onLoadedMetadata={(e) => {
-                                    if (feature.isHero) {
-                                        e.currentTarget.playbackRate = 2;
-                                    }
-                                }}
-                            />
-                        )}
-                    </>
-                ) : (
-                    feature.posterSrc && (
-                        <img src={feature.posterSrc} alt="" />
-                    )
-                )}
+                ) : null}
             </div>
         </div>
     );
