@@ -250,6 +250,111 @@ function DatabaseConnectionsPreview({ isHovered }: { isHovered: boolean }) {
     );
 }
 
+function SpreadsheetEditorPreview({ isHovered }: { isHovered: boolean }) {
+    /* Spreadsheet data - header + 3 rows: Revenue, Cost, Profit */
+    const headers = ['Revenue', 'Cost', 'Profit'];
+    const rows = [
+        ['$5,000', '$3,200', '$1,800'],
+        ['$4,200', '$2,800', '$1,400'],
+        ['$6,100', '$3,900', '$2,200'],
+    ];
+
+    return (
+        <div className={featureSquaresStyles.spreadsheet_preview}>
+            {/* Spreadsheet with formula bar */}
+            <div className={featureSquaresStyles.spreadsheet_container}>
+                {/* Formula bar */}
+                <div
+                    className={classNames(
+                        featureSquaresStyles.spreadsheet_formula_bar,
+                        { [featureSquaresStyles.spreadsheet_formula_bar_active]: isHovered }
+                    )}
+                >
+                    <span className={featureSquaresStyles.spreadsheet_formula_label}>fx</span>
+                    <span
+                        className={classNames(
+                            featureSquaresStyles.spreadsheet_formula_text,
+                            { [featureSquaresStyles.spreadsheet_formula_text_active]: isHovered }
+                        )}
+                    >
+                        {isHovered ? '=Revenue-Cost' : ''}
+                    </span>
+                </div>
+
+                {/* Spreadsheet grid */}
+                <div className={featureSquaresStyles.spreadsheet_grid}>
+                    {/* Header row */}
+                    <div className={featureSquaresStyles.spreadsheet_row_header}>
+                        {headers.map((h, i) => (
+                            <span
+                                key={i}
+                                className={classNames(
+                                    featureSquaresStyles.spreadsheet_cell_header,
+                                    { [featureSquaresStyles.spreadsheet_cell_header_highlight]: isHovered && i === 2 }
+                                )}
+                            >
+                                {h}
+                            </span>
+                        ))}
+                    </div>
+                    {/* Data rows */}
+                    {rows.map((row, rowIdx) => (
+                        <div key={rowIdx} className={featureSquaresStyles.spreadsheet_row}>
+                            {row.map((cell, colIdx) => (
+                                <span
+                                    key={colIdx}
+                                    className={classNames(
+                                        featureSquaresStyles.spreadsheet_cell,
+                                        {
+                                            [featureSquaresStyles.spreadsheet_cell_highlight]:
+                                                isHovered && colIdx === 2,
+                                        }
+                                    )}
+                                >
+                                    {cell}
+                                </span>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Arrow indicator */}
+            <div
+                className={classNames(
+                    featureSquaresStyles.spreadsheet_arrow,
+                    { [featureSquaresStyles.spreadsheet_arrow_active]: isHovered }
+                )}
+            >
+                ↓
+            </div>
+
+            {/* Python code - single line */}
+            <div
+                className={classNames(
+                    featureSquaresStyles.spreadsheet_code,
+                    { [featureSquaresStyles.spreadsheet_code_active]: isHovered }
+                )}
+            >
+                <span className={featureSquaresStyles.code_keyword}>df</span>
+                <span className={featureSquaresStyles.code_bracket}>[</span>
+                <span className={featureSquaresStyles.code_string}>&apos;Profit&apos;</span>
+                <span className={featureSquaresStyles.code_bracket}>]</span>
+                <span className={featureSquaresStyles.code_operator}> = </span>
+                <span className={featureSquaresStyles.code_keyword}>df</span>
+                <span className={featureSquaresStyles.code_bracket}>[</span>
+                <span className={featureSquaresStyles.code_string}>&apos;Revenue&apos;</span>
+                <span className={featureSquaresStyles.code_bracket}>]</span>
+                <span className={featureSquaresStyles.code_operator}> - </span>
+                <span className={featureSquaresStyles.code_keyword}>df</span>
+                <span className={featureSquaresStyles.code_bracket}>[</span>
+                <span className={featureSquaresStyles.code_string}>&apos;Cost&apos;</span>
+                <span className={featureSquaresStyles.code_bracket}>]</span>
+            </div>
+        </div>
+    );
+}
+
 const FEATURES: FeatureCardData[] = [
     {
         id: 'jupyter-agent',
@@ -306,6 +411,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     const isChartWizard = feature.id === 'chart-wizard';
     const isSmartDebugging = feature.id === 'smart-debugging';
     const isDatabaseConnections = feature.id === 'database-connections';
+    const isSpreadsheetEditor = feature.id === 'spreadsheet-editor';
 
     useEffect(() => {
         const el = containerRef.current;
@@ -321,7 +427,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     }, []);
 
     const handlePlay = useCallback(() => {
-        if (isChartWizard || isSmartDebugging || isDatabaseConnections) {
+        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor) {
             setIsHovered(true);
             return;
         }
@@ -331,24 +437,25 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
             }
             videoRef.current.play().catch(() => {});
         }
-    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging, isDatabaseConnections]);
+    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor]);
 
     const handlePause = useCallback(() => {
-        if (isChartWizard || isSmartDebugging || isDatabaseConnections) {
+        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor) {
             setIsHovered(false);
             return;
         }
         if (videoRef.current) {
             videoRef.current.pause();
         }
-    }, [isChartWizard, isSmartDebugging, isDatabaseConnections]);
+    }, [isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor]);
 
     const cardClassName = classNames(
         featureSquaresStyles.feature_card,
         { [featureSquaresStyles.feature_card_hero]: feature.isHero },
         { [featureSquaresStyles.feature_card_chart_wizard]: isChartWizard },
         { [featureSquaresStyles.feature_card_smart_debugging]: isSmartDebugging },
-        { [featureSquaresStyles.feature_card_database_connections]: isDatabaseConnections }
+        { [featureSquaresStyles.feature_card_database_connections]: isDatabaseConnections },
+        { [featureSquaresStyles.feature_card_spreadsheet_editor]: isSpreadsheetEditor }
     );
 
     return (
@@ -381,6 +488,8 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
                     <ChartWizardPreview isHovered={isHovered} />
                 ) : isDatabaseConnections ? (
                     <DatabaseConnectionsPreview isHovered={isHovered} />
+                ) : isSpreadsheetEditor ? (
+                    <SpreadsheetEditorPreview isHovered={isHovered} />
                 ) : feature.videoSrc ? (
                     <>
                         {!isInView && feature.posterSrc ? (

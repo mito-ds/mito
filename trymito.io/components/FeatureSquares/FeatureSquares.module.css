@@ -476,6 +476,180 @@
     }
 }
 
+/* Spreadsheet Editor Preview - Vertical Layout */
+.feature_card_spreadsheet_editor .feature_card_image_container {
+    display: flex;
+    align-items: stretch;
+}
+
+.spreadsheet_preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 6px;
+    padding: 0.5rem;
+}
+
+.spreadsheet_container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 280px;
+}
+
+.spreadsheet_formula_bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(40, 38, 48, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    padding: 4px 8px;
+    min-height: 24px;
+    transition: all 0.3s ease;
+}
+
+.spreadsheet_formula_bar_active {
+    background: rgba(50, 45, 60, 0.9);
+    border-color: rgba(155, 126, 217, 0.4);
+}
+
+.spreadsheet_formula_label {
+    font-size: 0.6rem;
+    font-style: italic;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.spreadsheet_formula_text {
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
+}
+
+.spreadsheet_formula_text_active {
+    color: #b8a3e8;
+}
+
+.spreadsheet_grid {
+    display: flex;
+    flex-direction: column;
+    background: rgba(30, 28, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 0 6px 6px;
+    overflow: hidden;
+}
+
+.spreadsheet_row_header {
+    display: flex;
+    background: rgba(50, 48, 58, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.spreadsheet_cell_header {
+    flex: 1;
+    padding: 4px 6px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spreadsheet_cell_header:last-child {
+    border-right: none;
+}
+
+.spreadsheet_cell_header_highlight {
+    background: rgba(155, 126, 217, 0.3);
+    color: #fff;
+}
+
+.spreadsheet_row {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spreadsheet_row:last-child {
+    border-bottom: none;
+}
+
+.spreadsheet_cell {
+    flex: 1;
+    padding: 4px 6px;
+    font-size: 0.55rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.spreadsheet_cell:last-child {
+    border-right: none;
+}
+
+.spreadsheet_cell_highlight {
+    background: rgba(155, 126, 217, 0.3);
+    color: #fff;
+    box-shadow: inset 0 0 0 1.5px #9b7ed9;
+}
+
+/* Arrow between spreadsheet and code */
+.spreadsheet_arrow {
+    font-size: 1rem;
+    color: rgba(155, 126, 217, 0.3);
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.spreadsheet_arrow_active {
+    color: rgba(155, 126, 217, 0.9);
+    transform: scale(1.1);
+}
+
+/* Python code panel - single line */
+.spreadsheet_code {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(30, 28, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-size: 0.6rem;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.spreadsheet_code_active {
+    background: rgba(155, 126, 217, 0.15);
+    border-color: rgba(155, 126, 217, 0.5);
+    box-shadow: 0 0 12px rgba(155, 126, 217, 0.2);
+}
+
+/* Code syntax highlighting */
+.code_keyword {
+    color: #79c0ff;
+}
+
+.code_bracket {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.code_string {
+    color: #a5d6ff;
+}
+
+.code_operator {
+    color: #ff7b72;
+}
+
 /* Hero card: size video to fit container (no crop), preserve aspect ratio */
 .feature_card_hero .feature_card_image_container video {
     object-fit: contain;
