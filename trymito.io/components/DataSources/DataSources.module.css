@@ -64,6 +64,7 @@
 .carouselWrap {
   overflow: hidden;
   width: 100%;
+  padding-bottom: 44px;
   /* Soft edge fade so icons don’t hard-cut at viewport edges */
   mask-image: linear-gradient(
     to right,

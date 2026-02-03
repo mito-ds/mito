@@ -59,7 +59,43 @@ const HALF = Math.ceil(INTEGRATIONS.length / 2);
 const CAROUSEL_1_ITEMS = INTEGRATIONS.slice(0, HALF);
 const CAROUSEL_2_ITEMS = INTEGRATIONS.slice(HALF);
 
+/** Max vertical dip (px) at viewport center. Arc is viewport-relative so it stays visible while scrolling. */
+const ARC_DEPTH_PX = 40;
+/** Distance from viewport center (px) at which the arc reaches zero. */
+const ARC_HALF_WIDTH_PX = 420;
+
 const DataSources = (): JSX.Element => {
+  const carousel1Items = [...CAROUSEL_1_ITEMS, ...CAROUSEL_1_ITEMS];
+  const carousel2Items = [...CAROUSEL_2_ITEMS, ...CAROUSEL_2_ITEMS];
+  const track1Ref = React.useRef<HTMLDivElement>(null);
+  const track2Ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    let raf = 0;
+    const updateArc = (): void => {
+      const vwCenter = window.innerWidth / 2;
+      [track1Ref.current, track2Ref.current].forEach((trackEl) => {
+        if (!trackEl) return;
+        const cards = trackEl.querySelectorAll<HTMLElement>('[data-arc-card]');
+        cards.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const dist = Math.abs(centerX - vwCenter);
+          const t = Math.min(1, dist / ARC_HALF_WIDTH_PX);
+          const y = ARC_DEPTH_PX * (1 - t * t);
+          el.style.transform = y ? `translateY(${y}px)` : '';
+        });
+      });
+      raf = requestAnimationFrame(updateArc);
+    };
+    updateArc();
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
     <div className={dataSourceStyles.container}>
       <header className={dataSourceStyles.header}>
@@ -72,9 +108,16 @@ const DataSources = (): JSX.Element => {
       <div className={dataSourceStyles.carouselsFullBleedWrap}>
         <div className={dataSourceStyles.carouselsFullBleed}>
         <div className={dataSourceStyles.carouselWrap} aria-hidden="true">
-          <div className={`${dataSourceStyles.carouselTrack} ${dataSourceStyles.carouselTrackRightToLeft}`}>
-            {[...CAROUSEL_1_ITEMS, ...CAROUSEL_1_ITEMS].map(({ name, icon }, i) => (
-              <div key={`c1-${i}-${name}`} className={dataSourceStyles.iconCardLogoOnly}>
+          <div
+            ref={track1Ref}
+            className={`${dataSourceStyles.carouselTrack} ${dataSourceStyles.carouselTrackRightToLeft}`}
+          >
+            {carousel1Items.map(({ name, icon }, i) => (
+              <div
+                key={`c1-${i}-${name}`}
+                className={dataSourceStyles.iconCardLogoOnly}
+                data-arc-card
+              >
                 <div className={dataSourceStyles.iconCardInner}>
                   <div className={dataSourceStyles.iconWrapper}>
                     <Image src={icon} alt={name} width={48} height={48} unoptimized />
@@ -85,9 +128,16 @@ const DataSources = (): JSX.Element => {
           </div>
         </div>
         <div className={dataSourceStyles.carouselWrap} aria-hidden="true">
-          <div className={`${dataSourceStyles.carouselTrack} ${dataSourceStyles.carouselTrackLeftToRight}`}>
-            {[...CAROUSEL_2_ITEMS, ...CAROUSEL_2_ITEMS].map(({ name, icon }, i) => (
-              <div key={`c2-${i}-${name}`} className={dataSourceStyles.iconCardLogoOnly}>
+          <div
+            ref={track2Ref}
+            className={`${dataSourceStyles.carouselTrack} ${dataSourceStyles.carouselTrackLeftToRight}`}
+          >
+            {carousel2Items.map(({ name, icon }, i) => (
+              <div
+                key={`c2-${i}-${name}`}
+                className={dataSourceStyles.iconCardLogoOnly}
+                data-arc-card
+              >
                 <div className={dataSourceStyles.iconCardInner}>
                   <div className={dataSourceStyles.iconWrapper}>
                     <Image src={icon} alt={name} width={48} height={48} unoptimized />
