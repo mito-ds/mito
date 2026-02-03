@@ -23,6 +23,339 @@ const LINE_POINTS = '0,100 3,96 6,98 9,93 12,95 15,90 18,92 21,88 24,91 27,86 30
 /* Area fill polygon: same points + bottom corners */
 const AREA_POINTS = LINE_POINTS + ' 100,100 0,100';
 
+const USER_MESSAGE = 'Create a candlestick chart of bitcoin transaction data';
+const TYPEWRITER_MS = 35;
+const ICON_DELAY_MS = 1600;
+const STEP_PAUSE_MS = 300;
+
+function JupyterAgentPreview({ isHovered }: { isHovered: boolean }) {
+    const [typewriterLen, setTypewriterLen] = useState(0);
+    const [visibleSteps, setVisibleSteps] = useState(0); // 0=none, 1=first step, 2=substep1, 3=substep2, 4=building, 5=looking, 6=thought, 7=adding labels
+    const [iconResolved, setIconResolved] = useState<Record<number, boolean>>({ 0: false, 1: false, 2: false, 3: false, 4: false, 5: false });
+
+    // Reset when hover ends so animation can replay
+    useEffect(() => {
+        if (!isHovered) {
+            setTypewriterLen(0);
+            setVisibleSteps(0);
+            setIconResolved({ 0: false, 1: false, 2: false, 3: false, 4: false, 5: false });
+        }
+    }, [isHovered]);
+
+    // Typewriter: advance one character on an interval while hovered
+    useEffect(() => {
+        if (!isHovered || typewriterLen >= USER_MESSAGE.length) return;
+        const t = setInterval(() => {
+            setTypewriterLen((n) => Math.min(n + 1, USER_MESSAGE.length));
+        }, TYPEWRITER_MS);
+        return () => clearInterval(t);
+    }, [isHovered, typewriterLen]);
+
+    // After typewriter completes, show first step with spinner then icon
+    useEffect(() => {
+        if (!isHovered || typewriterLen < USER_MESSAGE.length) return;
+        if (visibleSteps < 1) setVisibleSteps(1);
+        if (iconResolved[0]) return;
+        const id = setTimeout(() => setIconResolved((r) => ({ ...r, 0: true })), ICON_DELAY_MS);
+        return () => clearTimeout(id);
+    }, [isHovered, typewriterLen, visibleSteps, iconResolved[0]]);
+
+    // After first icon resolved, show first substep (Detected error) with spinner
+    useEffect(() => {
+        if (!iconResolved[0]) return;
+        if (visibleSteps < 2) {
+            const id = setTimeout(() => setVisibleSteps(2), STEP_PAUSE_MS);
+            return () => clearTimeout(id);
+        }
+    }, [iconResolved[0], visibleSteps]);
+
+    // Resolve icon for first substep (Detected error) after delay
+    useEffect(() => {
+        if (visibleSteps < 2 || iconResolved[1]) return;
+        const id = setTimeout(() => setIconResolved((r) => ({ ...r, 1: true })), ICON_DELAY_MS);
+        return () => clearTimeout(id);
+    }, [visibleSteps, iconResolved[1]]);
+
+    // After first substep icon resolved, show second substep (Using valid date range) with spinner
+    useEffect(() => {
+        if (!iconResolved[1]) return;
+        if (visibleSteps < 3) {
+            const id = setTimeout(() => setVisibleSteps(3), STEP_PAUSE_MS);
+            return () => clearTimeout(id);
+        }
+    }, [iconResolved[1], visibleSteps]);
+
+    // Resolve icon for second substep after delay
+    useEffect(() => {
+        if (visibleSteps < 3 || iconResolved[2]) return;
+        const id = setTimeout(() => setIconResolved((r) => ({ ...r, 2: true })), ICON_DELAY_MS);
+        return () => clearTimeout(id);
+    }, [visibleSteps, iconResolved[2]]);
+
+    // After second substep icon resolved, show Building candlestick step with spinner
+    useEffect(() => {
+        if (!iconResolved[2]) return;
+        if (visibleSteps < 4) {
+            const id = setTimeout(() => setVisibleSteps(4), STEP_PAUSE_MS);
+            return () => clearTimeout(id);
+        }
+    }, [iconResolved[2], visibleSteps]);
+
+    // Resolve icon for Building candlestick step after delay
+    useEffect(() => {
+        if (visibleSteps < 4 || iconResolved[3]) return;
+        const id = setTimeout(() => setIconResolved((r) => ({ ...r, 3: true })), ICON_DELAY_MS);
+        return () => clearTimeout(id);
+    }, [visibleSteps, iconResolved[3]]);
+
+    // After Building step icon resolved, show Looking at graph step with spinner
+    useEffect(() => {
+        if (!iconResolved[3]) return;
+        if (visibleSteps < 5) {
+            const id = setTimeout(() => setVisibleSteps(5), STEP_PAUSE_MS);
+            return () => clearTimeout(id);
+        }
+    }, [iconResolved[3], visibleSteps]);
+
+    // Resolve icon for Looking at graph step then show chart
+    useEffect(() => {
+        if (visibleSteps < 5 || iconResolved[4]) return;
+        const id = setTimeout(() => setIconResolved((r) => ({ ...r, 4: true })), ICON_DELAY_MS);
+        return () => clearTimeout(id);
+    }, [visibleSteps, iconResolved[4]]);
+
+    // After Looking at graph icon resolved, show thought process
+    useEffect(() => {
+        if (!iconResolved[4]) return;
+        if (visibleSteps < 6) {
+            const id = setTimeout(() => setVisibleSteps(6), STEP_PAUSE_MS);
+            return () => clearTimeout(id);
+        }
+    }, [iconResolved[4], visibleSteps]);
+
+    // After thought process, show "Adding chart labels" step
+    useEffect(() => {
+        if (visibleSteps < 6) return;
+        if (visibleSteps < 7) {
+            const id = setTimeout(() => setVisibleSteps(7), STEP_PAUSE_MS + 400);
+            return () => clearTimeout(id);
+        }
+    }, [visibleSteps]);
+
+    // Resolve "Adding chart labels" icon after delay, then chart v2 shows
+    useEffect(() => {
+        if (visibleSteps < 7 || iconResolved[5]) return;
+        const id = setTimeout(() => setIconResolved((r) => ({ ...r, 5: true })), ICON_DELAY_MS);
+        return () => clearTimeout(id);
+    }, [visibleSteps, iconResolved[5]]);
+
+    const showStep = (stepIndex: number) => visibleSteps > stepIndex;
+    const showSpinner = (stepKey: number) => showStep(stepKey) && !iconResolved[stepKey];
+    const showFullStatic = !isHovered;
+    const displayMessageLen = showFullStatic ? USER_MESSAGE.length : typewriterLen;
+    const displayStep = (i: number) => showFullStatic || showStep(i);
+    const displayThought = showFullStatic || visibleSteps >= 6;
+    const displayAddingLabelsStep = showFullStatic || visibleSteps >= 7;
+    const displayChartV1 = showFullStatic ? false : (iconResolved[3] && !iconResolved[5]);
+    const displayChartV2 = showFullStatic || iconResolved[5];
+    const displayChart = displayChartV1 || displayChartV2;
+    const displaySpinner = (key: number) => !showFullStatic && showSpinner(key);
+
+    return (
+        <div className={featureSquaresStyles.jupyter_agent_preview}>
+            <div className={featureSquaresStyles.jupyter_agent_chat_column}>
+                <div className={featureSquaresStyles.jupyter_agent_user_message_wrapper}>
+                    <div className={featureSquaresStyles.jupyter_agent_user_message_label}>
+                        <span className={featureSquaresStyles.jupyter_agent_user_message_icon} aria-hidden>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </span>
+                        <span>You</span>
+                    </div>
+                    <div className={featureSquaresStyles.jupyter_agent_user_message}>
+                        {USER_MESSAGE.slice(0, displayMessageLen)}
+                        {!showFullStatic && typewriterLen < USER_MESSAGE.length && (
+                            <span className={featureSquaresStyles.jupyter_agent_cursor} aria-hidden />
+                        )}
+                    </div>
+                </div>
+                <div className={featureSquaresStyles.jupyter_agent_step_group}>
+                    <div className={classNames(featureSquaresStyles.jupyter_agent_step_expandable, featureSquaresStyles.jupyter_agent_step_animated, { [featureSquaresStyles.jupyter_agent_step_visible]: displayStep(0) })}>
+                        <div className={featureSquaresStyles.jupyter_agent_step_row}>
+                            <span className={featureSquaresStyles.jupyter_agent_step_icon} aria-hidden>
+                                {displaySpinner(0) ? (
+                                    <span className={featureSquaresStyles.jupyter_agent_spinner} aria-hidden>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                                    </span>
+                                ) : (
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v8"/><path d="m7 7 5 5 5-5"/><path d="M4 14v2a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-2"/></svg>
+                                )}
+                            </span>
+                            <span className={featureSquaresStyles.jupyter_agent_step_text}>querying bitcoin data from API</span>
+                        </div>
+                        <div className={classNames(featureSquaresStyles.jupyter_agent_step_inner, { [featureSquaresStyles.jupyter_agent_step_inner_expanded]: displayStep(1) })}>
+                            <div className={featureSquaresStyles.jupyter_agent_step_inner_content}>
+                                <div className={classNames(featureSquaresStyles.jupyter_agent_sub_step, featureSquaresStyles.jupyter_agent_step_animated, { [featureSquaresStyles.jupyter_agent_step_visible]: displayStep(1) })}>
+                                    <span className={featureSquaresStyles.jupyter_agent_sub_step_icon} aria-hidden>
+                                        {displaySpinner(1) ? (
+                                            <span className={featureSquaresStyles.jupyter_agent_spinner} aria-hidden>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                                            </span>
+                                        ) : (
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                        )}
+                                    </span>
+                                    <span className={featureSquaresStyles.jupyter_agent_sub_step_text}>Detected error with API date range</span>
+                                </div>
+                                <div className={classNames(featureSquaresStyles.jupyter_agent_sub_step, featureSquaresStyles.jupyter_agent_step_animated, { [featureSquaresStyles.jupyter_agent_step_visible]: displayStep(2) })}>
+                                    <span className={featureSquaresStyles.jupyter_agent_sub_step_icon} aria-hidden>
+                                        {displaySpinner(2) ? (
+                                            <span className={featureSquaresStyles.jupyter_agent_spinner} aria-hidden>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                                            </span>
+                                        ) : (
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                                        )}
+                                    </span>
+                                    <span className={featureSquaresStyles.jupyter_agent_sub_step_text}>Using valid date range for API call</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className={classNames(featureSquaresStyles.jupyter_agent_step, featureSquaresStyles.jupyter_agent_step_animated, { [featureSquaresStyles.jupyter_agent_step_visible]: displayStep(3) })}>
+                    <span className={featureSquaresStyles.jupyter_agent_step_icon} aria-hidden>
+                        {displaySpinner(3) ? (
+                            <span className={featureSquaresStyles.jupyter_agent_spinner} aria-hidden>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                            </span>
+                        ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        )}
+                    </span>
+                    <span className={featureSquaresStyles.jupyter_agent_step_text}>Building candlestick chart</span>
+                </div>
+                <div className={classNames(featureSquaresStyles.jupyter_agent_step, featureSquaresStyles.jupyter_agent_step_animated, { [featureSquaresStyles.jupyter_agent_step_visible]: displayStep(4) })}>
+                    <span className={featureSquaresStyles.jupyter_agent_step_icon} aria-hidden>
+                        {displaySpinner(4) ? (
+                            <span className={featureSquaresStyles.jupyter_agent_spinner} aria-hidden>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                            </span>
+                        ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        )}
+                    </span>
+                    <span className={featureSquaresStyles.jupyter_agent_step_text}>Looking at graph to verify results</span>
+                </div>
+                <p className={classNames(featureSquaresStyles.jupyter_agent_thought, featureSquaresStyles.jupyter_agent_step_animated, { [featureSquaresStyles.jupyter_agent_step_visible]: displayThought })}>
+                    Graph renders properly and accomplishes user&apos;s request, but is missing axis labels and title.
+                </p>
+                <div className={classNames(featureSquaresStyles.jupyter_agent_step, featureSquaresStyles.jupyter_agent_step_animated, { [featureSquaresStyles.jupyter_agent_step_visible]: displayAddingLabelsStep })}>
+                    <span className={featureSquaresStyles.jupyter_agent_step_icon} aria-hidden>
+                        {displaySpinner(5) ? (
+                            <span className={featureSquaresStyles.jupyter_agent_spinner} aria-hidden>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                            </span>
+                        ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        )}
+                    </span>
+                    <span className={featureSquaresStyles.jupyter_agent_step_text}>Adding chart labels</span>
+                </div>
+            </div>
+            <div className={classNames(featureSquaresStyles.jupyter_agent_chart, featureSquaresStyles.jupyter_agent_chart_animated, { [featureSquaresStyles.jupyter_agent_chart_visible]: displayChart })} aria-hidden>
+                <div className={featureSquaresStyles.jupyter_agent_chart_svg_wrap}>
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none" className={featureSquaresStyles.jupyter_agent_candlestick_svg}>
+                    {(() => {
+                        const n = 72;
+                        const spacing = 100 / n;
+                        const bodyW = 0.6;
+                        const smooth = (arr: number[], w: number) => {
+                            const out: number[] = [];
+                            for (let i = 0; i < arr.length; i++) {
+                                let s = 0; let cnt = 0;
+                                for (let j = Math.max(0, i - w); j <= Math.min(arr.length - 1, i + w); j++) { s += arr[j]; cnt++; }
+                                out.push(s / cnt);
+                            }
+                            return out;
+                        };
+                        // Volatility: high at start, squeezes tight in middle, slightly up at end
+                        const volatility = (t: number) => {
+                            const squeeze = 1 - Math.exp(-((t - 0.35) ** 2) / 0.015);
+                            return 0.15 + 0.85 * (t < 0.2 ? 1 : t < 0.5 ? squeeze : 0.2 + 0.15 * Math.sin((t - 0.5) * 10));
+                        };
+                        // Price: starts high (small y), drops dramatically, then stabilizes low (large y)
+                        const ys: number[] = [];
+                        for (let i = 0; i <= n; i++) {
+                            const t = i / n;
+                            const trend = 8 + 24 * (1 - Math.exp(-t * 3.5));
+                            const noise = volatility(t) * 3 * Math.sin(t * 25 + i * 0.5);
+                            ys.push(Math.max(4, Math.min(36, trend + noise)));
+                        }
+                        const candles = Array.from({ length: n }, (_, i) => {
+                            const t = i / n;
+                            const vol = volatility(t);
+                            const x = (i + 0.5) * spacing;
+                            const open = ys[i];
+                            const close = ys[Math.min(i + 1, n)];
+                            const bodyTop = Math.min(open, close);
+                            const bodyBottom = Math.max(open, close);
+                            const bodyH = Math.max(bodyBottom - bodyTop, 0.3 + vol * 0.8);
+                            const bull = close <= open; // price going down = bearish (red), up = bullish (green)
+                            const wickScale = 0.5 + vol * 2.5;
+                            const wickUp = wickScale * (0.6 + (i % 4) * 0.15);
+                            const wickDn = wickScale * (0.6 + (i % 3) * 0.2);
+                            const high = Math.min(open, close) - wickUp;
+                            const low = Math.max(open, close) + wickDn;
+                            return { x, high, low, bodyTop, bodyBottom, bodyH, bull, vol };
+                        });
+                        // Band: smooth envelope around candles, always encompassing all wicks (y: smaller = higher price).
+                        // Extra margin at start and end so the band is visibly larger there (Bollinger-style).
+                        const rawUpper = candles.map((c) => c.high - c.vol * 1.5);
+                        const rawLower = candles.map((c) => c.low + c.vol * 1.5);
+                        let upperYs = smooth(rawUpper, 4);
+                        let lowerYs = smooth(rawLower, 4);
+                        upperYs = upperYs.map((y, i) => Math.min(y, candles[i].high));
+                        lowerYs = lowerYs.map((y, i) => Math.max(y, candles[i].low));
+                        const edgeMargin = (i: number) => {
+                            const t = i / (n - 1);
+                            const fromStart = Math.exp(-t * 4);
+                            const fromEnd = Math.exp(-(1 - t) * 4);
+                            return 2.2 * (fromStart + fromEnd);
+                        };
+                        upperYs = upperYs.map((y, i) => y - edgeMargin(i));
+                        lowerYs = lowerYs.map((y, i) => y + edgeMargin(i));
+                        const bandPath = `M${candles.map((c, i) => `${c.x},${upperYs[i]}`).join(' L')} L${candles[n - 1].x},${lowerYs[n - 1]} L${[...candles].reverse().map((c, i) => `${c.x},${lowerYs[n - 1 - i]}`).join(' L')} Z`;
+                        // Midline: smoothed price
+                        const midYs = smooth(candles.map((c) => (c.bodyTop + c.bodyBottom) / 2), 5);
+                        const midLinePath = candles.map((c, i) => `${i === 0 ? 'M' : 'L'}${c.x},${midYs[i]}`).join(' ');
+                        return (
+                            <>
+                                <path d={bandPath} className={featureSquaresStyles.candle_bollinger_band} />
+                                <path d={midLinePath} fill="none" stroke="currentColor" strokeWidth="0.4" className={featureSquaresStyles.candle_bollinger_mid} />
+                                {candles.map((c, i) => (
+                                    <g key={i}>
+                                        <line x1={c.x} y1={c.high} x2={c.x} y2={c.low} stroke="currentColor" strokeWidth="0.3" className={featureSquaresStyles.candle_wick} />
+                                        <rect x={c.x - bodyW / 2} y={c.bodyTop} width={bodyW} height={c.bodyH} className={c.bull ? featureSquaresStyles.candle_body_bull : featureSquaresStyles.candle_body_bear} />
+                                    </g>
+                                ))}
+                            </>
+                        );
+                    })()}
+                </svg>
+                </div>
+                {displayChartV2 && (
+                    <div className={featureSquaresStyles.jupyter_agent_chart_labels}>
+                        <span className={featureSquaresStyles.jupyter_agent_chart_title}>Bitcoin — Bollinger Bands</span>
+                        <span className={featureSquaresStyles.jupyter_agent_chart_axis_labels}>
+                            <span>Jan</span><span>Mar</span><span>Jun</span><span>Sep</span><span>Dec</span>
+                        </span>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function SmartDebuggingPreview({ isHovered }: { isHovered: boolean }) {
     return (
         <div className={featureSquaresStyles.smart_debugging_preview}>
@@ -519,7 +852,6 @@ const FEATURES: FeatureCardData[] = [
         id: 'jupyter-agent',
         title: 'Jupyter Agent',
         description: 'ChatGPT in Jupyter. Your personal coding assistant that sees your and data, writes Python with you.',
-        link: { href: 'https://docs.trymito.io/mito-ai/agent', label: 'Learn more about Mito AI →' },
         videoSrc: '/bitcoin-candlestick-chart.mov',
         posterSrc: '/features/ai-chat.png',
         isHero: true,
@@ -542,7 +874,6 @@ const FEATURES: FeatureCardData[] = [
         id: 'spreadsheet-editor',
         title: 'Spreadsheet Editor',
         description: 'Formulas, pivots, and graphs — every edit becomes Python.',
-        link: { href: 'https://docs.trymito.io/how-to/importing-data-to-mito'},
         videoSrc: '/mitosheet-1080-website.mp4',
         posterSrc: '/features/spreadsheet-editor.png',
     },
@@ -572,6 +903,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     const isDatabaseConnections = feature.id === 'database-connections';
     const isSpreadsheetEditor = feature.id === 'spreadsheet-editor';
     const isAppMode = feature.id === 'app-mode';
+    const isJupyterAgent = feature.id === 'jupyter-agent';
 
     useEffect(() => {
         const el = containerRef.current;
@@ -587,7 +919,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     }, []);
 
     const handlePlay = useCallback(() => {
-        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor || isAppMode) {
+        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor || isAppMode || isJupyterAgent) {
             setIsHovered(true);
             return;
         }
@@ -597,17 +929,17 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
             }
             videoRef.current.play().catch(() => {});
         }
-    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor, isAppMode]);
+    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor, isAppMode, isJupyterAgent]);
 
     const handlePause = useCallback(() => {
-        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor || isAppMode) {
+        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor || isAppMode || isJupyterAgent) {
             setIsHovered(false);
             return;
         }
         if (videoRef.current) {
             videoRef.current.pause();
         }
-    }, [isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor, isAppMode]);
+    }, [isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor, isAppMode, isJupyterAgent]);
 
     const cardClassName = classNames(
         featureSquaresStyles.feature_card,
@@ -616,7 +948,8 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
         { [featureSquaresStyles.feature_card_smart_debugging]: isSmartDebugging },
         { [featureSquaresStyles.feature_card_database_connections]: isDatabaseConnections },
         { [featureSquaresStyles.feature_card_spreadsheet_editor]: isSpreadsheetEditor },
-        { [featureSquaresStyles.feature_card_app_mode]: isAppMode }
+        { [featureSquaresStyles.feature_card_app_mode]: isAppMode },
+        { [featureSquaresStyles.feature_card_jupyter_agent]: isJupyterAgent }
     );
 
     return (
@@ -643,7 +976,9 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
                 </a>
             )}
             <div className={featureSquaresStyles.feature_card_image_container}>
-                {isSmartDebugging ? (
+                {isJupyterAgent ? (
+                    <JupyterAgentPreview isHovered={isHovered} />
+                ) : isSmartDebugging ? (
                     <SmartDebuggingPreview isHovered={isHovered} />
                 ) : isChartWizard ? (
                     <ChartWizardPreview isHovered={isHovered} />

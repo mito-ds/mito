@@ -245,6 +245,296 @@
     }
 }
 
+/* Jupyter Agent Preview - dark theme agent conversation mockup */
+.feature_card_jupyter_agent .feature_card_image_container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.jupyter_agent_preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    min-height: 0;
+}
+
+.jupyter_agent_chat_column {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow: hidden;
+}
+
+.jupyter_agent_user_message_wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.jupyter_agent_user_message_label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.jupyter_agent_user_message_icon {
+    display: inline-flex;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.jupyter_agent_user_message {
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 0.5rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.jupyter_agent_cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 1px;
+    background: rgba(255, 255, 255, 0.9);
+    vertical-align: text-bottom;
+    animation: jupyter_agent_cursor_blink 0.8s step-end infinite;
+}
+
+@keyframes jupyter_agent_cursor_blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.jupyter_agent_spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    animation: jupyter_agent_spin 0.8s linear infinite;
+}
+
+.jupyter_agent_spinner svg {
+    stroke-dasharray: 48;
+    stroke-dashoffset: 24;
+    stroke: currentColor;
+}
+
+@keyframes jupyter_agent_spin {
+    to { transform: rotate(360deg); }
+}
+
+.jupyter_agent_step_animated {
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.jupyter_agent_step_animated.jupyter_agent_step_visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.jupyter_agent_chart_animated {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.jupyter_agent_chart_animated.jupyter_agent_chart_visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.jupyter_agent_step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.375rem;
+}
+
+/* Expandable step: querying box that grows to contain error/fix sub-steps */
+.jupyter_agent_step_expandable {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.jupyter_agent_step_row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.jupyter_agent_step_inner {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+
+.jupyter_agent_step_inner.jupyter_agent_step_inner_expanded {
+    grid-template-rows: 1fr;
+}
+
+.jupyter_agent_step_inner_content {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding-top: 0.35rem;
+}
+
+.jupyter_agent_step_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    flex-shrink: 0;
+}
+
+.jupyter_agent_step_text {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.jupyter_agent_step_group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.jupyter_agent_sub_step {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.15rem 0 0.15rem 1.25rem;
+    background: none;
+    border: none;
+}
+
+.jupyter_agent_sub_step_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.jupyter_agent_sub_step_text {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.7rem;
+    font-weight: 400;
+}
+
+.jupyter_agent_thought {
+    margin: 0;
+    padding: 0.25rem 0 0 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.68rem;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.35;
+}
+
+.jupyter_agent_chart {
+    flex: 1;
+    min-width: 0;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: stretch;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    padding-left: 1rem;
+    position: relative;
+}
+
+.jupyter_agent_chart_svg_wrap {
+    position: absolute;
+    inset: 0;
+}
+
+.jupyter_agent_chart_labels {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.15rem 0.5rem 0.2rem;
+    pointer-events: none;
+}
+
+.jupyter_agent_candlestick_svg {
+    width: 100%;
+    height: 100%;
+    min-height: 2.5rem;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.jupyter_agent_candlestick_svg .candle_bollinger_band {
+    fill: rgba(59, 130, 246, 0.12);
+    stroke: none;
+}
+
+.jupyter_agent_candlestick_svg .candle_bollinger_mid {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.jupyter_agent_candlestick_svg .candle_wick {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.jupyter_agent_candlestick_svg .candle_body_bull {
+    fill: #22c55e;
+    stroke: none;
+}
+
+.jupyter_agent_candlestick_svg .candle_body_bear {
+    fill: #ef4444;
+    stroke: none;
+}
+
+.jupyter_agent_chart_title {
+    font-size: 0.5rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.32);
+    text-align: center;
+    line-height: 1.2;
+}
+
+.jupyter_agent_chart_axis_labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.45rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.32);
+}
+
 /* Smart Debugging Preview - Bug Squashing animation */
 .feature_card_smart_debugging .feature_card_image_container {
     display: flex;
