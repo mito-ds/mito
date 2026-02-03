@@ -94,6 +94,225 @@
     border-radius: 0.5rem;
 }
 
+/* Chart wizard: graph with axes + sliders, no outer frame */
+.feature_card_chart_wizard .feature_card_image_container {
+    display: flex;
+    align-items: stretch;
+}
+
+.chart_wizard_preview {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    position: relative;
+    align-items: stretch;
+}
+
+.chart_wizard_graph {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    padding: 0.5rem 0 0.5rem 0;
+    position: relative;
+}
+
+.chart_wizard_axes {
+    position: absolute;
+    inset: 0.5rem 0 0.5rem 0.5rem;
+    border-left: 1.5px solid var(--color-text-primary-alpha-25);
+    border-bottom: 1.5px solid var(--color-text-primary-alpha-25);
+    pointer-events: none;
+}
+
+.chart_wizard_svg {
+    width: 100%;
+    height: 100%;
+    min-height: 60px;
+    position: relative;
+    z-index: 1;
+}
+
+.chart_wizard_area {
+    fill: rgba(155, 126, 217, 0.12);
+    transition: fill 0.3s ease 0.3s;
+}
+
+.chart_wizard_area_active {
+    fill: rgba(155, 126, 217, 0.3);
+}
+
+.chart_wizard_line {
+    stroke: #9a97a0;
+    transition: stroke 0.3s ease 0.3s;
+}
+
+.chart_wizard_line_active {
+    stroke: #9b7ed9;
+}
+
+.chart_wizard_sliders {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    width: 72px;
+    flex-shrink: 0;
+}
+
+.chart_wizard_slider {
+    width: 100%;
+}
+
+.chart_wizard_slider_track {
+    height: 6px;
+    background: #c4c1c8;
+    border-radius: 999px;
+    position: relative;
+    overflow: visible;
+    transition: background 0.25s ease 0.35s;
+}
+
+.chart_wizard_slider_track_active {
+    background: #c9b8f0;
+}
+
+.chart_wizard_slider_thumb {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background: #7a7680;
+    border-radius: 50%;
+    /* Delay synced with cursor animation (starts at 15% of 0.8s = 0.12s) */
+    transition: left 0.44s cubic-bezier(0.25, 0.1, 0.25, 1) 0.12s,
+                background 0.25s ease 0.35s;
+}
+
+.chart_wizard_slider_thumb_active {
+    left: calc(100% - 14px);
+    background: #7c5cc7;
+}
+
+.chart_wizard_cursor {
+    position: absolute;
+    top: 45%;
+    /* Position near the first slider thumb's starting position */
+    right: calc(50px);
+    transform: translateY(-50%) translateX(-20px);
+    color: #4a4554;
+    pointer-events: none;
+    /* Play once and hold final state */
+    animation: chartWizardCursorDrag 0.8s ease-out forwards;
+}
+
+.chart_wizard_cursor_icon {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+@keyframes chartWizardCursorDrag {
+    0% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-20px);
+    }
+    15% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(-20px);
+    }
+    70% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(38px);
+    }
+    85% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(38px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(38px);
+    }
+}
+
+/* Smart Debugging Preview - Bug Squashing animation */
+.feature_card_smart_debugging .feature_card_image_container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.smart_debugging_preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+    padding: 1rem;
+}
+
+.smart_debugging_container {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+}
+
+.smart_debugging_error {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1.25rem 1.5rem;
+    background: #fce8e8;
+    border-radius: 0.75rem;
+    width: 100%;
+}
+
+.smart_debugging_error_text {
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #e53935;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.smart_debugging_fix {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1.25rem 1.5rem;
+    background: #e8f5e9;
+    border-radius: 0.75rem;
+    transform-origin: top center;
+    transform: rotateX(-90deg) translateZ(-20px);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.3s ease;
+    z-index: 1;
+}
+
+.smart_debugging_fix_active {
+    transform: rotateX(0deg) translateZ(0px);
+    opacity: 1;
+}
+
+.smart_debugging_fix_text {
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #2e7d32;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
 /* Hero card: size video to fit container (no crop), preserve aspect ratio */
 .feature_card_hero .feature_card_image_container video {
     object-fit: contain;

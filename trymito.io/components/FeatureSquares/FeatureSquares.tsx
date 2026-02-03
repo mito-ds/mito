@@ -18,6 +18,123 @@ interface FeatureCardData {
     isHero?: boolean;
 }
 
+/* Realistic line graph points with upward trend and volatility */
+const LINE_POINTS = '0,78 3,76 6,80 9,75 12,77 15,72 18,74 21,70 24,73 27,68 30,72 33,65 36,70 39,62 42,58 45,65 48,55 51,60 54,50 57,58 60,52 63,48 66,55 69,45 72,50 75,42 78,48 81,38 84,45 87,35 90,40 93,30 96,35 100,25';
+/* Area fill polygon: same points + bottom corners */
+const AREA_POINTS = LINE_POINTS + ' 100,100 0,100';
+
+function SmartDebuggingPreview({ isHovered }: { isHovered: boolean }) {
+    return (
+        <div className={featureSquaresStyles.smart_debugging_preview}>
+            <div className={featureSquaresStyles.smart_debugging_container}>
+                {/* Error message - always visible behind */}
+                <div className={featureSquaresStyles.smart_debugging_error}>
+                    <span className={featureSquaresStyles.smart_debugging_error_text}>
+                        NameError: name
+                    </span>
+                    <span className={featureSquaresStyles.smart_debugging_error_text}>
+                        &apos;pandas&apos; is not defined
+                    </span>
+                </div>
+                {/* Correct code - swings down and slides in front on hover */}
+                <div
+                    className={classNames(
+                        featureSquaresStyles.smart_debugging_fix,
+                        { [featureSquaresStyles.smart_debugging_fix_active]: isHovered }
+                    )}
+                >
+                    <span className={featureSquaresStyles.smart_debugging_fix_text}>
+                        import pandas as pd
+                    </span>
+                    <span className={featureSquaresStyles.smart_debugging_fix_text}>
+                        df = pd.read_csv(&apos;data.csv&apos;)
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ChartWizardPreview({ isHovered }: { isHovered: boolean }) {
+    return (
+        <div className={featureSquaresStyles.chart_wizard_preview}>
+            <div className={featureSquaresStyles.chart_wizard_graph}>
+                {/* Axes */}
+                <div className={featureSquaresStyles.chart_wizard_axes} aria-hidden />
+                <svg
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                    className={featureSquaresStyles.chart_wizard_svg}
+                    aria-hidden
+                >
+                    {/* Area fill under the line */}
+                    <polygon
+                        points={AREA_POINTS}
+                        className={classNames(
+                            featureSquaresStyles.chart_wizard_area,
+                            { [featureSquaresStyles.chart_wizard_area_active]: isHovered }
+                        )}
+                    />
+                    {/* Line stroke */}
+                    <polyline
+                        points={LINE_POINTS}
+                        className={classNames(
+                            featureSquaresStyles.chart_wizard_line,
+                            { [featureSquaresStyles.chart_wizard_line_active]: isHovered }
+                        )}
+                        fill="none"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    />
+                </svg>
+            </div>
+            <div className={featureSquaresStyles.chart_wizard_sliders}>
+                <div className={featureSquaresStyles.chart_wizard_slider}>
+                    <div
+                        className={classNames(
+                            featureSquaresStyles.chart_wizard_slider_track,
+                            { [featureSquaresStyles.chart_wizard_slider_track_active]: isHovered }
+                        )}
+                    >
+                        <div
+                            className={classNames(
+                                featureSquaresStyles.chart_wizard_slider_thumb,
+                                { [featureSquaresStyles.chart_wizard_slider_thumb_active]: isHovered }
+                            )}
+                        />
+                    </div>
+                </div>
+                <div className={featureSquaresStyles.chart_wizard_slider}>
+                    <div className={featureSquaresStyles.chart_wizard_slider_track}>
+                        <div className={featureSquaresStyles.chart_wizard_slider_thumb} />
+                    </div>
+                </div>
+                <div className={featureSquaresStyles.chart_wizard_slider}>
+                    <div className={featureSquaresStyles.chart_wizard_slider_track}>
+                        <div className={featureSquaresStyles.chart_wizard_slider_thumb} />
+                    </div>
+                </div>
+            </div>
+            {isHovered && (
+                <div className={featureSquaresStyles.chart_wizard_cursor} aria-hidden>
+                    <svg
+                        viewBox="0 0 24 24"
+                        width={20}
+                        height={20}
+                        className={featureSquaresStyles.chart_wizard_cursor_icon}
+                    >
+                        <path
+                            fill="currentColor"
+                            d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L6.35 2.86a.5.5 0 0 0-.85.35Z"
+                        />
+                    </svg>
+                </div>
+            )}
+        </div>
+    );
+}
+
 const FEATURES: FeatureCardData[] = [
     {
         id: 'jupyter-agent',
@@ -70,6 +187,9 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [isInView, setIsInView] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
+    const isChartWizard = feature.id === 'chart-wizard';
+    const isSmartDebugging = feature.id === 'smart-debugging';
 
     useEffect(() => {
         const el = containerRef.current;
@@ -85,23 +205,33 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     }, []);
 
     const handlePlay = useCallback(() => {
+        if (isChartWizard || isSmartDebugging) {
+            setIsHovered(true);
+            return;
+        }
         if (videoRef.current && feature.videoSrc) {
             if (feature.isHero) {
                 videoRef.current.playbackRate = 2;
             }
             videoRef.current.play().catch(() => {});
         }
-    }, [feature.videoSrc, feature.isHero]);
+    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging]);
 
     const handlePause = useCallback(() => {
+        if (isChartWizard || isSmartDebugging) {
+            setIsHovered(false);
+            return;
+        }
         if (videoRef.current) {
             videoRef.current.pause();
         }
-    }, []);
+    }, [isChartWizard, isSmartDebugging]);
 
     const cardClassName = classNames(
         featureSquaresStyles.feature_card,
-        { [featureSquaresStyles.feature_card_hero]: feature.isHero }
+        { [featureSquaresStyles.feature_card_hero]: feature.isHero },
+        { [featureSquaresStyles.feature_card_chart_wizard]: isChartWizard },
+        { [featureSquaresStyles.feature_card_smart_debugging]: isSmartDebugging }
     );
 
     return (
@@ -128,7 +258,11 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
                 </a>
             )}
             <div className={featureSquaresStyles.feature_card_image_container}>
-                {feature.videoSrc ? (
+                {isSmartDebugging ? (
+                    <SmartDebuggingPreview isHovered={isHovered} />
+                ) : isChartWizard ? (
+                    <ChartWizardPreview isHovered={isHovered} />
+                ) : feature.videoSrc ? (
                     <>
                         {!isInView && feature.posterSrc ? (
                             <img src={feature.posterSrc} alt="" />
