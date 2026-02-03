@@ -135,6 +135,121 @@ function ChartWizardPreview({ isHovered }: { isHovered: boolean }) {
     );
 }
 
+function DatabaseConnectionsPreview({ isHovered }: { isHovered: boolean }) {
+    /* Database node positions (x coordinates as percentages) */
+    const dbNodes = [8, 22, 36, 50, 64, 78, 92];
+    /* Multiple particles per line for continuous flow */
+    const particlesPerLine = 3;
+
+    return (
+        <div className={featureSquaresStyles.db_connections_preview}>
+            {/* UI Window representation */}
+            <div className={featureSquaresStyles.db_connections_window}>
+                <div className={featureSquaresStyles.db_connections_window_header}>
+                    <div className={featureSquaresStyles.db_connections_window_dots}>
+                        <span />
+                        <span />
+                        <span />
+                    </div>
+                </div>
+                <div className={featureSquaresStyles.db_connections_window_content}>
+                    {/* Table rows */}
+                    <div className={featureSquaresStyles.db_connections_row}>
+                        <span className={featureSquaresStyles.db_connections_cell_short} />
+                        <span className={featureSquaresStyles.db_connections_cell_long} />
+                        <span className={featureSquaresStyles.db_connections_cell_medium} />
+                    </div>
+                    <div className={featureSquaresStyles.db_connections_row}>
+                        <span className={featureSquaresStyles.db_connections_cell_short} />
+                        <span className={featureSquaresStyles.db_connections_cell_medium} />
+                        <span className={featureSquaresStyles.db_connections_cell_long} />
+                    </div>
+                    <div className={featureSquaresStyles.db_connections_row}>
+                        <span className={featureSquaresStyles.db_connections_cell_medium} />
+                        <span className={featureSquaresStyles.db_connections_cell_short} />
+                        <span className={featureSquaresStyles.db_connections_cell_long} />
+                    </div>
+                </div>
+            </div>
+
+            {/* SVG Connection lines with animated particles */}
+            <svg
+                viewBox="0 0 100 50"
+                preserveAspectRatio="none"
+                className={featureSquaresStyles.db_connections_svg}
+                aria-hidden
+            >
+                <defs>
+                    {/* Define paths for motion */}
+                    {dbNodes.map((x, i) => (
+                        <path
+                            key={`path-${i}`}
+                            id={`dbPath${i}`}
+                            d={`M ${x} 50 Q 50 25, 50 0`}
+                            fill="none"
+                        />
+                    ))}
+                </defs>
+                {/* Static connection lines */}
+                {dbNodes.map((x, i) => (
+                    <path
+                        key={i}
+                        d={`M 50 0 Q 50 25, ${x} 50`}
+                        className={classNames(
+                            featureSquaresStyles.db_connections_line,
+                            { [featureSquaresStyles.db_connections_line_active]: isHovered }
+                        )}
+                        fill="none"
+                        strokeWidth="0.8"
+                    />
+                ))}
+                {/* Animated particles that flow up the paths */}
+                {isHovered && dbNodes.map((_, i) => (
+                    Array.from({ length: particlesPerLine }).map((__, p) => (
+                        <circle
+                            key={`particle-${i}-${p}`}
+                            r="1.5"
+                            className={featureSquaresStyles.db_connections_particle}
+                            style={{ animationDelay: `${i * 0.08 + p * 0.5}s` }}
+                        >
+                            <animateMotion
+                                dur="1.2s"
+                                repeatCount="indefinite"
+                                begin={`${i * 0.08 + p * 0.4}s`}
+                            >
+                                <mpath href={`#dbPath${i}`} />
+                            </animateMotion>
+                        </circle>
+                    ))
+                ))}
+            </svg>
+
+            {/* Database nodes */}
+            <div className={featureSquaresStyles.db_connections_nodes}>
+                {dbNodes.map((x, i) => (
+                    <div
+                        key={i}
+                        className={classNames(
+                            featureSquaresStyles.db_connections_node,
+                            { [featureSquaresStyles.db_connections_node_active]: isHovered }
+                        )}
+                        style={{
+                            left: `${x}%`,
+                        }}
+                    >
+                        <span
+                            className={classNames(
+                                featureSquaresStyles.db_connections_node_dot,
+                                { [featureSquaresStyles.db_connections_node_dot_active]: isHovered }
+                            )}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 const FEATURES: FeatureCardData[] = [
     {
         id: 'jupyter-agent',
@@ -168,9 +283,9 @@ const FEATURES: FeatureCardData[] = [
         posterSrc: '/features/spreadsheet-editor.png',
     },
     {
-        id: 'mito-desktop',
-        title: 'Mito Desktop App',
-        description: 'Standalone desktop app. No Jupyter required.',
+        id: 'database-connections',
+        title: 'Database Connections',
+        description: 'Connect to your databases and run SQL queries.',
         videoSrc: '/mitosheet-1080-website.mp4',
         posterSrc: '/Mito_in_jupyter.png',
     },
@@ -190,6 +305,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     const [isHovered, setIsHovered] = useState(false);
     const isChartWizard = feature.id === 'chart-wizard';
     const isSmartDebugging = feature.id === 'smart-debugging';
+    const isDatabaseConnections = feature.id === 'database-connections';
 
     useEffect(() => {
         const el = containerRef.current;
@@ -205,7 +321,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     }, []);
 
     const handlePlay = useCallback(() => {
-        if (isChartWizard || isSmartDebugging) {
+        if (isChartWizard || isSmartDebugging || isDatabaseConnections) {
             setIsHovered(true);
             return;
         }
@@ -215,23 +331,24 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
             }
             videoRef.current.play().catch(() => {});
         }
-    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging]);
+    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging, isDatabaseConnections]);
 
     const handlePause = useCallback(() => {
-        if (isChartWizard || isSmartDebugging) {
+        if (isChartWizard || isSmartDebugging || isDatabaseConnections) {
             setIsHovered(false);
             return;
         }
         if (videoRef.current) {
             videoRef.current.pause();
         }
-    }, [isChartWizard, isSmartDebugging]);
+    }, [isChartWizard, isSmartDebugging, isDatabaseConnections]);
 
     const cardClassName = classNames(
         featureSquaresStyles.feature_card,
         { [featureSquaresStyles.feature_card_hero]: feature.isHero },
         { [featureSquaresStyles.feature_card_chart_wizard]: isChartWizard },
-        { [featureSquaresStyles.feature_card_smart_debugging]: isSmartDebugging }
+        { [featureSquaresStyles.feature_card_smart_debugging]: isSmartDebugging },
+        { [featureSquaresStyles.feature_card_database_connections]: isDatabaseConnections }
     );
 
     return (
@@ -262,6 +379,8 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
                     <SmartDebuggingPreview isHovered={isHovered} />
                 ) : isChartWizard ? (
                     <ChartWizardPreview isHovered={isHovered} />
+                ) : isDatabaseConnections ? (
+                    <DatabaseConnectionsPreview isHovered={isHovered} />
                 ) : feature.videoSrc ? (
                     <>
                         {!isInView && feature.posterSrc ? (
