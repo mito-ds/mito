@@ -11,8 +11,6 @@ import { exportChartImage } from './utils/chartExport';
 import { convertChartCode, logEvent } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting } from '../../utils/strings';
 import LoadingDots from '../../components/LoadingDots';
-import TextAndIconButton from '../../components/TextAndIconButton';
-import DownloadIcon from '../../icons/DownloadIcon';
 import AddFieldButton from './AddFieldButton';
 import {
     BooleanInputRow,
@@ -337,15 +335,14 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                     />
                     <div className="chart-wizard-export-section">
                         <h3 className="chart-wizard-section-heading">Export</h3>
-                        <TextAndIconButton
-                            icon={DownloadIcon}
-                            text="Export PNG"
+                        <button
+                            className="button-base button-purple add-field-button"
+                            type="button"
                             title="Save chart image to file"
                             onClick={handleExportChart}
-                            variant="purple"
-                            width="fit-contents"
-                            iconPosition="left"
-                        />
+                        >
+                            Export image
+                        </button>
                     </div>
                 </div>
             ) : (
