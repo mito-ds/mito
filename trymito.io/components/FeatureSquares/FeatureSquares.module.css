@@ -98,6 +98,12 @@
 .feature_card_chart_wizard .feature_card_image_container {
     display: flex;
     align-items: stretch;
+    /* Extend to the bottom-left corner of the card */
+    margin-left: -1rem;
+    margin-bottom: -1rem;
+    padding-left: 0;
+    padding-bottom: 0;
+    border-radius: 0;
 }
 
 .chart_wizard_preview {
@@ -116,13 +122,13 @@
     display: flex;
     align-items: stretch;
     justify-content: center;
-    padding: 0.5rem 0 0.5rem 0;
+    padding: 0;
     position: relative;
 }
 
 .chart_wizard_axes {
     position: absolute;
-    inset: 0.5rem 0 0.5rem 0.5rem;
+    inset: 0;
     border-left: 1.5px solid var(--color-text-primary-alpha-25);
     border-bottom: 1.5px solid var(--color-text-primary-alpha-25);
     pointer-events: none;
@@ -137,12 +143,12 @@
 }
 
 .chart_wizard_area {
-    fill: rgba(155, 126, 217, 0.12);
+    fill: transparent;
     transition: fill 0.3s ease 0.3s;
 }
 
 .chart_wizard_area_active {
-    fill: rgba(155, 126, 217, 0.3);
+    fill: rgba(155, 126, 217, 0.25);
 }
 
 .chart_wizard_line {
@@ -157,7 +163,8 @@
 .chart_wizard_sliders {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-top: 1rem;
     gap: 1rem;
     width: 72px;
     flex-shrink: 0;
@@ -201,9 +208,9 @@
 
 .chart_wizard_cursor {
     position: absolute;
-    top: 45%;
+    top: 15%;
     /* Position near the first slider thumb's starting position */
-    right: calc(50px);
+    right: calc(40px);
     transform: translateY(-50%) translateX(-20px);
     color: #4a4554;
     pointer-events: none;

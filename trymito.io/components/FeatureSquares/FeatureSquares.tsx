@@ -18,8 +18,8 @@ interface FeatureCardData {
     isHero?: boolean;
 }
 
-/* Realistic line graph points with upward trend and volatility */
-const LINE_POINTS = '0,78 3,76 6,80 9,75 12,77 15,72 18,74 21,70 24,73 27,68 30,72 33,65 36,70 39,62 42,58 45,65 48,55 51,60 54,50 57,58 60,52 63,48 66,55 69,45 72,50 75,42 78,48 81,38 84,45 87,35 90,40 93,30 96,35 100,25';
+/* Realistic line graph points with upward trend and volatility - starts at bottom left corner */
+const LINE_POINTS = '0,100 3,96 6,98 9,93 12,95 15,90 18,92 21,88 24,91 27,86 30,90 33,83 36,88 39,80 42,76 45,83 48,73 51,78 54,68 57,76 60,70 63,66 66,73 69,63 72,68 75,60 78,66 81,56 84,63 87,53 90,58 93,48 96,53 100,43';
 /* Area fill polygon: same points + bottom corners */
 const AREA_POINTS = LINE_POINTS + ' 100,100 0,100';
 
