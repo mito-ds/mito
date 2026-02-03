@@ -487,6 +487,13 @@
 .feature_card_spreadsheet_editor .feature_card_image_container {
     display: flex;
     align-items: stretch;
+    /* Extend to all edges of the card */
+    margin-left: -1rem;
+    margin-right: -1rem;
+    margin-bottom: -1rem;
+    padding: 0 !important;
+    border-radius: 0;
+    overflow: visible;
 }
 
 .spreadsheet_preview {
@@ -494,17 +501,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: calc(100% + 2rem);
+    margin-left: -1rem;
+    margin-right: -1rem;
     height: 100%;
     gap: 6px;
-    padding: 0.5rem;
+    padding: 0;
+    overflow: visible;
 }
 
 .spreadsheet_container {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    max-width: 280px;
+    /* Extend beyond the visible area to cut off cells on edges */
+    width: calc(100% + 2rem);
+    margin-left: -1rem;
+    margin-right: -1rem;
 }
 
 .spreadsheet_formula_bar {
@@ -514,7 +526,9 @@
     background: rgba(40, 38, 48, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-bottom: none;
-    border-radius: 6px 6px 0 0;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
     padding: 4px 8px;
     min-height: 24px;
     transition: all 0.3s ease;
@@ -526,7 +540,7 @@
 }
 
 .spreadsheet_formula_label {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     font-style: italic;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.4);
@@ -534,7 +548,7 @@
 
 .spreadsheet_formula_text {
     font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
-    font-size: 0.65rem;
+    font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.5);
     transition: color 0.3s ease;
 }
@@ -548,7 +562,9 @@
     flex-direction: column;
     background: rgba(30, 28, 35, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0 0 6px 6px;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
     overflow: hidden;
 }
 
@@ -560,8 +576,8 @@
 
 .spreadsheet_cell_header {
     flex: 1;
-    padding: 4px 6px;
-    font-size: 0.6rem;
+    padding: 6px 8px;
+    font-size: 0.8rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.7);
     text-align: center;
@@ -588,8 +604,8 @@
 
 .spreadsheet_cell {
     flex: 1;
-    padding: 4px 6px;
-    font-size: 0.55rem;
+    padding: 6px 8px;
+    font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.6);
     text-align: center;
     border-right: 1px solid rgba(255, 255, 255, 0.05);
@@ -627,9 +643,9 @@
     background: rgba(30, 28, 35, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
-    padding: 8px 12px;
+    padding: 10px 16px;
     font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
-    font-size: 0.6rem;
+    font-size: 0.8rem;
     white-space: nowrap;
     transition: all 0.3s ease;
 }

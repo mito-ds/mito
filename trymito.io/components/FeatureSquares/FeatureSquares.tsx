@@ -251,12 +251,12 @@ function DatabaseConnectionsPreview({ isHovered }: { isHovered: boolean }) {
 }
 
 function SpreadsheetEditorPreview({ isHovered }: { isHovered: boolean }) {
-    /* Spreadsheet data - header + 3 rows: Revenue, Cost, Profit */
-    const headers = ['Revenue', 'Cost', 'Profit'];
+    /* Spreadsheet data - header + 3 rows with extra columns for edge cutoff effect */
+    const headers = ['ID', 'Revenue', 'Cost', 'Profit', 'Margin', 'YoY'];
     const rows = [
-        ['$5,000', '$3,200', '$1,800'],
-        ['$4,200', '$2,800', '$1,400'],
-        ['$6,100', '$3,900', '$2,200'],
+        ['001', '$5,000', '$3,200', '$1,800', '36%', '+12%'],
+        ['002', '$4,200', '$2,800', '$1,400', '33%', '+8%'],
+        ['003', '$6,100', '$3,900', '$2,200', '36%', '+15%'],
     ];
 
     return (
@@ -270,7 +270,7 @@ function SpreadsheetEditorPreview({ isHovered }: { isHovered: boolean }) {
                         { [featureSquaresStyles.spreadsheet_formula_bar_active]: isHovered }
                     )}
                 >
-                    <span className={featureSquaresStyles.spreadsheet_formula_label}>fx</span>
+                    <span className={featureSquaresStyles.spreadsheet_formula_label}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fx</span>
                     <span
                         className={classNames(
                             featureSquaresStyles.spreadsheet_formula_text,
@@ -290,7 +290,7 @@ function SpreadsheetEditorPreview({ isHovered }: { isHovered: boolean }) {
                                 key={i}
                                 className={classNames(
                                     featureSquaresStyles.spreadsheet_cell_header,
-                                    { [featureSquaresStyles.spreadsheet_cell_header_highlight]: isHovered && i === 2 }
+                                    { [featureSquaresStyles.spreadsheet_cell_header_highlight]: isHovered && i === 3 }
                                 )}
                             >
                                 {h}
@@ -307,7 +307,7 @@ function SpreadsheetEditorPreview({ isHovered }: { isHovered: boolean }) {
                                         featureSquaresStyles.spreadsheet_cell,
                                         {
                                             [featureSquaresStyles.spreadsheet_cell_highlight]:
-                                                isHovered && colIdx === 2,
+                                                isHovered && colIdx === 3,
                                         }
                                     )}
                                 >
@@ -383,7 +383,7 @@ const FEATURES: FeatureCardData[] = [
         id: 'spreadsheet-editor',
         title: 'Spreadsheet Editor',
         description: 'Formulas, pivots, and graphs — every edit becomes Python.',
-        link: { href: 'https://docs.trymito.io/how-to/importing-data-to-mito', label: 'View 100+ transformations →' },
+        link: { href: 'https://docs.trymito.io/how-to/importing-data-to-mito'},
         videoSrc: '/mitosheet-1080-website.mp4',
         posterSrc: '/features/spreadsheet-editor.png',
     },
