@@ -18,10 +18,10 @@ interface FeatureCardData {
     isHero?: boolean;
 }
 
-/* Realistic line graph points with upward trend and volatility - starts at bottom left corner */
-const LINE_POINTS = '0,100 3,96 6,98 9,93 12,95 15,90 18,92 21,88 24,91 27,86 30,90 33,83 36,88 39,80 42,76 45,83 48,73 51,78 54,68 57,76 60,70 63,66 66,73 69,63 72,68 75,60 78,66 81,56 84,63 87,53 90,58 93,48 96,53 100,43';
-/* Area fill polygon: same points + bottom corners */
-const AREA_POINTS = LINE_POINTS + ' 100,100 0,100';
+/* Smooth line graph: upward trend with gentle curves (viewBox 0 0 100 100) */
+const CHART_LINE_PATH =
+    'M 0 88 C 18 88 22 72 38 68 C 54 64 58 76 72 58 C 84 42 90 32 100 22';
+const CHART_AREA_PATH = CHART_LINE_PATH + ' L 100 100 L 0 100 Z';
 
 const USER_MESSAGE = 'Create a candlestick chart of bitcoin transaction data';
 const TYPEWRITER_MS = 35;
@@ -356,33 +356,139 @@ function JupyterAgentPreview({ isHovered }: { isHovered: boolean }) {
     );
 }
 
+const SMART_DEBUG_PHASE = {
+    IDLE: 0,
+    MOUSE_MOVE: 1,
+    CLICK: 2,
+    CODE_REWRITE: 3,
+    LOADING: 4,
+    RESOLVED: 5,
+} as const;
+
 function SmartDebuggingPreview({ isHovered }: { isHovered: boolean }) {
+    const [phase, setPhase] = useState(0);
+
+    // Advance through phases when hovered; reset when not
+    useEffect(() => {
+        if (!isHovered) {
+            setPhase(SMART_DEBUG_PHASE.IDLE);
+            return;
+        }
+        const t1 = setTimeout(() => setPhase(SMART_DEBUG_PHASE.MOUSE_MOVE), 350);
+        const t2 = setTimeout(() => setPhase(SMART_DEBUG_PHASE.CLICK), 700);
+        const t3 = setTimeout(() => setPhase(SMART_DEBUG_PHASE.CODE_REWRITE), 950);
+        const t4 = setTimeout(() => setPhase(SMART_DEBUG_PHASE.LOADING), 1100);
+        const t5 = setTimeout(() => setPhase(SMART_DEBUG_PHASE.RESOLVED), 2600);
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+            clearTimeout(t3);
+            clearTimeout(t4);
+            clearTimeout(t5);
+        };
+    }, [isHovered]);
+
+    const showErrorLine = phase < SMART_DEBUG_PHASE.CODE_REWRITE;
+    const showFixedLine = phase >= SMART_DEBUG_PHASE.CODE_REWRITE;
+    const showMouse = phase >= SMART_DEBUG_PHASE.MOUSE_MOVE;
+    const showClick = phase >= SMART_DEBUG_PHASE.CLICK;
+    const buttonLoading = phase === SMART_DEBUG_PHASE.LOADING;
+    const buttonResolved = phase >= SMART_DEBUG_PHASE.RESOLVED;
+
     return (
         <div className={featureSquaresStyles.smart_debugging_preview}>
             <div className={featureSquaresStyles.smart_debugging_container}>
-                {/* Error message - always visible behind */}
-                <div className={featureSquaresStyles.smart_debugging_error}>
-                    <span className={featureSquaresStyles.smart_debugging_error_text}>
-                        NameError: name
-                    </span>
-                    <span className={featureSquaresStyles.smart_debugging_error_text}>
-                        &apos;pandas&apos; is not defined
-                    </span>
+                {/* Editor window with header */}
+                <div className={featureSquaresStyles.smart_debugging_window}>
+                    <div className={featureSquaresStyles.smart_debugging_window_header}>
+                        <div className={featureSquaresStyles.smart_debugging_window_dots}>
+                            <span /><span /><span />
+                        </div>
+                        <span className={featureSquaresStyles.smart_debugging_window_title}>analysis.ipynb</span>
+                    </div>
+                    <div className={featureSquaresStyles.smart_debugging_code_block}>
+                        <div className={featureSquaresStyles.smart_debugging_code_line}>
+                            <span className={featureSquaresStyles.smart_debugging_line_number}>1</span>
+                            <code>import pandas as pd</code>
+                        </div>
+                        <div className={featureSquaresStyles.smart_debugging_code_line}>
+                            <span className={featureSquaresStyles.smart_debugging_line_number}>2</span>
+                            {showErrorLine && (
+                                <span className={featureSquaresStyles.smart_debugging_line_with_error}>
+                                    <code>df = pandas.read_csv(&apos;cars.csv&apos;)</code>
+                                    <span className={featureSquaresStyles.smart_debugging_squiggly} aria-hidden />
+                                </span>
+                            )}
+                            {showFixedLine && (
+                                <code className={featureSquaresStyles.smart_debugging_line_fixed}>
+                                    df = pd.read_csv(&apos;cars.csv&apos;)
+                                </code>
+                            )}
+                        </div>
+                        <div className={featureSquaresStyles.smart_debugging_code_line}>
+                            <span className={featureSquaresStyles.smart_debugging_line_number}>3</span>
+                            <code>df = df[df[&apos;type&apos;] == &apos;CRV&apos;]</code>
+                        </div>
+                        <div className={featureSquaresStyles.smart_debugging_code_line}>
+                            <span className={featureSquaresStyles.smart_debugging_line_number}>4</span>
+                            <code>df.head()</code>
+                        </div>
+                    </div>
                 </div>
-                {/* Correct code - swings down and slides in front on hover */}
-                <div
-                    className={classNames(
-                        featureSquaresStyles.smart_debugging_fix,
-                        { [featureSquaresStyles.smart_debugging_fix_active]: isHovered }
-                    )}
-                >
-                    <span className={featureSquaresStyles.smart_debugging_fix_text}>
-                        import pandas as pd
-                    </span>
-                    <span className={featureSquaresStyles.smart_debugging_fix_text}>
-                        df = pd.read_csv(&apos;data.csv&apos;)
-                    </span>
+                {/* Fix Error button at bottom */}
+                <div className={featureSquaresStyles.smart_debugging_button_wrapper}>
+                    <button
+                        type="button"
+                        className={classNames(
+                            featureSquaresStyles.smart_debugging_button,
+                            { [featureSquaresStyles.smart_debugging_button_clicked]: showClick && !buttonResolved },
+                            { [featureSquaresStyles.smart_debugging_button_loading]: buttonLoading },
+                            { [featureSquaresStyles.smart_debugging_button_resolved]: buttonResolved }
+                        )}
+                        aria-label={buttonResolved ? 'Error resolved' : 'Fix error'}
+                    >
+                        {buttonLoading && (
+                            <span className={featureSquaresStyles.smart_debugging_button_spinner} aria-hidden>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                </svg>
+                            </span>
+                        )}
+                        {!buttonLoading && !buttonResolved && 'Fix Error'}
+                        {buttonResolved && (
+                            <>
+                                <span className={featureSquaresStyles.smart_debugging_button_check} aria-hidden>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                </span>
+                                Error Resolved
+                            </>
+                        )}
+                    </button>
                 </div>
+                {/* Cursor (same design as Chart Wizard) that moves to button and clicks */}
+                {showMouse && (
+                    <div
+                        className={classNames(
+                            featureSquaresStyles.smart_debugging_cursor,
+                            { [featureSquaresStyles.smart_debugging_cursor_clicked]: showClick }
+                        )}
+                        aria-hidden
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            width={20}
+                            height={20}
+                            className={featureSquaresStyles.smart_debugging_cursor_icon}
+                        >
+                            <path
+                                fill="currentColor"
+                                d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L6.35 2.86a.5.5 0 0 0-.85.35Z"
+                            />
+                        </svg>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -401,16 +507,16 @@ function ChartWizardPreview({ isHovered }: { isHovered: boolean }) {
                     aria-hidden
                 >
                     {/* Area fill under the line */}
-                    <polygon
-                        points={AREA_POINTS}
+                    <path
+                        d={CHART_AREA_PATH}
                         className={classNames(
                             featureSquaresStyles.chart_wizard_area,
                             { [featureSquaresStyles.chart_wizard_area_active]: isHovered }
                         )}
                     />
-                    {/* Line stroke */}
-                    <polyline
-                        points={LINE_POINTS}
+                    {/* Line stroke - smooth curve */}
+                    <path
+                        d={CHART_LINE_PATH}
                         className={classNames(
                             featureSquaresStyles.chart_wizard_line,
                             { [featureSquaresStyles.chart_wizard_line_active]: isHovered }
