@@ -355,6 +355,165 @@ function SpreadsheetEditorPreview({ isHovered }: { isHovered: boolean }) {
     );
 }
 
+function AppModePreview({ isHovered }: { isHovered: boolean }) {
+    /* Bar chart data - heights as percentages */
+    const barHeights = [45, 65, 55, 80, 70, 90, 75];
+    
+    const previewRef = useRef<HTMLDivElement>(null);
+    const dropZoneRef = useRef<HTMLDivElement>(null);
+    const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+    const [isDropped, setIsDropped] = useState(false);
+
+    // Track mouse position relative to the preview container
+    const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        if (!previewRef.current || isDropped) return;
+        const rect = previewRef.current.getBoundingClientRect();
+        setMousePos({
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+        });
+
+        // Check if cursor is over the drop zone
+        if (dropZoneRef.current) {
+            const dropRect = dropZoneRef.current.getBoundingClientRect();
+            const isOverDropZone = 
+                e.clientX >= dropRect.left &&
+                e.clientX <= dropRect.right &&
+                e.clientY >= dropRect.top &&
+                e.clientY <= dropRect.bottom;
+            
+            if (isOverDropZone && !isDropped) {
+                setIsDropped(true);
+            }
+        }
+    }, [isDropped]);
+
+    // Reset state when mouse leaves
+    useEffect(() => {
+        if (!isHovered) {
+            setMousePos(null);
+            setIsDropped(false);
+        }
+    }, [isHovered]);
+
+    const showDraggingChart = isHovered && mousePos && !isDropped;
+
+    return (
+        <div 
+            ref={previewRef}
+            className={featureSquaresStyles.app_mode_preview}
+            onMouseMove={handleMouseMove}
+        >
+            {/* App Window */}
+            <div className={featureSquaresStyles.app_mode_window}>
+                {/* Window header with traffic lights */}
+                <div className={featureSquaresStyles.app_mode_window_header}>
+                    <div className={featureSquaresStyles.app_mode_window_dots}>
+                        <span />
+                        <span />
+                        <span />
+                    </div>
+                </div>
+
+                {/* Window content - dashboard layout */}
+                <div className={featureSquaresStyles.app_mode_window_content}>
+                    {/* Top section - full-width text placeholders that shift when chart drops */}
+                    <div
+                        className={classNames(
+                            featureSquaresStyles.app_mode_content_row,
+                            featureSquaresStyles.app_mode_content_row_top,
+                            { [featureSquaresStyles.app_mode_content_row_shifted]: isDropped }
+                        )}
+                    >
+                        <div className={featureSquaresStyles.app_mode_placeholder_block}>
+                            <span className={featureSquaresStyles.app_mode_placeholder_line_full} />
+                            <span className={featureSquaresStyles.app_mode_placeholder_line_full} style={{ width: '85%' }} />
+                            <span className={featureSquaresStyles.app_mode_placeholder_line_full} style={{ width: '70%' }} />
+                            <span className={featureSquaresStyles.app_mode_placeholder_line_full} />
+                        </div>
+                    </div>
+
+                    {/* Drop zone - where the chart will land */}
+                    <div
+                        ref={dropZoneRef}
+                        className={classNames(
+                            featureSquaresStyles.app_mode_drop_zone,
+                            { [featureSquaresStyles.app_mode_drop_zone_active]: isHovered && !isDropped },
+                            { [featureSquaresStyles.app_mode_drop_zone_dropped]: isDropped }
+                        )}
+                    >
+                        {/* Chart that appears when dropped */}
+                        <div
+                            className={classNames(
+                                featureSquaresStyles.app_mode_chart,
+                                { [featureSquaresStyles.app_mode_chart_dropped]: isDropped }
+                            )}
+                        >
+                            <div className={featureSquaresStyles.app_mode_chart_bars}>
+                                {barHeights.map((height, i) => (
+                                    <div
+                                        key={i}
+                                        className={classNames(
+                                            featureSquaresStyles.app_mode_chart_bar,
+                                            { [featureSquaresStyles.app_mode_chart_bar_active]: isDropped }
+                                        )}
+                                        style={{
+                                            height: `${height}%`,
+                                            transitionDelay: `${0.1 + i * 0.05}s`,
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bottom section - full-width placeholders, shifts down to make space */}
+                    <div
+                        className={classNames(
+                            featureSquaresStyles.app_mode_content_row,
+                            featureSquaresStyles.app_mode_content_row_bottom,
+                            { [featureSquaresStyles.app_mode_content_row_shifted_down]: isDropped }
+                        )}
+                    >
+                        <div className={featureSquaresStyles.app_mode_placeholder_block}>
+                            <span className={featureSquaresStyles.app_mode_placeholder_line_full} />
+                            <span className={featureSquaresStyles.app_mode_placeholder_line_full} style={{ width: '90%' }} />
+                            <span className={featureSquaresStyles.app_mode_placeholder_line_full} />
+                            <span className={featureSquaresStyles.app_mode_placeholder_line_full} style={{ width: '60%' }} />
+                            <span className={featureSquaresStyles.app_mode_placeholder_line_full} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Dragging chart that follows the cursor */}
+            {showDraggingChart && (
+                <div 
+                    className={featureSquaresStyles.app_mode_cursor_container}
+                    style={{
+                        left: mousePos.x,
+                        top: mousePos.y,
+                        transform: 'translate(-50%, -50%)',
+                    }}
+                >
+                    {/* Small chart being dragged */}
+                    <div className={featureSquaresStyles.app_mode_dragging_chart}>
+                        <div className={featureSquaresStyles.app_mode_dragging_chart_bars}>
+                            {barHeights.slice(0, 5).map((height, i) => (
+                                <div
+                                    key={i}
+                                    className={featureSquaresStyles.app_mode_dragging_bar}
+                                    style={{ height: `${height}%` }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 const FEATURES: FeatureCardData[] = [
     {
         id: 'jupyter-agent',
@@ -412,6 +571,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     const isSmartDebugging = feature.id === 'smart-debugging';
     const isDatabaseConnections = feature.id === 'database-connections';
     const isSpreadsheetEditor = feature.id === 'spreadsheet-editor';
+    const isAppMode = feature.id === 'app-mode';
 
     useEffect(() => {
         const el = containerRef.current;
@@ -427,7 +587,7 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     }, []);
 
     const handlePlay = useCallback(() => {
-        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor) {
+        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor || isAppMode) {
             setIsHovered(true);
             return;
         }
@@ -437,17 +597,17 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
             }
             videoRef.current.play().catch(() => {});
         }
-    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor]);
+    }, [feature.videoSrc, feature.isHero, isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor, isAppMode]);
 
     const handlePause = useCallback(() => {
-        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor) {
+        if (isChartWizard || isSmartDebugging || isDatabaseConnections || isSpreadsheetEditor || isAppMode) {
             setIsHovered(false);
             return;
         }
         if (videoRef.current) {
             videoRef.current.pause();
         }
-    }, [isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor]);
+    }, [isChartWizard, isSmartDebugging, isDatabaseConnections, isSpreadsheetEditor, isAppMode]);
 
     const cardClassName = classNames(
         featureSquaresStyles.feature_card,
@@ -455,7 +615,8 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
         { [featureSquaresStyles.feature_card_chart_wizard]: isChartWizard },
         { [featureSquaresStyles.feature_card_smart_debugging]: isSmartDebugging },
         { [featureSquaresStyles.feature_card_database_connections]: isDatabaseConnections },
-        { [featureSquaresStyles.feature_card_spreadsheet_editor]: isSpreadsheetEditor }
+        { [featureSquaresStyles.feature_card_spreadsheet_editor]: isSpreadsheetEditor },
+        { [featureSquaresStyles.feature_card_app_mode]: isAppMode }
     );
 
     return (
@@ -490,6 +651,8 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
                     <DatabaseConnectionsPreview isHovered={isHovered} />
                 ) : isSpreadsheetEditor ? (
                     <SpreadsheetEditorPreview isHovered={isHovered} />
+                ) : isAppMode ? (
+                    <AppModePreview isHovered={isHovered} />
                 ) : feature.videoSrc ? (
                     <>
                         {!isInView && feature.posterSrc ? (

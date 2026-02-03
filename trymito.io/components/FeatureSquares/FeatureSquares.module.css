@@ -682,6 +682,226 @@
     font-size: inherit;
 }
 
+/* App Mode Preview - Drag and Drop Animation */
+.feature_card_app_mode .feature_card_image_container {
+    display: flex;
+    align-items: stretch;
+    overflow: visible;
+}
+
+.app_mode_preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding: 0.5rem;
+    cursor: grab;
+}
+
+.app_mode_preview:active {
+    cursor: grabbing;
+}
+
+.app_mode_window {
+    width: min(70%, 320px);
+    margin-inline: auto;
+    align-self: center;
+    background: rgba(30, 28, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.app_mode_window_header {
+    padding: 6px 8px;
+    background: rgba(40, 38, 48, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.app_mode_window_dots {
+    display: flex;
+    gap: 4px;
+}
+
+.app_mode_window_dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.app_mode_window_content {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 100px;
+}
+
+.app_mode_content_row {
+    display: flex;
+    gap: 10px;
+    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.app_mode_content_row_top {
+    width: 100%;
+}
+
+.app_mode_content_row_shifted {
+    transform: translateY(-8px);
+    opacity: 0.85;
+}
+
+.app_mode_content_row_bottom {
+    margin-top: 0;
+}
+
+.app_mode_content_row_shifted_down {
+    transform: translateY(10px);
+    opacity: 0.85;
+}
+
+.app_mode_placeholder_block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.app_mode_placeholder_line_full,
+.app_mode_placeholder_line_long,
+.app_mode_placeholder_line_medium,
+.app_mode_placeholder_line_short {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+.app_mode_placeholder_line_full {
+    width: 100%;
+}
+
+.app_mode_placeholder_line_long {
+    width: 80px;
+}
+
+.app_mode_placeholder_line_medium {
+    width: 55px;
+}
+
+.app_mode_placeholder_line_short {
+    width: 35px;
+}
+
+/* Drop zone for the chart - starts collapsed */
+.app_mode_drop_zone {
+    position: relative;
+    height: 8px;
+    min-height: 8px;
+    border-radius: 4px;
+    border: 1.5px dashed transparent;
+    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.app_mode_drop_zone_active {
+    height: 24px;
+    min-height: 24px;
+    border-color: rgba(155, 126, 217, 0.5);
+    background: rgba(155, 126, 217, 0.08);
+}
+
+/* Expanded drop zone after chart is dropped */
+.app_mode_drop_zone_dropped {
+    height: 58px;
+    min-height: 58px;
+    border-color: transparent;
+    background: transparent;
+}
+
+/* Chart that appears in the drop zone */
+.app_mode_chart {
+    width: 100%;
+    height: 100%;
+    min-height: 50px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8) translateY(-10px);
+    transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s,
+                visibility 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s,
+                transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
+}
+
+.app_mode_chart_dropped {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+}
+
+.app_mode_chart_bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 5px;
+    height: 50px;
+    padding: 4px;
+}
+
+.app_mode_chart_bar {
+    width: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px 2px 0 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: bottom;
+    transform: scaleY(0);
+}
+
+.app_mode_chart_bar_active {
+    background: rgba(155, 126, 217, 0.9);
+    transform: scaleY(1);
+}
+
+/* Cursor dragging the chart - follows user's actual cursor */
+.app_mode_cursor_container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.app_mode_dragging_chart {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(155, 126, 217, 0.5);
+    border-radius: 4px;
+    padding: 6px 8px;
+    box-shadow: 0 4px 16px rgba(155, 126, 217, 0.3);
+    cursor: grabbing;
+}
+
+.app_mode_dragging_chart_bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 25px;
+}
+
+.app_mode_dragging_bar {
+    width: 6px;
+    background: rgba(155, 126, 217, 0.7);
+    border-radius: 1px 1px 0 0;
+}
+
 /* Desktop: 3-column bento with proper aspect ratios */
 @media (min-width: 50em) {
     .feature_squares_heading {
@@ -690,9 +910,9 @@
     }
 
     .feature_squares_container {
-        /* 3 columns, hero spans 2 cols × 2 rows */
+        /* 3 columns, hero spans 2 cols × 2 rows, third row for remaining cards */
         grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(2, 1fr);
+        grid-template-rows: repeat(3, auto);
         gap: 0.75rem;
     }
 
