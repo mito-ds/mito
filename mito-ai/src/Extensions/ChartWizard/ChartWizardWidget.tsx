@@ -7,9 +7,12 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { ReactWidget, Notification } from '@jupyterlab/apputils';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { updateChartConfig, ChartConfigVariable } from './utils/parser';
+import { exportChartImage } from './utils/chartExport';
 import { convertChartCode, logEvent } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting } from '../../utils/strings';
 import LoadingDots from '../../components/LoadingDots';
+import TextAndIconButton from '../../components/TextAndIconButton';
+import DownloadIcon from '../../icons/DownloadIcon';
 import AddFieldButton from './AddFieldButton';
 import {
     BooleanInputRow,
@@ -215,6 +218,19 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     }, [updateNotebookCell]);
 
     /**
+     * Exports the chart image to disk via the chartExport utility; shows a notification on error.
+     */
+    const handleExportChart = useCallback(async (): Promise<void> => {
+        void logEvent('chart_wizard_export_clicked');
+        if (!chartData) return;
+
+        const result = await exportChartImage(chartData);
+        if (!result.success) {
+            Notification.emit(result.error, 'error', { autoClose: 5000 });
+        }
+    }, [chartData]);
+
+    /**
      * Renders the appropriate input field component based on variable type.
      */
     const renderInputField = useCallback(
@@ -319,6 +335,21 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                         clearPendingUpdate={clearPendingUpdate}
                         onLoadingStateChange={setIsAddingField}
                     />
+                    <div className="chart-wizard-export-section">
+                        <h3 className="chart-wizard-section-heading">Export</h3>
+                        <p className="chart-wizard-export-description">
+                            Save the chart image to your computer.
+                        </p>
+                        <TextAndIconButton
+                            icon={DownloadIcon}
+                            text="Export image"
+                            title="Save chart image to file"
+                            onClick={handleExportChart}
+                            variant="purple"
+                            width="fit-contents"
+                            iconPosition="left"
+                        />
+                    </div>
                 </div>
             ) : (
                 <div className="chart-wizard-no-config">
