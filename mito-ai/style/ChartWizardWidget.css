@@ -148,15 +148,8 @@
 .chart-wizard-section-heading {
     font-size: 14px;
     font-weight: 600;
-    margin: 0 0 6px 0;
-    color: var(--jp-content-font-color1);
-}
-
-.chart-wizard-export-description {
-    font-size: 12px;
-    color: var(--jp-content-font-color2);
     margin: 0 0 12px 0;
-    line-height: 1.4;
+    color: var(--jp-content-font-color1);
 }
 
 .chart-wizard-empty-state,

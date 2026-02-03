@@ -337,12 +337,9 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                     />
                     <div className="chart-wizard-export-section">
                         <h3 className="chart-wizard-section-heading">Export</h3>
-                        <p className="chart-wizard-export-description">
-                            Save the chart image to your computer.
-                        </p>
                         <TextAndIconButton
                             icon={DownloadIcon}
-                            text="Export image"
+                            text="Export PNG"
                             title="Save chart image to file"
                             onClick={handleExportChart}
                             variant="purple"
