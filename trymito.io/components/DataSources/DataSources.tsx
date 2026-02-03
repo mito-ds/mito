@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import dataSourceStyles from './DataSources.module.css';
 
@@ -40,7 +40,6 @@ const INTEGRATIONS: Integration[] = [
   { name: 'Google Spanner', icon: '/data-sources/spanner.svg', category: 'databases', categoryLabel: 'Database' },
   /* Files */
   { name: 'Excel', icon: '/data-sources/excel.png', category: 'files', categoryLabel: 'Files' },
-  { name: 'CSV', icon: '/data-sources/excel.png', category: 'files', categoryLabel: 'Files' },
   { name: 'Word', icon: '/data-sources/word.png', category: 'files', categoryLabel: 'Files' },
   { name: 'PowerPoint', icon: '/data-sources/powerpoint.png', category: 'files', categoryLabel: 'Files' },
   { name: 'Amazon S3', icon: '/data-sources/aws.svg', category: 'files', categoryLabel: 'Files' },
@@ -56,17 +55,11 @@ const INTEGRATIONS: Integration[] = [
   { name: 'GitLab', icon: '/data-sources/gitlab.svg', category: 'version-control', categoryLabel: 'Version control' },
 ];
 
-const SECTIONS: { id: DataSourceCategory; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'warehouses', label: 'Data warehouses' },
-  { id: 'databases', label: 'Databases' },
-  { id: 'files', label: 'Files' },
-  { id: 'version-control', label: 'Version control' },
-];
+const HALF = Math.ceil(INTEGRATIONS.length / 2);
+const CAROUSEL_1_ITEMS = INTEGRATIONS.slice(0, HALF);
+const CAROUSEL_2_ITEMS = INTEGRATIONS.slice(HALF);
 
 const DataSources = (): JSX.Element => {
-  const [activeSection, setActiveSection] = useState<DataSourceCategory>('all');
-
   return (
     <div className={dataSourceStyles.container}>
       <header className={dataSourceStyles.header}>
@@ -76,50 +69,34 @@ const DataSources = (): JSX.Element => {
         </p>
       </header>
 
-      <div className={dataSourceStyles.layout}>
-        <nav className={dataSourceStyles.nav} role="tablist" aria-label="Integration categories">
-            {SECTIONS.map(({ id, label }) => (
-              <div
-                key={id}
-                role="tab"
-                aria-selected={activeSection === id}
-                aria-controls="integrations-panel"
-                id={`tab-${id}`}
-                className={activeSection === id ? dataSourceStyles.navItemActive : dataSourceStyles.navItem}
-                onClick={() => setActiveSection(id)}
-              >
-                {label}
-              </div>
-            ))}
-        </nav>
-
-        <div
-          id="integrations-panel"
-          role="tabpanel"
-          aria-labelledby={`tab-${activeSection}`}
-          className={dataSourceStyles.gridWrap}
-          data-active={activeSection}
-        >
-          <div className={dataSourceStyles.grid}>
-            {INTEGRATIONS.map(({ name, icon, category, categoryLabel, builtIn }) => (
-              <div
-                key={name}
-                className={dataSourceStyles.iconCard}
-                data-category={category}
-              >
+      <div className={dataSourceStyles.carouselsFullBleedWrap}>
+        <div className={dataSourceStyles.carouselsFullBleed}>
+        <div className={dataSourceStyles.carouselWrap} aria-hidden="true">
+          <div className={`${dataSourceStyles.carouselTrack} ${dataSourceStyles.carouselTrackRightToLeft}`}>
+            {[...CAROUSEL_1_ITEMS, ...CAROUSEL_1_ITEMS].map(({ name, icon }, i) => (
+              <div key={`c1-${i}-${name}`} className={dataSourceStyles.iconCardLogoOnly}>
                 <div className={dataSourceStyles.iconCardInner}>
-                  {builtIn && <span className={dataSourceStyles.builtIn}>Built-in</span>}
                   <div className={dataSourceStyles.iconWrapper}>
                     <Image src={icon} alt={name} width={48} height={48} unoptimized />
-                  </div>
-                  <div className={dataSourceStyles.labelContainer}>
-                    <span className={dataSourceStyles.label}>{name}</span>
-                    <span className={dataSourceStyles.categoryLabel}>{categoryLabel}</span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+        </div>
+        <div className={dataSourceStyles.carouselWrap} aria-hidden="true">
+          <div className={`${dataSourceStyles.carouselTrack} ${dataSourceStyles.carouselTrackLeftToRight}`}>
+            {[...CAROUSEL_2_ITEMS, ...CAROUSEL_2_ITEMS].map(({ name, icon }, i) => (
+              <div key={`c2-${i}-${name}`} className={dataSourceStyles.iconCardLogoOnly}>
+                <div className={dataSourceStyles.iconCardInner}>
+                  <div className={dataSourceStyles.iconWrapper}>
+                    <Image src={icon} alt={name} width={48} height={48} unoptimized />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
         </div>
       </div>
     </div>

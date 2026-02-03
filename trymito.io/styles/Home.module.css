@@ -8,6 +8,8 @@
   min-height: 100vh;
   background-color: var(--color-background);
   position: relative;
+  /* Prevent horizontal scroll from .pageGlow (width: 200%) and any full-bleed content */
+  overflow-x: hidden;
 }
 
 /* Irregular, paper-like noise overlay via SVG feTurbulence – not grid-like */
