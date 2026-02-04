@@ -9,6 +9,7 @@ import os
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.rules.utils import (
     RULES_DIR_PATH,
+    cleanup_rules_metadata,
     get_all_rules,
     get_rule,
     get_rule_default,
@@ -49,6 +50,7 @@ class RulesHandler(APIHandler):
         set_rules_file(key, data['content'])
         if 'is_default' in data:
             set_rule_default(key, bool(data['is_default']))
+        cleanup_rules_metadata()
         self.finish(json.dumps({"status": "updated", "rules file ": key}))
 
 

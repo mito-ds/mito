@@ -100,6 +100,24 @@ def get_all_rules() -> List[str]:
         return []
 
 
+def cleanup_rules_metadata() -> None:
+    """
+    Removes metadata entries for rules that no longer exist on disk (deleted or renamed).
+    Call after rule create/update so metadata stays in sync with actual rule files.
+    """
+    current_files = get_all_rules()
+    current_rule_names = {f[:-3] if f.endswith('.md') else f for f in current_files}
+    metadata = _load_metadata()
+    if not metadata:
+        return
+    keys_to_remove = [k for k in metadata if k not in current_rule_names]
+    if not keys_to_remove:
+        return
+    for k in keys_to_remove:
+        del metadata[k]
+    _save_metadata(metadata)
+
+
 def get_default_rules_content() -> str:
     """
     Returns the concatenated content of all rules marked as default (auto-applied).
