@@ -22,6 +22,7 @@ export const RulesPage = (): JSX.Element => {
         isDefault: false
     });
     const [formError, setFormError] = useState<string | null>(null);
+    const [filterDefaultOnly, setFilterDefaultOnly] = useState(false);
 
     const fetchRules = async (): Promise<void> => {
         try {
@@ -101,6 +102,8 @@ export const RulesPage = (): JSX.Element => {
         }
     };
 
+    const displayedRules = filterDefaultOnly ? rules.filter(r => r.isDefault) : rules;
+
     return (
         <div>
             <div className="settings-header">
@@ -115,9 +118,26 @@ export const RulesPage = (): JSX.Element => {
             <p>Rules provide more context to Ai models to help them follow your preferences, adhere to your organization&apos;s style guides, learn niche topics, and be a better colleague.</p>
 
             {error && <p className="error">{error}</p>}
-            
+
+            <div className="rules-list-filter">
+                <button
+                    type="button"
+                    className={!filterDefaultOnly ? 'button-base button-gray rules-list-filter-active' : 'button-base button-gray'}
+                    onClick={() => setFilterDefaultOnly(false)}
+                >
+                    All
+                </button>
+                <button
+                    type="button"
+                    className={filterDefaultOnly ? 'button-base button-gray rules-list-filter-active' : 'button-base button-gray'}
+                    onClick={() => setFilterDefaultOnly(true)}
+                >
+                    Default only
+                </button>
+            </div>
+
             <div className="rules-list">
-                {rules && rules.length > 0 ? rules.map((ruleItem) => (
+                {displayedRules.length > 0 ? displayedRules.map((ruleItem) => (
                     <div
                         key={ruleItem.name}
                         className="rule-item"
@@ -149,7 +169,11 @@ export const RulesPage = (): JSX.Element => {
                     </div>
                 )) : (
                     <div className="empty-state">
-                        <p>No rules created yet. Add your first rule to get started!</p>
+                        <p>
+                            {filterDefaultOnly
+                                ? 'No default rules. Mark a rule as default in the form to see it here.'
+                                : 'No rules created yet. Add your first rule to get started!'}
+                        </p>
                     </div>
                 )}
             </div>
