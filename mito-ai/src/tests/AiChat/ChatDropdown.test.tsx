@@ -12,7 +12,11 @@ import { ExpandedVariable } from '../../Extensions/AiChat/ChatMessage/ChatInput'
 // Mock the RestAPI functions
 jest.mock('../../restAPI/RestAPI', () => ({
   ...jest.requireActual('../../restAPI/RestAPI'), // Import and retain default behavior
-  getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']),
+  getRules: jest.fn().mockResolvedValue([
+    { name: 'Data Analysis', isDefault: false },
+    { name: 'Visualization', isDefault: false },
+    { name: 'Machine Learning', isDefault: false }
+  ]),
   getDatabaseConnections: jest.fn().mockResolvedValue({
     'conn-1': { alias: 'production_db', database: 'prod_data', type: 'postgres' },
     'conn-2': { alias: 'analytics_db', database: 'analytics', type: 'snowflake' },
