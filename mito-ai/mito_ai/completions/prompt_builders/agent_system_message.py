@@ -10,6 +10,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     get_database_rules
 )
 from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
+from mito_ai.rules.utils import get_default_rules_content
 
 def create_agent_system_message_prompt(isChromeBrowser: bool) -> str:
     
@@ -474,7 +475,12 @@ Important information:
     
     # Database rules
     sections.append(SG.Generic("Database Rules", get_database_rules()))
-    
+
+    # Default rules
+    default_rules = get_default_rules_content()
+    if default_rules:
+        sections.append(SG.Generic("Default (User Defined) Rules", default_rules))
+
     # RULES OF YOUR WORKING PROCESS
     sections.append(SG.Generic("Rules Of Working Process", f"""The user is going to ask you to guide them as through the process of completing a task. You will help them complete a task over the course of an entire conversation with them. The user will first share with you what they want to accomplish. You will then use a tool to execute the first step of the task, they will execute the tool and return to you the updated notebook state with you, and then you will give them the next step of the task. You will continue to give them the next step of the task until they have completed the task.
 

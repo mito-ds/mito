@@ -9,6 +9,20 @@ export const isValidFileName = (fileName: string): boolean => {
     return /^[a-zA-Z0-9_-]+$/.test(fileName);
 };
 
+/**
+ * Converts a rule name to a valid file-name slug: spaces and other separators
+ * become hyphens, invalid characters removed, multiple hyphens collapsed.
+ */
+export const slugifyRuleName = (name: string): string => {
+    return name
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-zA-Z0-9_-]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .toLowerCase();
+};
+
 export const stripFileEnding = (rule: string): string => {
     return rule.replace('.md', '');
 };
