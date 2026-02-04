@@ -6,13 +6,13 @@
 import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
-import { deleteRule, getRule, getRules, setRule } from '../../../restAPI/RestAPI';
+import { deleteRule, getRule, getRules, setRule, RuleListItem } from '../../../restAPI/RestAPI';
 import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
 import '../../../../style/button.css';
 
 export const RulesPage = (): JSX.Element => {
     const [modalStatus, setModalStatus] = useState<'new rule' | 'edit rule' | undefined>(undefined);
-    const [rules, setRules] = useState<string[]>([]);
+    const [rules, setRules] = useState<RuleListItem[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     const [editingRuleName, setEditingRuleName] = useState<string | null>(null);
@@ -25,8 +25,8 @@ export const RulesPage = (): JSX.Element => {
 
     const fetchRules = async (): Promise<void> => {
         try {
-            const rules = await getRules();
-            setRules(rules.sort());
+            const rulesList = await getRules();
+            setRules(rulesList.sort((a, b) => a.name.localeCompare(b.name)));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         }
@@ -70,21 +70,22 @@ export const RulesPage = (): JSX.Element => {
         void fetchRules();
     };
 
-    const handleRuleClick = async (rule: string): Promise<void> => {
-        const ruleName = stripFileEnding(rule);
-        const { content: ruleContent, isDefault } = await getRule(rule);
-        setEditingRuleName(ruleName);
+    const handleRuleClick = async (ruleName: string): Promise<void> => {
+        const ruleFile = ruleName.includes('.md') ? ruleName : `${ruleName}.md`;
+        const { content: ruleContent, isDefault } = await getRule(ruleFile);
+        const nameWithoutExt = stripFileEnding(ruleFile);
+        setEditingRuleName(nameWithoutExt);
         setFormData({
-            name: ruleName,
+            name: nameWithoutExt,
             description: ruleContent || '',
             isDefault
         });
         setModalStatus('edit rule');
     };
 
-    const handleDeleteRule = async (e: React.MouseEvent, rule: string): Promise<void> => {
+    const handleDeleteRule = async (e: React.MouseEvent, ruleItem: RuleListItem): Promise<void> => {
         e.stopPropagation();
-        const ruleName = stripFileEnding(rule);
+        const ruleName = stripFileEnding(ruleItem.name);
         if (!window.confirm(`Are you sure you want to delete the rule "${ruleName}"?`)) {
             return;
         }
@@ -117,15 +118,19 @@ export const RulesPage = (): JSX.Element => {
             {error && <p className="error">{error}</p>}
             
             <div className="rules-list">
-                {rules && rules.length > 0 ? rules.map((rule) => (
-                    <div 
-                        key={rule} 
+                {rules && rules.length > 0 ? rules.map((ruleItem) => (
+                    <div
+                        key={ruleItem.name}
                         className="rule-item"
-                        onClick={() => handleRuleClick(rule)}
+                        onClick={() => handleRuleClick(ruleItem.name)}
                     >
                         <div className="rule-content">
-                            <h4 className="rule-name">{stripFileEnding(rule)}</h4>
-                            <p className="rule-description">Click update to edit this rule&apos;s description and settings.</p>
+                            <h4 className="rule-name">
+                                {stripFileEnding(ruleItem.name)}
+                                {ruleItem.isDefault && (
+                                    <span className="rule-badge">Default</span>
+                                )}
+                            </h4>
                         </div>
                         <div className="rule-actions">
                             <button
@@ -137,7 +142,7 @@ export const RulesPage = (): JSX.Element => {
                             <button
                                 type="button"
                                 className="button-base button-red"
-                                onClick={e => handleDeleteRule(e, rule)}
+                                onClick={e => handleDeleteRule(e, ruleItem)}
                             >
                                 Delete
                             </button>

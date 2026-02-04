@@ -93,7 +93,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     const [localFilterText, setLocalFilterText] = useState(filterText);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
-    const [rules, setRules] = useState<string[]>([]);
+    const [rules, setRules] = useState<Array<{ name: string; isDefault: boolean }>>([]);
     const [databaseConnections, setDatabaseConnections] = useState<Record<string, any>>({});
 
     useEffect(() => {
@@ -133,7 +133,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         // Rules first
         ...rules.map((rule): ChatDropdownRuleOption => ({
             type: 'rule',
-            rule: rule
+            rule: rule.name
         })),
         // Cells second (when user types @Cell or @cell)
         ...cellReferences.map((cell): ChatDropdownCellOption => ({

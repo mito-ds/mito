@@ -101,12 +101,18 @@ export const getRule = async(ruleName: string): Promise<{ content: string | unde
     };
 }
 
-export const getRules = async(): Promise<string[]> => {
-    const resp = await requestAPI<string[]>(`rules`)
+export interface RuleListItem {
+    name: string;
+    isDefault: boolean;
+}
+
+export const getRules = async(): Promise<RuleListItem[]> => {
+    const resp = await requestAPI<Array<{ name: string; is_default: boolean }>>(`rules`)
     if (resp.error) {
         throw new Error(resp.error.message);
     }
-    return resp.data || [];
+    const data = resp.data || [];
+    return data.map(r => ({ name: r.name, isDefault: Boolean(r.is_default) }));
 }
 
 export const deleteRule = async(ruleName: string): Promise<void> => {

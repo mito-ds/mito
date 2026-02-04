@@ -26,8 +26,12 @@ class RulesHandler(APIHandler):
     def get(self, key: Union[str, None] = None) -> None:
         """Get a specific rule by key or all rules if no key provided"""
         if key is None or key == '':
-            # No key provided, return all rules
-            rules = get_all_rules()
+            # No key provided, return all rules with is_default flag
+            rule_files = get_all_rules()
+            rules = [
+                {"name": name, "is_default": get_rule_default(name)}
+                for name in rule_files
+            ]
             self.finish(json.dumps(rules))
         else:
             # Key provided, return specific rule
