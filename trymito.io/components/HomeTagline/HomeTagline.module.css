@@ -34,6 +34,17 @@
   letter-spacing: 0.02em;
   /* Soft glow so purple reads clearly on dark background */
   text-shadow: 0 0 24px color-mix(in srgb, var(--color-purple) 25%, transparent);
+  /* Decorative underline to signal interactivity */
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: color-mix(in srgb, var(--color-purple) 50%, transparent);
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 2px;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.decorativeTextPurple:hover {
+  text-decoration-color: var(--color-purple);
 }
 
 .tooltipTrigger {
@@ -46,15 +57,15 @@
   left: 50%;
   bottom: 100%;
   transform: translateX(-50%) translateY(-0.5rem);
-  width: 280px;
-  padding: 0.75rem 1rem;
+  width: 340px;
+  padding: 1.25rem 1.5rem;
   background: var(--color-surface);
-  border: 1px solid var(--color-text-primary-alpha-10);
+  border: 2px dotted var(--color-purple);
   border-radius: 0.5rem;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   font-weight: 400;
   font-style: normal;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--color-text-primary);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
   opacity: 0;

@@ -97,11 +97,11 @@
    Positioned so both sections sit within the glow; height/width keep edges off-screen. */
 .pageGlow {
   position: absolute;
-  top: 108vh;
+  top: -32vh; /* top edge fixed so extra height only extends down */
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   width: 200%;
-  height: 280vh;
+  height: 360vh;
   background: radial-gradient(
     ellipse at center,
     var(--color-brand-alpha-40) 0%,
