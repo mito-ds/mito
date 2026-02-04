@@ -16,7 +16,8 @@ export const RulesPage = (): JSX.Element => {
 
     const [formData, setFormData] = useState<Rule>({
         name: '',
-        description: ''
+        description: '',
+        isDefault: false
     });
     const [formError, setFormError] = useState<string | null>(null);
 
@@ -34,7 +35,11 @@ export const RulesPage = (): JSX.Element => {
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-        const { name, value } = e.target;
+        const target = e.target;
+        const name = target.name;
+        const value = target.type === 'checkbox'
+            ? (target as HTMLInputElement).checked
+            : target.value;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
@@ -49,20 +54,22 @@ export const RulesPage = (): JSX.Element => {
             setFormError(null);
         }
 
-        await setRule(formData.name, formData.description);
+        await setRule(formData.name, formData.description, formData.isDefault);
         setModalStatus(undefined);
         setFormData({
             name: '',
-            description: ''
+            description: '',
+            isDefault: false
         });
         void fetchRules();
     };
 
     const handleRuleClick = async (rule: string): Promise<void> => {
-        const ruleContent = await getRule(rule);
+        const { content: ruleContent, isDefault } = await getRule(rule);
         setFormData({
             name: stripFileEnding(rule),
-            description: ruleContent || ''
+            description: ruleContent || '',
+            isDefault
         });
         setModalStatus('edit rule');
     };
@@ -120,7 +127,8 @@ export const RulesPage = (): JSX.Element => {
                                 setModalStatus(undefined);
                                 setFormData({
                                     name: '',
-                                    description: ''
+                                    description: '',
+                                    isDefault: false
                                 });
                             }}
                             isEditing={modalStatus === 'edit rule'}

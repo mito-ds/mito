@@ -31,6 +31,23 @@
     display: block;
 }
 
+.rules-form .form-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rules-form .form-group-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.rules-form .form-group-checkbox label {
+    margin: 0;
+    cursor: pointer;
+}
+
 /* Rules List Styling */
 .rules-list {
     margin-top: 24px;

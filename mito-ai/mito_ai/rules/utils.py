@@ -3,9 +3,53 @@
 
 from typing import Any, Final, List, Optional
 import os
+import json
 from mito_ai.utils.schema import MITO_FOLDER
 
 RULES_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, 'rules')
+RULES_METADATA_FILENAME: Final[str] = '_metadata.json'
+
+
+def _get_metadata_path() -> str:
+    return os.path.join(RULES_DIR_PATH, RULES_METADATA_FILENAME)
+
+
+def _load_metadata() -> dict:
+    path = _get_metadata_path()
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _save_metadata(metadata: dict) -> None:
+    if not os.path.exists(RULES_DIR_PATH):
+        os.makedirs(RULES_DIR_PATH)
+    path = _get_metadata_path()
+    with open(path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+
+
+def get_rule_default(rule_name: str) -> bool:
+    """Returns whether the rule is marked as a default (auto-applied) rule."""
+    if rule_name.endswith('.md'):
+        rule_name = rule_name[:-3]
+    metadata = _load_metadata()
+    entry = metadata.get(rule_name, {})
+    return bool(entry.get('is_default', False))
+
+
+def set_rule_default(rule_name: str, is_default: bool) -> None:
+    """Sets whether the rule is a default (auto-applied) rule."""
+    if rule_name.endswith('.md'):
+        rule_name = rule_name[:-3]
+    metadata = _load_metadata()
+    metadata[rule_name] = {**metadata.get(rule_name, {}), 'is_default': is_default}
+    _save_metadata(metadata)
+
 
 def set_rules_file(rule_name: str, value: Any) -> None:
     """

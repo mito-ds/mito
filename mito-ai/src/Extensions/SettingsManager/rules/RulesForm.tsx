@@ -60,6 +60,22 @@ export const RulesForm: React.FC<RuleFormProps> = ({
             </div>
 
             <div className="form-group">
+                <div className="form-group-checkbox">
+                    <input
+                        type="checkbox"
+                        id="isDefault"
+                        name="isDefault"
+                        checked={formData.isDefault ?? false}
+                        onChange={onInputChange}
+                    />
+                    <label htmlFor="isDefault">Default rule</label>
+                </div>
+                <sub>
+                    <span>Default rules are auto-applied to every prompt.</span>
+                </sub>
+            </div>
+
+            <div className="form-group">
                 <label htmlFor="description">Rule Content</label>
                 <textarea
                     id="description"

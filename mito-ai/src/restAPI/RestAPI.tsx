@@ -63,10 +63,18 @@ RULES ENDPOINTS
 
 ************************************/
 
-export const setRule = async(ruleName: string, ruleContent: string): Promise<string> => {
+export const setRule = async(
+    ruleName: string,
+    ruleContent: string,
+    isDefault?: boolean
+): Promise<string> => {
+    const body: { content: string; is_default?: boolean } = { content: ruleContent };
+    if (isDefault !== undefined) {
+        body.is_default = isDefault;
+    }
     const resp = await requestAPI<string>(`rules/${ruleName}`, {
         method: 'PUT',
-        body: JSON.stringify({ content: ruleContent }),
+        body: JSON.stringify(body),
     })
     if (resp.error) {
         throw new Error(resp.error.message);
@@ -75,13 +83,22 @@ export const setRule = async(ruleName: string, ruleContent: string): Promise<str
     return resp.data || '';
 }
 
-export const getRule = async(ruleName: string): Promise<string | undefined> => {
-    const resp = await requestAPI<{key: string, content: string}>(`rules/${ruleName}`)
+export interface RuleResponse {
+    key: string;
+    content: string;
+    is_default?: boolean;
+}
+
+export const getRule = async(ruleName: string): Promise<{ content: string | undefined; isDefault: boolean }> => {
+    const resp = await requestAPI<RuleResponse>(`rules/${ruleName}`)
     if (resp.error) {
         throw new Error(resp.error.message);
     }
 
-    return resp.data?.content;
+    return {
+        content: resp.data?.content,
+        isDefault: Boolean(resp.data?.is_default)
+    };
 }
 
 export const getRules = async(): Promise<string[]> => {

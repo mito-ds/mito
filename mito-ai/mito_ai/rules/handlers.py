@@ -7,7 +7,14 @@ from typing import Any, Final, Union
 import tornado
 import os
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.rules.utils import RULES_DIR_PATH, get_all_rules, get_rule, set_rules_file
+from mito_ai.rules.utils import (
+    RULES_DIR_PATH,
+    get_all_rules,
+    get_rule,
+    get_rule_default,
+    set_rule_default,
+    set_rules_file,
+)
 
 
 class RulesHandler(APIHandler):
@@ -27,7 +34,8 @@ class RulesHandler(APIHandler):
                 self.set_status(404)
                 self.finish(json.dumps({"error": f"Rule with key '{key}' not found"}))
             else:
-                self.finish(json.dumps({"key": key, "content": rule_content}))
+                is_default = get_rule_default(key)
+                self.finish(json.dumps({"key": key, "content": rule_content, "is_default": is_default}))
     
     @tornado.web.authenticated
     def put(self, key: str) -> None:
@@ -37,8 +45,10 @@ class RulesHandler(APIHandler):
             self.set_status(400)
             self.finish(json.dumps({"error": "Content is required"}))
             return
-            
+
         set_rules_file(key, data['content'])
+        if 'is_default' in data:
+            set_rule_default(key, bool(data['is_default']))
         self.finish(json.dumps({"status": "updated", "rules file ": key}))
 
 
