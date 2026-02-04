@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
 import { deleteRule, getRule, getRules, setRule, RuleListItem } from '../../../restAPI/RestAPI';
-import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
+import { slugifyRuleName, stripFileEnding } from '../../../utils/fileName';
 import '../../../../style/button.css';
 
 export const RulesPage = (): JSX.Element => {
@@ -48,16 +48,15 @@ export const RulesPage = (): JSX.Element => {
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
 
-        // Make sure tha the rule is a valid file name
-        if (!isValidFileName(formData.name)) {
-            setFormError('Invalid rule name. Rules must contain only alphanumeric characters, underscores, or hyphens.');
+        const slugifiedName = slugifyRuleName(formData.name);
+        if (!slugifiedName) {
+            setFormError('Rule name is required. Use letters, numbers, spaces, hyphens, or underscores.');
             return;
-        } else {
-            setFormError(null);
         }
+        setFormError(null);
 
-        await setRule(formData.name, formData.description, formData.isDefault);
-        if (editingRuleName && editingRuleName !== formData.name) {
+        await setRule(slugifiedName, formData.description, formData.isDefault);
+        if (editingRuleName && editingRuleName !== slugifiedName) {
             await deleteRule(editingRuleName);
         }
         setModalStatus(undefined);
