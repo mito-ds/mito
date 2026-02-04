@@ -51,6 +51,10 @@
     cursor: pointer;
 }
 
+.rules-form .form-actions {
+    border-top: none;
+}
+
 /* Rules List Styling */
 .rules-list {
     margin-top: 24px;

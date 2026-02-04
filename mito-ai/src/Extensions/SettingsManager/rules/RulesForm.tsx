@@ -60,6 +60,20 @@ export const RulesForm: React.FC<RuleFormProps> = ({
             </div>
 
             <div className="form-group">
+                <label htmlFor="description">Rule Content</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={onInputChange}
+                    placeholder="Enter or paste rule content here"
+                    rows={10}
+                    required
+                    className="form-textarea"
+                />
+            </div>
+
+            <div className="form-group">
                 <div className="form-group-checkbox">
                     <input
                         type="checkbox"
@@ -73,20 +87,6 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                 <sub>
                     <span>Default rules are auto-applied to every prompt.</span>
                 </sub>
-            </div>
-
-            <div className="form-group">
-                <label htmlFor="description">Rule Content</label>
-                <textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={onInputChange}
-                    placeholder="Enter or paste rule content here"
-                    rows={10}
-                    required
-                    className="form-textarea"
-                />
             </div>
 
             <div className="form-actions">
