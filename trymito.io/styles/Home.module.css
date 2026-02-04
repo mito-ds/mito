@@ -101,7 +101,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: 200%;
-  height: 360vh;
+  height: 300vh;
   background: radial-gradient(
     ellipse at center,
     var(--color-brand-alpha-40) 0%,

@@ -954,12 +954,12 @@ const FEATURES: FeatureCardData[] = [
     {
         id: 'jupyter-agent',
         title: 'Jupyter Agent',
-        description: 'ChatGPT in Jupyter. Your personal coding assistant that sees your and data, writes Python with you.',
+        description: "Your coding assistant that understands your data, and updates your notebook for you. Like ChatGPT in Jupyter.",
         isHero: true
     },
     {
         id: 'smart-debugging',
-        title: 'Smart Debugging',
+        title: 'Auto Error Correction',
         description: 'One-click fix and explanation for any error.'
     },
     {
@@ -969,8 +969,8 @@ const FEATURES: FeatureCardData[] = [
     },
     {
         id: 'spreadsheet-editor',
-        title: 'Spreadsheet Editor',
-        description: 'Formulas, pivots, and graphs — every edit becomes Python.'
+        title: 'Excel-like Spreadsheet',
+        description: 'Edit your data with formulas, pivots, and filter just like you do in Excel.'
     },
     {
         id: 'database-connections',
@@ -979,8 +979,8 @@ const FEATURES: FeatureCardData[] = [
     },
     {
         id: 'app-mode',
-        title: 'App Mode',
-        description: 'Deploy as a Streamlit app. Share dashboards in one click.'
+        title: 'App Builder',
+        description: 'Convert any notebook into a Streamlit app. Share insights with your team.'
     }
 ];
 
