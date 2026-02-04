@@ -8,6 +8,7 @@ import { RulesForm } from './RulesForm';
 import { Rule } from './models';
 import { deleteRule, getRule, getRules, setRule } from '../../../restAPI/RestAPI';
 import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
+import '../../../../style/button.css';
 
 export const RulesPage = (): JSX.Element => {
     const [modalStatus, setModalStatus] = useState<'new rule' | 'edit rule' | undefined>(undefined);
@@ -84,6 +85,9 @@ export const RulesPage = (): JSX.Element => {
     const handleDeleteRule = async (e: React.MouseEvent, rule: string): Promise<void> => {
         e.stopPropagation();
         const ruleName = stripFileEnding(rule);
+        if (!window.confirm(`Are you sure you want to delete the rule "${ruleName}"?`)) {
+            return;
+        }
         try {
             await deleteRule(ruleName);
             if (editingRuleName === ruleName) {
@@ -132,7 +136,7 @@ export const RulesPage = (): JSX.Element => {
                             </button>
                             <button
                                 type="button"
-                                className="button-base button-gray"
+                                className="button-base button-red"
                                 onClick={e => handleDeleteRule(e, rule)}
                             >
                                 Delete
