@@ -51,7 +51,7 @@ const EnterpriseLLM = (): JSX.Element => {
           <span className={enterpriseStyles.headlineBold}> Your Privacy</span>
         </h2>
         <p className={enterpriseStyles.subtitle}>
-          Mito is designed for enterprises. Connect to your own LLM providers — no data ever leaves your systems.
+          Mito is designed for enterprises. Connect your own LLM providers so no data ever leaves your systems.
         </p>
       </header>
 
