@@ -21,7 +21,7 @@ def test_put_rule_with_auth(jp_base_url):
 
     response_json = response.json()
     assert response_json["status"] == "updated"
-    assert response_json["rules file "] == RULE_NAME
+    assert response_json["rules_file"] == RULE_NAME
 
 
 def test_put_rule_with_no_auth(jp_base_url):
@@ -55,12 +55,22 @@ def test_put_rule_missing_content(jp_base_url):
 
 
 def test_get_rule_with_auth(jp_base_url):
+    # First create the rule
+    requests.put(
+        jp_base_url + f"/mito-ai/rules/{RULE_NAME}",
+        headers={"Authorization": f"token {TOKEN}"},
+        json={"content": RULE_CONTENT},
+    )
+    # Then get it
     response = requests.get(
         jp_base_url + f"/mito-ai/rules/{RULE_NAME}",
         headers={"Authorization": f"token {TOKEN}"},
     )
     assert response.status_code == 200
-    assert response.json() == {"key": RULE_NAME, "content": RULE_CONTENT}
+    response_json = response.json()
+    assert response_json["key"] == RULE_NAME
+    assert response_json["content"] == RULE_CONTENT
+    assert "is_default" in response_json  # is_default field should be present
 
 
 def test_get_rule_with_no_auth(jp_base_url):
@@ -90,6 +100,13 @@ def test_get_nonexistent_rule_with_auth(jp_base_url):
 
 
 def test_get_all_rules_with_auth(jp_base_url):
+    # First create the rule
+    requests.put(
+        jp_base_url + f"/mito-ai/rules/{RULE_NAME}",
+        headers={"Authorization": f"token {TOKEN}"},
+        json={"content": RULE_CONTENT},
+    )
+    # Then get all rules
     response = requests.get(
         jp_base_url + f"/mito-ai/rules",
         headers={"Authorization": f"token {TOKEN}"},
@@ -98,8 +115,13 @@ def test_get_all_rules_with_auth(jp_base_url):
     
     response_json = response.json()
     assert isinstance(response_json, list)
-    # Should contain our test rule (with .md extension)
-    assert f"{RULE_NAME}.md" in response_json
+    # Should contain our test rule (with .md extension) as an object with name and is_default
+    rule_names = [rule["name"] for rule in response_json]
+    assert f"{RULE_NAME}.md" in rule_names
+    # Verify structure of rule objects
+    test_rule = next((r for r in response_json if r["name"] == f"{RULE_NAME}.md"), None)
+    assert test_rule is not None
+    assert "is_default" in test_rule
 
 
 def test_get_all_rules_with_no_auth(jp_base_url):

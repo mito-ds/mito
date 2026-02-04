@@ -61,7 +61,7 @@ class RulesHandler(APIHandler):
             if 'is_default' in data:
                 set_rule_default(key, bool(data['is_default']))
             cleanup_rules_metadata()
-            self.finish(json.dumps({"status": "updated", "rules file ": key}))
+            self.finish(json.dumps({"status": "updated", "rules_file": key}))
         except ValueError as e:
             self.set_status(400)
             self.finish(json.dumps({"error": str(e)}))
