@@ -3,6 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+@import url('base.css');
+
 .rules-form textarea {
     width: 100%;
     box-sizing: border-box;
@@ -53,24 +55,24 @@
     margin-top: 24px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
 }
 
 .rules-list .rule-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    border: 1px solid var(--jp-border-color1);
-    border-radius: 8px;
-    background: var(--jp-layout-color0);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--jp-border-color1);
+    transition: background-color 0.15s ease;
     cursor: pointer;
 }
 
+.rules-list .rule-item:last-child {
+    border-bottom: none;
+}
+
 .rules-list .rule-item:hover {
-    border-color: var(--jp-border-color2);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--grey-200);
 }
 
 .rules-list .rule-content {
