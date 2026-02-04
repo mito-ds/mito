@@ -139,6 +139,27 @@
     min-height: 0;
 }
 
+.chart-wizard-export-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--jp-border-color2);
+}
+
+.chart-wizard-export-format-row {
+    margin-bottom: 12px;
+}
+
+.chart-wizard-export-format-row .toggle-button-container {
+    width: 100%;
+}
+
+.chart-wizard-section-heading {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: var(--jp-content-font-color1);
+}
+
 .chart-wizard-empty-state,
 .chart-wizard-no-config {
     flex: 1;
