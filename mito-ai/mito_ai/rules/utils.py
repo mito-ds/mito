@@ -58,13 +58,25 @@ def set_rules_file(rule_name: str, value: Any) -> None:
     # Ensure the directory exists
     if not os.path.exists(RULES_DIR_PATH):
         os.makedirs(RULES_DIR_PATH)
-    
+
     # Create the file path to the rule name as a .md file
     file_path = os.path.join(RULES_DIR_PATH, f"{rule_name}.md")
-    
+
     with open(file_path, 'w+') as f:
         f.write(value)
-    
+
+
+def delete_rule(rule_name: str) -> None:
+    """
+    Deletes a rule file from the rules directory. Normalizes rule_name (strips .md).
+    Metadata for this rule is removed by cleanup_rules_metadata().
+    """
+    if rule_name.endswith('.md'):
+        rule_name = rule_name[:-3]
+    file_path = os.path.join(RULES_DIR_PATH, f"{rule_name}.md")
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
 
 def get_rule(rule_name: str) -> Optional[str]:
     """

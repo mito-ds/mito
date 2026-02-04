@@ -10,6 +10,7 @@ from jupyter_server.base.handlers import APIHandler
 from mito_ai.rules.utils import (
     RULES_DIR_PATH,
     cleanup_rules_metadata,
+    delete_rule,
     get_all_rules,
     get_rule,
     get_rule_default,
@@ -53,4 +54,9 @@ class RulesHandler(APIHandler):
         cleanup_rules_metadata()
         self.finish(json.dumps({"status": "updated", "rules file ": key}))
 
-
+    @tornado.web.authenticated
+    def delete(self, key: str) -> None:
+        """Delete a rule by key (rule name)."""
+        delete_rule(key)
+        cleanup_rules_metadata()
+        self.finish(json.dumps({"status": "deleted", "key": key}))

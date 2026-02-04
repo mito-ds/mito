@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
-import { getRule, getRules, setRule } from '../../../restAPI/RestAPI';
+import { deleteRule, getRule, getRules, setRule } from '../../../restAPI/RestAPI';
 import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
 
 export const RulesPage = (): JSX.Element => {
@@ -14,6 +14,7 @@ export const RulesPage = (): JSX.Element => {
     const [rules, setRules] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
 
+    const [editingRuleName, setEditingRuleName] = useState<string | null>(null);
     const [formData, setFormData] = useState<Rule>({
         name: '',
         description: '',
@@ -55,7 +56,11 @@ export const RulesPage = (): JSX.Element => {
         }
 
         await setRule(formData.name, formData.description, formData.isDefault);
+        if (editingRuleName && editingRuleName !== formData.name) {
+            await deleteRule(editingRuleName);
+        }
         setModalStatus(undefined);
+        setEditingRuleName(null);
         setFormData({
             name: '',
             description: '',
@@ -65,13 +70,31 @@ export const RulesPage = (): JSX.Element => {
     };
 
     const handleRuleClick = async (rule: string): Promise<void> => {
+        const ruleName = stripFileEnding(rule);
         const { content: ruleContent, isDefault } = await getRule(rule);
+        setEditingRuleName(ruleName);
         setFormData({
-            name: stripFileEnding(rule),
+            name: ruleName,
             description: ruleContent || '',
             isDefault
         });
         setModalStatus('edit rule');
+    };
+
+    const handleDeleteRule = async (e: React.MouseEvent, rule: string): Promise<void> => {
+        e.stopPropagation();
+        const ruleName = stripFileEnding(rule);
+        try {
+            await deleteRule(ruleName);
+            if (editingRuleName === ruleName) {
+                setModalStatus(undefined);
+                setEditingRuleName(null);
+                setFormData({ name: '', description: '', isDefault: false });
+            }
+            void fetchRules();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete rule');
+        }
     };
 
     return (
@@ -101,10 +124,18 @@ export const RulesPage = (): JSX.Element => {
                             <p className="rule-description">Click update to edit this rule&apos;s description and settings.</p>
                         </div>
                         <div className="rule-actions">
-                            <button 
+                            <button
+                                type="button"
                                 className="button-base button-gray"
                             >
                                 Update
+                            </button>
+                            <button
+                                type="button"
+                                className="button-base button-gray"
+                                onClick={e => handleDeleteRule(e, rule)}
+                            >
+                                Delete
                             </button>
                         </div>
                     </div>
@@ -125,6 +156,7 @@ export const RulesPage = (): JSX.Element => {
                             onSubmit={handleSubmit}
                             onClose={() => {
                                 setModalStatus(undefined);
+                                setEditingRuleName(null);
                                 setFormData({
                                     name: '',
                                     description: '',

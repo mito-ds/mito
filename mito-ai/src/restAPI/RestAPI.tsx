@@ -109,6 +109,15 @@ export const getRules = async(): Promise<string[]> => {
     return resp.data || [];
 }
 
+export const deleteRule = async(ruleName: string): Promise<void> => {
+    const resp = await requestAPI<{ status: string; key: string }>(`rules/${ruleName}`, {
+        method: 'DELETE',
+    });
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+}
+
 /************************************
 
 DATABASE ENDPOINTS
