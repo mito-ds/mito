@@ -114,7 +114,7 @@
     align-items: center;
     padding: 12px 0;
     border-bottom: 1px solid var(--jp-border-color1);
-    transition: background-color 0.15s ease;
+    transition: color 0.15s ease;
     cursor: pointer;
 }
 
@@ -122,8 +122,8 @@
     border-bottom: none;
 }
 
-.rules-list .rule-item:hover {
-    background-color: var(--grey-200);
+.rules-list .rule-item:hover .rule-name {
+    color: var(--purple-600);
 }
 
 .rules-list .rule-content {
