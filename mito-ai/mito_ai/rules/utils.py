@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import Any, Final, List, Optional
+from typing import Any, Final, List, Optional, cast
 import os
 import json
 from mito_ai.utils.schema import MITO_FOLDER
@@ -74,13 +74,13 @@ def _get_metadata_path() -> str:
     return os.path.join(RULES_DIR_PATH, RULES_METADATA_FILENAME)
 
 
-def _load_metadata() -> dict:
+def _load_metadata() -> dict[Any, Any]:
     path = _get_metadata_path()
     if not os.path.exists(path):
         return {}
     try:
         with open(path, 'r') as f:
-            return json.load(f)
+            return cast(dict[Any, Any], json.load(f))
     except (json.JSONDecodeError, OSError):
         return {}
 
