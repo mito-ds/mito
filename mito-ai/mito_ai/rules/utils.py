@@ -91,10 +91,27 @@ def get_all_rules() -> List[str]:
     if not os.path.exists(RULES_DIR_PATH):
         os.makedirs(RULES_DIR_PATH)
         return []  # Return empty list if directory didn't exist
-    
+
     try:
         return [f for f in os.listdir(RULES_DIR_PATH) if f.endswith('.md')]
     except OSError as e:
         # Log the error if needed and return empty list
         print(f"Error reading rules directory: {e}")
         return []
+
+
+def get_default_rules_content() -> str:
+    """
+    Returns the concatenated content of all rules marked as default (auto-applied).
+    Each rule is included as "Rule name:\n\n{content}". Returns empty string if no default rules.
+    """
+    rule_files = get_all_rules()
+    parts: List[str] = []
+    for f in rule_files:
+        rule_name = f[:-3] if f.endswith('.md') else f
+        if not get_rule_default(rule_name):
+            continue
+        content = get_rule(rule_name)
+        if content and content.strip():
+            parts.append(f"{rule_name}:\n\n{content}")
+    return '\n\n'.join(parts) if parts else ""
