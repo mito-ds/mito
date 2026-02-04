@@ -17,7 +17,8 @@
     transition: border-color 0.2s;
     font-family: var(--jp-ui-font-family);
     resize: vertical;
-    min-height: 120px;
+    min-height: 100px;
+    max-height: 50vh;
 }
 
 .rules-form textarea:focus {

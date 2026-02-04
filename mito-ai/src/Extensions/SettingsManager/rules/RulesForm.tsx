@@ -83,7 +83,7 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                     value={formData.description}
                     onChange={onInputChange}
                     placeholder="Enter or paste rule content here"
-                    rows={30}
+                    rows={10}
                     required
                     className="form-textarea"
                 />
