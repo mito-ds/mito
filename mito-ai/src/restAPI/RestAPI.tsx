@@ -63,10 +63,18 @@ RULES ENDPOINTS
 
 ************************************/
 
-export const setRule = async(ruleName: string, ruleContent: string): Promise<string> => {
+export const setRule = async(
+    ruleName: string,
+    ruleContent: string,
+    isDefault?: boolean
+): Promise<string> => {
+    const body: { content: string; is_default?: boolean } = { content: ruleContent };
+    if (isDefault !== undefined) {
+        body.is_default = isDefault;
+    }
     const resp = await requestAPI<string>(`rules/${ruleName}`, {
         method: 'PUT',
-        body: JSON.stringify({ content: ruleContent }),
+        body: JSON.stringify(body),
     })
     if (resp.error) {
         throw new Error(resp.error.message);
@@ -75,21 +83,45 @@ export const setRule = async(ruleName: string, ruleContent: string): Promise<str
     return resp.data || '';
 }
 
-export const getRule = async(ruleName: string): Promise<string | undefined> => {
-    const resp = await requestAPI<{key: string, content: string}>(`rules/${ruleName}`)
-    if (resp.error) {
-        throw new Error(resp.error.message);
-    }
-
-    return resp.data?.content;
+export interface RuleResponse {
+    key: string;
+    content: string;
+    is_default?: boolean;
 }
 
-export const getRules = async(): Promise<string[]> => {
-    const resp = await requestAPI<string[]>(`rules`)
+export const getRule = async(ruleName: string): Promise<{ content: string | undefined; isDefault: boolean }> => {
+    const resp = await requestAPI<RuleResponse>(`rules/${ruleName}`)
     if (resp.error) {
         throw new Error(resp.error.message);
     }
-    return resp.data || [];
+
+    return {
+        content: resp.data?.content,
+        isDefault: Boolean(resp.data?.is_default)
+    };
+}
+
+export interface RuleListItem {
+    name: string;
+    isDefault: boolean;
+}
+
+export const getRules = async(): Promise<RuleListItem[]> => {
+    const resp = await requestAPI<Array<{ name: string; is_default: boolean }>>(`rules`)
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    const data = resp.data || [];
+    return data.map(r => ({ name: r.name, isDefault: Boolean(r.is_default) }));
+}
+
+export const deleteRule = async(ruleName: string): Promise<void> => {
+    const resp = await requestAPI<{ status: string; key: string }>(`rules/${ruleName}`, {
+        method: 'DELETE',
+    });
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
 }
 
 /************************************

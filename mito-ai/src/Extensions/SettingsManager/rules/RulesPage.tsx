@@ -6,24 +6,28 @@
 import React, { useEffect, useState } from 'react';
 import { RulesForm } from './RulesForm';
 import { Rule } from './models';
-import { getRule, getRules, setRule } from '../../../restAPI/RestAPI';
-import { isValidFileName, stripFileEnding } from '../../../utils/fileName';
+import { deleteRule, getRule, getRules, setRule, RuleListItem } from '../../../restAPI/RestAPI';
+import { slugifyRuleName, stripFileEnding } from '../../../utils/fileName';
+import '../../../../style/button.css';
 
 export const RulesPage = (): JSX.Element => {
     const [modalStatus, setModalStatus] = useState<'new rule' | 'edit rule' | undefined>(undefined);
-    const [rules, setRules] = useState<string[]>([]);
+    const [rules, setRules] = useState<RuleListItem[]>([]);
     const [error, setError] = useState<string | null>(null);
 
+    const [editingRuleName, setEditingRuleName] = useState<string | null>(null);
     const [formData, setFormData] = useState<Rule>({
         name: '',
-        description: ''
+        description: '',
+        isDefault: false
     });
     const [formError, setFormError] = useState<string | null>(null);
+    const [filterDefaultOnly, setFilterDefaultOnly] = useState(false);
 
     const fetchRules = async (): Promise<void> => {
         try {
-            const rules = await getRules();
-            setRules(rules.sort());
+            const rulesList = await getRules();
+            setRules(rulesList.sort((a, b) => a.name.localeCompare(b.name)));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         }
@@ -34,38 +38,71 @@ export const RulesPage = (): JSX.Element => {
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-        const { name, value } = e.target;
+        const target = e.target;
+        const name = target.name;
+        const value = target.type === 'checkbox'
+            ? (target as HTMLInputElement).checked
+            : target.value;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
 
-        // Make sure tha the rule is a valid file name
-        if (!isValidFileName(formData.name)) {
-            setFormError('Invalid rule name. Rules must contain only alphanumeric characters, underscores, or hyphens.');
+        const slugifiedName = slugifyRuleName(formData.name);
+        if (!slugifiedName) {
+            setFormError('Rule name is required. Use letters, numbers, spaces, hyphens, or underscores.');
             return;
-        } else {
-            setFormError(null);
         }
+        setFormError(null);
 
-        await setRule(formData.name, formData.description);
+        await setRule(slugifiedName, formData.description, formData.isDefault);
+        if (editingRuleName && editingRuleName !== slugifiedName) {
+            await deleteRule(editingRuleName);
+        }
         setModalStatus(undefined);
+        setEditingRuleName(null);
         setFormData({
             name: '',
-            description: ''
+            description: '',
+            isDefault: false
         });
         void fetchRules();
     };
 
-    const handleRuleClick = async (rule: string): Promise<void> => {
-        const ruleContent = await getRule(rule);
+    const handleRuleClick = async (ruleName: string): Promise<void> => {
+        const ruleFile = ruleName.includes('.md') ? ruleName : `${ruleName}.md`;
+        const { content: ruleContent, isDefault } = await getRule(ruleFile);
+        const nameWithoutExt = stripFileEnding(ruleFile);
+        setEditingRuleName(nameWithoutExt);
         setFormData({
-            name: stripFileEnding(rule),
-            description: ruleContent || ''
+            name: nameWithoutExt,
+            description: ruleContent || '',
+            isDefault
         });
         setModalStatus('edit rule');
     };
+
+    const handleDeleteRule = async (e: React.MouseEvent, ruleItem: RuleListItem): Promise<void> => {
+        e.stopPropagation();
+        const ruleName = stripFileEnding(ruleItem.name);
+        if (!window.confirm(`Are you sure you want to delete the rule "${ruleName}"?`)) {
+            return;
+        }
+        try {
+            await deleteRule(ruleName);
+            if (editingRuleName === ruleName) {
+                setModalStatus(undefined);
+                setEditingRuleName(null);
+                setFormData({ name: '', description: '', isDefault: false });
+            }
+            void fetchRules();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete rule');
+        }
+    };
+
+    const displayedRules = filterDefaultOnly ? rules.filter(r => r.isDefault) : rules;
 
     return (
         <div>
@@ -81,29 +118,62 @@ export const RulesPage = (): JSX.Element => {
             <p>Rules provide more context to Ai models to help them follow your preferences, adhere to your organization&apos;s style guides, learn niche topics, and be a better colleague.</p>
 
             {error && <p className="error">{error}</p>}
-            
+
+            <div className="rules-list-filter">
+                <button
+                    type="button"
+                    className={!filterDefaultOnly ? 'button-base button-gray rules-list-filter-active' : 'button-base button-gray'}
+                    onClick={() => setFilterDefaultOnly(false)}
+                >
+                    All
+                </button>
+                <button
+                    type="button"
+                    className={filterDefaultOnly ? 'button-base button-gray rules-list-filter-active' : 'button-base button-gray'}
+                    onClick={() => setFilterDefaultOnly(true)}
+                >
+                    Default only
+                </button>
+            </div>
+
             <div className="rules-list">
-                {rules && rules.length > 0 ? rules.map((rule) => (
-                    <div 
-                        key={rule} 
+                {displayedRules.length > 0 ? displayedRules.map((ruleItem) => (
+                    <div
+                        key={ruleItem.name}
                         className="rule-item"
-                        onClick={() => handleRuleClick(rule)}
+                        onClick={() => handleRuleClick(ruleItem.name)}
                     >
                         <div className="rule-content">
-                            <h4 className="rule-name">{stripFileEnding(rule)}</h4>
-                            <p className="rule-description">Click update to edit this rule&apos;s description and settings.</p>
+                            <h4 className="rule-name">
+                                {stripFileEnding(ruleItem.name)}
+                                {ruleItem.isDefault && (
+                                    <span className="rule-badge">Default</span>
+                                )}
+                            </h4>
                         </div>
                         <div className="rule-actions">
-                            <button 
+                            <button
+                                type="button"
                                 className="button-base button-gray"
                             >
                                 Update
+                            </button>
+                            <button
+                                type="button"
+                                className="button-base button-red"
+                                onClick={e => handleDeleteRule(e, ruleItem)}
+                            >
+                                Delete
                             </button>
                         </div>
                     </div>
                 )) : (
                     <div className="empty-state">
-                        <p>No rules created yet. Add your first rule to get started!</p>
+                        <p>
+                            {filterDefaultOnly
+                                ? 'No default rules. Mark a rule as default in the form to see it here.'
+                                : 'No rules created yet. Add your first rule to get started!'}
+                        </p>
                     </div>
                 )}
             </div>
@@ -118,9 +188,11 @@ export const RulesPage = (): JSX.Element => {
                             onSubmit={handleSubmit}
                             onClose={() => {
                                 setModalStatus(undefined);
+                                setEditingRuleName(null);
                                 setFormData({
                                     name: '',
-                                    description: ''
+                                    description: '',
+                                    isDefault: false
                                 });
                             }}
                             isEditing={modalStatus === 'edit rule'}

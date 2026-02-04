@@ -3,6 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+@import url('base.css');
+
 .rules-form textarea {
     width: 100%;
     box-sizing: border-box;
@@ -15,7 +17,8 @@
     transition: border-color 0.2s;
     font-family: var(--jp-ui-font-family);
     resize: vertical;
-    min-height: 120px;
+    min-height: 100px;
+    max-height: 50vh;
 }
 
 .rules-form textarea:focus {
@@ -31,29 +34,96 @@
     display: block;
 }
 
+.rules-form .form-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rules-form .form-group-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.rules-form .form-group-checkbox label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.rules-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.rules-form-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.rules-form-footer-left .form-group-checkbox {
+    margin: 0;
+}
+
+.rules-form-footer-sub {
+    margin: 0;
+    color: var(--jp-ui-font-color2);
+    font-size: 12px;
+}
+
+.rules-form .form-actions {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+/* Rules list filter */
+.rules-list-filter {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    margin-bottom: 12px;
+}
+
+.rules-list-filter .button-base {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.rules-list-filter .rules-list-filter-active {
+    background-color: var(--jp-layout-color2);
+    font-weight: 500;
+}
+
 /* Rules List Styling */
 .rules-list {
-    margin-top: 24px;
+    margin-top: 0;
     display: flex;
     flex-direction: column;
-    gap: 16px;
 }
 
 .rules-list .rule-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    border: 1px solid var(--jp-border-color1);
-    border-radius: 8px;
-    background: var(--jp-layout-color0);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--jp-border-color1);
+    transition: color 0.15s ease;
     cursor: pointer;
 }
 
-.rules-list .rule-item:hover {
-    border-color: var(--jp-border-color2);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.rules-list .rule-item:last-child {
+    border-bottom: none;
+}
+
+.rules-list .rule-item:hover .rule-name {
+    color: var(--purple-600);
 }
 
 .rules-list .rule-content {
@@ -62,18 +132,25 @@
 }
 
 .rules-list .rule-name {
-    margin: 0 0 8px 0;
+    margin: 0;
     color: var(--jp-ui-font-color1);
     font-size: 14px;
     font-weight: 500;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.rules-list .rule-description {
-    margin: 0;
-    color: var(--jp-ui-font-color2);
-    font-size: 14px;
-    line-height: 1.5;
+.rules-list .rule-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 3px;
+    background-color: var(--purple-300);
+    color: var(--purple-700);
 }
 
 .rules-list .rule-actions {

@@ -67,26 +67,42 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                     value={formData.description}
                     onChange={onInputChange}
                     placeholder="Enter or paste rule content here"
-                    rows={30}
+                    rows={10}
                     required
                     className="form-textarea"
                 />
             </div>
 
-            <div className="form-actions">
-                <button
-                    type="button"
-                    className="button-base button-gray"
-                    onClick={onClose}
-                    disabled={isLoading}
-                >
-                    Cancel
-                </button>
-                <button
-                    type="submit"
-                    className="button-base button-purple"
-                    disabled={isLoading}
-                >
+            <div className="rules-form-footer">
+                <div className="rules-form-footer-left">
+                    <div className="form-group-checkbox">
+                        <input
+                            type="checkbox"
+                            id="isDefault"
+                            name="isDefault"
+                            checked={formData.isDefault ?? false}
+                            onChange={onInputChange}
+                        />
+                        <label htmlFor="isDefault">Default rule</label>
+                    </div>
+                    <sub className="rules-form-footer-sub">
+                        <span>Default rules are auto-applied to every prompt.</span>
+                    </sub>
+                </div>
+                <div className="form-actions">
+                    <button
+                        type="button"
+                        className="button-base button-gray"
+                        onClick={onClose}
+                        disabled={isLoading}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        className="button-base button-purple"
+                        disabled={isLoading}
+                    >
                     {isLoading ? (
                         <>
                             Saving Rule<div style={{ color: 'var(--purple-700)' }}>
@@ -96,7 +112,8 @@ export const RulesForm: React.FC<RuleFormProps> = ({
                     ) : (
                         isEditing ? 'Update Rule' : 'Add Rule'
                     )}
-                </button>
+                    </button>
+                </div>
             </div>
         </form>
     );
