@@ -137,3 +137,76 @@ def test_get_all_rules_with_incorrect_auth(jp_base_url):
         headers={"Authorization": f"token incorrect-token"},
     )
     assert response.status_code == 403  # Forbidden
+
+
+# --- DELETE RULES ---
+
+
+def test_delete_rule_with_auth(jp_base_url):
+    # First create the rule
+    requests.put(
+        jp_base_url + f"/mito-ai/rules/{RULE_NAME}",
+        headers={"Authorization": f"token {TOKEN}"},
+        json={"content": RULE_CONTENT},
+    )
+    # Verify it exists
+    get_response = requests.get(
+        jp_base_url + f"/mito-ai/rules/{RULE_NAME}",
+        headers={"Authorization": f"token {TOKEN}"},
+    )
+    assert get_response.status_code == 200
+    
+    # Delete it
+    delete_response = requests.delete(
+        jp_base_url + f"/mito-ai/rules/{RULE_NAME}",
+        headers={"Authorization": f"token {TOKEN}"},
+    )
+    assert delete_response.status_code == 200
+    delete_json = delete_response.json()
+    assert delete_json["status"] == "deleted"
+    assert delete_json["key"] == RULE_NAME
+    
+    # Verify it no longer exists
+    get_response_after_delete = requests.get(
+        jp_base_url + f"/mito-ai/rules/{RULE_NAME}",
+        headers={"Authorization": f"token {TOKEN}"},
+    )
+    assert get_response_after_delete.status_code == 404
+
+
+def test_delete_rule_with_no_auth(jp_base_url):
+    response = requests.delete(
+        jp_base_url + f"/mito-ai/rules/{RULE_NAME}",
+    )
+    assert response.status_code == 403  # Forbidden
+
+
+def test_delete_rule_with_incorrect_auth(jp_base_url):
+    response = requests.delete(
+        jp_base_url + f"/mito-ai/rules/{RULE_NAME}",
+        headers={"Authorization": f"token incorrect-token"},  # <- wrong token
+    )
+    assert response.status_code == 403  # Forbidden
+
+
+def test_delete_nonexistent_rule_with_auth(jp_base_url):
+    # Delete a rule that doesn't exist (should succeed - idempotent operation)
+    response = requests.delete(
+        jp_base_url + f"/mito-ai/rules/nonexistent_rule",
+        headers={"Authorization": f"token {TOKEN}"},
+    )
+    assert response.status_code == 200
+    response_json = response.json()
+    assert response_json["status"] == "deleted"
+    assert response_json["key"] == "nonexistent_rule"
+
+
+def test_delete_rule_invalid_name(jp_base_url):
+    # Try to delete with invalid rule name (path traversal attempt)
+    response = requests.delete(
+        jp_base_url + f"/mito-ai/rules/../invalid",
+        headers={"Authorization": f"token {TOKEN}"},
+    )
+    assert response.status_code == 400  # Bad Request
+    response_json = response.json()
+    assert "error" in response_json
