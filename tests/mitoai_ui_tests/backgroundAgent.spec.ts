@@ -18,9 +18,9 @@ import {
     waitForAgentToFinish,
     startNewMitoAIChat
 } from './utils';
-import { CLAUDE_SONNET_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
+import { CLAUDE_HAIKU_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 
-const MODEL = CLAUDE_SONNET_DISPLAY_NAME;
+const MODEL = CLAUDE_HAIKU_DISPLAY_NAME;
 
 test.describe.parallel("Background Agent functionality", () => {
 
