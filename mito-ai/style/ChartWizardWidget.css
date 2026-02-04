@@ -145,6 +145,10 @@
     border-top: 1px solid var(--jp-border-color2);
 }
 
+.chart-wizard-export-format-row {
+    margin-bottom: 12px;
+}
+
 .chart-wizard-section-heading {
     font-size: 14px;
     font-weight: 600;

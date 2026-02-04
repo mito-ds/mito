@@ -7,10 +7,11 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { ReactWidget, Notification } from '@jupyterlab/apputils';
 import { ChartWizardData } from './ChartWizardPlugin';
 import { updateChartConfig, ChartConfigVariable } from './utils/parser';
-import { exportChartImage } from './utils/chartExport';
+import { exportChartImage, type ExportImageFormat } from './utils/chartExport';
 import { convertChartCode, logEvent } from '../../restAPI/RestAPI';
 import { removeMarkdownCodeFormatting } from '../../utils/strings';
 import LoadingDots from '../../components/LoadingDots';
+import ToggleButton from '../../components/ToggleButton';
 import AddFieldButton from './AddFieldButton';
 import {
     BooleanInputRow,
@@ -46,6 +47,7 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
     const widgetRef = useRef<HTMLDivElement>(null);
     const [overlayHeight, setOverlayHeight] = useState<number>(0);
     const [isActiveCellMismatch, setIsActiveCellMismatch] = useState(false);
+    const [exportFormat, setExportFormat] = useState<ExportImageFormat>('png');
 
     // Reset currentSourceCode when switching to a different chart
     useEffect(() => {
@@ -222,11 +224,11 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
         void logEvent('chart_wizard_export_clicked');
         if (!chartData) return;
 
-        const result = await exportChartImage(chartData);
+        const result = await exportChartImage(chartData, exportFormat);
         if (!result.success) {
             Notification.emit(result.error, 'error', { autoClose: 5000 });
         }
-    }, [chartData]);
+    }, [chartData, exportFormat]);
 
     /**
      * Renders the appropriate input field component based on variable type.
@@ -335,6 +337,14 @@ const ChartWizardContent: React.FC<ChartWizardContentProps> = ({ chartData }) =>
                     />
                     <div className="chart-wizard-export-section">
                         <h3 className="chart-wizard-section-heading">Export</h3>
+                        <div className="chart-wizard-export-format-row">
+                            <ToggleButton
+                                leftText="PNG"
+                                rightText="JPG"
+                                isLeftSelected={exportFormat === 'png'}
+                                onChange={(isPng) => setExportFormat(isPng ? 'png' : 'jpeg')}
+                            />
+                        </div>
                         <button
                             className="button-base button-purple add-field-button"
                             type="button"
