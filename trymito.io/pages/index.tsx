@@ -23,6 +23,7 @@ import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButto
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import DataSources from '../components/DataSources/DataSources';
 import EnterpriseLLM from '../components/EnterpriseLLM/EnterpriseLLM';
+import HomeTagline from '../components/HomeTagline/HomeTagline';
 import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
 import DemoVideo from '../components/DemoVideo/DemoVideo';
 import WaitlistSignup from '../components/WaitlistSignup/WaitlistSignup';
@@ -78,12 +79,14 @@ const Home: NextPage = () => {
               </div>
             </div>
 
-            {abTestVariant === 'carousel' && <SocialProofCarousel />}
+            <SocialProofCarousel />
 
             {/* <AIInputField autoLaunchJupyterLab={true} /> */}
           </section>
 
-          {abTestVariant === 'logo' && <LogoSection />}
+          <section>
+            <HomeTagline />
+          </section>
 
           <section>
             <MadeWithMito />

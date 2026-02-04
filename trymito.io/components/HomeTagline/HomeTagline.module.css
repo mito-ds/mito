@@ -1,0 +1,71 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6rem 3rem;
+  width: 100%;
+}
+
+.tagline {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 52rem;
+}
+
+/* Same font as .decorativeText so it’s identical in both sections; only color differs */
+.decorativeTextPurple {
+  font-family: "Cormorant", Georgia, "Times New Roman", serif;
+  font-size: 3.25rem;
+  font-weight: 400;
+  font-style: italic;
+  opacity: 1;
+  font-synthesis: none;
+  color: var(--color-purple);
+  cursor: help;
+  letter-spacing: 0.02em;
+  /* Soft glow so purple reads clearly on dark background */
+  text-shadow: 0 0 24px color-mix(in srgb, var(--color-purple) 25%, transparent);
+}
+
+.tooltipTrigger {
+  position: relative;
+  display: inline;
+}
+
+.tooltipTrigger .tooltipContent {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%) translateY(-0.5rem);
+  width: 280px;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-text-primary-alpha-10);
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.45;
+  color: var(--color-text-primary);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  z-index: 20;
+  text-align: left;
+}
+
+.tooltipTrigger:hover .tooltipContent {
+  opacity: 1;
+  visibility: visible;
+}

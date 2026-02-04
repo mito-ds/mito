@@ -93,21 +93,21 @@
   margin-top: .5rem;
 }
 
-/* Page-level glow: bright center behind "Made with Mito", radiates outward, not bounded by section.
-   Height/width large enough that the element edges stay off-screen; only the soft gradient is visible. */
+/* Page-level glow: bright center behind HomeTagline + "Made with Mito", radiates outward.
+   Positioned so both sections sit within the glow; height/width keep edges off-screen. */
 .pageGlow {
   position: absolute;
-  top: 145vh;
+  top: 108vh;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 200%;
-  height: 250vh;
+  height: 280vh;
   background: radial-gradient(
     ellipse at center,
     var(--color-brand-alpha-40) 0%,
     var(--color-brand-alpha-20) 12%,
     var(--color-brand-alpha-10) 25%,
-    transparent 45%
+    transparent 50%
   );
   pointer-events: none;
   z-index: 0;

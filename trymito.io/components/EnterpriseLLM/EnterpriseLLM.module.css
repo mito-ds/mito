@@ -67,13 +67,28 @@
   gap: 0.25em;
 }
 
-.headlineDecorative {
-  font-family: "Cormorant", Georgia, "Times New Roman", serif;
-  font-size: 2rem;
-  font-weight: 400;
-  font-style: italic;
-  color: var(--color-text-secondary);
-  opacity: 0.95;
+/* Wrapper for "AI" so we can position the spark at top-right of the I */
+.headlineAIWrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* Pixelated starburst decoration at top-right of "AI" (like hero tagline) */
+.headlineSpark {
+  position: absolute;
+  top: -0.35em;
+  right: -0.5em;
+  width: 1.1em;
+  height: 1.1em;
+  color: #d97a8f;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.headlineSpark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .headlineBold {

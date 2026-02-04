@@ -217,6 +217,18 @@ h3 {
   font-style: semibold;
 }
 
+/* Decorative script text — shared across Enterprise, tagline, etc. */
+.decorativeText {
+  font-family: "Cormorant", Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  opacity: 0.95;
+  /* Prevent parent (e.g. bold .tagline) from affecting fallback font rendering */
+  font-synthesis: none;
+}
+
 p,  li {
   font-size: 2rem;
   line-height: 1.5;
