@@ -149,6 +149,10 @@
     margin-bottom: 12px;
 }
 
+.chart-wizard-export-format-row .toggle-button-container {
+    width: 100%;
+}
+
 .chart-wizard-section-heading {
     font-size: 14px;
     font-weight: 600;
