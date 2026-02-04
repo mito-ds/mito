@@ -202,9 +202,10 @@ def test_delete_nonexistent_rule_with_auth(jp_base_url):
 
 
 def test_delete_rule_invalid_name(jp_base_url):
-    # Try to delete with invalid rule name (path traversal attempt)
+    # Try to delete with invalid rule name (contains Windows reserved character ':')
+    # This will reach the handler but fail validation in _sanitize_rule_name
     response = requests.delete(
-        jp_base_url + f"/mito-ai/rules/../invalid",
+        jp_base_url + f"/mito-ai/rules/rule:with:colons",
         headers={"Authorization": f"token {TOKEN}"},
     )
     assert response.status_code == 400  # Bad Request
