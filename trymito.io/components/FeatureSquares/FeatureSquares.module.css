@@ -31,6 +31,16 @@
     max-width: 1320px;
 }
 
+.feature_squares_tagline {
+    width: 100%;
+    max-width: 1320px;
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+}
+
 .feature_card {
     display: flex;
     flex-direction: column;

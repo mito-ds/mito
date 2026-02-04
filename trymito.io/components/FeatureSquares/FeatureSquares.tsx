@@ -1054,13 +1054,16 @@ const FeatureSquares = (): JSX.Element => {
     return (
         <div className={featureSquaresStyles.feature_squares_wrapper}>
             <h2 className={featureSquaresStyles.feature_squares_heading}>
-                Everything you need to go from data to production
+                The complete toolkit for turning data into insights
             </h2>
             <div className={featureSquaresStyles.feature_squares_container}>
                 {FEATURES.map((feature) => (
                     <FeatureCard key={feature.id} feature={feature} />
                 ))}
             </div>
+            <p className={featureSquaresStyles.feature_squares_tagline}>
+                Upgrade your Jupyter workflow with one pip install
+            </p>
         </div>
     );
 };

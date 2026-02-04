@@ -18,27 +18,33 @@
   overflow: hidden;
 }
 
-/* Subtle grid pattern on section background */
+/* Subtle grid pattern on section background — wider spacing, extends up, fades at bottom */
 .container::before {
   content: '';
   position: absolute;
-  inset: 0;
+  top: -5rem;
+  left: 0;
+  right: 0;
+  height: calc(100% + 5rem);
   background-image:
     repeating-linear-gradient(
       0deg,
       var(--color-grid-overlay) 0px,
       var(--color-grid-overlay) 1px,
       transparent 1px,
-      transparent 64px
+      transparent 112px
     ),
     repeating-linear-gradient(
       90deg,
       var(--color-grid-overlay) 0px,
       var(--color-grid-overlay) 1px,
       transparent 1px,
-      transparent 64px
+      transparent 112px
     );
   background-repeat: repeat;
+  mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
   pointer-events: none;
   z-index: 0;
 }
@@ -65,30 +71,6 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.25em;
-}
-
-/* Wrapper for "AI" so we can position the spark at top-right of the I */
-.headlineAIWrap {
-  position: relative;
-  display: inline-block;
-}
-
-/* Pixelated starburst decoration at top-right of "AI" (like hero tagline) */
-.headlineSpark {
-  position: absolute;
-  top: -0.35em;
-  right: -0.5em;
-  width: 1.1em;
-  height: 1.1em;
-  color: #d97a8f;
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-.headlineSpark svg {
-  width: 100%;
-  height: 100%;
-  display: block;
 }
 
 .headlineBold {

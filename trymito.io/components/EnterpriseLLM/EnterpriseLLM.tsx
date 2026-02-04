@@ -47,28 +47,7 @@ const EnterpriseLLM = (): JSX.Element => {
     <div className={enterpriseStyles.container}>
       <header className={enterpriseStyles.header}>
         <h2 className={enterpriseStyles.headline}>
-          <span className="decorativeText">
-            Your <span className={enterpriseStyles.headlineAIWrap}>
-              AI
-              <span className={enterpriseStyles.headlineSpark} aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {/* Pixelated starburst: rays radiating from center (top-right of I) */}
-                  <rect x="10" y="2" width="2" height="2" fill="currentColor" />
-                  <rect x="12" y="3" width="2" height="2" fill="currentColor" />
-                  <rect x="14" y="4" width="2" height="2" fill="currentColor" opacity="0.85" />
-                  <rect x="16" y="5" width="2" height="2" fill="currentColor" opacity="0.6" />
-                  <rect x="14" y="6" width="2" height="2" fill="currentColor" />
-                  <rect x="16" y="7" width="2" height="2" fill="currentColor" opacity="0.8" />
-                  <rect x="18" y="8" width="2" height="2" fill="currentColor" opacity="0.5" />
-                  <rect x="10" y="6" width="2" height="2" fill="currentColor" opacity="0.9" />
-                  <rect x="12" y="8" width="2" height="2" fill="currentColor" opacity="0.7" />
-                  <rect x="8" y="4" width="2" height="2" fill="currentColor" opacity="0.8" />
-                  <rect x="6" y="6" width="2" height="2" fill="currentColor" opacity="0.5" />
-                  <rect x="10" y="4" width="2" height="2" fill="currentColor" opacity="0.6" />
-                </svg>
-              </span>
-            </span>, Your Infra,
-          </span>
+          <span className="decorativeText">Your AI, Your Infra,</span>
           <span className={enterpriseStyles.headlineBold}> Your Privacy</span>
         </h2>
         <p className={enterpriseStyles.subtitle}>
