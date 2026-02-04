@@ -10,6 +10,66 @@ RULES_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, 'rules')
 RULES_METADATA_FILENAME: Final[str] = '_metadata.json'
 
 
+def _sanitize_rule_name(rule_name: str) -> str:
+    """
+    Sanitizes a rule name to prevent path traversal attacks.
+    Raises ValueError if the rule name contains unsafe characters.
+    
+    Args:
+        rule_name: The rule name to sanitize
+        
+    Returns:
+        The sanitized rule name (with .md extension stripped if present)
+        
+    Raises:
+        ValueError: If the rule name contains path traversal sequences or other unsafe characters
+    """
+    if not rule_name:
+        raise ValueError("Rule name cannot be empty")
+    
+    # Strip .md extension if present
+    if rule_name.endswith('.md'):
+        rule_name = rule_name[:-3]
+    
+    # Check for path traversal sequences
+    if '..' in rule_name or '/' in rule_name or '\\' in rule_name:
+        raise ValueError(f"Rule name contains invalid characters: {rule_name}")
+    
+    # Check for absolute paths
+    if os.path.isabs(rule_name):
+        raise ValueError(f"Rule name cannot be an absolute path: {rule_name}")
+    
+    # Check for null bytes or other control characters
+    if '\x00' in rule_name:
+        raise ValueError("Rule name cannot contain null bytes")
+    
+    # Ensure it's a valid filename (no reserved characters on Windows)
+    # Windows reserved: < > : " | ? * 
+    invalid_chars = set('<>:|?*"')
+    if any(c in rule_name for c in invalid_chars):
+        raise ValueError(f"Rule name contains invalid filename characters: {rule_name}")
+    
+    return rule_name
+
+
+def _validate_rule_path(file_path: str, rule_name: str) -> None:
+    """
+    Validates that a rule file path is within the rules directory.
+    This provides defense-in-depth protection against path traversal attacks.
+    
+    Args:
+        file_path: The file path to validate
+        rule_name: The rule name (for error messages)
+        
+    Raises:
+        ValueError: If the resolved path is outside RULES_DIR_PATH
+    """
+    resolved_path = os.path.abspath(file_path)
+    rules_dir_abs = os.path.abspath(RULES_DIR_PATH)
+    if not resolved_path.startswith(rules_dir_abs):
+        raise ValueError(f"Invalid rule name: {rule_name}")
+
+
 def _get_metadata_path() -> str:
     return os.path.join(RULES_DIR_PATH, RULES_METADATA_FILENAME)
 
@@ -55,12 +115,18 @@ def set_rules_file(rule_name: str, value: Any) -> None:
     """
     Updates the value of a specific rule file in the rules directory
     """
+    # Sanitize rule name to prevent path traversal
+    rule_name = _sanitize_rule_name(rule_name)
+    
     # Ensure the directory exists
     if not os.path.exists(RULES_DIR_PATH):
         os.makedirs(RULES_DIR_PATH)
 
     # Create the file path to the rule name as a .md file
     file_path = os.path.join(RULES_DIR_PATH, f"{rule_name}.md")
+    
+    # Additional safety check: ensure the resolved path is still within RULES_DIR_PATH
+    _validate_rule_path(file_path, rule_name)
 
     with open(file_path, 'w+') as f:
         f.write(value)
@@ -71,9 +137,14 @@ def delete_rule(rule_name: str) -> None:
     Deletes a rule file from the rules directory. Normalizes rule_name (strips .md).
     Metadata for this rule is removed by cleanup_rules_metadata().
     """
-    if rule_name.endswith('.md'):
-        rule_name = rule_name[:-3]
+    # Sanitize rule name to prevent path traversal
+    rule_name = _sanitize_rule_name(rule_name)
+    
     file_path = os.path.join(RULES_DIR_PATH, f"{rule_name}.md")
+    
+    # Additional safety check: ensure the resolved path is still within RULES_DIR_PATH
+    _validate_rule_path(file_path, rule_name)
+    
     if os.path.exists(file_path):
         os.remove(file_path)
 
@@ -82,11 +153,13 @@ def get_rule(rule_name: str) -> Optional[str]:
     """
     Retrieves the value of a specific rule file from the rules directory
     """
-    
-    if rule_name.endswith('.md'):
-        rule_name = rule_name[:-3]
+    # Sanitize rule name to prevent path traversal
+    rule_name = _sanitize_rule_name(rule_name)
     
     file_path = os.path.join(RULES_DIR_PATH, f"{rule_name}.md")
+    
+    # Additional safety check: ensure the resolved path is still within RULES_DIR_PATH
+    _validate_rule_path(file_path, rule_name)
     
     if not os.path.exists(file_path):
         return None

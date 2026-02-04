@@ -35,13 +35,17 @@ class RulesHandler(APIHandler):
             self.finish(json.dumps(rules))
         else:
             # Key provided, return specific rule
-            rule_content = get_rule(key)
-            if rule_content is None:
-                self.set_status(404)
-                self.finish(json.dumps({"error": f"Rule with key '{key}' not found"}))
-            else:
-                is_default = get_rule_default(key)
-                self.finish(json.dumps({"key": key, "content": rule_content, "is_default": is_default}))
+            try:
+                rule_content = get_rule(key)
+                if rule_content is None:
+                    self.set_status(404)
+                    self.finish(json.dumps({"error": f"Rule with key '{key}' not found"}))
+                else:
+                    is_default = get_rule_default(key)
+                    self.finish(json.dumps({"key": key, "content": rule_content, "is_default": is_default}))
+            except ValueError as e:
+                self.set_status(400)
+                self.finish(json.dumps({"error": str(e)}))
     
     @tornado.web.authenticated
     def put(self, key: str) -> None:
@@ -52,15 +56,23 @@ class RulesHandler(APIHandler):
             self.finish(json.dumps({"error": "Content is required"}))
             return
 
-        set_rules_file(key, data['content'])
-        if 'is_default' in data:
-            set_rule_default(key, bool(data['is_default']))
-        cleanup_rules_metadata()
-        self.finish(json.dumps({"status": "updated", "rules file ": key}))
+        try:
+            set_rules_file(key, data['content'])
+            if 'is_default' in data:
+                set_rule_default(key, bool(data['is_default']))
+            cleanup_rules_metadata()
+            self.finish(json.dumps({"status": "updated", "rules file ": key}))
+        except ValueError as e:
+            self.set_status(400)
+            self.finish(json.dumps({"error": str(e)}))
 
     @tornado.web.authenticated
     def delete(self, key: str) -> None:
         """Delete a rule by key (rule name)."""
-        delete_rule(key)
-        cleanup_rules_metadata()
-        self.finish(json.dumps({"status": "deleted", "key": key}))
+        try:
+            delete_rule(key)
+            cleanup_rules_metadata()
+            self.finish(json.dumps({"status": "deleted", "key": key}))
+        except ValueError as e:
+            self.set_status(400)
+            self.finish(json.dumps({"error": str(e)}))
