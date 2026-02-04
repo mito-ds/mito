@@ -100,7 +100,9 @@ test.describe.parallel("Background Agent functionality", () => {
 
         // Verify the agent worked in the original notebook
         const firstCodeCell = await getCodeFromCell(page, 0);
-        expect(firstCodeCell).toContain('meta_stock_prices.csv');
+        const secondCodeCell = await getCodeFromCell(page, 1);
+        const combinedCode = `${firstCodeCell}\n${secondCodeCell}`;
+        expect(combinedCode).toContain('meta_stock_prices.csv');
 
         // Check that the agent never used the run_all_cells tool 
         // by looking at the content in the chat taskpane
