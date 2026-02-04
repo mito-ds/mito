@@ -73,8 +73,11 @@ async function saveWithFilePicker(dataUrl: string): Promise<void> {
     const writable = await (handle as FileSystemFileHandle & {
         createWritable(): Promise<{ write(data: Blob): Promise<void>; close(): Promise<void> }>;
     }).createWritable();
-    await writable.write(blob);
-    await writable.close();
+    try {
+        await writable.write(blob);
+    } finally {
+        await writable.close();
+    }
 }
 
 /**
