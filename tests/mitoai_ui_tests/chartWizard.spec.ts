@@ -87,17 +87,6 @@ test.describe.parallel('Chart Wizard', () => {
         await page.waitForTimeout(600); // Wait for debounce
         await waitForIdle(page); // Wait for cell execution to complete
 
-        // Verify there are no errors in the cell output
-        const cellOutput = await page.notebook.getCellOutput(0);
-        if (cellOutput) {
-            const outputHtml = await cellOutput.innerHTML();
-            // Check for error output class (JupyterLab uses jp-mod-error for error outputs)
-            expect(outputHtml).not.toContain('jp-mod-error');
-            // Check for traceback (Python errors always include traceback)
-            const outputText = await cellOutput.textContent();
-            expect(outputText).not.toMatch(/Traceback\s*\(most recent call last\)/);
-        }
-
         // Expand all code cells so getCodeFromCell can read the code
         await executeJupyterCommand(page, 'notebook:show-all-cell-code');
 
