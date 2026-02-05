@@ -958,9 +958,9 @@ const FEATURES: FeatureCardData[] = [
         isHero: true
     },
     {
-        id: 'smart-debugging',
-        title: 'Auto Error Correction',
-        description: 'One-click fix and explanation for any error.'
+        id: 'spreadsheet-editor',
+        title: 'Excel-like Spreadsheet',
+        description: 'Edit your data with formulas, pivots, and filter just like you do in Excel.'
     },
     {
         id: 'chart-wizard',
@@ -968,9 +968,9 @@ const FEATURES: FeatureCardData[] = [
         description: 'Point-and-click charts, exported as Python.'
     },
     {
-        id: 'spreadsheet-editor',
-        title: 'Excel-like Spreadsheet',
-        description: 'Edit your data with formulas, pivots, and filter just like you do in Excel.'
+        id: 'smart-debugging',
+        title: 'Auto Error Correction',
+        description: 'One-click fix and explanation for any error.'
     },
     {
         id: 'database-connections',
