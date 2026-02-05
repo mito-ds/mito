@@ -1,113 +1,179 @@
 /*
  * Copyright (c) Saga Inc.
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Vertical timeline: icons sit centered on a left-aligned vertical line.
+ * Two-column layout: accordion left, ASCII art visual right.
+ * No background card — page background shows through.
  */
 
-/* ── Container ── */
+/* ── Container — matches FeatureSquares max-width & alignment ── */
 .container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 2rem;
+  justify-content: center;
+  /* No extra horizontal padding — the page container already provides 2rem.
+     This keeps left-edge alignment with FeatureSquares. */
   width: 100%;
 }
 
-/* ── Accordion ── */
-.accordion {
-  width: 100%;
-  max-width: 60rem;
+/* ── Two-column layout ── */
+.twoColumnLayout {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  /* Subtle top/bottom lines to ground the section */
-  border-top: 1px solid var(--color-text-primary-alpha-10);
-  border-bottom: 1px solid var(--color-text-primary-alpha-10);
+  max-width: 1320px;
+  width: 100%;
+  gap: 2rem;
 }
 
-/* ── Item ── */
-.item {
-  border-bottom: 1px solid var(--color-text-primary-alpha-15);
+/* ── Timeline wrapper (left column on desktop) ── */
+.timeline {
   position: relative;
-  transition: background-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  /* Pad left to make room for the node circles sitting on the line */
+  padding-left: 1.375rem;
 }
 
-.item:last-child {
-  border-bottom: none;
+/* ── Vertical connecting line ── */
+.timelineLine {
+  position: absolute;
+  /* Center on the node circles: node is 2.75rem wide, center = 1.375rem */
+  left: calc(1.375rem - 1px);
+  top: 1.375rem;
+  bottom: 1.375rem;
+  width: 2px;
+  background: var(--color-brand-alpha-30);
+  pointer-events: none;
+  z-index: 0;
+  box-shadow: 0 0 8px var(--color-brand-alpha-15);
 }
 
-/* Purple left accent bar on the open item */
-.itemOpen {
-  background: var(--color-brand-alpha-10);
+/* ── Individual timeline item ── */
+.timelineItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  position: relative;
 }
 
-.itemOpen::before {
+/* ── Node (icon circle) sitting ON the line ── */
+.timelineNode {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  /* Shift left so the circle is centered on the vertical line
+     The timeline has padding-left: 1.375rem, so the content starts there.
+     We need the circle's center at 0 (the line position).
+     Circle is 2.75rem wide, so shift left by 1.375rem (half) + 1.375rem (padding) = 2.75rem,
+     but since we want its center at the line (1.375rem from container left), 
+     we shift by half the circle width = 1.375rem from the left edge of the padded area. */
+  margin-left: -1.375rem;
+}
+
+.nodeCircle {
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+  border: 1.5px solid var(--color-text-primary-alpha-15);
+  color: var(--color-text-secondary);
+  transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.nodeCircleActive {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+  background: var(--color-brand-alpha-15);
+  box-shadow: 0 0 20px var(--color-brand-alpha-30);
+}
+
+/* Glow segment on the line below the active node */
+.nodeCircleActive::after {
   content: '';
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--color-brand);
-  border-radius: 0 2px 2px 0;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 4rem;
+  background: linear-gradient(to bottom, var(--color-brand-alpha-60), transparent);
+  pointer-events: none;
+  z-index: -1;
 }
 
-/* ── Trigger (headline button) ── */
-.trigger {
-  width: 100%;
+/* ── Content area (to the right of the node) ── */
+.timelineContent {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 2.5rem;
+}
+
+/* Last item doesn't need bottom padding */
+.timelineItem:last-child .timelineContent {
+  padding-bottom: 0;
+}
+
+/* ── Clickable header row ── */
+.timelineHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 2rem;
-  background: none;
-  border: none;
+  gap: 0.75rem;
   cursor: pointer;
-  text-align: left;
-  gap: 1rem;
-  transition: background-color 0.15s ease;
+  /* Align headline vertically with the center of the node circle */
+  padding-top: 0.45rem;
+  padding-bottom: 0.25rem;
+  user-select: none;
+  border-radius: 0.375rem;
+  transition: background 0.15s ease;
 }
 
-.trigger:hover {
+.timelineHeader:hover {
   background: var(--color-brand-alpha-10);
+  padding-left: 0.5rem;
+  margin-left: -0.5rem;
+  padding-right: 0.5rem;
 }
 
-/* ── Number ── */
-.number {
-  font-family: Graphik, -apple-system, sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--color-brand);
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
-  width: 1.5rem;
-  text-align: center;
-  opacity: 0.7;
+.timelineHeader:focus-visible {
+  outline: 2px solid var(--color-brand-alpha-50);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
 }
 
-.itemOpen .number {
-  opacity: 1;
-}
-
-.headline {
+.timelineHeadline {
   font-family: Graphik, -apple-system, sans-serif;
   font-size: 1.375rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.65);
   margin: 0;
   line-height: 1.3;
   flex: 1;
   transition: color 0.25s ease;
 }
 
-.itemOpen .headline {
+.timelineItemExpanded .timelineHeadline {
   color: var(--color-text-primary);
+}
+
+.timelineHeader:hover .timelineHeadline {
+  color: var(--color-brand-light);
 }
 
 /* ── Chevron ── */
 .chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   color: var(--color-text-secondary);
-  transition: transform 0.3s ease, color 0.2s ease;
   opacity: 0.5;
+  transition: transform 0.3s ease, opacity 0.3s ease, color 0.3s ease;
 }
 
 .chevronOpen {
@@ -116,51 +182,232 @@
   opacity: 1;
 }
 
-/* ── Collapsible panel ── */
-.panel {
+/* ── Expandable panel (grid row animation) ── */
+.expandable {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.35s ease;
+  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.panelOpen {
+.expandableOpen {
   grid-template-rows: 1fr;
 }
 
-.panelInner {
+.expandableInner {
   overflow: hidden;
+  min-height: 0;
 }
 
+/* ── Description text ── */
 .description {
-  padding: 0 2rem 1.5rem 4.25rem;
-  margin: 0;
+  /* Override global p margin-top (3rem mobile / 2rem desktop) */
+  margin: 0.5rem 0 0 !important;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.6;
   color: var(--color-text-secondary);
 }
 
+/* ── Visual column (right side — ASCII art card) ── */
+.visualColumn {
+  display: none;
+}
+
+.visualCard {
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-text-primary-alpha-10);
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.visualCardVisible {
+  animation: visualFadeIn 0.4s ease both;
+}
+
+@keyframes visualFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   ASCII Art — Jupyter planet with orbiting moons
+   ═══════════════════════════════════════════════════════ */
+
+.asciiContainer {
+  border-radius: 0.625rem;
+  overflow: hidden;
+  max-width: fit-content;
+}
+
+.asciiInner {
+  position: relative;
+  width: fit-content;
+  overflow: hidden;
+}
+
+/* Shared base for all ASCII pre elements */
+.asciiPlanet,
+.asciiMoon {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.375rem;
+  line-height: 1.05;
+  margin: 0;
+  white-space: pre;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Planet body + "Jupyter" text (static) */
+.asciiPlanet {
+  color: var(--color-brand-alpha-40);
+  position: relative;
+}
+
+/* Moon overlays (same dimensions, absolutely positioned on top) */
+.asciiMoon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--color-brand-light);
+  text-shadow: 0 0 8px var(--color-brand-alpha-40);
+}
+
+/* Moon 1 (★ characters) — clockwise orbit */
+.asciiMoon1 {
+  transform-origin: 48% 54%;
+  animation: orbitCW 35s linear infinite;
+}
+
+/* Moon 2 (＋ characters) — counter-clockwise orbit */
+.asciiMoon2 {
+  transform-origin: 48% 54%;
+  animation: orbitCCW 28s linear infinite;
+}
+
+@keyframes orbitCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbitCCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   ASCII Art — Tree with shimmering leaves
+   ═══════════════════════════════════════════════════════ */
+
+.asciiTreeBranches {
+  color: var(--color-brand-alpha-50);
+}
+
+.asciiTreeLeaves {
+  color: var(--color-brand-light);
+  text-shadow: 0 0 4px var(--color-brand-alpha-20);
+  animation: leafShimmer 4s ease-in-out infinite;
+}
+
+@keyframes leafShimmer {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.9; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   ASCII Art — Padlock with spinning combination dial
+   ═══════════════════════════════════════════════════════ */
+
+.asciiPadlockDial {
+  color: var(--color-brand-light);
+  text-shadow: 0 0 6px var(--color-brand-alpha-30);
+  transform-origin: 55% 70%;
+  animation: orbitCW 25s linear infinite;
+}
+
+/* ── Reduce motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .asciiMoon1,
+  .asciiMoon2,
+  .asciiPadlockDial {
+    animation: none;
+  }
+
+  .asciiTreeLeaves {
+    animation: none;
+  }
+}
+
+/* ── Desktop: two-column side-by-side ── */
+@media only screen and (min-width: 50em) {
+  .twoColumnLayout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 3rem;
+  }
+
+  .timeline {
+    flex: 1.1;
+    min-width: 0;
+  }
+
+  .visualColumn {
+    display: flex;
+    flex: 0.9;
+    min-width: 0;
+    align-items: flex-start;
+    justify-content: center;
+    position: sticky;
+    top: 8rem;
+  }
+}
+
 /* ── Mobile adjustments ── */
 @media only screen and (max-width: 50em) {
   .container {
-    padding: 0 1.5rem;
+    padding: 0 0.5rem;
   }
 
-  .trigger {
-    padding: 1.5rem 1.25rem;
-  }
-
-  .headline {
+  .timelineHeadline {
     font-size: 1.75rem;
   }
 
   .description {
     font-size: 1.5rem;
     line-height: 1.5;
-    padding: 0 1.25rem 1.5rem 3.5rem;
   }
 
-  .number {
-    font-size: 1.25rem;
+  .nodeCircle {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .timeline {
+    padding-left: 1.625rem;
+  }
+
+  .timelineNode {
+    margin-left: -1.625rem;
+  }
+
+  .timelineLine {
+    left: calc(1.625rem - 1px);
+  }
+
+  .asciiPlanet,
+  .asciiMoon,
+  .asciiTreeBranches,
+  .asciiTreeLeaves {
+    font-size: 0.28rem;
+  }
+
+  .asciiContainer {
+    padding: 0.75rem;
   }
 }
