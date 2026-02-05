@@ -1,58 +1,204 @@
 /*
  * Copyright (c) Saga Inc.
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * FAQ accordion — same visual design as HomeTagline accordion.
  */
 
-.faq_card_container {
-
-    /* 
-        Reduce the padding so we can increase the size of the header to 
-        make it easily clickable w/o making it look rediculous
-    */
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    margin-top: 3rem;
-
-    /* When we scroll to a card, make sure its not cutoff by the header */
-    scroll-margin-top: 7rem; 
-
+/* ── Accordion container (wrap all FAQCard items in this) ── */
+.accordion {
+  width: 100%;
+  max-width: 60rem;
+  margin: 2rem auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--color-text-primary-alpha-10);
+  border-bottom: 1px solid var(--color-text-primary-alpha-10);
 }
 
-.header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    /* Set a large height so make the div easily clickable to open/close the FAQ */
-    height: 40px;
-    cursor: pointer;
+/* ── Item ── */
+.item {
+  border-bottom: 1px solid var(--color-text-primary-alpha-15);
+  position: relative;
+  transition: background-color 0.3s ease;
+  scroll-margin-top: 7rem;
 }
 
-.faq_card_container li {
-    list-style-position: outside;
-    margin-left: 4rem;
+.item:last-child {
+  border-bottom: none;
 }
 
-.faq_card_header_text {
-    font-size: 2rem;
-    color: var(--color-text-primary);
+.itemOpen {
+  background: var(--color-brand-alpha-10);
 }
 
-.faq_card_container *:first-child {
-    margin-top: 0;
+.itemOpen::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-brand);
+  border-radius: 0 2px 2px 0;
 }
 
+/* ── Trigger ── */
+.trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  gap: 1rem;
+  transition: background-color 0.15s ease;
+}
 
-@media only screen and (min-width: 50em) { 
-    .faq_card_container {
-        max-width: 70rem;
-    }
+.trigger:hover {
+  background: var(--color-brand-alpha-10);
+}
 
-    .faq_card_container li { 
-        margin-left: 2rem;
-    }
+/* No hover effect on the title when the card is already expanded */
+.itemOpen .trigger:hover {
+  background: transparent;
+}
 
-    .faq_card_header_text {
-        font-size: 1.25rem;
-    }
+/* ── Number ── */
+.number {
+  font-family: Graphik, -apple-system, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-brand);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  width: 1.5rem;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.itemOpen .number {
+  opacity: 1;
+}
+
+.headline {
+  font-family: Graphik, -apple-system, sans-serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+  transition: color 0.25s ease;
+}
+
+.itemOpen .headline {
+  color: var(--color-text-primary);
+}
+
+/* ── Chevron ── */
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  transition: transform 0.3s ease, color 0.2s ease;
+  opacity: 0.5;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+  color: var(--color-brand);
+  opacity: 1;
+}
+
+/* ── Collapsible panel ── */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+
+.panelOpen {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  overflow: hidden;
+}
+
+.content {
+  padding: 0 2rem 1.5rem 4.25rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.content p {
+  margin: 0 0 1rem;
+}
+
+.content p:last-child {
+  margin-bottom: 0;
+}
+
+.content a {
+  color: var(--color-brand);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.content a:hover {
+  color: var(--color-brand-light);
+}
+
+.content ul,
+.content ol {
+  margin: 0 0 1rem;
+  padding-left: 1.5rem;
+}
+
+.content li {
+  margin-bottom: 0.25rem;
+  list-style-position: outside;
+}
+
+.itemNoNumber .content {
+  padding-left: 2rem;
+}
+
+/* ── Mobile ── */
+@media only screen and (max-width: 50em) {
+  .accordion {
+    margin-top: 1.5rem;
+  }
+
+  .trigger {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .headline {
+    font-size: 1.75rem;
+  }
+
+  .content {
+    font-size: 1.5rem;
+    line-height: 1.5;
+    padding: 0 1.25rem 1.5rem 3.5rem;
+  }
+
+  .itemNoNumber .content {
+    padding-left: 1.25rem;
+  }
+
+  .number {
+    font-size: 1.25rem;
+  }
+
+  .content li {
+    margin-left: 0;
+  }
 }

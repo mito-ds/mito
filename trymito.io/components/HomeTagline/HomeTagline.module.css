@@ -3,80 +3,164 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/* ── Container ── */
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 3rem 6rem 3rem;
+  padding: 0 2rem;
   width: 100%;
 }
 
-.tagline {
-  text-align: center;
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 1.55;
-  color: var(--color-text-secondary);
-  margin: 0;
-  max-width: 52rem;
+/* ── Accordion ── */
+.accordion {
+  width: 100%;
+  max-width: 60rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Subtle top/bottom lines to ground the section */
+  border-top: 1px solid var(--color-text-primary-alpha-10);
+  border-bottom: 1px solid var(--color-text-primary-alpha-10);
 }
 
-/* Same font as .decorativeText so it’s identical in both sections; only color differs */
-.decorativeTextPurple {
-  font-family: "PP Editorial New, sans-serif";
-  font-size: 3.25rem;
-  font-weight: 400;
-  font-style: italic;
-  opacity: 1;
-  font-synthesis: none;
-  color: var(--color-purple);
-  cursor: help;
-  letter-spacing: 0.02em;
-  /* Soft glow so purple reads clearly on dark background */
-  text-shadow: 0 0 24px color-mix(in srgb, var(--color-purple) 25%, transparent);
-  /* Decorative underline to signal interactivity */
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-decoration-color: color-mix(in srgb, var(--color-purple) 50%, transparent);
-  text-underline-offset: 0.15em;
-  text-decoration-thickness: 2px;
-  transition: text-decoration-color 0.2s ease;
-}
-
-.decorativeTextPurple:hover {
-  text-decoration-color: var(--color-purple);
-}
-
-.tooltipTrigger {
+/* ── Item ── */
+.item {
+  border-bottom: 1px solid var(--color-text-primary-alpha-15);
   position: relative;
-  display: inline;
+  transition: background-color 0.3s ease;
 }
 
-.tooltipTrigger .tooltipContent {
+.item:last-child {
+  border-bottom: none;
+}
+
+/* Purple left accent bar on the open item */
+.itemOpen {
+  background: var(--color-brand-alpha-10);
+}
+
+.itemOpen::before {
+  content: '';
   position: absolute;
-  left: 50%;
-  bottom: 100%;
-  transform: translateX(-50%) translateY(-0.5rem);
-  width: 340px;
-  padding: 1.25rem 1.5rem;
-  background: var(--color-surface);
-  border: 2px dotted var(--color-purple);
-  border-radius: 0.5rem;
-  font-size: 0.9375rem;
-  font-weight: 400;
-  font-style: normal;
-  line-height: 1.5;
-  color: var(--color-text-primary);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-  z-index: 20;
-  text-align: left;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-brand);
+  border-radius: 0 2px 2px 0;
 }
 
-.tooltipTrigger:hover .tooltipContent {
+/* ── Trigger (headline button) ── */
+.trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  gap: 1rem;
+  transition: background-color 0.15s ease;
+}
+
+.trigger:hover {
+  background: var(--color-brand-alpha-10);
+}
+
+/* ── Number ── */
+.number {
+  font-family: Graphik, -apple-system, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-brand);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  width: 1.5rem;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.itemOpen .number {
   opacity: 1;
-  visibility: visible;
+}
+
+.headline {
+  font-family: Graphik, -apple-system, sans-serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+  transition: color 0.25s ease;
+}
+
+.itemOpen .headline {
+  color: var(--color-text-primary);
+}
+
+/* ── Chevron ── */
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  transition: transform 0.3s ease, color 0.2s ease;
+  opacity: 0.5;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+  color: var(--color-brand);
+  opacity: 1;
+}
+
+/* ── Collapsible panel ── */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+
+.panelOpen {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  overflow: hidden;
+}
+
+.description {
+  padding: 0 2rem 1.5rem 4.25rem;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* ── Mobile adjustments ── */
+@media only screen and (max-width: 50em) {
+  .container {
+    padding: 0 1.5rem;
+  }
+
+  .trigger {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .headline {
+    font-size: 1.75rem;
+  }
+
+  .description {
+    font-size: 1.5rem;
+    line-height: 1.5;
+    padding: 0 1.25rem 1.5rem 3.5rem;
+  }
+
+  .number {
+    font-size: 1.25rem;
+  }
 }

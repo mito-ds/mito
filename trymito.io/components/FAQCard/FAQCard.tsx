@@ -3,52 +3,72 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import Image from 'next/image'
-import { useState } from 'react'
+import { useState } from 'react';
+import faqCardStyles from './FAQCard.module.css';
+import { classNames } from '../../utils/classNames';
 
-import pageStyles from '../../styles/Page.module.css'
-import faqCardStyles from './FAQCard.module.css'
+const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={classNames(faqCardStyles.chevron, { [faqCardStyles.chevronOpen]: isOpen })}
+    aria-hidden
+  >
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
 
-import OpenFaq from '../../public/OpenIconLight.png'
-import CloseFaq from '../../public/CloseIconDark.png'
-import { classNames } from '../../utils/classNames'
-
-const FAQCard = (props: {title: string, children: JSX.Element, id?: string}): JSX.Element => {
-
-    const [faqCardOpen, setFaqCardOpen] = useState<boolean>(false)
-    const imageSrc = faqCardOpen ? CloseFaq : OpenFaq
-    const imageAlt = faqCardOpen ? 'Close FAQ': 'Open FAQ'
-    const imageHeight = faqCardOpen ? 5 : 20
-
-    return (
-        <div 
-            className={classNames(pageStyles.background_card, faqCardStyles.faq_card_container)}
-            id={props.id}
-        >
-            <div 
-                className={faqCardStyles.header}
-                onClick={() => {
-                    setFaqCardOpen(prevFaqCardOpen => !prevFaqCardOpen)
-                }}
-            >
-                <h3 className={faqCardStyles.faq_card_header_text}>
-                    {props.title}
-                </h3>
-                <div>
-                    <Image
-                        src={imageSrc}
-                        alt={imageAlt}
-                        width={20}
-                        height={imageHeight}
-                    />
-                </div>
-            </div>
-            {faqCardOpen &&
-                props.children
-            }
-        </div>
-    )
-    
+interface FAQCardProps {
+  title: string;
+  children: JSX.Element;
+  id?: string;
+  /** Optional 1-based index for numbered label (e.g. 1 → "01"). Omit to hide number. */
+  index?: number;
 }
 
-export default FAQCard; 
+const FAQCard = (props: FAQCardProps): JSX.Element => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  return (
+    <div
+      className={classNames(
+        faqCardStyles.item,
+        { [faqCardStyles.itemOpen]: isOpen },
+        props.index == null && faqCardStyles.itemNoNumber
+      )}
+      id={props.id}
+    >
+      <button
+        type="button"
+        className={faqCardStyles.trigger}
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-expanded={isOpen}
+      >
+        {props.index != null && (
+          <span className={faqCardStyles.number}>
+            {props.index < 10 ? `0${props.index}` : String(props.index)}
+          </span>
+        )}
+        <span className={faqCardStyles.headline}>{props.title}</span>
+        <ChevronIcon isOpen={isOpen} />
+      </button>
+      <div
+        className={classNames(faqCardStyles.panel, { [faqCardStyles.panelOpen]: isOpen })}
+        role="region"
+      >
+        <div className={faqCardStyles.panelInner}>
+          <div className={faqCardStyles.content}>{props.children}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FAQCard;
+export { faqCardStyles };

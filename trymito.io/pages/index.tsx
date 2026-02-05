@@ -10,7 +10,7 @@ import Prism from 'prismjs';
 import { useEffect } from 'react';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
 import CaseStudies from '../components/CaseStudies/CaseStudies';
-import FAQCard from '../components/FAQCard/FAQCard';
+import FAQCard, { faqCardStyles } from '../components/FAQCard/FAQCard';
 import Footer from '../components/Footer/Footer';
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
 import headerStyles from '../components/Header/Header.module.css';
@@ -125,63 +125,64 @@ const Home: NextPage = () => {
             <h2 className='center'>
               Frequently Asked Questions
             </h2>
-            <FAQCard title='Is Mito open source?'>
-              <div>
-                <p>
-                  Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">Github</a>.
-                </p>
-                <p>
-                  Outside contributions are welcome and encouraged! 
-                </p>
-              </div>
-            </FAQCard>
-            <FAQCard title='Is Mito free?'>
-              <div>
-                <p>
-                  Mito Open Source is free. You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
-                </p>
-                <p>
-                  For individuals automating spreadsheet processes or creating more advanced Python scripts, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling all telemetry, and additional formatting and transformation options.
-                </p>
-                <p>
-                  For enterprises looking to accelerate Python adoption, Mito Enterprise includes advanced functionality like admin controls, database and LLM integrations, and training programs. 
-                </p>
-                <p>
-                  See more at our <Link href='/plans'><a className={pageStyles.link}>plans page.</a></Link>
-                </p>
-              </div>
-            </FAQCard>
-            <FAQCard title='How do I install Mito?'>
-              <div>
-                <p>
-                  Mito is a Jupyter extension that runs in JupyterLab, Jupyter notebooks, JupyterHub, SageMaker, and more. You can also use the Mito Spreadsheet in Streamlit and Dash apps.
-                </p>
-                <p>
-                  You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
-                </p>
-              </div>
-            </FAQCard>
-            <FAQCard title='Can I use Mito to automate my spreadsheet tasks?'>
-              <div>
-                <p>
-                  Yes! Mito is designed to help you automate your spreadsheet tasks.
-                </p>
-                <p>
-                  By completing your spreadsheet workflow a single time in Mito, you will get a Python script that you can rerun on new data.
-                </p>
-              </div>
-            </FAQCard>
-            <FAQCard title='Can I use Python to view a spreadsheet?'>
-              <div>
-                <p>
-                  Mito provides a spreadsheet interface within your Python enviornment. 
-                </p>
-                <p>
-                  You can use Mito to view, edit, and transform your spreadsheet data from within Python, without needing to be a Python expert.
-                </p>
-              </div>
-            </FAQCard>
-            
+            <div className={faqCardStyles.accordion}>
+              <FAQCard title='Is Mito open source?' index={1}>
+                <div>
+                  <p>
+                    Mito is an open source project, and the codebase is available on <a className={pageStyles.link} href={MITO_GITHUB_LINK} target="_blank" rel="noreferrer">Github</a>.
+                  </p>
+                  <p>
+                    Outside contributions are welcome and encouraged!
+                  </p>
+                </div>
+              </FAQCard>
+              <FAQCard title='Is Mito free?' index={2}>
+                <div>
+                  <p>
+                    Mito Open Source is free. You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                  </p>
+                  <p>
+                    For individuals automating spreadsheet processes or creating more advanced Python scripts, we offer a Pro version. Mito Pro includes unlimited AI completions, disabling all telemetry, and additional formatting and transformation options.
+                  </p>
+                  <p>
+                    For enterprises looking to accelerate Python adoption, Mito Enterprise includes advanced functionality like admin controls, database and LLM integrations, and training programs.
+                  </p>
+                  <p>
+                    See more at our <Link href='/plans'><a className={pageStyles.link}>plans page.</a></Link>
+                  </p>
+                </div>
+              </FAQCard>
+              <FAQCard title='How do I install Mito?' index={3}>
+                <div>
+                  <p>
+                    Mito is a Jupyter extension that runs in JupyterLab, Jupyter notebooks, JupyterHub, SageMaker, and more. You can also use the Mito Spreadsheet in Streamlit and Dash apps.
+                  </p>
+                  <p>
+                    You can install Mito by following the install instructions <a className={pageStyles.link} href={MITO_INSTALLATION_DOCS_LINK} target="_blank" rel="noreferrer">here</a>.
+                  </p>
+                </div>
+              </FAQCard>
+              <FAQCard title='Can I use Mito to automate my spreadsheet tasks?' index={4}>
+                <div>
+                  <p>
+                    Yes! Mito is designed to help you automate your spreadsheet tasks.
+                  </p>
+                  <p>
+                    By completing your spreadsheet workflow a single time in Mito, you will get a Python script that you can rerun on new data.
+                  </p>
+                </div>
+              </FAQCard>
+              <FAQCard title='Can I use Python to view a spreadsheet?' index={5}>
+                <div>
+                  <p>
+                    Mito provides a spreadsheet interface within your Python enviornment.
+                  </p>
+                  <p>
+                    You can use Mito to view, edit, and transform your spreadsheet data from within Python, without needing to be a Python expert.
+                  </p>
+                </div>
+              </FAQCard>
+            </div>
           </section>
           </main>
 
