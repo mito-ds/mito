@@ -229,6 +229,23 @@ const TREE_LEAVES_LAYER = extractLayer(TREE_PADDED, '.');
 /* Branch detail: connecting characters — static */
 const TREE_BRANCHES_LAYER = extractLayer(TREE_PADDED, '=+-:*');
 
+/* ─── Falling leaf definitions (fixed positions to avoid SSR mismatch) ─── */
+
+const FALLING_LEAVES = [
+  { x: '22%', startY: '32%', endY: '88%', duration: '10s', delay: '0s',   sway: '3.2s', char: '.' },
+  { x: '35%', startY: '28%', endY: '90%', duration: '12s', delay: '2.5s', sway: '2.8s', char: ':' },
+  { x: '44%', startY: '35%', endY: '85%', duration: '9s',  delay: '1s',   sway: '3.5s', char: '.' },
+  { x: '55%', startY: '30%', endY: '92%', duration: '11s', delay: '4s',   sway: '2.6s', char: '*' },
+  { x: '63%', startY: '26%', endY: '87%', duration: '13s', delay: '0.5s', sway: '3.8s', char: '.' },
+  { x: '72%', startY: '33%', endY: '86%', duration: '10s', delay: '5s',   sway: '3.0s', char: ':' },
+  { x: '30%', startY: '38%', endY: '90%', duration: '11s', delay: '7s',   sway: '2.4s', char: '.' },
+  { x: '50%', startY: '25%', endY: '88%', duration: '14s', delay: '1.8s', sway: '3.4s', char: '.' },
+  { x: '28%', startY: '40%', endY: '85%', duration: '12s', delay: '6s',   sway: '2.9s', char: '*' },
+  { x: '58%', startY: '34%', endY: '91%', duration: '9s',  delay: '8s',   sway: '3.6s', char: '.' },
+  { x: '68%', startY: '29%', endY: '87%', duration: '15s', delay: '3s',   sway: '2.5s', char: ':' },
+  { x: '40%', startY: '36%', endY: '89%', duration: '11s', delay: '9.5s', sway: '3.1s', char: '.' },
+];
+
 /* ─── Tree ASCII art component with shimmering leaves ──────────────────── */
 
 function TreeAsciiArt() {
@@ -245,6 +262,25 @@ function TreeAsciiArt() {
         <pre className={classNames(taglineStyles.asciiMoon, taglineStyles.asciiTreeLeaves)}>
           {TREE_LEAVES_LAYER}
         </pre>
+        {/* Falling leaves */}
+        <div className={taglineStyles.fallingLeavesContainer}>
+          {FALLING_LEAVES.map((leaf, i) => (
+            <span
+              key={i}
+              className={taglineStyles.fallingLeaf}
+              style={{
+                '--leaf-x': leaf.x,
+                '--leaf-start-y': leaf.startY,
+                '--leaf-end-y': leaf.endY,
+                '--leaf-duration': leaf.duration,
+                '--leaf-delay': leaf.delay,
+                '--leaf-sway': leaf.sway,
+              } as React.CSSProperties}
+            >
+              {leaf.char}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
