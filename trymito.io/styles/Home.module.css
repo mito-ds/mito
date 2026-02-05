@@ -24,6 +24,24 @@
   opacity: 0.2;
 }
 
+.hero_tag_wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: -3rem;
+  margin-bottom: 2rem;
+}
+
+.hero_pill_center {
+  margin-left: 0;
+  color: white !important;
+  /* Strong background and glow so the tag stands out on the hero */
+  background: color-mix(in srgb, var(--color-purple) 65%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-purple) 75%, transparent),
+    0 0 24px var(--color-brand-alpha-30);
+}
+
 .hero_content_container {
   display: flex;
   flex-direction: column;

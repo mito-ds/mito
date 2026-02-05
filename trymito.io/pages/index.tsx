@@ -13,6 +13,7 @@ import CaseStudies from '../components/CaseStudies/CaseStudies';
 import FAQCard from '../components/FAQCard/FAQCard';
 import Footer from '../components/Footer/Footer';
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
+import headerStyles from '../components/Header/Header.module.css';
 import LogoSection from '../components/LogoSection/LogoSection';
 import homeStyles from '../styles/Home.module.css';
 import pageStyles from '../styles/Page.module.css';
@@ -52,6 +53,12 @@ const Home: NextPage = () => {
             <section className={classNames(pageStyles.background_card, titleStyles.title_card, titleStyles.grid_card)}>
             <div className={homeStyles.hero_content_container}>
               <div className={homeStyles.hero_text_container}>
+                <div className={classNames(homeStyles.hero_tag_wrapper, 'display-desktop-only-flex')}>
+                  <div className={classNames(headerStyles.nav_pill, homeStyles.hero_pill_center)}>
+                    <span className={headerStyles.nav_pill_new}>NEW</span>
+                    <span className={headerStyles.nav_pill_text}>Convert Excel files to Python</span>
+                  </div>
+                </div>
                 <h1 className={classNames(titleStyles.title, titleStyles.cycling_h1_container, 'display-desktop-only-flex')}>
                   <span>From Data to{' '}</span>
                   <span className={titleStyles.cycling_text}>

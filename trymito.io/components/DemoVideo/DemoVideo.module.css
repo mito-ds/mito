@@ -114,6 +114,14 @@
   border: 5px solid var(--color-light-purple);
 }
 
+/* Prevent browser overlay from tinting video when native controls are shown */
+.modalVideo::-webkit-media-controls-overlay-enclosure {
+  background: transparent !important;
+}
+.modalVideo::-webkit-media-controls-enclosure {
+  background: transparent !important;
+}
+
 @media only screen and (min-width: 50em) {
   .gifContainer {
     max-width: min(1200px, 85vw);
