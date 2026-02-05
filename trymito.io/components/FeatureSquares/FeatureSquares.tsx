@@ -1050,17 +1050,22 @@ function FeatureCard({ feature }: { feature: FeatureCardData }) {
     );
 }
 
+const FEATURE_SQUARES_HEADING = 'The complete toolkit for turning data into insights';
+
 const FeatureSquares = (): JSX.Element => {
     return (
         <div className={featureSquaresStyles.feature_squares_wrapper}>
-            <h2 className={featureSquaresStyles.feature_squares_heading}>
-                The complete toolkit for turning data into insights
+            <h2 className={classNames(featureSquaresStyles.feature_squares_heading, 'only-on-mobile-block')}>
+                {FEATURE_SQUARES_HEADING}
             </h2>
             <div className={featureSquaresStyles.feature_squares_container}>
                 {FEATURES.map((feature) => (
                     <FeatureCard key={feature.id} feature={feature} />
                 ))}
             </div>
+            <h2 className={classNames(featureSquaresStyles.feature_squares_heading_below, 'only-on-desktop')}>
+                {FEATURE_SQUARES_HEADING}
+            </h2>
             <p className={featureSquaresStyles.feature_squares_tagline}>
                 Upgrade your Jupyter workflow with one pip install
             </p>

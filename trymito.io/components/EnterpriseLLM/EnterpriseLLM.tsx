@@ -91,7 +91,7 @@ const EnterpriseLLM = (): JSX.Element => {
         <article className={enterpriseStyles.card}>
           <h3 className={enterpriseStyles.cardTitle}>Any Provider</h3>
           <p className={enterpriseStyles.cardDescription}>
-            Connect through your existing contracts. LiteLLM, Azure OpenAI Enterprise, AWS Bedrock, Microsoft Copilot — one interface, your choice of provider.
+            Connect through your existing contracts. LiteLLM, Azure OpenAI Enterprise, AWS Bedrock, Microsoft Copilot.
           </p>
           <div className={enterpriseStyles.modelIconCloud} aria-hidden="true">
             {modelIcons.map((icon, index) => (

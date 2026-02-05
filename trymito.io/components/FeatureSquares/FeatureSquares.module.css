@@ -31,12 +31,25 @@
     max-width: 1320px;
 }
 
+/* Desktop-only: heading below bento, left-aligned (same width as grid) */
+.feature_squares_heading_below {
+    width: 100%;
+    max-width: 1320px;
+    margin-top: 2rem;
+    margin-bottom: 0;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
 .feature_squares_tagline {
     width: 100%;
     max-width: 1320px;
     margin-top: 1.5rem;
     margin-bottom: 0;
-    text-align: center;
+    text-align: left;
     font-size: 1rem;
     color: var(--color-text-secondary);
 }
@@ -1384,6 +1397,10 @@
 @media (min-width: 50em) {
     .feature_squares_heading {
         margin-bottom: 6rem;
+        font-size: 2.5rem;
+    }
+
+    .feature_squares_heading_below {
         font-size: 2.5rem;
     }
 

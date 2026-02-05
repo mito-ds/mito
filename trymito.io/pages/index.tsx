@@ -47,6 +47,8 @@ const Home: NextPage = () => {
       <div className={homeStyles.pageWithTexture}>
         <Header usePageTexture />
         <div className={homeStyles.pageGlow} aria-hidden="true" />
+        <div className={homeStyles.pageGlow2} aria-hidden="true" />
+
 
         <div className={pageStyles.container}>
         <main className={pageStyles.main}>
@@ -96,15 +98,15 @@ const Home: NextPage = () => {
           </section>
 
           <section>
-            <MadeWithMito />
-          </section>
-          
-          <section>
             <FeatureSquares />
           </section>
 
           <section>
             <EnterpriseLLM />
+          </section>
+
+          <section>
+            <MadeWithMito />
           </section>
 
           <section>

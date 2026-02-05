@@ -80,7 +80,7 @@
 .video {
   max-width: 100%;
   border-radius: 2rem;
-  padding: 1.5rem 2rem; 
+  padding: 1.5rem 2rem;
   background: var(--color-video-background);
   border: 5px solid var(--color-light-purple);
 }
@@ -111,22 +111,37 @@
   margin-top: .5rem;
 }
 
-/* Page-level glow: bright center behind HomeTagline + "Made with Mito", radiates outward.
-   Positioned so both sections sit within the glow; height/width keep edges off-screen. */
+/* Page-level glow: bright center behind */
 .pageGlow {
   position: absolute;
-  top: -32vh; /* top edge fixed so extra height only extends down */
+  top: -40vh;
+  /* top edge fixed so extra height only extends down */
   left: 50%;
   transform: translateX(-50%);
   width: 200%;
-  height: 300vh;
-  background: radial-gradient(
-    ellipse at center,
-    var(--color-brand-alpha-40) 0%,
-    var(--color-brand-alpha-20) 12%,
-    var(--color-brand-alpha-10) 25%,
-    transparent 50%
-  );
+  height: 200vh;
+  background: radial-gradient(ellipse at center,
+      var(--color-brand-alpha-40) 0%,
+      var(--color-brand-alpha-20) 12%,
+      var(--color-brand-alpha-10) 25%,
+      transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pageGlow2 {
+  position: absolute;
+  bottom: 260vh;
+  /* top edge fixed so extra height only extends down */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200%;
+  height: 200vh;
+  background: radial-gradient(ellipse at center,
+      var(--color-brand-alpha-40) 0%,
+      var(--color-brand-alpha-20) 12%,
+      var(--color-brand-alpha-10) 25%,
+      transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
@@ -190,14 +205,14 @@
   .video {
     max-width: 85vw;
     max-height: 40rem;
-    padding: .5rem .5rem; 
+    padding: .5rem .5rem;
   }
 
   .metrics_container {
     flex-direction: row;
     flex-wrap: wrap;
   }
-  
+
   .case_study_section {
     flex-direction: row;
   }
