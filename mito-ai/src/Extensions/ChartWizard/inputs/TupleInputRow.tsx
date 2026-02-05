@@ -6,8 +6,20 @@
 import React from 'react';
 import { InputRowProps } from './types';
 
+function clamp(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
+}
+
 export const TupleInputRow: React.FC<InputRowProps> = ({ variable, label, onVariableChange }) => {
     const tupleValue = variable.value as [number, number];
+    const min = variable.min;
+    const max = variable.max;
+    const clampOrIdentity = (v: number, fallback: number): number => {
+        if (min !== undefined && max !== undefined) {
+            return clamp(v, min, max);
+        }
+        return Number.isNaN(v) ? fallback : v;
+    };
     return (
         <div key={variable.name} className="chart-wizard-input-row">
             <label className="chart-wizard-input-label">{label}</label>
@@ -16,9 +28,12 @@ export const TupleInputRow: React.FC<InputRowProps> = ({ variable, label, onVari
                 <input
                     type="number"
                     value={tupleValue[0]}
+                    min={min}
+                    max={max}
+                    step={min !== undefined && max !== undefined && max - min <= 1 ? 'any' : 1}
                     onChange={(e) => {
-                        const newValue: [number, number] = [parseFloat(e.target.value) || 0, tupleValue[1]];
-                        onVariableChange(variable.name, newValue);
+                        const v = clampOrIdentity(parseFloat(e.target.value), 0);
+                        onVariableChange(variable.name, [v, tupleValue[1]]);
                     }}
                     className="chart-wizard-tuple-input"
                 />
@@ -26,9 +41,12 @@ export const TupleInputRow: React.FC<InputRowProps> = ({ variable, label, onVari
                 <input
                     type="number"
                     value={tupleValue[1]}
+                    min={min}
+                    max={max}
+                    step={min !== undefined && max !== undefined && max - min <= 1 ? 'any' : 1}
                     onChange={(e) => {
-                        const newValue: [number, number] = [tupleValue[0], parseFloat(e.target.value) || 0];
-                        onVariableChange(variable.name, newValue);
+                        const v = clampOrIdentity(parseFloat(e.target.value), 0);
+                        onVariableChange(variable.name, [tupleValue[0], v]);
                     }}
                     className="chart-wizard-tuple-input"
                 />
