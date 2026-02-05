@@ -9,7 +9,6 @@ from mito_ai.enterprise.utils import is_abacus_configured
 # Model ordering: [fastest, ..., slowest] for each provider
 ANTHROPIC_MODEL_ORDER = [
     "claude-haiku-4-5-20251001",  # Fastest
-    "claude-sonnet-4-5-20250929",  # Slower
 ]
 
 OPENAI_MODEL_ORDER = [
@@ -27,7 +26,6 @@ GEMINI_MODEL_ORDER = [
 STANDARD_MODELS = [
     "gpt-4.1",
     "gpt-5.2",
-    "claude-sonnet-4-5-20250929",
     "claude-haiku-4-5-20251001",
     "gemini-3-flash-preview",
     "gemini-3-pro-preview",

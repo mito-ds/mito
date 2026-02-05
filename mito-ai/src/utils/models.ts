@@ -40,7 +40,6 @@ export async function getAvailableModels(): Promise<string[]> {
         return [
             GPT_4_1_MODEL_NAME,
             GPT_5_2_MODEL_NAME,
-            CLAUDE_SONNET_MODEL_NAME,
             CLAUDE_HAIKU_MODEL_NAME,
             GEMINI_3_FLASH_MODEL_NAME,
             GEMINI_3_PRO_MODEL_NAME,

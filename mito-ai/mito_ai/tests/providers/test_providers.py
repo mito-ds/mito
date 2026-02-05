@@ -59,7 +59,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
         "name": "claude", 
         "env_vars": {"ANTHROPIC_API_KEY": "claude-key"},
         "constants": {"ANTHROPIC_API_KEY": "claude-key", "OPENAI_API_KEY": None},
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-haiku-4-5-20251001",
         "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "request_completions",
         "provider_name": "Claude",
@@ -143,7 +143,7 @@ async def test_completion_request(
         "name": "claude", 
         "env_vars": {"ANTHROPIC_API_KEY": "claude-key"},
         "constants": {"ANTHROPIC_API_KEY": "claude-key", "OPENAI_API_KEY": None},
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-haiku-4-5-20251001",
         "mock_patch": "mito_ai.provider_manager.AnthropicClient",
         "mock_method": "stream_completions", 
         "provider_name": "Claude",
@@ -235,7 +235,7 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
 
     mock_client = MagicMock()
     mock_client.capabilities = AICapabilities(
-        configuration={"model": "claude-sonnet-4-5-20250929"},
+        configuration={"model": "claude-haiku-4-5-20251001"},
         provider="Claude",
         type="ai_capabilities"
     )
@@ -258,7 +258,7 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
     },
     {
         "name": "claude_fallback", 
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-haiku-4-5-20251001",
         "mock_function": "mito_ai.anthropic_client.get_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
@@ -315,7 +315,7 @@ async def test_mito_server_fallback_completion_request(
     },
     {
         "name": "claude_fallback", 
-        "model": "claude-sonnet-4-5-20250929",
+        "model": "claude-haiku-4-5-20251001",
         "mock_function": "mito_ai.anthropic_client.stream_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
