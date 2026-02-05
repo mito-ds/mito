@@ -17,8 +17,7 @@ __user_id: Optional[str] = None
 ANTHROPIC_TIMEOUT = 60
 max_retries = 1
 
-FAST_ANTHROPIC_MODEL = "claude-haiku-4-5-20251001" # This should be in sync with ModelSelector.tsx
-LARGE_CONTEXT_MODEL = "claude-sonnet-4-5-20250929" # This should be in sync with ModelSelector.tsx
+LARGE_CONTEXT_MODEL = "claude-sonnet-4-5-20250929"
 EXTENDED_CONTEXT_BETA = "context-1m-2025-08-07" # Beta feature for extended context window support
 
 def does_message_exceed_max_tokens(system: Union[str, List[TextBlockParam], anthropic.Omit], messages: List[MessageParam]) -> bool:

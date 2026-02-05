@@ -10,8 +10,6 @@ import NucleausIcon from '../icons/NucleausIcon';
 import BrainIcon from '../icons/BrainIcon';
 import LightningIcon from '../icons/LightningIcon';
 import { 
-  CLAUDE_SONNET_DISPLAY_NAME, 
-  CLAUDE_SONNET_MODEL_NAME, 
   CLAUDE_HAIKU_DISPLAY_NAME, 
   CLAUDE_HAIKU_MODEL_NAME,
   GPT_4_1_DISPLAY_NAME,
@@ -89,16 +87,6 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     tokenLimit: '200K',
     speed: 'Fast',
     complexityHandling: 'Medium'
-  },
-  {
-    displayName: CLAUDE_SONNET_DISPLAY_NAME,
-    fullName: CLAUDE_SONNET_MODEL_NAME,
-    type: 'smart',
-    goodFor: [...GOOD_FOR_SMART],
-    provider: 'Anthropic',
-    tokenLimit: '1M',
-    speed: 'Medium',
-    complexityHandling: 'High'
   },
   {
     displayName: GEMINI_3_FLASH_DISPLAY_NAME,

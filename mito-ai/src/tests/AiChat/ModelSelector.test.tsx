@@ -12,7 +12,6 @@ import {
   GPT_4_1_DISPLAY_NAME, 
   GPT_4_1_MODEL_NAME,
   GPT_5_2_MODEL_NAME,
-  CLAUDE_SONNET_MODEL_NAME,
   CLAUDE_HAIKU_MODEL_NAME,
   GEMINI_3_FLASH_MODEL_NAME,
   GEMINI_3_PRO_MODEL_NAME,
@@ -43,7 +42,6 @@ describe('ModelSelector', () => {
         models: [
           GPT_4_1_MODEL_NAME,
           GPT_5_2_MODEL_NAME,
-          CLAUDE_SONNET_MODEL_NAME,
           CLAUDE_HAIKU_MODEL_NAME,
           GEMINI_3_FLASH_MODEL_NAME,
           GEMINI_3_PRO_MODEL_NAME,
@@ -82,9 +80,9 @@ describe('ModelSelector', () => {
   });
 
   it('loads saved model from localStorage on mount', async () => {
-    // Set up localStorage with a saved model
+    // Set up localStorage with a saved model (must be in available models)
     const savedConfig = {
-      model: 'claude-sonnet-4-5-20250929'
+      model: CLAUDE_HAIKU_MODEL_NAME
     };
     localStorage.setItem('llmModelConfig', JSON.stringify(savedConfig));
 
@@ -103,7 +101,6 @@ describe('ModelSelector', () => {
         models: [
           GPT_4_1_MODEL_NAME,
           GPT_5_2_MODEL_NAME,
-          CLAUDE_SONNET_MODEL_NAME,
           CLAUDE_HAIKU_MODEL_NAME,
           GEMINI_3_FLASH_MODEL_NAME,
           GEMINI_3_PRO_MODEL_NAME,
