@@ -12,12 +12,14 @@
 
 .gifContainer {
   position: relative;
-  width: 100%;
-  max-width: 1200px;
+  width: fit-content;
+  max-width: 100%;
   border-radius: 1rem;
   border: 5px solid color-mix(in srgb, var(--color-light-purple) 25%, transparent);
   cursor: pointer;
   overflow: hidden;
+  line-height: 0;
+  padding: 0;
 }
 
 .gifContainer::before {
@@ -27,14 +29,16 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.15);
   z-index: 1;
 }
 
-.gif {
-  width: 100%;
-  height: auto;
+.posterImage {
   display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
 }
 
 .playButton {
@@ -112,12 +116,7 @@
 
 @media only screen and (min-width: 50em) {
   .gifContainer {
-    max-width: 85vw;
-  }
-
-  .gif {
-    max-height: 40rem;
-    object-fit: contain;
+    max-width: min(1200px, 85vw);
   }
 }
 
