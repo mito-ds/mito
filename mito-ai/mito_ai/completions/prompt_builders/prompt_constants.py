@@ -27,7 +27,7 @@ Rules:
 - For string values, use either single or double quotes (e.g., TITLE = "Sales by Product" or TITLE = 'Sales by Product'). Do not use nested quotes (e.g., do NOT use '"value"').
 
 Fixed acceptable ranges (matplotlib constraints):
-- For numeric variables that have a fixed acceptable range, add a line immediately AFTER the variable assignment: # RANGE VARIABLE_NAME MIN MAX
+- For numeric variables that have a fixed acceptable range, add a line immediately BEFORE the variable assignment: # RANGE VARIABLE_NAME MIN MAX
 - This allows the Chart Wizard to clamp inputs and prevent invalid values. Use the following ranges when you use these variables:
   - ALPHA (opacity): 0 1
   - FIGURE_SIZE (tuple width, height in inches): 1 24 (each element)
@@ -49,10 +49,10 @@ TITLE = "Sales by Product"
 X_LABEL = "Product"
 Y_LABEL = "Sales"
 BAR_COLOR = "#000000"
-ALPHA = 0.8
 # RANGE ALPHA 0 1
-FIGURE_SIZE = (12, 6)
+ALPHA = 0.8
 # RANGE FIGURE_SIZE 1 24
+FIGURE_SIZE = (12, 6)
 # === END CONFIG ===
 """
 

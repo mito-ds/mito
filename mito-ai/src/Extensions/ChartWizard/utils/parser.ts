@@ -247,11 +247,11 @@ export function updateChartConfig(sourceCode: string, variables: ChartConfigVari
     const variablesToWrite = parsed.variables.map(v => varMap.get(v.name) || v);
 
     for (const variable of variablesToWrite) {
-        const formattedValue = formatValue(variable.value, variable.type);
-        newConfigSection += `${variable.name} = ${formattedValue}\n`;
         if (variable.min !== undefined && variable.max !== undefined) {
             newConfigSection += `# RANGE ${variable.name} ${variable.min} ${variable.max}\n`;
         }
+        const formattedValue = formatValue(variable.value, variable.type);
+        newConfigSection += `${variable.name} = ${formattedValue}\n`;
     }
 
     newConfigSection += '\n' + configEndMarker;
