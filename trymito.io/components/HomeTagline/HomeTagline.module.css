@@ -198,14 +198,36 @@
   min-height: 0;
 }
 
-/* ── Description text ── */
-.description {
-  /* Override global p margin-top (3rem mobile / 2rem desktop) */
+/* ── Bullet list inside expandable panel ── */
+.bulletList {
   margin: 0.5rem 0 0 !important;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.bulletItem {
+  position: relative;
+  padding-left: 1.35rem;
   font-size: 1rem;
   font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--color-text-secondary);
+}
+
+/* Custom bullet dot */
+.bulletItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  opacity: 0.7;
 }
 
 /* ── Visual column (right side — ASCII art card) ── */
@@ -449,7 +471,7 @@
     font-size: 1.75rem;
   }
 
-  .description {
+  .bulletItem {
     font-size: 1.5rem;
     line-height: 1.5;
   }

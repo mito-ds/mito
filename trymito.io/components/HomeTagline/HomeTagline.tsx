@@ -469,7 +469,7 @@ interface TimelineItemData {
   id: string;
   icon: JSX.Element;
   headline: string;
-  description: string;
+  bullets: string[];
   visual: JSX.Element;
 }
 
@@ -478,24 +478,33 @@ const ITEMS: TimelineItemData[] = [
     id: 'private',
     icon: <ShieldIcon />,
     headline: 'Private by design',
-    description:
-      'Mito runs 100% on your infrastructure. Bring your own API keys with Azure, LiteLLM, or any preferred LLM provider — no data ever leaves your systems.',
+    bullets: [
+      'Runs 100% on your infrastructure. No data ever leaves your systems',
+      'Bring your own API keys with Azure, AWS Bedrock, LiteLLM, or any other LLM provider',
+      'Runs in your existing local Jupyter servers, JupyterHub, or other notebook environments',
+    ],
     visual: <PadlockAsciiArt />,
   },
   {
     id: 'jupyter',
     icon: <JupyterIcon />,
     headline: 'Jupyter-native',
-    description:
-      'Purpose-built as a Jupyter extension, not bolted on. Mito understands notebook file formats, works with JupyterHub, and plays nicely with your existing extensions.',
+    bullets: [
+      'Understands notebook file formats, cell context, and kernel state',
+      'Compatible with all of your existing Jupyter extensions and workflows',
+      'Built as a Jupyter extension, not bolted on as an afterthought',
+    ],
     visual: <JupyterAsciiArt />,
   },
   {
     id: 'everyone',
     icon: <UsersIcon />,
     headline: 'Built for every skill level',
-    description:
-      'From analysts automating Excel reports to ML engineers building models — Mito meets your whole team where they are.',
+    bullets: [
+      'Analysts automate Excel reports without writing code from scratch',
+      'Data scientists accelerate EDA, visualization, and feature engineering',
+      'ML engineers build and iterate on models faster with AI assistance',
+    ],
     visual: <TreeAsciiArt />,
   },
 ];
@@ -561,7 +570,11 @@ function TimelineItem({
           role="region"
         >
           <div className={taglineStyles.expandableInner}>
-            <p className={taglineStyles.description}>{item.description}</p>
+            <ul className={taglineStyles.bulletList}>
+              {item.bullets.map((bullet, i) => (
+                <li key={i} className={taglineStyles.bulletItem}>{bullet}</li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
