@@ -46,6 +46,7 @@ const EnterpriseLLM = (): JSX.Element => {
   return (
     <div className={enterpriseStyles.container}>
       <header className={enterpriseStyles.header}>
+        <div className={enterpriseStyles.headlineGlow} aria-hidden="true" />
         <h2 className={enterpriseStyles.headline}>
           <span className="decorativeText">Your AI, Your Infra,</span>
           <span className={enterpriseStyles.headlineBold}> Your Privacy</span>

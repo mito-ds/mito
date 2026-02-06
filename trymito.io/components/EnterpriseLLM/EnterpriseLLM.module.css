@@ -15,7 +15,7 @@
   width: 100%;
   padding: 4rem 2rem;
   text-align: center;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Subtle grid pattern on section background — wider spacing, extends up, fades at bottom */
@@ -60,6 +60,24 @@
   align-items: center;
   margin-bottom: 2.5rem;
   max-width: 42rem;
+  position: relative;
+}
+
+/* Glow behind the headline — always centered on the header text */
+.headlineGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200%;
+  height: 200vh;
+  background: radial-gradient(ellipse at center,
+      var(--color-brand-alpha-40) 0%,
+      var(--color-brand-alpha-20) 12%,
+      var(--color-brand-alpha-10) 25%,
+      transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .headline {

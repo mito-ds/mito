@@ -129,22 +129,6 @@
   z-index: 0;
 }
 
-.pageGlow2 {
-  position: absolute;
-  bottom: 260vh;
-  /* top edge fixed so extra height only extends down */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200%;
-  height: 200vh;
-  background: radial-gradient(ellipse at center,
-      var(--color-brand-alpha-40) 0%,
-      var(--color-brand-alpha-20) 12%,
-      var(--color-brand-alpha-10) 25%,
-      transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
 
 .tweet_section_header {
   display: flex;
