@@ -313,6 +313,12 @@
   animation: orbitCCW 28s linear infinite;
 }
 
+/* Moon 3 (bottom-left ～ characters) — clockwise orbit */
+.asciiMoon3 {
+  transform-origin: 48% 54%;
+  animation: orbitCW 32s linear infinite;
+}
+
 @keyframes orbitCW {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -412,6 +418,7 @@
 @media (prefers-reduced-motion: reduce) {
   .asciiMoon1,
   .asciiMoon2,
+  .asciiMoon3,
   .asciiPadlockDial {
     animation: none;
   }

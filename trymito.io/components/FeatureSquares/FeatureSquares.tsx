@@ -4,6 +4,7 @@
  */
 
 import React, { useRef, useCallback, useState, useEffect } from 'react';
+import Link from 'next/link';
 import { classNames } from '../../utils/classNames';
 import featureSquaresStyles from './FeatureSquares.module.css';
 import pageStyles from '../../styles/Page.module.css';
@@ -1067,7 +1068,7 @@ const FeatureSquares = (): JSX.Element => {
                 {FEATURE_SQUARES_HEADING}
             </h2>
             <p className={featureSquaresStyles.feature_squares_tagline}>
-                Upgrade your Jupyter workflow with one pip install
+                Upgrade your Jupyter workflow with <Link href="/downloads" className={featureSquaresStyles.pip_install_link}>one pip install</Link>
             </p>
         </div>
     );

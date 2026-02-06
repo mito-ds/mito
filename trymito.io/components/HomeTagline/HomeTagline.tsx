@@ -72,16 +72,16 @@ const JUPYTER_ART_LINES: string[] = [
   '                        ===================================================                         ',
   '                           =============================================                            ',
   '                               ======================================                               ',
-  '             ======                 ============================                                    ',
-  '          ============                      ============                                            ',
-  '         ===============                                                                            ',
-  '        ================                                                                            ',
-  '       ==================                                                                           ',
-  '        =================                                                                           ',
-  '        ================                                                                            ',
-  '         ==============                                                                             ',
-  '          ============                                                                              ',
-  '              ====                                                                                  ',
+  '             ~~~~~~                 ============================                                    ',
+  '          ~~~~~~~~~~~~                      ============                                            ',
+  '         ~~~~~~~~~~~~~~~                                                                            ',
+  '        ~~~~~~~~~~~~~~~~                                                                            ',
+  '       ~~~~~~~~~~~~~~~~~~                                                                           ',
+  '        ~~~~~~~~~~~~~~~~~                                                                           ',
+  '        ~~~~~~~~~~~~~~~~                                                                            ',
+  '         ~~~~~~~~~~~~~~                                                                             ',
+  '          ~~~~~~~~~~~~                                                                              ',
+  '              ~~~~                                                                                  ',
   '                                                                                                    ',
   '                                                                                                    ',
   '                                                                                                    ',
@@ -110,6 +110,7 @@ function extractLayer(lines: string[], keep: string): string {
 const PLANET_LAYER = extractLayer(PADDED, '=#');
 const MOON1_LAYER = extractLayer(PADDED, '*');
 const MOON2_LAYER = extractLayer(PADDED, '+');
+const MOON3_LAYER = extractLayer(PADDED, '~');
 
 /* ─── Jupyter ASCII art component with orbiting moons ──────────────────── */
 
@@ -126,6 +127,10 @@ function JupyterAsciiArt() {
         {/* Moon 2 (＋) — orbits counter-clockwise */}
         <pre className={classNames(taglineStyles.asciiMoon, taglineStyles.asciiMoon2)}>
           {MOON2_LAYER}
+        </pre>
+        {/* Moon 3 (bottom-left ～) — orbits clockwise */}
+        <pre className={classNames(taglineStyles.asciiMoon, taglineStyles.asciiMoon3)}>
+          {MOON3_LAYER}
         </pre>
       </div>
     </div>
@@ -479,9 +484,9 @@ const ITEMS: TimelineItemData[] = [
     icon: <ShieldIcon />,
     headline: 'Private by design',
     bullets: [
-      'Runs 100% on your infrastructure. No data ever leaves your systems',
-      'Bring your own API keys with Azure, AWS Bedrock, LiteLLM, or any other LLM provider',
-      'Runs in your existing local Jupyter servers, JupyterHub, or other notebook environments',
+      'Runs 100% on your infrastructure. Enterprises send no data to Mito',
+      'Bring your own API keys for Azure, AWS, LiteLLM, or other LLM providers',
+      'Runs in your existing local Jupyter Lab, JupyterHub, or other notebook environments',
     ],
     visual: <PadlockAsciiArt />,
   },
@@ -585,7 +590,7 @@ function TimelineItem({
 /* ─── Main component ───────────────────────────────────────────────────── */
 
 const HomeTagline = (): JSX.Element => {
-  const [expandedId, setExpandedId] = useState<string | null>('jupyter');
+  const [expandedId, setExpandedId] = useState<string | null>('private');
 
   /* Find the visual for the currently expanded item */
   const expandedItem = ITEMS.find((item) => item.id === expandedId);

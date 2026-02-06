@@ -1438,6 +1438,15 @@
 
 
 
+.pip_install_link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.pip_install_link:hover {
+    text-decoration: underline;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .feature_card {
         transition: none;
