@@ -40,7 +40,7 @@ const FAQCard = (props: FAQCardProps): JSX.Element => {
       className={classNames(
         faqCardStyles.item,
         { [faqCardStyles.itemOpen]: isOpen },
-        props.index == null && faqCardStyles.itemNoNumber
+        props.index == null ? faqCardStyles.itemNoNumber : undefined
       )}
       id={props.id}
     >
