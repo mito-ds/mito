@@ -111,6 +111,11 @@ class TestGetFastModelForSelectedModel:
         """Test that GPT 5.2 returns GPT 4.1 (fastest OpenAI model)."""
         result = get_fast_model_for_selected_model("gpt-5.2")
         assert result == "gpt-4.1"
+
+    def test_openai_gpt_5_3_codex_returns_gpt_4_1(self):
+        """Test that GPT 5.3 Codex returns GPT 4.1 (fastest OpenAI model)."""
+        result = get_fast_model_for_selected_model("gpt-5.3-codex")
+        assert result == "gpt-4.1"
     
     def test_gemini_pro_returns_flash(self):
         """Test that Gemini Pro returns Gemini Flash (fastest Gemini model)."""
@@ -169,7 +174,7 @@ class TestGetFastModelForSelectedModel:
             (
                 "litellm/openai/gpt-5.2",
                 [
-                    "litellm/openai/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
+                    "litellm/openai/gpt-5.2",  # Index 2 in OPENAI_MODEL_ORDER
                     "litellm/anthropic/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
                 ],
                 "litellm/anthropic/claude-haiku-4-5-20251001",
@@ -331,7 +336,7 @@ class TestGetFastModelForSelectedModel:
             (
                 "Abacus/gpt-5.2",
                 [
-                    "Abacus/gpt-5.2",  # Index 1 in OPENAI_MODEL_ORDER
+                    "Abacus/gpt-5.2",  # Index 2 in OPENAI_MODEL_ORDER
                     "Abacus/claude-haiku-4-5-20251001",  # Index 0 in ANTHROPIC_MODEL_ORDER
                 ],
                 "Abacus/claude-haiku-4-5-20251001",
