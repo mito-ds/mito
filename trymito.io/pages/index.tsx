@@ -113,10 +113,6 @@ const Home: NextPage = () => {
             <DataSources />
           </section>
 
-          <section>
-            <CaseStudies />
-          </section>
-
           <section className={pageStyles.background_card}>
             <DownloadCTACard />
           </section>
