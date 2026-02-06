@@ -68,9 +68,9 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -40%);
   width: 200%;
-  height: 200vh;
+  height: 175vh;
   background: radial-gradient(ellipse at center,
       var(--color-brand-alpha-40) 0%,
       var(--color-brand-alpha-20) 12%,

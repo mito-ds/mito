@@ -1056,7 +1056,7 @@ const FEATURE_SQUARES_HEADING = 'The complete toolkit for turning data into insi
 const FeatureSquares = (): JSX.Element => {
     return (
         <div className={featureSquaresStyles.feature_squares_wrapper}>
-            <h2 className={classNames(featureSquaresStyles.feature_squares_heading, 'only-on-mobile-block')}>
+            <h2 className={classNames(featureSquaresStyles.feature_squares_heading)}>
                 {FEATURE_SQUARES_HEADING}
             </h2>
             <div className={featureSquaresStyles.feature_squares_container}>
@@ -1064,9 +1064,6 @@ const FeatureSquares = (): JSX.Element => {
                     <FeatureCard key={feature.id} feature={feature} />
                 ))}
             </div>
-            <h2 className={classNames(featureSquaresStyles.feature_squares_heading_below, 'only-on-desktop')}>
-                {FEATURE_SQUARES_HEADING}
-            </h2>
             <p className={featureSquaresStyles.feature_squares_tagline}>
                 Upgrade your Jupyter workflow with <Link href="/downloads"><a className={featureSquaresStyles.pip_install_link}>one pip install</a></Link>
             </p>
