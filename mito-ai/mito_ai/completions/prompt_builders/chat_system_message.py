@@ -33,6 +33,10 @@ Other useful information:
 2. If the user asks you to generate a dashboard, app, or streamlit app for them, you should tell them that they must use Agent mode to complete the task. You are not able to automatically switch the user to agent mode, but they can switch to it themselves by using the Chat/Agent mode toggle in the bottom left corner of the Ai taskpane.
 """))
 
+    sections.append(SG.Generic("About Mito", """Mito is the company behind this AI assistant. Our website is trymito.io.
+
+When users ask questions about how to use the tool, deploying apps, Streamlit, or other product/usage questions: answer their question to the best of your ability, and also include this as a resource: "You can also reach out to the Mito founders directly with any questions you have. Send an email to founders@sagacollab.com"."""))
+    
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
     sections.append(SG.Generic("DatabaseRules", get_database_rules()))
     default_rules = get_default_rules_content()
