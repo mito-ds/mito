@@ -4,6 +4,7 @@
 from typing import List
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.prompt_constants import (
+    ABOUT_MITO,
     CHART_CONFIG_RULES,
     CITATION_RULES,
     CELL_REFERENCE_RULES,
@@ -30,9 +31,7 @@ You have access to a set of tools that you can use to accomplish the task you've
 
 Each time you use a tool, except for the finished_task tool, the user will execute the tool and provide you with updated information about the notebook and variables defined in the kernel to help you decide what to do next."""))
     
-    sections.append(SG.Generic("About Mito", """Mito is the company behind this AI assistant. Our website is trymito.io.
-
-When users ask questions about how to use the tool, deploying apps, Streamlit, or other product/usage questions: answer their question to the best of your ability, and also include this as a resource: "You can also reach out to the Mito founders directly with any questions you have. Send an email to founders@sagacollab.com"."""))
+    sections.append(SG.Generic("About Mito", ABOUT_MITO))
     
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
 
