@@ -11,8 +11,8 @@ import Head from 'next/head';
 
 const DOMAIN = "trymito.io";
 const URL = `https://${DOMAIN}`;
-const TITLE = "Best Python Spreadsheet Automation & Code Generation | Mito";
-const DESCRIPTION = "Mito is the fastest way to do Python data science. Edit your data in a spreadsheet, and generate Python code automatically.";
+const TITLE = "AI Jupyter Notebook for Data and Excel Automations | Mito";
+const DESCRIPTION = "Mito is AI for your Jupyter Notebook workflow. Use the Jupyter Agent, SQL, Database Connections, and Streamlit Apps for EDA and automations.";
 const IMAGE = `${URL}/mito-og-banner.jpg`;
 
 function MyApp({ Component, pageProps }: AppProps) {

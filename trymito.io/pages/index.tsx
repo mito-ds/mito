@@ -9,17 +9,14 @@ import Link from 'next/link';
 import Prism from 'prismjs';
 import { useEffect } from 'react';
 import DownloadCTACard from '../components/CTACards/DownloadCTACard';
-import CaseStudies from '../components/CaseStudies/CaseStudies';
 import FAQCard, { faqCardStyles } from '../components/FAQCard/FAQCard';
 import Footer from '../components/Footer/Footer';
 import Header, { MITO_INSTALLATION_DOCS_LINK } from '../components/Header/Header';
 import headerStyles from '../components/Header/Header.module.css';
-import LogoSection from '../components/LogoSection/LogoSection';
 import homeStyles from '../styles/Home.module.css';
 import pageStyles from '../styles/Page.module.css';
 import titleStyles from '../styles/Title.module.css';
 import { classNames } from '../utils/classNames';
-import { PLAUSIBLE_INSTALL_DOCS_CTA_LOCATION_TITLE_CARD } from '../utils/plausible';
 import { MITO_GITHUB_LINK } from '../components/Buttons/GithubButton/GithubButton';
 import FeatureSquares from '../components/FeatureSquares/FeatureSquares';
 import DataSources from '../components/DataSources/DataSources';
@@ -29,10 +26,8 @@ import MadeWithMito from '../components/MadeWithMito/MadeWithMito';
 import DemoVideo from '../components/DemoVideo/DemoVideo';
 import WaitlistSignup from '../components/WaitlistSignup/WaitlistSignup';
 import SocialProofCarousel from '../components/SocialProofCarousel/SocialProofCarousel';
-import { useABTest } from '../utils/useABTest';
 
 const Home: NextPage = () => {
-  const abTestVariant = useABTest();
 
   useEffect(() => {
     Prism.highlightAll();
@@ -41,7 +36,7 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Best Python Spreadsheet Automation & Code Generation | Mito </title>
+        <title>AI Jupyter Notebook for Database and Excel Automations | Mito </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div className={homeStyles.pageWithTexture}>
