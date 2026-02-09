@@ -36,9 +36,9 @@ def get_installed_packages() -> List[str]:
     """
     return sorted(
         {
-            dist.metadata.get("Name", "").lower()
+            dist.metadata.get("Name", "").lower() # type: ignore
             for dist in distributions()
-            if dist.metadata.get("Name")
+            if dist.metadata.get("Name") # type: ignore
         }
     )
 
