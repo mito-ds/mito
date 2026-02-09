@@ -54,7 +54,7 @@ const Home: NextPage = () => {
             <section className={classNames(pageStyles.background_card, titleStyles.title_card, titleStyles.grid_card)}>
             <div className={homeStyles.hero_content_container}>
               <div className={homeStyles.hero_text_container}>
-                <div className={classNames(homeStyles.hero_tag_wrapper, 'display-desktop-only-flex')}>
+                <div className={homeStyles.hero_tag_wrapper}>
                   <div className={classNames(headerStyles.nav_pill, homeStyles.hero_pill_center)}>
                     <span className={headerStyles.nav_pill_new}>NEW</span>
                     <span className={headerStyles.nav_pill_text}>Convert Excel files to Python</span>
