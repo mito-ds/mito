@@ -1249,5 +1249,3 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 };
 
 export default ChatTaskpane;
-
-

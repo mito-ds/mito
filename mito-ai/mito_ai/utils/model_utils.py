@@ -9,7 +9,6 @@ from mito_ai.enterprise.utils import is_abacus_configured
 # Model ordering: [fastest, ..., slowest] for each provider
 ANTHROPIC_MODEL_ORDER = [
     "claude-haiku-4-5-20251001",  # Fastest
-    "claude-sonnet-4-5-20250929",  # Slower
 ]
 
 OPENAI_MODEL_ORDER = [

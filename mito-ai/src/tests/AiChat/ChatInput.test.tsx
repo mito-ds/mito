@@ -20,7 +20,11 @@ import { AgentExecutionStatus } from '../../Extensions/AiChat/ChatTaskpane';
 // Mock the RestAPI functions
 jest.mock('../../restAPI/RestAPI', () => ({
     ...jest.requireActual('../../restAPI/RestAPI'), // Import and retain default behavior
-    getRules: jest.fn().mockResolvedValue(['Data Analysis', 'Visualization', 'Machine Learning']),
+    getRules: jest.fn().mockResolvedValue([
+        { name: 'Data Analysis', isDefault: false },
+        { name: 'Visualization', isDefault: false },
+        { name: 'Machine Learning', isDefault: false }
+    ]),
     getDatabaseConnections: jest.fn().mockResolvedValue({})
 }));
 

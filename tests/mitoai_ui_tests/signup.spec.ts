@@ -18,9 +18,9 @@ import {
     sendMessagetoAIChat,
     startNewMitoAIChat,
 } from './utils';
-import { CLAUDE_SONNET_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
+import { CLAUDE_HAIKU_DISPLAY_NAME } from '../../mito-ai/src/utils/models';
 
-const MODEL = CLAUDE_SONNET_DISPLAY_NAME
+const MODEL = CLAUDE_HAIKU_DISPLAY_NAME
 const USER_JSON_PATH = path.join(os.homedir(), ".mito", "user.json");
 const BACKUP_USER_JSON_PATH = path.join(os.homedir(), ".mito", "user.json.backup");
 const CHAT_HISTORY_PATH = path.join(os.homedir(), ".mito", "ai-chats");

@@ -93,7 +93,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
     const [localFilterText, setLocalFilterText] = useState(filterText);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
-    const [rules, setRules] = useState<string[]>([]);
+    const [rules, setRules] = useState<Array<{ name: string; isDefault: boolean }>>([]);
     const [databaseConnections, setDatabaseConnections] = useState<Record<string, any>>({});
 
     useEffect(() => {
@@ -133,7 +133,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
         // Rules first
         ...rules.map((rule): ChatDropdownRuleOption => ({
             type: 'rule',
-            rule: rule
+            rule: rule.name
         })),
         // Cells second (when user types @Cell or @cell)
         ...cellReferences.map((cell): ChatDropdownCellOption => ({
@@ -184,14 +184,14 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
 
     let searchFilteredOptions = allOptions.filter((option) => {
         if (option.type === 'variable') {
-            return option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) &&
+            return (option.variable.variable_name?.toLowerCase() ?? '').includes(effectiveFilterText.toLowerCase()) &&
                 option.variable.type !== "<class 'module'>" &&
                 option.variable.variable_name !== "FUNCTIONS"; // This is default exported from mitosheet when you run from mitosheet import * as FUNCTIONS
         } else if (option.type === 'file') {
-            return option.file.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase());
+            return (option.file.variable_name?.toLowerCase() ?? '').includes(effectiveFilterText.toLowerCase());
         } else if (option.type === 'db') {
-            return option.variable.variable_name.toLowerCase().includes(effectiveFilterText.toLowerCase()) ||
-                option.variable.value.toLowerCase().includes(effectiveFilterText.toLowerCase());
+            return (option.variable.variable_name?.toLowerCase() ?? '').includes(effectiveFilterText.toLowerCase()) ||
+                (option.variable.value?.toLowerCase() ?? '').includes(effectiveFilterText.toLowerCase());
         } else if (option.type === 'cell') {
             // Match "CellN" (no space)
             const cellText = `cell${option.cellNumber}`;
@@ -199,7 +199,7 @@ const ChatDropdown: React.FC<ChatDropdownProps> = ({
             return cellText.includes(effectiveFilterText.toLowerCase()) ||
                 numberText.includes(effectiveFilterText.toLowerCase());
         } else {
-            return option.rule.toLowerCase().includes(effectiveFilterText.toLowerCase());
+            return (option.rule?.toLowerCase() ?? '').includes(effectiveFilterText.toLowerCase());
         }
     });
 

@@ -11,6 +11,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     get_database_rules
 )
 from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
+from mito_ai.rules.utils import get_default_rules_content
 
 def create_chat_system_message_prompt() -> str:
     sections: List[PromptSection] = []
@@ -34,6 +35,9 @@ Other useful information:
 
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
     sections.append(SG.Generic("DatabaseRules", get_database_rules()))
+    default_rules = get_default_rules_content()
+    if default_rules:
+        sections.append(SG.Generic("Default (User Defined) Rules", default_rules))
     sections.append(SG.Generic("Citation Rules", CITATION_RULES))
     sections.append(SG.Generic("Cell Reference Rules", CELL_REFERENCE_RULES))
     
