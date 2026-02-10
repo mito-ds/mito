@@ -4,6 +4,7 @@
 from typing import List
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.prompt_constants import (
+    ABOUT_MITO,
     CHART_CONFIG_RULES,
     CITATION_RULES,
     CELL_REFERENCE_RULES,
@@ -29,6 +30,8 @@ The user is going to ask you to guide them as they complete a task. You will hel
 You have access to a set of tools that you can use to accomplish the task you've been given. You can use one tool per message, and will receive the result of that tool use in the user's response. You use tools step-by-step to accomplish a given task, with each tool use informed by the result of the previous tool use.
 
 Each time you use a tool, except for the finished_task tool, the user will execute the tool and provide you with updated information about the notebook and variables defined in the kernel to help you decide what to do next."""))
+    
+    sections.append(SG.Generic("About Mito", ABOUT_MITO))
     
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
 

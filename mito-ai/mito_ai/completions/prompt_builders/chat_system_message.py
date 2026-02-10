@@ -4,6 +4,7 @@
 from typing import List
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.prompt_constants import (
+    ABOUT_MITO,
     CHART_CONFIG_RULES,
     CHAT_CODE_FORMATTING_RULES,
     CITATION_RULES,
@@ -33,6 +34,8 @@ Other useful information:
 2. If the user asks you to generate a dashboard, app, or streamlit app for them, you should tell them that they must use Agent mode to complete the task. You are not able to automatically switch the user to agent mode, but they can switch to it themselves by using the Chat/Agent mode toggle in the bottom left corner of the Ai taskpane.
 """))
 
+    sections.append(SG.Generic("About Mito", ABOUT_MITO))
+    
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
     sections.append(SG.Generic("DatabaseRules", get_database_rules()))
     default_rules = get_default_rules_content()
