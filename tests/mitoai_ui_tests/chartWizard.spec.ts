@@ -12,7 +12,8 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 import { executeJupyterCommand } from './utils';
 
-const CHART_CODE = `import pandas as pd
+const CHART_CODE = `!pip install matplotlib --quiet
+import pandas as pd
 # === CHART CONFIG ===
 TITLE = 'Original Title'
 X_LABEL = 'X Axis'
