@@ -1,0 +1,200 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.content_column {
+  max-width: 48rem;
+  width: 100%;
+}
+
+.section {
+  margin-top: 3rem;
+}
+
+.section + .section {
+  margin-top: 4rem;
+}
+
+.section_heading {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.hero_title {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.hero_subhead {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.model_card {
+  display: grid;
+  gap: 1rem;
+  padding: 2rem;
+  border-radius: 1rem;
+  background-color: var(--color-light-background);
+}
+
+.model_card_row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.model_card_label {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 8rem;
+}
+
+.model_card_list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.model_card_list li {
+  margin-bottom: 0.25rem;
+}
+
+.quick_steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quick_steps li {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  align-items: flex-start;
+}
+
+.quick_steps_number {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-purple);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.quick_steps_body {
+  flex: 1;
+}
+
+.quick_steps_body p {
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+}
+
+.quick_steps_body p + * {
+  margin-top: 0.25rem;
+}
+
+.callout_box {
+  display: grid;
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: 1rem;
+  background-color: var(--color-light-background);
+  margin-top: 1.5rem;
+}
+
+@media only screen and (min-width: 50em) {
+  .callout_box {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.callout_heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.callout_list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.callout_list li {
+  margin-bottom: 0.35rem;
+}
+
+.comparison_table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+.comparison_table th,
+.comparison_table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comparison_table th {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.comparison_table thead th {
+  border-bottom: 2px solid var(--color-border);
+}
+
+.use_cases_list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.use_cases_list li {
+  margin-bottom: 0.5rem;
+}
+
+.faq_wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.related_links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.related_links a {
+  color: var(--color-purple);
+}
+
+.related_links a:hover {
+  color: var(--color-light-purple);
+}
+
+@media only screen and (min-width: 50em) {
+  .hero_title {
+    font-size: 3rem;
+  }
+
+  .hero_subhead {
+    font-size: 1.5rem;
+  }
+
+  .model_card {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

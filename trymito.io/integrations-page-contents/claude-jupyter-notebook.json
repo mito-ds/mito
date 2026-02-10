@@ -1,0 +1,114 @@
+{
+  "slug": "claude-jupyter-notebook",
+  "modelDisplayName": "Claude",
+  "providerName": "Anthropic",
+  "metaTitle": "Claude Jupyter Notebook Integration - Use Claude AI in Jupyter | Mito",
+  "metaDescription": "Use Claude in Jupyter Notebook with Mito. Get AI-assisted data analysis, code generation, and error fixing. Compare Claude API vs Mito integration.",
+  "heroHeadline": "Use Claude in Jupyter Notebook",
+  "heroSubhead": "Run Anthropic's Claude directly in Jupyter with full dataframe context, pandas code generation, and one-click model selection. No manual API wiring required.",
+  "heroCtaPrimary": "Install Mito",
+  "heroCtaSecondary": "Try free",
+  "modelSpec": {
+    "provider": "Anthropic",
+    "tokenLimit": "200K (Claude 3.5 Haiku)",
+    "speed": "Fast",
+    "complexityHandling": "Strong for multi-step analysis",
+    "bestFor": [
+      "Structured data analysis and summarization",
+      "Code generation from natural language",
+      "Error explanation and fix suggestions",
+      "Document and spreadsheet Q&A"
+    ],
+    "limitations": [
+      "API key and billing required for direct API use",
+      "No built-in dataframe context when using API alone"
+    ]
+  },
+  "quickStartSteps": [
+    "Install Mito in your environment: pip install mitoinstaller && python -m mitoinstaller install",
+    "Open Jupyter (Lab or Notebook) and create a new notebook.",
+    "Load your data into a Mito sheet (e.g. import a CSV or connect to a DataFrame).",
+    "Select Claude from the AI model dropdown in the Mito AI panel.",
+    "Type your question or request in natural language; Mito sends full context and returns executable pandas code."
+  ],
+  "apiSectionIntro": "You can call Claude directly from Python using the Anthropic SDK. Below is a minimal example that sends a prompt and prints the response. This approach does not include your dataframe or Mito's code-generation and error-recovery features.",
+  "apiCodeBlock": "import anthropic\n\nclient = anthropic.Anthropic(api_key=\"YOUR_ANTHROPIC_API_KEY\")\n\nmessage = client.messages.create(\n    model=\"claude-3-5-haiku-20241022\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"Analyze this row and suggest next steps: \" + str(analyze_row)}]\n)\nprint(message.content[0].text)",
+  "apiCalloutLimitations": [
+    "No automatic dataframe context — you must manually pass column names, sample data, or schema.",
+    "Manual prompt engineering — you write and maintain prompts for each task.",
+    "No generated pandas code — you get text only; copying and adapting code is on you.",
+    "Cost and rate limits — you manage usage and errors yourself.",
+    "No built-in error recovery — if the model output is invalid, you debug manually."
+  ],
+  "apiCalloutMitoBenefits": [
+    "Full dataframe context — Mito sends column names, types, and sample values so the model understands your data.",
+    "Pandas code generation — get runnable code that inserts into your notebook.",
+    "Error fixing — when code fails, Mito can suggest fixes and re-run.",
+    "Model dropdown — switch between Claude, ChatGPT, and others without changing code.",
+    "Free tier — use Mito AI with limits without an API key for the selected provider."
+  ],
+  "useCases": [
+    "Clean and reshape messy CSV data with natural language instructions",
+    "Generate pandas code for pivots, merges, and aggregations",
+    "Explain and fix Python or pandas errors in the notebook",
+    "Summarize columns and suggest visualizations or next steps",
+    "Answer questions about the data using natural language"
+  ],
+  "comparisonRows": [
+    {
+      "feature": "Dataframe context",
+      "withMito": "Automatic (columns, types, sample data)",
+      "directApi": "Manual (you pass schema or samples in the prompt)"
+    },
+    {
+      "feature": "Code output",
+      "withMito": "Executable pandas code inserted into notebook",
+      "directApi": "Plain text; you copy and adapt code"
+    },
+    {
+      "feature": "Error handling",
+      "withMito": "Suggest fixes and re-run when code fails",
+      "directApi": "You debug and re-prompt manually"
+    },
+    {
+      "feature": "Model selection",
+      "withMito": "Dropdown: Claude, ChatGPT, Gemini, etc.",
+      "directApi": "One provider per integration; switch by changing client/code"
+    },
+    {
+      "feature": "Setup",
+      "withMito": "Install Mito; optional API key for premium usage",
+      "directApi": "Install SDK, manage API keys and billing"
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Do I need an Anthropic API key to use Claude in Jupyter with Mito?",
+      "answer": "Mito offers a free tier that lets you try Claude (and other models) with usage limits without an API key. For higher limits or production use, you can add your Anthropic API key in Mito's settings."
+    },
+    {
+      "question": "Which Claude models can I use in Mito?",
+      "answer": "Mito supports current Anthropic models available via the API, such as Claude 3.5 Haiku and Claude 3 Opus. The exact list may vary; check the model dropdown in the Mito AI panel for the latest options."
+    },
+    {
+      "question": "How does Mito send my data to Claude?",
+      "answer": "Mito sends structured context about your dataframe (e.g. column names, dtypes, and sample values) so the model can generate relevant pandas code. You control when to use the AI; data is only sent when you submit a request."
+    },
+    {
+      "question": "Can I use Claude for things other than pandas code?",
+      "answer": "Yes. In addition to generating and fixing pandas code, you can ask Claude to explain errors, suggest visualizations, summarize columns, or answer questions about your data—all within the same Mito AI panel in Jupyter."
+    },
+    {
+      "question": "What if the generated code has an error?",
+      "answer": "Mito can use the model to suggest fixes when executed code fails. You can apply the suggestion, re-run, and iterate without leaving the notebook."
+    },
+    {
+      "question": "How is this different from using the Anthropic API directly?",
+      "answer": "Using the API directly gives you raw text in/out; you must manage prompts, dataframe context, code extraction, and error handling yourself. Mito integrates Claude (and other models) into Jupyter with automatic context, code insertion, and error recovery, and a single UI to switch models."
+    }
+  ],
+  "relatedSlugs": [
+    "chatgpt-jupyter-notebook",
+    "gemini-jupyter-notebook"
+  ]
+}
