@@ -58,41 +58,29 @@
 }
 
 .purple {
-  color: #ffffff;
-  background: linear-gradient(
-    135deg,
-    rgba(157, 108, 255, 0.4) 0%,
-    rgba(172, 132, 252, 0.3) 50%,
-    rgba(192, 132, 252, 0.4) 100%
-  );
-  border: 1px solid rgba(157, 108, 255, 0.4);
+  color: var(--color-text-primary);
+  background: var(--color-gradient-button);
+  border: 1px solid var(--color-brand-alpha-40);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 400;
-  
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.3),
-    0 1px 4px rgba(0, 0, 0, 0.2),
-    0 1px 8px rgba(157, 108, 255, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 2px 8px var(--shadow-overlay),
+    0 1px 4px var(--shadow-overlay),
+    0 1px 8px var(--color-brand-alpha-15),
+    inset 0 1px 0 var(--color-text-primary-alpha-10);
 }
 
 .purple:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(157, 108, 255, 0.5) 0%,
-    rgba(172, 132, 252, 0.4) 50%,
-    rgba(192, 132, 252, 0.5) 100%
-  );
-  border-color: rgba(157, 108, 255, 0.6);
+  background: var(--color-gradient-button-hover);
+  border-color: var(--color-brand-alpha-60);
   transform: translateY(-1px);
-  
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.4),
-    0 2px 8px rgba(0, 0, 0, 0.3),
-    0 2px 12px rgba(157, 108, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 4px 16px var(--shadow-overlay),
+    0 2px 8px var(--shadow-overlay),
+    0 2px 12px var(--color-brand-alpha-20),
+    inset 0 1px 0 var(--color-text-primary-alpha-15);
 }
 
 .purple:active {

@@ -32,6 +32,13 @@ class MyDocument extends Document {
             {/* TODO: The favicon doesn't look too good, we should make some with the */}
             <link rel="icon" href="/favicons/favicon.ico" />
 
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+            <link
+              href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@1,400;1,500&display=swap"
+              rel="stylesheet"
+            />
+
             <html lang="en"></html>
             <link
                 rel="preload"

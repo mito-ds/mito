@@ -1,0 +1,368 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  margin-bottom: 2rem;
+  text-align: center;
+  width: 100%;
+  max-width: 72rem;
+}
+
+.heading {
+  color: var(--color-text-primary);
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  line-height: 1.2;
+}
+
+.subheading {
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  font-weight: 400;
+  margin: 0;
+  max-width: 42rem;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+/* Wrapper so full-bleed can break out; 50% in child is relative to this */
+.carouselsFullBleedWrap {
+  width: 100%;
+  overflow: visible;
+  margin-top: 0.5rem;
+}
+
+/* Full-bleed carousels: edge-to-edge from viewport left to right */
+.carouselsFullBleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-sizing: border-box;
+  padding: 1.5rem 0;
+}
+
+.carouselWrap {
+  overflow: hidden;
+  width: 100%;
+  padding-bottom: 44px;
+  /* Soft edge fade so icons don’t hard-cut at viewport edges */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.carouselTrack {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  width: max-content;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.carouselTrackRightToLeft {
+  animation-name: scrollRightToLeft;
+  animation-duration: 48s;
+}
+
+.carouselTrackLeftToRight {
+  animation-name: scrollLeftToRight;
+  animation-duration: 52s;
+}
+
+@keyframes scrollRightToLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scrollLeftToRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* Logo-only card for carousel: icon only, no label/subtext */
+.iconCardLogoOnly {
+  flex-shrink: 0;
+  width: 6.5rem;
+  min-height: 5rem;
+  display: flex;
+  align-items: stretch;
+}
+
+.iconCardLogoOnly .iconCardInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  margin-top: 0;
+  margin-bottom: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.iconCardLogoOnly:hover .iconCardInner {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--shadow-overlay);
+}
+
+.iconCardLogoOnly .iconWrapper {
+  margin-top: 0;
+  margin-bottom: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.iconCard {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 10rem;
+  flex: 1 1 10rem;
+  min-height: 8.5rem;
+}
+
+.iconCardInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-text-primary-alpha-15);
+  border-radius: 1rem;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* Match bento (FeatureSquares) hover: lift + shadow, no border change */
+.iconCard:hover .iconCardInner {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--shadow-overlay);
+}
+
+.labelContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.builtIn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-accent-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.iconWrapper {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+}
+
+/* Fixed icon size so it stays consistent when switching tabs */
+.iconWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  min-width: 0;
+  min-height: 0;
+}
+
+.label {
+  color: var(--color-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  line-height: 1.2;
+}
+
+.categoryLabel {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.2;
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carouselTrackRightToLeft,
+  .carouselTrackLeftToRight {
+    animation: none;
+  }
+  .iconCardInner,
+  .iconCardLogoOnly .iconCardInner {
+    transition: none;
+  }
+  .iconCard:hover .iconCardInner,
+  .iconCardLogoOnly:hover .iconCardInner {
+    transform: none;
+  }
+}
+
+/* Medium: slightly larger card min so we get a comfortable wrap */
+@media (min-width: 40em) {
+  .grid {
+    gap: 1.125rem;
+  }
+
+  .iconCard {
+    min-width: 11rem;
+    flex: 1 1 11rem;
+    min-height: 9rem;
+  }
+
+  .iconCardInner {
+    padding: 1.25rem 1rem;
+  }
+
+  .iconWrapper {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .label {
+    font-size: 0.875rem;
+  }
+
+  .categoryLabel {
+    font-size: 0.75rem;
+  }
+}
+
+/* Desktop: two-column layout (nav left, grid right), 4-column grid */
+@media (min-width: 50em) {
+  .container {
+    padding: 5rem 2rem;
+    text-align: left;
+  }
+
+  .header {
+    margin-bottom: 2.5rem;
+  }
+
+  .heading {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .subheading {
+    font-size: 1.125rem;
+    text-align: center;
+  }
+
+  .layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 76rem;
+    text-align: left;
+  }
+
+  .nav {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: 12rem;
+    flex-shrink: 0;
+    gap: 0.25rem;
+    padding: 0;
+    position: sticky;
+    top: 6rem;
+  }
+
+  .navItem,
+  .navItemActive {
+    text-align: left;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    white-space: normal;
+  }
+
+  .gridWrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .grid {
+    gap: 1.25rem;
+  }
+
+  .iconCard {
+    min-width: 12rem;
+    flex: 1 1 12rem;
+    min-height: 9.5rem;
+  }
+
+  .iconCardInner {
+    padding: 1.5rem 1.25rem;
+    height: 100%;
+  }
+
+  .iconWrapper {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .label {
+    font-size: 0.9375rem;
+  }
+
+  .categoryLabel {
+    font-size: 0.8125rem;
+  }
+}

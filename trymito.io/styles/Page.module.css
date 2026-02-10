@@ -27,7 +27,7 @@
 }
 
 .gradient_card {
-    background: linear-gradient(100.38deg, rgba(157, 108, 255, 0.2) -4.09%, rgba(157, 108, 255, 0.05) 28.54%, rgba(157, 108, 255, 0.2) 59.33%, rgba(157, 108, 255, 0.05) 99.99%);
+    background: var(--color-gradient-card);
 }
 
 .gradient_card, 

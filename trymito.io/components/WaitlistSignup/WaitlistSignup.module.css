@@ -31,8 +31,8 @@
   padding: 10px 15px;
   font-size: 1.5rem;
   border-radius: 10px;
-  border: 1px solid rgba(157, 108, 255, 0.4);
-  background: rgba(28, 24, 36, 0.8);
+  border: 1px solid var(--color-brand-alpha-40);
+  background: var(--color-surface-alpha-80);
   color: var(--color-text-primary);
   font-family: inherit;
   box-sizing: border-box;
@@ -42,7 +42,7 @@
 .email_input:focus {
   outline: none;
   border-color: var(--color-purple);
-  box-shadow: 0 0 0 3px rgba(157, 108, 255, 0.2);
+  box-shadow: 0 0 0 3px var(--color-brand-alpha-20);
 }
 
 .email_input::placeholder {
@@ -61,40 +61,30 @@
   font-size: 1.5rem;
   font-weight: 400;
   border-radius: 10px;
-  border: 1px solid rgba(157, 108, 255, 0.4);
-  background: linear-gradient(
-    135deg,
-    rgba(157, 108, 255, 0.4) 0%,
-    rgba(172, 132, 252, 0.3) 50%,
-    rgba(192, 132, 252, 0.4) 100%
-  );
-  color: #ffffff;
+  border: 1px solid var(--color-brand-alpha-40);
+  background: var(--color-gradient-button);
+  color: var(--color-text-primary);
   cursor: pointer;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: inherit;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.3),
-    0 1px 4px rgba(0, 0, 0, 0.2),
-    0 1px 8px rgba(157, 108, 255, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 2px 8px var(--shadow-overlay),
+    0 1px 4px var(--shadow-overlay),
+    0 1px 8px var(--color-brand-alpha-15),
+    inset 0 1px 0 var(--color-text-primary-alpha-10);
 }
 
 .submit_button:hover:not(:disabled) {
-  background: linear-gradient(
-    135deg,
-    rgba(157, 108, 255, 0.5) 0%,
-    rgba(172, 132, 252, 0.4) 50%,
-    rgba(192, 132, 252, 0.5) 100%
-  );
-  border-color: rgba(157, 108, 255, 0.6);
+  background: var(--color-gradient-button-hover);
+  border-color: var(--color-brand-alpha-60);
   transform: translateY(-1px);
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.4),
-    0 2px 8px rgba(0, 0, 0, 0.3),
-    0 2px 12px rgba(157, 108, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 4px 16px var(--shadow-overlay),
+    0 2px 8px var(--shadow-overlay),
+    0 2px 12px var(--color-brand-alpha-20),
+    inset 0 1px 0 var(--color-text-primary-alpha-15);
 }
 
 .submit_button:active:not(:disabled) {
@@ -147,9 +137,9 @@
   border-radius: 50%;
   background: linear-gradient(
     135deg,
-    rgba(157, 108, 255, 0.2) 0%,
-    rgba(172, 132, 252, 0.15) 50%,
-    rgba(192, 132, 252, 0.2) 100%
+    var(--color-brand-alpha-20) 0%,
+    var(--color-brand-light-alpha-15) 50%,
+    var(--color-brand-light-alpha-20) 100%
   );
   border: 2px solid var(--color-purple);
   display: flex;
