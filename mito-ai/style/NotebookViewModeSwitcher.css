@@ -1,0 +1,45 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Three-segment mode switcher (Notebook | Document | App), styled like ToggleButton.
+ */
+
+.mode-switcher-container {
+  display: flex;
+  gap: 1px;
+  background-color: var(--jp-layout-color2);
+  border: 1px solid var(--jp-ui-font-color3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.mode-switcher-segment {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+.mode-switcher-segment:first-child {
+  border-radius: 0;
+}
+
+.mode-switcher-segment:last-child {
+  border-radius: 0;
+}
+
+.mode-switcher-segment.selected {
+  opacity: 1;
+  background-color: var(--purple-400);
+  color: var(--purple-700) !important;
+}
+
+.mode-switcher-segment.unselected {
+  opacity: 0.6;
+  background-color: transparent !important;
+  color: var(--jp-ui-font-color2) !important;
+}

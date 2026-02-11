@@ -50,6 +50,7 @@ import {
 import { getActiveCellOutput } from '../../utils/cellOutput';
 import { OperatingSystem } from '../../utils/user';
 import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
+import { INotebookViewMode } from '../NotebookViewMode/NotebookViewModePlugin';
 import { ensureNotebookExists } from './utils';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
@@ -122,6 +123,7 @@ interface IChatTaskpaneProps {
     renderMimeRegistry: IRenderMimeRegistry
     contextManager: IContextManager
     streamlitPreviewManager: IStreamlitPreviewManager
+    notebookViewMode: INotebookViewMode
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
     websocketClient: CompletionWebsocketClient
@@ -143,6 +145,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     renderMimeRegistry,
     contextManager,
     streamlitPreviewManager,
+    notebookViewMode,
     app,
     operatingSystem,
     websocketClient,
@@ -731,7 +734,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const agentExecution = useAgentExecution({
         notebookTracker,
         app,
-        streamlitPreviewManager,
+        notebookViewMode,
         websocketClient,
         documentManager,
         chatHistoryManagerRef,

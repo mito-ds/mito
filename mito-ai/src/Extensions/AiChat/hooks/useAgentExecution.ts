@@ -8,7 +8,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { UUID } from '@lumino/coreutils';
-import { IStreamlitPreviewManager } from '../../AppPreview/StreamlitPreviewPlugin';
+import { INotebookViewMode } from '../../NotebookViewMode/NotebookViewModePlugin';
 import { CompletionWebsocketClient } from '../../../websockets/completions/CompletionsWebsocketClient';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 import { createCheckpoint } from '../../../utils/checkpoint';
@@ -29,7 +29,7 @@ const AGENT_EXECUTION_DEPTH_LIMIT = 20;
 interface UseAgentExecutionProps {
     notebookTracker: INotebookTracker;
     app: JupyterFrontEnd;
-    streamlitPreviewManager: IStreamlitPreviewManager;
+    notebookViewMode: INotebookViewMode;
     websocketClient: CompletionWebsocketClient;
     documentManager: IDocumentManager;
     chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>;
@@ -66,7 +66,7 @@ interface UseAgentExecutionProps {
 export const useAgentExecution = ({
     notebookTracker,
     app,
-    streamlitPreviewManager,
+    notebookViewMode,
     websocketClient,
     documentManager,
     chatHistoryManagerRef,
@@ -350,24 +350,21 @@ export const useAgentExecution = ({
             }
 
             if (agentResponse.type === 'create_streamlit_app') {
-                // Create new preview using the service
-                const createStreamlitAppPrompt = agentResponse.streamlit_app_prompt || ''
-                const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current, createStreamlitAppPrompt);
+                const createStreamlitAppPrompt = agentResponse.streamlit_app_prompt || '';
+                const streamlitPreviewResponse = await notebookViewMode.openPreviewAndSwitchToAppMode(
+                    agentTargetNotebookPanelRef.current,
+                    createStreamlitAppPrompt
+                );
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message;
                 }
             }
 
             if (agentResponse.type === 'edit_streamlit_app' && agentResponse.streamlit_app_prompt) {
-                // Ensure there is an active preview to edit
-                let streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
-                if (streamlitPreviewResponse.type === 'error') {
-                    messageToShareWithAgent = streamlitPreviewResponse.message;
-                    continue;
-                }
-
-                // Edit the existing preview
-                streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(agentResponse.streamlit_app_prompt, agentTargetNotebookPanelRef.current);
+                const streamlitPreviewResponse = await notebookViewMode.editPreviewAndSwitchToAppMode(
+                    agentResponse.streamlit_app_prompt,
+                    agentTargetNotebookPanelRef.current
+                );
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message;
                 }

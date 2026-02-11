@@ -12,6 +12,7 @@ import { LabIcon } from '@jupyterlab/ui-components';
 import chatIconSvg from '../../../src/icons/ChatIcon.svg';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
 import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
+import { INotebookViewMode } from '../NotebookViewMode/NotebookViewModePlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { getOperatingSystem, OperatingSystem } from '../../utils/user';
@@ -40,6 +41,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
       renderMimeRegistry: IRenderMimeRegistry;
       contextManager: IContextManager;
       streamlitPreviewManager: IStreamlitPreviewManager;
+      notebookViewMode: INotebookViewMode;
       operatingSystem: OperatingSystem;
       documentManager: IDocumentManager;
     }
@@ -93,6 +95,7 @@ export class ChatWidget extends ReactWidget implements IChatWidget {
         renderMimeRegistry={this.options.renderMimeRegistry}
         contextManager={this.options.contextManager}
         streamlitPreviewManager={this.options.streamlitPreviewManager}
+        notebookViewMode={this.options.notebookViewMode}
         operatingSystem={this.options.operatingSystem}
         websocketClient={this.websocketClient}
         documentManager={this.options.documentManager}
@@ -121,6 +124,7 @@ export function buildChatWidget(
   renderMimeRegistry: IRenderMimeRegistry,
   contextManager: IContextManager,
   streamlitPreviewManager: IStreamlitPreviewManager,
+  notebookViewMode: INotebookViewMode,
   documentManager: IDocumentManager,
 ): ChatWidget {
   // Get the operating system here so we don't have to do it each time the chat changes.
@@ -132,7 +136,8 @@ export function buildChatWidget(
     notebookTracker,
     renderMimeRegistry,
     contextManager,
-    streamlitPreviewManager: streamlitPreviewManager,
+    streamlitPreviewManager,
+    notebookViewMode,
     operatingSystem,
     documentManager
   });
