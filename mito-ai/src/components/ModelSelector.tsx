@@ -16,6 +16,8 @@ import {
   GPT_4_1_MODEL_NAME,
   GPT_5_2_DISPLAY_NAME,
   GPT_5_2_MODEL_NAME,
+  GPT_5_3_CODEX_DISPLAY_NAME,
+  GPT_5_3_CODEX_MODEL_NAME,
   GEMINI_3_FLASH_MODEL_NAME,
   GEMINI_3_FLASH_DISPLAY_NAME,
   GEMINI_3_PRO_DISPLAY_NAME,
@@ -72,6 +74,16 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     tokenLimit: '400K',
     speed: 'Fast',
     complexityHandling: 'Medium'
+  },
+  {
+    displayName: GPT_5_3_CODEX_DISPLAY_NAME,
+    fullName: GPT_5_3_CODEX_MODEL_NAME,
+    type: 'smart',
+    goodFor: [...GOOD_FOR_SMART],
+    provider: 'OpenAI',
+    tokenLimit: '400K',
+    speed: 'Slow',
+    complexityHandling: 'High'
   },
   {
     displayName: CLAUDE_HAIKU_DISPLAY_NAME,
@@ -215,23 +227,22 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     void fetchModels();
   }, [onConfigChange]);
 
-  const handleModelChange = (modelName: string): void => {
-    if (!modelName) {
+  const handleModelChange = (displayName: string, actualModelId?: string): void => {
+    if (!displayName) {
       return;
     }
     
-    setSelectedModel(modelName);
+    setSelectedModel(displayName);
     setIsOpen(false);
 
-    // For LiteLLM models (with provider prefix), modelName is already the full model name
-    // For standard models, we need to find the full name from MODEL_MAPPINGS
+    // Use actual model id from API when provided (e.g. router-prefixed); otherwise resolve from display name
     let fullModelName: string;
-    if (modelName.includes('/')) {
-      // LiteLLM model - use model name directly
-      fullModelName = modelName;
+    if (actualModelId !== undefined && actualModelId !== '') {
+      fullModelName = actualModelId;
+    } else if (displayName.includes('/')) {
+      fullModelName = displayName;
     } else {
-      // Standard model - find full name from MODEL_MAPPINGS
-      fullModelName = MODEL_MAPPINGS.find(m => m.displayName === modelName)?.fullName || modelName;
+      fullModelName = MODEL_MAPPINGS.find(m => m.displayName === displayName)?.fullName || displayName;
     }
 
     const newConfig = {
@@ -298,19 +309,15 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
               <div className="model-option">Loading models...</div>
             ) : (
               availableModels.map(modelName => {
-                // Check if it's a LiteLLM model (has provider prefix)
-                const isLiteLLMModel = modelName.includes('/');
-                let displayName: string;
-                let modelMapping: ModelMapping | undefined;
-
-                if (isLiteLLMModel) {
-                  // LiteLLM model - use model name directly as display name
-                  displayName = modelName;
-                } else {
-                  // Standard model - find display name from MODEL_MAPPINGS
-                  modelMapping = MODEL_MAPPINGS.find(m => m.fullName === modelName);
-                  displayName = modelMapping?.displayName || modelName;
-                }
+                // Check if it's a LiteLLM/Abacus model (has provider prefix)
+                const isRouterModel = modelName.includes('/');
+                const baseModelName = isRouterModel ? (modelName.split('/').pop() ?? modelName) : modelName;
+                // Resolve mapping by exact match, then by base name (for router-prefixed names), then case-insensitive
+                let modelMapping: ModelMapping | undefined = MODEL_MAPPINGS.find(m => m.fullName === modelName)
+                  || MODEL_MAPPINGS.find(m => m.fullName === baseModelName)
+                  || MODEL_MAPPINGS.find(m => m.fullName.toLowerCase() === modelName.toLowerCase())
+                  || MODEL_MAPPINGS.find(m => m.fullName.toLowerCase() === baseModelName.toLowerCase());
+                const displayName = modelMapping?.displayName || (isRouterModel ? modelName : baseModelName);
 
                 return (
                   <div
@@ -318,7 +325,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
                     className={`model-option ${displayName === selectedModel ? 'selected' : ''}`}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleModelChange(displayName);
+                      handleModelChange(displayName, modelName);
                     }}
                     onMouseEnter={() => setHoveredModel(modelMapping || null)}
                     data-testid="model-option"

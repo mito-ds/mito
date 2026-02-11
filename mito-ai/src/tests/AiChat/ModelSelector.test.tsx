@@ -12,6 +12,8 @@ import {
   GPT_4_1_DISPLAY_NAME, 
   GPT_4_1_MODEL_NAME,
   GPT_5_2_MODEL_NAME,
+  GPT_5_3_CODEX_DISPLAY_NAME,
+  GPT_5_3_CODEX_MODEL_NAME,
   CLAUDE_HAIKU_MODEL_NAME,
   GEMINI_3_FLASH_MODEL_NAME,
   GEMINI_3_PRO_MODEL_NAME,
@@ -42,6 +44,7 @@ describe('ModelSelector', () => {
         models: [
           GPT_4_1_MODEL_NAME,
           GPT_5_2_MODEL_NAME,
+          GPT_5_3_CODEX_MODEL_NAME,
           CLAUDE_HAIKU_MODEL_NAME,
           GEMINI_3_FLASH_MODEL_NAME,
           GEMINI_3_PRO_MODEL_NAME,
@@ -94,6 +97,30 @@ describe('ModelSelector', () => {
     });
   });
 
+  it('shows GPT 5.3 Codex in dropdown and calls onConfigChange when selected', async () => {
+    render(<ModelSelector onConfigChange={mockOnConfigChange} />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading models...')).not.toBeInTheDocument();
+    });
+
+    const dropdown = screen.getByText(DEFAULT_MODEL).closest('.model-selector-dropdown');
+    if (!dropdown) throw new Error('Dropdown element not found');
+    fireEvent.click(dropdown);
+
+    const modelOptionsContainer = await waitFor(() => {
+      return screen.getByTestId('model-selector').querySelector('.model-options');
+    });
+    if (!modelOptionsContainer) throw new Error('Model options container not found');
+
+    const modelOption = within(modelOptionsContainer as HTMLElement).getByText(GPT_5_3_CODEX_DISPLAY_NAME);
+    fireEvent.click(modelOption);
+
+    expect(mockOnConfigChange).toHaveBeenCalledWith({
+      model: GPT_5_3_CODEX_MODEL_NAME
+    });
+  });
+
   it('defaults to default model when no storedConfig exists and GPT 4.1 is first in available models', async () => {
     // Mock models with GPT 4.1 first (simulating the bug scenario)
     mockRequestAPI.mockResolvedValue({
@@ -101,6 +128,7 @@ describe('ModelSelector', () => {
         models: [
           GPT_4_1_MODEL_NAME,
           GPT_5_2_MODEL_NAME,
+          GPT_5_3_CODEX_MODEL_NAME,
           CLAUDE_HAIKU_MODEL_NAME,
           GEMINI_3_FLASH_MODEL_NAME,
           GEMINI_3_PRO_MODEL_NAME,

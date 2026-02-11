@@ -15,6 +15,7 @@ OPENAI_MODEL_ORDER = [
     "gpt-4.1",      # Fastest
     "gpt-5",
     "gpt-5.2",      # Slower
+    "gpt-5.3-codex",
 ]
 
 GEMINI_MODEL_ORDER = [
@@ -26,6 +27,7 @@ GEMINI_MODEL_ORDER = [
 STANDARD_MODELS = [
     "gpt-4.1",
     "gpt-5.2",
+    "gpt-5.3-codex",
     "claude-haiku-4-5-20251001",
     "gemini-3-flash-preview",
     "gemini-3-pro-preview",

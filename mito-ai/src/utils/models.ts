@@ -15,6 +15,9 @@ export const GPT_4_1_MODEL_NAME = 'gpt-4.1';
 export const GPT_5_2_DISPLAY_NAME = 'GPT 5.2';
 export const GPT_5_2_MODEL_NAME = 'gpt-5.2';
 
+export const GPT_5_3_CODEX_DISPLAY_NAME = 'GPT 5.3 Codex';
+export const GPT_5_3_CODEX_MODEL_NAME = 'gpt-5.3-codex';
+
 export const GEMINI_3_FLASH_DISPLAY_NAME = 'Gemini 3 Flash';
 export const GEMINI_3_FLASH_MODEL_NAME = 'gemini-3-flash-preview';
 
@@ -40,6 +43,7 @@ export async function getAvailableModels(): Promise<string[]> {
         return [
             GPT_4_1_MODEL_NAME,
             GPT_5_2_MODEL_NAME,
+            GPT_5_3_CODEX_MODEL_NAME,
             CLAUDE_HAIKU_MODEL_NAME,
             GEMINI_3_FLASH_MODEL_NAME,
             GEMINI_3_PRO_MODEL_NAME,
