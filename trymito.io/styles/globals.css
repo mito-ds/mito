@@ -4,34 +4,72 @@
  */
 
 :root {
-  /* 
-    Leaving old colors here for testing. 
-    TODO: Remove before merging
-
-    --color-background: #2D2D2D;
-    --color-light-background: #363637; 
-    --color-light-background-accent: #3a3a3a; 
-  */
+  /*
+   * Single color palette — brand-forward, no grey shift.
+   * Base (backgrounds)
+   */
   --color-background: #1c1824;
-  --color-light-background: #130f1a; 
-  --color-light-background-accent: #221b2e; 
+  --color-surface: #130f1a;
+  --color-surface-accent: #221b2e;
+  /* Legacy aliases for migration */
+  --color-light-background: var(--color-surface);
+  --color-light-background-accent: var(--color-surface-accent);
+
+  /* Text */
   --color-text-primary: #ffffff;
-  --color-text-secondary: #D0D0D0;
-  --color-purple: #9D6CFF; 
-  --color-light-purple: #ac84fc; 
+  --color-text-secondary: #d0d0d0;
 
-  --color-text-gradient: linear-gradient(180deg, #9D6CFF 0.63%, rgba(157, 108, 255, 0.39) 100%);
-  --color-twitter-blue: #479BE9;
+  /* Brand (pink–purple) */
+  --color-brand: #9d6cff;
+  --color-brand-light: #ac84fc;
+  --color-brand-alpha-10: rgba(157, 108, 255, 0.1);
+  --color-brand-alpha-15: rgba(157, 108, 255, 0.15);
+  --color-brand-alpha-20: rgba(157, 108, 255, 0.2);
+  --color-brand-alpha-30: rgba(157, 108, 255, 0.3);
+  --color-brand-alpha-40: rgba(157, 108, 255, 0.4);
+  --color-brand-alpha-50: rgba(157, 108, 255, 0.5);
+  --color-brand-alpha-60: rgba(157, 108, 255, 0.6);
+  --color-brand-light-alpha-15: rgba(172, 132, 252, 0.15);
+  --color-brand-light-alpha-20: rgba(172, 132, 252, 0.2);
+  --color-brand-light-alpha-25: rgba(172, 132, 252, 0.25);
+  --color-brand-light-alpha-30: rgba(172, 132, 252, 0.3);
+  --color-brand-light-alpha-40: rgba(172, 132, 252, 0.4);
+  --color-brand-light-alpha-50: rgba(172, 132, 252, 0.5);
+  --color-purple: var(--color-brand);
+  --color-light-purple: var(--color-brand-light);
 
-  --color-yellow: #F2C94C;
-  
-  --color-video-background: #1c1824;
-  --color-video-border: #7D68A8;
+  /* Accents */
+  --color-accent-teal: #14b8a6;
+  --color-accent-amber: #f2c94c;
+  --color-accent-blue: #479be9;
+  --color-yellow: var(--color-accent-amber);
+  --color-twitter-blue: var(--color-accent-blue);
 
-  --mito-light-blue: #E8EBF8;
+  /* Gradients & glows */
+  --color-text-gradient: linear-gradient(180deg, var(--color-brand) 0.63%, rgba(157, 108, 255, 0.39) 100%);
+  --color-glow-brand: rgba(157, 108, 255, 0.35);
+  --color-glow-teal: rgba(20, 184, 166, 0.25);
+  --color-glow-amber: rgba(242, 201, 76, 0.2);
+  --color-gradient-card: linear-gradient(100.38deg, rgba(157, 108, 255, 0.2) -4.09%, rgba(157, 108, 255, 0.05) 28.54%, rgba(157, 108, 255, 0.2) 59.33%, rgba(157, 108, 255, 0.05) 99.99%);
+  --color-gradient-button: linear-gradient(135deg, var(--color-brand-alpha-40) 0%, var(--color-brand-light-alpha-30) 50%, var(--color-brand-light-alpha-40) 100%);
+  --color-gradient-button-hover: linear-gradient(135deg, var(--color-brand-alpha-50) 0%, var(--color-brand-light-alpha-40) 50%, var(--color-brand-light-alpha-50) 100%);
+  --color-surface-alpha-80: rgba(28, 24, 36, 0.8);
+  --color-text-primary-alpha-10: rgba(255, 255, 255, 0.1);
+  --color-text-primary-alpha-15: rgba(255, 255, 255, 0.15);
+
+  /* Video & UI */
+  --color-video-background: var(--color-background);
+  --color-video-border: #7d68a8;
+  --color-grid-overlay: rgba(255, 255, 255, 0.035);
+
+  /* Integrations / legacy */
+  --mito-light-blue: #e8ebf8;
   --mito-gray: #494650;
-  --jupyter-orange: #F37726;
-  --streamlit-red: #FF4B4B;
+  --jupyter-orange: #f37726;
+  --streamlit-red: #ff4b4b;
+
+  /* Shadows (neutral overlay) */
+  --shadow-overlay: rgba(0, 0, 0, 0.25);
 
   /* Hero content left margin - shared between hero_content_container and carousel */
   --hero-content-left-margin: 2rem;
@@ -179,6 +217,15 @@ h3 {
   font-style: semibold;
 }
 
+/* Decorative script text — shared across Enterprise, tagline, etc. */
+.decorativeText {
+  font-family: "PP Editorial New, sans-serif";
+  font-size: 2.5rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
 p,  li {
   font-size: 2rem;
   line-height: 1.5;
@@ -255,14 +302,18 @@ a {
 
   .code-highlight {
     font-family: monospace;
-    background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(177, 120, 252, 0.39));
+    background: -webkit-linear-gradient(-90deg, var(--color-brand), var(--color-glow-brand));
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: linear-gradient(0deg, #FFFFFF, #000000);
+    color: var(--color-text-primary);
   }
 
   section + section {
+    margin-top: 10rem;
+  }
+
+  .animate-fade-in-up + .animate-fade-in-up {
     margin-top: 10rem;
   }
 
@@ -361,8 +412,8 @@ a.anchor {
 
 .code-background {
   font-family: monospace;
-  background-color: #D0D0D0;
-  color: #494650;
+  background-color: var(--color-text-secondary);
+  color: var(--mito-gray);
   font-size: 1rem;
   padding: .25rem .5rem;
   border-radius: 2px;
@@ -412,4 +463,38 @@ a.anchor {
   font-size: .8rem !important;
   color: var(--color-text-secondary) !important;
   text-align: center;
+}
+
+/*
+ * Scroll-triggered fade-in-up animation.
+ * Use with useInView: add .animate-fade-in-up and toggle .is-visible when in view.
+ * Stagger via --delay (e.g. style={{ ['--delay']: '100ms' }}).
+ * Disabled when prefers-reduced-motion: reduce.
+ */
+.animate-fade-in-up {
+  opacity: 0;
+  transform: translateY(2rem);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+  transition-delay: var(--delay, 0ms);
+}
+
+.animate-fade-in-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Preserve section spacing when sections are wrapped for scroll animation */
+.animate-fade-in-up + .animate-fade-in-up {
+  margin-top: 12rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in-up.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

@@ -28,7 +28,7 @@ const LifeSciences: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Best Python Package for Life Sciences and Bioinformatics | Mito</title>
+        <title>AI Python Package for Life Sciences and Bioinformatics | Mito</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Mito empowers life science professionals with AI-assisted Python, Pandas and SQL. Accelerate analysis and unlock insights in bioinformatics and healthcare." />
       </Head>

@@ -94,6 +94,13 @@ Cell Reference Rules:
 5. You only need to provide a cell reference when you want to make it easy for the user to navigate to a specific cell in the notebook. For example you should use a MITO_CELL_REF when you are stating things like: "I've loaded the sales data in [MITO_CELL_REF:c68fdf19-db8c-46dd-926f-d90ad35bb3bc]" or "[MITO_CELL_REF:a91fde20-cc7f-g6ee-146g-e10bc34abdbh] creates the graph showing the total highest closing stock price for each company". If you are not referencing an entire code block and instead of providing justification for a specific conclucions that you drew like "The most common used car in the lot is a 2005 Honda CRV", then you should instead use a MITO_CITATION.
 """
 
+ABOUT_MITO = """
+Mito is the company behind this AI assistant. Our website is trymito.io and our docs are at docs.trymito.io.
+
+Only when the user explicitly asks about Mito as a product (e.g. how to use Mito, how to deploy apps, or other product/usage questions): answer their question and include this resource: "You can also reach out to the Mito founders directly with any questions you have. Send an email to founders@sagacollab.com".
+Do NOT include the founders email when the user is asking for data analysis, insights, code to analyze their data, or any task about their notebook/data—only when they are asking about the Mito product itself.
+"""
+
 def redact_sensitive_info(connections: dict) -> dict:
     """
     Redacts sensitive information from connections data.

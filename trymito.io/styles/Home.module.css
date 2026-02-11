@@ -3,6 +3,45 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/* Natural noise background texture (Hex-style polish), scoped to homepage */
+.pageWithTexture {
+  min-height: 100vh;
+  background-color: var(--color-background);
+  position: relative;
+  /* Prevent horizontal scroll from .pageGlow (width: 200%) and any full-bleed content */
+  overflow-x: hidden;
+}
+
+/* Irregular, paper-like noise overlay via SVG feTurbulence. Large tile (512px) so repeat seams are rare and don’t read as a grid. */
+.pageWithTexture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' result='t'/%3E%3CfeColorMatrix in='t' type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 512px 512px;
+  opacity: 0.2;
+}
+
+.hero_tag_wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: -3rem;
+  margin-bottom: 2rem;
+}
+
+.hero_pill_center {
+  margin-left: 0;
+  color: white !important;
+  /* Strong background and glow so the tag stands out on the hero */
+  background: color-mix(in srgb, var(--color-purple) 65%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-purple) 75%, transparent),
+    0 0 24px var(--color-brand-alpha-30);
+}
+
 .hero_content_container {
   display: flex;
   flex-direction: column;
@@ -41,7 +80,7 @@
 .video {
   max-width: 100%;
   border-radius: 2rem;
-  padding: 1.5rem 2rem; 
+  padding: 1.5rem 2rem;
   background: var(--color-video-background);
   border: 5px solid var(--color-light-purple);
 }
@@ -61,16 +100,35 @@
 .metric_number_text {
   font-size: 5rem;
   font-weight: bolder;
-  background: -webkit-linear-gradient(-90deg, #9D6CFF, rgba(125, 26, 255, 0.39));
+  background: -webkit-linear-gradient(-90deg, var(--color-brand), var(--color-glow-brand));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: linear-gradient(180deg, #FFFFFF, #000000)
+  color: var(--color-text-primary);
 }
 
 .metrics_label {
   margin-top: .5rem;
 }
+
+/* Page-level glow: bright center behind */
+.pageGlow {
+  position: absolute;
+  top: -40vh;
+  /* top edge fixed so extra height only extends down */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200%;
+  height: 200vh;
+  background: radial-gradient(ellipse at center,
+      var(--color-brand-alpha-40) 0%,
+      var(--color-brand-alpha-20) 12%,
+      var(--color-brand-alpha-10) 25%,
+      transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 
 .tweet_section_header {
   display: flex;
@@ -131,14 +189,14 @@
   .video {
     max-width: 85vw;
     max-height: 40rem;
-    padding: .5rem .5rem; 
+    padding: .5rem .5rem;
   }
 
   .metrics_container {
     flex-direction: row;
     flex-wrap: wrap;
   }
-  
+
   .case_study_section {
     flex-direction: row;
   }

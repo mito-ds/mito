@@ -214,4 +214,10 @@ export const selectModel = async (page: IJupyterLabPageFixture, modelName: strin
     await waitForIdle(page);
 }
 
+export const executeJupyterCommand = async (page: IJupyterLabPageFixture, command: string) => {
+    await page.evaluate(async (cmd) => {
+        await (window as unknown as { jupyterapp: { commands: { execute: (id: string) => Promise<void> } } }).jupyterapp.commands.execute(cmd);
+    }, command);
+}
+
 

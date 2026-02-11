@@ -9,8 +9,8 @@
     justify-content: space-around;
     align-items: center;
 
-    background: rgba(157, 108, 255, 0.1);
-    border: 2px solid rgba(157, 108, 255, 0.4);
+    background: var(--color-brand-alpha-10);
+    border: 2px solid var(--color-brand-alpha-40);
     box-sizing: border-box;
     border-radius: 10px;
     width: 125px;

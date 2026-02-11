@@ -7,8 +7,10 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import demoVideoStyles from './DemoVideo.module.css';
 
-const DEMO_GIF_URL = 'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/demo-videos/Demo%20Video%20-%20Nov%202025_FINAL.gif';
 const DEMO_VIDEO_URL = 'https://rnca6p7lwtzvybss.public.blob.vercel-storage.com/demo-videos/Demo%20Video%20-%20Nov%202025_FINAL.mp4';
+
+/** Still image shown until the user clicks play. Served from public folder. */
+const DEMO_VIDEO_POSTER_URL = '/bitcoin-bands.png';
 
 const renderVideoModal = (
   onClose: () => void,
@@ -101,12 +103,12 @@ const DemoVideo = (): JSX.Element => {
           className={demoVideoStyles.gifContainer}
           onClick={handleGifClick}
         >
-          <img 
-            src={DEMO_GIF_URL}
-            alt="Demo Video Preview"
-            className={demoVideoStyles.gif}
+          <img
+            src={DEMO_VIDEO_POSTER_URL}
+            alt="Demo video preview"
+            className={demoVideoStyles.posterImage}
           />
-          <button className={demoVideoStyles.playButton} aria-label="Play video">
+          <button className={demoVideoStyles.playButton} aria-label="Play video" type="button">
             <svg 
               width="80" 
               height="80" 

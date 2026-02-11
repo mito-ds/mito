@@ -3,98 +3,1455 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.feature_squares_container {
+.feature_squares_wrapper {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 60px;
 }
 
-.feature_card_container {
-    flex-direction: column;
-    display: flex;
-    align-items: center;
-    border-radius: 0px;
-    max-width: 60rem;
+.feature_squares_heading {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 600;
     width: 100%;
-    padding: 60px;
-    flex-grow: 1;
-    border-radius: 2rem;
+}
+
+.feature_card_description {
+    margin-top: 2rem;
+}
+
+/* Mobile-first: single column */
+.feature_squares_container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 1320px;
+}
+
+/* Desktop-only: heading below bento, left-aligned (same width as grid) */
+.feature_squares_heading_below {
+    width: 100%;
+    max-width: 1320px;
+    margin-top: 2rem;
+    margin-bottom: 0;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.feature_squares_tagline {
+    width: 100%;
+    max-width: 1320px;
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+}
+
+.feature_card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-text-primary-alpha-15);
+    border-radius: 1rem;
+    padding: 1rem;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature_card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow-overlay);
+}
+
+.feature_card_header {
+    margin-bottom: 0.5rem;
 }
 
 .feature_card_text_container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 90%;
-    margin-bottom: 20px;
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    padding-left: .5rem;
+    padding-top: .5rem;
 }
 
 .feature_card_text_container h2 {
-    margin-bottom: 16px;
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 .feature_card_text_container p {
-    margin-bottom: 0;
+    margin: 0;
+    font-size: 0.925rem;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
 }
 
-.feature_card_container .link {
-    margin-top: 24px;
-    font-size: 1.1rem;
+.feature_card .link {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
 }
 
 .feature_card_image_container {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    /* Use aspect-ratio for proper video sizing */
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feature_card_image_container video,
+.feature_card_image_container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 0.5rem;
+}
+
+/* Chart wizard: graph with axes + sliders, no outer frame */
+.feature_card_chart_wizard .feature_card_image_container {
+    display: flex;
+    align-items: stretch;
+    /* Extend to the bottom-left corner of the card */
+    margin-left: -1rem;
+    margin-bottom: -1rem;
+    padding-left: 0;
+    padding-bottom: 0;
+    border-radius: 0;
+}
+
+.chart_wizard_preview {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    position: relative;
+    align-items: stretch;
+}
+
+.chart_wizard_graph {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    padding: 0;
+    position: relative;
+}
+
+.chart_wizard_axes {
+    position: absolute;
+    inset: 0;
+    border-left: 1.5px solid var(--color-text-primary-alpha-25);
+    border-bottom: 1.5px solid var(--color-text-primary-alpha-25);
+    pointer-events: none;
+}
+
+.chart_wizard_svg {
+    width: 100%;
+    height: 100%;
+    min-height: 60px;
+    position: relative;
+    z-index: 1;
+}
+
+.chart_wizard_area {
+    fill: transparent;
+    transition: fill 0.3s ease 0.3s;
+}
+
+.chart_wizard_area_active {
+    fill: rgba(155, 126, 217, 0.25);
+}
+
+.chart_wizard_line {
+    stroke: #9a97a0;
+    transition: stroke 0.3s ease 0.3s;
+}
+
+.chart_wizard_line_active {
+    stroke: #9b7ed9;
+}
+
+.chart_wizard_sliders {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 1rem;
+    gap: 1rem;
+    width: 72px;
+    flex-shrink: 0;
+}
+
+.chart_wizard_slider {
+    width: 100%;
+}
+
+.chart_wizard_slider_track {
+    height: 6px;
+    background: #c4c1c8;
+    border-radius: 999px;
+    position: relative;
+    overflow: visible;
+    transition: background 0.25s ease 0.35s;
+}
+
+.chart_wizard_slider_track_active {
+    background: #c9b8f0;
+}
+
+.chart_wizard_slider_thumb {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background: #7a7680;
+    border-radius: 50%;
+    /* Delay synced with cursor animation (starts at 15% of 0.8s = 0.12s) */
+    transition: left 0.44s cubic-bezier(0.25, 0.1, 0.25, 1) 0.12s,
+                background 0.25s ease 0.35s;
+}
+
+.chart_wizard_slider_thumb_active {
+    left: calc(100% - 14px);
+    background: #7c5cc7;
+}
+
+.chart_wizard_cursor {
+    position: absolute;
+    top: 15%;
+    /* Position near the first slider thumb's starting position */
+    right: calc(40px);
+    transform: translateY(-50%) translateX(-20px);
+    color: #4a4554;
+    pointer-events: none;
+    /* Play once and hold final state */
+    animation: chartWizardCursorDrag 0.8s ease-out forwards;
+}
+
+.chart_wizard_cursor_icon {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+@keyframes chartWizardCursorDrag {
+    0% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-20px);
+    }
+    15% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(-20px);
+    }
+    70% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(38px);
+    }
+    85% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(38px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(38px);
+    }
+}
+
+/* Jupyter Agent Preview - dark theme agent conversation mockup */
+.feature_card_jupyter_agent .feature_card_image_container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.jupyter_agent_preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    min-height: 0;
+}
+
+.jupyter_agent_chat_column {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow: hidden;
+}
+
+.jupyter_agent_user_message_wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.jupyter_agent_user_message_label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.jupyter_agent_user_message_icon {
+    display: inline-flex;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.jupyter_agent_user_message {
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 0.5rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.jupyter_agent_cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 1px;
+    background: rgba(255, 255, 255, 0.9);
+    vertical-align: text-bottom;
+    animation: jupyter_agent_cursor_blink 0.8s step-end infinite;
+}
+
+@keyframes jupyter_agent_cursor_blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.jupyter_agent_spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    animation: jupyter_agent_spin 0.8s linear infinite;
+}
+
+.jupyter_agent_spinner svg {
+    stroke-dasharray: 48;
+    stroke-dashoffset: 24;
+    stroke: currentColor;
+}
+
+@keyframes jupyter_agent_spin {
+    to { transform: rotate(360deg); }
+}
+
+.jupyter_agent_step_animated {
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.jupyter_agent_step_animated.jupyter_agent_step_visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.jupyter_agent_chart_animated {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.jupyter_agent_chart_animated.jupyter_agent_chart_visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.jupyter_agent_step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.375rem;
+}
+
+/* Expandable step: querying box that grows to contain error/fix sub-steps */
+.jupyter_agent_step_expandable {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.jupyter_agent_step_row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.jupyter_agent_step_inner {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+
+.jupyter_agent_step_inner.jupyter_agent_step_inner_expanded {
+    grid-template-rows: 1fr;
+}
+
+.jupyter_agent_step_inner_content {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding-top: 0.35rem;
+}
+
+.jupyter_agent_step_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    flex-shrink: 0;
+}
+
+.jupyter_agent_step_text {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.jupyter_agent_step_group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.jupyter_agent_sub_step {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.15rem 0 0.15rem 1.25rem;
+    background: none;
+    border: none;
+}
+
+.jupyter_agent_sub_step_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.jupyter_agent_sub_step_text {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.7rem;
+    font-weight: 400;
+}
+
+.jupyter_agent_thought {
+    margin: 0;
+    padding: 0.25rem 0 0 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.68rem;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.35;
+}
+
+.jupyter_agent_chart {
+    flex: 1;
+    min-width: 0;
+    min-height: 2.5rem;
+    display: flex;
+    align-items: stretch;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    padding-left: 1rem;
+    position: relative;
+}
+
+.jupyter_agent_chart_svg_wrap {
+    position: absolute;
+    inset: 0;
+}
+
+.jupyter_agent_chart_labels {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.15rem 0.5rem 0.2rem;
+    pointer-events: none;
+}
+
+.jupyter_agent_candlestick_svg {
+    width: 100%;
+    height: 100%;
+    min-height: 2.5rem;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.jupyter_agent_candlestick_svg .candle_bollinger_band {
+    fill: rgba(59, 130, 246, 0.12);
+    stroke: none;
+}
+
+.jupyter_agent_candlestick_svg .candle_bollinger_mid {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.jupyter_agent_candlestick_svg .candle_wick {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.jupyter_agent_candlestick_svg .candle_body_bull {
+    fill: #22c55e;
+    stroke: none;
+}
+
+.jupyter_agent_candlestick_svg .candle_body_bear {
+    fill: #ef4444;
+    stroke: none;
+}
+
+.jupyter_agent_chart_title {
+    font-size: 0.5rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.32);
+    text-align: center;
+    line-height: 1.2;
+}
+
+.jupyter_agent_chart_axis_labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.45rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.32);
+}
+
+/* Smart Debugging Preview - Code editor window with Fix Error button */
+.feature_card_smart_debugging .feature_card_image_container {
+    display: flex;
+    align-items: stretch;
+}
+
+.smart_debugging_preview {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    position: relative;
+    padding: 0.5rem;
+    gap: 0.5rem;
+}
+
+.smart_debugging_container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Editor window styling to match other cards */
+.smart_debugging_window {
+    min-height: 0;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    background: rgba(30, 28, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.smart_debugging_window_header {
+    padding: 6px 8px;
+    background: rgba(40, 38, 48, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.smart_debugging_window_dots {
+    display: flex;
+    gap: 4px;
+}
+
+.smart_debugging_window_dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.smart_debugging_window_title {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+}
+
+/* Code block inside window */
+.smart_debugging_code_block {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 10px 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.smart_debugging_code_line {
+    display: flex;
+    align-items: center;
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+.smart_debugging_line_number {
+    width: 1.25rem;
+    flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 0.6rem;
+    text-align: right;
+    margin-right: 10px;
+    user-select: none;
+}
+
+.smart_debugging_code_line code {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.smart_debugging_line_with_error {
+    position: relative;
+    display: inline-block;
+    color: #ff6b6b;
+}
+
+.smart_debugging_squiggly {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 4'%3E%3Cpath d='M0 3 Q2 0 4 3 Q6 6 8 3' stroke='%23ff6b6b' stroke-width='1' fill='none'/%3E%3C/svg%3E") repeat-x;
+    background-size: 6px 3px;
+}
+
+.smart_debugging_line_fixed {
+    color: #81c784;
+    animation: smart_debugging_line_in 0.3s ease-out forwards;
+}
+
+@keyframes smart_debugging_line_in {
+    from {
+        opacity: 0;
+        transform: translateX(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Fix Error button - subtle styling */
+.smart_debugging_button_wrapper {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.15rem;
+}
+
+.smart_debugging_button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 500;
+    font-family: inherit;
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    cursor: default;
+    min-width: 5.5rem;
+    min-height: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.smart_debugging_button_clicked {
+    transform: scale(0.96);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.smart_debugging_button_loading {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.smart_debugging_button_spinner {
+    display: inline-flex;
+    width: 0.85rem;
+    height: 0.85rem;
+    animation: smart_debugging_spin 0.7s linear infinite;
+}
+
+.smart_debugging_button_spinner svg {
+    width: 100%;
+    height: 100%;
+    stroke-dasharray: 54;
+    stroke-dashoffset: 0;
+    animation: smart_debugging_stroke 1.2s ease-in-out infinite;
+}
+
+@keyframes smart_debugging_spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes smart_debugging_stroke {
+    0%, 100% { stroke-dashoffset: 54; }
+    50% { stroke-dashoffset: 14; }
+}
+
+.smart_debugging_button_resolved {
+    background: rgba(129, 199, 132, 0.15);
+    border-color: rgba(129, 199, 132, 0.3);
+    color: rgba(129, 199, 132, 0.9);
+}
+
+.smart_debugging_button_check {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Cursor - same design as Chart Wizard: moves to button, then clicks */
+.smart_debugging_cursor {
+    position: absolute;
+    left: 50%;
+    bottom: 0.5rem;
+    margin-left: 1rem;
+    color: #4a4554;
+    pointer-events: none;
+    animation: smart_debugging_cursor_move 0.4s ease-out forwards;
+    z-index: 2;
+}
+
+.smart_debugging_cursor_icon {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+.smart_debugging_cursor_clicked {
+    animation: smart_debugging_cursor_click 0.25s ease-out forwards;
+}
+
+@keyframes smart_debugging_cursor_move {
+    from {
+        opacity: 0;
+        transform: translate(1.5rem, 0.5rem) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+@keyframes smart_debugging_cursor_click {
+    0% { transform: translate(0, 0) scale(1); }
+    35% { transform: translate(0, 0) scale(0.82); }
+    70% { transform: translate(0, 0) scale(1.05); }
+    100% { transform: translate(0, 0) scale(1); }
+}
+
+/* Database Connections Preview */
+.feature_card_database_connections .feature_card_image_container {
+    display: flex;
+    align-items: stretch;
+}
+
+.db_connections_preview {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    position: relative;
+    padding: 0.5rem;
+    gap: 0;
+}
+
+.db_connections_window {
+    width: 70%;
+    margin: 0 auto;
+    background: rgba(30, 28, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.db_connections_window_header {
+    padding: 6px 8px;
+    background: rgba(40, 38, 48, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.db_connections_window_dots {
+    display: flex;
+    gap: 4px;
+}
+
+.db_connections_window_dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.db_connections_window_content {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.db_connections_row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.db_connections_cell_short,
+.db_connections_cell_medium,
+.db_connections_cell_long {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+.db_connections_cell_short {
+    width: 20%;
+}
+
+.db_connections_cell_medium {
+    width: 35%;
+}
+
+.db_connections_cell_long {
+    width: 45%;
+}
+
+.db_connections_svg {
+    flex: 1;
+    width: 100%;
+    min-height: 30px;
+}
+
+.db_connections_line {
+    stroke: rgba(155, 126, 217, 0.3);
+    transition: stroke 0.3s ease;
+}
+
+.db_connections_line_active {
+    stroke: rgba(155, 126, 217, 0.5);
+}
+
+/* Animated particles flowing up the paths */
+.db_connections_particle {
+    fill: #9b7ed9;
+    opacity: 0;
+    animation: dbParticleFade 1.2s ease-in-out infinite;
+}
+
+@keyframes dbParticleFade {
+    0% {
+        opacity: 0;
+        fill: #9b7ed9;
+    }
+    15% {
+        opacity: 1;
+        fill: #b8a3e8;
+    }
+    70% {
+        opacity: 1;
+        fill: #9b7ed9;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.db_connections_nodes {
+    position: relative;
+    height: 20px;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.db_connections_node {
+    position: absolute;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.db_connections_node_dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(155, 126, 217, 0.4);
+    border: 1.5px solid rgba(155, 126, 217, 0.6);
+    transition: all 0.3s ease;
+}
+
+.db_connections_node_dot_active {
+    background: rgba(155, 126, 217, 0.9);
+    border-color: #b8a3e8;
+    box-shadow: 0 0 10px rgba(155, 126, 217, 0.8);
+    animation: dbNodeEmit 0.8s ease-in-out infinite;
+}
+
+@keyframes dbNodeEmit {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(155, 126, 217, 0.6);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 14px rgba(155, 126, 217, 1);
+        transform: scale(1.1);
+    }
+}
+
+/* Spreadsheet Editor Preview - Vertical Layout */
+.feature_card_spreadsheet_editor .feature_card_image_container {
+    display: flex;
+    align-items: stretch;
+    /* Extend to all edges of the card */
+    margin-left: -1rem;
+    margin-right: -1rem;
+    margin-bottom: -1rem;
+    padding: 0 !important;
+    border-radius: 0;
+    overflow: visible;
+}
+
+.spreadsheet_preview {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    margin-top: 48px;
+    width: calc(100% + 2rem);
+    margin-left: -1rem;
+    margin-right: -1rem;
+    height: 100%;
+    gap: 6px;
+    padding: 0;
+    overflow: visible;
 }
 
-.feature_card_image_container img {
-    width: 100%;
-    height: auto;
-    max-width: 580px;
+.spreadsheet_container {
+    display: flex;
+    flex-direction: column;
+    /* Extend beyond the visible area to cut off cells on edges */
+    width: calc(100% + 2rem);
+    margin-left: -1rem;
+    margin-right: -1rem;
+}
+
+.spreadsheet_formula_bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(40, 38, 48, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    padding: 4px 8px;
+    min-height: 24px;
+    transition: all 0.3s ease;
+}
+
+.spreadsheet_formula_bar_active {
+    background: rgba(50, 45, 60, 0.9);
+    border-color: rgba(155, 126, 217, 0.4);
+}
+
+.spreadsheet_formula_label {
+    font-size: 0.75rem;
+    font-style: italic;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.spreadsheet_formula_text {
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
+}
+
+.spreadsheet_formula_text_active {
+    color: #b8a3e8;
+}
+
+.spreadsheet_grid {
+    display: flex;
+    flex-direction: column;
+    background: rgba(30, 28, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    overflow: hidden;
+}
+
+.spreadsheet_row_header {
+    display: flex;
+    background: rgba(50, 48, 58, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.spreadsheet_cell_header {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spreadsheet_cell_header:last-child {
+    border-right: none;
+}
+
+.spreadsheet_cell_header_highlight {
+    background: rgba(155, 126, 217, 0.3);
+    color: #fff;
+}
+
+.spreadsheet_row {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spreadsheet_row:last-child {
+    border-bottom: none;
+}
+
+.spreadsheet_cell {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.spreadsheet_cell:last-child {
+    border-right: none;
+}
+
+.spreadsheet_cell_highlight {
+    background: rgba(155, 126, 217, 0.3);
+    color: #fff;
+    box-shadow: inset 0 0 0 1.5px #9b7ed9;
+}
+
+/* Arrow between spreadsheet and code */
+.spreadsheet_arrow {
+    font-size: 1rem;
+    color: rgba(155, 126, 217, 0.3);
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.spreadsheet_arrow_active {
+    color: rgba(155, 126, 217, 0.9);
+    transform: scale(1.1);
+}
+
+/* Python code panel - single line */
+.spreadsheet_code {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(30, 28, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.spreadsheet_code_active {
+    background: rgba(155, 126, 217, 0.15);
+    border-color: rgba(155, 126, 217, 0.5);
+    box-shadow: 0 0 12px rgba(155, 126, 217, 0.2);
+}
+
+/* Code syntax highlighting */
+.code_keyword {
+    color: #79c0ff;
+}
+
+.code_bracket {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.code_string {
+    color: #a5d6ff;
+}
+
+.code_operator {
+    color: #ff7b72;
+}
+
+/* Hero card: size video to fit container (no crop), preserve aspect ratio */
+.feature_card_hero .feature_card_image_container video {
+    object-fit: contain;
 }
 
 .feature_squares_container a {
-    font-size: 1.5rem;
+    font-size: inherit;
 }
 
-@media only screen and (min-width: 50em) {
+/* App Mode Preview - Drag and Drop Animation */
+.feature_card_app_mode .feature_card_image_container {
+    display: flex;
+    align-items: stretch;
+    overflow: visible;
+}
+
+.app_mode_preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding: 0.5rem;
+    cursor: grab;
+}
+
+.app_mode_preview:active {
+    cursor: grabbing;
+}
+
+.app_mode_window {
+    width: min(70%, 320px);
+    margin-inline: auto;
+    align-self: center;
+    background: rgba(30, 28, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.app_mode_window_header {
+    padding: 6px 8px;
+    background: rgba(40, 38, 48, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.app_mode_window_dots {
+    display: flex;
+    gap: 4px;
+}
+
+.app_mode_window_dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.app_mode_window_content {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 100px;
+}
+
+.app_mode_content_row {
+    display: flex;
+    gap: 10px;
+    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.app_mode_content_row_top {
+    width: 100%;
+}
+
+.app_mode_content_row_shifted {
+    transform: translateY(-8px);
+    opacity: 0.85;
+}
+
+.app_mode_content_row_bottom {
+    margin-top: 0;
+}
+
+.app_mode_content_row_shifted_down {
+    transform: translateY(10px);
+    opacity: 0.85;
+}
+
+.app_mode_placeholder_block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.app_mode_placeholder_line_full,
+.app_mode_placeholder_line_long,
+.app_mode_placeholder_line_medium,
+.app_mode_placeholder_line_short {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+.app_mode_placeholder_line_full {
+    width: 100%;
+}
+
+.app_mode_placeholder_line_long {
+    width: 80px;
+}
+
+.app_mode_placeholder_line_medium {
+    width: 55px;
+}
+
+.app_mode_placeholder_line_short {
+    width: 35px;
+}
+
+/* Drop zone for the chart - starts collapsed */
+.app_mode_drop_zone {
+    position: relative;
+    height: 8px;
+    min-height: 8px;
+    border-radius: 4px;
+    border: 1.5px dashed transparent;
+    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.app_mode_drop_zone_active {
+    height: 24px;
+    min-height: 24px;
+    border-color: rgba(155, 126, 217, 0.5);
+    background: rgba(155, 126, 217, 0.08);
+}
+
+/* Expanded drop zone after chart is dropped */
+.app_mode_drop_zone_dropped {
+    height: 58px;
+    min-height: 58px;
+    border-color: transparent;
+    background: transparent;
+}
+
+/* Chart that appears in the drop zone */
+.app_mode_chart {
+    width: 100%;
+    height: 100%;
+    min-height: 50px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8) translateY(-10px);
+    transition: opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s,
+                visibility 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s,
+                transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
+}
+
+.app_mode_chart_dropped {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+}
+
+.app_mode_chart_bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 5px;
+    height: 50px;
+    padding: 4px;
+}
+
+.app_mode_chart_bar {
+    width: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px 2px 0 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: bottom;
+    transform: scaleY(0);
+}
+
+.app_mode_chart_bar_active {
+    background: rgba(155, 126, 217, 0.9);
+    transform: scaleY(1);
+}
+
+/* Cursor dragging the chart - follows user's actual cursor */
+.app_mode_cursor_container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.app_mode_dragging_chart {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(155, 126, 217, 0.5);
+    border-radius: 4px;
+    padding: 6px 8px;
+    box-shadow: 0 4px 16px rgba(155, 126, 217, 0.3);
+    cursor: grabbing;
+}
+
+.app_mode_dragging_chart_bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 25px;
+}
+
+.app_mode_dragging_bar {
+    width: 6px;
+    background: rgba(155, 126, 217, 0.7);
+    border-radius: 1px 1px 0 0;
+}
+
+/* Desktop: 3-column bento with proper aspect ratios */
+@media (min-width: 50em) {
+    .feature_squares_heading {
+        margin-bottom: 6rem;
+        font-size: 2.5rem;
+    }
+
+    .feature_squares_heading_below {
+        font-size: 2.5rem;
+    }
+
     .feature_squares_container {
-        gap: 80px;
+        /* 3 columns, hero spans 2 cols × 2 rows, third row for remaining cards */
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, auto);
+        gap: 0.75rem;
     }
 
-    .feature_card_container {
-        max-width: 70rem;
-        padding: 80px;
+    .feature_card_hero {
+        grid-column: 1 / 3;
+        grid-row: 1 / 3;
     }
 
-    .feature_card_text_container {
-        height: auto;
-        min-height: 6rem;
-        margin-bottom: 24px;
+    .feature_card {
+        padding: 1rem;
+        /* Let grid control height via rows */
+        min-height: 0;
     }
 
-    .feature_card_container .link {
-        margin: 32px 0 48px 0 !important;
-        margin-bottom: 48px !important;
-        font-size: inherit;
+    /* Hero card: larger video area */
+    .feature_card_hero .feature_card_image_container {
+        aspect-ratio: 16 / 9;
+        flex: 1;
+        min-height: 0;
     }
 
+    /* Regular cards: smaller video thumbnail with proper aspect */
     .feature_card_image_container {
-        margin-top: 48px;
-        height: auto;
-    }
+        aspect-ratio: 16 / 9;
 
-    .feature_card_image_container img {
-        max-width: 700px;
     }
+}
 
-    .feature_squares_container a {
-        font-size: inherit;
+
+
+.pip_install_link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.pip_install_link:hover {
+    text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .feature_card {
+        transition: none;
+    }
+    .feature_card:hover {
+        transform: none;
     }
 }

@@ -68,7 +68,12 @@ const HeaderDropdown = (props: {
   )
 }
 
-const Header = (): JSX.Element => {
+interface HeaderProps {
+  /** When true, header uses the same textured background as the homepage for a seamless transition. */
+  usePageTexture?: boolean;
+}
+
+const Header = ({ usePageTexture = false }: HeaderProps): JSX.Element => {
 
     const [mobileMenuVisible, setMobileMenuVisible] = useState(false)
 
@@ -84,7 +89,7 @@ const Header = (): JSX.Element => {
     };
 
     return (
-      <header className={headerStyles.header}>
+      <header className={classNames(headerStyles.header, { [headerStyles.headerWithTexture]: usePageTexture })}>
         <div className={headerStyles.navbar}>
           <div className={headerStyles.desktop_left_nav_bar}>
             <Link href='/'>

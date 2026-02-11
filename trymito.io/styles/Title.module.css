@@ -106,12 +106,12 @@
 .cycling_word:nth-child(1) {
     animation-delay: 0s;
     background: linear-gradient(
-        135deg, 
-        #9D6CFF 0%, 
-        #ac84fc 25%,
-        #ffffff 50%,
-        #ac84fc 75%,
-        #F2C94C 100%
+        135deg,
+        var(--color-brand) 0%,
+        var(--color-brand-light) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-brand-light) 75%,
+        var(--color-accent-amber) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -123,12 +123,12 @@
 .cycling_word:nth-child(2) {
     animation-delay: 4s;
     background: linear-gradient(
-        135deg, 
-        #ac84fc 0%, 
-        #9D6CFF 25%,
-        #ffffff 50%,
-        #9D6CFF 75%,
-        #479BE9 100%
+        135deg,
+        var(--color-brand-light) 0%,
+        var(--color-brand) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-brand) 75%,
+        var(--color-accent-blue) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -141,12 +141,12 @@
 .cycling_word:nth-child(3) {
     animation-delay: 8s;
     background: linear-gradient(
-        135deg, 
-        #F2C94C 0%, 
-        #9D6CFF 25%,
-        #ffffff 50%,
-        #9D6CFF 75%,
-        #ac84fc 100%
+        135deg,
+        var(--color-accent-amber) 0%,
+        var(--color-brand) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-brand) 75%,
+        var(--color-brand-light) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -159,12 +159,12 @@
 .cycling_word:nth-child(4) {
     animation-delay: 12s;
     background: linear-gradient(
-        135deg, 
-        #479BE9 0%, 
-        #9D6CFF 25%,
-        #ffffff 50%,
-        #9D6CFF 75%,
-        #F2C94C 100%
+        135deg,
+        var(--color-accent-blue) 0%,
+        var(--color-brand) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-brand) 75%,
+        var(--color-accent-amber) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -177,12 +177,12 @@
 .cycling_word:nth-child(5) {
     animation-delay: 16s;
     background: linear-gradient(
-        135deg, 
-        #ac84fc 0%, 
-        #F2C94C 25%,
-        #ffffff 50%,
-        #F2C94C 75%,
-        #9D6CFF 100%
+        135deg,
+        var(--color-brand-light) 0%,
+        var(--color-accent-amber) 25%,
+        var(--color-text-primary) 50%,
+        var(--color-accent-amber) 75%,
+        var(--color-brand) 100%
     );
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -227,15 +227,15 @@
     background-image:
         repeating-linear-gradient(
             0deg,
-            rgba(255, 255, 255, 0.035) 0px,
-            rgba(255, 255, 255, 0.035) 1px,
+            var(--color-grid-overlay) 0px,
+            var(--color-grid-overlay) 1px,
             transparent 1px,
             transparent 80px
         ),
         repeating-linear-gradient(
             90deg,
-            rgba(255, 255, 255, 0.035) 0px,
-            rgba(255, 255, 255, 0.035) 1px,
+            var(--color-grid-overlay) 0px,
+            var(--color-grid-overlay) 1px,
             transparent 1px,
             transparent 80px
         );
