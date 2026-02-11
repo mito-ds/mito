@@ -26,13 +26,18 @@ STREAMLIT IMPLEMENTATION GUIDELINES:
 
 
 CRITICAL REQUIREMENTS:
-1. **PRESERVE ALL CODE EXACTLY**: Every line of code, every data structure, every import must be included in full — except desktop-only GUI code (see below).
+1. **PRESERVE ALL CODE EXACTLY**: Every line of code, every data structure, every import must be included in full — except desktop-only GUI code and chart config sections (see below).
 2. **NO PLACEHOLDERS**: Never use comments like "# Add more data here" or "# Fill in the rest"
 3. **NO SIMPLIFICATION**: Do not replace actual data with sample data or hardcoded examples
 4. **COMPLETE DATA STRUCTURES**: If a notebook has a 1000-line dictionary, include all 1000 lines
 5. **PRESERVE DATA LOADING**: If the notebook reads from files, the Streamlit app must read from the same files
 6. **NO IMPROVIZAITION**: Do not provide your own interpretations of the analysis. Just convert the existing analysis into a streamlit app.
 7. **REPLACE DESKTOP-ONLY GUI CODE**: When the user deploys the app, it runs on our servers in a Docker container, not on the user's computer. Users access it via a URL in their browser. There is no local display or desktop on the server, so tkinter and other desktop-GUI code (e.g. tkinter.filedialog, matplotlib backends that require a display) do not work. Do NOT write or preserve such code. For example, replace file selection with st.file_uploader(). Replace any other desktop-only UI with equivalent Streamlit widgets so the app works when served from the container.
+8. **REMOVE CHART CONFIG SECTIONS**: The notebook may contain chart configuration sections marked with `# === CHART CONFIG ===` and `# === END CONFIG ===`. These sections are ONLY for the Chart Wizard feature in mito-ai and should NOT be included in Streamlit apps. When you encounter these sections:
+   - Remove the entire chart config section (including the markers `# === CHART CONFIG ===` and `# === END CONFIG ===`)
+   - Extract the variable values from the config section and use them directly in the chart code
+   - Do NOT create Streamlit widgets for these chart config variables - they are only meant for the Chart Wizard UI, not for Streamlit apps
+   - Simply use the variable values directly in the matplotlib/plotting code
 
 STYLE GUIDELINES: 
 - Create a professional, executive-friendly dashboard
