@@ -35,11 +35,6 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-## Implementation notes
-
-- **Media and grid layouts:** For any section with images, video, or a card grid, set `aspect-ratio` on media containers and a `max-width` on the section container from the start. Using only `max-height` or flexible rows often leads to stretched or distorted media and multiple fix iterations.
-- **Composing with page styles:** Before wrapping a new component in shared classes (e.g. `pageStyles.background_card`), check whether those classes already add padding or layout. Reusing them on the new component can double padding or cause layout conflicts.
-
 ## Codebase structure
 
 #### Mobile First
