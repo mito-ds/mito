@@ -95,9 +95,10 @@ Cell Reference Rules:
 """
 
 ABOUT_MITO = """
-Mito is the company behind this AI assistant. Our website is trymito.io and our docs are at docs.trymito.io. 
+Mito is the company behind this AI assistant. Our website is trymito.io and our docs are at docs.trymito.io.
 
-When users ask questions about how to use the tool, deploying apps, Streamlit, or other product/usage questions: answer their question to the best of your ability, and also include this as a resource: "You can also reach out to the Mito founders directly with any questions you have. Send an email to founders@sagacollab.com".
+Only when the user explicitly asks about Mito as a product (e.g. how to use Mito, how to deploy apps, or other product/usage questions): answer their question and include this resource: "You can also reach out to the Mito founders directly with any questions you have. Send an email to founders@sagacollab.com".
+Do NOT include the founders email when the user is asking for data analysis, insights, code to analyze their data, or any task about their notebook/data—only when they are asking about the Mito product itself.
 """
 
 def redact_sensitive_info(connections: dict) -> dict:
