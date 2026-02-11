@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import os
-import pkg_resources
 import subprocess
+from importlib.metadata import distributions
 import sys
 import uuid
 from typing import List, Optional, Tuple, Union
@@ -34,10 +34,13 @@ def get_installed_packages() -> List[str]:
     """
     Get a list of all installed packages.
     """
-    return [
-        package.key
-        for package in sorted(pkg_resources.working_set, key=lambda x: x.key)
-    ]
+    return sorted(
+        {
+            dist.metadata.get("Name", "").lower() # type: ignore
+            for dist in distributions()
+            if dist.metadata.get("Name") # type: ignore
+        }
+    )
 
 def install_packages(packages: List[str]) -> dict[str, Union[bool, str, None]]:
     """

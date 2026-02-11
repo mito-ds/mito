@@ -247,5 +247,48 @@ df
             expect(result).toContain('pandas==2.0.3');
             expect(result).toContain('streamlit');
         });
+
+        test('should filter out pipreqs log lines and keep only requirement lines', async () => {
+            createMockAppFile('import pandas\n');
+            const mixedOutput = [
+                'WARNING: Import named "pandas" not found locally. Trying to resolve it at the PyPI server.',
+                'WARNING: Import named "pandas" was resolved to "pandas:3.0.0" package (https://pypi.org/project/pandas/).',
+                'Please, verify manually the final list of requirements.txt to avoid possible dependency confusions.',
+                'INFO: Successfully saved requirements file in C:\\Users\\philipd\\requirements.in',
+                'pandas==2.3.3',
+                'streamlit==1.53.0'
+            ].join('\n');
+            mockKernelExecution(mixedOutput);
+
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
+
+            expect(result).toContain('pandas==2.3.3');
+            expect(result).toContain('streamlit==1.53.0');
+            expect(result).not.toMatch(/WARNING:/);
+            expect(result).not.toMatch(/INFO:/);
+            expect(result).not.toMatch(/Please,/);
+            expect(result).not.toMatch(/Successfully saved/);
+        });
+
+        test('should preserve URL-based and alternate version specifiers', async () => {
+            createMockAppFile('import pandas\n');
+            const outputWithUrlsAndSpecs = [
+                'pandas~=2.0',
+                'other-pkg<=2.3',
+                'git+https://github.com/org/repo@main',
+                'https://github.com/org/repo/archive/main.zip',
+                'pkg-name @ https://example.com/pkg-1.0.tar.gz'
+            ].join('\n');
+            mockKernelExecution(outputWithUrlsAndSpecs);
+
+            const result = await generateRequirementsTxt(mockNotebookPanel, TEST_APP_FILENAME);
+
+            expect(result).toContain('pandas~=2.0');
+            expect(result).toContain('other-pkg<=2.3');
+            expect(result).toContain('git+https://github.com/org/repo@main');
+            expect(result).toContain('https://github.com/org/repo/archive/main.zip');
+            expect(result).toContain('pkg-name @ https://example.com/pkg-1.0.tar.gz');
+            expect(result).toContain('streamlit');
+        });
     });
 }); 
