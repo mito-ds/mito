@@ -106,17 +106,20 @@ class NotebookViewModeManager implements INotebookViewMode {
     notebookPanel: NotebookPanel,
     createStreamlitAppPrompt?: string
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
+    this.setMode('App');
     const result = await this._streamlitPreviewManager.openAppPreview(
       this._app,
       notebookPanel,
-      createStreamlitAppPrompt
+      createStreamlitAppPrompt,
+      { addAsMainTab: true }
     );
     if (result.type === 'success') {
       const preview = this._streamlitPreviewManager.getCurrentPreview();
       if (preview?.id) {
         this._app.shell.activateById(preview.id);
       }
-      this.setMode('App');
+    } else {
+      this.setMode('Notebook');
     }
     return result;
   }
@@ -125,6 +128,7 @@ class NotebookViewModeManager implements INotebookViewMode {
     editPrompt: string,
     notebookPanel: NotebookPanel
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
+    this.setMode('App');
     const result = await this._streamlitPreviewManager.editExistingPreview(
       editPrompt,
       notebookPanel
@@ -134,7 +138,8 @@ class NotebookViewModeManager implements INotebookViewMode {
       if (preview?.id) {
         this._app.shell.activateById(preview.id);
       }
-      this.setMode('App');
+    } else {
+      this.setMode('Notebook');
     }
     return result;
   }

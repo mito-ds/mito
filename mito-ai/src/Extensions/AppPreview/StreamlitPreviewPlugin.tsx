@@ -46,6 +46,17 @@ export type StreamlitPreviewResponseError = {
 }
 
 /**
+ * Options for opening the app preview.
+ */
+export interface IOpenAppPreviewOptions {
+  /**
+   * When true, add the app as a new tab in the main area (full screen) instead of split-right.
+   * Used when switching to App mode so only the app is displayed.
+   */
+  addAsMainTab?: boolean;
+}
+
+/**
  * Interface for the StreamlitPreview service.
  */
 export interface IStreamlitPreviewManager {
@@ -55,7 +66,8 @@ export interface IStreamlitPreviewManager {
   openAppPreview(
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
-    createStreamlitAppPrompt?: string
+    createStreamlitAppPrompt?: string,
+    options?: IOpenAppPreviewOptions
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError>;
 
   /**
@@ -122,9 +134,11 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
   async openAppPreview(
     app: JupyterFrontEnd,
     notebookPanel: NotebookPanel,
-    createStreamlitAppPrompt: string = ''
+    createStreamlitAppPrompt: string = '',
+    options: IOpenAppPreviewOptions = {}
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
-    
+    const addAsMainTab = options.addAsMainTab === true;
+
     // If the user has a different app open, we first close that one
     if (!this.isCurrentPreivewForCurrentNotebook(notebookPanel)) {
       this.closeCurrentPreview();
@@ -137,12 +151,15 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
       placeholderWidget = new MainAreaWidget({ content: placeholderContent });
       placeholderWidget.title.label = getAppPreviewNameFromNotebookPanel(notebookPanel);
       placeholderWidget.title.closable = true;
-      
-      // Add placeholder to main area with split-right mode
-      app.shell.add(placeholderWidget, 'main', {
-        mode: 'split-right',
-        ref: notebookPanel.id
-      });
+
+      if (addAsMainTab) {
+        app.shell.add(placeholderWidget, 'main');
+      } else {
+        app.shell.add(placeholderWidget, 'main', {
+          mode: 'split-right',
+          ref: notebookPanel.id
+        });
+      }
     }
 
     // First save the notebook to ensure the app is up to date
@@ -180,11 +197,14 @@ class StreamlitAppPreviewManager implements IStreamlitPreviewManager {
     // Store current preview info
     this.currentPreview = widget;
 
-    // Add widget to main area with split-right mode
-    app.shell.add(widget, 'main', {
-      mode: 'split-right',
-      ref: notebookPanel.id
-    });
+    if (addAsMainTab) {
+      app.shell.add(widget, 'main');
+    } else {
+      app.shell.add(widget, 'main', {
+        mode: 'split-right',
+        ref: notebookPanel.id
+      });
+    }
 
     return streamlitPreviewResponse;
   }
