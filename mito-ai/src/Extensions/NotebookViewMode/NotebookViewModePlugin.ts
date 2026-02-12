@@ -6,7 +6,9 @@
 import '../../../style/DocumentMode.css';
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
+import { ICommandPalette } from '@jupyterlab/apputils';
 import { ReactWidget } from '@jupyterlab/ui-components';
+import { BoxLayout } from '@lumino/widgets';
 import { Token } from '@lumino/coreutils';
 import { Signal } from '@lumino/signaling';
 import React from 'react';
@@ -16,10 +18,18 @@ import {
 } from '../../utils/notebook';
 import {
   IStreamlitPreviewManager,
+  IFrameWidget,
   type StreamlitPreviewResponseSuccess,
   type StreamlitPreviewResponseError
 } from '../AppPreview/StreamlitPreviewPlugin';
+import { PlaceholderWidget } from '../AppPreview/PlaceholderWidget';
+import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
+import { logEvent } from '../../restAPI/RestAPI';
+import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
+import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
+import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import NotebookViewModeSwitcher from './NotebookViewModeSwitcher';
+import { AppModeToolbarWidget, APP_MODE_TOOLBAR_CLASS } from './AppModeToolbarWidget';
 
 export type NotebookViewMode = 'Notebook' | 'Document' | 'App';
 
@@ -37,38 +47,14 @@ export const INotebookViewMode = new Token<INotebookViewMode>(
  * Interface for the NotebookViewMode service.
  */
 export interface INotebookViewMode {
-  /**
-   * Current view mode.
-   */
   getMode(): NotebookViewMode;
-
-  /**
-   * Set view mode and notify listeners.
-   */
   setMode(mode: NotebookViewMode): void;
-
-  /**
-   * Signal emitted when the view mode changes.
-   */
   readonly modeChanged: Signal<this, NotebookViewMode>;
-
-  /**
-   * Sync document-mode class and dblclick listener to the current notebook.
-   * Called by the plugin on activate when a notebook may already be open.
-   */
   syncToCurrentNotebook(): void;
-
-  /**
-   * Open Streamlit app preview, activate the app tab, and set view mode to App.
-   */
   openPreviewAndSwitchToAppMode(
     notebookPanel: NotebookPanel,
     createStreamlitAppPrompt?: string
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError>;
-
-  /**
-   * Edit the existing Streamlit app preview, then activate the app tab and set view mode to App.
-   */
   editPreviewAndSwitchToAppMode(
     editPrompt: string,
     notebookPanel: NotebookPanel
@@ -76,51 +62,124 @@ export interface INotebookViewMode {
 }
 
 /**
- * Service that holds the current notebook view mode and applies Document mode
- * (hide code cells, show outputs + markdown; double-click output to return to Notebook).
+ * Service that manages per-notebook view modes (Notebook / Document / App)
+ * and handles in-place content swapping within each NotebookPanel tab.
  */
 class NotebookViewModeManager implements INotebookViewMode {
-  private _mode: NotebookViewMode = 'Notebook';
+  /**
+   * Per-notebook mode. Keyed by notebookPanel.id.
+   */
+  private _notebookModes = new Map<string, NotebookViewMode>();
   private _modeChanged = new Signal<this, NotebookViewMode>(this);
   private _notebookTracker: INotebookTracker;
   private _app: JupyterFrontEnd;
   private _streamlitPreviewManager: IStreamlitPreviewManager;
+  private _appDeployService: IAppDeployService;
+  private _appManagerService: IAppManagerService;
   private _dblclickHandler: ((event: MouseEvent) => void) | null = null;
   private _currentPanelForDblclick: NotebookPanel | null = null;
+
+  /**
+   * Track the current Streamlit process ID so we can stop it when leaving App mode.
+   */
+  private _activePreviewId: string | null = null;
+
+  /**
+   * Track the current iframe and placeholder widgets so we can dispose them.
+   */
+  private _activeIframe: IFrameWidget | null = null;
+  private _activePlaceholder: PlaceholderWidget | null = null;
 
   constructor(
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
-    streamlitPreviewManager: IStreamlitPreviewManager
+    streamlitPreviewManager: IStreamlitPreviewManager,
+    appDeployService: IAppDeployService,
+    appManagerService: IAppManagerService,
   ) {
     this._app = app;
     this._notebookTracker = notebookTracker;
     this._streamlitPreviewManager = streamlitPreviewManager;
+    this._appDeployService = appDeployService;
+    this._appManagerService = appManagerService;
 
     notebookTracker.currentChanged.connect(() => {
-      this._syncToCurrentNotebook();
+      this._onCurrentNotebookChanged();
     });
+  }
+
+  // -------------------------------------------------------------------
+  // Public API
+  // -------------------------------------------------------------------
+
+  getMode(): NotebookViewMode {
+    const panel = this._notebookTracker.currentWidget;
+    if (!panel) {
+      return 'Notebook';
+    }
+    return this._notebookModes.get(panel.id) ?? 'Notebook';
+  }
+
+  setMode(mode: NotebookViewMode): void {
+    const panel = this._notebookTracker.currentWidget;
+    if (!panel) {
+      return;
+    }
+    const currentMode = this._notebookModes.get(panel.id) ?? 'Notebook';
+    if (currentMode === mode) {
+      return;
+    }
+    this._notebookModes.set(panel.id, mode);
+    this._applyMode(panel, mode);
+    this._modeChanged.emit(mode);
+  }
+
+  get modeChanged(): Signal<this, NotebookViewMode> {
+    return this._modeChanged;
+  }
+
+  syncToCurrentNotebook(): void {
+    const panel = this._notebookTracker.currentWidget;
+    if (!panel) {
+      return;
+    }
+    const mode = this._notebookModes.get(panel.id) ?? 'Notebook';
+    this._applyMode(panel, mode);
   }
 
   async openPreviewAndSwitchToAppMode(
     notebookPanel: NotebookPanel,
     createStreamlitAppPrompt?: string
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
-    this.setMode('App');
-    const result = await this._streamlitPreviewManager.openAppPreview(
-      this._app,
-      notebookPanel,
-      createStreamlitAppPrompt,
-      { addAsMainTab: true }
+    // Set the mode to App (this triggers the UI swap, shows placeholder)
+    this._notebookModes.set(notebookPanel.id, 'App');
+    this._applyAppModeUI(notebookPanel);
+    this._modeChanged.emit('App');
+
+    // Save the notebook first
+    await notebookPanel.context.save();
+
+    const notebookPath = notebookPanel.context.path;
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel);
+
+    // Start the Streamlit process
+    const result = await this._streamlitPreviewManager.startPreview(
+      notebookPath,
+      notebookID,
+      createStreamlitAppPrompt
     );
+
     if (result.type === 'success') {
-      const preview = this._streamlitPreviewManager.getCurrentPreview();
-      if (preview?.id) {
-        this._app.shell.activateById(preview.id);
-      }
+      void logEvent('opened_streamlit_app_preview');
+      this._activePreviewId = result.id;
+      this._swapPlaceholderForIframe(notebookPanel, result.url);
     } else {
-      this.setMode('Notebook');
+      // Revert to Notebook mode on error
+      this._notebookModes.set(notebookPanel.id, 'Notebook');
+      this._applyMode(notebookPanel, 'Notebook');
+      this._modeChanged.emit('Notebook');
     }
+
     return result;
   }
 
@@ -128,74 +187,287 @@ class NotebookViewModeManager implements INotebookViewMode {
     editPrompt: string,
     notebookPanel: NotebookPanel
   ): Promise<StreamlitPreviewResponseSuccess | StreamlitPreviewResponseError> {
-    this.setMode('App');
-    const result = await this._streamlitPreviewManager.editExistingPreview(
-      editPrompt,
-      notebookPanel
+    // If not already in App mode, switch to it
+    const currentMode = this._notebookModes.get(notebookPanel.id) ?? 'Notebook';
+    if (currentMode !== 'App') {
+      this._notebookModes.set(notebookPanel.id, 'App');
+      this._applyAppModeUI(notebookPanel);
+      this._modeChanged.emit('App');
+    }
+
+    // Save the notebook first
+    await notebookPanel.context.save();
+
+    const notebookPath = notebookPanel.context.path;
+    const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel);
+
+    const result = await this._streamlitPreviewManager.editPreview(
+      notebookPath,
+      notebookID,
+      editPrompt
     );
+
     if (result.type === 'success') {
-      const preview = this._streamlitPreviewManager.getCurrentPreview();
-      if (preview?.id) {
-        this._app.shell.activateById(preview.id);
+      this._activePreviewId = result.id;
+      // If the iframe already exists, the Streamlit auto-refresh will handle it.
+      // If not (we just switched to App mode), create the iframe.
+      if (!this._activeIframe) {
+        this._swapPlaceholderForIframe(notebookPanel, result.url);
       }
     } else {
-      this.setMode('Notebook');
+      // Revert to Notebook mode on error
+      this._notebookModes.set(notebookPanel.id, 'Notebook');
+      this._applyMode(notebookPanel, 'Notebook');
+      this._modeChanged.emit('Notebook');
     }
+
     return result;
   }
 
+  // -------------------------------------------------------------------
+  // Per-notebook setup
+  // -------------------------------------------------------------------
+
   /**
-   * Sync document-mode class and dblclick listener to the current notebook.
+   * Set up a NotebookPanel: add mode switcher to native toolbar
+   * and app toolbar to contentHeader (hidden).
    */
-  syncToCurrentNotebook(): void {
-    this._updateDocumentModeClassForCurrentNotebook();
-    this._attachOrDetachDblclickListener();
+  setupNotebookPanel(panel: NotebookPanel): void {
+    this._addModeSwitcherToToolbar(panel);
+    this._addAppToolbarToContentHeader(panel);
+
+    // Clean up state when the panel is disposed
+    panel.disposed.connect(() => {
+      this._cleanupPanel(panel);
+    });
   }
 
-  private _syncToCurrentNotebook(): void {
-    this.syncToCurrentNotebook();
+  // -------------------------------------------------------------------
+  // Private: mode application
+  // -------------------------------------------------------------------
+
+  private _applyMode(panel: NotebookPanel, mode: NotebookViewMode): void {
+    switch (mode) {
+      case 'Notebook':
+        this._applyNotebookMode(panel);
+        break;
+      case 'Document':
+        this._applyDocumentMode(panel);
+        break;
+      case 'App':
+        // App mode is handled by openPreviewAndSwitchToAppMode, not here.
+        // This path is only for restoring App mode when switching tabs,
+        // but since we kill the process on mode change, we revert to Notebook.
+        // If the mode was somehow set to App without a process, revert.
+        if (!this._activeIframe && !this._activePlaceholder) {
+          this._notebookModes.set(panel.id, 'Notebook');
+          this._applyNotebookMode(panel);
+          this._modeChanged.emit('Notebook');
+        }
+        break;
+    }
   }
 
-  getMode(): NotebookViewMode {
-    return this._mode;
+  private _applyNotebookMode(panel: NotebookPanel): void {
+    // Kill any running Streamlit process
+    this._killActiveProcess();
+    // Dispose iframe/placeholder
+    this._disposeTransientWidgets();
+    // Show native toolbar
+    panel.toolbar.show();
+    // Hide app toolbar
+    this._setAppToolbarVisible(panel, false);
+    // Show notebook content
+    panel.content.show();
+    // Remove document-mode CSS
+    panel.content.node.classList.remove(DOCUMENT_MODE_CSS_CLASS);
+    // Update dblclick listener
+    this._attachOrDetachDblclickListener(panel, false);
   }
 
-  setMode(mode: NotebookViewMode): void {
-    if (this._mode === mode) {
+  private _applyDocumentMode(panel: NotebookPanel): void {
+    // Kill any running Streamlit process
+    this._killActiveProcess();
+    // Dispose iframe/placeholder
+    this._disposeTransientWidgets();
+    // Show native toolbar
+    panel.toolbar.show();
+    // Hide app toolbar
+    this._setAppToolbarVisible(panel, false);
+    // Show notebook content
+    panel.content.show();
+    // Add document-mode CSS
+    panel.content.node.classList.add(DOCUMENT_MODE_CSS_CLASS);
+    // Attach dblclick listener
+    this._attachOrDetachDblclickListener(panel, true);
+  }
+
+  /**
+   * Apply the App mode UI: hide native toolbar, show app toolbar,
+   * hide notebook content, show placeholder.
+   * Does NOT start the Streamlit process -- that is done by
+   * openPreviewAndSwitchToAppMode / editPreviewAndSwitchToAppMode.
+   */
+  private _applyAppModeUI(panel: NotebookPanel): void {
+    // Remove document-mode CSS
+    panel.content.node.classList.remove(DOCUMENT_MODE_CSS_CLASS);
+    // Detach dblclick listener
+    this._attachOrDetachDblclickListener(panel, false);
+    // Hide native toolbar
+    panel.toolbar.hide();
+    // Show app toolbar
+    this._setAppToolbarVisible(panel, true);
+    // Hide notebook content
+    panel.content.hide();
+    // Show placeholder
+    this._showPlaceholder(panel);
+  }
+
+  // -------------------------------------------------------------------
+  // Private: transient widget management
+  // -------------------------------------------------------------------
+
+  private _showPlaceholder(panel: NotebookPanel): void {
+    this._disposeTransientWidgets();
+    const placeholder = new PlaceholderWidget();
+    BoxLayout.setStretch(placeholder, 1);
+    (panel.layout as BoxLayout).addWidget(placeholder);
+    this._activePlaceholder = placeholder;
+  }
+
+  private _swapPlaceholderForIframe(panel: NotebookPanel, url: string): void {
+    if (this._activePlaceholder) {
+      this._activePlaceholder.dispose();
+      this._activePlaceholder = null;
+    }
+    const iframe = new IFrameWidget(url);
+    BoxLayout.setStretch(iframe, 1);
+    (panel.layout as BoxLayout).addWidget(iframe);
+    this._activeIframe = iframe;
+  }
+
+  private _disposeTransientWidgets(): void {
+    if (this._activeIframe) {
+      this._activeIframe.dispose();
+      this._activeIframe = null;
+    }
+    if (this._activePlaceholder) {
+      this._activePlaceholder.dispose();
+      this._activePlaceholder = null;
+    }
+  }
+
+  private _killActiveProcess(): void {
+    if (this._activePreviewId) {
+      void this._streamlitPreviewManager.stopPreview(this._activePreviewId);
+      this._activePreviewId = null;
+    }
+  }
+
+  // -------------------------------------------------------------------
+  // Private: app toolbar in contentHeader
+  // -------------------------------------------------------------------
+
+  private _addAppToolbarToContentHeader(panel: NotebookPanel): void {
+    // Check if already added
+    const existing = panel.contentHeader.node.querySelector(
+      '.' + APP_MODE_TOOLBAR_CLASS
+    );
+    if (existing) {
       return;
     }
-    this._mode = mode;
-    this._modeChanged.emit(mode);
-    this._syncToCurrentNotebook();
+
+    const appToolbar = new AppModeToolbarWidget(
+      panel,
+      (mode) => {
+        if (mode === 'App') {
+          // Already in App mode -- no-op
+          return;
+        }
+        this.setMode(mode);
+      },
+      this._appDeployService,
+      this._appManagerService,
+      this._app,
+    );
+    appToolbar.hide(); // hidden by default
+    panel.contentHeader.addWidget(appToolbar);
   }
 
-  get modeChanged(): Signal<this, NotebookViewMode> {
-    return this._modeChanged;
+  private _setAppToolbarVisible(panel: NotebookPanel, visible: boolean): void {
+    for (const widget of panel.contentHeader.widgets) {
+      if (widget.hasClass(APP_MODE_TOOLBAR_CLASS)) {
+        if (visible) {
+          (widget as AppModeToolbarWidget).setMode(this._notebookModes.get(panel.id) ?? 'App');
+          widget.show();
+        } else {
+          widget.hide();
+        }
+        break;
+      }
+    }
   }
 
-  /**
-   * Add or remove the document-mode CSS class on the current notebook's content node.
-   */
-  private _updateDocumentModeClassForCurrentNotebook(): void {
+  // -------------------------------------------------------------------
+  // Private: mode switcher in native toolbar
+  // -------------------------------------------------------------------
+
+  private _addModeSwitcherToToolbar(panel: NotebookPanel): void {
+    const toolbar = panel.toolbar;
+    if (!toolbar) {
+      return;
+    }
+    if (toolbar.node.querySelector('.mito-notebook-view-mode-switcher-widget')) {
+      return;
+    }
+    const widget = new ModeSwitcherToolbarWidget(panel, this);
+    try {
+      toolbar.insertAfter('spacer', MODE_SWITCHER_TOOLBAR_ID, widget);
+    } catch {
+      toolbar.addItem(MODE_SWITCHER_TOOLBAR_ID, widget);
+    }
+  }
+
+  // -------------------------------------------------------------------
+  // Private: current notebook changed
+  // -------------------------------------------------------------------
+
+  private _onCurrentNotebookChanged(): void {
     const panel = this._notebookTracker.currentWidget;
+    if (!panel) {
+      return;
+    }
+    const mode = this._notebookModes.get(panel.id) ?? 'Notebook';
+    // Emit so toolbar widgets update
+    this._modeChanged.emit(mode);
+    // Apply document-mode class and dblclick listener for the new panel
+    this._updateDocumentModeClassForPanel(panel, mode);
+    this._attachOrDetachDblclickListener(panel, mode === 'Document');
+  }
+
+  private _updateDocumentModeClassForPanel(
+    panel: NotebookPanel,
+    mode: NotebookViewMode
+  ): void {
     if (!panel?.content?.node) {
       return;
     }
-    const node = panel.content.node;
-    if (this._mode === 'Document') {
-      node.classList.add(DOCUMENT_MODE_CSS_CLASS);
+    if (mode === 'Document') {
+      panel.content.node.classList.add(DOCUMENT_MODE_CSS_CLASS);
     } else {
-      node.classList.remove(DOCUMENT_MODE_CSS_CLASS);
+      panel.content.node.classList.remove(DOCUMENT_MODE_CSS_CLASS);
     }
   }
 
-  /**
-   * When in Document mode, attach a delegated dblclick listener on the notebook content.
-   * When not in Document mode, remove it.
-   */
-  private _attachOrDetachDblclickListener(): void {
-    const panel = this._notebookTracker.currentWidget;
+  // -------------------------------------------------------------------
+  // Private: document-mode dblclick
+  // -------------------------------------------------------------------
 
+  private _attachOrDetachDblclickListener(
+    panel: NotebookPanel,
+    attach: boolean
+  ): void {
+    // Remove existing listener
     if (this._dblclickHandler && this._currentPanelForDblclick?.content?.node) {
       this._currentPanelForDblclick.content.node.removeEventListener(
         'dblclick',
@@ -205,7 +477,7 @@ class NotebookViewModeManager implements INotebookViewMode {
       this._currentPanelForDblclick = null;
     }
 
-    if (this._mode !== 'Document' || !panel?.content?.node) {
+    if (!attach || !panel?.content?.node) {
       return;
     }
 
@@ -216,10 +488,6 @@ class NotebookViewModeManager implements INotebookViewMode {
     panel.content.node.addEventListener('dblclick', this._dblclickHandler);
   }
 
-  /**
-   * On double-click in Document mode: if the target is inside a cell's output area,
-   * switch to Notebook mode and scroll to that cell.
-   */
   private _handleDocumentModeDblclick(
     notebookPanel: NotebookPanel,
     event: MouseEvent
@@ -228,31 +496,42 @@ class NotebookViewModeManager implements INotebookViewMode {
     if (!target || !notebookPanel.content?.widgets) {
       return;
     }
-
     const cellWidget = notebookPanel.content.widgets.find((w) =>
       w.node.contains(target)
     );
     if (!cellWidget) {
       return;
     }
-
     const outputArea = cellWidget.node.querySelector('.jp-OutputArea');
     if (!outputArea || !outputArea.contains(target)) {
       return;
     }
-
     const cellId = cellWidget.model.id;
     this.setMode('Notebook');
     setActiveCellByIDInNotebookPanel(notebookPanel, cellId);
     scrollToCell(notebookPanel, cellId, undefined, 'center');
   }
+
+  // -------------------------------------------------------------------
+  // Private: cleanup
+  // -------------------------------------------------------------------
+
+  private _cleanupPanel(panel: NotebookPanel): void {
+    const mode = this._notebookModes.get(panel.id);
+    if (mode === 'App') {
+      this._killActiveProcess();
+      this._disposeTransientWidgets();
+    }
+    this._notebookModes.delete(panel.id);
+  }
 }
+
+// -------------------------------------------------------------------
+// Toolbar widget: mode switcher in the native notebook toolbar
+// -------------------------------------------------------------------
 
 const MODE_SWITCHER_TOOLBAR_ID = 'mito-notebook-view-mode-switcher';
 
-/**
- * Toolbar widget that renders the Notebook | Document | App mode switcher.
- */
 class ModeSwitcherToolbarWidget extends ReactWidget {
   constructor(
     private readonly notebookPanel: NotebookPanel,
@@ -279,51 +558,66 @@ class ModeSwitcherToolbarWidget extends ReactWidget {
   }
 }
 
-function addModeSwitcherToToolbar(
-  notebookPanel: NotebookPanel,
-  viewMode: INotebookViewMode
-): void {
-  const toolbar = notebookPanel.toolbar;
-  if (!toolbar) {
-    return;
-  }
-  if (toolbar.node.querySelector('.mito-notebook-view-mode-switcher-widget')) {
-    return;
-  }
-  const widget = new ModeSwitcherToolbarWidget(notebookPanel, viewMode);
-  try {
-    toolbar.insertAfter('spacer', MODE_SWITCHER_TOOLBAR_ID, widget);
-  } catch {
-    toolbar.addItem(MODE_SWITCHER_TOOLBAR_ID, widget);
-  }
-}
+// -------------------------------------------------------------------
+// Plugin definition
+// -------------------------------------------------------------------
 
 const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
   id: 'mito-ai:notebook-view-mode',
-  description: 'Notebook / Document / App view mode (theme-agnostic)',
+  description: 'Notebook / Document / App view mode with in-place content swapping',
   autoStart: true,
-  requires: [INotebookTracker, IStreamlitPreviewManager],
+  requires: [
+    INotebookTracker,
+    IStreamlitPreviewManager,
+    IAppDeployService,
+    IAppManagerService,
+    ICommandPalette,
+  ],
   provides: INotebookViewMode,
   activate: (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
-    streamlitPreviewManager: IStreamlitPreviewManager
+    streamlitPreviewManager: IStreamlitPreviewManager,
+    appDeployService: IAppDeployService,
+    appManagerService: IAppManagerService,
+    palette: ICommandPalette,
   ): INotebookViewMode => {
     console.log('mito-ai: NotebookViewModePlugin activated');
     const manager = new NotebookViewModeManager(
       app,
       notebookTracker,
-      streamlitPreviewManager
+      streamlitPreviewManager,
+      appDeployService,
+      appManagerService,
     );
-    manager.syncToCurrentNotebook();
 
+    // Set up existing notebook panels
     notebookTracker.forEach((panel) => {
-      addModeSwitcherToToolbar(panel, manager);
+      manager.setupNotebookPanel(panel);
     });
     notebookTracker.widgetAdded.connect((_, panel) => {
-      addModeSwitcherToToolbar(panel, manager);
+      manager.setupNotebookPanel(panel);
     });
 
+    // Register the "Preview as Streamlit" command
+    app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
+      label: 'Preview as Streamlit',
+      caption: 'Convert current notebook to Streamlit app and preview it',
+      execute: async () => {
+        const currentWidget = notebookTracker.currentWidget;
+        if (currentWidget) {
+          await manager.openPreviewAndSwitchToAppMode(currentWidget);
+        } else {
+          console.error('No notebook is currently active');
+        }
+      }
+    });
+    palette.addItem({
+      command: COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT,
+      category: 'Mito AI'
+    });
+
+    manager.syncToCurrentNotebook();
     return manager;
   }
 };

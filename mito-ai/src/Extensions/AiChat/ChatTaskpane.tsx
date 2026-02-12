@@ -49,7 +49,6 @@ import {
 } from '../../utils/codeDiff';
 import { getActiveCellOutput } from '../../utils/cellOutput';
 import { OperatingSystem } from '../../utils/user';
-import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { INotebookViewMode } from '../NotebookViewMode/NotebookViewModePlugin';
 import { ensureNotebookExists } from './utils';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
@@ -122,7 +121,6 @@ interface IChatTaskpaneProps {
     notebookTracker: INotebookTracker
     renderMimeRegistry: IRenderMimeRegistry
     contextManager: IContextManager
-    streamlitPreviewManager: IStreamlitPreviewManager
     notebookViewMode: INotebookViewMode
     app: JupyterFrontEnd
     operatingSystem: OperatingSystem
@@ -144,7 +142,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     notebookTracker,
     renderMimeRegistry,
     contextManager,
-    streamlitPreviewManager,
     notebookViewMode,
     app,
     operatingSystem,
@@ -264,7 +261,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         notebookTracker,
         contextManager,
         app,
-        streamlitPreviewManager,
         chatHistoryManager,
         chatHistoryManagerRef,
         setChatHistoryManager,

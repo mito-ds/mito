@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * App mode toolbar: shown in contentHeader when the view mode is App.
+ */
+
+.app-mode-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 8px;
+  border-bottom: 1px solid var(--jp-border-color2);
+  background-color: var(--jp-layout-color1);
+  min-height: 28px;
+}
+
+.app-mode-toolbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.app-mode-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

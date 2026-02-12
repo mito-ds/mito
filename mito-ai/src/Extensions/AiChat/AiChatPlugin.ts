@@ -17,7 +17,6 @@ import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
-import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { INotebookViewMode } from '../NotebookViewMode/NotebookViewModePlugin';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { setDefaultWindowingMode, setRenameUntitledFileOnSave } from './jupyterSettingsManager';
@@ -40,7 +39,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     ICommandPalette,
     IRenderMimeRegistry,
     IContextManager,
-    IStreamlitPreviewManager,
     INotebookViewMode,
     ISettingRegistry,
     IDocumentManager
@@ -54,7 +52,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     palette: ICommandPalette,
     rendermime: IRenderMimeRegistry,
     contextManager: IContextManager,
-    streamlitPreviewManager: IStreamlitPreviewManager,
     notebookViewMode: INotebookViewMode,
     settingRegistry: ISettingRegistry,
     documentManager: IDocumentManager,
@@ -70,7 +67,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         notebookTracker,
         rendermime,
         contextManager,
-        streamlitPreviewManager,
         notebookViewMode,
         documentManager,
       );
