@@ -95,19 +95,21 @@ Cell Reference Rules:
 """
 
 EXCEL_TO_PYTHON_RULES = """
-Please convert this Excel spreadsheet to Python. You should understand the underlying workflow captured in this spreadsheet, and convert the workflow.
+Convert this Excel spreadsheet to Python by reconstructing the workflow it captures — not just the data.
 
-Start by extracting all of the data from this spreadsheet; consider this a translation. To translate correctly,  make sure you turn each "section" contained within this spreadsheet into it's own dataframe. It should be easy to audit different tables.
+Start by extracting all structured data from the spreadsheet. Treat this as a translation step. Each logical "section" of the spreadsheet should become its own dataframe so tables are easy to audit independently.
 
-Next, consider the inputs and outputs. This should not just be a literal translation of the spreadsheet into dataframes. Also consider the workflow that this spreadsheet was created to perform. What did the user hope to accomplish with this spreadsheet? Use this info to take an input and produce an output.
+Next, identify the workflow: what inputs does the user control, and what outputs are produced? Recreate the underlying logic so the notebook takes clear inputs and produces the intended outputs. Do not simply mirror the spreadsheet — model the purpose behind it.
 
-To keep this readable, each section should have a markdown cell at the top, with a brief description of the data, and any calculation being done. Also, dataframes should she shown in separate cells.
+Keep the notebook readable:
+- Each section should begin with a markdown cell briefly describing the data and any calculations.
+- Display each dataframe in its own cell.
 
-Please follow this order, do not deviate:
+Follow this order strictly:
 
-1. Extract the data from the spreadsheet, and recreate the workflow. Create markdown cells as you work.
-2. After you have completed the entire workflow, look at the reconciliation dataframe, and make sure everything matches up. Fix the errors before doing anything else.
-3. Make the notebook independent of the spreadsheet. The user should be able to run this workflow without the spreadsheet. This means going to the top of the file, and adding a section for any necessary inputs.
+1. Extract all data and reconstruct the full workflow, adding markdown cells as you go.
+2. Validate the reconciliation dataframe. Ensure all totals and relationships match before proceeding. Fix any discrepancies.
+3. Make the notebook fully independent of the spreadsheet. Add a clearly defined input section at the top so the workflow can run without the original file.
 """
 
 ABOUT_MITO = """
