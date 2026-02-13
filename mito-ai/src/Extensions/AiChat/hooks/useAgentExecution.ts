@@ -24,7 +24,18 @@ import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/sc
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
-const AGENT_EXECUTION_DEPTH_LIMIT = 20;
+function getAgentExecutionDepthLimit(
+    additionalContext?: Array<{ type: string; value: string }>
+): number {
+    const AGENT_EXECUTION_DEPTH_LIMIT = 20;
+    const EXCEL_TO_PYTHON_EXECUTION_DEPTH_LIMIT = 100; // Higher limit when user attached an Excel file
+
+    const hasExcelFile =
+        additionalContext?.some(
+            (ctx) => ctx.type === 'file' && /\.xlsx?$/i.test(ctx.value)
+        ) ?? false;
+    return hasExcelFile ? EXCEL_TO_PYTHON_EXECUTION_DEPTH_LIMIT : AGENT_EXECUTION_DEPTH_LIMIT;
+}
 
 interface UseAgentExecutionProps {
     notebookTracker: INotebookTracker;
@@ -157,6 +168,8 @@ export const useAgentExecution = ({
         // Reset the execution flag at the start of a new plan
         shouldContinueAgentExecution.current = true;
 
+        const executionDepthLimit = getAgentExecutionDepthLimit(additionalContext);
+
         let isAgentFinished = false;
         let agentExecutionDepth = 1;
         let sendCellIDOutput: string | undefined = undefined;
@@ -171,7 +184,7 @@ export const useAgentExecution = ({
         let messageToShareWithAgent: string | undefined = undefined;
 
         // Loop through each message in the plan and send it to the AI
-        while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
+        while (!isAgentFinished && agentExecutionDepth <= executionDepthLimit) {
 
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
@@ -404,7 +417,7 @@ export const useAgentExecution = ({
             }
         }
 
-        if (agentExecutionDepth > AGENT_EXECUTION_DEPTH_LIMIT) {
+        if (agentExecutionDepth > executionDepthLimit) {
             addAIMessageFromResponseAndUpdateState(
                 "Since I've been working for a while now, give my work a review and then tell me how to continue.",
                 'agent:execution',
