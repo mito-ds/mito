@@ -4,11 +4,12 @@
  */
 
 import '../../../style/DocumentMode.css';
+import '../../../style/NotebookToolbar.css';
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ICommandPalette } from '@jupyterlab/apputils';
 import { ReactWidget } from '@jupyterlab/ui-components';
-import { BoxLayout } from '@lumino/widgets';
+import { BoxLayout, Widget } from '@lumino/widgets';
 import { Token } from '@lumino/coreutils';
 import { Signal } from '@lumino/signaling';
 import React from 'react';
@@ -65,7 +66,7 @@ export interface INotebookViewMode {
  * Service that manages per-notebook view modes (Notebook / Document / App)
  * and handles in-place content swapping within each NotebookPanel tab.
  */
-class NotebookViewModeManager implements INotebookViewMode {
+export class NotebookViewModeManager implements INotebookViewMode {
   /**
    * Per-notebook mode. Keyed by notebookPanel.id.
    */
@@ -423,12 +424,18 @@ class NotebookViewModeManager implements INotebookViewMode {
     if (toolbar.node.querySelector('.mito-notebook-view-mode-switcher-widget')) {
       return;
     }
+    // Ensure our toolbar layout CSS applies (flex: spacer + right-aligned buttons)
+    toolbar.addClass('jp-Notebook-toolbar');
     const widget = new ModeSwitcherToolbarWidget(panel, this);
-    try {
-      toolbar.insertAfter('spacer', MODE_SWITCHER_TOOLBAR_ID, widget);
-    } catch {
-      toolbar.addItem(MODE_SWITCHER_TOOLBAR_ID, widget);
-    }
+    // Insert at position 0 so the mode switcher is always the first (leftmost) item
+    toolbar.insertItem(0, MODE_SWITCHER_TOOLBAR_ID, widget);
+    // Spacer pushes all other toolbar items to the right: [Switcher] [space] [toolbar buttons] [run cell]
+    // Adding jp-Toolbar-spacer so ReactiveToolbar's resize logic counts this as ~2px
+    // (instead of measuring clientWidth), preventing items from collapsing into the popup.
+    const spacer = new Widget();
+    spacer.addClass('mito-notebook-toolbar-spacer');
+    spacer.addClass('jp-Toolbar-spacer');
+    toolbar.insertItem(1, TOOLBAR_SPACER_ID, spacer);
   }
 
   // -------------------------------------------------------------------
@@ -534,6 +541,7 @@ class NotebookViewModeManager implements INotebookViewMode {
 // -------------------------------------------------------------------
 
 const MODE_SWITCHER_TOOLBAR_ID = 'mito-notebook-view-mode-switcher';
+const TOOLBAR_SPACER_ID = 'mito-notebook-toolbar-spacer';
 
 class ModeSwitcherToolbarWidget extends ReactWidget {
   constructor(
