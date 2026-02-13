@@ -94,6 +94,22 @@ Cell Reference Rules:
 5. You only need to provide a cell reference when you want to make it easy for the user to navigate to a specific cell in the notebook. For example you should use a MITO_CELL_REF when you are stating things like: "I've loaded the sales data in [MITO_CELL_REF:c68fdf19-db8c-46dd-926f-d90ad35bb3bc]" or "[MITO_CELL_REF:a91fde20-cc7f-g6ee-146g-e10bc34abdbh] creates the graph showing the total highest closing stock price for each company". If you are not referencing an entire code block and instead of providing justification for a specific conclucions that you drew like "The most common used car in the lot is a 2005 Honda CRV", then you should instead use a MITO_CITATION.
 """
 
+EXCEL_TO_PYTHON_RULES = """
+Please convert this Excel spreadsheet to Python. You should understand the underlying workflow captured in this spreadsheet, and convert the workflow.
+
+Start by extracting all of the data from this spreadsheet; consider this a translation. To translate correctly,  make sure you turn each "section" contained within this spreadsheet into it's own dataframe. It should be easy to audit different tables.
+
+Next, consider the inputs and outputs. This should not just be a literal translation of the spreadsheet into dataframes. Also consider the workflow that this spreadsheet was created to perform. What did the user hope to accomplish with this spreadsheet? Use this info to take an input and produce an output.
+
+To keep this readable, each section should have a markdown cell at the top, with a brief description of the data, and any calculation being done. Also, dataframes should she shown in separate cells.
+
+Please follow this order, do not deviate:
+
+1. Extract the data from the spreadsheet, and recreate the workflow. Create markdown cells as you work.
+2. After you have completed the entire workflow, look at the reconciliation dataframe, and make sure everything matches up. Fix the errors before doing anything else.
+3. Make the notebook independent of the spreadsheet. The user should be able to run this workflow without the spreadsheet. This means going to the top of the file, and adding a section for any necessary inputs.
+"""
+
 ABOUT_MITO = """
 Mito is the company behind this AI assistant. Our website is trymito.io and our docs are at docs.trymito.io.
 
