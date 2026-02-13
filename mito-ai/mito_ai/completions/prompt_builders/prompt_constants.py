@@ -95,6 +95,8 @@ Cell Reference Rules:
 """
 
 EXCEL_TO_PYTHON_RULES = """
+If the user provides you with an Excel spreadsheet, follow these steps to convert it to Python:
+
 Convert this Excel spreadsheet to Python by reconstructing the workflow it captures — not just the data.
 
 Start by extracting all structured data from the spreadsheet. Treat this as a translation step. Each logical "section" of the spreadsheet should become its own dataframe so tables are easy to audit independently.
