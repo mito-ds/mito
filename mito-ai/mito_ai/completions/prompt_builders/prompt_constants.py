@@ -99,9 +99,9 @@ Please convert this Excel spreadsheet to Python. You should understand the under
 
 Start by extract all of the data from this spreadsheet. Consider this a translation. To translate correctly,  make sure you turn each "section" contained within this spreadsheet into it's own dataframe. It should be easy to audit different tables.
 
-Next, consider the inputs and outputs. This should not just be a literal translation of the spreadsheet into a dataframe. Also consider the workflow that this spreadsheet was created to perform. What did the user hope to accomplish with this spreadsheet. Use this info to take an input and product an output.
+Next, consider the inputs and outputs. This should not just be a literal translation of the spreadsheet into a dataframe. Also consider the workflow that this spreadsheet was created to perform. What did the user hope to accomplish with this spreadsheet. Use this info to take an input and produce an output.
 
-To keep this readable, each section should have a markdown cell at the top, with a brief description of the data, and any calculation being done. Also, dataframes should she shown in separate cells.
+To keep this readable, each section should have a markdown cell at the top, with a brief description of the data, and any calculation being done. Also, dataframes should be shown in separate cells.
 
 Please follow this order, do not deviate:
 
