@@ -2,10 +2,14 @@
  * Copyright (c) Saga Inc.
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  *
- * App mode toolbar: shown in contentHeader when the view mode is App.
+ * Mode toolbar: shown in contentHeader when the view mode is Document or App.
  */
 
-.app-mode-toolbar {
+.mito-mode-toolbar-widget {
+  min-height: 28px;
+}
+
+.mode-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -15,12 +19,12 @@
   min-height: 28px;
 }
 
-.app-mode-toolbar-left {
+.mode-toolbar-left {
   display: flex;
   align-items: center;
 }
 
-.app-mode-toolbar-right {
+.mode-toolbar-right {
   display: flex;
   align-items: center;
   gap: 4px;

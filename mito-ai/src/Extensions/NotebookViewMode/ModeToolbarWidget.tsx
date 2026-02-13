@@ -16,11 +16,11 @@ import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { COMMAND_MITO_AI_BETA_MODE_ENABLED } from '../../commands';
-import '../../../style/AppModeToolbar.css';
+import '../../../style/ModeToolbar.css';
 
-export const APP_MODE_TOOLBAR_CLASS = 'mito-app-mode-toolbar-widget';
+export const MODE_TOOLBAR_CLASS = 'mito-mode-toolbar-widget';
 
-interface IAppModeToolbarProps {
+interface IModeToolbarProps {
   mode: NotebookViewMode;
   onModeChange: (mode: NotebookViewMode) => void;
   notebookPanel: NotebookPanel;
@@ -29,7 +29,7 @@ interface IAppModeToolbarProps {
   app: JupyterFrontEnd;
 }
 
-const AppModeToolbar: React.FC<IAppModeToolbarProps> = ({
+const ModeToolbar: React.FC<IModeToolbarProps> = ({
   mode,
   onModeChange,
   notebookPanel,
@@ -42,55 +42,58 @@ const AppModeToolbar: React.FC<IAppModeToolbarProps> = ({
   const showDeploy = app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
 
   return (
-    <div className="app-mode-toolbar">
-      <div className="app-mode-toolbar-left">
+    <div className="mode-toolbar">
+      <div className="mode-toolbar-left">
         <NotebookViewModeSwitcher mode={mode} onModeChange={onModeChange} />
       </div>
-      <div className="app-mode-toolbar-right">
-        <button
-          type="button"
-          className="text-button-mito-ai button-base button-small"
-          onClick={(e) => {
-            showUpdateAppDropdown(e.currentTarget, notebookPanel);
-          }}
-          title="Edit Streamlit App"
-        >
-          Edit App
-        </button>
-        <button
-          type="button"
-          className="text-button-mito-ai button-base button-small"
-          onClick={() => {
-            void showRecreateAppConfirmation(notebookPath, notebookID);
-          }}
-          title="Recreate new App from scratch based on the current state of the notebook"
-        >
-          Recreate App
-        </button>
-        {showDeploy && (
+      {mode === 'App' && (
+        <div className="mode-toolbar-right">
+          <button
+            type="button"
+            className="text-button-mito-ai button-base button-small"
+            onClick={(e) => {
+              showUpdateAppDropdown(e.currentTarget, notebookPanel);
+            }}
+            title="Edit Streamlit App"
+          >
+            Edit App
+          </button>
           <button
             type="button"
             className="text-button-mito-ai button-base button-small"
             onClick={() => {
-              void deployStreamlitApp(notebookPanel, appDeployService, appManagerService);
+              void showRecreateAppConfirmation(notebookPath, notebookID);
             }}
-            title="Deploy Streamlit App"
+            title="Recreate new App from scratch based on the current state of the notebook"
           >
-            Deploy App
+            Recreate App
           </button>
-        )}
-      </div>
+          {showDeploy && (
+            <button
+              type="button"
+              className="text-button-mito-ai button-base button-small"
+              onClick={() => {
+                void deployStreamlitApp(notebookPanel, appDeployService, appManagerService);
+              }}
+              title="Deploy Streamlit App"
+            >
+              Deploy App
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
 /**
- * Lumino ReactWidget wrapper for the App mode toolbar.
- * Added to NotebookPanel.contentHeader, hidden by default,
- * shown only when the view mode is App.
+ * Lumino ReactWidget wrapper for the mode toolbar.
+ * Added to NotebookPanel.contentHeader, hidden by default.
+ * Shown in Document mode (mode switcher only) and App mode (mode switcher + app buttons).
+ * Hidden in Notebook mode (native toolbar handles everything).
  */
-export class AppModeToolbarWidget extends ReactWidget {
-  private _mode: NotebookViewMode = 'App';
+export class ModeToolbarWidget extends ReactWidget {
+  private _mode: NotebookViewMode = 'Notebook';
 
   constructor(
     private readonly _notebookPanel: NotebookPanel,
@@ -100,7 +103,7 @@ export class AppModeToolbarWidget extends ReactWidget {
     private readonly _app: JupyterFrontEnd,
   ) {
     super();
-    this.addClass(APP_MODE_TOOLBAR_CLASS);
+    this.addClass(MODE_TOOLBAR_CLASS);
   }
 
   setMode(mode: NotebookViewMode): void {
@@ -110,7 +113,7 @@ export class AppModeToolbarWidget extends ReactWidget {
 
   render(): JSX.Element {
     return (
-      <AppModeToolbar
+      <ModeToolbar
         mode={this._mode}
         onModeChange={this._onModeChange}
         notebookPanel={this._notebookPanel}

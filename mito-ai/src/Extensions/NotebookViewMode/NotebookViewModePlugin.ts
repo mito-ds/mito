@@ -29,7 +29,7 @@ import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
 import NotebookViewModeSwitcher from './NotebookViewModeSwitcher';
-import { AppModeToolbarWidget, APP_MODE_TOOLBAR_CLASS } from './AppModeToolbarWidget';
+import { ModeToolbarWidget, MODE_TOOLBAR_CLASS } from './ModeToolbarWidget';
 
 export type NotebookViewMode = 'Notebook' | 'Document' | 'App';
 
@@ -234,7 +234,7 @@ class NotebookViewModeManager implements INotebookViewMode {
    */
   setupNotebookPanel(panel: NotebookPanel): void {
     this._addModeSwitcherToToolbar(panel);
-    this._addAppToolbarToContentHeader(panel);
+    this._addModeToolbarToContentHeader(panel);
 
     // Clean up state when the panel is disposed
     panel.disposed.connect(() => {
@@ -273,10 +273,10 @@ class NotebookViewModeManager implements INotebookViewMode {
     this._killActiveProcess();
     // Dispose iframe/placeholder
     this._disposeTransientWidgets();
-    // Show native toolbar
+    // Show native toolbar (includes third-party buttons, cell type, run, etc.)
     panel.toolbar.show();
-    // Hide app toolbar
-    this._setAppToolbarVisible(panel, false);
+    // Hide custom mode toolbar
+    this._setModeToolbarVisible(panel, false);
     // Show notebook content
     panel.content.show();
     // Remove document-mode CSS
@@ -290,10 +290,10 @@ class NotebookViewModeManager implements INotebookViewMode {
     this._killActiveProcess();
     // Dispose iframe/placeholder
     this._disposeTransientWidgets();
-    // Show native toolbar
-    panel.toolbar.show();
-    // Hide app toolbar
-    this._setAppToolbarVisible(panel, false);
+    // Hide native toolbar (Run Cell, cell type, etc. are not relevant in Document mode)
+    panel.toolbar.hide();
+    // Show custom mode toolbar (mode switcher only, no app buttons since mode is Document)
+    this._setModeToolbarVisible(panel, true);
     // Show notebook content
     panel.content.show();
     // Add document-mode CSS
@@ -315,8 +315,8 @@ class NotebookViewModeManager implements INotebookViewMode {
     this._attachOrDetachDblclickListener(panel, false);
     // Hide native toolbar
     panel.toolbar.hide();
-    // Show app toolbar
-    this._setAppToolbarVisible(panel, true);
+    // Show custom mode toolbar (mode switcher + app buttons since mode is App)
+    this._setModeToolbarVisible(panel, true);
     // Hide notebook content
     panel.content.hide();
     // Show placeholder
@@ -365,41 +365,44 @@ class NotebookViewModeManager implements INotebookViewMode {
   }
 
   // -------------------------------------------------------------------
-  // Private: app toolbar in contentHeader
+  // Private: custom mode toolbar in contentHeader
   // -------------------------------------------------------------------
 
-  private _addAppToolbarToContentHeader(panel: NotebookPanel): void {
+  private _addModeToolbarToContentHeader(panel: NotebookPanel): void {
     // Check if already added
     const existing = panel.contentHeader.node.querySelector(
-      '.' + APP_MODE_TOOLBAR_CLASS
+      '.' + MODE_TOOLBAR_CLASS
     );
     if (existing) {
       return;
     }
 
-    const appToolbar = new AppModeToolbarWidget(
+    const modeToolbar = new ModeToolbarWidget(
       panel,
       (mode) => {
         if (mode === 'App') {
-          // Already in App mode -- no-op
-          return;
+          void this.openPreviewAndSwitchToAppMode(panel);
+        } else {
+          this.setMode(mode);
         }
-        this.setMode(mode);
       },
       this._appDeployService,
       this._appManagerService,
       this._app,
     );
-    appToolbar.hide(); // hidden by default
-    panel.contentHeader.addWidget(appToolbar);
+    modeToolbar.hide(); // hidden by default
+    panel.contentHeader.addWidget(modeToolbar);
   }
 
-  private _setAppToolbarVisible(panel: NotebookPanel, visible: boolean): void {
+  private _setModeToolbarVisible(panel: NotebookPanel, visible: boolean): void {
     for (const widget of panel.contentHeader.widgets) {
-      if (widget.hasClass(APP_MODE_TOOLBAR_CLASS)) {
+      if (widget.hasClass(MODE_TOOLBAR_CLASS)) {
         if (visible) {
-          (widget as AppModeToolbarWidget).setMode(this._notebookModes.get(panel.id) ?? 'App');
+          const mode = this._notebookModes.get(panel.id) ?? 'Notebook';
+          (widget as ModeToolbarWidget).setMode(mode);
           widget.show();
+          // Force a React re-render after showing to fix potential sizing issues
+          (widget as ModeToolbarWidget).update();
         } else {
           widget.hide();
         }
