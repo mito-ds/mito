@@ -6,7 +6,7 @@
 import React from 'react';
 
 const NotepadIcon: React.FC = () => (
-    <svg width="14" height="14" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="16" height="16" viewBox="4 4 86 92" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* Back paper (shadow/stack effect) */}
         <rect 
             x="18" 

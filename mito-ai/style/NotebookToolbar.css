@@ -7,12 +7,24 @@
  * Target both the class we add (jp-Notebook-toolbar) and the notebook panel toolbar (jp-Toolbar).
  */
 
+/* Override --jp-private-toolbar-height so Lumino's BoxLayout allocates
+   the correct amount of space for the native toolbar.  This keeps the
+   Notebook-mode toolbar the same 36px as the custom Document/App toolbar. */
+.jp-NotebookPanel {
+  --jp-private-toolbar-height: 36px;
+}
+
 .jp-Notebook-toolbar,
 .jp-NotebookPanel .jp-Toolbar {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
   gap: 0;
+  /* !important is needed to beat the inline styles Lumino sets on the element */
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  box-sizing: border-box;
 }
 
 /* Mode switcher stays on the left and does not grow */
