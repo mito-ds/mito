@@ -22,6 +22,7 @@ If sheet() does not render in a notebook, try: restart kernel, refresh browser, 
 # Suppress Streamlit ScriptRunContext warnings that occur when mitosheet is imported
 # outside of a proper Streamlit script execution context
 import warnings
+from pathlib import Path
 warnings.filterwarnings("ignore", message=r".*missing ScriptRunContext.*")
 warnings.filterwarnings("ignore", message=r".*bare mode.*")
 
@@ -54,10 +55,14 @@ from mitosheet.vscode_widget import ensure_nbextension_installed
 ensure_nbextension_installed()
 
 # This function is only necessary for mitosheet3, as it is used
-# in jlab3 to find the extension. It is not used in jlab2
+# in jlab3 to find the extension. It is not used in jlab2.
+# Return [] when labextension is not built (e.g. pip install from Git, Databricks).
 def _jupyter_labextension_paths():
-    """Called by jupyterlab to load the extension"""
-    return [{"src": "labextension", "dest": "mitosheet"}]
+    """Called by jupyterlab to load the extension. Return [] if labextension not built."""
+    pkg_dir = Path(__file__).resolve().parent
+    if (pkg_dir / "labextension").is_dir():
+        return [{"src": "labextension", "dest": "mitosheet"}]
+    return []
 
 
 def _jupyter_nbextension_paths():
