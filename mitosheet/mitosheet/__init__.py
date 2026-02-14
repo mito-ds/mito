@@ -4,16 +4,19 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 """
-The Mito package, which contains functions for creating a Mito sheet. 
+The Mito package: one spreadsheet that works across JupyterLab, VSCode, Databricks, Streamlit, and Dash.
 
-To generate a new sheet, simply run:
+To generate a new sheet:
 
-import mitosheet
-mitosheet.sheet()
+  import mitosheet
+  mitosheet.sheet()           # empty sheet
+  mitosheet.sheet(df)         # sheet with a dataframe
 
-If running the mitosheet.sheet() call does not work, try restarting your JupyterLab instance, refreshing your browser, and trying again. 
+- JupyterLab / VSCode / Databricks: mitosheet.sheet() renders in the notebook.
+- Streamlit: mitosheet.sheet() or mitosheet.streamlit.spreadsheet().
+- Dash: use the Spreadsheet component in your layout and activate_mito(app). See docs.
 
-If it still does not work, please email jake@sagacollab.com
+If sheet() does not render in a notebook, try: restart kernel, refresh browser, and ensure the Jupyter extension (VSCode) or lab extension (JupyterLab) is installed. See ENVIRONMENTS.md in the repo for details.
 """
 
 # Suppress Streamlit ScriptRunContext warnings that occur when mitosheet is imported
@@ -45,6 +48,10 @@ from mitosheet.step_performers.bulk_old_rename.deprecated_utils import (
 # Make sure the user is initalized
 from mitosheet.user import initialize_user
 initialize_user()
+
+# So VSCode can find the widget: ensure nbextension is in share/jupyter/nbextensions (e.g. editable installs)
+from mitosheet.vscode_widget import ensure_nbextension_installed
+ensure_nbextension_installed()
 
 # This function is only necessary for mitosheet3, as it is used
 # in jlab3 to find the extension. It is not used in jlab2

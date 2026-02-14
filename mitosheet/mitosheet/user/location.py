@@ -18,6 +18,11 @@ def is_in_google_colab() -> bool:
     except:
         return False
 
+
+def is_databricks() -> bool:
+    """Returns True if code is running in a Databricks notebook (Jupyter-compatible kernel)."""
+    return "DATABRICKS_RUNTIME_VERSION" in os.environ
+
 def is_in_vs_code() -> bool:
     # From: https://github.com/microsoft/vscode-jupyter/issues/3364
     return 'VSCODE_PID' in os.environ
@@ -78,6 +83,8 @@ def get_location() -> str:
         return 'location_streamlit'
     elif is_dash():
         return 'location_dash'
+    elif is_databricks():
+        return 'location_databricks'
     elif is_jupyterlite():
         return 'location_jupyterlite'
     elif notebook and lab_running:

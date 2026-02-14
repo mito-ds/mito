@@ -28,7 +28,7 @@ This folder contains a variety of packages and utilities for the `mitosheet` Pyt
 
 ## The `mitosheet` Package
 
-The mitosheet package currently works for JupyterLab 4.0, Streamlit, and Dash. 
+The mitosheet package works in **five environments**: **JupyterLab**, **VSCode**, **Databricks**, **Streamlit**, and **Dash**. Use `mitosheet.sheet()` in notebooks (JupyterLab, VSCode, Databricks) and in Streamlit; in Dash use the `Spreadsheet` component. See [ENVIRONMENTS.md](ENVIRONMENTS.md) for details. 
 
 ### For Mac
 

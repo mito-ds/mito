@@ -40,6 +40,7 @@ from mitosheet.user.utils import get_pandas_version, is_enterprise, is_pro, is_r
 from mitosheet.utils import get_new_id
 from mitosheet.step_performers.utils.user_defined_function_utils import get_functions_from_path, get_non_validated_custom_sheet_functions
 from mitosheet.api.get_validate_snowflake_credentials import get_cached_snowflake_credentials
+from mitosheet.vscode_widget import ensure_nbextension_installed, get_mito_widget_class
 
 class MitoBackend():
     """
@@ -411,20 +412,29 @@ def sheet(
 
     NOTE: if you have any issues with installation, please email jake@sagacollab.com
     """
-    # We throw a custom error message if we're sure the user is in
-    # vs code or google collab (these conditions are more secure than
-    # the conditons for checking if we're in JLab or JNotebook).
-    # Then, check if we're in Dash or in Streamlit. 
-    # If so, tell user to use the correct component
-    if is_in_vs_code() or is_in_google_colab():
+    # Google Colab is not supported (no Jupyter comm). VSCode is supported via the
+    # Jupyter extension. Databricks uses the same Jupyter-style comm path.
+    # In Streamlit, we delegate to the Streamlit component so sheet() works there too.
+    # In Dash, the component must be used in the layout with an id, so we direct users there.
+    if is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
-        raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
+        raise Exception("The mitosheet currently only works in JupyterLab, VSCode (with the Jupyter extension), Databricks, Streamlit, and Dash.\n\nFor JupyterLab/VSCode/Databricks use: mitosheet.sheet()\nFor Streamlit use: mitosheet.sheet() or mitosheet.streamlit.spreadsheet()\nFor Dash use the Spreadsheet component. See: https://docs.trymito.io/getting-started/installing-mito")
+    elif is_streamlit():
+        # Unified API: sheet() in Streamlit renders the Streamlit spreadsheet component
+        from mitosheet.streamlit.v1 import spreadsheet as streamlit_spreadsheet
+        return streamlit_spreadsheet(
+            *args,
+            sheet_functions=sheet_functions,
+            importers=importers,
+            editors=editors,
+        )
     elif is_dash():
         log('mitosheet_sheet_call_location_failed', failed=True)
-        raise Exception("To create a Mito spreadsheet in Dash, please use the `Spreadsheet` component. See documentation here: https://docs.trymito.io/mito-for-dash/getting-started")
-    elif is_streamlit():
-        log('mitosheet_sheet_call_location_failed', failed=True)
-        raise Exception("To create a Mito spreadsheet in Streamlit, please use the `spreadsheet` component. See documentation here: https://docs.trymito.io/mito-for-streamlit/getting-started")
+        raise Exception(
+            "To create a Mito spreadsheet in Dash, add the Spreadsheet component to your layout and activate Mito on your app.\n"
+            "Example: app.layout = [activate_mito(app), Spreadsheet(id={'type': 'spreadsheet', 'id': 'my-sheet'})]\n"
+            "See: https://docs.trymito.io/mito-for-dash/getting-started"
+        )
 
     # If the user.json does not exist, we create it. This ensures if the file is deleted in between
     # when the package is imported and mitosheet.sheet is called, the user still gets a user.json. 
@@ -475,12 +485,56 @@ def sheet(
     div_id = get_new_id()
     kernel_id = get_current_kernel_id()
 
-    js_code = get_mito_frontend_code(kernel_id, comm_target_id, div_id, mito_backend)
+    def _display_mito_vscode_mime(
+        comm_target_id: str, div_id: str, mito_backend: "MitoBackend"
+    ) -> None:
+        """Output custom MIME type for the Mito VS Code extension (vscode-mito)."""
+        payload = {
+            "comm_target_id": comm_target_id,
+            "sheet_data_json": mito_backend.steps_manager.sheet_data_json,
+            "analysis_data_json": mito_backend.steps_manager.analysis_data_json,
+            "user_profile_json": mito_backend.get_user_profile_json(),
+            "div_id": div_id,
+        }
+        display(
+            type("MitoSheetDisplay", (), {"_repr_mimebundle_": lambda s, **kw: {"application/vnd.mito.sheet+json": payload}})()
+        )
 
-    display(HTML(f"""<div id={div_id} class="mito-container-container">
-        <script>
-            {js_code}
-        </script>
-    </div>""")) # type: ignore
+    # In VSCode, also output custom MIME type for the Mito VS Code extension (vscode-mito)
+    if is_in_vs_code():
+        _display_mito_vscode_mime(
+            comm_target_id=comm_target_id,
+            div_id=div_id,
+            mito_backend=mito_backend,
+        )
+    # In VSCode, use the ipywidget so the view runs in the widget manager context and can open a comm
+    if is_in_vs_code():
+        MitoLoaderWidget = get_mito_widget_class()
+        if MitoLoaderWidget is not None:
+            ensure_nbextension_installed()  # so editable installs work: copy nbextension if missing
+            widget = MitoLoaderWidget(
+                comm_target_id=comm_target_id,
+                sheet_data_json=mito_backend.steps_manager.sheet_data_json,
+                analysis_data_json=mito_backend.steps_manager.analysis_data_json,
+                user_profile_json=mito_backend.get_user_profile_json(),
+                div_id=div_id,
+            )
+            display(widget)  # type: ignore
+        else:
+            # ipywidgets not installed; fall back to HTML (will show "unsupported" in VSCode)
+            js_code = get_mito_frontend_code(kernel_id, comm_target_id, div_id, mito_backend)
+            display(HTML(f"""<div id={div_id} class="mito-container-container">
+                <script>
+                    {js_code}
+                </script>
+            </div>"""))  # type: ignore
+    else:
+        js_code = get_mito_frontend_code(kernel_id, comm_target_id, div_id, mito_backend)
+
+        display(HTML(f"""<div id={div_id} class="mito-container-container">
+            <script>
+                {js_code}
+            </script>
+        </div>"""))  # type: ignore
 
 
