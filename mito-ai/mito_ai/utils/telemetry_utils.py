@@ -8,7 +8,7 @@ from mito_ai.utils.version_utils import MITOSHEET_HELPER_PRIVATE, is_pro, is_ent
 from mito_ai.utils.schema import UJ_AI_MITO_API_NUM_USAGES, UJ_MITOSHEET_TELEMETRY, UJ_STATIC_USER_ID, UJ_USER_EMAIL, UJ_FEEDBACKS_V2
 from mito_ai.utils.db import get_user_field
 from mito_ai._version import __version__
-from mito_ai.utils.utils import is_running_test
+from mito_ai.utils.utils import is_github_actions, is_running_test
 from mito_ai.completions.models import MessageType
 import analytics
 
@@ -139,9 +139,10 @@ def identify(key_type: Optional[str] = None, is_electron: Optional[bool] = None)
         # becase we are only sending this info to the first completion_handler identify call.
         params['is_mito_desktop'] = is_electron
 
-    if not is_running_test():
+    # Log identify for real users and for GitHub Actions CI (user id: mito-github-action)
+    if not is_running_test() or is_github_actions():
         # TODO: If the user is in JupyterLite, we need to do some extra work.
-        # You can see this in the mitosheet package. 
+        # You can see this in the mitosheet package.
         try:
             analytics.identify(static_user_id, params)
         except Exception as e:
@@ -220,9 +221,9 @@ def log(
     if is_enterprise():
         return
     
-    # Finally, do the acutal logging. We do not log anything when tests are
-    # running, or if telemetry is turned off
-    if not is_running_test() and telemetry_turned_on(key_type):
+    # Log events for real users and for GitHub Actions CI (user id: mito-github-action).
+    # Skip logging for local pytest and other non-GitHub-Actions CI.
+    if (not is_running_test() or is_github_actions()) and telemetry_turned_on(key_type):
         # TODO: If the user is in JupyterLite, we need to do some extra work.
         # You can see this in the mitosheet package. 
         
