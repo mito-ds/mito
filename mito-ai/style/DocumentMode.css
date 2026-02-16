@@ -18,3 +18,9 @@
 .jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-Cell-header {
   display: none !important;
 }
+
+/* Hide cell number labels in document mode (markdown cells still show header area) */
+.jp-Notebook.jp-mod-mito-document-mode .jp-Cell-header::before {
+  content: "" !important;
+  display: none !important;
+}
