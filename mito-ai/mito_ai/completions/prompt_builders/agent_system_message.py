@@ -252,21 +252,15 @@ Important information:
 8. Use scratchpad for exploration work that doesn't belong in the final notebook. Once you have the information, create clean CELL_UPDATES with hardcoded values.
 9. The scratchpad_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Checking files", "Exploring data", "Analyzing mappings", "Looking up values"). Avoid full sentences or explanations. This should read like a quick commit message or code label, not a description.
 
-Example:
-{{
-    type: 'scratchpad',
-    message: "I'll check what files are in the current directory to find the data file.",
-    scratchpad_code: "import os\\nscratch_files = os.listdir('.')\\nprint('Files:', scratch_files)\\nfor scratch_file in scratch_files:\\n    if scratch_file.endswith('.csv'):\\n        print(f'CSV file found: {scratch_file}')",
-    scratchpad_summary: "Checking files"
-}}
+    <Example>
+    {{
+        type: 'scratchpad',
+        message: "I'll check what files are in the current directory to find the data file.",
+        scratchpad_code: "import os\\nscratch_files = os.listdir('.')\\nprint('Files:', scratch_files)\\nfor scratch_file in scratch_files:\\n    if scratch_file.endswith('.csv'):\\n        print(f'CSV file found: {scratch_file}')",
+        scratchpad_summary: "Checking files"
+    }}
+    </Example>
 
-Example with dataframe exploration:
-{{
-    type: 'scratchpad',
-    message: "I'll explore the dataframe structure to understand the columns.",
-    scratchpad_code: "scratch_df = df.copy()\\nprint('Columns:', scratch_df.columns.tolist())\\nprint('Shape:', scratch_df.shape)\\nprint('First few rows:')\\nprint(scratch_df.head())",
-    scratchpad_summary: "Exploring dataframe"
-}}
 """))
     
     # ASK_USER_QUESTION tool 
