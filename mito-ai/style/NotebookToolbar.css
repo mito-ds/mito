@@ -52,9 +52,19 @@
   width: 0 !important;
 }
 
-/* Run cell button stays at the far right */
+/* Run cell button: after main toolbar items, before kernel status */
 .jp-Notebook-toolbar .mito-run-cell-button-widget,
 .jp-NotebookPanel .jp-Toolbar .mito-run-cell-button-widget {
   margin-left: 0;
-  order: 9999;
+  order: 1;
+}
+
+/* Kernel name and execution status icon to the right of Run Active Cell */
+.jp-Notebook-toolbar .jp-KernelName,
+.jp-NotebookPanel .jp-Toolbar .jp-KernelName,
+.jp-Notebook-toolbar .jp-Toolbar-kernelStatus,
+.jp-NotebookPanel .jp-Toolbar .jp-Toolbar-kernelStatus,
+.jp-Notebook-toolbar .jp-mod-highlighted:has(.jp-Notebook-ExecutionIndicator),
+.jp-NotebookPanel .jp-Toolbar .jp-mod-highlighted:has(.jp-Notebook-ExecutionIndicator) {
+  order: 2;
 }
