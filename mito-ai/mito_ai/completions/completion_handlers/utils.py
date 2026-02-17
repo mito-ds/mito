@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import base64
+import json
 from typing import Optional, Union, List, Dict, Any, cast
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import ThreadID
@@ -141,3 +142,60 @@ def create_ai_optimized_message(
     return cast(
         ChatCompletionMessageParam, {"role": "user", "content": message_content}
     )
+
+
+def normalize_agent_response_completion(completion: str) -> str:
+    """
+    Return only the first complete JSON object from the completion string.
+    If the API returns duplicate or trailing JSON (e.g. two AgentResponse objects
+    concatenated), we keep only the first so that message_history and the frontend
+    receive a single valid JSON string.
+    """
+    if not completion or not completion.strip():
+        return completion
+    try:
+        json.loads(completion)
+        return completion
+    except json.JSONDecodeError:
+        pass
+    start = completion.find("{")
+    if start < 0:
+        return completion
+    depth = 0
+    i = start
+    in_string = False
+    escape_next = False
+    quote_char = '"'
+    n = len(completion)
+    while i < n:
+        c = completion[i]
+        if escape_next:
+            escape_next = False
+            i += 1
+            continue
+        if c == "\\" and in_string:
+            escape_next = True
+            i += 1
+            continue
+        if in_string:
+            if c == quote_char:
+                in_string = False
+            i += 1
+            continue
+        if c == quote_char:
+            in_string = True
+            i += 1
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                candidate = completion[start : i + 1]
+                try:
+                    json.loads(candidate)
+                    return candidate
+                except json.JSONDecodeError:
+                    pass
+        i += 1
+    return completion

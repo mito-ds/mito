@@ -309,7 +309,7 @@ When you want to create a new Streamlit app from the current notebook, respond w
 
 {{
     type: 'create_streamlit_app',
-    streamlit_app_prompt: str
+    streamlit_app_prompt: str,
     message: str
 }}
 
