@@ -155,7 +155,7 @@ def normalize_agent_response_completion(completion: str) -> str:
         return completion
     try:
         json.loads(completion)
-        return completion
+        return completion.strip()
     except json.JSONDecodeError:
         pass
     start = completion.find("{")
