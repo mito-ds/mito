@@ -1,6 +1,7 @@
 name: Test - Mito AI Backend
 
 on:
+  workflow_dispatch:
   push:
     branches: [ dev ]
     paths:
