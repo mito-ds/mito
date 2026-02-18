@@ -35,7 +35,9 @@ jobs:
           tests/requirements.txt
     - name: Install Microsoft ODBC Driver
       if: runner.os == 'Linux'
-      run: sudo ACCEPT_EULA=Y apt-get install msodbcsql18 -y
+      run: |
+        sudo apt-get update
+        sudo ACCEPT_EULA=Y apt-get install msodbcsql18 -y
     - name: Install Microsoft ODBC Driver (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
