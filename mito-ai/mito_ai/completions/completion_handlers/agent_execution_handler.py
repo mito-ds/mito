@@ -8,7 +8,11 @@ from mito_ai.completions.prompt_builders.agent_execution_prompt import create_ag
 from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
-from mito_ai.completions.completion_handlers.utils import append_agent_system_message, create_ai_optimized_message
+from mito_ai.completions.completion_handlers.utils import (
+    append_agent_system_message,
+    create_ai_optimized_message,
+    normalize_agent_response_completion,
+)
 
 __all__ = ["get_agent_execution_completion"]
 
@@ -53,11 +57,12 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
             user_input=metadata.input,
             thread_id=metadata.threadId
         )
-        
+        completion = normalize_agent_response_completion(completion)
+
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
-        
+
         await message_history.append_message(ai_response_message, ai_response_message, provider, metadata.threadId)
-        
+
         return completion
 
 # Use the static method directly
