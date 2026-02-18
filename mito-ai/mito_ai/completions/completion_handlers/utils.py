@@ -153,49 +153,22 @@ def normalize_agent_response_completion(completion: str) -> str:
     """
     if not completion or not completion.strip():
         return completion
+    
+    # Try parsing entire string first
     try:
         json.loads(completion)
         return completion.strip()
     except json.JSONDecodeError:
         pass
+    
+    # Find first '{' and try to decode from there
     start = completion.find("{")
     if start < 0:
         return completion
-    depth = 0
-    i = start
-    in_string = False
-    escape_next = False
-    quote_char = '"'
-    n = len(completion)
-    while i < n:
-        c = completion[i]
-        if escape_next:
-            escape_next = False
-            i += 1
-            continue
-        if c == "\\" and in_string:
-            escape_next = True
-            i += 1
-            continue
-        if in_string:
-            if c == quote_char:
-                in_string = False
-            i += 1
-            continue
-        if c == quote_char:
-            in_string = True
-            i += 1
-            continue
-        if c == "{":
-            depth += 1
-        elif c == "}":
-            depth -= 1
-            if depth == 0:
-                candidate = completion[start : i + 1]
-                try:
-                    json.loads(candidate)
-                    return candidate
-                except json.JSONDecodeError:
-                    pass
-        i += 1
-    return completion
+    
+    decoder = json.JSONDecoder()
+    try:
+        obj, end = decoder.raw_decode(completion, start)
+        return completion[start:end].strip()
+    except json.JSONDecodeError:
+        return completion
