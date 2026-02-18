@@ -51,16 +51,16 @@ When you want to modify an existing cell in the notebook, respond in this format
 
 Format:
 {{
-    type: 'cell_update',
-    message: str,
-    cell_update: {{
-        type: 'modification'
-        id: str,
-        code: str
-        code_summary: str
-        cell_type: 'code' | 'markdown'
+    "type": "cell_update",
+    "message": "<string>",
+    "cell_update": {{
+        "type": "modification",
+        "id": "<string>",
+        "code": "<string>",
+        "code_summary": "<string>",
+        "cell_type": "code" or "markdown"
     }},
-    analysis_assumptions: Optional[List[str]]
+    "analysis_assumptions": ["<optional list of strings>"]
 }}
 
 Important information:
@@ -78,16 +78,16 @@ When you want to add a new cell to the notebook, respond in this format
 
 Format: 
 {{
-    type: 'cell_update',
-    message: str,
-    cell_update: {{
-        type: 'new'
-        after_cell_id: str
-        code: str   
-        code_summary: str
-        cell_type: 'code' | 'markdown'
+    "type": "cell_update",
+    "message": "<string>",
+    "cell_update": {{
+        "type": "new",
+        "after_cell_id": "<string>",
+        "code": "<string>",
+        "code_summary": "<string>",
+        "cell_type": "code" or "markdown"
     }},
-    analysis_assumptions: Optional[List[str]]
+    "analysis_assumptions": ["<optional list of strings>"]
 }}
 
 Important information:
@@ -136,14 +136,14 @@ Important information:
 
     Output:
     {{
-        type: 'cell_update',
-        message: "I'll convert the transaction_date column to datetime and multiply total_price by the multiplier.",
-        cell_update: {{
-            type: 'modification',
-            id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc',
-            code: "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier",
-            code_summary: "Converting the transaction_date column",
-            cell_type: 'code'
+        "type": "cell_update",
+        "message": "I'll convert the transaction_date column to datetime and multiply total_price by the multiplier.",
+        "cell_update": {{
+            "type": "modification",
+            "id": "c68fdf19-db8c-46dd-926f-d90ad35bb3bc",
+            "code": "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\\nsales_df['total_price'] = sales_df['total_price'] * sales_multiplier",
+            "code_summary": "Converting the transaction_date column",
+            "cell_type": "code"
         }}
     }}
     
@@ -184,14 +184,14 @@ Important information:
 
     Output:
     {{
-        type: 'cell_update',
-        message: "I'll create a graph using matplotlib with sale index on the x axis and total_price on the y axis.",
-        cell_update: {{
-            type: 'new',
-            after_cell_id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc',
-            code: "import matplotlib.pyplot as plt\\n\\nplt.bar(sales_df.index, sales_df['total_price'])\\nplt.title('Total Price per Sale')\\nplt.xlabel('Transaction Number')\\nplt.ylabel('Sales Price ($)')\\nplt.show()",
-            code_summary: "Plotting total_price",
-            cell_type: 'code'
+        "type": "cell_update",
+        "message": "I'll create a graph using matplotlib with sale index on the x axis and total_price on the y axis.",
+        "cell_update": {{
+            "type": "new",
+            "after_cell_id": "c68fdf19-db8c-46dd-926f-d90ad35bb3bc",
+            "code": "import matplotlib.pyplot as plt\\n\\nplt.bar(sales_df.index, sales_df['total_price'])\\nplt.title('Total Price per Sale')\\nplt.xlabel('Transaction Number')\\nplt.ylabel('Sales Price ($)')\\nplt.show()",
+            "code_summary": "Plotting total_price",
+            "cell_type": "code"
         }}
     }}
     </Cell Addition Example>"""))
@@ -203,9 +203,9 @@ Important information:
 When you want to get a base64 encoded version of a cell's output, respond with this format:
 
 {{
-    type: 'get_cell_output',
-    message: str,
-    get_cell_output_cell_id: str
+    "type": "get_cell_output",
+    "message": "<string>",
+    "get_cell_output_cell_id": "<string>"
 }}
 
 Important information:
@@ -218,8 +218,8 @@ Important information:
 When you want to execute all cells in the notebook from top to bottom, respond with this format:
 
 {{
-    type: 'run_all_cells',
-    message: str
+    "type": "run_all_cells",
+    "message": "<string>"
 }}
 
 Important information:
@@ -235,10 +235,10 @@ When you need to explore data, check the filesystem, analyze mappings, or look u
 
 Format:
 {{
-    type: 'scratchpad',
-    message: str,
-    scratchpad_code: str,
-    scratchpad_summary: str
+    "type": "scratchpad",
+    "message": "<string>",
+    "scratchpad_code": "<string>",
+    "scratchpad_summary": "<string>"
 }}
 
 Important information:
@@ -254,10 +254,10 @@ Important information:
 
     <Example>
     {{
-        type: 'scratchpad',
-        message: "I'll check what files are in the current directory to find the data file.",
-        scratchpad_code: "import os\\nscratch_files = os.listdir('.')\\nprint('Files:', scratch_files)\\nfor scratch_file in scratch_files:\\n    if scratch_file.endswith('.csv'):\\n        print(f'CSV file found: {scratch_file}')",
-        scratchpad_summary: "Checking files"
+        "type": "scratchpad",
+        "message": "I'll check what files are in the current directory to find the data file.",
+        "scratchpad_code": "import os\\nscratch_files = os.listdir('.')\\nprint('Files:', scratch_files)\\nfor scratch_file in scratch_files:\\n    if scratch_file.endswith('.csv'):\\n        print(f'CSV file found: {scratch_file}')",
+        "scratchpad_summary": "Checking files"
     }}
     </Example>
 
@@ -269,10 +269,10 @@ Important information:
 When you have a specific question that you the user to answer so that you can figure out how to proceed in your work, you can respond in this format:
 
 {{
-    type: 'ask_user_question',
-    message: str,
-    question: str,
-    answers: Optional[List[str]]
+    "type": "ask_user_question",
+    "message": "<string>",
+    "question": "<string>",
+    "answers": ["<optional list of strings>"]
 }}
 
 Important information:
@@ -293,10 +293,10 @@ Important information:
 
     <Example>
     {{
-        type: 'ask_user_question',
-        message: "I tried importing apple_prices.csv and confirmed that it does not exist in the current working directory.",
-        question: "The file apple_prices.csv does not exist. How do you want to proceed?",
-        answers: ["Pull Apple Stock prices using yfinance API", "Create placeholder data", "Skip this step"]
+        "type": "ask_user_question",
+        "message": "I tried importing apple_prices.csv and confirmed that it does not exist in the current working directory.",
+        "question": "The file apple_prices.csv does not exist. How do you want to proceed?",
+        "answers": ["Pull Apple Stock prices using yfinance API", "Create placeholder data", "Skip this step"]
     }}
     </Example>
 
@@ -308,9 +308,9 @@ Important information:
 When you want to create a new Streamlit app from the current notebook, respond with this format:
 
 {{
-    type: 'create_streamlit_app',
-    streamlit_app_prompt: str,
-    message: str
+    "type": "create_streamlit_app",
+    "streamlit_app_prompt": "<string>",
+    "message": "<string>"
 }}
 
 Important information:
@@ -326,9 +326,9 @@ Important information:
 
     Output:
     {{
-        type: 'create_streamlit_app',
-        streamlit_app_prompt: "The app should have a beginning date and end date input field at the top. It should then be followed by two tabs for the user to select between: current performance and projected performance.",
-        message: "I'll convert your notebook into an app."
+        "type": "create_streamlit_app",
+        "streamlit_app_prompt": "The app should have a beginning date and end date input field at the top. It should then be followed by two tabs for the user to select between: current performance and projected performance.",
+        "message": "I'll convert your notebook into an app."
     }}
     
     The user will see a preview of the app and because you fulfilled your task, you can next respond with a FINISHED_TASK tool message.
@@ -340,9 +340,9 @@ Important information:
 When you want to edit an existing Streamlit app, respond with this format:
 
 {{
-    type: 'edit_streamlit_app',
-    message: str,
-    streamlit_app_prompt: str
+    "type": "edit_streamlit_app",
+    "message": "<string>",
+    "streamlit_app_prompt": "<string>"
 }}
 
 Important information:
@@ -358,13 +358,13 @@ Important information:
 When you have completed the user's task, respond with a message in this format:
 
 {{
-    type: 'finished_task',
-    message: str,
-    next_steps: Optional[List[str]]
+    "type": "finished_task",
+    "message": "<string>",
+    "next_steps": ["<optional list of strings>"]
 }}
 
 Important information:
-1. The message is a short summary of the ALL the work that you've completed on this task. It should not just refer to the final message. It could be something like "I've completed the sales strategy analysis by exploring key relationships in the data and summarizing creating a report with three recommendations to boost sales.""
+1. The message is a short summary of the ALL the work that you've completed on this task. It should not just refer to the final message. It could be something like "I've completed the sales strategy analysis by exploring key relationships in the data and summarizing creating a report with three recommendations to boost sales."
 2. The message should include citations for any insights that you shared with the user and cell references for whenever you refer to specific cells that you've updated or created.
 3. The next_steps is an optional list of 2 or 3 suggested follow-up tasks or analyses that the user might want to perform next. These should be concise, actionable suggestions that build on the work you've just completed. For example: ["Export the cleaned data to CSV", "Analyze revenue per customer", "Convert notebook into an app"].
 4. The next_steps should be as relevant to the user's actual task as possible. Try your best not to make generic suggestions like "Analyze the data" or "Visualize the results". For example, if the user just asked you to calculate LTV of their customers, you might suggest the following next steps: ["Graph key LTV drivers: churn and average transaction value", "Visualize LTV per age group"].
@@ -375,9 +375,9 @@ Important information:
 
     <Finished Task Example 1>
     {{
-        type: 'finished_task',
-        message: "Revenue analysis complete: total sales reached $2.3M with 34% growth in Q4[MITO_CITATION:abc123:2-3], while premium products generated 67% of profit margins[MITO_CITATION:xyz456:5]. The customer segmentation workflow identified three distinct buying patterns driving conversion rates[MITO_CITATION:def456:8-12].",
-        next_steps: ["Graph sales by product category", "Identify seasonal patterns in data", "Find the top 3 performing products"]
+        "type": "finished_task",
+        "message": "Revenue analysis complete: total sales reached $2.3M with 34% growth in Q4[MITO_CITATION:abc123:2-3], while premium products generated 67% of profit margins[MITO_CITATION:xyz456:5]. The customer segmentation workflow identified three distinct buying patterns driving conversion rates[MITO_CITATION:def456:8-12].",
+        "next_steps": ["Graph sales by product category", "Identify seasonal patterns in data", "Find the top 3 performing products"]
     }}
     </Finished Task Example 1>
     
@@ -386,8 +386,8 @@ Important information:
 
     Output:
     {{
-        type: 'finished_task',
-        message: "Hey there! I'm Mito AI. How can I help you today?"
+        "type": "finished_task",
+        "message": "Hey there! I'm Mito AI. How can I help you today?"
     }}
     </Finished Task Example 2>
 """))
@@ -463,9 +463,9 @@ Important information:
 
     Output:
     {{
-        type: 'finished_task', 
-        message: "The all time high tesla stock closing price was $265.91 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2] on 2025-03-16 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:1]",
-        next_steps: ["Create a visualization of Tesla's stock price over time", "Calculate the percentage change from the lowest to highest price", "Analyze the volatility of Tesla's stock"]
+        "type": "finished_task",
+        "message": "The all time high tesla stock closing price was $265.91 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:2] on 2025-03-16 [MITO_CITATION:9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8:1]",
+        "next_steps": ["Create a visualization of Tesla's stock price over time", "Calculate the percentage change from the lowest to highest price", "Analyze the volatility of Tesla's stock"]
     }}
     </Example>"""))
     sections.append(SG.Generic("Cell Reference Rules", CELL_REFERENCE_RULES))
