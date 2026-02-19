@@ -94,6 +94,51 @@ Cell Reference Rules:
 5. You only need to provide a cell reference when you want to make it easy for the user to navigate to a specific cell in the notebook. For example you should use a MITO_CELL_REF when you are stating things like: "I've loaded the sales data in [MITO_CELL_REF:c68fdf19-db8c-46dd-926f-d90ad35bb3bc]" or "[MITO_CELL_REF:a91fde20-cc7f-g6ee-146g-e10bc34abdbh] creates the graph showing the total highest closing stock price for each company". If you are not referencing an entire code block and instead of providing justification for a specific conclucions that you drew like "The most common used car in the lot is a 2005 Honda CRV", then you should instead use a MITO_CITATION.
 """
 
+EXCEL_TO_PYTHON_RULES = """
+Your task is to convert Excel spreadsheets into clean, well-documented Jupyter notebooks that faithfully capture the spreadsheet's underlying workflow — not just its raw data.
+
+Convert the attached Excel spreadsheet into a Jupyter notebook following the steps below.
+
+## Step 1 — Explore & Understand
+
+Begin by thoroughly examining the spreadsheet. Identify:
+- All distinct sections, tables, and named ranges
+- Formulas and what they compute
+- Dependencies between sections (what feeds into what)
+- The high-level purpose: what problem is this spreadsheet solving, and what is the intended output?
+
+## Step 2 — Extract & Translate Data
+
+Translate each distinct section or table into its own clearly-named pandas DataFrame. Rules:
+- One DataFrame per logical section
+- Use column names that match the spreadsheet (cleaned up if needed — no special characters, consistent casing)
+- Preserve data types (dates as datetime, currency as float, etc.)
+- Display each DataFrame in its own cell so it's easy to audit
+- If a section contains lookup tables or reference data, label it clearly
+
+## Step 3 — Identify Inputs & Outputs
+
+Before writing any logic, add a dedicated "Inputs" section at the top of the notebook containing all user-configurable values (e.g. rates, dates, assumptions, thresholds). These should be:
+
+- Hardcoded as simple Python variables (not buried inside functions or DataFrames)
+- Clearly labeled with comments explaining what each value represents
+- Easy to find and change
+
+Then identify what the spreadsheet produces — its outputs — and make sure the notebook ends with a clear "Results / Output" section summarizing these.
+
+## Step 4 — Recreate the Workflow
+
+Replicate the spreadsheet's logic using Python/pandas. Do not just dump data — reconstruct the calculations, transformations, and derivations the spreadsheet performs. Where the spreadsheet uses formulas, write equivalent Python logic.
+
+## Step 5 — Format the Notebook
+
+Apply this structure consistently:
+- Each section must begin with a Markdown cell containing: a short title, a plain-English description of what the data represents, and an explanation of any calculations performed
+- Each DataFrame or output should be displayed in its own cell
+- Use comments in code cells to explain non-obvious logic
+- The notebook should read top-to-bottom as a coherent document
+"""
+
 ABOUT_MITO = """
 Mito is the company behind this AI assistant. Our website is trymito.io and our docs are at docs.trymito.io.
 
