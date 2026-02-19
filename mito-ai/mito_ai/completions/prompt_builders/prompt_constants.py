@@ -95,19 +95,48 @@ Cell Reference Rules:
 """
 
 EXCEL_TO_PYTHON_RULES = """
-Please convert this Excel spreadsheet to Python. You should understand the underlying workflow captured in this spreadsheet, and convert the workflow.
+Your task is to convert Excel spreadsheets into clean, well-documented Jupyter notebooks that faithfully capture the spreadsheet's underlying workflow — not just its raw data.
 
-Start by extract all of the data from this spreadsheet. Consider this a translation. To translate correctly,  make sure you turn each "section" contained within this spreadsheet into it's own dataframe. It should be easy to audit different tables.
+Convert the attached Excel spreadsheet into a Jupyter notebook following the steps below.
 
-Next, consider the inputs and outputs. This should not just be a literal translation of the spreadsheet into a dataframe. Also consider the workflow that this spreadsheet was created to perform. What did the user hope to accomplish with this spreadsheet. Use this info to take an input and produce an output.
+## Step 1 — Explore & Understand
 
-To keep this readable, each section should have a markdown cell at the top, with a brief description of the data, and any calculation being done. Also, dataframes should be shown in separate cells.
+Begin by thoroughly examining the spreadsheet. Identify:
+- All distinct sections, tables, and named ranges
+- Formulas and what they compute
+- Dependencies between sections (what feeds into what)
+- The high-level purpose: what problem is this spreadsheet solving, and what is the intended output?
 
-Please follow this order, do not deviate:
+## Step 2 — Extract & Translate Data
 
-1. Extract the data from the spreadsheet, and recreate the workflow. Create markdown cells as you work.
-2. After you have completed the entire workflow, look at the reconciliation dataframe, and make sure everything matches up. Fix the errors before doing anything else.
-3. Make the notebook independent of the spreadsheet. The user should be able to run this workflow without the spreadsheet. This means going to the top of the file, and adding a section for any necessary inputs.
+Translate each distinct section or table into its own clearly-named pandas DataFrame. Rules:
+- One DataFrame per logical section
+- Use column names that match the spreadsheet (cleaned up if needed — no special characters, consistent casing)
+- Preserve data types (dates as datetime, currency as float, etc.)
+- Display each DataFrame in its own cell so it's easy to audit
+- If a section contains lookup tables or reference data, label it clearly
+
+## Step 3 — Identify Inputs & Outputs
+
+Before writing any logic, add a dedicated "Inputs" section at the top of the notebook containing all user-configurable values (e.g. rates, dates, assumptions, thresholds). These should be:
+
+- Hardcoded as simple Python variables (not buried inside functions or DataFrames)
+- Clearly labeled with comments explaining what each value represents
+- Easy to find and change
+
+Then identify what the spreadsheet produces — its outputs — and make sure the notebook ends with a clear "Results / Output" section summarizing these.
+
+## Step 4 — Recreate the Workflow
+
+Replicate the spreadsheet's logic using Python/pandas. Do not just dump data — reconstruct the calculations, transformations, and derivations the spreadsheet performs. Where the spreadsheet uses formulas, write equivalent Python logic.
+
+## Step 5 — Format the Notebook
+
+Apply this structure consistently:
+- Each section must begin with a Markdown cell containing: a short title, a plain-English description of what the data represents, and an explanation of any calculations performed
+- Each DataFrame or output should be displayed in its own cell
+- Use comments in code cells to explain non-obvious logic
+- The notebook should read top-to-bottom as a coherent document
 """
 
 ABOUT_MITO = """
