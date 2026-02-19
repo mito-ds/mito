@@ -211,7 +211,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self._active_async_client is not None:
             response = await self._active_async_client.chat.completions.create(**completion_function_params)
             completion = response.choices[0].message.content or ""
-        else: 
+        else:
             last_message_content = str(messages[-1].get("content", "")) if messages else None
             completion = await get_ai_completion_from_mito_server(
                 last_message_content,

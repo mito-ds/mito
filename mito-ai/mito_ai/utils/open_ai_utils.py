@@ -159,12 +159,12 @@ def get_open_ai_completion_function_params(
     # Pydantic models are supported by the OpenAI API, however, we need to be able to 
     # serialize it for requests that are going to be sent to the mito server. 
     # OpenAI expects a very specific schema as seen below. 
-    # Note: Abacus only supports {"type": "json"} format, not the full JSON schema format.
+    # Note: Abacus only supports {"type": "json_object"} format, not the full JSON schema format.
     if response_format_info:
-        # Check if we're using Abacus - it only supports simple {"type": "json"} format
+        # Check if we're using Abacus - it only supports simple {"type": "json_object"} format
         if is_abacus_configured() or model.lower().startswith('abacus/'):
             completion_function_params["response_format"] = {
-                "type": "json"
+                "type": "json_object"
             }
         else:
             # For OpenAI and other providers, use the full JSON schema format

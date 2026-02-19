@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import base64
+import json
 from typing import Optional, Union, List, Dict, Any, cast
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import ThreadID
@@ -141,3 +142,33 @@ def create_ai_optimized_message(
     return cast(
         ChatCompletionMessageParam, {"role": "user", "content": message_content}
     )
+
+
+def normalize_agent_response_completion(completion: str) -> str:
+    """
+    Return only the first complete JSON object from the completion string.
+    If the API returns duplicate or trailing JSON (e.g. two AgentResponse objects
+    concatenated), we keep only the first so that message_history and the frontend
+    receive a single valid JSON string.
+    """
+    if not completion or not completion.strip():
+        return completion
+    
+    # Try parsing entire string first
+    try:
+        json.loads(completion)
+        return completion.strip()
+    except json.JSONDecodeError:
+        pass
+    
+    # Find first '{' and try to decode from there
+    start = completion.find("{")
+    if start < 0:
+        return completion
+    
+    decoder = json.JSONDecoder()
+    try:
+        obj, end = decoder.raw_decode(completion, start)
+        return completion[start:end].strip()
+    except json.JSONDecodeError:
+        return completion
