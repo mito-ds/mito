@@ -1,0 +1,43 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Mode toolbar: shown in contentHeader when the view mode is Document or App.
+ * Fixed height so the toolbar does not change size when switching modes.
+ */
+
+.mito-mode-toolbar-widget {
+  height: 36px;
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.mode-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--jp-border-color2);
+  background-color: var(--jp-layout-color1);
+}
+
+.mode-toolbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.mode-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Keep app buttons same height as mode switcher segments */
+.mode-toolbar-right .button-small {
+  height: 28px;
+  min-height: 28px;
+  box-sizing: border-box;
+}

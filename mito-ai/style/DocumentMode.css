@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Document mode: hide code cell input areas so only markdown and outputs are visible.
+ * Applied when the notebook has class jp-mod-mito-document-mode.
+ */
+
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-InputArea {
+  display: none !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-InputPrompt {
+  display: none !important;
+}
+
+/* Hide any collapser/header for code cells in document mode */
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-Cell-header {
+  display: none !important;
+}
+
+/* Hide cell number labels in document mode (markdown cells still show header area) */
+.jp-Notebook.jp-mod-mito-document-mode .jp-Cell-header::before {
+  content: "" !important;
+  display: none !important;
+}

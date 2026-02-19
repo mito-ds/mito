@@ -1,0 +1,70 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Notebook mode toolbar layout: [Mode Switcher] [space] [toolbar buttons] [run cell].
+ * Spacer pushes standard Jupyter toolbar items to the right and clarifies the boundary.
+ * Target both the class we add (jp-Notebook-toolbar) and the notebook panel toolbar (jp-Toolbar).
+ */
+
+/* Override --jp-private-toolbar-height so Lumino's BoxLayout allocates
+   the correct amount of space for the native toolbar.  This keeps the
+   Notebook-mode toolbar the same 36px as the custom Document/App toolbar. */
+.jp-NotebookPanel {
+  --jp-private-toolbar-height: 36px;
+}
+
+.jp-Notebook-toolbar,
+.jp-NotebookPanel .jp-Toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0;
+  /* !important is needed to beat the inline styles Lumino sets on the element */
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  box-sizing: border-box;
+}
+
+/* Mode switcher stays on the left and does not grow */
+.jp-Notebook-toolbar .mito-notebook-view-mode-switcher-widget,
+.jp-NotebookPanel .jp-Toolbar .mito-notebook-view-mode-switcher-widget {
+  flex: 0 0 auto;
+  margin-right: 8px;
+  padding-right: 8px;
+  border-right: 1px solid var(--jp-border-color2);
+}
+
+/* Spacer fills space between mode switcher and the rest of the toolbar */
+.jp-Notebook-toolbar .mito-notebook-toolbar-spacer,
+.jp-NotebookPanel .jp-Toolbar .mito-notebook-toolbar-spacer {
+  flex: 1 1 0 !important;
+  min-width: 0;
+  max-width: none;
+}
+
+/* Collapse JupyterLab's built-in spacer (but NOT our custom one) so standard items sit next to Run */
+.jp-Notebook-toolbar .jp-Toolbar-spacer:not(.mito-notebook-toolbar-spacer),
+.jp-NotebookPanel .jp-Toolbar .jp-Toolbar-spacer:not(.mito-notebook-toolbar-spacer) {
+  flex: 0 0 0 !important;
+  min-width: 0 !important;
+  width: 0 !important;
+}
+
+/* Run cell button: after main toolbar items, before kernel status */
+.jp-Notebook-toolbar .mito-run-cell-button-widget,
+.jp-NotebookPanel .jp-Toolbar .mito-run-cell-button-widget {
+  margin-left: 0;
+  order: 1;
+}
+
+/* Kernel name and execution status icon to the right of Run Active Cell */
+.jp-Notebook-toolbar .jp-KernelName,
+.jp-NotebookPanel .jp-Toolbar .jp-KernelName,
+.jp-Notebook-toolbar .jp-Toolbar-kernelStatus,
+.jp-NotebookPanel .jp-Toolbar .jp-Toolbar-kernelStatus,
+.jp-Notebook-toolbar .jp-mod-highlighted:has(.jp-Notebook-ExecutionIndicator),
+.jp-NotebookPanel .jp-Toolbar .jp-mod-highlighted:has(.jp-Notebook-ExecutionIndicator) {
+  order: 2;
+}

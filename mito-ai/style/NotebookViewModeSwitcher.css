@@ -1,0 +1,69 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Three-segment mode switcher (Notebook | Document | App) with icons and improved spacing.
+ */
+
+.mode-switcher-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+}
+
+.mode-switcher-segment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  font-size: 12px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: none;
+  min-width: 0;
+}
+
+.mode-switcher-segment-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.mode-switcher-segment-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.mode-switcher-segment.selected {
+  opacity: 1;
+  background-color: var(--purple-400);
+  color: var(--purple-700) !important;
+}
+
+.mode-switcher-segment.selected .mode-switcher-segment-icon {
+  color: var(--purple-700);
+}
+
+.mode-switcher-segment.unselected {
+  opacity: 0.85;
+  background-color: transparent !important;
+  color: var(--jp-ui-font-color2) !important;
+}
+
+.mode-switcher-segment.unselected:hover {
+  background-color: var(--jp-layout-color2) !important;
+}
+
+.mode-switcher-segment.unselected .mode-switcher-segment-icon {
+  color: var(--jp-ui-font-color2);
+}
