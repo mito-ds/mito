@@ -40,8 +40,20 @@ export type CellUpdateNew = {
 
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
+/** Agent response type for web search; use this constant instead of the string literal. */
+export const AGENT_RESPONSE_TYPE_WEB_SEARCH = 'web_search' as const;
+
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad'
+  type:
+  | 'cell_update'
+  | 'get_cell_output'
+  | 'run_all_cells'
+  | 'finished_task'
+  | 'create_streamlit_app'
+  | 'edit_streamlit_app'
+  | 'ask_user_question'
+  | 'scratchpad'
+  | typeof AGENT_RESPONSE_TYPE_WEB_SEARCH
   message: string,
   cell_update?: CellUpdate | null | undefined
   get_cell_output_cell_id?: string | null | undefined
@@ -52,6 +64,8 @@ export type AgentResponse = {
   answers?: string[] | null | undefined
   scratchpad_code?: string | null | undefined
   scratchpad_summary?: string | null | undefined
+  web_search_query?: string | null | undefined
+  web_search_results?: string | null | undefined
 }
 
 /* 

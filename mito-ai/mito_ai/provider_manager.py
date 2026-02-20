@@ -218,7 +218,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                         message_type=message_type,
                         messages=messages,
                         model=resolved_model,
-                        response_format_info=response_format_info
+                        response_format_info=response_format_info,
                     )
                 else:
                     raise ValueError(f"No AI provider configured for model: {resolved_model}")

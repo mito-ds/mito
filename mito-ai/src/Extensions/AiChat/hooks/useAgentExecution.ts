@@ -10,6 +10,7 @@ import { IDocumentManager } from '@jupyterlab/docmanager';
 import { UUID } from '@lumino/coreutils';
 import { IStreamlitPreviewManager } from '../../AppPreview/StreamlitPreviewPlugin';
 import { CompletionWebsocketClient } from '../../../websockets/completions/CompletionsWebsocketClient';
+import { AGENT_RESPONSE_TYPE_WEB_SEARCH } from '../../../websockets/completions/CompletionModels';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 import { createCheckpoint } from '../../../utils/checkpoint';
 import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../../utils/agentActions';
@@ -371,6 +372,27 @@ export const useAgentExecution = ({
                 if (streamlitPreviewResponse.type === 'error') {
                     messageToShareWithAgent = streamlitPreviewResponse.message;
                 }
+            }
+
+            if (agentResponse.type === AGENT_RESPONSE_TYPE_WEB_SEARCH && agentResponse.web_search_query) {
+                // Handle web search request
+                // The backend has already performed the web search and added results to message history
+                // The search results will be added to display history by addAIMessageFromAgentResponse
+                // when the agent response is processed, since web_search_results is included in the response
+                
+                setLoadingStatus('thinking');
+                try {
+                    // Continue agent execution - the backend has already added search results to message history
+                    // Send a message to explicitly prompt the agent to continue working with the search results
+                    // This helps prevent the agent from immediately responding with finished_task
+                    messageToShareWithAgent = 'Please analyze the search results and continue working on the task.';
+                } finally {
+                    setLoadingStatus(undefined);
+                }
+                // Continue to the next iteration of the loop
+                // The next iteration will send the continuation message and get agent's response to the search results
+                // We skip the rest of this iteration since web_search doesn't need cell execution or other processing
+                continue;
             }
 
             if (agentResponse.type === 'scratchpad' && agentResponse.scratchpad_code) {

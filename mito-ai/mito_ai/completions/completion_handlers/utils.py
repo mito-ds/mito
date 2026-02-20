@@ -5,8 +5,9 @@ import base64
 import json
 from typing import Optional, Union, List, Dict, Any, cast
 from mito_ai.completions.message_history import GlobalMessageHistory
-from mito_ai.completions.models import ThreadID
+from mito_ai.completions.models import AGENT_RESPONSE_TYPE_WEB_SEARCH, ThreadID
 from mito_ai.provider_manager import ProviderManager
+from mito_ai.utils.provider_utils import get_model_provider
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.prompt_builders.chat_system_message import (
     create_chat_system_message_prompt,
@@ -168,7 +169,82 @@ def normalize_agent_response_completion(completion: str) -> str:
     
     decoder = json.JSONDecoder()
     try:
-        obj, end = decoder.raw_decode(completion, start)
+        _, end = decoder.raw_decode(completion, start)
         return completion[start:end].strip()
     except json.JSONDecodeError:
+        return completion
+
+
+# Concise-instruction suffix for web search so results are clean for the agent to use in the notebook.
+WEB_SEARCH_CONCISE_SUFFIX = (
+    " Return only a concise list of items (e.g. headline, date, source). "
+    "No code, no usage instructions, no 'how to' or 'how to use' sections."
+)
+
+
+async def perform_agent_web_search_if_requested(
+    completion: str,
+    provider: ProviderManager,
+    message_history: GlobalMessageHistory,
+    thread_id: ThreadID,
+) -> Optional[str]:
+    """
+    If the agent response in completion is a web_search request, run the search,
+    append the results to message_history, and return the raw search result string.
+    Otherwise return None.
+    """
+    try:
+        parsed = json.loads(completion)
+        if parsed.get("type") != AGENT_RESPONSE_TYPE_WEB_SEARCH:
+            return None
+        web_search_query = parsed.get("web_search_query")
+        if not web_search_query:
+            return None
+    except (json.JSONDecodeError, KeyError):
+        return None
+
+    try:
+        selected_model = provider.get_selected_model()
+        model_provider = get_model_provider(selected_model)
+        if model_provider != "openai":
+            return None
+        if not getattr(provider, "_openai_client", None):
+            return None
+        openai_client = provider._openai_client
+    except Exception:
+        return None
+
+    search_input = web_search_query + WEB_SEARCH_CONCISE_SUFFIX
+
+    try:
+        search_result = await openai_client.web_search(search_input, selected_model)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        return None
+
+    search_results_message: ChatCompletionMessageParam = {
+        "role": "assistant",
+        "content": f"Web search results for '{web_search_query}':\n\n{search_result}",
+    }
+    await message_history.append_message(
+        search_results_message,
+        search_results_message,
+        provider,
+        thread_id,
+    )
+
+    return search_result
+
+
+def inject_web_search_results_into_completion(
+    completion: str,
+    web_search_results: str,
+) -> str:
+    """Add web_search_results to the completion JSON so the frontend can display them."""
+    try:
+        parsed = json.loads(completion)
+        parsed["web_search_results"] = web_search_results
+        return json.dumps(parsed)
+    except (json.JSONDecodeError, KeyError):
         return completion
