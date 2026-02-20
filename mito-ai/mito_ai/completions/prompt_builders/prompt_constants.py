@@ -9,7 +9,10 @@ These constants ensure consistency between prompt building and message trimming.
 import os
 import json
 from typing import Final
+from datetime import datetime
 from mito_ai.utils.schema import MITO_FOLDER
+
+CURRENT_DATE_SECTION = f"The current date is {datetime.now().strftime('%Y-%m-%d')}"
 
 CHART_CONFIG_RULES = """
 When creating a matplotlib chart, you must use the `# === CHART CONFIG ===` and `# === END CONFIG ===` markers to indicate the start and end of the chart configuration section.

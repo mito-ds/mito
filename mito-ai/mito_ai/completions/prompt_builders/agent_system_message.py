@@ -4,6 +4,7 @@
 from typing import List
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.prompt_constants import (
+    CURRENT_DATE_SECTION,
     ABOUT_MITO,
     CHART_CONFIG_RULES,
     CITATION_RULES,
@@ -32,6 +33,8 @@ You have access to a set of tools that you can use to accomplish the task you've
 Each time you use a tool, except for the finished_task tool, the user will execute the tool and provide you with updated information about the notebook and variables defined in the kernel to help you decide what to do next."""))
     
     sections.append(SG.Generic("About Mito", ABOUT_MITO))
+
+    sections.append(SG.Generic("Current Date", CURRENT_DATE_SECTION))
     
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
 
