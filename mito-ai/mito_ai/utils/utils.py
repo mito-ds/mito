@@ -30,6 +30,17 @@ def is_running_test() -> bool:
 
     return running_pytests or running_ci
 
+
+def is_github_actions() -> bool:
+    """
+    Returns True if the current code is running inside GitHub Actions CI.
+    GitHub sets GITHUB_ACTIONS=true in the environment for workflow runs.
+    Used to enable telemetry for CI runs (with a dedicated user id) while
+    still skipping telemetry for local pytest runs.
+    """
+    return os.environ.get('GITHUB_ACTIONS') == 'true'
+
+
 def get_installed_packages() -> List[str]:
     """
     Get a list of all installed packages.
