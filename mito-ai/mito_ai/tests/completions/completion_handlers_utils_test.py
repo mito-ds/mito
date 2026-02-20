@@ -2,12 +2,17 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import base64
+import json
 import os
 import tempfile
 from contextlib import contextmanager
+
+import pytest
+
 from mito_ai.completions.completion_handlers.utils import (
     create_ai_optimized_message,
     extract_and_encode_images_from_additional_context,
+    normalize_agent_response_completion,
 )
 
 
@@ -188,3 +193,137 @@ def test_extract_and_encode_images_from_additional_context_empty():
     # Test with empty list
     encoded_images = extract_and_encode_images_from_additional_context([])
     assert len(encoded_images) == 0
+
+
+# ---------------------------------------------------------------------------
+# normalize_agent_response_completion tests
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "completion",
+    [
+        "",
+        "   \n\t  ",
+        '{"type":"finished_task","message":"Done"}',
+        '[1, 2, {"nested": true}]',
+        '{"message": "He said \\"hello\\" to me"}',
+        '{"a": {"b": {"c": 1}}}',
+        '{"type":"finished_task","next_steps":["Step 1","Step 2",{"nested":true}]}',
+        '{"type":"cell_update","message":"Update","cell_update":{"type":"modification","id":"abc","code":"x=1","code_summary":"Set x","cell_type":"code"}}',
+        '{"type":"cell_update","message":"Code","cell_update":{"type":"new","after_cell_id":"id","code":"import json\\\\nprint(json.dumps({\\\"x\\\": 1}))","code_summary":"JSON","cell_type":"code"}}',
+        '{"type":"scratchpad","message":"M","scratchpad_code":"x = {\\\"a\\\": 1}\\nprint(x)","scratchpad_summary":"Dict"}',
+    ],
+    ids=[
+        "empty_string",
+        "whitespace_only",
+        "valid_single_json",
+        "top_level_array",
+        "escaped_quotes_in_string",
+        "triple_nested_braces",
+        "object_with_array_containing_objects",
+        "nested_json_cell_update",
+        "cell_update_code_contains_braces",
+        "scratchpad_code_with_braces_and_quotes",
+    ],
+)
+def test_normalize_agent_response_completion_identity(completion):
+    """Input is returned unchanged when it is valid single JSON or has no object to extract."""
+    result = normalize_agent_response_completion(completion)
+    assert result == completion
+    if completion.strip().startswith("{"):
+        parsed = json.loads(result)
+        assert isinstance(parsed, dict)
+
+
+@pytest.mark.parametrize(
+    "completion,expected",
+    [
+        (
+            '{"a":1}\n{"b":2}',
+            '{"a":1}',
+        ),
+        (
+            '{"a":1}{"b":2}',
+            '{"a":1}',
+        ),
+        (
+            '{"type":"scratchpad","message":"First","scratchpad_code":"x=1","scratchpad_summary":"First"}\n'
+            '{"type":"scratchpad","message":"Second","scratchpad_code":"y=2","scratchpad_summary":"Second"}',
+            '{"type":"scratchpad","message":"First","scratchpad_code":"x=1","scratchpad_summary":"First"}',
+        ),
+        (
+            '{"type":"finished_task","message":"Done"}\n\nI have completed the task.',
+            '{"type":"finished_task","message":"Done"}',
+        ),
+            (
+                '  \n  {"type":"finished_task","message":"Done"}',
+                '{"type":"finished_task","message":"Done"}',
+            ),
+            (
+                '  {"type":"scratchpad","message":"Hi"}  ',
+                '{"type":"scratchpad","message":"Hi"}',
+            ),
+            (
+                '{"type":"cell_update","message":"M","cell_update":{"type":"modification","id":"x","code":"1","code_summary":"Set","cell_type":"code"}}'
+            '{"type":"finished_task","message":"Done"}',
+            '{"type":"cell_update","message":"M","cell_update":{"type":"modification","id":"x","code":"1","code_summary":"Set","cell_type":"code"}}',
+        ),
+        (
+            # Duplicate cell_update where code field contains a JSON object literal (braces/quotes).
+            # Parser must not stop at the inner "}" in the code string.
+            '{"type":"cell_update","message":"Add code","cell_update":{"type":"new","after_cell_id":"id","code":"import json\\\\nprint(json.dumps({\\\"key\\\": 1}))","code_summary":"JSON","cell_type":"code"}}'
+            '\n'
+            '{"type":"cell_update","message":"Add code","cell_update":{"type":"new","after_cell_id":"id","code":"import json\\\\nprint(json.dumps({\\\"key\\\": 1}))","code_summary":"JSON","cell_type":"code"}}',
+            '{"type":"cell_update","message":"Add code","cell_update":{"type":"new","after_cell_id":"id","code":"import json\\\\nprint(json.dumps({\\\"key\\\": 1}))","code_summary":"JSON","cell_type":"code"}}',
+        ),
+    ],
+        ids=[
+            "duplicate_json_newline",
+            "duplicate_json_no_newline",
+            "duplicate_scratchpad_returns_first",
+            "trailing_text_after_json",
+            "leading_whitespace_before_brace",
+            "valid_json_with_leading_trailing_whitespace_stripped",
+            "nested_then_duplicate",
+            "duplicate_cell_update_with_json_in_code_returns_first",
+        ],
+)
+def test_normalize_agent_response_completion_extract_first(completion, expected):
+    """When completion contains extra content after the first JSON object, only the first is returned."""
+    result = normalize_agent_response_completion(completion)
+    assert result == expected
+    parsed = json.loads(result)
+    assert isinstance(parsed, dict)
+
+
+@pytest.mark.parametrize(
+    "completion",
+    [
+        "plain text response",
+        '{"type": "scratchpad", "message": "oops',
+    ],
+    ids=["no_brace_returns_original", "malformed_unbalanced_braces_returns_original"],
+)
+def test_normalize_agent_response_completion_returns_original_unchanged(completion):
+    """When no valid complete JSON object can be extracted, the original string is returned."""
+    result = normalize_agent_response_completion(completion)
+    assert result == completion
+
+
+def test_normalize_agent_response_completion_realistic_scratchpad_duplicate():
+    """Realistic duplicate scratchpad response (as seen in the bug): return first only."""
+    single = (
+        '{"type":"scratchpad","message":"I will inspect the file.","cell_update":null,'
+        '"get_cell_output_cell_id":null,"next_steps":null,"analysis_assumptions":null,'
+        '"streamlit_app_prompt":null,"question":null,"answers":null,'
+        '"scratchpad_code":"import pandas as pd\\n\\nscratch_path = \'Budget.xlsx\'\\n\\n'
+        'scratch_xls = pd.ExcelFile(scratch_path)\\nprint(\'Sheets:\', scratch_xls.sheet_names)",'
+        '"scratchpad_summary":"Inspecting Excel sheets"}'
+    )
+    duplicated = single + "\n" + single
+    result = normalize_agent_response_completion(duplicated)
+    assert result == single
+    parsed = json.loads(result)
+    assert parsed["type"] == "scratchpad"
+    assert "Inspecting Excel sheets" in parsed["scratchpad_summary"]
