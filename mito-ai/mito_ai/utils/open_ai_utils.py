@@ -144,6 +144,7 @@ def get_open_ai_completion_function_params(
     messages: List[ChatCompletionMessageParam], 
     stream: bool,
     response_format_info: Optional[ResponseFormatInfo] = None,
+    tools: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     
     completion_function_params = {
@@ -154,6 +155,10 @@ def get_open_ai_completion_function_params(
 
     if model == "gpt-5.2":
         completion_function_params["reasoning_effort"] = "low"
+    
+    # Add tools if provided (e.g., web_search)
+    if tools:
+        completion_function_params["tools"] = tools
     
     # If a response format is provided, we need to convert it to a json schema.
     # Pydantic models are supported by the OpenAI API, however, we need to be able to 
