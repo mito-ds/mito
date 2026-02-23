@@ -134,6 +134,37 @@ This attribute is observed by the websocket provider to push the error to the cl
         
         return MITO_SERVER_KEY
 
+    @property
+    def web_search_available(self) -> bool:
+        """Returns True only when the selected model is a direct OpenAI model with a user-provided API key."""
+        model_type = get_model_provider(self.get_selected_model())
+        return (
+            model_type == "openai"
+            and bool(constants.OPENAI_API_KEY)
+            and not is_azure_openai_configured()
+        )
+
+    async def request_web_search(self, query: str) -> Optional[str]:
+        """Execute a web search using OpenAI's search-capable model.
+
+        Returns the search result text, or None if web search is unavailable or fails.
+        """
+        if not self.web_search_available or not self._openai_client:
+            return None
+        client = self._openai_client._active_async_client
+        if not client:
+            return None
+        try:
+            response = await client.chat.completions.create(
+                model="gpt-4o-search-preview",
+                web_search_options={},
+                messages=[{"role": "user", "content": query}],
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            self.log.warning(f"Web search failed: {e}")
+            return None
+
     async def request_completions(
         self,
         message_type: MessageType,

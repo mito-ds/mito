@@ -13,7 +13,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
 from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 from mito_ai.rules.utils import get_default_rules_content
 
-def create_agent_system_message_prompt(isChromeBrowser: bool) -> str:
+def create_agent_system_message_prompt(isChromeBrowser: bool, web_search_available: bool = False) -> str:
     
     # The GET_CELL_OUTPUT tool only works on Chrome based browsers. 
     # This constant helps us replace the phrase 'or GET_CELL_OUTPUT' with ''
@@ -263,7 +263,35 @@ Important information:
 
 """))
     
-    # ASK_USER_QUESTION tool 
+    # WEB_SEARCH tool (conditional on OpenAI provider)
+    if web_search_available:
+        sections.append(SG.Generic("TOOL: WEB_SEARCH", """
+When you need up-to-date information from the internet — such as the latest version of a package, current API documentation, recent news, or any fact that may have changed after your training cutoff — use the WEB_SEARCH tool:
+
+Format:
+{
+    "type": "web_search",
+    "message": "<string explaining why you need to search>",
+    "web_search_query": "<concise search query>"
+}
+
+Important information:
+1. Only use this tool when you genuinely need information that is not already available in your training data or the provided notebook context.
+2. After receiving the search results, continue with the task using the information found.
+3. Do not use this tool for tasks that only require writing Python code or analyzing the data provided in the notebook.
+4. Keep the web_search_query concise and specific — treat it like a search engine query (e.g., "pandas latest stable version" or "sklearn StandardScaler fit_transform example").
+5. The search results will be returned to you in the next message so you can decide your next action.
+
+    <Example>
+    {
+        "type": "web_search",
+        "message": "I need to check the latest stable version of pandas before writing the import statement.",
+        "web_search_query": "pandas latest stable release version 2025"
+    }
+    </Example>
+"""))
+
+    # ASK_USER_QUESTION tool
     sections.append(SG.Generic("TOOL: ASK_USER_QUESTION", f"""
 
 When you have a specific question that you the user to answer so that you can figure out how to proceed in your work, you can respond in this format:

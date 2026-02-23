@@ -49,6 +49,7 @@ async def append_agent_system_message(
     provider: ProviderManager,
     thread_id: ThreadID,
     isChromeBrowser: bool,
+    web_search_available: bool = False,
 ) -> None:
 
     # If the system message already exists, do nothing
@@ -58,7 +59,7 @@ async def append_agent_system_message(
     ):
         return
 
-    system_message_prompt = create_agent_system_message_prompt(isChromeBrowser)
+    system_message_prompt = create_agent_system_message_prompt(isChromeBrowser, web_search_available)
 
     system_message: ChatCompletionMessageParam = {
         "role": "system",

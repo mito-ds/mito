@@ -18,14 +18,15 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     
     // Ensure type is valid. Default to finished_task if not valid.
     const validTypes = [
-        'cell_update', 
-        'get_cell_output', 
-        'run_all_cells', 
+        'cell_update',
+        'get_cell_output',
+        'run_all_cells',
         'ask_user_question',
-        'finished_task', 
-        'create_streamlit_app', 
+        'finished_task',
+        'create_streamlit_app',
         'edit_streamlit_app',
-        'scratchpad'
+        'scratchpad',
+        'web_search',
     ];
     correctedResponse.type = (correctedResponse.type && validTypes.includes(correctedResponse.type)) 
         ? correctedResponse.type 
