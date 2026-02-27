@@ -102,15 +102,17 @@ def test_request_with_complex_config():
     assert data["data"]["config"] == config
 
 
-def test_gemini_3_1_pro_thinking_config():
-    """Test that gemini-3.1-pro-preview gets medium thinking level configured."""
+def test_thinking_config_passed_through():
+    """Test that thinking_config is passed through to request data."""
     model = GEMINI_3_1_PRO_MODEL
     message_type = MessageType.CHAT
+    thinking_config = {"thinking_level": "MEDIUM"}
 
     data, headers = _prepare_gemini_request_data_and_headers(
         model=model,
         contents=TEST_CONTENTS,
-        message_type=message_type
+        message_type=message_type,
+        thinking_config=thinking_config
     )
 
     assert "thinking_config" in data["data"]

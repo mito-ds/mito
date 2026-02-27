@@ -50,11 +50,9 @@ def _prepare_gemini_request_data_and_headers(
         # Ensure config is serializable
         inner_data["config"] = json.loads(json.dumps(config))
     
-    # Include thinking_config for Gemini 3.1 Pro models
+    # Include thinking_config if provided
     if thinking_config:
         inner_data["thinking_config"] = thinking_config
-    elif model == GEMINI_3_1_PRO_MODEL:
-        inner_data["thinking_config"] = {"thinking_level": "MEDIUM"}
         
     data = {
         "timeout": timeout,
@@ -70,9 +68,10 @@ async def get_gemini_completion_from_mito_server(
     contents: List[Dict[str, Any]],
     message_type: MessageType,
     config: Optional[Dict[str, Any]] = None,
-    response_format_info: Optional[Any] = None
+    response_format_info: Optional[Any] = None,
+    thinking_config: Optional[Dict[str, Any]] = None
 ) -> str:
-    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, config, response_format_info, stream=False)
+    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, config, response_format_info, stream=False, thinking_config=thinking_config)
     return await get_response_from_mito_server(
         MITO_GEMINI_URL, 
         headers, 
@@ -88,9 +87,10 @@ async def stream_gemini_completion_from_mito_server(
     contents: List[Dict[str, Any]],
     message_type: MessageType,
     message_id: str,
-    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]
+    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+    thinking_config: Optional[Dict[str, Any]] = None
 ) -> AsyncGenerator[str, None]:
-    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, stream=True)
+    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, stream=True, thinking_config=thinking_config)
     
     # Define chunk processor for Gemini's special processing
     def gemini_chunk_processor(chunk: str) -> str:
