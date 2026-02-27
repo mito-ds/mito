@@ -4,7 +4,7 @@ import base64
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from google import genai
 from google.genai import types
-from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse
+from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse, ThinkingConfig
 from mito_ai.completions.models import CompletionError, CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
@@ -123,11 +123,19 @@ class GeminiClient:
         )
 
         if self.api_key:
+            # Build thinking config if specified
+            thinking_config = None
+            if provider_data.get("thinking_config"):
+                thinking_config = ThinkingConfig(
+                    thinking_level=provider_data["thinking_config"].get("thinking_level")
+                )
+            
             # Generate content using the Gemini client
             response_config = GenerateContentConfig(
                 system_instruction=system_instructions,
                 response_mime_type=provider_data.get("config", {}).get("response_mime_type"),
-                response_schema=provider_data.get("config", {}).get("response_schema")
+                response_schema=provider_data.get("config", {}).get("response_schema"),
+                thinking_config=thinking_config
             )
             response = self.client.models.generate_content(
                 model=provider_data["model"],
@@ -163,12 +171,28 @@ class GeminiClient:
         try:
             # Extract system instructions and Gemini-compatible contents
             system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
+            
+            # Get provider data for thinking config
+            provider_data = get_gemini_completion_function_params(
+                model=model,
+                contents=contents,
+                message_type=message_type,
+            )
+            
             if self.api_key:
+                # Build thinking config if specified
+                thinking_config = None
+                if provider_data.get("thinking_config"):
+                    thinking_config = ThinkingConfig(
+                        thinking_level=provider_data["thinking_config"].get("thinking_level")
+                    )
+                
                 for chunk in self.client.models.generate_content_stream(
                         model=model,
                         contents=contents,  # type: ignore
                         config=GenerateContentConfig(
-                            system_instruction=system_instructions
+                            system_instruction=system_instructions,
+                            thinking_config=thinking_config
                         )
                 ):
 

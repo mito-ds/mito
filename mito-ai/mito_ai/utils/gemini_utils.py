@@ -15,13 +15,16 @@ max_retries = 1
 
 FAST_GEMINI_MODEL = "gemini-2.0-flash-lite"
 
+GEMINI_3_1_PRO_MODEL = "gemini-3.1-pro-preview"
+
 def _prepare_gemini_request_data_and_headers(
     model: str,
     contents: List[Dict[str, Any]],
     message_type: MessageType,
     config: Optional[Dict[str, Any]] = None,
     response_format_info: Optional[Any] = None,
-    stream: bool = False
+    stream: bool = False,
+    thinking_config: Optional[Dict[str, Any]] = None
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
     
     inner_data: Dict[str, Any] = {
@@ -46,6 +49,12 @@ def _prepare_gemini_request_data_and_headers(
     if config:
         # Ensure config is serializable
         inner_data["config"] = json.loads(json.dumps(config))
+    
+    # Include thinking_config for Gemini 3.1 Pro models
+    if thinking_config:
+        inner_data["thinking_config"] = thinking_config
+    elif model == GEMINI_3_1_PRO_MODEL:
+        inner_data["thinking_config"] = {"thinking_level": "MEDIUM"}
         
     data = {
         "timeout": timeout,
@@ -119,6 +128,12 @@ def get_gemini_completion_function_params(
         "contents": contents,
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
     }
+    
+    # Configure thinking level for Gemini 3.1 Pro (medium reasoning to balance speed/quality)
+    if model == GEMINI_3_1_PRO_MODEL:
+        provider_data["thinking_config"] = {
+            "thinking_level": "MEDIUM"
+        }
         
     # Configure response format if provided
     if response_format_info:
