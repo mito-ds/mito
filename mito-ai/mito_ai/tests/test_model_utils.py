@@ -114,7 +114,7 @@ class TestGetFastModelForSelectedModel:
     
     def test_gemini_pro_returns_flash(self):
         """Test that Gemini Pro returns Gemini Flash (fastest Gemini model)."""
-        result = get_fast_model_for_selected_model("gemini-3-pro-preview")
+        result = get_fast_model_for_selected_model("gemini-3.1-pro-preview")
         assert result == "gemini-3-flash-preview"
     
     def test_gemini_flash_returns_flash(self):
@@ -140,8 +140,8 @@ class TestGetFastModelForSelectedModel:
             ),
             # Test case 3: LiteLLM Google model returns fastest overall
             (
-                "litellm/google/gemini-3-pro-preview",
-                ["litellm/google/gemini-3-pro-preview", "litellm/google/gemini-3-flash-preview"],
+                "litellm/google/gemini-3.1-pro-preview",
+                ["litellm/google/gemini-3.1-pro-preview", "litellm/google/gemini-3-flash-preview"],
                 "litellm/google/gemini-3-flash-preview",
             ),
             # Test case 4: Unknown LiteLLM model returns fastest known
@@ -302,8 +302,8 @@ class TestGetFastModelForSelectedModel:
             ),
             # Test case 3: Abacus Gemini model returns fastest overall
             (
-                "Abacus/gemini-3-pro-preview",
-                ["Abacus/gemini-3-pro-preview", "Abacus/gemini-3-flash-preview"],
+                "Abacus/gemini-3.1-pro-preview",
+                ["Abacus/gemini-3.1-pro-preview", "Abacus/gemini-3-flash-preview"],
                 "Abacus/gemini-3-flash-preview",
             ),
             # Test case 4: Unknown Abacus model returns fastest known
