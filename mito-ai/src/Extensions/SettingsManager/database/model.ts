@@ -17,6 +17,7 @@ export interface DatabaseField {
     type: 'text' | 'password' | 'number' | 'select';
     label: string;
     placeholder?: string;
+    helpText?: string;
     required: boolean;
     options?: Array<{ value: string; label: string }>;
 }
