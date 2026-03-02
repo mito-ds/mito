@@ -33,7 +33,7 @@ const FileEditorAppModePlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito-ai:file-editor-app-mode',
   description: 'Add App Mode button to file editor toolbar for mito-app-*.py files',
   autoStart: true,
-  requires: [IEditorTracker, INotebookTracker, IStreamlitPreviewManager, IDocumentManager],
+  requires: [IEditorTracker, INotebookTracker, IStreamlitPreviewManager, IDocumentManager] as JupyterFrontEndPlugin<void>['requires'],
   activate: (
     app: JupyterFrontEnd,
     editorTracker: IEditorTracker,

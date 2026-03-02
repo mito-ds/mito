@@ -223,7 +223,7 @@ export const openAppPreviewFromAppFilePath = async (
     );
     return;
   }
-  void documentManager.openOrReveal(notebookPath);
+  void documentManager.open(notebookPath);
   notebookPanel = await waitForNotebookPanelByNotebookID(notebookTracker, notebookID);
   if (notebookPanel) {
     await streamlitPreviewManager.openAppPreview(app, notebookPanel);
