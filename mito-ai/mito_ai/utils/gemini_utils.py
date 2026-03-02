@@ -79,9 +79,10 @@ async def stream_gemini_completion_from_mito_server(
     contents: List[Dict[str, Any]],
     message_type: MessageType,
     message_id: str,
-    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]
+    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
+    config: Optional[Dict[str, Any]] = None,
 ) -> AsyncGenerator[str, None]:
-    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, stream=True)
+    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, config=config, stream=True)
     
     # Define chunk processor for Gemini's special processing
     def gemini_chunk_processor(chunk: str) -> str:
@@ -126,5 +127,11 @@ def get_gemini_completion_function_params(
             "response_mime_type": "application/json",
             "response_schema": AgentResponse.model_json_schema()
         }
-        
+
+    # Set thinking level for Gemini 3.1 Pro (only place reasoning/thinking level is set)
+    if model == "gemini-3.1-pro-preview":
+        if "config" not in provider_data:
+            provider_data["config"] = {}
+        provider_data["config"]["thinking_config"] = {"thinking_level": "MEDIUM"}
+
     return provider_data
