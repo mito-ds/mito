@@ -6,6 +6,7 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IEditorTracker } from '@jupyterlab/fileeditor';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { ToolbarButton } from '@jupyterlab/apputils';
 import { IStreamlitPreviewManager } from './StreamlitPreviewPlugin';
 import { isMitoAppPyFilePath, openAppPreviewFromAppFilePath } from './utils';
@@ -32,12 +33,13 @@ const FileEditorAppModePlugin: JupyterFrontEndPlugin<void> = {
   id: 'mito-ai:file-editor-app-mode',
   description: 'Add App Mode button to file editor toolbar for mito-app-*.py files',
   autoStart: true,
-  requires: [IEditorTracker, INotebookTracker, IStreamlitPreviewManager],
+  requires: [IEditorTracker, INotebookTracker, IStreamlitPreviewManager, IDocumentManager],
   activate: (
     app: JupyterFrontEnd,
     editorTracker: IEditorTracker,
     notebookTracker: INotebookTracker,
-    streamlitPreviewManager: IStreamlitPreviewManager
+    streamlitPreviewManager: IStreamlitPreviewManager,
+    documentManager: IDocumentManager
   ): void => {
     const addAppModeButtonIfNeeded = (): void => {
       const widget = editorTracker.currentWidget;
@@ -59,7 +61,8 @@ const FileEditorAppModePlugin: JupyterFrontEndPlugin<void> = {
             app,
             widget.context.path,
             notebookTracker,
-            streamlitPreviewManager
+            streamlitPreviewManager,
+            documentManager
           );
         },
         tooltip: 'Preview notebook as app and turn on App Mode',
@@ -90,7 +93,8 @@ const FileEditorAppModePlugin: JupyterFrontEndPlugin<void> = {
             app,
             w.context.path,
             notebookTracker,
-            streamlitPreviewManager
+            streamlitPreviewManager,
+            documentManager
           );
         },
         tooltip: 'Preview notebook as app and turn on App Mode',

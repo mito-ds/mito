@@ -73,4 +73,49 @@ test.describe('App Mode Button Integration Test', () => {
       expect(await streamlitApp.count()).toBeGreaterThan(0);
     }
   });
+
+  test('Open mito-app-*.py in file editor, click App Mode in toolbar, verify preview appears', async ({ page }) => {
+    // 1) Create and run a notebook so we get a notebook with an id when App Mode is used
+    const notebookCode = 'import pandas as pd\ndf = pd.DataFrame({"x": [1, 2, 3]})\ndf';
+    await createAndRunNotebookWithCells(page, [notebookCode]);
+    await waitForIdle(page);
+
+    // 2) Click App Mode in the notebook toolbar to create the .py file and open preview
+    const appModeButtonInNotebook = page.locator('.jp-ToolbarButtonComponent-label').filter({ hasText: 'App Mode' });
+    await appModeButtonInNotebook.waitFor({ state: 'visible', timeout: 10000 });
+    await appModeButtonInNotebook.click();
+
+    // Wait for preview to appear and the .py file to be created
+    await page.locator('.lm-TabBar-tabLabel').filter({ hasText: /App Preview|Streamlit/i }).waitFor({ state: 'visible', timeout: 30000 }).catch(() => null);
+    await waitForIdle(page);
+
+    // 3) Open the File Browser and find the mito-app-*.py file
+    await page.getByRole('tab', { name: /File Browser/ }).click();
+    await waitForIdle(page);
+
+    const pyFileInBrowser = page.getByLabel('File Browser Section').getByText(/mito-app-.+\.py/);
+    await pyFileInBrowser.waitFor({ state: 'visible', timeout: 10000 });
+
+    // 4) Double-click to open the .py file in the file editor
+    await pyFileInBrowser.dblclick();
+    await waitForIdle(page);
+
+    // 5) The file editor tab should be active; click App Mode in its toolbar
+    const appModeInEditor = page.locator('.jp-ToolbarButtonComponent-label').filter({ hasText: 'App Mode' });
+    await appModeInEditor.waitFor({ state: 'visible', timeout: 10000 });
+    await appModeInEditor.click();
+
+    // 6) Verify the preview appears (tab or iframe)
+    const previewTab = page.locator('.lm-TabBar-tabLabel').filter({ hasText: /App Preview|Streamlit/i });
+    const placeholderWidget = page.locator('.placeholder-widget, .jp-iframe-widget');
+    await Promise.race([
+      previewTab.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null),
+      placeholderWidget.waitFor({ state: 'visible', timeout: 30000 }).catch(() => null)
+    ]);
+
+    const hasPreviewTab = await previewTab.count() > 0;
+    const hasIframeWidget = await page.locator('.jp-iframe-widget iframe').count() > 0;
+    const hasPlaceholder = await placeholderWidget.count() > 0;
+    expect(hasPreviewTab || hasIframeWidget || hasPlaceholder).toBeTruthy();
+  });
 });

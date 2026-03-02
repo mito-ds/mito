@@ -10,7 +10,8 @@ import { Dialog, Notification, showDialog } from "@jupyterlab/apputils";
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import type { IStreamlitPreviewManager } from './StreamlitPreviewPlugin';
-import { getNotebookID } from '../../utils/notebookMetadata';
+import { getNotebookID, MITO_NOTEBOOK_ID_KEY } from '../../utils/notebookMetadata';
+import type { IDocumentManager } from '@jupyterlab/docmanager';
 
 const MITO_APP_PY_PATTERN = /^mito-app-.+\.py$/;
 
@@ -121,31 +122,116 @@ export const findNotebookPanelByNotebookID = (
   return found;
 };
 
+/** Notebook file model from contents API: content has metadata. */
+interface INotebookContentModel {
+  type?: string;
+  content?: { metadata?: Record<string, unknown> };
+}
+
 /**
- * From an app file path (e.g. .../mito-app-abc123.py), find the associated notebook panel
- * (by matching notebook_id in metadata) and open the app preview. If no matching notebook
- * is open, shows a notification. Optionally can open the notebook by path via documentManager
- * (same directory, mito-notebook-<id>.ipynb) and then open preview once it appears.
+ * Find the path of an .ipynb file in the given directory whose metadata
+ * contains the given notebook_id (mito-notebook-<id>). Reads each .ipynb
+ * via the contents API and checks metadata['mito-notebook-id'].
+ */
+export const findNotebookPathByNotebookIDInDirectory = async (
+  app: JupyterFrontEnd,
+  dirPath: string,
+  notebookID: string
+): Promise<string | undefined> => {
+  const contents = app.serviceManager.contents;
+  try {
+    const dir = await contents.get(dirPath);
+    if (dir.type !== 'directory' || !Array.isArray(dir.content)) {
+      return undefined;
+    }
+    const ipynbEntries = dir.content.filter(
+      (entry: { name?: string }) => entry.name?.endsWith('.ipynb')
+    );
+    for (const entry of ipynbEntries as { name: string; path?: string }[]) {
+      const fullPath = entry.path ?? PathExt.join(dirPath, entry.name);
+      const model = await contents.get(fullPath) as INotebookContentModel;
+      const fileNotebookID = model?.content?.metadata?.[MITO_NOTEBOOK_ID_KEY];
+      if (fileNotebookID === notebookID) {
+        return fullPath;
+      }
+    }
+  } catch {
+    // ignore: directory or file read errors
+  }
+  return undefined;
+};
+
+const WAIT_FOR_PANEL_MS = 5000;
+const WAIT_POLL_MS = 200;
+
+/**
+ * Wait for a notebook panel with the given notebook_id to appear in the tracker (e.g. after opening by path).
+ */
+const waitForNotebookPanelByNotebookID = (
+  notebookTracker: INotebookTracker,
+  notebookID: string
+): Promise<NotebookPanel | undefined> => {
+  return new Promise((resolve) => {
+    const deadline = Date.now() + WAIT_FOR_PANEL_MS;
+    const check = (): void => {
+      const panel = findNotebookPanelByNotebookID(notebookTracker, notebookID);
+      if (panel) {
+        resolve(panel);
+        return;
+      }
+      if (Date.now() >= deadline) {
+        resolve(undefined);
+        return;
+      }
+      setTimeout(check, WAIT_POLL_MS);
+    };
+    check();
+  });
+};
+
+/**
+ * From an app file path (e.g. .../mito-app-abc123.py), determine the notebook_id from the
+ * filename (id after "mito-app-" prefix), then find the notebook by:
+ * 1. Matching an already-open notebook panel's metadata, or
+ * 2. Listing .ipynb files in the same directory and reading their metadata via the contents API.
+ * If a matching notebook is found (or opened), opens the app preview. Otherwise shows an error.
  */
 export const openAppPreviewFromAppFilePath = async (
   app: JupyterFrontEnd,
   appPath: string,
   notebookTracker: INotebookTracker,
-  streamlitPreviewManager: IStreamlitPreviewManager
+  streamlitPreviewManager: IStreamlitPreviewManager,
+  documentManager: IDocumentManager
 ): Promise<void> => {
   const notebookID = getNotebookIDFromAppFilePath(appPath);
   if (!notebookID) {
     Notification.emit('Could not determine notebook ID from app file path.', 'error');
     return;
   }
-  const notebookPanel = findNotebookPanelByNotebookID(notebookTracker, notebookID);
+  let notebookPanel = findNotebookPanelByNotebookID(notebookTracker, notebookID);
   if (notebookPanel) {
     await streamlitPreviewManager.openAppPreview(app, notebookPanel);
     return;
   }
-  Notification.emit(
-    'Open the source notebook (mito-notebook-*.ipynb) to use App Mode from this file.',
-    'warning',
-    { autoClose: 5000 }
-  );
+  const dirPath = PathExt.dirname(appPath);
+  const notebookPath = await findNotebookPathByNotebookIDInDirectory(app, dirPath, notebookID);
+  if (!notebookPath) {
+    Notification.emit(
+      'No notebook in this directory matches this app file. Create the app from a notebook first.',
+      'error',
+      { autoClose: 5000 }
+    );
+    return;
+  }
+  void documentManager.openOrReveal(notebookPath);
+  notebookPanel = await waitForNotebookPanelByNotebookID(notebookTracker, notebookID);
+  if (notebookPanel) {
+    await streamlitPreviewManager.openAppPreview(app, notebookPanel);
+  } else {
+    Notification.emit(
+      'Opened the source notebook but could not start App Mode. Try again.',
+      'warning',
+      { autoClose: 5000 }
+    );
+  }
 };
