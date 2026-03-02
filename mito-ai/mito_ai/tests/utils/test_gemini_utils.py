@@ -5,7 +5,7 @@ import pytest
 from mito_ai.utils.gemini_utils import (
     _prepare_gemini_request_data_and_headers,
     get_gemini_completion_function_params,
-    GEMINI_3_1_PRO_MODEL
+    GEMINI_3_1_PRO_MODEL,
 )
 from mito_ai.completions.models import MessageType
 
@@ -100,37 +100,6 @@ def test_request_with_complex_config():
     )
 
     assert data["data"]["config"] == config
-
-
-def test_thinking_config_passed_through():
-    """Test that thinking_config is passed through to request data."""
-    model = GEMINI_3_1_PRO_MODEL
-    message_type = MessageType.CHAT
-    thinking_config = {"thinking_level": "MEDIUM"}
-
-    data, headers = _prepare_gemini_request_data_and_headers(
-        model=model,
-        contents=TEST_CONTENTS,
-        message_type=message_type,
-        thinking_config=thinking_config
-    )
-
-    assert "thinking_config" in data["data"]
-    assert data["data"]["thinking_config"]["thinking_level"] == "MEDIUM"
-
-
-def test_other_model_no_thinking_config():
-    """Test that other models don't get thinking_config by default."""
-    model = "gemini-pro"
-    message_type = MessageType.CHAT
-
-    data, headers = _prepare_gemini_request_data_and_headers(
-        model=model,
-        contents=TEST_CONTENTS,
-        message_type=message_type
-    )
-
-    assert "thinking_config" not in data["data"]
 
 
 def test_get_gemini_completion_function_params_thinking_config():

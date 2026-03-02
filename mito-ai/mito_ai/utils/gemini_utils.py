@@ -23,8 +23,7 @@ def _prepare_gemini_request_data_and_headers(
     message_type: MessageType,
     config: Optional[Dict[str, Any]] = None,
     response_format_info: Optional[Any] = None,
-    stream: bool = False,
-    thinking_config: Optional[Dict[str, Any]] = None
+    stream: bool = False
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
     
     inner_data: Dict[str, Any] = {
@@ -49,10 +48,6 @@ def _prepare_gemini_request_data_and_headers(
     if config:
         # Ensure config is serializable
         inner_data["config"] = json.loads(json.dumps(config))
-    
-    # Include thinking_config if provided
-    if thinking_config:
-        inner_data["thinking_config"] = thinking_config
         
     data = {
         "timeout": timeout,
@@ -68,10 +63,9 @@ async def get_gemini_completion_from_mito_server(
     contents: List[Dict[str, Any]],
     message_type: MessageType,
     config: Optional[Dict[str, Any]] = None,
-    response_format_info: Optional[Any] = None,
-    thinking_config: Optional[Dict[str, Any]] = None
+    response_format_info: Optional[Any] = None
 ) -> str:
-    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, config, response_format_info, stream=False, thinking_config=thinking_config)
+    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, config, response_format_info, stream=False)
     return await get_response_from_mito_server(
         MITO_GEMINI_URL, 
         headers, 
@@ -87,10 +81,9 @@ async def stream_gemini_completion_from_mito_server(
     contents: List[Dict[str, Any]],
     message_type: MessageType,
     message_id: str,
-    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],
-    thinking_config: Optional[Dict[str, Any]] = None
+    reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]
 ) -> AsyncGenerator[str, None]:
-    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, stream=True, thinking_config=thinking_config)
+    data, headers = _prepare_gemini_request_data_and_headers(model, contents, message_type, stream=True)
     
     # Define chunk processor for Gemini's special processing
     def gemini_chunk_processor(chunk: str) -> str:

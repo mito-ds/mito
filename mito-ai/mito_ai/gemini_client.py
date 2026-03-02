@@ -157,7 +157,6 @@ class GeminiClient:
                 message_type=message_type,
                 config=provider_data.get("config", None),
                 response_format_info=response_format_info,
-                thinking_config=provider_data.get("thinking_config", None),
             )
 
     async def stream_completions(
@@ -234,7 +233,6 @@ class GeminiClient:
                         message_type=message_type,
                         message_id=message_id,
                         reply_fn=reply_fn,
-                        thinking_config=provider_data.get("thinking_config", None),
                 ):
                     # Clean and decode the chunk text
                     clean_chunk = chunk_text.strip('"')
