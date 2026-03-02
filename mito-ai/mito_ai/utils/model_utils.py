@@ -19,7 +19,7 @@ OPENAI_MODEL_ORDER = [
 
 GEMINI_MODEL_ORDER = [
     "gemini-3-flash-preview",  # Fastest
-    "gemini-3-pro-preview",     # Slower
+    "gemini-3.1-pro-preview",  # Slower
 ]
 
 # Standard model names (used when not in enterprise mode or when LiteLLM is not configured)
@@ -28,7 +28,7 @@ STANDARD_MODELS = [
     "gpt-5.2",
     "claude-haiku-4-5-20251001",
     "gemini-3-flash-preview",
-    "gemini-3-pro-preview",
+    "gemini-3.1-pro-preview",
 ]
 
 
