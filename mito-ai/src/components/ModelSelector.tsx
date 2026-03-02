@@ -18,8 +18,8 @@ import {
   GPT_5_2_MODEL_NAME,
   GEMINI_3_FLASH_MODEL_NAME,
   GEMINI_3_FLASH_DISPLAY_NAME,
-  GEMINI_3_PRO_DISPLAY_NAME,
-  GEMINI_3_PRO_MODEL_NAME,
+  GEMINI_3_1_PRO_DISPLAY_NAME,
+  GEMINI_3_1_PRO_MODEL_NAME,
   getAvailableModels,
 } from '../utils/models';
 
@@ -99,8 +99,8 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'Medium'
   },
   {
-    displayName: GEMINI_3_PRO_DISPLAY_NAME,
-    fullName: GEMINI_3_PRO_MODEL_NAME,
+    displayName: GEMINI_3_1_PRO_DISPLAY_NAME,
+    fullName: GEMINI_3_1_PRO_MODEL_NAME,
     type: 'smart',
     goodFor: [...GOOD_FOR_SMART],
     provider: 'Google',

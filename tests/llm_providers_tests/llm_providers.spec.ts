@@ -33,8 +33,8 @@ import {
   CLAUDE_HAIKU_MODEL_NAME,
   GEMINI_3_FLASH_DISPLAY_NAME,
   GEMINI_3_FLASH_MODEL_NAME,
-  GEMINI_3_PRO_DISPLAY_NAME,
-  GEMINI_3_PRO_MODEL_NAME,
+  GEMINI_3_1_PRO_MODEL_NAME,
+  GEMINI_3_1_PRO_DISPLAY_NAME,
  } from '../../mito-ai/src/utils/models';
 
 // Define test configurations for different models
@@ -43,7 +43,7 @@ const modelConfigs = [
   { name: GPT_5_2_DISPLAY_NAME, provider: GPT_5_2_MODEL_NAME },
   { name: CLAUDE_HAIKU_DISPLAY_NAME, provider: CLAUDE_HAIKU_MODEL_NAME },
   { name: GEMINI_3_FLASH_DISPLAY_NAME, provider: GEMINI_3_FLASH_MODEL_NAME },
-  { name: GEMINI_3_PRO_DISPLAY_NAME, provider: GEMINI_3_PRO_MODEL_NAME },
+  { name: GEMINI_3_1_PRO_DISPLAY_NAME, provider: GEMINI_3_1_PRO_MODEL_NAME },
 ];
 
 // Run tests for each model configuration
