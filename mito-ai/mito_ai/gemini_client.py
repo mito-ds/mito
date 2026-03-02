@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse, ThinkingConfig
 from mito_ai.completions.models import CompletionError, CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
-from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
+from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params, GEMINI_3_1_PRO_MODEL
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
 
 def extract_and_parse_gemini_json_response(response: GenerateContentResponse) -> Optional[str]:
@@ -123,19 +123,12 @@ class GeminiClient:
         )
 
         if self.api_key:
-            # Build thinking config if specified
-            thinking_config = None
-            if provider_data.get("thinking_config"):
-                thinking_config = ThinkingConfig(
-                    thinking_level=provider_data["thinking_config"].get("thinking_level")
-                )
-            
             # Generate content using the Gemini client
             response_config = GenerateContentConfig(
                 system_instruction=system_instructions,
                 response_mime_type=provider_data.get("config", {}).get("response_mime_type"),
                 response_schema=provider_data.get("config", {}).get("response_schema"),
-                thinking_config=thinking_config
+                thinking_config=ThinkingConfig(thinking_level="MEDIUM") if model == GEMINI_3_1_PRO_MODEL else None
             )
             response = self.client.models.generate_content(
                 model=provider_data["model"],
@@ -180,19 +173,12 @@ class GeminiClient:
             )
             
             if self.api_key:
-                # Build thinking config if specified
-                thinking_config = None
-                if provider_data.get("thinking_config"):
-                    thinking_config = ThinkingConfig(
-                        thinking_level=provider_data["thinking_config"].get("thinking_level")
-                    )
-                
                 for chunk in self.client.models.generate_content_stream(
                         model=model,
                         contents=contents,  # type: ignore
                         config=GenerateContentConfig(
                             system_instruction=system_instructions,
-                            thinking_config=thinking_config
+                            thinking_config=ThinkingConfig(thinking_level="MEDIUM") if model == GEMINI_3_1_PRO_MODEL else None
                         )
                 ):
 

@@ -121,12 +121,6 @@ def get_gemini_completion_function_params(
         "contents": contents,
         "message_type": message_type.value if hasattr(message_type, 'value') else str(message_type),
     }
-    
-    # Configure thinking level for Gemini 3.1 Pro (medium reasoning to balance speed/quality)
-    if model == GEMINI_3_1_PRO_MODEL:
-        provider_data["thinking_config"] = {
-            "thinking_level": "MEDIUM"
-        }
         
     # Configure response format if provided
     if response_format_info:

@@ -2,11 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.utils.gemini_utils import (
-    _prepare_gemini_request_data_and_headers,
-    get_gemini_completion_function_params,
-    GEMINI_3_1_PRO_MODEL,
-)
+from mito_ai.utils.gemini_utils import _prepare_gemini_request_data_and_headers
 from mito_ai.completions.models import MessageType
 
 TEST_CONTENTS = [
@@ -100,26 +96,3 @@ def test_request_with_complex_config():
     )
 
     assert data["data"]["config"] == config
-
-
-def test_get_gemini_completion_function_params_thinking_config():
-    """Test get_gemini_completion_function_params returns thinking_config for gemini-3.1-pro."""
-    result = get_gemini_completion_function_params(
-        message_type=MessageType.CHAT,
-        model=GEMINI_3_1_PRO_MODEL,
-        contents=TEST_CONTENTS
-    )
-
-    assert "thinking_config" in result
-    assert result["thinking_config"]["thinking_level"] == "MEDIUM"
-
-
-def test_get_gemini_completion_function_params_no_thinking_config():
-    """Test get_gemini_completion_function_params doesn't add thinking_config for other models."""
-    result = get_gemini_completion_function_params(
-        message_type=MessageType.CHAT,
-        model="gemini-3-flash-preview",
-        contents=TEST_CONTENTS
-    )
-
-    assert "thinking_config" not in result
