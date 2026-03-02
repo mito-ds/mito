@@ -416,7 +416,15 @@ def sheet(
     # the conditons for checking if we're in JLab or JNotebook).
     # Then, check if we're in Dash or in Streamlit. 
     # If so, tell user to use the correct component
-    if is_in_vs_code() or is_in_google_colab():
+    if is_in_vs_code():
+        log('mitosheet_sheet_call_location_failed', failed=True)
+        raise Exception(
+            "mitosheet.sheet() does not work in VS Code.\n\n"
+            "To use Mito in a VS Code Jupyter notebook, use the VS Code provider instead:\n\n"
+            "    from mitosheet.vscode.v1 import spreadsheet\n"
+            "    spreadsheet(df1, df2, ...)"
+        )
+    elif is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
         raise Exception("The mitosheet currently only works in JupyterLab.\n\nTo see instructions on getting Mitosheet running in JupyterLab, find install instructions here: https://docs.trymito.io/getting-started/installing-mito")
     elif is_dash():

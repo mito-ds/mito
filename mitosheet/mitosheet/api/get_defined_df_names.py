@@ -8,7 +8,7 @@ import json
 from typing import Any, Dict, List
 import pandas as pd
 from mitosheet.types import StepsManagerType
-from mitosheet.user.location import is_dash, is_streamlit
+from mitosheet.user.location import is_dash, is_in_vs_code, is_streamlit
 
 
 NO_DEFINED_DF_MESSAGE = 'No variables match your requested type.'
@@ -68,8 +68,27 @@ def get_df_names_streamlit_or_dash() -> List[str]:
 
 
 
+def get_df_names_vs_code() -> List[str]:
+    """
+    In VS Code, ipython.run_line_magic hangs when called from a background thread
+    because the VS Code Jupyter kernel locks magic execution to the main thread.
+    Instead, we inspect the user namespace dict directly, which is thread-safe.
+    """
+    from IPython import get_ipython
+    ipython = get_ipython()  # type: ignore
+    if ipython is None:
+        return []
+    return [
+        name for name, val in ipython.user_ns.items()
+        if isinstance(val, pd.DataFrame) and not name.startswith('_')
+    ]
+
+
 def get_defined_df_names(params: Dict[str, Any], steps_manager: StepsManagerType) -> List[str]:
     if is_streamlit() or is_dash():
         return get_df_names_streamlit_or_dash()
+
+    if is_in_vs_code():
+        return get_df_names_vs_code()
 
     return get_df_names_ipython()
