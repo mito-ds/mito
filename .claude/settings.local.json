@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/nawaz/mito/mitosheet/vscode-extension -maxdepth 2 -name \"*.json\" -o -name \"*.ts\" -o -name \"*.js\" 2>/dev/null | head -20)",
+      "Bash(ls /Users/nawaz/mito/mitosheet/mitosheet/mito_frontend* 2>/dev/null | head -5)",
+      "Bash(cd /Users/nawaz/mito/mitosheet && node esbuild.vscode.js 2>&1)",
+      "Bash(python -c \"from mitosheet.vscode.v1 import spreadsheet; print\\('Import OK:', spreadsheet\\)\" 2>&1)",
+      "Bash(node esbuild.vscode.js 2>&1)",
+      "Bash(grep -n \"run_line_magic\\\\|IPython\" /Users/nawaz/mito/mitosheet/mitosheet/api/*.py | head -30)",
+      "Bash(cat /Users/nawaz/mito/mito-ai/package.json | python3 -m json.tool | head -40)",
+      "Bash(ls /Users/nawaz/mito/mito-sql-cell/ && cat /Users/nawaz/mito/mito-sql-cell/package.json | python3 -m json.tool | head -20)",
+      "Bash(cd /Users/nawaz/mito/mito-vscode && npm install 2>&1)",
+      "Bash(node esbuild.js 2>&1)"
+    ]
+  }
+}
