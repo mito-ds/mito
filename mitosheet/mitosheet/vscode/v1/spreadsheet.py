@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import inspect
 import json
 import os
 import threading
@@ -209,6 +210,22 @@ def spreadsheet(
             code_version[0] += 1
 
     mito_backend.mito_send = mito_send
+
+    # If the caller didn't supply df_names, try to infer them from the calling frame
+    # by matching each arg to a variable in the caller's local scope by identity.
+    if df_names is None:
+        calling_frame = inspect.currentframe()
+        if calling_frame is not None and calling_frame.f_back is not None:
+            caller_locals = calling_frame.f_back.f_locals
+            inferred: List[str] = []
+            for i, arg in enumerate(args):
+                name = next(
+                    (k for k, v in caller_locals.items() if v is arg and not k.startswith('_')),
+                    None,
+                )
+                inferred.append(name if name is not None else f'df{i + 1}')
+            if inferred:
+                df_names = inferred
 
     # Handle df_names via args_update
     if df_names is not None and len(df_names) > 0:
