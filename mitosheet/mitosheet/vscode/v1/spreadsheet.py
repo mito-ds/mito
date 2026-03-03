@@ -265,7 +265,7 @@ def spreadsheet(
     js_code = _get_vscode_frontend_code(port, div_id, mito_backend)
 
     # Render the spreadsheet
-    height_style = f'height: {height};' if height else 'height: 500px;'
+    height_style = f'height: {height};' if height else 'height: 550px;'
     display(HTML(f'''<div id="{div_id}" style="{height_style}"></div><script>{js_code}</script>'''))
 
     # Emit the custom MIME type so the mito-vscode extension can discover this session's
