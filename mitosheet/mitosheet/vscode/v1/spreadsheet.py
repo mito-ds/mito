@@ -45,9 +45,20 @@ class _MitoVSCodeHandler(BaseHTTPRequestHandler):
         """Handle CORS preflight requests."""
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
+
+    def do_GET(self) -> None:
+        """Return the current generated code and version for the VS Code extension to poll."""
+        if self.path != '/code':
+            self.send_error(404)
+            return
+        code_lines = self.server.mito_backend.steps_manager.code()  # type: ignore
+        self._send_json({
+            'code': '\n'.join(code_lines),
+            'version': self.server.code_version_ref[0],  # type: ignore
+        })
 
     def do_POST(self) -> None:
         """Handle a message from the frontend."""
@@ -188,11 +199,14 @@ def spreadsheet(
         theme=theme,
     )
 
-    # Attach a send function that collects responses
+    # Attach a send function that collects responses and tracks the code version
     responses: List[Dict[str, Any]] = []
+    code_version: List[int] = [0]  # mutable container so the closure can increment it
 
     def mito_send(response: Dict[str, Any]) -> None:
         responses.append(response)
+        if response.get('shared_variables') is not None:
+            code_version[0] += 1
 
     mito_backend.mito_send = mito_send
 
@@ -211,6 +225,7 @@ def spreadsheet(
     server = _ThreadedHTTPServer(('127.0.0.1', 0), _MitoVSCodeHandler)
     server.mito_backend = mito_backend  # type: ignore
     server.responses = responses  # type: ignore
+    server.code_version_ref = code_version  # type: ignore  (list used as mutable int ref)
 
     port = server.server_address[1]
 
@@ -224,8 +239,15 @@ def spreadsheet(
     # Build the JS code
     js_code = _get_vscode_frontend_code(port, div_id, mito_backend)
 
-    # Render the component
+    # Render the spreadsheet
     height_style = f'height: {height};' if height else 'height: 500px;'
     display(HTML(f'''<div id="{div_id}" style="{height_style}"></div><script>{js_code}</script>'''))
+
+    # Emit the custom MIME type so the mito-vscode extension can discover this session's
+    # port and start polling /code to write generated code into the cell below.
+    display(  # type: ignore
+        {'application/x-mito': {'port': port, 'session_id': div_id}},
+        raw=True,
+    )
 
     return mito_backend
