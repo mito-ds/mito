@@ -211,21 +211,29 @@ def spreadsheet(
 
     mito_backend.mito_send = mito_send
 
-    # If the caller didn't supply df_names, try to infer them from the calling frame
-    # by matching each arg to a variable in the caller's local scope by identity.
+    # If the caller didn't supply df_names, walk up the call stack looking for a frame
+    # whose locals contain the passed DataFrames by identity. This handles both:
+    #   spreadsheet(df)          — caller is one frame up
+    #   mitosheet.sheet(df)      — caller is two frames up (sheet() sits in between)
     if df_names is None:
-        calling_frame = inspect.currentframe()
-        if calling_frame is not None and calling_frame.f_back is not None:
-            caller_locals = calling_frame.f_back.f_locals
-            inferred: List[str] = []
-            for i, arg in enumerate(args):
-                name = next(
-                    (k for k, v in caller_locals.items() if v is arg and not k.startswith('_')),
-                    None,
-                )
-                inferred.append(name if name is not None else f'df{i + 1}')
-            if inferred:
-                df_names = inferred
+        frame = inspect.currentframe()
+        df_args = [a for a in args if isinstance(a, pd.DataFrame)]
+        if df_args:
+            for _ in range(5):
+                frame = frame.f_back if frame is not None else None
+                if frame is None:
+                    break
+                locals_ = frame.f_locals
+                if any(v is a for a in df_args for v in locals_.values()):
+                    inferred = []
+                    for i, arg in enumerate(args):
+                        name = next(
+                            (k for k, v in locals_.items() if v is arg and not k.startswith('_')),
+                            None,
+                        ) if isinstance(arg, pd.DataFrame) else None
+                        inferred.append(name if name is not None else f'df{i + 1}')
+                    df_names = inferred
+                    break
 
     # Handle df_names via args_update
     if df_names is not None and len(df_names) > 0:

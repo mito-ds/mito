@@ -417,12 +417,12 @@ def sheet(
     # Then, check if we're in Dash or in Streamlit. 
     # If so, tell user to use the correct component
     if is_in_vs_code():
-        log('mitosheet_sheet_call_location_failed', failed=True)
-        raise Exception(
-            "mitosheet.sheet() does not work in VS Code.\n\n"
-            "To use Mito in a VS Code Jupyter notebook, use the VS Code provider instead:\n\n"
-            "    from mitosheet.vscode.v1 import spreadsheet\n"
-            "    spreadsheet(df1, df2, ...)"
+        from mitosheet.vscode.v1.spreadsheet import spreadsheet as _vscode_spreadsheet
+        return _vscode_spreadsheet(
+            *args,
+            sheet_functions=sheet_functions,
+            importers=importers,
+            editors=editors,
         )
     elif is_in_google_colab():
         log('mitosheet_sheet_call_location_failed', failed=True)
