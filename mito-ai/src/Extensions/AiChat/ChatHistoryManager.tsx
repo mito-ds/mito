@@ -8,7 +8,7 @@ import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCellsInNotebookPanel, getCellCodeByID, getCellCodeByIDInNotebookPanel } from "../../utils/notebook";
-import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata, IScratchpadResultMetadata } from "../../websockets/completions/CompletionModels";
+import { AgentResponse, AGENT_RESPONSE_TYPE_WEB_SEARCH, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata, IScratchpadResultMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
 import { validateAndCorrectAgentResponse } from "./validationUtils";
@@ -398,7 +398,10 @@ export class ChatHistoryManager {
     addAIMessageFromAgentResponse(agentResponse: AgentResponse): void {
         agentResponse = validateAndCorrectAgentResponse(agentResponse)
         let content = agentResponse.message
-        if (agentResponse.type === 'cell_update') {
+
+        if (agentResponse.type === AGENT_RESPONSE_TYPE_WEB_SEARCH) {
+            content = agentResponse.web_search_results || ''
+        } else if (agentResponse.type === 'cell_update') {
             // For cell_update messages, we want to display the code the agent wrote along with 
             // the message it sent. For all other agent responses, we ignore all other fields
             // and just display the message.
@@ -443,7 +446,7 @@ export class ChatHistoryManager {
 
     getLastAIDisplayOptimizedChatItem = (): IDisplayOptimizedChatItem | undefined=> {
         const lastAIMessagesIndex = this.getLastAIMessageIndex()
-        if (!lastAIMessagesIndex) {
+        if (lastAIMessagesIndex === undefined || lastAIMessagesIndex === null) {
             return
         }
 

@@ -14,7 +14,11 @@ ThreadID = NewType('ThreadID', str)
 ########################################################
 # Agent Response formats
 ########################################################
-    
+
+# Single constant for the web_search agent response type (used for detection and API payloads).
+AGENT_RESPONSE_TYPE_WEB_SEARCH = "web_search"
+
+
 class CellUpdate(BaseModel):
     type: Literal['modification', 'new']
     after_cell_id: Optional[str]
@@ -38,6 +42,7 @@ class AgentResponse(BaseModel):
         'edit_streamlit_app', 
         'ask_user_question', 
         'scratchpad',
+        'web_search',
     ]
     message: str
     cell_update: Optional[CellUpdate]
@@ -49,6 +54,8 @@ class AgentResponse(BaseModel):
     answers: Optional[List[str]]
     scratchpad_code: Optional[str]
     scratchpad_summary: Optional[str]
+    web_search_query: Optional[str]
+    web_search_results: Optional[str]
     
     
 @dataclass(frozen=True)

@@ -4,6 +4,7 @@
 from typing import List
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.prompt_constants import (
+    CURRENT_DATE_SECTION,
     ABOUT_MITO,
     CHART_CONFIG_RULES,
     CITATION_RULES,
@@ -32,6 +33,8 @@ You have access to a set of tools that you can use to accomplish the task you've
 Each time you use a tool, except for the finished_task tool, the user will execute the tool and provide you with updated information about the notebook and variables defined in the kernel to help you decide what to do next."""))
     
     sections.append(SG.Generic("About Mito", ABOUT_MITO))
+
+    sections.append(SG.Generic("Current Date", CURRENT_DATE_SECTION))
     
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
 
@@ -333,6 +336,40 @@ Important information:
     
     The user will see a preview of the app and because you fulfilled your task, you can next respond with a FINISHED_TASK tool message.
     </Example>"""))
+    
+    # WEB_SEARCH tool
+    sections.append(SG.Generic("TOOL: WEB_SEARCH", """
+When you need current information, recent news, or up-to-date data that isn't in the notebook, use WEB_SEARCH.
+
+Format:
+{{
+    "type": "web_search",
+    "message": "<string>",
+    "web_search_query": "<string>"
+}}
+
+Flow:
+1. You decide to search → respond with web_search (message + web_search_query).
+2. The search runs; results are added to the chat history.
+3. You get another turn. Use the results to complete the user's task:
+   - Extract the useful data from the results (ignore any "How to use", code blocks, or long instructions in the search output).
+   - Use CELL_UPDATE to add a pandas DataFrame to the notebook with that data.
+   - When the notebook has what the user asked for, respond with FINISHED_TASK.
+
+Guidelines:
+- web_search_query: clear, specific query. For news/lists, ask for "latest [topic] headlines" or "list of [X] today" so results stay concise.
+- After search results appear, do not just repeat them. Create a CELL_UPDATE that builds a DataFrame from the data and add it to the notebook.
+- Use FINISHED_TASK only when the task is done (e.g. data is in the notebook as a DataFrame).
+
+    <Example>
+    {{
+        "type": "web_search",
+        "message": "Searching for latest market stories to add as a DataFrame.",
+        "web_search_query": "state of the market today headlines list"
+    }}
+    </Example>
+
+"""))
     
     # EDIT_STREAMLIT_APP tool
     sections.append(SG.Generic("TOOL: EDIT_STREAMLIT_APP", """

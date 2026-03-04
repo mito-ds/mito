@@ -11,7 +11,9 @@ from mito_ai.completions.completion_handlers.completion_handler import Completio
 from mito_ai.completions.completion_handlers.utils import (
     append_agent_system_message,
     create_ai_optimized_message,
+    inject_web_search_results_into_completion,
     normalize_agent_response_completion,
+    perform_agent_web_search_if_requested,
 )
 
 __all__ = ["get_agent_execution_completion"]
@@ -58,6 +60,14 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
             thread_id=metadata.threadId
         )
         completion = normalize_agent_response_completion(completion)
+
+        web_search_results = await perform_agent_web_search_if_requested(
+            completion, provider, message_history, metadata.threadId
+        )
+        if web_search_results:
+            completion = inject_web_search_results_into_completion(
+                completion, web_search_results
+            )
 
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
 

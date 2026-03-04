@@ -15,6 +15,7 @@ from mito_ai.enterprise.utils import is_azure_openai_configured, is_abacus_confi
 from mito_ai.logger import get_logger
 from mito_ai.utils.model_utils import strip_router_prefix
 from mito_ai.completions.models import (
+    AGENT_RESPONSE_TYPE_WEB_SEARCH,
     AICapabilities,
     CompletionError,
     CompletionItem,
@@ -174,7 +175,29 @@ This attribute is observed by the websocket provider to push the error to the cl
         
         # Otherwise, we use the model they provided
         return model
-        
+
+    async def web_search(self, query: str, model: str) -> str:
+        """
+        Run a web search using the OpenAI Responses API (responses.create).
+        Used when the agent requests web search; not part of the main chat completion flow.
+
+        Args:
+            query: The search query (can include instructions, e.g. "concise list only").
+            model: The model to use (e.g. from provider.get_selected_model()).
+        Returns:
+            The search result text (response.output_text).
+        Raises:
+            AttributeError: If responses.create is not available on this client.
+            Exception: On API or network errors.
+        """
+        if self._active_async_client is None:
+            raise RuntimeError("OpenAI client is not initialized.")
+        response = await self._active_async_client.responses.create(
+            model=self._adjust_model_for_provider(model),
+            input=query,
+            tools=[{"type": AGENT_RESPONSE_TYPE_WEB_SEARCH}],
+        )
+        return response.output_text if hasattr(response, "output_text") else str(response)
 
     async def request_completions(
             self,
@@ -184,32 +207,29 @@ This attribute is observed by the websocket provider to push the error to the cl
             response_format_info: Optional[ResponseFormatInfo] = None,
     ) -> str:
         """
-        Request completions from the OpenAI API.
+        Request completions from the OpenAI API (Chat Completions API).
 
         Args:
             message_type: The type of message to request completions for.
             messages: The messages to request completions for.
             model: The model to request completions for.
+            response_format_info: Optional response format info for structured outputs.
         Returns:
             The completion from the OpenAI API.
         """
-        # Reset the last error
         self.last_error = None
-        completion = None
-        
-        # Note: We don't catch exceptions here because we want them to bubble up 
-        # to the providers file so we can handle all client exceptions in one place.
 
-        # Handle other providers as before
         completion_function_params = get_open_ai_completion_function_params(
             model, messages, False, response_format_info
         )
-        
-        # If they have set an Azure OpenAI or Ollama model, then we use it
-        completion_function_params["model"] = self._adjust_model_for_provider(completion_function_params["model"])
+        completion_function_params["model"] = self._adjust_model_for_provider(
+            completion_function_params["model"]
+        )
 
         if self._active_async_client is not None:
-            response = await self._active_async_client.chat.completions.create(**completion_function_params)
+            response = await self._active_async_client.chat.completions.create(
+                **completion_function_params
+            )
             completion = response.choices[0].message.content or ""
         else:
             last_message_content = str(messages[-1].get("content", "")) if messages else None
