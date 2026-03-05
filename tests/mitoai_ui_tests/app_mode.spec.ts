@@ -10,7 +10,11 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 
 test.describe('App Mode Button Integration Test', () => {
-  test('Click App Mode button and verify Streamlit app is returned', async ({ page }) => {
+  test.use({ autoGoto: false });
+
+  test('Click App Mode button and verify Streamlit app is returned', async ({ page, tmpPath }) => {
+    // Run in Galata's tmpPath so the Jupyter server can write the .py file (avoids "Directory not found")
+    await page.goto(`tree/${tmpPath}`);
     // Create a notebook with some simple code
     const notebookCode = 'import pandas as pd\ndf = pd.DataFrame({"x": [1, 2, 3]})\ndf'
     await createAndRunNotebookWithCells(page, [notebookCode]);
@@ -74,7 +78,9 @@ test.describe('App Mode Button Integration Test', () => {
     }
   });
 
-  test('Open mito-app-*.py in file editor, click App Mode in toolbar, verify preview appears', async ({ page }) => {
+  test('Open mito-app-*.py in file editor, click App Mode in toolbar, verify preview appears', async ({ page, tmpPath }) => {
+    // Run in Galata's tmpPath so the Jupyter server can write the .py file (avoids "Directory not found")
+    await page.goto(`tree/${tmpPath}`);
     // 1) Create and run a notebook so we get a notebook with an id when App Mode is used
     const notebookCode = 'import pandas as pd\ndf = pd.DataFrame({"x": [1, 2, 3]})\ndf';
     await createAndRunNotebookWithCells(page, [notebookCode]);
