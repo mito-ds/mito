@@ -213,8 +213,14 @@ def spreadsheet(
 
     # If the caller didn't supply df_names, walk up the call stack looking for a frame
     # whose locals contain the passed DataFrames by identity. This handles both:
-    #   spreadsheet(df)          — caller is one frame up
+    # Case 1: 
+    #   from mitosheet.vscode.v1.spreadsheet import spreadsheet
+    #   spreadsheet(df)          — caller is one frame up. 
+    # Case 2:
+    #   import mitosheet
     #   mitosheet.sheet(df)      — caller is two frames up (sheet() sits in between)
+    # To be safe, we walk up to 5 frames to handle wrappers and direct calls to this function.
+    # A frame is stack frame, which is the runtime object that represents a function call.
     if df_names is None:
         frame = inspect.currentframe()
         df_args = [a for a in args if isinstance(a, pd.DataFrame)]
