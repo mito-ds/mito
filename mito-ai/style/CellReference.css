@@ -32,3 +32,15 @@
     background-color: var(--jp-layout-color3);
     color: var(--jp-ui-font-color2);
 }
+
+.file-reference {
+    color: var(--jp-brand-color1);
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: var(--jp-code-font-family);
+    font-size: 0.9em;
+}
+
+.file-reference:hover {
+    color: var(--jp-brand-color0);
+}
