@@ -72,6 +72,7 @@ const MitoVSCodeWrapper = (props: MitoVSCodeWrapperProps): JSX.Element => {
             sheetDataArray={sheetDataArray}
             analysisData={analysisData}
             userProfile={userProfile}
+            hideFullscreenButton={true}
         />
     );
 };
