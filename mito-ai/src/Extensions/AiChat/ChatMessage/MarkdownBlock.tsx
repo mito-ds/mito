@@ -8,6 +8,7 @@ import { IRenderMimeRegistry, MimeModel } from '@jupyterlab/rendermime';
 import { createPortal } from 'react-dom';
 import { Citation, CitationProps, CitationLine } from './Citation';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { scrollToCell, highlightCodeCell } from '../../../utils/notebook';
 import { useCellOrder } from '../../../hooks/useCellOrder';
 import '../../../../style/CellReference.css';
@@ -59,6 +60,7 @@ interface IMarkdownCodeProps {
     markdown: string;
     renderMimeRegistry: IRenderMimeRegistry;
     notebookTracker: INotebookTracker;
+    app: JupyterFrontEnd;
 }
 
 interface Citation {
@@ -70,12 +72,18 @@ interface Citation {
     };
 }
 
+interface FileRef {
+    id: string;
+    filePath: string;
+    displayName: string;
+}
+
 interface CellRef {
     id: string;
     cellId: string;
 }
 
-const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry, notebookTracker }) => {
+const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry, notebookTracker, app }) => {
     const [citationPortals, setCitationPortals] = useState<React.ReactElement[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
     
@@ -126,16 +134,22 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         processedMarkdown: string; 
         citations: Citation[];
         cellRefs: CellRef[];
+        fileRefs: FileRef[];
     } => {
         // Regex for citations: [MITO_CITATION:cell_id:line_number] or [MITO_CITATION:cell_id:start_line-end_line]
         const citationRegex = /\[MITO_CITATION:([^:]+):(\d+(?:-\d+)?)\]/g;
         // Regex for cell references: [MITO_CELL_REF:cell_id]
         const cellRefRegex = /\[MITO_CELL_REF:([^\]]+)\]/g;
+        // Regex for file references: [MITO_FILE_REF:file_path]
+        const FILE_PATH_REGEX = /(?<=^|[\s,(['"»])([\w\-./\\]+\.(?:csv|xlsx|xls|json|txt|parquet|pdf|png|jpg|jpeg|html|py|ipynb))(?=[\s,)\]'"«]|$)/g;
+
         
         const citations: Citation[] = [];
         const cellRefs: CellRef[] = [];
+        const fileRefs: FileRef[] = [];
         let citationCounter = 0;
         let cellRefCounter = 0;
+        let fileRefCounter = 0;
 
         // First, replace citations with placeholders
         let processedMarkdown = text.replace(citationRegex, (match, cellId, lineStr) => {
@@ -167,8 +181,24 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             return `{{${id}}}`;
         });
 
-        return { processedMarkdown, citations, cellRefs };
-    }, []);
+        const notebookPath = notebookTracker.currentWidget?.context.path ?? '';
+        const notebookDir = notebookPath.includes('/')
+            ? notebookPath.substring(0, notebookPath.lastIndexOf('/'))
+            : '';
+
+        processedMarkdown = processedMarkdown.replace(FILE_PATH_REGEX, (match) => {
+            const id = `fileref-${fileRefCounter++}`;
+            const resolvedPath = notebookDir ? `${notebookDir}/${match}` : match;
+            fileRefs.push({
+                id,
+                filePath: resolvedPath,
+                displayName: match
+            });
+            return `{{${id}}}`;
+        });
+
+        return { processedMarkdown, citations, cellRefs, fileRefs };
+    }, [notebookTracker]);
 
     // Uses the Jupyter markdowm MimeRenderer to render the markdown content as normal HTML
     const renderMarkdownContent = useCallback(async (processedMarkdown: string): Promise<void> => {
@@ -194,15 +224,17 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     // Replace the citation and cell reference placeholders with components in the DOM
     const createPortalsFromPlaceholders = useCallback((
         citations: Citation[], 
-        cellRefs: CellRef[]
+        cellRefs: CellRef[],
+        fileRefs: FileRef[]
     ): React.ReactElement[] => {
-        if (!containerRef.current || (citations.length === 0 && cellRefs.length === 0)) return [];
+        if (!containerRef.current || (citations.length === 0 && cellRefs.length === 0 && fileRefs.length === 0)) return [];
 
         const newPortals: React.ReactElement[] = [];
 
         // Create maps for faster lookup
         const citationMap = new Map(citations.map(citation => [`{{${citation.id}}}`, citation]));
         const cellRefMap = new Map(cellRefs.map(ref => [`{{${ref.id}}}`, ref]));
+        const fileRefMap = new Map(fileRefs.map(ref => [`{{${ref.id}}}`, ref]));
 
         // Find all text nodes that contain our placeholder like {{citation-id}}).
         // Since these placeholders exist within the text content (not as separate DOM elements):
@@ -219,11 +251,13 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
 
         // Process all text nodes in a single pass
         textNodes.forEach(node => {
+            if (node.parentElement?.tagName === 'CODE') return;
+
             if (!node.nodeValue) return;
 
             // Check if this node contains any placeholders
             let containsPlaceholder = false;
-            for (const placeholder of [...citationMap.keys(), ...cellRefMap.keys()]) {
+            for (const placeholder of [...citationMap.keys(), ...cellRefMap.keys(), ...fileRefMap.keys()]) {
                 if (node.nodeValue.includes(placeholder)) {
                     containsPlaceholder = true;
                     break;
@@ -233,7 +267,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             if (!containsPlaceholder) return;
 
             // Create a regex to match all placeholders (citations and cell refs)
-            const placeholderPattern = /\{\{(citation|cellref)-\d+\}\}/g;
+            const placeholderPattern = /\{\{(citation|cellref|fileref)-\d+\}\}/g;
             const matches = [...node.nodeValue.matchAll(placeholderPattern)];
 
             if (matches.length === 0) return;
@@ -256,6 +290,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                 // Check if it's a citation or cell reference
                 const citation = citationMap.get(placeholder);
                 const cellRef = cellRefMap.get(placeholder);
+                const fileRef = fileRefMap.get(placeholder);
 
                 if (citation) {
                     // Create span for the citation
@@ -304,6 +339,17 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                     }
 
                     fragment.appendChild(span);
+                } else if (fileRef) {
+                    const span = document.createElement('span');
+                    span.className = 'file-reference';
+                    span.textContent = fileRef.displayName;
+                    span.title = `Open ${fileRef.filePath}`;
+                    span.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        void app.commands.execute('docmanager:open', { path: fileRef.filePath });
+                    });
+                    fragment.appendChild(span);
                 }
 
                 lastIndex = startIndex + placeholder.length;
@@ -330,13 +376,13 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     useEffect(() => {
         const processMarkdown = async (): Promise<void> => {
             // Step 1: Extract citations and cell references, get processed markdown
-            const { processedMarkdown, citations, cellRefs } = extractCitationsAndCellRefs(markdown);
+            const { processedMarkdown, citations, cellRefs, fileRefs } = extractCitationsAndCellRefs(markdown);
 
             // Step 2: Render markdown with placeholders
             await renderMarkdownContent(processedMarkdown);
 
             // Step 3: Create and insert portals for citations and cell references
-            const portals = createPortalsFromPlaceholders(citations, cellRefs);
+            const portals = createPortalsFromPlaceholders(citations, cellRefs, fileRefs);
             setCitationPortals(portals);
         };
 
