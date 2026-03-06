@@ -11,7 +11,9 @@ If you've been asked to convert, translate, or replicate the logic of an Excel f
 
 **Purpose of converting to Python:** The main reason to convert an Excel model to Python is so the user can easily try different input values and run different scenarios. The user should be able to change a few parameters at the top of the notebook, re-run the notebook, and see new results — without hunting through the code. Your output must support this workflow.
 
-Basically, you should do some test driven development and continue working until you have recreated the entire Excel file.
+**The final output is a standalone Jupyter notebook.**
+
+You will follow a test-driven workflow: implement incrementally, validate each step against the Excel file's computed values, and only proceed when checks pass.
 
 ## Configuration cell at the top
 
@@ -21,14 +23,14 @@ Basically, you should do some test driven development and continue working until
 - Rates and numeric assumptions: e.g. `interest_rate`, `number_of_periods`, `growth_rate`, `inflation_rate`
 - Any other hardcoded values from the Excel file that a user might want to change to run scenarios
 
-In that cell, assign clear variable names and add brief comments if helpful. All downstream code should use these variables, not literal values. This way the user can adjust inputs in one place and re-run the notebook to try different scenarios.
+In that cell, assign clear variable names and add brief comments if helpful. **Hardcode the values directly**. Do not read them from the Excel file at runtime. For example, write `initial_investment = 100`, not `initial_investment = float(ws_v["B1"].value)`. Make sure that the value you hardcode is the same as the value in the Excel file, otherwise your checks will fail.
 
 ## Check variables
 
 Throughout this workflow you will create boolean check variables to validate your implementation against the Excel file's computed values. There are two kinds, each with a required naming convention:
 
 1. **Intermediate checks (`mito_check_<description>`):** Validate that a single implementation step is correct. For example, `mito_check_interest_calculation`, `mito_check_monthly_totals`. These are your debugging checkpoints. You must create these as you implement each step. A failing `mito_check_*` variable means something is broken — fix it before proceeding to the next step.
-2. **Final output checks (`mito_final_check_<description>`):** Validate that the final outputs of the entire conversion match the Excel file. For example, `mito_final_check_net_income`, `mito_final_check_balance_sheet`. These are your completion criteria. They will only pass once the entire conversion is finished — that is expected and they should NOT block you from moving to the next step.
+2. **Final output checks (`mito_final_check_<description>`):** Validate that the final outputs of the entire conversion match the Excel file. For example, `mito_final_check_net_income`, `mito_final_check_balance_sheet`. These are your completion criteria. They live in a single code cell that must always be the very last cell in the notebook. They will only pass once the entire conversion is finished — that is expected and they should NOT block you from moving to the next step.
 
 Rules for check variables:
 - Store each check result in a boolean variable using the naming convention above. For example: `mito_check_interest_calculation = abs(result - expected) < 0.01`
@@ -39,12 +41,12 @@ Rules for check variables:
 
 ### Step 1: Explore the Excel File
 
-Your first task is to understand what the Excel file does. Open the file twice using openpyxl:
+Your first task is to understand what the Excel file does. **Use the SCRATCHPAD tool for all exploration in this step** — do not put exploration code in the notebook. Open the file twice using openpyxl in the scratchpad:
 
 - Once with `data_only=False` to read the formulas. The formulas are your source of truth for the logic.
 - Once with `data_only=True` to read the computed values. These are your ground truth for testing.
 
-In a markdown cell at the top of the notebook, document your high level findings. Things like: 
+Use as many scratchpad calls as you need to thoroughly explore the workbook — list sheet names, print formulas, inspect data ranges, etc. Once you have a solid understanding, create a Markdown cell at the top of the notebook documenting your high-level findings:
 
 - The purpose of the workbook
 - What sheets exist and what each one appears to do
@@ -52,11 +54,9 @@ In a markdown cell at the top of the notebook, document your high level findings
 - Any cross-sheet references
 - Any patterns you notice (lookup tables, running totals, conditional logic, etc.)
 
-Keep both workbook objects available in the notebook for reference throughout your work.
-
 ### Step 2: Identify Outputs, Source Data, and Configuration Options
 
-In a Markdown cell, clearly document:
+Continue using the **SCRATCHPAD tool** to inspect the workbook and identify the following. Once you have the answers, create a Markdown cell in the notebook documenting:
 
 - **Outputs:** What does this spreadsheet ultimately produce? Which cells, ranges, or sheets represent the final results?
 - **Source Data:** What data does the workbook rely on? ie: a big table of data that the workbook relies on, you should load the data into a Dataframe. You can use multiple dataframes. 
@@ -66,11 +66,11 @@ Be specific — reference sheet names, cell ranges, and describe what each repre
 
 ### Step 3: Trace the Dependency Chain
 
-Working backward from the outputs, trace how each output is computed. Follow the formula references to understand the chain of calculations from inputs to outputs.
+Working backward from the outputs, use the **SCRATCHPAD tool** to trace how each output is computed. Follow the formula references to understand the chain of calculations from inputs to outputs.
 
-In a Markdown cell, document the dependency chain. This gives you the order in which you must implement things — you always implement dependencies before the things that depend on them.
+Once you have mapped the dependencies, create a Markdown cell in the notebook documenting the dependency chain. This gives you the order in which you must implement things — you always implement dependencies before the things that depend on them.
 
-It might take you several iterations to build the dependency chain. That is expected.
+It might take you several scratchpad iterations to build the full dependency chain. That is expected.
 
 ### Step 4: Create a Plan
 
@@ -78,7 +78,7 @@ Write a Markdown cell containing:
 
 1. **A todo list** with one item per logical step you need to implement, ordered so that dependencies come first. Use checkbox syntax so you can mark items as complete. The first implementation step should be creating the configuration cell:
 
-   - [ ] Create the `mito_final_check_<description>` variables at the bottom of the notebook, one per final output. Initialize each to `False` with a comment showing the comparison it will eventually perform. For example: `mito_final_check_net_income = False  # Will validate: abs(net_income - <expected>) < 0.01`. As you implement each output, come back and replace `False` with the actual validation expression.
+   - [ ] Create a single code cell at the very bottom of the notebook containing all `mito_final_check_<description>` variables, one per final output. Initialize each to `False` with a comment showing the comparison it will eventually perform. For example: `mito_final_check_net_income = False  # Will validate: abs(net_income - <expected>) < 0.01`. This cell must always remain the last cell in the notebook. As you implement each output, come back and replace `False` with the actual validation expression.
    - [ ] Create configuration cell at top (all configuration options: e.g. beg_date, end_date, interest_rate, number_of_periods, etc.)
    - [ ] Load input data
    - [ ] Compute X from configuration options and input data
@@ -96,7 +96,7 @@ This is the core of your work. For each item on your todo list, follow this cycl
 1. Write a Markdown cell explaining what Excel logic you are about to convert and how you intend to implement it in Python. Reference the specific formulas from the Excel file.
 2. Write a code cell that implements that logic.
 3. In a new code cell after the implementation cell, create `mito_check_<description>` variables that compare your computed result to the expected value from the Excel file. For example: `mito_check_interest_calculation = abs(interest - 4500.0) < 0.01`.
-4. If this step produces one of the final outputs, also update the corresponding `mito_final_check_*` line in the final checks cell at the bottom of the notebook — replace the `False` placeholder with the actual comparison.
+4. If this step produces one of the final outputs, also update the corresponding `mito_final_check_*` line in the final checks cell — the last cell in the notebook — replacing the `False` placeholder with the actual comparison. Do not move or reorder that cell; it must always remain the very last cell.
 5. **Rerun the entire notebook from top to bottom.** Do not just run the current cell. Rerun everything so you can catch regressions from earlier steps.
 6. Check the kernel variables: every `mito_check_*` variable must be `True`. If any `mito_check_*` is `False`, you have a regression or a bug — fix it before proceeding. You can ignore `mito_final_check_*` variables that are `False` since those are only expected to pass once the entire conversion is complete.
 7. If all `mito_check_*` variables are `True`: Check off the todo item and move to the next one.
@@ -110,7 +110,7 @@ Once every todo item is checked off, rerun the entire notebook from top to botto
 
 ## Rules
 
-- **One configuration cell at the top.** All user-changeable inputs (dates, rates, periods, and any other scenario inputs) must live in a single code cell at the top of the notebook. Downstream code uses these variables only — no magic numbers or repeated literals for inputs. This is so the user can try different scenarios by editing one place and re-running.
+- **One configuration cell at the top with hardcoded values.** All user-changeable inputs (dates, rates, periods, and any other scenario inputs) must live in a single code cell at the top of the notebook as plain hardcoded assignments (e.g. `interest_rate = 0.05`). Do not read configuration values from the Excel file at runtime. 
 - **Formulas are the source of truth.** Always read the Excel formulas to understand logic. Do not guess the logic from data values alone.
 - **Rerun from top after every step.** After each implementation step, rerun the entire notebook from top to bottom. Check that every `mito_check_*` variable is `True` before moving on. Never just run the current cell in isolation.
 - **`mito_check_*` blocks progress; `mito_final_check_*` does not.** A failing `mito_check_*` variable means something is broken — fix it before proceeding. A failing `mito_final_check_*` variable is expected until the full conversion is complete and should not block you.
