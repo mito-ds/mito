@@ -78,7 +78,7 @@ Write a Markdown cell containing:
 
 1. **A todo list** with one item per logical step you need to implement, ordered so that dependencies come first. Use checkbox syntax so you can mark items as complete. The first implementation step should be creating the configuration cell:
 
-   - [ ] Create the mito_final_check_<description> variables for the final output checks at the bottom of the notebook. These will tell us when we have finished the entire conversion.
+   - [ ] Create the `mito_final_check_<description>` variables at the bottom of the notebook, one per final output. Initialize each to `False` with a comment showing the comparison it will eventually perform. For example: `mito_final_check_net_income = False  # Will validate: abs(net_income - <expected>) < 0.01`. As you implement each output, come back and replace `False` with the actual validation expression.
    - [ ] Create configuration cell at top (all configuration options: e.g. beg_date, end_date, interest_rate, number_of_periods, etc.)
    - [ ] Load input data
    - [ ] Compute X from configuration options and input data
@@ -94,12 +94,13 @@ Write a Markdown cell containing:
 This is the core of your work. For each item on your todo list, follow this cycle:
 
 1. Write a Markdown cell explaining what Excel logic you are about to convert and how you intend to implement it in Python. Reference the specific formulas from the Excel file.
-2. Create `mito_check_<description>` assert variables for this step by comparing the code you will implement to the ground truth values from the Excel file.
-3. Write a code cell that implements that logic.
-4. **Rerun the entire notebook from top to bottom.** Do not just run the current cell — rerun everything so you can catch regressions from earlier steps.
-5. Check the kernel variables: every `mito_check_*` variable must be `True`. If any `mito_check_*` is `False`, you have a regression or a bug — fix it before proceeding. You can ignore `mito_final_check_*` variables that are `False` since those are only expected to pass once the entire conversion is complete.
-6. If all `mito_check_*` variables are `True`: Check off the todo item and move to the next one.
-7. If any `mito_check_*` variable is `False`: Debug and fix the code before moving on. Compare your result to the expected value, re-examine the Excel formula, and correct your implementation. Then rerun the notebook from top to bottom again.
+2. Write a code cell that implements that logic.
+3. In a new code cell after the implementation cell, create `mito_check_<description>` variables that compare your computed result to the expected value from the Excel file. For example: `mito_check_interest_calculation = abs(interest - 4500.0) < 0.01`.
+4. If this step produces one of the final outputs, also update the corresponding `mito_final_check_*` line in the final checks cell at the bottom of the notebook — replace the `False` placeholder with the actual comparison.
+5. **Rerun the entire notebook from top to bottom.** Do not just run the current cell. Rerun everything so you can catch regressions from earlier steps.
+6. Check the kernel variables: every `mito_check_*` variable must be `True`. If any `mito_check_*` is `False`, you have a regression or a bug — fix it before proceeding. You can ignore `mito_final_check_*` variables that are `False` since those are only expected to pass once the entire conversion is complete.
+7. If all `mito_check_*` variables are `True`: Check off the todo item and move to the next one.
+8. If any `mito_check_*` variable is `False`: Debug and fix the code before moving on. Compare your result to the expected value, re-examine the Excel formula, and correct your implementation. Then rerun the notebook from top to bottom again.
 
 Do not batch work. Implement one logical step, test it, confirm it works, then move to the next. Tight loops, not big batches.
 
