@@ -32,24 +32,23 @@ Your first task is to understand what the Excel file does. Open the file twice u
 - Once with `data_only=False` to read the formulas. The formulas are your source of truth for the logic.
 - Once with `data_only=True` to read the computed values. These are your ground truth for testing.
 
-In a Markdown cell, document what you find:
+In a markdown cell at the top of the notebook, document your high level findings. Things like: 
 
+- The purpose of the workbook
 - What sheets exist and what each one appears to do
 - Which cells contain formulas vs. hardcoded data
 - Any cross-sheet references
 - Any patterns you notice (lookup tables, running totals, conditional logic, etc.)
-- Anything that may be tricky to convert (circular references, volatile functions like NOW() or RAND(), pivot tables, macros)
 
 Keep both workbook objects available in the notebook for reference throughout your work.
 
-### Step 2: Identify Outputs and Inputs
+### Step 2: Identify Outputs, Source Data, and Configuration Options
 
 In a Markdown cell, clearly document:
 
 - **Outputs:** What does this spreadsheet ultimately produce? Which cells, ranges, or sheets represent the final results?
-- **Inputs:** There are two types of inputs: data and configurable inputs. 
-    - For the data, ie: a big table of data that the workbook relies on, you should load the data into a Dataframe. You can use multiple dataframes. 
-    - For configuration options, like beginning_date, interest_rate, number_of_periods, etc. these inputs should all go into the single configuration cell at the top so the user can change them to run different scenarios.
+- **Source Data:** What data does the workbook rely on? ie: a big table of data that the workbook relies on, you should load the data into a Dataframe. You can use multiple dataframes. 
+- **Configuration Options:**  What are the inputs that the user can change to run different scenarios? ie: beginning_date, interest_rate, number_of_periods, etc. these inputs should all go into the single configuration cell at the top so the user can change them to run different scenarios.
 
 Be specific — reference sheet names, cell ranges, and describe what each represents.
 
@@ -59,18 +58,22 @@ Working backward from the outputs, trace how each output is computed. Follow the
 
 In a Markdown cell, document the dependency chain. This gives you the order in which you must implement things — you always implement dependencies before the things that depend on them.
 
+It might take you several iterations to build the dependency chain. That is expected.
+
 ### Step 4: Create a Plan
 
 Write a Markdown cell containing:
 
 1. **A todo list** with one item per logical step you need to implement, ordered so that dependencies come first. Use checkbox syntax so you can mark items as complete. The first implementation step should be creating the configuration cell:
 
-   - [ ] Create configuration cell at top (all inputs: e.g. beg_date, end_date, interest_rate, number_of_periods, etc.)
+   - [ ] Create configuration cell at top (all configuration options: e.g. beg_date, end_date, interest_rate, number_of_periods, etc.)
    - [ ] Load input data
-   - [ ] Compute X from inputs
+   - [ ] Compute X from configuration options and input data
    - [ ] Compute Y from X
-   - [ ] Compute final output from Y
-
+   - [ ] <add the rest of the steps here>
+   - [ ] Compute final output from Z
+   - [ ] Run the asserts statements to confirm that the python code produces the same results as the Excel file.
+   
 2. **The Python structure** you intend to use — what will be a DataFrame, what will be a variable, what will be a function. Decide this up front so you're not restructuring mid-way, unless you decide you need to update your plan based on future learnings. Then, you can come back and update the plan in this markdown cell.
 
 ### Step 5: Capture Ground Truth as Assert Statements
