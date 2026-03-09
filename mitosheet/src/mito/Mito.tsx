@@ -102,6 +102,7 @@ export type MitoProps = {
     }
     onSelectionChange?: (selectedDataframeIndex: number, selections: MitoSelection[]) => void;
     height?: string | undefined;
+    hideFullscreenButton?: boolean;
 };
 
 export const Mito = (props: MitoProps): JSX.Element => {
@@ -1064,7 +1065,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
-                <Toolbar 
+                <Toolbar
                     mitoAPI={mitoAPI}
                     currStepIdx={analysisData.currStepIdx}
                     lastStepIndex={lastStepSummary.step_idx}
@@ -1082,6 +1083,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                     sheetIndex={uiState.selectedSheetIndex}
                     closeOpenEditingPopups={closeOpenEditingPopups}
+                    hideFullscreenButton={props.hideFullscreenButton}
                 />
                 <div className="mito-center-content-container" id="mito-center-content-container"> 
                     <div 
