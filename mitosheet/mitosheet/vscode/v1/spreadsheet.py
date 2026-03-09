@@ -37,10 +37,17 @@ with open(_css_file_path) as f:
 class _ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle each request in a separate thread so concurrent fetches don't block each other."""
     daemon_threads = True
+    # Attributes attached at runtime in spreadsheet()
+    mito_backend: MitoBackend
+    responses: List[Dict[str, Any]]
+    code_version_ref: List[int]
 
 
 class _MitoVSCodeHandler(BaseHTTPRequestHandler):
     """HTTP request handler for the VS Code Mito backend."""
+
+    # Narrow the type of self.server so mypy sees the custom attributes
+    server: _ThreadedHTTPServer  # type: ignore[assignment]
 
     def do_OPTIONS(self) -> None:
         """Handle CORS preflight requests."""
@@ -55,10 +62,10 @@ class _MitoVSCodeHandler(BaseHTTPRequestHandler):
         if self.path != '/code':
             self.send_error(404)
             return
-        code_lines = self.server.mito_backend.steps_manager.code()  # type: ignore
+        code_lines = self.server.mito_backend.steps_manager.code()
         self._send_json({
             'code': '\n'.join(code_lines),
-            'version': self.server.code_version_ref[0],  # type: ignore
+            'version': self.server.code_version_ref[0],
         })
 
     def do_POST(self) -> None:
@@ -75,12 +82,12 @@ class _MitoVSCodeHandler(BaseHTTPRequestHandler):
         msg_id = msg.get('id', '')
 
         # Process the message on the backend
-        self.server.mito_backend.receive_message(msg)  # type: ignore
+        self.server.mito_backend.receive_message(msg)
 
         # Poll for the response
         start = time.time()
         while time.time() - start < _MAX_DELAY:
-            responses = self.server.responses  # type: ignore
+            responses = self.server.responses
             for response in responses:
                 if response.get('id') == msg_id:
                     self._send_json(response)
@@ -254,9 +261,9 @@ def spreadsheet(
 
     # Bind the HTTP server on a random port
     server = _ThreadedHTTPServer(('127.0.0.1', 0), _MitoVSCodeHandler)
-    server.mito_backend = mito_backend  # type: ignore
-    server.responses = responses  # type: ignore
-    server.code_version_ref = code_version  # type: ignore  (list used as mutable int ref)
+    server.mito_backend = mito_backend
+    server.responses = responses
+    server.code_version_ref = code_version
 
     port = server.server_address[1]
 
@@ -272,11 +279,11 @@ def spreadsheet(
 
     # Render the spreadsheet
     height_style = f'height: {height};' if height else 'height: 550px;'
-    display(HTML(f'''<div id="{div_id}" style="{height_style}"></div><script>{js_code}</script>'''))
+    display(HTML(f'''<div id="{div_id}" style="{height_style}"></div><script>{js_code}</script>'''))  # type: ignore[no-untyped-call]
 
     # Emit the custom MIME type so the mito-vscode extension can discover this session's
     # port and start polling /code to write generated code into the cell below.
-    display(  # type: ignore
+    display(  # type: ignore[no-untyped-call]
         {'application/x-mito': {'port': port, 'session_id': div_id}},
         raw=True,
     )
