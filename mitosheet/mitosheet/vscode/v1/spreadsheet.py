@@ -284,7 +284,7 @@ def spreadsheet(
     # Emit the custom MIME type so the mito-vscode extension can discover this session's
     # port and start polling /code to write generated code into the cell below.
     display(  # type: ignore[no-untyped-call]
-        {'application/x-mito': {'port': port, 'session_id': div_id}},
+        {'application/x-mitosheet': {'port': port, 'session_id': div_id}},
         raw=True,
     )
 
