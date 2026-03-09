@@ -1,0 +1,42 @@
+{
+    "name": "mitosheet-vscode",
+    "displayName": "Mitosheet for VSCode",
+    "description": "Create and edit mitosheets in VSCode.",
+    "version": "0.1.0",
+    "publisher": "mito-ds",
+    "repository": {
+        "url": "https://github.com/mito-ds/mito",
+        "type": "git"
+    },
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "categories": [
+        "Notebooks"
+    ],
+    "activationEvents": [],
+    "main": "./out/extension.js",
+    "contributes": {
+        "notebookRenderer": [
+            {
+                "id": "mito-vscode-renderer",
+                "displayName": "Mito Spreadsheet",
+                "mimeTypes": [
+                    "application/x-mito"
+                ],
+                "entrypoint": "./out/renderer.js",
+                "requiresMessaging": "always"
+            }
+        ]
+    },
+    "scripts": {
+        "build": "node esbuild.js",
+        "watch": "node esbuild.js --watch"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.80.0",
+        "@types/vscode-notebook-renderer": "^1.72.0",
+        "esbuild": "^0.15.16",
+        "typescript": "^5.5.4"
+    }
+}
