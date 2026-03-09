@@ -24,8 +24,10 @@
   height: 36px !important;
   min-height: 36px !important;
   max-height: 36px !important;
-  padding: 0 8px !important;
+  padding: 0 8px 0 0 !important;
   box-sizing: border-box;
+  background-color: var(--jp-layout-color1) !important;
+  border-bottom: 1px solid var(--jp-border-color2);
 }
 
 /* Mode switcher stays on the left and does not grow */

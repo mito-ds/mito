@@ -13,11 +13,10 @@
 .mito-run-cell-button-group {
   display: flex;
   align-items: center;
-  height: var(--toolbar-button-height);
+  height: var(--toolbar-element-height);
   width: 100%;
-  border-radius: 4px;
+  border-radius: var(--toolbar-element-radius);
   overflow: hidden;
-  /* Theme-aware button colors set by Mito palettes */
   background-color: var(--mito-theme-button-background, var(--blue-300));
   border: 0.5px solid var(--mito-theme-button-border, var(--blue-900));
   transition: all 0.15s ease;

@@ -4,7 +4,6 @@
  */
 
 import React from 'react';
-import '../../../style/button.css';
 import '../../../style/NotebookViewModeSwitcher.css';
 import { classNames } from '../../utils/classNames';
 import type { NotebookViewMode } from './NotebookViewModePlugin';
@@ -55,7 +54,6 @@ const NotebookViewModeSwitcher: React.FC<INotebookViewModeSwitcherProps> = ({
           type="button"
           className={classNames(
             'mode-switcher-segment',
-            'button-base',
             mode === id ? 'selected' : 'unselected'
           )}
           onClick={() => onModeChange(id)}

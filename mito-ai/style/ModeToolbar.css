@@ -18,7 +18,7 @@
   justify-content: space-between;
   height: 36px;
   min-height: 36px;
-  padding: 0 8px;
+  padding: 0 8px 0 0;
   box-sizing: border-box;
   border-bottom: 1px solid var(--jp-border-color2);
   background-color: var(--jp-layout-color1);
@@ -27,6 +27,9 @@
 .mode-toolbar-left {
   display: flex;
   align-items: center;
+  margin-right: 8px;
+  padding-right: 8px;
+  border-right: 1px solid var(--jp-border-color2);
 }
 
 .mode-toolbar-right {

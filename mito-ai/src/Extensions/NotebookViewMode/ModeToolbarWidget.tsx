@@ -19,6 +19,7 @@ import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { COMMAND_MITO_AI_BETA_MODE_ENABLED } from '../../commands';
 import '../../../style/ModeToolbar.css';
+import '../../../style/button.css';
 
 export const MODE_TOOLBAR_CLASS = 'mito-mode-toolbar-widget';
 
@@ -67,7 +68,7 @@ const ModeToolbar: React.FC<IModeToolbarProps> = ({
         <div className="mode-toolbar-right">
           <button
             type="button"
-            className="text-button-mito-ai button-base button-small"
+            className="button-secondary-toolbar"
             onClick={openAppCode}
             title="Open the app source code alongside the preview"
           >
@@ -75,7 +76,7 @@ const ModeToolbar: React.FC<IModeToolbarProps> = ({
           </button>
           <button
             type="button"
-            className="text-button-mito-ai button-base button-small"
+            className="button-secondary-toolbar"
             onClick={(e) => {
               showUpdateAppDropdown(e.currentTarget, notebookPanel);
             }}
@@ -85,7 +86,7 @@ const ModeToolbar: React.FC<IModeToolbarProps> = ({
           </button>
           <button
             type="button"
-            className="text-button-mito-ai button-base button-small"
+            className="button-secondary-toolbar"
             onClick={() => {
               void showRecreateAppConfirmation(notebookPath, notebookID);
             }}
@@ -96,7 +97,7 @@ const ModeToolbar: React.FC<IModeToolbarProps> = ({
           {showDeploy && (
             <button
               type="button"
-              className="text-button-mito-ai button-base button-small"
+              className="button-base button-blue"
               onClick={() => {
                 void deployStreamlitApp(notebookPanel, appDeployService, appManagerService);
               }}

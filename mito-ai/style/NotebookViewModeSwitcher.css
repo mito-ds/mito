@@ -2,16 +2,17 @@
  * Copyright (c) Saga Inc.
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  *
- * Three-segment mode switcher (Notebook | Document | App) with icons and improved spacing.
+ * Tab-style mode switcher for Notebook | Document | App.
+ * Active tab indicated by underline + stronger text color.
  */
 
 .mode-switcher-container {
   display: flex;
   align-items: center;
-  gap: 6px;
-  height: 32px;
-  min-height: 32px;
-  max-height: 32px;
+  gap: 0;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
 }
 
 .mode-switcher-segment {
@@ -19,15 +20,17 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 28px;
-  min-height: 28px;
-  max-height: 28px;
-  font-size: 12px;
+  height: 100%;
+  font-size: var(--toolbar-element-font-size);
   padding: 0 12px;
   box-sizing: border-box;
-  border-radius: 6px;
-  border: none;
+  border: none !important;
+  border-radius: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent;
   min-width: 0;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .mode-switcher-segment-icon {
@@ -45,25 +48,22 @@
 }
 
 .mode-switcher-segment.selected {
-  opacity: 1;
-  background-color: var(--purple-400);
-  color: var(--purple-700) !important;
+  color: var(--mito-theme-segmented-control-active-text) !important;
+  border-bottom-color: var(--jp-brand-color1) !important;
 }
 
 .mode-switcher-segment.selected .mode-switcher-segment-icon {
-  color: var(--purple-700);
+  color: var(--mito-theme-segmented-control-active-text);
 }
 
 .mode-switcher-segment.unselected {
-  opacity: 0.85;
-  background-color: transparent !important;
-  color: var(--jp-ui-font-color2) !important;
+  color: var(--mito-theme-segmented-control-inactive-text) !important;
 }
 
 .mode-switcher-segment.unselected:hover {
-  background-color: var(--jp-layout-color2) !important;
+  color: var(--mito-theme-segmented-control-active-text) !important;
 }
 
 .mode-switcher-segment.unselected .mode-switcher-segment-icon {
-  color: var(--jp-ui-font-color2);
+  color: inherit;
 }
