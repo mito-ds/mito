@@ -4,7 +4,7 @@ import base64
 from typing import Any, Callable, Dict, List, Optional, Union, Tuple
 from google import genai
 from google.genai import types
-from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse
+from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse, ThinkingConfig
 from mito_ai.completions.models import CompletionError, CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
 from mito_ai.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
@@ -123,11 +123,15 @@ class GeminiClient:
         )
 
         if self.api_key:
-            # Generate content using the Gemini client
+            # Generate content using the Gemini client (forward config including thinking_config)
+            config = provider_data.get("config", {})
+            thinking_config_dict = config.get("thinking_config")
+            thinking_config = ThinkingConfig(**thinking_config_dict) if thinking_config_dict else None
             response_config = GenerateContentConfig(
                 system_instruction=system_instructions,
-                response_mime_type=provider_data.get("config", {}).get("response_mime_type"),
-                response_schema=provider_data.get("config", {}).get("response_schema")
+                response_mime_type=config.get("response_mime_type"),
+                response_schema=config.get("response_schema"),
+                thinking_config=thinking_config,
             )
             response = self.client.models.generate_content(
                 model=provider_data["model"],
@@ -163,13 +167,25 @@ class GeminiClient:
         try:
             # Extract system instructions and Gemini-compatible contents
             system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
+            # Single source of params (including thinking_config when model is gemini-3.1-pro-preview)
+            provider_data = get_gemini_completion_function_params(
+                model=model,
+                contents=contents,
+                message_type=message_type,
+                response_format_info=None,
+            )
             if self.api_key:
+                config = provider_data.get("config", {})
+                thinking_config_dict = config.get("thinking_config")
+                thinking_config = ThinkingConfig(**thinking_config_dict) if thinking_config_dict else None
+                response_config = GenerateContentConfig(
+                    system_instruction=system_instructions,
+                    thinking_config=thinking_config,
+                )
                 for chunk in self.client.models.generate_content_stream(
                         model=model,
                         contents=contents,  # type: ignore
-                        config=GenerateContentConfig(
-                            system_instruction=system_instructions
-                        )
+                        config=response_config
                 ):
 
                     next_chunk = ""
@@ -208,7 +224,8 @@ class GeminiClient:
                         contents=messages,  # Use the extracted contents instead of converted messages to avoid serialization issues
                         message_type=message_type,
                         message_id=message_id,
-                        reply_fn=reply_fn
+                        reply_fn=reply_fn,
+                        config=provider_data.get("config"),
                 ):
                     # Clean and decode the chunk text
                     clean_chunk = chunk_text.strip('"')

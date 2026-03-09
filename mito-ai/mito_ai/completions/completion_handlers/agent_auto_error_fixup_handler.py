@@ -7,7 +7,10 @@ from mito_ai.completions.prompt_builders.agent_smart_debug_prompt import create_
 from mito_ai.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
-from mito_ai.completions.completion_handlers.utils import append_agent_system_message
+from mito_ai.completions.completion_handlers.utils import (
+    append_agent_system_message,
+    normalize_agent_response_completion,
+)
 
 __all__ = ["get_agent_auto_error_fixup_completion"]
 
@@ -46,7 +49,8 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
             user_input=metadata.errorMessage,
             thread_id=metadata.threadId
         )
-        
+        completion = normalize_agent_response_completion(completion)
+
         ai_response_message: ChatCompletionMessageParam = {"role": "assistant", "content": completion}
         
         await message_history.append_message(ai_response_message, ai_response_message, provider, metadata.threadId)

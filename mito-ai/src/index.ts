@@ -9,6 +9,7 @@ import ErrorMimeRendererPlugin from './Extensions/ErrorMimeRenderer/ErrorMimeRen
 import ToolbarButtonsPlugin from './Extensions/ToolbarButtons/ToolbarButtonsPlugin';
 import AppDeployPlugin from './Extensions/AppDeploy/AppDeployPlugin';
 import StreamlitPreviewPlugin from './Extensions/AppPreview/StreamlitPreviewPlugin';
+import FileEditorAppModePlugin from './Extensions/AppPreview/FileEditorAppModePlugin';
 import { emptyCellPlaceholder } from './Extensions/emptyCell/EmptyCellPlugin';
 import { statusItem } from './Extensions/status';
 import SettingsManagerPlugin from './Extensions/SettingsManager/SettingsManagerPlugin';
@@ -27,6 +28,7 @@ export default [
   ContextManagerPlugin,
   AppDeployPlugin,
   StreamlitPreviewPlugin,
+  FileEditorAppModePlugin,
   ToolbarButtonsPlugin,
   emptyCellPlaceholder,
   statusItem,

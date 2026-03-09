@@ -42,7 +42,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     INotebookViewMode,
     ISettingRegistry,
     IDocumentManager
-  ],
+  ] as JupyterFrontEndPlugin<WidgetTracker>['requires'],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
   activate: (
