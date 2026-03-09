@@ -8,6 +8,7 @@ import '../../../style/NotebookToolbar.css';
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { ICommandPalette } from '@jupyterlab/apputils';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { ReactWidget } from '@jupyterlab/ui-components';
 import { BoxLayout, Widget } from '@lumino/widgets';
 import { Token } from '@lumino/coreutils';
@@ -77,6 +78,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
   private _streamlitPreviewManager: IStreamlitPreviewManager;
   private _appDeployService: IAppDeployService;
   private _appManagerService: IAppManagerService;
+  private _documentManager: IDocumentManager;
   private _dblclickHandler: ((event: MouseEvent) => void) | null = null;
   private _currentPanelForDblclick: NotebookPanel | null = null;
 
@@ -97,12 +99,14 @@ export class NotebookViewModeManager implements INotebookViewMode {
     streamlitPreviewManager: IStreamlitPreviewManager,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService,
+    documentManager: IDocumentManager,
   ) {
     this._app = app;
     this._notebookTracker = notebookTracker;
     this._streamlitPreviewManager = streamlitPreviewManager;
     this._appDeployService = appDeployService;
     this._appManagerService = appManagerService;
+    this._documentManager = documentManager;
 
     notebookTracker.currentChanged.connect(() => {
       this._onCurrentNotebookChanged();
@@ -390,6 +394,7 @@ export class NotebookViewModeManager implements INotebookViewMode {
       this._appDeployService,
       this._appManagerService,
       this._app,
+      this._documentManager,
     );
     modeToolbar.hide(); // hidden by default
     panel.contentHeader.addWidget(modeToolbar);
@@ -583,6 +588,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
     IAppDeployService,
     IAppManagerService,
     ICommandPalette,
+    IDocumentManager,
   ],
   provides: INotebookViewMode,
   activate: (
@@ -592,6 +598,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService,
     palette: ICommandPalette,
+    documentManager: IDocumentManager,
   ): INotebookViewMode => {
     console.log('mito-ai: NotebookViewModePlugin activated');
     const manager = new NotebookViewModeManager(
@@ -600,6 +607,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
       streamlitPreviewManager,
       appDeployService,
       appManagerService,
+      documentManager,
     );
 
     // Set up existing notebook panels

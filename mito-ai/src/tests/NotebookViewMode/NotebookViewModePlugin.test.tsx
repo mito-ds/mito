@@ -9,6 +9,7 @@ import { NotebookViewModeManager, DOCUMENT_MODE_CSS_CLASS } from '../../Extensio
 import { IStreamlitPreviewManager } from '../../Extensions/AppPreview/StreamlitPreviewPlugin';
 import { IAppDeployService } from '../../Extensions/AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../../Extensions/AppManager/ManageAppsPlugin';
+import { IDocumentManager } from '@jupyterlab/docmanager';
 import { MODE_TOOLBAR_CLASS } from '../../Extensions/NotebookViewMode/ModeToolbarWidget';
 
 // Mock CSS imports that the module pulls in
@@ -125,6 +126,9 @@ function createMockDependencies(panel: NotebookPanel) {
 
     const mockAppDeployService = {} as IAppDeployService;
     const mockAppManagerService = {} as IAppManagerService;
+    const mockDocumentManager = {
+        open: jest.fn(),
+    } as unknown as IDocumentManager;
 
     return {
         mockApp,
@@ -132,6 +136,7 @@ function createMockDependencies(panel: NotebookPanel) {
         mockStreamlitPreviewManager,
         mockAppDeployService,
         mockAppManagerService,
+        mockDocumentManager,
     };
 }
 
@@ -150,6 +155,7 @@ describe('NotebookViewModeManager', () => {
             deps.mockStreamlitPreviewManager,
             deps.mockAppDeployService,
             deps.mockAppManagerService,
+            deps.mockDocumentManager,
         );
 
         // Set up the panel (adds mode switcher + mode toolbar)

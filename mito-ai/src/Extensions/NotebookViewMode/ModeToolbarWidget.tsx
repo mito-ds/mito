@@ -8,8 +8,10 @@ import { ReactWidget } from '@jupyterlab/ui-components';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import NotebookViewModeSwitcher from './NotebookViewModeSwitcher';
 import type { NotebookViewMode } from './NotebookViewModePlugin';
+import { PathExt } from '@jupyterlab/coreutils';
+import type { IDocumentManager } from '@jupyterlab/docmanager';
 import { showUpdateAppDropdown } from '../AppPreview/UpdateAppDropdown';
-import { showRecreateAppConfirmation } from '../AppPreview/utils';
+import { showRecreateAppConfirmation, getAppNameFromNotebookID } from '../AppPreview/utils';
 import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
 import { deployStreamlitApp } from '../AppDeploy/DeployStreamlitApp';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
@@ -27,6 +29,7 @@ interface IModeToolbarProps {
   appDeployService: IAppDeployService;
   appManagerService: IAppManagerService;
   app: JupyterFrontEnd;
+  documentManager: IDocumentManager;
 }
 
 const ModeToolbar: React.FC<IModeToolbarProps> = ({
@@ -36,10 +39,24 @@ const ModeToolbar: React.FC<IModeToolbarProps> = ({
   appDeployService,
   appManagerService,
   app,
+  documentManager,
 }) => {
   const notebookPath = notebookPanel.context.path;
   const notebookID = getNotebookIDAndSetIfNonexistant(notebookPanel);
   const showDeploy = app.commands.hasCommand(COMMAND_MITO_AI_BETA_MODE_ENABLED);
+
+  const openAppCode = (): void => {
+    if (!notebookID) {
+      return;
+    }
+    const appFileName = getAppNameFromNotebookID(notebookID);
+    const dirPath = PathExt.dirname(notebookPath);
+    const appFilePath = PathExt.join(dirPath, appFileName);
+    documentManager.open(appFilePath, undefined, undefined, {
+      ref: notebookPanel.id,
+      mode: 'split-right'
+    });
+  };
 
   return (
     <div className="mode-toolbar">
@@ -48,6 +65,14 @@ const ModeToolbar: React.FC<IModeToolbarProps> = ({
       </div>
       {mode === 'App' && (
         <div className="mode-toolbar-right">
+          <button
+            type="button"
+            className="text-button-mito-ai button-base button-small"
+            onClick={openAppCode}
+            title="Open the app source code alongside the preview"
+          >
+            Edit app code
+          </button>
           <button
             type="button"
             className="text-button-mito-ai button-base button-small"
@@ -101,6 +126,7 @@ export class ModeToolbarWidget extends ReactWidget {
     private readonly _appDeployService: IAppDeployService,
     private readonly _appManagerService: IAppManagerService,
     private readonly _app: JupyterFrontEnd,
+    private readonly _documentManager: IDocumentManager,
   ) {
     super();
     this.addClass(MODE_TOOLBAR_CLASS);
@@ -120,6 +146,7 @@ export class ModeToolbarWidget extends ReactWidget {
         appDeployService={this._appDeployService}
         appManagerService={this._appManagerService}
         app={this._app}
+        documentManager={this._documentManager}
       />
     );
   }
