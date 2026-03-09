@@ -19,10 +19,10 @@
     "contributes": {
         "notebookRenderer": [
             {
-                "id": "mito-vscode-renderer",
-                "displayName": "Mito Spreadsheet",
+                "id": "mitosheet-vscode-renderer",
+                "displayName": "Mitosheet for VSCode",
                 "mimeTypes": [
-                    "application/x-mito"
+                    "application/x-mitosheet"
                 ],
                 "entrypoint": "./out/renderer.js",
                 "requiresMessaging": "always"
