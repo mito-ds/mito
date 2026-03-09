@@ -6,8 +6,8 @@
 import * as http from 'http';
 import * as vscode from 'vscode';
 
-const RENDERER_ID = 'mito-vscode-renderer';
-const MITO_MIME = 'application/x-mito';
+const RENDERER_ID = 'mitosheet-vscode-renderer';
+const MITO_MIME = 'application/x-mitosheet';
 const POLL_INTERVAL_MS = 500;
 
 /**
@@ -118,7 +118,7 @@ async function writeCodeCell(
     sessionId: string,
     code: string
 ): Promise<void> {
-    // Find the cell whose output contains the application/x-mito item with this sessionId
+    // Find the cell whose output contains the application/x-mitosheet item with this sessionId
     let mitoCellIndex = -1;
     for (let i = 0; i < notebook.cellCount; i++) {
         const cell = notebook.cellAt(i);
