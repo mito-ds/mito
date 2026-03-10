@@ -406,7 +406,9 @@ export const useAgentExecution = ({
                 processedScratchpadResult = formatScratchpadResult(scratchpadResult);
             }
 
-            if (agentResponse.type === 'screenshot_excel' && agentResponse.excel_file_path) {
+            if (agentResponse.type === 'screenshot_excel' && !agentResponse.excel_file_path) {
+                messageToShareWithAgent = 'The SCREENSHOT_EXCEL response is missing the required excel_file_path field. Use SCRATCHPAD to explore the file instead.';
+            } else if (agentResponse.type === 'screenshot_excel' && agentResponse.excel_file_path) {
                 // Generate screenshots of each worksheet in the Excel file
                 setLoadingStatus('running-code');
                 let screenshotResult;
