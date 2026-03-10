@@ -112,13 +112,16 @@ for _scratch_sheet_name in _scratch_wb.sheetnames:
         _scratch_fg_colors.append(_f + [None] * pad)
         _scratch_bold.append(_bold + [False] * pad)
 
-    _scratch_fig_h = max(2, min(_scratch_n_rows * 0.35 + 1, 24))
+    _scratch_fig_h = max(2, min(_scratch_n_rows * 0.35, 24))
     _scratch_fig_w = max(8, min(_scratch_n_cols * 1.6, 32))
     _scratch_fig, _scratch_ax = _scratch_plt.subplots(figsize=(_scratch_fig_w, _scratch_fig_h))
+    _scratch_ax.set_position([0, 0, 1, 1])
     _scratch_ax.axis('off')
 
-    # Render all rows as plain cells (no special header row) so Excel formatting is preserved
-    _scratch_tbl = _scratch_ax.table(cellText=_scratch_cell_text, loc='center', cellLoc='left')
+    # Render all rows as plain cells (no special header row) so Excel formatting is preserved.
+    # bbox=[0, 0, 1, 1] forces the table to fill the entire axes area, eliminating whitespace.
+    _scratch_tbl = _scratch_ax.table(cellText=_scratch_cell_text, loc='upper left', cellLoc='left',
+                                      bbox=[0, 0, 1, 1])
     _scratch_tbl.auto_set_font_size(False)
     _scratch_tbl.set_fontsize(8)
     _scratch_tbl.auto_set_column_width(col=list(range(_scratch_n_cols)))
@@ -136,9 +139,8 @@ for _scratch_sheet_name in _scratch_wb.sheetnames:
             if _is_bold:
                 _cell.get_text().set_fontweight('bold')
 
-    _scratch_fig.tight_layout()
     _scratch_buf = _scratch_io.BytesIO()
-    _scratch_fig.savefig(_scratch_buf, format='png', bbox_inches='tight', dpi=100)
+    _scratch_fig.savefig(_scratch_buf, format='png', bbox_inches='tight', pad_inches=0.02, dpi=100)
     _scratch_buf.seek(0)
     _scratch_images[_scratch_sheet_name] = _scratch_base64.b64encode(_scratch_buf.read()).decode('utf-8')
     _scratch_plt.close(_scratch_fig)
