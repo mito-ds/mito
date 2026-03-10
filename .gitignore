@@ -1,3 +1,5 @@
+.claude/settings.local.json
+
 # Ignore all the ipynb files in mitosheet and mito-ai
 mitosheet/**/*.ipynb
 mito-ai/**/*.ipynb

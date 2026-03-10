@@ -21,6 +21,7 @@ import { AgentReviewStatus } from '../ChatTaskpane';
 import { LoadingStatus } from './useChatState';
 import { ensureNotebookExists } from '../utils';
 import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
+import { takeExcelWorksheetScreenshots } from '../../../utils/excelScreenshot';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -160,13 +161,16 @@ export const useAgentExecution = ({
         let sendCellIDOutput: string | undefined = undefined;
         let processedScratchpadResult: string | undefined = undefined;
 
-        // Sometimes its useful to send extra information back to the agent. For example, 
-        // if the agent tries to create a streamlit app and it errors, we want to let the 
-        // orchestrator agent know about the issue. 
+        // Sometimes its useful to send extra information back to the agent. For example,
+        // if the agent tries to create a streamlit app and it errors, we want to let the
+        // orchestrator agent know about the issue.
         // TODO: Ideally this would be a different type of message that does not show up
-        // as a user message in the chat taskpane, but this is the only mechanism we have 
+        // as a user message in the chat taskpane, but this is the only mechanism we have
         // right now.
         let messageToShareWithAgent: string | undefined = undefined;
+
+        // Images (e.g. Excel screenshots) to attach to the next agent execution message.
+        let additionalContextToShareWithAgent: Array<{ type: string; value: string }> | undefined = undefined;
 
         // Loop through each message in the plan and send it to the AI
         while (!isAgentFinished) {
@@ -186,10 +190,11 @@ export const useAgentExecution = ({
                 await sendScratchpadResultMessage(processedScratchpadResult);
                 processedScratchpadResult = undefined;
             } else {
-                await sendAgentExecutionMessage(messageToShareWithAgent || '', undefined, sendCellIDOutput);
-                // Reset flag back to false until the agent requests the active cell output again
+                await sendAgentExecutionMessage(messageToShareWithAgent || '', undefined, sendCellIDOutput, additionalContextToShareWithAgent);
+                // Reset flags back to undefined until populated again
                 sendCellIDOutput = undefined;
                 messageToShareWithAgent = undefined;
+                additionalContextToShareWithAgent = undefined;
             }
 
             // Iterate the agent execution depth
@@ -399,6 +404,31 @@ export const useAgentExecution = ({
 
                 // Format the results for the agent
                 processedScratchpadResult = formatScratchpadResult(scratchpadResult);
+            }
+
+            if (agentResponse.type === 'screenshot_excel' && agentResponse.excel_file_path) {
+                // Generate screenshots of each worksheet in the Excel file
+                setLoadingStatus('running-code');
+                let screenshotResult;
+                try {
+                    screenshotResult = await takeExcelWorksheetScreenshots(
+                        agentTargetNotebookPanelRef.current,
+                        agentResponse.excel_file_path
+                    );
+                } finally {
+                    setLoadingStatus(undefined);
+                }
+
+                if (!screenshotResult.success || screenshotResult.sheets.length === 0) {
+                    messageToShareWithAgent = `Failed to generate Excel screenshots: ${screenshotResult.error || 'No sheets found'}. Continue with SCRATCHPAD exploration instead.`;
+                } else {
+                    const sheetNames = screenshotResult.sheets.map(s => s.name).join(', ');
+                    messageToShareWithAgent = `Here are screenshots of the Excel worksheets (${sheetNames}). Use them to understand the visual layout before converting.`;
+                    additionalContextToShareWithAgent = screenshotResult.sheets.map(sheet => ({
+                        type: 'image/png',
+                        value: `data:image/png;base64,${sheet.base64Image}`
+                    }));
+                }
             }
         }
 

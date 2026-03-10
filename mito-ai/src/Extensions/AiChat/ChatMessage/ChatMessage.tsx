@@ -37,6 +37,7 @@ import AskUserQuestionToolUI from '../../../components/AgentComponents/AskUserQu
 import ScratchpadToolUI from '../../../components/AgentComponents/ScratchpadToolUI';
 import CreateStreamlitAppToolUI from '../../../components/AgentComponents/CreateStreamlitAppToolUI';
 import EditStreamlitAppToolUI from '../../../components/AgentComponents/EditStreamlitAppToolUI';
+import ExcelScreenshotToolUI from '../../../components/AgentComponents/ExcelScreenshotToolUI';
 
 interface IChatMessageProps {
     app: JupyterFrontEnd;
@@ -311,11 +312,16 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 <GetCellOutputToolUI />
             }
             {agentResponse?.type === 'scratchpad' &&
-                <ScratchpadToolUI 
+                <ScratchpadToolUI
                     scratchpadCode={agentResponse.scratchpad_code}
                     scratchpadSummary={agentResponse.scratchpad_summary}
                     scratchpadResult={scratchpadResult}
                     renderMimeRegistry={renderMimeRegistry}
+                />
+            }
+            {agentResponse?.type === 'screenshot_excel' &&
+                <ExcelScreenshotToolUI
+                    excelFilePath={agentResponse.excel_file_path}
                 />
             }
             {agentResponse?.type === 'run_all_cells' && agentModeEnabled &&

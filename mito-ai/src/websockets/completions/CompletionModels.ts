@@ -41,7 +41,7 @@ export type CellUpdateNew = {
 export type CellUpdate = CellUpdateModification | CellUpdateNew
 
 export type AgentResponse = {
-  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad'
+  type: 'cell_update' | 'get_cell_output' | 'run_all_cells' | 'finished_task' | 'create_streamlit_app' | 'edit_streamlit_app' | 'ask_user_question' | 'scratchpad' | 'screenshot_excel'
   message: string,
   cell_update?: CellUpdate | null | undefined
   get_cell_output_cell_id?: string | null | undefined
@@ -52,6 +52,7 @@ export type AgentResponse = {
   answers?: string[] | null | undefined
   scratchpad_code?: string | null | undefined
   scratchpad_summary?: string | null | undefined
+  excel_file_path?: string | null | undefined
 }
 
 /* 

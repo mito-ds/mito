@@ -231,6 +231,33 @@ Important information:
 4. If running all cells results in an error, the system will automatically handle the error through the normal error fixing process.
 5. Do not use this tool repeatedly if it continues to produce errors - instead, focus on fixing the specific error that occurred."""))
     
+    # SCREENSHOT_EXCEL tool
+    sections.append(SG.Generic("TOOL: SCREENSHOT_EXCEL", """
+When you need to visually understand the layout, formatting, and structure of an Excel file before converting it to Python, use this tool to take screenshots of each worksheet.
+
+Format:
+{{
+    "type": "screenshot_excel",
+    "message": "<string>",
+    "excel_file_path": "<string>"
+}}
+
+Important information:
+1. The message is a short description of why you are taking the screenshot (e.g., "Taking screenshots of the Excel file to understand its layout before starting the conversion").
+2. The excel_file_path is the path to the Excel file you want to screenshot.
+3. Use this tool at the very start of any Excel-to-Python conversion, before using SCRATCHPAD to explore formulas. The screenshots give you visual context about the spreadsheet's appearance, layout, and structure — things that aren't visible from formulas alone.
+4. After using this tool, you will receive back screenshots of every worksheet in the file. Use them to understand column positions, merged cells, color-coded regions, tables, charts, and anything else that helps you understand what the workbook is doing visually.
+5. Only use this tool once per conversion task, at the beginning.
+
+    <Example>
+    {{
+        "type": "screenshot_excel",
+        "message": "I'll take screenshots of the Excel workbook first to visually understand its structure before starting the conversion.",
+        "excel_file_path": "./financial_model.xlsx"
+    }}
+    </Example>
+"""))
+
     # SCRATCHPAD tool
     sections.append(SG.Generic("TOOL: SCRATCHPAD", """
 When you need to explore data, check the filesystem, analyze mappings, or look up values without leaving code in the notebook, use the SCRATCHPAD tool.

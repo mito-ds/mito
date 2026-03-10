@@ -41,7 +41,9 @@ Rules for check variables:
 
 ### Step 1: Explore the Excel File
 
-Your first task is to understand what the Excel file does. **Use the SCRATCHPAD tool for all exploration in this step** — do not put exploration code in the notebook. Open the file twice using openpyxl in the scratchpad:
+Your first task is to understand what the Excel file does. **Begin by using the SCREENSHOT_EXCEL tool** to get a visual overview of every worksheet — this reveals layout, merged cells, color-coded regions, charts, and formatting that formulas alone cannot convey.
+
+After taking screenshots, **use the SCRATCHPAD tool for all further exploration** — do not put exploration code in the notebook. Open the file twice using openpyxl in the scratchpad:
 
 - Once with `data_only=False` to read the formulas. The formulas are your source of truth for the logic.
 - Once with `data_only=True` to read the computed values. These are your ground truth for testing.

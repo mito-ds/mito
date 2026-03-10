@@ -18,14 +18,15 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     
     // Ensure type is valid. Default to finished_task if not valid.
     const validTypes = [
-        'cell_update', 
-        'get_cell_output', 
-        'run_all_cells', 
+        'cell_update',
+        'get_cell_output',
+        'run_all_cells',
         'ask_user_question',
-        'finished_task', 
-        'create_streamlit_app', 
+        'finished_task',
+        'create_streamlit_app',
         'edit_streamlit_app',
-        'scratchpad'
+        'scratchpad',
+        'screenshot_excel'
     ];
     correctedResponse.type = (correctedResponse.type && validTypes.includes(correctedResponse.type)) 
         ? correctedResponse.type 
@@ -70,9 +71,15 @@ export function validateAndCorrectAgentResponse(agentResponse: AgentResponse): A
     if (correctedResponse.type === 'scratchpad') {
         const scratchpadCodeType = typeof correctedResponse.scratchpad_code;
         correctedResponse.scratchpad_code = scratchpadCodeType === 'string' ? correctedResponse.scratchpad_code : undefined;
-        
+
         const scratchpadSummaryType = typeof correctedResponse.scratchpad_summary;
         correctedResponse.scratchpad_summary = scratchpadSummaryType === 'string' ? correctedResponse.scratchpad_summary : undefined;
+    }
+
+    // Correct excel_file_path - ensure it's a string when present
+    if (correctedResponse.type === 'screenshot_excel') {
+        const excelFilePathType = typeof correctedResponse.excel_file_path;
+        correctedResponse.excel_file_path = excelFilePathType === 'string' ? correctedResponse.excel_file_path : undefined;
     }
 
     // For now we don't validate the cell_update object itself, as this is more complex and has 

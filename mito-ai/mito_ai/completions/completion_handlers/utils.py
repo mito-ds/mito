@@ -80,14 +80,19 @@ def extract_and_encode_images_from_additional_context(
 
     for context in additional_context or []:
         if context["type"].startswith("image/"):
-            try:
-                with open(context["value"], "rb") as image_file:
-                    image_data = image_file.read()
-                    base64_encoded = base64.b64encode(image_data).decode("utf-8")
-                    encoded_images.append(f"data:{context['type']};base64,{base64_encoded}")
-            except (FileNotFoundError, IOError) as e:
-                print(f"Error reading image file {context['value']}: {e}")
-                continue
+            value = context["value"]
+            if value.startswith("data:"):
+                # Already a base64 data URI — use it directly
+                encoded_images.append(value)
+            else:
+                try:
+                    with open(value, "rb") as image_file:
+                        image_data = image_file.read()
+                        base64_encoded = base64.b64encode(image_data).decode("utf-8")
+                        encoded_images.append(f"data:{context['type']};base64,{base64_encoded}")
+                except (FileNotFoundError, IOError) as e:
+                    print(f"Error reading image file {value}: {e}")
+                    continue
 
     return encoded_images
 
