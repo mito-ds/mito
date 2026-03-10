@@ -423,7 +423,7 @@ export const useAgentExecution = ({
                     messageToShareWithAgent = `Failed to generate Excel screenshots: ${screenshotResult.error || 'No sheets found'}. Continue with SCRATCHPAD exploration instead.`;
                 } else {
                     const sheetNames = screenshotResult.sheets.map(s => s.name).join(', ');
-                    messageToShareWithAgent = `Here are screenshots of the Excel worksheets (${sheetNames}). Use them to understand the visual layout before converting.`;
+                    messageToShareWithAgent = `Here are screenshots of the Excel worksheets (${sheetNames}).`;
                     additionalContextToShareWithAgent = screenshotResult.sheets.map(sheet => ({
                         type: 'image/png',
                         value: `data:image/png;base64,${sheet.base64Image}`
