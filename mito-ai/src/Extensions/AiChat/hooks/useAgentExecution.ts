@@ -423,7 +423,13 @@ export const useAgentExecution = ({
                     messageToShareWithAgent = `Failed to generate Excel screenshots: ${screenshotResult.error || 'No sheets found'}. Continue with SCRATCHPAD exploration instead.`;
                 } else {
                     const sheetNames = screenshotResult.sheets.map(s => s.name).join(', ');
-                    messageToShareWithAgent = `Here are screenshots of the Excel worksheets (${sheetNames}).`;
+                    // Show result as an assistant message so it doesn't appear as user input
+                    addAIMessageFromResponseAndUpdateState(
+                        `Here are screenshots of the Excel worksheets (${sheetNames}).`,
+                        'agent:execution',
+                        chatHistoryManagerRef.current
+                    );
+                    // Pass the images to the AI in the next (hidden) agent execution message
                     additionalContextToShareWithAgent = screenshotResult.sheets.map(sheet => ({
                         type: 'image/png',
                         value: `data:image/png;base64,${sheet.base64Image}`
