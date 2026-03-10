@@ -80,6 +80,22 @@ def _scratch_get_fg(cell):
         pass
     return None
 
+def _scratch_get_edges(cell):
+    """Return a matplotlib visible_edges string ('BRTL' subset) from the cell's Excel borders.
+    Returns '' when no borders are set, so matplotlib draws no lines by default."""
+    try:
+        b = cell.border
+        if b is None:
+            return ''
+        edges = ''
+        if b.bottom and b.bottom.border_style: edges += 'B'
+        if b.right  and b.right.border_style:  edges += 'R'
+        if b.top    and b.top.border_style:    edges += 'T'
+        if b.left   and b.left.border_style:   edges += 'L'
+        return edges
+    except Exception:
+        return ''
+
 _scratch_wb = _scratch_openpyxl.load_workbook('${escapedPath}', data_only=True)
 _scratch_images = {}
 
@@ -93,14 +109,15 @@ for _scratch_sheet_name in _scratch_wb.sheetnames:
     if _scratch_n_cols == 0:
         continue
 
-    _scratch_cell_text, _scratch_bg_colors, _scratch_fg_colors, _scratch_bold = [], [], [], []
+    _scratch_cell_text, _scratch_bg_colors, _scratch_fg_colors, _scratch_bold, _scratch_edges = [], [], [], [], []
     for _scratch_row in _scratch_rows:
-        _t, _b, _f, _bold = [], [], [], []
+        _t, _b, _f, _bold, _e = [], [], [], [], []
         for _scratch_cell in _scratch_row:
             v = _scratch_cell.value
             _t.append(str(v) if v is not None else '')
             _b.append(_scratch_get_bg(_scratch_cell))
             _f.append(_scratch_get_fg(_scratch_cell))
+            _e.append(_scratch_get_edges(_scratch_cell))
             try:
                 _bold.append(bool(_scratch_cell.font and _scratch_cell.font.bold))
             except Exception:
@@ -111,6 +128,7 @@ for _scratch_sheet_name in _scratch_wb.sheetnames:
         _scratch_bg_colors.append(_b + [None] * pad)
         _scratch_fg_colors.append(_f + [None] * pad)
         _scratch_bold.append(_bold + [False] * pad)
+        _scratch_edges.append(_e + [''] * pad)
 
     _scratch_fig_h = max(2, min(_scratch_n_rows * 0.35, 24))
     _scratch_fig_w = max(8, min(_scratch_n_cols * 1.6, 32))
@@ -132,12 +150,23 @@ for _scratch_sheet_name in _scratch_wb.sheetnames:
             _bg = _scratch_bg_colors[_ri][_ci]
             _fg = _scratch_fg_colors[_ri][_ci]
             _is_bold = _scratch_bold[_ri][_ci]
+            _edges = _scratch_edges[_ri][_ci]
             if _bg:
                 _cell.set_facecolor(_bg)
             if _fg:
                 _cell.get_text().set_color(_fg)
             if _is_bold:
                 _cell.get_text().set_fontweight('bold')
+            if _edges:
+                _cell.visible_edges = _edges
+            elif _bg:
+                # Setting visible_edges='' suppresses face color rendering in matplotlib.
+                # For colored cells with no Excel borders, use matching edge color so
+                # the background renders while no visible border lines appear.
+                _cell.visible_edges = 'BRTL'
+                _cell.set_edgecolor(_bg)
+            else:
+                _cell.visible_edges = ''
 
     _scratch_buf = _scratch_io.BytesIO()
     _scratch_fig.savefig(_scratch_buf, format='png', bbox_inches='tight', pad_inches=0.02, dpi=100)
