@@ -18,7 +18,13 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
     selected_variables = [context["value"] for context in additional_context if context.get("type") == "variable"]
     selected_files = [context["value"] for context in additional_context if context.get("type") == "file"]
     selected_db_connections = [context["value"] for context in additional_context if context.get("type") == "db"]
-    selected_images = [context["value"] for context in additional_context if context.get("type", "").startswith("image/")]
+    # Only include file-path images as text references (not data URIs — those are
+    # already sent as image_url content parts and embedding the raw base64 string
+    # in the text prompt would massively inflate token usage with no benefit).
+    selected_images = [
+        context["value"] for context in additional_context
+        if context.get("type", "").startswith("image/") and not context.get("value", "").startswith("data:")
+    ]
     selected_cells = [context["value"] for context in additional_context if context.get("type") == "cell"]
     selected_line_selections = [context["value"] for context in additional_context if context.get("type") == "line_selection"]
 
