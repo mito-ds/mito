@@ -62,9 +62,6 @@ export const EnvironmentVariablesPage = (): JSX.Element => {
             <div className="settings-header">
                 <h2>Environment Variables</h2>
             </div>
-            <p className="env-vars-description">
-                Set environment variables that the backend will pick up. Useful for API keys and other configuration values. Changes take effect after restarting the server.
-            </p>
 
             <div className="env-vars-list">
                 {entries.length > 0 ? entries.map(([key, value]) => (
@@ -151,6 +148,14 @@ export const EnvironmentVariablesPage = (): JSX.Element => {
                     </button>
                 </div>
                 {error && <p className="env-vars-error">{error}</p>}
+            </div>
+
+            <div className="env-vars-restart-notice">
+                <p><strong>After saving, restart the server for changes to take effect:</strong></p>
+                <ul>
+                    <li><strong>JupyterLab:</strong> Shut down the server from the terminal (<code>Ctrl+C</code>), then restart it (<code>jupyter lab</code>).</li>
+                    <li><strong>JupyterHub:</strong> Open the <strong>File</strong> menu and select <strong>Hub Control Panel</strong>, then click <strong>Stop My Server</strong> and start it again.</li>
+                </ul>
             </div>
         </div>
     );
