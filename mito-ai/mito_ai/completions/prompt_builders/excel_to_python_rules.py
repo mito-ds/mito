@@ -54,6 +54,8 @@ Use as many scratchpad calls as you need to thoroughly explore the workbook — 
 - Any cross-sheet references
 - Any patterns you notice (lookup tables, running totals, conditional logic, etc.)
 
+If you see merged cells, color-coded regions, large blank areas, or other visual patterns that aren't apparent from the formulas, take a screenshot of the worksheet with the scratchpad and record any structure that your code exploration alone would miss.
+
 ### Step 2: Identify Outputs, Source Data, and Configuration Options
 
 Continue using the **SCRATCHPAD tool** to inspect the workbook and identify the following. Once you have the answers, create a Markdown cell in the notebook documenting:
