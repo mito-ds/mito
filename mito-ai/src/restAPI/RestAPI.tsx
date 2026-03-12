@@ -59,6 +59,40 @@ export const updateSettings = async (settingsKey: string, settingsValue: string)
 
 /************************************
 
+ENVIRONMENT VARIABLE ENDPOINTS
+
+************************************/
+
+export const getEnvVars = async (): Promise<Record<string, string>> => {
+    const resp = await requestAPI<{ env_vars: Record<string, string> }>('env-vars')
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+    return resp.data?.env_vars ?? {};
+}
+
+export const setEnvVar = async (key: string, value: string): Promise<void> => {
+    const resp = await requestAPI<{ status: string }>(`env-vars/${key}`, {
+        method: 'PUT',
+        body: JSON.stringify({ value }),
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+}
+
+export const deleteEnvVar = async (key: string): Promise<void> => {
+    const resp = await requestAPI<{ status: string }>(`env-vars/${key}`, {
+        method: 'DELETE',
+    })
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+}
+
+
+/************************************
+
 RULES ENDPOINTS
 
 ************************************/

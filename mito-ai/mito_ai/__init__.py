@@ -21,6 +21,7 @@ from mito_ai.file_uploads.urls import get_file_uploads_urls
 from mito_ai.user.urls import get_user_urls
 from mito_ai.chat_history.urls import get_chat_history_urls
 from mito_ai.chart_wizard.urls import get_chart_wizard_urls
+from mito_ai.env_vars.urls import get_env_vars_urls
 from mito_ai.utils.version_utils import is_enterprise
 from mito_ai import constants
 
@@ -99,8 +100,17 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_user_urls(base_url)) # type: ignore
     handlers.extend(get_chat_history_urls(base_url, global_message_history)) # type: ignore
     handlers.extend(get_chart_wizard_urls(base_url, provider_manager)) # type: ignore
+    handlers.extend(get_env_vars_urls(base_url)) # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
+
+    # Apply any user-defined environment variables stored in settings
+    from mito_ai.settings.utils import ensure_settings_file_exists as _ensure
+    from mito_ai.env_vars.utils import apply_env_vars_to_os_environ
+    try:
+        apply_env_vars_to_os_environ()
+    except Exception:
+        pass  # settings file may not exist yet on first run
     
     # Log enterprise mode status and router configuration
     if is_enterprise():
