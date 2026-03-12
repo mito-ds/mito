@@ -1,0 +1,147 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.env-vars-description {
+    margin: 0 0 20px 0;
+    color: var(--jp-ui-font-color2);
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+/* List */
+
+.env-vars-list {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+}
+
+.env-var-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--jp-border-color1);
+    gap: 16px;
+}
+
+.env-var-item:last-child {
+    border-bottom: none;
+}
+
+.env-var-key {
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--jp-ui-font-color1);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.env-var-masked-value {
+    font-family: monospace;
+    font-size: 14px;
+    color: var(--jp-ui-font-color2);
+    flex: 2;
+    min-width: 0;
+    letter-spacing: 2px;
+}
+
+.env-var-edit-input {
+    flex: 2;
+    min-width: 0;
+    padding: 6px 10px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 4px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.env-var-edit-input:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+.env-var-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.env-vars-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--jp-ui-font-color2);
+    font-style: italic;
+}
+
+.env-vars-empty-state p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Add form */
+
+.env-vars-add-form {
+    border-top: 1px solid var(--jp-border-color1);
+    padding-top: 20px;
+}
+
+.env-vars-add-form strong {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+}
+
+.env-vars-add-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.env-vars-add-input {
+    padding: 6px 10px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 4px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.env-vars-add-input:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+.env-vars-add-input::placeholder {
+    color: var(--jp-ui-font-color3);
+}
+
+.env-vars-add-input-key {
+    flex: 1;
+    min-width: 160px;
+}
+
+.env-vars-add-input-value {
+    flex: 2;
+    min-width: 200px;
+}
+
+.env-vars-error {
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: var(--jp-error-color1);
+}

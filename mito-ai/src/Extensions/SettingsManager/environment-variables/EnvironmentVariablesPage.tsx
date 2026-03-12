@@ -5,6 +5,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { getEnvVars, setEnvVar, deleteEnvVar } from '../../../restAPI/RestAPI';
+import '../../../../style/EnvironmentVariablesPage.css';
+import '../../../../style/button.css';
 
 export const EnvironmentVariablesPage = (): JSX.Element => {
     const [envVars, setEnvVars] = useState<Record<string, string>>({});
@@ -60,80 +62,95 @@ export const EnvironmentVariablesPage = (): JSX.Element => {
             <div className="settings-header">
                 <h2>Environment Variables</h2>
             </div>
-            <p className="settings-option-description" style={{ marginLeft: 0, marginBottom: '16px' }}>
-                Set environment variables that the backend will pick up. Useful for API keys and other configuration values. Changes take effect immediately without restarting the server.
+            <p className="env-vars-description">
+                Set environment variables that the backend will pick up. Useful for API keys and other configuration values. Changes take effect after restarting the server.
             </p>
 
-            {entries.length > 0 && (
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
-                    <thead>
-                        <tr style={{ borderBottom: '1px solid var(--jp-border-color1)' }}>
-                            <th style={{ textAlign: 'left', padding: '6px 8px', fontWeight: 500 }}>Name</th>
-                            <th style={{ textAlign: 'left', padding: '6px 8px', fontWeight: 500 }}>Value</th>
-                            <th style={{ padding: '6px 8px' }}></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {entries.map(([key, value]) => (
-                            <tr key={key} style={{ borderBottom: '1px solid var(--jp-border-color2)' }}>
-                                <td style={{ padding: '6px 8px', fontFamily: 'monospace', fontSize: '0.9em' }}>{key}</td>
-                                <td style={{ padding: '6px 8px' }}>
-                                    {editingKey === key ? (
-                                        <input
-                                            type="text"
-                                            value={editingValue}
-                                            onChange={e => setEditingValue(e.target.value)}
-                                            style={{ width: '100%', boxSizing: 'border-box' }}
-                                            autoFocus
-                                        />
-                                    ) : (
-                                        <span style={{ fontFamily: 'monospace', fontSize: '0.9em' }}>
-                                            {'•'.repeat(Math.min(value.length, 20))}
-                                        </span>
-                                    )}
-                                </td>
-                                <td style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>
-                                    {editingKey === key ? (
-                                        <>
-                                            <button onClick={() => void handleEditSave(key)} style={{ marginRight: '6px' }}>Save</button>
-                                            <button onClick={() => setEditingKey(undefined)}>Cancel</button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => startEditing(key, value)} style={{ marginRight: '6px' }}>Edit</button>
-                                            <button onClick={() => void handleDelete(key)}>Delete</button>
-                                        </>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
+            <div className="env-vars-list">
+                {entries.length > 0 ? entries.map(([key, value]) => (
+                    <div key={key} className="env-var-item">
+                        <span className="env-var-key">{key}</span>
+                        {editingKey === key ? (
+                            <input
+                                className="env-var-edit-input"
+                                type="text"
+                                value={editingValue}
+                                onChange={e => setEditingValue(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') void handleEditSave(key); }}
+                                autoFocus
+                            />
+                        ) : (
+                            <span className="env-var-masked-value">
+                                {'•'.repeat(Math.min(value.length, 20))}
+                            </span>
+                        )}
+                        <div className="env-var-actions">
+                            {editingKey === key ? (
+                                <>
+                                    <button
+                                        className="button-base button-purple"
+                                        onClick={() => void handleEditSave(key)}
+                                    >
+                                        Save
+                                    </button>
+                                    <button
+                                        className="button-base button-gray"
+                                        onClick={() => setEditingKey(undefined)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        className="button-base button-gray"
+                                        onClick={() => startEditing(key, value)}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        className="button-base button-red"
+                                        onClick={() => void handleDelete(key)}
+                                    >
+                                        Delete
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )) : (
+                    <div className="env-vars-empty-state">
+                        <p>No environment variables set. Add one below to get started.</p>
+                    </div>
+                )}
+            </div>
 
-            <div className="settings-option">
+            <div className="env-vars-add-form">
                 <strong>Add Environment Variable</strong>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                <div className="env-vars-add-row">
                     <input
+                        className="env-vars-add-input env-vars-add-input-key"
                         type="text"
                         placeholder="Name (e.g. OPENAI_API_KEY)"
                         value={newKey}
                         onChange={e => setNewKey(e.target.value)}
-                        style={{ flex: '1', minWidth: '160px' }}
                     />
                     <input
+                        className="env-vars-add-input env-vars-add-input-value"
                         type="text"
                         placeholder="Value"
                         value={newValue}
                         onChange={e => setNewValue(e.target.value)}
-                        style={{ flex: '2', minWidth: '200px' }}
                         onKeyDown={e => { if (e.key === 'Enter') void handleAdd(); }}
                     />
-                    <button onClick={() => void handleAdd()}>Add</button>
+                    <button
+                        className="button-base button-purple"
+                        onClick={() => void handleAdd()}
+                    >
+                        <b>＋ Add</b>
+                    </button>
                 </div>
-                {error && (
-                    <p style={{ color: 'var(--jp-error-color1)', marginTop: '6px', fontSize: '0.9em' }}>{error}</p>
-                )}
+                {error && <p className="env-vars-error">{error}</p>}
             </div>
         </div>
     );
