@@ -233,7 +233,7 @@ Important information:
     
     # SCRATCHPAD tool
     sections.append(SG.Generic("TOOL: SCRATCHPAD", """
-When you need to explore data, check the filesystem, analyze mappings, or look up values without leaving code in the notebook, use the SCRATCHPAD tool.
+When you need to explore data, check the filesystem, analyze mappings, look up values, or visually inspect a file without leaving code in the notebook, use the SCRATCHPAD tool.
 
 Format:
 {{
@@ -253,13 +253,23 @@ Important information:
 7. If the code errors, the error message and traceback will be included in the results. You can then decide to fix the code and try again, ask the user a question, or take a different approach.
 8. Use scratchpad for exploration work that doesn't belong in the final notebook. Once you have the information, create clean CELL_UPDATES with hardcoded values.
 9. The scratchpad_summary must be a very short phrase (1–5 words maximum) that begins with a verb ending in "-ing" (e.g., "Checking files", "Exploring data", "Analyzing mappings", "Looking up values"). Avoid full sentences or explanations. This should read like a quick commit message or code label, not a description.
+10. VISUAL INSPECTION (screenshots): To visually inspect a file (e.g. an Excel spreadsheet, PDF, PowerPoint, or image), write scratchpad code that reads the file and prints a single base64-encoded PNG image to stdout. The system will automatically detect this and return the image to you visually instead of as text — no code will appear in the notebook. Use whatever libraries are appropriate for the file type (e.g. pandas + matplotlib for Excel, PyMuPDF for PDF, python-pptx + subprocess for PowerPoint). If a required library is not installed, print an error message explaining what to install.
 
-    <Example>
+    <Example — text output>
     {{
         "type": "scratchpad",
         "message": "I'll check what files are in the current directory to find the data file.",
         "scratchpad_code": "import os\\nscratch_files = os.listdir('.')\\nprint('Files:', scratch_files)\\nfor scratch_file in scratch_files:\\n    if scratch_file.endswith('.csv'):\\n        print(f'CSV file found: {scratch_file}')",
         "scratchpad_summary": "Checking files"
+    }}
+    </Example>
+
+    <Example — screenshot of an Excel file>
+    {{
+        "type": "scratchpad",
+        "message": "I'll take a screenshot of the Excel file to understand its layout and formatting before converting it.",
+        "scratchpad_code": "import openpyxl as scratch_opx\\nimport matplotlib\\nmatplotlib.use('Agg')\\nimport matplotlib.pyplot as scratch_plt\\nimport matplotlib.patches as scratch_ptch\\nimport io, base64\\nscratch_wb = scratch_opx.load_workbook('data.xlsx')\\nscratch_ws = scratch_wb.active\\nscratch_max_r = min(scratch_ws.max_row, 30)\\nscratch_max_c = min(scratch_ws.max_column, 10)\\nscratch_fig, scratch_ax = scratch_plt.subplots(figsize=(scratch_max_c * 2, scratch_max_r * 0.55))\\nscratch_ax.set_xlim(0, scratch_max_c)\\nscratch_ax.set_ylim(0, scratch_max_r)\\nscratch_ax.invert_yaxis()\\nscratch_ax.axis('off')\\nfor scratch_r in range(1, scratch_max_r + 1):\\n    for scratch_c in range(1, scratch_max_c + 1):\\n        scratch_cell = scratch_ws.cell(row=scratch_r, column=scratch_c)\\n        scratch_bg = 'white'\\n        try:\\n            if scratch_cell.fill.fill_type == 'solid':\\n                scratch_rgb = scratch_cell.fill.fgColor.rgb\\n                if scratch_rgb not in ('00000000', ''):\\n                    scratch_bg = '#' + scratch_rgb[2:]\\n        except Exception:\\n            pass\\n        scratch_ax.add_patch(scratch_ptch.Rectangle((scratch_c-1, scratch_r-1), 1, 1, linewidth=0.5, edgecolor='#aaaaaa', facecolor=scratch_bg))\\n        if scratch_cell.value is not None:\\n            scratch_bold = scratch_cell.font.bold if scratch_cell.font else False\\n            scratch_ax.text(scratch_c-0.5, scratch_r-0.5, str(scratch_cell.value)[:25], ha='center', va='center', fontsize=10, fontweight='bold' if scratch_bold else 'normal', clip_on=True)\\nscratch_plt.tight_layout(pad=0)\\nscratch_buf = io.BytesIO()\\nscratch_fig.savefig(scratch_buf, format='png', bbox_inches='tight', dpi=150)\\nscratch_buf.seek(0)\\nscratch_plt.close(scratch_fig)\\nprint(base64.b64encode(scratch_buf.read()).decode('utf-8'))",
+        "scratchpad_summary": "Screenshotting Excel file"
     }}
     </Example>
 

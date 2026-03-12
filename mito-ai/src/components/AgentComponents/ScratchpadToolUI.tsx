@@ -49,13 +49,11 @@ const ScratchpadToolUI: React.FC<ScratchpadToolUIProps> = ({
                         code={scratchpadCode}
                         renderMimeRegistry={renderMimeRegistry}
                     />
-                    <div className="scratchpad-result">
-                        {scratchpadResult ? (
+                    {scratchpadResult && (
+                        <div className="scratchpad-result">
                             <pre>{scratchpadResult}</pre>
-                        ) : (
-                            <pre className="scratchpad-result-warning">Scratchpad results not available for display</pre>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </>
             )}
         </div>

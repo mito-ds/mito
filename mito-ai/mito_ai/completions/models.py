@@ -30,13 +30,13 @@ class CellUpdate(BaseModel):
 # that we show it in the system prompt.
 class AgentResponse(BaseModel):
     type: Literal[
-        'cell_update', 
-        'get_cell_output', 
-        'run_all_cells', 
-        'finished_task', 
-        'create_streamlit_app', 
-        'edit_streamlit_app', 
-        'ask_user_question', 
+        'cell_update',
+        'get_cell_output',
+        'run_all_cells',
+        'finished_task',
+        'create_streamlit_app',
+        'edit_streamlit_app',
+        'ask_user_question',
         'scratchpad',
     ]
     message: str

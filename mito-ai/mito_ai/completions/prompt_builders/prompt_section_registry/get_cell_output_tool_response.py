@@ -16,6 +16,6 @@ class GetCellOutputToolResponseSection(PromptSection):
         
         self.content = ""
         if base64EncodedCellOutput is not None and base64EncodedCellOutput != '':
-            # The actual image is attatched to the message, its not part of the text content
-            self.content = f"Attatched is an image of code cell output that you requested."
+            # The actual image is attached to the message, it's not part of the text content
+            self.content = "Attached is an image of the content you requested."
         

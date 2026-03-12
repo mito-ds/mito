@@ -384,7 +384,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         input: string,
         messageIndex?: number,
         sendCellIDOutput: string | undefined = undefined,
-        additionalContext?: Array<{type: string, value: string}>
+        additionalContext?: Array<{type: string, value: string}>,
+        preComputedBase64?: string
     ): Promise<void> => {
 
         // Step 0: reset the state for a new message
@@ -399,7 +400,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(
-            activeThreadIdRef.current, 
+            activeThreadIdRef.current,
             agentTargetNotebookPanelRef.current,
             input,
             additionalContext
@@ -408,7 +409,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
+        agentExecutionMetadata.base64EncodedActiveCellOutput = preComputedBase64 ?? await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingStatus('thinking');

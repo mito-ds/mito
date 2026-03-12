@@ -22,6 +22,24 @@ import { LoadingStatus } from './useChatState';
 import { ensureNotebookExists } from '../utils';
 import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
 
+/**
+ * Returns true when a scratchpad stdout string looks like a raw base64-encoded image.
+ * The agent is instructed to print exactly one base64 PNG/JPEG/GIF line when it wants
+ * to return a visual screenshot. We detect this by checking for known image magic-byte
+ * prefixes after base64 encoding:
+ *   PNG  → iVBORw0K
+ *   JPEG → /9j/
+ *   GIF  → R0lGOD
+ * The string must also be a single line (no newlines) to avoid false positives on
+ * multi-line text output that happens to start with one of those prefixes.
+ */
+function isBase64Image(stdout: string): boolean {
+    if (!stdout || stdout.includes('\n')) {
+        return false;
+    }
+    return stdout.startsWith('iVBORw0K') || stdout.startsWith('/9j/') || stdout.startsWith('R0lGOD');
+}
+
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
 interface UseAgentExecutionProps {
@@ -48,7 +66,8 @@ interface UseAgentExecutionProps {
         input: string,
         messageIndex?: number,
         sendCellIDOutput?: string,
-        additionalContext?: Array<{ type: string, value: string }>
+        additionalContext?: Array<{ type: string, value: string }>,
+        preComputedBase64?: string
     ) => Promise<void>;
     sendScratchpadResultMessage: (scratchpadResult: string) => Promise<void>;
     sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>;
@@ -159,6 +178,7 @@ export const useAgentExecution = ({
         let agentExecutionDepth = 1;
         let sendCellIDOutput: string | undefined = undefined;
         let processedScratchpadResult: string | undefined = undefined;
+        let screenshotBase64: string | undefined = undefined;
 
         // Sometimes its useful to send extra information back to the agent. For example, 
         // if the agent tries to create a streamlit app and it errors, we want to let the 
@@ -185,6 +205,11 @@ export const useAgentExecution = ({
                 // If we have scratchpad results, send them using the scratchpad result message type
                 await sendScratchpadResultMessage(processedScratchpadResult);
                 processedScratchpadResult = undefined;
+            } else if (screenshotBase64 !== undefined) {
+                // If we have a screenshot, send it as the active cell output image
+                await sendAgentExecutionMessage('', undefined, undefined, undefined, screenshotBase64);
+                screenshotBase64 = undefined;
+                messageToShareWithAgent = undefined;
             } else {
                 await sendAgentExecutionMessage(messageToShareWithAgent || '', undefined, sendCellIDOutput);
                 // Reset flag back to false until the agent requests the active cell output again
@@ -397,8 +422,14 @@ export const useAgentExecution = ({
                     setLoadingStatus(undefined);
                 }
 
-                // Format the results for the agent
-                processedScratchpadResult = formatScratchpadResult(scratchpadResult);
+                // If the entire stdout is a base64-encoded image, return it visually
+                // instead of as text so the agent can inspect the file.
+                const stdout = scratchpadResult.stdout.trim();
+                if (scratchpadResult.success && isBase64Image(stdout)) {
+                    screenshotBase64 = stdout;
+                } else {
+                    processedScratchpadResult = formatScratchpadResult(scratchpadResult);
+                }
             }
         }
 
