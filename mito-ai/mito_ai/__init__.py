@@ -105,7 +105,6 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     web_app.add_handlers(host_pattern, handlers)
 
     # Apply any user-defined environment variables stored in settings
-    from mito_ai.settings.utils import ensure_settings_file_exists as _ensure
     from mito_ai.env_vars.utils import apply_env_vars_to_os_environ
     try:
         apply_env_vars_to_os_environ()
