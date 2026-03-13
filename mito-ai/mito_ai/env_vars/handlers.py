@@ -9,17 +9,13 @@ from mito_ai.settings.utils import ensure_settings_file_exists
 
 
 class EnvVarsHandler(APIHandler):
-    """Handler for listing and bulk-reading environment variables."""
+    """Handler for environment variable operations."""
 
     @tornado.web.authenticated
     @ensure_settings_file_exists
-    def get(self) -> None:
+    def get(self, key: str = '') -> None:
         """Return all stored environment variables."""
         self.finish(json.dumps({"env_vars": get_env_vars()}))
-
-
-class EnvVarHandler(APIHandler):
-    """Handler for creating, updating, and deleting a single environment variable."""
 
     @tornado.web.authenticated
     @ensure_settings_file_exists
