@@ -334,11 +334,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
             elif model_type == "litellm":
                 from mito_ai.enterprise.litellm_client import LiteLLMClient
-                if not constants.LITELLM_BASE_URL:
+                if not os.environ.get("LITELLM_BASE_URL"):
                     raise ValueError("LITELLM_BASE_URL is required for LiteLLM models")
                 litellm_client = LiteLLMClient(
-                    api_key=constants.LITELLM_API_KEY,
-                    base_url=constants.LITELLM_BASE_URL
+                    api_key=os.environ.get("LITELLM_API_KEY"),
+                    base_url=os.environ.get("LITELLM_BASE_URL")
                 )
                 accumulated_response = await litellm_client.stream_completions(
                     messages=messages,
