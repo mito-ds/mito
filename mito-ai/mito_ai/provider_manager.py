@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 import asyncio
+import os
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
@@ -92,19 +93,19 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="LiteLLM",
             )
             
-        if constants.OPENAI_API_KEY:
+        if os.environ.get("OPENAI_API_KEY"):
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="OpenAI",
             )
-            
-        if constants.ANTHROPIC_API_KEY:
+
+        if os.environ.get("ANTHROPIC_API_KEY"):
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="Claude",
             )
-            
-        if constants.GEMINI_API_KEY:
+
+        if os.environ.get("GEMINI_API_KEY"):
             return AICapabilities(
                 configuration={"model": "<dynamic>"},
                 provider="Gemini",
@@ -129,7 +130,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         if is_litellm_configured():
             return USER_KEY
         
-        if constants.ANTHROPIC_API_KEY or constants.GEMINI_API_KEY or constants.OPENAI_API_KEY or constants.OLLAMA_MODEL:  
+        if os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("GEMINI_API_KEY") or os.environ.get("OPENAI_API_KEY") or constants.OLLAMA_MODEL:
             return USER_KEY
         
         return MITO_SERVER_KEY
@@ -203,11 +204,11 @@ This attribute is observed by the websocket provider to push the error to the cl
                         message_type=message_type
                     )
                 elif model_type == "claude":
-                    api_key = constants.ANTHROPIC_API_KEY
+                    api_key = os.environ.get("ANTHROPIC_API_KEY")
                     anthropic_client = AnthropicClient(api_key=api_key)
                     completion = await anthropic_client.request_completions(messages, resolved_model, response_format_info, message_type)
                 elif model_type == "gemini":
-                    api_key = constants.GEMINI_API_KEY
+                    api_key = os.environ.get("GEMINI_API_KEY")
                     gemini_client = GeminiClient(api_key=api_key)
                     messages_for_gemini = [dict(m) for m in messages]
                     completion = await gemini_client.request_completions(messages_for_gemini, resolved_model, response_format_info, message_type)
@@ -348,7 +349,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     response_format_info=response_format_info
                 )
             elif model_type == "claude":
-                api_key = constants.ANTHROPIC_API_KEY
+                api_key = os.environ.get("ANTHROPIC_API_KEY")
                 anthropic_client = AnthropicClient(api_key=api_key)
                 accumulated_response = await anthropic_client.stream_completions(
                     messages=messages,
@@ -358,7 +359,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     reply_fn=reply_fn
                 )
             elif model_type == "gemini":
-                api_key = constants.GEMINI_API_KEY
+                api_key = os.environ.get("GEMINI_API_KEY")
                 gemini_client = GeminiClient(api_key=api_key)
                 # TODO: We shouldn't need to do this because the messages should already be dictionaries... 
                 # but if we do have to do some pre-processing, we should do it in the gemini_client instead.
