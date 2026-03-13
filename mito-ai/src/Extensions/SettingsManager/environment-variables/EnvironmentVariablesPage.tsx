@@ -151,7 +151,7 @@ export const EnvironmentVariablesPage = (): JSX.Element => {
             </div>
 
             <div className="env-vars-restart-notice">
-                <p><strong>After saving, restart the server for changes to take effect:</strong></p>
+                <p><strong>Note that these changes will take effect after restarting the server:</strong></p>
                 <ul>
                     <li><strong>JupyterLab:</strong> Shut down the server from the terminal (<code>Ctrl+C</code>), then restart it (<code>jupyter lab</code>).</li>
                     <li><strong>JupyterHub:</strong> Open the <strong>File</strong> menu and select <strong>Hub Control Panel</strong>, then click <strong>Stop My Server</strong> and start it again.</li>
