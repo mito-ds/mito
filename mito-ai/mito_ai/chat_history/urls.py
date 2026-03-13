@@ -17,7 +17,7 @@ def get_chat_history_urls(base_url: str, message_history: GlobalMessageHistory) 
     Returns:
         List of (url_pattern, handler_class, handler_kwargs) tuples
     """
-    BASE_URL = base_url + "/mito-ai/chat-history"
+    BASE_URL = url_path_join(base_url, "mito-ai", "chat-history")
     return [
         (
             url_path_join(BASE_URL, "threads"),
