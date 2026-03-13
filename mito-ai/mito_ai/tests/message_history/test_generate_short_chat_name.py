@@ -47,6 +47,9 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     
     # Set up LiteLLM constants if testing LiteLLM
     if "LiteLLMClient" in client_patch_path:
+        # provider_manager checks os.environ for LITELLM_BASE_URL, so set env vars
+        monkeypatch.setenv("LITELLM_BASE_URL", "https://litellm-server.com")
+        monkeypatch.setenv("LITELLM_API_KEY", "fake-litellm-key")
         # Patch constants both at the source and where they're imported in model_utils
         monkeypatch.setattr("mito_ai.constants.LITELLM_BASE_URL", "https://litellm-server.com")
         monkeypatch.setattr("mito_ai.constants.LITELLM_API_KEY", "fake-litellm-key")
