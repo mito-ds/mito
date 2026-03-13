@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from __future__ import annotations
+import os
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
 
 from mito_ai.utils.mito_server_utils import ProviderCompletionException
@@ -84,7 +85,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 provider="Ollama",
             )
 
-        if constants.OPENAI_API_KEY:
+        if os.environ.get("OPENAI_API_KEY"):
             return AICapabilities(
                 configuration={
                     "model": "<dynamic>"
@@ -137,8 +138,8 @@ This attribute is observed by the websocket provider to push the error to the cl
             base_url = constants.OLLAMA_BASE_URL
             llm_api_key = "ollama"
             self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
-        elif constants.OPENAI_API_KEY:
-            llm_api_key = constants.OPENAI_API_KEY
+        elif os.environ.get("OPENAI_API_KEY"):
+            llm_api_key = os.environ.get("OPENAI_API_KEY")
             self.log.debug("Using OpenAI with user-provided API key")
         else:
             self.log.warning("No valid API key or model configuration provided")
