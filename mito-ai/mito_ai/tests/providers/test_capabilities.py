@@ -83,7 +83,9 @@ def test_provider_capabilities_real_logic(
     
     # Set up the environment based on test case
     setup = test_case["setup"]
-    
+
+    ENV_VAR_KEYS = {"OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY"}
+
     # CRITICAL: Set up ALL mocks BEFORE creating any clients
     for key, value in setup.items():
         if key == "is_azure_configured":
@@ -94,6 +96,11 @@ def test_provider_capabilities_real_logic(
             else:
                 # For non-Azure case, mock to return False
                 monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
+        elif key in ENV_VAR_KEYS:
+            if value is None:
+                monkeypatch.delenv(key, raising=False)
+            else:
+                monkeypatch.setenv(key, value)
         else:
             monkeypatch.setattr(f"mito_ai.constants.{key}", value)
     
