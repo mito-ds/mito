@@ -1,7 +1,7 @@
 {
     "name": "mitosheet-vscode",
     "displayName": "Mitosheet for VSCode",
-    "description": "Create and edit mitosheets in VSCode.",
+    "description": "Spreadsheet editor for VSCode — filter, create pivot tables, and more.",
     "version": "0.1.0",
     "publisher": "mito-ds",
     "icon": "media/icon.png",
