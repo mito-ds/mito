@@ -1,43 +1,49 @@
 {
-    "name": "mitosheet-vscode",
-    "displayName": "Mitosheet for VSCode",
-    "description": "Spreadsheet editor for VSCode — filter, create pivot tables, and more.",
-    "version": "0.1.0",
-    "publisher": "mito-ds",
-    "icon": "media/icon.png",
-    "repository": {
-        "url": "https://github.com/mito-ds/mito",
-        "type": "git"
+    "name":"mitosheet-vscode",
+    "displayName":"Mitosheet for VSCode",
+    "description":"Spreadsheet editor for VSCode — filter, create pivot tables, and more.",
+    "version":"0.1.0",
+    "publisher":"mito-ds",
+    "icon":"media/icon.png",
+    "repository":{
+       "type":"git",
+       "url":"https://github.com/mito-ds/mito"
     },
-    "engines": {
-        "vscode": "^1.80.0"
+    "bugs":{
+       "url":"https://github.com/mito-ds/mito/issues"
     },
-    "categories": [
-        "Notebooks"
+    "homepage":"https://www.trymito.io/",
+    "engines":{
+       "vscode":"^1.80.0"
+    },
+    "categories":[
+       "Notebooks"
     ],
-    "activationEvents": [],
-    "main": "./out/extension.js",
-    "contributes": {
-        "notebookRenderer": [
-            {
-                "id": "mitosheet-vscode-renderer",
-                "displayName": "Mitosheet for VSCode",
-                "mimeTypes": [
-                    "application/x-mitosheet"
-                ],
-                "entrypoint": "./out/renderer.js",
-                "requiresMessaging": "always"
-            }
-        ]
+    "activationEvents":[
+       
+    ],
+    "main":"./out/extension.js",
+    "contributes":{
+       "notebookRenderer":[
+          {
+             "id":"mitosheet-vscode-renderer",
+             "displayName":"Mitosheet for VSCode",
+             "mimeTypes":[
+                "application/x-mitosheet"
+             ],
+             "entrypoint":"./out/renderer.js",
+             "requiresMessaging":"always"
+          }
+       ]
     },
-    "scripts": {
-        "build": "node esbuild.js",
-        "watch": "node esbuild.js --watch"
+    "scripts":{
+       "build":"node esbuild.js",
+       "watch":"node esbuild.js --watch"
     },
-    "devDependencies": {
-        "@types/vscode": "^1.80.0",
-        "@types/vscode-notebook-renderer": "^1.72.0",
-        "esbuild": "^0.15.16",
-        "typescript": "^5.5.4"
+    "devDependencies":{
+       "@types/vscode":"^1.80.0",
+       "@types/vscode-notebook-renderer":"^1.72.0",
+       "esbuild":"^0.15.16",
+       "typescript":"^5.5.4"
     }
-}
+ }
