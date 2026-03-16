@@ -16,8 +16,22 @@
     "engines":{
        "vscode":"^1.80.0"
     },
+    "keywords": [
+        "jupyter",
+        "notebook",
+        "data science",
+        "visualization",
+        "spreadsheet",
+        "filter",
+        "pivot table",
+        "chart",
+        "graph"
+    ],
     "categories":[
-       "Notebooks"
+       "Notebooks",
+       "Data Science",
+       "Visualization",
+       "Spreadsheet"
     ],
     "activationEvents":[
        
