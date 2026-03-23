@@ -1,0 +1,63 @@
+{
+    "name":"mitosheet-vscode",
+    "displayName":"Mitosheet for VSCode",
+    "description":"Spreadsheets in VSCode — filter, create pivot tables, and more.",
+    "version":"0.1.0",
+    "publisher":"mito-ds",
+    "icon":"media/icon.png",
+    "repository":{
+       "type":"git",
+       "url":"https://github.com/mito-ds/mito"
+    },
+    "bugs":{
+       "url":"https://github.com/mito-ds/mito/issues"
+    },
+    "homepage":"https://www.trymito.io/",
+    "engines":{
+       "vscode":"^1.80.0"
+    },
+    "keywords": [
+        "jupyter",
+        "notebook",
+        "data science",
+        "visualization",
+        "spreadsheet",
+        "filter",
+        "pivot table",
+        "chart",
+        "graph"
+    ],
+    "categories":[
+       "Notebooks",
+       "Data Science",
+       "Visualization",
+       "Spreadsheet"
+    ],
+    "activationEvents":[
+       
+    ],
+    "main":"./out/extension.js",
+    "contributes":{
+       "notebookRenderer":[
+          {
+             "id":"mitosheet-vscode-renderer",
+             "displayName":"Mitosheet for VSCode",
+             "mimeTypes":[
+                "application/x-mitosheet"
+             ],
+             "entrypoint":"./out/renderer.js",
+             "requiresMessaging":"always"
+          }
+       ]
+    },
+    "scripts":{
+       "build":"node esbuild.js",
+       "watch":"node esbuild.js --watch"
+    },
+    "devDependencies":{
+       "@types/vscode":"^1.80.0",
+       "@types/vscode-notebook-renderer":"^1.72.0",
+       "esbuild":"^0.15.16",
+       "typescript":"^5.5.4"
+    }
+ }
