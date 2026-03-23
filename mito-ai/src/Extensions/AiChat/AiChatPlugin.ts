@@ -13,7 +13,7 @@ import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
+import { COMMAND_MITO_AI_ADD_COLUMN_TO_CONTEXT, COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
@@ -113,6 +113,22 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
         // Set focus on the chat input
         const chatInput: HTMLTextAreaElement | null = widget.node.querySelector('.chat-input');
         chatInput?.focus();
+      }
+    });
+
+    // Register command for mitosheet to add a column to the AI chat context.
+    // Registered here (not in ChatTaskpane) so it's available immediately at
+    // plugin activation time, before the chat panel is ever opened.
+    app.commands.addCommand(COMMAND_MITO_AI_ADD_COLUMN_TO_CONTEXT, {
+      label: 'Add column to AI chat context',
+      execute: async (args?: ReadonlyPartialJSONObject) => {
+        await app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT);
+        window.dispatchEvent(new CustomEvent('mito-ai-add-column-to-context', {
+          detail: {
+            dfName: args?.dfName,
+            columnName: args?.columnName
+          }
+        }));
       }
     });
 

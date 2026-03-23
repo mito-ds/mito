@@ -457,6 +457,9 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
         // 1. a separator should never be the first element in the dropdown
         // 2. a separtor should never be the last element in the dropdown
         // 3. there should never be consecutive separators
+        if (!child) {
+            return null;
+        }
         if (child.props.isDropdownSectionSeperator) {
             return child;
         }

@@ -16,6 +16,7 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
     # STEP 1: Extract each context type into a separate list
     # Filter out any non-dict items and ensure we only process dictionaries
     selected_variables = [context["value"] for context in additional_context if context.get("type") == "variable"]
+    selected_columns = [context["value"] for context in additional_context if context.get("type") == "column"]
     selected_files = [context["value"] for context in additional_context if context.get("type") == "file"]
     selected_db_connections = [context["value"] for context in additional_context if context.get("type") == "db"]
     selected_images = [context["value"] for context in additional_context if context.get("type", "").startswith("image/")]
@@ -30,7 +31,13 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
             "The following variables have been selected by the user to be used in the task:\n"
             + "\n".join(selected_variables)
         )
-    
+
+    if len(selected_columns) > 0:
+        context_parts.append(
+            "The following dataframe columns have been selected by the user to be used in the task:\n"
+            + "\n".join(selected_columns)
+        )
+
     if len(selected_files) > 0:
         context_parts.append(
             "The following files have been selected by the user to be used in the task:\n"

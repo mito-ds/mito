@@ -28,3 +28,6 @@ export const COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT = 'mito-ai:preview-as-streamli
 
 // Chart Wizard commands
 export const COMMAND_MITO_AI_OPEN_CHART_WIZARD = 'mito-ai:open-chart-wizard';
+
+// Mitosheet integration commands
+export const COMMAND_MITO_AI_ADD_COLUMN_TO_CONTEXT = `${MITO_AI}:add-column-to-context`;

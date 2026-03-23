@@ -516,6 +516,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
         });
     }, [lineSelection]);
 
+    // Listen for the add-column-to-context event dispatched by the mitosheet integration
+    useEffect(() => {
+        const handleAddColumnToContext = (e: CustomEvent<{dfName: string, columnName: string}>): void => {
+            const { dfName, columnName } = e.detail;
+            if (!dfName || !columnName) return;
+            const contextValue = `${dfName}["${columnName}"]`;
+            const displayName = `${dfName}[${columnName}]`;
+            setAdditionalContext(prev => [
+                ...prev,
+                { type: 'column', value: contextValue, display: displayName }
+            ]);
+        };
+        window.addEventListener('mito-ai-add-column-to-context', handleAddColumnToContext as EventListener);
+        return () => {
+            window.removeEventListener('mito-ai-add-column-to-context', handleAddColumnToContext as EventListener);
+        };
+    }, []);
+
     return (
         <div
             className={classNames("chat-input-container", { 
