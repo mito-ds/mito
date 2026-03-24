@@ -65,7 +65,7 @@ EOF
 }
 
 print_success() {
-  local rc_file
+  local rc_file bold reset cyan
   case "$(basename "${SHELL:-/bin/zsh}")" in
     bash)
       rc_file="${HOME}/.bash_profile"
@@ -75,17 +75,35 @@ print_success() {
       ;;
   esac
 
-  cat <<EOF
+  if [[ -t 1 ]] && [[ -z "${NO_COLOR:-}" ]]; then
+    bold=$'\033[1m'
+    reset=$'\033[0m'
+    cyan=$'\033[36m'
+    dim=$'\033[2m'
+  else
+    bold=''
+    reset=''
+    cyan=''
+    dim=''
+  fi
 
-Mito is installed in ${VENV_PATH}.
-
-Run JupyterLab:
-  ${MITO_CLI_BIN}
-
-To use the mito command from your terminal, add it to your PATH (paste both lines):
-  echo 'export PATH="${MITO_HOME}/bin:\$PATH"' >> ${rc_file}
-  source ${rc_file}
-EOF
+  # Visually distinct "next steps" block (colors disabled when NO_COLOR is set or stdout is not a TTY).
+  printf '\n'
+  printf '%s\n' "${cyan}${bold}  ────────────────────────────────────────────────────────────────${reset}"
+  printf '\n'
+  printf '%s    %sNext steps%s\n' "${cyan}" "${bold}" "${reset}"
+  printf '\n'
+  printf '%s\n' "${cyan}${bold}  ────────────────────────────────────────────────────────────────${reset}"
+  printf '\n'
+  printf '%s\n' "    Run JupyterLab:"
+  printf '%s\n' "      ${MITO_CLI_BIN}"
+  printf '\n'
+  printf '%s\n' "    Add the mito command to your PATH (paste both lines):"
+  printf "      echo 'export PATH=\"%s/bin:\$PATH\"' >> %s\n" "${MITO_HOME}" "${rc_file}"
+  printf '      source %s\n' "${rc_file}"
+  printf '\n'
+  printf '%s\n' "${dim}  Installed at: ${VENV_PATH}${reset}"
+  printf '\n'
 }
 
 main() {
