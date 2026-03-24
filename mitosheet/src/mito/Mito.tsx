@@ -74,6 +74,7 @@ import { SendFunction, SendFunctionError } from './api/send';
 import BottomLeftPopup from './components/elements/BottomLeftPopup';
 import StreamlitSignupModal from './components/modals/StreamlitSignupModal';
 import UserEditedCodeModal from './components/modals/UserEditedCodeModal';
+import AskAIColumnModal from './components/modals/AskAIColumnModal';
 import EphemeralMessage from './components/popups/EphemeralMessage';
 import DevTaskpane from './components/taskpanes/Dev/DevTaskpane';
 import GithubScheduleTaskpane from './components/taskpanes/GithubSchedule/GithubScheduleTaskpane';
@@ -587,6 +588,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     analysisData={analysisData}
                     codeWithoutUserEdits={uiState.currOpenModal.codeWithoutUserEdits}
                     codeWithUserEdits={uiState.currOpenModal.codeWithUserEdits}
+                />
+            )
+            case ModalEnum.AskAIColumn: return (
+                <AskAIColumnModal
+                    mitoAPI={mitoAPI}
+                    columnHeader={uiState.currOpenModal.columnHeader}
+                    dfName={uiState.currOpenModal.dfName}
+                    setUIState={setUIState}
                 />
             )
         }

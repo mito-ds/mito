@@ -5,7 +5,7 @@
 
 // Copyright (c) Mito
 
-import { MitoError } from "../../types";
+import { ColumnHeader, MitoError } from "../../types";
 
 export enum ModalEnum {
     None = 'None',
@@ -20,6 +20,7 @@ export enum ModalEnum {
     ErrorReplayedAnalysis = 'ErrorReplayAnalysis',
     GraphTitleEditor = 'GraphTitleEditor',
     UserEditedCode = 'UserEditedCode',
+    AskAIColumn = 'AskAIColumn',
 }
 
 /* 
@@ -75,8 +76,14 @@ interface DeleteGraphsModalInfo {
     }[]
 }
 
-export type ModalInfo = 
-    | NoneModalInfo 
+interface AskAIColumnModalInfo {
+    type: ModalEnum.AskAIColumn;
+    columnHeader: ColumnHeader;
+    dfName: string;
+}
+
+export type ModalInfo =
+    | NoneModalInfo
     | ErrorModalInfo
     | UserEditedCodeModalInfo
     | SignUpModalInfo
@@ -84,3 +91,4 @@ export type ModalInfo =
     | DeleteGraphsModalInfo
     | ErrorReplayedAnalysisInfo
     | StreamlitSignUpModalInfo
+    | AskAIColumnModalInfo

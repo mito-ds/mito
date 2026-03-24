@@ -88,6 +88,9 @@ export default function ColumnHeaderContextMenu(props: {
 
             {window.commands?.hasCommand('mito_ai:add-column-to-context') && <DropdownSectionSeperator isDropdownSectionSeperator={true}/>}
             {window.commands?.hasCommand('mito_ai:add-column-to-context') && <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Add_Column_To_AI_Context], props.closeOpenEditingPopups)}/>}
+
+            <DropdownSectionSeperator isDropdownSectionSeperator={true}/>
+            <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.Ask_AI_Column], props.closeOpenEditingPopups)}/>
         </Dropdown>
     )
 }
