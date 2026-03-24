@@ -37,10 +37,13 @@ ensure_uv() {
     return 0
   fi
   echo "uv not found; installing from astral.sh ..."
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  # Install script usually places uv under ~/.local/bin or ~/.cargo/bin.
   export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:${PATH}"
-  command -v uv >/dev/null 2>&1 || die "uv was installed but is not on PATH. Open a new terminal and run this script again, or add ~/.local/bin to PATH."
+  # The official installer can exit non-zero after copying uv (e.g. receipt write fails with
+  # "Permission denied" under ~/.config/uv). If `uv` is on PATH, we continue anyway.
+  if ! curl -LsSf https://astral.sh/uv/install.sh | sh; then
+    echo "mito-install: uv install script reported an error (often ~/.config permissions). Checking for uv ..." >&2
+  fi
+  command -v uv >/dev/null 2>&1 || die "uv is not on PATH after install. Fix permissions on ~/.config if needed, or add ~/.local/bin to PATH and run this script again."
 }
 
 venv_install() {
