@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install Mito (mito-ai + mitosheet) on macOS into ~/.mito/venv via pip.
+# Install Mito (mito-ai + mitosheet) on macOS into ~/.mito/venv using uv (https://github.com/astral-sh/uv).
 #
 # One-liner (after this file is hosted):
 #   curl -fsSL https://raw.githubusercontent.com/mito-ds/monorepo/main/scripts/install.sh | bash
@@ -31,13 +31,24 @@ python_ok_version() {
   python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)'
 }
 
+# Ensure uv is on PATH (installs via Astral's script if missing).
+ensure_uv() {
+  if command -v uv >/dev/null 2>&1; then
+    return 0
+  fi
+  echo "uv not found; installing from astral.sh ..."
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  # Install script usually places uv under ~/.local/bin or ~/.cargo/bin.
+  export PATH="${HOME}/.local/bin:${HOME}/.cargo/bin:${PATH}"
+  command -v uv >/dev/null 2>&1 || die "uv was installed but is not on PATH. Open a new terminal and run this script again, or add ~/.local/bin to PATH."
+}
+
 venv_install() {
-  local py="$1"
   echo "Creating virtual environment at ${VENV_PATH} ..."
-  "${py}" -m venv --clear "${VENV_PATH}"
-  "${VENV_PATH}/bin/python" -m pip install --upgrade pip --quiet
+  rm -rf "${VENV_PATH}"
+  uv venv "${VENV_PATH}" --python python3 --no-project
   echo "Installing ${PACKAGES[*]} ..."
-  "${VENV_PATH}/bin/pip" install "${PACKAGES[@]}"
+  uv pip install --no-config --python "${VENV_PATH}/bin/python" "${PACKAGES[@]}"
 }
 
 install_mito_cli() {
@@ -81,7 +92,8 @@ main() {
 
   python_ok_version || die "Python 3.9 or newer is required."
 
-  venv_install python3
+  ensure_uv
+  venv_install
   install_mito_cli
   print_success
 }
