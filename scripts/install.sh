@@ -51,37 +51,26 @@ EOF
 }
 
 print_success() {
+  local rc_file
+  case "$(basename "${SHELL:-/bin/zsh}")" in
+    bash)
+      rc_file="${HOME}/.bash_profile"
+      ;;
+    *)
+      rc_file="${HOME}/.zprofile"
+      ;;
+  esac
+
   cat <<EOF
 
-Mito is installed in: ${VENV_PATH}
-CLI wrapper: ${MITO_CLI_BIN}
+Mito is installed in ${VENV_PATH}.
 
-==> Next steps
+Run JupyterLab:
+  ${MITO_CLI_BIN}
 
-  Run JupyterLab without changing your PATH (always works):
-    ${MITO_CLI_BIN}
-
-  Add the mito command to your PATH (zsh — copy and paste both lines):
-
-    echo 'export PATH="${MITO_HOME}/bin:\$PATH"' >> ~/.zprofile
-    source ~/.zprofile
-
-  If your shell does not load ~/.zprofile, use ~/.zshrc instead of ~/.zprofile in those two lines.
-
-  If you use bash instead of zsh:
-
-    echo 'export PATH="${MITO_HOME}/bin:\$PATH"' >> ~/.bash_profile
-    source ~/.bash_profile
-
-  Then in a new terminal:
-    mito
-
-  Same as:
-    ${VENV_PATH}/bin/jupyter lab
-
-  Or activate the venv first:
-    source ${VENV_PATH}/bin/activate
-    jupyter lab
+To use the mito command from your terminal, add it to your PATH (paste both lines):
+  echo 'export PATH="${MITO_HOME}/bin:\$PATH"' >> ${rc_file}
+  source ${rc_file}
 EOF
 }
 
