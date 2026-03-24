@@ -11,6 +11,7 @@ set -euo pipefail
 
 MITO_HOME="${MITO_HOME:-$HOME/.mito}"
 VENV_PATH="${MITO_HOME}/venv"
+MITO_CLI_BIN="${MITO_HOME}/bin/mito"
 PACKAGES=(mito-ai mitosheet)
 
 die() {
@@ -39,20 +40,48 @@ venv_install() {
   "${VENV_PATH}/bin/pip" install "${PACKAGES[@]}"
 }
 
+install_mito_cli() {
+  mkdir -p "${MITO_HOME}/bin"
+  cat > "${MITO_CLI_BIN}" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+exec "${VENV_PATH}/bin/jupyter" lab "\$@"
+EOF
+  chmod +x "${MITO_CLI_BIN}"
+}
+
 print_success() {
   cat <<EOF
 
 Mito is installed in: ${VENV_PATH}
+CLI wrapper: ${MITO_CLI_BIN}
 
-  To use it in this terminal:
-    source ${VENV_PATH}/bin/activate
-    jupyter lab
+==> Next steps
 
-  Or run Jupyter without activating (one line):
+  Run JupyterLab without changing your PATH (always works):
+    ${MITO_CLI_BIN}
+
+  Add the mito command to your PATH (zsh — copy and paste both lines):
+
+    echo 'export PATH="${MITO_HOME}/bin:\$PATH"' >> ~/.zprofile
+    source ~/.zprofile
+
+  If your shell does not load ~/.zprofile, use ~/.zshrc instead of ~/.zprofile in those two lines.
+
+  If you use bash instead of zsh:
+
+    echo 'export PATH="${MITO_HOME}/bin:\$PATH"' >> ~/.bash_profile
+    source ~/.bash_profile
+
+  Then in a new terminal:
+    mito
+
+  Same as:
     ${VENV_PATH}/bin/jupyter lab
 
-  To add jupyter to your PATH for new shells (zsh), you can add:
-    export PATH="${VENV_PATH}/bin:\$PATH"
+  Or activate the venv first:
+    source ${VENV_PATH}/bin/activate
+    jupyter lab
 EOF
 }
 
@@ -64,6 +93,7 @@ main() {
   python_ok_version || die "Python 3.9 or newer is required."
 
   venv_install python3
+  install_mito_cli
   print_success
 }
 
