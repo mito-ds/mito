@@ -64,16 +64,50 @@ EOF
   chmod +x "${MITO_CLI_BIN}"
 }
 
-print_success() {
-  local rc_file bold reset cyan
+# Login-shell rc file for PATH (bash vs zsh), same as print_success / docs.
+shell_rc_file() {
   case "$(basename "${SHELL:-/bin/zsh}")" in
     bash)
-      rc_file="${HOME}/.bash_profile"
+      echo "${HOME}/.bash_profile"
       ;;
     *)
-      rc_file="${HOME}/.zprofile"
+      echo "${HOME}/.zprofile"
       ;;
   esac
+}
+
+# Append Mito bin to PATH in the rc file and try to source it in this bash process.
+# Returns 0 if PATH is configured (already or just written), 1 if we could not write the file.
+apply_path_to_rc() {
+  local rc_file
+  rc_file="$(shell_rc_file)"
+
+  if [[ -f "${rc_file}" ]] && grep -qF "${MITO_HOME}/bin" "${rc_file}" 2>/dev/null; then
+    export PATH="${MITO_HOME}/bin:${PATH}"
+    return 0
+  fi
+
+  if ! printf 'export PATH="%s/bin:$PATH"\n' "${MITO_HOME}" >> "${rc_file}" 2>/dev/null; then
+    return 1
+  fi
+
+  set +e
+  # shellcheck disable=1090
+  source "${rc_file}" 2>/dev/null
+  local src=$?
+  set -e
+  if [[ "${src}" -ne 0 ]]; then
+    echo "mito-install: could not source ${rc_file} from bash (often fine for zsh-only files). Open a new terminal or run: source ${rc_file}" >&2
+  fi
+  export PATH="${MITO_HOME}/bin:${PATH}"
+  return 0
+}
+
+print_success() {
+  local rc_file bold reset cyan dim path_ok
+  rc_file="$(shell_rc_file)"
+  path_ok=1
+  apply_path_to_rc || path_ok=0
 
   if [[ -t 1 ]] && [[ -z "${NO_COLOR:-}" ]]; then
     bold=$'\033[1m'
@@ -98,9 +132,14 @@ print_success() {
   printf '%s\n' "    Run JupyterLab:"
   printf '%s\n' "      ${MITO_CLI_BIN}"
   printf '\n'
-  printf '%s\n' "    Add the mito command to your PATH (paste both lines):"
-  printf "      echo 'export PATH=\"%s/bin:\$PATH\"' >> %s\n" "${MITO_HOME}" "${rc_file}"
-  printf '      source %s\n' "${rc_file}"
+  if [[ "${path_ok}" -eq 1 ]]; then
+    printf '%s\n' "    ${bold}PATH${reset} was updated in ${rc_file}."
+    printf '%s\n' "    Open a ${bold}new terminal${reset}, or in this one run: ${bold}source ${rc_file}${reset}  then: ${bold}mito${reset}"
+  else
+    printf '%s\n' "    Add the mito command to your PATH (paste both lines):"
+    printf "      echo 'export PATH=\"%s/bin:\$PATH\"' >> %s\n" "${MITO_HOME}" "${rc_file}"
+    printf '      source %s\n' "${rc_file}"
+  fi
   printf '\n'
   printf '%s\n' "${dim}  Installed at: ${VENV_PATH}${reset}"
   printf '\n'
