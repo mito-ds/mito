@@ -104,37 +104,38 @@ apply_path_to_rc() {
 }
 
 print_success() {
-  local rc_file bold reset path_ok
+  local rc_file path_ok
   rc_file="$(shell_rc_file)"
   path_ok=1
   apply_path_to_rc || path_ok=0
 
-  if [[ -t 1 ]] && [[ -z "${NO_COLOR:-}" ]]; then
-    bold=$'\033[1m'
-    reset=$'\033[0m'
-  else
-    bold=''
-    reset=''
-  fi
-
   printf '\n'
   printf 'Installed at: %s\n' "${VENV_PATH}"
   if [[ "${path_ok}" -eq 1 ]]; then
-    printf 'PATH was updated in %s\n' "${rc_file}"
+    printf 'PATH was updated in %s.\n' "${rc_file}"
+  fi
+  printf '\n'
+
+  printf 'NEXT STEPS\n'
+  printf '\n'
+
+  printf 'Congratulations! Mito is installed. Just last thing:\n'
+  printf '\n'
+
+  printf '1) Copy-and-paste this command to complete installation:\n'
+  printf '   source %s\n' "${rc_file}"
+  printf '\n'
+
+  printf '2) You can now launch Mito at any time by running:\n'
+  printf '   mito\n'
+  printf '\n'
+
+  if [[ "${path_ok}" -ne 1 ]]; then
+    printf 'If `mito` is not found, add it to your PATH (one-time):\n'
+    printf "  echo 'export PATH=\"%s/bin:\\$PATH\"' >> %s\n" "${MITO_HOME}" "${rc_file}"
+    printf "  source %s\n" "${rc_file}"
     printf '\n'
   fi
-  printf '%sNext steps%s\n' "${bold}" "${reset}"
-  printf '\n'
-  if [[ "${path_ok}" -eq 1 ]]; then
-    printf '%s\n' "  Run these in your terminal:"
-    printf '  %ssource %s%s\n' "${bold}" "${rc_file}" "${reset}"
-    printf '  %smito%s\n' "${bold}" "${reset}"
-  else
-    printf '%s\n' "  Paste both lines into your terminal to add mito to your PATH:"
-    printf "    echo 'export PATH=\"%s/bin:\$PATH\"' >> %s\n" "${MITO_HOME}" "${rc_file}"
-    printf '    source %s\n' "${rc_file}"
-  fi
-  printf '\n'
 }
 
 main() {
