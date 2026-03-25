@@ -109,6 +109,19 @@ print_success() {
   path_ok=1
   apply_path_to_rc || path_ok=0
 
+  local green cyan bold reset
+  if [[ -t 1 ]] && [[ -z "${NO_COLOR:-}" ]]; then
+    bold=$'\033[1m'
+    reset=$'\033[0m'
+    green=$'\033[32m'
+    cyan=$'\033[36m'
+  else
+    bold=''
+    reset=''
+    green=''
+    cyan=''
+  fi
+
   printf '\n'
   printf 'Installed at: %s\n' "${VENV_PATH}"
   if [[ "${path_ok}" -eq 1 ]]; then
@@ -116,18 +129,18 @@ print_success() {
   fi
   printf '\n'
 
-  printf 'NEXT STEPS\n'
+  printf '%sNEXT STEPS%s\n' "${green}" "${reset}"
   printf '\n'
 
-  printf 'Congratulations! Mito is installed. Just last thing:\n'
+  printf 'Congratulations! Mito is installed. One last thing:\n'
   printf '\n'
 
   printf '1) Copy-and-paste this command to complete installation:\n'
-  printf '   source %s\n' "${rc_file}"
+  printf '   %ssource %s%s\n' "${cyan}" "${rc_file}" "${reset}"
   printf '\n'
 
   printf '2) You can now launch Mito at any time by running:\n'
-  printf '   mito\n'
+  printf '   %smito%s\n' "${bold}${cyan}" "${reset}"
   printf '\n'
 
   if [[ "${path_ok}" -ne 1 ]]; then
