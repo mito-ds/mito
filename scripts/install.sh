@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 # Install Mito (mito-ai + mitosheet) on macOS into ~/.mito/venv using uv (https://github.com/astral-sh/uv).
-#
-# One-liner (after this file is hosted):
-#   curl -fsSL https://raw.githubusercontent.com/mito-ds/monorepo/main/scripts/install.sh | bash
-#
-# Custom install root (default ~/.mito):
-#   MITO_HOME="$HOME/my-mito" curl -fsSL ... | bash
 
 set -euo pipefail
 
