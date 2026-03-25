@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install Mito (mito-ai + mitosheet) on macOS into ~/.mito/venv using uv (https://github.com/astral-sh/uv).
+# Install Mito (mito-ai + mitosheet) into ~/.mito/venv using uv.
 
 set -euo pipefail
 
