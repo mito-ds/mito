@@ -81,7 +81,7 @@ apply_path_to_rc() {
     return 0
   fi
 
-  if ! printf 'export PATH="%s/bin:$PATH"\n' "${MITO_HOME}" >> "${rc_file}" 2>/dev/null; then
+  if ! printf '\nexport PATH="%s/bin:$PATH"\n' "${MITO_HOME}" >> "${rc_file}" 2>/dev/null; then
     return 1
   fi
 
