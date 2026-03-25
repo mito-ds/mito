@@ -118,8 +118,9 @@ print_success() {
   fi
 
   printf '\n'
+  printf 'Installed at: %s\n' "${VENV_PATH}"
   if [[ "${path_ok}" -eq 1 ]]; then
-    printf 'PATH was updated in %s.\n' "${rc_file}"
+    printf 'PATH was updated in %s\n' "${rc_file}"
     printf '\n'
   fi
   printf '%sNext steps%s\n' "${bold}" "${reset}"
@@ -133,8 +134,6 @@ print_success() {
     printf "    echo 'export PATH=\"%s/bin:\$PATH\"' >> %s\n" "${MITO_HOME}" "${rc_file}"
     printf '    source %s\n' "${rc_file}"
   fi
-  printf '\n'
-  printf 'Installed at: %s\n' "${VENV_PATH}"
   printf '\n'
 }
 
