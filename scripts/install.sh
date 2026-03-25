@@ -6,6 +6,7 @@ set -euo pipefail
 MITO_HOME="${MITO_HOME:-$HOME/.mito}"
 VENV_PATH="${MITO_HOME}/venv"
 MITO_CLI_BIN="${MITO_HOME}/bin/mito"
+MITO_PYTHON_VERSION="${MITO_PYTHON_VERSION:-3.11}"
 PACKAGES=(mito-ai mitosheet)
 
 die() {
@@ -43,7 +44,12 @@ ensure_uv() {
 venv_install() {
   echo "Creating virtual environment at ${VENV_PATH} ..."
   rm -rf "${VENV_PATH}"
-  uv venv "${VENV_PATH}" --python python3 --no-project
+  if [[ -n "${SYSTEM_PYTHON_BIN:-}" ]]; then
+    uv venv "${VENV_PATH}" --python "${SYSTEM_PYTHON_BIN}" --no-project
+  else
+    echo "System python3 not available (or <3.9); downloading Python ${MITO_PYTHON_VERSION} via uv ..."
+    uv venv "${VENV_PATH}" --python "${MITO_PYTHON_VERSION}" --no-project
+  fi
   echo "Installing ${PACKAGES[*]} ..."
   uv pip install --no-config --python "${VENV_PATH}/bin/python" "${PACKAGES[@]}"
 }
@@ -147,10 +153,13 @@ print_success() {
 
 main() {
   is_macos || die "This installer only supports macOS. On other systems, run: python3 -m pip install mito-ai mitosheet"
-
-  have_python3 || die "Python 3 is required. Install it from https://www.python.org/downloads/macos/ or use Homebrew: brew install python"
-
-  python_ok_version || die "Python 3.9 or newer is required."
+  # Prefer an existing system python3 >= 3.9, but fall back to a uv-managed Python
+  # download if the system checks fail (so we don't hard-require python3).
+  if have_python3 && python_ok_version; then
+    SYSTEM_PYTHON_BIN="python3"
+  else
+    unset SYSTEM_PYTHON_BIN
+  fi
 
   ensure_uv
   venv_install
