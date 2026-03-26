@@ -10,7 +10,11 @@ import {
 } from '../jupyter_utils/jupyterlab_utils';
 
 test.describe('App Mode Button Integration Test', () => {
-  test('Click App Mode button and verify Streamlit app is returned', async ({ page }) => {
+  test.use({ autoGoto: false });
+
+  test('Click App Mode button and verify Streamlit app is returned', async ({ page, tmpPath }) => {
+    // Run in Galata's tmpPath so the Jupyter server can write the .py file (avoids "Directory not found")
+    await page.goto(`tree/${tmpPath}`);
     // Create a notebook with some simple code
     const notebookCode = 'import pandas as pd\ndf = pd.DataFrame({"x": [1, 2, 3]})\ndf'
     await createAndRunNotebookWithCells(page, [notebookCode]);

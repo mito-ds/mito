@@ -105,6 +105,11 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
                 <div key={field.name} className="form-group">
                     <label htmlFor={field.name}>{field.label}</label>
                     {renderField(field)}
+                    {field.helpText && (
+                        <div className="settings-option-description">
+                            {field.helpText}
+                        </div>
+                    )}
                 </div>
             ))}
 

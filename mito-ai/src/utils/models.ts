@@ -18,8 +18,8 @@ export const GPT_5_2_MODEL_NAME = 'gpt-5.2';
 export const GEMINI_3_FLASH_DISPLAY_NAME = 'Gemini 3 Flash';
 export const GEMINI_3_FLASH_MODEL_NAME = 'gemini-3-flash-preview';
 
-export const GEMINI_3_PRO_DISPLAY_NAME = 'Gemini 3 Pro';
-export const GEMINI_3_PRO_MODEL_NAME = 'gemini-3-pro-preview';
+export const GEMINI_3_1_PRO_DISPLAY_NAME = 'Gemini 3.1 Pro';
+export const GEMINI_3_1_PRO_MODEL_NAME = 'gemini-3.1-pro-preview';
 
 /**
  * Fetch available models from the backend API.
@@ -42,7 +42,7 @@ export async function getAvailableModels(): Promise<string[]> {
             GPT_5_2_MODEL_NAME,
             CLAUDE_HAIKU_MODEL_NAME,
             GEMINI_3_FLASH_MODEL_NAME,
-            GEMINI_3_PRO_MODEL_NAME,
+            GEMINI_3_1_PRO_MODEL_NAME,
         ];
     }
     

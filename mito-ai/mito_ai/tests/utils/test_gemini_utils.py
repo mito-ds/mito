@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai.utils.gemini_utils import _prepare_gemini_request_data_and_headers
+from mito_ai.utils.gemini_utils import _prepare_gemini_request_data_and_headers, get_gemini_completion_function_params
 from mito_ai.completions.models import MessageType
 
 TEST_CONTENTS = [
@@ -96,3 +96,46 @@ def test_request_with_complex_config():
     )
 
     assert data["data"]["config"] == config
+
+
+def test_get_gemini_completion_function_params_gemini_3_1_pro_includes_medium_thinking_config():
+    """When model is gemini-3.1-pro-preview, config must include thinking_config with thinking_level MEDIUM."""
+    provider_data = get_gemini_completion_function_params(
+        message_type=MessageType.CHAT,
+        model="gemini-3.1-pro-preview",
+        contents=TEST_CONTENTS,
+        response_format_info=None,
+    )
+    assert "config" in provider_data
+    assert "thinking_config" in provider_data["config"]
+    assert provider_data["config"]["thinking_config"] == {"thinking_level": "MEDIUM"}
+
+
+def test_get_gemini_completion_function_params_gemini_3_1_pro_with_response_format_includes_thinking_config():
+    """When model is gemini-3.1-pro-preview and response_format_info is set, config has both response schema and thinking_config."""
+
+    class TestFormat:
+        name = "agent_response"
+        format = "json"
+
+    provider_data = get_gemini_completion_function_params(
+        message_type=MessageType.CHAT,
+        model="gemini-3.1-pro-preview",
+        contents=TEST_CONTENTS,
+        response_format_info=TestFormat(),
+    )
+    assert "config" in provider_data
+    assert "response_mime_type" in provider_data["config"]
+    assert "thinking_config" in provider_data["config"]
+    assert provider_data["config"]["thinking_config"] == {"thinking_level": "MEDIUM"}
+
+
+def test_get_gemini_completion_function_params_other_models_no_thinking_config():
+    """When model is not gemini-3.1-pro-preview, config must not include thinking_config."""
+    provider_data = get_gemini_completion_function_params(
+        message_type=MessageType.CHAT,
+        model="gemini-3-flash-preview",
+        contents=TEST_CONTENTS,
+        response_format_info=None,
+    )
+    assert "config" not in provider_data or "thinking_config" not in provider_data.get("config", {})

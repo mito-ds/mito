@@ -89,7 +89,7 @@ export const retryIfExecutionError = async (
     setLoadingStatus: (status: LoadingStatus) => void
 ): Promise<'success' | 'failure' | 'interupted'> => {
 
-    const cell = notebookPanel.content.activeCell as CodeCell;
+    let cell = notebookPanel.content.activeCell as CodeCell;
 
     // Note: If you update the max retries, update the message we display on each failure
     // attempt to ensure we don't say "third attempt" over and over again.
@@ -137,6 +137,14 @@ export const retryIfExecutionError = async (
                     setLoadingStatus(undefined);
                 }
             }
+
+            // After applying the fix, refresh the cell reference.
+            // If the cell type changed (e.g., code -> markdown), the error is resolved.
+            const currentActiveCell = notebookPanel.content.activeCell;
+            if (!currentActiveCell || currentActiveCell.model.type !== 'code') {
+                return 'success';
+            }
+            cell = currentActiveCell as CodeCell;
         } else if (agentResponse.type === 'run_all_cells') {
             // Prevent infinite loops by limiting run_all_cells attempts
             if (runAllCellsAttempts >= MAX_RUN_ALL_CELLS_ATTEMPTS) {
