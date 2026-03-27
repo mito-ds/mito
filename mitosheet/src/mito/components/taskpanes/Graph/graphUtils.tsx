@@ -425,6 +425,7 @@ export const openGraphSidebar = async (
         type: 'new_graph'
         graphType: GraphType
         selectedColumnIds?: ColumnID[]
+        openInChartStudioTab?: boolean
     } | {
         type: 'new_duplicate_graph',
         graphIDToDuplicate: GraphID
@@ -484,7 +485,8 @@ export const openGraphSidebar = async (
                     type: 'new_graph',
                     graphID: newGraphID,
                     graphType: newOpenGraph.graphType,
-                    selectedColumnIds: newOpenGraph.selectedColumnIds
+                    selectedColumnIds: newOpenGraph.selectedColumnIds,
+                    openInChartStudioTab: newOpenGraph.openInChartStudioTab,
                 }
             }
         })

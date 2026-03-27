@@ -1183,6 +1183,8 @@ export type OpenGraphType = {
     graphID: GraphID,
     graphType: GraphType
     selectedColumnIds?: ColumnID[]
+    /** When true, the graph sidebar opens on the Chart tab (chart type picker). */
+    openInChartStudioTab?: boolean
 } | {
     type: 'new_duplicate_graph',
     graphID: GraphID,

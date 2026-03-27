@@ -115,6 +115,40 @@ export const selectionCoversMultipleDataCells = (selections: MitoSelection[], nu
     return total > 1;
 };
 
+/**
+ * Unique column IDs (left-to-right order) covered by data-cell selections on a given sheet.
+ * Used when opening Chart Studio from a selected range.
+ */
+export const getColumnIDsFromDataSelectionsForSheet = (
+    selections: MitoSelection[],
+    columnIDsByIndex: ColumnID[],
+    sheetIndex: number,
+): ColumnID[] => {
+    const seen = new Set<ColumnID>();
+    const ordered: ColumnID[] = [];
+    if (columnIDsByIndex.length === 0) {
+        return ordered;
+    }
+    for (const sel of selections) {
+        if (sel.sheetIndex !== sheetIndex) {
+            continue;
+        }
+        const minC = Math.max(0, Math.min(sel.startingColumnIndex, sel.endingColumnIndex));
+        const maxC = Math.min(columnIDsByIndex.length - 1, Math.max(sel.startingColumnIndex, sel.endingColumnIndex));
+        if (minC > maxC) {
+            continue;
+        }
+        for (let c = minC; c <= maxC; c++) {
+            const id = columnIDsByIndex[c];
+            if (id !== undefined && !seen.has(id)) {
+                seen.add(id);
+                ordered.push(id);
+            }
+        }
+    }
+    return ordered;
+};
+
 export const getCellHTMLElement = (containerDiv: HTMLDivElement | null, rowIndex: number, columnIndex: number): HTMLElement | undefined => {
     if (containerDiv === null) {
         return undefined;

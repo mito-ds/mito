@@ -99,6 +99,7 @@ function EndoGrid(props: {
     sendFunctionStatus: SendFunctionStatus;
     analysisData: AnalysisData;
     actions: Actions;
+    onOpenChartStudio?: () => void;
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -785,6 +786,7 @@ function EndoGrid(props: {
                             editorState={editorState}
                             actions={props.actions}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
+                            onOpenChartStudio={props.onOpenChartStudio}
                         />
                     </div>
                 </div>

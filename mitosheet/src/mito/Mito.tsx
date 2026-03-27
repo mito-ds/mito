@@ -32,7 +32,8 @@ import CatchUpPopup from './components/CatchUpPopup';
 import ErrorBoundary from './components/elements/ErrorBoundary';
 import EndoGrid from './components/endo/EndoGrid';
 import { focusGrid } from './components/endo/focusUtils';
-import { getCellDataFromCellIndexes, getDefaultGridState } from './components/endo/utils';
+import { getColumnIDsFromDataSelectionsForSheet } from './components/endo/selectionUtils';
+import { getCellDataFromCellIndexes, getColumnIDsArrayFromSheetDataArray, getDefaultGridState } from './components/endo/utils';
 import Footer from './components/footer/Footer';
 import ClearAnalysisModal from './components/modals/ClearAnalysisModal';
 import DeleteGraphsModal from './components/modals/DeleteGraphsModal';
@@ -56,6 +57,8 @@ import ExportToFileTaskpane from './components/taskpanes/ExportToFile/ExportToFi
 import ImportTaskpane from './components/taskpanes/FileImport/FileImportTaskpane';
 import FillNaTaskpane from './components/taskpanes/FillNa/FillNaTaskpane';
 import GraphSidebar from './components/taskpanes/Graph/GraphSidebar';
+import { openGraphSidebar } from './components/taskpanes/Graph/graphUtils';
+import { GraphType } from './components/taskpanes/Graph/GraphSetupTab';
 import MeltTaskpane from './components/taskpanes/Melt/MeltTaskpane';
 import MergeTaskpane from './components/taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './components/taskpanes/PivotTable/PivotTaskpane';
@@ -156,6 +159,22 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     // Create the Mito API
     const {mitoAPI, sendFunctionStatus} = useMitoAPI(props.getSendFunction, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
+
+    const openChartStudioFromSelection = useCallback(() => {
+        const sheet = sheetDataArray[uiState.selectedSheetIndex];
+        if (sheet === undefined) {
+            return;
+        }
+        const columnIDs = getColumnIDsArrayFromSheetDataArray([sheet])[0];
+        const selectedIds = getColumnIDsFromDataSelectionsForSheet(gridState.selections, columnIDs, uiState.selectedSheetIndex);
+        void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
+            type: 'new_graph',
+            graphType: GraphType.BAR,
+            selectedColumnIds: selectedIds.length > 0 ? selectedIds : undefined,
+            openInChartStudioTab: true,
+        });
+    }, [gridState.selections, uiState, sheetDataArray, setUIState, setEditorState, mitoAPI]);
+
     
     // If the comm ends up failing to be created, then we open a taskpane that let's
     // the user know of this error
@@ -1109,6 +1128,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             sendFunctionStatus={sendFunctionStatus}
                             analysisData={analysisData}
                             actions={actions}
+                            onOpenChartStudio={openChartStudioFromSelection}
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 

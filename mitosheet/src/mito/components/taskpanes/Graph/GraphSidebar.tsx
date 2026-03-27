@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../../../../../css/taskpanes/Graph/GraphSidebar.css';
 import '../../../../../css/taskpanes/Graph/LoadingSpinner.css';
@@ -22,6 +22,7 @@ import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import DefaultEmptyTaskpane from '../DefaultTaskpane/DefaultEmptyTaskpane';
 import { TaskpaneType } from '../taskpanes';
+import ChartStudioChartPicker from './ChartStudioChartPicker';
 import GraphSetupTab from './GraphSetupTab';
 import LoadingSpinner from './LoadingSpinner';
 import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphElementInfoFromHTMLElement, getGraphElementObjects, getGraphRenderingParams, registerClickEventsForGraphElements } from './graphUtils';
@@ -307,6 +308,20 @@ const GraphSidebar = (props: {
         graphParams.graphCreation.y_axis_column_ids.length === 0
     )
 
+    const [chartStudioTab, setChartStudioTab] = useState<'chart' | 'setup' | 'customize'>(() => {
+        if (props.openGraph.type === 'new_graph' && props.openGraph.openInChartStudioTab === true) {
+            return 'chart';
+        }
+        return 'setup';
+    });
+    useEffect(() => {
+        if (props.openGraph.type === 'new_graph' && props.openGraph.openInChartStudioTab === true) {
+            setChartStudioTab('chart');
+        } else {
+            setChartStudioTab('setup');
+        }
+    }, [props.openGraph.graphID, props.openGraph.type]);
+
     return (
         <div
             className={classNames('graph-sidebar-div', selectedGraphElementClass)}
@@ -384,7 +399,7 @@ const GraphSidebar = (props: {
                     <Row justify='space-between' align='center'>
                         <Col>
                             <p className='text-header-2'>
-                                Select Data
+                                Chart Studio
                             </p>
                         </Col>
                         <Col>
@@ -403,18 +418,53 @@ const GraphSidebar = (props: {
                             />
                         </Col>
                     </Row>
-                    <GraphSetupTab 
-                        graphParams={graphParams}
-                        setGraphParams={setGraphParams}
-                        uiState={props.uiState}
-                        mitoAPI={props.mitoAPI}
-                        graphID={props.openGraph.graphID}
-                        sheetDataArray={props.sheetDataArray}
-                        columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
-                        setUIState={props.setUIState}
-                        mitoContainerRef={props.mitoContainerRef}
-                        openGraph={props.openGraph}
-                    />
+                    <div className='chart-studio-tabs'>
+                        <button
+                            type='button'
+                            className={classNames('chart-studio-tab', { 'chart-studio-tab-active': chartStudioTab === 'chart' })}
+                            onClick={() => { setChartStudioTab('chart'); }}
+                        >
+                            Chart
+                        </button>
+                        <button
+                            type='button'
+                            className={classNames('chart-studio-tab', { 'chart-studio-tab-active': chartStudioTab === 'setup' })}
+                            onClick={() => { setChartStudioTab('setup'); }}
+                        >
+                            Set Up
+                        </button>
+                        <button
+                            type='button'
+                            className={classNames('chart-studio-tab', { 'chart-studio-tab-active': chartStudioTab === 'customize' })}
+                            onClick={() => { setChartStudioTab('customize'); }}
+                        >
+                            Customize
+                        </button>
+                    </div>
+                    {chartStudioTab === 'chart' &&
+                        <ChartStudioChartPicker graphParams={graphParams} setGraphParams={setGraphParams} />
+                    }
+                    {chartStudioTab === 'setup' &&
+                        <GraphSetupTab 
+                            graphParams={graphParams}
+                            setGraphParams={setGraphParams}
+                            uiState={props.uiState}
+                            mitoAPI={props.mitoAPI}
+                            graphID={props.openGraph.graphID}
+                            sheetDataArray={props.sheetDataArray}
+                            columnDtypesMap={props.sheetDataArray[dataSourceSheetIndex]?.columnDtypeMap || {}}
+                            setUIState={props.setUIState}
+                            mitoContainerRef={props.mitoContainerRef}
+                            openGraph={props.openGraph}
+                        />
+                    }
+                    {chartStudioTab === 'customize' &&
+                        <div className='chart-studio-customize-placeholder'>
+                            <p className='text-body-2'>
+                                Use the Format tab in the toolbar to style the title, axes, legend, and colors.
+                            </p>
+                        </div>
+                    }
                 </div>
             </div>}
             {loading &&

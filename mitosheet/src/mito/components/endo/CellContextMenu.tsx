@@ -27,6 +27,8 @@ export default function CellContextMenu(props: {
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     /** When true, show Visualize (multi-cell / range selection). */
     showVisualize: boolean;
+    /** Opens Chart Studio (graph taskpane) for the current range. */
+    onVisualize?: () => void;
 }): JSX.Element {
     const visualizeItems: JSX.Element[] = props.showVisualize
         ? [
@@ -36,6 +38,7 @@ export default function CellContextMenu(props: {
                   title='Visualize'
                   onClick={() => {
                       props.closeOpenEditingPopups();
+                      props.onVisualize?.();
                   }}
               />,
           ]

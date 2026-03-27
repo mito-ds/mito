@@ -1,0 +1,84 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.chart-studio-picker {
+    padding: 0 8px 8px 8px;
+}
+
+.chart-studio-picker-hint {
+    margin: 4px 0 8px 0;
+    color: var(--mito-text);
+    font-weight: 600;
+}
+
+.chart-studio-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.chart-studio-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 4px;
+    border: 1px solid var(--mito-text-light);
+    border-radius: 4px;
+    background: var(--mito-background);
+    color: var(--mito-text);
+    cursor: pointer;
+    min-height: 72px;
+    box-sizing: border-box;
+}
+
+.chart-studio-type-btn:hover {
+    border-color: var(--mito-medium-gray);
+    background: var(--mito-background-off);
+}
+
+.chart-studio-type-btn-selected {
+    border-color: var(--mito-highlight);
+    box-shadow: 0 0 0 1px var(--mito-highlight);
+}
+
+.chart-studio-type-label {
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.chart-studio-tabs {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    border-bottom: 1px solid var(--mito-text-light);
+    margin: 0 8px;
+}
+
+.chart-studio-tab {
+    flex: 1;
+    padding: 8px 4px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--mito-text);
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.chart-studio-tab:hover {
+    color: var(--mito-highlight);
+}
+
+.chart-studio-tab-active {
+    border-bottom-color: var(--mito-highlight);
+    font-weight: 600;
+}
+
+.chart-studio-customize-placeholder {
+    padding: 12px 12px 8px 12px;
+}
