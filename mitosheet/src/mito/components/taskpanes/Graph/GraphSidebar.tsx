@@ -276,6 +276,11 @@ const GraphSidebar = (props: {
 
     }, [graphOutput])
 
+    const [chartPreviewHoverLoading, setChartPreviewHoverLoading] = useState(false);
+    useEffect(() => {
+        setChartPreviewHoverLoading(false);
+    }, [graphOutput]);
+
     // Since the UI for the graphing takes up the whole screen, we don't even let the user keep it open
     // If there is no data to graph
     if (props.sheetDataArray.length === 0 || graphParams === undefined || dataSourceSheetIndex === undefined) {
@@ -442,7 +447,11 @@ const GraphSidebar = (props: {
                         </button>
                     </div>
                     {chartStudioTab === 'chart' &&
-                        <ChartStudioChartPicker graphParams={graphParams} setGraphParams={setGraphParams} />
+                        <ChartStudioChartPicker
+                            graphParams={graphParams}
+                            setGraphParams={setGraphParams}
+                            onChartPreviewLoadingChange={setChartPreviewHoverLoading}
+                        />
                     }
                     {chartStudioTab === 'setup' &&
                         <GraphSetupTab 
@@ -467,11 +476,11 @@ const GraphSidebar = (props: {
                     }
                 </div>
             </div>}
-            {loading &&
+            {(loading || chartPreviewHoverLoading) &&
                 <div className='popup-div'>
                     <LoadingSpinner />
                     <p className='popup-text-div'>
-                        loading
+                        {chartPreviewHoverLoading ? 'Loading preview…' : 'loading'}
                     </p>
                 </div>
             }

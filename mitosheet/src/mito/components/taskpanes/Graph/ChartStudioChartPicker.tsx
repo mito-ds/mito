@@ -61,6 +61,8 @@ const CHART_STUDIO_TYPES: { graphType: GraphType; label: string; renderIcon: () 
 const ChartStudioChartPicker = (props: {
     graphParams: GraphParamsFrontend;
     setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
+    /** Fires immediately when hover preview starts/ends so the main chart can show a loading state. */
+    onChartPreviewLoadingChange?: (show: boolean) => void;
 }): JSX.Element => {
     const currentType = props.graphParams.graphCreation.graph_type;
 
@@ -70,6 +72,7 @@ const ChartStudioChartPicker = (props: {
     useEffect(() => {
         setCommittedGraphType(props.graphParams.graphCreation.graph_type);
         setIsHoverPreviewing(false);
+        props.onChartPreviewLoadingChange?.(false);
     }, [props.graphParams.graphID]);
 
     useEffect(() => {
@@ -80,6 +83,7 @@ const ChartStudioChartPicker = (props: {
     }, [props.graphParams.graphCreation.graph_type, isHoverPreviewing]);
 
     const revertPreview = (committed: GraphType) => {
+        props.onChartPreviewLoadingChange?.(false);
         props.setGraphParams((prev) => applyGraphTypeChangeToParams(prev, committed));
         setIsHoverPreviewing(false);
     };
@@ -109,6 +113,7 @@ const ChartStudioChartPicker = (props: {
                             })}
                             title={entry.label}
                             onClick={() => {
+                                props.onChartPreviewLoadingChange?.(false);
                                 setCommittedGraphType(entry.graphType);
                                 setIsHoverPreviewing(false);
                                 props.setGraphParams((prev) => applyGraphTypeChangeToParams(prev, entry.graphType));
@@ -121,6 +126,7 @@ const ChartStudioChartPicker = (props: {
                                     return;
                                 }
                                 setIsHoverPreviewing(true);
+                                props.onChartPreviewLoadingChange?.(true);
                                 props.setGraphParams((prev) => applyGraphTypeChangeToParams(prev, entry.graphType));
                             }}
                         >
