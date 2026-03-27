@@ -45,6 +45,12 @@
     box-shadow: 0 0 0 1px var(--mito-highlight);
 }
 
+/* Hovered chart type is shown in the main preview but not yet committed */
+.chart-studio-type-btn-hover-preview {
+    border-style: dashed;
+    border-color: var(--mito-highlight);
+}
+
 .chart-studio-type-label {
     font-size: 11px;
     text-align: center;

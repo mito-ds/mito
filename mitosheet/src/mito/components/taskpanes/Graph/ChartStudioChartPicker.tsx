@@ -4,7 +4,7 @@
  */
 
 import '../../../../../css/taskpanes/Graph/ChartStudioChartPicker.css';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { GraphParamsFrontend } from '../../../types';
 import { classNames } from '../../../utils/classNames';
 import DensityContourIcon from '../../icons/GraphToolbar/DensityContourIcon';
@@ -62,21 +62,65 @@ const ChartStudioChartPicker = (props: {
     graphParams: GraphParamsFrontend;
     setGraphParams: React.Dispatch<React.SetStateAction<GraphParamsFrontend>>;
 }): JSX.Element => {
-    const current = props.graphParams.graphCreation.graph_type;
+    const currentType = props.graphParams.graphCreation.graph_type;
+
+    const [committedGraphType, setCommittedGraphType] = useState<GraphType>(() => props.graphParams.graphCreation.graph_type);
+    const [isHoverPreviewing, setIsHoverPreviewing] = useState(false);
+
+    useEffect(() => {
+        setCommittedGraphType(props.graphParams.graphCreation.graph_type);
+        setIsHoverPreviewing(false);
+    }, [props.graphParams.graphID]);
+
+    useEffect(() => {
+        if (isHoverPreviewing) {
+            return;
+        }
+        setCommittedGraphType(props.graphParams.graphCreation.graph_type);
+    }, [props.graphParams.graphCreation.graph_type, isHoverPreviewing]);
+
+    const revertPreview = (committed: GraphType) => {
+        props.setGraphParams((prev) => applyGraphTypeChangeToParams(prev, committed));
+        setIsHoverPreviewing(false);
+    };
 
     return (
         <div className='chart-studio-picker'>
             <p className='text-body-2 chart-studio-picker-hint'>Chart</p>
-            <div className='chart-studio-icon-grid'>
+            <div
+                className='chart-studio-icon-grid'
+                onMouseLeave={() => {
+                    if (isHoverPreviewing) {
+                        revertPreview(committedGraphType);
+                    }
+                }}
+            >
                 {CHART_STUDIO_TYPES.map((entry, idx) => {
-                    const selected = current === entry.graphType;
+                    const isCommitted = committedGraphType === entry.graphType;
+                    const isPreviewTarget =
+                        isHoverPreviewing && currentType === entry.graphType && entry.graphType !== committedGraphType;
                     return (
                         <button
                             key={`${entry.graphType}-${entry.label}-${idx}`}
                             type='button'
-                            className={classNames('chart-studio-type-btn', { 'chart-studio-type-btn-selected': selected })}
+                            className={classNames('chart-studio-type-btn', {
+                                'chart-studio-type-btn-selected': isCommitted,
+                                'chart-studio-type-btn-hover-preview': isPreviewTarget,
+                            })}
                             title={entry.label}
                             onClick={() => {
+                                setCommittedGraphType(entry.graphType);
+                                setIsHoverPreviewing(false);
+                                props.setGraphParams((prev) => applyGraphTypeChangeToParams(prev, entry.graphType));
+                            }}
+                            onMouseEnter={() => {
+                                if (entry.graphType === committedGraphType) {
+                                    if (isHoverPreviewing) {
+                                        revertPreview(committedGraphType);
+                                    }
+                                    return;
+                                }
+                                setIsHoverPreviewing(true);
                                 props.setGraphParams((prev) => applyGraphTypeChangeToParams(prev, entry.graphType));
                             }}
                         >
