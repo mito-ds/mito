@@ -1,0 +1,47 @@
+.visualize-ai-modal-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    padding: 8px 0;
+}
+
+.visualize-ai-suggestion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.visualize-ai-suggestion-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px 12px;
+    border: 1px solid var(--mito-highlight);
+    border-radius: 4px;
+    background: var(--mito-background);
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    font: inherit;
+    color: var(--mito-text);
+}
+
+.visualize-ai-suggestion-card:hover {
+    background: var(--mito-background-off);
+}
+
+.visualize-ai-suggestion-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.visualize-ai-suggestion-reason {
+    color: var(--mito-text-medium);
+    line-height: 1.35;
+}

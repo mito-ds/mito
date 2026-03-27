@@ -59,6 +59,9 @@ import FillNaTaskpane from './components/taskpanes/FillNa/FillNaTaskpane';
 import GraphSidebar from './components/taskpanes/Graph/GraphSidebar';
 import { openGraphSidebar } from './components/taskpanes/Graph/graphUtils';
 import { GraphType } from './components/taskpanes/Graph/GraphSetupTab';
+import VisualizeWithAIModal from './components/taskpanes/Graph/VisualizeWithAIModal';
+import { parseChartSuggestionsCompletion } from './components/taskpanes/Graph/visualizeWithAIUtils';
+import { getSelectionForCompletion } from './components/taskpanes/AITransformation/aiUtils';
 import MeltTaskpane from './components/taskpanes/Melt/MeltTaskpane';
 import MergeTaskpane from './components/taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './components/taskpanes/PivotTable/PivotTaskpane';
@@ -180,6 +183,74 @@ export const Mito = (props: MitoProps): JSX.Element => {
             selectedRowRange: selectedRowRange,
         });
     }, [gridState.selections, uiState, sheetDataArray, setUIState, setEditorState, mitoAPI]);
+
+    type VisualizeWithAIState =
+        | { status: 'closed' }
+        | { status: 'loading' }
+        | { status: 'error'; message: string }
+        | { status: 'ready'; suggestions: { graphType: GraphType; reason: string }[] };
+
+    const [visualizeWithAIState, setVisualizeWithAIState] = useState<VisualizeWithAIState>({ status: 'closed' });
+
+    const applyVisualizeWithAISuggestion = useCallback(
+        (graphType: GraphType) => {
+            setVisualizeWithAIState({ status: 'closed' });
+            const sheet = sheetDataArray[uiState.selectedSheetIndex];
+            if (sheet === undefined) {
+                return;
+            }
+            const columnIDs = getColumnIDsArrayFromSheetDataArray([sheet])[0];
+            const selectedIds = getColumnIDsFromDataSelectionsForSheet(gridState.selections, columnIDs, uiState.selectedSheetIndex);
+            const selectedRowRange = getDataRowIndexRangeFromSelections(
+                gridState.selections,
+                uiState.selectedSheetIndex,
+                sheet.numRows,
+            );
+            void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
+                type: 'new_graph',
+                graphType,
+                selectedColumnIds: selectedIds.length > 0 ? selectedIds : undefined,
+                openInChartStudioTab: true,
+                selectedRowRange: selectedRowRange,
+            });
+        },
+        [gridState.selections, uiState, sheetDataArray, setUIState, setEditorState, mitoAPI],
+    );
+
+    const openVisualizeWithAI = useCallback(async () => {
+        if (!userProfile.aiPrivacyPolicy) {
+            setEditorState(undefined);
+            setUIState((prevUIState) => {
+                return {
+                    ...prevUIState,
+                    currOpenTaskpane: { type: TaskpaneType.AITRANSFORMATION },
+                    selectedTabType: 'data',
+                };
+            });
+            return;
+        }
+        setVisualizeWithAIState({ status: 'loading' });
+        const selection = getSelectionForCompletion(uiState, gridState, sheetDataArray);
+        const res = await mitoAPI.getAIChartSuggestions(selection);
+        if ('error' in res) {
+            setVisualizeWithAIState({ status: 'error', message: res.error });
+            return;
+        }
+        const payload = res.result;
+        if ('error' in payload) {
+            setVisualizeWithAIState({ status: 'error', message: payload.error });
+            return;
+        }
+        const parsed = parseChartSuggestionsCompletion(payload.completion);
+        if (parsed === undefined) {
+            setVisualizeWithAIState({
+                status: 'error',
+                message: 'Could not read chart suggestions. Try again in a moment.',
+            });
+            return;
+        }
+        setVisualizeWithAIState({ status: 'ready', suggestions: parsed });
+    }, [userProfile, uiState, gridState, sheetDataArray, mitoAPI, setEditorState, setUIState]);
 
     
     // If the comm ends up failing to be created, then we open a taskpane that let's
@@ -1135,6 +1206,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             analysisData={analysisData}
                             actions={actions}
                             onOpenChartStudio={openChartStudioFromSelection}
+                            onVisualizeWithAI={openVisualizeWithAI}
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 
@@ -1178,6 +1250,15 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     actions={actions}
                 />
                 {getCurrentModalComponent()}
+                {visualizeWithAIState.status !== 'closed' && (
+                    <VisualizeWithAIModal
+                        state={visualizeWithAIState}
+                        onClose={() => {
+                            setVisualizeWithAIState({ status: 'closed' });
+                        }}
+                        onSelectSuggestion={applyVisualizeWithAISuggestion}
+                    />
+                )}
                 <BottomLeftPopup
                     loading={uiState.loading}
                     sheetDataArray={sheetDataArray}

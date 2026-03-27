@@ -557,6 +557,18 @@ export class MitoAPI {
             }
         })
     }
+
+    async getAIChartSuggestions(
+        selection: AICompletionSelection | undefined,
+    ): Promise<MitoAPIResult<{error: string} | {user_input: string, prompt_version: string, prompt: string, completion: string}>> {
+        return await this.send<{error: string} | {user_input: string, prompt_version: string, prompt: string, completion: string}>({
+            'event': 'api_call',
+            'type': 'get_ai_chart_suggestions',
+            'params': {
+                'selection': selection,
+            }
+        })
+    }
     
     async getParameterizableParams(): Promise<MitoAPIResult<ParameterizableParams | undefined>> {
         return await this.send<ParameterizableParams | undefined>({

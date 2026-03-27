@@ -19,6 +19,46 @@ MAX_CHARS_FOR_INPUT_DATA = MAX_TOKENS_FOR_INPUT_DATA * CHARS_PER_TOKEN
 
 PROMPT_VERSION = 'df-creation-prompt-1'
 
+CHART_SUGGESTION_PROMPT_VERSION = 'chart-suggestion-prompt-1'
+
+_VALID_GRAPH_TYPE_STRINGS = (
+    '"bar", "line", "scatter", "histogram", "density heatmap", "density contour", '
+    '"box", "violin", "strip", "ecdf"'
+)
+
+
+def get_chart_suggestion_prompt(
+        df_names: List[str],
+        dfs: List[pd.DataFrame],
+        current_selection: Optional[Selection],
+) -> str:
+    """
+    Prompt the model to return only a JSON array of chart suggestions for the
+    selected data (no pandas code).
+    """
+    if len(dfs) == 0:
+        return f"""You are a data visualization assistant.
+
+There is no dataframe loaded yet. Respond with ONLY valid JSON: a JSON array of exactly 3 objects.
+Each object must have:
+- "graph_type": one of: {_VALID_GRAPH_TYPE_STRINGS}
+- "reason": a short string
+
+Do not include markdown, code fences, or any text outside the JSON array."""
+
+    input_data_string = get_input_data_string(df_names, dfs, current_selection)
+
+    return f"""You are a data visualization assistant. The user selected cells in a spreadsheet.
+Use the column names and sample values below to suggest meaningful charts.
+
+{input_data_string}
+
+Respond with ONLY valid JSON: a JSON array of 3 to 5 objects. Each object must have:
+- "graph_type": one of these exact strings: {_VALID_GRAPH_TYPE_STRINGS}
+- "reason": one short sentence explaining why this chart fits the selected data
+
+Choose diverse chart types when appropriate. Do not include markdown, code fences, or any text outside the JSON array."""
+
 def get_dataframe_creation_code(df: pd.DataFrame, max_characters: Union[int, float]) -> str:
     """
     Given a dataframe like:

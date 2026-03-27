@@ -9,7 +9,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests  # type: ignore
 
-from mitosheet.ai.prompt import PROMPT_VERSION, get_prompt
+from mitosheet.ai.prompt import (
+    CHART_SUGGESTION_PROMPT_VERSION,
+    PROMPT_VERSION,
+    get_chart_suggestion_prompt,
+    get_prompt,
+)
 from mitosheet.types import Selection, StepsManagerType
 from mitosheet.user.db import get_user_field, set_user_field
 from mitosheet.user.schemas import (UJ_AI_MITO_API_NUM_USAGES,
@@ -31,11 +36,25 @@ def _get_ai_completion_data(prompt: str) -> Dict[str, Any]:
                 'stop': ['```']
         }
 
+
+def _get_ai_chart_suggestion_data(prompt: str) -> Dict[str, Any]:
+        """Completion params for JSON chart suggestions (no ``` stop)."""
+        return {
+                "model": "gpt-3.5-turbo",
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 800,
+                "temperature": 0.3,
+        }
+
 __user_email = None
 __user_id = None
 __num_usages = None
 
-def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[str, Any]:
+def _get_ai_completion_from_mito_server(
+        user_input: str,
+        prompt: str,
+        completion_data: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
         global __user_email, __user_id, __num_usages
 
         if __user_email is None:
@@ -61,7 +80,7 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[st
                 'email': __user_email,
                 'user_id': __user_id,
                 'user_input': user_input,
-                'data': _get_ai_completion_data(prompt)
+                'data': completion_data if completion_data is not None else _get_ai_completion_data(prompt)
         }
 
         headers = {
@@ -90,9 +109,14 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[st
                 'error': f'There was an error accessing the MitoAI API. {res.json()["error"]}'
         }
 
-def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: str, prompt: str) -> Dict[str, Any]:
+def _get_ai_completion_from_open_ai_api_compatible_server(
+        url: str,
+        user_input: str,
+        prompt: str,
+        completion_data: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
 
-        data = _get_ai_completion_data(prompt)
+        data = completion_data if completion_data is not None else _get_ai_completion_data(prompt)
         headers = {
                 'Content-Type': 'application/json',
         }
@@ -169,6 +193,72 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
                         'prompt': prompt,
                         'completion': completion,
                 }
+
+        return {
+                'error': f'There was an error accessing the OpenAI API. {res.json()["error"]["message"]}'
+        }
+
+
+def _completion_success_chart_suggestions(
+        user_input: str,
+        prompt: str,
+        completion: str,
+) -> Dict[str, Any]:
+        return {
+                'user_input': user_input,
+                'prompt_version': CHART_SUGGESTION_PROMPT_VERSION,
+                'prompt': prompt,
+                'completion': completion,
+        }
+
+
+def get_ai_chart_suggestions(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
+        selection: Optional[Selection] = params.get('selection', None)
+        prompt = get_chart_suggestion_prompt(
+                steps_manager.curr_step.final_defined_state.df_names,
+                steps_manager.curr_step.final_defined_state.dfs,
+                selection,
+        )
+        user_input = 'chart_suggestions'
+        chart_data = _get_ai_chart_suggestion_data(prompt)
+
+        OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+        byo_url = steps_manager.mito_config.llm_url
+
+        if byo_url is not None:
+                result = _get_ai_completion_from_open_ai_api_compatible_server(
+                        byo_url, user_input, prompt, chart_data
+                )
+                if 'error' in result:
+                        return result
+                return _completion_success_chart_suggestions(
+                        user_input, prompt, result['completion']
+                )
+        elif OPENAI_API_KEY is None:
+                result = _get_ai_completion_from_mito_server(user_input, prompt, chart_data)
+                if 'error' in result:
+                        return result
+                return _completion_success_chart_suggestions(
+                        user_input, prompt, result['completion']
+                )
+
+        headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {OPENAI_API_KEY}'
+        }
+
+        try:
+                res = requests.post(OPEN_AI_URL, headers=headers, json=chart_data)
+        except:
+                return {
+                        'error': f'There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall.'
+                }
+
+        if res.status_code == 200:
+                res_json = res.json()
+                completion: str = res_json['choices'][0]['message']['content']
+                completion = completion.strip()
+                return _completion_success_chart_suggestions(user_input, prompt, completion)
 
         return {
                 'error': f'There was an error accessing the OpenAI API. {res.json()["error"]["message"]}'

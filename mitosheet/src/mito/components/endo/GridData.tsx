@@ -34,6 +34,7 @@ const GridData = (props: {
     actions: Actions;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     onOpenChartStudio?: () => void;
+    onVisualizeWithAI?: () => void;
 }): JSX.Element => {
 
     const currentSheetView = calculateCurrentSheetView(props.gridState);
@@ -177,6 +178,7 @@ const GridData = (props: {
                                             columnIDs.length
                                         )}
                                         onVisualize={props.onOpenChartStudio}
+                                        onVisualizeWithAI={props.onVisualizeWithAI}
                                     />
                                 </div>
                             )

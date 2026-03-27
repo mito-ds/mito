@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GPL License.
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import plotly.express as px
@@ -154,6 +154,41 @@ def get_graph_creation_param_dict(
 
     return all_params
 
+
+def prepare_wide_form_df_and_params(
+    df: pd.DataFrame, param_dict: Dict[str, Any]
+) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Plotly Express wide-form mode (x or y is a list of column names) requires those
+    columns to share a single dtype. Mixed int/float/object raises ValueError.
+
+    When all listed columns are numeric, coerce them to float on a copy of df.
+    When types are mixed (e.g. numeric + string), keep only the first column for that axis.
+    """
+    new_params = dict(param_dict)
+    cols_to_float: List[ColumnHeader] = []
+
+    for axis in ("x", "y"):
+        cols = new_params.get(axis)
+        if not isinstance(cols, list) or len(cols) <= 1:
+            continue
+        present = [c for c in cols if c in df.columns]
+        if len(present) <= 1:
+            continue
+        if not all(pd.api.types.is_numeric_dtype(df[c]) for c in present):
+            new_params[axis] = present[0]
+            continue
+        cols_to_float.extend(present)
+
+    if not cols_to_float:
+        return df, new_params
+
+    new_df = df.copy()
+    for c in cols_to_float:
+        new_df[c] = pd.to_numeric(new_df[c], errors="coerce").astype(float)
+    return new_df, new_params
+
+
 def graph_creation(
     graph_type: str,
     df: pd.DataFrame,
@@ -192,6 +227,8 @@ def graph_creation(
         histfunc,
         nbins,
     )
+
+    df, param_dict = prepare_wide_form_df_and_params(df, param_dict)
 
     # If Streamlit is installed, then we need to reset the default plotly theme.
     # Streamlit does some manipulation of the default plotly theme (https://github.com/streamlit/streamlit/blob/3d5dd61aef2bf649c5bfe42aad53cf1426beb094/lib/streamlit/elements/lib/streamlit_plotly_theme.py#L27)

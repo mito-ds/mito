@@ -29,6 +29,8 @@ export default function CellContextMenu(props: {
     showVisualize: boolean;
     /** Opens Chart Studio (graph taskpane) for the current range. */
     onVisualize?: () => void;
+    /** Opens AI chart suggestions for the current range. */
+    onVisualizeWithAI?: () => void;
 }): JSX.Element {
     const visualizeItems: JSX.Element[] = props.showVisualize
         ? [
@@ -39,6 +41,14 @@ export default function CellContextMenu(props: {
                   onClick={() => {
                       props.closeOpenEditingPopups();
                       props.onVisualize?.();
+                  }}
+              />,
+              <DropdownItem
+                  key='mito-visualize-ai'
+                  title='Visualize with AI'
+                  onClick={() => {
+                      props.closeOpenEditingPopups();
+                      props.onVisualizeWithAI?.();
                   }}
               />,
           ]
@@ -83,6 +93,7 @@ export default function CellContextMenu(props: {
 
             {visualizeItems[0]}
             {visualizeItems[1]}
+            {visualizeItems[2]}
         </Dropdown>
     )
 }
