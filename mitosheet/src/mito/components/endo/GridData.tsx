@@ -5,7 +5,7 @@
 
 import React from 'react';
 import '../../../../css/endo/GridData.css';
-import { getBorderStyle, getIsCellSelected } from './selectionUtils';
+import { getBorderStyle, getIsCellSelected, selectionCoversMultipleDataCells } from './selectionUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
 import { EditorState, GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
@@ -133,6 +133,17 @@ const GridData = (props: {
                                             }
                                         });
                                         props.setGridState((prevGridState: GridState) => {
+                                            const numCols = columnIDs.length;
+                                            const preserveRange =
+                                                getIsCellSelected(prevGridState.selections, rowIndex, columnIndex) &&
+                                                selectionCoversMultipleDataCells(
+                                                    prevGridState.selections,
+                                                    sheetData.numRows,
+                                                    numCols
+                                                );
+                                            if (preserveRange) {
+                                                return prevGridState;
+                                            }
                                             return {
                                                 ...prevGridState,
                                                 selections: [{
@@ -159,6 +170,11 @@ const GridData = (props: {
                                         setUiState={props.setUIState}
                                         actions={props.actions}
                                         closeOpenEditingPopups={props.closeOpenEditingPopups}
+                                        showVisualize={selectionCoversMultipleDataCells(
+                                            props.gridState.selections,
+                                            sheetData.numRows,
+                                            columnIDs.length
+                                        )}
                                     />
                                 </div>
                             )

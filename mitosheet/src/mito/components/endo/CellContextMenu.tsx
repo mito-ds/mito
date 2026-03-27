@@ -25,7 +25,22 @@ export default function CellContextMenu(props: {
     setUiState: React.Dispatch<React.SetStateAction<UIState>>;
     actions: Actions;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    /** When true, show Visualize (multi-cell / range selection). */
+    showVisualize: boolean;
 }): JSX.Element {
+    const visualizeItems: JSX.Element[] = props.showVisualize
+        ? [
+              <DropdownSectionSeperator key='mito-visualize-sep' isDropdownSectionSeperator={true}/>,
+              <DropdownItem
+                  key='mito-visualize'
+                  title='Visualize'
+                  onClick={() => {
+                      props.closeOpenEditingPopups();
+                  }}
+              />,
+          ]
+        : [];
+
     return (
         <Dropdown
             display={props.display}
@@ -62,6 +77,9 @@ export default function CellContextMenu(props: {
                 title='Create a Filter'
             />
             <DropdownItem {...getPropsForContextMenuDropdownItem(props.actions.buildTimeActions[ActionEnum.FilterToCellValue], props.closeOpenEditingPopups)}/>
+
+            {visualizeItems[0]}
+            {visualizeItems[1]}
         </Dropdown>
     )
 }

@@ -62,6 +62,59 @@ export const getIsHeader = (rowIndex: number, columnIndex: number): boolean => {
     return rowIndex <= -1 || columnIndex <= -1;
 }
 
+/**
+ * Returns how many data cells (row & col >= 0) lie within a single selection rectangle.
+ * Handles whole-column and whole-row header selections.
+ */
+const countDataCellsInSingleSelection = (selection: MitoSelection, numRows: number, numCols: number): number => {
+    if (numRows <= 0 || numCols <= 0) {
+        return 0;
+    }
+    const minR = Math.min(selection.startingRowIndex, selection.endingRowIndex);
+    const maxR = Math.max(selection.startingRowIndex, selection.endingRowIndex);
+    const minC = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
+    const maxC = Math.max(selection.startingColumnIndex, selection.endingColumnIndex);
+
+    // Entire column(s) selected via column header (row indices are -1)
+    if (minR <= -1 && maxR <= -1) {
+        const c0 = Math.max(0, minC);
+        const c1 = Math.min(numCols - 1, maxC);
+        if (c0 > c1) {
+            return 0;
+        }
+        return (c1 - c0 + 1) * numRows;
+    }
+    // Entire row(s) selected via row header (column indices are -1)
+    if (minC <= -1 && maxC <= -1) {
+        const r0 = Math.max(0, minR);
+        const r1 = Math.min(numRows - 1, maxR);
+        if (r0 > r1) {
+            return 0;
+        }
+        return (r1 - r0 + 1) * numCols;
+    }
+
+    const dr0 = Math.max(0, minR);
+    const dr1 = Math.min(numRows - 1, maxR);
+    const dc0 = Math.max(0, minC);
+    const dc1 = Math.min(numCols - 1, maxC);
+    if (dr0 > dr1 || dc0 > dc1) {
+        return 0;
+    }
+    return (dr1 - dr0 + 1) * (dc1 - dc0 + 1);
+};
+
+/**
+ * True if the current selections cover more than one data cell (e.g. a dragged range or multi-column).
+ */
+export const selectionCoversMultipleDataCells = (selections: MitoSelection[], numRows: number, numCols: number): boolean => {
+    let total = 0;
+    for (const selection of selections) {
+        total += countDataCellsInSingleSelection(selection, numRows, numCols);
+    }
+    return total > 1;
+};
+
 export const getCellHTMLElement = (containerDiv: HTMLDivElement | null, rowIndex: number, columnIndex: number): HTMLElement | undefined => {
     if (containerDiv === null) {
         return undefined;

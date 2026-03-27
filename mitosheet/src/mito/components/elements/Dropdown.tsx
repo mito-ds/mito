@@ -451,6 +451,10 @@ const Dropdown = (props: DropdownProps): JSX.Element => {
     
     let found = 0; // keep track of how many matching items we found to the search
     const childrenToDisplay = React.Children.map(props.children, (child) => {
+        // React passes null for empty conditional children (e.g. {undefined}, {false}).
+        if (child == null) {
+            return null;
+        }
         // First, we check to see if this is a seperator, and include it in
         // the final children without counting it if so
         // TODO:
