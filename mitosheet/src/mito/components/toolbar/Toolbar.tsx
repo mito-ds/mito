@@ -66,6 +66,9 @@ export const Toolbar = (
         sheetIndex: number,
         closeOpenEditingPopups: () => void,
         hideFullscreenButton?: boolean
+        themeMode?: 'light' | 'dark';
+        showThemeToggle?: boolean;
+        onThemeToggle?: () => void;
     }): JSX.Element => {  
     
     const currentTab = props.uiState.currentToolbarTab;
@@ -141,6 +144,24 @@ export const Toolbar = (
                             iconOverride={fscreen.fullscreenElement ? <CloseFullscreenIcon /> : <OpenFullscreenIcon />}
                             action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
                         />
+                    )}
+                    {props.showThemeToggle && props.onThemeToggle && (
+                        <button
+                            className='mito-toolbar-theme-toggle'
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                props.onThemeToggle?.();
+                            }}
+                            type='button'
+                            title='Switch between light and dark mode'
+                        >
+                            {props.themeMode === 'dark' ? 'Theme: Dark' : 'Theme: Light'}
+                        </button>
                     )}
                 </div>
             </div>

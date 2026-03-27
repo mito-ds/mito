@@ -407,6 +407,22 @@
   stroke-width: 0.75px;
 }
 
+.mito-toolbar-theme-toggle {
+  background: var(--mito-background-default);
+  color: var(--mito-text);
+  border: 1px solid var(--mito-text-light);
+  border-radius: 4px;
+  height: 22px;
+  font-size: 11px;
+  font-family: Roboto;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+.mito-toolbar-theme-toggle:hover {
+  background: var(--mito-background-default-hover);
+}
+
 .graph-element-style-options {
   display: flex;
   height: 50px;

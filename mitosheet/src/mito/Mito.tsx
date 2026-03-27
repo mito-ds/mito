@@ -5,7 +5,7 @@
 
 // Copyright (c) Mito
 
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /*
     Import CSS that we use globally, list these in alphabetical order
     to make it easier to confirm we have imported all sitewide css.
@@ -100,9 +100,25 @@ export type MitoProps = {
         secondaryBackgroundColor?: string
         textColor?: string
     }
+    defaultThemeMode?: 'light' | 'dark';
+    showThemeToggle?: boolean;
     onSelectionChange?: (selectedDataframeIndex: number, selections: MitoSelection[]) => void;
     height?: string | undefined;
     hideFullscreenButton?: boolean;
+};
+
+const DARK_MODE_THEME = {
+    primaryColor: '#8f68ff',
+    backgroundColor: '#1f2128',
+    secondaryBackgroundColor: '#2a2d36',
+    textColor: '#f4f4f6',
+};
+
+const LIGHT_MODE_THEME = {
+    primaryColor: '#9D6CFF',
+    backgroundColor: '#FFFFFF',
+    secondaryBackgroundColor: '#F5F5F5',
+    textColor: '#494650',
 };
 
 export const Mito = (props: MitoProps): JSX.Element => {
@@ -153,6 +169,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
     // We store all AI Transform params in Mito, so that users can open and close
     // the AI Transform taskpane and still access their old prompts
     const [previousAITransformParams, setPreviousAITransformParams] = useState<AITransformationParams[]>([])
+    const [themeMode, setThemeMode] = useState<'light' | 'dark'>(props.defaultThemeMode ?? 'light');
 
     // Create the Mito API
     const {mitoAPI, sendFunctionStatus} = useMitoAPI(props.getSendFunction, setSheetDataArray, setAnalysisData, setUserProfile, setUIState)
@@ -448,14 +465,37 @@ export const Mito = (props: MitoProps): JSX.Element => {
      * because we want to be able to use the styling in dropdowns
      * that are rendered outside of the Mito component.
      */
+    const effectiveTheme = useMemo(() => {
+        if (themeMode === 'dark') {
+            return {
+                ...props.theme,
+                ...DARK_MODE_THEME,
+            };
+        }
+        if (props.showThemeToggle) {
+            return {
+                ...props.theme,
+                ...LIGHT_MODE_THEME,
+            };
+        }
+        return props.theme;
+    }, [themeMode, props.theme, props.showThemeToggle]);
+
+    const mitoCSSVariables = useMemo(
+        () => getCSSStyleVariables(props.height, effectiveTheme),
+        [effectiveTheme, props.height]
+    );
+
     useEffect(() => {
-        const cssVariables = getCSSStyleVariables(props.height, props.theme);
-        // For each key in the theme, set it on the document style
+        const cssVariables = mitoCSSVariables;
+        // Notebook / VS Code outputs often render inside a Shadow DOM. Custom properties
+        // set on documentElement do not reliably inherit into that subtree, so we also
+        // set them on `.mito-container` via inline style (see render).
         Object.keys(cssVariables).forEach((key) => {
             const value = (cssVariables as Record<string, any>)[key];
             document.documentElement.style.setProperty(key, value);
-        })
-    }, [props.theme, props.height])
+        });
+    }, [mitoCSSVariables]);
 
 
     // If the user passes an onSelectionChange, then, we fire off events any time the user selects
@@ -982,6 +1022,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             className="mito-container" 
             data-jp-suppress-context-menu 
             ref={mitoContainerRef} 
+            style={mitoCSSVariables as React.CSSProperties}
             tabIndex={0}
             onMouseMove={(event) => {
                 if (resizingTaskpane) {
@@ -1084,6 +1125,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     sheetIndex={uiState.selectedSheetIndex}
                     closeOpenEditingPopups={closeOpenEditingPopups}
                     hideFullscreenButton={props.hideFullscreenButton}
+                    themeMode={themeMode}
+                    showThemeToggle={props.showThemeToggle}
+                    onThemeToggle={() => {
+                        setThemeMode(prevThemeMode => prevThemeMode === 'dark' ? 'light' : 'dark');
+                    }}
                 />
                 <div className="mito-center-content-container" id="mito-center-content-container"> 
                     <div 

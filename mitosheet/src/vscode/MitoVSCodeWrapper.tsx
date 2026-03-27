@@ -73,6 +73,8 @@ const MitoVSCodeWrapper = (props: MitoVSCodeWrapperProps): JSX.Element => {
             analysisData={analysisData}
             userProfile={userProfile}
             hideFullscreenButton={true}
+            defaultThemeMode='dark'
+            showThemeToggle={true}
         />
     );
 };
