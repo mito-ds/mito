@@ -119,6 +119,44 @@ export const selectionCoversMultipleDataCells = (selections: MitoSelection[], nu
  * Unique column IDs (left-to-right order) covered by data-cell selections on a given sheet.
  * Used when opening Chart Studio from a selected range.
  */
+/**
+ * Inclusive min/max data row indices (0-based, matching grid/iloc) covered by selections.
+ * Whole-column selections (header rows only) are treated as all data rows.
+ */
+export const getDataRowIndexRangeFromSelections = (
+    selections: MitoSelection[],
+    sheetIndex: number,
+    numRows: number,
+): { start: number; end: number } | undefined => {
+    if (numRows <= 0) {
+        return undefined;
+    }
+    let minR: number | undefined = undefined;
+    let maxR: number | undefined = undefined;
+    for (const sel of selections) {
+        if (sel.sheetIndex !== sheetIndex) {
+            continue;
+        }
+        let a = Math.min(sel.startingRowIndex, sel.endingRowIndex);
+        let b = Math.max(sel.startingRowIndex, sel.endingRowIndex);
+        if (a <= -1 && b <= -1) {
+            a = 0;
+            b = numRows - 1;
+        }
+        const low = Math.max(0, a);
+        const high = Math.min(numRows - 1, b);
+        if (low > high) {
+            continue;
+        }
+        minR = minR === undefined ? low : Math.min(minR, low);
+        maxR = maxR === undefined ? high : Math.max(maxR, high);
+    }
+    if (minR === undefined || maxR === undefined) {
+        return undefined;
+    }
+    return { start: minR, end: maxR };
+};
+
 export const getColumnIDsFromDataSelectionsForSheet = (
     selections: MitoSelection[],
     columnIDsByIndex: ColumnID[],

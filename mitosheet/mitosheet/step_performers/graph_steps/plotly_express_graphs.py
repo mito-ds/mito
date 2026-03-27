@@ -506,16 +506,29 @@ def get_plotly_express_graph_code(
     nbins: Optional[int],
     graph_styling_params: Dict[str, Any],
     df_name: str,
+    range_start_row_index: Optional[int] = None,
+    range_end_row_index: Optional[int] = None,
 ) -> str:
     """
     Generates the code for a Plotly express graph in 3 steps
-    1) filtering -- make sure that dataframe is a safe size to graph
-    2) graph creation -- actually construct the graph
-    3) graph styling -- style the graph
+    1) optional row slice (sheet selection)
+    2) filtering -- make sure that dataframe is a safe size to graph
+    3) graph creation -- actually construct the graph
+    4) graph styling -- style the graph
     """
 
     code = []
     code.append("import plotly.express as px")
+
+    if range_start_row_index is not None and range_end_row_index is not None:
+        code.append("# Selected rows for this chart (from sheet selection)")
+        code.append(
+            "{df_name} = {df_name}.iloc[{rs}:{re}]".format(
+                df_name=df_name,
+                rs=int(range_start_row_index),
+                re=int(range_end_row_index) + 1,
+            )
+        )
 
     # Step 1: Filtering
     is_safety_filter_applied = safety_filter_applied(

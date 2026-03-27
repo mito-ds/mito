@@ -125,9 +125,20 @@ class GraphStepPerformer(StepPerformer):
         histfunc = graph_creation.get('histfunc', None)
         nbins = graph_creation.get('nbins', None)
 
+        range_start_row_index = graph_creation.get('range_start_row_index', None)
+        range_end_row_index = graph_creation.get('range_end_row_index', None)
+
         # Create a copy of the dataframe, just for safety.
         df: pd.DataFrame = prev_state.dfs[sheet_index].copy()
         df_name: str = prev_state.df_names[sheet_index]
+
+        if range_start_row_index is not None and range_end_row_index is not None:
+            n = len(df.index)
+            if n > 0:
+                rs = max(0, min(int(range_start_row_index), n - 1))
+                re = max(0, min(int(range_end_row_index), n - 1))
+                if rs <= re:
+                    df = df.iloc[rs : re + 1]
 
         # If the graph tab already exists, use its name. Otherwise, create a new graph tab name.
         graph_index = get_graph_index_by_graph_id(post_state.graph_data_array, graph_id)
@@ -167,7 +178,7 @@ class GraphStepPerformer(StepPerformer):
                 histnorm,
                 histfunc,
                 nbins,
-                graph_styling
+                graph_styling,
             )
             pandas_processing_time = perf_counter() - pandas_start_time
 
@@ -202,6 +213,8 @@ class GraphStepPerformer(StepPerformer):
                 nbins,
                 graph_styling,
                 df_name,
+                range_start_row_index=range_start_row_index,
+                range_end_row_index=range_end_row_index,
             )
 
             post_state.graph_data_array[graph_index] = {

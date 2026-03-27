@@ -358,6 +358,13 @@ export type GraphCreationParams<T> = {
     nbins: T | undefined
     histnorm: string | undefined,
     histfunc: string | undefined,
+
+    /**
+     * Inclusive 0-based row positions into the sheet dataframe (iloc). When both are set,
+     * the graph uses only these rows (e.g. from a selected cell range). Omitted = all rows.
+     */
+    range_start_row_index?: number
+    range_end_row_index?: number
 }
 export type GraphStylingParams<T> = {
     title: {
@@ -1185,6 +1192,8 @@ export type OpenGraphType = {
     selectedColumnIds?: ColumnID[]
     /** When true, the graph sidebar opens on the Chart tab (chart type picker). */
     openInChartStudioTab?: boolean
+    /** Inclusive data row range (grid row indices) to graph; omit for all rows. */
+    selectedRowRange?: { start: number; end: number }
 } | {
     type: 'new_duplicate_graph',
     graphID: GraphID,

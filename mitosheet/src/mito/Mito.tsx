@@ -32,7 +32,7 @@ import CatchUpPopup from './components/CatchUpPopup';
 import ErrorBoundary from './components/elements/ErrorBoundary';
 import EndoGrid from './components/endo/EndoGrid';
 import { focusGrid } from './components/endo/focusUtils';
-import { getColumnIDsFromDataSelectionsForSheet } from './components/endo/selectionUtils';
+import { getColumnIDsFromDataSelectionsForSheet, getDataRowIndexRangeFromSelections } from './components/endo/selectionUtils';
 import { getCellDataFromCellIndexes, getColumnIDsArrayFromSheetDataArray, getDefaultGridState } from './components/endo/utils';
 import Footer from './components/footer/Footer';
 import ClearAnalysisModal from './components/modals/ClearAnalysisModal';
@@ -167,11 +167,17 @@ export const Mito = (props: MitoProps): JSX.Element => {
         }
         const columnIDs = getColumnIDsArrayFromSheetDataArray([sheet])[0];
         const selectedIds = getColumnIDsFromDataSelectionsForSheet(gridState.selections, columnIDs, uiState.selectedSheetIndex);
+        const selectedRowRange = getDataRowIndexRangeFromSelections(
+            gridState.selections,
+            uiState.selectedSheetIndex,
+            sheet.numRows,
+        );
         void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
             type: 'new_graph',
             graphType: GraphType.BAR,
             selectedColumnIds: selectedIds.length > 0 ? selectedIds : undefined,
             openInChartStudioTab: true,
+            selectedRowRange: selectedRowRange,
         });
     }, [gridState.selections, uiState, sheetDataArray, setUIState, setEditorState, mitoAPI]);
 

@@ -177,9 +177,18 @@ export const getDefaultGraphParams = (
     // This is the case where we are creating a new graph
     const newGraphType = openGraph.graphType;
     const selectedColumnIDs = openGraph.selectedColumnIds;
-    
+    const selectedRowRange = openGraph.selectedRowRange;
+
     const axis_column_ids = getAxisColumnIDs(sheetDataArray[selectedSheetIndex], newGraphType, selectedColumnIDs);
-    
+
+    const rangeRowParams =
+        selectedRowRange !== undefined
+            ? {
+                  range_start_row_index: selectedRowRange.start,
+                  range_end_row_index: selectedRowRange.end,
+              }
+            : {};
+
     return {
         graphID: openGraph.graphID,
         graphPreprocessing: {
@@ -195,6 +204,7 @@ export const getDefaultGraphParams = (
             facet_col_spacing: undefined,
             facet_row_spacing: undefined,
             ...axis_column_ids,
+            ...rangeRowParams,
             // Params that are only available to some graph types
             points: GRAPHS_THAT_HAVE_POINTS.includes(newGraphType) ? 'outliers' : undefined,
             line_shape: GRAPHS_THAT_HAVE_LINE_SHAPE.includes(newGraphType) ? 'linear' : undefined,
@@ -426,6 +436,7 @@ export const openGraphSidebar = async (
         graphType: GraphType
         selectedColumnIds?: ColumnID[]
         openInChartStudioTab?: boolean
+        selectedRowRange?: { start: number; end: number }
     } | {
         type: 'new_duplicate_graph',
         graphIDToDuplicate: GraphID
@@ -487,6 +498,7 @@ export const openGraphSidebar = async (
                     graphType: newOpenGraph.graphType,
                     selectedColumnIds: newOpenGraph.selectedColumnIds,
                     openInChartStudioTab: newOpenGraph.openInChartStudioTab,
+                    selectedRowRange: newOpenGraph.selectedRowRange,
                 }
             }
         })
