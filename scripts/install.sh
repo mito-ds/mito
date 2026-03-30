@@ -156,7 +156,8 @@ main() {
   # Prefer an existing system python3 >= 3.9, but fall back to a uv-managed Python
   # download if the system checks fail (so we don't hard-require python3).
   if have_python3 && python_ok_version; then
-    SYSTEM_PYTHON_BIN="python3"
+    # Resolve now so ensure_uv()'s PATH prepends cannot change which python3 uv uses.
+    SYSTEM_PYTHON_BIN="$(command -v python3)"
   else
     unset SYSTEM_PYTHON_BIN
   fi

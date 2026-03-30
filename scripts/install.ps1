@@ -31,7 +31,7 @@ function Get-SystemPython {
     $p = Start-Process -FilePath $cmd.Source -ArgumentList @(
       '-c', 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)'
     ) -Wait -PassThru -NoNewWindow
-    if ($p.ExitCode -eq 0) { return $name }
+    if ($p.ExitCode -eq 0) { return $cmd.Source }
   }
   return $null
 }
