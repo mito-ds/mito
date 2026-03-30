@@ -1,7 +1,7 @@
 # Install Mito (mito-ai + mitosheet) into %USERPROFILE%\.mito\venv using uv.
 # Run from PowerShell: irm https://... | iex   OR   .\install.ps1
-# Requires: Windows. If execution policy blocks scripts, use:
-#   powershell -ExecutionPolicy Bypass -File .\install.ps1
+# If execution policy blocks scripts, use:
+# powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 $ErrorActionPreference = 'Stop'
 
