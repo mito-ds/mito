@@ -5,6 +5,7 @@ from typing import Any, List, Tuple
 from jupyter_server.utils import url_path_join
 from mito_ai.settings.handlers import SettingsHandler
 from mito_ai.settings.enterprise_handler import AvailableModelsHandler
+from mito_ai.settings.handlers import SubscriptionHandler
 
 def get_settings_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
     """Get all settings related URL patterns.
@@ -19,4 +20,5 @@ def get_settings_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
     return [
         (url_path_join(BASE_URL, "settings/(.*)"), SettingsHandler, {}),
         (url_path_join(BASE_URL, "available-models"), AvailableModelsHandler, {}),
+        (url_path_join(BASE_URL, "subscription"), SubscriptionHandler, {}),
     ]
