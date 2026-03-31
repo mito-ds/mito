@@ -39,4 +39,3 @@ class SettingsHandler(APIHandler):
         self.finish(
             json.dumps({"status": "updated", "key": key, "value": data["value"]})
         )
-
