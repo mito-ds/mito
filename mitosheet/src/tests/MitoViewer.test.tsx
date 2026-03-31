@@ -183,7 +183,7 @@ describe("MitoViewer", () => {
 
         // Should show match count with truncation context
         expect(
-            screen.getByText(/1 matches in truncated view/i)
+            screen.getByText(/1 matches in the first/i)
         ).toBeInTheDocument();
     });
 

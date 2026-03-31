@@ -509,7 +509,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                 <div className={`mito-viewer__row-info ${isTruncated ? 'mito-viewer__row-info--warning' : ''}`}>
                     {isTruncated && searchTerm.trim() ? (
                         <>
-                            ⚠ Showing {sortedData.length} matches in truncated view ({data.length} / {payload.totalRows} rows loaded).
+                            ⚠ Showing {sortedData.length} matches in the first {data.length} of {payload.totalRows} rows. Set pandas display.max_rows to search all {payload.totalRows} rows.
                         </>
                     ) : isTruncated ? (
                         <>
@@ -547,8 +547,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                 <div className={`mito-viewer__empty-state ${isTruncated && searchTerm.trim() ? 'mito-viewer__empty-state--warning' : ''}`}>
                     {isTruncated && searchTerm.trim() ? (
                         <>
-                            ⚠ No rows match the search criteria in the first {data.length} of {payload.totalRows} rows.
-                            The full DataFrame may contain matches. Set pandas display.max_rows to search all rows.
+                            ⚠ No cells match "{searchTerm.trim()}" in the first {data.length} rows of the dataframe. Set pandas display.max_rows to search all {payload.totalRows} rows.
                         </>
                     ) : (
                         'No rows match the search criteria'
