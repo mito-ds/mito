@@ -56,6 +56,20 @@ export const updateSettings = async (settingsKey: string, settingsValue: string)
     return resp.data || '';
 }
 
+export interface SubscriptionStatusResponse {
+    is_pro: boolean;
+    is_enterprise: boolean;
+}
+
+export const getSubscriptionStatus = async (): Promise<SubscriptionStatusResponse> => {
+    const resp = await requestAPI<SubscriptionStatusResponse>('subscription');
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data || { is_pro: false, is_enterprise: false };
+}
+
 
 /************************************
 

@@ -4,19 +4,24 @@
  */
 
 import { useState } from 'react';
-import { getUserKey, getChatHistoryThreads, getChatHistoryThread } from '../../../restAPI/RestAPI';
+import { getUserKey, getChatHistoryThreads, getChatHistoryThread, getSubscriptionStatus } from '../../../restAPI/RestAPI';
 
 /**
  * Determines if a user should be considered "signed up" based on:
- * 1. Having an email address, OR
- * 2. Having existing chat history threads, OR
- * 3. Having a soft signup flag (for cases where email setting failed)
+ * 1. Being an enterprise user, OR
+ * 2. Having an email address, OR
+ * 3. Having existing chat history threads, OR
+ * 4. Having a soft signup flag (for cases where email setting failed)
  * 
  * This ensures consistent behavior across all components that need to check
  * if a user should have access to Mito AI features.
  */
 const isUserSignedUp = async (): Promise<boolean> => {
     try {
+        // Enterprise users should never see email signup gating.
+        const subscriptionStatus = await getSubscriptionStatus();
+        if (subscriptionStatus.is_enterprise) return true;
+
         // Check for soft signup flag first (for cases where email setting failed)
         const hasSoftSignup = localStorage.getItem('mito_ai_soft_signup') === 'true';
 
