@@ -87,6 +87,7 @@ import { getCSSStyleVariables } from './utils/colors';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard, isInJupyterLabOrNotebook } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
+import { globalMitoRegistry } from '../jupyter/MitoInstanceRegistry';
 
 export type MitoProps = {
     getSendFunction: () => Promise<SendFunction | SendFunctionError>
@@ -337,6 +338,27 @@ export const Mito = (props: MitoProps): JSX.Element => {
         // TODO: we should store some data with analysis data to not make
         // this run too often?
     }, [analysisData])
+
+    // Register this Mito instance in the global registry for cross-cell undo support
+    useEffect(() => {
+        const analysisName = analysisData.analysisName;
+        if (mitoContainerRef.current) {
+            globalMitoRegistry.register(analysisName, mitoAPI, mitoContainerRef.current);
+        }
+        return () => {
+            globalMitoRegistry.unregister(analysisName);
+        };
+    }, [analysisData.analysisName, mitoAPI]);
+
+    // Record edits in the global registry whenever the step index changes,
+    // which indicates a new step was created in this cell
+    const prevStepIdxRef = useRef(analysisData.currStepIdx);
+    useEffect(() => {
+        if (analysisData.currStepIdx > prevStepIdxRef.current) {
+            globalMitoRegistry.recordEdit(analysisData.analysisName);
+        }
+        prevStepIdxRef.current = analysisData.currStepIdx;
+    }, [analysisData.currStepIdx, analysisData.analysisName]);
 
     // Load plotly, so we can generate graphs
     useEffect(() => {

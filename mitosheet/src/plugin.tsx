@@ -31,6 +31,7 @@ import {
 import { MitoAPI, PublicInterfaceVersion } from './mito';
 import { MITO_TOOLBAR_OPEN_SEARCH_ID, MITO_TOOLBAR_REDO_ID, MITO_TOOLBAR_UNDO_ID } from './mito/components/toolbar/Toolbar';
 import { getOperatingSystem, keyboardShortcuts } from './mito/utils/keyboardShortcuts';
+import { globalMitoRegistry } from './jupyter/MitoInstanceRegistry';
 
 const registerMitosheetToolbarButtonAdder = (tracker: INotebookTracker) => {
 
@@ -539,36 +540,55 @@ function activateMitosheetExtension(
     });
 
     app.commands.addCommand('mitosheet:mito-undo', {
-        label: 'Clicks the undo button once',
+        label: 'Undoes the most recent edit across all Mito cells',
         execute: async (): Promise<void> => {
-            // First, get the mito container that this element is a part of
-            const mitoContainer = getParentMitoContainer();
-
             // If we are in an input or text, we don't actually do the undo, as it's handled in the input
             if (document.activeElement?.tagName.toLowerCase() === 'input' || document.activeElement?.tagName.toLowerCase() === 'textarea') {
                 return;
             }
 
-            // Get the undo button, and click it
-            const undoButton = mitoContainer?.querySelector(`#${MITO_TOOLBAR_UNDO_ID}`) as HTMLDivElement | null;
-            undoButton?.click()
+            // First, try to find the mito container the user is currently focused in
+            const mitoContainer = getParentMitoContainer();
+
+            if (mitoContainer) {
+                // If user is focused inside a Mito cell, undo in that cell (existing behavior)
+                const undoButton = mitoContainer.querySelector(`#${MITO_TOOLBAR_UNDO_ID}`) as HTMLDivElement | null;
+                undoButton?.click();
+            } else {
+                // If user is outside any Mito cell, use the registry to undo
+                // in the most recently edited cell via its API directly
+                const mostRecent = globalMitoRegistry.getMostRecentlyEdited();
+                if (mostRecent) {
+                    await mostRecent.mitoAPI.updateUndo();
+                    globalMitoRegistry.popUndoEntry();
+                }
+            }
         }
     });
 
     app.commands.addCommand('mitosheet:mito-redo', {
-        label: 'Clicks the redo button once',
+        label: 'Redoes the most recently undone edit across all Mito cells',
         execute: async (): Promise<void> => {
-            // First, get the mito container that this element is a part of
-            const mitoContainer = getParentMitoContainer();
-
-            // If we are in an input or text, we don't actually do the undo, as it's handled in the input
+            // If we are in an input or text, we don't actually do the redo, as it's handled in the input
             if (document.activeElement?.tagName.toLowerCase() === 'input' || document.activeElement?.tagName.toLowerCase() === 'textarea') {
                 return;
             }
 
-            // Get the undo button, and click it
-            const redoButton = mitoContainer?.querySelector(`#${MITO_TOOLBAR_REDO_ID}`) as HTMLDivElement | null;
-            redoButton?.click()
+            // First, try to find the mito container the user is currently focused in
+            const mitoContainer = getParentMitoContainer();
+
+            if (mitoContainer) {
+                // If user is focused inside a Mito cell, redo in that cell (existing behavior)
+                const redoButton = mitoContainer.querySelector(`#${MITO_TOOLBAR_REDO_ID}`) as HTMLDivElement | null;
+                redoButton?.click();
+            } else {
+                // If user is outside any Mito cell, use the registry to redo
+                // in the most recently edited cell via its API directly
+                const mostRecent = globalMitoRegistry.getMostRecentlyEdited();
+                if (mostRecent) {
+                    await mostRecent.mitoAPI.updateRedo();
+                }
+            }
         }
     });
 
