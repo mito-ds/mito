@@ -17,20 +17,28 @@ import { getUserKey, getChatHistoryThreads, getChatHistoryThread } from '../../.
  * if a user should have access to Mito AI features.
  */
 const isUserSignedUp = async (): Promise<boolean> => {
+    // Check for soft signup flag first (for cases where email setting failed)
+    const hasSoftSignup = localStorage.getItem('mito_ai_soft_signup') === 'true';
+
     try {
         // Enterprise users should never see email signup gating.
         const isEnterprise = await getUserKey('is_enterprise');
         if (isEnterprise === 'True') return true;
+    } catch (error) {
+        console.error('Failed to check enterprise status:', error);
+    }
 
-        // Check for soft signup flag first (for cases where email setting failed)
-        const hasSoftSignup = localStorage.getItem('mito_ai_soft_signup') === 'true';
-
+    try {
         // Check if user has an email address
         const userEmail = await getUserKey('user_email');
         const hasEmail = userEmail !== "" && userEmail !== undefined;
 
         if (hasEmail) return true;
+    } catch (error) {
+        console.error('Failed to check user email:', error);
+    }
 
+    try {
         // Check for existing chat history threads
         const chatThreads = await getChatHistoryThreads();
         const hasThreads = chatThreads.length > 0;
@@ -43,9 +51,7 @@ const isUserSignedUp = async (): Promise<boolean> => {
 
         return hasActualChatHistory || hasSoftSignup;
     } catch (error) {
-        console.error('Failed to check user signup state:', error);
-        // Even if there's an error, check for soft signup flag
-        const hasSoftSignup = localStorage.getItem('mito_ai_soft_signup') === 'true';
+        console.error('Failed to check chat history signup state:', error);
         return hasSoftSignup;
     }
 };
