@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { getUserKey, getChatHistoryThreads, getChatHistoryThread, getSubscriptionStatus } from '../../../restAPI/RestAPI';
+import { getUserKey, getChatHistoryThreads, getChatHistoryThread } from '../../../restAPI/RestAPI';
 
 /**
  * Determines if a user should be considered "signed up" based on:
@@ -19,8 +19,9 @@ import { getUserKey, getChatHistoryThreads, getChatHistoryThread, getSubscriptio
 const isUserSignedUp = async (): Promise<boolean> => {
     try {
         // Enterprise users should never see email signup gating.
-        const subscriptionStatus = await getSubscriptionStatus();
-        if (subscriptionStatus.is_enterprise) return true;
+        const isEnterprise = await getUserKey('is_enterprise');
+        console.log('isEnterprise', isEnterprise);
+        if (isEnterprise === 'True') return true;
 
         // Check for soft signup flag first (for cases where email setting failed)
         const hasSoftSignup = localStorage.getItem('mito_ai_soft_signup') === 'true';

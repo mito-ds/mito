@@ -9,7 +9,6 @@ from mito_ai.settings.utils import (
     set_settings_field,
     ensure_settings_file_exists,
 )
-from mito_ai.utils.version_utils import is_enterprise, is_pro
 
 
 class SettingsHandler(APIHandler):
@@ -41,20 +40,3 @@ class SettingsHandler(APIHandler):
             json.dumps({"status": "updated", "key": key, "value": data["value"]})
         )
 
-
-class SubscriptionHandler(APIHandler):
-    """Handler for getting a user's subscription status"""
-
-    @tornado.web.authenticated
-    def get(self) -> None:
-        """Get a user's subscription status"""
-        is_pro_user = is_pro()
-        is_enterprise_user = is_enterprise()
-        self.finish(
-            json.dumps(
-                {
-                    "is_pro": is_pro_user,
-                    "is_enterprise": is_enterprise_user,
-                }
-            )
-        )
