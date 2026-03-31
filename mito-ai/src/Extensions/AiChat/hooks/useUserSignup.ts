@@ -20,7 +20,6 @@ const isUserSignedUp = async (): Promise<boolean> => {
     try {
         // Enterprise users should never see email signup gating.
         const isEnterprise = await getUserKey('is_enterprise');
-        console.log('isEnterprise', isEnterprise);
         if (isEnterprise === 'True') return true;
 
         // Check for soft signup flag first (for cases where email setting failed)
