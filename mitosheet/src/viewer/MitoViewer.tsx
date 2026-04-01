@@ -593,10 +593,10 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                 const edgeShadow =
                                     inRange && selectionBounds
                                         ? getRangeEdgeBoxShadow(
-                                              rowIndex,
-                                              cellIndex,
-                                              selectionBounds
-                                          )
+                                            rowIndex,
+                                            cellIndex,
+                                            selectionBounds
+                                        )
                                         : undefined;
 
                                 return (
@@ -894,7 +894,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                         className="mito-viewer__ask-ai-button"
                         onClick={handleAskAiClick}
                     >
-                        Ask AI
+                        ✦ Ask Mito AI
                     </button>
                 </div>
             )}
