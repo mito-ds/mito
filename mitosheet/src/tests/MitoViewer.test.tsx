@@ -10,6 +10,18 @@ import "@testing-library/jest-dom";
 // Import specific component to avoid importing @jupyterlab package
 import { MitoViewer } from "../viewer/MitoViewer";
 
+/**
+ * Sorting is wired to `.mito-viewer__sort-icon-container`, not the column title.
+ */
+function getColumnSortControl(columnLabel: string): HTMLElement {
+    const titleSpan = screen.getByText(columnLabel, { exact: true });
+    const th = titleSpan.closest("th");
+    expect(th).toBeTruthy();
+    const sort = th!.querySelector(".mito-viewer__sort-icon-container");
+    expect(sort).toBeTruthy();
+    return sort as HTMLElement;
+}
+
 describe("MitoViewer", () => {
     const mockPayload = {
         columns: [
@@ -85,7 +97,8 @@ describe("MitoViewer", () => {
         expect(screen.getByText("0")).toBeInTheDocument();
         expect(screen.getByText("Alice")).toBeInTheDocument();
         expect(screen.getByText("25")).toBeInTheDocument();
-        expect(screen.getByText("85.5")).toBeInTheDocument();
+        // Floats use aligned spans; full value is on the cell `title`
+        expect(screen.getByTitle("85.5")).toBeInTheDocument();
         expect(screen.getByText("1")).toBeInTheDocument();
         expect(screen.getByText("30")).toBeInTheDocument();
         expect(screen.getByText("92")).toBeInTheDocument();
@@ -155,8 +168,7 @@ describe("MitoViewer", () => {
         const user = userEvent.setup();
         render(<MitoViewer payload={mockPayload} />);
 
-        const nameHeader = screen.getByText("Name");
-        await user.click(nameHeader);
+        await user.click(getColumnSortControl("Name"));
 
         // Check that sort icon appears
         expect(screen.getByText("↑")).toBeInTheDocument();
@@ -172,18 +184,16 @@ describe("MitoViewer", () => {
         const user = userEvent.setup();
         render(<MitoViewer payload={mockPayload} />);
 
-        const nameHeader = screen.getByText("Name");
-
         // First click - ascending
-        await user.click(nameHeader);
+        await user.click(getColumnSortControl("Name"));
         expect(screen.getByText("↑")).toBeInTheDocument();
 
         // Second click - descending
-        await user.click(nameHeader);
+        await user.click(getColumnSortControl("Name"));
         expect(screen.getByText("↓")).toBeInTheDocument();
 
         // Third click - no sort
-        await user.click(nameHeader);
+        await user.click(getColumnSortControl("Name"));
         expect(screen.queryByText("↑")).not.toBeInTheDocument();
         expect(screen.queryByText("↓")).not.toBeInTheDocument();
     });
@@ -192,8 +202,7 @@ describe("MitoViewer", () => {
         const user = userEvent.setup();
         render(<MitoViewer payload={mockPayload} />);
 
-        const ageHeader = screen.getByText("Age");
-        await user.click(ageHeader);
+        await user.click(getColumnSortControl("Age"));
 
         // Data should be sorted ascending by age
         const rows = screen.getAllByRole("row");
