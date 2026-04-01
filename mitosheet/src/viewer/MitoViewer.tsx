@@ -12,7 +12,11 @@ import React, {
     useLayoutEffect,
 } from "react";
 import "./../../css/viewer.css";
-import { buildDataframeViewerSelectionContext, COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION } from "./dataframeViewerAiContext";
+import {
+    buildDataframeViewerSelectionContext,
+    COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION,
+    isMitoAiDataframeViewerSelectionCommandAvailable,
+} from "./dataframeViewerAiContext";
 import {
     calculateMaxDecimalPlaces,
     parseNumericValue,
@@ -568,21 +572,20 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         if (!hasMultiCellRangeSelection || selectionBounds === null) {
             return;
         }
+        if (!isMitoAiDataframeViewerSelectionCommandAvailable()) {
+            return;
+        }
         const w = window as Window & {
             commands?: {
-                hasCommand?: (id: string) => boolean;
                 execute?: (id: string, args?: Record<string, string>) => void;
             };
         };
-        if (!w.commands?.hasCommand?.(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION)) {
-            return;
-        }
         const { display, value } = buildDataframeViewerSelectionContext(
             selectionBounds,
             sortedData,
             payload.columns
         );
-        void w.commands.execute(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION, {
+        void w.commands?.execute?.(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION, {
             type: "dataframe_viewer_selection",
             value,
             display,
@@ -594,12 +597,35 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         payload.columns,
     ]);
 
+    /** Hide Ask AI until Mito AI registers its command (may load after this output). */
+    const [mitoAiAvailable, setMitoAiAvailable] = useState(false);
+    useEffect(() => {
+        if (isMitoAiDataframeViewerSelectionCommandAvailable()) {
+            setMitoAiAvailable(true);
+            return;
+        }
+        let attempts = 0;
+        const maxAttempts = 120;
+        const id = window.setInterval(() => {
+            if (isMitoAiDataframeViewerSelectionCommandAvailable()) {
+                setMitoAiAvailable(true);
+                window.clearInterval(id);
+                return;
+            }
+            attempts++;
+            if (attempts >= maxAttempts) {
+                window.clearInterval(id);
+            }
+        }, 500);
+        return () => window.clearInterval(id);
+    }, []);
+
     const [askAiFloatStyle, setAskAiFloatStyle] = useState<
         React.CSSProperties | undefined
     >(undefined);
 
     const updateAskAiFloatPosition = useCallback(() => {
-        if (!hasMultiCellRangeSelection) {
+        if (!hasMultiCellRangeSelection || !mitoAiAvailable) {
             setAskAiFloatStyle(undefined);
             return;
         }
@@ -661,7 +687,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             left: leftPx,
             transform: "translateX(-50%)",
         });
-    }, [hasMultiCellRangeSelection]);
+    }, [hasMultiCellRangeSelection, mitoAiAvailable]);
 
     useLayoutEffect(() => {
         updateAskAiFloatPosition();
@@ -673,7 +699,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     ]);
 
     useEffect(() => {
-        if (!hasMultiCellRangeSelection) {
+        if (!hasMultiCellRangeSelection || !mitoAiAvailable) {
             return;
         }
         const container = tableContainerRef.current;
@@ -686,7 +712,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             window.removeEventListener("resize", onScrollOrResize);
             container?.removeEventListener("scroll", onScrollOrResize);
         };
-    }, [hasMultiCellRangeSelection, updateAskAiFloatPosition]);
+    }, [hasMultiCellRangeSelection, mitoAiAvailable, updateAskAiFloatPosition]);
 
     return (
         <div className="mito-viewer">
@@ -723,7 +749,9 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                     {renderTableBody()}
                 </table>
             </div>
-            {hasMultiCellRangeSelection && askAiFloatStyle !== undefined && (
+            {mitoAiAvailable &&
+                hasMultiCellRangeSelection &&
+                askAiFloatStyle !== undefined && (
                 <div
                     className="mito-viewer__ask-ai-float"
                     style={askAiFloatStyle}

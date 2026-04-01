@@ -11,6 +11,20 @@ import type { ColumnMetadata, SelectionBounds } from "./types";
 export const COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION =
     "mito_ai:add-dataframe-viewer-selection";
 
+/**
+ * True when JupyterLab has registered the Mito AI command (extension loaded).
+ * Uses the same `window.commands` registry as the mime renderer context.
+ */
+export function isMitoAiDataframeViewerSelectionCommandAvailable(): boolean {
+    const w = window as Window & {
+        commands?: { hasCommand?: (id: string) => boolean };
+    };
+    return (
+        w.commands?.hasCommand?.(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION) ??
+        false
+    );
+}
+
 export function columnHeaderLabel(col: ColumnMetadata): string {
     return col.name.join(" / ");
 }
