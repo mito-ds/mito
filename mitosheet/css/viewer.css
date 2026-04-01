@@ -198,6 +198,14 @@
   border-right: none;
 }
 
+/* Range selection fill + outer border (edges drawn via inline box-shadow on each cell) */
+.mito-viewer__body-cell--range-fill {
+  position: relative;
+  z-index: 1;
+  background-color: rgba(33, 115, 70, 0.12);
+  cursor: cell;
+}
+
 .mito-viewer__body-cell-numeric {
   text-align: right;
   font-family: var(--jp-code-font-family, monospace);

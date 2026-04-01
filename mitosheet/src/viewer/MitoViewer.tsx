@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useMemo, useCallback, useRef } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import "./../../css/viewer.css";
 import { useColumnResize } from "./useColumnResize";
 import {
@@ -71,6 +71,60 @@ interface SortState {
     direction: SortDirection;
 }
 
+/** Cell position in the current (filtered/sorted) table view */
+interface CellPos {
+    row: number;
+    col: number;
+}
+
+/** Normalized rectangle for range checks and edge styling */
+interface SelectionBounds {
+    minRow: number;
+    maxRow: number;
+    minCol: number;
+    maxCol: number;
+}
+
+function getSelectionBounds(anchor: CellPos, focus: CellPos): SelectionBounds {
+    return {
+        minRow: Math.min(anchor.row, focus.row),
+        maxRow: Math.max(anchor.row, focus.row),
+        minCol: Math.min(anchor.col, focus.col),
+        maxCol: Math.max(anchor.col, focus.col),
+    };
+}
+
+function isCellInRange(row: number, col: number, bounds: SelectionBounds): boolean {
+    return (
+        row >= bounds.minRow &&
+        row <= bounds.maxRow &&
+        col >= bounds.minCol &&
+        col <= bounds.maxCol
+    );
+}
+
+/** Inset shadows for Excel-style outer border of the range (per cell) */
+function getRangeEdgeBoxShadow(
+    row: number,
+    col: number,
+    bounds: SelectionBounds
+): string {
+    const parts: string[] = [];
+    if (row === bounds.minRow) {
+        parts.push("inset 0 2px 0 0 #217346");
+    }
+    if (row === bounds.maxRow) {
+        parts.push("inset 0 -2px 0 0 #217346");
+    }
+    if (col === bounds.minCol) {
+        parts.push("inset 2px 0 0 0 #217346");
+    }
+    if (col === bounds.maxCol) {
+        parts.push("inset -2px 0 0 0 #217346");
+    }
+    return parts.join(", ");
+}
+
 export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     // State for search functionality - filters table rows based on user input
     const [searchTerm, setSearchTerm] = useState("");
@@ -79,6 +133,15 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         columnIndex: null,
         direction: null,
     });
+    /**
+     * Range selection: anchor is fixed until a plain click or new drag; focus is the other corner.
+     * Cleared when search/sort changes.
+     */
+    const [selectionAnchor, setSelectionAnchor] = useState<CellPos | null>(null);
+    const [selectionFocus, setSelectionFocus] = useState<CellPos | null>(null);
+    /** True between pointer down on a body cell and pointer up (click-drag to extend range) */
+    const isSelectingRef = useRef(false);
+
     // Ref to the table container for font measurement
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -159,6 +222,31 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             return sort.direction === "asc" ? comparison : -comparison;
         });
     }, [filteredData, sort]);
+
+    const selectionBounds = useMemo((): SelectionBounds | null => {
+        if (selectionAnchor === null || selectionFocus === null) {
+            return null;
+        }
+        return getSelectionBounds(selectionAnchor, selectionFocus);
+    }, [selectionAnchor, selectionFocus]);
+
+    // Selection refers to indices in the current view; clear when the view changes
+    useEffect(() => {
+        setSelectionAnchor(null);
+        setSelectionFocus(null);
+    }, [searchTerm, sort.columnIndex, sort.direction]);
+
+    useEffect(() => {
+        const endSelect = () => {
+            isSelectingRef.current = false;
+        };
+        window.addEventListener("pointerup", endSelect);
+        window.addEventListener("pointercancel", endSelect);
+        return () => {
+            window.removeEventListener("pointerup", endSelect);
+            window.removeEventListener("pointercancel", endSelect);
+        };
+    }, []);
 
     // Column resizing functionality - must be after sortedData is defined
     const {
@@ -362,10 +450,16 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     cellIndex,
                                     payload.columns
                                 );
+                                const inRange =
+                                    selectionBounds !== null &&
+                                    isCellInRange(rowIndex, cellIndex, selectionBounds);
                                 let className = `mito-viewer__body-cell mito-viewer__body-cell-${isNumeric[cellIndex] ? "numeric" : "text"
                                     }`;
                                 if (cellIndex < indexLevels) {
                                     className += " mito-viewer__body-cell-index";
+                                }
+                                if (inRange) {
+                                    className += " mito-viewer__body-cell--range-fill";
                                 }
 
                                 // For numeric columns that have any decimals, render all numbers with aligned structure
@@ -416,6 +510,15 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     formattedCell
                                 );
 
+                                const edgeShadow =
+                                    inRange && selectionBounds
+                                        ? getRangeEdgeBoxShadow(
+                                              rowIndex,
+                                              cellIndex,
+                                              selectionBounds
+                                          )
+                                        : undefined;
+
                                 return (
                                     <td
                                         key={cellIndex}
@@ -425,7 +528,21 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                         style={{
                                             width: getColumnWidth(cellIndex),
                                             minWidth: getColumnWidth(cellIndex),
+                                            ...(edgeShadow ? { boxShadow: edgeShadow } : {}),
                                         }}
+                                        onPointerDown={(e) =>
+                                            handleBodyCellPointerDown(
+                                                e,
+                                                rowIndex,
+                                                cellIndex
+                                            )
+                                        }
+                                        onPointerEnter={() =>
+                                            handleBodyCellPointerEnter(
+                                                rowIndex,
+                                                cellIndex
+                                            )
+                                        }
                                     >
                                         {cellContent}
                                     </td>
@@ -501,6 +618,32 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         [calculateAndAutoResizeColumn]
     );
 
+    const handleBodyCellPointerDown = useCallback(
+        (e: React.PointerEvent, rowIndex: number, colIndex: number) => {
+            // Shift+click extends from the current anchor (Excel-style)
+            if (e.shiftKey && selectionAnchor !== null) {
+                e.preventDefault();
+                setSelectionFocus({ row: rowIndex, col: colIndex });
+                return;
+            }
+            e.preventDefault();
+            const pos = { row: rowIndex, col: colIndex };
+            setSelectionAnchor(pos);
+            setSelectionFocus(pos);
+            isSelectingRef.current = true;
+        },
+        [selectionAnchor]
+    );
+
+    const handleBodyCellPointerEnter = useCallback(
+        (rowIndex: number, colIndex: number) => {
+            if (!isSelectingRef.current) {
+                return;
+            }
+            setSelectionFocus({ row: rowIndex, col: colIndex });
+        },
+        []
+    );
 
     return (
         <div className="mito-viewer">
