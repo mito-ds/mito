@@ -7,7 +7,7 @@ from typing import Any, Optional
 from jupyter_server.base.handlers import APIHandler
 from mito_ai.utils.db import get_user_field, set_user_field
 from mito_ai.utils.telemetry_utils import identify
-from mito_ai.utils.version_utils import is_pro
+from mito_ai.utils.version_utils import is_enterprise, is_pro
 
 
 class UserHandler(APIHandler):
@@ -21,6 +21,9 @@ class UserHandler(APIHandler):
             # Special case, since we don't store this key 
             # in the user.json file.
             value = str(is_pro())
+        elif key == "is_enterprise":
+            # Special case, since this may be computed from helper packages.
+            value = str(is_enterprise())
         else: 
             value = get_user_field(key)
 
