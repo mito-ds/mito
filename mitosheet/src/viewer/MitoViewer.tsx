@@ -12,181 +12,20 @@ import React, {
     useLayoutEffect,
 } from "react";
 import "./../../css/viewer.css";
-import { useColumnResize } from "./useColumnResize";
+import { buildDataframeViewerSelectionContext, COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION } from "./dataframeViewerAiContext";
 import {
     calculateMaxDecimalPlaces,
     parseNumericValue,
     formatCellValue,
 } from "./numericFormatting";
-
-/**
- * Interface defining metadata for each column in the DataFrame.
- * Contains the column name and its pandas data type.
- */
-export interface ColumnMetadata {
-    /** The display name of the column as it appears in the DataFrame
-   * (for MultiIndex, this is an array of level names)
-   */
-    name: string[];
-    /** The pandas data type of the column (e.g., 'int64', 'float64', 'object', 'datetime64[ns]') */
-    dtype: string;
-}
-
-/**
- * Interface defining the complete data payload passed from Python to the React component.
- * Contains all necessary information to render the DataFrame viewer including column metadata,
- * row data, and truncation information.
- */
-export interface ViewerPayload {
-    /** Array of column metadata containing name and dtype information */
-    columns: ColumnMetadata[];
-    /** JSON serialized 2D array of values representing the DataFrame data. All values are converted to strings for consistent display. */
-    data: string;
-    /** Total number of rows in the original DataFrame before truncation */
-    totalRows: number;
-    /** Number of index levels if MultiIndex */
-    indexLevels?: number;
-    /** Number of column levels if MultiIndex */
-    columnLevels?: number;
-}
-
-/**
- * Props interface for the MitoViewer React component.
- * Contains the data payload needed to render the interactive DataFrame viewer.
- */
-export interface MitoViewerProps {
-    /** The complete payload containing DataFrame data and metadata */
-    payload: ViewerPayload;
-}
-
-/**
- * Type defining the possible sorting directions for table columns.
- * - 'asc': Sort in ascending order
- * - 'desc': Sort in descending order
- * - null: No sorting applied
- */
-type SortDirection = "asc" | "desc" | null;
-
-/**
- * Interface defining the current sorting state of the table.
- * Tracks which column is currently being sorted and in which direction.
- */
-interface SortState {
-    /** Index of the column being sorted, or null if no column is sorted */
-    columnIndex: number | null;
-    /** Current sorting direction for the active column */
-    direction: SortDirection;
-}
-
-/** Cell position in the current (filtered/sorted) table view */
-interface CellPos {
-    row: number;
-    col: number;
-}
-
-/** Normalized rectangle for range checks and edge styling */
-interface SelectionBounds {
-    minRow: number;
-    maxRow: number;
-    minCol: number;
-    maxCol: number;
-}
-
-function getSelectionBounds(anchor: CellPos, focus: CellPos): SelectionBounds {
-    return {
-        minRow: Math.min(anchor.row, focus.row),
-        maxRow: Math.max(anchor.row, focus.row),
-        minCol: Math.min(anchor.col, focus.col),
-        maxCol: Math.max(anchor.col, focus.col),
-    };
-}
-
-function isCellInRange(row: number, col: number, bounds: SelectionBounds): boolean {
-    return (
-        row >= bounds.minRow &&
-        row <= bounds.maxRow &&
-        col >= bounds.minCol &&
-        col <= bounds.maxCol
-    );
-}
-
-/** Selection outline color from `.mito-viewer` (`--mito-viewer-selection-border` / purple) */
-const SELECTION_BORDER = "var(--mito-viewer-selection-border)";
-
-/** Inset shadows for Excel-style outer border of the range (per cell) */
-function getRangeEdgeBoxShadow(
-    row: number,
-    col: number,
-    bounds: SelectionBounds
-): string {
-    const w = "2px";
-    const c = SELECTION_BORDER;
-    const parts: string[] = [];
-    if (row === bounds.minRow) {
-        parts.push(`inset 0 ${w} 0 0 ${c}`);
-    }
-    if (row === bounds.maxRow) {
-        parts.push(`inset 0 calc(-1 * ${w}) 0 0 ${c}`);
-    }
-    if (col === bounds.minCol) {
-        parts.push(`inset ${w} 0 0 0 ${c}`);
-    }
-    if (col === bounds.maxCol) {
-        parts.push(`inset calc(-1 * ${w}) 0 0 0 ${c}`);
-    }
-    return parts.join(", ");
-}
-
-/**
- * Must match mito-ai `COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION` in commands.tsx.
- */
-const COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION =
-    "mito_ai:add-dataframe-viewer-selection";
-
-function columnHeaderLabel(col: ColumnMetadata): string {
-    return col.name.join(" / ");
-}
-
-/**
- * Markdown table + description for Mito AI additional context (dataframe_viewer_selection).
- */
-function buildDataframeViewerSelectionContext(
-    bounds: SelectionBounds,
-    sortedRows: any[][],
-    columns: ColumnMetadata[]
-): { display: string; value: string } {
-    const { minRow, maxRow, minCol, maxCol } = bounds;
-    const rowCount = maxRow - minRow + 1;
-    const colCount = maxCol - minCol + 1;
-    const headers: string[] = [];
-    for (let c = minCol; c <= maxCol; c++) {
-        headers.push(columnHeaderLabel(columns[c]));
-    }
-    const lines: string[] = [];
-    lines.push("| " + headers.join(" | ") + " |");
-    lines.push("| " + headers.map(() => "---").join(" | ") + " |");
-    for (let r = minRow; r <= maxRow; r++) {
-        const row = sortedRows[r];
-        const cells: string[] = [];
-        for (let c = minCol; c <= maxCol; c++) {
-            const raw = row[c];
-            const s =
-                raw === null || raw === undefined
-                    ? ""
-                    : String(raw).replace(/\|/g, "\\|").replace(/\n/g, " ");
-            cells.push(s);
-        }
-        lines.push("| " + cells.join(" | ") + " |");
-    }
-    const markdownTable = lines.join("\n");
-    const value = [
-        "Selected cells from the DataFrame output viewer (rows and columns as currently shown, sorted, and filtered in the viewer).",
-        "",
-        markdownTable,
-    ].join("\n");
-    const display = `DataFrame selection (${rowCount}×${colCount})`;
-    return { display, value };
-}
+import { getRangeEdgeBoxShadow, getSelectionBounds, isCellInRange } from "./selectionUtils";
+import type {
+    CellPos,
+    MitoViewerProps,
+    SelectionBounds,
+    SortState,
+} from "./types";
+import { useColumnResize } from "./useColumnResize";
 
 export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     // State for search functionality - filters table rows based on user input
@@ -908,3 +747,5 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         </div>
     );
 };
+
+export type { ColumnMetadata, ViewerPayload, MitoViewerProps } from "./types";
