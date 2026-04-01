@@ -8,6 +8,12 @@
 /* Main container */
 .mito-viewer {
   position: relative;
+  /* Mito brand purple — same values as mitosheet/src/mito/utils/colors.tsx & :root in mito_frontend */
+  --mito-viewer-purple: #9d6cff;
+  --mito-viewer-purple-medium: #ba9bf8;
+  --mito-viewer-purple-light: #d0b9fe;
+  --mito-viewer-selection-border: var(--mito-viewer-purple);
+  --mito-viewer-selection-fill: rgba(157, 108, 255, 0.14);
   font-family: var(--jp-ui-font-family, system-ui, -apple-system, sans-serif);
   font-size: var(--jp-ui-font-size1, 13px);
   color: var(--jp-ui-font-color1, black);
@@ -66,15 +72,16 @@
   padding: 6px 12px;
   font-size: var(--jp-ui-font-size1, 13px);
   font-family: inherit;
-  color: var(--jp-ui-font-color1, black);
-  background-color: var(--jp-layout-color2, #f5f5f5);
-  border: 1px solid var(--jp-border-color2, #e0e0e0);
+  color: var(--mito-white, #ffffff);
+  background-color: var(--mito-viewer-purple);
+  border: 1px solid var(--mito-viewer-purple-medium);
   border-radius: 4px;
   cursor: pointer;
 }
 
 .mito-viewer__ask-ai-button:hover {
-  background-color: var(--jp-layout-color3, #ebebeb);
+  background-color: var(--mito-viewer-purple-medium);
+  border-color: var(--mito-viewer-purple-medium);
 }
 
 /* Table container */
@@ -223,11 +230,11 @@
   border-right: none;
 }
 
-/* Range selection fill + outer border (edges drawn via inline box-shadow on each cell) */
+/* Range selection fill + outer border (edges use var in MitoViewer.tsx box-shadow) */
 .mito-viewer__body-cell--range-fill {
   position: relative;
   z-index: 1;
-  background-color: rgba(33, 115, 70, 0.12);
+  background-color: var(--mito-viewer-selection-fill);
   cursor: cell;
 }
 

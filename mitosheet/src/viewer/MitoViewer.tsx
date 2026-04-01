@@ -110,24 +110,29 @@ function isCellInRange(row: number, col: number, bounds: SelectionBounds): boole
     );
 }
 
+/** Selection outline color from `.mito-viewer` (`--mito-viewer-selection-border` / purple) */
+const SELECTION_BORDER = "var(--mito-viewer-selection-border)";
+
 /** Inset shadows for Excel-style outer border of the range (per cell) */
 function getRangeEdgeBoxShadow(
     row: number,
     col: number,
     bounds: SelectionBounds
 ): string {
+    const w = "2px";
+    const c = SELECTION_BORDER;
     const parts: string[] = [];
     if (row === bounds.minRow) {
-        parts.push("inset 0 2px 0 0 #217346");
+        parts.push(`inset 0 ${w} 0 0 ${c}`);
     }
     if (row === bounds.maxRow) {
-        parts.push("inset 0 -2px 0 0 #217346");
+        parts.push(`inset 0 calc(-1 * ${w}) 0 0 ${c}`);
     }
     if (col === bounds.minCol) {
-        parts.push("inset 2px 0 0 0 #217346");
+        parts.push(`inset ${w} 0 0 0 ${c}`);
     }
     if (col === bounds.maxCol) {
-        parts.push("inset -2px 0 0 0 #217346");
+        parts.push(`inset calc(-1 * ${w}) 0 0 0 ${c}`);
     }
     return parts.join(", ");
 }
