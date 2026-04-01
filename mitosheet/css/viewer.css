@@ -275,3 +275,9 @@
   color: var(--jp-ui-font-color2, #666);
   font-style: italic;
 }
+
+/* Empty state warning (when truncated and searching) */
+.mito-viewer__empty-state--warning {
+  color: #a16207; /* yellow-700, matches row-info warning */
+  font-style: normal;
+}

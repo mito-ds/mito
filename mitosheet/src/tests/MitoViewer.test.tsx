@@ -151,6 +151,42 @@ describe("MitoViewer", () => {
         ).toBeInTheDocument();
     });
 
+    it("shows truncation warning when search has no matches on truncated data", async () => {
+        const user = userEvent.setup();
+        const truncatedPayload = {
+            ...mockPayload,
+            totalRows: 100,
+        };
+
+        render(<MitoViewer payload={truncatedPayload} />);
+
+        const searchInput = screen.getByPlaceholderText("Search...");
+        await user.type(searchInput, "Nonexistent");
+
+        // Should warn about truncation, not just say "no matches"
+        expect(
+            screen.getByText(/first 3 of 100 rows/i)
+        ).toBeInTheDocument();
+    });
+
+    it("shows match count in row info when searching on truncated data", async () => {
+        const user = userEvent.setup();
+        const truncatedPayload = {
+            ...mockPayload,
+            totalRows: 100,
+        };
+
+        render(<MitoViewer payload={truncatedPayload} />);
+
+        const searchInput = screen.getByPlaceholderText("Search...");
+        await user.type(searchInput, "Alice");
+
+        // Should show match count with truncation context
+        expect(
+            screen.getByText(/1 matches in the first/i)
+        ).toBeInTheDocument();
+    });
+
     it("sorts data when column headers are clicked", async () => {
         const user = userEvent.setup();
         render(<MitoViewer payload={mockPayload} />);

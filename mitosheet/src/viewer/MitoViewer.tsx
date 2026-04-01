@@ -507,7 +507,11 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             {/* Controls */}
             <div className="mito-viewer__controls">
                 <div className={`mito-viewer__row-info ${isTruncated ? 'mito-viewer__row-info--warning' : ''}`}>
-                    {isTruncated ? (
+                    {isTruncated && searchTerm.trim() ? (
+                        <>
+                            ⚠ Showing {sortedData.length} matches in the first {data.length} of {payload.totalRows} rows. Set pandas display.max_rows to search all {payload.totalRows} rows.
+                        </>
+                    ) : isTruncated ? (
                         <>
                             ⚠ Table truncated to first {data.length} / {payload.totalRows} rows. Set pandas display.max_rows to configure total rows.
                         </>
@@ -540,8 +544,14 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
 
             {/* Footer info */}
             {sortedData.length === 0 && (
-                <div className="mito-viewer__empty-state">
-                    No rows match the search criteria
+                <div className={`mito-viewer__empty-state ${isTruncated && searchTerm.trim() ? 'mito-viewer__empty-state--warning' : ''}`}>
+                    {isTruncated && searchTerm.trim() ? (
+                        <>
+                            ⚠ No cells match "{searchTerm.trim()}" in the first {data.length} rows of the dataframe. Set pandas display.max_rows to search all {payload.totalRows} rows.
+                        </>
+                    ) : (
+                        'No rows match the search criteria'
+                    )}
                 </div>
             )}
         </div>
