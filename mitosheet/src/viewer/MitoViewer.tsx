@@ -3,7 +3,14 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import React, {
+    useState,
+    useMemo,
+    useCallback,
+    useRef,
+    useEffect,
+    useLayoutEffect,
+} from "react";
 import "./../../css/viewer.css";
 import { useColumnResize } from "./useColumnResize";
 import {
@@ -145,7 +152,12 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     // Ref to the table container for font measurement
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
-    const data = JSON.parse(payload.data) as any[][];
+    // Must be memoized: a new array every render would churn sortedData and retrigger
+    // useLayoutEffect (Ask AI position), causing React #185 (max update depth).
+    const data = useMemo(
+        () => JSON.parse(payload.data) as any[][],
+        [payload.data]
+    );
     const isTruncated = data.length < payload.totalRows;
     const indexLevels = payload.indexLevels ?? 1;
     const columnLevels = payload.columnLevels ?? 1;
@@ -229,6 +241,18 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         }
         return getSelectionBounds(selectionAnchor, selectionFocus);
     }, [selectionAnchor, selectionFocus]);
+
+    /** True when the selection covers more than one cell (a non-trivial range) */
+    const hasMultiCellRangeSelection = useMemo(() => {
+        if (selectionBounds === null) {
+            return false;
+        }
+        const rowCount =
+            selectionBounds.maxRow - selectionBounds.minRow + 1;
+        const colCount =
+            selectionBounds.maxCol - selectionBounds.minCol + 1;
+        return rowCount * colCount > 1;
+    }, [selectionBounds]);
 
     // Selection refers to indices in the current view; clear when the view changes
     useEffect(() => {
@@ -645,6 +669,100 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         []
     );
 
+    const [askAiFloatStyle, setAskAiFloatStyle] = useState<
+        React.CSSProperties | undefined
+    >(undefined);
+
+    const updateAskAiFloatPosition = useCallback(() => {
+        if (!hasMultiCellRangeSelection) {
+            setAskAiFloatStyle(undefined);
+            return;
+        }
+        const container = tableContainerRef.current;
+        if (!container) {
+            return;
+        }
+        const cells = container.querySelectorAll(
+            ".mito-viewer__body-cell--range-fill"
+        );
+        if (cells.length === 0) {
+            setAskAiFloatStyle(undefined);
+            return;
+        }
+        let minLeft = Infinity;
+        let maxRight = -Infinity;
+        let minTop = Infinity;
+        let maxBottom = -Infinity;
+        cells.forEach((cell) => {
+            const r = cell.getBoundingClientRect();
+            minLeft = Math.min(minLeft, r.left);
+            maxRight = Math.max(maxRight, r.right);
+            minTop = Math.min(minTop, r.top);
+            maxBottom = Math.max(maxBottom, r.bottom);
+        });
+        const centerX = (minLeft + maxRight) / 2;
+
+        const viewer = container.closest(".mito-viewer") as HTMLElement | null;
+        if (!viewer) {
+            setAskAiFloatStyle(undefined);
+            return;
+        }
+        const viewerRect = viewer.getBoundingClientRect();
+
+        // Position relative to .mito-viewer (not fixed) so the button stays flush with
+        // the selection in Jupyter outputs (fixed + transform ancestors often misalign).
+        const gap = 4;
+        const approxButtonHeight = 34;
+        const tableRect = container.getBoundingClientRect();
+        const roomBelow = tableRect.bottom - maxBottom;
+        const roomAbove = minTop - tableRect.top;
+        const preferBelow =
+            roomBelow >= approxButtonHeight + gap ||
+            roomBelow >= roomAbove;
+        let topPx: number;
+        if (preferBelow) {
+            topPx = maxBottom - viewerRect.top + gap;
+        } else {
+            topPx = minTop - viewerRect.top - gap - approxButtonHeight;
+        }
+        const leftPx = centerX - viewerRect.left;
+
+        if (!Number.isFinite(topPx) || !Number.isFinite(leftPx)) {
+            setAskAiFloatStyle(undefined);
+            return;
+        }
+        setAskAiFloatStyle({
+            top: topPx,
+            left: leftPx,
+            transform: "translateX(-50%)",
+        });
+    }, [hasMultiCellRangeSelection]);
+
+    useLayoutEffect(() => {
+        updateAskAiFloatPosition();
+    }, [
+        updateAskAiFloatPosition,
+        selectionBounds,
+        sortedData,
+        isResizing,
+    ]);
+
+    useEffect(() => {
+        if (!hasMultiCellRangeSelection) {
+            return;
+        }
+        const container = tableContainerRef.current;
+        const onScrollOrResize = () => updateAskAiFloatPosition();
+        window.addEventListener("resize", onScrollOrResize);
+        container?.addEventListener("scroll", onScrollOrResize, {
+            passive: true,
+        });
+        return () => {
+            window.removeEventListener("resize", onScrollOrResize);
+            container?.removeEventListener("scroll", onScrollOrResize);
+        };
+    }, [hasMultiCellRangeSelection, updateAskAiFloatPosition]);
+
     return (
         <div className="mito-viewer">
             {/* Controls */}
@@ -680,6 +798,22 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                     {renderTableBody()}
                 </table>
             </div>
+            {hasMultiCellRangeSelection && askAiFloatStyle !== undefined && (
+                <div
+                    className="mito-viewer__ask-ai-float"
+                    style={askAiFloatStyle}
+                >
+                    <button
+                        type="button"
+                        className="mito-viewer__ask-ai-button"
+                        onClick={() => {
+                            /* Placeholder — wire to AI later */
+                        }}
+                    >
+                        Ask AI
+                    </button>
+                </div>
+            )}
 
             {/* Footer info */}
             {sortedData.length === 0 && (
