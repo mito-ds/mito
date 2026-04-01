@@ -39,6 +39,12 @@ interface ChatInputProps {
     agentTargetNotebookPanelRef?: React.RefObject<any>;
     isSignedUp?: boolean;
     messageIndex?: number;
+    /** Appended to additional context when set (e.g. DataFrame viewer selection from mitosheet). */
+    pendingExternalContext?: {
+        id: number;
+        item: ContextItemDisplayOptimized;
+    } | null;
+    onConsumePendingExternalContext?: () => void;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -75,6 +81,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
     agentTargetNotebookPanelRef,
     isSignedUp = true,
     messageIndex,
+    pendingExternalContext,
+    onConsumePendingExternalContext,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -90,6 +98,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
     // Track cell order and line selection
     const cellOrder = useCellOrder(notebookTracker);
     const lineSelection = useLineSelection(notebookTracker, cellOrder);
+
+    useEffect(() => {
+        if (pendingExternalContext == null) {
+            return;
+        }
+        setAdditionalContext((prev) => [...prev, pendingExternalContext.item]);
+        onConsumePendingExternalContext?.();
+    }, [pendingExternalContext?.id]);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;

@@ -5,7 +5,7 @@
 
 // External libraries
 import { Compartment } from '@codemirror/state';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -20,6 +20,7 @@ import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE,
+    COMMAND_MITO_AI_OPEN_CHAT,
     COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_REJECT_LATEST_CODE,
     COMMAND_MITO_AI_SEND_AGENT_MESSAGE,
@@ -27,6 +28,10 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
     COMMAND_MITO_AI_START_NEW_CHAT,
 } from '../../commands';
+import {
+    registerDataframeViewerSelectionListener,
+    type DataframeViewerSelectionContextItem,
+} from '../../dataframeViewerContextBridge';
 
 // Internal imports - Components
 import GroupedErrorsAndFixes from '../../components/AgentComponents/ErrorFixupToolUI';
@@ -177,6 +182,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Ref to trigger refresh of the usage badge
     const usageBadgeRef = useRef<UsageBadgeRef>(null);
+
+    const dataframeViewerContextSeqRef = useRef(0);
+    const [pendingDataframeViewerContext, setPendingDataframeViewerContext] =
+        useState<{
+            id: number;
+            item: DataframeViewerSelectionContextItem;
+        } | null>(null);
+
+    useEffect(() => {
+        return registerDataframeViewerSelectionListener((item) => {
+            dataframeViewerContextSeqRef.current += 1;
+            setPendingDataframeViewerContext({
+                id: dataframeViewerContextSeqRef.current,
+                item,
+            });
+            void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                focusChatInput: true,
+            });
+        });
+    }, [app]);
 
     // Streaming response management
     const { streamingContentRef, streamHandlerRef, activeRequestControllerRef } = useStreamingResponse();
@@ -1178,6 +1203,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
                     agentTargetNotebookPanelRef={agentTargetNotebookPanelRef}
                     isSignedUp={isSignedUp}
+                    pendingExternalContext={pendingDataframeViewerContext}
+                    onConsumePendingExternalContext={() =>
+                        setPendingDataframeViewerContext(null)
+                    }
                 />
             </div>
             {agentExecution.agentExecutionStatus !== 'working' && agentExecution.agentExecutionStatus !== 'stopping' && (

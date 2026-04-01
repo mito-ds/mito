@@ -13,7 +13,11 @@ import { ICommandPalette, WidgetTracker } from '@jupyterlab/apputils';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { buildChatWidget, type ChatWidget } from './ChatWidget';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { COMMAND_MITO_AI_OPEN_CHAT } from '../../commands';
+import {
+  COMMAND_MITO_AI_OPEN_CHAT,
+  COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION,
+} from '../../commands';
+import { emitDataframeViewerSelection } from '../../dataframeViewerContextBridge';
 import { IChatTracker } from './token';
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { IContextManager } from '../ContextManager/ContextManagerPlugin';
@@ -76,6 +80,23 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     let widget = newWidget();
 
     // Add an application command
+    app.commands.addCommand(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION, {
+      label: 'Add DataFrame viewer selection to Mito AI context',
+      execute: (args?: ReadonlyPartialJSONObject) => {
+        if (
+          args &&
+          typeof args.value === 'string' &&
+          typeof args.display === 'string'
+        ) {
+          emitDataframeViewerSelection({
+            type: 'dataframe_viewer_selection',
+            value: args.value,
+            display: args.display,
+          });
+        }
+      },
+    });
+
     app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHAT, {
       label: 'Your friendly Python Expert chat bot',
       execute: (args?: ReadonlyPartialJSONObject) => {

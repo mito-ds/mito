@@ -7,7 +7,9 @@ const MITO_AI = 'mito_ai'
 
 // Note that this command is also used by the mitosheet package to check 
 // if the Mito AI extension is enabled. Make sure to update it there if you change it here.
-export const COMMAND_MITO_AI_OPEN_CHAT = `${MITO_AI}:open-chat` 
+export const COMMAND_MITO_AI_OPEN_CHAT = `${MITO_AI}:open-chat`
+/** Adds DataFrame output viewer cell range to chat additional context (mitosheet MitoViewer). */
+export const COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION = `${MITO_AI}:add-dataframe-viewer-selection`
 export const COMMAND_MITO_AI_PREVIEW_LATEST_CODE = `${MITO_AI}:preview-latest-code`
 export const COMMAND_MITO_AI_APPLY_LATEST_CODE = `${MITO_AI}:apply-latest-code`
 export const COMMAND_MITO_AI_REJECT_LATEST_CODE = `${MITO_AI}:reject-latest-code`

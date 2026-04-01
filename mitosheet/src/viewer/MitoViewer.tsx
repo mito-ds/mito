@@ -137,6 +137,57 @@ function getRangeEdgeBoxShadow(
     return parts.join(", ");
 }
 
+/**
+ * Must match mito-ai `COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION` in commands.tsx.
+ */
+const COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION =
+    "mito_ai:add-dataframe-viewer-selection";
+
+function columnHeaderLabel(col: ColumnMetadata): string {
+    return col.name.join(" / ");
+}
+
+/**
+ * Markdown table + description for Mito AI additional context (dataframe_viewer_selection).
+ */
+function buildDataframeViewerSelectionContext(
+    bounds: SelectionBounds,
+    sortedRows: any[][],
+    columns: ColumnMetadata[]
+): { display: string; value: string } {
+    const { minRow, maxRow, minCol, maxCol } = bounds;
+    const rowCount = maxRow - minRow + 1;
+    const colCount = maxCol - minCol + 1;
+    const headers: string[] = [];
+    for (let c = minCol; c <= maxCol; c++) {
+        headers.push(columnHeaderLabel(columns[c]));
+    }
+    const lines: string[] = [];
+    lines.push("| " + headers.join(" | ") + " |");
+    lines.push("| " + headers.map(() => "---").join(" | ") + " |");
+    for (let r = minRow; r <= maxRow; r++) {
+        const row = sortedRows[r];
+        const cells: string[] = [];
+        for (let c = minCol; c <= maxCol; c++) {
+            const raw = row[c];
+            const s =
+                raw === null || raw === undefined
+                    ? ""
+                    : String(raw).replace(/\|/g, "\\|").replace(/\n/g, " ");
+            cells.push(s);
+        }
+        lines.push("| " + cells.join(" | ") + " |");
+    }
+    const markdownTable = lines.join("\n");
+    const value = [
+        "Selected cells from the DataFrame output viewer (rows and columns as currently shown, sorted, and filtered in the viewer).",
+        "",
+        markdownTable,
+    ].join("\n");
+    const display = `DataFrame selection (${rowCount}×${colCount})`;
+    return { display, value };
+}
+
 export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     // State for search functionality - filters table rows based on user input
     const [searchTerm, setSearchTerm] = useState("");
@@ -674,6 +725,36 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         []
     );
 
+    const handleAskAiClick = useCallback(() => {
+        if (!hasMultiCellRangeSelection || selectionBounds === null) {
+            return;
+        }
+        const w = window as Window & {
+            commands?: {
+                hasCommand?: (id: string) => boolean;
+                execute?: (id: string, args?: Record<string, string>) => void;
+            };
+        };
+        if (!w.commands?.hasCommand?.(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION)) {
+            return;
+        }
+        const { display, value } = buildDataframeViewerSelectionContext(
+            selectionBounds,
+            sortedData,
+            payload.columns
+        );
+        void w.commands.execute(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION, {
+            type: "dataframe_viewer_selection",
+            value,
+            display,
+        });
+    }, [
+        hasMultiCellRangeSelection,
+        selectionBounds,
+        sortedData,
+        payload.columns,
+    ]);
+
     const [askAiFloatStyle, setAskAiFloatStyle] = useState<
         React.CSSProperties | undefined
     >(undefined);
@@ -811,9 +892,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                     <button
                         type="button"
                         className="mito-viewer__ask-ai-button"
-                        onClick={() => {
-                            /* Placeholder — wire to AI later */
-                        }}
+                        onClick={handleAskAiClick}
                     >
                         Ask AI
                     </button>

@@ -21,6 +21,11 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
     selected_images = [context["value"] for context in additional_context if context.get("type", "").startswith("image/")]
     selected_cells = [context["value"] for context in additional_context if context.get("type") == "cell"]
     selected_line_selections = [context["value"] for context in additional_context if context.get("type") == "line_selection"]
+    selected_dataframe_viewer = [
+        context["value"]
+        for context in additional_context
+        if context.get("type") == "dataframe_viewer_selection"
+    ]
 
     # STEP 2: Create a list of strings (instructions) for each context type
     context_parts = []
@@ -81,6 +86,12 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
                 "The user has selected the following lines of code to focus on:\n"
                 + "\n\n".join(line_selection_strs)
             )
+
+    if len(selected_dataframe_viewer) > 0:
+        context_parts.append(
+            "The user selected the following region(s) in a pandas DataFrame output viewer:\n"
+            + "\n\n".join(selected_dataframe_viewer)
+        )
 
     # STEP 3: Combine into a single string
     return "\n\n".join(context_parts)

@@ -50,6 +50,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         icon = <CodeIcon />;
     } else if (type === 'line_selection') {
         icon = <CodeIcon />;
+    } else if (type === 'dataframe_viewer_selection') {
+        icon = <CodeIcon />;
     }
 
     const handleClick = (): void => {
@@ -126,6 +128,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             return `The AI will be guided by the ${title} rule`;
         } else if (type === 'db') {
             return `The AI will be able to access the ${title} database connection`;
+        } else if (type === 'dataframe_viewer_selection') {
+            return 'The AI will see the values you selected in the DataFrame output viewer';
         }
         return "This context will be included in your message to help the AI understand what you're working with";
     };
