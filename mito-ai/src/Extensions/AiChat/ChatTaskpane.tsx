@@ -189,6 +189,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             id: number;
             item: DataframeViewerSelectionContextItem;
         } | null>(null);
+    /** Brief border glow on the taskpane when context arrives from the DataFrame viewer */
+    const [attentionGlowActive, setAttentionGlowActive] = useState(false);
 
     useEffect(() => {
         return registerDataframeViewerSelectionListener((item) => {
@@ -200,8 +202,22 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
                 focusChatInput: true,
             });
+            // Restart glow if triggered again while animating
+            setAttentionGlowActive(false);
+            requestAnimationFrame(() => {
+                setAttentionGlowActive(true);
+            });
         });
     }, [app]);
+
+    // Clear glow if animationend does not fire (e.g. reduced motion) or as a safety net
+    useEffect(() => {
+        if (!attentionGlowActive) {
+            return;
+        }
+        const t = window.setTimeout(() => setAttentionGlowActive(false), 1500);
+        return () => clearTimeout(t);
+    }, [attentionGlowActive]);
 
     // Streaming response management
     const { streamingContentRef, streamHandlerRef, activeRequestControllerRef } = useStreamingResponse();
@@ -1035,7 +1051,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     return (
         // We disable the chat taskpane if the user is not signed up AND there are no chat history items
-        <div className={classNames('chat-taskpane', { 'disabled': !(isSignedUp || displayOptimizedChatHistory.length > 0) })}>
+        <div
+            className={classNames('chat-taskpane', {
+                disabled: !(isSignedUp || displayOptimizedChatHistory.length > 0),
+            })}
+        >
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-left">
                     <IconButton
@@ -1207,6 +1227,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     onConsumePendingExternalContext={() =>
                         setPendingDataframeViewerContext(null)
                     }
+                    attentionGlowActive={attentionGlowActive}
+                    onAttentionGlowAnimationEnd={() => setAttentionGlowActive(false)}
                 />
             </div>
             {agentExecution.agentExecutionStatus !== 'working' && agentExecution.agentExecutionStatus !== 'stopping' && (

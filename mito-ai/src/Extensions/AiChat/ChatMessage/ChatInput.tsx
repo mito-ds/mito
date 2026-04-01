@@ -45,6 +45,9 @@ interface ChatInputProps {
         item: ContextItemDisplayOptimized;
     } | null;
     onConsumePendingExternalContext?: () => void;
+    /** Border glow on the input shell when external context is added (e.g. DataFrame viewer). */
+    attentionGlowActive?: boolean;
+    onAttentionGlowAnimationEnd?: () => void;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -83,6 +86,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
     messageIndex,
     pendingExternalContext,
     onConsumePendingExternalContext,
+    attentionGlowActive = false,
+    onAttentionGlowAnimationEnd,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -534,13 +539,22 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div
-            className={classNames("chat-input-container", { 
-                "editing": isEditing,
-                "drag-over": isDragOver 
+            className={classNames('chat-input-container', {
+                editing: isEditing,
+                'drag-over': isDragOver,
+                'chat-input-container--attention-glow': attentionGlowActive,
             })}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            onAnimationEnd={(e) => {
+                if (
+                    e.target === e.currentTarget &&
+                    e.animationName.includes('mito-ai-chat-input-attention-glow')
+                ) {
+                    onAttentionGlowAnimationEnd?.();
+                }
+            }}
         >
             <div className='context-container'>
                 <DatabaseButton app={app} />
