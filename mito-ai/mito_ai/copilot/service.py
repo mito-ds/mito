@@ -97,6 +97,13 @@ github_auth: Dict[str, Any] = {
 }
 
 stop_requested = False
+
+# Filled by GET {API_ENDPOINT}/models after sign-in (thread); used to filter the Mito model list.
+_copilot_api_model_ids_cache: Optional[List[str]] = None
+_copilot_models_cache_lock = threading.Lock()
+_last_copilot_models_fetch_monotonic: float = -1e9
+COPILOT_MODELS_FETCH_MIN_INTERVAL_SEC = 90.0
+
 _get_access_code_thread: Optional[threading.Thread] = None
 _get_token_thread: Optional[threading.Thread] = None
 _last_token_fetch_time = dt.datetime.now() + dt.timedelta(seconds=-TOKEN_FETCH_INTERVAL)
@@ -126,6 +133,10 @@ def _emit_login_status_change() -> None:
         if github_auth["status"] is LoginStatus.ACTIVATING_DEVICE:
             payload["verification_uri"] = github_auth.get("verification_uri")
             payload["user_code"] = github_auth.get("user_code")
+        if github_auth["status"] is LoginStatus.LOGGED_IN:
+            cached = get_cached_copilot_api_model_ids()
+            if cached is not None:
+                payload["available_chat_models"] = cached
         ws_notifier.notify_github_copilot_login_status(payload)
     except Exception:
         log.debug("Copilot login status push skipped", exc_info=True)
@@ -145,6 +156,10 @@ def get_login_status() -> Dict[str, Any]:
                 "user_code": github_auth["user_code"],
             }
         )
+    if github_auth["status"] is LoginStatus.LOGGED_IN:
+        cached_models = get_cached_copilot_api_model_ids()
+        if cached_models is not None:
+            response["available_chat_models"] = cached_models
     return response
 
 
@@ -254,8 +269,11 @@ def login() -> Optional[Dict[str, Any]]:
 
 
 def logout() -> Dict[str, Any]:
-    global _github_access_token_provided
+    global _github_access_token_provided, _last_copilot_models_fetch_monotonic, _copilot_api_model_ids_cache
     _github_access_token_provided = None
+    with _copilot_models_cache_lock:
+        _copilot_api_model_ids_cache = None
+    _last_copilot_models_fetch_monotonic = -1e9
     github_auth.update(
         {
             "verification_uri": None,
@@ -429,6 +447,7 @@ def get_token() -> None:
         API_ENDPOINT = endpoints.get("api", API_ENDPOINT)
         PROXY_ENDPOINT = endpoints.get("proxy", PROXY_ENDPOINT)
         TOKEN_REFRESH_INTERVAL = int(resp_json.get("refresh_in", TOKEN_REFRESH_INTERVAL))
+        schedule_refresh_copilot_chat_models()
     except Exception as e:
         log.error("Failed to get token from GitHub Copilot: %s", e)
 
@@ -480,6 +499,100 @@ def generate_copilot_headers() -> Dict[str, str]:
         "vscode-sessionid": str(uuid.uuid4()),
         "vscode-machineid": MACHINE_ID,
     }
+
+
+def get_cached_copilot_api_model_ids() -> Optional[List[str]]:
+    """Model ids from last successful GET /models (no copilot/ prefix), or None if not fetched yet."""
+    with _copilot_models_cache_lock:
+        if _copilot_api_model_ids_cache is None:
+            return None
+        return list(_copilot_api_model_ids_cache)
+
+
+def _model_ids_from_sequence(items: List[Any]) -> List[str]:
+    out: List[str] = []
+    for item in items:
+        if isinstance(item, str) and item.strip():
+            out.append(item.strip())
+        elif isinstance(item, dict):
+            mid = item.get("id") or item.get("name") or item.get("model")
+            if isinstance(mid, str) and mid.strip():
+                out.append(mid.strip())
+    return out
+
+
+def _parse_copilot_models_json_payload(payload: Any) -> List[str]:
+    if isinstance(payload, list):
+        return _model_ids_from_sequence(payload)
+    if isinstance(payload, dict):
+        for key in ("data", "models", "model_ids"):
+            inner = payload.get(key)
+            if isinstance(inner, list):
+                return _model_ids_from_sequence(inner)
+    return []
+
+
+def fetch_copilot_chat_model_ids_blocking() -> Optional[List[str]]:
+    """
+    Query GitHub Copilot for chat model ids available to this account (Bearer copilot token).
+    Returns None on failure; caller should not clear the cache when None.
+    """
+    if github_auth.get("status") is not LoginStatus.LOGGED_IN or not github_auth.get("token"):
+        return None
+    try:
+        headers = generate_copilot_headers()
+        url = f"{API_ENDPOINT.rstrip('/')}/models"
+        resp = requests.get(url, headers=headers, timeout=30)
+    except Exception as e:
+        log.warning("Copilot GET /models request failed: %s", e)
+        return None
+    if resp.status_code != 200:
+        log.warning(
+            "Copilot GET /models failed [%s]: %s",
+            resp.status_code,
+            (resp.text or "")[:500],
+        )
+        return None
+    try:
+        body = resp.json()
+    except Exception as e:
+        log.warning("Copilot GET /models: invalid JSON: %s", e)
+        return None
+    raw_ids = _parse_copilot_models_json_payload(body)
+    if not raw_ids:
+        log.warning("Copilot GET /models: could not parse model ids from response")
+        return None
+    seen: set = set()
+    deduped: List[str] = []
+    for mid in raw_ids:
+        if mid not in seen:
+            seen.add(mid)
+            deduped.append(mid)
+    return deduped
+
+
+def schedule_refresh_copilot_chat_models() -> None:
+    """Background fetch of /models; debounced when cache already populated (token refresh)."""
+
+    def run() -> None:
+        global _last_copilot_models_fetch_monotonic, _copilot_api_model_ids_cache
+        now = time.monotonic()
+        with _copilot_models_cache_lock:
+            has_cache = _copilot_api_model_ids_cache is not None
+        if has_cache and (now - _last_copilot_models_fetch_monotonic) < COPILOT_MODELS_FETCH_MIN_INTERVAL_SEC:
+            return
+        ids = fetch_copilot_chat_model_ids_blocking()
+        if ids is None:
+            return
+        if len(ids) == 0:
+            log.warning("Copilot GET /models returned empty id list; keeping existing cache")
+            return
+        with _copilot_models_cache_lock:
+            _copilot_api_model_ids_cache = ids
+        _last_copilot_models_fetch_monotonic = now
+        _emit_login_status_change()
+
+    threading.Thread(target=run, daemon=True).start()
 
 
 def _normalize_messages(messages: List[Any]) -> List[Dict[str, Any]]:

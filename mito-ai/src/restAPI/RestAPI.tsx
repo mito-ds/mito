@@ -193,6 +193,7 @@ export interface GithubCopilotLoginStatusPayload {
   store_github_access_token?: boolean;
   verification_uri?: string;
   user_code?: string;
+  available_chat_models?: string[];
 }
 
 /**

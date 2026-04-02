@@ -40,6 +40,7 @@ def notify_github_copilot_login_status(data: Dict[str, Any]) -> None:
         status=str(data.get("status", "")),
         verification_uri=data.get("verification_uri"),
         user_code=data.get("user_code"),
+        available_chat_models=data.get("available_chat_models"),
     )
     payload = asdict(msg)
 

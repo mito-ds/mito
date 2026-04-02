@@ -5,7 +5,7 @@ from typing import List, Tuple, Union, Optional, cast
 from mito_ai import constants
 from mito_ai.utils.version_utils import is_enterprise, is_github_copilot_helper_installed
 from mito_ai.enterprise.utils import is_abacus_configured
-from mito_ai.copilot.model_ids import get_github_copilot_models_prefixed
+from mito_ai.copilot.model_ids import get_github_copilot_chat_model_ids, get_github_copilot_models_prefixed
 
 # Model ordering: [fastest, ..., slowest] for each provider
 ANTHROPIC_MODEL_ORDER = [
@@ -47,6 +47,16 @@ def get_available_models() -> List[str]:
         List of available model names with appropriate prefixes.
     """
     if is_github_copilot_helper_installed():
+        from mito_ai.copilot import service as copilot_service
+
+        api_ids = copilot_service.get_cached_copilot_api_model_ids()
+        if api_ids is not None and len(api_ids) > 0:
+            candidates = get_github_copilot_chat_model_ids()
+            api_set = set(api_ids)
+            filtered = [m for m in candidates if m in api_set]
+            if filtered:
+                return [f"copilot/{m}" for m in filtered]
+            return [f"copilot/{m}" for m in api_ids]
         return list(get_github_copilot_models_prefixed())
     # Check if enterprise mode is enabled AND Abacus is configured (highest priority)
     if is_abacus_configured():

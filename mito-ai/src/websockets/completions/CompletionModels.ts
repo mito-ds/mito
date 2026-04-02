@@ -311,6 +311,8 @@ export interface IGithubCopilotLoginStatus {
   status: string;
   verification_uri?: string;
   user_code?: string;
+  /** Copilot API model ids from GET /models after sign-in */
+  available_chat_models?: string[];
 }
 
 /**

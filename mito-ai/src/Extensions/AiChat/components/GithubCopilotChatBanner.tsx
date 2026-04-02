@@ -81,6 +81,9 @@ export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = 
         user_code: initial.user_code,
         store_github_access_token: Boolean(initial.store_github_access_token)
       });
+      if (initial.available_chat_models && initial.available_chat_models.length > 0) {
+        window.dispatchEvent(new CustomEvent('mito-github-copilot-models-updated'));
+      }
     })();
     return () => {
       cancelled = true;
@@ -100,6 +103,9 @@ export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = 
           verification_uri: m.verification_uri,
           user_code: m.user_code
         });
+        if (m.available_chat_models && m.available_chat_models.length > 0) {
+          window.dispatchEvent(new CustomEvent('mito-github-copilot-models-updated'));
+        }
       }
     };
 

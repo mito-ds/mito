@@ -385,6 +385,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     status=st["status"],
                     verification_uri=st.get("verification_uri"),
                     user_code=st.get("user_code"),
+                    available_chat_models=st.get("available_chat_models"),
                 )
             )
 

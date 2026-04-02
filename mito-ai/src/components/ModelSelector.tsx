@@ -216,6 +216,23 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     void fetchModels();
   }, [onConfigChange]);
 
+  useEffect(() => {
+    const onCopilotModelsUpdated = (): void => {
+      void (async () => {
+        try {
+          const models = await getAvailableModels();
+          setAvailableModels(models);
+        } catch (e) {
+          console.error('Failed to refresh models after GitHub Copilot model list update', e);
+        }
+      })();
+    };
+    window.addEventListener('mito-github-copilot-models-updated', onCopilotModelsUpdated);
+    return () => {
+      window.removeEventListener('mito-github-copilot-models-updated', onCopilotModelsUpdated);
+    };
+  }, []);
+
   const handleModelChange = (modelName: string): void => {
     if (!modelName) {
       return;

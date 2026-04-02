@@ -17,11 +17,26 @@ from mito_ai.utils.model_utils import (
 class TestGetAvailableModels:
     """Tests for get_available_models() function."""
 
+    @patch('mito_ai.copilot.service.get_cached_copilot_api_model_ids', return_value=None)
     @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed')
-    def test_returns_github_copilot_models_when_helper_installed(self, mock_copilot_helper):
+    def test_returns_github_copilot_models_when_helper_installed(self, mock_copilot_helper, _mock_cache):
         mock_copilot_helper.return_value = True
         result = get_available_models()
         assert result == get_github_copilot_models_prefixed()
+
+    @patch('mito_ai.copilot.service.get_cached_copilot_api_model_ids', return_value=['gpt-4o', 'gpt-5'])
+    @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed')
+    def test_copilot_intersects_api_models_with_candidate_list(self, mock_copilot_helper, _mock_cache):
+        mock_copilot_helper.return_value = True
+        result = get_available_models()
+        assert result == ['copilot/gpt-4o', 'copilot/gpt-5']
+
+    @patch('mito_ai.copilot.service.get_cached_copilot_api_model_ids', return_value=['future-copilot-only-id'])
+    @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed')
+    def test_copilot_falls_back_to_api_list_when_no_candidate_match(self, mock_copilot_helper, _mock_cache):
+        mock_copilot_helper.return_value = True
+        result = get_available_models()
+        assert result == ['copilot/future-copilot-only-id']
 
     @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
     @patch('mito_ai.utils.model_utils.is_enterprise')
