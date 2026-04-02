@@ -35,7 +35,8 @@ export function columnHeaderLabel(col: ColumnMetadata): string {
 export function buildDataframeViewerSelectionContext(
     bounds: SelectionBounds,
     sortedRows: any[][],
-    columns: ColumnMetadata[]
+    columns: ColumnMetadata[],
+    dataframeName?: string
 ): { display: string; value: string } {
     const { minRow, maxRow, minCol, maxCol } = bounds;
     const rowCount = maxRow - minRow + 1;
@@ -61,7 +62,14 @@ export function buildDataframeViewerSelectionContext(
         lines.push("| " + cells.join(" | ") + " |");
     }
     const markdownTable = lines.join("\n");
-    const value = markdownTable;
-    const display = `DataFrame selection (${rowCount}×${colCount})`;
+    const nameLine =
+        dataframeName !== undefined && dataframeName.trim() !== ""
+            ? `DataFrame: \`${dataframeName.trim()}\`\n\n`
+            : "";
+    const value = nameLine + markdownTable;
+    const display =
+        dataframeName !== undefined && dataframeName.trim() !== ""
+            ? `\`${dataframeName.trim()}\` (${rowCount}×${colCount})`
+            : `DataFrame selection (${rowCount}×${colCount})`;
     return { display, value };
 }

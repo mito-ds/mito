@@ -23,6 +23,8 @@ export interface ViewerPayload {
     totalRows: number;
     indexLevels?: number;
     columnLevels?: number;
+    /** Variable name in the notebook kernel when resolvable (see viewer.py) */
+    dataframeName?: string;
 }
 
 export interface MitoViewerProps {

@@ -583,7 +583,8 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         const { display, value } = buildDataframeViewerSelectionContext(
             selectionBounds,
             sortedData,
-            payload.columns
+            payload.columns,
+            payload.dataframeName
         );
         void w.commands?.execute?.(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION, {
             type: "dataframe_viewer_selection",
@@ -595,6 +596,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         selectionBounds,
         sortedData,
         payload.columns,
+        payload.dataframeName,
     ]);
 
     /** Hide Ask AI until Mito AI registers its command (may load after this output). */

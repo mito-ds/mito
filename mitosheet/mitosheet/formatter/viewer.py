@@ -6,6 +6,30 @@ from typing import Dict, Optional
 import pandas as pd
 
 
+def _guess_dataframe_variable_name(obj: pd.DataFrame) -> Optional[str]:
+    """
+    Best-effort name for the DataFrame as bound in the IPython user namespace.
+    Returns None if IPython is unavailable or the object is not found (e.g. df.head()).
+    """
+    try:
+        from IPython.core.getipython import get_ipython
+
+        ip = get_ipython()  # type: ignore
+        if ip is None:
+            return None
+        user_ns = getattr(ip, "user_ns", None)
+        if user_ns is None:
+            return None
+        for name, val in user_ns.items():
+            if name.startswith("_"):
+                continue
+            if val is obj:
+                return str(name)
+        return None
+    except Exception:
+        return None
+
+
 def _is_describe_output(df: pd.DataFrame) -> bool:
     """
     Detect if DataFrame is the result of a describe() call.
@@ -136,13 +160,17 @@ def format_dataframe_mimetype(obj: pd.DataFrame) -> Optional[Dict]:
         )
 
     # Prepare the data payload
-    payload = {
+    payload: Dict = {
         "columns": column_metadata,
         "data": json_data,
         "totalRows": total_rows,
         "indexLevels": index_levels if has_multi_index else 1,
         "columnLevels": column_levels,
     }
+
+    df_name = _guess_dataframe_variable_name(obj)
+    if df_name is not None:
+        payload["dataframeName"] = df_name
 
     # Return mimetype data for JupyterLab
     return payload
