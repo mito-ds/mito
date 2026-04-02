@@ -36,6 +36,28 @@ jupyter lab --OpenAIProvider.max_completion_tokens 20 --OpenAIProvider.temperatu
 
 > If a value is incorrect, an error message will be displayed in the terminal logs.
 
+### GitHub Copilot (`mito-ai-helper-github-copilot`)
+
+When the optional package `mito-ai-helper-github-copilot` is installed, Mito AI can use GitHub Copilot over HTTPS (device login + Copilot API).
+
+**OAuth client ID:** Device flow must use a client ID whose tokens are accepted by GitHub’s Copilot session endpoint `GET https://api.github.com/copilot_internal/v2/token`. **Normal OAuth Apps** (ones you create under Developer settings) issue **`gho_` tokens**; that endpoint responds with **404** for those tokens. Use the **GitHub Copilot CLI** GitHub App client ID (same as [Notebook Intelligence](https://github.com/notebook-intelligence/notebook-intelligence) and other Copilot CLIs):
+
+```bash
+export MITO_AI_GITHUB_OAUTH_CLIENT_ID="Iv1.b507a08c87ecfe98"
+```
+
+In GitHub.com → **Settings → Developer settings → OAuth Apps**, open the app that owns this client ID (or rely on the public Copilot CLI registration) and ensure **Device flow** is enabled if GitHub shows that toggle for your account.
+
+Also set on the **Jupyter Server** process (see main Configuration notes). Optional: `MITO_AI_GHE_SUBDOMAIN`, `MITO_AI_GH_ACCESS_TOKEN_PASSWORD`.
+
+**Models:** Available chat models depend on your Copilot plan and what you enable under [GitHub Copilot features](https://github.com/settings/copilot/features). If the API returns `model_not_supported`, pick another model in the Mito model dropdown (defaults prefer **`gpt-4o`** first) or set a comma-separated allowlist on the server, for example:
+
+```bash
+export MITO_AI_COPILOT_CHAT_MODEL_IDS="gpt-4o,gpt-5-mini"
+```
+
+Restart Jupyter after changing this variable.
+
 ## Uninstall
 
 To remove the extension, execute:

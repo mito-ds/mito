@@ -21,8 +21,9 @@ from mito_ai.file_uploads.urls import get_file_uploads_urls
 from mito_ai.user.urls import get_user_urls
 from mito_ai.chat_history.urls import get_chat_history_urls
 from mito_ai.chart_wizard.urls import get_chart_wizard_urls
-from mito_ai.utils.version_utils import is_enterprise
+from mito_ai.utils.version_utils import is_enterprise, is_github_copilot_helper_installed
 from mito_ai import constants
+from mito_ai.copilot.urls import get_github_copilot_urls
 
 # Force Matplotlib to use the Jupyter inline backend.
 # Background: importing Streamlit sets os.environ["MPLBACKEND"] = "Agg" very early.
@@ -99,8 +100,15 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_user_urls(base_url)) # type: ignore
     handlers.extend(get_chat_history_urls(base_url, global_message_history)) # type: ignore
     handlers.extend(get_chart_wizard_urls(base_url, provider_manager)) # type: ignore
+    handlers.extend(get_github_copilot_urls(base_url))  # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
+
+    if is_github_copilot_helper_installed():
+        from mito_ai.copilot import service as copilot_service
+
+        copilot_service.set_login_status_push_enabled(True)
+        copilot_service.login_with_existing_credentials(None)
     
     # Log enterprise mode status and router configuration
     if is_enterprise():
@@ -111,3 +119,12 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
             server_app.log.info(f"LiteLLM configured: endpoint={constants.LITELLM_BASE_URL}, models={constants.LITELLM_MODELS}")
     
     server_app.log.info("Loaded the mito_ai server extension")
+
+
+def _unload_jupyter_server_extension(server_app) -> None:  # type: ignore
+    """Stop Copilot background threads on server shutdown when the helper is installed."""
+    if is_github_copilot_helper_installed():
+        from mito_ai.copilot import service as copilot_service
+
+        copilot_service.handle_stop_request()
+        copilot_service.set_login_status_push_enabled(False)

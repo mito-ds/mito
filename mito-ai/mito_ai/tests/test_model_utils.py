@@ -3,6 +3,7 @@
 
 import pytest
 from unittest.mock import patch, MagicMock
+from mito_ai.copilot.model_ids import get_github_copilot_models_prefixed
 from mito_ai.utils.model_utils import (
     get_available_models,
     get_fast_model_for_selected_model,
@@ -15,10 +16,17 @@ from mito_ai.utils.model_utils import (
 
 class TestGetAvailableModels:
     """Tests for get_available_models() function."""
-    
+
+    @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed')
+    def test_returns_github_copilot_models_when_helper_installed(self, mock_copilot_helper):
+        mock_copilot_helper.return_value = True
+        result = get_available_models()
+        assert result == get_github_copilot_models_prefixed()
+
+    @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
-    def test_returns_litellm_models_when_enterprise_and_configured(self, mock_constants, mock_is_enterprise):
+    def test_returns_litellm_models_when_enterprise_and_configured(self, mock_constants, mock_is_enterprise, _mock_copilot):
         """Test that LiteLLM models are returned when enterprise mode is enabled and LiteLLM is configured."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = "https://litellm-server.com"
@@ -28,9 +36,10 @@ class TestGetAvailableModels:
         
         assert result == ["litellm/openai/gpt-4o", "litellm/anthropic/claude-3-5-sonnet"]
     
+    @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
-    def test_returns_standard_models_when_not_enterprise(self, mock_constants, mock_is_enterprise):
+    def test_returns_standard_models_when_not_enterprise(self, mock_constants, mock_is_enterprise, _mock_copilot):
         """Test that standard models are returned when enterprise mode is not enabled."""
         mock_is_enterprise.return_value = False
         
@@ -38,9 +47,10 @@ class TestGetAvailableModels:
         
         assert result == STANDARD_MODELS
     
+    @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
-    def test_returns_standard_models_when_enterprise_but_no_litellm(self, mock_constants, mock_is_enterprise):
+    def test_returns_standard_models_when_enterprise_but_no_litellm(self, mock_constants, mock_is_enterprise, _mock_copilot):
         """Test that standard models are returned when enterprise mode is enabled but LiteLLM is not configured."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = None
@@ -50,9 +60,10 @@ class TestGetAvailableModels:
         
         assert result == STANDARD_MODELS
     
+    @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
-    def test_returns_standard_models_when_enterprise_but_no_base_url(self, mock_constants, mock_is_enterprise):
+    def test_returns_standard_models_when_enterprise_but_no_base_url(self, mock_constants, mock_is_enterprise, _mock_copilot):
         """Test that standard models are returned when enterprise mode is enabled but LITELLM_BASE_URL is not set."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = None
@@ -62,9 +73,10 @@ class TestGetAvailableModels:
         
         assert result == STANDARD_MODELS
     
+    @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
-    def test_returns_standard_models_when_enterprise_but_no_models(self, mock_constants, mock_is_enterprise):
+    def test_returns_standard_models_when_enterprise_but_no_models(self, mock_constants, mock_is_enterprise, _mock_copilot):
         """Test that standard models are returned when enterprise mode is enabled but LITELLM_MODELS is empty."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = "https://litellm-server.com"
@@ -74,10 +86,13 @@ class TestGetAvailableModels:
         
         assert result == STANDARD_MODELS
     
+    @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed', return_value=False)
     @patch('mito_ai.utils.model_utils.is_abacus_configured')
     @patch('mito_ai.utils.model_utils.is_enterprise')
     @patch('mito_ai.utils.model_utils.constants')
-    def test_returns_abacus_models_when_configured(self, mock_constants, mock_is_enterprise, mock_is_abacus_configured):
+    def test_returns_abacus_models_when_configured(
+        self, mock_constants, mock_is_enterprise, mock_is_abacus_configured, _mock_copilot
+    ):
         """Test that Abacus models are returned when Abacus is configured (highest priority)."""
         mock_is_abacus_configured.return_value = True
         mock_is_enterprise.return_value = True
@@ -203,7 +218,13 @@ class TestGetFastModelForSelectedModel:
         """Test that unknown standard model returns itself."""
         result = get_fast_model_for_selected_model("unknown-model")
         assert result == "unknown-model"
-    
+
+    @patch('mito_ai.utils.model_utils.get_available_models')
+    def test_copilot_selected_returns_first_copilot_model(self, mock_get_available_models):
+        mock_get_available_models.return_value = get_github_copilot_models_prefixed()
+        result = get_fast_model_for_selected_model("copilot/gpt-4.1")
+        assert result == get_github_copilot_models_prefixed()[0]
+
     def test_claude_model_not_in_order_returns_fastest_anthropic(self):
         """Test that a Claude model not in ANTHROPIC_MODEL_ORDER still returns fastest Anthropic model."""
         # Test with a Claude model that isn't in the order list

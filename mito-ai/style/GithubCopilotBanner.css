@@ -1,0 +1,98 @@
+.github-copilot-banner {
+  padding: 10px 12px;
+  margin: 8px 12px 0;
+  border-radius: 8px;
+  background: var(--jp-layout-color2, #f5f5f5);
+  border: 1px solid var(--jp-border-color1, #e0e0e0);
+  font-size: 12px;
+}
+
+.github-copilot-banner-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--jp-content-font-color1, #111);
+}
+
+.github-copilot-banner-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.github-copilot-banner-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.github-copilot-banner-hint {
+  margin: 0;
+  color: var(--jp-content-font-color2, #666);
+  line-height: 1.4;
+}
+
+.github-copilot-banner-ok {
+  color: var(--green-600, #2e7d32);
+  font-weight: 500;
+}
+
+.github-copilot-banner-code {
+  font-family: var(--jp-code-font-family, monospace);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  background: var(--jp-layout-color1, #fff);
+  border-radius: 4px;
+  border: 1px dashed var(--jp-border-color1, #ccc);
+  align-self: flex-start;
+}
+
+.github-copilot-banner-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--purple-700, #5c3df5);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  align-self: flex-start;
+}
+
+.github-copilot-banner-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.github-copilot-banner-primary {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: var(--purple-600, #6b4ce6);
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.github-copilot-banner-primary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.github-copilot-banner-error {
+  margin: 0;
+  color: var(--red-500, #c62828);
+}
+
+.github-copilot-banner-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--jp-content-font-color2, #555);
+}
+
+.github-copilot-banner-check input {
+  margin-top: 2px;
+}

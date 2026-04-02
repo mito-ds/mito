@@ -203,6 +203,16 @@ class AICapabilities:
 
 
 @dataclass(frozen=True)
+class GithubCopilotLoginStatusMessage:
+    """Pushed over the completion WebSocket when GitHub Copilot auth state changes."""
+
+    status: str
+    type: Literal["github_copilot_login_status"] = "github_copilot_login_status"
+    verification_uri: Optional[str] = None
+    user_code: Optional[str] = None
+
+
+@dataclass(frozen=True)
 class CompletionItemError:
     """
     Completion item error information.

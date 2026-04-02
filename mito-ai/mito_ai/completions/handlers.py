@@ -35,7 +35,8 @@ from mito_ai.completions.models import (
     AgentExecutionMetadata,
     InlineCompleterMetadata,
     ScratchpadResultMetadata,
-    MessageType
+    MessageType,
+    GithubCopilotLoginStatusMessage,
 )
 from mito_ai.provider_manager import ProviderManager
 from mito_ai.utils.create import initialize_user
@@ -49,6 +50,8 @@ from mito_ai.completions.completion_handlers.agent_execution_handler import get_
 from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
 from mito_ai.completions.completion_handlers.scratchpad_result_handler import get_scratchpad_result_completion
 from mito_ai.utils.telemetry_utils import identify
+from mito_ai.utils.version_utils import is_github_copilot_helper_installed
+from mito_ai.copilot import ws_notifier as copilot_ws_notifier
 
 # The GlobalMessageHistory is now created in __init__.py and passed to handlers
 # to ensure there's only one instance managing the .mito/ai-chats directory locks
@@ -113,8 +116,9 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         """
         # Stop observing the provider error
         self._llm.unobserve(self._send_error, "last_error")
-    
-        
+        if is_github_copilot_helper_installed():
+            copilot_ws_notifier.unregister_completion_handler(self)
+
     async def on_message(self, message: str) -> None: # type: ignore
         """Handle incoming messages on the WebSocket.
 
@@ -371,7 +375,18 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         self._llm.observe(self._send_error, "last_error")
         # Send the server capabilities to the client.
         self.reply(self._llm.capabilities)
-        
+        if is_github_copilot_helper_installed():
+            copilot_ws_notifier.register_completion_handler(self)
+            from mito_ai.copilot import service as copilot_service
+
+            st = copilot_service.get_login_status()
+            self.reply(
+                GithubCopilotLoginStatusMessage(
+                    status=st["status"],
+                    verification_uri=st.get("verification_uri"),
+                    user_code=st.get("user_code"),
+                )
+            )
 
     async def handle_exception(self, e: Exception, request: CompletionRequest) -> None:
         """
@@ -387,6 +402,11 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             hint = "You've reached the free tier limit for Mito AI. Upgrade to Pro for unlimited uses or supply your own OpenAI API key."
         elif "openai" in self._llm.capabilities.provider.lower():
             hint = "There was an error communicating with OpenAI. This might be due to a temporary OpenAI outage, a problem with your internet connection, or an incorrect API key. Please try again."
+        elif "copilot" in self._llm.capabilities.provider.lower():
+            hint = (
+                "There was an error communicating with GitHub Copilot. "
+                "Sign in under Mito AI settings, check your network, or try again later."
+            )
         else:
             hint = "There was an error communicating with Mito server. This might be due to a temporary server outage or a problem with your internet connection. Please try again."
         

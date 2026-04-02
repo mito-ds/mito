@@ -32,6 +32,20 @@ try:
 except ImportError:
     MITOSHEET_HELPER_PRIVATE = False
 
+try:
+    import mito_ai_helper_github_copilot
+    MITO_AI_HELPER_GITHUB_COPILOT = True
+except ImportError:
+    MITO_AI_HELPER_GITHUB_COPILOT = False
+
+
+def is_github_copilot_helper_installed() -> bool:
+    """
+    True when the admin-installed mito-ai-helper-github-copilot package is present.
+    Mito AI then uses only GitHub Copilot as the LLM backend.
+    """
+    return MITO_AI_HELPER_GITHUB_COPILOT
+
 
 def is_pro() -> bool:
     """

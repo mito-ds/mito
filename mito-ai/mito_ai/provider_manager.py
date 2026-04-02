@@ -37,6 +37,8 @@ from mito_ai.utils.telemetry_utils import (
 )
 from mito_ai.utils.provider_utils import get_model_provider
 from mito_ai.utils.model_utils import get_available_models, get_fast_model_for_selected_model, get_smartest_model_for_selected_model
+from mito_ai.utils.version_utils import is_github_copilot_helper_installed
+from mito_ai.copilot.model_ids import strip_copilot_prefix
 
 __all__ = ["ProviderManager"]
 
@@ -77,6 +79,11 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         Returns the capabilities of the AI provider.
         """
+        if is_github_copilot_helper_installed():
+            return AICapabilities(
+                configuration={"model": self._selected_model},
+                provider="GitHub Copilot",
+            )
         # TODO: We should validate that these keys are actually valid for the provider
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
@@ -120,6 +127,8 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def key_type(self) -> str:
+        if is_github_copilot_helper_installed():
+            return USER_KEY
         # TODO: We should validate that these keys are actually valid for the provider
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
@@ -182,7 +191,16 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Retry loop
         for attempt in range(max_retries + 1):
             try:
-                if model_type == "abacus":
+                if model_type == "copilot":
+                    from mito_ai.copilot import service as copilot_service
+                    from mito_ai.copilot import async_bridge as copilot_async
+
+                    copilot_service.ensure_logged_in_for_completion()
+                    api_model = strip_copilot_prefix(resolved_model)
+                    completion = await copilot_async.request_github_copilot_chat_aggregate(
+                        api_model, list(messages)
+                    )
+                elif model_type == "abacus":
                     if not self._openai_client:
                         raise RuntimeError("OpenAI client is not initialized.")
                     completion = await self._openai_client.request_completions(
@@ -318,7 +336,19 @@ This attribute is observed by the websocket provider to push the error to the cl
         ))
 
         try:
-            if model_type == "abacus":
+            if model_type == "copilot":
+                from mito_ai.copilot import service as copilot_service
+                from mito_ai.copilot import async_bridge as copilot_async
+
+                copilot_service.ensure_logged_in_for_completion()
+                api_model = strip_copilot_prefix(resolved_model)
+                accumulated_response = await copilot_async.stream_github_copilot_chat(
+                    api_model,
+                    list(messages),
+                    message_id,
+                    reply_fn,
+                )
+            elif model_type == "abacus":
                 if not self._openai_client:
                     raise RuntimeError("OpenAI client is not initialized.")
                 accumulated_response = await self._openai_client.stream_completions(

@@ -149,12 +149,12 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
               
               // Check if model is in available models list
               if (models.includes(fullModelName)) {
-                // Check if it's a LiteLLM model (has provider prefix)
-                if (fullModelName.includes('/')) {
-                  // LiteLLM model - use model name directly as display name
+                const low = fullModelName.toLowerCase();
+                if (low.startsWith('copilot/')) {
+                  displayName = `${fullModelName.slice('copilot/'.length)} (Copilot)`;
+                } else if (fullModelName.includes('/')) {
                   displayName = fullModelName;
                 } else {
-                  // Standard model - find display name from MODEL_MAPPINGS
                   displayName = MODEL_MAPPINGS.find(m => m.fullName === fullModelName)?.displayName;
                 }
               }
@@ -176,8 +176,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
               // Fallback to first available model
               const firstModel = models[0];
               fullModelName = firstModel;
-              // Check if it's a LiteLLM model
-              if (firstModel && firstModel.includes('/')) {
+              if (firstModel && firstModel.toLowerCase().startsWith('copilot/')) {
+                displayName = `${firstModel.slice('copilot/'.length)} (Copilot)`;
+              } else if (firstModel && firstModel.includes('/')) {
                 displayName = firstModel;
               } else {
                 displayName = MODEL_MAPPINGS.find(m => m.fullName === firstModel)?.displayName || firstModel;
@@ -223,10 +224,14 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     setSelectedModel(modelName);
     setIsOpen(false);
 
-    // For LiteLLM models (with provider prefix), modelName is already the full model name
-    // For standard models, we need to find the full name from MODEL_MAPPINGS
+    // For LiteLLM / Copilot router models, modelName may be display-only; resolve from open dropdown selection via stored state — actually we pass display name here; copilot display is "X (Copilot)"
+    const strippedCopilot = modelName.endsWith(' (Copilot)')
+      ? `copilot/${modelName.slice(0, -' (Copilot)'.length)}`
+      : null;
     let fullModelName: string;
-    if (modelName.includes('/')) {
+    if (strippedCopilot) {
+      fullModelName = strippedCopilot;
+    } else if (modelName.includes('/')) {
       // LiteLLM model - use model name directly
       fullModelName = modelName;
     } else {
@@ -298,12 +303,16 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
               <div className="model-option">Loading models...</div>
             ) : (
               availableModels.map(modelName => {
-                // Check if it's a LiteLLM model (has provider prefix)
-                const isLiteLLMModel = modelName.includes('/');
+                const lower = modelName.toLowerCase();
+                const isCopilotModel = lower.startsWith('copilot/');
+                // LiteLLM / router models use a slash; Copilot uses copilot/…
+                const isRouterStyleModel = modelName.includes('/') && !isCopilotModel;
                 let displayName: string;
                 let modelMapping: ModelMapping | undefined;
 
-                if (isLiteLLMModel) {
+                if (isCopilotModel) {
+                  displayName = `${modelName.slice('copilot/'.length)} (Copilot)`;
+                } else if (isRouterStyleModel) {
                   // LiteLLM model - use model name directly as display name
                   displayName = modelName;
                 } else {

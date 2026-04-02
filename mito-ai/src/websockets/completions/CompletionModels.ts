@@ -304,6 +304,16 @@ export type ErrorMessage = CompletionError & {
 };
 
 /**
+ * GitHub Copilot device-login / auth status (pushed from server threads over the completion WebSocket).
+ */
+export interface IGithubCopilotLoginStatus {
+  type: 'github_copilot_login_status';
+  status: string;
+  verification_uri?: string;
+  user_code?: string;
+}
+
+/**
  * A completion suggestion.
  */
 export interface ICompletionItem {
@@ -499,6 +509,7 @@ export interface IDeleteThreadReply {
 export type CompleterMessage =
   | ErrorMessage
   | IAICapabilities
+  | IGithubCopilotLoginStatus
   | ICompletionReply
   | ICompletionStreamChunk
   | IFetchHistoryReply
