@@ -3,7 +3,7 @@
     "displayName":"Mitosheet for VSCode",
     "description":"Spreadsheets in VSCode — filter, create pivot tables, and more.",
     "version":"0.1.0",
-    "publisher":"mito-ds",
+    "publisher":"MitoLabs",
     "icon":"media/icon.png",
     "repository":{
        "type":"git",
@@ -30,8 +30,7 @@
     "categories":[
        "Notebooks",
        "Data Science",
-       "Visualization",
-       "Spreadsheet"
+       "Visualization"
     ],
     "activationEvents":[
        
