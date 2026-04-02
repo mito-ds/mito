@@ -198,7 +198,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                     copilot_service.ensure_logged_in_for_completion()
                     api_model = strip_copilot_prefix(resolved_model)
                     completion = await copilot_async.request_github_copilot_chat_aggregate(
-                        api_model, list(messages)
+                        api_model,
+                        list(messages),
+                        response_format_info,
                     )
                 elif model_type == "abacus":
                     if not self._openai_client:
@@ -347,6 +349,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     list(messages),
                     message_id,
                     reply_fn,
+                    response_format_info,
                 )
             elif model_type == "abacus":
                 if not self._openai_client:

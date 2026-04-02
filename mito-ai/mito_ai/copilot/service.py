@@ -22,9 +22,28 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 import requests
 import sseclient
 
+from mito_ai.completions.models import ResponseFormatInfo
 from mito_ai.copilot.crypto_util import decrypt_with_password, encrypt_with_password
+from mito_ai.utils.open_ai_utils import get_open_ai_completion_function_params
 
 log = logging.getLogger(__name__)
+
+
+def _response_format_payload_for_copilot(
+    model_id: str,
+    response_format_info: Optional[ResponseFormatInfo],
+) -> Optional[Dict[str, Any]]:
+    """OpenAI-compatible response_format for Copilot chat/completions (same shape as OpenAI client)."""
+    if response_format_info is None:
+        return None
+    params = get_open_ai_completion_function_params(
+        model_id,
+        [],
+        True,
+        response_format_info,
+        force_full_json_schema_response_format=True,
+    )
+    return params.get("response_format")
 
 GHE_SUBDOMAIN = os.environ.get("MITO_AI_GHE_SUBDOMAIN", "")
 GH_WEB_BASE_URL = "https://github.com" if GHE_SUBDOMAIN == "" else f"https://{GHE_SUBDOMAIN}.ghe.com"
@@ -532,6 +551,7 @@ def chat_completions_aggregate(
     messages: List[Any],
     tools: Optional[List[Dict[str, Any]]] = None,
     tool_choice: Optional[Any] = None,
+    response_format_info: Optional[ResponseFormatInfo] = None,
 ) -> Dict[str, Any]:
     """Blocking: full SSE read, return OpenAI-shaped result with choices[0].message."""
     headers = generate_copilot_headers()
@@ -548,6 +568,9 @@ def chat_completions_aggregate(
         data["tools"] = tools
     if tool_choice is not None:
         data["tool_choice"] = tool_choice
+    rf = _response_format_payload_for_copilot(model_id, response_format_info)
+    if rf is not None:
+        data["response_format"] = rf
 
     resp = requests.post(
         f"{API_ENDPOINT}/chat/completions",
@@ -574,6 +597,7 @@ def chat_completions_stream_text_deltas(
     model_id: str,
     messages: List[Any],
     cancel_check: Optional[Callable[[], bool]] = None,
+    response_format_info: Optional[ResponseFormatInfo] = None,
 ) -> Iterator[str]:
     """Yield assistant text deltas from SSE (blocking iterator; run in a thread)."""
     headers = generate_copilot_headers()
@@ -586,6 +610,9 @@ def chat_completions_stream_text_deltas(
         "nwo": "Mito",
         "stream": True,
     }
+    rf = _response_format_payload_for_copilot(model_id, response_format_info)
+    if rf is not None:
+        data["response_format"] = rf
 
     resp = requests.post(
         f"{API_ENDPOINT}/chat/completions",
