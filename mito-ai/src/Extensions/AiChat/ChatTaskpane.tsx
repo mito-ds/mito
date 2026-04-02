@@ -20,7 +20,6 @@ import {
     COMMAND_MITO_AI_APPLY_LATEST_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_ACCEPT_CODE,
     COMMAND_MITO_AI_CELL_TOOLBAR_REJECT_CODE,
-    COMMAND_MITO_AI_OPEN_CHAT,
     COMMAND_MITO_AI_PREVIEW_LATEST_CODE,
     COMMAND_MITO_AI_REJECT_LATEST_CODE,
     COMMAND_MITO_AI_SEND_AGENT_MESSAGE,
@@ -28,10 +27,6 @@ import {
     COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE,
     COMMAND_MITO_AI_START_NEW_CHAT,
 } from '../../commands';
-import {
-    registerDataframeViewerSelectionListener,
-    type DataframeViewerSelectionContextItem,
-} from '../../dataframeViewerContextBridge';
 
 // Internal imports - Components
 import GroupedErrorsAndFixes from '../../components/AgentComponents/ErrorFixupToolUI';
@@ -183,32 +178,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     // Ref to trigger refresh of the usage badge
     const usageBadgeRef = useRef<UsageBadgeRef>(null);
 
-    const dataframeViewerContextSeqRef = useRef(0);
-    const [pendingDataframeViewerContext, setPendingDataframeViewerContext] =
-        useState<{
-            id: number;
-            item: DataframeViewerSelectionContextItem;
-        } | null>(null);
     /** Brief border glow on the taskpane when context arrives from the DataFrame viewer */
     const [attentionGlowActive, setAttentionGlowActive] = useState(false);
 
-    useEffect(() => {
-        return registerDataframeViewerSelectionListener((item) => {
-            dataframeViewerContextSeqRef.current += 1;
-            setPendingDataframeViewerContext({
-                id: dataframeViewerContextSeqRef.current,
-                item,
-            });
-            void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
-                focusChatInput: true,
-            });
-            // Restart glow if triggered again while animating
-            setAttentionGlowActive(false);
-            requestAnimationFrame(() => {
-                setAttentionGlowActive(true);
-            });
+    const handleDataframeViewerContextAdded = React.useCallback(() => {
+        setAttentionGlowActive(false);
+        requestAnimationFrame(() => {
+            setAttentionGlowActive(true);
         });
-    }, [app]);
+    }, []);
 
     // Clear glow if animationend does not fire (e.g. reduced motion) or as a safety net
     useEffect(() => {
@@ -1223,10 +1201,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
                     agentTargetNotebookPanelRef={agentTargetNotebookPanelRef}
                     isSignedUp={isSignedUp}
-                    pendingExternalContext={pendingDataframeViewerContext}
-                    onConsumePendingExternalContext={() =>
-                        setPendingDataframeViewerContext(null)
-                    }
+                    onDataframeViewerContextAdded={handleDataframeViewerContextAdded}
                     attentionGlowActive={attentionGlowActive}
                     onAttentionGlowAnimationEnd={() => setAttentionGlowActive(false)}
                 />

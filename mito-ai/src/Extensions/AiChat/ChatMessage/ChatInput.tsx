@@ -3,7 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { classNames } from '../../../utils/classNames';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import ChatDropdown from './ChatDropdown';
@@ -23,6 +24,10 @@ import DatabaseButton from '../../../components/DatabaseButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { AgentExecutionStatus } from '../ChatTaskpane';
 import { uploadFileToBackend } from '../../../utils/fileUpload';
+import {
+    COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION,
+    COMMAND_MITO_AI_OPEN_CHAT,
+} from '../../../commands';
 
 interface ChatInputProps {
     app: JupyterFrontEnd;
@@ -39,15 +44,11 @@ interface ChatInputProps {
     agentTargetNotebookPanelRef?: React.RefObject<any>;
     isSignedUp?: boolean;
     messageIndex?: number;
-    /** Appended to additional context when set (e.g. DataFrame viewer selection from mitosheet). */
-    pendingExternalContext?: {
-        id: number;
-        item: ContextItemDisplayOptimized;
-    } | null;
-    onConsumePendingExternalContext?: () => void;
     /** Border glow on the input shell when external context is added (e.g. DataFrame viewer). */
     attentionGlowActive?: boolean;
     onAttentionGlowAnimationEnd?: () => void;
+    /** Fired when DataFrame viewer selection is added via the Jupyter command (for attention glow, etc.). */
+    onDataframeViewerContextAdded?: () => void;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -84,10 +85,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
     agentTargetNotebookPanelRef,
     isSignedUp = true,
     messageIndex,
-    pendingExternalContext,
-    onConsumePendingExternalContext,
     attentionGlowActive = false,
     onAttentionGlowAnimationEnd,
+    onDataframeViewerContextAdded,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -104,13 +104,40 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const cellOrder = useCellOrder(notebookTracker);
     const lineSelection = useLineSelection(notebookTracker, cellOrder);
 
+    const onDataframeViewerContextAddedRef = useRef(onDataframeViewerContextAdded);
+    onDataframeViewerContextAddedRef.current = onDataframeViewerContextAdded;
+
     useEffect(() => {
-        if (pendingExternalContext == null) {
+        // Only the main composer registers this command. An editing ChatInput can mount
+        // alongside it; we must not overwrite the command with the edit box's state setter.
+        if (isEditing) {
             return;
         }
-        setAdditionalContext((prev) => [...prev, pendingExternalContext.item]);
-        onConsumePendingExternalContext?.();
-    }, [pendingExternalContext?.id]);
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION, {
+            label: 'Add DataFrame viewer selection to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                setAdditionalContext((prev) => [
+                    ...prev,
+                    {
+                        type: 'dataframe_viewer_selection',
+                        value: args.value as string,
+                        display: args.display as string,
+                    },
+                ]);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+    }, [app, isEditing]);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;
