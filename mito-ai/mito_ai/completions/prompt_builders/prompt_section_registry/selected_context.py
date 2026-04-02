@@ -89,7 +89,7 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
 
     if len(selected_dataframe_viewer) > 0:
         context_parts.append(
-            "The user selected the following region(s) in a pandas DataFrame output viewer:\n"
+            "The user has selected the following cells in a pandas DataFrame. When answering the user's question, plase pay special attention to the data in the selection. In most cases, your answer should be based on the data in the selection, and not the entire DataFrame.\n"
             + "\n\n".join(selected_dataframe_viewer)
         )
 

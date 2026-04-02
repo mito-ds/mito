@@ -61,11 +61,7 @@ export function buildDataframeViewerSelectionContext(
         lines.push("| " + cells.join(" | ") + " |");
     }
     const markdownTable = lines.join("\n");
-    const value = [
-        "Selected cells from the DataFrame output viewer (rows and columns as currently shown, sorted, and filtered in the viewer).",
-        "",
-        markdownTable,
-    ].join("\n");
+    const value = markdownTable;
     const display = `DataFrame selection (${rowCount}×${colCount})`;
     return { display, value };
 }
