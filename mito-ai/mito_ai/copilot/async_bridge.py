@@ -68,6 +68,10 @@ async def stream_github_copilot_chat(
             done=True,
         )
     )
+    print(
+        f"[mito_ai Copilot] model={model_id} (stream) assistant text:\n{accumulated}\n",
+        flush=True,
+    )
     return accumulated
 
 
@@ -78,4 +82,14 @@ async def request_github_copilot_chat_aggregate(
     result = await asyncio.to_thread(service.chat_completions_aggregate, model_id, messages, None, None)
     msg = result["choices"][0]["message"]
     content = msg.get("content") or ""
-    return content if isinstance(content, str) else str(content)
+    text = content if isinstance(content, str) else str(content)
+    print(
+        f"[mito_ai Copilot] model={model_id} (aggregate) assistant text:\n{text}\n",
+        flush=True,
+    )
+    if msg.get("tool_calls"):
+        print(
+            f"[mito_ai Copilot] model={model_id} (aggregate) tool_calls:\n{msg.get('tool_calls')!r}\n",
+            flush=True,
+        )
+    return text

@@ -3,7 +3,6 @@
 
 """
 GitHub Copilot via HTTPS (device OAuth + copilot_internal token + SSE chat).
-Protocol aligned with Notebook Intelligence; reimplemented for Mito (AGPL).
 """
 
 from __future__ import annotations
@@ -549,8 +548,6 @@ def chat_completions_aggregate(
         data["tools"] = tools
     if tool_choice is not None:
         data["tool_choice"] = tool_choice
-    if not (model_id == "gpt-5" or model_id == "gpt-5-mini"):
-        data["stop"] = [" "]
 
     resp = requests.post(
         f"{API_ENDPOINT}/chat/completions",
@@ -589,8 +586,6 @@ def chat_completions_stream_text_deltas(
         "nwo": "Mito",
         "stream": True,
     }
-    if not (model_id == "gpt-5" or model_id == "gpt-5-mini"):
-        data["stop"] = [" "]
 
     resp = requests.post(
         f"{API_ENDPOINT}/chat/completions",
