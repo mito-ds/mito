@@ -101,6 +101,7 @@ def get_gemini_system_prompt_and_messages(messages: List[Dict[str, Any]]) -> Tup
 class GeminiClient:
     def __init__(self, api_key: Optional[str]):
         self.api_key = api_key
+        self.last_input_tokens: Optional[int] = None
         if api_key:
             self.client = genai.Client(api_key=api_key)
 
@@ -111,6 +112,7 @@ class GeminiClient:
         response_format_info: Optional[ResponseFormatInfo] = None,
         message_type: MessageType = MessageType.CHAT
     ) -> str:
+        self.last_input_tokens = None
         # Extract system instructions and contents
         system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
 
@@ -138,6 +140,8 @@ class GeminiClient:
                 contents=contents,  # type: ignore
                 config=response_config
             )
+            if getattr(response, "usage_metadata", None) is not None:
+                self.last_input_tokens = response.usage_metadata.prompt_token_count
             
             result = extract_and_parse_gemini_json_response(response)
             
@@ -164,6 +168,7 @@ class GeminiClient:
             message_type: MessageType = MessageType.CHAT
     ) -> str:
         accumulated_response = ""
+        self.last_input_tokens = None
         try:
             # Extract system instructions and Gemini-compatible contents
             system_instructions, contents = get_gemini_system_prompt_and_messages(messages)
@@ -187,6 +192,8 @@ class GeminiClient:
                         contents=contents,  # type: ignore
                         config=response_config
                 ):
+                    if getattr(chunk, "usage_metadata", None) is not None:
+                        self.last_input_tokens = chunk.usage_metadata.prompt_token_count
 
                     next_chunk = ""
                     if hasattr(chunk, 'text'):

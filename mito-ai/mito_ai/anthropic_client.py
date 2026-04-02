@@ -218,6 +218,7 @@ class AnthropicClient:
         self.api_key = api_key
         self.timeout = timeout
         self.max_retries = max_retries
+        self.last_input_tokens: Optional[int] = None
         self.client: Optional[anthropic.Anthropic]
         if api_key:
             # Use a higher timeout to avoid the 10-minute streaming requirement for long requests
@@ -237,6 +238,7 @@ class AnthropicClient:
         Get a response from Claude or the Mito server that adheres to the AgentResponse format.
         """
         anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages)
+        self.last_input_tokens = None
         
         provider_data = get_anthropic_completion_function_params(
             message_type=message_type,
@@ -254,6 +256,8 @@ class AnthropicClient:
             assert self.client is not None
             # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
             response = self.client.beta.messages.create(**provider_data)  # type: ignore[arg-type]
+            if response.usage is not None:
+                self.last_input_tokens = response.usage.input_tokens
             
             if provider_data.get("tool_choice") is not None:
                 result = extract_and_parse_anthropic_json_response(response)
@@ -281,6 +285,7 @@ class AnthropicClient:
     async def stream_completions(self, messages: List[ChatCompletionMessageParam], model: str, message_id: str, message_type: MessageType,
                               reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
         try:
+            self.last_input_tokens = None
             anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages)
             model = select_correct_model(model, message_type, anthropic_system_prompt, anthropic_messages)
 
@@ -303,6 +308,10 @@ class AnthropicClient:
                 stream = self.client.beta.messages.create(**create_params)  # type: ignore[call-overload]
 
                 for chunk in stream:
+                    if chunk.type == "message_start":  # type: ignore[union-attr]
+                        message_usage = getattr(getattr(chunk, "message", None), "usage", None)
+                        if message_usage is not None:
+                            self.last_input_tokens = message_usage.input_tokens
                     # Type checking for beta API streaming chunks (runtime type checking, types are compatible)
                     if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":  # type: ignore[union-attr]
                         content = chunk.delta.text  # type: ignore[union-attr]

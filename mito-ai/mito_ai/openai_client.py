@@ -55,6 +55,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         super().__init__(log=get_logger(), **kwargs)
         self.last_error = None
         self._async_client: Optional[openai.AsyncOpenAI] = None
+        self.last_input_tokens: Optional[int] = None
         
     @property
     def capabilities(self) -> AICapabilities:
@@ -195,6 +196,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         # Reset the last error
         self.last_error = None
+        self.last_input_tokens = None
         completion = None
         
         # Note: We don't catch exceptions here because we want them to bubble up 
@@ -211,6 +213,8 @@ This attribute is observed by the websocket provider to push the error to the cl
         if self._active_async_client is not None:
             response = await self._active_async_client.chat.completions.create(**completion_function_params)
             completion = response.choices[0].message.content or ""
+            if response.usage is not None:
+                self.last_input_tokens = response.usage.prompt_tokens
         else:
             last_message_content = str(messages[-1].get("content", "")) if messages else None
             completion = await get_ai_completion_from_mito_server(
@@ -241,6 +245,7 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         # Reset the last error
         self.last_error = None
+        self.last_input_tokens = None
         accumulated_response = ""
             
         # Send initial acknowledgment
@@ -268,6 +273,8 @@ This attribute is observed by the websocket provider to push the error to the cl
                 stream = await client.chat.completions.create(**completion_function_params)
 
                 async for chunk in stream:
+                    if getattr(chunk, "usage", None) is not None:
+                        self.last_input_tokens = chunk.usage.prompt_tokens
                     if len(chunk.choices) == 0:
                         continue
                     
