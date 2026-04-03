@@ -2661,11 +2661,19 @@ export const getActions = (
             titleToolbar: 'Suggested Visualizations',
             longTitle: 'Suggested Visualizations',
             actionFunction: () => {
-                /* Placeholder until suggested visualizations flow is implemented */
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.SUGGESTED_VISUALIZATIONS},
+                        selectedTabType: 'data'
+                    }
+                })
             },
-            isDisabled: () => {return undefined},
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to analyze. Import data.'},
             searchTerms: ['suggested visualizations', 'charts', 'graphs'],
-            tooltip: "Suggested Visualizations"
+            tooltip: "Open suggested visualizations."
         },
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
             type: 'build-time',
