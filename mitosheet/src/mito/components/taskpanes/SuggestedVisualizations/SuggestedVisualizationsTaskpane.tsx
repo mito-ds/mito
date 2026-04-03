@@ -123,7 +123,7 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
 
     return (
         <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
-            <DefaultTaskpaneHeader header="Suggested Visualizations" setUIState={props.setUIState} />
+            <DefaultTaskpaneHeader header="Suggest Charts" setUIState={props.setUIState} />
             <DefaultTaskpaneBody userProfile={props.userProfile}>
                 <div className="suggested-viz-taskpane-content">
                     {loadState.status === 'loading' && (
