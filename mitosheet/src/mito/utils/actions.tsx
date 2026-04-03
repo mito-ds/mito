@@ -2654,6 +2654,19 @@ export const getActions = (
             searchTerms: ['AI Transformation'],
             tooltip: "AI Transformation"
         },
+        [ActionEnum.Suggested_Visualizations]: {
+            type: 'build-time',
+            staticType: ActionEnum.Suggested_Visualizations,
+            iconToolbar: StarIcon,
+            titleToolbar: 'Suggested Visualizations',
+            longTitle: 'Suggested Visualizations',
+            actionFunction: () => {
+                /* Placeholder until suggested visualizations flow is implemented */
+            },
+            isDisabled: () => {return undefined},
+            searchTerms: ['suggested visualizations', 'charts', 'graphs'],
+            tooltip: "Suggested Visualizations"
+        },
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
             type: 'build-time',
             staticType: ActionEnum.COLUMN_HEADERS_TRANSFORM,

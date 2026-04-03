@@ -288,6 +288,9 @@ export const HomeTabContents = (
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Graph]}
         />
+        <ToolbarButton
+            action={props.actions.buildTimeActions[ActionEnum.Suggested_Visualizations]}
+        />
         {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && 
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION]}
