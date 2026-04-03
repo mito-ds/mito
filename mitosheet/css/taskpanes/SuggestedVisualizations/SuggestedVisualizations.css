@@ -12,6 +12,11 @@
     width: 100%;
     min-height: 0;
     white-space: normal;
+    /*
+     * Inset so hover ring + drop shadow are not clipped by the scroll parent
+     * (.default-taskpane-body-div overflow-y: auto clips overflow on the sides).
+     */
+    padding: 3px 10px 10px 10px;
 }
 
 /* List: breathing room between suggestion cards */
