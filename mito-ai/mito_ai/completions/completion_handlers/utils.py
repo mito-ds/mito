@@ -48,7 +48,8 @@ async def append_agent_system_message(
     message_history: GlobalMessageHistory,
     provider: ProviderManager,
     thread_id: ThreadID,
-    isChromeBrowser: bool,
+    is_chrome_browser: bool,
+    is_copilot_mode: bool = False,
 ) -> None:
 
     # If the system message already exists, do nothing
@@ -58,7 +59,8 @@ async def append_agent_system_message(
     ):
         return
 
-    system_message_prompt = create_agent_system_message_prompt(isChromeBrowser)
+    include_cell_output_tool = is_chrome_browser and not is_copilot_mode
+    system_message_prompt = create_agent_system_message_prompt(include_cell_output_tool)
 
     system_message: ChatCompletionMessageParam = {
         "role": "system",
@@ -96,9 +98,18 @@ def create_ai_optimized_message(
     text: str,
     base64EncodedActiveCellOutput: Optional[str] = None,
     additional_context: Optional[List[Dict[str, str]]] = None,
+    is_copilot_mode: bool = False,
 ) -> ChatCompletionMessageParam:
 
     message_content: Union[str, List[Dict[str, Any]]]
+    if is_copilot_mode:
+        base64EncodedActiveCellOutput = None
+        if additional_context:
+            additional_context = [
+                c
+                for c in additional_context
+                if not str(c.get("type", "")).startswith("image/")
+            ]
     encoded_images = extract_and_encode_images_from_additional_context(
         additional_context
     )

@@ -48,7 +48,7 @@ import {
     shouldShowDiffToolbarButtons, 
 } from '../../utils/codeDiff';
 import { getActiveCellOutput } from '../../utils/cellOutput';
-import { OperatingSystem } from '../../utils/user';
+import { isCopilotModelSelected, OperatingSystem } from '../../utils/user';
 import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { ensureNotebookExists } from './utils';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
@@ -409,7 +409,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
+        agentExecutionMetadata.base64EncodedActiveCellOutput = isCopilotModelSelected()
+            ? undefined
+            : await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingStatus('thinking');
@@ -490,10 +492,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Add the active cell output to the metadata afterwards setting the chatHistoryManager so that 
         // we don't have to wait on turning the output into a base64 image before we can add the user's message
-        // to the chat.
-        const activeCellOutput = await getActiveCellOutput(notebookTracker)
-        if (activeCellOutput !== undefined) {
-            chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
+        // to the chat. Copilot doesn't let us upload images to their models, so we don't get the cell output
+        if (!isCopilotModelSelected()) {
+            const activeCellOutput = await getActiveCellOutput(notebookTracker)
+            if (activeCellOutput !== undefined) {
+                chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
+            }
         }
 
         const completionRequest: IChatCompletionRequest = {

@@ -10,7 +10,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCellsInNotebookPanel, getCellCodeByID, getCellCodeByIDInNotebookPanel } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata, IScratchpadResultMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
-import { isChromeBasedBrowser } from "../../utils/user";
+import { isChromeBasedBrowser, isCopilotModelSelected } from "../../utils/user";
 import { validateAndCorrectAgentResponse } from "./validationUtils";
 import { getNotebookIDAndSetIfNonexistant } from "../../utils/notebookMetadata";
 
@@ -165,7 +165,8 @@ export class ChatHistoryManager {
             input: input,
             threadId: activeThreadId,
             index: messageIndex,
-            additionalContext: additionalContext
+            additionalContext: additionalContext,
+            isCopilotMode: isCopilotModelSelected(),
         }
 
         this.displayOptimizedChatHistory.push(
@@ -203,6 +204,7 @@ export class ChatHistoryManager {
             threadId: activeThreadId,
             isChromeBrowser: isChromeBasedBrowser(),
             additionalContext: additionalContext,
+            isCopilotMode: isCopilotModelSelected(),
         }
 
         // We use this function in two ways: 
@@ -236,6 +238,8 @@ export class ChatHistoryManager {
             promptType: 'agent:scratchpad-result',
             threadId: activeThreadId,
             scratchpadResult: scratchpadResult,
+            isChromeBrowser: isChromeBasedBrowser(),
+            isCopilotMode: isCopilotModelSelected(),
         }
 
         // Add empty user message to display history (like agent execution does for empty input)
@@ -298,7 +302,8 @@ export class ChatHistoryManager {
             errorMessage: errorMessage,
             error_message_producing_code_cell_id: activeCellID || '',
             threadId: activeThreadId,
-            isChromeBrowser: isChromeBasedBrowser()
+            isChromeBrowser: isChromeBasedBrowser(),
+            isCopilotMode: isCopilotModelSelected(),
         }
 
         this.displayOptimizedChatHistory.push(

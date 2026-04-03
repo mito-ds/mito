@@ -14,12 +14,12 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
 from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 from mito_ai.rules.utils import get_default_rules_content
 
-def create_agent_system_message_prompt(isChromeBrowser: bool) -> str:
+def create_agent_system_message_prompt(include_cell_output_tool: bool) -> str:
     
-    # The GET_CELL_OUTPUT tool only works on Chrome based browsers. 
+    # GET_CELL_OUTPUT requires a Chrome-based browser and is disabled for Copilot API models.
     # This constant helps us replace the phrase 'or GET_CELL_OUTPUT' with ''
     # throughout the prompt
-    OR_GET_CELL_OUTPUT = 'or GET_CELL_OUTPUT' if isChromeBrowser else ''
+    OR_GET_CELL_OUTPUT = 'or GET_CELL_OUTPUT' if include_cell_output_tool else ''
     
     sections: List[PromptSection] = []
     
@@ -199,7 +199,7 @@ Important information:
     </Cell Addition Example>"""))
     
     # GET_CELL_OUTPUT tool (conditional)
-    if isChromeBrowser:
+    if include_cell_output_tool:
         sections.append(SG.Generic("TOOL: GET_CELL_OUTPUT", """
 
 When you want to get a base64 encoded version of a cell's output, respond with this format:
@@ -507,7 +507,7 @@ REMEMBER, YOU ARE GOING TO COMPLETE THE USER'S TASK OVER THE COURSE OF THE ENTIR
 - Wait for the user to send you back the updated variables and notebook state so you can decide how to proceed.
 - If you are happy with the analysis, refer back to the original task provided by the user to decide your next steps. In this example, it is to graph the results, so you will send a CellAddition to construct the graph. 
 - Wait for the user to send you back the updated variables and notebook state.
-{'' if not isChromeBrowser else '- Send a GET_CELL_OUTPUT tool message to get the output of the cell you just created and check if you can improve the graph to make it more readable, informative, or professional.'}
+{'' if not include_cell_output_tool else '- Send a GET_CELL_OUTPUT tool message to get the output of the cell you just created and check if you can improve the graph to make it more readable, informative, or professional.'}
 - If after reviewing the updates you decide that you've completed the task, send a FINISHED_TASK tool message.
 """))
 

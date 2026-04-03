@@ -89,6 +89,19 @@ def test_message_with_active_cell_output():
     assert result["content"][1]["type"] == "image_url"
 
 
+def test_message_copilot_mode_strips_cell_output_and_uploaded_images():
+    """Copilot API: no images from cell output or additional_context."""
+    with temporary_image_file() as temp_file_path:
+        result = create_ai_optimized_message(
+            text="Analyze this",
+            additional_context=[{"type": "image/png", "value": temp_file_path}],
+            base64EncodedActiveCellOutput="cell_output_data",
+            is_copilot_mode=True,
+        )
+    assert result["role"] == "user"
+    assert result["content"] == "Analyze this"
+
+
 def test_message_with_uploaded_image_and_active_cell_output():
     """Test scenario where the user uploads an image and the active cell has an output"""
     with temporary_image_file() as temp_file_path:

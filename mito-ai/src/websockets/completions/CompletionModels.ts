@@ -86,6 +86,8 @@ export interface IChatMessageMetadata {
   index?: number;
   threadId: string;
   additionalContext?: Array<{type: string, value: string}>;
+  /** When true, cell output images and uploaded images are not sent to the model (GitHub Copilot API). */
+  isCopilotMode?: boolean;
 }
 
 export interface IAgentExecutionMetadata {
@@ -102,6 +104,8 @@ export interface IAgentExecutionMetadata {
   threadId: string;
   isChromeBrowser: boolean;
   additionalContext?: Array<{type: string, value: string}>;
+  /** When true, GET_CELL_OUTPUT and cell output images are disabled (GitHub Copilot API). */
+  isCopilotMode?: boolean;
 }
 
 export interface IScratchpadResultMetadata {
@@ -109,6 +113,8 @@ export interface IScratchpadResultMetadata {
   threadId: string;
   scratchpadResult: string;
   index?: number;
+  isChromeBrowser?: boolean;
+  isCopilotMode?: boolean;
 }
 
 export interface IAgentSmartDebugMetadata {
@@ -120,6 +126,7 @@ export interface IAgentSmartDebugMetadata {
   error_message_producing_code_cell_id: string
   threadId: string;
   isChromeBrowser: boolean;
+  isCopilotMode?: boolean;
 }
 
 

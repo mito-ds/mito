@@ -21,6 +21,7 @@ import { AgentReviewStatus } from '../ChatTaskpane';
 import { LoadingStatus } from './useChatState';
 import { ensureNotebookExists } from '../utils';
 import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
+import { isCopilotModelSelected } from '../../../utils/user';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -294,7 +295,12 @@ export const useAgentExecution = ({
                 }
             }
 
-            if (agentResponse.type === 'get_cell_output' && agentResponse.get_cell_output_cell_id !== null && agentResponse.get_cell_output_cell_id !== undefined) {
+            if (
+                agentResponse.type === 'get_cell_output'
+                && !isCopilotModelSelected()
+                && agentResponse.get_cell_output_cell_id !== null
+                && agentResponse.get_cell_output_cell_id !== undefined
+            ) {
                 // Mark that we should send the cell output to the agent
                 // in the next loop iteration
                 sendCellIDOutput = agentResponse.get_cell_output_cell_id;
