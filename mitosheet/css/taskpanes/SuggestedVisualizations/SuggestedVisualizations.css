@@ -3,54 +3,136 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/* List: breathing room between suggestion cards */
+.suggested-viz-suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 4px;
+}
+
 .suggested-viz-card {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    padding: 10px;
-    gap: 8px;
-    margin-bottom: 10px;
+    align-items: stretch;
+    width: 100%;
+    margin: 0;
+    padding: 14px 14px 14px 16px;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
     background: var(--mito-background-off);
-    border: 1px solid var(--mito-text-light);
-    border-radius: 3px;
+    /* Softer than a 1px outline: depth without a harsh “wireframe” edge */
+    box-shadow:
+        0 0 0 1px rgba(127, 127, 127, 0.14),
+        0 2px 8px rgba(0, 0, 0, 0.06);
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
 }
 
 .suggested-viz-card:hover {
-    border: 1px solid var(--mito-highlight-light);
+    background: var(--mito-highlight-very-light);
+    box-shadow:
+        0 0 0 1px var(--mito-highlight-light),
+        0 6px 18px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.suggested-viz-card:active {
+    transform: translateY(0);
+    box-shadow:
+        0 0 0 1px rgba(127, 127, 127, 0.18),
+        0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.suggested-viz-card-inner {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+}
+
+.suggested-viz-card-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 1px;
+}
+
+/* Preview: single surface, no second border — icon reads as an accent */
+.suggested-viz-preview-wrap {
+    flex-shrink: 0;
+    width: 76px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    background: var(--mito-background);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.12);
+    transition:
+        background 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.suggested-viz-card:hover .suggested-viz-preview-wrap {
+    background: var(--mito-background-off);
+    box-shadow:
+        inset 0 1px 4px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(157, 108, 255, 0.22);
+}
+
+.suggested-viz-preview-svg {
+    width: 50px;
+    height: 36px;
+    color: var(--mito-highlight);
+    opacity: 0.95;
+    display: block;
+}
+
+.suggested-viz-card:focus {
+    outline: none;
+}
+
+.suggested-viz-card:focus-visible {
+    outline: 2px solid var(--mito-highlight);
+    outline-offset: 2px;
 }
 
 .suggested-viz-card-title {
     font-weight: 600;
+    font-size: 13px;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
     color: var(--mito-text);
 }
 
 .suggested-viz-card-description {
     color: var(--mito-text-medium);
-    font-size: 13px;
-    line-height: 1.35;
-}
-
-.suggested-viz-create-button {
-    cursor: pointer;
-    color: var(--mito-highlight);
-    font-size: 13px;
-    text-decoration: underline;
-    margin-top: 2px;
-}
-
-.suggested-viz-create-button:hover {
-    color: var(--mito-text);
+    font-size: 12px;
+    line-height: 1.45;
 }
 
 .suggested-viz-status {
     color: var(--mito-text-medium);
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 12px;
+    line-height: 1.45;
+    opacity: 0.92;
 }
 
 .suggested-viz-error {
     color: var(--mito-text);
     font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.45;
 }

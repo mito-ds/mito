@@ -17,6 +17,7 @@ import { openGraphSidebar } from '../Graph/graphUtils';
 import { GraphType } from '../Graph/GraphSetupTab';
 import AIPrivacyPolicy from '../AITransformation/AIPrivacyPolicy';
 import LoadingCircle from '../../icons/LoadingCircle';
+import SuggestedChartPreview from './SuggestedChartPreview';
 import '../../../../../css/taskpanes/SuggestedVisualizations/SuggestedVisualizations.css';
 
 interface SuggestedVisualizationsTaskpaneProps {
@@ -57,7 +58,6 @@ function parseGraphType(s: string): GraphType | undefined {
 }
 
 const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneProps): JSX.Element => {
-    const apiKeyNotDefined = props.userProfile.openAIAPIKey === null || props.userProfile.openAIAPIKey === undefined;
     const aiPrivacyPolicyAccepted = props.userProfile.aiPrivacyPolicy;
 
     const [loadState, setLoadState] = useState<LoadState>({ status: 'loading' });
@@ -127,19 +127,6 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
             <DefaultTaskpaneHeader header="Suggested Visualizations" setUIState={props.setUIState} />
             <DefaultTaskpaneBody userProfile={props.userProfile}>
                 <Col>
-                    {sheetData !== undefined && (
-                        <p className="text-body-2 suggested-viz-status mb-10px">
-                            {sheetData.dfName}
-                            {' · '}
-                            {sheetData.numRows} rows · {sheetData.numColumns} columns
-                        </p>
-                    )}
-                    {apiKeyNotDefined && (
-                        <p className="text-body-2 suggested-viz-status mb-10px">
-                            Chart suggestions use the same AI connection as Mito AI (OpenAI key, Mito-hosted, or your
-                            configured LLM URL).
-                        </p>
-                    )}
                     {loadState.status === 'loading' && (
                         <Row justify="start" align="center" className="suggested-viz-status">
                             <LoadingCircle />
@@ -154,25 +141,30 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                         sheetData !== undefined && (
                             <p className="suggested-viz-status">No chart suggestions for this sheet.</p>
                         )}
-                    {loadState.status === 'ready' &&
-                        loadState.suggestions.map((s, idx) => (
-                            <div key={`${s.title}-${idx}`} className="suggested-viz-card">
-                                <Row justify="space-between" align="top">
-                                    <Col>
-                                        <div className="suggested-viz-card-title">{s.title}</div>
-                                        <div className="suggested-viz-card-description">{s.description}</div>
-                                    </Col>
-                                </Row>
-                                <div
-                                    className="suggested-viz-create-button"
+                    {loadState.status === 'ready' && loadState.suggestions.length > 0 && (
+                        <div className="suggested-viz-suggestions">
+                            {loadState.suggestions.map((s, idx) => (
+                                <button
+                                    key={`${s.title}-${idx}`}
+                                    type="button"
+                                    className="suggested-viz-card"
                                     onClick={() => {
                                         onCreateChart(s.graph_type, s.column_indices);
                                     }}
                                 >
-                                    Create chart
-                                </div>
-                            </div>
-                        ))}
+                                    <div className="suggested-viz-card-inner">
+                                        <div className="suggested-viz-card-text">
+                                            <div className="suggested-viz-card-title">{s.title}</div>
+                                            <div className="suggested-viz-card-description">{s.description}</div>
+                                        </div>
+                                        <div className="suggested-viz-preview-wrap" aria-hidden>
+                                            <SuggestedChartPreview graphType={s.graph_type} />
+                                        </div>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </Col>
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
