@@ -861,7 +861,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.SUGGESTED_VISUALIZATIONS: return (
                 <SuggestedVisualizationsTaskpane
+                    userProfile={userProfile}
+                    uiState={uiState}
                     setUIState={setUIState}
+                    setEditorState={setEditorState}
+                    sheetDataArray={sheetDataArray}
                     mitoAPI={mitoAPI}
                 />
             )
