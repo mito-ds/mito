@@ -195,7 +195,7 @@ def _get_chart_suggestions_from_mito_server(user_input: str, prompt: str) -> Dic
 
     if res.status_code == 200:
         __num_usages = __num_usages + 1
-        set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages + 1)
+        set_user_field(UJ_AI_MITO_API_NUM_USAGES, __num_usages)
         return {
             "user_input": user_input,
             "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
