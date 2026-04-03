@@ -91,6 +91,7 @@ import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, incr
 import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
 import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
 import SelectDataIcon from "../components/icons/GraphToolbar/SelectDataIcon";
+import HexagonAIIcon from "../components/icons/HexagonAI";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -2657,7 +2658,7 @@ export const getActions = (
         [ActionEnum.Suggested_Visualizations]: {
             type: 'build-time',
             staticType: ActionEnum.Suggested_Visualizations,
-            iconToolbar: StarIcon,
+            iconToolbar: HexagonAIIcon,
             titleToolbar: 'Suggest Graphs',
             longTitle: 'Suggest Graphs',
             actionFunction: () => {
