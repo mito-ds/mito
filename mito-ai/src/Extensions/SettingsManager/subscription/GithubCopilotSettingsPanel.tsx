@@ -95,9 +95,6 @@ export const GithubCopilotSettingsPanel = (): JSX.Element | null => {
         <h3 className="subscription-page-section-title">GitHub Copilot</h3>
         <p className="github-copilot-banner-hint" style={{ marginBottom: 10 }}>
           This server uses GitHub Copilot for Mito AI. Sign in with a GitHub account that has Copilot.
-          The server must set <code>MITO_AI_GITHUB_OAUTH_CLIENT_ID</code> to a Copilot-capable client
-          ID (custom OAuth Apps often get HTTP 404 on token exchange; use the Copilot CLI app id{' '}
-          <code>Iv1.b507a08c87ecfe98</code> unless your vendor documents otherwise). See mito-ai README.
         </p>
         {state.status === 'LOGGED_IN' ? (
           <div className="github-copilot-banner-row">

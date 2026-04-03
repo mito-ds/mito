@@ -60,8 +60,8 @@ EDITOR_VERSION = f"Mito/{MITO_AI_VERSION}"
 EDITOR_PLUGIN_VERSION = EDITOR_VERSION
 USER_AGENT = EDITOR_VERSION
 
-# Must be set by deployment (Mito-registered GitHub OAuth app for device flow).
-OAUTH_CLIENT_ID = os.environ.get("MITO_AI_GITHUB_OAUTH_CLIENT_ID", "").strip()
+# GitHub Copilot CLI GitHub App (device flow)
+OAUTH_CLIENT_ID = "Iv1.b507a08c87ecfe98"
 
 MACHINE_ID = secrets.token_hex(33)[0:65]
 
@@ -295,9 +295,6 @@ def handle_stop_request() -> None:
 
 def get_device_verification_info() -> Optional[Dict[str, Any]]:
     global github_auth
-    if not OAUTH_CLIENT_ID:
-        log.error("MITO_AI_GITHUB_OAUTH_CLIENT_ID is not set; cannot start GitHub device login.")
-        return None
     # GitHub expects application/x-www-form-urlencoded (not JSON); otherwise user_code may be missing.
     form_body = {"client_id": OAUTH_CLIENT_ID, "scope": "read:user"}
     try:
@@ -418,11 +415,9 @@ def get_token() -> None:
             return
         if resp.status_code == 404:
             log.error(
-                "GitHub Copilot token exchange returned 404. OAuth App device-flow tokens "
-                "(prefix gho_) are not accepted at /copilot_internal/v2/token. Use the same "
-                "GitHub Copilot CLI GitHub App client ID as other Copilot integrations: set "
-                "MITO_AI_GITHUB_OAUTH_CLIENT_ID=Iv1.b507a08c87ecfe98 and restart Jupyter. "
-                "See the GitHub Copilot section in mito-ai README."
+                "GitHub Copilot token exchange returned 404. If GitHub’s API changed or the "
+                "access token is not from the Copilot CLI GitHub App device flow, "
+                "/copilot_internal/v2/token may reject it. See the GitHub Copilot section in mito-ai README."
             )
             return
         if resp.status_code != 200:

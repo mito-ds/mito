@@ -25,8 +25,7 @@ class GitHubCopilotLoginHandler(APIHandler):
             self.finish(
                 json.dumps(
                     {
-                        "error": "Failed to start GitHub device login. "
-                        "Set MITO_AI_GITHUB_OAUTH_CLIENT_ID or check server logs."
+                        "error": "Failed to start GitHub device login. Check server logs."
                     }
                 )
             )
