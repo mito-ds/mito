@@ -152,12 +152,12 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                                     }}
                                 >
                                     <div className="suggested-viz-card-inner">
+                                        <div className="suggested-viz-preview-layer" aria-hidden>
+                                            <SuggestedChartPreview graphType={s.graph_type} />
+                                        </div>
                                         <div className="suggested-viz-card-text">
                                             <div className="suggested-viz-card-title">{s.title}</div>
                                             <div className="suggested-viz-card-description">{s.description}</div>
-                                        </div>
-                                        <div className="suggested-viz-preview-wrap" aria-hidden>
-                                            <SuggestedChartPreview graphType={s.graph_type} />
                                         </div>
                                     </div>
                                 </button>
