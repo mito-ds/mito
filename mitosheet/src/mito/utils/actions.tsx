@@ -2658,8 +2658,8 @@ export const getActions = (
             type: 'build-time',
             staticType: ActionEnum.Suggested_Visualizations,
             iconToolbar: StarIcon,
-            titleToolbar: 'Suggest Charts',
-            longTitle: 'Suggest Charts',
+            titleToolbar: 'Suggest Graphs',
+            longTitle: 'Suggest Graphs',
             actionFunction: () => {
                 setEditorState(undefined);
 
@@ -2672,8 +2672,8 @@ export const getActions = (
                 })
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to analyze. Import data.'},
-            searchTerms: ['suggest charts', 'suggested visualizations', 'charts', 'graphs'],
-            tooltip: "Open chart suggestions."
+            searchTerms: ['suggest graphs', 'suggest charts', 'suggested visualizations', 'charts', 'graphs'],
+            tooltip: "Open graph suggestions."
         },
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
             type: 'build-time',

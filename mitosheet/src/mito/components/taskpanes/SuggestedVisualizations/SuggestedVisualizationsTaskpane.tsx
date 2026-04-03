@@ -76,7 +76,7 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
             if (res === undefined || 'error' in res) {
                 setLoadState({
                     status: 'error',
-                    message: res !== undefined && 'error' in res ? res.error : 'Could not load chart suggestions.',
+                    message: res !== undefined && 'error' in res ? res.error : 'Could not load graph suggestions.',
                 });
                 return;
             }
@@ -123,7 +123,7 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
 
     return (
         <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
-            <DefaultTaskpaneHeader header="Suggest Charts" setUIState={props.setUIState} />
+            <DefaultTaskpaneHeader header="Suggest Graphs" setUIState={props.setUIState} />
             <DefaultTaskpaneBody userProfile={props.userProfile}>
                 <div className="suggested-viz-taskpane-content">
                     {loadState.status === 'loading' && (
@@ -138,7 +138,7 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                     {loadState.status === 'ready' &&
                         loadState.suggestions.length === 0 &&
                         sheetData !== undefined && (
-                            <p className="suggested-viz-status">No chart suggestions for this sheet.</p>
+                            <p className="suggested-viz-status">No graph suggestions for this sheet.</p>
                         )}
                     {loadState.status === 'ready' && loadState.suggestions.length > 0 && (
                         <div className="suggested-viz-suggestions">
