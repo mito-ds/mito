@@ -32,7 +32,8 @@
     padding: 14px 14px 14px 16px;
     text-align: left;
     font: inherit;
-    color: inherit;
+    /* Keep primary text on theme token; avoid inherit (hover bg must stay readable vs --mito-text) */
+    color: var(--mito-text);
     cursor: pointer;
     border: none;
     border-radius: 8px;
@@ -47,12 +48,21 @@
         transform 0.15s ease;
 }
 
+/* Use theme-aware hover (see colors.tsx: --mito-toolbar-hover). Light purple highlight-very-light breaks contrast in dark mode. */
 .suggested-viz-card:hover {
-    background: var(--mito-highlight-very-light);
+    background: var(--mito-toolbar-hover, var(--mito-background-highlight));
     box-shadow:
-        0 0 0 1px var(--mito-highlight-light),
-        0 6px 18px rgba(0, 0, 0, 0.1);
+        0 0 0 1px var(--mito-text-light),
+        0 6px 18px rgba(0, 0, 0, 0.12);
     transform: translateY(-1px);
+}
+
+.suggested-viz-card:hover .suggested-viz-card-title {
+    color: var(--mito-text);
+}
+
+.suggested-viz-card:hover .suggested-viz-card-description {
+    color: var(--mito-text-medium);
 }
 
 .suggested-viz-card:active {
@@ -98,10 +108,10 @@
 }
 
 .suggested-viz-card:hover .suggested-viz-preview-wrap {
-    background: var(--mito-background-off);
+    background: var(--mito-background);
     box-shadow:
-        inset 0 1px 4px rgba(0, 0, 0, 0.1),
-        0 0 0 1px rgba(157, 108, 255, 0.22);
+        inset 0 1px 4px rgba(0, 0, 0, 0.14),
+        0 0 0 1px var(--mito-text-light);
 }
 
 .suggested-viz-preview-svg {
