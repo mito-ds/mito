@@ -8,7 +8,6 @@
 import React, { useEffect, useState } from 'react';
 import { MitoAPI } from '../../../api/api';
 import { ColumnID, EditorState, SheetData, UIState, UserProfile } from '../../../types';
-import Col from '../../layout/Col';
 import Row from '../../layout/Row';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
@@ -126,7 +125,7 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
         <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader header="Suggested Visualizations" setUIState={props.setUIState} />
             <DefaultTaskpaneBody userProfile={props.userProfile}>
-                <Col>
+                <div className="suggested-viz-taskpane-content">
                     {loadState.status === 'loading' && (
                         <Row justify="start" align="center" className="suggested-viz-status">
                             <LoadingCircle />
@@ -165,7 +164,7 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                             ))}
                         </div>
                     )}
-                </Col>
+                </div>
             </DefaultTaskpaneBody>
         </DefaultTaskpane>
     );

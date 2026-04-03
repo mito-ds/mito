@@ -3,6 +3,17 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+/*
+ * Do not use <Col> here: .spacing-col sets overflow:hidden and white-space:nowrap, which
+ * breaks vertical scrolling and text wrapping inside the taskpane body.
+ */
+.suggested-viz-taskpane-content {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 0;
+    white-space: normal;
+}
+
 /* List: breathing room between suggestion cards */
 .suggested-viz-suggestions {
     display: flex;
