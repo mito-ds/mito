@@ -5,7 +5,7 @@ from typing import List, Tuple, Union, Optional, cast
 from mito_ai import constants
 from mito_ai.utils.version_utils import is_enterprise, is_github_copilot_helper_installed
 from mito_ai.enterprise.utils import is_abacus_configured
-from mito_ai.copilot.model_ids import get_github_copilot_chat_model_ids, get_github_copilot_models_prefixed
+from mito_ai.copilot.model_ids import get_fallback_copilot_models_prefixed
 
 # Model ordering: [fastest, ..., slowest] for each provider
 ANTHROPIC_MODEL_ORDER = [
@@ -51,13 +51,8 @@ def get_available_models() -> List[str]:
 
         api_ids = copilot_service.get_cached_copilot_api_model_ids()
         if api_ids is not None and len(api_ids) > 0:
-            candidates = get_github_copilot_chat_model_ids()
-            api_set = set(api_ids)
-            filtered = [m for m in candidates if m in api_set]
-            if filtered:
-                return [f"copilot/{m}" for m in filtered]
             return [f"copilot/{m}" for m in api_ids]
-        return list(get_github_copilot_models_prefixed())
+        return get_fallback_copilot_models_prefixed()
     # Check if enterprise mode is enabled AND Abacus is configured (highest priority)
     if is_abacus_configured():
         # Return Abacus models (with Abacus/ prefix)
@@ -92,7 +87,7 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
         if not router_models:
             return selected_model
 
-        # Copilot: ordering is the list order from get_github_copilot_models_prefixed()
+        # Copilot: ordering is the list order from get_available_models()
         copilot_models = [m for m in router_models if m.lower().startswith("copilot/")]
         if copilot_models and all(m.lower().startswith("copilot/") for m in router_models):
             return copilot_models[0]

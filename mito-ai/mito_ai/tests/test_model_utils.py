@@ -3,7 +3,7 @@
 
 import pytest
 from unittest.mock import patch, MagicMock
-from mito_ai.copilot.model_ids import get_github_copilot_models_prefixed
+from mito_ai.copilot.model_ids import get_fallback_copilot_models_prefixed
 from mito_ai.utils.model_utils import (
     get_available_models,
     get_fast_model_for_selected_model,
@@ -19,21 +19,21 @@ class TestGetAvailableModels:
 
     @patch('mito_ai.copilot.service.get_cached_copilot_api_model_ids', return_value=None)
     @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed')
-    def test_returns_github_copilot_models_when_helper_installed(self, mock_copilot_helper, _mock_cache):
+    def test_returns_fallback_copilot_models_when_cache_empty(self, mock_copilot_helper, _mock_cache):
         mock_copilot_helper.return_value = True
         result = get_available_models()
-        assert result == get_github_copilot_models_prefixed()
+        assert result == get_fallback_copilot_models_prefixed()
 
     @patch('mito_ai.copilot.service.get_cached_copilot_api_model_ids', return_value=['gpt-4o', 'gpt-5'])
     @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed')
-    def test_copilot_intersects_api_models_with_candidate_list(self, mock_copilot_helper, _mock_cache):
+    def test_copilot_uses_api_models_directly(self, mock_copilot_helper, _mock_cache):
         mock_copilot_helper.return_value = True
         result = get_available_models()
         assert result == ['copilot/gpt-4o', 'copilot/gpt-5']
 
     @patch('mito_ai.copilot.service.get_cached_copilot_api_model_ids', return_value=['future-copilot-only-id'])
     @patch('mito_ai.utils.model_utils.is_github_copilot_helper_installed')
-    def test_copilot_falls_back_to_api_list_when_no_candidate_match(self, mock_copilot_helper, _mock_cache):
+    def test_copilot_uses_unknown_api_models(self, mock_copilot_helper, _mock_cache):
         mock_copilot_helper.return_value = True
         result = get_available_models()
         assert result == ['copilot/future-copilot-only-id']
@@ -236,9 +236,9 @@ class TestGetFastModelForSelectedModel:
 
     @patch('mito_ai.utils.model_utils.get_available_models')
     def test_copilot_selected_returns_first_copilot_model(self, mock_get_available_models):
-        mock_get_available_models.return_value = get_github_copilot_models_prefixed()
+        mock_get_available_models.return_value = get_fallback_copilot_models_prefixed()
         result = get_fast_model_for_selected_model("copilot/gpt-4.1")
-        assert result == get_github_copilot_models_prefixed()[0]
+        assert result == get_fallback_copilot_models_prefixed()[0]
 
     def test_claude_model_not_in_order_returns_fastest_anthropic(self):
         """Test that a Claude model not in ANTHROPIC_MODEL_ORDER still returns fastest Anthropic model."""

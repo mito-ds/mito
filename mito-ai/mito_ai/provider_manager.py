@@ -38,7 +38,6 @@ from mito_ai.utils.telemetry_utils import (
 from mito_ai.utils.provider_utils import get_model_provider
 from mito_ai.utils.model_utils import get_available_models, get_fast_model_for_selected_model, get_smartest_model_for_selected_model
 from mito_ai.utils.version_utils import is_github_copilot_helper_installed
-from mito_ai.copilot.model_ids import strip_copilot_prefix
 
 __all__ = ["ProviderManager"]
 
@@ -192,15 +191,13 @@ This attribute is observed by the websocket provider to push the error to the cl
         for attempt in range(max_retries + 1):
             try:
                 if model_type == "copilot":
-                    from mito_ai.copilot import service as copilot_service
-                    from mito_ai.copilot import async_bridge as copilot_async
-
-                    copilot_service.ensure_logged_in_for_completion()
-                    api_model = strip_copilot_prefix(resolved_model)
-                    completion = await copilot_async.request_github_copilot_chat_aggregate(
-                        api_model,
-                        list(messages),
-                        response_format_info,
+                    from mito_ai.copilot_client import CopilotClient
+                    copilot_client = CopilotClient()
+                    completion = await copilot_client.request_completions(
+                        messages=list(messages),
+                        model=resolved_model,
+                        response_format_info=response_format_info,
+                        message_type=message_type,
                     )
                 elif model_type == "abacus":
                     if not self._openai_client:
@@ -339,17 +336,14 @@ This attribute is observed by the websocket provider to push the error to the cl
 
         try:
             if model_type == "copilot":
-                from mito_ai.copilot import service as copilot_service
-                from mito_ai.copilot import async_bridge as copilot_async
-
-                copilot_service.ensure_logged_in_for_completion()
-                api_model = strip_copilot_prefix(resolved_model)
-                accumulated_response = await copilot_async.stream_github_copilot_chat(
-                    api_model,
-                    list(messages),
-                    message_id,
-                    reply_fn,
-                    response_format_info,
+                from mito_ai.copilot_client import CopilotClient
+                copilot_client = CopilotClient()
+                accumulated_response = await copilot_client.stream_completions(
+                    messages=list(messages),
+                    model=resolved_model,
+                    message_id=message_id,
+                    reply_fn=reply_fn,
+                    message_type=message_type,
                 )
             elif model_type == "abacus":
                 if not self._openai_client:
