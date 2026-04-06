@@ -70,10 +70,13 @@ github_auth: Dict[str, Any] = {
 stop_requested = False
 
 # Filled by GET {API_ENDPOINT}/models after sign-in (thread); used to filter the Mito model list.
-_copilot_api_model_ids_cache: Optional[List[str]] = None
+_copilot_api_models_cache: Optional[List[Dict[str, Any]]] = None
 _copilot_models_cache_lock = threading.Lock()
 _last_copilot_models_fetch_monotonic: float = -1e9
 COPILOT_MODELS_FETCH_MIN_INTERVAL_SEC = 90.0
+
+MIN_CONTEXT_WINDOW_TOKENS = 128_000
+MIN_PROMPT_TOKENS = 128_000
 
 _get_access_code_thread: Optional[threading.Thread] = None
 _get_token_thread: Optional[threading.Thread] = None
@@ -136,9 +139,9 @@ def login() -> Optional[Dict[str, Any]]:
 
 
 def logout() -> Dict[str, Any]:
-    global _last_copilot_models_fetch_monotonic, _copilot_api_model_ids_cache
+    global _last_copilot_models_fetch_monotonic, _copilot_api_models_cache
     with _copilot_models_cache_lock:
-        _copilot_api_model_ids_cache = None
+        _copilot_api_models_cache = None
     _last_copilot_models_fetch_monotonic = -1e9
     github_auth.update(
         {
@@ -357,37 +360,46 @@ def generate_copilot_headers() -> Dict[str, str]:
 def get_cached_copilot_api_model_ids() -> Optional[List[str]]:
     """Model ids from last successful GET /models (no copilot/ prefix), or None if not fetched yet."""
     with _copilot_models_cache_lock:
-        if _copilot_api_model_ids_cache is None:
+        if _copilot_api_models_cache is None:
             return None
-        return list(_copilot_api_model_ids_cache)
+        return [
+            m.get("id") or m.get("name") or ""
+            for m in _copilot_api_models_cache
+            if m.get("id") or m.get("name")
+        ]
 
 
-def _model_ids_from_sequence(items: List[Any]) -> List[str]:
-    out: List[str] = []
-    for item in items:
-        if isinstance(item, str) and item.strip():
-            out.append(item.strip())
-        elif isinstance(item, dict):
-            mid = item.get("id") or item.get("name") or item.get("model")
-            if isinstance(mid, str) and mid.strip():
-                out.append(mid.strip())
-    return out
+def _get_model_limits(model: Dict[str, Any]) -> Dict[str, Optional[int]]:
+    """Extract token limits from a Copilot /models response object."""
+    caps = model.get("capabilities") or {}
+    limits = caps.get("limits") or {}
+    return {
+        "max_context_window_tokens": limits.get("max_context_window_tokens"),
+        "max_prompt_tokens": limits.get("max_prompt_tokens"),
+    }
 
 
-def _parse_copilot_models_json_payload(payload: Any) -> List[str]:
-    if isinstance(payload, list):
-        return _model_ids_from_sequence(payload)
-    if isinstance(payload, dict):
-        for key in ("data", "models", "model_ids"):
-            inner = payload.get(key)
+def _parse_model_objects(body: Any) -> List[Dict[str, Any]]:
+    """Extract model dicts from the Copilot /models JSON response."""
+    items: Optional[List[Any]] = None
+    if isinstance(body, list):
+        items = body
+    elif isinstance(body, dict):
+        for key in ("data", "models"):
+            inner = body.get(key)
             if isinstance(inner, list):
-                return _model_ids_from_sequence(inner)
-    return []
+                items = inner
+                break
+    if items is None:
+        return []
+    return [item for item in items if isinstance(item, dict) and (item.get("id") or item.get("name"))]
 
 
-def fetch_copilot_chat_model_ids_blocking() -> Optional[List[str]]:
+def fetch_copilot_models_blocking() -> Optional[List[Dict[str, Any]]]:
     """
-    Query GitHub Copilot for chat model ids available to this account (Bearer copilot token).
+    Query GitHub Copilot for models available to this account (Bearer copilot token).
+    Filters to models with context window >= MIN_CONTEXT_WINDOW_TOKENS and
+    prompt tokens >= MIN_PROMPT_TOKENS.
     Returns None on failure; caller should not clear the cache when None.
     """
     if github_auth.get("status") is not LoginStatus.LOGGED_IN or not github_auth.get("token"):
@@ -411,16 +423,32 @@ def fetch_copilot_chat_model_ids_blocking() -> Optional[List[str]]:
     except Exception as e:
         log.warning("Copilot GET /models: invalid JSON: %s", e)
         return None
-    raw_ids = _parse_copilot_models_json_payload(body)
-    if not raw_ids:
-        log.warning("Copilot GET /models: could not parse model ids from response")
+    all_models = _parse_model_objects(body)
+    if not all_models:
+        log.warning("Copilot GET /models: could not parse any model objects from response")
         return None
+
+    filtered = []
+    for m in all_models:
+        limits = _get_model_limits(m)
+        ctx = limits["max_context_window_tokens"] or 0
+        prompt = limits["max_prompt_tokens"] or 0
+        if ctx >= MIN_CONTEXT_WINDOW_TOKENS and prompt >= MIN_PROMPT_TOKENS:
+            filtered.append(m)
+    log.info(
+        "Copilot GET /models: %d models total, %d after token limit filter "
+        "(context >= %d, prompt >= %d)",
+        len(all_models), len(filtered), MIN_CONTEXT_WINDOW_TOKENS, MIN_PROMPT_TOKENS,
+    )
+
+    # Deduplicate by id while preserving order
     seen: set = set()
-    deduped: List[str] = []
-    for mid in raw_ids:
-        if mid not in seen:
+    deduped: List[Dict[str, Any]] = []
+    for m in filtered:
+        mid = m.get("id") or m.get("name") or ""
+        if mid and mid not in seen:
             seen.add(mid)
-            deduped.append(mid)
+            deduped.append(m)
     return deduped
 
 
@@ -428,20 +456,20 @@ def schedule_refresh_copilot_chat_models() -> None:
     """Background fetch of /models; debounced when cache already populated (token refresh)."""
 
     def run() -> None:
-        global _last_copilot_models_fetch_monotonic, _copilot_api_model_ids_cache
+        global _last_copilot_models_fetch_monotonic, _copilot_api_models_cache
         now = time.monotonic()
         with _copilot_models_cache_lock:
-            has_cache = _copilot_api_model_ids_cache is not None
+            has_cache = _copilot_api_models_cache is not None
         if has_cache and (now - _last_copilot_models_fetch_monotonic) < COPILOT_MODELS_FETCH_MIN_INTERVAL_SEC:
             return
-        ids = fetch_copilot_chat_model_ids_blocking()
-        if ids is None:
+        models = fetch_copilot_models_blocking()
+        if models is None:
             return
-        if len(ids) == 0:
-            log.warning("Copilot GET /models returned empty id list; keeping existing cache")
+        if len(models) == 0:
+            log.warning("Copilot GET /models returned no qualifying models; keeping existing cache")
             return
         with _copilot_models_cache_lock:
-            _copilot_api_model_ids_cache = ids
+            _copilot_api_models_cache = models
         _last_copilot_models_fetch_monotonic = now
         _emit_login_status_change()
 
