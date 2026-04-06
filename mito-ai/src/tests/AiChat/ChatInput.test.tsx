@@ -106,7 +106,8 @@ jest.mock('../../utils/notebook', () => ({
 const createMockProps = (overrides = {}) => ({
     app: {
         commands: {
-            execute: jest.fn()
+            execute: jest.fn(),
+            addCommand: jest.fn()
         }
     } as unknown as JupyterFrontEnd,
     initialContent: '',

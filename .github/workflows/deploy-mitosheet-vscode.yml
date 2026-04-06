@@ -1,0 +1,42 @@
+# The Personal Access Token (VSCE_PAT) is set to expire on April 1, 2027.
+# To get a new token, follow the instructions here:
+# https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token
+
+name: Deploy - mitosheet-vscode
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "mitosheet-vscode/**"
+      - ".github/workflows/deploy-mitosheet-vscode.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-mitosheet-vscode:
+    name: Publish VS Code extension
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mitosheet-vscode/package-lock.json
+
+      - name: Install dependencies
+        working-directory: mitosheet-vscode
+        run: npm ci
+
+      - name: Build
+        working-directory: mitosheet-vscode
+        run: npm run build
+
+      - name: Publish to Visual Studio Marketplace
+        working-directory: mitosheet-vscode
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx --yes @vscode/vsce publish

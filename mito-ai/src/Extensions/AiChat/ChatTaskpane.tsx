@@ -5,7 +5,7 @@
 
 // External libraries
 import { Compartment } from '@codemirror/state';
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -185,6 +185,25 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Ref to trigger refresh of the usage badge
     const usageBadgeRef = useRef<UsageBadgeRef>(null);
+
+    /** Brief border glow on the taskpane when context arrives from the DataFrame viewer */
+    const [attentionGlowActive, setAttentionGlowActive] = useState(false);
+
+    const handleDataframeViewerContextAdded = React.useCallback(() => {
+        setAttentionGlowActive(false);
+        requestAnimationFrame(() => {
+            setAttentionGlowActive(true);
+        });
+    }, []);
+
+    // Clear glow if animationend does not fire (e.g. reduced motion) or as a safety net
+    useEffect(() => {
+        if (!attentionGlowActive) {
+            return;
+        }
+        const t = window.setTimeout(() => setAttentionGlowActive(false), 1500);
+        return () => clearTimeout(t);
+    }, [attentionGlowActive]);
 
     // Streaming response management
     const { streamingContentRef, streamHandlerRef, activeRequestControllerRef } = useStreamingResponse();
@@ -1057,7 +1076,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     return (
         // We disable the chat taskpane if the user is not signed up AND there are no chat history items
-        <div className={classNames('chat-taskpane', { 'disabled': !(isSignedUp || displayOptimizedChatHistory.length > 0) })}>
+        <div
+            className={classNames('chat-taskpane', {
+                disabled: !(isSignedUp || displayOptimizedChatHistory.length > 0),
+            })}
+        >
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-left">
                     <IconButton
@@ -1253,6 +1276,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     agentTargetNotebookPanelRef={agentTargetNotebookPanelRef}
                     isSignedUp={isSignedUp}
                     canSendMessages={!ghCopilot.copilotBlocksChat}
+                    onDataframeViewerContextAdded={handleDataframeViewerContextAdded}
+                    attentionGlowActive={attentionGlowActive}
+                    onAttentionGlowAnimationEnd={() => setAttentionGlowActive(false)}
                 />
             </div>
             {agentExecution.agentExecutionStatus !== 'working' && agentExecution.agentExecutionStatus !== 'stopping' && (
