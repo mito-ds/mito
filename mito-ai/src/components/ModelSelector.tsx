@@ -119,6 +119,75 @@ interface ModelSelectorProps {
   onConfigChange: (config: ModelConfig) => void;
 }
 
+const toDisplayName = (fullModelName: string): string => {
+  const low = fullModelName.toLowerCase();
+  if (low.startsWith('copilot/')) {
+    return `${fullModelName.slice('copilot/'.length)} (Copilot)`;
+  }
+  if (fullModelName.includes('/')) {
+    return fullModelName;
+  }
+  return MODEL_MAPPINGS.find(m => m.fullName === fullModelName)?.displayName || fullModelName;
+};
+
+const resolveModelSelection = (
+  models: string[],
+  currentSelectedDisplayName?: string
+): { fullModelName: string; displayName: string } => {
+  const storedConfig = localStorage.getItem('llmModelConfig');
+  let preferredFullModelName: string | undefined;
+
+  if (storedConfig) {
+    try {
+      const parsedConfig = JSON.parse(storedConfig);
+      const storedModel = parsedConfig.model;
+      if (storedModel && typeof storedModel === 'string') {
+        preferredFullModelName = storedModel;
+      }
+    } catch (e) {
+      console.error('Failed to parse stored LLM config', e);
+    }
+  }
+
+  // Keep current UI-selected model when still valid after a Copilot model list refresh.
+  if (!preferredFullModelName && currentSelectedDisplayName) {
+    const fromCurrentDisplay = currentSelectedDisplayName.endsWith(' (Copilot)')
+      ? `copilot/${currentSelectedDisplayName.slice(0, -' (Copilot)'.length)}`
+      : MODEL_MAPPINGS.find(m => m.displayName === currentSelectedDisplayName)?.fullName ||
+        currentSelectedDisplayName;
+    preferredFullModelName = fromCurrentDisplay;
+  }
+
+  if (preferredFullModelName && models.includes(preferredFullModelName)) {
+    return {
+      fullModelName: preferredFullModelName,
+      displayName: toDisplayName(preferredFullModelName)
+    };
+  }
+
+  if (models.length > 0) {
+    const defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL);
+    if (defaultMapping && models.includes(defaultMapping.fullName)) {
+      return {
+        fullModelName: defaultMapping.fullName,
+        displayName: defaultMapping.displayName
+      };
+    }
+
+    const firstModel = models[0]!;
+    return {
+      fullModelName: firstModel,
+      displayName: toDisplayName(firstModel)
+    };
+  }
+
+  const defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL) || MODEL_MAPPINGS[0];
+  return {
+    fullModelName: defaultMapping?.fullName || GPT_4_1_MODEL_NAME,
+    displayName: defaultMapping?.displayName || GPT_4_1_DISPLAY_NAME
+  };
+};
+
 const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -134,74 +203,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
         setIsLoadingModels(true);
         const models = await getAvailableModels();
         setAvailableModels(models);
-        
-        // Load config from localStorage and validate against available models
-        const storedConfig = localStorage.getItem('llmModelConfig');
-        let fullModelName: string | undefined;
-        let displayName: string | undefined;
 
-        if (storedConfig) {
-          try {
-            const parsedConfig = JSON.parse(storedConfig);
-            const storedModel = parsedConfig.model;
-            if (storedModel && typeof storedModel === 'string') {
-              fullModelName = storedModel;
-              
-              // Check if model is in available models list
-              if (models.includes(fullModelName)) {
-                const low = fullModelName.toLowerCase();
-                if (low.startsWith('copilot/')) {
-                  displayName = `${fullModelName.slice('copilot/'.length)} (Copilot)`;
-                } else if (fullModelName.includes('/')) {
-                  displayName = fullModelName;
-                } else {
-                  displayName = MODEL_MAPPINGS.find(m => m.fullName === fullModelName)?.displayName;
-                }
-              }
-            }
-          } catch (e) {
-            console.error('Failed to parse stored LLM config', e);
-          }
-        }
-
-        // Fallback to default model or first available model if not found or invalid
-        if (!fullModelName || !displayName || (fullModelName && !models.includes(fullModelName))) {
-          if (models.length > 0) {
-            // First, try to use the default model if it's available
-            const defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL);
-            if (defaultMapping && models.includes(defaultMapping.fullName)) {
-              fullModelName = defaultMapping.fullName;
-              displayName = defaultMapping.displayName;
-            } else {
-              // Fallback to first available model
-              const firstModel = models[0];
-              fullModelName = firstModel;
-              if (firstModel && firstModel.toLowerCase().startsWith('copilot/')) {
-                displayName = `${firstModel.slice('copilot/'.length)} (Copilot)`;
-              } else if (firstModel && firstModel.includes('/')) {
-                displayName = firstModel;
-              } else {
-                displayName = MODEL_MAPPINGS.find(m => m.fullName === firstModel)?.displayName || firstModel;
-              }
-            }
-          } else {
-            // Fallback to default if no models available
-            const defaultMapping = MODEL_MAPPINGS.find(m => m.displayName === DEFAULT_MODEL) || MODEL_MAPPINGS[0];
-            if (defaultMapping) {
-              fullModelName = defaultMapping.fullName;
-              displayName = defaultMapping.displayName;
-            } else {
-              // Ultimate fallback
-              fullModelName = GPT_4_1_MODEL_NAME;
-              displayName = GPT_4_1_DISPLAY_NAME;
-            }
-          }
-        }
-
-        if (displayName && fullModelName) {
-          setSelectedModel(displayName);
-          onConfigChange({ model: fullModelName });
-        }
+        const resolved = resolveModelSelection(models);
+        setSelectedModel(resolved.displayName);
+        onConfigChange({ model: resolved.fullModelName });
       } catch (error) {
         console.error('Failed to fetch available models:', error);
         // Fallback to default models
@@ -219,9 +224,24 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
   useEffect(() => {
     const onCopilotModelsUpdated = (): void => {
       void (async () => {
+        const attemptDelays = [0, 1200, 3000];
         try {
-          const models = await getAvailableModels();
-          setAvailableModels(models);
+          for (const delayMs of attemptDelays) {
+            if (delayMs > 0) {
+              await new Promise(resolve => setTimeout(resolve, delayMs));
+            }
+            const models = await getAvailableModels();
+            setAvailableModels(models);
+            const resolved = resolveModelSelection(models, selectedModel);
+            setSelectedModel(resolved.displayName);
+            onConfigChange({ model: resolved.fullModelName });
+
+            // Stop retrying as soon as backend reports Copilot account-scoped models.
+            const hasCopilot = models.some(m => m.toLowerCase().startsWith('copilot/'));
+            if (hasCopilot) {
+              break;
+            }
+          }
         } catch (e) {
           console.error('Failed to refresh models after GitHub Copilot model list update', e);
         }
@@ -231,7 +251,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ onConfigChange }) => {
     return () => {
       window.removeEventListener('mito-github-copilot-models-updated', onCopilotModelsUpdated);
     };
-  }, []);
+  }, [onConfigChange, selectedModel]);
 
   const handleModelChange = (modelName: string): void => {
     if (!modelName) {
