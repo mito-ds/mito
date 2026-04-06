@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   fetchGithubCopilotLoginStatus,
   logoutGithubCopilot,
@@ -15,7 +15,6 @@ import type {
   CompleterMessage,
   IGithubCopilotLoginStatus
 } from '../../../websockets/completions/CompletionModels';
-import '../../../../style/GithubCopilotBanner.css';
 
 type CopilotUiState = {
   enabled: boolean;
@@ -31,19 +30,28 @@ const DEFAULT_STATE: CopilotUiState = {
   store_github_access_token: false
 };
 
-interface IGithubCopilotChatBannerProps {
-  websocketClient: CompletionWebsocketClient;
-}
-
 /**
- * Shown in the chat taskpane when the server has GitHub Copilot mode (helper package installed).
+ * GitHub Copilot device-login state when mito-ai-helper-github-copilot is installed.
  */
-export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = ({
-  websocketClient
-}) => {
+export const useGithubCopilotLogin = (
+  websocketClient: CompletionWebsocketClient
+): {
+  enabled: boolean;
+  status: string;
+  verification_uri?: string;
+  user_code?: string;
+  store_github_access_token: boolean;
+  loading: boolean;
+  loginError: string | null;
+  copilotBlocksChat: boolean;
+  onSignIn: () => Promise<void>;
+  onLogout: () => Promise<void>;
+  onToggleStore: (store: boolean) => Promise<void>;
+} => {
   const [state, setState] = useState<CopilotUiState>(DEFAULT_STATE);
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const previousStatusRef = useRef<string>(DEFAULT_STATE.status);
 
   const applyPayload = useCallback((payload: unknown) => {
     if (!payload || typeof payload !== 'object') {
@@ -63,6 +71,34 @@ export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = 
     }));
   }, []);
 
+  const applyServerStatus = useCallback((latest: {
+    status: string;
+    verification_uri?: string;
+    user_code?: string;
+    store_github_access_token?: boolean;
+    available_chat_models?: string[];
+  }) => {
+    setState(s => ({
+      ...s,
+      enabled: true,
+      status: latest.status,
+      verification_uri: latest.verification_uri,
+      user_code: latest.user_code,
+      store_github_access_token: Boolean(latest.store_github_access_token)
+    }));
+
+    // Refresh model selector as soon as sign-in completes, even if /models payload arrives later.
+    const transitionedToLoggedIn =
+      previousStatusRef.current !== 'LOGGED_IN' && latest.status === 'LOGGED_IN';
+    if (
+      transitionedToLoggedIn ||
+      (latest.available_chat_models && latest.available_chat_models.length > 0)
+    ) {
+      window.dispatchEvent(new CustomEvent('mito-github-copilot-models-updated'));
+    }
+    previousStatusRef.current = latest.status;
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -74,21 +110,12 @@ export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = 
         setState(DEFAULT_STATE);
         return;
       }
-      setState({
-        enabled: true,
-        status: initial.status,
-        verification_uri: initial.verification_uri,
-        user_code: initial.user_code,
-        store_github_access_token: Boolean(initial.store_github_access_token)
-      });
-      if (initial.available_chat_models && initial.available_chat_models.length > 0) {
-        window.dispatchEvent(new CustomEvent('mito-github-copilot-models-updated'));
-      }
+      applyServerStatus(initial);
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [applyServerStatus]);
 
   useEffect(() => {
     if (!state.enabled) {
@@ -106,6 +133,7 @@ export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = 
         if (m.available_chat_models && m.available_chat_models.length > 0) {
           window.dispatchEvent(new CustomEvent('mito-github-copilot-models-updated'));
         }
+        previousStatusRef.current = m.status;
       }
     };
 
@@ -115,11 +143,29 @@ export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = 
     };
   }, [state.enabled, websocketClient, applyPayload]);
 
-  if (!state.enabled) {
-    return null;
-  }
+  // Poll while waiting for device login completion. This avoids getting stuck
+  // on ACTIVATING_DEVICE if websocket pushes are delayed or missed.
+  useEffect(() => {
+    if (!state.enabled || state.status === 'LOGGED_IN') {
+      return;
+    }
 
-  const onSignIn = async (): Promise<void> => {
+    const intervalId = window.setInterval(() => {
+      void (async () => {
+        const latest = await fetchGithubCopilotLoginStatus();
+        if (!latest) {
+          return;
+        }
+        applyServerStatus(latest);
+      })();
+    }, 1500);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [state.enabled, state.status, applyServerStatus]);
+
+  const onSignIn = useCallback(async (): Promise<void> => {
     setLoginError(null);
     setLoading(true);
     try {
@@ -128,7 +174,6 @@ export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = 
         setLoginError(res.error);
         return;
       }
-      // Use POST body first so user_code shows immediately (same payload as login-status).
       if (res && 'status' in res) {
         setState(s => ({
           ...s,
@@ -144,21 +189,14 @@ export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = 
       }
       const latest = await fetchGithubCopilotLoginStatus();
       if (latest) {
-        setState(s => ({
-          ...s,
-          enabled: true,
-          status: latest.status,
-          verification_uri: latest.verification_uri,
-          user_code: latest.user_code,
-          store_github_access_token: Boolean(latest.store_github_access_token)
-        }));
+        applyServerStatus(latest);
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [applyServerStatus]);
 
-  const onLogout = async (): Promise<void> => {
+  const onLogout = useCallback(async (): Promise<void> => {
     setLoading(true);
     try {
       const res = await logoutGithubCopilot();
@@ -166,78 +204,28 @@ export const GithubCopilotChatBanner: React.FC<IGithubCopilotChatBannerProps> = 
     } finally {
       setLoading(false);
     }
-  };
+  }, [applyPayload]);
 
-  const onToggleStore = async (store: boolean): Promise<void> => {
+  const onToggleStore = useCallback(async (store: boolean): Promise<void> => {
     const ok = await setGithubCopilotStoreTokenPreference(store);
     if (ok) {
       setState(s => ({ ...s, store_github_access_token: store }));
     }
-  };
+  }, []);
 
-  return (
-    <div className="github-copilot-banner">
-      <div className="github-copilot-banner-title">GitHub Copilot</div>
-      {state.status === 'LOGGED_IN' ? (
-        <div className="github-copilot-banner-row">
-          <span className="github-copilot-banner-ok">Signed in</span>
-          <button
-            type="button"
-            className="github-copilot-banner-link"
-            disabled={loading}
-            onClick={() => void onLogout()}
-          >
-            Sign out
-          </button>
-        </div>
-      ) : null}
-      {state.status === 'NOT_LOGGED_IN' ? (
-        <div className="github-copilot-banner-col">
-          <p className="github-copilot-banner-hint">
-            Sign in with GitHub to use Copilot models in this deployment.
-          </p>
-          <label className="github-copilot-banner-check">
-            <input
-              type="checkbox"
-              checked={state.store_github_access_token}
-              onChange={e => void onToggleStore(e.target.checked)}
-            />
-            Remember GitHub sign-in on this machine (encrypted local file)
-          </label>
-          {loginError ? <p className="github-copilot-banner-error">{loginError}</p> : null}
-          <button
-            type="button"
-            className="github-copilot-banner-primary"
-            disabled={loading}
-            onClick={() => void onSignIn()}
-          >
-            {loading ? 'Starting…' : 'Sign in with GitHub'}
-          </button>
-        </div>
-      ) : null}
-      {state.status === 'ACTIVATING_DEVICE' ? (
-        <div className="github-copilot-banner-col">
-          <p className="github-copilot-banner-hint">
-            Open GitHub and enter this code to authorize Copilot:
-          </p>
-          {state.user_code ? (
-            <div className="github-copilot-banner-code">{state.user_code}</div>
-          ) : null}
-          {state.verification_uri ? (
-            <a
-              href={state.verification_uri}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="github-copilot-banner-link"
-            >
-              Open GitHub device login
-            </a>
-          ) : null}
-        </div>
-      ) : null}
-      {state.status === 'LOGGING_IN' ? (
-        <p className="github-copilot-banner-hint">Finishing sign-in with GitHub Copilot…</p>
-      ) : null}
-    </div>
-  );
+  const copilotBlocksChat = state.enabled && state.status !== 'LOGGED_IN';
+
+  return {
+    enabled: state.enabled,
+    status: state.status,
+    verification_uri: state.verification_uri,
+    user_code: state.user_code,
+    store_github_access_token: state.store_github_access_token,
+    loading,
+    loginError,
+    copilotBlocksChat,
+    onSignIn,
+    onLogout,
+    onToggleStore
+  };
 };

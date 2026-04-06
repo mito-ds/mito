@@ -1,0 +1,151 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.github-copilot-sso-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 28px;
+  min-height: min(420px, 58vh);
+  max-width: 420px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.github-copilot-sso-hero--compact {
+  min-height: unset;
+  padding: 20px 16px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--jp-border-color1, #d0d7de);
+  background: var(--jp-layout-color1, #ffffff);
+}
+
+.github-copilot-sso-card {
+  width: 100%;
+  padding: 28px 24px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--jp-border-color1, #d0d7de);
+  background: var(--jp-layout-color1, #ffffff);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.github-copilot-sso-hero--compact .github-copilot-sso-card {
+  box-shadow: none;
+  border: none;
+  padding: 0;
+}
+
+.github-copilot-sso-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--jp-layout-color2, #f6f8fa);
+  border: 1px solid var(--jp-border-color1, #d0d7de);
+}
+
+.github-copilot-sso-title {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--jp-content-font-color1, #1f2328);
+}
+
+.github-copilot-sso-subtitle {
+  margin: 0 0 24px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--jp-content-font-color2, #656d76);
+}
+
+.github-copilot-sso-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 280px;
+  padding: 12px 20px;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 6px;
+  background: #24292f;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(27, 31, 36, 0.1);
+}
+
+.github-copilot-sso-btn:hover:not(:disabled) {
+  background: #1c2127;
+}
+
+.github-copilot-sso-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.github-copilot-sso-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 20px auto 0;
+  max-width: 280px;
+  text-align: left;
+  font-size: 0.8125rem;
+  color: var(--jp-content-font-color2, #57606a);
+  cursor: pointer;
+}
+
+.github-copilot-sso-check input {
+  margin-top: 2px;
+}
+
+.github-copilot-sso-error {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  color: var(--red-500, #cf222e);
+}
+
+.github-copilot-sso-hint {
+  margin: 16px 0 0;
+  font-size: 0.8125rem;
+  color: var(--jp-content-font-color2, #57606a);
+  line-height: 1.45;
+}
+
+.github-copilot-sso-code {
+  font-family: var(--jp-code-font-family, ui-monospace, monospace);
+  font-size: 1.125rem;
+  letter-spacing: 0.12em;
+  padding: 10px 16px;
+  margin: 12px 0;
+  background: var(--jp-layout-color2, #f6f8fa);
+  border-radius: 6px;
+  border: 1px dashed var(--jp-border-color1, #d0d7de);
+}
+
+.github-copilot-sso-link {
+  display: inline-block;
+  margin-top: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--purple-700, #0969da);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
+.github-copilot-sso-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
