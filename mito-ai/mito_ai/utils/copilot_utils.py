@@ -41,13 +41,7 @@ def _response_format_payload_for_copilot(
 
 
 def _normalize_messages(messages: List[Any]) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
-    for m in messages:
-        if isinstance(m, dict):
-            out.append(dict(m))
-        else:
-            out.append(dict(m))  # type: ignore[arg-type]
-    return out
+    return [dict(m) for m in messages]  # type: ignore[arg-type]
 
 
 def _aggregate_streaming_response(client: sseclient.SSEClient) -> Dict[str, Any]:
