@@ -75,7 +75,9 @@ _copilot_models_cache_lock = threading.Lock()
 _last_copilot_models_fetch_monotonic: float = -1e9
 COPILOT_MODELS_FETCH_MIN_INTERVAL_SEC = 90.0
 
+# Total capacity (input + output) a model must support.
 MIN_CONTEXT_WINDOW_TOKENS = 128_000
+# Max input tokens (system prompt, conversation, code context) a model must accept.
 MIN_PROMPT_TOKENS = 128_000
 
 _get_access_code_thread: Optional[threading.Thread] = None
