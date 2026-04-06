@@ -10,7 +10,6 @@ from mito_ai.copilot.handlers import (
     GitHubCopilotLoginHandler,
     GitHubCopilotLoginStatusHandler,
     GitHubCopilotLogoutHandler,
-    GitHubCopilotStoreTokenPreferenceHandler,
 )
 
 
@@ -32,11 +31,6 @@ def get_github_copilot_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
         (
             url_path_join(base, "github-copilot", "logout"),
             GitHubCopilotLogoutHandler,
-            {},
-        ),
-        (
-            url_path_join(base, "github-copilot", "store-token-preference"),
-            GitHubCopilotStoreTokenPreferenceHandler,
             {},
         ),
     ]

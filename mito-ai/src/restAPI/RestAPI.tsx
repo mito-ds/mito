@@ -190,7 +190,6 @@ GITHUB COPILOT (only when mito-ai-helper-github-copilot is installed on the serv
 
 export interface GithubCopilotLoginStatusPayload {
   status: string;
-  store_github_access_token?: boolean;
   verification_uri?: string;
   user_code?: string;
   available_chat_models?: string[];
@@ -232,14 +231,6 @@ export const logoutGithubCopilot = async (): Promise<GithubCopilotLoginStatusPay
     return null;
   }
   return resp.data ?? null;
-};
-
-export const setGithubCopilotStoreTokenPreference = async (store: boolean): Promise<boolean> => {
-  const resp = await requestAPI<{ success?: boolean }>('github-copilot/store-token-preference', {
-    method: 'PUT',
-    body: JSON.stringify({ store })
-  });
-  return !resp.error && Boolean(resp.data?.success);
 };
 
 /************************************

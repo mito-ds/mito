@@ -7,7 +7,6 @@ GitHub Copilot via HTTPS (device OAuth + copilot_internal token + SSE chat).
 
 from __future__ import annotations
 
-import base64
 import datetime as dt
 import json
 import logging
@@ -23,7 +22,6 @@ import requests
 import sseclient
 
 from mito_ai.completions.models import ResponseFormatInfo
-from mito_ai.copilot.crypto_util import decrypt_with_password, encrypt_with_password
 from mito_ai.utils.open_ai_utils import get_open_ai_completion_function_params
 
 log = logging.getLogger(__name__)
@@ -72,11 +70,6 @@ ACCESS_TOKEN_THREAD_SLEEP_INTERVAL = 5
 TOKEN_THREAD_SLEEP_INTERVAL = 3
 TOKEN_FETCH_INTERVAL = 15
 
-MITO_USER_DIR = os.path.join(os.path.expanduser("~"), ".jupyter", "mito")
-USER_DATA_FILE = os.path.join(MITO_USER_DIR, "user-data.json")
-ACCESS_TOKEN_PASSWORD = os.environ.get(
-    "MITO_AI_GH_ACCESS_TOKEN_PASSWORD", "mito-ai-github-access-token-password"
-)
 
 
 class LoginStatus(str, Enum):
@@ -107,8 +100,6 @@ COPILOT_MODELS_FETCH_MIN_INTERVAL_SEC = 90.0
 _get_access_code_thread: Optional[threading.Thread] = None
 _get_token_thread: Optional[threading.Thread] = None
 _last_token_fetch_time = dt.datetime.now() + dt.timedelta(seconds=-TOKEN_FETCH_INTERVAL)
-_remember_github_access_token = False
-_github_access_token_provided: Optional[str] = None
 
 _login_status_listeners_enabled = False
 
@@ -147,7 +138,6 @@ def get_login_status() -> Dict[str, Any]:
         "status": github_auth["status"].value
         if isinstance(github_auth["status"], LoginStatus)
         else str(github_auth["status"]),
-        "store_github_access_token": get_store_github_access_token_preference(),
     }
     if github_auth["status"] is LoginStatus.ACTIVATING_DEVICE:
         response.update(
@@ -163,114 +153,12 @@ def get_login_status() -> Dict[str, Any]:
     return response
 
 
-def read_stored_github_access_token() -> Optional[str]:
-    try:
-        if os.path.exists(USER_DATA_FILE):
-            with open(USER_DATA_FILE, "r", encoding="utf-8") as f:
-                user_data = json.load(f)
-        else:
-            user_data = {}
-        b64 = user_data.get("github_access_token")
-        if b64 is None:
-            return None
-        raw = base64.b64decode(b64.encode("utf-8"))
-        return decrypt_with_password(ACCESS_TOKEN_PASSWORD, raw).decode("utf-8")
-    except Exception as e:
-        log.error("Failed to read GitHub access token: %s", e)
-        return None
-
-
-def write_github_access_token(access_token: str) -> bool:
-    try:
-        enc = encrypt_with_password(ACCESS_TOKEN_PASSWORD, access_token.encode("utf-8"))
-        b64 = base64.b64encode(enc).decode("utf-8")
-        os.makedirs(MITO_USER_DIR, exist_ok=True)
-        user_data: Dict[str, Any] = {}
-        if os.path.exists(USER_DATA_FILE):
-            with open(USER_DATA_FILE, "r", encoding="utf-8") as f:
-                user_data = json.load(f)
-        user_data["github_access_token"] = b64
-        with open(USER_DATA_FILE, "w", encoding="utf-8") as f:
-            json.dump(user_data, f, indent=2)
-        return True
-    except Exception as e:
-        log.error("Failed to write GitHub access token: %s", e)
-        return False
-
-
-def delete_stored_github_access_token() -> bool:
-    if not os.path.exists(USER_DATA_FILE):
-        return False
-    try:
-        with open(USER_DATA_FILE, "r", encoding="utf-8") as f:
-            user_data = json.load(f)
-        user_data.pop("github_access_token", None)
-        with open(USER_DATA_FILE, "w", encoding="utf-8") as f:
-            json.dump(user_data, f, indent=2)
-        return True
-    except Exception as e:
-        log.error("Failed to delete GitHub access token: %s", e)
-        return False
-
-
-def get_store_github_access_token_preference() -> bool:
-    if not os.path.exists(USER_DATA_FILE):
-        return False
-    try:
-        with open(USER_DATA_FILE, "r", encoding="utf-8") as f:
-            user_data = json.load(f)
-        return bool(user_data.get("store_github_access_token", False))
-    except Exception:
-        return False
-
-
-def set_store_github_access_token_preference(store: bool) -> None:
-    os.makedirs(MITO_USER_DIR, exist_ok=True)
-    user_data: Dict[str, Any] = {}
-    if os.path.exists(USER_DATA_FILE):
-        with open(USER_DATA_FILE, "r", encoding="utf-8") as f:
-            user_data = json.load(f)
-    user_data["store_github_access_token"] = store
-    with open(USER_DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(user_data, f, indent=2)
-    if store:
-        tok = github_auth.get("access_token")
-        if tok:
-            write_github_access_token(tok)
-    else:
-        delete_stored_github_access_token()
-
-
-def login_with_existing_credentials(store_access_token: Optional[bool] = None) -> None:
-    global _github_access_token_provided, _remember_github_access_token
-
-    if github_auth["status"] is not LoginStatus.NOT_LOGGED_IN:
-        return
-
-    if store_access_token is None:
-        store_access_token = get_store_github_access_token_preference()
-
-    if store_access_token:
-        _github_access_token_provided = read_stored_github_access_token()
-        _remember_github_access_token = True
-    else:
-        delete_stored_github_access_token()
-        _github_access_token_provided = None
-        _remember_github_access_token = False
-
-    if _github_access_token_provided is not None:
-        github_auth["access_token"] = _github_access_token_provided
-        get_token()
-        wait_for_tokens()
-
-
 def login() -> Optional[Dict[str, Any]]:
     return get_device_verification_info()
 
 
 def logout() -> Dict[str, Any]:
-    global _github_access_token_provided, _last_copilot_models_fetch_monotonic, _copilot_api_model_ids_cache
-    _github_access_token_provided = None
+    global _last_copilot_models_fetch_monotonic, _copilot_api_model_ids_cache
     with _copilot_models_cache_lock:
         _copilot_api_model_ids_cache = None
     _last_copilot_models_fetch_monotonic = -1e9
@@ -338,12 +226,7 @@ def get_device_verification_info() -> Optional[Dict[str, Any]]:
 
 
 def _wait_for_user_access_token_thread_func() -> None:
-    global github_auth, _get_access_code_thread, _github_access_token_provided
-
-    if _github_access_token_provided is not None and github_auth.get("device_code") is None:
-        log.info("Using existing GitHub access token from disk")
-        _get_access_code_thread = None
-        return
+    global github_auth, _get_access_code_thread
 
     while True:
         if (
@@ -378,8 +261,6 @@ def _wait_for_user_access_token_thread_func() -> None:
                 github_auth["access_token"] = access_token
                 get_token()
                 _get_access_code_thread = None
-                if _remember_github_access_token:
-                    write_github_access_token(access_token)
                 break
         except Exception as e:
             log.error("Failed to get access token from GitHub: %s", e)
@@ -388,7 +269,7 @@ def _wait_for_user_access_token_thread_func() -> None:
 
 
 def get_token() -> None:
-    global github_auth, _github_access_token_provided, API_ENDPOINT, PROXY_ENDPOINT, TOKEN_REFRESH_INTERVAL
+    global github_auth, API_ENDPOINT, PROXY_ENDPOINT, TOKEN_REFRESH_INTERVAL
     access_token = github_auth["access_token"]
     if access_token is None:
         return
@@ -409,7 +290,6 @@ def get_token() -> None:
         )
         resp_json = resp.json()
         if resp.status_code == 401:
-            _github_access_token_provided = None
             logout()
             wait_for_tokens()
             return

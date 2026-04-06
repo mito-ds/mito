@@ -7,7 +7,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   fetchGithubCopilotLoginStatus,
   logoutGithubCopilot,
-  setGithubCopilotStoreTokenPreference,
   startGithubCopilotDeviceLogin
 } from '../../../restAPI/RestAPI';
 import type { CompletionWebsocketClient } from '../../../websockets/completions/CompletionsWebsocketClient';
@@ -21,13 +20,11 @@ type CopilotUiState = {
   status: string;
   verification_uri?: string;
   user_code?: string;
-  store_github_access_token: boolean;
 };
 
 const DEFAULT_STATE: CopilotUiState = {
   enabled: false,
   status: 'NOT_LOGGED_IN',
-  store_github_access_token: false
 };
 
 /**
@@ -40,13 +37,11 @@ export const useGithubCopilotLogin = (
   status: string;
   verification_uri?: string;
   user_code?: string;
-  store_github_access_token: boolean;
   loading: boolean;
   loginError: string | null;
   copilotBlocksChat: boolean;
   onSignIn: () => Promise<void>;
   onLogout: () => Promise<void>;
-  onToggleStore: (store: boolean) => Promise<void>;
 } => {
   const [state, setState] = useState<CopilotUiState>(DEFAULT_STATE);
   const [loading, setLoading] = useState(false);
@@ -64,10 +59,6 @@ export const useGithubCopilotLogin = (
       verification_uri:
         typeof p.verification_uri === 'string' ? p.verification_uri : undefined,
       user_code: typeof p.user_code === 'string' ? p.user_code : undefined,
-      store_github_access_token:
-        typeof p.store_github_access_token === 'boolean'
-          ? p.store_github_access_token
-          : prev.store_github_access_token
     }));
   }, []);
 
@@ -75,7 +66,6 @@ export const useGithubCopilotLogin = (
     status: string;
     verification_uri?: string;
     user_code?: string;
-    store_github_access_token?: boolean;
     available_chat_models?: string[];
   }) => {
     setState(s => ({
@@ -84,7 +74,6 @@ export const useGithubCopilotLogin = (
       status: latest.status,
       verification_uri: latest.verification_uri,
       user_code: latest.user_code,
-      store_github_access_token: Boolean(latest.store_github_access_token)
     }));
 
     // Refresh model selector as soon as sign-in completes, even if /models payload arrives later.
@@ -181,10 +170,6 @@ export const useGithubCopilotLogin = (
           status: res.status,
           verification_uri: res.verification_uri,
           user_code: res.user_code,
-          store_github_access_token:
-            typeof res.store_github_access_token === 'boolean'
-              ? res.store_github_access_token
-              : s.store_github_access_token
         }));
       }
       const latest = await fetchGithubCopilotLoginStatus();
@@ -206,13 +191,6 @@ export const useGithubCopilotLogin = (
     }
   }, [applyPayload]);
 
-  const onToggleStore = useCallback(async (store: boolean): Promise<void> => {
-    const ok = await setGithubCopilotStoreTokenPreference(store);
-    if (ok) {
-      setState(s => ({ ...s, store_github_access_token: store }));
-    }
-  }, []);
-
   const copilotBlocksChat = state.enabled && state.status !== 'LOGGED_IN';
 
   return {
@@ -220,12 +198,10 @@ export const useGithubCopilotLogin = (
     status: state.status,
     verification_uri: state.verification_uri,
     user_code: state.user_code,
-    store_github_access_token: state.store_github_access_token,
     loading,
     loginError,
     copilotBlocksChat,
     onSignIn,
     onLogout,
-    onToggleStore
   };
 };

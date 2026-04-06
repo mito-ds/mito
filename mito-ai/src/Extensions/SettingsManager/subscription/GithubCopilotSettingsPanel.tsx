@@ -7,7 +7,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   fetchGithubCopilotLoginStatus,
   logoutGithubCopilot,
-  setGithubCopilotStoreTokenPreference,
   startGithubCopilotDeviceLogin
 } from '../../../restAPI/RestAPI';
 import '../../../../style/GithubCopilotBanner.css';
@@ -17,13 +16,11 @@ type PanelState = {
   status: string;
   verification_uri?: string;
   user_code?: string;
-  store_github_access_token: boolean;
 };
 
 const INITIAL: PanelState = {
   visible: false,
   status: 'NOT_LOGGED_IN',
-  store_github_access_token: false
 };
 
 /**
@@ -45,7 +42,6 @@ export const GithubCopilotSettingsPanel = (): JSX.Element | null => {
       status: data.status,
       verification_uri: data.verification_uri,
       user_code: data.user_code,
-      store_github_access_token: Boolean(data.store_github_access_token)
     });
   }, []);
 
@@ -82,13 +78,6 @@ export const GithubCopilotSettingsPanel = (): JSX.Element | null => {
     }
   };
 
-  const onToggleStore = async (store: boolean): Promise<void> => {
-    const ok = await setGithubCopilotStoreTokenPreference(store);
-    if (ok) {
-      setState(s => ({ ...s, store_github_access_token: store }));
-    }
-  };
-
   return (
     <div className="subscription-page-card" style={{ marginBottom: 16 }}>
       <div className="subscription-page-card-content">
@@ -111,14 +100,6 @@ export const GithubCopilotSettingsPanel = (): JSX.Element | null => {
         ) : null}
         {state.status === 'NOT_LOGGED_IN' ? (
           <div className="github-copilot-banner-col">
-            <label className="github-copilot-banner-check">
-              <input
-                type="checkbox"
-                checked={state.store_github_access_token}
-                onChange={e => void onToggleStore(e.target.checked)}
-              />
-              Remember GitHub sign-in on this machine
-            </label>
             {err ? <p className="github-copilot-banner-error">{err}</p> : null}
             <button
               type="button"

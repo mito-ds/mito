@@ -21,11 +21,9 @@ export interface IGithubCopilotSignInHeroProps {
   status: string;
   verification_uri?: string;
   user_code?: string;
-  store_github_access_token: boolean;
   loading: boolean;
   loginError: string | null;
   onSignIn: () => Promise<void>;
-  onToggleStore: (store: boolean) => Promise<void>;
 }
 
 /**
@@ -36,11 +34,9 @@ export const GithubCopilotSignInHero: React.FC<IGithubCopilotSignInHeroProps> = 
   status,
   verification_uri,
   user_code,
-  store_github_access_token,
   loading,
   loginError,
   onSignIn,
-  onToggleStore
 }) => {
   const rootClass =
     variant === 'compact'
@@ -69,14 +65,6 @@ export const GithubCopilotSignInHero: React.FC<IGithubCopilotSignInHeroProps> = 
             >
               {loading ? 'Connecting…' : 'Sign in with GitHub'}
             </button>
-            <label className="github-copilot-sso-check">
-              <input
-                type="checkbox"
-                checked={store_github_access_token}
-                onChange={e => void onToggleStore(e.target.checked)}
-              />
-              <span>Remember this sign-in on this machine (encrypted local file)</span>
-            </label>
             {loginError ? <p className="github-copilot-sso-error">{loginError}</p> : null}
           </>
         ) : null}

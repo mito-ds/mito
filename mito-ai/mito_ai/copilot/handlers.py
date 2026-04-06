@@ -39,15 +39,3 @@ class GitHubCopilotLogoutHandler(APIHandler):
         self.finish(json.dumps(copilot_service.logout()))
 
 
-class GitHubCopilotStoreTokenPreferenceHandler(APIHandler):
-    @tornado.web.authenticated
-    def put(self) -> None:
-        try:
-            body = json.loads(self.request.body.decode("utf-8") or "{}")
-        except json.JSONDecodeError:
-            self.set_status(400)
-            self.finish(json.dumps({"error": "Invalid JSON"}))
-            return
-        store = bool(body.get("store", False))
-        copilot_service.set_store_github_access_token_preference(store)
-        self.finish(json.dumps({"success": True}))

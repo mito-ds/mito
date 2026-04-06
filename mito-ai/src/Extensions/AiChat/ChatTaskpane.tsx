@@ -1111,11 +1111,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         status={ghCopilot.status}
                         verification_uri={ghCopilot.verification_uri}
                         user_code={ghCopilot.user_code}
-                        store_github_access_token={ghCopilot.store_github_access_token}
                         loading={ghCopilot.loading}
                         loginError={ghCopilot.loginError}
                         onSignIn={ghCopilot.onSignIn}
-                        onToggleStore={ghCopilot.onToggleStore}
                     />
                 ) : null}
                 {displayOptimizedChatHistory.length === 0 &&
@@ -1126,11 +1124,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 status={ghCopilot.status}
                                 verification_uri={ghCopilot.verification_uri}
                                 user_code={ghCopilot.user_code}
-                                store_github_access_token={ghCopilot.store_github_access_token}
                                 loading={ghCopilot.loading}
                                 loginError={ghCopilot.loginError}
                                 onSignIn={ghCopilot.onSignIn}
-                                onToggleStore={ghCopilot.onToggleStore}
                             />
                         ) : isSignedUp === false
                             ? <SignUpForm onSignUpSuccess={refreshUserSignupState} />

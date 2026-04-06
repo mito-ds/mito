@@ -108,7 +108,6 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
         from mito_ai.copilot import service as copilot_service
 
         copilot_service.set_login_status_push_enabled(True)
-        copilot_service.login_with_existing_credentials(None)
     
     # Log enterprise mode status and router configuration
     if is_enterprise():
