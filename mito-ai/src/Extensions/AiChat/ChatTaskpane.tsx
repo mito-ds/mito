@@ -80,7 +80,6 @@ import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPa
 // Internal imports - Chat components
 import AgentReviewPanel from './components/AgentReviewPanel';
 import { GithubCopilotSignInHero } from './components/GithubCopilotSignInHero';
-import { GithubCopilotSignedInBar } from './components/GithubCopilotSignedInBar';
 import CTACarousel from './CTACarousel';
 import UsageBadge, { UsageBadgeRef } from './UsageBadge';
 import SignUpForm from './SignUpForm';
@@ -1059,9 +1058,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     return (
         // We disable the chat taskpane if the user is not signed up AND there are no chat history items
         <div className={classNames('chat-taskpane', { 'disabled': !(isSignedUp || displayOptimizedChatHistory.length > 0) })}>
-            {ghCopilot.enabled && ghCopilot.status === 'LOGGED_IN' ? (
-                <GithubCopilotSignedInBar loading={ghCopilot.loading} onLogout={ghCopilot.onLogout} />
-            ) : null}
             <div className="chat-taskpane-header">
                 <div className="chat-taskpane-header-left">
                     <IconButton
