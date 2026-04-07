@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import atexit
 from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
@@ -36,6 +37,40 @@ from mito_ai.copilot.urls import get_github_copilot_urls
 
 import os
 os.environ["MPLBACKEND"] = "module://matplotlib_inline.backend_inline"
+
+_shutdown_cleanup_registered = False
+_shutdown_cleanup_ran = False
+
+
+def _run_extension_shutdown_cleanup(server_app) -> None:  # type: ignore
+    global _shutdown_cleanup_ran
+    if _shutdown_cleanup_ran:
+        return
+    _shutdown_cleanup_ran = True
+    _unload_jupyter_server_extension(server_app)
+
+
+def _register_shutdown_cleanup(server_app) -> None:  # type: ignore
+    """
+    Register a deterministic shutdown callback so unload cleanup is executed
+    when the Jupyter server process stops.
+    """
+    global _shutdown_cleanup_registered
+    if _shutdown_cleanup_registered:
+        return
+
+    original_stop = getattr(server_app, "stop", None)
+    if callable(original_stop):
+        def _stop_with_cleanup(*args, **kwargs):  # type: ignore
+            _run_extension_shutdown_cleanup(server_app)
+            return original_stop(*args, **kwargs)
+
+        setattr(server_app, "stop", _stop_with_cleanup)
+
+    # Fallback for exit paths that bypass ServerApp.stop()
+    atexit.register(_run_extension_shutdown_cleanup, server_app)
+    _shutdown_cleanup_registered = True
+
 
 def _jupyter_labextension_paths() -> List[Dict[str, str]]:
     return [{"src": "labextension", "dest": "mito_ai"}]
@@ -103,6 +138,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     handlers.extend(get_github_copilot_urls(base_url))  # type: ignore
 
     web_app.add_handlers(host_pattern, handlers)
+    _register_shutdown_cleanup(server_app)
 
     if is_github_copilot_helper_installed():
         from mito_ai.copilot import service as copilot_service
