@@ -879,6 +879,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [websocketClient]);
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
+    const showCopilotSignInOnly = ghCopilot.copilotBlocksChat;
 
     const resetForNewMessage = (): void => {
         /* 
@@ -1128,9 +1129,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 </div>
             </div>
             <div className="chat-messages" ref={chatTaskpaneMessagesRef}>
-                {ghCopilot.enabled && ghCopilot.status !== 'LOGGED_IN' && displayOptimizedChatHistory.length > 0 ? (
+                {showCopilotSignInOnly ? (
                     <GithubCopilotSignInHero
-                        variant="compact"
+                        variant="full"
                         status={ghCopilot.status}
                         verification_uri={ghCopilot.verification_uri}
                         user_code={ghCopilot.user_code}
@@ -1139,25 +1140,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         onSignIn={ghCopilot.onSignIn}
                     />
                 ) : null}
-                {displayOptimizedChatHistory.length === 0 &&
+                {!showCopilotSignInOnly && displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
-                        {ghCopilot.enabled && ghCopilot.status !== 'LOGGED_IN' ? (
-                            <GithubCopilotSignInHero
-                                variant="full"
-                                status={ghCopilot.status}
-                                verification_uri={ghCopilot.verification_uri}
-                                user_code={ghCopilot.user_code}
-                                loading={ghCopilot.loading}
-                                loginError={ghCopilot.loginError}
-                                onSignIn={ghCopilot.onSignIn}
-                            />
-                        ) : isSignedUp === false
+                        {isSignedUp === false
                             ? <SignUpForm onSignUpSuccess={refreshUserSignupState} />
                             : <CTACarousel app={app} />
                         }
                     </div>
                 }
-                {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
+                {!showCopilotSignInOnly && processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     if (isGroupedErrorMessages(displayOptimizedChat)) {
                         return (
                             <GroupedErrorsAndFixes
@@ -1209,7 +1200,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         Running code <LoadingDots />
                     </div>
                 }
-                {/* Agent review panel - handles all agent review UI */}
                 <AgentReviewPanel
                     hasCheckpoint={hasCheckpoint}
                     agentModeEnabled={agentModeEnabled}
