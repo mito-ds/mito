@@ -36,22 +36,6 @@ jupyter lab --OpenAIProvider.max_completion_tokens 20 --OpenAIProvider.temperatu
 
 > If a value is incorrect, an error message will be displayed in the terminal logs.
 
-### GitHub Copilot (`mito-ai-helper-github-copilot`)
-
-When the optional package `mito-ai-helper-github-copilot` is installed, Mito AI can use GitHub Copilot over HTTPS (device login + Copilot API).
-
-The OAuth client ID (`Iv1.b507a08c87ecfe98`) is hardcoded and does not need to be configured.
-
-Optional environment variables (set on the **Jupyter Server** process; see main Configuration notes): `MITO_AI_GHE_SUBDOMAIN`, `MITO_AI_GH_ACCESS_TOKEN_PASSWORD`.
-
-**Models:** Available chat models depend on your Copilot plan and what you enable under [GitHub Copilot features](https://github.com/settings/copilot/features). If the API returns `model_not_supported`, pick another model in the Mito model dropdown (defaults prefer **`gpt-4o`** first) or set a comma-separated allowlist on the server, for example:
-
-```bash
-export MITO_AI_COPILOT_CHAT_MODEL_IDS="gpt-4o,gpt-5-mini"
-```
-
-Restart Jupyter after changing this variable.
-
 ## Uninstall
 
 To remove the extension, execute:
