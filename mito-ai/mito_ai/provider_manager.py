@@ -192,7 +192,6 @@ This attribute is observed by the websocket provider to push the error to the cl
             try:
                 if model_type == "copilot":
                     from mito_ai.copilot_client import CopilotClient
-                    print(f"Using Copilot client for model: {resolved_model}")
                     copilot_client = CopilotClient()
                     completion = await copilot_client.request_completions(
                         messages=list(messages),

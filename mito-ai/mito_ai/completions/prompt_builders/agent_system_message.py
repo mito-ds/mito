@@ -16,7 +16,7 @@ from mito_ai.rules.utils import get_default_rules_content
 
 def create_agent_system_message_prompt(include_cell_output_tool: bool) -> str:
     
-    # GET_CELL_OUTPUT requires a Chrome-based browser and is disabled for Copilot API models.
+    # GET_CELL_OUTPUT requires a Chrome-based browser.
     # This constant helps us replace the phrase 'or GET_CELL_OUTPUT' with ''
     # throughout the prompt
     OR_GET_CELL_OUTPUT = 'or GET_CELL_OUTPUT' if include_cell_output_tool else ''

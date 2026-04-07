@@ -103,7 +103,6 @@ class ChatMessageMetadata():
     index: Optional[int] = None
     stream: bool = False
     additionalContext: Optional[List[Dict[str, str]]] = None
-    isCopilotMode: bool = False
     
     
 @dataclass(frozen=True)
@@ -121,7 +120,6 @@ class AgentExecutionMetadata():
     files: Optional[List[str]] = None
     index: Optional[int] = None
     additionalContext: Optional[List[Dict[str, str]]] = None
-    isCopilotMode: bool = False
     
 @dataclass(frozen=True)
 class AgentSmartDebugMetadata():
@@ -133,7 +131,6 @@ class AgentSmartDebugMetadata():
     isChromeBrowser: bool
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    isCopilotMode: bool = False
     
 @dataclass(frozen=True)
 class SmartDebugMetadata():
@@ -167,7 +164,6 @@ class ScratchpadResultMetadata():
     scratchpadResult: str
     index: Optional[int] = None
     isChromeBrowser: bool = True
-    isCopilotMode: bool = False
 
 @dataclass(frozen=True)
 class CompletionRequest:
