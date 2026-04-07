@@ -92,7 +92,7 @@ Rules:
 
 def _get_chart_suggestions_llm_payload(prompt: str) -> Dict[str, Any]:
     return {
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4.1",
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": 900,
         "temperature": 0.2,
