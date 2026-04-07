@@ -68,6 +68,10 @@ def build_chart_for_selection_prompt(
 ) -> str:
     catalog = _column_catalog(df, column_indices)
     sample = _sample_data(df, column_indices)
+    # Build the example using the actual first two indices from the selection so the
+    # AI is not anchored to a hardcoded [0, 1] that may not be in the catalog.
+    example_indices = column_indices[:2] if len(column_indices) >= 2 else column_indices[:1]
+    example_json = f'{{"graph_type":"bar","column_indices":{example_indices}}}'
     return f"""You are a data visualization assistant for tabular data analysis in Mito.
 
 The user has selected specific columns from the dataframe "{df_name}". Pick the single best chart to visualize them.
@@ -79,16 +83,17 @@ Sample data (truncated):
 {sample}
 
 Respond with ONLY valid JSON (no markdown, no code fences) with this exact shape:
-{{"graph_type":"bar","column_indices":[0,1]}}
+{example_json}
 
 Rules:
 - graph_type must be one of: bar, line, scatter, histogram, box, violin, strip, density heatmap, density contour, ecdf
-- column_indices must reference valid indices from the selected catalog above. Order matters: for scatter put x-axis column first, then y-axis; for bar put category column first then numeric; for histogram use one numeric column index only.
+- column_indices MUST only contain indices from the catalog above — do not use any other index.
+- Order matters: for scatter put x-axis column first, then y-axis; for bar put category column first then numeric; for histogram use one numeric column index only.
 - Return exactly one suggestion — the most insightful chart for this selection.
 """
 
 
-def _validate_single_suggestion(raw: Any, num_columns: int) -> Dict[str, Any] | None:
+def _validate_single_suggestion(raw: Any, num_columns: int, allowed_indices: List[int] | None = None) -> Dict[str, Any] | None:
     if not isinstance(raw, dict):
         return None
     graph_type = raw.get("graph_type")
@@ -104,6 +109,8 @@ def _validate_single_suggestion(raw: Any, num_columns: int) -> Dict[str, Any] | 
         if isinstance(x, float) and x == int(x):
             x = int(x)
         if not isinstance(x, int) or x < 0 or x >= num_columns:
+            return None
+        if allowed_indices is not None and x not in allowed_indices:
             return None
         norm.append(x)
     return {"graph_type": graph_type, "column_indices": norm}
@@ -219,7 +226,7 @@ def get_chart_for_selection(params: Dict[str, Any], steps_manager: StepsManagerT
     except (json.JSONDecodeError, ValueError):
         return {"error": "Model did not return valid JSON."}
 
-    suggestion = _validate_single_suggestion(parsed, len(df.columns))
+    suggestion = _validate_single_suggestion(parsed, len(df.columns), allowed_indices=valid_indices)
     if suggestion is None:
         return {"error": "Model returned an invalid suggestion."}
 
