@@ -146,6 +146,10 @@ function EndoGrid(props: {
     >(undefined);
 
     const updateVisualizeFloatPosition = useCallback(() => {
+        if (!props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION) {
+            setVisualizeFloatStyle(undefined);
+            return;
+        }
         if (sheetData === undefined || editorState !== undefined) {
             setVisualizeFloatStyle(undefined);
             return;
@@ -904,6 +908,7 @@ function EndoGrid(props: {
                 }
                 {sheetData !== undefined &&
                     editorState === undefined &&
+                    props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION &&
                     visualizeFloatStyle !== undefined && (
                     <div
                         className="mito-endo-grid__selection-float"
