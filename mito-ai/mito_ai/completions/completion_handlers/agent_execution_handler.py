@@ -51,7 +51,6 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
             prompt,
             metadata.base64EncodedActiveCellOutput,
             metadata.additionalContext,
-            metadata.isCopilotMode,
         )
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         

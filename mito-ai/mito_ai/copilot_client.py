@@ -34,6 +34,33 @@ from mito_ai.utils.copilot_utils import (
 )
 
 
+def _strip_image_content_for_copilot(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Remove image blocks from message content before sending to Copilot.
+
+    Copilot chat models may reject `image_url` content even if the frontend/backend
+    attempted to suppress image attachments for the latest user message. This
+    defensive sanitization also protects when older thread history still contains
+    multimodal content.
+    """
+    sanitized: List[Dict[str, Any]] = []
+    for msg in messages:
+        msg_copy = dict(msg)
+        content = msg_copy.get("content")
+        if isinstance(content, list):
+            text_parts: List[str] = []
+            for part in content:
+                if not isinstance(part, dict):
+                    continue
+                if part.get("type") == "text":
+                    part_text = part.get("text")
+                    if isinstance(part_text, str):
+                        text_parts.append(part_text)
+            msg_copy["content"] = "\n".join(text_parts)
+        sanitized.append(msg_copy)
+    return sanitized
+
+
 class CopilotClient:
     """Client for GitHub Copilot chat completions (device-flow OAuth, no API key)."""
 
@@ -49,11 +76,12 @@ class CopilotClient:
     ) -> str:
         ensure_logged_in_for_completion()
         api_model = strip_copilot_prefix(model)
+        sanitized_messages = _strip_image_content_for_copilot(list(messages))
 
         result = await asyncio.to_thread(
             chat_completions_aggregate,
             api_model,
-            list(messages),
+            sanitized_messages,
             None,
             None,
             response_format_info,
@@ -73,6 +101,7 @@ class CopilotClient:
     ) -> str:
         ensure_logged_in_for_completion()
         api_model = strip_copilot_prefix(model)
+        sanitized_messages = _strip_image_content_for_copilot(list(messages))
 
         q: queue.Queue = queue.Queue()
         err_box: List[BaseException] = []
@@ -81,7 +110,7 @@ class CopilotClient:
             try:
                 for delta in chat_completions_stream_text_deltas(
                     api_model,
-                    list(messages),
+                    sanitized_messages,
                     None,
                     None,
                 ):

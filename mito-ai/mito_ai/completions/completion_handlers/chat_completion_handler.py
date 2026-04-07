@@ -71,7 +71,6 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             prompt,
             metadata.base64EncodedActiveCellOutput,
             metadata.additionalContext,
-            metadata.isCopilotMode,
         )
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
@@ -137,7 +136,6 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             prompt,
             metadata.base64EncodedActiveCellOutput,
             metadata.additionalContext,
-            metadata.isCopilotMode,
         )
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)

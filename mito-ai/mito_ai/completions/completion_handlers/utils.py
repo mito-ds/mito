@@ -98,18 +98,9 @@ def create_ai_optimized_message(
     text: str,
     base64EncodedActiveCellOutput: Optional[str] = None,
     additional_context: Optional[List[Dict[str, str]]] = None,
-    is_copilot_mode: bool = False,
 ) -> ChatCompletionMessageParam:
 
     message_content: Union[str, List[Dict[str, Any]]]
-    if is_copilot_mode:
-        base64EncodedActiveCellOutput = None
-        if additional_context:
-            additional_context = [
-                c
-                for c in additional_context
-                if not str(c.get("type", "")).startswith("image/")
-            ]
     encoded_images = extract_and_encode_images_from_additional_context(
         additional_context
     )
