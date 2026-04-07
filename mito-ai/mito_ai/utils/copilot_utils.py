@@ -142,7 +142,7 @@ def chat_completions_aggregate(
                 "and enable models at https://github.com/settings/copilot/features ."
             )
         raise RuntimeError(msg)
-    client = sseclient.SSEClient(resp)
+    client = sseclient.SSEClient(resp) # type: ignore
     return _aggregate_streaming_response(client)
 
 
@@ -185,7 +185,7 @@ def chat_completions_stream_text_deltas(
                 "or enable models at https://github.com/settings/copilot/features ."
             )
         raise RuntimeError(msg)
-    client = sseclient.SSEClient(resp)
+    client = sseclient.SSEClient(resp) # type: ignore
     for event in client.events():
         if cancel_check and cancel_check():
             break

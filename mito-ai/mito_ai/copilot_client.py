@@ -18,6 +18,7 @@ import asyncio
 import queue
 import threading
 from typing import Any, Callable, Dict, List, Optional, Union
+from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai.completions.models import (
     CompletionItem,
@@ -34,7 +35,7 @@ from mito_ai.utils.copilot_utils import (
 )
 
 
-def _strip_image_content_for_copilot(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _strip_image_content_for_copilot(messages: List[ChatCompletionMessageParam]) -> List[Dict[str, Any]]:
     """
     Remove image blocks from message content before sending to Copilot.
 
@@ -45,7 +46,7 @@ def _strip_image_content_for_copilot(messages: List[Dict[str, Any]]) -> List[Dic
     """
     sanitized: List[Dict[str, Any]] = []
     for msg in messages:
-        msg_copy = dict(msg)
+        msg_copy: Dict[str, Any] = dict(msg)
         content = msg_copy.get("content")
         if isinstance(content, list):
             text_parts: List[str] = []
@@ -69,7 +70,7 @@ class CopilotClient:
 
     async def request_completions(
         self,
-        messages: List[Dict[str, Any]],
+        messages: List[ChatCompletionMessageParam],
         model: str,
         response_format_info: Optional[ResponseFormatInfo] = None,
         message_type: MessageType = MessageType.CHAT,
@@ -93,7 +94,7 @@ class CopilotClient:
 
     async def stream_completions(
         self,
-        messages: List[Dict[str, Any]],
+        messages: List[ChatCompletionMessageParam],
         model: str,
         message_id: str,
         reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None],

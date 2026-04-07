@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 import asyncio
+from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
@@ -194,7 +195,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     from mito_ai.copilot_client import CopilotClient
                     copilot_client = CopilotClient()
                     completion = await copilot_client.request_completions(
-                        messages=list(messages),
+                        messages=messages,
                         model=resolved_model,
                         response_format_info=response_format_info,
                         message_type=message_type,
