@@ -18,24 +18,6 @@ export const isChromeBasedBrowser = (): boolean => {
     return /chrome/i.test(navigator.userAgent) && !/edge|edg/i.test(navigator.userAgent);
 }
 
-/**
- * True when the chat model is a GitHub Copilot API model (copilot/…).
- * Used to disable image/cell-output features that Copilot backends may not support.
- */
-export const isCopilotModelSelected = (): boolean => {
-    try {
-        const stored = localStorage.getItem('llmModelConfig');
-        if (!stored) {
-            return false;
-        }
-        const parsed = JSON.parse(stored) as { model?: string };
-        const m = parsed.model?.toLowerCase() ?? '';
-        return m.startsWith('copilot/');
-    } catch {
-        return false;
-    }
-};
-
 
 export const isElectronBasedFrontend = (): boolean => {
     /* 

@@ -39,7 +39,6 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
             provider,
             metadata.threadId,
             metadata.isChromeBrowser,
-            metadata.isCopilotMode,
         )
         
         # Create the prompt

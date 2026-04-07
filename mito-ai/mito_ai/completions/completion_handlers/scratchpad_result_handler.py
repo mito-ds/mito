@@ -39,7 +39,6 @@ class ScratchpadResultHandler(CompletionHandler[ScratchpadResultMetadata]):
             provider,
             metadata.threadId,
             metadata.isChromeBrowser,
-            metadata.isCopilotMode,
         )
         
         # Create the prompt

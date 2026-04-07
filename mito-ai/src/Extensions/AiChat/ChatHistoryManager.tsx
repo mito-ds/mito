@@ -10,7 +10,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCellsInNotebookPanel, getCellCodeByID, getCellCodeByIDInNotebookPanel } from "../../utils/notebook";
 import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata, IScratchpadResultMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
-import { isChromeBasedBrowser, isCopilotModelSelected } from "../../utils/user";
+import { isChromeBasedBrowser } from "../../utils/user";
 import { validateAndCorrectAgentResponse } from "./validationUtils";
 import { getNotebookIDAndSetIfNonexistant } from "../../utils/notebookMetadata";
 
@@ -166,7 +166,6 @@ export class ChatHistoryManager {
             threadId: activeThreadId,
             index: messageIndex,
             additionalContext: additionalContext,
-            isCopilotMode: isCopilotModelSelected(),
         }
 
         this.displayOptimizedChatHistory.push(
@@ -204,7 +203,6 @@ export class ChatHistoryManager {
             threadId: activeThreadId,
             isChromeBrowser: isChromeBasedBrowser(),
             additionalContext: additionalContext,
-            isCopilotMode: isCopilotModelSelected(),
         }
 
         // We use this function in two ways: 
@@ -239,7 +237,6 @@ export class ChatHistoryManager {
             threadId: activeThreadId,
             scratchpadResult: scratchpadResult,
             isChromeBrowser: isChromeBasedBrowser(),
-            isCopilotMode: isCopilotModelSelected(),
         }
 
         // Add empty user message to display history (like agent execution does for empty input)
@@ -303,7 +300,6 @@ export class ChatHistoryManager {
             error_message_producing_code_cell_id: activeCellID || '',
             threadId: activeThreadId,
             isChromeBrowser: isChromeBasedBrowser(),
-            isCopilotMode: isCopilotModelSelected(),
         }
 
         this.displayOptimizedChatHistory.push(

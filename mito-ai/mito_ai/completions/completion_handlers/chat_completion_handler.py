@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, Union
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import ChatMessageMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
@@ -18,21 +18,7 @@ def _chat_has_active_cell_output(metadata: ChatMessageMetadata) -> bool:
     return (
         metadata.base64EncodedActiveCellOutput is not None
         and metadata.base64EncodedActiveCellOutput != ""
-        and not metadata.isCopilotMode
     )
-
-
-def _chat_additional_context_for_prompt(
-    metadata: ChatMessageMetadata,
-) -> Optional[List[Dict[str, str]]]:
-    """Omit image attachments from the text prompt when in Copilot mode."""
-    if not metadata.additionalContext or not metadata.isCopilotMode:
-        return metadata.additionalContext
-    return [
-        c
-        for c in metadata.additionalContext
-        if not str(c.get("type", "")).startswith("image/")
-    ]
 
 class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
     """Handler for chat completions."""
@@ -62,7 +48,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.activeCellId,
             _chat_has_active_cell_output(metadata),
             metadata.input,
-            _chat_additional_context_for_prompt(metadata),
+            metadata.additionalContext,
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
@@ -127,7 +113,7 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.activeCellId,
             _chat_has_active_cell_output(metadata),
             metadata.input,
-            _chat_additional_context_for_prompt(metadata),
+            metadata.additionalContext,
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         

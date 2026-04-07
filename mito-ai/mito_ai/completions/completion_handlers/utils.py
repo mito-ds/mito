@@ -49,7 +49,6 @@ async def append_agent_system_message(
     provider: ProviderManager,
     thread_id: ThreadID,
     is_chrome_browser: bool,
-    is_copilot_mode: bool = False,
 ) -> None:
 
     # If the system message already exists, do nothing
@@ -59,7 +58,7 @@ async def append_agent_system_message(
     ):
         return
 
-    include_cell_output_tool = is_chrome_browser and not is_copilot_mode
+    include_cell_output_tool = is_chrome_browser
     system_message_prompt = create_agent_system_message_prompt(include_cell_output_tool)
 
     system_message: ChatCompletionMessageParam = {

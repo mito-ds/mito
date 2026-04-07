@@ -22,7 +22,6 @@ jest.mock('../../utils/notebook', () => ({
 // Mock the user utilities
 jest.mock('../../utils/user', () => ({
     isChromeBasedBrowser: jest.fn(() => true),
-    isCopilotModelSelected: jest.fn(() => false)
 }));
 
 describe('ChatHistoryManager', () => {

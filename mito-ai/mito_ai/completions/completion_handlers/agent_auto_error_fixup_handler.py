@@ -31,7 +31,6 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
             provider,
             metadata.threadId,
             metadata.isChromeBrowser,
-            metadata.isCopilotMode,
         )
         
         # Create the prompt

@@ -55,6 +55,7 @@ async def get_response_from_mito_server(
     start_time = time.time()
     
     try:
+        print(f"Making request to {url} with data: {data}")
         res = await http_client.fetch(
             url,
             method="POST",
