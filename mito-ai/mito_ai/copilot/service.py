@@ -273,8 +273,12 @@ def get_token() -> None:
         )
         resp_json = resp.json()
         if resp.status_code == 401:
+            # A 401 means the current access token can no longer exchange for a Copilot token.
+            # `logout()` puts auth in NOT_LOGGED_IN, so calling `wait_for_tokens()` directly would
+            # start threads that immediately exit. Start a fresh device flow instead.
             logout()
-            wait_for_tokens()
+            if get_device_verification_info() is None:
+                log.error("Failed to restart GitHub device login after 401 from token exchange.")
             return
         if resp.status_code == 404:
             log.error(
