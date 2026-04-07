@@ -41,6 +41,7 @@ import ErrorReplayedAnalysisModal from './components/modals/ReplayAnalysisModals
 import SignUpModal from './components/modals/SignupModal';
 import { ModalEnum } from './components/modals/modals';
 import AITransformationTaskpane, { AITransformationParams } from './components/taskpanes/AITransformation/AITransformationTaskpane';
+import SuggestedVisualizationsTaskpane from './components/taskpanes/SuggestedVisualizations/SuggestedVisualizationsTaskpane';
 import CannotCreateCommTaskpane from './components/taskpanes/CannotCreateComm/CannotCreateCommTaskpane';
 import CodeOptionsTaskpane from './components/taskpanes/CodeOptions/CodeOptionsTaskpane';
 import CodeSnippetsTaskpane from './components/taskpanes/CodeSnippets/CodeSnippetsTaskpane';
@@ -856,6 +857,16 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     sheetDataArray={sheetDataArray}
                     previousAITransformParams={previousAITransformParams}
                     setPreviousAITransformParams={setPreviousAITransformParams}
+                />
+            )
+            case TaskpaneType.SUGGESTED_VISUALIZATIONS: return (
+                <SuggestedVisualizationsTaskpane
+                    userProfile={userProfile}
+                    uiState={uiState}
+                    setUIState={setUIState}
+                    setEditorState={setEditorState}
+                    sheetDataArray={sheetDataArray}
+                    mitoAPI={mitoAPI}
                 />
             )
             case TaskpaneType.CODEOPTIONS: return (

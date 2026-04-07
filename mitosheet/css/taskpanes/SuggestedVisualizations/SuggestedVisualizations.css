@@ -1,0 +1,168 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/*
+ * Do not use <Col> here: .spacing-col sets overflow:hidden and white-space:nowrap, which
+ * breaks vertical scrolling and text wrapping inside the taskpane body.
+ */
+.suggested-viz-taskpane-content {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 0;
+    white-space: normal;
+    /* Inset so card edges are not clipped by the scroll parent */
+    padding: 3px 10px 10px 10px;
+}
+
+/* List: breathing room between suggestion cards */
+.suggested-viz-suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 4px;
+}
+
+.suggested-viz-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    text-align: left;
+    font: inherit;
+    color: var(--mito-text);
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background: var(--mito-background-off);
+    transition: background-color 0.15s ease;
+}
+
+.suggested-viz-card:hover {
+    background: var(--mito-toolbar-hover, var(--mito-background-highlight));
+}
+
+.suggested-viz-card:hover .suggested-viz-card-title {
+    color: var(--mito-text);
+}
+
+.suggested-viz-card:hover .suggested-viz-card-description {
+    color: var(--mito-text-medium);
+}
+
+.suggested-viz-card:active {
+    background: var(--mito-background-highlight, var(--mito-toolbar-hover));
+}
+
+/* Preview fills the right side; mask fades it out toward the text so title sits above. */
+.suggested-viz-card-inner {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    min-height: 96px;
+}
+
+.suggested-viz-preview-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    box-sizing: border-box;
+    /* Fade preview out on the left; left region shows the card background through */
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        transparent 38%,
+        rgba(0, 0, 0, 0.45) 52%,
+        black 72%
+    );
+    mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        transparent 38%,
+        rgba(0, 0, 0, 0.45) 52%,
+        black 72%
+    );
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+}
+
+.suggested-viz-card:hover .suggested-viz-preview-layer {
+    opacity: 1;
+}
+
+.suggested-viz-preview-layer .suggested-viz-preview-svg {
+    width: 132px;
+    height: 92px;
+    max-width: 72%;
+    max-height: 90%;
+    color: var(--mito-highlight);
+    opacity: 0.42;
+    display: block;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease;
+}
+
+.suggested-viz-card:hover .suggested-viz-preview-layer .suggested-viz-preview-svg {
+    opacity: 0.55;
+}
+
+.suggested-viz-card-text {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 68%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 14px 14px 16px;
+    box-sizing: border-box;
+}
+
+.suggested-viz-card:focus {
+    outline: none;
+}
+
+.suggested-viz-card:focus-visible {
+    outline: 2px solid var(--mito-highlight);
+    outline-offset: 2px;
+}
+
+.suggested-viz-card-title {
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--mito-text);
+}
+
+.suggested-viz-card-description {
+    color: var(--mito-text-medium);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.suggested-viz-status {
+    color: var(--mito-text-medium);
+    font-size: 12px;
+    line-height: 1.45;
+    opacity: 0.92;
+}
+
+.suggested-viz-error {
+    color: var(--mito-text);
+    font-size: 13px;
+    line-height: 1.45;
+}

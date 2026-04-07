@@ -26,6 +26,18 @@ import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnTyp
 
 export type MitoAPIResult<ResultType> = {result: ResultType} | SendFunctionErrorReturnType 
 
+/** Response from Python get_chart_suggestions (LLM JSON, validated server-side). */
+export type AIChartSuggestionsResult =
+    | { error: string; prompt_version?: string }
+    | {
+          prompt_version: string;
+          suggestions: {
+              title: string;
+              description: string;
+              graph_type: string;
+              column_indices: number[];
+          }[];
+      };
 
 export const getRandomId = (): string => {
     return '_' + Math.random().toString(36).substr(2, 9);
@@ -555,6 +567,21 @@ export class MitoAPI {
                 'selection': selection,
                 'previous_failed_completions': previous_failed_completions
             }
+        })
+    }
+
+    /**
+     * LLM chart suggestions for the active sheet (column indices match backend dataframe column order).
+     */
+    async getChartSuggestions(
+        sheetIndex: number,
+    ): Promise<MitoAPIResult<AIChartSuggestionsResult>> {
+        return await this.send<AIChartSuggestionsResult>({
+            'event': 'api_call',
+            'type': 'get_chart_suggestions',
+            'params': {
+                'sheet_index': sheetIndex,
+            },
         })
     }
     
