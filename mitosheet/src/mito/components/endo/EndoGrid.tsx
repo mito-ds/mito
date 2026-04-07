@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import '../../../../css/endo/EndoGrid.css';
 import '../../../../css/sitewide/colors.css';
 import { MitoAPI } from "../../api/api";
-import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection, AnalysisData } from "../../types";
+import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection, AnalysisData, UserProfile } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 import { getCellEditorInputCurrentSelection, getStartingFormula } from "./celleditor/cellEditorUtils";
@@ -28,6 +28,8 @@ import { Actions } from "../../utils/actions";
 import { getOperatingSystem } from "../../utils/keyboardShortcuts";
 import { getSelectionFloatStyle } from "./selectionFloatUtils";
 import { SelectionFloatActions } from "./SelectionFloatActions";
+import { openGraphSidebar } from "../taskpanes/Graph/graphUtils";
+import { GraphType } from "../taskpanes/Graph/GraphSetupTab";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -101,6 +103,7 @@ function EndoGrid(props: {
     sendFunctionStatus: SendFunctionStatus;
     analysisData: AnalysisData;
     actions: Actions;
+    userProfile: UserProfile;
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -182,6 +185,53 @@ function EndoGrid(props: {
             scrollEl?.removeEventListener("scroll", onScrollOrResize);
         };
     }, [sheetData, editorState, updateVisualizeFloatPosition]);
+
+    const [visualizeLoading, setVisualizeLoading] = useState(false);
+
+    const onVisualizeClick = useCallback(async () => {
+        if (sheetData === undefined || visualizeLoading) {
+            return;
+        }
+        const columnIndexes = getColumnIndexesInSelections(gridState.selections)
+            .filter(i => i >= 0);
+        if (columnIndexes.length === 0) {
+            return;
+        }
+
+        const openWithType = async (graphType: GraphType, colIndices: number[]) => {
+            const columnIds = colIndices
+                .map(i => sheetData.data[i]?.columnID)
+                .filter((id): id is string => id !== undefined);
+            await openGraphSidebar(
+                setUIState,
+                uiState,
+                setEditorState,
+                sheetDataArray,
+                mitoAPI,
+                { type: 'new_graph', graphType, selectedColumnIds: columnIds },
+            );
+        };
+
+        if (props.userProfile.aiPrivacyPolicy) {
+            setVisualizeLoading(true);
+            try {
+                const res = await mitoAPI.getChartForSelection(sheetIndex, columnIndexes);
+                if (res !== undefined && !('error' in res) && !('error' in res.result)) {
+                    const { graph_type, column_indices } = res.result as { prompt_version: string; graph_type: string; column_indices: number[] };
+                    const parsed = Object.values(GraphType).find(g => g === graph_type) as GraphType | undefined;
+                    if (parsed !== undefined) {
+                        await openWithType(parsed, column_indices);
+                        return;
+                    }
+                }
+            } finally {
+                setVisualizeLoading(false);
+            }
+        }
+
+        // Fallback: open with a default chart type using the selected columns
+        await openWithType(GraphType.BAR, columnIndexes);
+    }, [sheetData, sheetDataArray, sheetIndex, gridState.selections, mitoAPI, props.userProfile, uiState, setUIState, setEditorState, visualizeLoading]);
 
     /*
         An effect that handles the sheet data changing, in which case
@@ -863,9 +913,10 @@ function EndoGrid(props: {
                             <button
                                 type="button"
                                 className="mito-endo-grid__selection-action"
-                                onClick={() => { /* TODO: open visualize taskpane */ }}
+                                disabled={visualizeLoading}
+                                onClick={() => { void onVisualizeClick(); }}
                             >
-                                Visualize
+                                {visualizeLoading ? 'Loading…' : 'Visualize'}
                             </button>
                         </SelectionFloatActions>
                     </div>
