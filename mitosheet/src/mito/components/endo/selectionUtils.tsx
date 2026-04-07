@@ -865,3 +865,60 @@ export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sh
     
     return getNumberColumnIDs(sheetData, columnIDs);
 }
+
+/**
+ * Normalizes a selection to body (data grid) row/column index bounds for layout math.
+ * Column-header-only and index-header-only selections expand to full columns/rows.
+ */
+export const getBodyBoundingIndices = (
+    selection: MitoSelection,
+    sheetData: SheetData,
+    currentSheetIndex: number
+): { minR: number; maxR: number; minC: number; maxC: number } | null => {
+    if (selection.sheetIndex !== currentSheetIndex) {
+        return null;
+    }
+    const numRows = Math.min(sheetData.numRows, MAX_ROWS);
+    const numCols = sheetData.numColumns;
+    if (numRows === 0 || numCols === 0) {
+        return null;
+    }
+
+    let minR = Math.min(selection.startingRowIndex, selection.endingRowIndex);
+    let maxR = Math.max(selection.startingRowIndex, selection.endingRowIndex);
+    let minC = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
+    let maxC = Math.max(selection.startingColumnIndex, selection.endingColumnIndex);
+
+    if (minR <= -1 && maxR <= -1) {
+        minR = 0;
+        maxR = numRows - 1;
+    }
+    if (minC <= -1 && maxC <= -1) {
+        minC = 0;
+        maxC = numCols - 1;
+    }
+
+    minR = Math.max(0, minR);
+    maxR = Math.min(numRows - 1, maxR);
+    minC = Math.max(0, minC);
+    maxC = Math.min(numCols - 1, maxC);
+
+    if (minR > maxR || minC > maxC) {
+        return null;
+    }
+    return { minR, maxR, minC, maxC };
+};
+
+/** True when the selection covers more than one body cell. */
+export const isMultiCellRangeSelection = (
+    selection: MitoSelection,
+    sheetData: SheetData,
+    currentSheetIndex: number
+): boolean => {
+    const bounds = getBodyBoundingIndices(selection, sheetData, currentSheetIndex);
+    if (bounds === null) {
+        return false;
+    }
+    const { minR, maxR, minC, maxC } = bounds;
+    return (maxR - minR + 1) * (maxC - minC + 1) > 1;
+};
