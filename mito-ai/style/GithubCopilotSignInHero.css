@@ -123,14 +123,44 @@
 }
 
 .github-copilot-sso-code {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--jp-code-font-family, ui-monospace, monospace);
   font-size: 1.125rem;
   letter-spacing: 0.12em;
-  padding: 10px 16px;
+  padding: 10px 42px 10px 16px;
   margin: 12px 0;
   background: var(--jp-layout-color2, #f6f8fa);
   border-radius: 6px;
   border: 1px dashed var(--jp-border-color1, #d0d7de);
+}
+
+.github-copilot-sso-code-text {
+  line-height: 1;
+}
+
+.github-copilot-sso-copy-code-icon-btn {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--jp-content-font-color1, #1f2328);
+  padding: 0;
+  cursor: pointer;
+}
+
+.github-copilot-sso-copy-code-icon-btn:hover {
+  background: var(--jp-layout-color1, #ffffff);
 }
 
 .github-copilot-sso-link {

@@ -3,8 +3,9 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../../../style/GithubCopilotSignInHero.css';
+import CopyIcon from '../../../icons/CopyIcon';
 
 /** Simple GitHub-style mark (octocat-inspired silhouette, geometric). */
 const GitHubMarkIcon = (): JSX.Element => (
@@ -38,6 +39,35 @@ export const GithubCopilotSignInHero: React.FC<IGithubCopilotSignInHeroProps> = 
   loginError,
   onSignIn,
 }) => {
+  const [copyCodeButtonText, setCopyCodeButtonText] = useState('Copy code');
+
+  useEffect(() => {
+    if (copyCodeButtonText === 'Copy code') {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCopyCodeButtonText('Copy code');
+    }, 1500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [copyCodeButtonText]);
+
+  const handleCopyCode = async (): Promise<void> => {
+    if (!user_code) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(user_code);
+      setCopyCodeButtonText('Copied!');
+    } catch (_error) {
+      setCopyCodeButtonText('Copy failed');
+    }
+  };
+
   const rootClass =
     variant === 'compact'
       ? 'github-copilot-sso-hero github-copilot-sso-hero--compact'
@@ -74,7 +104,20 @@ export const GithubCopilotSignInHero: React.FC<IGithubCopilotSignInHeroProps> = 
             <p className="github-copilot-sso-hint">
               Open GitHub and enter this code to authorize Copilot:
             </p>
-            {user_code ? <div className="github-copilot-sso-code">{user_code}</div> : null}
+            {user_code ? (
+              <div className="github-copilot-sso-code">
+                <span className="github-copilot-sso-code-text">{user_code}</span>
+                <button
+                  type="button"
+                  className="github-copilot-sso-copy-code-icon-btn"
+                  onClick={() => void handleCopyCode()}
+                  title={copyCodeButtonText}
+                  aria-label={copyCodeButtonText}
+                >
+                  <CopyIcon />
+                </button>
+              </div>
+            ) : null}
             {verification_uri ? (
               <a
                 href={verification_uri}
