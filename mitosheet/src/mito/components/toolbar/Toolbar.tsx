@@ -12,7 +12,6 @@ import { MitoAPI } from '../../api/api';
 import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { Actions } from '../../utils/actions';
 import { classNames } from '../../utils/classNames';
-import GetSupportButton from '../elements/GetSupportButton';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 import DocumentationIcon from '../icons/DocumentationIcon';
 import { CodeTabContents } from './CodeTabContents';
@@ -20,7 +19,6 @@ import { DataTabContents } from './DataTabContents';
 import { FormulaTabContents } from './FormulaTabContents';
 import { HomeTabContents } from './HomeTabContents';
 import { InsertTabContents } from './InsertTabContents';
-import PlanButton from './PlanButton';
 import ToolbarButton from './ToolbarButton';
 import CheckmarkIcon from '../icons/CheckmarkIcon';
 import LoadingDots from '../elements/LoadingDots';
@@ -192,20 +190,41 @@ export const Toolbar = (
                         </button>
                     })}
                 </div>
-                <div className='mito-toolbar-tabbar-right'>
-                    <GetSupportButton 
-                        userProfile={props.userProfile} 
-                        setUIState={props.setUIState} 
-                        mitoAPI={props.mitoAPI} 
-                        width='hug-contents'
-                        className='mito-plan-button'
-                    />
-                    <PlanButton
-                        uiState={props.uiState}
-                        userProfile={props.userProfile}
-                        setUIState={props.setUIState}
-                        mitoAPI={props.mitoAPI}
-                    />
+                <div className='mito-toolbar-tabbar-right' style={{gap: '6px'}}>
+                    <div
+                        className={classNames('text-button', 'text-button-variant-dark', 'mito-plan-button', 'cursor-pointer')}
+                        style={{flexDirection: 'row', gap: '4px', alignItems: 'center'}}
+                        onClick={() => {
+                            props.setUIState(prev => ({
+                                ...prev,
+                                currOpenTaskpane: {type: TaskpaneType.SUGGESTED_VISUALIZATIONS},
+                                selectedTabType: 'data'
+                            }));
+                        }}
+                    >
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="0.5" y="5.5" width="2.5" height="5" fill="var(--mito-background)" stroke="var(--mito-background)" strokeWidth="0.5"/>
+                            <rect x="4.25" y="3" width="2.5" height="7.5" fill="var(--mito-background)" stroke="var(--mito-background)" strokeWidth="0.5"/>
+                            <rect x="8" y="0.5" width="2.5" height="10" fill="var(--mito-background)" stroke="var(--mito-background)" strokeWidth="0.5"/>
+                        </svg>
+                        Suggest Graphs
+                    </div>
+                    <div
+                        className={classNames('text-button', 'text-button-variant-dark', 'mito-plan-button', 'cursor-pointer')}
+                        style={{flexDirection: 'row', gap: '4px', alignItems: 'center'}}
+                        onClick={() => {
+                            props.setUIState(prev => ({
+                                ...prev,
+                                currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                selectedTabType: 'data'
+                            }));
+                        }}
+                    >
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 1L6.9 4.1H10.2L7.5 6L8.5 9.1L6 7.3L3.5 9.1L4.5 6L1.8 4.1H5.1L6 1Z" fill="var(--mito-background)"/>
+                        </svg>
+                        AI
+                    </div>
                 </div>
             </div>
             {/* Default to Home tab if the tab you were in is no longer defined.
