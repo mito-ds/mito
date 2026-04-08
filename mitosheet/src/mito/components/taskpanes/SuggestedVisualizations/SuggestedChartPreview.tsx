@@ -14,10 +14,10 @@ const PREVIEW_POINT_LIMIT_SCATTER = 72;
 const PREVIEW_POINT_LIMIT_BOX = 96;
 const WIDTH = 320;
 const HEIGHT = 170;
-const LEFT = 8;
-const RIGHT = 6;
-const TOP = 6;
-const BOTTOM = 0;
+const LEFT = 10;
+const RIGHT = 8;
+const TOP = 16;
+const BOTTOM = 12;
 const PURPLE = '#8b5cf6';
 
 const toNumberArray = (values: (string | number | boolean)[]): number[] => {
@@ -277,7 +277,7 @@ const SuggestedChartPreview = (props: {
     }, [props.columnIndices, props.graphType, props.sheetData]);
 
     return (
-        <svg className="suggested-viz-preview-plot" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} preserveAspectRatio="none" aria-hidden>
+        <svg className="suggested-viz-preview-plot" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} preserveAspectRatio="xMidYMid meet" aria-hidden>
             {chart?.axes}
             {chart?.marks}
         </svg>
