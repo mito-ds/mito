@@ -47,13 +47,13 @@
     border: 1px solid rgba(31, 41, 55, 0.16);
     border-radius: 12px;
     background: var(--mito-background);
-    box-shadow: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.06);
     transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .suggested-viz-card:hover {
     border-color: rgba(31, 41, 55, 0.24);
-    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.18);
+    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.18), 0 2px 6px rgba(0, 0, 0, 0.1), 0 4px 14px rgba(0, 0, 0, 0.08);
     transform: translateY(-1px);
 }
 
