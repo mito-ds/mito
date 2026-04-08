@@ -44,8 +44,8 @@ import { OpenIndicatorLabIcon } from '../../icons';
 // Internal imports - Utils
 import { classNames } from '../../utils/classNames';
 import { processChatHistoryForErrorGrouping, GroupedErrorMessages } from '../../utils/chatHistory';
-import { 
-    shouldShowDiffToolbarButtons, 
+import {
+    shouldShowDiffToolbarButtons,
 } from '../../utils/codeDiff';
 import { getActiveCellOutput } from '../../utils/cellOutput';
 import { OperatingSystem } from '../../utils/user';
@@ -109,9 +109,9 @@ import { setNotebookID } from '../../utils/notebookMetadata';
 
 
 const getDefaultChatHistoryManager = (
-    notebookTracker: INotebookTracker, 
-    contextManager: IContextManager, 
-    app: JupyterFrontEnd, 
+    notebookTracker: INotebookTracker,
+    contextManager: IContextManager,
+    app: JupyterFrontEnd,
 ): ChatHistoryManager => {
     const chatHistoryManager = new ChatHistoryManager(contextManager, notebookTracker, app)
     return chatHistoryManager
@@ -355,7 +355,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Step 1: Create message metadata
         const newChatHistoryManager = getDuplicateChatHistoryManager()
         const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(
-            activeThreadIdRef.current, 
+            activeThreadIdRef.current,
             errorMessage,
             agentTargetNotebookPanelRef.current
         )
@@ -403,7 +403,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         input: string,
         messageIndex?: number,
         sendCellIDOutput: string | undefined = undefined,
-        additionalContext?: Array<{type: string, value: string}>
+        additionalContext?: Array<{ type: string, value: string }>
     ): Promise<void> => {
 
         // Step 0: reset the state for a new message
@@ -418,7 +418,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         }
 
         const agentExecutionMetadata = newChatHistoryManager.addAgentExecutionMessage(
-            activeThreadIdRef.current, 
+            activeThreadIdRef.current,
             agentTargetNotebookPanelRef.current,
             input,
             additionalContext
@@ -453,7 +453,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const newChatHistoryManager = getDuplicateChatHistoryManager()
 
         const scratchpadResultMetadata = newChatHistoryManager.addScratchpadResultMessage(
-            activeThreadIdRef.current, 
+            activeThreadIdRef.current,
             scratchpadResult
         )
 
@@ -473,7 +473,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     /* 
         Send whatever message is currently in the chat input
     */
-    const sendChatInputMessage = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
+    const sendChatInputMessage = async (input: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>): Promise<void> => {
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -545,7 +545,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // Create AbortController for this request
         const abortController = new AbortController();
         activeRequestControllerRef.current = abortController;
-        
+
         // Capture the completion request for debugging
         captureCompletionRequest(completionRequest);
         if (completionRequest.stream) {
@@ -619,20 +619,15 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
             } catch (error) {
                 addAIMessageFromResponseAndUpdateState(
-                    (error as any).title ? (error as any).title : `${error}`,
-                    'chat',
-                    newChatHistoryManager,
-                    false
-                );
-                addAIMessageFromResponseAndUpdateState(
-                    (error as any).hint ? (error as any).hint : `${error}`,
+                    (error as any).hint || (error as any).title || `${error}`,
                     completionRequest.metadata.promptType,
                     newChatHistoryManager,
-                    true
+                    true,
+                    (error as any).title || null
                 );
                 // Reset loading status when an error occurs
                 setLoadingStatus(undefined);
-            } 
+            }
         } else {
             // NON-STREAMING RESPONSES
             // Once we move everything to streaming, we can remove everything in this else block
@@ -641,9 +636,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 if (abortController.signal.aborted) {
                     throw new Error('Request aborted');
                 }
-                
+
                 const aiResponse = await websocketClient.sendMessage<ICompletionRequest, ICompletionReply>(completionRequest);
-                
+
                 // Check if request was aborted after receiving response
                 if (abortController.signal.aborted) {
                     throw new Error('Request aborted');
@@ -698,19 +693,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     // Don't show error message for aborted requests
                     return false;
                 }
-                
+
                 addAIMessageFromResponseAndUpdateState(
-                    (error as any).title ? (error as any).title : `${error}`,
-                    'chat',
-                    newChatHistoryManager,
-                    false
-                );
-                addAIMessageFromResponseAndUpdateState(
-                    (error as any).hint ? (error as any).hint : `${error}`,
+                    (error as any).hint || (error as any).title || `${error}`,
                     completionRequest.metadata.promptType,
                     newChatHistoryManager,
-                    true
-                )
+                    true,
+                    (error as any).title || null
+                );
             } finally {
                 // Reset states to allow future messages to show the "Apply" button
                 setCodeReviewStatus('chatPreview');
@@ -805,22 +795,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     app,
                 );
                 addAIMessageFromResponseAndUpdateState(
-                    (error as { title?: string }).title ? (error as { title?: string }).title! : `${error}`,
+                    (error as any).hint || (error as any).title || `${error}`,
                     'chat',
                     newChatHistoryManager,
-                    false
-                );
-                addAIMessageFromResponseAndUpdateState(
-                    (error as { hint?: string }).hint ? (error as { hint?: string }).hint! : `${error}`,
-                    'chat',
-                    newChatHistoryManager,
-                    true
+                    true,
+                    (error as any).title || null
                 );
             }
         };
 
         void logEvent('opened_ai_chat_taskpane');
-        void initializeChatHistory(); 
+        void initializeChatHistory();
         void refreshUserSignupState(); // Get user signup state when the component first mounts
 
         /**** 
@@ -833,7 +818,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         // Event fires every time the active notebook panel changes
         notebookTracker.currentChanged.connect(handleNotebookPanelChanged);
-        
+
         return () => {
             notebookTracker.currentChanged.disconnect(handleNotebookPanelChanged);
         };
@@ -998,19 +983,19 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         const currentWidget = notebookTracker.currentWidget;
         if (currentWidget) {
             currentWidget.content.activeCellChanged.connect(handleActiveCellChanged);
-            
+
             return () => {
                 currentWidget.content.activeCellChanged.disconnect(handleActiveCellChanged);
             };
         }
-        
+
         return undefined;
     }, [notebookTracker.currentWidget]);
 
     const lastAIMessagesIndex = chatHistoryManager.getLastAIMessageIndex()
 
     let processedDisplayOptimizedChatHistory: (IDisplayOptimizedChatItem | GroupedErrorMessages)[] = []
-    
+
     // In agent mode, we group consecutive error messages together. 
     // In chat mode, we display messages individually as they were sent
     if (agentModeEnabled) {
@@ -1083,8 +1068,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             <div className="chat-messages" ref={chatTaskpaneMessagesRef}>
                 {displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
-                        {isSignedUp === false 
-                            ? <SignUpForm onSignUpSuccess={refreshUserSignupState} /> 
+                        {isSignedUp === false
+                            ? <SignUpForm onSignUpSuccess={refreshUserSignupState} />
                             : <CTACarousel app={app} />
                         }
                     </div>
