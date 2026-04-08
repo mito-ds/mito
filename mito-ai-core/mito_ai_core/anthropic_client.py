@@ -1,0 +1,346 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
+import json
+import anthropic
+from typing import Dict, Any, Optional, Tuple, Union, Callable, List, cast
+
+from anthropic.types import Message, MessageParam, TextBlockParam
+from mito_ai_core.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
+from mito_ai_core.completions.prompt_builders.prompt_section_registry import get_max_trim_after_messages
+from openai.types.chat import ChatCompletionMessageParam
+from mito_ai_core.utils.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params, LARGE_CONTEXT_MODEL, EXTENDED_CONTEXT_BETA
+
+# Max tokens is a required parameter for the Anthropic API. 
+# We set it to a high number so that we can edit large code cells
+MAX_TOKENS = 64_000
+
+# Calculate the max trim threshold once at module load time.
+# This is used for cache boundary calculation - messages older than this threshold are stable.
+MAX_TRIM_THRESHOLD = get_max_trim_after_messages()
+
+def extract_and_parse_anthropic_json_response(response: Message) -> Union[object, Any]:
+    """
+    Extracts and parses the JSON response from the Claude API.
+    """
+    try:
+        # Check for tool use in the response
+        for content_block in response.content:
+            if content_block.type == "tool_use" and content_block.name == "agent_response":
+                result = content_block.input
+                return result
+
+        # If no tool use was found, try to parse the text response
+        text_response = None
+        for content_block in response.content:
+            if content_block.type == "text":
+                text_response = content_block.text
+                break
+
+        if text_response:
+            # Try to extract JSON from the text response
+            import re
+            json_pattern = r'(\{.*\})'
+            match = re.search(json_pattern, text_response, re.DOTALL)
+            if match:
+                try:
+                    json_response = json.loads(match.group(0))
+                    return json_response
+                except json.JSONDecodeError:
+                    pass
+
+        raise Exception("No valid AgentResponse format found in the response")
+    except Exception as e:
+        raise Exception(f"Failed to parse response: {e}")
+
+
+def get_anthropic_system_prompt_and_messages(messages: List[ChatCompletionMessageParam]) -> Tuple[
+    Union[str, anthropic.Omit], List[MessageParam]]:
+    """
+    Convert a list of OpenAI messages to a list of Anthropic messages.
+    """
+    
+    system_prompt: Union[str, anthropic.Omit] = anthropic.Omit()
+    anthropic_messages: List[MessageParam] = []
+
+    for message in messages:
+        if 'content' not in message:
+            continue
+
+        # We assume that the conversation only has one system message.
+        # Or if there are multiple, we take the last one.
+        if message['role'] == 'system':
+            system_prompt = str(message['content'])
+
+        # Construct the messages for the user and assistant in Anthropic format.
+        if message['role'] == 'user':
+            content = message['content']
+
+            # Handle mixed content (text + images)
+            if isinstance(content, list):
+                anthropic_content = []
+
+                for item in content:
+                    if isinstance(item, dict):
+                        item_dict = cast(Dict[str, Any], item)
+                        if item_dict.get('type') == 'text':
+                            # Add text content
+                            text_content = item_dict.get('text', '')
+                            anthropic_content.append({
+                                "type": "text",
+                                "text": text_content
+                            })
+                        elif item_dict.get('type') == 'image_url':
+                            # Convert OpenAI image format to Anthropic format
+                            image_url_obj = item_dict.get('image_url', {})
+                            if isinstance(image_url_obj, dict):
+                                image_url = image_url_obj.get('url', '')
+                            else:
+                                image_url = str(image_url_obj)
+
+                            # Extract media type and base64 data
+                            if image_url.startswith('data:'):
+                                # Format: data:image/png;base64,<base64_data>
+                                header, base64_data = image_url.split(',', 1)
+                                media_type = header.split(';')[0].split(':')[1]  # Extract image/png or image/jpeg
+                            else:
+                                # If it's not a data URL, assume it's direct base64 and default to image/png
+                                media_type = "image/png"
+                                base64_data = image_url
+
+                            anthropic_content.append({
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": media_type,
+                                    "data": base64_data
+                                }
+                            })
+
+                anthropic_messages.append(MessageParam(role='user', content=cast(Any, anthropic_content)))
+            else:
+                # Handle simple text content
+                anthropic_messages.append(MessageParam(role='user', content=str(content)))
+
+        elif message['role'] == 'assistant':
+            anthropic_messages.append(MessageParam(role='assistant', content=str(message['content'])))
+
+    return system_prompt, anthropic_messages
+
+
+def add_cache_control_to_message(message: MessageParam) -> MessageParam:
+    """
+    Adds cache_control to a message's content.
+    Handles both string content and list of content blocks.
+    """
+    content = message.get("content")
+    
+    if isinstance(content, str):
+        # Simple string content - convert to list format with cache_control
+        return {
+            "role": message["role"],
+            "content": [
+                {
+                    "type": "text",
+                    "text": content,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ]
+        }
+    
+    elif isinstance(content, list) and len(content) > 0:
+        # List of content blocks - add cache_control to last block
+        content_blocks = content.copy()
+        last_block = content_blocks[-1].copy()
+        last_block["cache_control"] = {"type": "ephemeral"}
+        content_blocks[-1] = last_block
+        
+        return {
+            "role": message["role"],
+            "content": content_blocks
+        }
+    
+    else:
+        # Edge case: empty or malformed content
+        return message
+
+
+def get_anthropic_system_prompt_and_messages_with_caching(messages: List[ChatCompletionMessageParam]) -> Tuple[
+    Union[str, List[TextBlockParam], anthropic.Omit], List[MessageParam]]:
+    """
+    Convert a list of OpenAI messages to a list of Anthropic messages with caching applied.
+    
+    Caching Strategy:
+    1. System prompt (static) → Always cached
+    2. Stable conversation history → Cache at keep_recent boundary
+    3. Recent messages → Never cached (always fresh)
+    """
+    
+    # Get the base system prompt and messages
+    system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages(messages)
+    
+    # 1. Cache the system prompt always
+    # If the system prompt is something like anthropic.Omit, we don't need to cache it
+    cached_system_prompt: Union[str, List[TextBlockParam], anthropic.Omit] = system_prompt
+    if isinstance(system_prompt, str):
+        cached_system_prompt = [{
+            "type": "text",
+            "text": system_prompt,
+            "cache_control": {"type": "ephemeral"}
+        }]
+    
+    # 2. Cache conversation history at the boundary where the messages are stable.
+    # Messages are stable after they are older than the max trim_after_messages threshold.
+    # At this point, the messages are not edited anymore, so they will not invalidate the cache.
+    # If we included the messages before the boundary in the cache, then every time we send a new
+    # message, we would invalidate the cache and we would never get a cache hit except for the system prompt.
+    messages_with_cache = []
+    
+    if len(anthropic_messages) > 0:
+        cache_boundary = len(anthropic_messages) - MAX_TRIM_THRESHOLD - 1
+        
+        # Add all messages, but only add cache_control to the message at the boundary
+        for i, msg in enumerate(anthropic_messages):
+            if i == cache_boundary:
+                messages_with_cache.append(add_cache_control_to_message(msg))
+            else:
+                messages_with_cache.append(msg)
+    
+    return cached_system_prompt, messages_with_cache
+
+
+class AnthropicClient:
+    """
+    A client for interacting with the Anthropic API or the Mito server fallback.
+    """
+
+    def __init__(self, api_key: Optional[str], timeout: int = 30, max_retries: int = 1):
+        self.api_key = api_key
+        self.timeout = timeout
+        self.max_retries = max_retries
+        self.client: Optional[anthropic.Anthropic]
+        if api_key:
+            # Use a higher timeout to avoid the 10-minute streaming requirement for long requests
+            # The default SDK timeout is 600s (10 minutes), but we set it higher for agent mode
+            # TODO: We should update agent mode to use streaming like anthropic suggests
+            self.client = anthropic.Anthropic(api_key=api_key, timeout=1200.0)  # 20 minutes
+        else:
+            self.client = None
+
+    async def request_completions(
+        self, messages: List[ChatCompletionMessageParam],
+        model: str,
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        message_type: MessageType = MessageType.CHAT
+    ) -> Any:
+        """
+        Get a response from Claude or the Mito server that adheres to the AgentResponse format.
+        """
+        anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages)
+        
+        provider_data = get_anthropic_completion_function_params(
+            message_type=message_type,
+            model=model,
+            messages=anthropic_messages,
+            max_tokens=MAX_TOKENS,
+            temperature=0,
+            system=anthropic_system_prompt,
+            stream=None,
+            response_format_info=response_format_info
+        )
+        
+        if self.api_key:
+            # Unpack provider_data for direct API call
+            assert self.client is not None
+            # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
+            response = self.client.beta.messages.create(**provider_data)  # type: ignore[arg-type]
+            
+            if provider_data.get("tool_choice") is not None:
+                result = extract_and_parse_anthropic_json_response(response)
+                return json.dumps(result) if not isinstance(result, str) else result
+            else:
+                content = response.content
+                if content[0].type == "text":
+                    return content[0].text
+                else:
+                    return ""
+        else:
+            # Only pass provider_data to the server)
+            response = await get_anthropic_completion_from_mito_server(
+                model=provider_data["model"],
+                max_tokens=provider_data["max_tokens"],
+                temperature=provider_data["temperature"],
+                system=provider_data["system"],
+                messages=provider_data["messages"],
+                tools=provider_data.get("tools"),
+                tool_choice=provider_data.get("tool_choice"),
+                message_type=message_type
+            )
+            return response
+
+    async def stream_completions(self, messages: List[ChatCompletionMessageParam], model: str, message_id: str, message_type: MessageType,
+                              reply_fn: Callable[[Union[CompletionReply, CompletionStreamChunk]], None]) -> str:
+        try:
+            anthropic_system_prompt, anthropic_messages = get_anthropic_system_prompt_and_messages_with_caching(messages)
+            model = select_correct_model(model, message_type, anthropic_system_prompt, anthropic_messages)
+
+            accumulated_response = ""
+
+            if self.api_key:
+                assert self.client is not None
+                # Beta API accepts MessageParam (compatible at runtime with BetaMessageParam)
+                # Enable extended context beta when using LARGE_CONTEXT_MODEL
+                create_params = {
+                    "model": model,
+                    "max_tokens": MAX_TOKENS,
+                    "temperature": 0,
+                    "system": anthropic_system_prompt,
+                    "messages": anthropic_messages,  # type: ignore[arg-type]
+                    "stream": True
+                }
+                if model == LARGE_CONTEXT_MODEL:
+                    create_params["betas"] = [EXTENDED_CONTEXT_BETA]
+                stream = self.client.beta.messages.create(**create_params)  # type: ignore[call-overload]
+
+                for chunk in stream:
+                    # Type checking for beta API streaming chunks (runtime type checking, types are compatible)
+                    if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":  # type: ignore[union-attr]
+                        content = chunk.delta.text  # type: ignore[union-attr]
+                        accumulated_response += content
+
+                        is_finished = chunk.type == "message_stop"  # type: ignore[union-attr]
+
+                        reply_fn(CompletionStreamChunk(
+                            parent_id=message_id,
+                            chunk=CompletionItem(
+                                content=content,
+                                isIncomplete=not is_finished,
+                                token=message_id,
+                            ),
+                            done=is_finished,
+                        ))
+
+            else:
+                async for stram_chunk in stream_anthropic_completion_from_mito_server(
+                    model=model,
+                    max_tokens=MAX_TOKENS,
+                    temperature=0,
+                    system=anthropic_system_prompt,
+                    messages=anthropic_messages,
+                    stream=True,
+                    message_type=message_type,
+                    reply_fn=reply_fn,
+                    message_id=message_id
+                ):
+                    accumulated_response += stram_chunk
+
+            return accumulated_response
+
+        except anthropic.RateLimitError:
+            raise Exception("Rate limit exceeded. Please try again later or reduce your request frequency.")
+
+        except Exception as e:
+            print(f"Error streaming content: {str(e)}")
+            raise e
+
+

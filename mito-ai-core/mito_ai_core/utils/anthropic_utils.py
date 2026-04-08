@@ -1,0 +1,194 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
+import anthropic
+from typing import Any, Dict, List, Optional, Union, AsyncGenerator, Tuple, Callable
+from anthropic.types import MessageParam, TextBlockParam, ToolUnionParam
+from mito_ai_core.utils.mito_server_utils import get_response_from_mito_server, stream_response_from_mito_server
+from mito_ai_core.completions.models import AgentResponse, MessageType, ResponseFormatInfo, CompletionReply, CompletionStreamChunk
+from mito_ai_core.utils.schema import UJ_STATIC_USER_ID, UJ_USER_EMAIL
+from mito_ai_core.utils.db import get_user_field
+from mito_ai_core.constants import MITO_ANTHROPIC_URL
+from mito_ai_core.utils.tokens import get_rough_token_estimatation_anthropic
+
+__user_email: Optional[str] = None
+__user_id: Optional[str] = None
+
+ANTHROPIC_TIMEOUT = 60
+max_retries = 1
+
+LARGE_CONTEXT_MODEL = "claude-sonnet-4-5-20250929"
+EXTENDED_CONTEXT_BETA = "context-1m-2025-08-07" # Beta feature for extended context window support
+
+def does_message_exceed_max_tokens(system: Union[str, List[TextBlockParam], anthropic.Omit], messages: List[MessageParam]) -> bool:
+    token_estimation = get_rough_token_estimatation_anthropic(system, messages)
+
+    if token_estimation is not None and token_estimation > 200_000:
+        return True
+    return False
+
+def select_correct_model(default_model: str, message_type: MessageType, system: Union[str, List[TextBlockParam], anthropic.Omit], messages: List[MessageParam]) -> str:
+    
+    message_exceeds_fast_model_context_limit = does_message_exceed_max_tokens(system, messages)
+    if message_exceeds_fast_model_context_limit:
+        # Anthropic lets us use beta mode to extend context window for sonnet class models
+        # but not haiku models
+        return LARGE_CONTEXT_MODEL
+    
+    return default_model    
+
+def _prepare_anthropic_request_data_and_headers(
+    model: Union[str, None],
+    max_tokens: int,
+    temperature: float,
+    system: Union[str, List[TextBlockParam], anthropic.Omit],
+    messages: List[MessageParam],
+    message_type: MessageType,
+    tools: Optional[List[ToolUnionParam]],
+    tool_choice: Optional[dict],
+    stream: Optional[bool]
+) -> Tuple[Dict[str, Any], Dict[str, str]]:
+    
+    global __user_email, __user_id
+    if __user_email is None:
+        __user_email = get_user_field(UJ_USER_EMAIL)
+    if __user_id is None:
+        __user_id = get_user_field(UJ_STATIC_USER_ID)
+    
+    # Build the inner data dict (excluding timeout, max_retries, email, user_id)
+    inner_data: Dict[str, Any] = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "messages": messages,
+        "betas": [EXTENDED_CONTEXT_BETA]
+    }
+    
+    # Add system to inner_data only if it is not anthropic.Omit
+    if not isinstance(system, anthropic.Omit):
+        inner_data["system"] = system
+    if tools:
+        inner_data["tools"] = tools
+    if tool_choice:
+        inner_data["tool_choice"] = tool_choice
+    if stream:
+        inner_data["stream"] = stream
+    # Compose the outer data dict
+    data = {
+        "timeout": ANTHROPIC_TIMEOUT,
+        "max_retries": max_retries,
+        "email": __user_email,
+        "user_id": __user_id,
+        "data": inner_data
+    }
+    headers = {"Content-Type": "application/json"}
+    return data, headers
+
+async def get_anthropic_completion_from_mito_server(
+    model: Union[str, None],
+    max_tokens: int,
+    temperature: float,
+    system: Union[str, anthropic.Omit],
+    messages: List[MessageParam],
+    tools: Optional[List[ToolUnionParam]],
+    tool_choice: Optional[dict],
+    message_type: MessageType
+) -> str:
+    data, headers = _prepare_anthropic_request_data_and_headers(
+        model, max_tokens, temperature, system, messages, message_type, tools, tool_choice, None
+    )
+    
+    return await get_response_from_mito_server(
+        MITO_ANTHROPIC_URL, 
+        headers, 
+        data, 
+        ANTHROPIC_TIMEOUT, 
+        max_retries, 
+        message_type, 
+        provider_name="Claude"
+    )
+
+async def stream_anthropic_completion_from_mito_server(
+    model: Union[str, None],
+    max_tokens: int,
+    temperature: float,
+    system: Union[str, List[TextBlockParam], anthropic.Omit],
+    messages: List[MessageParam],
+    stream: bool,
+    message_type: MessageType,
+    reply_fn: Optional[Callable[[Union[CompletionReply, CompletionStreamChunk]], None]] = None,
+    message_id: Optional[str] = None,
+) -> AsyncGenerator[str, None]:
+    data, headers = _prepare_anthropic_request_data_and_headers(
+        model, max_tokens, temperature, system, messages, message_type, None, None, stream
+    )
+    
+    # Use the unified streaming function
+    # If the reply_fn and message_id are empty, this function still handles those requests. This is particularly needed for the streamlit dashboard functionality
+    actual_reply_fn = reply_fn if reply_fn is not None else (lambda x: None)
+    actual_message_id = message_id if message_id is not None else ""
+    async for chunk in stream_response_from_mito_server(
+        url=MITO_ANTHROPIC_URL,
+        headers=headers,
+        data=data,
+        timeout=ANTHROPIC_TIMEOUT,
+        max_retries=max_retries,
+        message_type=message_type,
+        reply_fn=actual_reply_fn,
+        message_id=actual_message_id,
+        chunk_processor=None,
+        provider_name="Claude",
+    ):
+        yield chunk
+    
+    
+def get_anthropic_completion_function_params(
+    message_type: MessageType,
+    model: str,
+    messages: List[MessageParam],
+    max_tokens: int,
+    system: Union[str, List[TextBlockParam], anthropic.Omit],
+    temperature: float = 0.0,
+    tools: Optional[List[ToolUnionParam]] = None,
+    tool_choice: Optional[dict] = None,
+    stream: Optional[bool] = None,
+    response_format_info: Optional[ResponseFormatInfo] = None,
+) -> Dict[str, Any]:    
+    """
+    Build the provider_data dict for Anthropic completions, mirroring the OpenAI approach.
+    Only includes fields needed for the Anthropic API.
+    """
+    
+    model = select_correct_model(model, message_type, system, messages)
+    
+    provider_data = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "messages": messages,
+        "system": system,
+    }
+    
+    # Enable extended context beta when using LARGE_CONTEXT_MODEL
+    # This is required for messages exceeding the standard context limit
+    if model == LARGE_CONTEXT_MODEL:
+        provider_data["betas"] = [EXTENDED_CONTEXT_BETA]
+    
+    if tools:
+        provider_data["tools"] = tools
+    if response_format_info and response_format_info.name == "agent_response":
+        provider_data["tools"] = [{
+            "name": "agent_response",
+            "description": "Output a structured response following the AgentResponse format",
+            "input_schema": AgentResponse.model_json_schema()
+        }]
+        provider_data["tool_choice"] = {"type": "tool", "name": "agent_response"}
+    
+    
+    if tool_choice:
+        provider_data["tool_choice"] = tool_choice
+    if stream is not None:
+        provider_data["stream"] = stream
+    # Optionally handle response_format_info if Anthropic supports it in the future
+    return provider_data
+
