@@ -37,6 +37,7 @@
     font: inherit;
     color: var(--mito-text);
     cursor: pointer;
+    text-decoration: none;
     border: 1px solid rgba(31, 41, 55, 0.16);
     border-radius: 12px;
     background: var(--mito-background);
@@ -130,6 +131,15 @@
     line-height: 1.35;
     color: var(--mito-highlight);
     align-self: flex-start;
+    text-decoration: none;
+}
+
+/* JupyterLab / theme styles often underline “link-colored” text on hover; keep CTA plain. */
+.suggested-viz-card:hover .suggested-viz-card-cta,
+.suggested-viz-card:focus .suggested-viz-card-cta,
+.suggested-viz-card:focus-visible .suggested-viz-card-cta,
+.suggested-viz-card:active .suggested-viz-card-cta {
+    text-decoration: none !important;
 }
 
 .suggested-viz-card:focus {
