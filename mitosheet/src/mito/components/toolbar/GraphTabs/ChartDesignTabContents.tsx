@@ -15,7 +15,6 @@ import { Actions } from '../../../utils/actions';
 import { updateObjectWithPartialObject } from '../../../utils/objects';
 import Dropdown from '../../elements/Dropdown';
 import DropdownItem from '../../elements/DropdownItem';
-import BackArrowIcon from '../../icons/BackArrowIcon';
 import { convertBackendtoFrontendGraphParams } from '../../taskpanes/Graph/graphUtils';
 import { TaskpaneType } from '../../taskpanes/taskpanes';
 import ToolbarButton from '../ToolbarButton';
@@ -94,8 +93,6 @@ export const ChartDesignTabContents = (
     return (<div className='mito-toolbar-bottom'>
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Suggested_Visualizations]}
-            titleToolbar='Back to Suggestions'
-            iconOverride={<BackArrowIcon width='16' />}
         />
         <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Graph_SelectData]}/>
         <ChangeChartTypeButton
