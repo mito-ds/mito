@@ -8,7 +8,9 @@
 import React, { useMemo } from 'react';
 import { SheetData } from '../../../types';
 
-const PREVIEW_ROW_LIMIT = 30;
+const PREVIEW_INPUT_LIMIT = 400;
+const PREVIEW_POINT_LIMIT_DEFAULT = 16;
+const PREVIEW_POINT_LIMIT_SCATTER = 72;
 const WIDTH = 320;
 const HEIGHT = 170;
 const LEFT = 8;
@@ -73,6 +75,75 @@ const sampleEvenly = (values: number[], limit: number): number[] => {
     return sampled;
 };
 
+const samplePairsByXBins = (xs: number[], ys: number[], limit: number): { xs: number[]; ys: number[] } => {
+    const n = Math.min(xs.length, ys.length);
+    if (n <= limit) {
+        return { xs: xs.slice(0, n), ys: ys.slice(0, n) };
+    }
+
+    const xr = minMax(xs);
+    const bins = Math.max(6, Math.min(18, Math.floor(Math.sqrt(limit))));
+    const span = xr.max - xr.min;
+    const binWidth = span / bins;
+
+    if (binWidth <= 0) {
+        return {
+            xs: sampleEvenly(xs, limit),
+            ys: sampleEvenly(ys, limit),
+        };
+    }
+
+    const bucketIndices: number[][] = new Array(bins).fill(undefined).map(() => []);
+    for (let i = 0; i < n; i++) {
+        const idx = Math.min(bins - 1, Math.floor((xs[i] - xr.min) / binWidth));
+        bucketIndices[idx].push(i);
+    }
+
+    const perBin = Math.max(1, Math.floor(limit / bins));
+    const chosen: number[] = [];
+
+    for (const bucket of bucketIndices) {
+        if (bucket.length === 0) {
+            continue;
+        }
+        if (bucket.length <= perBin) {
+            chosen.push(...bucket);
+            continue;
+        }
+        // Evenly sample within each x-bin for better shape retention.
+        for (let j = 0; j < perBin; j++) {
+            const idx = Math.floor((j / Math.max(1, perBin - 1)) * (bucket.length - 1));
+            chosen.push(bucket[idx]);
+        }
+    }
+
+    // Top up if sparse bins underfilled.
+    if (chosen.length < limit) {
+        const step = Math.max(1, Math.floor(n / (limit - chosen.length + 1)));
+        for (let i = 0; i < n && chosen.length < limit; i += step) {
+            chosen.push(i);
+        }
+    }
+
+    chosen.sort((a, b) => a - b);
+    const deduped: number[] = [];
+    let prev = -1;
+    for (const i of chosen) {
+        if (i !== prev) {
+            deduped.push(i);
+            prev = i;
+        }
+        if (deduped.length >= limit) {
+            break;
+        }
+    }
+
+    return {
+        xs: deduped.map(i => xs[i]),
+        ys: deduped.map(i => ys[i]),
+    };
+};
+
 const SuggestedChartPreview = (props: {
     graphType: string;
     columnIndices: number[];
@@ -88,11 +159,11 @@ const SuggestedChartPreview = (props: {
         if (cols.length === 0) {
             return undefined;
         }
-        const limited = cols.map(c => c.columnData.slice(0, PREVIEW_ROW_LIMIT));
+        const limited = cols.map(c => sampleEvenly(toNumberArray(c.columnData), PREVIEW_INPUT_LIMIT));
         const first = limited[0];
         const second = limited[1];
-        const firstNumeric = sampleEvenly(toNumberArray(first), 16);
-        const secondNumeric = second ? sampleEvenly(toNumberArray(second), 16) : undefined;
+        const firstNumeric = sampleEvenly(first, PREVIEW_POINT_LIMIT_DEFAULT);
+        const secondNumeric = second ? sampleEvenly(second, PREVIEW_POINT_LIMIT_DEFAULT) : undefined;
         const plotW = WIDTH - LEFT - RIGHT;
         const plotH = HEIGHT - TOP - BOTTOM;
         const t = props.graphType.trim().toLowerCase();
@@ -109,8 +180,11 @@ const SuggestedChartPreview = (props: {
         const scaleYValue = (v: number, lo: number, hi: number): number => TOP + (1 - (v - lo) / (hi - lo)) * plotH;
 
         if (t === 'scatter') {
-            const xs = secondNumeric ? firstNumeric : firstNumeric.map((_, i) => i + 1);
-            const ys = secondNumeric ?? firstNumeric;
+            const scatterXRaw = second ? first : first.map((_, i) => i + 1);
+            const scatterYRaw = second ? second : first;
+            const sampledPairs = samplePairsByXBins(scatterXRaw, scatterYRaw, PREVIEW_POINT_LIMIT_SCATTER);
+            const xs = sampledPairs.xs;
+            const ys = sampledPairs.ys;
             const xr = minMax(xs);
             const yr = minMax(ys);
             const circles = ys.map((y, i) => (
