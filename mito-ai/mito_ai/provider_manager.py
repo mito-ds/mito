@@ -252,6 +252,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     input_tokens=input_tokens,
                     time_till_first_token_ms=ttft_ms,
                     total_response_time_ms=ttft_ms,
+                    mode="agent" if message_type.value.startswith("agent:") else "chat",
                 )
                 return completion # type: ignore
             
@@ -442,6 +443,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 input_tokens=input_tokens,
                 time_till_first_token_ms=ttft_ms,
                 total_response_time_ms=total_response_time_ms,
+                mode="agent" if message_type.value.startswith("agent:") else "chat",
             )
             return accumulated_response
 
