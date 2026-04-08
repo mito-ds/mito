@@ -867,6 +867,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setEditorState={setEditorState}
                     sheetDataArray={sheetDataArray}
                     mitoAPI={mitoAPI}
+                    columnIndices={uiState.currOpenTaskpane.type === TaskpaneType.SUGGESTED_VISUALIZATIONS ? uiState.currOpenTaskpane.columnIndices : undefined}
                 />
             )
             case TaskpaneType.CODEOPTIONS: return (

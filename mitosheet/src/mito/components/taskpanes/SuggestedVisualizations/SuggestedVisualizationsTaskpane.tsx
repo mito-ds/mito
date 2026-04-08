@@ -26,6 +26,8 @@ interface SuggestedVisualizationsTaskpaneProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
     sheetDataArray: SheetData[];
+    /** When set, suggestions are scoped to these dataframe column indices (from a grid selection). */
+    columnIndices?: number[];
 }
 
 type SuggestionRow = {
@@ -63,13 +65,14 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
 
     const sheetIndex = props.uiState.selectedSheetIndex;
     const sheetData = props.sheetDataArray[sheetIndex];
+    const { columnIndices } = props;
 
     useEffect(() => {
         let cancelled = false;
 
         const run = async (): Promise<void> => {
             setLoadState({ status: 'loading' });
-            const res = await props.mitoAPI.getChartSuggestions(sheetIndex);
+            const res = await props.mitoAPI.getChartSuggestions(sheetIndex, columnIndices);
             if (cancelled) {
                 return;
             }
@@ -92,14 +95,14 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
         return () => {
             cancelled = true;
         };
-    }, [sheetIndex, props.mitoAPI]);
+    }, [sheetIndex, columnIndices, props.mitoAPI]);
 
-    const onCreateChart = (graphTypeStr: string, columnIndices: number[]): void => {
+    const onCreateChart = (graphTypeStr: string, indices: number[]): void => {
         if (sheetData === undefined) {
             return;
         }
         const graphType = parseGraphType(graphTypeStr);
-        const columnIds = mapIndicesToColumnIds(sheetData, columnIndices);
+        const columnIds = mapIndicesToColumnIds(sheetData, indices);
         if (graphType === undefined || columnIds === undefined) {
             return;
         }
@@ -121,9 +124,14 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
         return <AIPrivacyPolicy mitoAPI={props.mitoAPI} setUIState={props.setUIState} />;
     }
 
+    const header = columnIndices !== undefined ? 'Suggested Graphs for Selection' : 'Suggested Graphs';
+    const emptyMessage = columnIndices !== undefined
+        ? 'No graph suggestions for this selection.'
+        : 'No graph suggestions for this sheet.';
+
     return (
         <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
-            <DefaultTaskpaneHeader header="Suggested Graphs" setUIState={props.setUIState} />
+            <DefaultTaskpaneHeader header={header} setUIState={props.setUIState} />
             <DefaultTaskpaneBody userProfile={props.userProfile}>
                 <div className="suggested-viz-taskpane-content">
                     {loadState.status === 'loading' && (
@@ -138,7 +146,7 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                     {loadState.status === 'ready' &&
                         loadState.suggestions.length === 0 &&
                         sheetData !== undefined && (
-                            <p className="suggested-viz-status">No graph suggestions for this sheet.</p>
+                            <p className="suggested-viz-status">{emptyMessage}</p>
                         )}
                     {loadState.status === 'ready' && loadState.suggestions.length > 0 && (
                         <div className="suggested-viz-suggestions">

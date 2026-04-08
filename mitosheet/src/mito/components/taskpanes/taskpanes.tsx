@@ -127,7 +127,7 @@ export type TaskpaneInfo =
     } 
     | {type: TaskpaneType.EXPORT_TO_FILE}
     | {type: TaskpaneType.AITRANSFORMATION}
-    | {type: TaskpaneType.SUGGESTED_VISUALIZATIONS}
+    | {type: TaskpaneType.SUGGESTED_VISUALIZATIONS; columnIndices?: number[]}
     | {type: TaskpaneType.CODEOPTIONS}
     | {type: TaskpaneType.COLUMN_HEADERS_TRANSFORM}
     | {

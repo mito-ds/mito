@@ -56,21 +56,41 @@ __user_email = None
 __user_id = None
 
 
-def _column_catalog(df: pd.DataFrame) -> str:
+def _column_catalog(df: pd.DataFrame, column_indices: List[int] | None = None) -> str:
     lines: List[str] = []
-    for i, col in enumerate(df.columns):
+    indices = column_indices if column_indices is not None else list(range(len(df.columns)))
+    for i in indices:
+        if i < 0 or i >= len(df.columns):
+            continue
+        col = df.columns[i]
         dtype = str(df[col].dtype)
         lines.append(f"  {i}: {repr(col)} ({dtype})")
     return "\n".join(lines)
 
 
-def build_chart_suggestions_prompt(df_name: str, df: pd.DataFrame) -> str:
-    catalog = _column_catalog(df)
+def build_chart_suggestions_prompt(df_name: str, df: pd.DataFrame, column_indices: List[int] | None = None) -> str:
+    catalog = _column_catalog(df, column_indices)
     max_chars = min(2000, int(MAX_CHARS_FOR_INPUT_DATA))
-    df_snippet = get_dataframe_creation_code(df.head(5), max_chars)
+
+    if column_indices is not None:
+        # Show sample data only for the selected columns
+        valid = [i for i in column_indices if 0 <= i < len(df.columns)]
+        df_snippet = df.iloc[:5, valid].to_string(index=False)[:max_chars] if valid else ""
+        scope_note = "The user has selected specific columns — suggest charts that use ONLY the columns in the catalog below."
+        # Use actual indices in the example so the AI doesn't anchor on [0, 1]
+        example_indices = column_indices[:2] if len(column_indices) >= 2 else column_indices[:1]
+    else:
+        df_snippet = get_dataframe_creation_code(df.head(5), max_chars)
+        scope_note = "Suggest the most insightful charts for this dataframe."
+        example_indices = [0, 1]
+
+    example_json = f'{{"suggestions":[{{"title":"short title","description":"one sentence","graph_type":"bar","column_indices":{example_indices}}}]}}'
+
     return f"""You are a data visualization assistant for tabular data analysis in Mito.
 
 Dataframe variable name: {df_name}
+
+{scope_note}
 
 Column index catalog (use ONLY these indices in column_indices):
 {catalog}
@@ -79,12 +99,12 @@ Sample data (truncated):
 {df_snippet}
 
 Respond with ONLY valid JSON (no markdown, no code fences) with this exact shape:
-{{"suggestions":[{{"title":"short title","description":"one sentence","graph_type":"bar","column_indices":[0,1]}}]}}
+{example_json}
 
 Rules:
 - Suggest at most {MAX_SUGGESTIONS} charts.
 - graph_type must be one of: bar, line, scatter, histogram, box, violin, strip, density heatmap, density contour, ecdf
-- column_indices must reference valid indices from the catalog. Order matters: for scatter put x-axis column first, then y-axis; for bar put category column first then numeric; for histogram use one numeric column index only.
+- column_indices must reference valid indices from the catalog above. Order matters: for scatter put x-axis column first, then y-axis; for bar put category column first then numeric; for histogram use one numeric column index only.
 - If nothing fits, return {{"suggestions":[]}}.
 """
 
@@ -111,7 +131,7 @@ def _parse_suggestions_json(completion: str) -> Any:
     return json.loads(text)
 
 
-def _validate_suggestions(raw: Any, num_columns: int) -> List[Dict[str, Any]]:
+def _validate_suggestions(raw: Any, num_columns: int, allowed_indices: List[int] | None = None) -> List[Dict[str, Any]]:
     if not isinstance(raw, dict):
         return []
     items = raw.get("suggestions")
@@ -140,6 +160,9 @@ def _validate_suggestions(raw: Any, num_columns: int) -> List[Dict[str, Any]]:
             if isinstance(x, float) and x == int(x):
                 x = int(x)
             if not isinstance(x, int) or x < 0 or x >= num_columns:
+                ok = False
+                break
+            if allowed_indices is not None and x not in allowed_indices:
                 ok = False
                 break
             norm_indices.append(x)
@@ -286,8 +309,15 @@ def get_chart_suggestions(params: Dict[str, Any], steps_manager: StepsManagerTyp
             "suggestions": [],
         }
 
+    raw_column_indices = params.get("column_indices")
+    column_indices: List[int] | None = None
+    if isinstance(raw_column_indices, list) and len(raw_column_indices) > 0:
+        column_indices = [i for i in raw_column_indices if isinstance(i, int) and 0 <= i < len(df.columns)]
+        if not column_indices:
+            column_indices = None
+
     df_name = df_names[sheet_index] if sheet_index < len(df_names) else "df"
-    prompt = build_chart_suggestions_prompt(str(df_name), df)
+    prompt = build_chart_suggestions_prompt(str(df_name), df, column_indices)
 
     user_input = "chart_suggestions"
 
@@ -316,7 +346,7 @@ def get_chart_suggestions(params: Dict[str, Any], steps_manager: StepsManagerTyp
             "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
         }
 
-    suggestions = _validate_suggestions(parsed, len(df.columns))
+    suggestions = _validate_suggestions(parsed, len(df.columns), allowed_indices=column_indices)
 
     return {
         "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,

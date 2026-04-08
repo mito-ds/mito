@@ -26,11 +26,6 @@ import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnTyp
 
 export type MitoAPIResult<ResultType> = {result: ResultType} | SendFunctionErrorReturnType 
 
-/** Response from Python get_chart_for_selection — single best chart for the selected columns. */
-export type AIChartForSelectionResult =
-    | { error: string }
-    | { prompt_version: string; graph_type: string; column_indices: number[] };
-
 /** Response from Python get_chart_suggestions (LLM JSON, validated server-side). */
 export type AIChartSuggestionsResult =
     | { error: string; prompt_version?: string }
@@ -576,33 +571,19 @@ export class MitoAPI {
     }
 
     /**
-     * LLM-backed: picks the single best chart for a specific set of selected column indices.
-     */
-    async getChartForSelection(
-        sheetIndex: number,
-        columnIndices: number[],
-    ): Promise<MitoAPIResult<AIChartForSelectionResult>> {
-        return await this.send<AIChartForSelectionResult>({
-            'event': 'api_call',
-            'type': 'get_chart_for_selection',
-            'params': {
-                'sheet_index': sheetIndex,
-                'column_indices': columnIndices,
-            },
-        });
-    }
-
-    /**
-     * LLM chart suggestions for the active sheet (column indices match backend dataframe column order).
+     * LLM chart suggestions. Pass columnIndices to restrict suggestions to a
+     * specific selection; omit (or pass undefined) for whole-sheet suggestions.
      */
     async getChartSuggestions(
         sheetIndex: number,
+        columnIndices?: number[],
     ): Promise<MitoAPIResult<AIChartSuggestionsResult>> {
         return await this.send<AIChartSuggestionsResult>({
             'event': 'api_call',
             'type': 'get_chart_suggestions',
             'params': {
                 'sheet_index': sheetIndex,
+                ...(columnIndices !== undefined ? { 'column_indices': columnIndices } : {}),
             },
         })
     }
