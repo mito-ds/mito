@@ -488,7 +488,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             if (!hasActiveCellContext || !hasNotebookContext) {
                 setAdditionalContext(prev => {
-                    let updated = [...prev];
+                    const updated = [...prev];
                     if (!hasActiveCellContext) {
                         updated.push({
                             type: 'active_cell',
