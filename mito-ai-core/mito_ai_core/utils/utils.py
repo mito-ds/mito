@@ -65,24 +65,3 @@ def install_packages(packages: List[str]) -> dict[str, Union[bool, str, None]]:
     
     return result
 
-def _create_http_client(timeout: int, max_retries: int) -> Tuple[Any, Optional[int]]:
-    """
-    Create an HTTP client with appropriate timeout settings.
-
-    Uses ``aiohttp`` via the ``_aiohttp_compat`` shim so that
-    ``mito-ai-core`` has **no** Tornado / Jupyter Server dependency.
-
-    Args:
-        timeout: The timeout in seconds
-        max_retries: The maximum number of retries
-
-    Returns:
-        A tuple containing the HTTP client and the timeout value in milliseconds
-    """
-    if is_running_test():
-        http_client_timeout = None
-    else:
-        http_client_timeout = timeout * 1000 * max_retries + 10000
-
-    from mito_ai_core.utils._aiohttp_compat import AiohttpClient
-    return AiohttpClient(timeout_ms=http_client_timeout), http_client_timeout

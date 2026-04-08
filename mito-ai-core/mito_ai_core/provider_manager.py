@@ -11,9 +11,9 @@ from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai_core import constants
 from mito_ai_core.enterprise.utils import is_azure_openai_configured
-from mito_ai_core.clients.gemini_client import GeminiClient
-from mito_ai_core.clients.openai_client import OpenAIClient
-from mito_ai_core.clients.anthropic_client import AnthropicClient
+from mito_ai_core.gemini_client import GeminiClient
+from mito_ai_core.openai_client import OpenAIClient
+from mito_ai_core.anthropic_client import AnthropicClient
 from mito_ai_core.logger import get_logger
 from mito_ai_core.completions.models import (
     AICapabilities,
@@ -191,7 +191,7 @@ class ProviderManager:
         for attempt in range(max_retries + 1):
             try:
                 if model_type == "copilot":
-                    from mito_ai_core.clients.copilot_client import CopilotClient
+                    from mito_ai_core.copilot_client import CopilotClient
                     copilot_client = CopilotClient()
                     completion = await copilot_client.request_completions(
                         messages=messages,
@@ -357,7 +357,7 @@ class ProviderManager:
 
         try:
             if model_type == "copilot":
-                from mito_ai_core.clients.copilot_client import CopilotClient
+                from mito_ai_core.copilot_client import CopilotClient
                 copilot_client = CopilotClient()
                 accumulated_response = await copilot_client.stream_completions(
                     messages=list(messages),
