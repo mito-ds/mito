@@ -24,13 +24,6 @@
     margin-top: 0;
 }
 
-.suggested-viz-instructions {
-    margin: 0 0 14px 0;
-    color: var(--mito-text-medium);
-    font-size: 12px;
-    line-height: 1.5;
-}
-
 .suggested-viz-card {
     box-sizing: border-box;
     display: flex;
@@ -63,10 +56,6 @@
 
 .suggested-viz-card:hover .suggested-viz-card-description {
     color: var(--mito-text-medium);
-}
-
-.suggested-viz-card:hover .suggested-viz-card-cta {
-    text-decoration: underline;
 }
 
 .suggested-viz-card:active {
