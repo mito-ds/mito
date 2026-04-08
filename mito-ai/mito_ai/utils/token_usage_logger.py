@@ -14,7 +14,7 @@ from typing import Optional
 from mito_ai.utils.schema import MITO_FOLDER
 
 TOKEN_USAGE_LOG_PATH = os.path.join(MITO_FOLDER, "token-usage-log.txt")
-TOKEN_USAGE_LOG_HEADER = ["timestamp", "model", "input_tokens", "time_till_first_token_ms"]
+TOKEN_USAGE_LOG_HEADER = ["timestamp", "model", "input_tokens", "time_till_first_token_ms", "total_response_time_ms"]
 
 _token_usage_log_lock = Lock()
 
@@ -28,6 +28,7 @@ def log_token_usage_row(
     model: str,
     input_tokens: Optional[int],
     time_till_first_token_ms: Optional[int],
+    total_response_time_ms: Optional[int] = None,
 ) -> None:
     """
     Append one token-usage row to ~/.mito/token-usage-log.txt.
@@ -49,6 +50,7 @@ def log_token_usage_row(
                         model,
                         "" if input_tokens is None else str(input_tokens),
                         "" if time_till_first_token_ms is None else str(time_till_first_token_ms),
+                        "" if total_response_time_ms is None else str(total_response_time_ms),
                     ]
                 )
     except Exception:

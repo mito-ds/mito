@@ -251,6 +251,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     model=resolved_model,
                     input_tokens=input_tokens,
                     time_till_first_token_ms=ttft_ms,
+                    total_response_time_ms=ttft_ms,
                 )
                 return completion # type: ignore
             
@@ -424,8 +425,9 @@ This attribute is observed by the websocket provider to push the error to the cl
                 input_tokens = get_rough_token_estimation_from_payload(messages)
 
             # Log the successful completion
+            total_response_time_ms = int((time.monotonic() - request_start) * 1000)
             if ttft_ms is None:
-                ttft_ms = int((time.monotonic() - request_start) * 1000)
+                ttft_ms = total_response_time_ms
             log_ai_completion_success(
                 key_type=USER_KEY if self.key_type == USER_KEY else MITO_SERVER_KEY,
                 message_type=message_type,
@@ -439,6 +441,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 model=resolved_model,
                 input_tokens=input_tokens,
                 time_till_first_token_ms=ttft_ms,
+                total_response_time_ms=total_response_time_ms,
             )
             return accumulated_response
 
