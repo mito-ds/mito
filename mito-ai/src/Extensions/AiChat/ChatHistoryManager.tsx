@@ -154,6 +154,8 @@ export class ChatHistoryManager {
     async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<IChatMessageMetadata> {
         const activeCellCode = getActiveCellCode(this.notebookTracker) || ''
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
+        const notebookPanel = this.notebookTracker.currentWidget
+        const aiOptimizedCells = getAIOptimizedCellsInNotebookPanel(notebookPanel)
 
         const activeNotebookContext = this.contextManager.getActiveNotebookContext();
         const chatMessageMetadata: IChatMessageMetadata = {
@@ -162,6 +164,7 @@ export class ChatHistoryManager {
             files: activeNotebookContext?.files || [],
             activeCellCode: activeCellCode,
             activeCellId: activeCellID,
+            aiOptimizedCells: aiOptimizedCells,
             input: input,
             threadId: activeThreadId,
             index: messageIndex,

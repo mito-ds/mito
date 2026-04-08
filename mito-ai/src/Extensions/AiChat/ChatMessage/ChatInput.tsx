@@ -479,24 +479,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
-    // Automatically add active cell context when in Chat mode and there's active cell code
+    // Automatically add context items based on mode
     useEffect(() => {
         if (!agentModeEnabled) {
-            // Check if active cell context is already present
+            // Chat mode: include both active cell and notebook context
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
-
-            if (!hasActiveCellContext) {
-                setAdditionalContext(prev => [...prev, {
-                    type: 'active_cell',
-                    value: 'Active Cell',
-                    display: 'Active Cell'
-                }]);
-            }
-
-            // Remove the current notebook context item
             const hasNotebookContext = additionalContext.some(context => context.type === 'notebook');
-            if (hasNotebookContext) {
-                setAdditionalContext(prev => prev.filter(context => context.type !== 'notebook'));
+
+            if (!hasActiveCellContext || !hasNotebookContext) {
+                setAdditionalContext(prev => {
+                    const updated = [...prev];
+                    if (!hasActiveCellContext) {
+                        updated.push({
+                            type: 'active_cell',
+                            value: 'Active Cell',
+                            display: 'Active Cell'
+                        });
+                    }
+                    if (!hasNotebookContext) {
+                        updated.push({
+                            type: 'notebook',
+                            value: 'Notebook',
+                            display: 'Notebook'
+                        });
+                    }
+                    return updated;
+                });
             }
         } else if (agentModeEnabled) {
             // Remove active cell context when in agent mode

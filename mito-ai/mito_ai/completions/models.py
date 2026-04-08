@@ -95,10 +95,11 @@ class ChatMessageMetadata():
     promptType: Literal['chat']
     threadId: ThreadID
     input: str
-    activeCellCode: str 
+    activeCellCode: str
     activeCellId: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
+    aiOptimizedCells: Optional[List[AIOptimizedCell]] = None
     base64EncodedActiveCellOutput: Optional[str] = None
     index: Optional[int] = None
     stream: bool = False
