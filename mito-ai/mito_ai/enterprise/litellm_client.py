@@ -25,7 +25,6 @@ class LiteLLMClient:
         self.base_url = base_url
         self.timeout = timeout
         self.max_retries = max_retries
-        self.last_input_tokens: Optional[int] = None
     
     async def request_completions(
         self,
@@ -46,7 +45,6 @@ class LiteLLMClient:
         Returns:
             The completion text response
         """
-        self.last_input_tokens = None
         # Strip router prefix if present (LiteLLM/ prefix)
         model_for_litellm = strip_router_prefix(model)
         
@@ -64,8 +62,6 @@ class LiteLLMClient:
         try:
             # Use LiteLLM's acompletion function
             response = await litellm.acompletion(**params)
-            if getattr(response, "usage", None) is not None:
-                self.last_input_tokens = response.usage.prompt_tokens
             
             # Extract content from response
             if response and response.choices and len(response.choices) > 0:
@@ -100,7 +96,6 @@ class LiteLLMClient:
             The accumulated response string
         """
         accumulated_response = ""
-        self.last_input_tokens = None
         
         # Strip router prefix if present (LiteLLM/ prefix)
         model_for_litellm = strip_router_prefix(model)
@@ -123,8 +118,6 @@ class LiteLLMClient:
             
             # Process streaming chunks
             async for chunk in stream:
-                if getattr(chunk, "usage", None) is not None:
-                    self.last_input_tokens = chunk.usage.prompt_tokens
                 if chunk and chunk.choices and len(chunk.choices) > 0:
                     delta = chunk.choices[0].delta
                     content = delta.content if delta and delta.content else ""
