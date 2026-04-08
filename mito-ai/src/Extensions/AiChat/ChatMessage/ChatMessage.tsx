@@ -62,6 +62,7 @@ interface IChatMessageProps {
     additionalContext?: Array<{ type: string, value: string }>
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
     scratchpadResult?: string
+    canSendMessages?: boolean
 }
 
 
@@ -88,6 +89,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     additionalContext,
     handleSubmitUserMessage,
     scratchpadResult,
+    canSendMessages = true,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -139,6 +141,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 agentModeEnabled={agentModeEnabled}
                 handleSubmitUserMessage={handleSubmitUserMessageAndCloseEditing}
                 messageIndex={messageIndex}
+                canSendMessages={canSendMessages}
             />
         );
     }

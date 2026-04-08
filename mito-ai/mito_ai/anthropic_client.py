@@ -269,7 +269,7 @@ class AnthropicClient:
                 else:
                     return ""
         else:
-            # Only pass provider_data to the server
+            # Only pass provider_data to the server)
             response = await get_anthropic_completion_from_mito_server(
                 model=provider_data["model"],
                 max_tokens=provider_data["max_tokens"],

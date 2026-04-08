@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Union, AsyncGenerator, Callable
+from typing import Callable, Union
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import ChatMessageMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
@@ -12,6 +12,13 @@ from mito_ai.completions.completion_handlers.completion_handler import Completio
 from mito_ai.completions.completion_handlers.utils import append_chat_system_message, create_ai_optimized_message
 
 __all__ = ["get_chat_completion", "stream_chat_completion"]
+
+
+def _chat_has_active_cell_output(metadata: ChatMessageMetadata) -> bool:
+    return (
+        metadata.base64EncodedActiveCellOutput is not None
+        and metadata.base64EncodedActiveCellOutput != ""
+    )
 
 class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
     """Handler for chat completions."""
@@ -39,14 +46,18 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.files or [],
             metadata.activeCellCode, 
             metadata.activeCellId,
-            metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
+            _chat_has_active_cell_output(metadata),
             metadata.input,
-            metadata.additionalContext
+            metadata.additionalContext,
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
-        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput, metadata.additionalContext)
+        new_ai_optimized_message = create_ai_optimized_message(
+            prompt,
+            metadata.base64EncodedActiveCellOutput,
+            metadata.additionalContext,
+        )
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         
@@ -100,14 +111,18 @@ class ChatCompletionHandler(CompletionHandler[ChatMessageMetadata]):
             metadata.files or [],
             metadata.activeCellCode, 
             metadata.activeCellId,
-            metadata.base64EncodedActiveCellOutput is not None and metadata.base64EncodedActiveCellOutput != '',
+            _chat_has_active_cell_output(metadata),
             metadata.input,
-            metadata.additionalContext
+            metadata.additionalContext,
         )
         display_prompt = f"```python{metadata.activeCellCode or ''}```{metadata.input}"
         
         # Add the prompt to the message history
-        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput, metadata.additionalContext)
+        new_ai_optimized_message = create_ai_optimized_message(
+            prompt,
+            metadata.base64EncodedActiveCellOutput,
+            metadata.additionalContext,
+        )
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)
         

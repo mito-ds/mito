@@ -165,7 +165,7 @@ export class ChatHistoryManager {
             input: input,
             threadId: activeThreadId,
             index: messageIndex,
-            additionalContext: additionalContext
+            additionalContext: additionalContext,
         }
 
         this.displayOptimizedChatHistory.push(
@@ -236,6 +236,7 @@ export class ChatHistoryManager {
             promptType: 'agent:scratchpad-result',
             threadId: activeThreadId,
             scratchpadResult: scratchpadResult,
+            isChromeBrowser: isChromeBasedBrowser(),
         }
 
         // Add empty user message to display history (like agent execution does for empty input)
@@ -298,7 +299,7 @@ export class ChatHistoryManager {
             errorMessage: errorMessage,
             error_message_producing_code_cell_id: activeCellID || '',
             threadId: activeThreadId,
-            isChromeBrowser: isChromeBasedBrowser()
+            isChromeBrowser: isChromeBasedBrowser(),
         }
 
         this.displayOptimizedChatHistory.push(

@@ -3,7 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { classNames } from '../../../utils/classNames';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import ChatDropdown from './ChatDropdown';
@@ -23,6 +24,10 @@ import DatabaseButton from '../../../components/DatabaseButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { AgentExecutionStatus } from '../ChatTaskpane';
 import { uploadFileToBackend } from '../../../utils/fileUpload';
+import {
+    COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION,
+    COMMAND_MITO_AI_OPEN_CHAT,
+} from '../../../commands';
 
 interface ChatInputProps {
     app: JupyterFrontEnd;
@@ -38,7 +43,14 @@ interface ChatInputProps {
     displayOptimizedChatHistoryLength?: number;
     agentTargetNotebookPanelRef?: React.RefObject<any>;
     isSignedUp?: boolean;
+    /** When false, user cannot send messages (e.g. GitHub Copilot not signed in). */
+    canSendMessages?: boolean;
     messageIndex?: number;
+    /** Border glow on the input shell when external context is added (e.g. DataFrame viewer). */
+    attentionGlowActive?: boolean;
+    onAttentionGlowAnimationEnd?: () => void;
+    /** Fired when DataFrame viewer selection is added via the Jupyter command (for attention glow, etc.). */
+    onDataframeViewerContextAdded?: () => void;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -74,7 +86,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
     displayOptimizedChatHistoryLength = 0,
     agentTargetNotebookPanelRef,
     isSignedUp = true,
+    canSendMessages = true,
     messageIndex,
+    attentionGlowActive = false,
+    onAttentionGlowAnimationEnd,
+    onDataframeViewerContextAdded,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -90,6 +106,41 @@ const ChatInput: React.FC<ChatInputProps> = ({
     // Track cell order and line selection
     const cellOrder = useCellOrder(notebookTracker);
     const lineSelection = useLineSelection(notebookTracker, cellOrder);
+
+    const onDataframeViewerContextAddedRef = useRef(onDataframeViewerContextAdded);
+    onDataframeViewerContextAddedRef.current = onDataframeViewerContextAdded;
+
+    useEffect(() => {
+        // Only the main composer registers this command. An editing ChatInput can mount
+        // alongside it; we must not overwrite the command with the edit box's state setter.
+        if (isEditing) {
+            return;
+        }
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION, {
+            label: 'Add DataFrame viewer selection to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                setAdditionalContext((prev) => [
+                    ...prev,
+                    {
+                        type: 'dataframe_viewer_selection',
+                        value: args.value as string,
+                        display: args.display as string,
+                    },
+                ]);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+    }, [app, isEditing]);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;
@@ -408,6 +459,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }
 
     const getPlaceholderText = (): string => {
+        if (!canSendMessages) {
+            return 'Sign in with GitHub above to use Mito AI';
+        }
         if (!isSignedUp && displayOptimizedChatHistoryLength === 0) {
             return 'Sign up above to use Mito AI';
         } else if (agentExecutionStatus === 'working') {
@@ -518,19 +572,33 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div
-            className={classNames("chat-input-container", { 
-                "editing": isEditing,
-                "drag-over": isDragOver 
+            className={classNames('chat-input-container', {
+                editing: isEditing,
+                'drag-over': isDragOver,
+                'chat-input-container--attention-glow': attentionGlowActive,
             })}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            onAnimationEnd={(e) => {
+                if (
+                    e.target === e.currentTarget &&
+                    e.animationName.includes('mito-ai-chat-input-attention-glow')
+                ) {
+                    onAttentionGlowAnimationEnd?.();
+                }
+            }}
         >
-            <div className='context-container'>
+            <div
+                className='context-container'
+                style={!canSendMessages ? { pointerEvents: 'none', opacity: 0.5 } : undefined}
+            >
                 <DatabaseButton app={app} />
                 <AttachFileButton onFileUploaded={handleFileUpload} notebookTracker={notebookTracker} />
                 <button
+                    type="button"
                     className="context-button"
+                    disabled={!canSendMessages}
                     onClick={() => {
                         setDropdownVisible(true);
                         setDropdownFilter('');
@@ -565,7 +633,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     className={classNames("message", "message-user", 'chat-input', { "agent-mode": agentModeEnabled })}
                     placeholder={getPlaceholderText()}
                     value={input}
-                    disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
+                    disabled={
+                        !canSendMessages ||
+                        agentExecutionStatus === 'working' ||
+                        agentExecutionStatus === 'stopping'
+                    }
                     onChange={handleInputChange}
                     onPaste={handlePaste}
                     onKeyDown={(e) => {
@@ -582,6 +654,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         // shift + enter to add a new line.
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
+                            if (!canSendMessages) {
+                                return;
+                            }
                             adjustHeight(true)
                             const processedMessage = processMessageForSubmission(input);
                             const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
@@ -615,11 +690,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => {
-                        const processedMessage = processMessageForSubmission(input);
-                        const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
-                        handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
-                    }}>Save</button>
+                    <button
+                        type="button"
+                        disabled={!canSendMessages}
+                        onClick={() => {
+                            if (!canSendMessages) {
+                                return;
+                            }
+                            const processedMessage = processMessageForSubmission(input);
+                            const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
+                            handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
+                        }}
+                    >Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

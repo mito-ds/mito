@@ -121,6 +121,14 @@
     visibility: visible;
 }
 
+/* Let the taskpane column shrink in the flex row so inner overflow/scroll works. */
+.mito-taskpane-container-narrow,
+.mito-taskpane-container-wide {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 .mito-taskpane-container {
     width: 0%;
     visibility: hidden;

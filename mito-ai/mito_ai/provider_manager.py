@@ -3,7 +3,11 @@
 
 from __future__ import annotations
 import asyncio
+<<<<<<< mito-ai-token-logging
 import time
+=======
+from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
+>>>>>>> dev
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
@@ -38,8 +42,12 @@ from mito_ai.utils.telemetry_utils import (
 )
 from mito_ai.utils.provider_utils import get_model_provider
 from mito_ai.utils.model_utils import get_available_models, get_fast_model_for_selected_model, get_smartest_model_for_selected_model
+<<<<<<< mito-ai-token-logging
 from mito_ai.utils.token_usage_logger import log_token_usage_row
 from mito_ai.utils.tokens import get_rough_token_estimation_from_payload
+=======
+from mito_ai.utils.version_utils import is_github_copilot_helper_installed
+>>>>>>> dev
 
 __all__ = ["ProviderManager"]
 
@@ -89,6 +97,11 @@ This attribute is observed by the websocket provider to push the error to the cl
         """
         Returns the capabilities of the AI provider.
         """
+        if is_github_copilot_helper_installed():
+            return AICapabilities(
+                configuration={"model": self._selected_model},
+                provider="GitHub Copilot",
+            )
         # TODO: We should validate that these keys are actually valid for the provider
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
@@ -132,6 +145,8 @@ This attribute is observed by the websocket provider to push the error to the cl
 
     @property
     def key_type(self) -> str:
+        if is_github_copilot_helper_installed():
+            return USER_KEY
         # TODO: We should validate that these keys are actually valid for the provider
         # otherwise it will look like we are using the user_key when actually falling back 
         # to the mito server because the key is invalid. 
@@ -196,7 +211,16 @@ This attribute is observed by the websocket provider to push the error to the cl
         # Retry loop
         for attempt in range(max_retries + 1):
             try:
-                if model_type == "abacus":
+                if model_type == "copilot":
+                    from mito_ai.copilot_client import CopilotClient
+                    copilot_client = CopilotClient()
+                    completion = await copilot_client.request_completions(
+                        messages=messages,
+                        model=resolved_model,
+                        response_format_info=response_format_info,
+                        message_type=message_type,
+                    )
+                elif model_type == "abacus":
                     if not self._openai_client:
                         raise RuntimeError("OpenAI client is not initialized.")
                     completion = await self._openai_client.request_completions(
@@ -358,7 +382,17 @@ This attribute is observed by the websocket provider to push the error to the cl
             reply_fn(reply)
 
         try:
-            if model_type == "abacus":
+            if model_type == "copilot":
+                from mito_ai.copilot_client import CopilotClient
+                copilot_client = CopilotClient()
+                accumulated_response = await copilot_client.stream_completions(
+                    messages=list(messages),
+                    model=resolved_model,
+                    message_id=message_id,
+                    reply_fn=reply_fn,
+                    message_type=message_type,
+                )
+            elif model_type == "abacus":
                 if not self._openai_client:
                     raise RuntimeError("OpenAI client is not initialized.")
                 accumulated_response = await self._openai_client.stream_completions(

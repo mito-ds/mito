@@ -56,6 +56,7 @@ export enum TaskpaneType {
     EXCEL_RANGE_IMPORT = 'Excel Range Import',
     EXPORT_TO_FILE = 'Export To File',
     AITRANSFORMATION = 'AITransformation',
+    SUGGESTED_VISUALIZATIONS = 'SuggestedVisualizations',
     CODEOPTIONS = 'CodeOptions',
     COLUMN_HEADERS_TRANSFORM = 'Column Headers Transform',
     USERDEFINEDIMPORT = 'UserDefinedImport',
@@ -126,6 +127,7 @@ export type TaskpaneInfo =
     } 
     | {type: TaskpaneType.EXPORT_TO_FILE}
     | {type: TaskpaneType.AITRANSFORMATION}
+    | {type: TaskpaneType.SUGGESTED_VISUALIZATIONS}
     | {type: TaskpaneType.CODEOPTIONS}
     | {type: TaskpaneType.COLUMN_HEADERS_TRANSFORM}
     | {

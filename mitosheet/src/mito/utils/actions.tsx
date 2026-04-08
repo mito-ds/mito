@@ -91,6 +91,7 @@ import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, incr
 import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
 import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
 import SelectDataIcon from "../components/icons/GraphToolbar/SelectDataIcon";
+import HexagonAIIcon from "../components/icons/HexagonAI";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -2653,6 +2654,27 @@ export const getActions = (
             isDisabled: () => {return userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION ? undefined : 'AI Transformation is deactivated for this version of Mito. Please contact your admin with any questions.'},
             searchTerms: ['AI Transformation'],
             tooltip: "AI Transformation"
+        },
+        [ActionEnum.Suggested_Visualizations]: {
+            type: 'build-time',
+            staticType: ActionEnum.Suggested_Visualizations,
+            iconToolbar: HexagonAIIcon,
+            titleToolbar: 'Suggest Graphs',
+            longTitle: 'Suggest Graphs',
+            actionFunction: () => {
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.SUGGESTED_VISUALIZATIONS},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to analyze. Import data.'},
+            searchTerms: ['suggest graphs', 'suggest charts', 'suggested visualizations', 'charts', 'graphs'],
+            tooltip: "Open graph suggestions."
         },
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
             type: 'build-time',

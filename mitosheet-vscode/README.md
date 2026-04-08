@@ -1,6 +1,6 @@
 # Mitosheet for Visual Studio Code
 
-The Mito spreadsheet is desgined to help folks automate their repeititive reporting with Python. Every edit you make to the Mito spreadsheet is automatically converted to production-ready Python code. Use spreadsheet formulas like VLOOKUP, pivot tables, and all of your favorite Excel functionality.
+The Mito spreadsheet is desgined to automate repeititive reporting with Python. Every edit you make to the Mito spreadsheet is automatically converted to production-ready Python code. Use spreadsheet formulas like VLOOKUP, pivot tables, and all of your favorite Excel functionality.
 
 **Filtering**
 
