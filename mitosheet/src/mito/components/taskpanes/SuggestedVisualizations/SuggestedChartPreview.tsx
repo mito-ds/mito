@@ -30,10 +30,6 @@ const toNumberArray = (values: (string | number | boolean)[]): number[] => {
     });
 };
 
-const toStringArray = (values: (string | number | boolean)[]): string[] => {
-    return values.map(v => String(v));
-};
-
 const minMax = (values: number[]): { min: number; max: number } => {
     if (values.length === 0) {
         return { min: 0, max: 1 };
@@ -65,6 +61,18 @@ const quantile = (values: number[], q: number): number => {
     return sorted[low] * (1 - ratio) + sorted[high] * ratio;
 };
 
+const sampleEvenly = (values: number[], limit: number): number[] => {
+    if (values.length <= limit) {
+        return values;
+    }
+    const sampled: number[] = [];
+    for (let i = 0; i < limit; i++) {
+        const idx = Math.floor((i / (limit - 1)) * (values.length - 1));
+        sampled.push(values[idx]);
+    }
+    return sampled;
+};
+
 const SuggestedChartPreview = (props: {
     graphType: string;
     columnIndices: number[];
@@ -83,8 +91,8 @@ const SuggestedChartPreview = (props: {
         const limited = cols.map(c => c.columnData.slice(0, PREVIEW_ROW_LIMIT));
         const first = limited[0];
         const second = limited[1];
-        const firstNumeric = toNumberArray(first);
-        const secondNumeric = second ? toNumberArray(second) : undefined;
+        const firstNumeric = sampleEvenly(toNumberArray(first), 16);
+        const secondNumeric = second ? sampleEvenly(toNumberArray(second), 16) : undefined;
         const plotW = WIDTH - LEFT - RIGHT;
         const plotH = HEIGHT - TOP - BOTTOM;
         const t = props.graphType.trim().toLowerCase();
@@ -98,8 +106,9 @@ const SuggestedChartPreview = (props: {
             </>
         );
 
-        const getX = (i: number, n: number): number => LEFT + (n <= 1 ? plotW / 2 : (i / (n - 1)) * plotW);
-        const getY = (v: number, lo: number, hi: number): number => TOP + (1 - (v - lo) / (hi - lo)) * plotH;
+        const scaleXIndex = (i: number, n: number): number => LEFT + (n <= 1 ? plotW / 2 : (i / (n - 1)) * plotW);
+        const scaleXValue = (v: number, lo: number, hi: number): number => LEFT + ((v - lo) / (hi - lo)) * plotW;
+        const scaleYValue = (v: number, lo: number, hi: number): number => TOP + (1 - (v - lo) / (hi - lo)) * plotH;
 
         if (t === 'scatter') {
             const xs = secondNumeric ? firstNumeric : firstNumeric.map((_, i) => i + 1);
@@ -107,20 +116,20 @@ const SuggestedChartPreview = (props: {
             const xr = minMax(xs);
             const yr = minMax(ys);
             const circles = ys.map((y, i) => (
-                <circle key={i} cx={getX(xs[i], xs.length)} cy={getY(y, yr.min, yr.max)} r="2.4" fill={PURPLE} opacity="0.8" />
+                <circle key={i} cx={scaleXValue(xs[i], xr.min, xr.max)} cy={scaleYValue(y, yr.min, yr.max)} r="2.4" fill={PURPLE} opacity="0.82" />
             ));
             return { axes, marks: circles };
         }
         if (t === 'line') {
             const yr = minMax(firstNumeric);
-            const path = firstNumeric.map((v, i) => `${i === 0 ? 'M' : 'L'} ${getX(i, firstNumeric.length)} ${getY(v, yr.min, yr.max)}`).join(' ');
+            const path = firstNumeric.map((v, i) => `${i === 0 ? 'M' : 'L'} ${scaleXIndex(i, firstNumeric.length)} ${scaleYValue(v, yr.min, yr.max)}`).join(' ');
             return {
                 axes,
                 marks: (
                     <>
                         <path d={path} fill="none" stroke={PURPLE} strokeWidth="2.2" />
                         {firstNumeric.map((v, i) => (
-                            <circle key={i} cx={getX(i, firstNumeric.length)} cy={getY(v, yr.min, yr.max)} r="1.8" fill={PURPLE} />
+                            <circle key={i} cx={scaleXIndex(i, firstNumeric.length)} cy={scaleYValue(v, yr.min, yr.max)} r="1.8" fill={PURPLE} />
                         ))}
                     </>
                 ),
@@ -138,7 +147,7 @@ const SuggestedChartPreview = (props: {
             const cr = minMax(counts);
             const bw = plotW / bins;
             const bars = counts.map((c, i) => {
-                const y = getY(c, cr.min, cr.max);
+                const y = scaleYValue(c, cr.min, cr.max);
                 return <rect key={i} x={LEFT + i * bw + 1} y={y} width={Math.max(1, bw - 2)} height={TOP + plotH - y} fill={PURPLE} opacity="0.8" rx="1" />;
             });
             return { axes, marks: bars };
@@ -149,14 +158,14 @@ const SuggestedChartPreview = (props: {
             const hi = quantile(firstNumeric, 0.75);
             const r = minMax(firstNumeric);
             const cx = LEFT + plotW / 2;
-            const yLo = getY(lo, r.min, r.max);
-            const yMid = getY(mid, r.min, r.max);
-            const yHi = getY(hi, r.min, r.max);
+            const yLo = scaleYValue(lo, r.min, r.max);
+            const yMid = scaleYValue(mid, r.min, r.max);
+            const yHi = scaleYValue(hi, r.min, r.max);
             return {
                 axes,
                 marks: (
                     <>
-                        <line x1={cx} y1={getY(r.min, r.min, r.max)} x2={cx} y2={getY(r.max, r.min, r.max)} stroke={PURPLE} opacity="0.6" />
+                        <line x1={cx} y1={scaleYValue(r.min, r.min, r.max)} x2={cx} y2={scaleYValue(r.max, r.min, r.max)} stroke={PURPLE} opacity="0.6" />
                         <rect x={cx - 26} y={yHi} width={52} height={Math.max(2, yLo - yHi)} fill={PURPLE} opacity="0.22" stroke={PURPLE} />
                         <line x1={cx - 26} y1={yMid} x2={cx + 26} y2={yMid} stroke={PURPLE} strokeWidth="2" />
                     </>
@@ -165,10 +174,9 @@ const SuggestedChartPreview = (props: {
         }
         if (t === 'ecdf') {
             const sorted = [...firstNumeric].sort((a, b) => a - b);
-            const r = minMax(sorted);
             const pts = sorted.map((v, i) => ({
-                x: getX(i, sorted.length),
-                y: getY((i + 1) / sorted.length, 0, 1),
+                x: scaleXIndex(i, sorted.length),
+                y: scaleYValue((i + 1) / sorted.length, 0, 1),
             }));
             const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
             return { axes, marks: <path d={path} fill="none" stroke={PURPLE} strokeWidth="2.2" /> };
@@ -177,26 +185,18 @@ const SuggestedChartPreview = (props: {
             const xr = minMax(firstNumeric);
             const yr = minMax(secondNumeric);
             const marks = firstNumeric.map((x, i) => (
-                <circle key={i} cx={getX(x, firstNumeric.length)} cy={getY(secondNumeric[i], yr.min, yr.max)} r="3.2" fill={PURPLE} opacity="0.22" />
+                <circle key={i} cx={scaleXValue(x, xr.min, xr.max)} cy={scaleYValue(secondNumeric[i], yr.min, yr.max)} r="3.2" fill={PURPLE} opacity="0.22" />
             ));
             return { axes, marks };
         }
         const barValues = secondNumeric ?? firstNumeric;
-        const barLabels = toStringArray(first);
         const br = minMax(barValues);
         const n = Math.max(1, barValues.length);
         const bw = plotW / n;
         const bars = barValues.map((v, i) => {
-            const y = getY(v, br.min, br.max);
+            const y = scaleYValue(v, br.min, br.max);
             return (
-                <g key={i}>
-                    <rect x={LEFT + i * bw + 1} y={y} width={Math.max(1, bw - 2)} height={TOP + plotH - y} fill={PURPLE} opacity="0.82" rx="1" />
-                    {i % Math.ceil(n / 6) === 0 && (
-                        <text x={LEFT + i * bw + bw / 2} y={TOP + plotH + 12} fontSize="8" fill="rgba(31,41,55,0.55)" textAnchor="middle">
-                            {barLabels[i].slice(0, 6)}
-                        </text>
-                    )}
-                </g>
+                <rect key={i} x={LEFT + i * bw + 1} y={y} width={Math.max(1, bw - 2)} height={TOP + plotH - y} fill={PURPLE} opacity="0.82" rx="1" />
             );
         });
         return { axes, marks: bars };
