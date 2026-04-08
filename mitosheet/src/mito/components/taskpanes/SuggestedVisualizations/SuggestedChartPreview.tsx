@@ -11,10 +11,10 @@ import { SheetData } from '../../../types';
 const PREVIEW_ROW_LIMIT = 30;
 const WIDTH = 320;
 const HEIGHT = 170;
-const LEFT = 24;
-const RIGHT = 8;
-const TOP = 10;
-const BOTTOM = 24;
+const LEFT = 8;
+const RIGHT = 6;
+const TOP = 6;
+const BOTTOM = 0;
 const PURPLE = '#8b5cf6';
 
 const toNumberArray = (values: (string | number | boolean)[]): number[] => {
@@ -99,8 +99,6 @@ const SuggestedChartPreview = (props: {
 
         const axes = (
             <>
-                <line x1={LEFT} y1={TOP} x2={LEFT} y2={TOP + plotH} stroke="rgba(31,41,55,0.35)" strokeWidth="1" />
-                <line x1={LEFT} y1={TOP + plotH} x2={LEFT + plotW} y2={TOP + plotH} stroke="rgba(31,41,55,0.35)" strokeWidth="1" />
                 <line x1={LEFT} y1={TOP + plotH * 0.33} x2={LEFT + plotW} y2={TOP + plotH * 0.33} stroke="rgba(31,41,55,0.18)" strokeWidth="1" />
                 <line x1={LEFT} y1={TOP + plotH * 0.66} x2={LEFT + plotW} y2={TOP + plotH * 0.66} stroke="rgba(31,41,55,0.18)" strokeWidth="1" />
             </>

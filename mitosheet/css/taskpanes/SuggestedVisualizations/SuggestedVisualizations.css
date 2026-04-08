@@ -91,9 +91,9 @@
     height: 100%;
     pointer-events: none;
     display: flex;
-    align-items: flex-end;
+    align-items: stretch;
     justify-content: center;
-    padding: 12px 14px 10px 14px;
+    padding: 0;
     box-sizing: border-box;
 }
 
