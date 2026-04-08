@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { getUserKey } from '../../../restAPI/RestAPI';
 import { FreeTierCard } from './FreeTierCard';
 import { ProCard } from './ProCard';
+import { GithubCopilotSettingsPanel } from './GithubCopilotSettingsPanel';
 import '../../../../style/SubscriptionPage.css';
 
 export const SubscriptionPage = (): JSX.Element => {
@@ -27,6 +28,7 @@ export const SubscriptionPage = (): JSX.Element => {
                 <h2>Manage Subscription</h2>
             </div>
 
+            <GithubCopilotSettingsPanel />
             {isPro ? <ProCard /> : <FreeTierCard />}
         </div>
     );

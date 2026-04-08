@@ -34,14 +34,23 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
             )
 
         # Add the system message if it doesn't alredy exist
-        await append_agent_system_message(message_history, provider, metadata.threadId, metadata.isChromeBrowser)
+        await append_agent_system_message(
+            message_history,
+            provider,
+            metadata.threadId,
+            metadata.isChromeBrowser,
+        )
         
         # Create the prompt
         prompt = create_agent_execution_prompt(metadata)
         display_prompt = metadata.input
         
         # Add the prompt to the message history
-        new_ai_optimized_message = create_ai_optimized_message(prompt, metadata.base64EncodedActiveCellOutput, metadata.additionalContext)
+        new_ai_optimized_message = create_ai_optimized_message(
+            prompt,
+            metadata.base64EncodedActiveCellOutput,
+            metadata.additionalContext,
+        )
         new_display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": display_prompt}
         
         await message_history.append_message(new_ai_optimized_message, new_display_optimized_message, provider, metadata.threadId)

@@ -3,8 +3,9 @@
 
 from typing import List, Tuple, Union, Optional, cast
 from mito_ai import constants
-from mito_ai.utils.version_utils import is_enterprise
+from mito_ai.utils.version_utils import is_enterprise, is_github_copilot_helper_installed
 from mito_ai.enterprise.utils import is_abacus_configured
+from mito_ai.copilot.model_ids import get_fallback_copilot_models_prefixed
 
 # Model ordering: [fastest, ..., slowest] for each provider
 ANTHROPIC_MODEL_ORDER = [
@@ -37,13 +38,21 @@ def get_available_models() -> List[str]:
     Determine which models are available based on enterprise mode and router configuration.
     
     Priority order:
-    1. Abacus (if configured)
-    2. LiteLLM (if configured)
-    3. Standard models
+    1. GitHub Copilot (mito-ai-helper-github-copilot installed)
+    2. Abacus (if configured)
+    3. LiteLLM (if configured)
+    4. Standard models
     
     Returns:
         List of available model names with appropriate prefixes.
     """
+    if is_github_copilot_helper_installed():
+        from mito_ai.copilot import service as copilot_service
+
+        api_ids = copilot_service.get_cached_copilot_api_model_ids()
+        if api_ids is not None and len(api_ids) > 0:
+            return [f"copilot/{m}" for m in api_ids]
+        return get_fallback_copilot_models_prefixed()
     # Check if enterprise mode is enabled AND Abacus is configured (highest priority)
     if is_abacus_configured():
         # Return Abacus models (with Abacus/ prefix)
@@ -65,7 +74,9 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
     - For enterprise router models (Abacus/LiteLLM), finds the fastest available model by comparing indices.
     """
     # Check if this is an enterprise router model (has "/" or router prefix)
-    if "/" in selected_model or selected_model.lower().startswith(('abacus/', 'litellm/')):
+    if "/" in selected_model or selected_model.lower().startswith(
+        ("abacus/", "litellm/", "copilot/")
+    ):
         # Find the fastest model from available models
         available_models = get_available_models()
         if not available_models:
@@ -75,10 +86,17 @@ def get_fast_model_for_selected_model(selected_model: str) -> str:
         router_models = [model for model in available_models if "/" in model]
         if not router_models:
             return selected_model
-        
+
+        # Copilot: ordering is the list order from get_available_models()
+        copilot_models = [m for m in router_models if m.lower().startswith("copilot/")]
+        if copilot_models and all(m.lower().startswith("copilot/") for m in router_models):
+            return copilot_models[0]
+
         # Extract provider/model pairs for ordering
         pairs_with_indices = []
         for model in router_models:
+            if model.lower().startswith("copilot/"):
+                continue
             # Strip router prefix to get underlying model info
             model_without_router = strip_router_prefix(model)
             
@@ -128,14 +146,22 @@ def get_smartest_model_for_selected_model(selected_model: str) -> str:
     - For enterprise router models (Abacus/LiteLLM), finds the smartest available model by comparing indices.
     """
     # Check if this is an enterprise router model (has "/" or router prefix)
-    if "/" in selected_model or selected_model.lower().startswith(('abacus/', 'litellm/')):
+    if "/" in selected_model or selected_model.lower().startswith(
+        ("abacus/", "litellm/", "copilot/")
+    ):
+        available_models = get_available_models()
+        if (
+            available_models
+            and all(m.lower().startswith("copilot/") for m in available_models)
+        ):
+            copilot_router = [m for m in available_models if "/" in m]
+            return copilot_router[-1] if copilot_router else selected_model
+
         # Extract underlying provider from selected model
         selected_provider = get_underlying_model_provider(selected_model)
         if not selected_provider:
             return selected_model
         
-        # Find the smartest model from available models
-        available_models = get_available_models()
         if not available_models:
             return selected_model
         
@@ -203,6 +229,8 @@ def strip_router_prefix(model: str) -> str:
         return model[7:]  # Strip "Abacus/"
     elif model.lower().startswith('litellm/'):
         return model[8:]  # Strip "LiteLLM/"
+    elif model.lower().startswith('copilot/'):
+        return model[8:]  # Strip "copilot/"
     return model
 
 def get_underlying_model_provider(full_model_provider_id: str) -> Optional[str]:

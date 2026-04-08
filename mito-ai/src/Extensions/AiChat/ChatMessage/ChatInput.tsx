@@ -43,6 +43,8 @@ interface ChatInputProps {
     displayOptimizedChatHistoryLength?: number;
     agentTargetNotebookPanelRef?: React.RefObject<any>;
     isSignedUp?: boolean;
+    /** When false, user cannot send messages (e.g. GitHub Copilot not signed in). */
+    canSendMessages?: boolean;
     messageIndex?: number;
     /** Border glow on the input shell when external context is added (e.g. DataFrame viewer). */
     attentionGlowActive?: boolean;
@@ -84,6 +86,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     displayOptimizedChatHistoryLength = 0,
     agentTargetNotebookPanelRef,
     isSignedUp = true,
+    canSendMessages = true,
     messageIndex,
     attentionGlowActive = false,
     onAttentionGlowAnimationEnd,
@@ -456,6 +459,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }
 
     const getPlaceholderText = (): string => {
+        if (!canSendMessages) {
+            return 'Sign in with GitHub above to use Mito AI';
+        }
         if (!isSignedUp && displayOptimizedChatHistoryLength === 0) {
             return 'Sign up above to use Mito AI';
         } else if (agentExecutionStatus === 'working') {
@@ -583,11 +589,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 }
             }}
         >
-            <div className='context-container'>
+            <div
+                className='context-container'
+                style={!canSendMessages ? { pointerEvents: 'none', opacity: 0.5 } : undefined}
+            >
                 <DatabaseButton app={app} />
                 <AttachFileButton onFileUploaded={handleFileUpload} notebookTracker={notebookTracker} />
                 <button
+                    type="button"
                     className="context-button"
+                    disabled={!canSendMessages}
                     onClick={() => {
                         setDropdownVisible(true);
                         setDropdownFilter('');
@@ -622,7 +633,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     className={classNames("message", "message-user", 'chat-input', { "agent-mode": agentModeEnabled })}
                     placeholder={getPlaceholderText()}
                     value={input}
-                    disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
+                    disabled={
+                        !canSendMessages ||
+                        agentExecutionStatus === 'working' ||
+                        agentExecutionStatus === 'stopping'
+                    }
                     onChange={handleInputChange}
                     onPaste={handlePaste}
                     onKeyDown={(e) => {
@@ -639,6 +654,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         // shift + enter to add a new line.
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
+                            if (!canSendMessages) {
+                                return;
+                            }
                             adjustHeight(true)
                             const processedMessage = processMessageForSubmission(input);
                             const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
@@ -672,11 +690,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => {
-                        const processedMessage = processMessageForSubmission(input);
-                        const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
-                        handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
-                    }}>Save</button>
+                    <button
+                        type="button"
+                        disabled={!canSendMessages}
+                        onClick={() => {
+                            if (!canSendMessages) {
+                                return;
+                            }
+                            const processedMessage = processMessageForSubmission(input);
+                            const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
+                            handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
+                        }}
+                    >Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

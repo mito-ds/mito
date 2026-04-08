@@ -21,6 +21,8 @@ def get_model_provider(model: str) -> Union[str, None]:
     model_lower = model.lower()
 
     # Check for router prefixes first (highest priority)
+    if model_lower.startswith('copilot/'):
+        return 'copilot'
     if model_lower.startswith('abacus/'):
         return 'abacus'
     elif model_lower.startswith('litellm/'):
