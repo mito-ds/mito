@@ -14,6 +14,7 @@ import { Actions } from '../../utils/actions';
 import { classNames } from '../../utils/classNames';
 import GetSupportButton from '../elements/GetSupportButton';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
+import DocumentationIcon from '../icons/DocumentationIcon';
 import { CodeTabContents } from './CodeTabContents';
 import { DataTabContents } from './DataTabContents';
 import { FormulaTabContents } from './FormulaTabContents';
@@ -135,6 +136,23 @@ export const Toolbar = (
                         id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
                         action={props.actions.buildTimeActions[ActionEnum.OpenFind]}
                     />
+                    <div
+                        className='mito-toolbar-button-container vertical-align-content mito-toolbar-button-container-enabled'
+                        onClick={() => {
+                            props.setUIState(prev => ({
+                                ...prev,
+                                currOpenTaskpane: {type: TaskpaneType.HELP}
+                            }));
+                        }}
+                    >
+                        <button className='mito-toolbar-button' type='button'>
+                            <span title='Help'>
+                                <div className='mito-toolbar-button-icon-container'>
+                                    <DocumentationIcon />
+                                </div>
+                            </span>
+                        </button>
+                    </div>
                     <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Steps]} />
                     {!props.hideFullscreenButton && (
                         <ToolbarButton
