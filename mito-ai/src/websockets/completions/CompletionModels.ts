@@ -110,6 +110,7 @@ export interface IScratchpadResultMetadata {
   threadId: string;
   scratchpadResult: string;
   index?: number;
+  isChromeBrowser?: boolean;
 }
 
 export interface IAgentSmartDebugMetadata {
@@ -303,6 +304,18 @@ export type ErrorMessage = CompletionError & {
    */
   type: 'error';
 };
+
+/**
+ * GitHub Copilot device-login / auth status (pushed from server threads over the completion WebSocket).
+ */
+export interface IGithubCopilotLoginStatus {
+  type: 'github_copilot_login_status';
+  status: string;
+  verification_uri?: string;
+  user_code?: string;
+  /** Copilot API model ids from GET /models after sign-in */
+  available_chat_models?: string[];
+}
 
 /**
  * A completion suggestion.
@@ -500,6 +513,7 @@ export interface IDeleteThreadReply {
 export type CompleterMessage =
   | ErrorMessage
   | IAICapabilities
+  | IGithubCopilotLoginStatus
   | ICompletionReply
   | ICompletionStreamChunk
   | IFetchHistoryReply
