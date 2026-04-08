@@ -5,130 +5,209 @@
 
 // Copyright (c) Mito
 
-import React from 'react';
+import React, { useMemo } from 'react';
+import { SheetData } from '../../../types';
 
-const VB = '0 0 56 40';
+const PREVIEW_ROW_LIMIT = 30;
+const WIDTH = 320;
+const HEIGHT = 170;
+const LEFT = 24;
+const RIGHT = 8;
+const TOP = 10;
+const BOTTOM = 24;
+const PURPLE = '#8b5cf6';
 
-/**
- * Minimal decorative SVG per chart type (not real data — thumbnail only).
- */
-const SuggestedChartPreview = (props: { graphType: string }): JSX.Element => {
-    const t = props.graphType.trim().toLowerCase();
+const toNumberArray = (values: (string | number | boolean)[]): number[] => {
+    return values.map((v, i) => {
+        if (typeof v === 'number') {
+            return v;
+        }
+        if (typeof v === 'boolean') {
+            return v ? 1 : 0;
+        }
+        const parsed = Number(v);
+        return Number.isFinite(parsed) ? parsed : i + 1;
+    });
+};
 
-    switch (t) {
-        case 'line':
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <path
-                        d="M 6 28 L 14 22 L 22 24 L 30 14 L 38 18 L 46 10 L 50 12"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    />
-                </svg>
-            );
-        case 'scatter':
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <circle cx="12" cy="22" r="2.2" fill="currentColor" />
-                    <circle cx="20" cy="14" r="2.2" fill="currentColor" />
-                    <circle cx="28" cy="18" r="2.2" fill="currentColor" />
-                    <circle cx="36" cy="10" r="2.2" fill="currentColor" />
-                    <circle cx="44" cy="16" r="2.2" fill="currentColor" />
-                    <circle cx="18" cy="28" r="2" fill="currentColor" opacity="0.55" />
-                </svg>
-            );
-        case 'histogram':
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <rect x="8" y="22" width="7" height="12" rx="1" fill="currentColor" opacity="0.35" />
-                    <rect x="16" y="16" width="7" height="18" rx="1" fill="currentColor" opacity="0.5" />
-                    <rect x="24" y="12" width="7" height="22" rx="1" fill="currentColor" opacity="0.65" />
-                    <rect x="32" y="14" width="7" height="20" rx="1" fill="currentColor" opacity="0.55" />
-                    <rect x="40" y="20" width="7" height="14" rx="1" fill="currentColor" opacity="0.4" />
-                </svg>
-            );
-        case 'box':
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <line x1="10" y1="14" x2="10" y2="26" stroke="currentColor" strokeWidth="1.5" />
-                    <line x1="46" y1="18" x2="46" y2="24" stroke="currentColor" strokeWidth="1.5" />
-                    <rect x="18" y="16" width="20" height="12" rx="1" fill="none" stroke="currentColor" strokeWidth="2" />
-                    <line x1="18" y1="22" x2="38" y2="22" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
-                </svg>
-            );
-        case 'violin':
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <path
-                        d="M 28 8 C 38 12 38 28 28 32 C 18 28 18 12 28 8 Z"
-                        fill="currentColor"
-                        fillOpacity="0.2"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                    />
-                    <line x1="28" y1="12" x2="28" y2="28" stroke="currentColor" strokeWidth="1.2" opacity="0.5" />
-                </svg>
-            );
-        case 'strip':
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <line x1="8" y1="22" x2="48" y2="22" stroke="currentColor" strokeWidth="1.5" opacity="0.35" />
-                    <circle cx="14" cy="22" r="2.5" fill="currentColor" />
-                    <circle cx="24" cy="22" r="2.5" fill="currentColor" />
-                    <circle cx="34" cy="22" r="2.5" fill="currentColor" />
-                    <circle cx="42" cy="22" r="2.5" fill="currentColor" />
-                </svg>
-            );
-        case 'density heatmap':
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <rect x="8" y="8" width="9" height="9" rx="1" fill="currentColor" opacity="0.2" />
-                    <rect x="19" y="8" width="9" height="9" rx="1" fill="currentColor" opacity="0.45" />
-                    <rect x="30" y="8" width="9" height="9" rx="1" fill="currentColor" opacity="0.65" />
-                    <rect x="41" y="8" width="9" height="9" rx="1" fill="currentColor" opacity="0.35" />
-                    <rect x="8" y="19" width="9" height="9" rx="1" fill="currentColor" opacity="0.5" />
-                    <rect x="19" y="19" width="9" height="9" rx="1" fill="currentColor" opacity="0.75" />
-                    <rect x="30" y="19" width="9" height="9" rx="1" fill="currentColor" opacity="0.4" />
-                    <rect x="41" y="19" width="9" height="9" rx="1" fill="currentColor" opacity="0.55" />
-                    <rect x="8" y="30" width="9" height="9" rx="1" fill="currentColor" opacity="0.35" />
-                    <rect x="19" y="30" width="9" height="9" rx="1" fill="currentColor" opacity="0.5" />
-                    <rect x="30" y="30" width="9" height="9" rx="1" fill="currentColor" opacity="0.3" />
-                    <rect x="41" y="30" width="9" height="9" rx="1" fill="currentColor" opacity="0.6" />
-                </svg>
-            );
-        case 'density contour':
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <ellipse cx="28" cy="20" rx="22" ry="14" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.35" />
-                    <ellipse cx="28" cy="20" rx="14" ry="9" fill="none" stroke="currentColor" strokeWidth="1.4" opacity="0.55" />
-                    <ellipse cx="28" cy="20" rx="7" ry="5" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.75" />
-                </svg>
-            );
-        case 'ecdf':
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <path
-                        d="M 8 30 L 8 26 L 16 26 L 16 20 L 24 20 L 24 16 L 32 16 L 32 12 L 40 12 L 40 8 L 48 8 L 48 6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinejoin="miter"
-                    />
-                </svg>
-            );
-        case 'bar':
-        default:
-            return (
-                <svg className="suggested-viz-preview-svg" viewBox={VB} aria-hidden>
-                    <rect x="10" y="20" width="8" height="14" rx="1" fill="currentColor" opacity="0.45" />
-                    <rect x="22" y="12" width="8" height="22" rx="1" fill="currentColor" opacity="0.65" />
-                    <rect x="34" y="16" width="8" height="18" rx="1" fill="currentColor" opacity="0.55" />
-                </svg>
-            );
+const toStringArray = (values: (string | number | boolean)[]): string[] => {
+    return values.map(v => String(v));
+};
+
+const minMax = (values: number[]): { min: number; max: number } => {
+    if (values.length === 0) {
+        return { min: 0, max: 1 };
     }
+    let min = values[0];
+    let max = values[0];
+    for (const v of values) {
+        min = Math.min(min, v);
+        max = Math.max(max, v);
+    }
+    if (min === max) {
+        return { min: min - 1, max: max + 1 };
+    }
+    return { min, max };
+};
+
+const quantile = (values: number[], q: number): number => {
+    if (values.length === 0) {
+        return 0;
+    }
+    const sorted = [...values].sort((a, b) => a - b);
+    const pos = (sorted.length - 1) * q;
+    const low = Math.floor(pos);
+    const high = Math.ceil(pos);
+    if (low === high) {
+        return sorted[low];
+    }
+    const ratio = pos - low;
+    return sorted[low] * (1 - ratio) + sorted[high] * ratio;
+};
+
+const SuggestedChartPreview = (props: {
+    graphType: string;
+    columnIndices: number[];
+    sheetData?: SheetData;
+}): JSX.Element => {
+    const chart = useMemo(() => {
+        if (props.sheetData === undefined) {
+            return undefined;
+        }
+        const cols = props.columnIndices
+            .map(i => props.sheetData?.data[i])
+            .filter((c): c is SheetData['data'][number] => c !== undefined);
+        if (cols.length === 0) {
+            return undefined;
+        }
+        const limited = cols.map(c => c.columnData.slice(0, PREVIEW_ROW_LIMIT));
+        const first = limited[0];
+        const second = limited[1];
+        const firstNumeric = toNumberArray(first);
+        const secondNumeric = second ? toNumberArray(second) : undefined;
+        const plotW = WIDTH - LEFT - RIGHT;
+        const plotH = HEIGHT - TOP - BOTTOM;
+        const t = props.graphType.trim().toLowerCase();
+
+        const axes = (
+            <>
+                <line x1={LEFT} y1={TOP} x2={LEFT} y2={TOP + plotH} stroke="rgba(31,41,55,0.35)" strokeWidth="1" />
+                <line x1={LEFT} y1={TOP + plotH} x2={LEFT + plotW} y2={TOP + plotH} stroke="rgba(31,41,55,0.35)" strokeWidth="1" />
+                <line x1={LEFT} y1={TOP + plotH * 0.33} x2={LEFT + plotW} y2={TOP + plotH * 0.33} stroke="rgba(31,41,55,0.18)" strokeWidth="1" />
+                <line x1={LEFT} y1={TOP + plotH * 0.66} x2={LEFT + plotW} y2={TOP + plotH * 0.66} stroke="rgba(31,41,55,0.18)" strokeWidth="1" />
+            </>
+        );
+
+        const getX = (i: number, n: number): number => LEFT + (n <= 1 ? plotW / 2 : (i / (n - 1)) * plotW);
+        const getY = (v: number, lo: number, hi: number): number => TOP + (1 - (v - lo) / (hi - lo)) * plotH;
+
+        if (t === 'scatter') {
+            const xs = secondNumeric ? firstNumeric : firstNumeric.map((_, i) => i + 1);
+            const ys = secondNumeric ?? firstNumeric;
+            const xr = minMax(xs);
+            const yr = minMax(ys);
+            const circles = ys.map((y, i) => (
+                <circle key={i} cx={getX(xs[i], xs.length)} cy={getY(y, yr.min, yr.max)} r="2.4" fill={PURPLE} opacity="0.8" />
+            ));
+            return { axes, marks: circles };
+        }
+        if (t === 'line') {
+            const yr = minMax(firstNumeric);
+            const path = firstNumeric.map((v, i) => `${i === 0 ? 'M' : 'L'} ${getX(i, firstNumeric.length)} ${getY(v, yr.min, yr.max)}`).join(' ');
+            return {
+                axes,
+                marks: (
+                    <>
+                        <path d={path} fill="none" stroke={PURPLE} strokeWidth="2.2" />
+                        {firstNumeric.map((v, i) => (
+                            <circle key={i} cx={getX(i, firstNumeric.length)} cy={getY(v, yr.min, yr.max)} r="1.8" fill={PURPLE} />
+                        ))}
+                    </>
+                ),
+            };
+        }
+        if (t === 'histogram') {
+            const r = minMax(firstNumeric);
+            const bins = 8;
+            const step = (r.max - r.min) / bins;
+            const counts = new Array(bins).fill(0);
+            for (const v of firstNumeric) {
+                const idx = Math.min(bins - 1, Math.floor((v - r.min) / Math.max(step, 1e-9)));
+                counts[idx] += 1;
+            }
+            const cr = minMax(counts);
+            const bw = plotW / bins;
+            const bars = counts.map((c, i) => {
+                const y = getY(c, cr.min, cr.max);
+                return <rect key={i} x={LEFT + i * bw + 1} y={y} width={Math.max(1, bw - 2)} height={TOP + plotH - y} fill={PURPLE} opacity="0.8" rx="1" />;
+            });
+            return { axes, marks: bars };
+        }
+        if (t === 'box' || t === 'violin' || t === 'strip') {
+            const lo = quantile(firstNumeric, 0.25);
+            const mid = quantile(firstNumeric, 0.5);
+            const hi = quantile(firstNumeric, 0.75);
+            const r = minMax(firstNumeric);
+            const cx = LEFT + plotW / 2;
+            const yLo = getY(lo, r.min, r.max);
+            const yMid = getY(mid, r.min, r.max);
+            const yHi = getY(hi, r.min, r.max);
+            return {
+                axes,
+                marks: (
+                    <>
+                        <line x1={cx} y1={getY(r.min, r.min, r.max)} x2={cx} y2={getY(r.max, r.min, r.max)} stroke={PURPLE} opacity="0.6" />
+                        <rect x={cx - 26} y={yHi} width={52} height={Math.max(2, yLo - yHi)} fill={PURPLE} opacity="0.22" stroke={PURPLE} />
+                        <line x1={cx - 26} y1={yMid} x2={cx + 26} y2={yMid} stroke={PURPLE} strokeWidth="2" />
+                    </>
+                ),
+            };
+        }
+        if (t === 'ecdf') {
+            const sorted = [...firstNumeric].sort((a, b) => a - b);
+            const r = minMax(sorted);
+            const pts = sorted.map((v, i) => ({
+                x: getX(i, sorted.length),
+                y: getY((i + 1) / sorted.length, 0, 1),
+            }));
+            const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+            return { axes, marks: <path d={path} fill="none" stroke={PURPLE} strokeWidth="2.2" /> };
+        }
+        if ((t === 'density heatmap' || t === 'density contour') && secondNumeric !== undefined) {
+            const xr = minMax(firstNumeric);
+            const yr = minMax(secondNumeric);
+            const marks = firstNumeric.map((x, i) => (
+                <circle key={i} cx={getX(x, firstNumeric.length)} cy={getY(secondNumeric[i], yr.min, yr.max)} r="3.2" fill={PURPLE} opacity="0.22" />
+            ));
+            return { axes, marks };
+        }
+        const barValues = secondNumeric ?? firstNumeric;
+        const barLabels = toStringArray(first);
+        const br = minMax(barValues);
+        const n = Math.max(1, barValues.length);
+        const bw = plotW / n;
+        const bars = barValues.map((v, i) => {
+            const y = getY(v, br.min, br.max);
+            return (
+                <g key={i}>
+                    <rect x={LEFT + i * bw + 1} y={y} width={Math.max(1, bw - 2)} height={TOP + plotH - y} fill={PURPLE} opacity="0.82" rx="1" />
+                    {i % Math.ceil(n / 6) === 0 && (
+                        <text x={LEFT + i * bw + bw / 2} y={TOP + plotH + 12} fontSize="8" fill="rgba(31,41,55,0.55)" textAnchor="middle">
+                            {barLabels[i].slice(0, 6)}
+                        </text>
+                    )}
+                </g>
+            );
+        });
+        return { axes, marks: bars };
+    }, [props.columnIndices, props.graphType, props.sheetData]);
+
+    return (
+        <svg className="suggested-viz-preview-plot" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} preserveAspectRatio="none" aria-hidden>
+            {chart?.axes}
+            {chart?.marks}
+        </svg>
+    );
 };
 
 export default SuggestedChartPreview;

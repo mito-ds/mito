@@ -142,6 +142,9 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                         )}
                     {loadState.status === 'ready' && loadState.suggestions.length > 0 && (
                         <div className="suggested-viz-suggestions">
+                            <p className="suggested-viz-instructions">
+                                Click a card to open the chart editor with the same columns pre-filled.
+                            </p>
                             {loadState.suggestions.map((s, idx) => (
                                 <button
                                     key={`${s.title}-${idx}`}
@@ -152,8 +155,14 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                                     }}
                                 >
                                     <div className="suggested-viz-card-inner">
-                                        <div className="suggested-viz-preview-layer" aria-hidden>
-                                            <SuggestedChartPreview graphType={s.graph_type} />
+                                        <div className="suggested-viz-preview-shell" aria-hidden>
+                                            <div className="suggested-viz-preview-layer">
+                                                <SuggestedChartPreview
+                                                    graphType={s.graph_type}
+                                                    columnIndices={s.column_indices}
+                                                    sheetData={sheetData}
+                                                />
+                                            </div>
                                         </div>
                                         <div className="suggested-viz-card-text">
                                             <div className="suggested-viz-card-title">{s.title}</div>

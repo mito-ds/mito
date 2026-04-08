@@ -24,6 +24,13 @@
     margin-top: 4px;
 }
 
+.suggested-viz-instructions {
+    margin: 0;
+    color: var(--mito-text-medium);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
 .suggested-viz-card {
     box-sizing: border-box;
     display: flex;
@@ -37,14 +44,15 @@
     font: inherit;
     color: var(--mito-text);
     cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    background: var(--mito-background-off);
-    transition: background-color 0.15s ease;
+    border: 1px solid var(--mito-border);
+    border-radius: 12px;
+    background: var(--mito-background);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .suggested-viz-card:hover {
-    background: var(--mito-toolbar-hover, var(--mito-background-highlight));
+    border-color: var(--mito-highlight-medium, var(--mito-border));
+    box-shadow: 0 0 0 1px var(--mito-highlight-light, transparent);
 }
 
 .suggested-viz-card:hover .suggested-viz-card-title {
@@ -56,79 +64,56 @@
 }
 
 .suggested-viz-card:active {
-    background: var(--mito-background-highlight, var(--mito-toolbar-hover));
+    border-color: var(--mito-highlight-medium, var(--mito-border));
 }
 
-/* Preview fills the right side; mask fades it out toward the text so title sits above. */
 .suggested-viz-card-inner {
-    position: relative;
-    isolation: isolate;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    min-height: 96px;
+}
+
+.suggested-viz-preview-shell {
+    width: 100%;
+    height: 190px;
+    border-bottom: 1px solid var(--mito-border);
+    background: var(--mito-background-off);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .suggested-viz-preview-layer {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 10px;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 12px 14px 10px 14px;
     box-sizing: border-box;
-    /* Fade preview out on the left; left region shows the card background through */
-    -webkit-mask-image: linear-gradient(
-        to right,
-        transparent 0%,
-        transparent 38%,
-        rgba(0, 0, 0, 0.45) 52%,
-        black 72%
-    );
-    mask-image: linear-gradient(
-        to right,
-        transparent 0%,
-        transparent 38%,
-        rgba(0, 0, 0, 0.45) 52%,
-        black 72%
-    );
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
 }
 
-.suggested-viz-card:hover .suggested-viz-preview-layer {
-    opacity: 1;
-}
-
-.suggested-viz-preview-layer .suggested-viz-preview-svg {
-    width: 132px;
-    height: 92px;
-    max-width: 72%;
-    max-height: 90%;
-    color: var(--mito-highlight);
-    opacity: 0.42;
+.suggested-viz-preview-layer .suggested-viz-preview-plot {
+    width: 100%;
+    height: 100%;
     display: block;
-    flex-shrink: 0;
     transition: opacity 0.15s ease;
 }
 
-.suggested-viz-card:hover .suggested-viz-preview-layer .suggested-viz-preview-svg {
-    opacity: 0.55;
+.suggested-viz-card:hover .suggested-viz-preview-layer .suggested-viz-preview-plot {
+    opacity: 0.95;
 }
 
 .suggested-viz-card-text {
-    position: relative;
-    z-index: 2;
     width: 100%;
-    max-width: 68%;
-    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 14px 14px 14px 16px;
+    padding: 14px 16px 16px 16px;
     box-sizing: border-box;
+    background: var(--mito-background);
 }
 
 .suggested-viz-card:focus {
