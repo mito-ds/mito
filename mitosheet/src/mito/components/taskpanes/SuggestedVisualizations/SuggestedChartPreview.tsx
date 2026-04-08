@@ -11,6 +11,7 @@ import { SheetData } from '../../../types';
 const PREVIEW_INPUT_LIMIT = 400;
 const PREVIEW_POINT_LIMIT_DEFAULT = 16;
 const PREVIEW_POINT_LIMIT_SCATTER = 72;
+const PREVIEW_POINT_LIMIT_BOX = 96;
 const WIDTH = 320;
 const HEIGHT = 170;
 const LEFT = 8;
@@ -225,10 +226,11 @@ const SuggestedChartPreview = (props: {
             return { axes, marks: bars };
         }
         if (t === 'box' || t === 'violin' || t === 'strip') {
-            const lo = quantile(firstNumeric, 0.25);
-            const mid = quantile(firstNumeric, 0.5);
-            const hi = quantile(firstNumeric, 0.75);
-            const r = minMax(firstNumeric);
+            const boxValues = sampleEvenly(first, PREVIEW_POINT_LIMIT_BOX);
+            const lo = quantile(boxValues, 0.25);
+            const mid = quantile(boxValues, 0.5);
+            const hi = quantile(boxValues, 0.75);
+            const r = minMax(boxValues);
             const cx = LEFT + plotW / 2;
             const yLo = scaleYValue(lo, r.min, r.max);
             const yMid = scaleYValue(mid, r.min, r.max);
