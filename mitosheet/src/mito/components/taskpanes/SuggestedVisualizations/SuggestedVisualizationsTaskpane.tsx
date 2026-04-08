@@ -142,9 +142,6 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                         )}
                     {loadState.status === 'ready' && loadState.suggestions.length > 0 && (
                         <div className="suggested-viz-suggestions">
-                            <p className="suggested-viz-instructions">
-                                Click a card to open the chart editor with the same columns pre-filled.
-                            </p>
                             {loadState.suggestions.map((s, idx) => (
                                 <button
                                     key={`${s.title}-${idx}`}
