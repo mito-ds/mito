@@ -3,17 +3,13 @@
 
 from __future__ import annotations
 import asyncio
-<<<<<<< mito-ai-token-logging
 import time
-=======
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
->>>>>>> dev
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 from mito_ai import constants
 from openai.types.chat import ChatCompletionMessageParam
 from traitlets import Instance
 from traitlets.config import LoggingConfigurable
-from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai import constants
 from mito_ai.enterprise.utils import is_azure_openai_configured
@@ -42,12 +38,9 @@ from mito_ai.utils.telemetry_utils import (
 )
 from mito_ai.utils.provider_utils import get_model_provider
 from mito_ai.utils.model_utils import get_available_models, get_fast_model_for_selected_model, get_smartest_model_for_selected_model
-<<<<<<< mito-ai-token-logging
 from mito_ai.utils.token_usage_logger import log_token_usage_row
 from mito_ai.utils.tokens import get_rough_token_estimation_from_payload
-=======
 from mito_ai.utils.version_utils import is_github_copilot_helper_installed
->>>>>>> dev
 
 __all__ = ["ProviderManager"]
 
@@ -188,7 +181,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         self.last_error = None
         completion = None
         request_start = time.monotonic()
-        input_tokens: Optional[int] = None
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
         
         # Get the model to use (selected model, fast model, or smartest model if requested)
@@ -229,7 +221,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                         model=resolved_model,
                         response_format_info=response_format_info
                     )
-                    input_tokens = self._openai_client.last_input_tokens
                 elif model_type == "litellm":
                     from mito_ai.enterprise.litellm_client import LiteLLMClient
                     if not constants.LITELLM_BASE_URL:
@@ -241,18 +232,15 @@ This attribute is observed by the websocket provider to push the error to the cl
                         response_format_info=response_format_info,
                         message_type=message_type
                     )
-                    input_tokens = litellm_client.last_input_tokens
                 elif model_type == "claude":
                     api_key = constants.ANTHROPIC_API_KEY
                     anthropic_client = AnthropicClient(api_key=api_key)
                     completion = await anthropic_client.request_completions(messages, resolved_model, response_format_info, message_type)
-                    input_tokens = anthropic_client.last_input_tokens
                 elif model_type == "gemini":
                     api_key = constants.GEMINI_API_KEY
                     gemini_client = GeminiClient(api_key=api_key)
                     messages_for_gemini = [dict(m) for m in messages]
                     completion = await gemini_client.request_completions(messages_for_gemini, resolved_model, response_format_info, message_type)
-                    input_tokens = gemini_client.last_input_tokens
                 elif model_type == "openai":
                     if not self._openai_client:
                         raise RuntimeError("OpenAI client is not initialized.")
@@ -262,12 +250,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                         model=resolved_model,
                         response_format_info=response_format_info
                     )
-                    input_tokens = self._openai_client.last_input_tokens
                 else:
                     raise ValueError(f"No AI provider configured for model: {resolved_model}")
 
-                if input_tokens is None and self.key_type == MITO_SERVER_KEY:
-                    input_tokens = get_rough_token_estimation_from_payload(messages)
+                # Always use local estimation for token usage logging so metrics are consistent
+                # across providers and independent of provider-reported usage payloads.
+                estimated_input_tokens = get_rough_token_estimation_from_payload(messages)
                 
                 # Success! Log and return
                 ttft_ms = int((time.monotonic() - request_start) * 1000)
@@ -282,7 +270,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 )
                 log_token_usage_row(
                     model=resolved_model,
-                    input_tokens=input_tokens,
+                    input_tokens=estimated_input_tokens,
                     time_till_first_token_ms=ttft_ms,
                     total_response_time_ms=ttft_ms,
                     mode=_get_usage_mode(message_type),
@@ -348,7 +336,6 @@ This attribute is observed by the websocket provider to push the error to the cl
         accumulated_response = ""
         request_start = time.monotonic()
         ttft_ms: Optional[int] = None
-        input_tokens: Optional[int] = None
         last_message_content = str(messages[-1].get('content', '')) if messages else ""
         
         # Get the model to use (selected model, fast model, or smartest model if requested)
@@ -405,7 +392,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     user_input=user_input,
                     response_format_info=response_format_info
                 )
-                input_tokens = self._openai_client.last_input_tokens
             elif model_type == "litellm":
                 from mito_ai.enterprise.litellm_client import LiteLLMClient
                 if not constants.LITELLM_BASE_URL:
@@ -422,7 +408,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     reply_fn=tracked_reply_fn,
                     response_format_info=response_format_info
                 )
-                input_tokens = litellm_client.last_input_tokens
             elif model_type == "claude":
                 api_key = constants.ANTHROPIC_API_KEY
                 anthropic_client = AnthropicClient(api_key=api_key)
@@ -433,7 +418,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     message_id=message_id,
                     reply_fn=tracked_reply_fn
                 )
-                input_tokens = anthropic_client.last_input_tokens
             elif model_type == "gemini":
                 api_key = constants.GEMINI_API_KEY
                 gemini_client = GeminiClient(api_key=api_key)
@@ -447,7 +431,6 @@ This attribute is observed by the websocket provider to push the error to the cl
                     reply_fn=tracked_reply_fn,
                     message_type=message_type
                 )
-                input_tokens = gemini_client.last_input_tokens
             elif model_type == "openai":
                 if not self._openai_client:
                     raise RuntimeError("OpenAI client is not initialized.")
@@ -461,12 +444,12 @@ This attribute is observed by the websocket provider to push the error to the cl
                     user_input=user_input,
                     response_format_info=response_format_info
                 )
-                input_tokens = self._openai_client.last_input_tokens
             else:
                 raise ValueError(f"No AI provider configured for model: {resolved_model}")
 
-            if input_tokens is None and self.key_type == MITO_SERVER_KEY:
-                input_tokens = get_rough_token_estimation_from_payload(messages)
+            # Always use local estimation for token usage logging so metrics are consistent
+            # across providers and independent of provider-reported usage payloads.
+            estimated_input_tokens = get_rough_token_estimation_from_payload(messages)
 
             # Log the successful completion
             total_response_time_ms = int((time.monotonic() - request_start) * 1000)
@@ -483,7 +466,7 @@ This attribute is observed by the websocket provider to push the error to the cl
             )
             log_token_usage_row(
                 model=resolved_model,
-                input_tokens=input_tokens,
+                input_tokens=estimated_input_tokens,
                 time_till_first_token_ms=ttft_ms,
                 total_response_time_ms=total_response_time_ms,
                 mode=_get_usage_mode(message_type),
