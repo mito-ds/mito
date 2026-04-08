@@ -376,7 +376,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     messages=list(messages),
                     model=resolved_model,
                     message_id=message_id,
-                    reply_fn=reply_fn,
+                    reply_fn=tracked_reply_fn,
                     message_type=message_type,
                 )
             elif model_type == "abacus":
