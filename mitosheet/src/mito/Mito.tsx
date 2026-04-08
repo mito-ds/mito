@@ -134,7 +134,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedTabType: 'data',
         currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
-        currentToolbarTab: isDataframeRenderMitosheet? undefined : 'Home', // If dataframe render, default to collapsed toolbar tabs
+        currentToolbarTab: undefined,
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
         },
