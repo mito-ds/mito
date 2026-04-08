@@ -43,6 +43,15 @@ from mito_ai.utils.tokens import get_rough_token_estimation_from_payload
 
 __all__ = ["ProviderManager"]
 
+
+def _get_usage_mode(message_type: MessageType) -> str:
+    if message_type.value.startswith("agent:"):
+        return "agent"
+    elif message_type == MessageType.STREAMLIT_CONVERSION:
+        return "app"
+    else:
+        return "chat"
+
 class ProviderManager(LoggingConfigurable):
     """Manage AI providers (Claude, Gemini, OpenAI) and route requests to the appropriate client."""
 
@@ -252,7 +261,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                     input_tokens=input_tokens,
                     time_till_first_token_ms=ttft_ms,
                     total_response_time_ms=ttft_ms,
-                    mode="agent" if message_type.value.startswith("agent:") else "chat",
+                    mode=_get_usage_mode(message_type),
                 )
                 return completion # type: ignore
             
@@ -443,7 +452,7 @@ This attribute is observed by the websocket provider to push the error to the cl
                 input_tokens=input_tokens,
                 time_till_first_token_ms=ttft_ms,
                 total_response_time_ms=total_response_time_ms,
-                mode="agent" if message_type.value.startswith("agent:") else "chat",
+                mode=_get_usage_mode(message_type),
             )
             return accumulated_response
 
