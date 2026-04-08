@@ -14,6 +14,8 @@ import { Actions } from '../../utils/actions';
 import { classNames } from '../../utils/classNames';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 import DocumentationIcon from '../icons/DocumentationIcon';
+import AIIcon from '../icons/AIIcon';
+import HexagonAIIcon from '../icons/HexagonAI';
 import { CodeTabContents } from './CodeTabContents';
 import { DataTabContents } from './DataTabContents';
 import { FormulaTabContents } from './FormulaTabContents';
@@ -202,11 +204,7 @@ export const Toolbar = (
                             }));
                         }}
                     >
-                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="0.5" y="5.5" width="2.5" height="5" fill="var(--mito-background)" stroke="var(--mito-background)" strokeWidth="0.5"/>
-                            <rect x="4.25" y="3" width="2.5" height="7.5" fill="var(--mito-background)" stroke="var(--mito-background)" strokeWidth="0.5"/>
-                            <rect x="8" y="0.5" width="2.5" height="10" fill="var(--mito-background)" stroke="var(--mito-background)" strokeWidth="0.5"/>
-                        </svg>
+                        <span style={{transform: 'scale(0.75)', display: 'flex'}}><HexagonAIIcon outlineColor='white' /></span>
                         Suggest Graphs
                     </div>
                     <div
@@ -220,9 +218,7 @@ export const Toolbar = (
                             }));
                         }}
                     >
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 1L6.9 4.1H10.2L7.5 6L8.5 9.1L6 7.3L3.5 9.1L4.5 6L1.8 4.1H5.1L6 1Z" fill="var(--mito-background)"/>
-                        </svg>
+                        <AIIcon pillColor='white' />
                         AI
                     </div>
                 </div>
