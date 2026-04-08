@@ -205,7 +205,8 @@ describe('ChatInput Component', () => {
 
             // Verify handleSubmitUserMessage was called with the input content
             expect(handleSubmitUserMessageMock).toHaveBeenCalledWith(testMessage, undefined, [
-                { type: 'active_cell', value: 'Active Cell' }
+                { type: 'active_cell', value: 'Active Cell' },
+                { type: 'notebook', value: 'Notebook' }
             ]);
 
             // Verify the input was cleared
@@ -319,7 +320,8 @@ describe('ChatInput Component', () => {
 
             // Verify handleSubmitUserMessage was called
             expect(idleHandleSubmitMock).toHaveBeenCalledWith(testMessage, undefined, [
-                { type: 'active_cell', value: 'Active Cell' }
+                { type: 'active_cell', value: 'Active Cell' },
+                { type: 'notebook', value: 'Notebook' }
             ]);
         });
     });
@@ -366,7 +368,8 @@ describe('ChatInput Component', () => {
 
             // Verify handleSubmitUserMessage was called with the updated content
             expect(editHandleSubmitMock).toHaveBeenCalledWith(updatedContent, undefined, [
-                { type: 'active_cell', value: 'Active Cell' }
+                { type: 'active_cell', value: 'Active Cell' },
+                { type: 'notebook', value: 'Notebook' }
             ]);
         });
 
@@ -835,20 +838,16 @@ describe('ChatInput Component', () => {
             jest.clearAllMocks();
         });
 
-        it('shows active cell context automatically in Chat mode when there is active cell code', () => {
+        it('shows active cell and notebook context automatically in Chat mode', () => {
             renderChatInput();
 
-            // Should show the active cell context container
-            const activeCellContainer = screen.getByText('Active Cell');
-            expect(activeCellContainer).toBeInTheDocument();
+            // Should show both the active cell and notebook context containers
+            expect(screen.getByText('Active Cell')).toBeInTheDocument();
+            expect(screen.getByText('Notebook')).toBeInTheDocument();
 
-            // Should be inside a SelectedContextContainer
-            const selectedContextContainer = screen.getByTestId('selected-context-container');
-            expect(selectedContextContainer).toBeInTheDocument();
-            expect(within(selectedContextContainer).getByText('Active Cell')).toBeInTheDocument();
-
-            // Should not show the notebook context container
-            expect(screen.queryByText('Notebook')).not.toBeInTheDocument();
+            // Both should be inside SelectedContextContainers
+            const selectedContextContainers = screen.getAllByTestId('selected-context-container');
+            expect(selectedContextContainers.length).toBe(2);
         });
 
         it('does not show active cell context in Agent mode', () => {
@@ -856,8 +855,8 @@ describe('ChatInput Component', () => {
 
             // Should not show the active cell context container
             expect(screen.queryByText('Active Cell')).not.toBeInTheDocument();
-            
-            // Should show the active cell context container
+
+            // Should show the notebook context container
             const activeCellContainer = screen.getByText('Notebook');
             expect(activeCellContainer).toBeInTheDocument();
 

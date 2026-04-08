@@ -81,6 +81,7 @@ export interface IChatMessageMetadata {
   files?: File[];
   activeCellCode: string;
   activeCellId: string;
+  aiOptimizedCells?: AIOptimizedCell[];
   base64EncodedActiveCellOutput?: string;
   input: string;
   index?: number;
