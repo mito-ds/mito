@@ -25,6 +25,7 @@ Install both packages in editable mode so changes in either package are picked u
 
 ```bash
 # From the repo root
+pip install -e ./mito-ai-core
 pip install -e "./mito-ai[test]"
 ```
 

@@ -461,6 +461,6 @@ export const useAgentExecution = ({
 
         // Functions
         startAgentExecution,
-        markAgentForStopping
+        markAgentForStopping,
     };
 };

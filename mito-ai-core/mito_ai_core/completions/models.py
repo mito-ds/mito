@@ -17,11 +17,12 @@ ThreadID = NewType('ThreadID', str)
     
 class CellUpdate(BaseModel):
     type: Literal['modification', 'new']
-    after_cell_id: Optional[str]
-    id: Optional[str]
+    # Defaults so omitted keys validate (LLMs often omit id for new cells, after_cell_id for edits).
+    after_cell_id: Optional[str] = None
+    id: Optional[str] = None
     code: str
     code_summary: str
-    cell_type: Optional[Literal['code', 'markdown']]
+    cell_type: Optional[Literal['code', 'markdown']] = None
 
 
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
@@ -81,6 +82,8 @@ class MessageType(Enum):
     STOP_AGENT = "stop_agent"
     DEPLOY_APP = "deploy_app"
     AGENT_SCRATCHPAD_RESULT = "agent:scratchpad-result"
+    REQUEST_TOOL_EXECUTION = "request_tool_execution"
+    TOOL_RESULT = "tool_result"
 
     
 @dataclass(frozen=True)
@@ -272,16 +275,16 @@ class CompletionError:
         While mypy doesn't know about this attribute on BaseException, we need to handle it
         to properly extract error messages from OpenAI API responses.
         """
-        from mito_ai_core.utils.mito_server_utils import ProviderCompletionException
-
-        
-        # Handle ProviderCompletionException specially
-        if isinstance(exception, ProviderCompletionException):
+        # Duck-type Mito provider errors (mito_ai_core and mito_ai define separate
+        # ProviderCompletionException classes with the same shape).
+        if hasattr(exception, "user_friendly_title") and hasattr(
+            exception, "user_friendly_hint"
+        ):
             return CompletionError(
-                error_type="LLM Provider Error", 
-                title=exception.user_friendly_title, 
+                error_type="LLM Provider Error",
+                title=getattr(exception, "user_friendly_title"),
                 traceback=traceback.format_exc(),
-                hint=exception.user_friendly_hint
+                hint=getattr(exception, "user_friendly_hint"),
             )
         
         # Handle all other exceptions as before

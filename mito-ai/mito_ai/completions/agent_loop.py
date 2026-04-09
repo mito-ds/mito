@@ -10,7 +10,6 @@ the loop until the agent finishes or is interrupted.
 
 from __future__ import annotations
 
-import logging
 from typing import Any, Callable, List, Optional
 
 from openai.types.chat import ChatCompletionMessageParam

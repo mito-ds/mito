@@ -163,6 +163,7 @@ class AgentRunner:
     async def _execute_tool(
         self, ctx: AgentContext, response: AgentResponse
     ) -> ToolResult:
+        print("Calling _execute_tool with response:", response)
         """Route an ``AgentResponse`` to the matching ``ToolExecutor`` method."""
         rtype = response.type
 

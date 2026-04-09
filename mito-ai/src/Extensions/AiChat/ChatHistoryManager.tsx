@@ -27,7 +27,8 @@ export type PromptType =
     'get_threads' |
     'delete_thread' |
     'update_model_config' |
-    'stop_agent';
+    'stop_agent' |
+    'tool_result';
 
 export type ChatMessageType = 'openai message' | 'connection error'
 

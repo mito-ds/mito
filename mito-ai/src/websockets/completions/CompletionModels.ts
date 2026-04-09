@@ -73,7 +73,8 @@ type CompletionRequestMetadata =
   IAgentExecutionMetadata | 
   IAgentSmartDebugMetadata |
   IUpdateModelConfigMetadata |
-  IStopAgentMetadata
+  IStopAgentMetadata |
+  IToolResultMetadata
 
 export interface IChatMessageMetadata {
   promptType: 'chat'
