@@ -909,6 +909,32 @@ export const getBodyBoundingIndices = (
     return { minR, maxR, minC, maxC };
 };
 
+/**
+ * True when the selection covers exactly one column and all data rows (after expanding
+ * column-header and index-header selections). Includes entire-column header clicks
+ * (including MultiIndex header levels with row indices below -1) and dragging to select
+ * a full column; on a single-row sheet this is one body cell.
+ */
+export const isSingleColumnAllRowsSelection = (
+    selection: MitoSelection,
+    sheetData: SheetData,
+    currentSheetIndex: number
+): boolean => {
+    const bounds = getBodyBoundingIndices(selection, sheetData, currentSheetIndex);
+    if (bounds === null) {
+        return false;
+    }
+    const numRows = Math.min(sheetData.numRows, MAX_ROWS);
+    if (numRows === 0) {
+        return false;
+    }
+    return (
+        bounds.minC === bounds.maxC &&
+        bounds.minR === 0 &&
+        bounds.maxR === numRows - 1
+    );
+};
+
 /** True when the selection covers more than one body cell. */
 export const isMultiCellRangeSelection = (
     selection: MitoSelection,

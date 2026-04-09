@@ -5,7 +5,11 @@
 
 import React from 'react';
 import { GridState, MitoSelection, SheetData } from '../../types';
-import { getBodyBoundingIndices, isMultiCellRangeSelection } from './selectionUtils';
+import {
+    getBodyBoundingIndices,
+    isMultiCellRangeSelection,
+    isSingleColumnAllRowsSelection,
+} from './selectionUtils';
 
 /** Must match DEFAULT_HEIGHT in EndoGrid.tsx */
 const ROW_HEIGHT_PX = 25;
@@ -34,7 +38,10 @@ export const getSelectionFloatStyle = (
     if (!scrollContainerEl || !gridContainerEl) {
         return undefined;
     }
-    if (!isMultiCellRangeSelection(selection, sheetData, gridState.sheetIndex)) {
+    if (
+        !isMultiCellRangeSelection(selection, sheetData, gridState.sheetIndex) &&
+        !isSingleColumnAllRowsSelection(selection, sheetData, gridState.sheetIndex)
+    ) {
         return undefined;
     }
     const bounds = getBodyBoundingIndices(selection, sheetData, gridState.sheetIndex);
@@ -79,12 +86,27 @@ export const getSelectionFloatStyle = (
     const tableRect = scrollRect;
     const roomBelow = tableRect.bottom - maxBottomScreen;
     const roomAbove = minTopScreen - tableRect.top;
+    const visHeight = visBottom - visTop;
+    const noRoomPastSelectionBottom =
+        roomBelow < SELECTION_FLOAT_APPROX_HEIGHT_PX + GAP_PX + 4;
+    const selectionFillsDataViewportVertically =
+        vpHeight > 0 &&
+        (visHeight >= vpHeight - 1 || noRoomPastSelectionBottom);
+
     const preferBelow =
         roomBelow >= SELECTION_FLOAT_APPROX_HEIGHT_PX + GAP_PX ||
         roomBelow >= roomAbove;
 
     let topPx: number;
-    if (preferBelow) {
+    if (selectionFillsDataViewportVertically) {
+        /*
+         * Full-column (or any range) that covers the full visible data height: the old
+         * "prefer below bottom edge" path put the toolbar just under the viewport bottom,
+         * where overflow:hidden on Mito/Jupyter parents clips it. Anchor to the top of the
+         * visible selection band instead (same as a short multi-cell range in view).
+         */
+        topPx = minTopScreen - gridRect.top + GAP_PX;
+    } else if (preferBelow) {
         topPx = maxBottomScreen - gridRect.top + GAP_PX;
     } else {
         topPx =
