@@ -5,7 +5,7 @@ from typing import Callable, Union
 
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import ChatMessageMetadata, MessageType, CompletionRequest, CompletionStreamChunk, CompletionReply
-from mito_ai.completions.prompt_builders.chat_prompt import create_chat_prompt
+from mito_ai_core.completions.prompt_builders.chat_prompt import create_chat_prompt
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler

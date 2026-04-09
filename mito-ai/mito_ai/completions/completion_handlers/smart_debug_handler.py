@@ -11,7 +11,7 @@ from mito_ai.completions.models import (
     CompletionStreamChunk,
     CompletionReply,
 )
-from mito_ai.completions.prompt_builders.smart_debug_prompt import (
+from mito_ai_core.completions.prompt_builders.smart_debug_prompt import (
     create_error_prompt,
     remove_inner_thoughts_from_message,
 )

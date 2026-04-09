@@ -25,7 +25,7 @@ from mito_ai.completions.models import (
     AgentFinishedMessage,
     CompletionError,
 )
-from mito_ai.completions.prompt_builders.agent_execution_prompt import (
+from mito_ai_core.completions.prompt_builders.agent_execution_prompt import (
     create_agent_execution_prompt,
 )
 from mito_ai.logger import get_logger

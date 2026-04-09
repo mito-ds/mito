@@ -8,10 +8,10 @@ from jupyter_server.base.handlers import APIHandler
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai.completions.models import MessageType
-from mito_ai.completions.prompt_builders.chart_conversion_prompt import (
+from mito_ai_core.completions.prompt_builders.chart_conversion_prompt import (
     create_chart_conversion_prompt,
 )
-from mito_ai.completions.prompt_builders.chart_add_field_prompt import (
+from mito_ai_core.completions.prompt_builders.chart_add_field_prompt import (
     create_chart_add_field_prompt,
 )
 

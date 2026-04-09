@@ -4,7 +4,7 @@
 from typing import List, Literal, Union
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import ScratchpadResultMetadata, MessageType, ResponseFormatInfo, AgentResponse
-from mito_ai.completions.prompt_builders.scratchpad_result_prompt import create_scratchpad_result_prompt
+from mito_ai_core.completions.prompt_builders.scratchpad_result_prompt import create_scratchpad_result_prompt
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
