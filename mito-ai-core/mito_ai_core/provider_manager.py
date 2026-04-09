@@ -56,14 +56,47 @@ class ProviderManager:
 
     def __init__(self) -> None:
         self.log = get_logger()
-        self.last_error: Optional[CompletionError] = None
+        self._last_error: Optional[CompletionError] = None
+        self._last_error_observers: List[Callable[[Dict[str, Any]], None]] = []
         self._openai_client: Optional[OpenAIClient] = OpenAIClient()
         # Initialize with the first available model to ensure it's always valid
         # This respects LiteLLM configuration: if LiteLLM is configured, uses first LiteLLM model
         # Otherwise, uses first standard model
         available_models = get_available_models()
         self._selected_model: str = available_models[0] if available_models else "gpt-4.1"
-    
+
+    @property
+    def last_error(self) -> Optional[CompletionError]:
+        return self._last_error
+
+    @last_error.setter
+    def last_error(self, value: Optional[CompletionError]) -> None:
+        self._last_error = value
+        # Match traitlets-style notifications used by the Jupyter completion WebSocket handler.
+        if value is not None:
+            change: Dict[str, Any] = {"new": value}
+            for cb in list(self._last_error_observers):
+                cb(change)
+
+    def observe(self, handler: Callable[[Dict[str, Any]], None], name: str) -> None:
+        """Register *handler* to be called when *name* changes (Jupyter/traitlets API)."""
+        if name != "last_error":
+            raise ValueError(
+                f"ProviderManager.observe only supports 'last_error', got {name!r}"
+            )
+        if handler not in self._last_error_observers:
+            self._last_error_observers.append(handler)
+
+    def unobserve(self, handler: Callable[[Dict[str, Any]], None], name: str) -> None:
+        if name != "last_error":
+            raise ValueError(
+                f"ProviderManager.unobserve only supports 'last_error', got {name!r}"
+            )
+        try:
+            self._last_error_observers.remove(handler)
+        except ValueError:
+            pass
+
     def get_selected_model(self) -> str:
         """Get the currently selected model."""
         return self._selected_model

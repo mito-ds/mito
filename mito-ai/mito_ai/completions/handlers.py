@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import asyncio
 import json
 import logging
 import time
@@ -362,7 +363,17 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     completion = await get_code_explain_completion(code_explain_metadata, self._llm, self._message_history)
             elif type == MessageType.AGENT_EXECUTION:
                 agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
-                await self._start_agent_loop(agent_execution_metadata)
+                self.log.info(
+                    "Starting agent execution (background), thread_id=%s",
+                    agent_execution_metadata.threadId,
+                )
+                # Tornado does not process the next WebSocket message until this
+                # on_message coroutine finishes. The agent loop must receive
+                # tool_result messages from the client, so we must not await the
+                # full loop here — that would deadlock after the first tool call.
+                asyncio.create_task(
+                    self._run_agent_execution_background(agent_execution_metadata)
+                )
                 return
             elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
                 agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
@@ -395,6 +406,18 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=parsed_message.get('message_id')
             )
             self.reply(reply)
+
+    async def _run_agent_execution_background(
+        self, metadata: AgentExecutionMetadata
+    ) -> None:
+        """Run the agent loop; errors outside :func:`start_agent_loop`'s own try
+        (e.g. history setup) are reported on the WebSocket."""
+        try:
+            await self._start_agent_loop(metadata)
+        except Exception as e:
+            self.log.error("Agent execution failed", exc_info=True)
+            error = CompletionError.from_exception(e)
+            self._send_error({"new": error})
 
     async def _start_agent_loop(self, metadata: AgentExecutionMetadata) -> None:
         """Launch the mito-ai-core AgentRunner.
