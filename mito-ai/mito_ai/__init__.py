@@ -10,7 +10,7 @@ from mito_ai.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
 from mito_ai.log.urls import get_log_urls
 from mito_ai_core.utils.litellm_utils import is_litellm_configured
-from mito_ai.enterprise.utils import is_abacus_configured
+from mito_ai_core.enterprise.utils import is_abacus_configured
 from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
 from mito_ai.settings.urls import get_settings_urls
