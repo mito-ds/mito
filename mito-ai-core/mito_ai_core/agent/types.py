@@ -6,9 +6,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
-from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate
+from openai.types.chat import ChatCompletionMessageParam
+
+from mito_ai_core.completions.models import AIOptimizedCell, AgentResponse, CellUpdate
 
 
 @dataclass(frozen=True)
@@ -70,3 +72,35 @@ class AgentContext:
 
     is_chrome_browser: bool = True
     """Whether the frontend is a Chrome-based browser (gates GET_CELL_OUTPUT)."""
+
+
+@runtime_checkable
+class CompletionProvider(Protocol):
+    """Minimal interface the agent loop needs from a provider.
+
+    :class:`ProviderManager` satisfies this protocol.  Tests can supply a
+    lightweight fake instead without pulling in every LLM SDK.
+    """
+
+    async def request_completions(
+        self,
+        *,
+        message_type: Any,
+        messages: List[ChatCompletionMessageParam],
+        response_format_info: Optional[Any] = None,
+        **kwargs: Any,
+    ) -> str: ...
+
+
+@dataclass(frozen=True)
+class AgentRunResult:
+    """Outcome of a complete agent run."""
+
+    final_response: AgentResponse
+    """The last ``AgentResponse`` returned by the LLM."""
+
+    finished: bool
+    """``True`` when the agent declared ``finished_task``."""
+
+    iterations: int
+    """Number of LLM calls made."""
