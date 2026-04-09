@@ -130,7 +130,7 @@ class AgentRunner:
                 )
 
             # ---- Tool dispatch ------------------------------------------
-            tool_result = await self._tool_dispatch(ctx, response)
+            tool_result = await self._execute_tool(ctx, response)
 
             # Update mutable context from the tool result
             if tool_result.cells is not None:
@@ -160,7 +160,7 @@ class AgentRunner:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    async def _tool_dispatch(
+    async def _execute_tool(
         self, ctx: AgentContext, response: AgentResponse
     ) -> ToolResult:
         """Route an ``AgentResponse`` to the matching ``ToolExecutor`` method."""
