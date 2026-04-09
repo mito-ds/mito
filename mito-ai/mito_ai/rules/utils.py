@@ -4,7 +4,7 @@
 from typing import Any, Final, List, Optional, cast
 import os
 import json
-from mito_ai.utils.schema import MITO_FOLDER
+from mito_ai_core.utils.schema import MITO_FOLDER
 
 RULES_DIR_PATH: Final[str] = os.path.join(MITO_FOLDER, 'rules')
 RULES_METADATA_FILENAME: Final[str] = '_metadata.json'

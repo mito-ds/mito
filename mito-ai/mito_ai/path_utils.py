@@ -3,7 +3,7 @@
 
 from typing import NewType
 import os
-from mito_ai.utils.error_classes import StreamlitPreviewError
+from mito_ai_core.utils.error_classes import StreamlitPreviewError
 
 # Type definitions for better type safety
 AbsoluteNotebookPath = NewType('AbsoluteNotebookPath', str)

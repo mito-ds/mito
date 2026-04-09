@@ -5,9 +5,9 @@ import json
 import tornado
 from typing import Any, Optional
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.utils.db import get_user_field, set_user_field
-from mito_ai.utils.telemetry_utils import identify
-from mito_ai.utils.version_utils import is_enterprise, is_pro
+from mito_ai_core.utils.db import get_user_field, set_user_field
+from mito_ai_core.utils.telemetry_utils import identify
+from mito_ai_core.utils.version_utils import is_enterprise, is_pro
 
 
 class UserHandler(APIHandler):

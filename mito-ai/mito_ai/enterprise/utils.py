@@ -4,7 +4,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the The Mito Enterprise license.
 
-from mito_ai.utils.version_utils import is_enterprise, is_mitosheet_private
+from mito_ai_core.utils.version_utils import is_enterprise, is_mitosheet_private
 from mito_ai.constants import (
     AZURE_OPENAI_API_KEY, 
     AZURE_OPENAI_ENDPOINT, 

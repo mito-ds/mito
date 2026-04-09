@@ -39,10 +39,10 @@ from mito_ai.completions.models import (
     MessageType,
     GithubCopilotLoginStatusMessage,
 )
-from mito_ai.provider_manager import ProviderManager
-from mito_ai.utils.create import initialize_user
-from mito_ai.utils.version_utils import is_pro
-from mito_ai.utils.model_utils import get_available_models
+from mito_ai_core.provider_manager import ProviderManager
+from mito_ai_core.utils.create import initialize_user
+from mito_ai_core.utils.version_utils import is_pro
+from mito_ai_core.utils.model_utils import get_available_models
 from mito_ai.completions.completion_handlers.chat_completion_handler import get_chat_completion, stream_chat_completion
 from mito_ai.completions.completion_handlers.smart_debug_handler import get_smart_debug_completion, stream_smart_debug_completion
 from mito_ai.completions.completion_handlers.code_explain_handler import get_code_explain_completion, stream_code_explain_completion
@@ -52,8 +52,8 @@ from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler impo
 from mito_ai.completions.completion_handlers.scratchpad_result_handler import get_scratchpad_result_completion
 from mito_ai.completions.agent_loop import start_agent_loop
 from mito_ai.completions.jupyter_lab_tool_executor import JupyterLabToolExecutor
-from mito_ai.utils.telemetry_utils import identify
-from mito_ai.utils.version_utils import is_github_copilot_helper_installed
+from mito_ai_core.utils.telemetry_utils import identify
+from mito_ai_core.utils.version_utils import is_github_copilot_helper_installed
 from mito_ai.copilot import ws_notifier as copilot_ws_notifier
 from mito_ai_core.agent import ToolResult
 from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell

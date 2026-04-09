@@ -11,7 +11,7 @@ import json
 from typing import Final
 
 from mito_ai.completions.prompt_builders.excel_to_python_rules import EXCEL_TO_PYTHON_RULES
-from mito_ai.utils.schema import MITO_FOLDER
+from mito_ai_core.utils.schema import MITO_FOLDER
 
 CHART_CONFIG_RULES = """
 When creating a matplotlib chart, you must use the `# === CHART CONFIG ===` and `# === END CONFIG ===` markers to indicate the start and end of the chart configuration section.

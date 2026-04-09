@@ -6,7 +6,9 @@ import subprocess
 from importlib.metadata import distributions
 import sys
 import uuid
-from typing import Any, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
+
+from tornado.httpclient import AsyncHTTPClient
 
 
 def get_random_id() -> str:
@@ -64,4 +66,23 @@ def install_packages(packages: List[str]) -> dict[str, Union[bool, str, None]]:
             result['error'] = str(e)
     
     return result
+
+
+def _create_http_client(timeout: int, max_retries: int) -> Tuple[AsyncHTTPClient, Optional[int]]:
+    """
+    Create an HTTP client with appropriate timeout settings.
+
+    Returns:
+        A tuple containing the HTTP client and the timeout value in milliseconds (or None in tests).
+    """
+    if is_running_test():
+        http_client = AsyncHTTPClient(defaults=dict(user_agent="Mito-AI client"))
+        http_client_timeout = None
+    else:
+        http_client_timeout = timeout * 1000 * max_retries + 10000
+        http_client = AsyncHTTPClient(
+            defaults=dict(user_agent="Mito-AI client", request_timeout=http_client_timeout)
+        )
+
+    return http_client, http_client_timeout
 

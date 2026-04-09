@@ -7,9 +7,9 @@ import logging
 from typing import Any, Union, List, Optional
 import tempfile
 from mito_ai.path_utils import AbsoluteNotebookDirPath, AppFileName, does_app_path_exist, get_absolute_app_path, get_absolute_notebook_dir_path, get_absolute_notebook_path, get_app_file_name
-from mito_ai.utils.create import initialize_user
-from mito_ai.utils.error_classes import StreamlitDeploymentError
-from mito_ai.utils.version_utils import is_pro
+from mito_ai_core.utils.create import initialize_user
+from mito_ai_core.utils.error_classes import StreamlitDeploymentError
+from mito_ai_core.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
 from mito_ai.app_deploy.app_deploy_utils import  add_files_to_zip
 from mito_ai.app_deploy.models import (
@@ -21,7 +21,7 @@ from mito_ai.app_deploy.models import (
 from mito_ai.completions.models import MessageType
 from mito_ai.logger import get_logger
 from mito_ai.constants import ACTIVE_STREAMLIT_BASE_URL
-from mito_ai.utils.telemetry_utils import log_streamlit_app_deployment_failure
+from mito_ai_core.utils.telemetry_utils import log_streamlit_app_deployment_failure
 import requests
 import traceback
 

@@ -29,7 +29,7 @@ from mito_ai.completions.prompt_builders.agent_execution_prompt import (
     create_agent_execution_prompt,
 )
 from mito_ai.logger import get_logger
-from mito_ai.provider_manager import ProviderManager
+from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.agent import AgentContext, AgentRunner, AgentRunResult
 from mito_ai_core.agent.utils import serialize_agent_response
 from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell
