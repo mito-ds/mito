@@ -510,6 +510,50 @@ export interface IDeleteThreadReply {
   success: boolean;
 }
 
+/**
+ * Message sent from the backend requesting the frontend to execute a tool.
+ * The frontend should execute the action described in agent_response and
+ * send back an IToolResultRequest.
+ */
+export interface IRequestToolExecutionMessage {
+  type: 'request_tool_execution';
+  agent_response: AgentResponse;
+  thread_id: string;
+  message: string;
+}
+
+/**
+ * Message sent from the backend when the agent loop finishes.
+ */
+export interface IAgentFinishedMessage {
+  type: 'agent_finished';
+  agent_response: AgentResponse;
+  thread_id: string;
+  finished: boolean;
+  iterations: number;
+}
+
+/**
+ * Request sent from the frontend to the backend with tool execution results.
+ */
+export interface IToolResultRequest extends ICompletionRequest {
+  type: 'tool_result';
+  metadata: IToolResultMetadata;
+}
+
+export interface IToolResultMetadata {
+  promptType: 'tool_result';
+  threadId: string;
+  success: boolean;
+  errorMessage?: string | null;
+  cells?: AIOptimizedCell[] | null;
+  variables?: string[] | null;
+  output?: string | null;
+  toolType?: string | null;
+  activeCellId?: string | null;
+  isChromeBrowser?: boolean;
+}
+
 export type CompleterMessage =
   | ErrorMessage
   | IAICapabilities
@@ -519,4 +563,6 @@ export type CompleterMessage =
   | IFetchHistoryReply
   | IStartNewChatReply
   | IFetchThreadsReply
-  | IDeleteThreadReply;
+  | IDeleteThreadReply
+  | IRequestToolExecutionMessage
+  | IAgentFinishedMessage;

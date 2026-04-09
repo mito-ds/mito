@@ -31,6 +31,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
+    "mito-ai-core",
     "jinja2>=3.0.3",
     "jupyterlab>=4.1.0,<5",
     "analytics-python",

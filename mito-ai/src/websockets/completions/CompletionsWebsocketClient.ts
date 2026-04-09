@@ -6,10 +6,12 @@
 import type {
   CompleterMessage,
   ICompletionRequest,
-  ICompletionStreamChunk
+  ICompletionStreamChunk,
+  IRequestToolExecutionMessage,
+  IAgentFinishedMessage,
 } from './CompletionModels';
 import { BaseWebsocketClient, IBaseWebsocketClientOptions } from '../BaseWebsocketClient';
-import { IStream } from '@lumino/signaling';
+import { IStream, Stream } from '@lumino/signaling';
 import { isElectronBasedFrontend } from '../../utils/user';
 
 /**
@@ -57,6 +59,20 @@ export class CompletionWebsocketClient extends BaseWebsocketClient<ICompletionRe
    */
   get connectionStatus(): IStream<CompletionWebsocketClient, 'connected' | 'disconnected'> {
     return this._connectionStatus as unknown as IStream<CompletionWebsocketClient, 'connected' | 'disconnected'>;
+  }
+
+  /**
+   * Stream of request_tool_execution messages from the backend agent loop.
+   */
+  get requestToolExecutionMessages(): IStream<CompletionWebsocketClient, IRequestToolExecutionMessage> {
+    return this._requestToolExecutionMessages as unknown as IStream<CompletionWebsocketClient, IRequestToolExecutionMessage>;
+  }
+
+  /**
+   * Stream of agent_finished messages from the backend agent loop.
+   */
+  get agentFinished(): IStream<CompletionWebsocketClient, IAgentFinishedMessage> {
+    return this._agentFinished as unknown as IStream<CompletionWebsocketClient, IAgentFinishedMessage>;
   }
 
   /**
@@ -109,7 +125,37 @@ export class CompletionWebsocketClient extends BaseWebsocketClient<ICompletionRe
         }
         break;
       }
+      case 'request_tool_execution': {
+        this._requestToolExecutionMessages.emit(message);
+        break;
+      }
+      case 'agent_finished': {
+        this._agentFinished.emit(message);
+        break;
+      }
       // default: /* no-op */
+    }
+  }
+
+  private _requestToolExecutionMessages = new Stream<BaseWebsocketClient<ICompletionRequest, CompleterMessage, ICompletionStreamChunk>, IRequestToolExecutionMessage>(this);
+  private _agentFinished = new Stream<BaseWebsocketClient<ICompletionRequest, CompleterMessage, ICompletionStreamChunk>, IAgentFinishedMessage>(this);
+
+  /**
+   * Send a message without waiting for a reply (fire-and-forget).
+   * Used for tool_result messages where the backend doesn't send a reply.
+   */
+  sendOneWay<T extends ICompletionRequest>(message: T): void {
+    const messageWithEnvironment = {
+      ...message,
+      environment: {
+        isElectron: this.isElectron,
+      }
+    };
+
+    if (this._socket && this._socket.readyState === WebSocket.OPEN) {
+      this._socket.send(JSON.stringify(messageWithEnvironment));
+    } else {
+      console.error('Cannot send one-way message: websocket not connected');
     }
   }
 

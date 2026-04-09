@@ -455,14 +455,17 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(newChatHistoryManager)
         setLoadingStatus('thinking');
 
-        // Step 2: Send the message to the AI
+        // Step 2: Send the message to the backend to start the agent loop.
+        // Use sendOneWay because the backend runs the full agent loop and
+        // communicates via request_tool_execution/agent_finished messages instead of
+        // a traditional reply.
         const completionRequest: IAgentExecutionCompletionRequest = {
             type: 'agent:execution',
             message_id: UUID.uuid4(),
             metadata: agentExecutionMetadata,
             stream: false
         }
-        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
+        websocketClient.sendOneWay(completionRequest)
     }
 
     const sendScratchpadResultMessage = async (

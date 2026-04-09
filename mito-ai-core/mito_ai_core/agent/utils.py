@@ -6,8 +6,9 @@
 from __future__ import annotations
 
 import json
+from typing import Optional
 
-from mito_ai_core.agent.types import ToolResult
+from mito_ai_core.agent.types import AgentContext, ToolResult
 from mito_ai_core.completions.models import AgentResponse
 
 # Optional fields in AgentResponse that may be absent from LLM output.
@@ -79,3 +80,15 @@ def format_tool_result(response_type: str, result: ToolResult) -> str:
     if result.output:
         lines.append(f"Output:\n{result.output}")
     return "\n".join(lines)
+
+
+def serialize_agent_response(response: AgentResponse) -> dict:
+    """Serialize an ``AgentResponse`` to a JSON-safe dict."""
+    return response.model_dump(mode="json")
+
+
+def serialize_tool_result(result: ToolResult) -> dict:
+    """Serialize a ``ToolResult`` to a JSON-safe dict."""
+    from dataclasses import asdict
+
+    return asdict(result)

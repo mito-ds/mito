@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IDocumentManager } from '@jupyterlab/docmanager';
@@ -12,15 +12,20 @@ import { IStreamlitPreviewManager } from '../../AppPreview/StreamlitPreviewPlugi
 import { CompletionWebsocketClient } from '../../../websockets/completions/CompletionsWebsocketClient';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 import { createCheckpoint } from '../../../utils/checkpoint';
-import { acceptAndRunCellUpdate, retryIfExecutionError, runAllCells } from '../../../utils/agentActions';
+import { acceptAndRunCellUpdate, runAllCells } from '../../../utils/agentActions';
 import { checkForBlacklistedWords } from '../../../utils/blacklistedWords';
 import { playCompletionSound } from '../../../utils/sound';
-import { getCodeBlockFromMessage } from '../../../utils/strings';
-import { getAIOptimizedCellsInNotebookPanel, setActiveCellByIDInNotebookPanel } from '../../../utils/notebook';
+import { getAIOptimizedCellsInNotebookPanel, getActiveCellIDInNotebookPanel } from '../../../utils/notebook';
 import { AgentReviewStatus } from '../ChatTaskpane';
 import { LoadingStatus } from './useChatState';
 import { ensureNotebookExists } from '../utils';
 import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
+import { getCellOutputByIDInNotebook } from '../../../utils/cellOutput';
+import {
+    IRequestToolExecutionMessage,
+    IAgentFinishedMessage,
+    AIOptimizedCell,
+} from '../../../websockets/completions/CompletionModels';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -50,6 +55,9 @@ interface UseAgentExecutionProps {
         sendCellIDOutput?: string,
         additionalContext?: Array<{ type: string, value: string }>
     ) => Promise<void>;
+    // These are kept in the interface for backward compatibility but are no longer
+    // used by useAgentExecution — error retry and scratchpad are handled by the
+    // backend agent loop via request_tool_execution/tool_result messages.
     sendScratchpadResultMessage: (scratchpadResult: string) => Promise<void>;
     sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>;
     agentReview: {
@@ -60,6 +68,44 @@ interface UseAgentExecutionProps {
     setAgentReviewStatus: (status: AgentReviewStatus) => void;
     audioContextRef: React.MutableRefObject<AudioContext | null>;
 }
+
+/**
+ * Send a tool_result message back to the backend over the WebSocket.
+ * Uses sendOneWay because the backend doesn't reply to tool_result
+ * messages — it resolves the JupyterLabToolExecutor's pending future instead.
+ */
+const sendToolResult = (
+    websocketClient: CompletionWebsocketClient,
+    threadId: string,
+    success: boolean,
+    opts: {
+        errorMessage?: string;
+        cells?: AIOptimizedCell[];
+        variables?: string[];
+        output?: string;
+        toolType?: string;
+        activeCellId?: string;
+        isChromeBrowser?: boolean;
+    } = {}
+) => {
+    websocketClient.sendOneWay({
+        type: 'tool_result',
+        message_id: UUID.uuid4(),
+        metadata: {
+            promptType: 'tool_result' as const,
+            threadId,
+            success,
+            errorMessage: opts.errorMessage ?? null,
+            cells: opts.cells ?? null,
+            variables: opts.variables ?? null,
+            output: opts.output ?? null,
+            toolType: opts.toolType ?? null,
+            activeCellId: opts.activeCellId ?? null,
+            isChromeBrowser: opts.isChromeBrowser ?? true,
+        },
+        stream: false,
+    });
+};
 
 export const useAgentExecution = ({
     notebookTracker,
@@ -117,7 +163,8 @@ export const useAgentExecution = ({
                 newChatHistoryManager
             );
 
-            // Send stop message to backend
+            // Send stop message to backend — this will reject the
+            // JupyterLabToolExecutor's pending future and end the agent loop.
             await websocketClient.sendMessage({
                 type: "stop_agent",
                 message_id: UUID.uuid4(),
@@ -132,13 +179,260 @@ export const useAgentExecution = ({
         playCompletionSound(audioContextRef.current);
     };
 
+    /**
+     * Handle a request_tool_execution from the backend. Executes the requested tool
+     * and sends back a tool_result.
+     */
+    const handleRequestToolExecution = useCallback(async (
+        _sender: any,
+        command: IRequestToolExecutionMessage
+    ): Promise<void> => {
+        // Only handle commands for the current thread
+        if (command.thread_id !== activeThreadIdRef.current) {
+            return;
+        }
+
+        // If the agent has been told to stop, don't execute
+        if (!shouldContinueAgentExecution.current) {
+            return;
+        }
+
+        const notebookPanel = agentTargetNotebookPanelRef.current;
+        if (!notebookPanel) {
+            sendToolResult(websocketClient, command.thread_id, false, {
+                errorMessage: 'No notebook panel available',
+                toolType: command.agent_response.type,
+            });
+            return;
+        }
+
+        const agentResponse = command.agent_response;
+
+        try {
+            switch (agentResponse.type) {
+                case 'cell_update': {
+                    if (!agentResponse.cell_update) {
+                        sendToolResult(websocketClient, command.thread_id, false, {
+                            errorMessage: 'cell_update payload is missing',
+                            toolType: 'cell_update',
+                        });
+                        return;
+                    }
+
+                    // Security check
+                    const securityCheck = checkForBlacklistedWords(agentResponse.cell_update.code);
+                    if (!securityCheck.safe) {
+                        console.error('Security Warning:', securityCheck.reason);
+                        addAIMessageFromResponseAndUpdateState(
+                            `I cannot automatically execute this code because it did not pass my security checks. ${securityCheck.reason}. If you decide that this code is safe, you can manually run it.`,
+                            'agent:execution',
+                            chatHistoryManagerRef.current
+                        );
+                        sendToolResult(websocketClient, command.thread_id, false, {
+                            errorMessage: `Security check failed: ${securityCheck.reason}`,
+                            toolType: 'cell_update',
+                        });
+                        return;
+                    }
+
+                    setLoadingStatus('running-code');
+                    try {
+                        await acceptAndRunCellUpdate(
+                            agentResponse.cell_update,
+                            notebookPanel,
+                        );
+                    } finally {
+                        setLoadingStatus(undefined);
+                    }
+
+                    // Gather updated notebook state
+                    const cells = getAIOptimizedCellsInNotebookPanel(notebookPanel);
+                    const activeCellId = getActiveCellIDInNotebookPanel(notebookPanel);
+
+                    sendToolResult(websocketClient, command.thread_id, true, {
+                        cells: cells,
+                        toolType: 'cell_update',
+                        activeCellId: activeCellId,
+                    });
+                    break;
+                }
+
+                case 'run_all_cells': {
+                    setLoadingStatus('running-code');
+                    let result;
+                    try {
+                        result = await runAllCells(app, notebookPanel);
+                    } finally {
+                        setLoadingStatus(undefined);
+                    }
+
+                    const cells = getAIOptimizedCellsInNotebookPanel(notebookPanel);
+
+                    if (!result.success && result.errorMessage) {
+                        sendToolResult(websocketClient, command.thread_id, false, {
+                            errorMessage: result.errorMessage,
+                            cells: cells,
+                            toolType: 'run_all_cells',
+                        });
+                    } else {
+                        sendToolResult(websocketClient, command.thread_id, true, {
+                            cells: cells,
+                            toolType: 'run_all_cells',
+                        });
+                    }
+                    break;
+                }
+
+                case 'get_cell_output': {
+                    const cellId = agentResponse.get_cell_output_cell_id;
+                    if (!cellId) {
+                        sendToolResult(websocketClient, command.thread_id, false, {
+                            errorMessage: 'get_cell_output_cell_id is missing',
+                            toolType: 'get_cell_output',
+                        });
+                        return;
+                    }
+
+                    const output = await getCellOutputByIDInNotebook(notebookPanel, cellId);
+
+                    sendToolResult(websocketClient, command.thread_id, true, {
+                        output: output ?? undefined,
+                        toolType: 'get_cell_output',
+                    });
+                    break;
+                }
+
+                case 'scratchpad': {
+                    const code = agentResponse.scratchpad_code;
+                    if (!code) {
+                        sendToolResult(websocketClient, command.thread_id, false, {
+                            errorMessage: 'scratchpad_code is missing',
+                            toolType: 'scratchpad',
+                        });
+                        return;
+                    }
+
+                    // Security check
+                    const scratchpadSecurityCheck = checkForBlacklistedWords(code);
+                    if (!scratchpadSecurityCheck.safe) {
+                        console.error('Security Warning:', scratchpadSecurityCheck.reason);
+                        sendToolResult(websocketClient, command.thread_id, false, {
+                            errorMessage: `Security check failed: ${scratchpadSecurityCheck.reason}`,
+                            toolType: 'scratchpad',
+                        });
+                        return;
+                    }
+
+                    setLoadingStatus('running-code');
+                    let scratchpadResult;
+                    try {
+                        scratchpadResult = await executeScratchpadCode(
+                            notebookPanel,
+                            code
+                        );
+                    } finally {
+                        setLoadingStatus(undefined);
+                    }
+
+                    const formattedResult = formatScratchpadResult(scratchpadResult);
+
+                    sendToolResult(websocketClient, command.thread_id, scratchpadResult.success, {
+                        output: formattedResult,
+                        errorMessage: scratchpadResult.error,
+                        toolType: 'scratchpad',
+                    });
+                    break;
+                }
+
+                case 'ask_user_question': {
+                    // When the agent asks a question, we stop execution on the frontend
+                    // and tell the backend the question was delivered.
+                    // The backend agent loop will pause waiting for the user's answer.
+                    sendToolResult(websocketClient, command.thread_id, true, {
+                        output: 'Question delivered to user',
+                        toolType: 'ask_user_question',
+                    });
+                    // Mark agent as stopped so the UI shows the question
+                    await markAgentForStopping();
+                    break;
+                }
+
+                default: {
+                    // For types we don't handle on the frontend (create_streamlit_app, etc.)
+                    // send a success result so the backend loop continues
+                    sendToolResult(websocketClient, command.thread_id, true, {
+                        toolType: agentResponse.type,
+                    });
+                    break;
+                }
+            }
+        } catch (error: any) {
+            console.error('Error executing request_tool_execution:', error);
+            sendToolResult(websocketClient, command.thread_id, false, {
+                errorMessage: error?.message || 'Unknown error executing tool',
+                toolType: agentResponse.type,
+            });
+        }
+    }, [
+        websocketClient,
+        activeThreadIdRef,
+        agentTargetNotebookPanelRef,
+        shouldContinueAgentExecution,
+        setLoadingStatus,
+        addAIMessageFromResponseAndUpdateState,
+        chatHistoryManagerRef,
+        app,
+        markAgentForStopping,
+    ]);
+
+    /**
+     * Handle agent_finished from the backend.
+     */
+    const handleAgentFinished = useCallback(async (
+        _sender: any,
+        msg: IAgentFinishedMessage
+    ): Promise<void> => {
+        if (msg.thread_id !== activeThreadIdRef.current) {
+            return;
+        }
+
+        // Display the final message if present
+        if (msg.agent_response?.message) {
+            addAIMessageFromResponseAndUpdateState(
+                msg.agent_response.message,
+                'agent:execution',
+                chatHistoryManagerRef.current
+            );
+        }
+
+        await markAgentForStopping();
+    }, [activeThreadIdRef, addAIMessageFromResponseAndUpdateState, chatHistoryManagerRef, markAgentForStopping]);
+
+    // Subscribe to request_tool_execution and agent_finished streams
+    useEffect(() => {
+        const onRequestToolExecution = (_sender: any, command: IRequestToolExecutionMessage) => {
+            void handleRequestToolExecution(_sender, command);
+        };
+        const onAgentFinished = (_sender: any, msg: IAgentFinishedMessage) => {
+            void handleAgentFinished(_sender, msg);
+        };
+
+        websocketClient.requestToolExecutionMessages.connect(onRequestToolExecution);
+        websocketClient.agentFinished.connect(onAgentFinished);
+
+        return () => {
+            websocketClient.requestToolExecutionMessages.disconnect(onRequestToolExecution);
+            websocketClient.agentFinished.disconnect(onAgentFinished);
+        };
+    }, [websocketClient, handleRequestToolExecution, handleAgentFinished]);
+
     const startAgentExecution = async (
         input: string,
         setAgentReviewStatus: (status: AgentReviewStatus) => void,
         messageIndex?: number,
         additionalContext?: Array<{ type: string, value: string }>
     ): Promise<void> => {
-        
+
         // Ensure a notebook exists before proceeding with agent execution
         const agentTargetNotebookPanel = await ensureNotebookExists(notebookTracker, documentManager);
         agentTargetNotebookPanelRef.current = agentTargetNotebookPanel;
@@ -155,259 +449,9 @@ export const useAgentExecution = ({
         // Reset the execution flag at the start of a new plan
         shouldContinueAgentExecution.current = true;
 
-        let isAgentFinished = false;
-        let agentExecutionDepth = 1;
-        let sendCellIDOutput: string | undefined = undefined;
-        let processedScratchpadResult: string | undefined = undefined;
-
-        // Sometimes its useful to send extra information back to the agent. For example, 
-        // if the agent tries to create a streamlit app and it errors, we want to let the 
-        // orchestrator agent know about the issue. 
-        // TODO: Ideally this would be a different type of message that does not show up
-        // as a user message in the chat taskpane, but this is the only mechanism we have 
-        // right now.
-        let messageToShareWithAgent: string | undefined = undefined;
-
-        // Loop through each message in the plan and send it to the AI
-        while (!isAgentFinished) {
-
-            // Check if we should continue execution
-            if (!shouldContinueAgentExecution.current) {
-                await markAgentForStopping();
-                break;
-            }
-
-            // Only the first message sent to the Agent should contain the user's input.
-            // All other messages only contain updated information about the state of the notebook.
-            if (agentExecutionDepth === 1) {
-                await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext);
-            } else if (processedScratchpadResult !== undefined) {
-                // If we have scratchpad results, send them using the scratchpad result message type
-                await sendScratchpadResultMessage(processedScratchpadResult);
-                processedScratchpadResult = undefined;
-            } else {
-                await sendAgentExecutionMessage(messageToShareWithAgent || '', undefined, sendCellIDOutput);
-                // Reset flag back to false until the agent requests the active cell output again
-                sendCellIDOutput = undefined;
-                messageToShareWithAgent = undefined;
-            }
-
-            // Iterate the agent execution depth
-            agentExecutionDepth++;
-
-            // Check the code generated by the AI for blacklisted words before running it
-            const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
-
-            // # TODO: Make this is a helper function so we can also use it in the auto error fixup! 
-            if (aiDisplayOptimizedChatItem) {
-                const aiGeneratedCode = getCodeBlockFromMessage(aiDisplayOptimizedChatItem.message);
-                if (aiGeneratedCode) {
-                    const securityCheck = checkForBlacklistedWords(aiGeneratedCode);
-                    if (!securityCheck.safe) {
-                        console.error('Security Warning:', securityCheck.reason);
-                        addAIMessageFromResponseAndUpdateState(
-                            `I cannot automatically execute this code because it did not pass my security checks. ${securityCheck.reason}. If you decide that this code is safe, you can manually run it.`,
-                            'agent:execution',
-                            chatHistoryManagerRef.current
-                        );
-                        await markAgentForStopping();
-                        break;
-                    }
-                }
-            }
-
-            const agentResponse = aiDisplayOptimizedChatItem?.agentResponse;
-
-            if (agentTargetNotebookPanelRef.current === null) {
-                // If the agent target notebook panel is not set, we don't know where to run the code so we stop
-                await markAgentForStopping();
-                isAgentFinished = true;
-                break;
-            }
-
-            if (agentResponse === undefined) {
-                // If the agent response is undefined, we need to send a message to the agent
-                await markAgentForStopping();
-                isAgentFinished = true;
-                break;
-            }
-
-            if (agentResponse.type === 'finished_task') {
-                // If the agent told us that it is finished, we can stop
-                await markAgentForStopping();
-                isAgentFinished = true;
-                break;
-            }
-
-            if (agentResponse.type === 'cell_update' && (agentResponse.cell_update === undefined || agentResponse.cell_update === null)) {
-                // If the agent's response is not formatted correctly, stop. This is for typechecking mostly
-                await markAgentForStopping();
-                isAgentFinished = true;
-                break;
-            }
-
-            // TODO: If we created a validated type in the agent response validation function, then we woulnd't need to do these checks
-            if (agentResponse.type === 'edit_streamlit_app' && (agentResponse.streamlit_app_prompt === undefined || agentResponse.streamlit_app_prompt === null)) {
-                await markAgentForStopping();
-                isAgentFinished = true;
-                break;
-            }
-
-            if (agentResponse.type === 'cell_update' && agentResponse.cell_update) {
-                // Run the code and handle any errors
-                setLoadingStatus('running-code');
-                try {
-                    await acceptAndRunCellUpdate(
-                        agentResponse.cell_update,
-                        agentTargetNotebookPanelRef.current,
-                    );
-                } finally {
-                    setLoadingStatus(undefined);
-                }
-
-                const status = await retryIfExecutionError(
-                    agentTargetNotebookPanelRef.current,
-                    app,
-                    sendAgentSmartDebugMessage,
-                    shouldContinueAgentExecution,
-                    markAgentForStopping,
-                    chatHistoryManagerRef,
-                    setLoadingStatus
-                );
-
-                if (status === 'interupted') {
-                    break;
-                }
-
-                // If we were not able to run the code, break out of the loop
-                // so we don't continue to execute the plan. Instead, we encourage
-                // the user to update the plan and try again.
-                // TODO: Save this message in backend also even if there is not another message sent.
-                // TODO: Move this into the retryIfExecutionError function?
-                if (status === 'failure') {
-                    addAIMessageFromResponseAndUpdateState(
-                        "I apologize, but I was unable to fix the error after 3 attempts. You may want to try rephrasing your request or providing more context.",
-                        'agent:execution',
-                        chatHistoryManagerRef.current
-                    );
-                    break;
-                }
-            }
-
-            if (
-                agentResponse.type === 'get_cell_output'
-                && agentResponse.get_cell_output_cell_id !== null
-                && agentResponse.get_cell_output_cell_id !== undefined
-            ) {
-                // Mark that we should send the cell output to the agent
-                // in the next loop iteration
-                sendCellIDOutput = agentResponse.get_cell_output_cell_id;
-            }
-
-            if (agentResponse.type === 'run_all_cells') {
-                setLoadingStatus('running-code');
-                let result;
-                try {
-                    result = await runAllCells(app, agentTargetNotebookPanelRef.current);
-                } finally {
-                    setLoadingStatus(undefined);
-                }
-
-                // If run_all_cells resulted in an error, handle it through the error fixup process
-                if (!result.success && result.errorMessage && result.errorCellId) {
-                    // Set the error cell as active so the error retry logic can work with it
-                    setActiveCellByIDInNotebookPanel(agentTargetNotebookPanelRef.current, result.errorCellId);
-
-                    const status = await retryIfExecutionError(
-                        agentTargetNotebookPanelRef.current,
-                        app,
-                        sendAgentSmartDebugMessage,
-                        shouldContinueAgentExecution,
-                        markAgentForStopping,
-                        chatHistoryManagerRef,
-                        setLoadingStatus
-                    );
-
-                    if (status === 'interupted') {
-                        break;
-                    }
-
-                    if (status === 'failure') {
-                        addAIMessageFromResponseAndUpdateState(
-                            "I apologize, but I encountered an error while running all cells and was unable to fix it after multiple attempts. You may want to check the notebook for errors.",
-                            'agent:execution',
-                            chatHistoryManagerRef.current
-                        );
-                        break;
-                    }
-                }
-            }
-
-            if (agentResponse.type === 'ask_user_question') {
-                // When the agent asks a question, we stop execution and wait for the user's response.
-                // The agent will automatically resume when the user responds
-                await markAgentForStopping();
-                isAgentFinished = true;
-                break; 
-            }
-
-            if (agentResponse.type === 'create_streamlit_app') {
-                // Create new preview using the service
-                const createStreamlitAppPrompt = agentResponse.streamlit_app_prompt || ''
-                const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current, createStreamlitAppPrompt);
-                if (streamlitPreviewResponse.type === 'error') {
-                    messageToShareWithAgent = streamlitPreviewResponse.message;
-                }
-            }
-
-            if (agentResponse.type === 'edit_streamlit_app' && agentResponse.streamlit_app_prompt) {
-                // Ensure there is an active preview to edit
-                let streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(app, agentTargetNotebookPanelRef.current);
-                if (streamlitPreviewResponse.type === 'error') {
-                    messageToShareWithAgent = streamlitPreviewResponse.message;
-                    continue;
-                }
-
-                // Edit the existing preview
-                streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(agentResponse.streamlit_app_prompt, agentTargetNotebookPanelRef.current);
-                if (streamlitPreviewResponse.type === 'error') {
-                    messageToShareWithAgent = streamlitPreviewResponse.message;
-                }
-            }
-
-            if (agentResponse.type === 'scratchpad' && agentResponse.scratchpad_code) {
-                // Check the scratchpad code for blacklisted words before executing it
-                const securityCheck = checkForBlacklistedWords(agentResponse.scratchpad_code);
-                if (!securityCheck.safe) {
-                    console.error('Security Warning:', securityCheck.reason);
-                    addAIMessageFromResponseAndUpdateState(
-                        `I cannot automatically execute this code because it did not pass my security checks. ${securityCheck.reason}. If you decide that this code is safe, you can manually run it.`,
-                        'agent:execution',
-                        chatHistoryManagerRef.current
-                    );
-                    await markAgentForStopping();
-                    break;
-                }
-
-                // Execute scratchpad code silently
-                setLoadingStatus('running-code');
-                let scratchpadResult;
-                try {
-                    scratchpadResult = await executeScratchpadCode(
-                        agentTargetNotebookPanelRef.current,
-                        agentResponse.scratchpad_code
-                    );
-                } finally {
-                    setLoadingStatus(undefined);
-                }
-
-                // Format the results for the agent
-                processedScratchpadResult = formatScratchpadResult(scratchpadResult);
-            }
-        }
-
-        // Use markAgentForStopping for natural conclusion to ensure consistent cleanup
-        await markAgentForStopping();
+        // Send the initial agent:execution message to kick off the backend agent loop.
+        // The backend will run the LLM loop and send request_tool_execution messages back to us.
+        await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext);
     };
 
     return {
