@@ -84,6 +84,7 @@
     "@types/react-dom": "^18.0.10",
     "aws-amplify": "^6.0.0",
     "html2canvas": "^1.4.1",
+    "katex": "^0.16.45",
     "openai": "^4.1.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

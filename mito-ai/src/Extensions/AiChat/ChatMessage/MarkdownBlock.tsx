@@ -10,6 +10,8 @@ import { Citation, CitationProps, CitationLine } from './Citation';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { scrollToCell, highlightCodeCell } from '../../../utils/notebook';
 import { useCellOrder } from '../../../hooks/useCellOrder';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import '../../../../style/CellReference.css';
 
 /**
@@ -75,6 +77,12 @@ interface CellRef {
     cellId: string;
 }
 
+interface ILatexExpr {
+    id: string;
+    content: string;
+    isDisplay: boolean;
+}
+
 const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegistry, notebookTracker }) => {
     const [citationPortals, setCitationPortals] = useState<React.ReactElement[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -120,22 +128,25 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         }
     };
 
-    // Extract citations and cell references from the markdown, returning the markdown with 
-    // placeholders and arrays of citation/cell reference objects.
-    const extractCitationsAndCellRefs = useCallback((text: string): { 
-        processedMarkdown: string; 
+    // Extract citations, cell references, and LaTeX expressions from the markdown, returning
+    // the markdown with placeholders and arrays of each object type.
+    const extractCitationsAndCellRefs = useCallback((text: string): {
+        processedMarkdown: string;
         citations: Citation[];
         cellRefs: CellRef[];
+        latexExprs: ILatexExpr[];
     } => {
         // Regex for citations: [MITO_CITATION:cell_id:line_number] or [MITO_CITATION:cell_id:start_line-end_line]
         const citationRegex = /\[MITO_CITATION:([^:]+):(\d+(?:-\d+)?)\]/g;
         // Regex for cell references: [MITO_CELL_REF:cell_id]
         const cellRefRegex = /\[MITO_CELL_REF:([^\]]+)\]/g;
-        
+
         const citations: Citation[] = [];
         const cellRefs: CellRef[] = [];
+        const latexExprs: ILatexExpr[] = [];
         let citationCounter = 0;
         let cellRefCounter = 0;
+        let latexCounter = 0;
 
         // First, replace citations with placeholders
         let processedMarkdown = text.replace(citationRegex, (match, cellId, lineStr) => {
@@ -167,7 +178,22 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             return `{{${id}}}`;
         });
 
-        return { processedMarkdown, citations, cellRefs };
+        // Extract display math ($$...$$) before inline math to avoid double-matching.
+        // The [\s\S]+? matches any character including newlines, non-greedy.
+        processedMarkdown = processedMarkdown.replace(/\$\$([\s\S]+?)\$\$/g, (match, content) => {
+            const id = `latex-${latexCounter++}`;
+            latexExprs.push({ id, content: content.trim(), isDisplay: true });
+            return `{{${id}}}`;
+        });
+
+        // Extract inline math ($...$) — single-line only, not preceded or followed by another $.
+        processedMarkdown = processedMarkdown.replace(/(?<!\$)\$([^\$\n]+?)\$(?!\$)/g, (match, content) => {
+            const id = `latex-${latexCounter++}`;
+            latexExprs.push({ id, content: content.trim(), isDisplay: false });
+            return `{{${id}}}`;
+        });
+
+        return { processedMarkdown, citations, cellRefs, latexExprs };
     }, []);
 
     // Uses the Jupyter markdowm MimeRenderer to render the markdown content as normal HTML
@@ -191,24 +217,24 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     }, [renderMimeRegistry]);
 
 
-    // Replace the citation and cell reference placeholders with components in the DOM
+    // Replace the citation, cell reference, and LaTeX placeholders with components/rendered HTML in the DOM
     const createPortalsFromPlaceholders = useCallback((
-        citations: Citation[], 
-        cellRefs: CellRef[]
+        citations: Citation[],
+        cellRefs: CellRef[],
+        latexExprs: ILatexExpr[]
     ): React.ReactElement[] => {
-        if (!containerRef.current || (citations.length === 0 && cellRefs.length === 0)) return [];
+        if (!containerRef.current || (citations.length === 0 && cellRefs.length === 0 && latexExprs.length === 0)) return [];
 
         const newPortals: React.ReactElement[] = [];
 
         // Create maps for faster lookup
         const citationMap = new Map(citations.map(citation => [`{{${citation.id}}}`, citation]));
         const cellRefMap = new Map(cellRefs.map(ref => [`{{${ref.id}}}`, ref]));
+        const latexMap = new Map(latexExprs.map(expr => [`{{${expr.id}}}`, expr]));
 
-        // Find all text nodes that contain our placeholder like {{citation-id}}).
-        // Since these placeholders exist within the text content (not as separate DOM elements):
-        //  - Find all text nodes in the rendered markdown
-        //  - Check each one to see if it contains any of your placeholders
-        //  - Process those that do contain placeholders
+        const allPlaceholders = [...citationMap.keys(), ...cellRefMap.keys(), ...latexMap.keys()];
+
+        // Find all text nodes that contain our placeholders.
         const textNodes: Text[] = [];
         const walker = document.createTreeWalker(containerRef.current, NodeFilter.SHOW_TEXT);
 
@@ -223,7 +249,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
 
             // Check if this node contains any placeholders
             let containsPlaceholder = false;
-            for (const placeholder of [...citationMap.keys(), ...cellRefMap.keys()]) {
+            for (const placeholder of allPlaceholders) {
                 if (node.nodeValue.includes(placeholder)) {
                     containsPlaceholder = true;
                     break;
@@ -232,8 +258,8 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
 
             if (!containsPlaceholder) return;
 
-            // Create a regex to match all placeholders (citations and cell refs)
-            const placeholderPattern = /\{\{(citation|cellref)-\d+\}\}/g;
+            // Create a regex to match all placeholder types (citations, cell refs, and latex)
+            const placeholderPattern = /\{\{(citation|cellref|latex)-\d+\}\}/g;
             const matches = [...node.nodeValue.matchAll(placeholderPattern)];
 
             if (matches.length === 0) return;
@@ -253,9 +279,9 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                     );
                 }
 
-                // Check if it's a citation or cell reference
                 const citation = citationMap.get(placeholder);
                 const cellRef = cellRefMap.get(placeholder);
+                const latexExpr = latexMap.get(placeholder);
 
                 if (citation) {
                     // Create span for the citation
@@ -280,14 +306,14 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                     const cellNumber = cellOrder.get(cellRef.cellId);
                     const isMissing = cellNumber === undefined;
                     const displayText = isMissing ? 'Cell' : `Cell ${cellNumber}`;
-                    
+
                     const span = document.createElement('span');
                     span.className = isMissing ? 'cell-reference cell-reference-missing' : 'cell-reference';
                     span.textContent = displayText;
-                    span.title = isMissing 
+                    span.title = isMissing
                         ? 'Cell not found (may have been deleted or is in a different notebook)'
                         : `Click to navigate to ${displayText}`;
-                    
+
                     // Only add click handler if cell exists
                     if (!isMissing) {
                         span.addEventListener('click', (e) => {
@@ -303,6 +329,23 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
                         });
                     }
 
+                    fragment.appendChild(span);
+                } else if (latexExpr) {
+                    // Render LaTeX with KaTeX directly into a span
+                    const span = document.createElement('span');
+                    span.className = latexExpr.isDisplay ? 'latex-display' : 'latex-inline';
+                    try {
+                        katex.render(latexExpr.content, span, {
+                            displayMode: latexExpr.isDisplay,
+                            throwOnError: false,
+                            output: 'html'
+                        });
+                    } catch (e) {
+                        // Fall back to raw LaTeX text on unexpected error
+                        span.textContent = latexExpr.isDisplay
+                            ? `$$${latexExpr.content}$$`
+                            : `$${latexExpr.content}$`;
+                    }
                     fragment.appendChild(span);
                 }
 
@@ -329,14 +372,14 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
     // cellOrderKey triggers re-render when notebook loads or cells are reordered (fixes race condition on refresh)
     useEffect(() => {
         const processMarkdown = async (): Promise<void> => {
-            // Step 1: Extract citations and cell references, get processed markdown
-            const { processedMarkdown, citations, cellRefs } = extractCitationsAndCellRefs(markdown);
+            // Step 1: Extract citations, cell references, and LaTeX expressions; get processed markdown
+            const { processedMarkdown, citations, cellRefs, latexExprs } = extractCitationsAndCellRefs(markdown);
 
             // Step 2: Render markdown with placeholders
             await renderMarkdownContent(processedMarkdown);
 
-            // Step 3: Create and insert portals for citations and cell references
-            const portals = createPortalsFromPlaceholders(citations, cellRefs);
+            // Step 3: Create and insert portals for citations, cell references, and LaTeX
+            const portals = createPortalsFromPlaceholders(citations, cellRefs, latexExprs);
             setCitationPortals(portals);
         };
 

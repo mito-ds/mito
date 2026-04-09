@@ -17,3 +17,16 @@
     overflow-wrap: anywhere;
     white-space: pre-line;
 }
+
+/* LaTeX display math: block-level, centered */
+.latex-display {
+    display: block;
+    text-align: center;
+    margin: 0.5em 0;
+    overflow-x: auto;
+}
+
+/* LaTeX inline math: stays in the text flow */
+.latex-inline {
+    display: inline;
+}
