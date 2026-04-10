@@ -10,7 +10,12 @@ from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 from openai.types.chat import ChatCompletionMessageParam
 
-from mito_ai_core.completions.models import AIOptimizedCell, AgentResponse, CellUpdate
+from mito_ai_core.completions.models import (
+    AIOptimizedCell,
+    AgentResponse,
+    CellUpdate,
+    KernelVariable,
+)
 
 
 @dataclass(frozen=True)
@@ -33,8 +38,8 @@ class ToolResult:
     cells: Optional[List[AIOptimizedCell]] = None
     """Snapshot of notebook cells after execution, if available."""
 
-    variables: Optional[List[str]] = None
-    """Variable names defined in the kernel after execution, if available."""
+    variables: Optional[List[KernelVariable]] = None
+    """Variables defined in the kernel after execution, if available."""
 
     output: Optional[str] = None
     """Captured stdout / rendered output (e.g. scratchpad print output,
@@ -67,8 +72,8 @@ class AgentContext:
     active_cell_id: str = ""
     """Cell the user's cursor is in."""
 
-    variables: Optional[List[str]] = None
-    """Variable names currently defined in the kernel."""
+    variables: Optional[List[KernelVariable]] = None
+    """Variables currently defined in the kernel."""
 
     files: Optional[List[str]] = None
     """File names in the working directory."""

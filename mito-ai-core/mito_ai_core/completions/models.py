@@ -91,7 +91,16 @@ class AIOptimizedCell():
   cell_type: str
   id: str
   code: str
-  
+
+
+@dataclass(frozen=True)
+class KernelVariable():
+    """Kernel global as reported by the Jupyter front-end (matches TS ``Variable``)."""
+
+    variable_name: str
+    type: str
+    value: Any = None
+
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():
@@ -119,7 +128,7 @@ class AgentExecutionMetadata():
     isChromeBrowser: bool
     notebookPath: str
     notebookID: str
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     files: Optional[List[str]] = None
     index: Optional[int] = None
     additionalContext: Optional[List[Dict[str, str]]] = None

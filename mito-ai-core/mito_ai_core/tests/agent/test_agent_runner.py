@@ -17,6 +17,7 @@ from mito_ai_core.completions.models import (
     AIOptimizedCell,
     AgentResponse,
     CellUpdate,
+    KernelVariable,
     MessageType,
 )
 
@@ -82,7 +83,7 @@ class FakeToolExecutor:
         return ToolResult(
             success=True,
             cells=[new_cell],
-            variables=["df"],
+            variables=[KernelVariable(variable_name="df", type="DataFrame", value=None)],
         )
 
     async def run_all_cells(
@@ -157,7 +158,7 @@ def _new_history_and_ctx() -> tuple[GlobalMessageHistory, AgentContext]:
             AIOptimizedCell(cell_type="code", id="cell-1", code="import pandas as pd"),
         ],
         active_cell_id="cell-1",
-        variables=["pd"],
+        variables=[KernelVariable(variable_name="pd", type="module", value=None)],
     )
     return mh, ctx
 
@@ -356,8 +357,10 @@ class TestContextUpdated:
 
         await runner.run(ctx, "")
 
-        # FakeToolExecutor.execute_cell_update returns cells=[new_cell], variables=["df"]
-        assert ctx.variables == ["df"]
+        # FakeToolExecutor.execute_cell_update returns cells=[new_cell], variables=[df]
+        assert ctx.variables is not None
+        assert len(ctx.variables) == 1
+        assert ctx.variables[0].variable_name == "df"
         assert ctx.cells is not None
         assert len(ctx.cells) == 1
 

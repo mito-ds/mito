@@ -18,6 +18,7 @@ from mito_ai_core.completions.models import (
     AgentSmartDebugMetadata,
     AIOptimizedCell,
     CellUpdate,
+    KernelVariable,
     ChatMessageMetadata,
     ChatThreadMetadata,
     CodeExplainMetadata,
@@ -85,7 +86,7 @@ class ToolResultMetadata:
     cells: Optional[List[AIOptimizedCell]] = None
 
     # Updated variables after tool execution
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
 
     # Tool output (e.g., scratchpad stdout, cell output base64)
     output: Optional[str] = None
@@ -138,6 +139,7 @@ class ToolResultMessage:
 
 
 __all__ = [
+    "KernelVariable",
     "AICapabilities",
     "AssistantResponseMessage",
     "AgentExecutionMetadata",

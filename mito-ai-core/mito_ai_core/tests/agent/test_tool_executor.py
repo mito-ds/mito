@@ -10,7 +10,7 @@ from typing import List, Optional
 import pytest
 
 from mito_ai_core.agent import AgentContext, ToolExecutor, ToolResult
-from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate
+from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate, KernelVariable
 
 
 # ---------------------------------------------------------------------------
@@ -45,7 +45,7 @@ class FakeToolExecutor:
         return ToolResult(
             success=True,
             cells=[new_cell],
-            variables=["df"],
+            variables=[KernelVariable(variable_name="df", type="DataFrame", value=None)],
         )
 
     async def run_all_cells(
@@ -116,7 +116,7 @@ def _make_ctx() -> AgentContext:
             AIOptimizedCell(cell_type="code", id="cell-1", code="import pandas as pd"),
         ],
         active_cell_id="cell-1",
-        variables=["pd"],
+        variables=[KernelVariable(variable_name="pd", type="module", value=None)],
     )
 
 

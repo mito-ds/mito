@@ -49,7 +49,7 @@ class ToolExecutor(Protocol):
 
         Returns
         -------
-        ToolResult with updated *cells* and *variables* after execution.
+        ToolResult with updated *cells* and *variables* (``KernelVariable`` list) after execution.
         """
         ...
 
@@ -69,7 +69,7 @@ class ToolExecutor(Protocol):
 
         Returns
         -------
-        ToolResult with refreshed *cells* and *variables*.
+        ToolResult with refreshed *cells* and *variables* (``KernelVariable`` list).
         If any cell errors, *success* should be False and *error_message*
         should contain the traceback.
         """

@@ -544,7 +544,7 @@ export interface IAgentToolResult {
   tool_name?: string | null;
   error_message?: string | null;
   cells?: AIOptimizedCell[] | null;
-  variables?: string[] | null;
+  variables?: Variable[] | null;
   output?: string | null;
   extra?: Record<string, unknown>;
 }
@@ -569,7 +569,7 @@ export interface IToolResultMetadata {
   success: boolean;
   errorMessage?: string | null;
   cells?: AIOptimizedCell[] | null;
-  variables?: string[] | null;
+  variables?: Variable[] | null;
   output?: string | null;
   toolType?: string | null;
   activeCellId?: string | null;

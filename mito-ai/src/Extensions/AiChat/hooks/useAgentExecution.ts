@@ -28,10 +28,13 @@ import {
     IToolResultMessage,
     AIOptimizedCell,
 } from '../../../websockets/completions/CompletionModels';
+import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
+import type { Variable } from '../../ContextManager/VariableInspector';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
 interface UseAgentExecutionProps {
+    contextManager: IContextManager;
     notebookTracker: INotebookTracker;
     app: JupyterFrontEnd;
     streamlitPreviewManager: IStreamlitPreviewManager;
@@ -83,7 +86,7 @@ const sendToolResult = (
     opts: {
         errorMessage?: string;
         cells?: AIOptimizedCell[];
-        variables?: string[];
+        variables?: Variable[];
         output?: string;
         toolType?: string;
         activeCellId?: string;
@@ -110,6 +113,7 @@ const sendToolResult = (
 };
 
 export const useAgentExecution = ({
+    contextManager,
     notebookTracker,
     app,
     streamlitPreviewManager,
@@ -251,11 +255,13 @@ export const useAgentExecution = ({
                     // Gather updated notebook state
                     const cells = getAIOptimizedCellsInNotebookPanel(notebookPanel);
                     const activeCellId = getActiveCellIDInNotebookPanel(notebookPanel);
+                    const variables = contextManager.getNotebookContext(notebookPanel.id)?.variables;
 
                     sendToolResult(websocketClient, command.thread_id, true, {
                         cells: cells,
                         toolType: 'cell_update',
                         activeCellId: activeCellId,
+                        variables: variables,
                     });
                     break;
                 }
@@ -270,6 +276,7 @@ export const useAgentExecution = ({
                     }
 
                     const cells = getAIOptimizedCellsInNotebookPanel(notebookPanel);
+                    const variables = contextManager.getNotebookContext(notebookPanel.id)?.variables;
 
                     if (!result.success && result.errorMessage) {
                         sendToolResult(websocketClient, command.thread_id, false, {
@@ -281,6 +288,7 @@ export const useAgentExecution = ({
                         sendToolResult(websocketClient, command.thread_id, true, {
                             cells: cells,
                             toolType: 'run_all_cells',
+                            variables: variables,
                         });
                     }
                     break;

@@ -59,6 +59,30 @@ from mito_ai_core.utils.version_utils import is_github_copilot_helper_installed
 from mito_ai.copilot import ws_notifier as copilot_ws_notifier
 from mito_ai_core.agent import ToolResult
 from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell
+from mito_ai_core.completions.models import KernelVariable
+
+
+def _coerce_kernel_variables(raw: Any) -> Optional[List[KernelVariable]]:
+    """JSON gives list of dicts; normalize to ``KernelVariable`` instances."""
+    if raw is None:
+        return None
+    out: List[KernelVariable] = []
+    for item in raw:
+        if isinstance(item, KernelVariable):
+            out.append(item)
+        elif isinstance(item, dict):
+            out.append(
+                KernelVariable(
+                    variable_name=str(item.get("variable_name", "")),
+                    type=str(item.get("type", "")),
+                    value=item.get("value"),
+                )
+            )
+        elif isinstance(item, str):
+            out.append(KernelVariable(variable_name=item, type="", value=None))
+        else:
+            raise ValueError(f"Invalid kernel variable payload: {item!r}")
+    return out
 
 
 # This handler is responsible for the mito_ai/completions endpoint.
@@ -295,7 +319,10 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Handle tool_result messages from the frontend
         if type == MessageType.TOOL_RESULT:
-            tool_result_metadata = ToolResultMetadata(**metadata_dict)
+            md_tool = dict(metadata_dict)
+            if "variables" in md_tool:
+                md_tool["variables"] = _coerce_kernel_variables(md_tool.get("variables"))
+            tool_result_metadata = ToolResultMetadata(**md_tool)
             if self._active_tool_executor is not None:
                 cells = None
                 if tool_result_metadata.cells is not None:
@@ -377,6 +404,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 md = dict(metadata_dict)
                 # Legacy clients may still send this; cell images come from get_cell_output only.
                 md.pop("base64EncodedActiveCellOutput", None)
+                if "variables" in md:
+                    md["variables"] = _coerce_kernel_variables(md.get("variables"))
                 agent_execution_metadata = AgentExecutionMetadata(**md)
                 self.log.info(
                     "Starting agent execution (background), thread_id=%s",

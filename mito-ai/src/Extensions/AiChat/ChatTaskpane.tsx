@@ -774,6 +774,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // Initialize agent execution hook
     const agentExecution = useAgentExecution({
+        contextManager,
         notebookTracker,
         app,
         streamlitPreviewManager,

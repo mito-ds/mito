@@ -13,9 +13,11 @@ from __future__ import annotations
 
 from mito_ai_core.agent.types import AgentContext, AgentRunResult, CompletionProvider, ToolResult
 from mito_ai_core.agent.tool_executor import ToolExecutor
+from mito_ai_core.completions.models import KernelVariable
 
 __all__ = [
     "AgentContext",
+    "KernelVariable",
     "ToolResult",
     "ToolExecutor",
     "AgentRunResult",
