@@ -9,7 +9,8 @@ from mito_ai_core.completions.prompt_builders.chat_prompt import create_chat_pro
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
-from mito_ai.completions.completion_handlers.utils import append_chat_system_message, create_ai_optimized_message
+from mito_ai_core.completions.ai_optimized_message import create_ai_optimized_message
+from mito_ai.completions.completion_handlers.utils import append_chat_system_message
 
 __all__ = ["get_chat_completion", "stream_chat_completion"]
 

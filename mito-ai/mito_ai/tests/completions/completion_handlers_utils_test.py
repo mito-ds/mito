@@ -9,9 +9,11 @@ from contextlib import contextmanager
 
 import pytest
 
-from mito_ai.completions.completion_handlers.utils import (
+from mito_ai_core.completions.ai_optimized_message import (
     create_ai_optimized_message,
     extract_and_encode_images_from_additional_context,
+)
+from mito_ai.completions.completion_handlers.utils import (
     normalize_agent_response_completion,
 )
 

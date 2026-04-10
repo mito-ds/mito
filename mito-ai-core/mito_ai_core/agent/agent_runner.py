@@ -25,6 +25,9 @@ from mito_ai_core.completions.models import (
     MessageType,
     ResponseFormatInfo,
 )
+from mito_ai_core.utils.message_history_utils import append_agent_system_message
+from mito_ai_core.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
+from mito_ai_core.completions.ai_optimized_message import create_ai_optimized_message
 
 __all__ = ["AgentRunner"]
 
@@ -98,10 +101,35 @@ class AgentRunner:
             ``MessageType`` forwarded to
             :meth:`CompletionProvider.request_completions`.
         """
-        messages: List[ChatCompletionMessageParam] = [
-            {"role": "user", "content": user_input},
-        ]
+
         last_response: Optional[AgentResponse] = None
+        
+        await append_agent_system_message(
+            self.message_history,
+            self._provider,
+            ctx.thread_id,
+            ctx.is_chrome_browser,
+        )
+
+        prompt = create_agent_execution_prompt(ctx, user_input)
+
+        new_ai_optimized_message = create_ai_optimized_message(
+            prompt,
+            metadata.base64EncodedActiveCellOutput,
+            metadata.additionalContext,
+        )
+        new_display_optimized_message: ChatCompletionMessageParam = {
+            "role": "user",
+            "content": display_prompt,
+        }
+        await message_history.append_message(
+            new_ai_optimized_message,
+            new_display_optimized_message,
+            llm,
+            thread_id,
+        )
+        
+        
 
         for iteration in range(1, self._max_iterations + 1):
             
