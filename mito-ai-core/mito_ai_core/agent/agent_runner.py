@@ -78,8 +78,8 @@ class AgentRunner:
         ctx: AgentContext,
         user_input: str,
         *,
-        on_assistant_response: Optional[Callable[[str], Awaitable[None]]] = None,
-        on_tool_result: Optional[Callable[[ChatCompletionMessageParam], Awaitable[None]]] = None,
+        on_assistant_response: Optional[Callable[[AgentResponse], Awaitable[None]]] = None,
+        on_tool_result: Optional[Callable[[ToolResult], Awaitable[None]]] = None,
         message_type: MessageType = MessageType.AGENT_EXECUTION,
     ) -> AgentRunResult:
         """Execute the agent loop.
@@ -91,12 +91,11 @@ class AgentRunner:
         user_input:
             The user's message text for this agent run.
         on_assistant_response:
-            Async callback fired with the raw completion string after each
-            LLM response.  Use this to persist the assistant message in
-            ``GlobalMessageHistory``.
+            Async callback fired with the parsed ``AgentResponse`` after each
+            LLM response.
         on_tool_result:
-            Async callback fired with the tool-result ``user`` message after
-            each tool execution.  Use this to persist the tool result.
+            Async callback fired with the ``ToolResult`` after each tool
+            execution.
         message_type:
             ``MessageType`` forwarded to
             :meth:`CompletionProvider.request_completions`.
@@ -152,7 +151,7 @@ class AgentRunner:
             }
             await self._message_history.append_message(assistant_msg, assistant_msg, self._provider, ctx.thread_id)
             if on_assistant_response is not None:
-                await on_assistant_response(completion)
+                await on_assistant_response(response)
                 
             # TODO: Send off some event to update the UI
             
@@ -175,8 +174,6 @@ class AgentRunner:
             # ---- Tool dispatch ------------------------------------------
             tool_result = await self._execute_tool(ctx, response)
             
-            # TODO: Send off some event to update the UI
-
             # Update mutable context from the tool result
             if tool_result.cells is not None:
                 ctx.cells = tool_result.cells
@@ -191,7 +188,9 @@ class AgentRunner:
             await self._message_history.append_message(tool_msg, tool_msg, self._provider, ctx.thread_id)
 
             if on_tool_result is not None:
-                await on_tool_result(tool_msg)
+                await on_tool_result(tool_result)
+                
+            # TODO: Send off some event to update the UI
 
         # Max iterations exhausted
         assert last_response is not None  # guaranteed: max_iterations >= 1

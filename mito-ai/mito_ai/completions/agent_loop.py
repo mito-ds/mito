@@ -19,17 +19,19 @@ from mito_ai.completions.jupyter_lab_tool_executor import JupyterLabToolExecutor
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import (
     AgentExecutionMetadata,
+    AssistantResponseMessage,
     AgentFinishedMessage,
     CompletionError,
+    ToolResultMessage,
 )
 from mito_ai_core.completions.prompt_builders.agent_execution_prompt import (
     create_agent_execution_prompt,
 )
 from mito_ai.logger import get_logger
 from mito_ai_core.provider_manager import ProviderManager
-from mito_ai_core.agent import AgentContext, AgentRunResult
+from mito_ai_core.agent import AgentContext, AgentRunResult, ToolResult
 from mito_ai_core.agent.agent_runner import AgentRunner
-from mito_ai_core.agent.utils import serialize_agent_response
+from mito_ai_core.completions.models import AgentResponse
 from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell
 
 
@@ -142,11 +144,21 @@ async def start_agent_loop(
     )
 
     # --- callbacks to persist messages ---
-    async def on_assistant_response(completion: str) -> None:
-        pass
+    async def on_assistant_response(response: AgentResponse) -> None:
+        reply_fn(
+            AssistantResponseMessage(
+                agent_response=response,
+                thread_id=thread_id,
+            )
+        )
 
-    async def on_tool_result(tool_msg: ChatCompletionMessageParam) -> None:
-        pass
+    async def on_tool_result(tool_result: ToolResult) -> None:
+        reply_fn(
+            ToolResultMessage(
+                tool_result=tool_result,
+                thread_id=thread_id,
+            )
+        )
 
     # --- run the agent loop ---
     try:
@@ -158,10 +170,9 @@ async def start_agent_loop(
         )
 
         # Send agent_finished message to the frontend
-        final_response_dict = serialize_agent_response(result.final_response)
         reply_fn(
             AgentFinishedMessage(
-                agent_response=final_response_dict,
+                agent_response=result.final_response,
                 thread_id=thread_id,
                 finished=result.finished,
                 iterations=result.iterations,

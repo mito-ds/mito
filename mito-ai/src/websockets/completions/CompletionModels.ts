@@ -534,6 +534,28 @@ export interface IAgentFinishedMessage {
   iterations: number;
 }
 
+export interface IAssistantResponseMessage {
+  type: 'assistant_response';
+  agent_response: AgentResponse;
+  thread_id: string;
+}
+
+export interface IAgentToolResult {
+  success: boolean;
+  tool_name?: string | null;
+  error_message?: string | null;
+  cells?: AIOptimizedCell[] | null;
+  variables?: string[] | null;
+  output?: string | null;
+  extra?: Record<string, unknown>;
+}
+
+export interface IToolResultMessage {
+  type: 'tool_result';
+  tool_result: IAgentToolResult;
+  thread_id: string;
+}
+
 /**
  * Request sent from the frontend to the backend with tool execution results.
  */
@@ -566,4 +588,6 @@ export type CompleterMessage =
   | IFetchThreadsReply
   | IDeleteThreadReply
   | IRequestToolExecutionMessage
-  | IAgentFinishedMessage;
+  | IAgentFinishedMessage
+  | IAssistantResponseMessage
+  | IToolResultMessage;

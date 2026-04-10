@@ -790,6 +790,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         activeThreadIdRef,
         activeRequestControllerRef,
         setLoadingStatus,
+        setChatHistoryManager,
         setAutoScrollFollowMode,
         setHasCheckpoint,
         addAIMessageFromResponseAndUpdateState,

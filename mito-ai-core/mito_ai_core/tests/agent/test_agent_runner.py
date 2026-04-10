@@ -233,10 +233,10 @@ class TestSingleIterationFinish:
         mh, ctx = _new_history_and_ctx()
         runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        assistant_texts: list[str] = []
+        assistant_texts: list[AgentResponse] = []
 
-        async def on_a(text: str) -> None:
-            assistant_texts.append(text)
+        async def on_a(response: AgentResponse) -> None:
+            assistant_texts.append(response)
 
         await runner.run(ctx, "", on_assistant_response=on_a)
 
@@ -375,14 +375,14 @@ class TestCallbacks:
         mh, ctx = _new_history_and_ctx()
         runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        assistant_responses: list[str] = []
-        tool_results: list[dict] = []
+        assistant_responses: list[AgentResponse] = []
+        tool_results: list[ToolResult] = []
 
-        async def on_assistant(text: str) -> None:
-            assistant_responses.append(text)
+        async def on_assistant(response: AgentResponse) -> None:
+            assistant_responses.append(response)
 
-        async def on_tool(msg: dict) -> None:
-            tool_results.append(msg)
+        async def on_tool(result: ToolResult) -> None:
+            tool_results.append(result)
 
         await runner.run(
             ctx,
@@ -395,7 +395,7 @@ class TestCallbacks:
         assert len(assistant_responses) == 2
         # 1 dispatchable tool → 1 tool result callback
         assert len(tool_results) == 1
-        assert tool_results[0]["role"] == "user"
+        assert tool_results[0].success is True
 
 
 class TestMaxIterations:

@@ -24,6 +24,8 @@ import { getCellOutputByIDInNotebook } from '../../../utils/cellOutput';
 import {
     IRequestToolExecutionMessage,
     IAgentFinishedMessage,
+    IAssistantResponseMessage,
+    IToolResultMessage,
     AIOptimizedCell,
 } from '../../../websockets/completions/CompletionModels';
 
@@ -39,6 +41,7 @@ interface UseAgentExecutionProps {
     activeThreadIdRef: React.MutableRefObject<string>;
     activeRequestControllerRef: React.MutableRefObject<AbortController | null>;
     setLoadingStatus: (status: LoadingStatus) => void;
+    setChatHistoryManager: (manager: ChatHistoryManager) => void;
     setAutoScrollFollowMode: (mode: boolean) => void;
     setHasCheckpoint: (hasCheckpoint: boolean) => void;
     addAIMessageFromResponseAndUpdateState: (
@@ -117,6 +120,7 @@ export const useAgentExecution = ({
     activeThreadIdRef,
     activeRequestControllerRef,
     setLoadingStatus,
+    setChatHistoryManager,
     setAutoScrollFollowMode,
     setHasCheckpoint,
     addAIMessageFromResponseAndUpdateState,
@@ -396,19 +400,59 @@ export const useAgentExecution = ({
             return;
         }
 
-        // Display the final message if present
-        if (msg.agent_response?.message) {
+        await markAgentForStopping();
+    }, [activeThreadIdRef, markAgentForStopping]);
+
+    const handleAssistantResponse = useCallback(async (
+        _sender: any,
+        msg: IAssistantResponseMessage
+    ): Promise<void> => {
+        if (msg.thread_id !== activeThreadIdRef.current || !shouldContinueAgentExecution.current) {
+            return;
+        }
+
+        const newChatHistoryManager = getDuplicateChatHistoryManager();
+        newChatHistoryManager.addAIMessageFromAgentResponse(msg.agent_response);
+        setChatHistoryManager(newChatHistoryManager);
+        setLoadingStatus(undefined);
+    }, [
+        activeThreadIdRef,
+        shouldContinueAgentExecution,
+        getDuplicateChatHistoryManager,
+        setChatHistoryManager,
+        setLoadingStatus,
+    ]);
+
+    const handleBackendToolResult = useCallback(async (
+        _sender: any,
+        msg: IToolResultMessage
+    ): Promise<void> => {
+        if (msg.thread_id !== activeThreadIdRef.current || !shouldContinueAgentExecution.current) {
+            return;
+        }
+
+        // Tool finished; backend is now moving to the next LLM step.
+        setLoadingStatus('thinking');
+
+        // TODO: The tool result is what get's used as the next user message in the conversation.
+        // For something like the scratchpad result, we want to display it!
+
+        if (!msg.tool_result.success && msg.tool_result.error_message) {
             addAIMessageFromResponseAndUpdateState(
-                msg.agent_response.message,
+                `Tool failed: ${msg.tool_result.error_message}`,
                 'agent:execution',
                 chatHistoryManagerRef.current
             );
         }
+    }, [
+        activeThreadIdRef,
+        shouldContinueAgentExecution,
+        setLoadingStatus,
+        addAIMessageFromResponseAndUpdateState,
+        chatHistoryManagerRef,
+    ]);
 
-        await markAgentForStopping();
-    }, [activeThreadIdRef, addAIMessageFromResponseAndUpdateState, chatHistoryManagerRef, markAgentForStopping]);
-
-    // Subscribe to request_tool_execution and agent_finished streams
+    // Subscribe to agent loop streams
     useEffect(() => {
         const onRequestToolExecution = (_sender: any, command: IRequestToolExecutionMessage) => {
             void handleRequestToolExecution(_sender, command);
@@ -416,15 +460,31 @@ export const useAgentExecution = ({
         const onAgentFinished = (_sender: any, msg: IAgentFinishedMessage) => {
             void handleAgentFinished(_sender, msg);
         };
+        const onAssistantResponse = (_sender: any, msg: IAssistantResponseMessage) => {
+            void handleAssistantResponse(_sender, msg);
+        };
+        const onBackendToolResult = (_sender: any, msg: IToolResultMessage) => {
+            void handleBackendToolResult(_sender, msg);
+        };
 
         websocketClient.requestToolExecutionMessages.connect(onRequestToolExecution);
         websocketClient.agentFinished.connect(onAgentFinished);
+        websocketClient.assistantResponse.connect(onAssistantResponse);
+        websocketClient.backendToolResult.connect(onBackendToolResult);
 
         return () => {
             websocketClient.requestToolExecutionMessages.disconnect(onRequestToolExecution);
             websocketClient.agentFinished.disconnect(onAgentFinished);
+            websocketClient.assistantResponse.disconnect(onAssistantResponse);
+            websocketClient.backendToolResult.disconnect(onBackendToolResult);
         };
-    }, [websocketClient, handleRequestToolExecution, handleAgentFinished]);
+    }, [
+        websocketClient,
+        handleRequestToolExecution,
+        handleAgentFinished,
+        handleAssistantResponse,
+        handleBackendToolResult,
+    ]);
 
     const startAgentExecution = async (
         input: string,

@@ -9,6 +9,7 @@ import uuid
 from dataclasses import asdict
 from http import HTTPStatus
 from typing import Any, Dict, List, Optional, Union
+from pydantic import BaseModel
 import tornado
 import tornado.ioloop
 import tornado.web
@@ -65,6 +66,16 @@ from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCe
 # Important: Because this is a server extension, print statements are sent to the
 # jupyter server terminal by default (ie: the terminal you ran `jupyter lab`)
 class CompletionHandler(JupyterHandler, WebSocketHandler):
+    def _to_json_safe(self, value: Any) -> Any:
+        """Recursively convert pydantic models to JSON-safe data."""
+        if isinstance(value, BaseModel):
+            return value.model_dump(mode="json")
+        if isinstance(value, dict):
+            return {k: self._to_json_safe(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [self._to_json_safe(v) for v in value]
+        return value
+
     """Completion websocket handler."""
 
     def initialize(self, llm: ProviderManager, message_history: GlobalMessageHistory) -> None:
@@ -516,7 +527,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             reply: The completion reply object.
                 It must be a dataclass instance.
         """
-        message = asdict(reply)
+        message = self._to_json_safe(asdict(reply))
         super().write_message(message)
 
     def _send_error(self, change: Dict[str, Any]) -> None:

@@ -9,6 +9,7 @@ re-exports them and adds Jupyter-only wire types (agent tool round-trip).
 
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
+from mito_ai_core.agent import ToolResult
 
 from mito_ai_core.completions.models import (
     AICapabilities,
@@ -55,8 +56,8 @@ class RequestToolExecutionMessage:
     The frontend executes the tool and sends back a ToolResultMetadata.
     """
 
-    # The serialized AgentResponse from the LLM
-    agent_response: Dict[str, Any]
+    # The AgentResponse from the LLM
+    agent_response: AgentResponse
 
     # Thread this command belongs to
     thread_id: str
@@ -104,7 +105,7 @@ class AgentFinishedMessage:
     """Message sent from backend to frontend when the agent finishes."""
 
     # The final AgentResponse from the LLM
-    agent_response: Dict[str, Any]
+    agent_response: AgentResponse
 
     # Thread this message belongs to
     thread_id: str
@@ -118,8 +119,27 @@ class AgentFinishedMessage:
     type: Literal["agent_finished"] = "agent_finished"
 
 
+@dataclass
+class AssistantResponseMessage:
+    """Message sent from backend to frontend for each assistant agent step."""
+
+    agent_response: AgentResponse
+    thread_id: str
+    type: Literal["assistant_response"] = "assistant_response"
+
+
+@dataclass
+class ToolResultMessage:
+    """Message sent from backend to frontend with the ToolResult payload."""
+
+    tool_result: ToolResult
+    thread_id: str
+    type: Literal["tool_result"] = "tool_result"
+
+
 __all__ = [
     "AICapabilities",
+    "AssistantResponseMessage",
     "AgentExecutionMetadata",
     "AgentFinishedMessage",
     "AgentResponse",
@@ -148,6 +168,7 @@ __all__ = [
     "SmartDebugMetadata",
     "StartNewChatReply",
     "ThreadID",
+    "ToolResultMessage",
     "ToolResultMetadata",
     "UpdateModelConfigMetadata",
 ]

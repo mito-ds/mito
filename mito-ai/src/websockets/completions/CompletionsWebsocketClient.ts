@@ -9,6 +9,8 @@ import type {
   ICompletionStreamChunk,
   IRequestToolExecutionMessage,
   IAgentFinishedMessage,
+  IAssistantResponseMessage,
+  IToolResultMessage,
 } from './CompletionModels';
 import { BaseWebsocketClient, IBaseWebsocketClientOptions } from '../BaseWebsocketClient';
 import { IStream, Stream } from '@lumino/signaling';
@@ -76,6 +78,20 @@ export class CompletionWebsocketClient extends BaseWebsocketClient<ICompletionRe
   }
 
   /**
+   * Stream of assistant_response messages from the backend agent loop.
+   */
+  get assistantResponse(): IStream<CompletionWebsocketClient, IAssistantResponseMessage> {
+    return this._assistantResponse as unknown as IStream<CompletionWebsocketClient, IAssistantResponseMessage>;
+  }
+
+  /**
+   * Stream of backend tool_result messages from the backend agent loop.
+   */
+  get backendToolResult(): IStream<CompletionWebsocketClient, IToolResultMessage> {
+    return this._backendToolResult as unknown as IStream<CompletionWebsocketClient, IToolResultMessage>;
+  }
+
+  /**
    * Extract the message ID from a request message.
    */
   protected getMessageId(message: ICompletionRequest): string {
@@ -133,12 +149,22 @@ export class CompletionWebsocketClient extends BaseWebsocketClient<ICompletionRe
         this._agentFinished.emit(message);
         break;
       }
+      case 'assistant_response': {
+        this._assistantResponse.emit(message);
+        break;
+      }
+      case 'tool_result': {
+        this._backendToolResult.emit(message);
+        break;
+      }
       // default: /* no-op */
     }
   }
 
   private _requestToolExecutionMessages = new Stream<BaseWebsocketClient<ICompletionRequest, CompleterMessage, ICompletionStreamChunk>, IRequestToolExecutionMessage>(this);
   private _agentFinished = new Stream<BaseWebsocketClient<ICompletionRequest, CompleterMessage, ICompletionStreamChunk>, IAgentFinishedMessage>(this);
+  private _assistantResponse = new Stream<BaseWebsocketClient<ICompletionRequest, CompleterMessage, ICompletionStreamChunk>, IAssistantResponseMessage>(this);
+  private _backendToolResult = new Stream<BaseWebsocketClient<ICompletionRequest, CompleterMessage, ICompletionStreamChunk>, IToolResultMessage>(this);
 
   /**
    * Send a message without waiting for a reply (fire-and-forget).
