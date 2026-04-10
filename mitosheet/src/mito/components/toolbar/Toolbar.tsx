@@ -194,8 +194,8 @@ export const Toolbar = (
                 </div>
                 <div className='mito-toolbar-tabbar-right' style={{gap: '6px'}}>
                     <div
-                        className={classNames('text-button', 'text-button-variant-dark', 'mito-plan-button', 'cursor-pointer')}
-                        style={{flexDirection: 'row', gap: '4px', alignItems: 'center'}}
+                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center'}}
                         onClick={() => {
                             props.setUIState(prev => ({
                                 ...prev,
@@ -204,12 +204,12 @@ export const Toolbar = (
                             }));
                         }}
                     >
-                        <span style={{transform: 'scale(0.75)', display: 'flex'}}><HexagonAIIcon outlineColor='white' /></span>
+                        <span style={{transform: 'scale(0.85)', display: 'flex'}}><HexagonAIIcon /></span>
                         Suggest Graphs
                     </div>
                     <div
-                        className={classNames('text-button', 'text-button-variant-dark', 'mito-plan-button', 'cursor-pointer')}
-                        style={{flexDirection: 'row', gap: '4px', alignItems: 'center'}}
+                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center'}}
                         onClick={() => {
                             props.setUIState(prev => ({
                                 ...prev,
@@ -218,7 +218,7 @@ export const Toolbar = (
                             }));
                         }}
                     >
-                        <AIIcon pillColor='white' />
+                        <AIIcon />
                         AI
                     </div>
                 </div>
