@@ -17,12 +17,11 @@ ThreadID = NewType('ThreadID', str)
     
 class CellUpdate(BaseModel):
     type: Literal['modification', 'new']
-    # Defaults so omitted keys validate (LLMs often omit id for new cells, after_cell_id for edits).
-    after_cell_id: Optional[str] = None
-    id: Optional[str] = None
+    after_cell_id: Optional[str]
+    id: Optional[str]
     code: str
     code_summary: str
-    cell_type: Optional[Literal['code', 'markdown']] = None
+    cell_type: Optional[Literal['code', 'markdown']]
 
 
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
