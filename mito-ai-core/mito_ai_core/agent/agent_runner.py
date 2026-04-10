@@ -73,7 +73,7 @@ class AgentRunner:
     async def run(
         self,
         ctx: AgentContext,
-        messages: List[ChatCompletionMessageParam],
+        user_input: str,
         *,
         on_assistant_response: Optional[Callable[[str], Awaitable[None]]] = None,
         on_tool_result: Optional[Callable[[ChatCompletionMessageParam], Awaitable[None]]] = None,
@@ -85,9 +85,8 @@ class AgentRunner:
         ----------
         ctx:
             Mutable agent context — updated in-place after each tool call.
-        messages:
-            Working conversation history.  The runner **appends** assistant
-            and tool-result messages here so the next LLM call includes them.
+        user_input:
+            The user's message text for this agent run.
         on_assistant_response:
             Async callback fired with the raw completion string after each
             LLM response.  Use this to persist the assistant message in
@@ -99,6 +98,9 @@ class AgentRunner:
             ``MessageType`` forwarded to
             :meth:`CompletionProvider.request_completions`.
         """
+        messages: List[ChatCompletionMessageParam] = [
+            {"role": "user", "content": user_input},
+        ]
         last_response: Optional[AgentResponse] = None
 
         for iteration in range(1, self._max_iterations + 1):

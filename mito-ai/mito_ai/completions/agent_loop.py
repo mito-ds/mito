@@ -116,32 +116,6 @@ async def start_agent_loop(
             index=metadata.index,
         )
 
-    await append_agent_system_message(
-        message_history,
-        llm,
-        thread_id,
-        metadata.isChromeBrowser,
-    )
-
-    prompt = create_agent_execution_prompt(metadata)
-    display_prompt = metadata.input
-
-    new_ai_optimized_message = create_ai_optimized_message(
-        prompt,
-        metadata.base64EncodedActiveCellOutput,
-        metadata.additionalContext,
-    )
-    new_display_optimized_message: ChatCompletionMessageParam = {
-        "role": "user",
-        "content": display_prompt,
-    }
-    await message_history.append_message(
-        new_ai_optimized_message,
-        new_display_optimized_message,
-        llm,
-        thread_id,
-    )
-
     # --- build the AgentRunner components ---
     tool_executor = JupyterLabToolExecutor(
         reply_fn=reply_fn,
@@ -150,7 +124,7 @@ async def start_agent_loop(
     register_tool_executor(tool_executor)
 
     provider_adapter = ProviderAdapter(llm)
-    runner = AgentRunner(
+    agent_runner = AgentRunner(
         provider=provider_adapter,
         tool_executor=tool_executor,
         message_history=message_history,
@@ -167,8 +141,6 @@ async def start_agent_loop(
         is_chrome_browser=metadata.isChromeBrowser,
     )
 
-    messages = message_history.get_ai_optimized_history(thread_id)
-
     # --- callbacks to persist messages ---
     async def on_assistant_response(completion: str) -> None:
         msg: ChatCompletionMessageParam = {
@@ -182,9 +154,9 @@ async def start_agent_loop(
 
     # --- run the agent loop ---
     try:
-        result: AgentRunResult = await runner.run(
+        result: AgentRunResult = await agent_runner.run(
             ctx,
-            messages,
+            metadata.input,
             on_assistant_response=on_assistant_response,
             on_tool_result=on_tool_result,
         )

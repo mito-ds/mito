@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional
 
 import pytest
 
@@ -39,10 +39,16 @@ class FakeProviderManager:
         self._completions = list(completions)
         self._call_index = 0
         self.call_count = 0
+        self.last_messages: Optional[List[Any]] = None
+        self.messages_per_call: List[List[Any]] = []
 
     async def request_completions(self, **kwargs: Any) -> str:
         if self._call_index >= len(self._completions):
             raise RuntimeError("FakeProviderManager ran out of completions")
+        msgs = kwargs.get("messages")
+        # Snapshot: runner mutates the same list after each completion.
+        self.last_messages = list(msgs) if msgs is not None else []
+        self.messages_per_call.append(list(msgs) if msgs is not None else [])
         result = self._completions[self._call_index]
         self._call_index += 1
         self.call_count += 1
@@ -211,9 +217,8 @@ class TestSingleIterationFinish:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert result.iterations == 1
@@ -226,12 +231,18 @@ class TestSingleIterationFinish:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        await runner.run(ctx, messages)  # type: ignore[arg-type]
+        assistant_texts: list[str] = []
 
-        assert len(messages) == 1
-        assert messages[0]["role"] == "assistant"
+        async def on_a(text: str) -> None:
+            assistant_texts.append(text)
+
+        await runner.run(ctx, "", on_assistant_response=on_a)
+
+        assert provider.last_messages is not None
+        assert len(provider.last_messages) == 1
+        assert provider.last_messages[0]["role"] == "user"
+        assert len(assistant_texts) == 1
 
 
 class TestToolDispatch:
@@ -246,9 +257,8 @@ class TestToolDispatch:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert result.iterations == 2
@@ -264,9 +274,8 @@ class TestToolDispatch:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert executor.calls[0][0] == "run_all_cells"
@@ -284,9 +293,8 @@ class TestToolDispatch:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert executor.calls[0][0] == "get_cell_output"
@@ -305,9 +313,8 @@ class TestToolDispatch:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert executor.calls[0][0] == "execute_scratchpad"
@@ -326,9 +333,8 @@ class TestToolDispatch:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert executor.calls[0][0] == "ask_user_question"
@@ -346,9 +352,8 @@ class TestContextUpdated:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        await runner.run(ctx, messages)  # type: ignore[arg-type]
+        await runner.run(ctx, "")
 
         # FakeToolExecutor.execute_cell_update returns cells=[new_cell], variables=["df"]
         assert ctx.variables == ["df"]
@@ -368,7 +373,6 @@ class TestCallbacks:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
         assistant_responses: list[str] = []
         tool_results: list[dict] = []
@@ -381,7 +385,7 @@ class TestCallbacks:
 
         await runner.run(
             ctx,
-            messages,  # type: ignore[arg-type]
+            "",
             on_assistant_response=on_assistant,
             on_tool_result=on_tool,
         )
@@ -405,9 +409,8 @@ class TestMaxIterations:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY, max_iterations=3)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is False
         assert result.iterations == 3
@@ -432,16 +435,21 @@ class TestWorkingHistory:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        await runner.run(ctx, messages)  # type: ignore[arg-type]
+        await runner.run(ctx, "")
 
         # Iteration 1: +1 assistant, +1 tool-result
         # Iteration 2: +1 assistant (finished_task, no tool-result)
-        assert len(messages) == 3
-        assert messages[0]["role"] == "assistant"
-        assert messages[1]["role"] == "user"
-        assert messages[2]["role"] == "assistant"
+        # Working history starts with the user turn derived from user_input.
+        assert len(provider.messages_per_call) == 2
+        assert len(provider.messages_per_call[0]) == 1
+        assert provider.messages_per_call[0][0]["role"] == "user"
+        assert len(provider.messages_per_call[1]) == 3
+        assert [m["role"] for m in provider.messages_per_call[1]] == [
+            "user",
+            "assistant",
+            "user",
+        ]
 
 
 class TestNonDispatchableStopsLoop:
@@ -455,9 +463,8 @@ class TestNonDispatchableStopsLoop:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is False
         assert result.final_response.type == "create_streamlit_app"
@@ -477,16 +484,16 @@ class TestNullPayloadHandling:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         # The null payload should produce a failed ToolResult, not crash
         assert result.finished is True
         assert result.iterations == 2
         # The tool result message should mention the failure
-        tool_msg_content = messages[1]["content"]
-        assert "failed" in tool_msg_content.lower()
+        assert provider.messages_per_call[1][2]["role"] == "user"
+        tool_msg_content = provider.messages_per_call[1][2]["content"]
+        assert "failed" in str(tool_msg_content).lower()
 
 
 class TestOptionalFieldsFilledByParser:
@@ -500,9 +507,8 @@ class TestOptionalFieldsFilledByParser:
         executor = FakeToolExecutor()
         runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert result.final_response.message == "Done."
