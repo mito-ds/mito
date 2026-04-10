@@ -338,10 +338,18 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
             // Step 3: Create and insert portals for citations and cell references
             const portals = createPortalsFromPlaceholders(citations, cellRefs);
             setCitationPortals(portals);
+
+            // Step 4: Run MathJax on the chat container. The ephemeral markdown renderer from
+            // createRenderer is not a Lumino-attached widget, so RenderedMarkdown passes
+            // shouldTypeset: false and skips typesetting; cloning the node also bypasses
+            // onAfterAttach. The app registry's latexTypesetter is the same MathJax used in notebooks.
+            if (containerRef.current && renderMimeRegistry.latexTypesetter) {
+                renderMimeRegistry.latexTypesetter.typeset(containerRef.current);
+            }
         };
 
         void processMarkdown();
-    }, [markdown, extractCitationsAndCellRefs, renderMarkdownContent, createPortalsFromPlaceholders, cellOrderKey]);
+    }, [markdown, extractCitationsAndCellRefs, renderMarkdownContent, createPortalsFromPlaceholders, cellOrderKey, renderMimeRegistry]);
 
     return (
         <div ref={containerRef} className="markdown-block-with-citations">
