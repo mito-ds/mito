@@ -9,6 +9,7 @@ from mito_ai.completions.prompt_builders.prompt_constants import (
     CHAT_CODE_FORMATTING_RULES,
     CITATION_RULES,
     CELL_REFERENCE_RULES,
+    LATEX_FORMATTING_RULES,
     get_database_rules
 )
 from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
@@ -43,6 +44,7 @@ Other useful information:
         sections.append(SG.Generic("Default (User Defined) Rules", default_rules))
     sections.append(SG.Generic("Citation Rules", CITATION_RULES))
     sections.append(SG.Generic("Cell Reference Rules", CELL_REFERENCE_RULES))
+    sections.append(SG.Generic("LaTeX / math formatting", LATEX_FORMATTING_RULES))
     
     # Example 1
     sections.append(SG.Example("Example 1", f"""
