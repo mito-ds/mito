@@ -187,7 +187,7 @@ const MarkdownBlock: React.FC<IMarkdownCodeProps> = ({ markdown, renderMimeRegis
         });
 
         // Extract inline math ($...$) — single-line only, not preceded or followed by another $.
-        processedMarkdown = processedMarkdown.replace(/(?<!\$)\$([^\$\n]+?)\$(?!\$)/g, (match, content) => {
+        processedMarkdown = processedMarkdown.replace(/(?<!\$)\$([^$\n]+?)\$(?!\$)/g, (match, content) => {
             const id = `latex-${latexCounter++}`;
             latexExprs.push({ id, content: content.trim(), isDisplay: false });
             return `{{${id}}}`;
