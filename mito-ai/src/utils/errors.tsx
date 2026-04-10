@@ -17,7 +17,6 @@ export const isErrorFixupMessage = (
   if (!messageContent) {
     return false;
   }
-  console.log('isErrorFixupMessage called:', { promptType, messageContent }); // ← add this
   return (
     // Initially, messages are labeled with the prompt type 'agent:autoErrorFixup'
     promptType === 'agent:autoErrorFixup' ||
