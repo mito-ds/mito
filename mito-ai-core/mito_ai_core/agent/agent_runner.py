@@ -131,10 +131,8 @@ class AgentRunner:
 
         for iteration in range(1, self._max_iterations + 1):
             
-            
-            
-            
             # ---- LLM call -----------------------------------------------
+            messages = self._message_history.get_ai_optimized_history(ctx.thread_id)
             completion = await self._provider.request_completions(
                 message_type=message_type,
                 messages=messages,
@@ -147,26 +145,30 @@ class AgentRunner:
             response = parse_agent_response(completion)
             last_response = response
 
-            # Append assistant message to working history
+            # Append assistant message to message history
             assistant_msg: ChatCompletionMessageParam = {
                 "role": "assistant",
                 "content": completion,
             }
-            messages.append(assistant_msg)
-
+            await self._message_history.append_message(assistant_msg, assistant_msg, self._provider, ctx.thread_id)
             if on_assistant_response is not None:
                 await on_assistant_response(completion)
-
-            # ---- Check if finished_task message --------------------------
-            if response.type not in self.TOOL_TYPES:
+                
+            # TODO: Send off some event to update the UI
+            
+            # ---- Check if finished_task message ----------------------------------
+            # TODO: Should finished_task just be treated as a tool call?
+            if response.type == "finished_task":
                 return AgentRunResult(
                     final_response=response,
-                    finished=(response.type == "finished_task"),
+                    finished=True,
                     iterations=iteration,
                 )
 
             # ---- Tool dispatch ------------------------------------------
             tool_result = await self._execute_tool(ctx, response)
+            
+            # TODO: Send off some event to update the UI
 
             # Update mutable context from the tool result
             if tool_result.cells is not None:
@@ -179,7 +181,7 @@ class AgentRunner:
                 "role": "user",
                 "content": format_tool_result(response.type, tool_result),
             }
-            messages.append(tool_msg)
+            await self._message_history.append_message(tool_msg, tool_msg, self._provider, ctx.thread_id)
 
             if on_tool_result is not None:
                 await on_tool_result(tool_msg)
