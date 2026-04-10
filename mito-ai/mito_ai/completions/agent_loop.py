@@ -143,14 +143,10 @@ async def start_agent_loop(
 
     # --- callbacks to persist messages ---
     async def on_assistant_response(completion: str) -> None:
-        msg: ChatCompletionMessageParam = {
-            "role": "assistant",
-            "content": completion,
-        }
-        await message_history.append_message(msg, msg, llm, thread_id)
+        pass
 
     async def on_tool_result(tool_msg: ChatCompletionMessageParam) -> None:
-        await message_history.append_message(tool_msg, tool_msg, llm, thread_id)
+        pass
 
     # --- run the agent loop ---
     try:
