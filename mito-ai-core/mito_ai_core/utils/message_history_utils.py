@@ -4,7 +4,43 @@
 import re
 from typing import List, Dict, Optional
 from openai.types.chat import ChatCompletionMessageParam
+from mito_ai_core.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.models import ThreadID
+from mito_ai_core.completions.prompt_builders.agent_system_message import (
+    create_agent_system_message_prompt,
+)
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import get_all_section_classes
+from mito_ai_core.provider_manager import ProviderManager
+
+
+async def append_agent_system_message(
+    message_history: GlobalMessageHistory,
+    provider: ProviderManager,
+    thread_id: ThreadID,
+    is_chrome_browser: bool,
+) -> None:
+
+    # If the system message already exists, do nothing
+    if any(
+        msg["role"] == "system"
+        for msg in message_history.get_ai_optimized_history(thread_id)
+    ):
+        return
+
+    include_cell_output_tool = is_chrome_browser
+    system_message_prompt = create_agent_system_message_prompt(include_cell_output_tool)
+
+    system_message: ChatCompletionMessageParam = {
+        "role": "system",
+        "content": system_message_prompt,
+    }
+
+    await message_history.append_message(
+        ai_optimized_message=system_message,
+        display_message=system_message,
+        llm_provider=provider,
+        thread_id=thread_id,
+    )
 
 
 def build_section_to_trim_message_index_mapping() -> Dict[str, Optional[int]]:

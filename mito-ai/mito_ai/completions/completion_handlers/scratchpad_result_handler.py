@@ -8,8 +8,8 @@ from mito_ai_core.completions.prompt_builders.scratchpad_result_prompt import cr
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
+from mito_ai_core.utils.message_history_utils import append_agent_system_message
 from mito_ai.completions.completion_handlers.utils import (
-    append_agent_system_message,
     create_ai_optimized_message,
     normalize_agent_response_completion,
 )
