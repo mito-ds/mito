@@ -9,8 +9,9 @@ from mito_ai_core.utils.server_limits import (
     OS_MONTHLY_AI_COMPLETIONS_LIMIT,
     OS_MONTHLY_AUTOCOMPLETE_LIMIT,
 )
-from mito_ai_core.completions.models import MessageType
+from mito_ai_core.completions.models import AgentResponse, MessageType, ResponseFormatInfo
 from mito_ai_core.utils.open_ai_utils import _prepare_request_data_and_headers
+from mito_ai_core.utils.open_ai_utils import get_open_ai_completion_function_params
 
 REALLY_OLD_DATE = "2020-01-01"
 TODAY = datetime.now().strftime("%Y-%m-%d")
@@ -148,3 +149,18 @@ def test_prepare_request_data_and_headers_caches_user_info() -> None:
         # Verify both calls return same user info
         assert data1["email"] == data2["email"] == "test@example.com"
         assert data1["user_id"] == data2["user_id"] == "user123"
+
+
+def test_openai_strict_schema_cell_update_required_matches_properties() -> None:
+    """OpenAI strict json_schema requires every property key in ``required``."""
+    params = get_open_ai_completion_function_params(
+        "gpt-4o",
+        [],
+        False,
+        ResponseFormatInfo(name="agent_response", format=AgentResponse),
+    )
+    rf = params["response_format"]
+    assert rf["type"] == "json_schema"
+    schema = rf["json_schema"]["schema"]
+    cell = schema["$defs"]["CellUpdate"]
+    assert set(cell["required"]) == set(cell["properties"].keys())
