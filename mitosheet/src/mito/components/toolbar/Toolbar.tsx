@@ -22,7 +22,6 @@ import { FormulaTabContents } from './FormulaTabContents';
 import { HomeTabContents } from './HomeTabContents';
 import { InsertTabContents } from './InsertTabContents';
 import ToolbarButton from './ToolbarButton';
-import CheckmarkIcon from '../icons/CheckmarkIcon';
 import LoadingDots from '../elements/LoadingDots';
 import EditIcon from '../icons/EditIcon';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -128,8 +127,7 @@ export const Toolbar = (
                             </div>
                         </div> :
                         <div className='mito-toolbar-save-indicator' title='All changes are saved automatically.'>
-                            <p>Saved</p>
-                            <CheckmarkIcon />
+                            <p>Auto Save</p>
                         </div>
                     }
                     <ToolbarButton
