@@ -22,7 +22,6 @@ import { FormulaTabContents } from './FormulaTabContents';
 import { HomeTabContents } from './HomeTabContents';
 import { InsertTabContents } from './InsertTabContents';
 import ToolbarButton from './ToolbarButton';
-import CheckmarkIcon from '../icons/CheckmarkIcon';
 import LoadingDots from '../elements/LoadingDots';
 import EditIcon from '../icons/EditIcon';
 import { TaskpaneType } from '../taskpanes/taskpanes';
