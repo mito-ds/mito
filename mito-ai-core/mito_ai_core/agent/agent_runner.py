@@ -115,21 +115,19 @@ class AgentRunner:
 
         new_ai_optimized_message = create_ai_optimized_message(
             prompt,
-            metadata.base64EncodedActiveCellOutput,
-            metadata.additionalContext,
+            ctx.base64EncodedActiveCellOutput,
+            ctx.additionalContext,
         )
         new_display_optimized_message: ChatCompletionMessageParam = {
             "role": "user",
-            "content": display_prompt,
+            "content": user_input,
         }
-        await message_history.append_message(
+        await self._message_history.append_message(
             new_ai_optimized_message,
             new_display_optimized_message,
-            llm,
-            thread_id,
+            self._provider,
+            ctx.thread_id,
         )
-        
-        
 
         for iteration in range(1, self._max_iterations + 1):
             
