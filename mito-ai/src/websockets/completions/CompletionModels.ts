@@ -96,7 +96,6 @@ export interface IAgentExecutionMetadata {
   activeCellId: string;
   notebookPath: string;
   notebookID: string;
-  base64EncodedActiveCellOutput?: string;
   variables?: Variable[];
   files?: File[];
   input: string;

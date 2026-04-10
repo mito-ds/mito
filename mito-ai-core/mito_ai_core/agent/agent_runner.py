@@ -14,11 +14,13 @@ to the *messages* working list so subsequent LLM calls see them, but it does
 """
 
 from __future__ import annotations
-from typing import Awaitable, Callable, List, Optional
+from typing import Awaitable, Callable, List, Optional, Tuple
+from mito_ai_core.provider_manager import ProviderManager
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai_core.agent.tool_executor import ToolExecutor
 from mito_ai_core.agent.types import AgentContext, AgentRunResult, CompletionProvider, ToolResult
-from mito_ai_core.agent.utils import format_tool_result, normalize_agent_response, parse_agent_response
+from mito_ai_core.agent.utils import normalize_agent_response, parse_agent_response
+from mito_ai_core.completions.ai_optimized_message import create_ai_optimized_message, create_ai_optimized_tool_result_message
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import (
     AgentResponse,
@@ -27,7 +29,9 @@ from mito_ai_core.completions.models import (
 )
 from mito_ai_core.utils.message_history_utils import append_agent_system_message
 from mito_ai_core.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
-from mito_ai_core.completions.ai_optimized_message import create_ai_optimized_message
+from mito_ai_core.completions.prompt_builders.agent_tool_result_prompt import (
+    create_agent_tool_result_prompt,
+)
 
 __all__ = ["AgentRunner"]
 
@@ -103,6 +107,7 @@ class AgentRunner:
 
         last_response: Optional[AgentResponse] = None
         
+        # Append the agent system message to the message history if it doesn't already exist
         await append_agent_system_message(
             self._message_history,
             self._provider,
@@ -111,19 +116,13 @@ class AgentRunner:
         )
 
         prompt = create_agent_execution_prompt(ctx, user_input)
+        
+        ai_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": prompt}
+        display_optimized_message: ChatCompletionMessageParam = {"role": "user", "content": user_input}
 
-        new_ai_optimized_message = create_ai_optimized_message(
-            prompt,
-            ctx.base64_encoded_active_cell_output,
-            ctx.additional_context,
-        )
-        new_display_optimized_message: ChatCompletionMessageParam = {
-            "role": "user",
-            "content": user_input,
-        }
         await self._message_history.append_message(
-            new_ai_optimized_message,
-            new_display_optimized_message,
+            ai_optimized_message,
+            display_optimized_message,
             self._provider,
             ctx.thread_id,
         )
@@ -152,8 +151,6 @@ class AgentRunner:
             await self._message_history.append_message(assistant_msg, assistant_msg, self._provider, ctx.thread_id)
             if on_assistant_response is not None:
                 await on_assistant_response(response)
-                
-            # TODO: Send off some event to update the UI
             
             # ---- Check if finished_task message ----------------------------------
             # TODO: Should finished_task just be treated as a tool call?
@@ -180,17 +177,14 @@ class AgentRunner:
             if tool_result.variables is not None:
                 ctx.variables = tool_result.variables
 
-            # Build tool-result message and add to working history
-            tool_msg: ChatCompletionMessageParam = {
-                "role": "user",
-                "content": format_tool_result(response.type, tool_result),
-            }
-            await self._message_history.append_message(tool_msg, tool_msg, self._provider, ctx.thread_id)
+            # Build tool-result message and add to message history
+            ai_optimized_tool_msg = create_ai_optimized_tool_result_message(ctx, tool_result)
+            # TODO: For some tools, like scratchpad, we would like to display the tool result to the user.
+            display_optimized_tool_msg = {"role": "user", "content": ''}
+            await self._message_history.append_message(ai_optimized_tool_msg, display_optimized_tool_msg, self._provider, ctx.thread_id)
 
             if on_tool_result is not None:
                 await on_tool_result(tool_result)
-                
-            # TODO: Send off some event to update the UI
 
         # Max iterations exhausted
         assert last_response is not None  # guaranteed: max_iterations >= 1
@@ -268,3 +262,4 @@ class AgentRunner:
         # Unreachable when called from run() (DISPATCHABLE guard), but
         # protects against direct calls.
         raise ValueError(f"Cannot dispatch response type: {rtype!r}")
+

@@ -79,9 +79,6 @@ class AgentContext:
     additional_context: Optional[List[Dict[str, str]]] = None
     """Extra structured context (e.g. selections, images) from the client."""
 
-    base64_encoded_active_cell_output: Optional[str] = None
-    """PNG output of the active cell for multimodal prompts, when available."""
-
 
 @runtime_checkable
 class CompletionProvider(Protocol):

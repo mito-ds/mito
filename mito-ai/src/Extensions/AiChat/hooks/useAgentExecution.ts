@@ -55,7 +55,6 @@ interface UseAgentExecutionProps {
     sendAgentExecutionMessage: (
         input: string,
         messageIndex?: number,
-        sendCellIDOutput?: string,
         additionalContext?: Array<{ type: string, value: string }>
     ) => Promise<void>;
     // These are kept in the interface for backward compatibility but are no longer
@@ -511,7 +510,7 @@ export const useAgentExecution = ({
 
         // Send the initial agent:execution message to kick off the backend agent loop.
         // The backend will run the LLM loop and send request_tool_execution messages back to us.
-        await sendAgentExecutionMessage(input, messageIndex, undefined, additionalContext);
+        await sendAgentExecutionMessage(input, messageIndex, additionalContext);
     };
 
     return {

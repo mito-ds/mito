@@ -119,7 +119,6 @@ class AgentExecutionMetadata():
     isChromeBrowser: bool
     notebookPath: str
     notebookID: str
-    base64EncodedActiveCellOutput: Optional[str] = None
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
     index: Optional[int] = None

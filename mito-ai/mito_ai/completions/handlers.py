@@ -374,7 +374,10 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     # Regular non-streaming completion
                     completion = await get_code_explain_completion(code_explain_metadata, self._llm, self._message_history)
             elif type == MessageType.AGENT_EXECUTION:
-                agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
+                md = dict(metadata_dict)
+                # Legacy clients may still send this; cell images come from get_cell_output only.
+                md.pop("base64EncodedActiveCellOutput", None)
+                agent_execution_metadata = AgentExecutionMetadata(**md)
                 self.log.info(
                     "Starting agent execution (background), thread_id=%s",
                     agent_execution_metadata.threadId,

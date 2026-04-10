@@ -4,6 +4,8 @@
 import base64
 from typing import Any, Dict, List, Optional, Union, cast
 
+from mito_ai_core.agent import AgentContext, ToolResult
+from mito_ai_core.completions.prompt_builders.agent_tool_result_prompt import create_agent_tool_result_prompt
 from openai.types.chat import ChatCompletionMessageParam
 
 
@@ -25,6 +27,13 @@ def extract_and_encode_images_from_additional_context(
 
     return encoded_images
 
+
+def create_ai_optimized_tool_result_message(ctx: AgentContext, tool_result: ToolResult) -> ChatCompletionMessageParam:
+    tool_prompt = create_agent_tool_result_prompt(ctx, tool_result)
+    if tool_result.tool_name == "get_cell_output" and tool_result.success and tool_result.output:
+        return create_ai_optimized_message(tool_prompt, tool_result.output, ctx.additional_context)
+    else:
+        return {"role": "user", "content": tool_prompt}
 
 def create_ai_optimized_message(
     text: str,

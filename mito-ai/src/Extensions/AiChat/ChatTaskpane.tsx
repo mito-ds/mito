@@ -52,7 +52,6 @@ import { OperatingSystem } from '../../utils/user';
 import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { ensureNotebookExists } from './utils';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
-import { getBase64EncodedCellOutputInNotebook } from './utils';
 import { fetchGithubCopilotLoginStatus, logEvent } from '../../restAPI/RestAPI';
 import { playCompletionSound } from '../../utils/sound';
 
@@ -419,7 +418,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendAgentExecutionMessage = async (
         input: string,
         messageIndex?: number,
-        sendCellIDOutput: string | undefined = undefined,
         additionalContext?: Array<{type: string, value: string}>
     ): Promise<void> => {
         if (copilotBlocksChatRef.current) {
@@ -446,11 +444,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         if (messageIndex !== undefined) {
             agentExecutionMetadata.index = messageIndex
         }
-
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(
-            agentTargetNotebookPanelRef.current,
-            sendCellIDOutput
-        )
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingStatus('thinking');

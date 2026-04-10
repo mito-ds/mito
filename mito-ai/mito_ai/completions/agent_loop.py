@@ -140,7 +140,6 @@ async def start_agent_loop(
         files=metadata.files,
         is_chrome_browser=metadata.isChromeBrowser,
         additional_context=metadata.additionalContext,
-        base64_encoded_active_cell_output=metadata.base64EncodedActiveCellOutput,
     )
 
     # --- callbacks to persist messages ---

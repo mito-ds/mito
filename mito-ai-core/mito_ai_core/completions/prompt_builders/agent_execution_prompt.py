@@ -9,6 +9,7 @@ from mito_ai_core.completions.prompt_builders.prompt_section_registry.base impor
 
 
 def create_agent_execution_prompt(context: AgentContext, user_input: str) -> str:
+    
     sections: List[PromptSection] = [
         SG.Generic("Reminder", "Remember to choose the correct tool to respond with."),
         SG.Rules(context.additional_context),
@@ -18,7 +19,6 @@ def create_agent_execution_prompt(context: AgentContext, user_input: str) -> str
         SG.SelectedContext(context.additional_context),
         SG.ActiveCellId(context.active_cell_id),
         SG.Notebook(context.cells),
-        SG.GetCellOutputToolResponse(context.base64_encoded_active_cell_output),
         SG.Task(f"{user_input}"),
     ]
 
