@@ -187,7 +187,6 @@ class GeminiClient:
                         contents=contents,  # type: ignore
                         config=response_config
                 ):
-
                     next_chunk = ""
                     if hasattr(chunk, 'text'):
                         next_chunk = chunk.text or ''

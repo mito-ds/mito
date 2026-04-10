@@ -64,7 +64,8 @@ export const Toolbar = (
         setEditorState: React.Dispatch<React.SetStateAction<EditorState | undefined>>;
         analysisData: AnalysisData,
         sheetIndex: number,
-        closeOpenEditingPopups: () => void
+        closeOpenEditingPopups: () => void,
+        hideFullscreenButton?: boolean
     }): JSX.Element => {  
     
     const currentTab = props.uiState.currentToolbarTab;
@@ -135,10 +136,12 @@ export const Toolbar = (
                         action={props.actions.buildTimeActions[ActionEnum.OpenFind]}
                     />
                     <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Steps]} />
-                    <ToolbarButton
-                        iconOverride={fscreen.fullscreenElement ? <CloseFullscreenIcon /> : <OpenFullscreenIcon />}
-                        action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
-                    />
+                    {!props.hideFullscreenButton && (
+                        <ToolbarButton
+                            iconOverride={fscreen.fullscreenElement ? <CloseFullscreenIcon /> : <OpenFullscreenIcon />}
+                            action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
+                        />
+                    )}
                 </div>
             </div>
             <div className='mito-toolbar-tabbar'>

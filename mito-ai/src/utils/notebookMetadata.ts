@@ -6,7 +6,7 @@
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { UUID } from '@lumino/coreutils';
 
-const MITO_NOTEBOOK_ID_KEY = 'mito-notebook-id'
+export const MITO_NOTEBOOK_ID_KEY = 'mito-notebook-id'
 
 export const setNotebookID = (notebookPanel: NotebookPanel | null): void => {
 

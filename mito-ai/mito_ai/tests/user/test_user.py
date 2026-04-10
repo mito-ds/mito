@@ -67,6 +67,22 @@ def test_get_user_with_mocked_data_not_found(
         )
 
 
+def test_get_user_is_enterprise_special_case(
+    jp_base_url: str, mock_user_json: str
+) -> None:
+    """Test GET user endpoint special case for is_enterprise"""
+    with patch("mito_ai.utils.db.USER_JSON_PATH", mock_user_json):
+        response = requests.get(
+            jp_base_url + "/mito-ai/user/is_enterprise",
+            headers={"Authorization": f"token {TOKEN}"},
+        )
+        assert response.status_code == 200
+
+        response_json = response.json()
+        assert response_json["key"] == "is_enterprise"
+        assert response_json["value"] in ("True", "False")
+
+
 def test_get_user_with_no_auth(jp_base_url: str) -> None:
     response = requests.get(
         jp_base_url + f"/mito-ai/user/user_email",

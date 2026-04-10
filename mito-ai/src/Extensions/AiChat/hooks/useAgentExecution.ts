@@ -24,8 +24,6 @@ import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/sc
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
-const AGENT_EXECUTION_DEPTH_LIMIT = 20;
-
 interface UseAgentExecutionProps {
     notebookTracker: INotebookTracker;
     app: JupyterFrontEnd;
@@ -171,7 +169,7 @@ export const useAgentExecution = ({
         let messageToShareWithAgent: string | undefined = undefined;
 
         // Loop through each message in the plan and send it to the AI
-        while (!isAgentFinished && agentExecutionDepth <= AGENT_EXECUTION_DEPTH_LIMIT) {
+        while (!isAgentFinished) {
 
             // Check if we should continue execution
             if (!shouldContinueAgentExecution.current) {
@@ -296,7 +294,11 @@ export const useAgentExecution = ({
                 }
             }
 
-            if (agentResponse.type === 'get_cell_output' && agentResponse.get_cell_output_cell_id !== null && agentResponse.get_cell_output_cell_id !== undefined) {
+            if (
+                agentResponse.type === 'get_cell_output'
+                && agentResponse.get_cell_output_cell_id !== null
+                && agentResponse.get_cell_output_cell_id !== undefined
+            ) {
                 // Mark that we should send the cell output to the agent
                 // in the next loop iteration
                 sendCellIDOutput = agentResponse.get_cell_output_cell_id;
@@ -402,14 +404,6 @@ export const useAgentExecution = ({
                 // Format the results for the agent
                 processedScratchpadResult = formatScratchpadResult(scratchpadResult);
             }
-        }
-
-        if (agentExecutionDepth > AGENT_EXECUTION_DEPTH_LIMIT) {
-            addAIMessageFromResponseAndUpdateState(
-                "Since I've been working for a while now, give my work a review and then tell me how to continue.",
-                'agent:execution',
-                chatHistoryManagerRef.current
-            );
         }
 
         // Use markAgentForStopping for natural conclusion to ensure consistent cleanup

@@ -3,73 +3,33 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useMemo, useCallback, useRef } from "react";
+import React, {
+    useState,
+    useMemo,
+    useCallback,
+    useRef,
+    useEffect,
+    useLayoutEffect,
+} from "react";
 import "./../../css/viewer.css";
-import { useColumnResize } from "./useColumnResize";
+import {
+    buildDataframeViewerSelectionContext,
+    COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION,
+    isMitoAiDataframeViewerSelectionCommandAvailable,
+} from "./dataframeViewerAiContext";
 import {
     calculateMaxDecimalPlaces,
     parseNumericValue,
     formatCellValue,
 } from "./numericFormatting";
-
-/**
- * Interface defining metadata for each column in the DataFrame.
- * Contains the column name and its pandas data type.
- */
-export interface ColumnMetadata {
-    /** The display name of the column as it appears in the DataFrame
-   * (for MultiIndex, this is an array of level names)
-   */
-    name: string[];
-    /** The pandas data type of the column (e.g., 'int64', 'float64', 'object', 'datetime64[ns]') */
-    dtype: string;
-}
-
-/**
- * Interface defining the complete data payload passed from Python to the React component.
- * Contains all necessary information to render the DataFrame viewer including column metadata,
- * row data, and truncation information.
- */
-export interface ViewerPayload {
-    /** Array of column metadata containing name and dtype information */
-    columns: ColumnMetadata[];
-    /** JSON serialized 2D array of values representing the DataFrame data. All values are converted to strings for consistent display. */
-    data: string;
-    /** Total number of rows in the original DataFrame before truncation */
-    totalRows: number;
-    /** Number of index levels if MultiIndex */
-    indexLevels?: number;
-    /** Number of column levels if MultiIndex */
-    columnLevels?: number;
-}
-
-/**
- * Props interface for the MitoViewer React component.
- * Contains the data payload needed to render the interactive DataFrame viewer.
- */
-export interface MitoViewerProps {
-    /** The complete payload containing DataFrame data and metadata */
-    payload: ViewerPayload;
-}
-
-/**
- * Type defining the possible sorting directions for table columns.
- * - 'asc': Sort in ascending order
- * - 'desc': Sort in descending order
- * - null: No sorting applied
- */
-type SortDirection = "asc" | "desc" | null;
-
-/**
- * Interface defining the current sorting state of the table.
- * Tracks which column is currently being sorted and in which direction.
- */
-interface SortState {
-    /** Index of the column being sorted, or null if no column is sorted */
-    columnIndex: number | null;
-    /** Current sorting direction for the active column */
-    direction: SortDirection;
-}
+import { getRangeEdgeBoxShadow, getSelectionBounds, isCellInRange } from "./selectionUtils";
+import type {
+    CellPos,
+    MitoViewerProps,
+    SelectionBounds,
+    SortState,
+} from "./types";
+import { useColumnResize } from "./useColumnResize";
 
 export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
     // State for search functionality - filters table rows based on user input
@@ -79,10 +39,24 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         columnIndex: null,
         direction: null,
     });
+    /**
+     * Range selection: anchor is fixed until a plain click or new drag; focus is the other corner.
+     * Cleared when search/sort changes.
+     */
+    const [selectionAnchor, setSelectionAnchor] = useState<CellPos | null>(null);
+    const [selectionFocus, setSelectionFocus] = useState<CellPos | null>(null);
+    /** True between pointer down on a body cell and pointer up (click-drag to extend range) */
+    const isSelectingRef = useRef(false);
+
     // Ref to the table container for font measurement
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
-    const data = JSON.parse(payload.data) as any[][];
+    // Must be memoized: a new array every render would churn sortedData and retrigger
+    // useLayoutEffect (Ask AI position), causing React #185 (max update depth).
+    const data = useMemo(
+        () => JSON.parse(payload.data) as any[][],
+        [payload.data]
+    );
     const isTruncated = data.length < payload.totalRows;
     const indexLevels = payload.indexLevels ?? 1;
     const columnLevels = payload.columnLevels ?? 1;
@@ -159,6 +133,43 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
             return sort.direction === "asc" ? comparison : -comparison;
         });
     }, [filteredData, sort]);
+
+    const selectionBounds = useMemo((): SelectionBounds | null => {
+        if (selectionAnchor === null || selectionFocus === null) {
+            return null;
+        }
+        return getSelectionBounds(selectionAnchor, selectionFocus);
+    }, [selectionAnchor, selectionFocus]);
+
+    /** True when the selection covers more than one cell (a non-trivial range) */
+    const hasMultiCellRangeSelection = useMemo(() => {
+        if (selectionBounds === null) {
+            return false;
+        }
+        const rowCount =
+            selectionBounds.maxRow - selectionBounds.minRow + 1;
+        const colCount =
+            selectionBounds.maxCol - selectionBounds.minCol + 1;
+        return rowCount * colCount > 1;
+    }, [selectionBounds]);
+
+    // Selection refers to indices in the current view; clear when the view changes
+    useEffect(() => {
+        setSelectionAnchor(null);
+        setSelectionFocus(null);
+    }, [searchTerm, sort.columnIndex, sort.direction]);
+
+    useEffect(() => {
+        const endSelect = () => {
+            isSelectingRef.current = false;
+        };
+        window.addEventListener("pointerup", endSelect);
+        window.addEventListener("pointercancel", endSelect);
+        return () => {
+            window.removeEventListener("pointerup", endSelect);
+            window.removeEventListener("pointercancel", endSelect);
+        };
+    }, []);
 
     // Column resizing functionality - must be after sortedData is defined
     const {
@@ -362,10 +373,16 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     cellIndex,
                                     payload.columns
                                 );
+                                const inRange =
+                                    selectionBounds !== null &&
+                                    isCellInRange(rowIndex, cellIndex, selectionBounds);
                                 let className = `mito-viewer__body-cell mito-viewer__body-cell-${isNumeric[cellIndex] ? "numeric" : "text"
                                     }`;
                                 if (cellIndex < indexLevels) {
                                     className += " mito-viewer__body-cell-index";
+                                }
+                                if (inRange) {
+                                    className += " mito-viewer__body-cell--range-fill";
                                 }
 
                                 // For numeric columns that have any decimals, render all numbers with aligned structure
@@ -416,6 +433,15 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     formattedCell
                                 );
 
+                                const edgeShadow =
+                                    inRange && selectionBounds
+                                        ? getRangeEdgeBoxShadow(
+                                            rowIndex,
+                                            cellIndex,
+                                            selectionBounds
+                                        )
+                                        : undefined;
+
                                 return (
                                     <td
                                         key={cellIndex}
@@ -425,7 +451,21 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                         style={{
                                             width: getColumnWidth(cellIndex),
                                             minWidth: getColumnWidth(cellIndex),
+                                            ...(edgeShadow ? { boxShadow: edgeShadow } : {}),
                                         }}
+                                        onPointerDown={(e) =>
+                                            handleBodyCellPointerDown(
+                                                e,
+                                                rowIndex,
+                                                cellIndex
+                                            )
+                                        }
+                                        onPointerEnter={() =>
+                                            handleBodyCellPointerEnter(
+                                                rowIndex,
+                                                cellIndex
+                                            )
+                                        }
                                     >
                                         {cellContent}
                                     </td>
@@ -501,13 +541,191 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         [calculateAndAutoResizeColumn]
     );
 
+    const handleBodyCellPointerDown = useCallback(
+        (e: React.PointerEvent, rowIndex: number, colIndex: number) => {
+            // Shift+click extends from the current anchor (Excel-style)
+            if (e.shiftKey && selectionAnchor !== null) {
+                e.preventDefault();
+                setSelectionFocus({ row: rowIndex, col: colIndex });
+                return;
+            }
+            e.preventDefault();
+            const pos = { row: rowIndex, col: colIndex };
+            setSelectionAnchor(pos);
+            setSelectionFocus(pos);
+            isSelectingRef.current = true;
+        },
+        [selectionAnchor]
+    );
+
+    const handleBodyCellPointerEnter = useCallback(
+        (rowIndex: number, colIndex: number) => {
+            if (!isSelectingRef.current) {
+                return;
+            }
+            setSelectionFocus({ row: rowIndex, col: colIndex });
+        },
+        []
+    );
+
+    const handleAskAiClick = useCallback(() => {
+        if (!hasMultiCellRangeSelection || selectionBounds === null) {
+            return;
+        }
+        if (!isMitoAiDataframeViewerSelectionCommandAvailable()) {
+            return;
+        }
+        const w = window as Window & {
+            commands?: {
+                execute?: (id: string, args?: Record<string, string>) => void;
+            };
+        };
+        const { display, value } = buildDataframeViewerSelectionContext(
+            selectionBounds,
+            sortedData,
+            payload.columns,
+            payload.dataframeName
+        );
+        void w.commands?.execute?.(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION, {
+            type: "dataframe_viewer_selection",
+            value,
+            display,
+        });
+    }, [
+        hasMultiCellRangeSelection,
+        selectionBounds,
+        sortedData,
+        payload.columns,
+        payload.dataframeName,
+    ]);
+
+    /** Hide Ask AI until Mito AI registers its command (may load after this output). */
+    const [mitoAiAvailable, setMitoAiAvailable] = useState(false);
+    useEffect(() => {
+        if (isMitoAiDataframeViewerSelectionCommandAvailable()) {
+            setMitoAiAvailable(true);
+            return;
+        }
+        let attempts = 0;
+        const maxAttempts = 120;
+        const id = window.setInterval(() => {
+            if (isMitoAiDataframeViewerSelectionCommandAvailable()) {
+                setMitoAiAvailable(true);
+                window.clearInterval(id);
+                return;
+            }
+            attempts++;
+            if (attempts >= maxAttempts) {
+                window.clearInterval(id);
+            }
+        }, 500);
+        return () => window.clearInterval(id);
+    }, []);
+
+    const [askAiFloatStyle, setAskAiFloatStyle] = useState<
+        React.CSSProperties | undefined
+    >(undefined);
+
+    const updateAskAiFloatPosition = useCallback(() => {
+        if (!hasMultiCellRangeSelection || !mitoAiAvailable) {
+            setAskAiFloatStyle(undefined);
+            return;
+        }
+        const container = tableContainerRef.current;
+        if (!container) {
+            return;
+        }
+        const cells = container.querySelectorAll(
+            ".mito-viewer__body-cell--range-fill"
+        );
+        if (cells.length === 0) {
+            setAskAiFloatStyle(undefined);
+            return;
+        }
+        let minLeft = Infinity;
+        let maxRight = -Infinity;
+        let minTop = Infinity;
+        let maxBottom = -Infinity;
+        cells.forEach((cell) => {
+            const r = cell.getBoundingClientRect();
+            minLeft = Math.min(minLeft, r.left);
+            maxRight = Math.max(maxRight, r.right);
+            minTop = Math.min(minTop, r.top);
+            maxBottom = Math.max(maxBottom, r.bottom);
+        });
+        const centerX = (minLeft + maxRight) / 2;
+
+        const viewer = container.closest(".mito-viewer") as HTMLElement | null;
+        if (!viewer) {
+            setAskAiFloatStyle(undefined);
+            return;
+        }
+        const viewerRect = viewer.getBoundingClientRect();
+
+        // Position relative to .mito-viewer (not fixed) so the button stays flush with
+        // the selection in Jupyter outputs (fixed + transform ancestors often misalign).
+        const gap = 4;
+        const approxButtonHeight = 34;
+        const tableRect = container.getBoundingClientRect();
+        const roomBelow = tableRect.bottom - maxBottom;
+        const roomAbove = minTop - tableRect.top;
+        const preferBelow =
+            roomBelow >= approxButtonHeight + gap ||
+            roomBelow >= roomAbove;
+        let topPx: number;
+        if (preferBelow) {
+            topPx = maxBottom - viewerRect.top + gap;
+        } else {
+            topPx = minTop - viewerRect.top - gap - approxButtonHeight;
+        }
+        const leftPx = centerX - viewerRect.left;
+
+        if (!Number.isFinite(topPx) || !Number.isFinite(leftPx)) {
+            setAskAiFloatStyle(undefined);
+            return;
+        }
+        setAskAiFloatStyle({
+            top: topPx,
+            left: leftPx,
+            transform: "translateX(-50%)",
+        });
+    }, [hasMultiCellRangeSelection, mitoAiAvailable]);
+
+    useLayoutEffect(() => {
+        updateAskAiFloatPosition();
+    }, [
+        updateAskAiFloatPosition,
+        selectionBounds,
+        sortedData,
+        isResizing,
+    ]);
+
+    useEffect(() => {
+        if (!hasMultiCellRangeSelection || !mitoAiAvailable) {
+            return;
+        }
+        const container = tableContainerRef.current;
+        const onScrollOrResize = () => updateAskAiFloatPosition();
+        window.addEventListener("resize", onScrollOrResize);
+        container?.addEventListener("scroll", onScrollOrResize, {
+            passive: true,
+        });
+        return () => {
+            window.removeEventListener("resize", onScrollOrResize);
+            container?.removeEventListener("scroll", onScrollOrResize);
+        };
+    }, [hasMultiCellRangeSelection, mitoAiAvailable, updateAskAiFloatPosition]);
 
     return (
         <div className="mito-viewer">
             {/* Controls */}
             <div className="mito-viewer__controls">
                 <div className={`mito-viewer__row-info ${isTruncated ? 'mito-viewer__row-info--warning' : ''}`}>
-                    {isTruncated ? (
+                    {isTruncated && searchTerm.trim() ? (
+                        <>
+                            ⚠ Showing {sortedData.length} matches in the first {data.length} of {payload.totalRows} rows. Set pandas display.max_rows to search all {payload.totalRows} rows.
+                        </>
+                    ) : isTruncated ? (
                         <>
                             ⚠ Table truncated to first {data.length} / {payload.totalRows} rows. Set pandas display.max_rows to configure total rows.
                         </>
@@ -537,13 +755,37 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                     {renderTableBody()}
                 </table>
             </div>
+            {mitoAiAvailable &&
+                hasMultiCellRangeSelection &&
+                askAiFloatStyle !== undefined && (
+                <div
+                    className="mito-viewer__ask-ai-float"
+                    style={askAiFloatStyle}
+                >
+                    <button
+                        type="button"
+                        className="mito-viewer__ask-ai-button"
+                        onClick={handleAskAiClick}
+                    >
+                        ✦ Ask Mito AI
+                    </button>
+                </div>
+            )}
 
             {/* Footer info */}
             {sortedData.length === 0 && (
-                <div className="mito-viewer__empty-state">
-                    No rows match the search criteria
+                <div className={`mito-viewer__empty-state ${isTruncated && searchTerm.trim() ? 'mito-viewer__empty-state--warning' : ''}`}>
+                    {isTruncated && searchTerm.trim() ? (
+                        <>
+                            ⚠ No cells match "{searchTerm.trim()}" in the first {data.length} rows of the dataframe. Set pandas display.max_rows to search all {payload.totalRows} rows.
+                        </>
+                    ) : (
+                        'No rows match the search criteria'
+                    )}
                 </div>
             )}
         </div>
     );
 };
+
+export type { ColumnMetadata, ViewerPayload, MitoViewerProps } from "./types";

@@ -42,7 +42,7 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
     IStreamlitPreviewManager,
     ISettingRegistry,
     IDocumentManager
-  ],
+  ] as JupyterFrontEndPlugin<WidgetTracker>['requires'],
   optional: [ILayoutRestorer],
   provides: IChatTracker,
   activate: (
@@ -75,7 +75,6 @@ const AiChatPlugin: JupyterFrontEndPlugin<WidgetTracker> = {
 
     let widget = newWidget();
 
-    // Add an application command
     app.commands.addCommand(COMMAND_MITO_AI_OPEN_CHAT, {
       label: 'Your friendly Python Expert chat bot',
       execute: (args?: ReadonlyPartialJSONObject) => {

@@ -40,10 +40,11 @@ def test_mixed_text_and_image():
     assert text_block["text"] == "Here is an image:"
     
     # Check image content
-    image_block = cast(Dict[str, Dict[str, str]], content[1])
+    image_block = cast(Dict[str, object], content[1])
     assert image_block["type"] == "image"
-    assert image_block["source"]["type"] == "base64"
-    assert image_block["source"]["media_type"] == "image/png"
+    source = cast(Dict[str, str], image_block["source"])
+    assert source["type"] == "base64"
+    assert source["media_type"] == "image/png"
 
 def test_no_system_instructions_only_content():
     messages: List[ChatCompletionMessageParam] = [

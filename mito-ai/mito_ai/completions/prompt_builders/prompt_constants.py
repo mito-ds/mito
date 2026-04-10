@@ -9,6 +9,8 @@ These constants ensure consistency between prompt building and message trimming.
 import os
 import json
 from typing import Final
+
+from mito_ai.completions.prompt_builders.excel_to_python_rules import EXCEL_TO_PYTHON_RULES
 from mito_ai.utils.schema import MITO_FOLDER
 
 CHART_CONFIG_RULES = """
