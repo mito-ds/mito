@@ -295,6 +295,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     ]
                 result = ToolResult(
                     success=tool_result_metadata.success,
+                    tool_name=tool_result_metadata.toolType,
                     error_message=tool_result_metadata.errorMessage,
                     cells=cells,
                     variables=tool_result_metadata.variables,

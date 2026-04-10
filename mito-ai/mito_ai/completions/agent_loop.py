@@ -153,6 +153,7 @@ async def start_agent_loop(
     runner = AgentRunner(
         provider=provider_adapter,
         tool_executor=tool_executor,
+        message_history=message_history,
     )
 
     ctx = AgentContext(

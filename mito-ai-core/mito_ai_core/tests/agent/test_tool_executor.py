@@ -246,6 +246,7 @@ class TestToolResultDefaults:
 
     def test_minimal_success(self) -> None:
         r = ToolResult(success=True)
+        assert r.tool_name is None
         assert r.error_message is None
         assert r.cells is None
         assert r.variables is None

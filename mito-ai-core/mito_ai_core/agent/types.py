@@ -24,6 +24,9 @@ class ToolResult:
     success: bool
     """Whether the tool executed without errors."""
 
+    tool_name: Optional[str] = None
+    """Which tool was run (e.g. ``cell_update``, ``scratchpad``), when known."""
+
     error_message: Optional[str] = None
     """Human-readable error string when *success* is False."""
 

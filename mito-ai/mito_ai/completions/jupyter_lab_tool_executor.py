@@ -13,7 +13,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from dataclasses import asdict
+from dataclasses import replace
 from typing import Any, Callable, Dict, List, Optional
 
 from mito_ai_core.agent.tool_executor import ToolExecutor
@@ -93,7 +93,11 @@ class JupyterLabToolExecutor:
         self._pending_result = loop.create_future()
 
         self._send_request_tool_execution_message(agent_response_dict, message)
-        return await self._wait_for_result()
+        result = await self._wait_for_result()
+        tool_type = agent_response_dict.get("type")
+        if tool_type is not None and result.tool_name is None:
+            return replace(result, tool_name=str(tool_type))
+        return result
 
     # ------------------------------------------------------------------
     # Called by the WebSocket handler when a tool_result message arrives

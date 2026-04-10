@@ -69,12 +69,13 @@ def parse_agent_response(completion: str) -> AgentResponse:
 
 def format_tool_result(response_type: str, result: ToolResult) -> str:
     """Format a ``ToolResult`` into a human-readable string for the LLM."""
+    tool_label = result.tool_name or response_type
     lines: list[str] = []
     if result.success:
-        lines.append(f"Tool '{response_type}' succeeded.")
+        lines.append(f"Tool '{tool_label}' succeeded.")
     else:
         lines.append(
-            f"Tool '{response_type}' failed: "
+            f"Tool '{tool_label}' failed: "
             f"{result.error_message or 'unknown error'}"
         )
     if result.output:

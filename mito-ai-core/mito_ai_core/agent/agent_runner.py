@@ -14,11 +14,9 @@ to the *messages* working list so subsequent LLM calls see them, but it does
 """
 
 from __future__ import annotations
-
-from typing import Awaitable, Callable, List, Optional
-
+from typing import Any, Awaitable, Callable, List, Optional
+from mito_ai.completions.message_history import GlobalMessageHistory
 from openai.types.chat import ChatCompletionMessageParam
-
 from mito_ai_core.agent.tool_executor import ToolExecutor
 from mito_ai_core.agent.types import AgentContext, AgentRunResult, CompletionProvider, ToolResult
 from mito_ai_core.agent.utils import format_tool_result, normalize_agent_response, parse_agent_response
@@ -38,6 +36,9 @@ class AgentRunner:
 
     Calls a :class:`CompletionProvider` for LLM completions and dispatches tool
     calls to a :class:`ToolExecutor`.  Does **not** own message history.
+
+    *message_history* is an optional platform-specific handle (e.g. global
+    history); the runner stores it but does not read or mutate it yet.
     """
 
     TOOL_TYPES: frozenset[str] = frozenset(
@@ -54,12 +55,14 @@ class AgentRunner:
         self,
         provider: CompletionProvider,
         tool_executor: ToolExecutor,
+        message_history: GlobalMessageHistory,
         max_iterations: int = DEFAULT_MAX_ITERATIONS,
     ) -> None:
         if max_iterations < 1:
             raise ValueError("max_iterations must be >= 1")
         self._provider = provider
         self._tool_executor = tool_executor
+        self._message_history = message_history
         self._max_iterations = max_iterations
 
     # ------------------------------------------------------------------
@@ -98,6 +101,10 @@ class AgentRunner:
         last_response: Optional[AgentResponse] = None
 
         for iteration in range(1, self._max_iterations + 1):
+            
+            
+            
+            
             # ---- LLM call -----------------------------------------------
             completion = await self._provider.request_completions(
                 message_type=message_type,
@@ -170,6 +177,7 @@ class AgentRunner:
             if response.cell_update is None:
                 return ToolResult(
                     success=False,
+                    tool_name=rtype,
                     error_message="Agent returned cell_update but cell_update payload is null.",
                 )
             return await self._tool_executor.execute_cell_update(
@@ -185,6 +193,7 @@ class AgentRunner:
             if response.get_cell_output_cell_id is None:
                 return ToolResult(
                     success=False,
+                    tool_name=rtype,
                     error_message="Agent returned get_cell_output but cell_id is null.",
                 )
             return await self._tool_executor.get_cell_output(
@@ -195,6 +204,7 @@ class AgentRunner:
             if response.scratchpad_code is None:
                 return ToolResult(
                     success=False,
+                    tool_name=rtype,
                     error_message="Agent returned scratchpad but scratchpad_code is null.",
                 )
             return await self._tool_executor.execute_scratchpad(
@@ -208,6 +218,7 @@ class AgentRunner:
             if response.question is None:
                 return ToolResult(
                     success=False,
+                    tool_name=rtype,
                     error_message="Agent returned ask_user_question but question is null.",
                 )
             return await self._tool_executor.ask_user_question(
