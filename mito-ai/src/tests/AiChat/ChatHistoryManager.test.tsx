@@ -21,7 +21,7 @@ jest.mock('../../utils/notebook', () => ({
 
 // Mock the user utilities
 jest.mock('../../utils/user', () => ({
-    isChromeBasedBrowser: jest.fn(() => true)
+    isChromeBasedBrowser: jest.fn(() => true),
 }));
 
 describe('ChatHistoryManager', () => {

@@ -56,6 +56,23 @@ function parseGraphType(s: string): GraphType | undefined {
     return v;
 }
 
+function formatGraphTypeLabel(graphType: string): string {
+    const t = graphType.trim().toLowerCase();
+    const labels: Record<string, string> = {
+        bar: 'BAR',
+        line: 'LINE',
+        scatter: 'SCATTER',
+        histogram: 'HISTOGRAM',
+        'density heatmap': 'HEATMAP',
+        'density contour': 'CONTOUR',
+        box: 'BOX',
+        violin: 'VIOLIN',
+        strip: 'STRIP',
+        ecdf: 'ECDF',
+    };
+    return labels[t] ?? t.replace(/\s+/g, ' ').toUpperCase();
+}
+
 const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneProps): JSX.Element => {
     const aiPrivacyPolicyAccepted = props.userProfile.aiPrivacyPolicy;
 
@@ -147,17 +164,26 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                                     key={`${s.title}-${idx}`}
                                     type="button"
                                     className="suggested-viz-card"
+                                    aria-label={`${s.title}. Open in editor.`}
                                     onClick={() => {
                                         onCreateChart(s.graph_type, s.column_indices);
                                     }}
                                 >
                                     <div className="suggested-viz-card-inner">
-                                        <div className="suggested-viz-preview-layer" aria-hidden>
-                                            <SuggestedChartPreview graphType={s.graph_type} />
+                                        <div className="suggested-viz-preview-shell" aria-hidden>
+                                            <div className="suggested-viz-preview-layer">
+                                                <SuggestedChartPreview
+                                                    graphType={s.graph_type}
+                                                    columnIndices={s.column_indices}
+                                                    sheetData={sheetData}
+                                                />
+                                            </div>
                                         </div>
                                         <div className="suggested-viz-card-text">
+                                            <div className="suggested-viz-card-kind">{formatGraphTypeLabel(s.graph_type)}</div>
                                             <div className="suggested-viz-card-title">{s.title}</div>
                                             <div className="suggested-viz-card-description">{s.description}</div>
+                                            <div className="suggested-viz-card-cta">Open in editor →</div>
                                         </div>
                                     </div>
                                 </button>

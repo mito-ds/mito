@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List, Optional, Dict
+from mito_ai.completions.models import AIOptimizedCell
 from mito_ai.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
@@ -14,6 +15,7 @@ def create_chat_prompt(
     has_active_cell_output: bool,
     input: str,
     additional_context: Optional[List[Dict[str, str]]] = None,
+    ai_optimized_cells: Optional[List[AIOptimizedCell]] = None,
 ) -> str:
     sections: List[PromptSection] = [
         SG.Rules(additional_context),
@@ -21,11 +23,12 @@ def create_chat_prompt(
         SG.Files(files),
         SG.Variables(variables),
         SG.SelectedContext(additional_context),
+        SG.Notebook(ai_optimized_cells or []),
         SG.ActiveCellId(active_cell_id),
         SG.ActiveCellCode(active_cell_code),
         SG.ActiveCellOutput(has_active_cell_output),
         SG.Task(input),
     ]
-    
+
     prompt = Prompt(sections)
     return str(prompt)

@@ -154,6 +154,8 @@ export class ChatHistoryManager {
     async addChatInputMessage(input: string, activeThreadId: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<IChatMessageMetadata> {
         const activeCellCode = getActiveCellCode(this.notebookTracker) || ''
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
+        const notebookPanel = this.notebookTracker.currentWidget
+        const aiOptimizedCells = getAIOptimizedCellsInNotebookPanel(notebookPanel)
 
         const activeNotebookContext = this.contextManager.getActiveNotebookContext();
         const chatMessageMetadata: IChatMessageMetadata = {
@@ -162,10 +164,11 @@ export class ChatHistoryManager {
             files: activeNotebookContext?.files || [],
             activeCellCode: activeCellCode,
             activeCellId: activeCellID,
+            aiOptimizedCells: aiOptimizedCells,
             input: input,
             threadId: activeThreadId,
             index: messageIndex,
-            additionalContext: additionalContext
+            additionalContext: additionalContext,
         }
 
         this.displayOptimizedChatHistory.push(
@@ -236,6 +239,7 @@ export class ChatHistoryManager {
             promptType: 'agent:scratchpad-result',
             threadId: activeThreadId,
             scratchpadResult: scratchpadResult,
+            isChromeBrowser: isChromeBasedBrowser(),
         }
 
         // Add empty user message to display history (like agent execution does for empty input)
@@ -298,7 +302,7 @@ export class ChatHistoryManager {
             errorMessage: errorMessage,
             error_message_producing_code_cell_id: activeCellID || '',
             threadId: activeThreadId,
-            isChromeBrowser: isChromeBasedBrowser()
+            isChromeBrowser: isChromeBasedBrowser(),
         }
 
         this.displayOptimizedChatHistory.push(
