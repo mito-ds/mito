@@ -191,7 +191,7 @@ const SuggestedVisualizationsTaskpane = (props: SuggestedVisualizationsTaskpaneP
                                             <div className="suggested-viz-card-kind">{formatGraphTypeLabel(s.graph_type)}</div>
                                             <div className="suggested-viz-card-title">{s.title}</div>
                                             <div className="suggested-viz-card-description">{s.description}</div>
-                                            <div className="suggested-viz-card-cta">Open in editor →</div>
+                                            <div className="suggested-viz-card-cta">Open in editor <span className="suggested-viz-card-cta-arrow">→</span></div>
                                         </div>
                                     </div>
                                 </button>
