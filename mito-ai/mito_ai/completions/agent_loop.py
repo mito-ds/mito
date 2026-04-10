@@ -27,7 +27,8 @@ from mito_ai_core.completions.prompt_builders.agent_execution_prompt import (
 )
 from mito_ai.logger import get_logger
 from mito_ai_core.provider_manager import ProviderManager
-from mito_ai_core.agent import AgentContext, AgentRunner, AgentRunResult
+from mito_ai_core.agent import AgentContext, AgentRunResult
+from mito_ai_core.agent.agent_runner import AgentRunner
 from mito_ai_core.agent.utils import serialize_agent_response
 from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell
 
@@ -136,6 +137,8 @@ async def start_agent_loop(
         variables=metadata.variables,
         files=metadata.files,
         is_chrome_browser=metadata.isChromeBrowser,
+        additional_context=metadata.additionalContext,
+        base64_encoded_active_cell_output=metadata.base64EncodedActiveCellOutput,
     )
 
     # --- callbacks to persist messages ---

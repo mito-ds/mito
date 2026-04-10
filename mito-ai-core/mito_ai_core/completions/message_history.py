@@ -13,7 +13,7 @@ from mito_ai_core.completions.models import ChatThreadMetadata, MessageType, Thr
 from mito_ai_core.completions.prompt_builders.chat_name_prompt import create_chat_name_prompt
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.utils.schema import MITO_FOLDER
-from mito_ai_core.utils.message_history_utils import trim_old_messages
+from mito_ai_core.utils.trim_message_history import trim_old_messages
 
 CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 NEW_CHAT_NAME = "(New Chat)"

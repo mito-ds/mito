@@ -76,6 +76,12 @@ class AgentContext:
     is_chrome_browser: bool = True
     """Whether the frontend is a Chrome-based browser (gates GET_CELL_OUTPUT)."""
 
+    additional_context: Optional[List[Dict[str, str]]] = None
+    """Extra structured context (e.g. selections, images) from the client."""
+
+    base64_encoded_active_cell_output: Optional[str] = None
+    """PNG output of the active cell for multimodal prompts, when available."""
+
 
 @runtime_checkable
 class CompletionProvider(Protocol):

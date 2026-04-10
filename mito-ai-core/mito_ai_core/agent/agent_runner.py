@@ -105,7 +105,7 @@ class AgentRunner:
         last_response: Optional[AgentResponse] = None
         
         await append_agent_system_message(
-            self.message_history,
+            self._message_history,
             self._provider,
             ctx.thread_id,
             ctx.is_chrome_browser,
@@ -115,8 +115,8 @@ class AgentRunner:
 
         new_ai_optimized_message = create_ai_optimized_message(
             prompt,
-            ctx.base64EncodedActiveCellOutput,
-            ctx.additionalContext,
+            ctx.base64_encoded_active_cell_output,
+            ctx.additional_context,
         )
         new_display_optimized_message: ChatCompletionMessageParam = {
             "role": "user",
@@ -162,6 +162,13 @@ class AgentRunner:
                 return AgentRunResult(
                     final_response=response,
                     finished=True,
+                    iterations=iteration,
+                )
+
+            if response.type not in self.TOOL_TYPES:
+                return AgentRunResult(
+                    final_response=response,
+                    finished=False,
                     iterations=iteration,
                 )
 

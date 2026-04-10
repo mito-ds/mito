@@ -4,7 +4,7 @@
 import pytest
 from typing import List, cast
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai_core.utils.message_history_utils import trim_message_content, trim_old_messages
+from mito_ai_core.utils.trim_message_history import trim_message_content, trim_old_messages
 from unittest.mock import Mock, patch
 from mito_ai_core.completions.message_history import GlobalMessageHistory, ChatThread
 from mito_ai_core.completions.models import ThreadID
