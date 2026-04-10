@@ -4,7 +4,7 @@
  */
 
 import { MitoTheme } from "../types"
-import { isInJupyterLabOrNotebook } from "./location";
+import { isInJupyterLabOrNotebook, isInVSCodeNotebookOutput } from "./location";
 
 type HSLColor = {
     h: number;
@@ -65,7 +65,16 @@ let TOOLBAR_HOVER_BACKGROUND = 'var(--mito-pretty-light-gray)';
 let DEFAULT_BACKGROUND_DEFAULT = 'var(--mito-light-purple)';
 let DEFAULT_BACKGROUND_DEFAULT_HOVER = 'var(--mito-medium-purple)';
 
-if (isInJupyterLabOrNotebook()) {
+if (isInVSCodeNotebookOutput()) {
+    // Match VS Code workbench colors (same idea as --jp-* in Jupyter)
+    DEFAULT_TEXT = 'var(--vscode-editor-foreground)';
+    DEFAULT_BACKGROUND = 'var(--vscode-editor-background)';
+    DEFAULT_BACKGROUND_OFF = 'var(--vscode-sideBar-background)';
+    DEFAULT_BACKGROUND_HIGHLIGHT = 'var(--vscode-input-background)';
+    TOOLBAR_HOVER_BACKGROUND = 'var(--vscode-toolbar-hoverBackground)';
+    DEFAULT_BACKGROUND_DEFAULT = 'var(--vscode-dropdown-background)';
+    DEFAULT_BACKGROUND_DEFAULT_HOVER = 'var(--vscode-list-hoverBackground)';
+} else if (isInJupyterLabOrNotebook()) {
 
     DEFAULT_TEXT = 'var(--jp-content-font-color1)';
     DEFAULT_BACKGROUND = 'var(--jp-layout-color1)';
