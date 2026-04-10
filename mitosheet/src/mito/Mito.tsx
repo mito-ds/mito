@@ -41,6 +41,7 @@ import ErrorReplayedAnalysisModal from './components/modals/ReplayAnalysisModals
 import SignUpModal from './components/modals/SignupModal';
 import { ModalEnum } from './components/modals/modals';
 import AITransformationTaskpane, { AITransformationParams } from './components/taskpanes/AITransformation/AITransformationTaskpane';
+import HelpTaskpane from './components/taskpanes/Help/HelpTaskpane';
 import SuggestedVisualizationsTaskpane from './components/taskpanes/SuggestedVisualizations/SuggestedVisualizationsTaskpane';
 import CannotCreateCommTaskpane from './components/taskpanes/CannotCreateComm/CannotCreateCommTaskpane';
 import CodeOptionsTaskpane from './components/taskpanes/CodeOptions/CodeOptionsTaskpane';
@@ -133,7 +134,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedTabType: 'data',
         currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
-        currentToolbarTab: isDataframeRenderMitosheet? undefined : 'Home', // If dataframe render, default to collapsed toolbar tabs
+        currentToolbarTab: undefined,
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
         },
@@ -919,6 +920,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.DEV_TASKPANE: return (
                 <DevTaskpane
+                    userProfile={userProfile}
+                    setUIState={setUIState}
+                    mitoAPI={mitoAPI}
+                />
+            )
+            case TaskpaneType.HELP: return (
+                <HelpTaskpane
                     userProfile={userProfile}
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
