@@ -9,7 +9,7 @@ from threading import Lock
 from typing import Dict, List, Optional
 
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai_core.completions.models import CompletionRequest, ChatThreadMetadata, MessageType, ThreadID
+from mito_ai_core.completions.models import ChatThreadMetadata, MessageType, ThreadID
 from mito_ai_core.completions.prompt_builders.chat_name_prompt import create_chat_name_prompt
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.utils.schema import MITO_FOLDER

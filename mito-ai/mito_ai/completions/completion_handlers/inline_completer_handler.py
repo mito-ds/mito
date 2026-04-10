@@ -6,7 +6,7 @@ from openai.types.chat import ChatCompletionMessageParam
 from mito_ai.completions.models import InlineCompleterMetadata, MessageType
 from mito_ai_core.completions.prompt_builders.inline_completer_prompt import create_inline_prompt
 from mito_ai_core.provider_manager import ProviderManager
-from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.completion_handlers.completion_handler import CompletionHandler
 
 __all__ = ["get_inline_completion"]

@@ -14,12 +14,12 @@ to the *messages* working list so subsequent LLM calls see them, but it does
 """
 
 from __future__ import annotations
-from typing import Any, Awaitable, Callable, List, Optional
-from mito_ai.completions.message_history import GlobalMessageHistory
+from typing import Awaitable, Callable, List, Optional
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai_core.agent.tool_executor import ToolExecutor
 from mito_ai_core.agent.types import AgentContext, AgentRunResult, CompletionProvider, ToolResult
 from mito_ai_core.agent.utils import format_tool_result, normalize_agent_response, parse_agent_response
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import (
     AgentResponse,
     MessageType,
@@ -37,8 +37,9 @@ class AgentRunner:
     Calls a :class:`CompletionProvider` for LLM completions and dispatches tool
     calls to a :class:`ToolExecutor`.  Does **not** own message history.
 
-    *message_history* is an optional platform-specific handle (e.g. global
-    history); the runner stores it but does not read or mutate it yet.
+    *message_history* is the global chat history handle; the runner stores it
+    for future use and does not read or mutate it yet (callers persist via
+    callbacks).
     """
 
     TOOL_TYPES: frozenset[str] = frozenset(

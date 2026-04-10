@@ -16,7 +16,7 @@ from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.logger import get_logger
 from mito_ai.completions.models import (
     AgentSmartDebugMetadata,

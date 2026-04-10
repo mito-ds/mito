@@ -11,12 +11,16 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import pytest
 
 from mito_ai_core.agent import AgentContext, AgentRunner, AgentRunResult, ToolExecutor, ToolResult
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import (
     AIOptimizedCell,
     AgentResponse,
     CellUpdate,
     MessageType,
 )
+
+# AgentRunner requires a history handle; it is not mutated by these tests.
+_MESSAGE_HISTORY = GlobalMessageHistory()
 
 
 # ---------------------------------------------------------------------------
@@ -205,7 +209,7 @@ class TestSingleIterationFinish:
     async def test_returns_finished(self) -> None:
         provider = FakeProviderManager([_finished_response()])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -220,7 +224,7 @@ class TestSingleIterationFinish:
     async def test_appends_assistant_message_to_working_history(self) -> None:
         provider = FakeProviderManager([_finished_response()])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -240,7 +244,7 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -258,7 +262,7 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -278,7 +282,7 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -299,7 +303,7 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -320,7 +324,7 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -340,7 +344,7 @@ class TestContextUpdated:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -362,7 +366,7 @@ class TestCallbacks:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -399,7 +403,7 @@ class TestMaxIterations:
             [_cell_update_response()] * 5
         )
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor, max_iterations=3)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY, max_iterations=3)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -413,7 +417,7 @@ class TestMaxIterations:
         provider = FakeProviderManager([])
         executor = FakeToolExecutor()
         with pytest.raises(ValueError, match="max_iterations must be >= 1"):
-            AgentRunner(provider, executor, max_iterations=0)  # type: ignore[arg-type]
+            AgentRunner(provider, executor, _MESSAGE_HISTORY, max_iterations=0)  # type: ignore[arg-type]
 
 
 class TestWorkingHistory:
@@ -426,7 +430,7 @@ class TestWorkingHistory:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -449,7 +453,7 @@ class TestNonDispatchableStopsLoop:
             _agent_response_json("create_streamlit_app", message="Creating app."),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -471,7 +475,7 @@ class TestNullPayloadHandling:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 
@@ -494,7 +498,7 @@ class TestOptionalFieldsFilledByParser:
         minimal = json.dumps({"type": "finished_task", "message": "Done."})
         provider = FakeProviderManager([minimal])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
+        runner = AgentRunner(provider, executor, _MESSAGE_HISTORY)  # type: ignore[arg-type]
         ctx = _make_ctx()
         messages: List[Dict[str, Any]] = []
 

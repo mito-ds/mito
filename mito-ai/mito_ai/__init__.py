@@ -6,7 +6,7 @@ from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
 from mito_ai_core.provider_manager import ProviderManager
-from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
 from mito_ai.log.urls import get_log_urls
 from mito_ai_core.utils.litellm_utils import is_litellm_configured

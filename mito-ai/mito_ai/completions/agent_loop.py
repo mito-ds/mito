@@ -19,7 +19,7 @@ from mito_ai.completions.completion_handlers.utils import (
     create_ai_optimized_message,
 )
 from mito_ai.completions.jupyter_lab_tool_executor import JupyterLabToolExecutor
-from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import (
     AgentExecutionMetadata,
     AgentFinishedMessage,
