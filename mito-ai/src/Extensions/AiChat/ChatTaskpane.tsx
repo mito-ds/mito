@@ -5,7 +5,7 @@
 
 // External libraries
 import { Compartment } from '@codemirror/state';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 // JupyterLab imports
 import { JupyterFrontEnd } from '@jupyterlab/application';
@@ -53,7 +53,7 @@ import { IStreamlitPreviewManager } from '../AppPreview/StreamlitPreviewPlugin';
 import { ensureNotebookExists } from './utils';
 import { waitForNotebookReady } from '../../utils/waitForNotebookReady';
 import { getBase64EncodedCellOutputInNotebook } from './utils';
-import { logEvent } from '../../restAPI/RestAPI';
+import { fetchGithubCopilotLoginStatus, logEvent } from '../../restAPI/RestAPI';
 import { playCompletionSound } from '../../utils/sound';
 
 // Internal imports - Websockets
@@ -79,6 +79,7 @@ import { captureCompletionRequest } from '../SettingsManager/profiler/ProfilerPa
 
 // Internal imports - Chat components
 import AgentReviewPanel from './components/AgentReviewPanel';
+import { GithubCopilotSignInHero } from './components/GithubCopilotSignInHero';
 import CTACarousel from './CTACarousel';
 import UsageBadge, { UsageBadgeRef } from './UsageBadge';
 import SignUpForm from './SignUpForm';
@@ -92,6 +93,7 @@ import { ChatHistoryManager, IDisplayOptimizedChatItem, PromptType } from './Cha
 import { useAgentReview } from './hooks/useAgentReview';
 import { useAgentExecution } from './hooks/useAgentExecution';
 import { useUserSignup } from './hooks/useUserSignup';
+import { useGithubCopilotLogin } from './hooks/useGithubCopilotLogin';
 import { useChatScroll } from './hooks/useChatScroll';
 import { useModelConfig } from './hooks/useModelConfig';
 import { useAgentMode } from './hooks/useAgentMode';
@@ -151,6 +153,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
     // User signup state
     const { isSignedUp, refreshUserSignupState } = useUserSignup();
+
+    const ghCopilot = useGithubCopilotLogin(websocketClient);
+    const copilotBlocksChatRef = useRef(false);
+    useLayoutEffect(() => {
+        copilotBlocksChatRef.current = ghCopilot.copilotBlocksChat;
+    }, [ghCopilot.copilotBlocksChat]);
 
     // Core chat state management
     const {
@@ -310,6 +318,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         to the AI chat.
     */
     const sendSmartDebugMessage = async (errorMessage: string): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
         // Check if user is in agent mode and switch to chat mode if needed
         if (agentModeEnabledRef.current) {
             await startNewChat();
@@ -342,6 +353,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
         if (agentTargetNotebookPanelRef.current === null) {
             return
         }
@@ -373,6 +387,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }
 
     const sendExplainCodeMessage = async (): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -405,6 +422,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         sendCellIDOutput: string | undefined = undefined,
         additionalContext?: Array<{type: string, value: string}>
     ): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
 
         // Step 0: reset the state for a new message
         resetForNewMessage()
@@ -427,7 +447,10 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             agentExecutionMetadata.index = messageIndex
         }
 
-        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(agentTargetNotebookPanelRef.current, sendCellIDOutput)
+        agentExecutionMetadata.base64EncodedActiveCellOutput = await getBase64EncodedCellOutputInNotebook(
+            agentTargetNotebookPanelRef.current,
+            sendCellIDOutput
+        )
 
         setChatHistoryManager(newChatHistoryManager)
         setLoadingStatus('thinking');
@@ -445,6 +468,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     const sendScratchpadResultMessage = async (
         scratchpadResult: string
     ): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
 
         // Step 0: reset the state for a new message
         resetForNewMessage()
@@ -474,6 +500,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         Send whatever message is currently in the chat input
     */
     const sendChatInputMessage = async (input: string, messageIndex?: number, additionalContext?: Array<{type: string, value: string}>): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
         // Step 0: reset the state for a new message
         resetForNewMessage()
 
@@ -506,9 +535,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         // so we don't get stuck behind the slow getActiveCellOutput function.
         await new Promise(resolve => setTimeout(resolve, 0));
 
-        // Add the active cell output to the metadata afterwards setting the chatHistoryManager so that 
-        // we don't have to wait on turning the output into a base64 image before we can add the user's message
-        // to the chat.
+        // Add the active cell output to the metadata after setting chat history so UI updates immediately.
         const activeCellOutput = await getActiveCellOutput(notebookTracker)
         if (activeCellOutput !== undefined) {
             chatMessageMetadata.base64EncodedActiveCellOutput = activeCellOutput
@@ -530,6 +557,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         messageIndex?: number, // The index of the message to replace. Undefined if adding a new message instead of editing existing message.
         additionalContext?: ContextItemAIOptimized[]
     ): Promise<void> => {
+        if (copilotBlocksChatRef.current) {
+            return;
+        }
 
         // Then send the new message to replace it
         if (agentModeEnabled) {
@@ -793,9 +823,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
                 const firstMessage = getFirstMessage();
                 if (firstMessage) {
-                    await waitForNotebookReady(notebookTracker);
-                    await startNewChat();
-                    await agentExecution.startAgentExecution(firstMessage, setAgentReviewStatus);
+                    const copilotProbe = await fetchGithubCopilotLoginStatus();
+                    const blockAutoAgent =
+                        copilotProbe !== null && copilotProbe.status !== 'LOGGED_IN';
+                    if (!blockAutoAgent) {
+                        await waitForNotebookReady(notebookTracker);
+                        await startNewChat();
+                        await agentExecution.startAgentExecution(firstMessage, setAgentReviewStatus);
+                    }
                 }
 
             } catch (error: unknown) {
@@ -841,6 +876,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
     }, [websocketClient]);
 
     const displayOptimizedChatHistory = chatHistoryManager.getDisplayOptimizedHistory()
+    const showCopilotSignInOnly = ghCopilot.copilotBlocksChat;
 
     const resetForNewMessage = (): void => {
         /* 
@@ -884,6 +920,9 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         app.commands.addCommand(COMMAND_MITO_AI_SEND_DEBUG_ERROR_MESSAGE, {
             execute: async (args?: ReadonlyPartialJSONObject) => {
+                if (copilotBlocksChatRef.current) {
+                    return;
+                }
                 if (args?.input) {
                     await sendSmartDebugMessage(args.input.toString())
                 }
@@ -892,12 +931,18 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
 
         app.commands.addCommand(COMMAND_MITO_AI_SEND_EXPLAIN_CODE_MESSAGE, {
             execute: async () => {
+                if (copilotBlocksChatRef.current) {
+                    return;
+                }
                 await sendExplainCodeMessage()
             }
         });
 
         app.commands.addCommand(COMMAND_MITO_AI_SEND_AGENT_MESSAGE, {
             execute: async (args?: ReadonlyPartialJSONObject) => {
+                if (copilotBlocksChatRef.current) {
+                    return;
+                }
                 if (args?.input) {
                     // If its not already in agent mode, start a new chat in agent mode
                     if (!agentModeEnabledRef.current) {
@@ -1081,15 +1126,26 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 </div>
             </div>
             <div className="chat-messages" ref={chatTaskpaneMessagesRef}>
-                {displayOptimizedChatHistory.length === 0 &&
+                {showCopilotSignInOnly ? (
+                    <GithubCopilotSignInHero
+                        variant="full"
+                        status={ghCopilot.status}
+                        verification_uri={ghCopilot.verification_uri}
+                        user_code={ghCopilot.user_code}
+                        loading={ghCopilot.loading}
+                        loginError={ghCopilot.loginError}
+                        onSignIn={ghCopilot.onSignIn}
+                    />
+                ) : null}
+                {!showCopilotSignInOnly && displayOptimizedChatHistory.length === 0 &&
                     <div className="chat-empty-message">
-                        {isSignedUp === false 
-                            ? <SignUpForm onSignUpSuccess={refreshUserSignupState} /> 
+                        {isSignedUp === false
+                            ? <SignUpForm onSignUpSuccess={refreshUserSignupState} />
                             : <CTACarousel app={app} />
                         }
                     </div>
                 }
-                {processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
+                {!showCopilotSignInOnly && processedDisplayOptimizedChatHistory.map((displayOptimizedChat, index) => {
                     if (isGroupedErrorMessages(displayOptimizedChat)) {
                         return (
                             <GroupedErrorsAndFixes
@@ -1121,6 +1177,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 rejectAICode={rejectAICode}
                                 handleSubmitUserMessage={handleSubmitUserMessage}
                                 contextManager={contextManager}
+                                canSendMessages={!ghCopilot.copilotBlocksChat}
                                 codeReviewStatus={codeReviewStatus}
                                 setNextSteps={setNextSteps}
                                 agentModeEnabled={agentModeEnabled}
@@ -1140,7 +1197,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                         Running code <LoadingDots />
                     </div>
                 }
-                {/* Agent review panel - handles all agent review UI */}
                 <AgentReviewPanel
                     hasCheckpoint={hasCheckpoint}
                     agentModeEnabled={agentModeEnabled}
@@ -1164,7 +1220,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     setAgentReviewStatus={setAgentReviewStatus}
                 />
             </div>
-            {displayOptimizedChatHistory.length === 0 && (
+            {displayOptimizedChatHistory.length === 0 && !ghCopilot.copilotBlocksChat && (
                 <div className="suggestions-container">
                     <ScrollableSuggestions
                         onSelectSuggestion={(prompt) => {
@@ -1181,7 +1237,12 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 {nextSteps.length > 0 && (
                     <NextStepsPills
                         nextSteps={nextSteps}
-                        onSelectNextStep={agentExecution.startAgentExecution}
+                        onSelectNextStep={(nextStep, setStatus) => {
+                            if (ghCopilot.copilotBlocksChat) {
+                                return;
+                            }
+                            void agentExecution.startAgentExecution(nextStep, setStatus);
+                        }}
                         displayedNextStepsIfAvailable={displayedNextStepsIfAvailable}
                         setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
                         setAgentReviewStatus={setAgentReviewStatus}
@@ -1201,6 +1262,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     displayOptimizedChatHistoryLength={displayOptimizedChatHistory.length}
                     agentTargetNotebookPanelRef={agentTargetNotebookPanelRef}
                     isSignedUp={isSignedUp}
+                    canSendMessages={!ghCopilot.copilotBlocksChat}
                     onDataframeViewerContextAdded={handleDataframeViewerContextAdded}
                     attentionGlowActive={attentionGlowActive}
                     onAttentionGlowAnimationEnd={() => setAttentionGlowActive(false)}
@@ -1235,7 +1297,11 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     </div>
                     <button
                         className="button-base submit-button"
+                        disabled={ghCopilot.copilotBlocksChat}
                         onClick={() => {
+                            if (ghCopilot.copilotBlocksChat) {
+                                return;
+                            }
                             const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                             if (chatInput && chatInput.value) {
                                 // Simulate an Enter keypress

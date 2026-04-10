@@ -117,7 +117,7 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         } else if (type === 'file') {
             return `The path ${title} will be shared with the AI`;
         } else if (type === 'notebook') {
-            return "The AI will be able to read all of the code and markdown in your notebook. It is included by default in Agent mode.";
+            return "The AI will be able to read all of the code and markdown in your notebook. It is included by default.";
         } else if (type === 'active_cell') {
             return "The AI will write its code based on the currently active cell. It is included by default in Chat mode.";
         } else if (type === 'cell') {

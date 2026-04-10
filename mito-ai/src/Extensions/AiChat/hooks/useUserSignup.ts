@@ -4,7 +4,12 @@
  */
 
 import { useState } from 'react';
-import { getUserKey, getChatHistoryThreads, getChatHistoryThread } from '../../../restAPI/RestAPI';
+import {
+    fetchGithubCopilotLoginStatus,
+    getUserKey,
+    getChatHistoryThreads,
+    getChatHistoryThread
+} from '../../../restAPI/RestAPI';
 
 /**
  * Determines if a user should be considered "signed up" based on:
@@ -26,6 +31,16 @@ const isUserSignedUp = async (): Promise<boolean> => {
         if (isEnterprise === 'True') return true;
     } catch (error) {
         console.error('Failed to check enterprise status:', error);
+    }
+
+    try {
+        // GitHub Copilot helper: no email gate; Copilot sign-in is handled in the chat UI.
+        const copilotStatus = await fetchGithubCopilotLoginStatus();
+        if (copilotStatus !== null) {
+            return true;
+        }
+    } catch (error) {
+        console.error('Failed to check GitHub Copilot server mode:', error);
     }
 
     try {

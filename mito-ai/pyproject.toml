@@ -48,6 +48,7 @@ dependencies = [
     "google-genai",
     "anthropic>=0.6.81",
     "litellm",
+    "sseclient-py>=1.8.0",
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
