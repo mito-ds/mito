@@ -128,8 +128,7 @@ export const Toolbar = (
                             </div>
                         </div> :
                         <div className='mito-toolbar-save-indicator' title='All changes are saved automatically.'>
-                            <p>Saved</p>
-                            <CheckmarkIcon />
+                            <p>Auto Save</p>
                         </div>
                     }
                     <ToolbarButton
