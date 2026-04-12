@@ -33,7 +33,12 @@ class ToolResult:
     """Which tool was run (e.g. ``cell_update``, ``scratchpad``), when known."""
 
     error_message: Optional[str] = None
-    """Human-readable error string when *success* is False."""
+    """Human-readable error string when *success* is False.
+
+    Exception: ``get_cell_output`` from headless executors may set this to plain
+    text when *success* is True (see ``format_tool_result``) because *output*
+    is reserved for base64 PNG in the Jupyter UI path — a known model mismatch.
+    """
 
     cells: Optional[List[AIOptimizedCell]] = None
     """Snapshot of notebook cells after execution, if available."""

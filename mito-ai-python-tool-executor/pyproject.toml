@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mito-ai-python-tool-executor"
+version = "0.1.0"
+description = "In-process ipykernel-backed ToolExecutor for Mito AI (CLI and headless use)."
+license = "AGPL-3.0-only"
+requires-python = ">=3.9"
+authors = [{ name = "Saga Inc." }]
+dependencies = [
+    "mito-ai-core",
+    "nbformat>=5.0",
+    "jupyter_client>=8.0",
+    "ipykernel>=6.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["mito_ai_python_tool_executor"]
