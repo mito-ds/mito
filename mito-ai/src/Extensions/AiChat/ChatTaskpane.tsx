@@ -772,6 +772,14 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager(chatHistoryManager)
     }
 
+    const addAgentToolFailureUserMessageAndUpdateState = (
+        toolErrorDetail: string,
+        chatHistoryManager: ChatHistoryManager
+    ): void => {
+        chatHistoryManager.addAgentToolFailureUserMessage(toolErrorDetail)
+        setChatHistoryManager(chatHistoryManager)
+    }
+
     // Initialize agent execution hook
     const agentExecution = useAgentExecution({
         contextManager,
@@ -788,6 +796,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAutoScrollFollowMode,
         setHasCheckpoint,
         addAIMessageFromResponseAndUpdateState,
+        addAgentToolFailureUserMessageAndUpdateState,
         getDuplicateChatHistoryManager,
         sendAgentExecutionMessage,
         sendScratchpadResultMessage,

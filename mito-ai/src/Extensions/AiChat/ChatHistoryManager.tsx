@@ -430,6 +430,23 @@ export class ChatHistoryManager {
         );
     }
 
+    /**
+     * Tool results belong in the conversation as user messages (same as other tool I/O)
+     */
+    addAgentToolFailureUserMessage(toolErrorDetail: string): void {
+        const userMessage: OpenAI.Chat.ChatCompletionMessageParam = {
+            role: 'user',
+            content: `${toolErrorDetail}`,
+        };
+        const activeCellID = getActiveCellID(this.notebookTracker);
+        this.displayOptimizedChatHistory.push({
+            message: userMessage,
+            type: 'openai message',
+            codeCellID: activeCellID,
+            promptType: 'agent:execution',
+        });
+    }
+
     getLastAIMessageIndex = (): number | undefined => {
         // We assume that assistant messages are always separated by user messages.
         // This allows us to simply find the last assistant message in the history.

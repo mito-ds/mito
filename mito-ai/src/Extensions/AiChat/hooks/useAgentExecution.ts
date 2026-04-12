@@ -54,6 +54,10 @@ interface UseAgentExecutionProps {
         mitoAIConnectionError?: boolean,
         mitoAIConnectionErrorType?: string | null
     ) => void;
+    addAgentToolFailureUserMessageAndUpdateState: (
+        toolErrorDetail: string,
+        chatHistoryManager: ChatHistoryManager
+    ) => void;
     getDuplicateChatHistoryManager: () => ChatHistoryManager;
     sendAgentExecutionMessage: (
         input: string,
@@ -127,6 +131,7 @@ export const useAgentExecution = ({
     setAutoScrollFollowMode,
     setHasCheckpoint,
     addAIMessageFromResponseAndUpdateState,
+    addAgentToolFailureUserMessageAndUpdateState,
     getDuplicateChatHistoryManager,
     sendAgentExecutionMessage,
     sendScratchpadResultMessage,
@@ -445,9 +450,8 @@ export const useAgentExecution = ({
         // For something like the scratchpad result, we want to display it!
 
         if (!msg.tool_result.success && msg.tool_result.error_message) {
-            addAIMessageFromResponseAndUpdateState(
-                `Tool failed: ${msg.tool_result.error_message}`,
-                'agent:execution',
+            addAgentToolFailureUserMessageAndUpdateState(
+                msg.tool_result.error_message,
                 chatHistoryManagerRef.current
             );
         }
@@ -455,7 +459,7 @@ export const useAgentExecution = ({
         activeThreadIdRef,
         shouldContinueAgentExecution,
         setLoadingStatus,
-        addAIMessageFromResponseAndUpdateState,
+        addAgentToolFailureUserMessageAndUpdateState,
         chatHistoryManagerRef,
     ]);
 
