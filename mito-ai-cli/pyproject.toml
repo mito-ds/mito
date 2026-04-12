@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mito-ai-cli"
+version = "0.1.0"
+description = "Command-line runner for Mito AI agent (notebook output)."
+license = "AGPL-3.0-only"
+requires-python = ">=3.9"
+authors = [{ name = "Saga Inc." }]
+dependencies = [
+    "mito-ai-core",
+    "mito-ai-python-tool-executor",
+]
+
+[project.scripts]
+mito-ai = "mito_ai_cli.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mito_ai_cli"]
