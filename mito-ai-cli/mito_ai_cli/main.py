@@ -7,25 +7,36 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 import sys
 import traceback
 from typing import Any, List, Optional
 
 from openai.types.chat import ChatCompletionMessageParam
 
-from mito_ai_core.agent import AgentContext, AgentRunResult, ToolResult
+from mito_ai_core.agent import AgentContext, ToolResult
 from mito_ai_core.agent.agent_runner import AgentRunner
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import AgentResponse, MessageType
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_python_tool_executor import PythonToolExecutor, cells_to_notebook, save_notebook
 
+from mito_ai_cli.terminal import (
+    BOLD,
+    CYAN,
+    DIM,
+    RED,
+    YELLOW,
+    stylize,
+    truncate_prompt_preview,
+)
+
 
 class ProviderAdapter:
     """Adapts :class:`ProviderManager` to :class:`CompletionProvider` (keyword-only API)."""
 
-    def __init__(self, pm: ProviderManager) -> None:
-        self._pm = pm
+    def __init__(self, llm: ProviderManager) -> None:
+        self._llm = llm
 
     async def request_completions(
         self,
@@ -35,7 +46,7 @@ class ProviderAdapter:
         response_format_info: Optional[Any] = None,
         **kwargs: Any,
     ) -> str:
-        return await self._pm.request_completions(
+        return await self._llm.request_completions(
             message_type=message_type,
             messages=messages,
             response_format_info=response_format_info,
@@ -70,18 +81,78 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _print_assistant_step(response: AgentResponse) -> None:
-    line = f"[agent] {response.type}: {response.message}"
-    print(line, file=sys.stderr)
+    if response.type == "finished_task":
+        print("", file=sys.stderr)
+        print(stylize("RESULT", BOLD, YELLOW), file=sys.stderr)
+        print("", file=sys.stderr)
+        for line in response.message.splitlines():
+            print(f"{line}", file=sys.stderr)
+        
+        print("", file=sys.stderr)
+
+        if response.next_steps:
+            line = f"Suggested next steps:"
+            print(stylize(line, DIM), file=sys.stderr)
+            for step in response.next_steps:
+                line = f"- {step}"
+                print(stylize(line, DIM), file=sys.stderr)
+        return
+
+    print("", file=sys.stderr)
+
+    prefix = stylize("[agent]", BOLD, CYAN)
+    text = response.message or ""
+    body = f" {text}"
+    print(prefix + body, file=sys.stderr)
+    
     if response.next_steps:
         for step in response.next_steps:
-            print(f"  next: {step}", file=sys.stderr)
+            line = f"  next: {step}"
+            print(stylize(line, DIM), file=sys.stderr)
 
 
 def _print_tool_result(tool_result: ToolResult) -> None:
     name = tool_result.tool_name or "?"
-    print(f"[tool] {name} ok={tool_result.success}", file=sys.stderr)
+    line = f"[tool] {name} ok={tool_result.success}"
+    print(f"{stylize(line, DIM)}", file=sys.stderr)
     if tool_result.error_message:
-        print(f"  detail: {tool_result.error_message}", file=sys.stderr)
+        detail = stylize(f"    detail: {tool_result.error_message}", DIM, RED)
+        print(detail, file=sys.stderr)
+        
+
+def _print_agent_startup_message(prompt: str) -> None:
+    line1 = stylize("Spinning up agent…", BOLD, CYAN)
+    print(line1, file=sys.stderr)
+    preview = truncate_prompt_preview(prompt, 60)
+    line2 = stylize(f"Task: {preview}", DIM)
+    print(line2, file=sys.stderr)
+
+
+def _collect_paths_from_tool_extra(extra: Optional[dict[str, Any]]) -> List[str]:
+    if not extra:
+        return []
+    out: List[str] = []
+    for key in ("output_paths", "artifact_paths"):
+        raw = extra.get(key)
+        if isinstance(raw, (list, tuple)):
+            for p in raw:
+                if isinstance(p, str) and p.strip():
+                    ap = os.path.abspath(os.path.expanduser(p.strip()))
+                    if ap not in out:
+                        out.append(ap)
+    return out
+
+
+def _print_outputs_section(paths: List[str]) -> None:
+    """Highlight saved files so terminals can linkify paths."""
+    if not paths:
+        return
+    print("", file=sys.stderr)
+    print(stylize("OUTPUTS", BOLD, YELLOW), file=sys.stderr)
+    print("", file=sys.stderr)
+    for p in paths:
+        print(stylize(p, DIM), file=sys.stderr)
+    print("", file=sys.stderr)
 
 
 async def _async_main(args: argparse.Namespace) -> int:
@@ -94,14 +165,19 @@ async def _async_main(args: argparse.Namespace) -> int:
         llm.set_selected_model(args.model)
 
     tool_executor = PythonToolExecutor()
+    artifact_paths_from_tools: List[str] = []
+
+    provider = ProviderAdapter(llm)
 
     async def on_assistant(response: AgentResponse) -> None:
         _print_assistant_step(response)
 
     async def on_tool(tool_result: ToolResult) -> None:
         _print_tool_result(tool_result)
-
-    provider = ProviderAdapter(llm)
+        for p in _collect_paths_from_tool_extra(tool_result.extra):
+            if p not in artifact_paths_from_tools:
+                artifact_paths_from_tools.append(p)
+                
     runner = AgentRunner(
         provider=provider,
         tool_executor=tool_executor,
@@ -121,7 +197,8 @@ async def _async_main(args: argparse.Namespace) -> int:
     )
 
     try:
-        result: AgentRunResult = await runner.run(
+        _print_agent_startup_message(args.prompt)
+        await runner.run(
             ctx,
             args.prompt,
             on_assistant_response=on_assistant,
@@ -135,14 +212,17 @@ async def _async_main(args: argparse.Namespace) -> int:
     finally:
         tool_executor.shutdown()
 
-    print(
-        f"[done] finished={result.finished} iterations={result.iterations}",
-        file=sys.stderr,
-    )
-
     nb = cells_to_notebook(ctx.cells)
     save_notebook(nb, args.output)
-    print(args.output)
+
+    notebook_abs = os.path.abspath(os.path.expanduser(args.output))
+    output_paths = [notebook_abs]
+    for p in artifact_paths_from_tools:
+        if p != notebook_abs and p not in output_paths:
+            output_paths.append(p)
+
+    _print_outputs_section(output_paths)
+
     return 0
 
 

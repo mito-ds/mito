@@ -106,8 +106,6 @@ class OpenAIClient:
         llm_api_key = None
 
         if is_azure_openai_configured():
-            self.log.debug(f"Using Azure OpenAI with model: {constants.AZURE_OPENAI_MODEL}")
-
             # The format for using Azure OpenAI is different than using
             # other providers, so we have a special case for it here.
             # Create Azure OpenAI client with explicit arguments
@@ -122,16 +120,12 @@ class OpenAIClient:
         elif is_abacus_configured():
             base_url = constants.ABACUS_BASE_URL
             llm_api_key = constants.ABACUS_API_KEY
-            self.log.debug(f"Using Abacus AI with base URL: {constants.ABACUS_BASE_URL}")
         elif constants.OLLAMA_MODEL:
             base_url = constants.OLLAMA_BASE_URL
             llm_api_key = "ollama"
-            self.log.debug(f"Using Ollama with model: {constants.OLLAMA_MODEL}")
         elif constants.OPENAI_API_KEY:
             llm_api_key = constants.OPENAI_API_KEY
-            self.log.debug("Using OpenAI with user-provided API key")
         else:
-            self.log.warning("No valid API key or model configuration provided")
             return None
 
         # Create the client with explicit arguments to satisfy type checking
