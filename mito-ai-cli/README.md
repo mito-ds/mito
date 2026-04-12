@@ -25,7 +25,7 @@ mito-ai --help
 Run a task and write the notebook:
 
 ```bash
-mito-ai run "Describe your task" -o out.ipynb
+mito-ai run "What was the average Week over week change in META stock price? Use this data https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/meta_stock_prices.csv" -o out.ipynb
 ```
 
 Optional model override (must be an allowed model):
