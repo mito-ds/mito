@@ -1,0 +1,72 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Branded strip shown beside graph outputs (Plotly, Matplotlib widget, Vega, Bokeh, PNG/SVG, etc.) */
+
+.jp-OutputArea-child.jp-MitoGraphToolbar-host {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+}
+
+.jp-MitoGraphToolbar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 52px;
+  padding: 10px 8px;
+  cursor: pointer;
+  border-radius: 14px;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--jp-brand-color1, #1976d2) 12%, var(--jp-layout-color1, #fff)) 0%,
+    color-mix(in srgb, var(--jp-layout-color2, #f0f0f0) 90%, var(--jp-brand-color1, #1976d2) 10%) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--jp-brand-color1, #1976d2) 28%, var(--jp-border-color1, #ccc));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #fff 55%, transparent) inset,
+    0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.jp-MitoGraphToolbar-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.jp-MitoGraphToolbar-logo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--jp-brand-color1, #1976d2);
+  line-height: 1.1;
+}
+
+.jp-MitoGraphToolbar-tag {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--jp-content-font-color2, #666) 85%, var(--jp-brand-color1, #1976d2));
+  opacity: 0.95;
+}
+
+body[data-jp-theme-light='false'] .jp-MitoGraphToolbar {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--jp-brand-color1, #64b5f6) 18%, var(--jp-layout-color0, #111)) 0%,
+    color-mix(in srgb, var(--jp-layout-color1, #1a1a1a) 92%, var(--jp-brand-color1, #64b5f6) 8%) 100%
+  );
+  border-color: color-mix(in srgb, var(--jp-brand-color1, #64b5f6) 35%, var(--jp-border-color1, #444));
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+
+body[data-jp-theme-light='false'] .jp-MitoGraphToolbar-logo {
+  color: color-mix(in srgb, var(--jp-brand-color1, #90caf9) 90%, #fff);
+}

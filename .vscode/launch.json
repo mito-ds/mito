@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Mitosheet VSCode: Extension (open demo notebook)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/mitosheet-vscode",
+        "${workspaceFolder}/mitosheet/cursor_mito_notebook.ipynb"
+      ]
+    }
+  ]
+}

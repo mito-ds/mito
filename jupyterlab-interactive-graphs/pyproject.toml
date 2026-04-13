@@ -1,0 +1,63 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
+[build-system]
+requires = [
+    "hatchling>=1.27.0",
+    "jupyterlab>=4.0.0,<5",
+    "hatch-jupyter-builder>=0.5",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "jupyterlab-interactive-graphs"
+version = "0.3.0"
+description = "JupyterLab extension: interactive Plotly outputs; optional Matplotlib via ipympl (widget backend)"
+readme = "README.md"
+license = { text = "GNU Affero General Public License v3.0" }
+requires-python = ">=3.9"
+classifiers = [
+    "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab",
+    "Framework :: Jupyter :: JupyterLab :: 4",
+    "Framework :: Jupyter :: JupyterLab :: Extensions",
+    "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "jupyterlab>=4.0.0,<5",
+]
+
+[project.optional-dependencies]
+matplotlib = [
+    "matplotlib>=3.5",
+    "ipympl>=0.9.3",
+]
+dev = [
+    "build",
+    "twine",
+]
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["jupyterlab_interactive_graphs/labextension"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"jupyterlab_interactive_graphs/labextension" = "share/jupyter/labextensions/jupyterlab-interactive-graphs"
+
+[tool.hatch.build.hooks.jupyter-builder]
+dependencies = ["hatch-jupyter-builder>=0.5"]
+build-function = "hatch_jupyter_builder.npm_builder"
+ensured-targets = [
+    "jupyterlab_interactive_graphs/labextension/package.json",
+]
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+build_cmd = "build:labextension"
+npm = ["jlpm"]
+
+[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+build_cmd = "build:labextension:dev"
+npm = ["jlpm"]
+source_dir = "src"
+build_dir = "jupyterlab_interactive_graphs/labextension"

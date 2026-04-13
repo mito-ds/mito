@@ -1,4 +1,5 @@
 {
+    "python.defaultInterpreterPath": "${workspaceFolder}/mitosheet/venv/bin/python",
     "python.analysis.typeCheckingMode": "basic",
     "mypy-type-checker.args": [
         "--config-file=mypy.ini"

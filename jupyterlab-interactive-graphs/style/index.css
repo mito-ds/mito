@@ -1,0 +1,134 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Requires .jp-InteractiveGraphs-mplToolbar (added at runtime by plugin.ts) */
+
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar {
+  --jp-igl-toolbar-bg: color-mix(in srgb, var(--jp-layout-color1, #fff) 88%, transparent);
+  --jp-igl-toolbar-edge: color-mix(in srgb, var(--jp-border-color1, #ccc) 55%, transparent);
+  --jp-igl-btn-bg: color-mix(in srgb, var(--jp-layout-color1, #fff) 94%, var(--jp-layout-color3, #e0e0e0));
+  --jp-igl-btn-hover: color-mix(in srgb, var(--jp-layout-color2, #f5f5f5) 90%, var(--jp-brand-color1, #1976d2) 8%);
+  --jp-igl-icon: color-mix(in srgb, var(--jp-content-font-color1, #111) 92%, transparent);
+  --jp-igl-accent: var(--jp-brand-color1, #1976d2);
+  --jp-igl-accent-soft: color-mix(in srgb, var(--jp-brand-color1, #1976d2) 22%, transparent);
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  padding: 10px !important;
+  margin: 0 !important;
+  border-radius: 16px !important;
+  background: linear-gradient(
+    165deg,
+    var(--jp-igl-toolbar-bg) 0%,
+    color-mix(in srgb, var(--jp-layout-color2, #eee) 75%, transparent) 100%
+  ) !important;
+  border: 1px solid var(--jp-igl-toolbar-edge) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--jp-inverse-layout-color0, #fff) 40%, transparent) inset,
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 12px 28px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(10px) saturate(1.2);
+  z-index: 100;
+}
+
+/* Every toolbar control */
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar .jupyter-matplotlib-button,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button.jupyter-widgets.jupyter-button,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar > .p-Widget > button {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--jp-igl-toolbar-edge) !important;
+  background: linear-gradient(180deg, var(--jp-igl-btn-bg) 0%, var(--jp-layout-color1, #fff) 100%) !important;
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--jp-inverse-layout-color0, #fff) 55%, transparent) inset,
+    0 1px 2px rgba(0, 0, 0, 0.06) !important;
+  color: var(--jp-igl-icon) !important;
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.12s ease,
+    border-color 0.18s ease,
+    color 0.18s ease !important;
+}
+
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar .jupyter-matplotlib-button:hover,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button.jupyter-widgets.jupyter-button:hover {
+  background: linear-gradient(180deg, var(--jp-igl-btn-hover) 0%, var(--jp-layout-color1, #fff) 100%) !important;
+  border-color: color-mix(in srgb, var(--jp-igl-accent) 35%, var(--jp-igl-toolbar-edge)) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 4px 14px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar .jupyter-matplotlib-button:active,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button.jupyter-widgets.jupyter-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) inset !important;
+}
+
+/* Toggled tools (pan / zoom / etc.) */
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar .jupyter-matplotlib-button.mod-active,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button.jupyter-widgets.jupyter-button.mod-active,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar .jupyter-matplotlib-button.jp-mod-active,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button[aria-pressed='true'] {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--jp-igl-accent) 88%, #fff) 0%,
+    var(--jp-igl-accent) 100%
+  ) !important;
+  border-color: color-mix(in srgb, var(--jp-igl-accent) 70%, #000) !important;
+  color: var(--jp-ui-inverse-font-color1, #fff) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #fff 25%, transparent) inset,
+    0 6px 16px var(--jp-igl-accent-soft) !important;
+}
+
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar .jupyter-matplotlib-button.mod-active:hover,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button.jupyter-widgets.jupyter-button.mod-active:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+/* Matplotlib SVG icons */
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar .jupyter-matplotlib-button svg,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button.jupyter-widgets.jupyter-button svg {
+  width: 20px !important;
+  height: 20px !important;
+  opacity: 0.94;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.35));
+}
+
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar .jupyter-matplotlib-button.mod-active svg,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button.jupyter-widgets.jupyter-button.mod-active svg,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button[aria-pressed='true'] svg {
+  opacity: 1;
+  filter: brightness(0) invert(1) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+/* Keyboard focus */
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar .jupyter-matplotlib-button:focus-visible,
+.jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar button.jupyter-widgets.jupyter-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--jp-igl-accent) 65%, transparent);
+  outline-offset: 2px;
+}
+
+/* Dark theme: JupyterLab sets data-jp-theme-light on <body> */
+body[data-jp-theme-light='false'] .jp-InteractiveGraphs-mplToolbar.jupyter-matplotlib-toolbar {
+  --jp-igl-toolbar-bg: color-mix(in srgb, var(--jp-layout-color0, #111) 92%, transparent);
+  --jp-igl-btn-bg: color-mix(in srgb, var(--jp-layout-color1, #1e1e1e) 85%, var(--jp-layout-color3, #333));
+  --jp-igl-btn-hover: color-mix(in srgb, var(--jp-layout-color2, #2a2a2a) 88%, var(--jp-brand-color1, #64b5f6) 12%);
+  --jp-igl-icon: color-mix(in srgb, var(--jp-content-font-color1, #eee) 94%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #fff 8%, transparent) inset,
+    0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}

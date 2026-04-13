@@ -1,0 +1,49 @@
+{
+    "name": "jupyterlab-interactive-graphs",
+    "version": "0.3.0",
+    "description": "Interactive Plotly graph outputs (hover + selection) in JupyterLab notebooks",
+    "keywords": [
+        "jupyter",
+        "jupyterlab",
+        "jupyterlab-extension",
+        "plotly"
+    ],
+    "license": "AGPL-3.0-only",
+    "author": {
+        "name": "Mito"
+    },
+    "files": [
+        "lib/**/*.{js,js.map,d.ts}",
+        "src/**/*.ts",
+        "style/**/*.css"
+    ],
+    "style": "style/index.css",
+    "main": "lib/plugin.js",
+    "types": "lib/plugin.d.ts",
+    "scripts": {
+        "build:lib": "tsc",
+        "build:labextension": "tsc && jupyter labextension build .",
+        "build:labextension:dev": "tsc && jupyter labextension build --development True .",
+        "clean": "rimraf lib tsconfig.tsbuildinfo jupyterlab_interactive_graphs/labextension",
+        "watch:src": "tsc -w",
+        "watch:labextension": "jupyter labextension watch ."
+    },
+    "dependencies": {
+        "@jupyterlab/application": "^4.3.0",
+        "@jupyterlab/notebook": "^4.3.0",
+        "@jupyterlab/rendermime-interfaces": "^3.11.0",
+        "@lumino/widgets": "^2.3.0",
+        "plotly.js-dist-min": "^2.35.2"
+    },
+    "devDependencies": {
+        "@jupyterlab/builder": "^4.3.0",
+        "@types/plotly.js": "^2.33.0",
+        "rimraf": "^5.0.5",
+        "typescript": "~5.4.5"
+    },
+    "jupyterlab": {
+        "outputDir": "jupyterlab_interactive_graphs/labextension",
+        "extension": "lib/plugin",
+        "mimeExtension": "lib/plotlyRenderer"
+    }
+}

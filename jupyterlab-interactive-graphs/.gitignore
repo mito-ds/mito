@@ -1,0 +1,7 @@
+node_modules/
+lib/
+tsconfig.tsbuildinfo
+jupyterlab_interactive_graphs/labextension/
+*.egg-info/
+dist/
+__pycache__/

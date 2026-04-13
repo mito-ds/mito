@@ -32,3 +32,17 @@ When executing validation steps:
 - Always check app is running before validation
 - For frontend changes: wait for build, refresh browser
 - For backend changes: restart server if needed, reload page
+
+## Mitosheet rebuilds (agent runs these—do not tell the user to)
+
+After **any** change under `mitosheet/` that affects the TypeScript frontend, CSS, or Jupyter extension bundle, **always** run the Jupyter rebuild yourself at the **end of that task** (same shell session is fine), unless the user explicitly says to skip builds.
+
+**Default (JupyterLab):** from `mitosheet/` run:
+
+`jlpm run build:jupyter`
+
+That runs `build:lib` and `jupyter labextension build .` in one step. Use the same `jlpm`/Python environment the repo uses (e.g. project venv if present).
+
+If you also changed VS Code–specific bundles or the user is clearly using **Cursor/VS Code notebooks** for Mito, additionally run from `mitosheet/`: `jlpm run build:vscode`.
+
+Do not end a mitosheet UI/CSS task without running the relevant builds unless builds already failed and you are blocked—then say what failed and fix or retry.
