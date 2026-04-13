@@ -21,7 +21,7 @@ class CellUpdate(BaseModel):
     after_cell_id: Optional[str] = None
     id: Optional[str] = None
     code: str
-    code_summary: str
+    code_summary: str = "Updating cell"
     cell_type: Optional[Literal['code', 'markdown']] = None
 
 

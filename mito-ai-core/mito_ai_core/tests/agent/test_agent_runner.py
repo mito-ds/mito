@@ -268,6 +268,35 @@ class TestToolDispatch:
         assert executor.calls[0][0] == "execute_cell_update"
 
     @pytest.mark.asyncio
+    async def test_cell_update_missing_code_summary_uses_default_and_dispatches(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json(
+                "cell_update",
+                message="Adding code.",
+                cell_update={
+                    "type": "modification",
+                    "id": "cell-1",
+                    "after_cell_id": None,
+                    "code": "import numpy as np",
+                    "cell_type": "code",
+                },
+            ),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert result.iterations == 2
+        assert len(executor.calls) == 1
+        assert executor.calls[0][0] == "execute_cell_update"
+        cell_update = executor.calls[0][1]["cell_update"]
+        assert cell_update.code_summary == "Updating cell"
+
+    @pytest.mark.asyncio
     async def test_run_all_cells_dispatched(self) -> None:
         provider = FakeProviderManager([
             _agent_response_json("run_all_cells", message="Running all cells."),
@@ -531,9 +560,8 @@ class TestMalformedPayloadRecovery:
                 "cell_update": {
                     "type": "modification",
                     "id": "cell-1",
-                    "code": "print('hi')",
                     "cell_type": "code",
-                    # Intentionally omit code_summary to trigger validation error.
+                    # Intentionally omit required code to trigger validation error.
                 },
             }
         )
