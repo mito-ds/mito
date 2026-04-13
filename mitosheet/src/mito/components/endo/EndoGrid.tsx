@@ -3,11 +3,11 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import '../../../../css/endo/EndoGrid.css';
 import '../../../../css/sitewide/colors.css';
 import { MitoAPI } from "../../api/api";
-import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection, AnalysisData } from "../../types";
+import { EditorState, Dimension, GridState, RendererTranslate, SheetData, SheetView, UIState, MitoSelection, AnalysisData, UserProfile } from "../../types";
 import FormulaBar from "./FormulaBar";
 import { TaskpaneType } from "../taskpanes/taskpanes";
 import { getCellEditorInputCurrentSelection, getStartingFormula } from "./celleditor/cellEditorUtils";
@@ -26,6 +26,8 @@ import { SendFunctionStatus } from "../../api/send";
 import { SearchBar } from "../SearchBar";
 import { Actions } from "../../utils/actions";
 import { getOperatingSystem } from "../../utils/keyboardShortcuts";
+import { getSelectionFloatStyle } from "./selectionFloatUtils";
+import { SelectionFloatActions } from "./SelectionFloatActions";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -99,6 +101,7 @@ function EndoGrid(props: {
     sendFunctionStatus: SendFunctionStatus;
     analysisData: AnalysisData;
     actions: Actions;
+    userProfile: UserProfile;
 }): JSX.Element {
 
     // The container for the entire EndoGrid
@@ -136,9 +139,73 @@ function EndoGrid(props: {
         return calculateTranslate(gridState);
     }, [gridState])
 
-    /* 
+    const [visualizeFloatStyle, setVisualizeFloatStyle] = useState<
+        React.CSSProperties | undefined
+    >(undefined);
+
+    const updateVisualizeFloatPosition = useCallback(() => {
+        if (!props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION) {
+            setVisualizeFloatStyle(undefined);
+            return;
+        }
+        if (sheetData === undefined || editorState !== undefined) {
+            setVisualizeFloatStyle(undefined);
+            return;
+        }
+        const lastSelection = gridState.selections[gridState.selections.length - 1];
+        if (lastSelection === undefined) {
+            setVisualizeFloatStyle(undefined);
+            return;
+        }
+        setVisualizeFloatStyle(
+            getSelectionFloatStyle(
+                gridState,
+                sheetData,
+                scrollAndRenderedContainerRef.current,
+                containerRef.current,
+                lastSelection
+            )
+        );
+    }, [editorState, gridState, sheetData]);
+
+    useLayoutEffect(() => {
+        updateVisualizeFloatPosition();
+    }, [updateVisualizeFloatPosition]);
+
+    useEffect(() => {
+        if (sheetData === undefined || editorState !== undefined) {
+            return;
+        }
+        const scrollEl = scrollAndRenderedContainerRef.current;
+        const onScrollOrResize = () => {
+            updateVisualizeFloatPosition();
+        };
+        window.addEventListener("resize", onScrollOrResize);
+        scrollEl?.addEventListener("scroll", onScrollOrResize, { passive: true });
+        return () => {
+            window.removeEventListener("resize", onScrollOrResize);
+            scrollEl?.removeEventListener("scroll", onScrollOrResize);
+        };
+    }, [sheetData, editorState, updateVisualizeFloatPosition]);
+
+    const onVisualizeClick = useCallback(() => {
+        if (sheetData === undefined) {
+            return;
+        }
+        const columnIndexes = getColumnIndexesInSelections(gridState.selections)
+            .filter(i => i >= 0);
+        if (columnIndexes.length === 0) {
+            return;
+        }
+        setUIState(prev => ({
+            ...prev,
+            currOpenTaskpane: { type: TaskpaneType.SUGGESTED_VISUALIZATIONS, columnIndices: columnIndexes },
+        }));
+    }, [sheetData, gridState.selections, setUIState]);
+
+    /*
         An effect that handles the sheet data changing, in which case
-        we have to perform a reconciliation of width data, as well 
+        we have to perform a reconciliation of width data, as well
         as the selection
 
         Columns may have been deleted or added. We need to make sure that
@@ -805,6 +872,25 @@ function EndoGrid(props: {
                         mitoContainerRef={props.mitoContainerRef}
                     />
                 }
+                {sheetData !== undefined &&
+                    editorState === undefined &&
+                    props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION &&
+                    visualizeFloatStyle !== undefined && (
+                    <div
+                        className="mito-endo-grid__selection-float"
+                        style={visualizeFloatStyle}
+                    >
+                        <SelectionFloatActions>
+                            <button
+                                type="button"
+                                className="mito-endo-grid__selection-action"
+                                onClick={onVisualizeClick}
+                            >
+                                Visualize
+                            </button>
+                        </SelectionFloatActions>
+                    </div>
+                )}
             </div>
             {uiState.currOpenSearch.isOpen &&
                 <SearchBar

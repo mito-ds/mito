@@ -571,16 +571,19 @@ export class MitoAPI {
     }
 
     /**
-     * LLM chart suggestions for the active sheet (column indices match backend dataframe column order).
+     * LLM chart suggestions. Pass columnIndices to restrict suggestions to a
+     * specific selection; omit (or pass undefined) for whole-sheet suggestions.
      */
     async getChartSuggestions(
         sheetIndex: number,
+        columnIndices?: number[],
     ): Promise<MitoAPIResult<AIChartSuggestionsResult>> {
         return await this.send<AIChartSuggestionsResult>({
             'event': 'api_call',
             'type': 'get_chart_suggestions',
             'params': {
                 'sheet_index': sheetIndex,
+                ...(columnIndices !== undefined ? { 'column_indices': columnIndices } : {}),
             },
         })
     }
