@@ -977,7 +977,13 @@ export interface UIState {
     }
     currOpenSearch: SearchInfo;
     dataRecon: AIRecon | undefined,
-    taskpaneWidth: number
+    taskpaneWidth: number;
+    /** Transient: rows (data indices) playing delete exit animation before backend delete */
+    gridRowExitAnimation?: { sheetIndex: number; rowIndices: number[] };
+    /** Transient: column index playing add enter animation after backend insert */
+    gridColumnEnterAnimation?: { sheetIndex: number; columnIndex: number };
+    /** Transient: column indices playing delete exit before backend delete */
+    gridColumnExitAnimation?: { sheetIndex: number; columnIndices: number[] };
 }
 
 export interface SearchInfo {

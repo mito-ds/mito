@@ -89,6 +89,7 @@ import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNe
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
+import { scheduleAnimatedColumnEnter } from './gridColumnEnterAnimation';
 import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
 import SelectDataIcon from "../components/icons/GraphToolbar/SelectDataIcon";
 import HexagonAIIcon from "../components/icons/HexagonAI";
@@ -210,6 +211,8 @@ export const getActions = (
                     newColumnHeaderIndex
                 )
 
+                scheduleAnimatedColumnEnter(setUIState, sheetIndex, newColumnHeaderIndex);
+
                 setGridState(prevGridState => {
                     return {
                         ...prevGridState,
@@ -256,6 +259,8 @@ export const getActions = (
                     newColumnHeader,
                     newColumnHeaderIndex
                 )
+
+                scheduleAnimatedColumnEnter(setUIState, sheetIndex, newColumnHeaderIndex);
 
                 setGridState(prevGridState => {
                     return {

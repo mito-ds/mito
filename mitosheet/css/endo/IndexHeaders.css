@@ -32,6 +32,32 @@
 }
 
 
+/* Duplicated name so this file works if bundled without GridData.css order guarantees */
+@keyframes mito-row-delete-exit {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-14px);
+        filter: saturate(0.55);
+    }
+}
+
+.index-header-container.mito-index-row-exit {
+    pointer-events: none;
+    animation: mito-row-delete-exit 0.55s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .index-header-container.mito-index-row-exit {
+        animation: none;
+        opacity: 0;
+    }
+}
+
 .index-header-container:hover {
     background-color: var(--mito-highlight-light);
 }

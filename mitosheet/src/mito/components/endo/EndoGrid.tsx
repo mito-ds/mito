@@ -16,7 +16,9 @@ import EmptyGridMessages from "./EmptyGridMessages";
 import { focusGrid } from "./focusUtils";
 import GridData from "./GridData";
 import IndexHeaders from "./IndexHeaders";
-import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, getSelectedRowLabelsWithEntireSelectedRow, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, isSelectionsOnlyIndexHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
+import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, getSelectedEntireRowDataIndexes, getSelectedRowLabelsWithEntireSelectedRow, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, isSelectionsOnlyIndexHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
+import { scheduleAnimatedColumnDelete } from "../../utils/gridMicroAnimations";
+import { scheduleAnimatedRowDelete } from "../../utils/gridRowDeleteAnimation";
 import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
@@ -674,16 +676,19 @@ function EndoGrid(props: {
 
                         if (columnIDsToDelete !== undefined) {
                             props.closeOpenEditingPopups();
-                            void mitoAPI.editDeleteColumn(
-                                sheetIndex,
-                                columnIDsToDelete
-                            )
+                            scheduleAnimatedColumnDelete(setUIState, sheetIndex, columnIndexesSelected, () =>
+                                mitoAPI.editDeleteColumn(sheetIndex, columnIDsToDelete)
+                            );
                         }
 
                         return;
                     } else if (isSelectionsOnlyIndexHeaders(gridState.selections)) {
                         // Similarly, if the user has only index headers selected, we can delete them
-                        void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData));
+                        const labels = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                        const rowIndices = getSelectedEntireRowDataIndexes(gridState.selections, sheetData);
+                        scheduleAnimatedRowDelete(setUIState, sheetIndex, rowIndices, () =>
+                            props.mitoAPI.editDeleteRow(props.sheetIndex, labels)
+                        );
                         return;
                     }
                     

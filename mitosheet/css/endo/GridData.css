@@ -4,10 +4,61 @@
  */
 
 
+@keyframes mito-row-delete-exit {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-14px);
+        filter: saturate(0.55);
+    }
+}
+
+@keyframes mito-column-enter {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+        filter: saturate(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+}
+
+@keyframes mito-column-delete-exit {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-18px);
+        filter: saturate(0.5);
+    }
+}
+
 /* Row */
 .mito-grid-row {
     display: flex;
     user-select: none;
+}
+
+.mito-grid-row.mito-grid-row-exit {
+    pointer-events: none;
+    animation: mito-row-delete-exit 0.55s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mito-grid-row.mito-grid-row-exit {
+        animation: none;
+        opacity: 0;
+    }
 }
 
 
@@ -27,6 +78,25 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.mito-grid-cell.mito-grid-column-enter {
+    animation: mito-column-enter 0.6s ease both;
+}
+
+.mito-grid-cell.mito-grid-column-exit {
+    pointer-events: none;
+    animation: mito-column-delete-exit 0.55s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mito-grid-cell.mito-grid-column-enter {
+        animation: none;
+    }
+    .mito-grid-cell.mito-grid-column-exit {
+        animation: none;
+        opacity: 0;
+    }
 }
 
 .mito-grid-cell:hover:not(.recon) {

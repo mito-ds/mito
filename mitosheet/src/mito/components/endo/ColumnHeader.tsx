@@ -184,6 +184,9 @@ const ColumnHeader = (props: {
                 {
                     'endo-column-header-container-selected': selected,
                     'recon': isColumnCreated || isColumnRenamed,
+                    'mito-grid-column-enter':
+                        props.uiState.gridColumnEnterAnimation?.sheetIndex === props.gridState.sheetIndex &&
+                        props.uiState.gridColumnEnterAnimation?.columnIndex === props.columnIndex,
                 },
             )}
             style={{color: textColor, backgroundColor: backgroundColor}}

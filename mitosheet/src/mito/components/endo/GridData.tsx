@@ -49,19 +49,39 @@ const GridData = (props: {
                 const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
                 const columnIDs = getColumnIDsArrayFromSheetDataArray([sheetData])[0]
 
+                const exitAnim = props.uiState.gridRowExitAnimation;
+                const isRowExiting =
+                    exitAnim !== undefined &&
+                    exitAnim.sheetIndex === props.sheetIndex &&
+                    exitAnim.rowIndices.includes(rowIndex);
+
+                const colEnterAnim = props.uiState.gridColumnEnterAnimation;
+                const colExitAnim = props.uiState.gridColumnExitAnimation;
+
                 const rowClassNames = classNames('mito-grid-row', {
                     'mito-grid-row-even': rowIndex % 2 === 0,
-                    'mito-grid-row-odd': rowIndex % 2 !== 0
-                }) 
+                    'mito-grid-row-odd': rowIndex % 2 !== 0,
+                    'mito-grid-row-exit': isRowExiting,
+                })
 
-                const style = rowIndex % 2 === 0 
-                    ? {backgroundColor: evenRowBackgroundColor, color: evenRowTextColor} 
+                const style = rowIndex % 2 === 0
+                    ? {backgroundColor: evenRowBackgroundColor, color: evenRowTextColor}
                     : {backgroundColor: oddRowBackgroundColor, color: oddRowTextColor};
 
                 return (
                     <div className={rowClassNames} key={rowIndex} style={style}>
                         {Array(currentSheetView.numColumnsRendered).fill(0).map((_, _colIndex) => {
                             const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
+
+                            const isColumnEntering =
+                                colEnterAnim !== undefined &&
+                                colEnterAnim.sheetIndex === props.sheetIndex &&
+                                colEnterAnim.columnIndex === columnIndex;
+                            const isColumnExiting =
+                                colExitAnim !== undefined &&
+                                colExitAnim.sheetIndex === props.sheetIndex &&
+                                colExitAnim.columnIndices.includes(columnIndex);
+
                             const columnID = columnIDs[columnIndex]
                             const columnDtype = props.sheetData?.data[columnIndex]?.columnDtype;
                             const index = props.sheetData?.index[rowIndex] !== undefined ? props.sheetData?.index[rowIndex] : 0;
@@ -99,6 +119,8 @@ const GridData = (props: {
                                 'recon created-recon-background-color-dark': isColumnCreated && rowIndex % 2 === 0,
                                 'recon modified-recon-background-color': isColumnModified && rowIndex % 2 !== 0,
                                 'recon modified-recon-background-color-dark': isColumnModified && rowIndex % 2 === 0,
+                                'mito-grid-column-enter': isColumnEntering,
+                                'mito-grid-column-exit': isColumnExiting,
                             });
 
                             const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];
