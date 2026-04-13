@@ -12,32 +12,11 @@ from typing import List, Optional, Tuple
 from jupyter_client import KernelManager
 
 from mito_ai_core.completions.models import KernelVariable
+from mito_ai_core.kernel_variable_inspection import get_kernel_variable_inspection_script
 
-# Run in user namespace; prints JSON array of KernelVariable-like dicts.
-_VARIABLE_PROBE = """
-import json
-try:
-    from IPython import get_ipython
-    _ip = get_ipython()
-    _ns = _ip.user_ns if _ip is not None else {}
-except Exception:
-    _ns = {}
-_skip = {"In", "Out", "get_ipython"}
-_out = []
-for _name in sorted(_ns.keys()):
-    if _name.startswith("_") or _name in _skip:
-        continue
-    try:
-        _val = _ns[_name]
-        _out.append({
-            "variable_name": _name,
-            "type": type(_val).__name__,
-            "value": repr(_val)[:500],
-        })
-    except Exception:
-        pass
-print(json.dumps(_out))
-"""
+# Same script as JupyterLab VariableInspector / kernelVariableInspectionScript.ts
+# (mito_ai_core/resources/kernel_variable_inspection.txt).
+_VARIABLE_PROBE = get_kernel_variable_inspection_script()
 
 
 class KernelSession:
