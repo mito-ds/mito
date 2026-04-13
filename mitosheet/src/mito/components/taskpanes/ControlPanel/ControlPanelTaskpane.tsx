@@ -12,6 +12,7 @@ import { useDebouncedEffect } from '../../../hooks/useDebouncedEffect';
 import { useEffectOnUpdateEvent } from '../../../hooks/useEffectOnUpdateEvent';
 import { AnalysisData, EditorState, FilterGroupType, FilterType, GridState, MitoSelection, Operator, SheetData, StepType, UIState } from '../../../types';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
+import { scheduleGridSurfaceFlash } from '../../../utils/gridMicroAnimations';
 import { getCellDataFromCellIndexes } from '../../endo/utils';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
 import DefaultTaskpaneBody from '../DefaultTaskpane/DefaultTaskpaneBody';
@@ -146,6 +147,8 @@ export const ControlPanelTaskpane = (props: ControlPanelTaskpaneProps): JSX.Elem
             props.tab,
             stepID
         )
+
+        scheduleGridSurfaceFlash(props.setUIState, props.selectedSheetIndex, 'filter');
 
         setEditedFilter(true) 
     }

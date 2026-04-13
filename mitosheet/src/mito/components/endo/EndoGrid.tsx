@@ -16,15 +16,19 @@ import EmptyGridMessages from "./EmptyGridMessages";
 import { focusGrid } from "./focusUtils";
 import GridData from "./GridData";
 import IndexHeaders from "./IndexHeaders";
-import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, getSelectedRowLabelsWithEntireSelectedRow, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, isSelectionsOnlyIndexHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
-import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
+import { equalSelections, getColumnIndexesInSelections, getIndexesFromMouseEvent, getIsCellSelected, getIsHeader, getNewSelectionAfterKeyPress, getNewSelectionAfterMouseUp, getSelectedEntireRowDataIndexes, getSelectedRowLabelsWithEntireSelectedRow, isNavigationKeyPressed, isSelectionsOnlyColumnHeaders, isSelectionsOnlyIndexHeaders, reconciliateSelections, removeColumnFromSelections } from "./selectionUtils";
+import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate, gridStateForView} from "./sheetViewUtils";
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
-import { reconciliateWidthDataArray } from "./widthUtils";
+import { appendGhostColumnWidths, getWidthData, reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 import { SendFunctionStatus } from "../../api/send";
 import { SearchBar } from "../SearchBar";
+import { StreamlitAIModePopover } from "./StreamlitAIModePopover";
 import { Actions } from "../../utils/actions";
+import { classNames } from '../../utils/classNames';
+import { scheduleAnimatedColumnDelete, scheduleSelectionPulse } from '../../utils/gridMicroAnimations';
+import { scheduleAnimatedRowDelete } from "../../utils/gridRowDeleteAnimation";
 import { getOperatingSystem } from "../../utils/keyboardShortcuts";
 
 // NOTE: these should match the css
@@ -123,18 +127,28 @@ function EndoGrid(props: {
 
     const sheetData = sheetDataArray[sheetIndex];
 
+    const ghostSuggestedColumns = uiState.aiGhostSuggestedColumns?.[sheetIndex] ?? [];
+    const baseWidthForSheet =
+        gridState.widthDataArray[sheetIndex] ?? getWidthData(sheetData);
+    const layoutWidthData = useMemo(
+        () => appendGhostColumnWidths(baseWidthForSheet, ghostSuggestedColumns.length),
+        [baseWidthForSheet, ghostSuggestedColumns.length]
+    );
+
+    const gridStateView = gridStateForView(gridState, sheetIndex);
+
     const totalSize: Dimension = {
-        width: gridState.widthDataArray[gridState.sheetIndex]?.totalWidth || 0,
+        width: layoutWidthData.totalWidth,
         height: DEFAULT_HEIGHT * Math.min(sheetData?.numRows || 0, MAX_ROWS)
     }
     
     const currentSheetView: SheetView = useMemo(() => {
-        return calculateCurrentSheetView(gridState)
-    }, [gridState])
+        return calculateCurrentSheetView(gridStateView, layoutWidthData)
+    }, [gridStateView, layoutWidthData])
 
     const translate: RendererTranslate = useMemo(() => {
-        return calculateTranslate(gridState);
-    }, [gridState])
+        return calculateTranslate(gridStateView, layoutWidthData);
+    }, [gridStateView, layoutWidthData])
 
     /* 
         An effect that handles the sheet data changing, in which case
@@ -296,6 +310,13 @@ function EndoGrid(props: {
 
             // Set state so we know mouse is down
             setMouseDown(true);
+
+            // Clicking the sheet clears AI-notes list focus (otherwise the highlighted note feels "stuck").
+            setUIState((prev) =>
+                prev.streamlitAIModeFocusedId === undefined
+                    ? prev
+                    : { ...prev, streamlitAIModeFocusedId: undefined }
+            );
 
             // Update the selection
             const {rowIndex, columnIndex} = getIndexesFromMouseEvent(e);
@@ -547,6 +568,26 @@ function EndoGrid(props: {
         }
     }, [mouseDown, gridState, setGridState])
 
+    // End drag selection when the user releases the mouse anywhere (taskpane, AI note popover,
+    // etc.). Grid-only onMouseUp misses those targets, and .mito-container may stopPropagation
+    // on mouseup so a bubble listener on window would not run.
+    useEffect(() => {
+        if (!mouseDown) {
+            return;
+        }
+        const endMouseDrag = (): void => {
+            setMouseDown(false);
+        };
+        window.addEventListener('mouseup', endMouseDrag, true);
+        window.addEventListener('pointerup', endMouseDrag, true);
+        window.addEventListener('blur', endMouseDrag);
+        return () => {
+            window.removeEventListener('mouseup', endMouseDrag, true);
+            window.removeEventListener('pointerup', endMouseDrag, true);
+            window.removeEventListener('blur', endMouseDrag);
+        };
+    }, [mouseDown]);
+
     // On double click, open the cell editor on this cell
     const onDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         if (editorState !== undefined) {
@@ -607,16 +648,19 @@ function EndoGrid(props: {
 
                         if (columnIDsToDelete !== undefined) {
                             props.closeOpenEditingPopups();
-                            void mitoAPI.editDeleteColumn(
-                                sheetIndex,
-                                columnIDsToDelete
-                            )
+                            const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
+                            scheduleAnimatedColumnDelete(setUIState, sheetIndex, columnIndexesSelected, () =>
+                                mitoAPI.editDeleteColumn(sheetIndex, columnIDsToDelete)
+                            );
                         }
 
                         return;
                     } else if (isSelectionsOnlyIndexHeaders(gridState.selections)) {
-                        // Similarly, if the user has only index headers selected, we can delete them
-                        void props.mitoAPI.editDeleteRow(props.sheetIndex, getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData));
+                        const labels = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
+                        const rowIndices = getSelectedEntireRowDataIndexes(gridState.selections, sheetData);
+                        scheduleAnimatedRowDelete(setUIState, sheetIndex, rowIndices, () =>
+                            props.mitoAPI.editDeleteRow(props.sheetIndex, labels)
+                        );
                         return;
                     }
                     
@@ -661,7 +705,21 @@ function EndoGrid(props: {
 
                 // Update the selection
                 setGridState((gridState) => {
-                    const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, sheetData);
+                    const oldSelection = gridState.selections[gridState.selections.length - 1];
+                    const newSelection = getNewSelectionAfterKeyPress(oldSelection, e, sheetData);
+                    const moved =
+                        oldSelection.startingRowIndex !== newSelection.startingRowIndex ||
+                        oldSelection.startingColumnIndex !== newSelection.startingColumnIndex ||
+                        oldSelection.endingRowIndex !== newSelection.endingRowIndex ||
+                        oldSelection.endingColumnIndex !== newSelection.endingColumnIndex;
+                    if (moved) {
+                        scheduleSelectionPulse(
+                            setUIState,
+                            sheetIndex,
+                            newSelection.endingRowIndex,
+                            newSelection.endingColumnIndex
+                        );
+                    }
                     ensureCellVisible(
                         containerRef.current, scrollAndRenderedContainerRef.current,
                         currentSheetView, gridState,
@@ -680,7 +738,7 @@ function EndoGrid(props: {
         const containerDiv = containerRef.current; 
         containerDiv?.addEventListener('keydown', onKeyDown);
         return () => containerDiv?.removeEventListener('keydown', onKeyDown)
-    }, [editorState, setEditorState, sheetData, currentSheetView, mitoAPI, gridState.selections, sheetIndex, setGridState])
+    }, [editorState, setEditorState, sheetData, currentSheetView, mitoAPI, gridState.selections, sheetIndex, setGridState, setUIState])
 
 
     return (
@@ -702,7 +760,20 @@ function EndoGrid(props: {
                 mitoContainerRef={props.mitoContainerRef}
             />
             <div 
-                className='endo-grid-container' 
+                className={classNames('endo-grid-container', {
+                    'mito-grid-surface-flash-sort':
+                        uiState.gridSurfaceFlash?.sheetIndex === sheetIndex &&
+                        uiState.gridSurfaceFlash?.kind === 'sort',
+                    'mito-grid-surface-flash-filter':
+                        uiState.gridSurfaceFlash?.sheetIndex === sheetIndex &&
+                        uiState.gridSurfaceFlash?.kind === 'filter',
+                    'mito-grid-surface-flash-undoredo':
+                        uiState.gridSurfaceFlash?.sheetIndex === sheetIndex &&
+                        uiState.gridSurfaceFlash?.kind === 'undoRedo',
+                    'mito-grid-surface-flash-replace':
+                        uiState.gridSurfaceFlash?.sheetIndex === sheetIndex &&
+                        uiState.gridSurfaceFlash?.kind === 'replace',
+                })}
                 ref={containerRef}
                 tabIndex={-1} 
                 onMouseDown={onMouseDown} 
@@ -726,6 +797,8 @@ function EndoGrid(props: {
                             mitoAPI={mitoAPI}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             actions={props.actions}
+                            layoutWidthData={layoutWidthData}
+                            ghostSuggestedColumns={ghostSuggestedColumns}
                         />
                         <IndexHeaders
                             sheetData={sheetData}
@@ -785,6 +858,8 @@ function EndoGrid(props: {
                             editorState={editorState}
                             actions={props.actions}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
+                            layoutWidthData={layoutWidthData}
+                            ghostSuggestedColumns={ghostSuggestedColumns}
                         />
                     </div>
                 </div>
@@ -819,6 +894,16 @@ function EndoGrid(props: {
                     sheetData={sheetData}
                 />
             }
+            <StreamlitAIModePopover
+                uiState={uiState}
+                setUIState={setUIState}
+                setGridState={setGridState}
+                setEditorState={props.setEditorState}
+                mitoContainerRef={props.mitoContainerRef}
+                sheetData={sheetData}
+                sheetIndex={sheetIndex}
+                mitoAPI={mitoAPI}
+            />
         </>
     )
 }

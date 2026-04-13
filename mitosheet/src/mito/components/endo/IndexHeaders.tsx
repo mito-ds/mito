@@ -3,10 +3,10 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import '../../../../css/endo/IndexHeaders.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
-import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
+import { calculateCurrentSheetView, calculateTranslate, gridStateForView } from './sheetViewUtils';
 import { GridState, SheetData, UIState } from '../../types';
 import { classNames } from '../../utils/classNames';
 import IndexHeaderDropdown from './IndexHeaderContextMenu';
@@ -31,8 +31,14 @@ const IndexHeaders = (props: {
 }): JSX.Element => {
 
     // NOTE: this is indexed by index in the sheet, not by the label
-    const currentSheetView = calculateCurrentSheetView(props.gridState);
-    const translate = calculateTranslate(props.gridState);
+    const currentSheetView = useMemo(
+        () => calculateCurrentSheetView(gridStateForView(props.gridState, props.sheetIndex)),
+        [props.gridState, props.sheetIndex]
+    );
+    const translate = useMemo(
+        () => calculateTranslate(gridStateForView(props.gridState, props.sheetIndex)),
+        [props.gridState, props.sheetIndex]
+    );
 
     const indexHeadersStyle = {
         transform: `translateY(${-translate.y}px)`,
@@ -55,7 +61,27 @@ const IndexHeaders = (props: {
                                 rowIndex,
                                 -1
                             );
-                            const className = classNames('index-header-container', 'text-overflow-hide', 'text-unselectable', {'index-header-selected': selected});
+                            const exitAnim = props.uiState.gridRowExitAnimation;
+                            const isRowExiting =
+                                exitAnim !== undefined &&
+                                exitAnim.sheetIndex === props.sheetIndex &&
+                                exitAnim.rowIndices.includes(rowIndex);
+                            const enterAnim = props.uiState.gridRowEnterAnimation;
+                            const isRowEntering =
+                                enterAnim !== undefined &&
+                                enterAnim.sheetIndex === props.sheetIndex &&
+                                enterAnim.rowIndices.includes(rowIndex);
+
+                            const className = classNames(
+                                'index-header-container',
+                                'text-overflow-hide',
+                                'text-unselectable',
+                                {
+                                    'index-header-selected': selected,
+                                    'mito-index-row-exit': isRowExiting,
+                                    'mito-grid-row-enter': isRowEntering,
+                                }
+                            );
                             const indexHeader = rowIndex >= props.sheetData.numRows ? '' : props.sheetData.index[rowIndex];
 
                             return (
@@ -67,7 +93,15 @@ const IndexHeaders = (props: {
                                     mito-row-index={rowIndex}
                                     mito-col-index={-1}
                                     style={{
-                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, -1, props.sheetData.numRows, false)
+                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, -1, props.sheetData.numRows, false),
+                                        ...(isRowExiting
+                                            ? {
+                                                  animation: 'mito-row-delete-exit 0.55s ease forwards',
+                                                  pointerEvents: 'none',
+                                              }
+                                            : isRowEntering
+                                              ? { animation: 'mito-row-enter 0.5s ease both' }
+                                              : {}),
                                     }}
                                     onContextMenu={(e) => {
                                         if (e.shiftKey) {
@@ -105,4 +139,4 @@ const IndexHeaders = (props: {
     )
 }
 
-export default React.memo(IndexHeaders);
+export default IndexHeaders;

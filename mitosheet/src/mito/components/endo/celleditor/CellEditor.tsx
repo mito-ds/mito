@@ -18,6 +18,8 @@ import { firstNonNullOrUndefined, getCellDataFromCellIndexes } from '../utils';
 import { ensureCellVisible } from '../visibilityUtils';
 import CellEditorDropdown, { MAX_SUGGESTIONS, getDisplayedDropdownType } from './CellEditorDropdown';
 import { getFullFormula, getSelectionFormulaString, getStartingFormula } from './cellEditorUtils';
+import { scheduleEditCommitPulse } from '../../../utils/gridMicroAnimations';
+import { classNames } from '../../../utils/classNames';
 
 // NOTE: we just set the width to 250 pixels
 export const CELL_EDITOR_DEFAULT_WIDTH = 250;
@@ -539,6 +541,12 @@ const CellEditor = (props: {
         if (errorMessage !== undefined && 'error' in errorMessage) {
             setCellEditorError(errorMessage.error);
         } else {
+            scheduleEditCommitPulse(
+                props.setUIState,
+                props.editorState.sheetIndex,
+                props.editorState.rowIndex,
+                props.editorState.columnIndex
+            );
             closeCellEditor();
             props.closeOpenEditingPopups();
         }
@@ -547,7 +555,9 @@ const CellEditor = (props: {
     return (
         <div className='cell-editor'>
             <form
-                className='cell-editor-form'
+                className={classNames('cell-editor-form', {
+                    'cell-editor-error-shake': cellEditorError !== undefined,
+                })}
                 onSubmit={onSubmit}
                 autoComplete='off' // Turn off autocomplete so the html suggestion box doesn't cover Mito's suggestion box.
             >   

@@ -20,9 +20,12 @@ const MitoVSCodeWrapper = (props: MitoVSCodeWrapperProps): JSX.Element => {
     const { port, sheetDataArray, analysisData, userProfile } = props;
 
     const getSendFunction = async () => {
+        // Server binds to 127.0.0.1 only (see mitosheet/vscode/v1/spreadsheet.py). Using `localhost`
+        // can resolve to ::1 (IPv6) first and fail with "TypeError: Failed to fetch" on some systems.
+        const backendBase = `http://127.0.0.1:${port}`;
         const send = async <ResultType,>(msg: Record<string, unknown>): Promise<SendFunctionReturnType<ResultType>> => {
             try {
-                const response = await fetch(`http://localhost:${port}/`, {
+                const response = await fetch(`${backendBase}/`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(msg),

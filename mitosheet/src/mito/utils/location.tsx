@@ -54,3 +54,44 @@ export const isInDash = (): boolean => {
 export const isInDashboard = (): boolean => {
     return isInStreamlit() || isInDash()
 }
+
+/**
+ * VS Code / Cursor run `mitosheet.sheet()` via the HTTP-based frontend (see mito_backend.is_in_vs_code).
+ * That output runs in a notebook webview, not under /lab or /notebooks, and `window.commands` is unset.
+ */
+export const isInVsCodeNotebookOutput = (): boolean => {
+    if (typeof window === 'undefined') {
+        return false
+    }
+    if (window.location.protocol === 'vscode-webview:') {
+        return true
+    }
+    try {
+        if (typeof (globalThis as unknown as { acquireVsCodeApi?: () => unknown }).acquireVsCodeApi === 'function') {
+            return true
+        }
+    } catch {
+        // Cross-origin parent access can throw; ignore.
+    }
+    return false
+}
+
+/**
+ * Set in HTML by Python when embedding Mito in notebook output (Jupyter comm + VS Code paths).
+ * Cursor’s notebook iframe often does not match vscode-webview / acquireVsCodeApi checks.
+ */
+export const isMitoNotebookOutputEmbed = (): boolean => {
+    if (typeof window === 'undefined') {
+        return false
+    }
+    try {
+        return (window as unknown as { __MITO_NOTEBOOK_OUTPUT__?: boolean }).__MITO_NOTEBOOK_OUTPUT__ === true
+    } catch {
+        return false
+    }
+}
+
+/** Streamlit / notebook: show AI notes toolbar and taskpane. */
+export const isStreamlitAiNotesEnabled = (): boolean => {
+    return isInStreamlit() || isInJupyterLabOrNotebook() || isInVsCodeNotebookOutput() || isMitoNotebookOutputEmbed()
+}

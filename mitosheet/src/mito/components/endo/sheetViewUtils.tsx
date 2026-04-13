@@ -5,8 +5,16 @@
 
 import { isAnyElementWithSelectorEntirelyVisible } from "./domUtils";
 import { DEFAULT_HEIGHT } from "./EndoGrid";
-import { Dimension, GridState, RendererTranslate, ScrollPosition, SheetView } from "../../types";
+import { Dimension, GridState, RendererTranslate, ScrollPosition, SheetView, WidthData } from "../../types";
 
+/**
+ * `gridState.sheetIndex` is synced to the selected tab in EndoGrid's useEffect and can lag
+ * `uiState.selectedSheetIndex` by a frame. Viewport math must use the tab the user sees.
+ */
+export const gridStateForView = (gridState: GridState, activeSheetIndex: number): GridState => ({
+    ...gridState,
+    sheetIndex: activeSheetIndex,
+});
 
 /* 
     Calculates the current sheet view based on the widths of the columns, 
@@ -22,12 +30,28 @@ import { Dimension, GridState, RendererTranslate, ScrollPosition, SheetView } fr
     scrollLeft + the width of the sheet.
 */
 export const calculateCurrentSheetView = (
-    gridState: GridState
+    gridState: GridState,
+    widthDataOverride?: WidthData
 ): SheetView => {
+
+    const widthData =
+        widthDataOverride ?? gridState.widthDataArray[gridState.sheetIndex];
 
     // If the sheetIndex does not exist in the widthDataArray, then 
     // just return a default SheetView.
-    if (gridState.sheetIndex >= gridState.widthDataArray.length) {
+    if (
+        gridState.sheetIndex >= gridState.widthDataArray.length &&
+        widthDataOverride === undefined
+    ) {
+        return {
+            startingRowIndex: -1,
+            numRowsRendered: 0,
+            startingColumnIndex: 0,
+            numColumnsRendered: 0
+        }
+    }
+
+    if (widthData === undefined || widthData.widthArray.length === 0) {
         return {
             startingRowIndex: -1,
             numRowsRendered: 0,
@@ -40,8 +64,8 @@ export const calculateCurrentSheetView = (
     let startingColumnIndex = 0;
     let numColumnsRendered = 0;
 
-    for (let i = 0; i < gridState.widthDataArray[gridState.sheetIndex].widthArray.length; i++) {
-        const totalWidth = gridState.widthDataArray[gridState.sheetIndex].widthSumArray[i];
+    for (let i = 0; i < widthData.widthArray.length; i++) {
+        const totalWidth = widthData.widthSumArray[i];
 
         if (!foundStart && totalWidth > gridState.scrollPosition.scrollLeft) {
             startingColumnIndex = i;
@@ -51,7 +75,7 @@ export const calculateCurrentSheetView = (
         if (foundStart && totalWidth > (gridState.scrollPosition.scrollLeft + gridState.viewport.width)) {
             numColumnsRendered = i - startingColumnIndex + 1;
             break;
-        } else if (i === gridState.widthDataArray[gridState.sheetIndex].widthArray.length - 1) {
+        } else if (i === widthData.widthArray.length - 1) {
             // If we reach the end of the columns without running out of space to display them
             // then we should just display all of them 
             numColumnsRendered = i - startingColumnIndex + 1
@@ -78,11 +102,21 @@ export const calculateCurrentSheetView = (
     the scrollLeft - widthData.widthArray[startingColumnIndex - 1].
     
 */
-export const calculateTranslate = (gridState: GridState): RendererTranslate => {
-    const currentSheetView = calculateCurrentSheetView(gridState);
+export const calculateTranslate = (
+    gridState: GridState,
+    widthDataOverride?: WidthData
+): RendererTranslate => {
+    const widthData =
+        widthDataOverride ?? gridState.widthDataArray[gridState.sheetIndex];
+    const currentSheetView = calculateCurrentSheetView(gridState, widthDataOverride);
+
+    const priorSum =
+        currentSheetView.startingColumnIndex === 0 || widthData === undefined
+            ? 0
+            : widthData.widthSumArray[currentSheetView.startingColumnIndex - 1];
 
     return {
-        x: gridState.scrollPosition.scrollLeft - (currentSheetView.startingColumnIndex === 0 ? 0 : gridState.widthDataArray[gridState.sheetIndex].widthSumArray[currentSheetView.startingColumnIndex - 1]),
+        x: gridState.scrollPosition.scrollLeft - priorSum,
         y: gridState.scrollPosition.scrollTop % (DEFAULT_HEIGHT),
     }
 }

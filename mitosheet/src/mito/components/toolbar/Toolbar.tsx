@@ -12,6 +12,7 @@ import { MitoAPI } from '../../api/api';
 import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { Actions } from '../../utils/actions';
 import { classNames } from '../../utils/classNames';
+import { isStreamlitAiNotesEnabled } from '../../utils/location';
 import GetSupportButton from '../elements/GetSupportButton';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 import { CodeTabContents } from './CodeTabContents';
@@ -21,6 +22,7 @@ import { HomeTabContents } from './HomeTabContents';
 import { InsertTabContents } from './InsertTabContents';
 import PlanButton from './PlanButton';
 import ToolbarButton from './ToolbarButton';
+import StreamlitAINotesIcon from '../icons/StreamlitAINotesIcon';
 import CheckmarkIcon from '../icons/CheckmarkIcon';
 import LoadingDots from '../elements/LoadingDots';
 import EditIcon from '../icons/EditIcon';
@@ -142,6 +144,40 @@ export const Toolbar = (
                             action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
                         />
                     )}
+                    <GetSupportButton
+                        userProfile={props.userProfile}
+                        setUIState={props.setUIState}
+                        mitoAPI={props.mitoAPI}
+                        width='hug-contents'
+                        className='mito-plan-button'
+                    />
+                    {isStreamlitAiNotesEnabled() && (
+                        <ToolbarButton
+                            action={{
+                                staticType: 'streamlit-ai-mode-toolbar',
+                                type: 'run-time',
+                                longTitle: 'AI notes',
+                                titleToolbar: '',
+                                actionFunction: () => {
+                                    props.setUIState((prev) => ({
+                                        ...prev,
+                                        currOpenTaskpane: { type: TaskpaneType.STREAMLIT_AI_MODE },
+                                    }));
+                                },
+                                searchTerms: ['ai', 'notes', 'streamlit', 'outliers'],
+                                isDisabled: () => undefined,
+                                tooltip:
+                                    'Scan the sheet for AI notes; click the yellow triangle on an annotated cell or column header',
+                            }}
+                            iconOverride={<StreamlitAINotesIcon />}
+                        />
+                    )}
+                    <PlanButton
+                        uiState={props.uiState}
+                        userProfile={props.userProfile}
+                        setUIState={props.setUIState}
+                        mitoAPI={props.mitoAPI}
+                    />
                 </div>
             </div>
             <div className='mito-toolbar-tabbar'>
@@ -173,21 +209,6 @@ export const Toolbar = (
                             {currentTab === tab && <div className='mito-toolbar-tabbar-selected-underline'/>}
                         </button>
                     })}
-                </div>
-                <div className='mito-toolbar-tabbar-right'>
-                    <GetSupportButton 
-                        userProfile={props.userProfile} 
-                        setUIState={props.setUIState} 
-                        mitoAPI={props.mitoAPI} 
-                        width='hug-contents'
-                        className='mito-plan-button'
-                    />
-                    <PlanButton
-                        uiState={props.uiState}
-                        userProfile={props.userProfile}
-                        setUIState={props.setUIState}
-                        mitoAPI={props.mitoAPI}
-                    />
                 </div>
             </div>
             {/* Default to Home tab if the tab you were in is no longer defined.

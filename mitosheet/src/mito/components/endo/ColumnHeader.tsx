@@ -22,6 +22,10 @@ import ColumnHeaderContextMenu from './ColumnHeaderContextMenu';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 import { Actions } from '../../utils/actions';
+import {
+    columnHeaderHasAIModeAlert,
+    getStreamlitAIModeAnnotationForClick,
+} from '../../utils/streamlitAIModeUtils';
 
 export const HEADER_TEXT_COLOR_DEFAULT = 'var(--mito-text)'
 export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
@@ -69,10 +73,42 @@ const ColumnHeader = (props: {
     mitoAPI: MitoAPI;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     actions: Actions;
+    /** When set (e.g. ghost layout), overrides gridState width for this column */
+    headerWidth?: number;
 }): JSX.Element => {
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
-    const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
+    const width =
+        props.headerWidth ??
+        props.gridState.widthDataArray[props.gridState.sheetIndex]?.widthArray[props.columnIndex] ??
+        123;
+    const enterAnim = props.uiState.gridColumnEnterAnimation;
+    const isColumnEntering =
+        enterAnim !== undefined &&
+        enterAnim.sheetIndex === props.uiState.selectedSheetIndex &&
+        enterAnim.columnIndex === props.columnIndex;
+    const exitAnim = props.uiState.gridColumnExitAnimation;
+    const isColumnExiting =
+        exitAnim !== undefined &&
+        exitAnim.sheetIndex === props.uiState.selectedSheetIndex &&
+        exitAnim.columnIndices.includes(props.columnIndex);
+    const selPulse = props.uiState.gridSelectionPulse;
+    const isSelectionPulse =
+        selPulse !== undefined &&
+        selPulse.sheetIndex === props.uiState.selectedSheetIndex &&
+        selPulse.columnIndex === props.columnIndex &&
+        selPulse.rowIndex === -1;
+    const editPulse = props.uiState.gridEditCommitPulse;
+    const isEditCommitPulse =
+        editPulse !== undefined &&
+        editPulse.sheetIndex === props.uiState.selectedSheetIndex &&
+        editPulse.columnIndex === props.columnIndex &&
+        editPulse.rowIndex === -1;
+    const streamlitAiColumnNote = columnHeaderHasAIModeAlert(
+        props.uiState.streamlitAIModeAnnotations,
+        props.gridState.sheetIndex,
+        props.columnIndex
+    );
     const { columnID, columnFilters, columnHeader, columnDtype, headerBackgroundColor, headerTextColor } = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
 
     if (columnID === undefined || columnFilters === undefined || columnDtype == undefined || columnHeader === undefined) {
@@ -184,9 +220,28 @@ const ColumnHeader = (props: {
                 {
                     'endo-column-header-container-selected': selected,
                     'recon': isColumnCreated || isColumnRenamed,
+                    'mito-grid-column-enter': isColumnEntering,
+                    'mito-grid-column-exit': isColumnExiting,
+                    'mito-grid-cell-selection-pulse': isSelectionPulse,
+                    'mito-grid-cell-edit-commit-pulse': isEditCommitPulse,
                 },
             )}
-            style={{color: textColor, backgroundColor: backgroundColor}}
+            style={{
+                color: textColor,
+                backgroundColor: backgroundColor,
+                ...(isColumnEntering
+                    ? { animation: 'mito-column-enter 0.6s ease both' }
+                    : isColumnExiting
+                      ? {
+                            animation: 'mito-column-delete-exit 0.55s ease forwards',
+                            pointerEvents: 'none',
+                        }
+                      : isSelectionPulse
+                        ? { animation: 'mito-cell-selection-pulse 0.4s ease' }
+                        : isEditCommitPulse
+                          ? { animation: 'mito-cell-edit-commit-pulse 0.42s ease' }
+                          : {}),
+            }}
             key={props.columnIndex}
             mito-col-index={props.columnIndex + ''}
             onDragStart={(e) => {
@@ -357,6 +412,38 @@ const ColumnHeader = (props: {
                     borderRight: borderStyle.borderRight,
                 }}
             >
+                {streamlitAiColumnNote && !editingFinalColumnHeader && (
+                    <button
+                        type="button"
+                        className="endo-column-header-ai-corner"
+                        title="Open AI note"
+                        aria-label="Open AI note for this column"
+                        onMouseDown={(e) => {
+                            e.stopPropagation();
+                        }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            const ann = getStreamlitAIModeAnnotationForClick(
+                                props.uiState.streamlitAIModeAnnotations,
+                                props.gridState.sheetIndex,
+                                -1,
+                                props.columnIndex
+                            );
+                            if (ann === undefined) {
+                                return;
+                            }
+                            props.setUIState((prev) => ({
+                                ...prev,
+                                streamlitAIModePopover: {
+                                    annotationId: ann.id,
+                                    x: e.clientX,
+                                    y: e.clientY,
+                                    openedFrom: 'column_header',
+                                },
+                            }));
+                        }}
+                    />
+                )}
                 {!editingFinalColumnHeader &&
                     <>
                         <div

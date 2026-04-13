@@ -135,7 +135,13 @@ def is_streamlit() -> bool:
         return get_script_run_ctx(suppress_warning=True) is not None
     except ModuleNotFoundError:
         return False
-    
+
+
+def streamlit_ai_enabled() -> bool:
+    """Streamlit AI notes / annotations (LLM) run in Streamlit or a Jupyter notebook kernel."""
+    return is_streamlit() or is_notebook()
+
+
 _IS_DASH = False
     
 def is_dash() -> bool:

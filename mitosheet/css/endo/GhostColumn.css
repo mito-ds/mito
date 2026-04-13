@@ -1,0 +1,58 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mito-ghost-column-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    cursor: pointer;
+    color: var(--mito-text-medium);
+    background: color-mix(in srgb, var(--mito-highlight) 12%, var(--mito-background-highlight));
+    border-left: 1px dashed var(--mito-text-light);
+    box-sizing: border-box;
+}
+
+.mito-ghost-column-header:hover {
+    background: color-mix(in srgb, var(--mito-highlight) 22%, var(--mito-background-highlight));
+    color: var(--mito-text);
+}
+
+.mito-ghost-column-header-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px 10px;
+    min-height: 45px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mito-ghost-column-badge {
+    flex-shrink: 0;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--mito-highlight) 35%, transparent);
+    color: var(--mito-highlight);
+}
+
+.mito-grid-cell.mito-grid-cell-ghost {
+    opacity: 0.42;
+    pointer-events: none;
+    border-left: 1px dashed var(--mito-text-light);
+    background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 6px,
+        color-mix(in srgb, var(--mito-text-light) 25%, transparent) 6px,
+        color-mix(in srgb, var(--mito-text-light) 25%, transparent) 7px
+    );
+}
+
+.mito-grid-cell.mito-grid-cell-ghost:hover {
+    opacity: 0.55;
+}

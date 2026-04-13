@@ -3,6 +3,29 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+@keyframes mito-column-enter {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+        filter: saturate(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+}
+
+.endo-column-header-container.mito-grid-column-enter {
+    animation: mito-column-enter 0.6s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .endo-column-header-container.mito-grid-column-enter {
+        animation: none;
+    }
+}
+
 .endo-column-headers-container {
     overflow: hidden;
     /* NOTE: this must match EndoGrid.css */
@@ -87,6 +110,30 @@
     flex-direction: row;
     justify-content: space-between;
     box-sizing: border-box;
+    position: relative;
+}
+
+/* Yellow triangle — column AI note (bottom-right of header; column annotations only) */
+.endo-column-header-ai-corner {
+    position: absolute;
+    z-index: 2;
+    top: auto;
+    left: auto;
+    bottom: 4px;
+    right: 4px;
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    background: #e4b054;
+    clip-path: polygon(100% 100%, 100% 0, 0 100%);
+}
+
+.endo-column-header-ai-corner:hover {
+    filter: brightness(1.08);
 }
 
 .endo-column-header-final-text {

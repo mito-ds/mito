@@ -21,21 +21,30 @@ MITO_AI_URL = 'https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/compl
 
 OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 100
 
-def _get_ai_completion_data(prompt: str) -> Dict[str, Any]:
-        return {
+def _get_ai_completion_data(
+        prompt: str, max_tokens: int = 200, *, include_stop: bool = True
+) -> Dict[str, Any]:
+        data: Dict[str, Any] = {
                 "model": "gpt-3.5-turbo",
                 "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 7,
                 "temperature": .2,
-                'max_tokens': 200,
-                'stop': ['```']
+                "max_tokens": max_tokens,
         }
+        if include_stop:
+                data["stop"] = ["```"]
+        return data
 
 __user_email = None
 __user_id = None
 __num_usages = None
 
-def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[str, Any]:
+def _get_ai_completion_from_mito_server(
+        user_input: str,
+        prompt: str,
+        max_tokens: int = 200,
+        *,
+        include_stop: bool = True,
+) -> Dict[str, Any]:
         global __user_email, __user_id, __num_usages
 
         if __user_email is None:
@@ -61,7 +70,9 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[st
                 'email': __user_email,
                 'user_id': __user_id,
                 'user_input': user_input,
-                'data': _get_ai_completion_data(prompt)
+                'data': _get_ai_completion_data(
+                        prompt, max_tokens=max_tokens, include_stop=include_stop
+                ),
         }
 
         headers = {
@@ -90,9 +101,18 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[st
                 'error': f'There was an error accessing the MitoAI API. {res.json()["error"]}'
         }
 
-def _get_ai_completion_from_open_ai_api_compatible_server(url: str, user_input: str, prompt: str) -> Dict[str, Any]:
+def _get_ai_completion_from_open_ai_api_compatible_server(
+        url: str,
+        user_input: str,
+        prompt: str,
+        max_tokens: int = 200,
+        *,
+        include_stop: bool = True,
+) -> Dict[str, Any]:
 
-        data = _get_ai_completion_data(prompt)
+        data = _get_ai_completion_data(
+                prompt, max_tokens=max_tokens, include_stop=include_stop
+        )
         headers = {
                 'Content-Type': 'application/json',
         }
@@ -173,3 +193,63 @@ def get_ai_completion(params: Dict[str, Any], steps_manager: StepsManagerType) -
         return {
                 'error': f'There was an error accessing the OpenAI API. {res.json()["error"]["message"]}'
         }
+
+
+def run_completion_with_prompt(
+        steps_manager: StepsManagerType,
+        user_input: str,
+        prompt: str,
+        *,
+        max_tokens: int = 200,
+        include_stop: bool = True,
+) -> Dict[str, Any]:
+        """
+        Run the same LLM routing as get_ai_completion (Mito server, BYO URL, or OpenAI key)
+        with a caller-built prompt. Used for structured JSON tasks like ghost column suggestions.
+        """
+        OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+        byo_url = steps_manager.mito_config.llm_url
+
+        if byo_url is not None:
+                return _get_ai_completion_from_open_ai_api_compatible_server(
+                        byo_url,
+                        user_input,
+                        prompt,
+                        max_tokens=max_tokens,
+                        include_stop=include_stop,
+                )
+        if OPENAI_API_KEY is None:
+                return _get_ai_completion_from_mito_server(
+                        user_input,
+                        prompt,
+                        max_tokens=max_tokens,
+                        include_stop=include_stop,
+                )
+
+        data = _get_ai_completion_data(
+                prompt, max_tokens=max_tokens, include_stop=include_stop
+        )
+        headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+        }
+        try:
+                res = requests.post(OPEN_AI_URL, headers=headers, json=data)
+        except Exception:
+                return {
+                        "error": "There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall."
+                }
+        if res.status_code == 200:
+                res_json = res.json()
+                completion = res_json["choices"][0]["message"]["content"].strip()
+                return {
+                        "user_input": user_input,
+                        "prompt_version": PROMPT_VERSION,
+                        "prompt": prompt,
+                        "completion": completion,
+                }
+        try:
+                err_msg = res.json()["error"]["message"]
+        except Exception:
+                err_msg = res.text
+        return {"error": f"There was an error accessing the OpenAI API. {err_msg}"}

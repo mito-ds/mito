@@ -37,6 +37,7 @@
 .mito-toolbar-top-right {
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
 
 .mito-toolbar-top-right > * + * {
@@ -348,13 +349,18 @@
   height: 26px;
 }
 
+.mito-toolbar-tabbar-right > * + * {
+  margin-left: 6px;
+}
+
 .mito-toolbar-tabbar-right a {
   margin-right: 3px;
 }
 
-.mito-toolbar-top svg path {
+/* Exclude AI notes hex icon (uses its own strokes / fills) */
+.mito-toolbar-top svg:not(.mito-streamlit-ai-notes-toolbar-svg) path {
   stroke: var(--mito-text);
-  stroke-width: 0.78x;
+  stroke-width: 0.78px;
 }
 
 .mito-toolbar-top .mito-toolbar-button-icon-container {
@@ -381,6 +387,17 @@
 
 .mito-toolbar-tabbar-right .mito-toolbar-button-container {
   height: 26px;
+}
+
+/* AI notes (hex icon): icon-only control next to Help in the top toolbar row */
+#mito-toolbar-button-streamlit-ai-mode-toolbar.mito-toolbar-button-container {
+  align-items: center;
+  margin: 0 2px;
+}
+
+#mito-toolbar-button-streamlit-ai-mode-toolbar .mito-toolbar-button-icon-container {
+  min-width: 32px;
+  padding: 2px 7px;
 }
 
 .mito-toolbar-tabbar .mito-toolbar-button-icon-container {

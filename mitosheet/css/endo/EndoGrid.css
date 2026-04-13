@@ -60,3 +60,58 @@
     justify-content: center;
     flex-direction: column;
 }
+
+@keyframes mito-grid-flash-sort-nudge {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+@keyframes mito-grid-flash-opacity {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.9;
+    }
+}
+
+@keyframes mito-grid-flash-undoredo {
+    0%,
+    100% {
+        filter: none;
+    }
+    50% {
+        filter: sepia(0.12) saturate(1.05);
+    }
+}
+
+.endo-grid-container.mito-grid-surface-flash-sort {
+    animation: mito-grid-flash-sort-nudge 0.45s ease;
+}
+
+.endo-grid-container.mito-grid-surface-flash-filter {
+    animation: mito-grid-flash-opacity 0.48s ease;
+}
+
+.endo-grid-container.mito-grid-surface-flash-undoredo {
+    animation: mito-grid-flash-undoredo 0.48s ease;
+}
+
+.endo-grid-container.mito-grid-surface-flash-replace {
+    animation: mito-grid-flash-opacity 0.5s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .endo-grid-container.mito-grid-surface-flash-sort,
+    .endo-grid-container.mito-grid-surface-flash-filter,
+    .endo-grid-container.mito-grid-surface-flash-undoredo,
+    .endo-grid-container.mito-grid-surface-flash-replace {
+        animation: none;
+    }
+}

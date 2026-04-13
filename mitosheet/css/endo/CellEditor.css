@@ -21,6 +21,36 @@
     box-sizing: border-box;
 }
 
+@keyframes mito-cell-editor-error-shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-5px);
+    }
+    40% {
+        transform: translateX(5px);
+    }
+    60% {
+        transform: translateX(-3px);
+    }
+    80% {
+        transform: translateX(3px);
+    }
+}
+
+.cell-editor-form.cell-editor-error-shake {
+    border-color: #c94c4c;
+    animation: mito-cell-editor-error-shake 0.45s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cell-editor-form.cell-editor-error-shake {
+        animation: none;
+    }
+}
+
 .cell-editor-input {
     height: 23px;
     width: 100%;

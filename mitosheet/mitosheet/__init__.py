@@ -25,6 +25,7 @@ warnings.filterwarnings("ignore", message=r".*bare mode.*")
 # Public interface we want users to rely on
 from mitosheet.mito_backend import sheet
 from mitosheet._version import __version__
+from mitosheet.demo_dataframes import build_demo_dataframe
 
 # NOTE: We always export v1 sheet functions and types as unqualified exports, as we did
 # this when we started Mito. This allows us to not break existing user analyses. We should

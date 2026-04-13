@@ -838,6 +838,43 @@ export const getSelectedRowLabelsWithEntireSelectedRow = (selections: MitoSelect
 
 }
 
+/** Data row indices (0 … numRows-1) for rows selected via the index column (entire row). */
+export const getSelectedEntireRowDataIndexes = (
+    selections: MitoSelection[],
+    sheetData: SheetData | undefined
+): number[] => {
+    if (sheetData === undefined) {
+        return [];
+    }
+    const out: number[] = [];
+    selections.forEach((selection) => {
+        if (
+            selection.startingColumnIndex === -1 &&
+            (selection.endingColumnIndex === -1 || selection.endingColumnIndex === sheetData.numColumns)
+        ) {
+            const min = Math.min(selection.startingRowIndex, selection.endingRowIndex);
+            const max = Math.max(selection.startingRowIndex, selection.endingRowIndex);
+            for (let i = min; i <= max; i++) {
+                out.push(i);
+            }
+        }
+    });
+    return [...new Set(out)];
+};
+
+/** Data row indices in the range of a selection (for context-menu “Delete row” on cells). */
+export const getSelectedRowDataIndexesFromSelection = (selection: MitoSelection): number[] => {
+    const min = Math.min(selection.startingRowIndex, selection.endingRowIndex);
+    const max = Math.max(selection.startingRowIndex, selection.endingRowIndex);
+    const out: number[] = [];
+    for (let i = min; i <= max; i++) {
+        if (i >= 0) {
+            out.push(i);
+        }
+    }
+    return out;
+};
+
 export const getNumberColumnIDs = (sheetData: SheetData | undefined, columnIDs: (ColumnID | undefined)[]): ColumnID[] => {
     const columnIDsAndDtypes: [ColumnID, string][] = columnIDs
         .filter(colId => colId !== undefined)

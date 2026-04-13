@@ -9,7 +9,7 @@ import { MitoAPI, getRandomId } from "../api/api";
 import { SendFunctionStatus } from "../api/send";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedEntireRowDataIndexes, getSelectedNumberSeriesColumnIDs, getSelectedRowDataIndexesFromSelection, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getAnyGraphIsSelected } from "../components/endo/utils";
 import AIIcon from "../components/icons/AIIcon";
 import AddColumnIcon from "../components/icons/AddColumnIcon";
@@ -65,6 +65,7 @@ import SnowflakeIcon from "../components/icons/SnowflakeIcon";
 import SortAscendingIcon from "../components/icons/SortAscendingIcon";
 import SortDescendingIcon from "../components/icons/SortDescendingIcon";
 import SortIcon from "../components/icons/SortIcon";
+import SuggestedFormulasIcon from "../components/icons/SuggestedFormulasIcon";
 import StarIcon from "../components/icons/StarIcon";
 import SummaryIcon from "../components/icons/SummaryIcon";
 import TextFunctionsIcon from "../components/icons/TextFunctionsIcon";
@@ -84,10 +85,17 @@ import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
+import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, PopupLocation, PopupType, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
+import { scheduleAnimatedColumnEnter } from './gridColumnEnterAnimation';
+import {
+    GRID_SHEET_TRANSITION_MS,
+    scheduleAnimatedColumnDelete,
+    scheduleGridSurfaceFlash,
+} from './gridMicroAnimations';
+import { scheduleAnimatedRowDelete } from './gridRowDeleteAnimation';
 import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
 import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
 import SelectDataIcon from "../components/icons/GraphToolbar/SelectDataIcon";
@@ -155,7 +163,10 @@ export const getActions = (
     sendFunctionStatus: SendFunctionStatus,
 ): Actions => {
     // Define variables that we use in many actions
-    const sheetIndex = gridState.sheetIndex;
+    // Use the selected tab index, not gridState.sheetIndex — the latter is updated in EndoGrid's
+    // useEffect and can lag uiState.selectedSheetIndex by a frame after switching sheets, which
+    // breaks row-exit animation (gridRowExitAnimation.sheetIndex must match the grid's props.sheetIndex).
+    const sheetIndex = uiState.selectedSheetIndex;
     const sheetData = sheetDataArray[sheetIndex];
     const dfFormat: DataframeFormat = (sheetData?.dfFormat || getDefaultDataframeFormat());
     const startingRowIndex = gridState.selections[gridState.selections.length - 1].startingRowIndex;
@@ -201,13 +212,22 @@ export const getActions = (
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the right of the last selected column
                 const selection = gridState.selections[gridState.selections.length - 1];
+                if (selection === undefined) {
+                    return;
+                }
                 const newColumnHeaderIndex = Math.max(selection.startingColumnIndex, selection.endingColumnIndex) + 1;
+                if (!Number.isFinite(newColumnHeaderIndex) || newColumnHeaderIndex < 0) {
+                    return;
+                }
 
-                await mitoAPI.editAddColumn(
+                const addResult = await mitoAPI.editAddColumn(
                     sheetIndex,
                     newColumnHeader,
                     newColumnHeaderIndex
-                )
+                );
+                if ('error' in addResult) {
+                    return;
+                }
 
                 setGridState(prevGridState => {
                     return {
@@ -220,7 +240,9 @@ export const getActions = (
                             endingColumnIndex: newColumnHeaderIndex
                         }]
                     }
-                })
+                });
+
+                scheduleAnimatedColumnEnter(setUIState, sheetIndex, newColumnHeaderIndex);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
@@ -248,13 +270,22 @@ export const getActions = (
                 const newColumnHeader = 'new-column-' + getNewColumnHeader()
                 // The new column should be placed 1 position to the left of the first selected column
                 const selection = gridState.selections[gridState.selections.length - 1];
+                if (selection === undefined) {
+                    return;
+                }
                 const newColumnHeaderIndex = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
+                if (!Number.isFinite(newColumnHeaderIndex) || newColumnHeaderIndex < 0) {
+                    return;
+                }
 
-                await mitoAPI.editAddColumn(
+                const addResult = await mitoAPI.editAddColumn(
                     sheetIndex,
                     newColumnHeader,
                     newColumnHeaderIndex
-                )
+                );
+                if ('error' in addResult) {
+                    return;
+                }
 
                 setGridState(prevGridState => {
                     return {
@@ -267,7 +298,9 @@ export const getActions = (
                             endingColumnIndex: newColumnHeaderIndex
                         }]
                     }
-                })
+                });
+
+                scheduleAnimatedColumnEnter(setUIState, sheetIndex, newColumnHeaderIndex);
             },
             isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to add columns to. Import data.'},
             searchTerms: ['add column', 'add col', 'new column', 'new col', 'insert column', 'insert col'],
@@ -512,18 +545,20 @@ export const getActions = (
 
                 const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToDelete.length > 0) {
-                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                    const rowIndices = getSelectedEntireRowDataIndexes(gridState.selections, sheetData);
+                    scheduleAnimatedRowDelete(setUIState, sheetIndex, rowIndices, () =>
+                        mitoAPI.editDeleteRow(sheetIndex, rowsToDelete)
+                    );
                 }
 
                 if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
                     const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
                     const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
 
-                    if (columnIDsToDelete !== undefined) {
-                        await mitoAPI.editDeleteColumn(
-                            sheetIndex,
-                            columnIDsToDelete
-                        )
+                    if (columnIDsToDelete !== undefined && columnIDsToDelete.length > 0) {
+                        scheduleAnimatedColumnDelete(setUIState, sheetIndex, columnIndexesSelected, () =>
+                            mitoAPI.editDeleteColumn(sheetIndex, columnIDsToDelete)
+                        );
                     }
                 } 
             },
@@ -563,9 +598,14 @@ export const getActions = (
                 // we close the editing taskpane if its open
                 closeOpenEditingPopups();
 
-                const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
-                if (rowsToDelete.length > 0) {
-                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                const sel = gridState.selections[0];
+                const rowsToDelete =
+                    sel !== undefined ? getSelectedRowLabelsInSingleSelection(sel, sheetData) : [];
+                if (rowsToDelete.length > 0 && sel !== undefined) {
+                    const rowIndices = getSelectedRowDataIndexesFromSelection(sel);
+                    scheduleAnimatedRowDelete(setUIState, sheetIndex, rowIndices, () =>
+                        mitoAPI.editDeleteRow(sheetIndex, rowsToDelete)
+                    );
                 }
             },
             isDisabled: () => {
@@ -599,11 +639,11 @@ export const getActions = (
                 const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
                 const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
 
-                if (columnIDsToDelete !== undefined) {
-                    await mitoAPI.editDeleteColumn(
-                        sheetIndex,
-                        columnIDsToDelete
-                    )
+                if (columnIDsToDelete !== undefined && columnIDsToDelete.length > 0) {
+                    const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
+                    scheduleAnimatedColumnDelete(setUIState, sheetIndex, columnIndexesSelected, () =>
+                        mitoAPI.editDeleteColumn(sheetIndex, columnIDsToDelete)
+                    );
                 }
             },
             isDisabled: () => {
@@ -1679,7 +1719,9 @@ export const getActions = (
                 // We close the editing taskpane if its open
                 closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
     
-                void mitoAPI.updateRedo();
+                void mitoAPI.updateRedo().then(() => {
+                    scheduleGridSurfaceFlash(setUIState, sheetIndex, 'undoRedo');
+                });
             },
             isDisabled: () => {return defaultActionDisabledMessage},
             searchTerms: ['redo', 'undo'],
@@ -2020,7 +2062,9 @@ export const getActions = (
                     columnIndex = uiState.currOpenDropdown.columnIndex;
                 }
                 const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
-                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.ASCENDING)
+                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.ASCENDING).then(() => {
+                    scheduleGridSurfaceFlash(setUIState, sheetIndex, 'sort');
+                });
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
@@ -2047,7 +2091,9 @@ export const getActions = (
                     columnIndex = uiState.currOpenDropdown.columnIndex;
                 }
                 const columnIDForSort = getColumnIDByIndex(sheetData, columnIndex);
-                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.DESCENDING)
+                void mitoAPI.editSortColumn(sheetIndex, columnIDForSort, SortDirection.DESCENDING).then(() => {
+                    scheduleGridSurfaceFlash(setUIState, sheetIndex, 'sort');
+                });
             },
             isDisabled: () => {
                 return doesColumnExist(startingColumnID, sheetIndex, sheetDataArray) ? defaultActionDisabledMessage : 'There are no columns to sort in the selected sheet. Add data to the sheet.'
@@ -2077,6 +2123,49 @@ export const getActions = (
             },
             searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text', 'delimiter', 'comma', 'space', 'tab', 'dash'],
             tooltip: "Split a column on a delimiter to break it into multiple columns."
+        },
+        [ActionEnum.Suggested_Formulas]: {
+            type: 'build-time',
+            staticType: ActionEnum.Suggested_Formulas,
+            iconToolbar: SuggestedFormulasIcon,
+            titleToolbar: 'Suggest',
+            longTitle: 'Suggested formula columns',
+            actionFunction: async () => {
+                closeOpenEditingPopups();
+                const r = await mitoAPI.getAIGhostColumnSuggestions(sheetIndex);
+                if ('error' in r) {
+                    return;
+                }
+                const n = r.result.length;
+                setUIState((prev) => ({
+                    ...prev,
+                    aiGhostSuggestedColumns: {
+                        ...prev.aiGhostSuggestedColumns,
+                        [sheetIndex]: r.result,
+                    },
+                    currOpenPopups: {
+                        ...prev.currOpenPopups,
+                        [PopupLocation.TopRight]: {
+                            type: PopupType.EphemeralMessage,
+                            message:
+                                n > 0
+                                    ? `Showing ${n} suggested formula column(s). Scroll right and click a header to add one.`
+                                    : 'No suggested formulas for this sheet.',
+                        },
+                    },
+                }));
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no dataframes to operate on. Import data.';
+                }
+                if (sheetData.numColumns === 0) {
+                    return 'Add columns to your sheet before loading suggestions.';
+                }
+                return defaultActionDisabledMessage;
+            },
+            searchTerms: ['suggested', 'ghost', 'formula', 'ai', 'column', 'suggest', 'fx'],
+            tooltip: 'Load suggested formula columns as previews (ghost columns). Uses AI when configured, otherwise heuristics. Click a column header to add.',
         },
         [ActionEnum.Steps]: {
             type: 'build-time',
@@ -2172,9 +2261,13 @@ export const getActions = (
                                 ...prevUIState,
                                 currOpenTaskpane: {type: TaskpaneType.NONE},
                                 selectedTabType: 'data',
-                                selectedSheetIndex: 0
+                                selectedSheetIndex: 0,
+                                gridSheetTransition: 'right',
                             }
                         });
+                        window.setTimeout(() => {
+                            setUIState((p) => ({ ...p, gridSheetTransition: undefined }));
+                        }, GRID_SHEET_TRANSITION_MS);
                     } else {
                         void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
                             type: 'existing_graph',
@@ -2191,11 +2284,17 @@ export const getActions = (
                         return;
                     } else {
                         setUIState(prevUIState => {
+                            const next =
+                                selectedSheetIndex === sheetDataArray.length - 1 ? 0 : selectedSheetIndex + 1;
                             return {
                                 ...prevUIState,
-                                selectedSheetIndex: selectedSheetIndex === sheetDataArray.length - 1 ? 0 : selectedSheetIndex + 1
-                            }
+                                selectedSheetIndex: next,
+                                gridSheetTransition: 'right',
+                            };
                         });
+                        window.setTimeout(() => {
+                            setUIState((p) => ({ ...p, gridSheetTransition: undefined }));
+                        }, GRID_SHEET_TRANSITION_MS);
                     }
                 }
             },
@@ -2222,9 +2321,13 @@ export const getActions = (
                                 ...prevUIState,
                                 currOpenTaskpane: {type: TaskpaneType.NONE},
                                 selectedTabType: 'data',
-                                selectedSheetIndex: sheetDataArray.length - 1
+                                selectedSheetIndex: sheetDataArray.length - 1,
+                                gridSheetTransition: 'left',
                             }
                         });
+                        window.setTimeout(() => {
+                            setUIState((p) => ({ ...p, gridSheetTransition: undefined }));
+                        }, GRID_SHEET_TRANSITION_MS);
                     } else {
                         void openGraphSidebar(setUIState, uiState, setEditorState, sheetDataArray, mitoAPI, {
                             type: 'existing_graph',
@@ -2241,11 +2344,17 @@ export const getActions = (
                         return;
                     } else {
                         setUIState(prevUIState => {
+                            const next =
+                                selectedSheetIndex === 0 ? sheetDataArray.length - 1 : selectedSheetIndex - 1;
                             return {
                                 ...prevUIState,
-                                selectedSheetIndex: selectedSheetIndex === 0 ? sheetDataArray.length - 1 : selectedSheetIndex - 1
-                            }
+                                selectedSheetIndex: next,
+                                gridSheetTransition: 'left',
+                            };
                         });
+                        window.setTimeout(() => {
+                            setUIState((p) => ({ ...p, gridSheetTransition: undefined }));
+                        }, GRID_SHEET_TRANSITION_MS);
                     }
                 }
             },
@@ -2266,7 +2375,8 @@ export const getActions = (
                 closeOpenEditingPopups(ALLOW_UNDO_REDO_EDITING_TASKPANES);
         
                 await mitoAPI.updateUndo();
-                
+                scheduleGridSurfaceFlash(setUIState, sheetIndex, 'undoRedo');
+
                 const currOpenTaskpane = uiState.currOpenTaskpane;
                 if (currOpenTaskpane.type === TaskpaneType.GRAPH) {
                     if (!analysisData.graphDataArray.find(graphData => graphData.graph_id === currOpenTaskpane.openGraph.graphID)) {

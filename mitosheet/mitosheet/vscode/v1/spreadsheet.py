@@ -279,7 +279,10 @@ def spreadsheet(
 
     # Render the spreadsheet
     height_style = f'height: {height};' if height else 'height: 550px;'
-    display(HTML(f'''<div id="{div_id}" style="{height_style}"></div><script>{js_code}</script>'''))  # type: ignore[no-untyped-call]
+    # Cursor/VS Code notebook iframes often lack vscode-webview: / acquireVsCodeApi; the frontend reads this flag (location.tsx).
+    display(HTML(  # type: ignore[no-untyped-call]
+        f'''<div id="{div_id}" style="{height_style}"></div><script>window.__MITO_NOTEBOOK_OUTPUT__=true;</script><script>{js_code}</script>'''
+    ))
 
     # Emit the custom MIME type so the mito-vscode extension can discover this session's
     # port and start polling /code to write generated code into the cell below.

@@ -3,6 +3,7 @@
 *.pyc
 .pytest_cache/
 venv/
+.venv-labext/
 
 # Basic ignore for a TypeScript Project
 node_modules/

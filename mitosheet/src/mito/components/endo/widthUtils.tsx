@@ -50,6 +50,26 @@ export const getWidthData = (sheetData: SheetData | undefined, defaultWidthData:
     }
 }
 
+/**
+ * Append placeholder widths for ghost (suggested) columns so horizontal scroll and viewport math match.
+ */
+export const appendGhostColumnWidths = (base: WidthData, ghostCount: number, ghostWidth = 123): WidthData => {
+    if (ghostCount <= 0) {
+        return base;
+    }
+    const widthArray = [...base.widthArray, ...Array(ghostCount).fill(ghostWidth)];
+    const widthSumArray: number[] = [];
+    for (let i = 0; i < widthArray.length; i++) {
+        const prev = i === 0 ? 0 : widthSumArray[i - 1];
+        widthSumArray.push(prev + widthArray[i]);
+    }
+    return {
+        widthArray,
+        widthSumArray,
+        totalWidth: widthArray.reduce((a, b) => a + b, 0),
+    };
+};
+
 /* 
     A helper function for changing with width of a specific
     column at a specific index.

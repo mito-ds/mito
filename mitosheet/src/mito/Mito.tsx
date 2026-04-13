@@ -6,6 +6,7 @@
 // Copyright (c) Mito
 
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { scheduleGridRowEnterAnimation } from './utils/gridMicroAnimations';
 /*
     Import CSS that we use globally, list these in alphabetical order
     to make it easier to confirm we have imported all sitewide css.
@@ -61,12 +62,14 @@ import MergeTaskpane from './components/taskpanes/Merge/MergeTaskpane';
 import PivotTaskpane from './components/taskpanes/PivotTable/PivotTaskpane';
 import SnowflakeImportTaskpane from './components/taskpanes/SnowflakeImport/SnowflakeImportTaskpane';
 import SplitTextToColumnsTaskpane from './components/taskpanes/SplitTextToColumns/SplitTextToColumnsTaskpane';
+import StreamlitAIModeTaskpane from './components/taskpanes/StreamlitAIMode/StreamlitAIModeTaskpane';
 import UpdateImportsTaskpane from './components/taskpanes/UpdateImports/UpdateImportsTaskpane';
 import UserDefinedImportTaskpane from './components/taskpanes/UserDefinedImport/UserDefinedImportTaskpane';
 import ConditionalFormattingTaskpane from './pro/taskpanes/ConditionalFormatting/ConditionalFormattingTaskpane';
 import SetDataframeFormatTaskpane from './pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane';
 import { AnalysisData, DFSource, EditorState, GridState, JupyterUtils, MitoSelection, PopupLocation, PopupType, SheetData, UIState, UserProfile } from './types';
 import { getActions } from './utils/actions';
+import { getDisplayColumnHeader } from './utils/columnHeaders';
 import { classNames } from './utils/classNames';
 import loadPlotly from './utils/plotly';
 import { MitoAPIResult } from './api/api';
@@ -142,7 +145,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
             matches: []
         },
         dataRecon: undefined,
-        taskpaneWidth: getDefaultTaskpaneWidth()
+        taskpaneWidth: getDefaultTaskpaneWidth(),
+        streamlitAIModeAnnotations: undefined,
+        streamlitAIModeFocusedId: undefined,
+        streamlitAIModePopover: undefined,
+        gridRowExitAnimation: undefined,
+        gridColumnEnterAnimation: undefined,
+        gridColumnExitAnimation: undefined,
+        gridRowEnterAnimation: undefined,
+        gridSurfaceFlash: undefined,
+        gridSelectionPulse: undefined,
+        gridEditCommitPulse: undefined,
+        gridSheetTransition: undefined,
     })
     const [editorState, setEditorState] = useState<EditorState | undefined>(undefined);
 
@@ -178,6 +192,68 @@ export const Mito = (props: MitoProps): JSX.Element => {
         // tell if an installation is broken
         void mitoAPI.log('mitosheet_rendered');
     }, [mitoAPI])
+
+    useEffect(() => {
+        const pending = uiState.pendingGhostColumnCommit;
+        if (pending === undefined) {
+            return;
+        }
+        const sd = sheetDataArray[pending.sheetIndex];
+        if (sd === undefined || sd.numColumns < pending.expectedColumnCount) {
+            return;
+        }
+        const newCol = sd.data[sd.numColumns - 1];
+        if (newCol === undefined) {
+            return;
+        }
+        const disp = getDisplayColumnHeader(newCol.columnHeader);
+        if (
+            disp !== pending.columnHeader &&
+            String(newCol.columnHeader) !== pending.columnHeader
+        ) {
+            return;
+        }
+        const formulas = sd.columnFormulasMap[newCol.columnID];
+        if (formulas !== undefined && formulas.length > 0) {
+            setUIState((prev) => ({ ...prev, pendingGhostColumnCommit: undefined }));
+            return;
+        }
+        const formulaLabel = sd.numRows > 0 ? sd.index[0] : 0;
+        setUIState((prev) => ({ ...prev, pendingGhostColumnCommit: undefined }));
+        void mitoAPI.editSetColumnFormula(
+            pending.sheetIndex,
+            newCol.columnID,
+            formulaLabel,
+            pending.formula,
+            { type: 'entire_column' },
+            'ai_ghost_column'
+        );
+    }, [sheetDataArray, uiState.pendingGhostColumnCommit, mitoAPI, setUIState]);
+
+    const prevSheetRowCountsRef = useRef<number[]>([]);
+    const skipRowEnterOnMountRef = useRef(true);
+    useEffect(() => {
+        if (skipRowEnterOnMountRef.current) {
+            skipRowEnterOnMountRef.current = false;
+            prevSheetRowCountsRef.current = sheetDataArray.map((sd) => sd.numRows);
+            return;
+        }
+        if (sheetDataArray.length !== prevSheetRowCountsRef.current.length) {
+            prevSheetRowCountsRef.current = sheetDataArray.map((sd) => sd.numRows);
+            return;
+        }
+        sheetDataArray.forEach((sd, i) => {
+            const prev = prevSheetRowCountsRef.current[i] ?? 0;
+            if (sd.numRows > prev) {
+                const newRows: number[] = [];
+                for (let r = prev; r < sd.numRows; r++) {
+                    newRows.push(r);
+                }
+                scheduleGridRowEnterAnimation(setUIState, i, newRows);
+            }
+        });
+        prevSheetRowCountsRef.current = sheetDataArray.map((sd) => sd.numRows);
+    }, [sheetDataArray, setUIState]);
 
     useEffect(() => {
         /**
@@ -913,6 +989,19 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     mitoAPI={mitoAPI}
                 />
             )
+            case TaskpaneType.STREAMLIT_AI_MODE: return (
+                <StreamlitAIModeTaskpane
+                    mitoAPI={mitoAPI}
+                    setUIState={setUIState}
+                    setGridState={setGridState}
+                    setEditorState={setEditorState}
+                    uiState={uiState}
+                    sheetDataArray={sheetDataArray}
+                    selectedSheetIndex={uiState.selectedSheetIndex}
+                    focusedAnnotationId={uiState.currOpenTaskpane.focusedAnnotationId}
+                    skipFetch={uiState.currOpenTaskpane.skipFetch}
+                />
+            )
             // AUTOGENERATED LINE: GETCURROPENTASKPANE (DO NOT DELETE)
         }
     }
@@ -967,6 +1056,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
     */
     const formulaBarAndSheetClassNames = classNames('mito-sheet-and-formula-bar-container', {
         'mito-sheet-and-formula-bar-container-wide-taskpane-open': wideTaskpaneOpen,
+        'mito-sheet-shell-transition-left': uiState.gridSheetTransition === 'left',
+        'mito-sheet-shell-transition-right': uiState.gridSheetTransition === 'right',
     })
 
     const taskpaneClassNames = classNames({

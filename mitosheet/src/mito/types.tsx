@@ -955,6 +955,53 @@ export enum PopupLocation {
     TopRight = 'top_right',
 }
 
+export type StreamlitAIModeSeverity = 'info' | 'warning' | 'critical';
+
+export type StreamlitAIModeCategory =
+    | 'outlier'
+    | 'missing'
+    | 'invalid_domain'
+    | 'inconsistency'
+    | 'duplicate'
+    | 'other';
+
+export interface StreamlitAIModeAnnotation {
+    id: string;
+    kind: 'column' | 'cell';
+    sheetIndex: number;
+    columnIndex: number;
+    rowIndex?: number;
+    text: string;
+    severity?: StreamlitAIModeSeverity;
+    category?: StreamlitAIModeCategory;
+    cellValue?: string;
+}
+
+export interface StreamlitAIModePopoverState {
+    annotationId: string;
+    x: number;
+    y: number;
+    openedFrom: 'column_header' | 'cell';
+}
+
+/** Suggested calculated column (ghost) until the user clicks to materialize it */
+export interface AIGhostSuggestedColumn {
+    id: string;
+    columnHeader: string;
+    formula: string;
+    columnDtype: string;
+    previewValues: (string | number | boolean)[];
+    description?: string;
+}
+
+/** After add_column succeeds, apply this formula to the new trailing column */
+export interface PendingGhostColumnCommit {
+    sheetIndex: number;
+    columnHeader: string;
+    formula: string;
+    expectedColumnCount: number;
+}
+
 /**
  * State of the UI, all in one place for ease.
  */
@@ -977,7 +1024,30 @@ export interface UIState {
     }
     currOpenSearch: SearchInfo;
     dataRecon: AIRecon | undefined,
-    taskpaneWidth: number
+    taskpaneWidth: number;
+    streamlitAIModeAnnotations?: StreamlitAIModeAnnotation[];
+    streamlitAIModeFocusedId?: string;
+    streamlitAIModePopover?: StreamlitAIModePopoverState;
+    /** Per-sheet suggested formula columns as ghost columns (rendered after real columns) */
+    aiGhostSuggestedColumns?: Record<number, AIGhostSuggestedColumn[]>;
+    /** Waits for sheet data to include the new column, then sets its formula */
+    pendingGhostColumnCommit?: PendingGhostColumnCommit;
+    /** Transient: rows (data indices) playing delete exit animation before backend delete */
+    gridRowExitAnimation?: { sheetIndex: number; rowIndices: number[] };
+    /** Transient: column index playing add enter animation after backend insert */
+    gridColumnEnterAnimation?: { sheetIndex: number; columnIndex: number };
+    /** Transient: column indices playing delete exit before backend delete */
+    gridColumnExitAnimation?: { sheetIndex: number; columnIndices: number[] };
+    /** Transient: newly added data row indices playing enter animation */
+    gridRowEnterAnimation?: { sheetIndex: number; rowIndices: number[] };
+    /** Transient: full-grid feedback after sort / filter / undo / replace */
+    gridSurfaceFlash?: { sheetIndex: number; kind: 'sort' | 'filter' | 'undoRedo' | 'replace' };
+    /** Transient: keyboard navigation moved the active cell */
+    gridSelectionPulse?: { sheetIndex: number; rowIndex: number; columnIndex: number };
+    /** Transient: cell edit was committed successfully */
+    gridEditCommitPulse?: { sheetIndex: number; rowIndex: number; columnIndex: number };
+    /** Transient: sheet tab changed — slide the sheet shell */
+    gridSheetTransition?: 'left' | 'right';
 }
 
 export interface SearchInfo {
@@ -1089,6 +1159,7 @@ export enum ActionEnum {
     SortAscending = 'sort ascending',
     SortDescending = 'sort descending',
     Split_Text_To_Column = 'split text to column',
+    Suggested_Formulas = 'suggested formulas',
     Steps = 'steps',
     Undo = 'undo',
     Unique_Values = 'unique values',

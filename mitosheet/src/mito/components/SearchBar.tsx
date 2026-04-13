@@ -20,6 +20,7 @@ import SearchNavigateIcon from './icons/SearchNavigateIcon';
 import CautionIcon from './icons/CautionIcon';
 import ExpandCollapseIcon from './icons/ExpandCollapseIcon';
 import { getSelectedColumnIDsWithEntireSelectedColumn } from './endo/selectionUtils';
+import { scheduleGridSurfaceFlash } from '../utils/gridMicroAnimations';
 
 interface SearchBarProps {
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
@@ -209,6 +210,7 @@ export const SearchBar: React.FC<SearchBarProps> = (props) => {
                 getSelectedColumnIDsWithEntireSelectedColumn(gridState.selections, sheetData):
                 []
         ).then(() => {
+            scheduleGridSurfaceFlash(setUIState, uiState.selectedSheetIndex, 'replace');
             getMatches();
         });
     }

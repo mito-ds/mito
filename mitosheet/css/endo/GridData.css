@@ -4,10 +4,59 @@
  */
 
 
+@keyframes mito-row-delete-exit {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-14px);
+        filter: saturate(0.55);
+    }
+}
+
 /* Row */
 .mito-grid-row {
     display: flex;
     user-select: none;
+}
+
+.mito-grid-row.mito-grid-row-exit {
+    pointer-events: none;
+    animation: mito-row-delete-exit 0.55s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mito-grid-row.mito-grid-row-exit {
+        animation: none;
+        opacity: 0;
+    }
+}
+
+@keyframes mito-column-enter {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+        filter: saturate(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+}
+
+.mito-grid-cell.mito-grid-column-enter {
+    /* `both` fill-mode: start from keyframe `from` before the first paint of the animation */
+    animation: mito-column-enter 0.6s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mito-grid-cell.mito-grid-column-enter {
+        animation: none;
+    }
 }
 
 
@@ -27,6 +76,33 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.mito-grid-cell-has-ai-note {
+    position: relative;
+}
+
+/* Yellow triangle — cell AI note (bottom-right only; see cellHasAIModeCellHighlight) */
+.mito-grid-cell-ai-corner {
+    position: absolute;
+    z-index: 2;
+    top: auto;
+    left: auto;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    background: #e4b054;
+    clip-path: polygon(100% 100%, 100% 0, 0 100%);
+}
+
+.mito-grid-cell-ai-corner:hover {
+    filter: brightness(1.08);
 }
 
 .mito-grid-cell:hover:not(.recon) {
@@ -68,4 +144,61 @@
 .modified-recon-background-color-dark {
     background-color: var(--mito-recon-modified-background-color-dark);
     color: var(--mito-recon-text-color);
+}
+
+@keyframes mito-column-delete-exit {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-18px);
+        filter: saturate(0.5);
+    }
+}
+
+@keyframes mito-row-enter {
+    from {
+        opacity: 0.35;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes mito-cell-selection-pulse {
+    0%,
+    100% {
+        box-shadow: inset 0 0 0 1px transparent;
+    }
+    50% {
+        box-shadow: inset 0 0 0 2px var(--mito-highlight);
+    }
+}
+
+@keyframes mito-cell-edit-commit-pulse {
+    0% {
+        filter: brightness(1);
+    }
+    40% {
+        filter: brightness(1.12);
+    }
+    100% {
+        filter: brightness(1);
+    }
+}
+
+.mito-grid-cell.mito-grid-column-exit {
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mito-grid-cell.mito-grid-column-exit {
+        animation: none;
+        opacity: 0;
+    }
 }

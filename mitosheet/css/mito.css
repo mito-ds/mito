@@ -107,6 +107,43 @@
     flex-direction: column;
 }
 
+@keyframes mito-sheet-shell-slide-in-left {
+    from {
+        opacity: 0.88;
+        transform: translateX(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes mito-sheet-shell-slide-in-right {
+    from {
+        opacity: 0.88;
+        transform: translateX(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.mito-sheet-and-formula-bar-container.mito-sheet-shell-transition-left {
+    animation: mito-sheet-shell-slide-in-left 0.36s ease-out;
+}
+
+.mito-sheet-and-formula-bar-container.mito-sheet-shell-transition-right {
+    animation: mito-sheet-shell-slide-in-right 0.36s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mito-sheet-and-formula-bar-container.mito-sheet-shell-transition-left,
+    .mito-sheet-and-formula-bar-container.mito-sheet-shell-transition-right {
+        animation: none;
+    }
+}
+
 .mito-sheet-and-formula-bar-container-wide-taskpane-open {
     width: 0%;
     height: 0%;

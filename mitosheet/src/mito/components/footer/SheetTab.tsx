@@ -18,6 +18,7 @@ import GraphIcon from '../icons/GraphIcon';
 import SelectedSheetTabDropdownIcon from '../icons/SelectedSheetTabDropdownIcon';
 import UnselectedSheetTabDropdownIcon from '../icons/UnselectedSheetTabDropdownIcon';
 import { openGraphSidebar } from '../taskpanes/Graph/graphUtils';
+import { GRID_SHEET_TRANSITION_MS } from '../../utils/gridMicroAnimations';
 import { TaskpaneInfo, TaskpaneType } from '../taskpanes/taskpanes';
 import GraphTabContextMenu from './GraphTabContextMenu';
 import SheetTabContextMenu from './SheetTabContextMenu';
@@ -104,6 +105,11 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                 
                 if (props.tabIDObj.tabType === 'data') {
                     const sheetIndex = props.tabIDObj.sheetIndex;
+                    const prevSheet = props.uiState.selectedSheetIndex;
+                    const shouldAnimate =
+                        props.uiState.selectedTabType === 'data' && sheetIndex !== prevSheet;
+                    const transitionDirection =
+                        shouldAnimate && sheetIndex > prevSheet ? 'right' : 'left';
                     props.setUIState(prevUIState => {
                         // If the user clicks on a data sheet tab, switch to it and make sure the graph taskpane is not open
                         const taskpaneInfo: TaskpaneInfo = prevUIState.currOpenTaskpane.type === TaskpaneType.GRAPH ? 
@@ -113,9 +119,17 @@ export default function SheetTab(props: SheetTabProps): JSX.Element {
                             ...prevUIState,
                             selectedTabType: 'data',
                             selectedSheetIndex: sheetIndex,
-                            currOpenTaskpane: taskpaneInfo
+                            currOpenTaskpane: taskpaneInfo,
+                            ...(shouldAnimate
+                                ? { gridSheetTransition: transitionDirection as 'left' | 'right' }
+                                : {}),
                         }
-                    })
+                    });
+                    if (shouldAnimate) {
+                        window.setTimeout(() => {
+                            props.setUIState((p) => ({ ...p, gridSheetTransition: undefined }));
+                        }, GRID_SHEET_TRANSITION_MS);
+                    }
                 }
             }} 
             onDoubleClick={() => {setIsRename(true)}} 

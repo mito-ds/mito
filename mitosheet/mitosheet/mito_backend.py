@@ -409,6 +409,10 @@ def sheet(
 
     Then, restart your JupyterLab instance, and refresh your browser. Mito should now render.
 
+    If the cell runs but **no sheet appears** (empty output), the JupyterLab notebook may be **untrusted**,
+    which blocks JavaScript in cell output. Use **File → Trust Notebook** in JupyterLab, or run
+    ``jupyter trust path/to/notebook.ipynb`` from a terminal, then re-run the cell.
+
     NOTE: if you have any issues with installation, please email jake@sagacollab.com
     """
     # We throw a custom error message if we're sure the user is in
@@ -487,6 +491,7 @@ def sheet(
 
     display(HTML(f"""<div id={div_id} class="mito-container-container">
         <script>
+            window.__MITO_NOTEBOOK_OUTPUT__=true;
             {js_code}
         </script>
     </div>""")) # type: ignore
