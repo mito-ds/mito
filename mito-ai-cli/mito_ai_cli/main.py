@@ -12,8 +12,6 @@ import sys
 import traceback
 from typing import Any, List, Optional
 
-from openai.types.chat import ChatCompletionMessageParam
-
 from mito_ai_core.agent import AgentContext, ToolResult
 from mito_ai_core.agent.agent_runner import AgentRunner
 from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
@@ -21,7 +19,8 @@ from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import AgentResponse, MessageType
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_python_tool_executor import PythonToolExecutor, cells_to_notebook, save_notebook
-
+from mito_ai_cli.cli_print import cli_print
+from mito_ai_cli.provider_adapter import ProviderAdapter
 from mito_ai_cli.terminal import (
     BOLD,
     CYAN,
@@ -32,26 +31,8 @@ from mito_ai_cli.terminal import (
     truncate_prompt_preview,
 )
 
-
-class ProviderAdapter:
-    """Adapts :class:`ProviderManager` to :class:`CompletionProvider` (keyword-only API)."""
-
-    def __init__(self, llm: ProviderManager) -> None:
-        self._llm = llm
-
-    async def request_completions(
-        self,
-        *,
-        message_type: Any,
-        messages: List[ChatCompletionMessageParam],
-        response_format_info: Optional[Any] = None,
-        **kwargs: Any,
-    ) -> str:
-        return await self._llm.request_completions(
-            message_type=message_type,
-            messages=messages,
-            response_format_info=response_format_info,
-        )
+# Shadow builtin so CLI output stays citation-free without per-call stripping.
+print = cli_print  # noqa: A001
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -86,7 +67,7 @@ def _print_assistant_step(response: AgentResponse) -> None:
         print("", file=sys.stderr)
         print(stylize("RESULT", BOLD, YELLOW), file=sys.stderr)
         print("", file=sys.stderr)
-        for line in response.message.splitlines():
+        for line in (response.message or "").splitlines():
             print(f"{line}", file=sys.stderr)
         
         print("", file=sys.stderr)
