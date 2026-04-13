@@ -28,6 +28,7 @@ from mito_ai_core.completions.models import (
 from mito_ai_core.utils.litellm_utils import is_litellm_configured
 from mito_ai_core.enterprise.utils import is_abacus_configured
 from mito_ai_core.utils.telemetry_utils import (
+    MITO_SERVER_FREE_TIER_LIMIT_REACHED,
     MITO_SERVER_KEY,
     USER_KEY,
     log_ai_completion_error,
@@ -299,7 +300,10 @@ class ProviderManager:
             
             except PermissionError as e:
                 # If we hit a free tier limit, then raise an exception right away without retrying.
-                self.log.exception(f"Error during request_completions: {e}")
+                if str(e) == MITO_SERVER_FREE_TIER_LIMIT_REACHED:
+                    self.log.warning("Mito server free tier monthly limit reached.")
+                else:
+                    self.log.exception(f"Error during request_completions: {e}")
                 self.last_error = CompletionError.from_exception(e)
                 log_ai_completion_error(USER_KEY if self.key_type != MITO_SERVER_KEY else MITO_SERVER_KEY, thread_id or "", message_type, e)
                 raise
@@ -494,7 +498,10 @@ class ProviderManager:
             return accumulated_response
 
         except BaseException as e:
-            self.log.exception(f"Error during stream_completions: {e}")
+            if isinstance(e, PermissionError) and str(e) == MITO_SERVER_FREE_TIER_LIMIT_REACHED:
+                self.log.warning("Mito server free tier monthly limit reached.")
+            else:
+                self.log.exception(f"Error during stream_completions: {e}")
             self.last_error = CompletionError.from_exception(e)
             log_ai_completion_error(USER_KEY if self.key_type != MITO_SERVER_KEY else MITO_SERVER_KEY, thread_id, message_type, e)
 

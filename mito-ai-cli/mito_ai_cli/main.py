@@ -19,6 +19,7 @@ from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import AgentResponse, MessageType
 from mito_ai_core.provider_manager import ProviderManager
+from mito_ai_core.utils.telemetry_utils import MITO_SERVER_FREE_TIER_LIMIT_REACHED
 from mito_ai_python_tool_executor import PythonToolExecutor, cells_to_notebook, save_notebook
 from mito_ai_cli.cli_print import cli_print
 from mito_ai_cli.provider_adapter import ProviderAdapter
@@ -28,6 +29,7 @@ from mito_ai_cli.terminal import (
     DIM,
     RED,
     YELLOW,
+    hyperlink,
     stylize,
     truncate_prompt_preview,
 )
@@ -140,6 +142,23 @@ def _print_outputs_section(paths: List[str]) -> None:
     print("", file=sys.stderr)
 
 
+def _print_free_tier_limit_exceeded() -> None:
+    """User-facing message when hosted Mito server monthly free quota is exhausted."""
+    print("", file=sys.stderr)
+    print(stylize("Free tier limit reached", BOLD, RED), file=sys.stderr)
+    print("", file=sys.stderr)
+    body = (
+        "You have used your free Mito server AI allowance for this month.\n"
+        "\n"
+        "To continue:\n"
+        "  • Set your own API key "
+        "(e.g. OPENAI_API_KEY, ANTHROPIC_API_KEY, or GEMINI_API_KEY).\n"
+        "  • Or upgrade to Mito Pro for unlimited hosted usage: https://www.trymito.io/plans."
+    )
+    print(stylize(body, DIM), file=sys.stderr)
+    print("", file=sys.stderr)
+
+
 async def _async_main(args: argparse.Namespace) -> int:
     if args.output:
         output_path = os.path.expanduser(args.output)
@@ -196,6 +215,13 @@ async def _async_main(args: argparse.Namespace) -> int:
             on_tool_result=on_tool,
             message_type=MessageType.AGENT_EXECUTION,
         )
+    except PermissionError as e:
+        if str(e) == MITO_SERVER_FREE_TIER_LIMIT_REACHED:
+            _print_free_tier_limit_exceeded()
+            return 1
+        print("Agent run failed:", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+        return 1
     except Exception:
         print("Agent run failed:", file=sys.stderr)
         traceback.print_exc(file=sys.stderr)

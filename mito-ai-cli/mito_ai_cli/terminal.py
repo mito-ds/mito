@@ -29,6 +29,18 @@ def stylize(text: str, *codes: str) -> str:
     return "".join(codes) + text + RESET
 
 
+def hyperlink(url: str, label: str) -> str:
+    """
+    OSC 8 terminal hyperlink: *label* opens *url* when clicked (supported terminals only).
+    Falls back to \"label (url)\" when stderr is not a TTY.
+    """
+    if not stderr_color_enabled():
+        return f"{label} ({url})"
+    # OSC 8: ESC ] 8 ; ; URL ST ... text ... ESC ] 8 ; ; ST
+    st = "\033\\"
+    return f"\033]8;;{url}{st}{label}\033]8;;{st}"
+
+
 def truncate_prompt_preview(text: str, max_len: int = 60) -> str:
     """Single-line preview of the user prompt for startup feedback."""
     single = " ".join(text.split())

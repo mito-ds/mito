@@ -275,6 +275,9 @@ def log_ai_completion_success(
         'model': model,
     }
 
+    num_usages = -1
+    code_cell_input = ""
+    
     try:
         code_cell_input = json.dumps(
             last_message_content.split("Code in the active code cell:")[-1]
@@ -283,13 +286,13 @@ def log_ai_completion_success(
             .strip()
             .split("```")[0]
         )
+    except:
+        pass
         
+    try:
         num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES)
     except:
-        # Most user prompts will have an associated code cell that serves as the input context.
-        # However, types like agent:planning (RIP) do not have a code cell input.
-        code_cell_input = ""
-        num_usages = -1
+        pass
 
     # Chunk certain params to work around mixpanel's 255 character limit
     code_cell_input_chunks = chunk_param(code_cell_input, "code_cell_input")
