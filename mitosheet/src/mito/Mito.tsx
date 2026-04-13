@@ -86,6 +86,7 @@ import { EDITING_TASKPANES, TASKPANE_WIDTH_MAX, TASKPANE_WIDTH_MIN, TaskpaneType
 import { Toolbar } from './components/toolbar/Toolbar';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSStyleVariables } from './utils/colors';
+import { getDisplayColumnHeader } from './utils/columnHeaders';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard, isInJupyterLabOrNotebook } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
@@ -429,6 +430,47 @@ export const Mito = (props: MitoProps): JSX.Element => {
             void openEditedPivot()
         }
     }, [uiState.selectedSheetIndex])
+
+    /*
+        When a ghost column is committed (user clicks a ghost column header to add it),
+        we wait for the new column to appear in sheetData, then apply the formula.
+    */
+    useEffect(() => {
+        const pending = uiState.pendingGhostColumnCommit;
+        if (pending === undefined) {
+            return;
+        }
+        const sd = sheetDataArray[pending.sheetIndex];
+        if (sd === undefined || sd.numColumns < pending.expectedColumnCount) {
+            return;
+        }
+        const newCol = sd.data[sd.numColumns - 1];
+        if (newCol === undefined) {
+            return;
+        }
+        const disp = getDisplayColumnHeader(newCol.columnHeader);
+        if (
+            disp !== pending.columnHeader &&
+            String(newCol.columnHeader) !== pending.columnHeader
+        ) {
+            return;
+        }
+        const formulas = sd.columnFormulasMap[newCol.columnID];
+        if (formulas !== undefined && formulas.length > 0) {
+            setUIState((prev) => ({ ...prev, pendingGhostColumnCommit: undefined }));
+            return;
+        }
+        const formulaLabel = sd.numRows > 0 ? sd.index[0] : 0;
+        setUIState((prev) => ({ ...prev, pendingGhostColumnCommit: undefined }));
+        void mitoAPI.editSetColumnFormula(
+            pending.sheetIndex,
+            newCol.columnID,
+            formulaLabel,
+            pending.formula,
+            { type: 'entire_column' },
+            'ai_ghost_column'
+        );
+    }, [sheetDataArray, uiState.pendingGhostColumnCommit, mitoAPI, setUIState]);
 
     // Store the prev open taskpane in a ref, to avoid triggering rerenders
     const prevOpenTaskpaneRef = useRef(uiState.currOpenTaskpane.type);

@@ -22,7 +22,7 @@ import { scheduleAnimatedRowDelete } from "../../utils/gridRowDeleteAnimation";
 import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
 import { ensureCellVisible } from "./visibilityUtils";
-import { reconciliateWidthDataArray } from "./widthUtils";
+import { appendGhostColumnWidths, getWidthData, reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 import { SendFunctionStatus } from "../../api/send";
 import { SearchBar } from "../SearchBar";
@@ -128,18 +128,25 @@ function EndoGrid(props: {
 
     const sheetData = sheetDataArray[sheetIndex];
 
+    const ghostSuggestedColumns = uiState.aiGhostSuggestedColumns?.[sheetIndex] ?? [];
+    const baseWidthForSheet = gridState.widthDataArray[sheetIndex] ?? getWidthData(sheetData);
+    const layoutWidthData = useMemo(
+        () => appendGhostColumnWidths(baseWidthForSheet, ghostSuggestedColumns.length),
+        [baseWidthForSheet, ghostSuggestedColumns.length]
+    );
+
     const totalSize: Dimension = {
-        width: gridState.widthDataArray[gridState.sheetIndex]?.totalWidth || 0,
+        width: layoutWidthData.totalWidth || 0,
         height: DEFAULT_HEIGHT * Math.min(sheetData?.numRows || 0, MAX_ROWS)
     }
-    
+
     const currentSheetView: SheetView = useMemo(() => {
-        return calculateCurrentSheetView(gridState)
-    }, [gridState])
+        return calculateCurrentSheetView(gridState, layoutWidthData)
+    }, [gridState, layoutWidthData])
 
     const translate: RendererTranslate = useMemo(() => {
-        return calculateTranslate(gridState);
-    }, [gridState])
+        return calculateTranslate(gridState, layoutWidthData);
+    }, [gridState, layoutWidthData])
 
     const [visualizeFloatStyle, setVisualizeFloatStyle] = useState<
         React.CSSProperties | undefined
@@ -798,6 +805,8 @@ function EndoGrid(props: {
                             mitoAPI={mitoAPI}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
                             actions={props.actions}
+                            layoutWidthData={layoutWidthData}
+                            ghostSuggestedColumns={ghostSuggestedColumns}
                         />
                         <IndexHeaders
                             sheetData={sheetData}
@@ -857,6 +866,8 @@ function EndoGrid(props: {
                             editorState={editorState}
                             actions={props.actions}
                             closeOpenEditingPopups={props.closeOpenEditingPopups}
+                            layoutWidthData={layoutWidthData}
+                            ghostSuggestedColumns={ghostSuggestedColumns}
                         />
                     </div>
                 </div>

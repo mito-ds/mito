@@ -5,9 +5,10 @@
 
 import React from 'react';
 import '../../../../css/endo/GridData.css';
+import '../../../../css/endo/GhostColumn.css';
 import { getBorderStyle, getIsCellSelected } from './selectionUtils';
 import { calculateCurrentSheetView } from './sheetViewUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../types';
+import { AIGhostSuggestedColumn, EditorState, GridState, SheetData, UIState, WidthData } from '../../types';
 import { classNames } from '../../utils/classNames';
 import { getColumnIDsArrayFromSheetDataArray } from './utils';
 import { formatCellData } from '../../utils/format';
@@ -33,9 +34,11 @@ const GridData = (props: {
     editorState: EditorState | undefined;
     actions: Actions;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
+    layoutWidthData: WidthData;
+    ghostSuggestedColumns: AIGhostSuggestedColumn[];
 }): JSX.Element => {
 
-    const currentSheetView = calculateCurrentSheetView(props.gridState);
+    const currentSheetView = calculateCurrentSheetView(props.gridState, props.layoutWidthData);
     const sheetData = props.sheetData
 
     const evenRowBackgroundColor = sheetData?.dfFormat?.rows?.even?.backgroundColor || EVEN_ROW_BACKGROUND_COLOR_DEFAULT;
@@ -72,6 +75,48 @@ const GridData = (props: {
                     <div className={rowClassNames} key={rowIndex} style={style}>
                         {Array(currentSheetView.numColumnsRendered).fill(0).map((_, _colIndex) => {
                             const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
+
+                            if (columnIndex >= (sheetData?.numColumns ?? 0)) {
+                                const ghost = props.ghostSuggestedColumns[columnIndex - (sheetData?.numColumns ?? 0)];
+                                if (ghost === undefined) {
+                                    return null;
+                                }
+                                const cellWidth = props.layoutWidthData.widthArray[columnIndex] ?? 123;
+                                const raw = ghost.previewValues[rowIndex];
+                                const displayGhost =
+                                    raw === undefined || raw === null || (typeof raw === 'number' && Number.isNaN(raw))
+                                        ? ''
+                                        : formatCellData(raw, ghost.columnDtype, undefined);
+                                return (
+                                    <div
+                                        className={classNames(
+                                            'mito-grid-cell',
+                                            'text-unselectable',
+                                            'mito-grid-cell-ghost',
+                                            { 'right-align-number-series': isNumberDtype(ghost.columnDtype) }
+                                        )}
+                                        key={`ghost-${columnIndex}`}
+                                        style={{
+                                            width: `${cellWidth}px`,
+                                            ...getBorderStyle(
+                                                props.gridState.selections,
+                                                props.gridState.copiedSelections,
+                                                rowIndex,
+                                                columnIndex,
+                                                sheetData?.numRows ?? 0,
+                                                false,
+                                                props.uiState.highlightedColumnIndex
+                                            ),
+                                        }}
+                                        tabIndex={-1}
+                                        mito-col-index={columnIndex}
+                                        mito-row-index={rowIndex}
+                                        title={displayGhost}
+                                    >
+                                        {displayGhost}
+                                    </div>
+                                );
+                            }
 
                             const isColumnEntering =
                                 colEnterAnim !== undefined &&

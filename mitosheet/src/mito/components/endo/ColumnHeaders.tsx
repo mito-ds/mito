@@ -9,10 +9,11 @@ import { getChildrenWithQuery } from './domUtils';
 import { MIN_WIDTH } from './EndoGrid';
 import { getIndexesFromXAndY } from './selectionUtils';
 import { calculateCurrentSheetView, calculateTranslate } from './sheetViewUtils';
-import { EditorState, GridState, SheetData, UIState } from '../../types';
+import { AIGhostSuggestedColumn, EditorState, GridState, SheetData, UIState, WidthData } from '../../types';
 import { MitoAPI } from '../../api/api';
 import { classNames } from '../../utils/classNames';
 import ColumnHeader from './ColumnHeader';
+import GhostColumnHeader from './GhostColumnHeader';
 import { changeColumnWidthDataArray } from './widthUtils';
 import { TaskpaneType } from '../taskpanes/taskpanes';
 import { Actions } from '../../utils/actions';
@@ -36,6 +37,8 @@ const ColumnHeaders = (props: {
     mitoAPI: MitoAPI;
     closeOpenEditingPopups: (taskpanesToKeepIfOpen?: TaskpaneType[]) => void;
     actions: Actions;
+    layoutWidthData: WidthData;
+    ghostSuggestedColumns: AIGhostSuggestedColumn[];
 }): JSX.Element => {
         
     // The div that stores all the column headers
@@ -65,13 +68,48 @@ const ColumnHeaders = (props: {
         }
     }, [props.scrollAndRenderedContainerRef, scrollAmount])
 
-    const currentSheetView = calculateCurrentSheetView(props.gridState);
-    const translate = calculateTranslate(props.gridState);
+    const currentSheetView = calculateCurrentSheetView(props.gridState, props.layoutWidthData);
+    const translate = calculateTranslate(props.gridState, props.layoutWidthData);
     const columnHeaderStyle = {transform: `translateX(${-translate.x}px)`}
+
+    const commitGhostColumn = (ghost: AIGhostSuggestedColumn): void => {
+        const prevN = props.sheetData.numColumns;
+        props.setUIState((prev) => ({
+            ...prev,
+            pendingGhostColumnCommit: {
+                sheetIndex: props.sheetIndex,
+                columnHeader: ghost.columnHeader,
+                formula: ghost.formula,
+                expectedColumnCount: prevN + 1,
+            },
+            aiGhostSuggestedColumns: {
+                ...prev.aiGhostSuggestedColumns,
+                [props.sheetIndex]: (
+                    prev.aiGhostSuggestedColumns?.[props.sheetIndex] ?? []
+                ).filter((g) => g.id !== ghost.id),
+            },
+        }));
+        void props.mitoAPI.editAddColumn(props.sheetIndex, ghost.columnHeader, prevN).then((res) => {
+            if ('error' in res) {
+                // Restore the ghost column if the add failed
+                props.setUIState((prev) => ({
+                    ...prev,
+                    pendingGhostColumnCommit: undefined,
+                    aiGhostSuggestedColumns: {
+                        ...prev.aiGhostSuggestedColumns,
+                        [props.sheetIndex]: [
+                            ...(prev.aiGhostSuggestedColumns?.[props.sheetIndex] ?? []),
+                            ghost,
+                        ],
+                    },
+                }));
+            }
+        });
+    };
 
     return (
         <>
-            {props.sheetData.numColumns > 0 && 
+            {(props.sheetData.numColumns > 0 || props.ghostSuggestedColumns.length > 0) &&
                 <div 
                     className={classNames("endo-column-headers-container", {
                         'endo-column-headers-no-operation': columnHeaderOperation === undefined,
@@ -143,7 +181,11 @@ const ColumnHeaders = (props: {
 
 
                         const dragColumnIndex = parseInt(columnIndexString);
-                        
+
+                        if (dragColumnIndex >= props.sheetData.numColumns) {
+                            return;
+                        }
+
                         if (operation === 'resize') {
                             // Get the column header container itself - note the class query
                             const columnHeaderDivs = getChildrenWithQuery(props.containerRef.current, `.endo-column-header-container[mito-col-index="${dragColumnIndex}"]`)
@@ -170,8 +212,12 @@ const ColumnHeaders = (props: {
                             if (dragColumnIndex === columnIndex) {
                                 return;
                             }
-    
+
                             if (columnIndex === undefined || columnIDToReorder === undefined) {
+                                return;
+                            }
+
+                            if (columnIndex >= props.sheetData.numColumns) {
                                 return;
                             }
 
@@ -207,6 +253,25 @@ const ColumnHeaders = (props: {
                     <div style={columnHeaderStyle}>
                         {Array(currentSheetView.numColumnsRendered).fill(0).map((_, _colIndex) => {
                             const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
+                            const headerWidth = props.layoutWidthData.widthArray[columnIndex] ?? 123;
+                            if (columnIndex >= props.sheetData.numColumns) {
+                                const ghost = props.ghostSuggestedColumns[columnIndex - props.sheetData.numColumns];
+                                if (ghost === undefined) {
+                                    return null;
+                                }
+                                return (
+                                    <GhostColumnHeader
+                                        key={ghost.id}
+                                        columnIndex={columnIndex}
+                                        width={headerWidth}
+                                        sheetData={props.sheetData}
+                                        ghost={ghost}
+                                        onCommit={() => {
+                                            commitGhostColumn(ghost);
+                                        }}
+                                    />
+                                );
+                            }
                             return (
                                 <ColumnHeader
                                     key={columnIndex}

@@ -66,6 +66,7 @@ import SortAscendingIcon from "../components/icons/SortAscendingIcon";
 import SortDescendingIcon from "../components/icons/SortDescendingIcon";
 import SortIcon from "../components/icons/SortIcon";
 import StarIcon from "../components/icons/StarIcon";
+import SuggestedFormulasIcon from "../components/icons/SuggestedFormulasIcon";
 import SummaryIcon from "../components/icons/SummaryIcon";
 import TextFunctionsIcon from "../components/icons/TextFunctionsIcon";
 import TextToColumnsIcon from "../components/icons/TextToColumnsIcon";
@@ -84,7 +85,7 @@ import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
+import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, PopupLocation, PopupType, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
@@ -2088,6 +2089,49 @@ export const getActions = (
             },
             searchTerms: ['split', 'extract', 'parse', 'column', 'splice', 'text', 'delimiter', 'comma', 'space', 'tab', 'dash'],
             tooltip: "Split a column on a delimiter to break it into multiple columns."
+        },
+        [ActionEnum.Suggested_Formulas]: {
+            type: 'build-time',
+            staticType: ActionEnum.Suggested_Formulas,
+            iconToolbar: SuggestedFormulasIcon,
+            titleToolbar: 'Suggest',
+            longTitle: 'Suggested formula columns',
+            actionFunction: async () => {
+                closeOpenEditingPopups();
+                const r = await mitoAPI.getAIGhostColumnSuggestions(sheetIndex);
+                if ('error' in r) {
+                    return;
+                }
+                const n = r.result.length;
+                setUIState((prev) => ({
+                    ...prev,
+                    aiGhostSuggestedColumns: {
+                        ...prev.aiGhostSuggestedColumns,
+                        [sheetIndex]: r.result,
+                    },
+                    currOpenPopups: {
+                        ...prev.currOpenPopups,
+                        [PopupLocation.TopRight]: {
+                            type: PopupType.EphemeralMessage,
+                            message:
+                                n > 0
+                                    ? `Showing ${n} suggested formula column(s). Scroll right and click a header to add one.`
+                                    : 'No suggested formulas for this sheet.',
+                        },
+                    },
+                }));
+            },
+            isDisabled: () => {
+                if (!doesAnySheetExist(sheetDataArray)) {
+                    return 'There are no dataframes to operate on. Import data.';
+                }
+                if (sheetData.numColumns === 0) {
+                    return 'Add columns to your sheet before loading suggestions.';
+                }
+                return defaultActionDisabledMessage;
+            },
+            searchTerms: ['suggested', 'ghost', 'formula', 'ai', 'column', 'suggest', 'fx'],
+            tooltip: 'Load suggested formula columns as previews. Uses AI when configured, otherwise heuristics. Click a ghost column header to add it.',
         },
         [ActionEnum.Steps]: {
             type: 'build-time',
