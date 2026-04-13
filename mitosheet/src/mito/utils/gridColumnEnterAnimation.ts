@@ -18,16 +18,18 @@ export function scheduleAnimatedColumnEnter(
     sheetIndex: number,
     columnIndex: number
 ): void {
-    window.setTimeout(() => {
-        setUIState((prev) => ({
-            ...prev,
-            gridColumnEnterAnimation: { sheetIndex, columnIndex },
-        }));
-        window.setTimeout(() => {
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
             setUIState((prev) => ({
                 ...prev,
-                gridColumnEnterAnimation: undefined,
+                gridColumnEnterAnimation: { sheetIndex, columnIndex },
             }));
-        }, GRID_COLUMN_ENTER_ANIM_MS);
-    }, 0);
+            window.setTimeout(() => {
+                setUIState((prev) => ({
+                    ...prev,
+                    gridColumnEnterAnimation: undefined,
+                }));
+            }, GRID_COLUMN_ENTER_ANIM_MS);
+        });
+    });
 }
