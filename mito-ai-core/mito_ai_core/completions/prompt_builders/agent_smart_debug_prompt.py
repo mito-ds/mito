@@ -7,8 +7,7 @@ from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG,
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
 # TODO:
-# 1. In the future, it might make sense to pass the previous CELL_UPDATE to this prompt?
-# 2. In the future, we should let the agent fix up the error by updating a different cell. This is sometimes a better solution. 
+# 1. In the future, we should let the agent fix up the error by updating a different cell. This is sometimes a better solution. 
 # However, to do this, we then need to know which code cells to run in order to validate the update is correct! If the error was 
 # produced by code cell 3, and the agent corrects the source of the error in code cell 2, we then need to run cell 2 and 3 to validate
 # the cell update worked properly. This could be many cells if there are intermediate cells. It might require something like a dependency 

@@ -21,6 +21,8 @@ import { LoadingStatus } from './useChatState';
 import { ensureNotebookExists } from '../utils';
 import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
 import { getCellOutputByIDInNotebook } from '../../../utils/cellOutput';
+import { didCellExecutionError } from '../../../utils/notebook';
+import { getFullErrorMessageFromTraceback } from '../../ErrorMimeRenderer/errorUtils';
 import {
     IRequestToolExecutionMessage,
     IAgentFinishedMessage,
@@ -30,6 +32,7 @@ import {
 } from '../../../websockets/completions/CompletionModels';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import type { Variable } from '../../ContextManager/VariableInspector';
+import { CodeCell } from '@jupyterlab/cells';
 
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle';
 
@@ -261,6 +264,28 @@ export const useAgentExecution = ({
                     const cells = getAIOptimizedCellsInNotebookPanel(notebookPanel);
                     const activeCellId = getActiveCellIDInNotebookPanel(notebookPanel);
                     const variables = contextManager.getNotebookContext(notebookPanel.id)?.variables;
+
+                    // If execution produced an error output, report it as a failed tool result.
+                    // This keeps cell_update failure handling consistent with run_all_cells.
+                    const activeCell = notebookPanel.content.activeCell;
+                    if (activeCell && activeCell.model.type === 'code') {
+                        const codeCell = activeCell as CodeCell;
+                        if (didCellExecutionError(codeCell)) {
+                            const errorOutput = codeCell.model.outputs?.toJSON().find(output => output.output_type === 'error');
+                            const traceback = errorOutput?.traceback as string[] | undefined;
+                            const errorMessage = traceback && traceback.length > 0
+                                ? getFullErrorMessageFromTraceback(traceback)
+                                : 'Code cell execution failed with an unknown error.';
+
+                            sendToolResult(websocketClient, command.thread_id, false, {
+                                errorMessage: errorMessage,
+                                cells: cells,
+                                toolType: 'cell_update',
+                                activeCellId: activeCellId,
+                            });
+                            break;
+                        }
+                    }
 
                     sendToolResult(websocketClient, command.thread_id, true, {
                         cells: cells,
