@@ -12,7 +12,13 @@ from typing import List, Optional, Tuple
 from mito_ai_core.agent.types import AgentContext, ToolResult
 from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate
 
+from mito_ai_python_tool_executor.blacklisted_words import check_for_blacklisted_words
 from mito_ai_python_tool_executor.kernel_session import KernelSession
+
+
+def _blacklist_error(code: str) -> Optional[str]:
+    result = check_for_blacklisted_words(code)
+    return result.reason if not result.safe else None
 
 
 def _default_cell_type(cell_update: CellUpdate) -> str:
@@ -89,6 +95,18 @@ class PythonToolExecutor:
                     variables=vars_,
                 )
 
+            blocked = _blacklist_error(cell.code)
+            if blocked:
+                vars_ = session.fetch_variables()
+                ctx.variables = vars_
+                return ToolResult(
+                    success=False,
+                    tool_name="cell_update",
+                    error_message=blocked,
+                    cells=new_cells,
+                    variables=vars_,
+                )
+
             ok, out, exec_err = session.execute(cell.code)
             self._last_cell_text[cell.id] = out if out else (exec_err or "")
 
@@ -159,6 +177,18 @@ class PythonToolExecutor:
             for cell in cells:
                 if cell.cell_type != "code":
                     continue
+                blocked = _blacklist_error(cell.code)
+                if blocked:
+                    vars_ = session.fetch_variables()
+                    ctx.variables = vars_
+                    ctx.cells = cells
+                    return ToolResult(
+                        success=False,
+                        tool_name="run_all_cells",
+                        error_message=blocked,
+                        cells=cells,
+                        variables=vars_,
+                    )
                 ok, out, err = session.execute(cell.code)
                 self._last_cell_text[cell.id] = out if out else (err or "")
                 if not ok:
@@ -220,6 +250,16 @@ class PythonToolExecutor:
     ) -> ToolResult:
         def _sync() -> ToolResult:
             session = self._ensure_session()
+            blocked = _blacklist_error(code)
+            if blocked:
+                vars_ = session.fetch_variables()
+                ctx.variables = vars_
+                return ToolResult(
+                    success=False,
+                    tool_name="scratchpad",
+                    error_message=blocked,
+                    variables=vars_,
+                )
             ok, out, err = session.execute(code)
             vars_ = session.fetch_variables()
             ctx.variables = vars_

@@ -21,8 +21,10 @@ def strip_mito_citations(text: str) -> str:
     """Remove ``[MITO_CITATION:…]`` and ``[MITO_CELL_REF:…]`` tokens (and spaces before them)."""
     if not text:
         return text
+    
     text = _MITO_CITATION_RE.sub("", text)
-    return _MITO_CELL_REF_RE.sub("", text)
+    text = _MITO_CELL_REF_RE.sub("", text)
+    return text
 
 
 def cli_print(*args: object, **kwargs: Any) -> None:
