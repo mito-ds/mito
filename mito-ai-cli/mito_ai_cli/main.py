@@ -42,11 +42,22 @@ print = cli_print  # noqa: A001
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="mito-ai",
-        description="Run the Mito AI agent and write a new notebook.",
+        description="Run the Mito AI agent to answer a data question and write a new notebook.",
     )
     sub = p.add_subparsers(dest="command", required=True)
 
-    run = sub.add_parser("run", help="Run the agent on a task and save cells to a notebook.")
+    run = sub.add_parser(
+        "run",
+        help="Run the agent to answer a data question and write a new notebook.",
+        description="Run the Mito AI agent once and save the resulting notebook.",
+        epilog=(
+            "Examples:\n"
+            "  mito-ai run \"Analyze sales by region\"\n"
+            "  mito-ai run \"Build a chart of monthly revenue\" -o reports/revenue.ipynb\n"
+            "  mito-ai run \"Summarize customer churn drivers\" --model gpt 4.1"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     run.add_argument(
         "prompt",
         help="Natural language task for the agent (quote the string if it contains spaces).",
@@ -56,14 +67,19 @@ def _build_parser() -> argparse.ArgumentParser:
         "--output",
         metavar="PATH",
         help=(
-            "Path for the output .ipynb (written once when the run finishes). "
+            "Optional path for the output notebook (same as -o PATH). "
+            "The file is written once when the run finishes. "
             "If omitted, defaults to mito-<4 hex chars>.ipynb in the current directory."
         ),
     )
     run.add_argument(
         "--model",
         metavar="NAME",
-        help="Optional model id or common name (for example: gpt 4.1, haiku 4.5).",
+        help=(
+            "Optional model to use for this run (provider id or common name). "
+            "Examples: gpt 4.1, haiku 4.5. "
+            "If omitted, the default configured model is used."
+        ),
     )
     return p
 
