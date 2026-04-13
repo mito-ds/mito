@@ -34,7 +34,12 @@ class ScratchpadResultHandler(CompletionHandler[ScratchpadResultMetadata]):
             )
 
         # Add the system message if it doesn't already exist
-        await append_agent_system_message(message_history, provider, metadata.threadId, True)
+        await append_agent_system_message(
+            message_history,
+            provider,
+            metadata.threadId,
+            metadata.isChromeBrowser,
+        )
         
         # Create the prompt
         prompt = create_scratchpad_result_prompt(metadata)

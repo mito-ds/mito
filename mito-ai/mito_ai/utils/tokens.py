@@ -1,9 +1,22 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from typing import List, Union, Optional
+from typing import Any, List, Union, Optional
 import anthropic
 from anthropic.types import MessageParam, TextBlockParam, ToolUnionParam
+
+
+def get_rough_token_estimation_from_payload(payload: Any) -> Optional[int]:
+    """
+    Get a rough estimation of token count for any serializable payload.
+    We bias towards overestimating so we do not under-count context size.
+    """
+    try:
+        # General rule of thumb: 1 token ~= 4 chars.
+        # We bias high with 1 token ~= 3 chars.
+        return int(len(str(payload)) / 3)
+    except Exception:
+        return None
 
 
 def get_rough_token_estimatation_anthropic(system_message: Union[str, List[TextBlockParam], anthropic.Omit], messages: List[MessageParam]) -> Optional[float]: 
@@ -14,16 +27,7 @@ def get_rough_token_estimatation_anthropic(system_message: Union[str, List[TextB
     optimization strategy. 
     """
     
-    try:
-        stringified_system_message = str(system_message)
-        stringified_messages = str(messages)
-        total_stringified_context = stringified_system_message + stringified_messages 
-        
-        # The general rule of thumb is: 1 token is about 4 characters. 
-        # To be safe we use:            1 token is about 3 characters
-        # This helps make sure we always overestimate
-        return len(total_stringified_context) / 3
-    
-    except: 
-        return None
+    total_context_payload = [system_message, messages]
+    rough_estimate = get_rough_token_estimation_from_payload(total_context_payload)
+    return float(rough_estimate) if rough_estimate is not None else None
 

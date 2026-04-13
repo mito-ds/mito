@@ -12,16 +12,16 @@ import { MitoAPI } from '../../api/api';
 import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { Actions } from '../../utils/actions';
 import { classNames } from '../../utils/classNames';
-import GetSupportButton from '../elements/GetSupportButton';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
+import DocumentationIcon from '../icons/DocumentationIcon';
+import AIIcon from '../icons/AIIcon';
+import HexagonAIIcon from '../icons/HexagonAI';
 import { CodeTabContents } from './CodeTabContents';
 import { DataTabContents } from './DataTabContents';
 import { FormulaTabContents } from './FormulaTabContents';
 import { HomeTabContents } from './HomeTabContents';
 import { InsertTabContents } from './InsertTabContents';
-import PlanButton from './PlanButton';
 import ToolbarButton from './ToolbarButton';
-import CheckmarkIcon from '../icons/CheckmarkIcon';
 import LoadingDots from '../elements/LoadingDots';
 import EditIcon from '../icons/EditIcon';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -127,14 +127,30 @@ export const Toolbar = (
                             </div>
                         </div> :
                         <div className='mito-toolbar-save-indicator' title='All changes are saved automatically.'>
-                            <p>Saved</p>
-                            <CheckmarkIcon />
+                            <p>Auto Save</p>
                         </div>
                     }
                     <ToolbarButton
                         id={MITO_TOOLBAR_OPEN_SEARCH_ID} // NOTE: this is used to click the open search button in plugin.tsx
                         action={props.actions.buildTimeActions[ActionEnum.OpenFind]}
                     />
+                    <div
+                        className='mito-toolbar-button-container vertical-align-content mito-toolbar-button-container-enabled'
+                        onClick={() => {
+                            props.setUIState(prev => ({
+                                ...prev,
+                                currOpenTaskpane: {type: TaskpaneType.HELP}
+                            }));
+                        }}
+                    >
+                        <button className='mito-toolbar-button' type='button'>
+                            <span title='Help'>
+                                <div className='mito-toolbar-button-icon-container'>
+                                    <DocumentationIcon />
+                                </div>
+                            </span>
+                        </button>
+                    </div>
                     <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Steps]} />
                     {!props.hideFullscreenButton && (
                         <ToolbarButton
@@ -174,20 +190,35 @@ export const Toolbar = (
                         </button>
                     })}
                 </div>
-                <div className='mito-toolbar-tabbar-right'>
-                    <GetSupportButton 
-                        userProfile={props.userProfile} 
-                        setUIState={props.setUIState} 
-                        mitoAPI={props.mitoAPI} 
-                        width='hug-contents'
-                        className='mito-plan-button'
-                    />
-                    <PlanButton
-                        uiState={props.uiState}
-                        userProfile={props.userProfile}
-                        setUIState={props.setUIState}
-                        mitoAPI={props.mitoAPI}
-                    />
+                <div className='mito-toolbar-tabbar-right' style={{gap: '6px'}}>
+                    <div
+                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
+                        onClick={() => {
+                            props.setUIState(prev => ({
+                                ...prev,
+                                currOpenTaskpane: {type: TaskpaneType.SUGGESTED_VISUALIZATIONS},
+                                selectedTabType: 'data'
+                            }));
+                        }}
+                    >
+                        <span style={{transform: 'scale(0.85)', display: 'flex'}}><HexagonAIIcon outlineColor='var(--mito-highlight)' fillColor='var(--mito-highlight-very-light)' /></span>
+                        Suggest Graphs
+                    </div>
+                    <div
+                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
+                        onClick={() => {
+                            props.setUIState(prev => ({
+                                ...prev,
+                                currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                selectedTabType: 'data'
+                            }));
+                        }}
+                    >
+                        <AIIcon />
+                        AI
+                    </div>
                 </div>
             </div>
             {/* Default to Home tab if the tab you were in is no longer defined.
