@@ -80,7 +80,6 @@ class MessageType(Enum):
     STREAMLIT_CONVERSION = "streamlit_conversion"
     STOP_AGENT = "stop_agent"
     DEPLOY_APP = "deploy_app"
-    AGENT_SCRATCHPAD_RESULT = "agent:scratchpad-result"
     REQUEST_TOOL_EXECUTION = "request_tool_execution"
     TOOL_RESULT = "tool_result"
 
@@ -156,14 +155,6 @@ class InlineCompleterMetadata():
     suffix: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
-
-@dataclass(frozen=True)
-class ScratchpadResultMetadata():
-    promptType: Literal['agent:scratchpad-result']
-    threadId: ThreadID
-    scratchpadResult: str
-    index: Optional[int] = None
-    isChromeBrowser: bool = True
 
 @dataclass(frozen=True)
 class CompletionRequest:

@@ -35,7 +35,6 @@ from mito_ai.completions.models import (
     CodeExplainMetadata,
     AgentExecutionMetadata,
     InlineCompleterMetadata,
-    ScratchpadResultMetadata,
     ToolResultMetadata,
     MessageType,
     GithubCopilotLoginStatusMessage,
@@ -49,7 +48,6 @@ from mito_ai.completions.completion_handlers.smart_debug_handler import get_smar
 from mito_ai.completions.completion_handlers.code_explain_handler import get_code_explain_completion, stream_code_explain_completion
 from mito_ai.completions.completion_handlers.inline_completer_handler import get_inline_completion
 from mito_ai.completions.completion_handlers.agent_execution_handler import get_agent_execution_completion
-from mito_ai.completions.completion_handlers.scratchpad_result_handler import get_scratchpad_result_completion
 from mito_ai.completions.agent_loop import start_agent_loop
 from mito_ai.completions.jupyter_lab_tool_executor import JupyterLabToolExecutor
 from mito_ai_core.utils.telemetry_utils import identify
@@ -417,9 +415,6 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     self._run_agent_execution_background(agent_execution_metadata)
                 )
                 return
-            elif type == MessageType.AGENT_SCRATCHPAD_RESULT:
-                scratchpad_result_metadata = ScratchpadResultMetadata(**metadata_dict)
-                completion = await get_scratchpad_result_completion(scratchpad_result_metadata, self._llm, self._message_history)
             elif type == MessageType.INLINE_COMPLETION:
                 inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
                 completion = await get_inline_completion(inline_completer_metadata, self._llm, self._message_history)

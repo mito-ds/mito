@@ -61,10 +61,6 @@ interface UseAgentExecutionProps {
         messageIndex?: number,
         additionalContext?: Array<{ type: string, value: string }>
     ) => Promise<void>;
-    // These are kept in the interface for backward compatibility but are no longer
-    // used by useAgentExecution — error retry and scratchpad are handled by the
-    // backend agent loop via request_tool_execution/tool_result messages.
-    sendScratchpadResultMessage: (scratchpadResult: string) => Promise<void>;
     agentReview: {
         acceptAllAICode: () => void;
         setNotebookSnapshotPreAgentExecution: (snapshot: any) => void;
@@ -130,7 +126,6 @@ export const useAgentExecution = ({
     addAgentToolFailureUserMessageAndUpdateState,
     getDuplicateChatHistoryManager,
     sendAgentExecutionMessage,
-    sendScratchpadResultMessage,
     agentReview,
     agentTargetNotebookPanelRef,
     audioContextRef,

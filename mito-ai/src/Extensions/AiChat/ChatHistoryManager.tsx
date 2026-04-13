@@ -8,7 +8,7 @@ import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCellsInNotebookPanel, getCellCodeByID } from "../../utils/notebook";
-import { AgentResponse, IAgentExecutionMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata, IScratchpadResultMetadata } from "../../websockets/completions/CompletionModels";
+import { AgentResponse, IAgentExecutionMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
 import { validateAndCorrectAgentResponse } from "./validationUtils";
@@ -19,7 +19,6 @@ export type PromptType =
     'smartDebug' | 
     'codeExplain' |  
     'agent:execution' | 
-    'agent:scratchpad-result' |
     'inline_completion' | 
     'fetch_history' |
     'start_new_chat' |
@@ -235,32 +234,6 @@ export class ChatHistoryManager {
         )
 
         return agentExecutionMetadata
-    }
-
-    addScratchpadResultMessage(activeThreadId: string, scratchpadResult: string): IScratchpadResultMetadata {
-        const scratchpadResultMetadata: IScratchpadResultMetadata = {
-            promptType: 'agent:scratchpad-result',
-            threadId: activeThreadId,
-            scratchpadResult: scratchpadResult,
-            isChromeBrowser: isChromeBasedBrowser(),
-        }
-
-        // Add empty user message to display history (like agent execution does for empty input)
-        const userMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'user',
-            content: ''
-        }
-
-        this.displayOptimizedChatHistory.push(
-            {
-                message: userMessage,
-                type: 'openai message',
-                promptType: 'agent:scratchpad-result',
-                scratchpadResult: scratchpadResult,
-            }
-        )
-
-        return scratchpadResultMetadata
     }
 
     addSmartDebugMessage(activeThreadId: string, errorMessage: string): ISmartDebugMetadata {

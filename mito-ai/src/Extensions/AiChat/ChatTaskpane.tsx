@@ -65,7 +65,6 @@ import {
     IChatCompletionRequest,
     ISmartDebugCompletionRequest,
     IAgentExecutionCompletionRequest,
-    IAgentScratchpadResultCompletionRequest,
     AgentResponse,
     ICompletionStreamChunk
 } from '../../websockets/completions/CompletionModels';
@@ -426,37 +425,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         websocketClient.sendOneWay(completionRequest)
     }
 
-    const sendScratchpadResultMessage = async (
-        scratchpadResult: string
-    ): Promise<void> => {
-        if (copilotBlocksChatRef.current) {
-            return;
-        }
-
-        // Step 0: reset the state for a new message
-        resetForNewMessage()
-
-        // Step 1: Add the scratchpad result message to the chat history
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-
-        const scratchpadResultMetadata = newChatHistoryManager.addScratchpadResultMessage(
-            activeThreadIdRef.current, 
-            scratchpadResult
-        )
-
-        setChatHistoryManager(newChatHistoryManager)
-        setLoadingStatus('thinking');
-
-        // Step 2: Send the message to the AI
-        const completionRequest: IAgentScratchpadResultCompletionRequest = {
-            type: 'agent:scratchpad-result',
-            message_id: UUID.uuid4(),
-            metadata: scratchpadResultMetadata,
-            stream: false
-        }
-        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
-    }
-
     /* 
         Send whatever message is currently in the chat input
     */
@@ -668,8 +636,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     const content = aiResponse.items[0]?.content ?? '';
 
-                    if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:scratchpad-result') {
-                        // Agent:Execution and Agent:ScratchpadResult prompts return a CellUpdate object that we need to parse
+                    if (completionRequest.metadata.promptType === 'agent:execution') {
+                        // Agent:Execution prompts return a structured AgentResponse that we need to parse
                         const agentResponse: AgentResponse = JSON.parse(content)
                         newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                     } else {
@@ -764,7 +732,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         addAgentToolFailureUserMessageAndUpdateState,
         getDuplicateChatHistoryManager,
         sendAgentExecutionMessage,
-        sendScratchpadResultMessage,
         agentReview,
         agentTargetNotebookPanelRef,
         setAgentReviewStatus,
