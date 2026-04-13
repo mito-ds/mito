@@ -43,20 +43,20 @@ const GridData = (props: {
     const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || ROW_TEXT_COLOR_DEFAULT;
     const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ROW_TEXT_COLOR_DEFAULT;
 
+    const exitAnim = props.uiState.gridRowExitAnimation;
+    const colEnterAnim = props.uiState.gridColumnEnterAnimation;
+    const colExitAnim = props.uiState.gridColumnExitAnimation;
+
     return (
-        <>  
+        <>
             {sheetData && sheetData.numRows > 0 && Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
                 const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
                 const columnIDs = getColumnIDsArrayFromSheetDataArray([sheetData])[0]
 
-                const exitAnim = props.uiState.gridRowExitAnimation;
                 const isRowExiting =
                     exitAnim !== undefined &&
                     exitAnim.sheetIndex === props.sheetIndex &&
                     exitAnim.rowIndices.includes(rowIndex);
-
-                const colEnterAnim = props.uiState.gridColumnEnterAnimation;
-                const colExitAnim = props.uiState.gridColumnExitAnimation;
 
                 const rowClassNames = classNames('mito-grid-row', {
                     'mito-grid-row-even': rowIndex % 2 === 0,
