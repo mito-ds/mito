@@ -71,7 +71,6 @@ type CompletionRequestMetadata =
   IScratchpadResultMetadata |
   IDeleteThreadMetadata |
   IAgentExecutionMetadata | 
-  IAgentSmartDebugMetadata |
   IUpdateModelConfigMetadata |
   IStopAgentMetadata |
   IToolResultMetadata
@@ -112,18 +111,6 @@ export interface IScratchpadResultMetadata {
   index?: number;
   isChromeBrowser?: boolean;
 }
-
-export interface IAgentSmartDebugMetadata {
-  promptType: 'agent:autoErrorFixup'
-  aiOptimizedCells: AIOptimizedCell[]
-  variables?: Variable[];
-  files?: File[];
-  errorMessage: string;
-  error_message_producing_code_cell_id: string
-  threadId: string;
-  isChromeBrowser: boolean;
-}
-
 
 export interface ISmartDebugMetadata {
   promptType: 'smartDebug'
@@ -221,11 +208,6 @@ export interface IChatCompletionRequest extends ICompletionRequest {
 export interface ISmartDebugCompletionRequest extends ICompletionRequest {
   type: 'smartDebug'
   metadata: ISmartDebugMetadata
-}
-
-export interface IAgentAutoErrorFixupCompletionRequest extends ICompletionRequest {
-  type: 'agent:autoErrorFixup'
-  metadata: IAgentSmartDebugMetadata
 }
 
 export interface ICodeExplainCompletionRequest extends ICompletionRequest {

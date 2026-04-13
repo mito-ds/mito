@@ -70,7 +70,6 @@ class MessageType(Enum):
     SMART_DEBUG = "smartDebug"
     CODE_EXPLAIN = "codeExplain"
     AGENT_EXECUTION = "agent:execution"
-    AGENT_AUTO_ERROR_FIXUP = "agent:autoErrorFixup"
     INLINE_COMPLETION = "inline_completion"
     CHAT_NAME_GENERATION = "chat_name_generation"
     START_NEW_CHAT = "start_new_chat"
@@ -132,17 +131,6 @@ class AgentExecutionMetadata():
     files: Optional[List[str]] = None
     index: Optional[int] = None
     additionalContext: Optional[List[Dict[str, str]]] = None
-    
-@dataclass(frozen=True)
-class AgentSmartDebugMetadata():
-    promptType: Literal['agent:autoErrorFixup']
-    threadId: ThreadID
-    aiOptimizedCells: List[AIOptimizedCell]
-    errorMessage: str
-    error_message_producing_code_cell_id: str
-    isChromeBrowser: bool
-    variables: Optional[List[str]] = None
-    files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
 class SmartDebugMetadata():

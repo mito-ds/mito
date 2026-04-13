@@ -64,7 +64,6 @@ import {
     ICodeExplainCompletionRequest,
     IChatCompletionRequest,
     ISmartDebugCompletionRequest,
-    IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
     IAgentScratchpadResultCompletionRequest,
     AgentResponse,
@@ -347,40 +346,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
             stream: true
-        }
-        await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
-    }
-
-    const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        if (copilotBlocksChatRef.current) {
-            return;
-        }
-        if (agentTargetNotebookPanelRef.current === null) {
-            return
-        }
-
-        // Step 0: reset the state for a new message
-        resetForNewMessage()
-
-        // Enable follow mode when sending agent debug message (same behavior as other modes)
-        setAutoScrollFollowMode(true);
-
-        // Step 1: Create message metadata
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(
-            activeThreadIdRef.current, 
-            errorMessage,
-            agentTargetNotebookPanelRef.current
-        )
-        setChatHistoryManager(newChatHistoryManager);
-        setLoadingStatus('thinking');
-
-        // Step 2: Send the message to the AI
-        const smartDebugCompletionRequest: IAgentAutoErrorFixupCompletionRequest = {
-            type: 'agent:autoErrorFixup',
-            message_id: UUID.uuid4(),
-            metadata: agentSmartDebugMessage,
-            stream: false
         }
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
@@ -703,7 +668,7 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     const content = aiResponse.items[0]?.content ?? '';
 
-                    if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:scratchpad-result' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
+                    if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:scratchpad-result') {
                         // Agent:Execution and Agent:ScratchpadResult prompts return a CellUpdate object that we need to parse
                         const agentResponse: AgentResponse = JSON.parse(content)
                         newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
@@ -800,7 +765,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         getDuplicateChatHistoryManager,
         sendAgentExecutionMessage,
         sendScratchpadResultMessage,
-        sendAgentSmartDebugMessage,
         agentReview,
         agentTargetNotebookPanelRef,
         setAgentReviewStatus,

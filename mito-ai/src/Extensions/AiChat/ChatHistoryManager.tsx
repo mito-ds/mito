@@ -7,8 +7,8 @@ import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCellsInNotebookPanel, getCellCodeByID, getCellCodeByIDInNotebookPanel } from "../../utils/notebook";
-import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata, IScratchpadResultMetadata } from "../../websockets/completions/CompletionModels";
+import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCellsInNotebookPanel, getCellCodeByID } from "../../utils/notebook";
+import { AgentResponse, IAgentExecutionMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata, IScratchpadResultMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
 import { validateAndCorrectAgentResponse } from "./validationUtils";
@@ -20,7 +20,6 @@ export type PromptType =
     'codeExplain' |  
     'agent:execution' | 
     'agent:scratchpad-result' |
-    'agent:autoErrorFixup' |
     'inline_completion' | 
     'fetch_history' |
     'start_new_chat' |
@@ -287,35 +286,6 @@ export class ChatHistoryManager {
         );
 
         return smartDebugMetadata
-    }
-
-    addAgentSmartDebugMessage(activeThreadId: string, errorMessage: string, notebookPanel: NotebookPanel): IAgentSmartDebugMetadata {
-
-        const activeCellID = getActiveCellIDInNotebookPanel(notebookPanel)
-        const activeCellCode = getCellCodeByIDInNotebookPanel(notebookPanel, activeCellID)
-
-        const notebookContext = this.contextManager.getNotebookContext(notebookPanel.id);
-        const agentSmartDebugMetadata: IAgentSmartDebugMetadata = {
-            promptType: 'agent:autoErrorFixup',
-            aiOptimizedCells: getAIOptimizedCellsInNotebookPanel(notebookPanel),
-            variables: notebookContext?.variables || [],
-            files: notebookContext?.files || [],
-            errorMessage: errorMessage,
-            error_message_producing_code_cell_id: activeCellID || '',
-            threadId: activeThreadId,
-            isChromeBrowser: isChromeBasedBrowser(),
-        }
-
-        this.displayOptimizedChatHistory.push(
-            {
-                message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
-                type: 'openai message',
-                codeCellID: activeCellID,
-                promptType: 'agent:autoErrorFixup'
-            }
-        );
-
-        return agentSmartDebugMetadata
     }
 
     addExplainCodeMessage(activeThreadId: string): ICodeExplainMetadata {

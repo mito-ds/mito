@@ -65,7 +65,6 @@ interface UseAgentExecutionProps {
     // used by useAgentExecution — error retry and scratchpad are handled by the
     // backend agent loop via request_tool_execution/tool_result messages.
     sendScratchpadResultMessage: (scratchpadResult: string) => Promise<void>;
-    sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>;
     agentReview: {
         acceptAllAICode: () => void;
         setNotebookSnapshotPreAgentExecution: (snapshot: any) => void;
@@ -132,13 +131,11 @@ export const useAgentExecution = ({
     getDuplicateChatHistoryManager,
     sendAgentExecutionMessage,
     sendScratchpadResultMessage,
-    sendAgentSmartDebugMessage,
     agentReview,
     agentTargetNotebookPanelRef,
     audioContextRef,
 }: UseAgentExecutionProps): {
     agentExecutionStatus: AgentExecutionStatus;
-    shouldContinueAgentExecution: React.MutableRefObject<boolean>;
     startAgentExecution: (
         input: string,
         setAgentReviewStatus: (status: AgentReviewStatus) => void,
@@ -250,7 +247,6 @@ export const useAgentExecution = ({
         websocketClient,
         activeThreadIdRef,
         agentTargetNotebookPanelRef,
-        shouldContinueAgentExecution,
         setLoadingStatus,
         addAIMessageFromResponseAndUpdateState,
         chatHistoryManagerRef,
@@ -287,7 +283,6 @@ export const useAgentExecution = ({
         setLoadingStatus(undefined);
     }, [
         activeThreadIdRef,
-        shouldContinueAgentExecution,
         getDuplicateChatHistoryManager,
         setChatHistoryManager,
         setLoadingStatus,
@@ -315,7 +310,6 @@ export const useAgentExecution = ({
         }
     }, [
         activeThreadIdRef,
-        shouldContinueAgentExecution,
         setLoadingStatus,
         addAgentToolFailureUserMessageAndUpdateState,
         chatHistoryManagerRef,
@@ -386,7 +380,6 @@ export const useAgentExecution = ({
     return {
         // State
         agentExecutionStatus,
-        shouldContinueAgentExecution,
 
         // Functions
         startAgentExecution,

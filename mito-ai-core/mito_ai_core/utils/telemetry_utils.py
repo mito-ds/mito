@@ -349,9 +349,6 @@ def log_ai_completion_success(
     elif message_type == MessageType.INLINE_COMPLETION:
         final_params = base_params
         log("mito_ai_inline_completion_success", params=final_params, key_type=key_type, thread_id=thread_id)
-    elif message_type == MessageType.AGENT_AUTO_ERROR_FIXUP:
-        final_params = base_params
-        log("mito_ai_agent_auto_error_fixup_success", params=final_params, key_type=key_type, thread_id=thread_id)
     else:
         final_params = base_params
         final_params["note"] = (
