@@ -6,6 +6,47 @@
 /* This file is where we should define all animations that we can reuse */
 
 
+/* Grid row/column add & delete animations */
+
+@keyframes mito-row-delete-exit {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-14px);
+        filter: saturate(0.55);
+    }
+}
+
+@keyframes mito-column-enter {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+        filter: saturate(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+}
+
+@keyframes mito-column-delete-exit {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        filter: saturate(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-18px);
+        filter: saturate(0.5);
+    }
+}
+
 /* A little bounce, so the thing goes up and down a bit */
 @keyframes bounce {
     0%,

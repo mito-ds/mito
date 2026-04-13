@@ -10,6 +10,18 @@
     user-select: none;
 }
 
+.mito-grid-row.mito-grid-row-exit {
+    pointer-events: none;
+    animation: mito-row-delete-exit 0.55s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mito-grid-row.mito-grid-row-exit {
+        animation: none;
+        opacity: 0;
+    }
+}
+
 
 /* Cell */
 .mito-grid-cell {
@@ -27,6 +39,25 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.mito-grid-cell.mito-grid-column-enter {
+    animation: mito-column-enter 0.6s ease both;
+}
+
+.mito-grid-cell.mito-grid-column-exit {
+    pointer-events: none;
+    animation: mito-column-delete-exit 0.55s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mito-grid-cell.mito-grid-column-enter {
+        animation: none;
+    }
+    .mito-grid-cell.mito-grid-column-exit {
+        animation: none;
+        opacity: 0;
+    }
 }
 
 .mito-grid-cell:hover:not(.recon) {
