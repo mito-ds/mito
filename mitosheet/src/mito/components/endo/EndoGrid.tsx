@@ -672,9 +672,9 @@ function EndoGrid(props: {
                         // If the key pressed backspace or delete key, and the user is selecting some column headers,
                         // then we delete the columns they have selected
                         const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
-                        const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID)
+                        const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID).filter((id): id is string => id !== undefined)
 
-                        if (columnIDsToDelete !== undefined) {
+                        if (columnIDsToDelete.length > 0) {
                             props.closeOpenEditingPopups();
                             scheduleAnimatedColumnDelete(setUIState, sheetIndex, columnIndexesSelected, () =>
                                 mitoAPI.editDeleteColumn(sheetIndex, columnIDsToDelete)
