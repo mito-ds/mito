@@ -31,3 +31,11 @@ def test_run_subcommand_help_exits_zero() -> None:
     out = r.stdout + r.stderr
     assert "--output" in out or "-o" in out
     assert "prompt" in out.lower()
+
+
+def test_invalid_model_shows_clean_error_without_traceback() -> None:
+    r = _run_cli(["run", "say hi", "--model", "xai"])
+    assert r.returncode == 1
+    out = r.stdout + r.stderr
+    assert "is not in the allowed model list" in out
+    assert "Traceback (most recent call last)" not in out

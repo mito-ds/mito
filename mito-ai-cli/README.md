@@ -32,10 +32,11 @@ mito-ai run "What was the average Week over week change in META stock price? Use
 mito-ai run "Your task"
 ```
 
-Optional model override (must be an allowed model):
+Optional model override (exact model id or a common name):
 
 ```bash
 mito-ai run "Your task" -o out.ipynb --model gpt-4.1
+mito-ai run "Your task" -o out.ipynb --model "haiku 4.5"
 ```
 
 You can also invoke the package as a module (no console script required):

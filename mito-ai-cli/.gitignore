@@ -1,0 +1,2 @@
+# Ignore .ipynb files in cli folder
+*.ipynb

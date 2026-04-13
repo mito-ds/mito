@@ -22,6 +22,7 @@ from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.utils.telemetry_utils import MITO_SERVER_FREE_TIER_LIMIT_REACHED
 from mito_ai_python_tool_executor import PythonToolExecutor, cells_to_notebook, save_notebook
 from mito_ai_cli.cli_print import cli_print
+from mito_ai_cli.model_name_utils import resolve_cli_model_name
 from mito_ai_cli.provider_adapter import ProviderAdapter
 from mito_ai_cli.terminal import (
     BOLD,
@@ -62,7 +63,7 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--model",
         metavar="NAME",
-        help="Optional model id (must be in the provider's allowed model list).",
+        help="Optional model id or common name (for example: gpt 4.1, haiku 4.5).",
     )
     return p
 
@@ -171,7 +172,13 @@ async def _async_main(args: argparse.Namespace) -> int:
 
     llm = ProviderManager()
     if getattr(args, "model", None):
-        llm.set_selected_model(args.model)
+        try:
+            resolved_model_name = resolve_cli_model_name(args.model)
+        except ValueError as e:
+            print(stylize(str(e), RED), file=sys.stderr)
+            return 1
+        
+        llm.set_selected_model(resolved_model_name)
 
     tool_executor = PythonToolExecutor()
     artifact_paths_from_tools: List[str] = []
