@@ -77,8 +77,9 @@
     top: 0;
     bottom: 0;
     left: 0;
-    width: 72%;
-    background: linear-gradient(to right, var(--mito-background) 42%, transparent 100%);
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, var(--mito-background) 42%, transparent 72%);
     pointer-events: none;
     z-index: 1;
 }
