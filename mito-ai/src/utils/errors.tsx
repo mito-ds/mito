@@ -4,12 +4,10 @@
  */
 
 import { OpenAI } from "openai";
-import { PromptType } from "../Extensions/AiChat/ChatHistoryManager";
 
 export const FREE_TIER_LIMIT_REACHED_ERROR_TITLE = 'mito_server_free_tier_limit_reached'
 
 export const isErrorFixupMessage = (
-    promptType: PromptType,
     message: OpenAI.Chat.ChatCompletionMessageParam,
     messageContent: string | undefined
 ): boolean => {
@@ -18,12 +16,13 @@ export const isErrorFixupMessage = (
         return false;
     }
 
-    return (
-        // Detect error-like user text heuristically.
-        (message.role === 'user' && 
-            messageContent && 
-            messageContent.includes('->') || messageContent?.includes('^') && 
-            /\w+Error:/.test(messageContent)
-        )
-    )
+    if (message.role !== 'user') {
+        return false;
+    }
+
+    // Detect error-like user text heuristically.
+    const looksLikeError = /(?:\b\w+)?Error:/.test(messageContent);
+    const hasTracePointer = messageContent.includes('->') || messageContent.includes('^');
+
+    return hasTracePointer && looksLikeError;
 }

@@ -140,13 +140,16 @@ export class ChatHistoryManager {
         return this.displayOptimizedChatHistory;
     }
 
-    addChatMessageFromHistory(message: OpenAI.Chat.ChatCompletionMessageParam): void {
+    addChatMessageFromHistory(
+        message: OpenAI.Chat.ChatCompletionMessageParam,
+        promptType: PromptType = 'chat'
+    ): void {
         this.displayOptimizedChatHistory.push(
             {
                 message: message, 
                 type: 'openai message',
                 codeCellID: undefined,
-                promptType: 'chat'
+                promptType
             }
         );
     }
@@ -413,8 +416,23 @@ export class ChatHistoryManager {
             message: userMessage,
             type: 'openai message',
             codeCellID: activeCellID,
-            promptType: 'agent:execution',
+            promptType: 'tool_result',
         });
+    }
+
+    attachScratchpadResultToLatestScratchpadMessage(scratchpadResult: string): boolean {
+        for (let i = this.displayOptimizedChatHistory.length - 1; i >= 0; i--) {
+            const item = this.displayOptimizedChatHistory[i];
+            if (item?.agentResponse?.type === 'scratchpad') {
+                this.displayOptimizedChatHistory[i] = {
+                    ...item,
+                    scratchpadResult
+                };
+                return true;
+            }
+        }
+
+        return false;
     }
 
     getLastAIMessageIndex = (): number | undefined => {

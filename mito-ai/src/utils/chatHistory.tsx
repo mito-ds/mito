@@ -23,33 +23,66 @@ export const processChatHistoryForErrorGrouping = (
     const processedDisplayOptimizedChatHistory: (GroupedErrorMessages | IDisplayOptimizedChatItem)[] = [];
     let groupedErrorMessages: GroupedErrorMessages = [];
 
+    const getNextDefinedIndex = (startIndex: number): number => {
+        let nextIndex = startIndex + 1;
+        while (nextIndex < displayOptimizedChatHistory.length && !displayOptimizedChatHistory[nextIndex]) {
+            nextIndex += 1;
+        }
+        return nextIndex;
+    };
+
+    const getPreviousDefinedIndex = (startIndex: number): number => {
+        let previousIndex = startIndex - 1;
+        while (previousIndex >= 0 && !displayOptimizedChatHistory[previousIndex]) {
+            previousIndex -= 1;
+        }
+        return previousIndex;
+    };
+
     for (let i = 0; i < displayOptimizedChatHistory.length; i++) {
         let displayOptimizedChatItem = displayOptimizedChatHistory[i];
         if (!displayOptimizedChatItem) {
             continue;
         }
 
-        // Associate scratchpad results with their corresponding scratchpad tool calls
-        // The scratchpad result is stored in the next message (the user message that follows the AI's scratchpad response)
-        if (displayOptimizedChatItem.agentResponse?.type === 'scratchpad') {
-            const nextIndex = i + 1;
-            if (nextIndex < displayOptimizedChatHistory.length) {
-                const nextItem = displayOptimizedChatHistory[nextIndex];
-                if (nextItem?.scratchpadResult) {
-                    displayOptimizedChatItem = {
-                        ...displayOptimizedChatItem,
-                        scratchpadResult: nextItem.scratchpadResult
-                    };
-                }
+        // Associate scratchpad results with their corresponding scratchpad tool calls.
+        // For persisted history, the scratchpad result is the next user message after the
+        // assistant scratchpad message; we consume it so it is rendered via ScratchpadToolUI.
+        if (displayOptimizedChatItem.agentResponse?.type === 'scratchpad' && !displayOptimizedChatItem.scratchpadResult) {
+            const nextIndex = getNextDefinedIndex(i);
+            const nextItem = displayOptimizedChatHistory[nextIndex];
+            const nextItemMessageContent = nextItem ? getContentStringFromMessage(nextItem.message)?.trim() : '';
+
+            if (
+                nextItem &&
+                nextItem.message.role === 'user' &&
+                nextItemMessageContent
+            ) {
+                displayOptimizedChatItem = {
+                    ...displayOptimizedChatItem,
+                    scratchpadResult: nextItemMessageContent
+                };
+                i = nextIndex;
             }
         }
 
         const messageContent = getContentStringFromMessage(displayOptimizedChatItem.message);
+        const previousIndex = getPreviousDefinedIndex(i);
+        const previousItem = previousIndex >= 0 ? displayOptimizedChatHistory[previousIndex] : undefined;
+        const previousAssistantType = previousItem?.message.role === 'assistant'
+            ? previousItem.agentResponse?.type
+            : undefined;
+        const isLikelyToolResultCellUpdateError = (
+            displayOptimizedChatItem.message.role === 'user' &&
+            !!messageContent &&
+            /(?:\b\w+)?Error:/.test(messageContent) &&
+            (previousAssistantType === 'cell_update' || previousAssistantType === 'run_all_cells')
+        );
+
         const _isErrorFixupMessage = isErrorFixupMessage(
-            displayOptimizedChatItem.promptType, 
             displayOptimizedChatItem.message, 
             messageContent
-        );
+        ) || isLikelyToolResultCellUpdateError;
 
         if (_isErrorFixupMessage) {
             // If the current message is an error fixup message, we add it to the current group.
@@ -63,7 +96,7 @@ export const processChatHistoryForErrorGrouping = (
             // Note: We check that the next message is an ai response to the error fixup message.
             // If the user has stopped the agent, it might not be an ai response to the error fixup message.
 
-            const next_index = i + 1;
+            const next_index = getNextDefinedIndex(i);
             const nextItem = displayOptimizedChatHistory[next_index];
             if (
                 next_index < displayOptimizedChatHistory.length &&

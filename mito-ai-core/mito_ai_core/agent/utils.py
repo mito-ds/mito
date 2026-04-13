@@ -11,6 +11,7 @@ from typing import Any, Dict, Optional
 from mito_ai_core.agent.types import AgentContext, ToolResult
 from mito_ai_core.completions.models import AgentResponse
 from mito_ai_core.logger import get_logger
+from openai.types.chat import ChatCompletionMessageParam
 
 # Optional fields in AgentResponse that may be absent from LLM output.
 # We fill them with None before constructing the model so validation
@@ -133,3 +134,23 @@ def serialize_tool_result(result: ToolResult) -> dict:
     from dataclasses import asdict
 
     return asdict(result)
+
+
+def create_display_optimized_tool_result_message(
+    tool_result: ToolResult,
+) -> ChatCompletionMessageParam:
+    """
+    Persist only the tool-result text we want to rehydrate in the UI.
+    """
+    content = ""
+
+    if tool_result.tool_name == "scratchpad" and tool_result.success and tool_result.output:
+        content = tool_result.output
+    elif (
+        tool_result.tool_name in {"cell_update", "run_all_cells"}
+        and not tool_result.success
+        and tool_result.error_message
+    ):
+        content = tool_result.error_message
+
+    return {"role": "user", "content": content}

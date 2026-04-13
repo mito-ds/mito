@@ -299,8 +299,20 @@ export const useAgentExecution = ({
         // Tool finished; backend is now moving to the next LLM step.
         setLoadingStatus('thinking');
 
-        // TODO: The tool result is what get's used as the next user message in the conversation.
-        // For something like the scratchpad result, we want to display it!
+        if (
+            msg.tool_result.success &&
+            msg.tool_result.tool_name === 'scratchpad' &&
+            msg.tool_result.output
+        ) {
+            const updatedChatHistoryManager = getDuplicateChatHistoryManager();
+            const didAttachResult = updatedChatHistoryManager.attachScratchpadResultToLatestScratchpadMessage(
+                msg.tool_result.output
+            );
+
+            if (didAttachResult) {
+                setChatHistoryManager(updatedChatHistoryManager);
+            }
+        }
 
         if (!msg.tool_result.success && msg.tool_result.error_message) {
             addAgentToolFailureUserMessageAndUpdateState(
@@ -311,6 +323,8 @@ export const useAgentExecution = ({
     }, [
         activeThreadIdRef,
         setLoadingStatus,
+        getDuplicateChatHistoryManager,
+        setChatHistoryManager,
         addAgentToolFailureUserMessageAndUpdateState,
         chatHistoryManagerRef,
     ]);

@@ -31,15 +31,12 @@ from mito_ai_core.completions.models import (
 )
 from mito_ai_core.utils.message_history_utils import append_agent_system_message
 from mito_ai_core.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
-from mito_ai_core.completions.prompt_builders.agent_tool_result_prompt import (
-    create_agent_tool_result_prompt,
-)
+from mito_ai_core.agent.utils import create_display_optimized_tool_result_message
 from mito_ai_core.logger import get_logger
 
 __all__ = ["AgentRunner"]
 
 DEFAULT_MAX_ITERATIONS = 50
-
 
 class AgentRunner:
     """Platform-agnostic agent loop.
@@ -196,8 +193,7 @@ class AgentRunner:
 
             # Build tool-result message and add to message history
             ai_optimized_tool_msg = create_ai_optimized_tool_result_message(ctx, tool_result)
-            # TODO: For some tools, like scratchpad, we would like to display the tool result to the user.
-            display_optimized_tool_msg = {"role": "user", "content": ''}
+            display_optimized_tool_msg = create_display_optimized_tool_result_message(tool_result)
             await self._message_history.append_message(ai_optimized_tool_msg, display_optimized_tool_msg, self._provider, ctx.thread_id)
 
             if on_tool_result is not None:

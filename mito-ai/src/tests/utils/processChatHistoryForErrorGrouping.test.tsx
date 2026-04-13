@@ -243,7 +243,8 @@ describe('processChatHistoryForErrorGrouping', () => {
     describe('scratchpad result association', () => {
         // Helper function to create a scratchpad tool call message
         const createScratchpadMessage = (
-            code: string
+            code: string,
+            scratchpadResult?: string
         ): IDisplayOptimizedChatItem => ({
             message: {
                 role: 'assistant',
@@ -256,46 +257,50 @@ describe('processChatHistoryForErrorGrouping', () => {
                 type: 'scratchpad',
                 message: 'Running scratchpad code',
                 scratchpad_code: code
-            }
-        });
-
-        // Helper function to create a user message with scratchpad result
-        const createScratchpadResultMessage = (
-            result: string
-        ): IDisplayOptimizedChatItem => ({
-            message: {
-                role: 'user',
-                content: `Scratchpad result: ${result}`
-            } as OpenAI.Chat.ChatCompletionMessageParam,
-            type: 'openai message',
-            promptType: 'agent:scratchpad-result',
-            codeCellID: undefined,
-            scratchpadResult: result
+            },
+            scratchpadResult
         });
 
         test('should associate scratchpad result with scratchpad tool call', () => {
             const userMessage = createMockChatItem('user', 'Calculate the sum of column A');
-            const scratchpadMessage = createScratchpadMessage('df["A"].sum()');
-            const scratchpadResultMessage = createScratchpadResultMessage('150');
+            const scratchpadMessage = createScratchpadMessage('df["A"].sum()', '150');
             const finishedTask = createAssistantMessageWithAgentResponse(
                 'The sum is 150.',
                 'finished_task'
             );
 
-            const chatHistory = [userMessage, scratchpadMessage, scratchpadResultMessage, finishedTask];
+            const chatHistory = [userMessage, scratchpadMessage, finishedTask];
             const result = processChatHistoryForErrorGrouping(chatHistory);
 
-            // Verify scratchpad message now has the scratchpadResult attached
-            expect(result).toHaveLength(4);
+            // Scratchpad result should be preserved on the scratchpad tool call message.
+            expect(result).toHaveLength(3);
             expect(result[0]).toEqual(userMessage);
             
-            // The scratchpad message should have scratchpadResult copied from the next message
             const processedScratchpadMessage = result[1] as IDisplayOptimizedChatItem;
             expect(processedScratchpadMessage.scratchpadResult).toBe('150');
             expect(processedScratchpadMessage.agentResponse?.type).toBe('scratchpad');
             
-            expect(result[2]).toEqual(scratchpadResultMessage);
-            expect(result[3]).toEqual(finishedTask);
+            expect(result[2]).toEqual(finishedTask);
+        });
+
+        test('should associate persisted next user message as scratchpad result and hide bubble', () => {
+            const userMessage = createMockChatItem('user', 'Calculate df shape');
+            const scratchpadMessage = createScratchpadMessage('df.shape');
+            const persistedScratchpadResult = createMockChatItem('user', '(100, 5)', 'chat');
+            const finishedTask = createAssistantMessageWithAgentResponse(
+                'The dataframe has 100 rows and 5 columns.',
+                'finished_task'
+            );
+
+            const chatHistory = [userMessage, scratchpadMessage, persistedScratchpadResult, finishedTask];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            expect(result).toHaveLength(3);
+            expect(result[0]).toEqual(userMessage);
+
+            const processedScratchpadMessage = result[1] as IDisplayOptimizedChatItem;
+            expect(processedScratchpadMessage.scratchpadResult).toBe('(100, 5)');
+            expect(result[2]).toEqual(finishedTask);
         });
 
         test('should not modify scratchpad message when no result follows', () => {
@@ -311,26 +316,24 @@ describe('processChatHistoryForErrorGrouping', () => {
             expect(processedScratchpadMessage.scratchpadResult).toBeUndefined();
         });
 
-        test('should not associate result when next message is not a scratchpad result', () => {
+        test('should preserve scratchpad result when following message is regular user text', () => {
             const userMessage = createMockChatItem('user', 'Calculate something');
-            const scratchpadMessage = createScratchpadMessage('df.shape');
+            const scratchpadMessage = createScratchpadMessage('df.shape', '(10, 5)');
             const regularMessage = createMockChatItem('user', 'Thanks for the help!');
 
             const chatHistory = [userMessage, scratchpadMessage, regularMessage];
             const result = processChatHistoryForErrorGrouping(chatHistory);
 
-            // Scratchpad message should not have scratchpadResult when next message doesn't have one
+            // Scratchpad result should remain attached to the scratchpad message.
             expect(result).toHaveLength(3);
             const processedScratchpadMessage = result[1] as IDisplayOptimizedChatItem;
-            expect(processedScratchpadMessage.scratchpadResult).toBeUndefined();
+            expect(processedScratchpadMessage.scratchpadResult).toBe('(10, 5)');
         });
 
         test('should handle multiple scratchpad calls in sequence', () => {
             const userMessage = createMockChatItem('user', 'Analyze this data');
-            const scratchpad1 = createScratchpadMessage('df.shape');
-            const scratchpadResult1 = createScratchpadResultMessage('(100, 5)');
-            const scratchpad2 = createScratchpadMessage('df.dtypes');
-            const scratchpadResult2 = createScratchpadResultMessage('A: int64, B: float64');
+            const scratchpad1 = createScratchpadMessage('df.shape', '(100, 5)');
+            const scratchpad2 = createScratchpadMessage('df.dtypes', 'A: int64, B: float64');
             const finishedTask = createAssistantMessageWithAgentResponse(
                 'Analysis complete.',
                 'finished_task'
@@ -338,49 +341,45 @@ describe('processChatHistoryForErrorGrouping', () => {
 
             const chatHistory = [
                 userMessage, 
-                scratchpad1, scratchpadResult1, 
-                scratchpad2, scratchpadResult2, 
+                scratchpad1,
+                scratchpad2,
                 finishedTask
             ];
             const result = processChatHistoryForErrorGrouping(chatHistory);
 
             // Both scratchpad messages should have their results associated
-            expect(result).toHaveLength(6);
+            expect(result).toHaveLength(4);
             
             const processedScratchpad1 = result[1] as IDisplayOptimizedChatItem;
             expect(processedScratchpad1.scratchpadResult).toBe('(100, 5)');
             
-            const processedScratchpad2 = result[3] as IDisplayOptimizedChatItem;
+            const processedScratchpad2 = result[2] as IDisplayOptimizedChatItem;
             expect(processedScratchpad2.scratchpadResult).toBe('A: int64, B: float64');
         });
 
         test('should handle scratchpad followed by error fixup', () => {
             const userMessage = createMockChatItem('user', 'Process data');
-            const scratchpadMessage = createScratchpadMessage('df["missing_col"]');
-            const scratchpadResultMessage = createScratchpadResultMessage('KeyError: missing_col');
+            const scratchpadMessage = createScratchpadMessage('df["missing_col"]', 'KeyError: missing_col');
             const errorMessage = createMockChatItem('user', 'KeyError: missing_col not found', 'agent:execution');
             const errorFixResponse = createAssistantMessageWithAgentResponse('Fixing the error', 'cell_update');
 
             const chatHistory = [
                 userMessage, 
                 scratchpadMessage, 
-                scratchpadResultMessage, 
                 errorMessage, 
                 errorFixResponse
             ];
             const result = processChatHistoryForErrorGrouping(chatHistory);
 
             // Scratchpad should have result, and error messages should be grouped
-            expect(result).toHaveLength(4);
+            expect(result).toHaveLength(3);
             expect(result[0]).toEqual(userMessage);
             
             const processedScratchpad = result[1] as IDisplayOptimizedChatItem;
             expect(processedScratchpad.scratchpadResult).toBe('KeyError: missing_col');
-            
-            expect(result[2]).toEqual(scratchpadResultMessage);
-            
+
             // Error messages should be grouped together
-            const errorGroup = result[3] as IDisplayOptimizedChatItem[];
+            const errorGroup = result[2] as IDisplayOptimizedChatItem[];
             expect(Array.isArray(errorGroup)).toBe(true);
             expect(errorGroup).toHaveLength(2);
         });
@@ -522,6 +521,27 @@ describe('processChatHistoryForErrorGrouping', () => {
                 [error3],                        // Standalone: error (finished_task not grouped)
                 finishedTask                     // Separate: finished_task with UI
             ]);
+        });
+
+        test('should group persisted cell_update tool errors loaded as chat messages', () => {
+            const toolCall = createAssistantMessageWithAgentResponse(
+                'Trying a fix now.',
+                'cell_update'
+            );
+            const persistedToolError = createMockChatItem(
+                'user',
+                'NameError: df is not defined',
+                'chat'
+            );
+            const nextFix = createAssistantMessageWithAgentResponse(
+                'I will recreate df before using it.',
+                'cell_update'
+            );
+
+            const chatHistory = [toolCall, persistedToolError, nextFix];
+            const result = processChatHistoryForErrorGrouping(chatHistory);
+
+            expect(result).toEqual([toolCall, [persistedToolError, nextFix]]);
         });
     });
 });
