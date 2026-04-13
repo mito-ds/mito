@@ -9,6 +9,7 @@ import argparse
 import asyncio
 import os
 import sys
+import secrets
 import traceback
 from typing import Any, List, Optional
 
@@ -50,9 +51,11 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "-o",
         "--output",
-        required=True,
         metavar="PATH",
-        help="Path for the output .ipynb (written once when the run finishes).",
+        help=(
+            "Path for the output .ipynb (written once when the run finishes). "
+            "If omitted, defaults to mito-<4 hex chars>.ipynb in the current directory."
+        ),
     )
     run.add_argument(
         "--model",
@@ -138,6 +141,11 @@ def _print_outputs_section(paths: List[str]) -> None:
 
 
 async def _async_main(args: argparse.Namespace) -> int:
+    if args.output:
+        output_path = os.path.expanduser(args.output)
+    else:
+        output_path = f"mito-{secrets.token_hex(2)}.ipynb"
+
     message_history = GlobalMessageHistory()
     thread_id = message_history.create_new_thread()
     tid = str(thread_id)
@@ -170,7 +178,7 @@ async def _async_main(args: argparse.Namespace) -> int:
     ctx = AgentContext(
         thread_id=tid,
         notebook_id="cli-notebook",
-        notebook_path=args.output,
+        notebook_path=output_path,
         cells=[],
         active_cell_id="",
         variables=None,
@@ -196,9 +204,9 @@ async def _async_main(args: argparse.Namespace) -> int:
         tool_executor.shutdown()
 
     nb = cells_to_notebook(ctx.cells)
-    save_notebook(nb, args.output)
+    save_notebook(nb, output_path)
 
-    notebook_abs = os.path.abspath(os.path.expanduser(args.output))
+    notebook_abs = os.path.abspath(os.path.expanduser(output_path))
     output_paths = [notebook_abs]
     for p in artifact_paths_from_tools:
         if p != notebook_abs and p not in output_paths:

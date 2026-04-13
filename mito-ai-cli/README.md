@@ -22,10 +22,14 @@ mito-ai --help
 
 ## Running
 
-Run a task and write the notebook:
+Run a task and write the notebook. Omit `-o` to write `mito-<4-character id>.ipynb` in the current directory.
 
 ```bash
 mito-ai run "What was the average Week over week change in META stock price? Use this data https://raw.githubusercontent.com/mito-ds/mito/refs/heads/dev/jupyterhub/meta_stock_prices.csv" -o out.ipynb
+```
+
+```bash
+mito-ai run "Your task"
 ```
 
 Optional model override (must be an allowed model):
@@ -37,5 +41,5 @@ mito-ai run "Your task" -o out.ipynb --model gpt-4.1
 You can also invoke the package as a module (no console script required):
 
 ```bash
-python -m mito_ai_cli run "Your task" -o out.ipynb
+python -m mito_ai_cli run "Your task"
 ```
