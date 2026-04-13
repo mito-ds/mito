@@ -11,7 +11,6 @@ with deterministic heuristics as fallback. Previews are computed by parsing form
 
 from __future__ import annotations
 
-import builtins
 import json
 import math
 import re
@@ -234,7 +233,9 @@ def _preview_from_formula(
     if missing:
         return []
 
-    namespace: Dict[str, Any] = {"__builtins__": builtins, "pd": pd, "np": np}
+    # Use an empty builtins dict so only explicitly whitelisted names are accessible,
+    # preventing access to exec, __import__, compile, etc.
+    namespace: Dict[str, Any] = {"__builtins__": {}, "pd": pd, "np": np}
     namespace.update(FUNCTIONS_MERGED)
     for i, name in enumerate(df_names):
         namespace[name] = dfs[i]
@@ -268,11 +269,24 @@ def _call_completion(steps_manager: StepsManagerType, prompt: str) -> Optional[s
         "temperature": 0.2,
     }
 
+    def _extract_content(body: Any) -> Optional[str]:
+        """Pull the assistant message content from an OpenAI-compatible response body."""
+        try:
+            choices = body.get('choices')
+            if not isinstance(choices, list) or len(choices) == 0:
+                return None
+            content = choices[0].get('message', {}).get('content')
+            if not isinstance(content, str) or not content.strip():
+                return None
+            return content.strip()
+        except Exception:
+            return None
+
     if byo_url is not None:
         try:
             res = requests.post(byo_url, headers={'Content-Type': 'application/json'}, json=data)
             if res.status_code == 200:
-                return res.json()['choices'][0]['message']['content'].strip()
+                return _extract_content(res.json())
         except Exception:
             pass
         return None
@@ -285,7 +299,7 @@ def _call_completion(steps_manager: StepsManagerType, prompt: str) -> Optional[s
                 json=data,
             )
             if res.status_code == 200:
-                return res.json()['choices'][0]['message']['content'].strip()
+                return _extract_content(res.json())
         except Exception:
             pass
 
@@ -349,7 +363,7 @@ def get_ai_ghost_column_suggestions(
         return {"suggestions": []}
 
     df = steps_manager.dfs[sheet_index]
-    if df is None or len(df.columns) == 0:
+    if df is None or len(df.columns) == 0 or len(df) == 0:
         return {"suggestions": []}
 
     df_names = steps_manager.curr_step.final_defined_state.df_names

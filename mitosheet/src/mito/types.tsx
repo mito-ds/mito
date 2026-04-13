@@ -1006,6 +1006,8 @@ export interface UIState {
     aiGhostSuggestedColumns?: Record<number, AIGhostSuggestedColumn[]>;
     /** Pending ghost column commit: add column then set its formula */
     pendingGhostColumnCommit?: PendingGhostColumnCommit;
+    /** True while the Suggest button is waiting for the backend to return suggestions */
+    aiGhostSuggestionsLoading?: boolean;
 }
 
 export interface SearchInfo {

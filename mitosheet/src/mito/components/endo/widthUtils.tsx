@@ -66,7 +66,7 @@ export const appendGhostColumnWidths = (base: WidthData, ghostCount: number, gho
     return {
         widthArray,
         widthSumArray,
-        totalWidth: widthArray.reduce((a, b) => a + b, 0),
+        totalWidth: base.totalWidth + ghostCount * ghostWidth,
     };
 };
 

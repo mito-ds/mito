@@ -86,7 +86,6 @@ import { EDITING_TASKPANES, TASKPANE_WIDTH_MAX, TASKPANE_WIDTH_MIN, TaskpaneType
 import { Toolbar } from './components/toolbar/Toolbar';
 import { useMitoAPI } from './hooks/useMitoAPI';
 import { getCSSStyleVariables } from './utils/colors';
-import { getDisplayColumnHeader } from './utils/columnHeaders';
 import { handleKeyboardShortcuts } from './utils/keyboardShortcuts';
 import { isInDashboard, isInJupyterLabOrNotebook } from './utils/location';
 import { shallowEqualToDepth } from './utils/objects';
@@ -388,9 +387,20 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 newSheetIndex = sheetDataArray.length - 1 >= 0 ? sheetDataArray.length - 1 : 0;
             }
             
+            // Drop ghost column suggestions for any sheet indices that no longer exist.
+            const validIndices = new Set(sheetDataArray.map((_, i) => i));
+            const pruned = prevUIState.aiGhostSuggestedColumns
+                ? Object.fromEntries(
+                    Object.entries(prevUIState.aiGhostSuggestedColumns).filter(([k]) =>
+                        validIndices.has(Number(k))
+                    )
+                )
+                : undefined;
+
             return {
                 ...prevUIState,
                 selectedSheetIndex: newSheetIndex,
+                aiGhostSuggestedColumns: pruned && Object.keys(pruned).length > 0 ? pruned : undefined,
             };
         })
 
@@ -444,15 +454,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
         if (sd === undefined || sd.numColumns < pending.expectedColumnCount) {
             return;
         }
-        const newCol = sd.data[sd.numColumns - 1];
+        // Use the column at exactly the expected position — position-based matching
+        // is reliable because editAddColumn always appends, and we verified
+        // sd.numColumns === pending.expectedColumnCount above.
+        const newCol = sd.data[pending.expectedColumnCount - 1];
         if (newCol === undefined) {
-            return;
-        }
-        const disp = getDisplayColumnHeader(newCol.columnHeader);
-        if (
-            disp !== pending.columnHeader &&
-            String(newCol.columnHeader) !== pending.columnHeader
-        ) {
             return;
         }
         const formulas = sd.columnFormulasMap[newCol.columnID];
@@ -471,6 +477,20 @@ export const Mito = (props: MitoProps): JSX.Element => {
             'ai_ghost_column'
         );
     }, [sheetDataArray, uiState.pendingGhostColumnCommit, mitoAPI, setUIState]);
+
+    /*
+        Clear ghost column suggestions whenever the user undoes or redoes a step.
+        Suggestions were computed for a specific data state; after undo/redo that
+        state no longer matches, so they'd be misleading.
+    */
+    useEffect(() => {
+        setUIState((prev) => {
+            if (!prev.aiGhostSuggestedColumns) {
+                return prev;
+            }
+            return { ...prev, aiGhostSuggestedColumns: undefined };
+        });
+    }, [analysisData.currStepIdx, setUIState]);
 
     // Store the prev open taskpane in a ref, to avoid triggering rerenders
     const prevOpenTaskpaneRef = useRef(uiState.currOpenTaskpane.type);

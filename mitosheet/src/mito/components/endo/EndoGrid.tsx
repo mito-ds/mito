@@ -129,7 +129,10 @@ function EndoGrid(props: {
     const sheetData = sheetDataArray[sheetIndex];
 
     const ghostSuggestedColumns = uiState.aiGhostSuggestedColumns?.[sheetIndex] ?? [];
-    const baseWidthForSheet = gridState.widthDataArray[sheetIndex] ?? getWidthData(sheetData);
+    const baseWidthForSheet = useMemo(
+        () => gridState.widthDataArray[sheetIndex] ?? getWidthData(sheetData),
+        [gridState.widthDataArray, sheetIndex, sheetData]
+    );
     const layoutWidthData = useMemo(
         () => appendGhostColumnWidths(baseWidthForSheet, ghostSuggestedColumns.length),
         [baseWidthForSheet, ghostSuggestedColumns.length]
@@ -738,9 +741,16 @@ function EndoGrid(props: {
                 // Prevent the default of the key (to scroll or tab)
                 e.preventDefault()
 
-                // Update the selection
+                // Update the selection, clamping to real columns so arrow keys
+                // never land on a ghost column index.
                 setGridState((gridState) => {
-                    const newSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, sheetData);
+                    const rawSelection = getNewSelectionAfterKeyPress(gridState.selections[gridState.selections.length - 1], e, sheetData);
+                    const maxColIdx = (sheetData?.numColumns ?? 1) - 1;
+                    const newSelection = {
+                        ...rawSelection,
+                        startingColumnIndex: Math.min(rawSelection.startingColumnIndex, maxColIdx),
+                        endingColumnIndex: Math.min(rawSelection.endingColumnIndex, maxColIdx),
+                    };
                     ensureCellVisible(
                         containerRef.current, scrollAndRenderedContainerRef.current,
                         currentSheetView, gridState,

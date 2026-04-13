@@ -2098,13 +2098,16 @@ export const getActions = (
             longTitle: 'Suggested formula columns',
             actionFunction: async () => {
                 closeOpenEditingPopups();
+                setUIState((prev) => ({ ...prev, aiGhostSuggestionsLoading: true }));
                 const r = await mitoAPI.getAIGhostColumnSuggestions(sheetIndex);
                 if ('error' in r) {
+                    setUIState((prev) => ({ ...prev, aiGhostSuggestionsLoading: false }));
                     return;
                 }
                 const n = r.result.length;
                 setUIState((prev) => ({
                     ...prev,
+                    aiGhostSuggestionsLoading: false,
                     aiGhostSuggestedColumns: {
                         ...prev.aiGhostSuggestedColumns,
                         [sheetIndex]: r.result,
@@ -2122,6 +2125,9 @@ export const getActions = (
                 }));
             },
             isDisabled: () => {
+                if (uiState.aiGhostSuggestionsLoading) {
+                    return 'Loading suggestions…';
+                }
                 if (!doesAnySheetExist(sheetDataArray)) {
                     return 'There are no dataframes to operate on. Import data.';
                 }

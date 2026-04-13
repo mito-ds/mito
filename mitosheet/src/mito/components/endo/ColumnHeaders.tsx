@@ -74,6 +74,9 @@ const ColumnHeaders = (props: {
 
     const commitGhostColumn = (ghost: AIGhostSuggestedColumn): void => {
         const prevN = props.sheetData.numColumns;
+        // Set the pending commit first — the ghost stays visible until the
+        // add_column round-trip completes, so there's no need for an
+        // optimistic remove + error-recovery restore pattern.
         props.setUIState((prev) => ({
             ...prev,
             pendingGhostColumnCommit: {
@@ -82,25 +85,21 @@ const ColumnHeaders = (props: {
                 formula: ghost.formula,
                 expectedColumnCount: prevN + 1,
             },
-            aiGhostSuggestedColumns: {
-                ...prev.aiGhostSuggestedColumns,
-                [props.sheetIndex]: (
-                    prev.aiGhostSuggestedColumns?.[props.sheetIndex] ?? []
-                ).filter((g) => g.id !== ghost.id),
-            },
         }));
         void props.mitoAPI.editAddColumn(props.sheetIndex, ghost.columnHeader, prevN).then((res) => {
             if ('error' in res) {
-                // Restore the ghost column if the add failed
+                // Add failed — clear the pending commit so nothing is left dangling.
+                props.setUIState((prev) => ({ ...prev, pendingGhostColumnCommit: undefined }));
+            } else {
+                // Success — remove the ghost from the suggestion list now that
+                // the real column is being created.
                 props.setUIState((prev) => ({
                     ...prev,
-                    pendingGhostColumnCommit: undefined,
                     aiGhostSuggestedColumns: {
                         ...prev.aiGhostSuggestedColumns,
-                        [props.sheetIndex]: [
-                            ...(prev.aiGhostSuggestedColumns?.[props.sheetIndex] ?? []),
-                            ghost,
-                        ],
+                        [props.sheetIndex]: (
+                            prev.aiGhostSuggestedColumns?.[props.sheetIndex] ?? []
+                        ).filter((g) => g.id !== ghost.id),
                     },
                 }));
             }
