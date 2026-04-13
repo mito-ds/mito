@@ -9,7 +9,7 @@ import { MitoAPI, getRandomId } from "../api/api";
 import { SendFunctionStatus } from "../api/send";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedEntireRowDataIndexes, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getAnyGraphIsSelected } from "../components/endo/utils";
 import AIIcon from "../components/icons/AIIcon";
 import AddColumnIcon from "../components/icons/AddColumnIcon";
@@ -90,6 +90,8 @@ import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
 import { scheduleAnimatedColumnEnter } from './gridColumnEnterAnimation';
+import { scheduleAnimatedColumnDelete } from './gridMicroAnimations';
+import { scheduleAnimatedRowDelete } from './gridRowDeleteAnimation';
 import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
 import SelectDataIcon from "../components/icons/GraphToolbar/SelectDataIcon";
 import HexagonAIIcon from "../components/icons/HexagonAI";
@@ -518,20 +520,22 @@ export const getActions = (
 
                 const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToDelete.length > 0) {
-                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                    const rowIndices = getSelectedEntireRowDataIndexes(gridState.selections, sheetData);
+                    scheduleAnimatedRowDelete(setUIState, sheetIndex, rowIndices, () =>
+                        mitoAPI.editDeleteRow(sheetIndex, rowsToDelete)
+                    );
                 }
 
                 if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
                     const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
                     const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
 
-                    if (columnIDsToDelete !== undefined) {
-                        await mitoAPI.editDeleteColumn(
-                            sheetIndex,
-                            columnIDsToDelete
-                        )
+                    if (columnIDsToDelete.length > 0) {
+                        scheduleAnimatedColumnDelete(setUIState, sheetIndex, columnIndexesSelected, () =>
+                            mitoAPI.editDeleteColumn(sheetIndex, columnIDsToDelete)
+                        );
                     }
-                } 
+                }
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
@@ -571,7 +575,10 @@ export const getActions = (
 
                 const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
                 if (rowsToDelete.length > 0) {
-                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                    const rowIndices = getSelectedEntireRowDataIndexes(gridState.selections, sheetData);
+                    scheduleAnimatedRowDelete(setUIState, sheetIndex, rowIndices, () =>
+                        mitoAPI.editDeleteRow(sheetIndex, rowsToDelete)
+                    );
                 }
             },
             isDisabled: () => {
@@ -605,11 +612,10 @@ export const getActions = (
                 const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
                 const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
 
-                if (columnIDsToDelete !== undefined) {
-                    await mitoAPI.editDeleteColumn(
-                        sheetIndex,
-                        columnIDsToDelete
-                    )
+                if (columnIDsToDelete.length > 0) {
+                    scheduleAnimatedColumnDelete(setUIState, sheetIndex, columnIndexesSelected, () =>
+                        mitoAPI.editDeleteColumn(sheetIndex, columnIDsToDelete)
+                    );
                 }
             },
             isDisabled: () => {
