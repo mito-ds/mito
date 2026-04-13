@@ -43,3 +43,14 @@ You can also invoke the package as a module (no console script required):
 ```bash
 python -m mito_ai_cli run "Your task"
 ```
+
+## Tests
+
+Unit tests (help / argparse) run offline:
+
+```bash
+pip install -e ../mito-ai-core -e ../mito-ai-python-tool-executor -e ".[test]"
+pytest
+```
+
+Live integration test (full agent loop, network, and your AI configuration): set `MITO_AI_CLI_E2E=1`, then run `pytest tests/test_cli_integration.py -v`. Without that variable, the integration test is skipped.

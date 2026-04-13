@@ -17,5 +17,16 @@ dependencies = [
 [project.scripts]
 mito-ai = "mito_ai_cli.main:main"
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: live CLI / full stack (opt-in via MITO_AI_CLI_E2E=1)",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["mito_ai_cli"]
