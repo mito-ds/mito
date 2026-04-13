@@ -30,7 +30,6 @@ from mito_ai_cli.terminal import (
     DIM,
     RED,
     YELLOW,
-    hyperlink,
     stylize,
     truncate_prompt_preview,
 )
@@ -252,8 +251,12 @@ async def _async_main(args: argparse.Namespace) -> int:
     finally:
         tool_executor.shutdown()
 
-    nb = cells_to_notebook(ctx.cells)
-    save_notebook(nb, output_path)
+    try:
+        nb = cells_to_notebook(ctx.cells)
+        save_notebook(nb, output_path)
+    except Exception as e:
+        print(stylize(f"Failed to save notebook: {e}", RED), file=sys.stderr)
+        return 1
 
     notebook_abs = os.path.abspath(os.path.expanduser(output_path))
     output_paths = [notebook_abs]
