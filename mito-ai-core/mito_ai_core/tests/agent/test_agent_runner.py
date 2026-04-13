@@ -140,6 +140,32 @@ class FakeToolExecutor:
         }))
         return ToolResult(success=True, output="Use yfinance")
 
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        self.calls.append(("create_streamlit_app", {
+            "ctx": ctx,
+            "message": message,
+            "streamlit_app_prompt": streamlit_app_prompt,
+        }))
+        return ToolResult(success=True, output="Created Streamlit app preview")
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("edit_streamlit_app", {
+            "ctx": ctx,
+            "streamlit_app_prompt": streamlit_app_prompt,
+            "message": message,
+        }))
+        return ToolResult(success=True, output="Edited Streamlit app preview")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -370,6 +396,44 @@ class TestToolDispatch:
         assert result.finished is True
         assert executor.calls[0][0] == "ask_user_question"
 
+    @pytest.mark.asyncio
+    async def test_create_streamlit_app_dispatched(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json(
+                "create_streamlit_app",
+                message="Creating app.",
+                streamlit_app_prompt="Create an app with filters",
+            ),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert executor.calls[0][0] == "create_streamlit_app"
+
+    @pytest.mark.asyncio
+    async def test_edit_streamlit_app_dispatched(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json(
+                "edit_streamlit_app",
+                message="Editing app.",
+                streamlit_app_prompt="Add a sidebar date filter",
+            ),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert executor.calls[0][0] == "edit_streamlit_app"
+
 
 class TestContextUpdated:
     """ToolResult feeds back into ctx."""
@@ -486,26 +550,6 @@ class TestWorkingHistory:
         ]
 
 
-class TestNonDispatchableStopsLoop:
-    """Non-dispatchable types (e.g. create_streamlit_app) stop the loop."""
-
-    @pytest.mark.asyncio
-    async def test_streamlit_stops(self) -> None:
-        provider = FakeProviderManager([
-            _agent_response_json("create_streamlit_app", message="Creating app."),
-        ])
-        executor = FakeToolExecutor()
-        mh, ctx = _new_history_and_ctx()
-        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
-
-        result = await runner.run(ctx, "")
-
-        assert result.finished is False
-        assert result.final_response.type == "create_streamlit_app"
-        assert result.iterations == 1
-        assert len(executor.calls) == 0
-
-
 class TestNullPayloadHandling:
     """Agent returns a dispatchable type with a null required payload."""
 
@@ -525,6 +569,24 @@ class TestNullPayloadHandling:
         assert result.finished is True
         assert result.iterations == 2
         # The tool result message should mention the failure
+        assert provider.messages_per_call[1][3]["role"] == "user"
+        tool_msg_content = provider.messages_per_call[1][3]["content"]
+        assert "failed" in str(tool_msg_content).lower()
+
+    @pytest.mark.asyncio
+    async def test_null_edit_streamlit_app_prompt(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json("edit_streamlit_app", message="oops", streamlit_app_prompt=None),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert result.iterations == 2
         assert provider.messages_per_call[1][3]["role"] == "user"
         tool_msg_content = provider.messages_per_call[1][3]["content"]
         assert "failed" in str(tool_msg_content).lower()

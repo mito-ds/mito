@@ -59,6 +59,8 @@ class AgentRunner:
             "get_cell_output",
             "scratchpad",
             "ask_user_question",
+            "create_streamlit_app",
+            "edit_streamlit_app",
         }
     )
 
@@ -286,6 +288,26 @@ class AgentRunner:
                 response.question,
                 response.message,
                 response.answers,
+            )
+
+        if rtype == "create_streamlit_app":
+            return await self._tool_executor.create_streamlit_app(
+                ctx,
+                response.message,
+                response.streamlit_app_prompt,
+            )
+
+        if rtype == "edit_streamlit_app":
+            if response.streamlit_app_prompt is None:
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message="Agent returned edit_streamlit_app but streamlit_app_prompt is null.",
+                )
+            return await self._tool_executor.edit_streamlit_app(
+                ctx,
+                response.streamlit_app_prompt,
+                response.message,
             )
 
         # Unreachable when called from run() (DISPATCHABLE guard), but

@@ -6,6 +6,7 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeCell } from '@jupyterlab/cells';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { IStreamlitPreviewManager } from '../../AppPreview/StreamlitPreviewPlugin';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import type { Variable } from '../../ContextManager/VariableInspector';
 import { getFullErrorMessageFromTraceback } from '../../ErrorMimeRenderer/errorUtils';
@@ -33,6 +34,7 @@ interface IAgentToolExecutorProps {
     agentResponse: AgentResponse;
     app: JupyterFrontEnd;
     notebookPanel: NotebookPanel;
+    streamlitPreviewManager: IStreamlitPreviewManager;
     contextManager: IContextManager;
     setLoadingStatus: (status: LoadingStatus) => void;
     addAIMessageFromResponseAndUpdateState: (
@@ -57,6 +59,7 @@ export const executeAgentTool = async ({
     agentResponse,
     app,
     notebookPanel,
+    streamlitPreviewManager,
     contextManager,
     setLoadingStatus,
     addAIMessageFromResponseAndUpdateState,
@@ -213,8 +216,67 @@ export const executeAgentTool = async ({
                 shouldStopAgent: true,
             };
         }
-        case 'create_streamlit_app':
-        case 'edit_streamlit_app':
+        case 'create_streamlit_app': {
+            const createStreamlitAppPrompt = agentResponse.streamlit_app_prompt || '';
+            const streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(
+                app,
+                notebookPanel,
+                createStreamlitAppPrompt
+            );
+
+            if (streamlitPreviewResponse.type === 'error') {
+                return {
+                    success: false,
+                    toolType: 'create_streamlit_app',
+                    errorMessage: streamlitPreviewResponse.message,
+                };
+            }
+
+            return {
+                success: true,
+                toolType: 'create_streamlit_app',
+                output: 'Created Streamlit app preview',
+            };
+        }
+        case 'edit_streamlit_app': {
+            if (!agentResponse.streamlit_app_prompt) {
+                return {
+                    success: false,
+                    errorMessage: 'streamlit_app_prompt is missing',
+                    toolType: 'edit_streamlit_app',
+                };
+            }
+
+            let streamlitPreviewResponse = await streamlitPreviewManager.openAppPreview(
+                app,
+                notebookPanel
+            );
+            if (streamlitPreviewResponse.type === 'error') {
+                return {
+                    success: false,
+                    toolType: 'edit_streamlit_app',
+                    errorMessage: streamlitPreviewResponse.message,
+                };
+            }
+
+            streamlitPreviewResponse = await streamlitPreviewManager.editExistingPreview(
+                agentResponse.streamlit_app_prompt,
+                notebookPanel
+            );
+            if (streamlitPreviewResponse.type === 'error') {
+                return {
+                    success: false,
+                    toolType: 'edit_streamlit_app',
+                    errorMessage: streamlitPreviewResponse.message,
+                };
+            }
+
+            return {
+                success: true,
+                toolType: 'edit_streamlit_app',
+                output: 'Updated Streamlit app preview',
+            };
+        }
         case 'finished_task':
         default:
             return unsupportedFrontendToolResult(agentResponse.type);

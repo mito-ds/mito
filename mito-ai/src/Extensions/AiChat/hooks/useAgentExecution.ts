@@ -220,6 +220,7 @@ export const useAgentExecution = ({
                 agentResponse: command.agent_response,
                 app,
                 notebookPanel,
+                streamlitPreviewManager,
                 contextManager,
                 setLoadingStatus,
                 addAIMessageFromResponseAndUpdateState,
@@ -254,6 +255,7 @@ export const useAgentExecution = ({
         addAIMessageFromResponseAndUpdateState,
         chatHistoryManagerRef,
         app,
+        streamlitPreviewManager,
         markAgentForStopping,
     ]);
 

@@ -110,6 +110,7 @@ class JupyterLabToolExecutor:
         answers: Optional[List[str]] = None,
         scratchpad_code: Optional[str] = None,
         scratchpad_summary: Optional[str] = None,
+        streamlit_app_prompt: Optional[str] = None,
     ) -> AgentResponse:
         return AgentResponse(
             type=type,
@@ -118,7 +119,7 @@ class JupyterLabToolExecutor:
             get_cell_output_cell_id=get_cell_output_cell_id,
             next_steps=None,
             analysis_assumptions=None,
-            streamlit_app_prompt=None,
+            streamlit_app_prompt=streamlit_app_prompt,
             question=question,
             answers=answers,
             scratchpad_code=scratchpad_code,
@@ -213,5 +214,31 @@ class JupyterLabToolExecutor:
             message=message,
             question=question,
             answers=answers,
+        )
+        return await self._execute_via_frontend(agent_resp, message)
+
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        agent_resp = self._build_agent_response(
+            type="create_streamlit_app",
+            message=message,
+            streamlit_app_prompt=streamlit_app_prompt,
+        )
+        return await self._execute_via_frontend(agent_resp, message)
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        agent_resp = self._build_agent_response(
+            type="edit_streamlit_app",
+            message=message,
+            streamlit_app_prompt=streamlit_app_prompt,
         )
         return await self._execute_via_frontend(agent_resp, message)
