@@ -30,7 +30,7 @@ class AgentAutoErrorFixupHandler(CompletionHandler[AgentSmartDebugMetadata]):
             message_history,
             provider,
             metadata.threadId,
-            metadata.isChromeBrowser,
+            enable_get_cell_output=metadata.isChromeBrowser,
         )
         
         # Create the prompt

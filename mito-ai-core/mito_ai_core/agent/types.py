@@ -84,7 +84,11 @@ class AgentContext:
     """File names in the working directory."""
 
     is_chrome_browser: bool = True
-    """Whether the frontend is a Chrome-based browser (gates GET_CELL_OUTPUT)."""
+    """Whether the client reports a Chrome-based browser (mirrors frontend metadata).
+
+    Use the same value for ``AgentRunnerConfig.enable_get_cell_output`` when
+    constructing :class:`~mito_ai_core.agent.agent_runner.AgentRunner`.
+    """
 
     additional_context: Optional[List[Dict[str, str]]] = None
     """Extra structured context (e.g. selections, images) from the client."""

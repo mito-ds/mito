@@ -16,6 +16,7 @@ from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai_core.agent import AgentContext, ToolResult
 from mito_ai_core.agent.agent_runner import AgentRunner
+from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import AgentResponse, MessageType
 from mito_ai_core.provider_manager import ProviderManager
@@ -182,6 +183,7 @@ async def _async_main(args: argparse.Namespace) -> int:
         provider=provider,
         tool_executor=tool_executor,
         message_history=message_history,
+        config=AgentRunnerConfig(enable_get_cell_output=False),
     )
 
     ctx = AgentContext(

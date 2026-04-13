@@ -38,7 +38,7 @@ class AgentExecutionHandler(CompletionHandler[AgentExecutionMetadata]):
             message_history,
             provider,
             metadata.threadId,
-            metadata.isChromeBrowser,
+            enable_get_cell_output=metadata.isChromeBrowser,
         )
         
         # Create the prompt
