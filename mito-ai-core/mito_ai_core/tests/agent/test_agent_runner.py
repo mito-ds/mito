@@ -517,3 +517,44 @@ class TestOptionalFieldsFilledByParser:
 
         assert result.finished is True
         assert result.final_response.message == "Done."
+
+
+class TestMalformedPayloadRecovery:
+    """Runner converts malformed payloads to recoverable tool errors."""
+
+    @pytest.mark.asyncio
+    async def test_malformed_response_does_not_crash_loop(self) -> None:
+        malformed_cell_update = json.dumps(
+            {
+                "type": "cell_update",
+                "message": "update cell",
+                "cell_update": {
+                    "type": "modification",
+                    "id": "cell-1",
+                    "code": "print('hi')",
+                    "cell_type": "code",
+                    # Intentionally omit code_summary to trigger validation error.
+                },
+            }
+        )
+        provider = FakeProviderManager([malformed_cell_update, _finished_response()])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        tool_results: list[ToolResult] = []
+
+        async def on_tool(result: ToolResult) -> None:
+            tool_results.append(result)
+
+        result = await runner.run(ctx, "", on_tool_result=on_tool)
+
+        assert result.finished is True
+        assert result.iterations == 2
+        assert provider.call_count == 2
+        assert len(executor.calls) == 0
+        assert len(tool_results) == 1
+        assert tool_results[0].success is False
+        assert tool_results[0].tool_name == "agent_response_validation"
+        assert tool_results[0].error_message is not None
+        assert "malformed response payload" in tool_results[0].error_message
