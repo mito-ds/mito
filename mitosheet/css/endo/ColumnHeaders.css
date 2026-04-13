@@ -7,9 +7,18 @@
     animation: mito-column-enter 0.6s ease both;
 }
 
+.endo-column-header-container.mito-grid-column-exit {
+    pointer-events: none;
+    animation: mito-column-delete-exit 0.55s ease forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .endo-column-header-container.mito-grid-column-enter {
         animation: none;
+    }
+    .endo-column-header-container.mito-grid-column-exit {
+        animation: none;
+        opacity: 0;
     }
 }
 

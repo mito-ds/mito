@@ -187,6 +187,9 @@ const ColumnHeader = (props: {
                     'mito-grid-column-enter':
                         props.uiState.gridColumnEnterAnimation?.sheetIndex === props.gridState.sheetIndex &&
                         props.uiState.gridColumnEnterAnimation?.columnIndex === props.columnIndex,
+                    'mito-grid-column-exit':
+                        props.uiState.gridColumnExitAnimation?.sheetIndex === props.gridState.sheetIndex &&
+                        props.uiState.gridColumnExitAnimation?.columnIndices.includes(props.columnIndex),
                 },
             )}
             style={{color: textColor, backgroundColor: backgroundColor}}
