@@ -50,12 +50,11 @@
 .ai-notes-item-wrap:hover {
     border-color: rgba(31, 41, 55, 0.24);
     box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.18), 0 2px 6px rgba(0, 0, 0, 0.1), 0 4px 14px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
 }
 
 .ai-notes-item-wrap-focused {
-    border-color: var(--mito-highlight);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--mito-highlight) 30%, transparent);
+    border-color: rgba(31, 41, 55, 0.16);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .ai-notes-item {
@@ -103,7 +102,7 @@
 }
 
 .ai-notes-item-actions-label {
-    margin: 0 0 10px;
+    margin: 0 0 14px;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -127,7 +126,7 @@
     border: none;
     background: transparent;
     color: var(--mito-highlight);
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     line-height: 1.35;
     font-family: inherit;
