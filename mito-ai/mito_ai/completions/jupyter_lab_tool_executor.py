@@ -14,7 +14,7 @@ import asyncio
 import json
 import logging
 from dataclasses import replace
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Literal, Optional
 
 from mito_ai_core.agent.tool_executor import ToolExecutor
 from mito_ai_core.agent.types import AgentContext, ToolResult
@@ -101,7 +101,16 @@ class JupyterLabToolExecutor:
 
     def _build_agent_response(
         self,
-        type: str,
+        type: Literal[
+            "cell_update",
+            "get_cell_output",
+            "run_all_cells",
+            "finished_task",
+            "create_streamlit_app",
+            "edit_streamlit_app",
+            "ask_user_question",
+            "scratchpad",
+        ],
         message: str,
         *,
         cell_update: Optional[CellUpdate] = None,
