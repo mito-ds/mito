@@ -37,8 +37,8 @@ export const AINotesPopover = (props: {
 
     const suggestedActions = useMemo(() => {
         if (annotation === undefined) return [];
-        return getSuggestedAINotesActions(annotation);
-    }, [annotation]);
+        return getSuggestedAINotesActions(annotation, props.sheetData);
+    }, [annotation, props.sheetData]);
 
     useEffect(() => {
         setActionError(undefined);

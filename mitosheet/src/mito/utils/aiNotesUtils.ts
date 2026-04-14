@@ -12,8 +12,10 @@ import {
     AINotesAnnotationSeverity,
     EditorState,
     GridState,
+    SheetData,
     UIState,
 } from '../types';
+import { isNumberDtype } from './dtypes';
 
 export type AINotesApiPayload = {
     column_notes: {
@@ -199,12 +201,20 @@ export type AINotesAction = { id: string; label: string };
 
 /** Maps annotation category to one-click fix buttons. */
 export function getSuggestedAINotesActions(
-    annotation: AINotesAnnotation
+    annotation: AINotesAnnotation,
+    sheetData?: SheetData
 ): AINotesAction[] {
     const cat = effectiveAINotesCategory(annotation);
+
+    // IQR outlier removal only makes sense for numeric columns
+    const dtype = sheetData?.data[annotation.columnIndex]?.columnDtype;
+    const isNumeric = dtype !== undefined ? isNumberDtype(dtype) : true; // default to showing if dtype unknown
+
+    const iqrAction = { id: 'remove_iqr_outliers_column', label: 'Remove IQR outliers' };
+
     if (annotation.kind === 'column') {
         if (cat === 'outlier') {
-            return [{ id: 'remove_iqr_outliers_column', label: 'Remove IQR outliers' }];
+            return isNumeric ? [iqrAction] : [];
         }
         if (cat === 'duplicate') {
             return [{ id: 'drop_duplicate_rows', label: 'Drop duplicate rows' }];
@@ -219,7 +229,7 @@ export function getSuggestedAINotesActions(
             return [
                 { id: 'fill_missing_column_mean', label: 'Fill missing values with average' },
                 { id: 'drop_missing_in_column', label: 'Drop rows missing in this column' },
-                { id: 'remove_iqr_outliers_column', label: 'Remove IQR outliers' },
+                ...(isNumeric ? [iqrAction] : []),
             ];
         }
         return [

@@ -229,7 +229,7 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                         {state.type === 'ready' && annotations && annotations.length > 0 && (
                             <ul className="ai-notes-list mt-15px">
                                 {annotations.map((a) => {
-                                    const suggested = getSuggestedAINotesActions(a);
+                                    const suggested = getSuggestedAINotesActions(a, props.sheetDataArray[a.sheetIndex]);
                                     const isApplying =
                                         applyState.status === 'applying' &&
                                         applyState.annotationId === a.id;
