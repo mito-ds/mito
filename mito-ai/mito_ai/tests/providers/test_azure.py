@@ -18,7 +18,7 @@ from mito_ai.completions.models import (
     ResponseFormatInfo,
     AgentResponse
 )
-from mito_ai_core.openai_client import OpenAIClient
+from mito_ai_core.clients.openai_client import OpenAIClient
 
 
 FAKE_API_KEY = "sk-1234567890"
@@ -67,7 +67,7 @@ def mock_azure_openai_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("mito_ai_core.enterprise.utils.is_mitosheet_private", lambda: False)
     monkeypatch.setattr("mito_ai_core.enterprise.utils.is_azure_openai_configured", lambda: True)
     # Also patch where it's imported in the OpenAI client
-    monkeypatch.setattr("mito_ai_core.openai_client.is_azure_openai_configured", lambda: True)
+    monkeypatch.setattr("mito_ai_core.clients.openai_client.is_azure_openai_configured", lambda: True)
     
     # Ensure no other OpenAI key is set
     monkeypatch.setattr("mito_ai_core.constants.OPENAI_API_KEY", None)
@@ -590,7 +590,7 @@ class TestAzureOpenAINotConfigured:
         monkeypatch.setattr("mito_ai_core.enterprise.utils.is_mitosheet_private", lambda: False)
         # This should return False due to missing API key
         monkeypatch.setattr("mito_ai_core.enterprise.utils.is_azure_openai_configured", lambda: False)
-        monkeypatch.setattr("mito_ai_core.openai_client.is_azure_openai_configured", lambda: False)
+        monkeypatch.setattr("mito_ai_core.clients.openai_client.is_azure_openai_configured", lambda: False)
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
             openai_client = OpenAIClient()
@@ -619,7 +619,7 @@ class TestAzureOpenAINotConfigured:
         monkeypatch.setattr("mito_ai_core.enterprise.utils.is_mitosheet_private", lambda: False)
         # This should return False due to not being enterprise
         monkeypatch.setattr("mito_ai_core.enterprise.utils.is_azure_openai_configured", lambda: False)
-        monkeypatch.setattr("mito_ai_core.openai_client.is_azure_openai_configured", lambda: False)
+        monkeypatch.setattr("mito_ai_core.clients.openai_client.is_azure_openai_configured", lambda: False)
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
             openai_client = OpenAIClient()

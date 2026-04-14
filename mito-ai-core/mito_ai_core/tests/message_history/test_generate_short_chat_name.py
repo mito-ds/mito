@@ -7,13 +7,6 @@ from mito_ai_core.completions.message_history import generate_short_chat_name
 from mito_ai_core.provider_manager import ProviderManager
 
 
-@pytest.fixture
-def provider_config() -> dict:
-    """Create a proper Config object for the ProviderManager."""
-    config = {}
-    return config
-
-
 # Test cases for different models and their expected providers/fast models
 PROVIDER_TEST_CASES = [
     # (model, client_patch_path) - patch where the classes are used (in provider_manager)
@@ -29,7 +22,6 @@ PROVIDER_TEST_CASES = [
 async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     selected_model: str,
     client_patch_path: str,
-    provider_config: Config,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that generate_short_chat_name uses the correct provider and that the client uses the fast model."""

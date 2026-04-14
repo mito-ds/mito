@@ -8,12 +8,6 @@ from mito_ai_core.tests.providers.utils import mock_azure_openai_client, mock_op
 
 FAKE_API_KEY = "sk-1234567890"
 
-@pytest.fixture
-def provider_config() -> dict:
-    """Create a proper Config object for the ProviderManager."""
-    config = {}
-    return config
-
 @pytest.mark.parametrize("test_case", [
     {
         "name": "mito_server_fallback_no_keys",
@@ -73,8 +67,7 @@ def provider_config() -> dict:
 ])
 def test_provider_capabilities_real_logic(
     test_case: dict,
-    monkeypatch: pytest.MonkeyPatch, 
-    provider_config: Config
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test the actual provider selection logic in ProviderManager.capabilities"""
     

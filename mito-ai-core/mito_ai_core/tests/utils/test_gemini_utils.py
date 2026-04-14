@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
-from mito_ai_core.utils.gemini_utils import _prepare_gemini_request_data_and_headers, get_gemini_completion_function_params
+from mito_ai_core.clients.gemini_utils import _prepare_gemini_request_data_and_headers, get_gemini_completion_function_params
 from mito_ai_core.completions.models import MessageType
 
 TEST_CONTENTS = [
