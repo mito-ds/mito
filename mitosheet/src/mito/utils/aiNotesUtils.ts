@@ -207,11 +207,20 @@ export function getSuggestedAINotesActions(
 ): AINotesAction[] {
     const cat = effectiveAINotesCategory(annotation);
 
-    // IQR outlier removal only makes sense for numeric columns
+    // IQR outlier removal and mean fill only apply to numeric columns (see get_ai_notes_action_code.py).
     const dtype = sheetData?.data[annotation.columnIndex]?.columnDtype;
-    const isNumeric = dtype !== undefined ? isNumberDtype(dtype) : true; // default to showing if dtype unknown
+    const isNumeric = dtype !== undefined ? isNumberDtype(dtype) : false;
+    const canFillMissingWithMean = dtype !== undefined && isNumberDtype(dtype);
 
     const iqrAction = { id: 'remove_iqr_outliers_column', label: 'Remove IQR outliers' };
+    const fillMeanAction = {
+        id: 'fill_missing_column_mean',
+        label: 'Fill missing values with average',
+    } as const;
+    const dropMissingInColumnAction = {
+        id: 'drop_missing_in_column',
+        label: 'Drop rows missing in this column',
+    } as const;
 
     if (annotation.kind === 'column') {
         if (cat === 'outlier') {
@@ -222,20 +231,20 @@ export function getSuggestedAINotesActions(
         }
         if (cat === 'missing') {
             return [
-                { id: 'fill_missing_column_mean', label: 'Fill missing values with average' },
-                { id: 'drop_missing_in_column', label: 'Drop rows missing in this column' },
+                ...(canFillMissingWithMean ? [fillMeanAction] : []),
+                dropMissingInColumnAction,
             ];
         }
         if (cat === 'other' || cat === 'invalid_domain' || cat === 'inconsistency') {
             return [
-                { id: 'fill_missing_column_mean', label: 'Fill missing values with average' },
-                { id: 'drop_missing_in_column', label: 'Drop rows missing in this column' },
+                ...(canFillMissingWithMean ? [fillMeanAction] : []),
+                dropMissingInColumnAction,
                 ...(isNumeric ? [iqrAction] : []),
             ];
         }
         return [
-            { id: 'fill_missing_column_mean', label: 'Fill missing values with average' },
-            { id: 'drop_missing_in_column', label: 'Drop rows missing in this column' },
+            ...(canFillMissingWithMean ? [fillMeanAction] : []),
+            dropMissingInColumnAction,
         ];
     }
     if (
