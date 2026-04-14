@@ -8,8 +8,8 @@
     z-index: 999999;
     max-width: 380px;
     padding: 0;
-    border-radius: 8px;
-    background: var(--mito-background-off);
+    border-radius: 12px;
+    background: var(--mito-background);
     color: var(--mito-text);
     border: 1px solid var(--mito-text-light);
     border-left-width: 4px;
@@ -55,16 +55,21 @@
 }
 
 .mito-ai-notes-popover-body-wrap {
-    padding: 10px 36px 14px 14px;
+    padding: 0;
     position: relative;
+}
+
+.mito-ai-notes-popover-summary {
+    padding: 14px 36px 12px 14px;
+    border-bottom: 1px solid var(--mito-text-light);
 }
 
 .mito-ai-notes-popover-lead {
     margin: 0;
-    padding: 10px 12px;
-    border-radius: 6px;
-    background: var(--mito-background-off);
-    border: 1px solid var(--mito-text-light);
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    border: none;
     font-size: 13px;
     font-weight: 500;
     line-height: 1.5;
@@ -85,20 +90,17 @@
 }
 
 .mito-ai-notes-popover-scope-name {
-    font-weight: 600;
-    color: var(--mito-highlight);
+    font-weight: 650;
+    color: var(--mito-text);
 }
 
 .mito-ai-notes-popover-scope-link {
     cursor: pointer;
-    text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--mito-highlight) 55%, var(--mito-text-light));
-    text-underline-offset: 2px;
+    text-decoration: none;
 }
 
 .mito-ai-notes-popover-scope-link:hover {
-    color: var(--mito-text);
-    text-decoration-color: var(--mito-highlight);
+    color: var(--mito-highlight);
 }
 
 .mito-ai-notes-popover-scope-link:focus {
@@ -112,49 +114,77 @@
 }
 
 .mito-ai-notes-popover-actions {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--mito-text-light);
+    margin-top: 0;
+    padding: 12px 14px 14px;
+    border-top: none;
+    background: var(--mito-background);
 }
 
 .mito-ai-notes-popover-actions-label {
-    margin: 0 0 8px;
-    font-size: 10px;
+    margin: 0 0 18px;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--mito-text-medium);
 }
 
-.mito-ai-notes-popover-action-row {
+.mito-ai-notes-popover-action-list {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    gap: 7px;
 }
 
-.mito-ai-notes-popover-action-btn {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid var(--mito-highlight);
-    background: color-mix(in srgb, var(--mito-highlight) 14%, var(--mito-background));
-    color: var(--mito-text);
-    font-size: 12px;
-    font-weight: 600;
+.mito-ai-notes-popover-action-link {
+    width: fit-content;
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--mito-highlight);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.35;
     font-family: inherit;
     cursor: pointer;
+    text-align: left;
 }
 
-.mito-ai-notes-popover-action-btn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--mito-highlight) 24%, var(--mito-background));
+.mito-ai-notes-popover-action-link-text {
+    text-decoration: none;
 }
 
-.mito-ai-notes-popover-action-btn:disabled {
+.mito-ai-notes-popover-action-link-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.mito-ai-notes-popover-action-link:hover:not(:disabled) .mito-ai-notes-popover-action-link-arrow {
+    transform: translateX(3px);
+}
+
+.mito-ai-notes-popover-action-link:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
+.mito-ai-notes-popover-action-empty {
+    margin: 0;
+    color: var(--mito-text-medium);
+    font-size: 12px;
+}
+
 .mito-ai-notes-popover-action-error {
-    margin: 8px 0 0;
+    margin: 10px 0 0;
     font-size: 12px;
     color: var(--mito-status-error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mito-ai-notes-popover-action-link-arrow {
+        transition: none;
+    }
 }

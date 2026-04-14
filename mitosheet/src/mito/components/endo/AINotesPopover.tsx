@@ -107,76 +107,88 @@ export const AINotesPopover = (props: {
                 ×
             </button>
             <div className="mito-ai-notes-popover-body-wrap">
-                {pop.openedFrom === 'column_header' && (
-                    <p className="mito-ai-notes-popover-scope">
-                        <span className="mito-ai-notes-popover-scope-label">Column </span>
-                        <span
-                            className="mito-ai-notes-popover-scope-name mito-ai-notes-popover-scope-link"
-                            role="button"
-                            tabIndex={0}
-                            title="Select this column in the sheet"
-                            onClick={(e) => { e.stopPropagation(); selectAndDismiss('column'); }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); selectAndDismiss('column'); }
-                            }}
-                        >
-                            {colLabel}
-                        </span>
-                    </p>
-                )}
-                {pop.openedFrom === 'cell' && (
-                    <p className="mito-ai-notes-popover-scope">
-                        <span
-                            className="mito-ai-notes-popover-scope-name mito-ai-notes-popover-scope-link"
-                            role="button"
-                            tabIndex={0}
-                            title="Select this row in the sheet"
-                            onClick={(e) => { e.stopPropagation(); selectAndDismiss('row'); }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); selectAndDismiss('row'); }
-                            }}
-                        >
-                            Row {(annotation.rowIndex ?? 0) + 1}
-                        </span>
-                        <span className="mito-ai-notes-popover-scope-infix">, </span>
-                        <span
-                            className="mito-ai-notes-popover-scope-name mito-ai-notes-popover-scope-link"
-                            role="button"
-                            tabIndex={0}
-                            title="Select this column in the sheet"
-                            onClick={(e) => { e.stopPropagation(); selectAndDismiss('column'); }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); selectAndDismiss('column'); }
-                            }}
-                        >
-                            {colLabel}
-                        </span>
-                    </p>
-                )}
-                <p className="mito-ai-notes-popover-lead">{annotation.text}</p>
-                {suggestedActions.length > 0 && (
-                    <div className="mito-ai-notes-popover-actions">
-                        <p className="mito-ai-notes-popover-actions-label">Suggested fix</p>
-                        <div className="mito-ai-notes-popover-action-row">
+                <div className="mito-ai-notes-popover-summary">
+                    {pop.openedFrom === 'column_header' && (
+                        <p className="mito-ai-notes-popover-scope">
+                            <span className="mito-ai-notes-popover-scope-label">Column </span>
+                            <span
+                                className="mito-ai-notes-popover-scope-name mito-ai-notes-popover-scope-link"
+                                role="button"
+                                tabIndex={0}
+                                title="Select this column in the sheet"
+                                onClick={(e) => { e.stopPropagation(); selectAndDismiss('column'); }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); selectAndDismiss('column'); }
+                                }}
+                            >
+                                {colLabel}
+                            </span>
+                        </p>
+                    )}
+                    {pop.openedFrom === 'cell' && (
+                        <p className="mito-ai-notes-popover-scope">
+                            <span
+                                className="mito-ai-notes-popover-scope-name mito-ai-notes-popover-scope-link"
+                                role="button"
+                                tabIndex={0}
+                                title="Select this row in the sheet"
+                                onClick={(e) => { e.stopPropagation(); selectAndDismiss('row'); }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); selectAndDismiss('row'); }
+                                }}
+                            >
+                                Row {(annotation.rowIndex ?? 0) + 1}
+                            </span>
+                            <span className="mito-ai-notes-popover-scope-infix">, </span>
+                            <span
+                                className="mito-ai-notes-popover-scope-name mito-ai-notes-popover-scope-link"
+                                role="button"
+                                tabIndex={0}
+                                title="Select this column in the sheet"
+                                onClick={(e) => { e.stopPropagation(); selectAndDismiss('column'); }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); selectAndDismiss('column'); }
+                                }}
+                            >
+                                {colLabel}
+                            </span>
+                        </p>
+                    )}
+                    <p className="mito-ai-notes-popover-lead">{annotation.text}</p>
+                </div>
+                <div className="mito-ai-notes-popover-actions">
+                    <p className="mito-ai-notes-popover-actions-label">Recommended Fixes</p>
+                    {suggestedActions.length > 0 && (
+                        <div className="mito-ai-notes-popover-action-list">
                             {suggestedActions.map((a) => (
                                 <button
                                     key={a.id}
                                     type="button"
-                                    className="mito-ai-notes-popover-action-btn"
+                                    className="mito-ai-notes-popover-action-link"
                                     disabled={applyingActionId !== undefined}
                                     onClick={() => void applyAction(a.id)}
                                 >
-                                    {applyingActionId === a.id ? 'Applying…' : a.label}
+                                    <span className="mito-ai-notes-popover-action-link-text">
+                                        {applyingActionId === a.id ? 'Applying…' : a.label}
+                                    </span>
+                                    <span className="mito-ai-notes-popover-action-link-arrow">
+                                        →
+                                    </span>
                                 </button>
                             ))}
                         </div>
-                        {actionError !== undefined && (
-                            <p className="mito-ai-notes-popover-action-error" role="alert">
-                                {actionError}
-                            </p>
-                        )}
-                    </div>
-                )}
+                    )}
+                    {suggestedActions.length === 0 && (
+                        <p className="mito-ai-notes-popover-action-empty">
+                            No recommended fixes available.
+                        </p>
+                    )}
+                    {actionError !== undefined && (
+                        <p className="mito-ai-notes-popover-action-error" role="alert">
+                            {actionError}
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );
