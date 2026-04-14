@@ -10,6 +10,8 @@ from typing import Any, Callable, Dict, List, Optional
 
 import pytest
 
+from openai.types.chat import ChatCompletionMessageParam
+
 from mito_ai_core.agent import AgentContext, AgentRunResult, ToolExecutor, ToolResult
 from mito_ai_core.agent.agent_runner import AgentRunner
 from mito_ai_core.completions.message_history import GlobalMessageHistory
@@ -19,6 +21,7 @@ from mito_ai_core.completions.models import (
     CellUpdate,
     KernelVariable,
     MessageType,
+    ResponseFormatInfo,
 )
 
 # ---------------------------------------------------------------------------
@@ -40,10 +43,20 @@ class FakeProviderManager:
         self.last_messages: Optional[List[Any]] = None
         self.messages_per_call: List[List[Any]] = []
 
-    async def request_completions(self, **kwargs: Any) -> str:
+    async def request_completions(
+        self,
+        message_type: MessageType,
+        messages: List[ChatCompletionMessageParam],
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        user_input: Optional[str] = None,
+        thread_id: Optional[str] = None,
+        max_retries: int = 3,
+        use_fast_model: bool = False,
+        use_smartest_model: bool = False,
+    ) -> str:
         if self._call_index >= len(self._completions):
             raise RuntimeError("FakeProviderManager ran out of completions")
-        msgs = kwargs.get("messages")
+        msgs = messages
         # Snapshot: runner mutates the same list after each completion.
         self.last_messages = list(msgs) if msgs is not None else []
         self.messages_per_call.append(list(msgs) if msgs is not None else [])
@@ -175,7 +188,7 @@ class FakeToolExecutor:
 def _new_history_and_ctx() -> tuple[GlobalMessageHistory, AgentContext]:
     """Fresh history with a real thread so ``append_message`` / system prompt setup succeed."""
     mh = GlobalMessageHistory()
-    tid = str(mh.create_new_thread())
+    tid = mh.create_new_thread()
     ctx = AgentContext(
         thread_id=tid,
         notebook_id="nb-1",

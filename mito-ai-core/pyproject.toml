@@ -47,7 +47,7 @@ litellm = ["litellm"]
 test = [
     "pytest",
     "pytest-asyncio",
-    "mypy",
+    "mypy"
 ]
 
 [tool.hatch.build.targets.wheel]

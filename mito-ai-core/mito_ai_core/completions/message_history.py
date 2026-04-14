@@ -9,9 +9,10 @@ from threading import Lock
 from typing import Dict, List, Optional
 
 from openai.types.chat import ChatCompletionMessageParam
+
+from mito_ai_core.agent.types import CompletionProvider
 from mito_ai_core.completions.models import ChatThreadMetadata, MessageType, ThreadID
 from mito_ai_core.completions.prompt_builders.chat_name_prompt import create_chat_name_prompt
-from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.utils.schema import MITO_FOLDER
 from mito_ai_core.utils.trim_message_history import trim_old_messages
 
@@ -19,7 +20,12 @@ CHAT_HISTORY_VERSION = 2 # Increment this if the schema changes
 NEW_CHAT_NAME = "(New Chat)"
 NUMBER_OF_THREADS_CUT_OFF = 50
 
-async def generate_short_chat_name(user_message: str, assistant_message: str, llm_provider: ProviderManager) -> str:
+
+async def generate_short_chat_name(
+    user_message: str,
+    assistant_message: str,
+    llm_provider: CompletionProvider,
+) -> str:
     prompt = create_chat_name_prompt(user_message, assistant_message)
 
     completion = await llm_provider.request_completions(
@@ -264,7 +270,7 @@ class GlobalMessageHistory:
         self, 
         ai_optimized_message: ChatCompletionMessageParam, 
         display_message: ChatCompletionMessageParam, 
-        llm_provider: ProviderManager,
+        llm_provider: CompletionProvider,
         thread_id: ThreadID
     ) -> None:
         """

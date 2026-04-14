@@ -10,7 +10,7 @@ from typing import List, Optional
 import pytest
 
 from mito_ai_core.agent import AgentContext, ToolExecutor, ToolResult
-from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate, KernelVariable
+from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate, KernelVariable, ThreadID
 
 
 # ---------------------------------------------------------------------------
@@ -135,7 +135,7 @@ class FakeToolExecutor:
 
 def _make_ctx() -> AgentContext:
     return AgentContext(
-        thread_id="t-1",
+        thread_id=ThreadID("t-1"),
         notebook_id="nb-1",
         notebook_path="/tmp/test.ipynb",
         cells=[
@@ -290,7 +290,7 @@ class TestAgentContext:
 
     def test_defaults(self) -> None:
         ctx = AgentContext(
-            thread_id="t-1",
+            thread_id=ThreadID("t-1"),
             notebook_id="nb-1",
             notebook_path="/tmp/test.ipynb",
         )

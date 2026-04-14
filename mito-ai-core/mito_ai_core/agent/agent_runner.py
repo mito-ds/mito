@@ -15,20 +15,15 @@ to the *messages* working list so subsequent LLM calls see them, but it does
 
 from __future__ import annotations
 import json
-from typing import Awaitable, Callable, List, Optional, Tuple
+from typing import Awaitable, Callable, List, Optional
 from pydantic import ValidationError
-from mito_ai_core.provider_manager import ProviderManager
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai_core.agent.tool_executor import ToolExecutor
 from mito_ai_core.agent.types import AgentContext, AgentRunResult, CompletionProvider, ToolResult
 from mito_ai_core.agent.utils import normalize_agent_response, parse_agent_response
 from mito_ai_core.completions.ai_optimized_message import create_ai_optimized_message, create_ai_optimized_tool_result_message
 from mito_ai_core.completions.message_history import GlobalMessageHistory
-from mito_ai_core.completions.models import (
-    AgentResponse,
-    MessageType,
-    ResponseFormatInfo,
-)
+from mito_ai_core.completions.models import AgentResponse, MessageType, ResponseFormatInfo
 from mito_ai_core.utils.message_history_utils import append_agent_system_message
 from mito_ai_core.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
 from mito_ai_core.agent.utils import create_display_optimized_tool_result_message
@@ -108,7 +103,7 @@ class AgentRunner:
         """
 
         last_response: Optional[AgentResponse] = None
-        
+
         # Append the agent system message to the message history if it doesn't already exist
         await append_agent_system_message(
             self._message_history,
@@ -194,7 +189,12 @@ class AgentRunner:
             # Build tool-result message and add to message history
             ai_optimized_tool_msg = create_ai_optimized_tool_result_message(ctx, tool_result)
             display_optimized_tool_msg = create_display_optimized_tool_result_message(tool_result)
-            await self._message_history.append_message(ai_optimized_tool_msg, display_optimized_tool_msg, self._provider, ctx.thread_id)
+            await self._message_history.append_message(
+                ai_optimized_tool_msg,
+                display_optimized_tool_msg,
+                self._provider,
+                ctx.thread_id,
+            )
 
             if on_tool_result is not None:
                 await on_tool_result(tool_result)
@@ -332,7 +332,10 @@ class AgentRunner:
             ),
         )
         ai_optimized_tool_msg = create_ai_optimized_tool_result_message(ctx, tool_result)
-        display_optimized_tool_msg = {"role": "user", "content": ""}
+        display_optimized_tool_msg: ChatCompletionMessageParam = {
+            "role": "user",
+            "content": "",
+        }
         await self._message_history.append_message(
             ai_optimized_tool_msg,
             display_optimized_tool_msg,

@@ -3,17 +3,17 @@
 
 from openai.types.chat import ChatCompletionMessageParam
 
+from mito_ai_core.agent.types import CompletionProvider
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import ThreadID
 from mito_ai_core.completions.prompt_builders.agent_system_message import (
     create_agent_system_message_prompt,
 )
-from mito_ai_core.provider_manager import ProviderManager
 
 
 async def append_agent_system_message(
     message_history: GlobalMessageHistory,
-    provider: ProviderManager,
+    provider: CompletionProvider,
     thread_id: ThreadID,
     is_chrome_browser: bool,
 ) -> None:

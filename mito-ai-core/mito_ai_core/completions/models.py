@@ -94,7 +94,6 @@ class AIOptimizedCell():
 @dataclass(frozen=True)
 class KernelVariable():
     """Kernel global as reported by the Jupyter front-end (matches TS ``Variable``)."""
-
     variable_name: str
     type: str
     value: Any = None
@@ -107,7 +106,7 @@ class ChatMessageMetadata():
     input: str
     activeCellCode: str
     activeCellId: str
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     files: Optional[List[str]] = None
     aiOptimizedCells: Optional[List[AIOptimizedCell]] = None
     base64EncodedActiveCellOutput: Optional[str] = None
@@ -138,14 +137,14 @@ class SmartDebugMetadata():
     errorMessage: str
     activeCellCode: str 
     activeCellId: str
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
     promptType: Literal['codeExplain']
     threadId: ThreadID
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     activeCellCode: Optional[str] = None
     
 @dataclass(frozen=True)
@@ -153,7 +152,7 @@ class InlineCompleterMetadata():
     promptType: Literal['inline_completion']
     prefix: str 
     suffix: str
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     files: Optional[List[str]] = None
 
 @dataclass(frozen=True)
