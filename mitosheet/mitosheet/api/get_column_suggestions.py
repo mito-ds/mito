@@ -12,36 +12,21 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from typing import Any, Dict, List
 
 import pandas as pd
 
-from mitosheet.api.get_chart_suggestions import (
-    MITO_AI_URL,
-    OPEN_AI_URL,
-    OPEN_SOURCE_AI_COMPLETIONS_LIMIT,
-    _get_chart_suggestions_llm_payload,
-    _strip_json_fences,
+from mitosheet.api.suggestions_api_utils import (
+    get_suggestions_from_mito_server,
+    get_suggestions_from_open_ai_compatible,
+    get_suggestions_from_openai_key,
+    strip_json_fences,
 )
 from mitosheet.ai.prompt import MAX_CHARS_FOR_INPUT_DATA
 from mitosheet.types import StepsManagerType
-from mitosheet.user.db import get_user_field, increment_user_field
-from mitosheet.user.schemas import (
-    UJ_AI_MITO_API_NUM_USAGES,
-    UJ_STATIC_USER_ID,
-    UJ_USER_EMAIL,
-)
-from mitosheet.user.utils import is_pro
-
-import requests  # type: ignore
 
 COLUMN_SUGGESTIONS_PROMPT_VERSION = "column-suggestions-v1"
 MAX_COLUMN_SUGGESTIONS = 3
-
-__user_email = None
-__user_id = None
-
 
 def _build_column_suggestions_prompt(df_name: str, df: pd.DataFrame) -> str:
     max_chars = min(2000, int(MAX_CHARS_FOR_INPUT_DATA))
@@ -88,7 +73,7 @@ def _build_column_suggestions_prompt(df_name: str, df: pd.DataFrame) -> str:
 
 
 def _parse_column_suggestions_json(completion: str) -> Any:
-    text = _strip_json_fences(completion)
+    text = strip_json_fences(completion)
     return json.loads(text)
 
 
@@ -127,87 +112,15 @@ def _validate_column_suggestions(raw: Any, df_columns: List[str]) -> List[Dict[s
 
 
 def _get_column_suggestions_from_mito_server(prompt: str) -> Dict[str, Any]:
-    global __user_email, __user_id
-
-    if __user_email is None:
-        __user_email = get_user_field(UJ_USER_EMAIL)
-    if __user_id is None:
-        __user_id = get_user_field(UJ_STATIC_USER_ID)
-
-    num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES) or 0
-
-    if not is_pro() and num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
-        return {"error": f"You have used Mito AI {OPEN_SOURCE_AI_COMPLETIONS_LIMIT} times."}
-
-    data = {
-        "email": __user_email,
-        "user_id": __user_id,
-        "user_input": "column_suggestions",
-        "data": _get_chart_suggestions_llm_payload(prompt),
-    }
-
-    headers = {"Content-Type": "application/json"}
-
-    try:
-        res = requests.post(MITO_AI_URL, headers=headers, json=data)
-    except Exception:
-        return {
-            "error": "There was an error accessing the Mito AI API. This is likely due to internet connectivity problems or a firewall."
-        }
-
-    if res.status_code == 200:
-        increment_user_field(UJ_AI_MITO_API_NUM_USAGES)
-        return {"completion": res.json()["completion"]}
-
-    try:
-        return {"error": f'There was an error accessing the MitoAI API. {res.json()["error"]}'}
-    except Exception:
-        return {"error": "There was an error accessing the MitoAI API."}
+    return get_suggestions_from_mito_server("column_suggestions", prompt)
 
 
 def _get_column_suggestions_from_open_ai_compatible(url: str, prompt: str) -> Dict[str, Any]:
-    data = _get_chart_suggestions_llm_payload(prompt)
-    headers = {"Content-Type": "application/json"}
-
-    try:
-        res = requests.post(url, headers=headers, json=data)
-    except Exception:
-        return {
-            "error": f"There was an error accessing the API at {url}. This is likely due to internet connectivity problems or a firewall."
-        }
-
-    if res.status_code == 200:
-        completion: str = res.json()["choices"][0]["message"]["content"].strip()
-        return {"completion": completion}
-
-    try:
-        return {"error": f"There was an error accessing the API at {url}. {res.json()['error']['message']}"}
-    except Exception:
-        return {"error": f"There was an error accessing the API at {url}."}
+    return get_suggestions_from_open_ai_compatible(url, prompt)
 
 
 def _get_column_suggestions_from_openai_key(prompt: str) -> Dict[str, Any]:
-    data = _get_chart_suggestions_llm_payload(prompt)
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {os.environ.get('OPENAI_API_KEY')}",
-    }
-
-    try:
-        res = requests.post(OPEN_AI_URL, headers=headers, json=data)
-    except Exception:
-        return {
-            "error": "There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall."
-        }
-
-    if res.status_code == 200:
-        completion: str = res.json()["choices"][0]["message"]["content"].strip()
-        return {"completion": completion}
-
-    try:
-        return {"error": f"There was an error accessing the OpenAI API. {res.json()['error']['message']}"}
-    except Exception:
-        return {"error": "There was an error accessing the OpenAI API."}
+    return get_suggestions_from_openai_key(prompt)
 
 
 def get_column_suggestions(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
