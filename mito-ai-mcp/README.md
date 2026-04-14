@@ -33,7 +33,7 @@ npx -y @modelcontextprotocol/inspector@latest --cli python3 -m mito_ai_mcp.serve
 ## Test With UI Inspector
 
 ```bash
-cd /Users/aarondiamond-reivich/Mito/mito/mito-ai-mcp
+cd mito-ai-mcp
 npx -y @modelcontextprotocol/inspector@latest python3 -m mito_ai_mcp.server
 ```
 
@@ -44,13 +44,15 @@ Open the URL printed by Inspector (typically `http://localhost:6274`), connect, 
 1. Ensure dependencies are installed in the `mito-ai-mcp` virtual environment.
 2. Add the mcp section to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
+> **Note:** Make sure to replace `<absolute path to mito>` with your local path to the mito repo!
+
 ```json
 {
   "mcpServers": {
     "mito-ai": {
-      "command": "/Users/aarondiamond-reivich/Mito/mito/mito-ai-mcp/venv/bin/python",
+      "command": "/<absolute path to mito>/mito/mito-ai-mcp/venv/bin/python",
       "args": ["-m", "mito_ai_mcp.server"],
-      "cwd": "/Users/aarondiamond-reivich/Mito/mito/mito-ai-mcp"
+      "cwd": "/<absolute path to mito>/mito/mito-ai-mcp"
     }
   }
 }
