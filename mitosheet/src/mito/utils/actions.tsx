@@ -2723,6 +2723,7 @@ export const getActions = (
                                 columnHeader: s.column_header,
                                 description: s.description,
                                 code: s.code,
+                                previewValues: s.preview_values,
                             })),
                         },
                     }));

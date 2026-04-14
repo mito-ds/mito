@@ -494,12 +494,20 @@ export const Mito = (props: MitoProps): JSX.Element => {
         const sheetData = sheetDataArray[sheetIndex];
         if (sheetData === undefined) return sheetDataArray;
 
-        const ghostCols = columns.map(col => ({
-            columnID: `__suggested__${col.id}`,
-            columnHeader: col.columnHeader as string,
-            columnDtype: 'object',
-            columnData: Array(sheetData.numRows).fill('') as string[],
-        }));
+        const ghostCols = columns.map(col => {
+            // Use AI-computed preview values; pad or trim to match the sheet row count
+            const preview = col.previewValues;
+            const columnData: (string | number | boolean)[] =
+                preview.length >= sheetData.numRows
+                    ? preview.slice(0, sheetData.numRows)
+                    : [...preview, ...Array(sheetData.numRows - preview.length).fill('')];
+            return {
+                columnID: `__suggested__${col.id}`,
+                columnHeader: col.columnHeader as string,
+                columnDtype: 'object',
+                columnData,
+            };
+        });
 
         const augmented = {
             ...sheetData,

@@ -36,6 +36,8 @@ export type AIColumnSuggestionsResult =
               column_header: string;
               description: string;
               code: string;
+              /** Backend-computed preview values for the first MAX_PREVIEW_ROWS rows. Empty if exec failed. */
+              preview_values: (string | number | boolean)[];
           }[];
       };
 

@@ -994,6 +994,7 @@ export interface UIState {
             columnHeader: string;
             description: string;
             code: string;
+            previewValues: (string | number | boolean)[];
         }>;
     };
 }
