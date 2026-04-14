@@ -180,6 +180,12 @@ const ColumnHeader = (props: {
 
         const onAccept = () => {
             if (suggestedCol === undefined) return;
+            // Mark which column is being accepted so the step-change effect removes only this one
+            props.setUIState(prevUIState => {
+                const sc = prevUIState.suggestedColumns;
+                if (sc === undefined) return prevUIState;
+                return { ...prevUIState, suggestedColumns: { ...sc, acceptingColumnId: suggestedCol.id } };
+            });
             // Apply via AI Transformation step
             void props.mitoAPI._edit('ai_transformation_edit', {
                 user_input: `Add suggested column: ${suggestedCol.columnHeader}`,
@@ -188,16 +194,6 @@ const ColumnHeader = (props: {
                 completion: suggestedCol.code,
                 edited_completion: suggestedCol.code,
             }, `__suggested_accept__${suggestedCol.id}`);
-            // Remove this column from suggestions
-            props.setUIState(prevUIState => {
-                const sc = prevUIState.suggestedColumns;
-                if (sc === undefined) return prevUIState;
-                const remaining = sc.columns.filter(c => c.id !== suggestedCol.id);
-                return {
-                    ...prevUIState,
-                    suggestedColumns: remaining.length > 0 ? { ...sc, columns: remaining } : undefined,
-                };
-            });
         };
 
         const onReject = () => {

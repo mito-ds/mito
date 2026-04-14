@@ -989,6 +989,8 @@ export interface UIState {
         sheetIndex: number;
         status: 'loading' | 'ready' | 'error';
         error?: string;
+        /** ID of a column currently being accepted — used to remove only that one on the next step change */
+        acceptingColumnId?: string;
         columns: Array<{
             id: string;
             columnHeader: string;

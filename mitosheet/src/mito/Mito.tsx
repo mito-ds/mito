@@ -545,10 +545,18 @@ export const Mito = (props: MitoProps): JSX.Element => {
         return result;
     }, [sheetDataArray, uiState.suggestedColumns]);
 
-    // Clear suggested columns when an edit is applied (sheetDataArray changes from backend)
+    // When a step is applied, either remove the accepted column or clear all suggestions
     useEffect(() => {
         setUIState(prevUIState => {
-            if (prevUIState.suggestedColumns === undefined) return prevUIState;
+            const sc = prevUIState.suggestedColumns;
+            if (sc === undefined) return prevUIState;
+            // If an accept triggered this step, remove only that column
+            if (sc.acceptingColumnId !== undefined) {
+                const remaining = sc.columns.filter(c => c.id !== sc.acceptingColumnId);
+                if (remaining.length === 0) return { ...prevUIState, suggestedColumns: undefined };
+                return { ...prevUIState, suggestedColumns: { ...sc, acceptingColumnId: undefined, columns: remaining } };
+            }
+            // Any other edit clears all suggestions
             return { ...prevUIState, suggestedColumns: undefined };
         });
     }, [analysisData.stepSummaryList.length]);
