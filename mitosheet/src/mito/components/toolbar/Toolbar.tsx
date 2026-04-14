@@ -12,8 +12,10 @@ import { MitoAPI } from '../../api/api';
 import { ActionEnum, AnalysisData, EditorState, GridState, SheetData, UIState, UserProfile } from '../../types';
 import { Actions } from '../../utils/actions';
 import { classNames } from '../../utils/classNames';
+import { isAINotesEnabled } from '../../utils/location';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 import DocumentationIcon from '../icons/DocumentationIcon';
+import AINotesIcon from '../icons/AINotesIcon';
 import AIIcon from '../icons/AIIcon';
 import HexagonAIIcon from '../icons/HexagonAI';
 import { CodeTabContents } from './CodeTabContents';
@@ -156,6 +158,26 @@ export const Toolbar = (
                         <ToolbarButton
                             iconOverride={fscreen.fullscreenElement ? <CloseFullscreenIcon /> : <OpenFullscreenIcon />}
                             action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
+                        />
+                    )}
+                    {isAINotesEnabled() && (
+                        <ToolbarButton
+                            action={{
+                                staticType: 'ai-notes-toolbar',
+                                type: 'run-time',
+                                longTitle: 'AI notes',
+                                titleToolbar: '',
+                                actionFunction: () => {
+                                    props.setUIState((prev) => ({
+                                        ...prev,
+                                        currOpenTaskpane: { type: TaskpaneType.AINOTES },
+                                    }));
+                                },
+                                searchTerms: ['ai', 'notes', 'outliers', 'annotations'],
+                                isDisabled: () => undefined,
+                                tooltip: 'Scan the sheet with AI and get notes on data quality issues',
+                            }}
+                            iconOverride={<AINotesIcon />}
                         />
                     )}
                 </div>

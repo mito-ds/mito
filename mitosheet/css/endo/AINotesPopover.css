@@ -1,0 +1,160 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+.mito-ai-notes-popover {
+    position: relative;
+    z-index: 999999;
+    max-width: 380px;
+    padding: 0;
+    border-radius: 8px;
+    background: var(--mito-background-off);
+    color: var(--mito-text);
+    border: 1px solid var(--mito-text-light);
+    border-left-width: 4px;
+    border-left-color: var(--mito-highlight);
+    box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.08),
+        0 12px 28px rgba(0, 0, 0, 0.12);
+    pointer-events: auto;
+    overflow: hidden;
+}
+
+.mito-ai-notes-popover-severity-warning {
+    border-left-color: color-mix(in srgb, var(--mito-highlight) 70%, #e4b054);
+}
+
+.mito-ai-notes-popover-severity-critical {
+    border-left-color: var(--mito-status-error);
+}
+
+.mito-ai-notes-popover-close {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 1;
+    border: none;
+    background: transparent;
+    color: var(--mito-text-medium);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.mito-ai-notes-popover-close:hover {
+    background: var(--mito-background-highlight);
+    color: var(--mito-text);
+}
+
+.mito-ai-notes-popover-close:focus-visible {
+    outline: 2px solid var(--mito-highlight);
+    outline-offset: 1px;
+}
+
+.mito-ai-notes-popover-body-wrap {
+    padding: 10px 36px 14px 14px;
+    position: relative;
+}
+
+.mito-ai-notes-popover-lead {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: var(--mito-background-off);
+    border: 1px solid var(--mito-text-light);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    color: var(--mito-text);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.mito-ai-notes-popover-scope {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: var(--mito-text-medium);
+}
+
+.mito-ai-notes-popover-scope-label {
+    color: var(--mito-text-medium);
+}
+
+.mito-ai-notes-popover-scope-name {
+    font-weight: 600;
+    color: var(--mito-highlight);
+}
+
+.mito-ai-notes-popover-scope-link {
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--mito-highlight) 55%, var(--mito-text-light));
+    text-underline-offset: 2px;
+}
+
+.mito-ai-notes-popover-scope-link:hover {
+    color: var(--mito-text);
+    text-decoration-color: var(--mito-highlight);
+}
+
+.mito-ai-notes-popover-scope-link:focus {
+    outline: 2px solid var(--mito-highlight);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+.mito-ai-notes-popover-scope-infix {
+    color: var(--mito-text-medium);
+}
+
+.mito-ai-notes-popover-actions {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--mito-text-light);
+}
+
+.mito-ai-notes-popover-actions-label {
+    margin: 0 0 8px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mito-text-medium);
+}
+
+.mito-ai-notes-popover-action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mito-ai-notes-popover-action-btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--mito-highlight);
+    background: color-mix(in srgb, var(--mito-highlight) 14%, var(--mito-background));
+    color: var(--mito-text);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.mito-ai-notes-popover-action-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--mito-highlight) 24%, var(--mito-background));
+}
+
+.mito-ai-notes-popover-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.mito-ai-notes-popover-action-error {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--mito-status-error);
+}

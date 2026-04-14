@@ -13,6 +13,7 @@ import { getColumnIDsArrayFromSheetDataArray } from './utils';
 import { formatCellData } from '../../utils/format';
 import { isNumberDtype } from '../../utils/dtypes';
 import { reconIsColumnCreated, reconIsColumnModified } from '../taskpanes/AITransformation/aiUtils';
+import { cellHasAINote, getAINotesAnnotationForClick } from '../../utils/aiNotesUtils';
 import { hexToRGBString } from '../../utils/colors';
 import { Actions } from '../../utils/actions';
 import { TaskpaneType } from '../taskpanes/taskpanes';
@@ -106,10 +107,18 @@ const GridData = (props: {
                             const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, sheetData)
                             const isColumnModified = reconIsColumnModified(columnHeader, props.uiState.dataRecon, sheetData)
 
-                            // Check if the cell is a search match. 
+                            // Check if the cell is a search match.
                             const matchesSearch = !!props.uiState.currOpenSearch.matches.find((value) => {
                                 return value.rowIndex === rowIndex && value.colIndex === columnIndex
                             });
+
+                            const hasAICellNote = !isGhostColumn && cellHasAINote(
+                                props.uiState.aiNotesAnnotations,
+                                props.sheetIndex,
+                                rowIndex,
+                                columnIndex,
+                                sheetData.numRows
+                            );
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
                                 'mito-grid-cell-selected': cellIsSelected && !isGhostColumn,
@@ -176,6 +185,34 @@ const GridData = (props: {
                                     mito-row-index={rowIndex}
                                     title={displayCellData}
                                 >
+                                    {hasAICellNote && (
+                                        <button
+                                            type="button"
+                                            className="mito-grid-cell-ai-corner"
+                                            title="Open AI note"
+                                            aria-label="Open AI note for this cell"
+                                            onMouseDown={(e) => e.stopPropagation()}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const ann = getAINotesAnnotationForClick(
+                                                    props.uiState.aiNotesAnnotations,
+                                                    props.sheetIndex,
+                                                    rowIndex,
+                                                    columnIndex
+                                                );
+                                                if (ann === undefined) return;
+                                                props.setUIState((prev) => ({
+                                                    ...prev,
+                                                    aiNotesPopover: {
+                                                        annotationId: ann.id,
+                                                        x: e.clientX,
+                                                        y: e.clientY,
+                                                        openedFrom: 'cell',
+                                                    },
+                                                }));
+                                            }}
+                                        />
+                                    )}
                                     {displayCellData}
                                     <CellContextMenu
                                         display={displayDropdown}

@@ -55,6 +55,11 @@ export const isInDashboard = (): boolean => {
     return isInStreamlit() || isInDash()
 }
 
+/** Show AI notes toolbar button and taskpane in Streamlit, Jupyter, and VS Code notebooks. */
+export const isAINotesEnabled = (): boolean => {
+    return isInStreamlit() || isInJupyterLabOrNotebook() || isInVSCodeNotebookOutput()
+}
+
 /** VS Code notebook outputs: body/html get vscode-* theme classes and --vscode-* CSS variables. */
 export const isInVSCodeNotebookOutput = (): boolean => {
     if (typeof document === 'undefined') {

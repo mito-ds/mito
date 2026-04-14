@@ -30,6 +30,7 @@ import { Actions } from "../../utils/actions";
 import { getOperatingSystem } from "../../utils/keyboardShortcuts";
 import { getSelectionFloatStyle } from "./selectionFloatUtils";
 import { SelectionFloatActions } from "./SelectionFloatActions";
+import { AINotesPopover } from "./AINotesPopover";
 
 // NOTE: these should match the css
 export const DEFAULT_WIDTH = 123;
@@ -927,6 +928,16 @@ function EndoGrid(props: {
                     sheetData={sheetData}
                 />
             }
+            <AINotesPopover
+                uiState={uiState}
+                setUIState={setUIState}
+                setGridState={setGridState}
+                setEditorState={props.setEditorState}
+                mitoContainerRef={props.mitoContainerRef}
+                sheetData={sheetData}
+                sheetIndex={sheetIndex}
+                mitoAPI={mitoAPI}
+            />
         </>
     )
 }

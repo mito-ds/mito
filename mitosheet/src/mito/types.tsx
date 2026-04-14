@@ -955,6 +955,28 @@ export enum PopupLocation {
     TopRight = 'top_right',
 }
 
+export type AINotesAnnotationSeverity = 'info' | 'warning' | 'critical';
+
+export type AINotesAnnotationCategory =
+    | 'outlier'
+    | 'missing'
+    | 'invalid_domain'
+    | 'inconsistency'
+    | 'duplicate'
+    | 'other';
+
+export interface AINotesAnnotation {
+    id: string;
+    kind: 'column' | 'cell';
+    sheetIndex: number;
+    columnIndex: number;
+    rowIndex?: number;
+    text: string;
+    severity?: AINotesAnnotationSeverity;
+    category?: AINotesAnnotationCategory;
+    cellValue?: string;
+}
+
 /**
  * State of the UI, all in one place for ease.
  */
@@ -984,6 +1006,10 @@ export interface UIState {
     gridColumnEnterAnimation?: { sheetIndex: number; columnIndex: number };
     /** Transient: column indices playing delete exit before backend delete */
     gridColumnExitAnimation?: { sheetIndex: number; columnIndices: number[] };
+    /** AI notes annotations indexed by sheet */
+    aiNotesAnnotations?: AINotesAnnotation[];
+    aiNotesFocusedId?: string;
+    aiNotesPopover?: { annotationId: string; x: number; y: number; openedFrom: 'column_header' | 'cell' };
     /** AI-suggested ghost columns shown at the end of the active sheet */
     suggestedColumns?: {
         sheetIndex: number;

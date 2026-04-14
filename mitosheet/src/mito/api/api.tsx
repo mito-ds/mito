@@ -618,6 +618,34 @@ export class MitoAPI {
         })
     }
     
+    async getAINotesAnnotations(
+        sheetIndex: number
+    ): Promise<MitoAPIResult<{ error: string } | Record<string, unknown>>> {
+        return await this.send({
+            'event': 'api_call',
+            'type': 'get_ai_notes_annotations',
+            'params': { sheet_index: sheetIndex },
+        });
+    }
+
+    async getAINotesActionCode(params: {
+        action_id: string;
+        sheet_index: number;
+        column_index: number;
+        row_index?: number;
+    }): Promise<MitoAPIResult<{ error: string } | { title: string; code: string }>> {
+        return await this.send({
+            'event': 'api_call',
+            'type': 'get_ai_notes_action_code',
+            'params': {
+                action_id: params.action_id,
+                sheet_index: params.sheet_index,
+                column_index: params.column_index,
+                ...(params.row_index !== undefined ? { row_index: params.row_index } : {}),
+            },
+        });
+    }
+
     async getParameterizableParams(): Promise<MitoAPIResult<ParameterizableParams | undefined>> {
         return await this.send<ParameterizableParams | undefined>({
             'event': 'api_call',

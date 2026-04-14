@@ -22,6 +22,7 @@ import ColumnHeaderContextMenu from './ColumnHeaderContextMenu';
 import { getWidthArrayAtFullWidthForColumnIndexes } from './widthUtils';
 import { reconIsColumnCreated, reconIsColumnRenamed } from '../taskpanes/AITransformation/aiUtils';
 import { Actions } from '../../utils/actions';
+import { columnHeaderHasAINote, getAINotesAnnotationForClick } from '../../utils/aiNotesUtils';
 
 export const HEADER_TEXT_COLOR_DEFAULT = 'var(--mito-text)'
 export const HEADER_BACKGROUND_COLOR_DEFAULT = 'var(--mito-background-highlight)';
@@ -246,6 +247,11 @@ const ColumnHeader = (props: {
     //If there is a dataRecon set, highlight the column headers that have been created or renamed
     const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, props.sheetData)
     const isColumnRenamed = reconIsColumnRenamed(columnHeader, props.uiState.dataRecon, props.sheetData)
+    const hasAINote = columnHeaderHasAINote(
+        props.uiState.aiNotesAnnotations,
+        props.gridState.sheetIndex,
+        props.columnIndex
+    );
 
     // Give priority to the recon colors, then formatting colors, then default colors
     const backgroundColor = isColumnCreated ? CREATED_RECON_COLOR : isColumnRenamed ? MODIFIED_RECON_COLOR : headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT;
@@ -438,6 +444,34 @@ const ColumnHeader = (props: {
                     borderRight: borderStyle.borderRight,
                 }}
             >
+                {hasAINote && !editingFinalColumnHeader && (
+                    <button
+                        type="button"
+                        className="endo-column-header-ai-corner"
+                        title="Open AI note"
+                        aria-label="Open AI note for this column"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            const ann = getAINotesAnnotationForClick(
+                                props.uiState.aiNotesAnnotations,
+                                props.gridState.sheetIndex,
+                                -1,
+                                props.columnIndex
+                            );
+                            if (ann === undefined) return;
+                            props.setUIState((prev) => ({
+                                ...prev,
+                                aiNotesPopover: {
+                                    annotationId: ann.id,
+                                    x: e.clientX,
+                                    y: e.clientY,
+                                    openedFrom: 'column_header',
+                                },
+                            }));
+                        }}
+                    />
+                )}
                 {!editingFinalColumnHeader &&
                     <>
                         <div

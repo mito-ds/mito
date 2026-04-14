@@ -1,0 +1,181 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Col defaults to .spacing-col (nowrap + ellipsis); allow wrapping in the narrow taskpane */
+.ai-notes-taskpane-col.spacing-col {
+    overflow: visible;
+    white-space: normal;
+    text-overflow: clip;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.ai-notes-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ai-notes-item-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.ai-notes-item {
+    text-align: left;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid var(--mito-text-light);
+    background: var(--mito-background);
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--mito-text);
+    font-family: inherit;
+}
+
+.ai-notes-item-wrap:not(.ai-notes-item-wrap-has-actions) .ai-notes-item {
+    border-radius: 8px;
+}
+
+.ai-notes-item:hover {
+    background: var(--mito-background-highlight);
+}
+
+.ai-notes-item-focused {
+    border-color: var(--mito-highlight);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--mito-highlight) 35%, transparent);
+}
+
+/* Single frame: note + suggested fix */
+.ai-notes-item-wrap-has-actions {
+    border: 1px solid var(--mito-text-light);
+    border-radius: 8px;
+    background: var(--mito-background);
+    overflow: hidden;
+}
+
+.ai-notes-item-wrap-has-actions .ai-notes-item {
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid var(--mito-text-light);
+}
+
+.ai-notes-item-wrap-has-actions .ai-notes-item-focused {
+    box-shadow: none;
+}
+
+.ai-notes-item-wrap-has-actions:has(.ai-notes-item-focused) {
+    border-color: var(--mito-highlight);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--mito-highlight) 30%, transparent);
+}
+
+.ai-notes-item-actions {
+    padding: 10px 12px 12px;
+    margin-top: 0;
+    border: none;
+    border-radius: 0;
+    background: var(--mito-background-off);
+}
+
+.ai-notes-item-actions-label {
+    margin: 0 0 8px;
+    padding-top: 0;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mito-text-medium);
+}
+
+.ai-notes-item-action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ai-notes-item-action-btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--mito-highlight);
+    background: color-mix(in srgb, var(--mito-highlight) 14%, var(--mito-background));
+    color: var(--mito-text);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.ai-notes-item-action-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--mito-highlight) 24%, var(--mito-background));
+}
+
+.ai-notes-item-action-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.ai-notes-item-action-error {
+    margin: 8px 0 0;
+    font-size: 12px;
+}
+
+.ai-notes-meta {
+    display: block;
+    margin-bottom: 6px;
+    line-height: 1.35;
+}
+
+.ai-notes-meta-prefix {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--mito-text-medium);
+    margin-right: 4px;
+}
+
+.ai-notes-meta-infix {
+    font-size: 13px;
+    color: var(--mito-text-medium);
+    margin: 0 2px 0 0;
+}
+
+.ai-notes-meta-row-link,
+.ai-notes-meta-column-link {
+    display: inline;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mito-text);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--mito-highlight) 50%, var(--mito-text-light));
+    text-underline-offset: 2px;
+}
+
+.ai-notes-meta-row-link:hover,
+.ai-notes-meta-column-link:hover {
+    color: var(--mito-highlight);
+    text-decoration-color: var(--mito-highlight);
+}
+
+.ai-notes-meta-row-link:focus,
+.ai-notes-meta-column-link:focus {
+    outline: 2px solid var(--mito-highlight);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ai-notes-item,
+    .ai-notes-item-action-btn {
+        transition: none;
+    }
+}
