@@ -21,7 +21,7 @@ import { scheduleAnimatedColumnDelete } from "../../utils/gridMicroAnimations";
 import { scheduleAnimatedRowDelete } from "../../utils/gridRowDeleteAnimation";
 import { calculateCurrentSheetView, calculateNewScrollPosition, calculateTranslate} from "./sheetViewUtils";
 import { firstNonNullOrUndefined, getColumnIDsArrayFromSheetDataArray } from "./utils";
-import { ensureCellVisible } from "./visibilityUtils";
+import { ensureCellVisible, scrollColumnIntoView } from "./visibilityUtils";
 import { reconciliateWidthDataArray } from "./widthUtils";
 import FloatingCellEditor from "./celleditor/FloatingCellEditor";
 import { SendFunctionStatus } from "../../api/send";
@@ -278,6 +278,56 @@ function EndoGrid(props: {
         }, 50);
         return () => clearTimeout(timer);
     }, [props.uiState.suggestedColumns?.status])
+
+    // After jumping to a column from AI notes (taskpane / popover links), scroll horizontally
+    // so the column is visible. Selection alone does not move the viewport.
+    useEffect(() => {
+        const focusedId = uiState.aiNotesFocusedId;
+        if (focusedId === undefined) {
+            return;
+        }
+        const ann = uiState.aiNotesAnnotations?.find((a) => a.id === focusedId);
+        if (ann === undefined || ann.sheetIndex !== sheetIndex) {
+            return;
+        }
+
+        const last = gridState.selections[gridState.selections.length - 1];
+        if (
+            last === undefined ||
+            last.sheetIndex !== sheetIndex ||
+            last.startingRowIndex !== -1 ||
+            last.endingRowIndex !== -1 ||
+            last.startingColumnIndex !== ann.columnIndex ||
+            last.endingColumnIndex !== ann.columnIndex
+        ) {
+            return;
+        }
+
+        const scroll = (): void => {
+            scrollColumnIntoView(
+                containerRef.current,
+                scrollAndRenderedContainerRef.current,
+                currentSheetView,
+                gridState,
+                ann.columnIndex,
+            );
+        };
+
+        scroll();
+        const t = window.setTimeout(scroll, 50);
+        return () => {
+            window.clearTimeout(t);
+        };
+        // Intentionally omit gridState.scrollPosition — it updates on every scroll and would retrigger this.
+    }, [
+        uiState.aiNotesFocusedId,
+        uiState.aiNotesAnnotations,
+        sheetIndex,
+        gridState.selections,
+        gridState.sheetIndex,
+        gridState.widthDataArray,
+        currentSheetView,
+    ]);
 
     // Handles a scroll inside the grid 
     const onGridScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {

@@ -164,7 +164,7 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
     return (
         <DefaultTaskpane setUIState={props.setUIState} mitoAPI={props.mitoAPI}>
             <DefaultTaskpaneHeader
-                header="AI notes"
+                header="AI Notes"
                 setUIState={props.setUIState}
             />
             <DefaultTaskpaneBody>
