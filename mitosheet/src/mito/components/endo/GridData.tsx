@@ -192,6 +192,7 @@ const GridData = (props: {
                                             title="Open AI note"
                                             aria-label="Open AI note for this cell"
                                             onMouseDown={(e) => e.stopPropagation()}
+                                            onMouseUp={(e) => e.stopPropagation()}
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 const ann = getAINotesAnnotationForClick(

@@ -451,6 +451,7 @@ const ColumnHeader = (props: {
                         title="Open AI note"
                         aria-label="Open AI note for this column"
                         onMouseDown={(e) => e.stopPropagation()}
+                        onMouseUp={(e) => e.stopPropagation()}
                         onClick={(e) => {
                             e.stopPropagation();
                             const ann = getAINotesAnnotationForClick(
