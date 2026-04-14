@@ -114,11 +114,12 @@ def _validate_column_suggestions(raw: Any, df_columns: List[str]) -> List[Dict[s
             continue
         if not isinstance(code, str) or not code.strip():
             continue
+        normalized_column_header = column_header.strip()[:200]
         # Sanity check: column_header should not already exist
-        if column_header in df_columns:
+        if normalized_column_header in df_columns:
             continue
         out.append({
-            "column_header": column_header.strip()[:200],
+            "column_header": normalized_column_header,
             "description": description.strip()[:500],
             "code": code.strip(),
         })
