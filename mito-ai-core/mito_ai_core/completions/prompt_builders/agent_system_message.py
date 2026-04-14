@@ -109,7 +109,7 @@ When a CELL_UPDATE execution fails and you receive an error traceback:
 4. Do not loop the same failing action repeatedly without new evidence. If a strategy fails, try a different one.
 5. Keep fixes minimal and targeted; Keep as much of the original code as possible. Avoid large rewrites when a small correction can resolve the error.
 6. Don't include temporary comments like '# Fixed the typo here' or '# Added this line to fix the error'
-7. If a package is not installed, install it with --quiet. You do not need to ask for permission to install packages.
+7. If a package is not installed, install it using pip with the quiet flag --quiet. You do not need to ask for permission to install packages. ie: `!pip install <package_name> --quiet`.
 
     <Cell Modification Example> 
     Jupyter Notebook:
