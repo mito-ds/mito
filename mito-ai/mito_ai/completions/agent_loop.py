@@ -24,38 +24,41 @@ from mito_ai.completions.models import (
     CompletionError,
     ToolResultMessage,
 )
-from mito_ai_core.completions.prompt_builders.agent_execution_prompt import (
-    create_agent_execution_prompt,
-)
 from mito_ai.logger import get_logger
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.agent import AgentContext, AgentRunResult, ToolResult
 from mito_ai_core.agent.agent_runner import AgentRunner
 from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
-from mito_ai_core.completions.models import AgentResponse
+from mito_ai_core.completions.models import AgentResponse, MessageType, ResponseFormatInfo
 from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell
 
 
 class ProviderAdapter:
-    """Adapts :class:`ProviderManager` to the keyword-only
-    :class:`mito_ai_core.agent.types.CompletionProvider` protocol.
-    """
+    """Adapts :class:`ProviderManager` to :class:`CompletionProvider`."""
 
     def __init__(self, pm: ProviderManager) -> None:
         self._pm = pm
 
     async def request_completions(
         self,
-        *,
-        message_type: Any,
+        message_type: MessageType,
         messages: List[ChatCompletionMessageParam],
-        response_format_info: Optional[Any] = None,
-        **kwargs: Any,
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        user_input: Optional[str] = None,
+        thread_id: Optional[str] = None,
+        max_retries: int = 3,
+        use_fast_model: bool = False,
+        use_smartest_model: bool = False,
     ) -> str:
         return await self._pm.request_completions(
             message_type=message_type,
             messages=messages,
             response_format_info=response_format_info,
+            user_input=user_input,
+            thread_id=thread_id,
+            max_retries=max_retries,
+            use_fast_model=use_fast_model,
+            use_smartest_model=use_smartest_model,
         )
 
 

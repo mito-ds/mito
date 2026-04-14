@@ -95,3 +95,15 @@ def test_parse_agent_response_cell_update_dict_omits_optional_ids() -> None:
     assert r.cell_update.id is None
     assert r.cell_update.after_cell_id is None
     assert r.cell_update.code == "x = 1"
+
+
+def test_parse_agent_response_cell_update_missing_code_summary_uses_default() -> None:
+    """Missing nested code_summary should be filled by the CellUpdate schema default."""
+    inner = {
+        "type": "new",
+        "code": "x = 1",
+        "cell_type": "code",
+    }
+    r = parse_agent_response(_cell_update_completion(inner))
+    assert r.cell_update is not None
+    assert r.cell_update.code_summary == "Updating cell"

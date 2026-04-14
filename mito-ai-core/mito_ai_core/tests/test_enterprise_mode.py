@@ -10,13 +10,6 @@ from mito_ai_core.completions.models import MessageType
 from openai.types.chat import ChatCompletionMessageParam
 
 
-@pytest.fixture
-def provider_config() -> dict:
-    """Create a proper Config object for the ProviderManager."""
-    config = {}
-    return config
-
-
 class TestEnterpriseModeDetection:
     """Tests for enterprise mode detection."""
     
@@ -75,7 +68,7 @@ class TestModelValidation:
     
     @patch('mito_ai_core.utils.model_utils.is_enterprise')
     @patch('mito_ai_core.utils.model_utils.constants')
-    def test_provider_manager_validates_model(self, mock_constants, mock_is_enterprise, provider_config: Config):
+    def test_provider_manager_validates_model(self, mock_constants, mock_is_enterprise):
         """Test that ProviderManager validates models against available models."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = "https://litellm-server.com"
@@ -91,7 +84,7 @@ class TestModelValidation:
     @patch('mito_ai_core.utils.model_utils.is_enterprise')
     @patch('mito_ai_core.utils.model_utils.constants')
     @pytest.mark.asyncio
-    async def test_provider_manager_rejects_invalid_model(self, mock_constants, mock_is_enterprise, provider_config: Config):
+    async def test_provider_manager_rejects_invalid_model(self, mock_constants, mock_is_enterprise):
         """Test that ProviderManager rejects invalid models."""
         mock_is_enterprise.return_value = True
         mock_constants.LITELLM_BASE_URL = "https://litellm-server.com"
@@ -138,7 +131,7 @@ class TestModelValidation:
     @patch('mito_ai_core.utils.model_utils.is_enterprise')
     @patch('mito_ai_core.utils.model_utils.constants')
     @patch('mito_ai_core.utils.model_utils.is_abacus_configured')
-    def test_provider_manager_validates_abacus_model(self, mock_is_abacus_configured, mock_constants, mock_is_enterprise, provider_config: Config):
+    def test_provider_manager_validates_abacus_model(self, mock_is_abacus_configured, mock_constants, mock_is_enterprise):
         """Test that ProviderManager validates Abacus models against available models."""
         mock_is_abacus_configured.return_value = True
         mock_is_enterprise.return_value = True
@@ -156,7 +149,7 @@ class TestModelValidation:
     @patch('mito_ai_core.utils.model_utils.constants')
     @patch('mito_ai_core.utils.model_utils.is_abacus_configured')
     @pytest.mark.asyncio
-    async def test_provider_manager_rejects_invalid_abacus_model(self, mock_is_abacus_configured, mock_constants, mock_is_enterprise, provider_config: Config):
+    async def test_provider_manager_rejects_invalid_abacus_model(self, mock_is_abacus_configured, mock_constants, mock_is_enterprise):
         """Test that ProviderManager rejects invalid Abacus models."""
         mock_is_abacus_configured.return_value = True
         mock_is_enterprise.return_value = True
@@ -194,7 +187,7 @@ class TestModelValidation:
 class TestModelStorage:
     """Tests for model storage in ProviderManager."""
     
-    def test_provider_manager_stores_model(self, provider_config: Config):
+    def test_provider_manager_stores_model(self):
         """Test that ProviderManager can store and retrieve selected model."""
         provider_manager = ProviderManager()
         
@@ -204,7 +197,7 @@ class TestModelStorage:
         provider_manager.set_selected_model("claude-sonnet-4-5-20250929")
         assert provider_manager.get_selected_model() == "claude-sonnet-4-5-20250929"
     
-    def test_provider_manager_default_model(self, provider_config: Config):
+    def test_provider_manager_default_model(self):
         """Test that ProviderManager has a default model."""
         provider_manager = ProviderManager()
         

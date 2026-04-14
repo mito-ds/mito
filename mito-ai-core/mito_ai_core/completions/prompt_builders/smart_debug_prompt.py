@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
+
+from mito_ai_core.completions.models import KernelVariable
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
@@ -10,8 +12,8 @@ def create_error_prompt(
     error_message: str,
     active_cell_code: str,
     active_cell_id: str,
-    variables: List[str],
-    files: List[str]
+    variables: List[KernelVariable],
+    files: List[str],
 ) -> str:
     sections: List[PromptSection] = []
     

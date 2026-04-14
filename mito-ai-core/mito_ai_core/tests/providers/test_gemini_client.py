@@ -6,7 +6,7 @@ import ast
 import inspect
 import requests
 from mito_ai_core.clients.gemini_client import GeminiClient, get_gemini_system_prompt_and_messages
-from mito_ai_core.utils.gemini_utils import get_gemini_completion_function_params
+from mito_ai_core.clients.gemini_utils import get_gemini_completion_function_params
 from google.genai.types import Part, GenerateContentResponse, Candidate, Content
 from mito_ai_core.completions.models import ResponseFormatInfo, AgentResponse
 from unittest.mock import MagicMock, patch
@@ -161,7 +161,6 @@ CUSTOM_MODEL = "smart-gemini-model"
     MessageType.SMART_DEBUG,
     MessageType.CODE_EXPLAIN,
     MessageType.AGENT_EXECUTION,
-    MessageType.AGENT_AUTO_ERROR_FIXUP,
     MessageType.INLINE_COMPLETION,
     MessageType.CHAT_NAME_GENERATION,
 ])

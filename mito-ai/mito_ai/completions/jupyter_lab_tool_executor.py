@@ -14,7 +14,7 @@ import asyncio
 import json
 import logging
 from dataclasses import replace
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Literal, Optional
 
 from mito_ai_core.agent.tool_executor import ToolExecutor
 from mito_ai_core.agent.types import AgentContext, ToolResult
@@ -101,7 +101,16 @@ class JupyterLabToolExecutor:
 
     def _build_agent_response(
         self,
-        type: str,
+        type: Literal[
+            "cell_update",
+            "get_cell_output",
+            "run_all_cells",
+            "finished_task",
+            "create_streamlit_app",
+            "edit_streamlit_app",
+            "ask_user_question",
+            "scratchpad",
+        ],
         message: str,
         *,
         cell_update: Optional[CellUpdate] = None,
@@ -110,6 +119,7 @@ class JupyterLabToolExecutor:
         answers: Optional[List[str]] = None,
         scratchpad_code: Optional[str] = None,
         scratchpad_summary: Optional[str] = None,
+        streamlit_app_prompt: Optional[str] = None,
     ) -> AgentResponse:
         return AgentResponse(
             type=type,
@@ -118,7 +128,7 @@ class JupyterLabToolExecutor:
             get_cell_output_cell_id=get_cell_output_cell_id,
             next_steps=None,
             analysis_assumptions=None,
-            streamlit_app_prompt=None,
+            streamlit_app_prompt=streamlit_app_prompt,
             question=question,
             answers=answers,
             scratchpad_code=scratchpad_code,
@@ -213,5 +223,31 @@ class JupyterLabToolExecutor:
             message=message,
             question=question,
             answers=answers,
+        )
+        return await self._execute_via_frontend(agent_resp, message)
+
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        agent_resp = self._build_agent_response(
+            type="create_streamlit_app",
+            message=message,
+            streamlit_app_prompt=streamlit_app_prompt,
+        )
+        return await self._execute_via_frontend(agent_resp, message)
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        agent_resp = self._build_agent_response(
+            type="edit_streamlit_app",
+            message=message,
+            streamlit_app_prompt=streamlit_app_prompt,
         )
         return await self._execute_via_frontend(agent_resp, message)

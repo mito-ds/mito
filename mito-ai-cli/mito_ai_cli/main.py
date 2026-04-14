@@ -19,6 +19,7 @@ from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import AgentResponse, MessageType
 from mito_ai_core.provider_manager import ProviderManager
+from mito_ai_core.utils.create import initialize_user
 from mito_ai_core.utils.telemetry_utils import MITO_SERVER_FREE_TIER_LIMIT_REACHED
 from mito_ai_python_tool_executor import PythonToolExecutor, cells_to_notebook, save_notebook
 from mito_ai_cli.cli_print import cli_print
@@ -176,6 +177,8 @@ def _print_free_tier_limit_exceeded() -> None:
 
 
 async def _async_main(args: argparse.Namespace) -> int:
+    initialize_user()
+
     if args.output:
         output_path = os.path.expanduser(args.output)
     else:

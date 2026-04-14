@@ -9,7 +9,7 @@ from anthropic.types import Message, MessageParam, TextBlockParam
 from mito_ai_core.completions.models import ResponseFormatInfo, CompletionReply, CompletionStreamChunk, CompletionItem, MessageType
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import get_max_trim_after_messages
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai_core.utils.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params, LARGE_CONTEXT_MODEL, EXTENDED_CONTEXT_BETA
+from mito_ai_core.clients.anthropic_utils import get_anthropic_completion_from_mito_server, select_correct_model, stream_anthropic_completion_from_mito_server, get_anthropic_completion_function_params, LARGE_CONTEXT_MODEL, EXTENDED_CONTEXT_BETA
 
 # Max tokens is a required parameter for the Anthropic API.
 # We set it to a high number so that we can edit large code cells

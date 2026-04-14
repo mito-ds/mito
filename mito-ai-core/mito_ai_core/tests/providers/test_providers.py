@@ -21,12 +21,6 @@ REALLY_OLD_DATE = "2020-01-01"
 TODAY = datetime.now().strftime("%Y-%m-%d")
 FAKE_API_KEY = "sk-1234567890"
 
-@pytest.fixture
-def provider_config() -> dict:
-    """Create a proper Config object for the ProviderManager."""
-    config = {}
-    return config
-
 @pytest.fixture(autouse=True)
 def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
     for var in [
@@ -86,8 +80,7 @@ def reset_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.mark.asyncio
 async def test_completion_request(
     provider_config_data: dict,
-    monkeypatch: pytest.MonkeyPatch, 
-    provider_config: Config
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test completion requests for different providers."""
     # Set up environment variables
@@ -160,8 +153,7 @@ async def test_completion_request(
 @pytest.mark.asyncio
 async def test_stream_completion_parameterized(
     provider_config_data: dict,
-    monkeypatch: pytest.MonkeyPatch, 
-    provider_config: Config
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test stream completions for different providers."""
     # Set up environment variables
@@ -209,7 +201,7 @@ async def test_stream_completion_parameterized(
         assert isinstance(reply_chunks[0], CompletionReply)
 
 
-def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
+def test_error_handling(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "invalid-key")
     monkeypatch.setattr("mito_ai_core.constants.OPENAI_API_KEY", "invalid-key")
     mock_client = MagicMock()
@@ -225,7 +217,7 @@ def test_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config
         llm = ProviderManager()
         assert llm.last_error is None  # Error should be None until a request is made
 
-def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config: Config) -> None:
+def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "invalid-key")
     monkeypatch.setattr("mito_ai_core.constants.ANTHROPIC_API_KEY", "invalid-key")
     monkeypatch.setattr("mito_ai_core.constants.OPENAI_API_KEY", None)
@@ -249,21 +241,21 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
     {
         "name": "openai_fallback",
         "model": "gpt-4.1",
-        "mock_function": "mito_ai_core.openai_client.get_ai_completion_from_mito_server",
+        "mock_function": "mito_ai_core.clients.openai_client.get_ai_completion_from_mito_server",
         "provider_name": "Mito server",
         "key_type": "mito_server"
     },
     {
         "name": "claude_fallback", 
         "model": "claude-haiku-4-5-20251001",
-        "mock_function": "mito_ai_core.anthropic_client.get_anthropic_completion_from_mito_server",
+        "mock_function": "mito_ai_core.clients.anthropic_client.get_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
     },
     {
         "name": "gemini_fallback",
         "model": "gemini-3-flash-preview",
-        "mock_function": "mito_ai_core.gemini_client.get_gemini_completion_from_mito_server",
+        "mock_function": "mito_ai_core.clients.gemini_client.get_gemini_completion_from_mito_server",
         "provider_name": "Gemini",
         "key_type": "gemini"
     },
@@ -271,8 +263,7 @@ def test_claude_error_handling(monkeypatch: pytest.MonkeyPatch, provider_config:
 @pytest.mark.asyncio
 async def test_mito_server_fallback_completion_request(
     mito_server_config: dict,
-    monkeypatch: pytest.MonkeyPatch, 
-    provider_config: Config
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that completion requests fallback to Mito server when no API keys are set."""
     # Clear all API keys to force Mito server fallback
@@ -306,21 +297,21 @@ async def test_mito_server_fallback_completion_request(
     {
         "name": "openai_fallback",
         "model": "gpt-4.1",
-        "mock_function": "mito_ai_core.openai_client.stream_ai_completion_from_mito_server",
+        "mock_function": "mito_ai_core.clients.openai_client.stream_ai_completion_from_mito_server",
         "provider_name": "Mito server",
         "key_type": "mito_server"
     },
     {
         "name": "claude_fallback", 
         "model": "claude-haiku-4-5-20251001",
-        "mock_function": "mito_ai_core.anthropic_client.stream_anthropic_completion_from_mito_server",
+        "mock_function": "mito_ai_core.clients.anthropic_client.stream_anthropic_completion_from_mito_server",
         "provider_name": "Claude",
         "key_type": "claude"
     },
     {
         "name": "gemini_fallback",
         "model": "gemini-3-flash-preview",
-        "mock_function": "mito_ai_core.gemini_client.stream_gemini_completion_from_mito_server",
+        "mock_function": "mito_ai_core.clients.gemini_client.stream_gemini_completion_from_mito_server",
         "provider_name": "Gemini",
         "key_type": "gemini"
     },
@@ -328,8 +319,7 @@ async def test_mito_server_fallback_completion_request(
 @pytest.mark.asyncio
 async def test_mito_server_fallback_stream_completion(
     mito_server_config: dict,
-    monkeypatch: pytest.MonkeyPatch, 
-    provider_config: Config
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that stream completions fallback to Mito server when no API keys are set."""
     # Clear all API keys to force Mito server fallback
@@ -358,7 +348,7 @@ async def test_mito_server_fallback_stream_completion(
 
         # Apply patch_server_limits for all cases, not just openai_fallback
         # Also patch update_mito_server_quota where it's actually used in openai_client
-        with patch_server_limits(), patch("mito_ai_core.openai_client.update_mito_server_quota", MagicMock(return_value=None)):
+        with patch_server_limits(), patch("mito_ai_core.clients.openai_client.update_mito_server_quota", MagicMock(return_value=None)):
             llm = ProviderManager()
             llm.set_selected_model(mito_server_config["model"])
 
@@ -380,8 +370,7 @@ async def test_mito_server_fallback_stream_completion(
 # Fast and Smartest Model Tests
 @pytest.mark.asyncio
 async def test_provider_manager_uses_fast_model_for_request_completions(
-    monkeypatch: pytest.MonkeyPatch, 
-    provider_config: Config
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that ProviderManager correctly sets and uses fast model for request_completions when requested."""
     # Set up environment variables to ensure OpenAI provider is used
@@ -421,8 +410,7 @@ async def test_provider_manager_uses_fast_model_for_request_completions(
 
 @pytest.mark.asyncio
 async def test_provider_manager_uses_smartest_model_for_request_completions(
-    monkeypatch: pytest.MonkeyPatch, 
-    provider_config: Config
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that ProviderManager correctly sets and uses smartest model for request_completions when requested."""
     # Set up environment variables to ensure OpenAI provider is used
@@ -462,8 +450,7 @@ async def test_provider_manager_uses_smartest_model_for_request_completions(
 
 @pytest.mark.asyncio
 async def test_provider_manager_uses_fast_model_for_stream_completions(
-    monkeypatch: pytest.MonkeyPatch, 
-    provider_config: Config
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that ProviderManager correctly sets and uses fast model for stream_completions when requested."""
     # Set up environment variables to ensure OpenAI provider is used
@@ -510,8 +497,7 @@ async def test_provider_manager_uses_fast_model_for_stream_completions(
 
 @pytest.mark.asyncio
 async def test_provider_manager_uses_smartest_model_for_stream_completions(
-    monkeypatch: pytest.MonkeyPatch, 
-    provider_config: Config
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that ProviderManager correctly sets and uses smartest model for stream_completions when requested."""
     # Set up environment variables to ensure OpenAI provider is used

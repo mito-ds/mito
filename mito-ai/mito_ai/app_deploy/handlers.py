@@ -13,8 +13,8 @@ from mito_ai_core.utils.version_utils import is_pro
 from mito_ai.utils.websocket_base import BaseWebSocketHandler
 from mito_ai.app_deploy.app_deploy_utils import  add_files_to_zip
 from mito_ai.app_deploy.models import (
-    DeployAppReply,
     AppDeployError,
+    DeployAppReply,
     DeployAppRequest,
     ErrorMessage,
 )

@@ -12,15 +12,12 @@ import { IStreamlitPreviewManager } from '../../AppPreview/StreamlitPreviewPlugi
 import { CompletionWebsocketClient } from '../../../websockets/completions/CompletionsWebsocketClient';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 import { createCheckpoint } from '../../../utils/checkpoint';
-import { acceptAndRunCellUpdate, runAllCells } from '../../../utils/agentActions';
-import { checkForBlacklistedWords } from '../../../utils/blacklistedWords';
 import { playCompletionSound } from '../../../utils/sound';
-import { getAIOptimizedCellsInNotebookPanel, getActiveCellIDInNotebookPanel } from '../../../utils/notebook';
+import { getAIOptimizedCellsInNotebookPanel } from '../../../utils/notebook';
 import { AgentReviewStatus } from '../ChatTaskpane';
 import { LoadingStatus } from './useChatState';
 import { ensureNotebookExists } from '../utils';
-import { executeScratchpadCode, formatScratchpadResult } from '../../../utils/scratchpadExecution';
-import { getCellOutputByIDInNotebook } from '../../../utils/cellOutput';
+import { executeAgentTool } from './agentToolExecutor';
 import {
     IRequestToolExecutionMessage,
     IAgentFinishedMessage,
@@ -64,11 +61,6 @@ interface UseAgentExecutionProps {
         messageIndex?: number,
         additionalContext?: Array<{ type: string, value: string }>
     ) => Promise<void>;
-    // These are kept in the interface for backward compatibility but are no longer
-    // used by useAgentExecution — error retry and scratchpad are handled by the
-    // backend agent loop via request_tool_execution/tool_result messages.
-    sendScratchpadResultMessage: (scratchpadResult: string) => Promise<void>;
-    sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>;
     agentReview: {
         acceptAllAICode: () => void;
         setNotebookSnapshotPreAgentExecution: (snapshot: any) => void;
@@ -96,7 +88,7 @@ const sendToolResult = (
         activeCellId?: string;
         isChromeBrowser?: boolean;
     } = {}
-) => {
+): void => {
     websocketClient.sendOneWay({
         type: 'tool_result',
         message_id: UUID.uuid4(),
@@ -134,14 +126,11 @@ export const useAgentExecution = ({
     addAgentToolFailureUserMessageAndUpdateState,
     getDuplicateChatHistoryManager,
     sendAgentExecutionMessage,
-    sendScratchpadResultMessage,
-    sendAgentSmartDebugMessage,
     agentReview,
     agentTargetNotebookPanelRef,
     audioContextRef,
 }: UseAgentExecutionProps): {
     agentExecutionStatus: AgentExecutionStatus;
-    shouldContinueAgentExecution: React.MutableRefObject<boolean>;
     startAgentExecution: (
         input: string,
         setAgentReviewStatus: (status: AgentReviewStatus) => void,
@@ -218,186 +207,46 @@ export const useAgentExecution = ({
             return;
         }
 
-        const agentResponse = command.agent_response;
-
         try {
-            switch (agentResponse.type) {
-                case 'cell_update': {
-                    if (!agentResponse.cell_update) {
-                        sendToolResult(websocketClient, command.thread_id, false, {
-                            errorMessage: 'cell_update payload is missing',
-                            toolType: 'cell_update',
-                        });
-                        return;
-                    }
+            const executionResult = await executeAgentTool({
+                agentResponse: command.agent_response,
+                app,
+                notebookPanel,
+                streamlitPreviewManager,
+                contextManager,
+                setLoadingStatus,
+                addAIMessageFromResponseAndUpdateState,
+                chatHistoryManagerRef,
+            });
 
-                    // Security check
-                    const securityCheck = checkForBlacklistedWords(agentResponse.cell_update.code);
-                    if (!securityCheck.safe) {
-                        console.error('Security Warning:', securityCheck.reason);
-                        addAIMessageFromResponseAndUpdateState(
-                            `I cannot automatically execute this code because it did not pass my security checks. ${securityCheck.reason}. If you decide that this code is safe, you can manually run it.`,
-                            'agent:execution',
-                            chatHistoryManagerRef.current
-                        );
-                        sendToolResult(websocketClient, command.thread_id, false, {
-                            errorMessage: `Security check failed: ${securityCheck.reason}`,
-                            toolType: 'cell_update',
-                        });
-                        return;
-                    }
+            sendToolResult(websocketClient, command.thread_id, executionResult.success, {
+                errorMessage: executionResult.errorMessage,
+                cells: executionResult.cells,
+                variables: executionResult.variables,
+                output: executionResult.output,
+                toolType: executionResult.toolType,
+                activeCellId: executionResult.activeCellId,
+            });
 
-                    setLoadingStatus('running-code');
-                    try {
-                        await acceptAndRunCellUpdate(
-                            agentResponse.cell_update,
-                            notebookPanel,
-                        );
-                    } finally {
-                        setLoadingStatus(undefined);
-                    }
-
-                    // Gather updated notebook state
-                    const cells = getAIOptimizedCellsInNotebookPanel(notebookPanel);
-                    const activeCellId = getActiveCellIDInNotebookPanel(notebookPanel);
-                    const variables = contextManager.getNotebookContext(notebookPanel.id)?.variables;
-
-                    sendToolResult(websocketClient, command.thread_id, true, {
-                        cells: cells,
-                        toolType: 'cell_update',
-                        activeCellId: activeCellId,
-                        variables: variables,
-                    });
-                    break;
-                }
-
-                case 'run_all_cells': {
-                    setLoadingStatus('running-code');
-                    let result;
-                    try {
-                        result = await runAllCells(app, notebookPanel);
-                    } finally {
-                        setLoadingStatus(undefined);
-                    }
-
-                    const cells = getAIOptimizedCellsInNotebookPanel(notebookPanel);
-                    const variables = contextManager.getNotebookContext(notebookPanel.id)?.variables;
-
-                    if (!result.success && result.errorMessage) {
-                        sendToolResult(websocketClient, command.thread_id, false, {
-                            errorMessage: result.errorMessage,
-                            cells: cells,
-                            toolType: 'run_all_cells',
-                        });
-                    } else {
-                        sendToolResult(websocketClient, command.thread_id, true, {
-                            cells: cells,
-                            toolType: 'run_all_cells',
-                            variables: variables,
-                        });
-                    }
-                    break;
-                }
-
-                case 'get_cell_output': {
-                    const cellId = agentResponse.get_cell_output_cell_id;
-                    if (!cellId) {
-                        sendToolResult(websocketClient, command.thread_id, false, {
-                            errorMessage: 'get_cell_output_cell_id is missing',
-                            toolType: 'get_cell_output',
-                        });
-                        return;
-                    }
-
-                    const output = await getCellOutputByIDInNotebook(notebookPanel, cellId);
-
-                    sendToolResult(websocketClient, command.thread_id, true, {
-                        output: output ?? undefined,
-                        toolType: 'get_cell_output',
-                    });
-                    break;
-                }
-
-                case 'scratchpad': {
-                    const code = agentResponse.scratchpad_code;
-                    if (!code) {
-                        sendToolResult(websocketClient, command.thread_id, false, {
-                            errorMessage: 'scratchpad_code is missing',
-                            toolType: 'scratchpad',
-                        });
-                        return;
-                    }
-
-                    // Security check
-                    const scratchpadSecurityCheck = checkForBlacklistedWords(code);
-                    if (!scratchpadSecurityCheck.safe) {
-                        console.error('Security Warning:', scratchpadSecurityCheck.reason);
-                        sendToolResult(websocketClient, command.thread_id, false, {
-                            errorMessage: `Security check failed: ${scratchpadSecurityCheck.reason}`,
-                            toolType: 'scratchpad',
-                        });
-                        return;
-                    }
-
-                    setLoadingStatus('running-code');
-                    let scratchpadResult;
-                    try {
-                        scratchpadResult = await executeScratchpadCode(
-                            notebookPanel,
-                            code
-                        );
-                    } finally {
-                        setLoadingStatus(undefined);
-                    }
-
-                    const formattedResult = formatScratchpadResult(scratchpadResult);
-
-                    sendToolResult(websocketClient, command.thread_id, scratchpadResult.success, {
-                        output: formattedResult,
-                        errorMessage: scratchpadResult.error,
-                        toolType: 'scratchpad',
-                    });
-                    break;
-                }
-
-                case 'ask_user_question': {
-                    // When the agent asks a question, we stop execution on the frontend
-                    // and tell the backend the question was delivered.
-                    // The backend agent loop will pause waiting for the user's answer.
-                    sendToolResult(websocketClient, command.thread_id, true, {
-                        output: 'Question delivered to user',
-                        toolType: 'ask_user_question',
-                    });
-                    // Mark agent as stopped so the UI shows the question
-                    await markAgentForStopping();
-                    break;
-                }
-
-                default: {
-                    // For types we don't handle on the frontend (create_streamlit_app, etc.)
-                    // send a success result so the backend loop continues
-                    sendToolResult(websocketClient, command.thread_id, true, {
-                        toolType: agentResponse.type,
-                    });
-                    break;
-                }
+            if (executionResult.shouldStopAgent) {
+                await markAgentForStopping();
             }
         } catch (error: any) {
             console.error('Error executing request_tool_execution:', error);
             sendToolResult(websocketClient, command.thread_id, false, {
                 errorMessage: error?.message || 'Unknown error executing tool',
-                toolType: agentResponse.type,
+                toolType: command.agent_response.type,
             });
         }
     }, [
         websocketClient,
         activeThreadIdRef,
         agentTargetNotebookPanelRef,
-        shouldContinueAgentExecution,
         setLoadingStatus,
         addAIMessageFromResponseAndUpdateState,
         chatHistoryManagerRef,
         app,
+        streamlitPreviewManager,
         markAgentForStopping,
     ]);
 
@@ -429,7 +278,6 @@ export const useAgentExecution = ({
         setLoadingStatus(undefined);
     }, [
         activeThreadIdRef,
-        shouldContinueAgentExecution,
         getDuplicateChatHistoryManager,
         setChatHistoryManager,
         setLoadingStatus,
@@ -446,8 +294,20 @@ export const useAgentExecution = ({
         // Tool finished; backend is now moving to the next LLM step.
         setLoadingStatus('thinking');
 
-        // TODO: The tool result is what get's used as the next user message in the conversation.
-        // For something like the scratchpad result, we want to display it!
+        if (
+            msg.tool_result.success &&
+            msg.tool_result.tool_name === 'scratchpad' &&
+            msg.tool_result.output
+        ) {
+            const updatedChatHistoryManager = getDuplicateChatHistoryManager();
+            const didAttachResult = updatedChatHistoryManager.attachScratchpadResultToLatestScratchpadMessage(
+                msg.tool_result.output
+            );
+
+            if (didAttachResult) {
+                setChatHistoryManager(updatedChatHistoryManager);
+            }
+        }
 
         if (!msg.tool_result.success && msg.tool_result.error_message) {
             addAgentToolFailureUserMessageAndUpdateState(
@@ -457,24 +317,25 @@ export const useAgentExecution = ({
         }
     }, [
         activeThreadIdRef,
-        shouldContinueAgentExecution,
         setLoadingStatus,
+        getDuplicateChatHistoryManager,
+        setChatHistoryManager,
         addAgentToolFailureUserMessageAndUpdateState,
         chatHistoryManagerRef,
     ]);
 
     // Subscribe to agent loop streams
     useEffect(() => {
-        const onRequestToolExecution = (_sender: any, command: IRequestToolExecutionMessage) => {
+        const onRequestToolExecution = (_sender: any, command: IRequestToolExecutionMessage): void => {
             void handleRequestToolExecution(_sender, command);
         };
-        const onAgentFinished = (_sender: any, msg: IAgentFinishedMessage) => {
+        const onAgentFinished = (_sender: any, msg: IAgentFinishedMessage): void => {
             void handleAgentFinished(_sender, msg);
         };
-        const onAssistantResponse = (_sender: any, msg: IAssistantResponseMessage) => {
+        const onAssistantResponse = (_sender: any, msg: IAssistantResponseMessage): void => {
             void handleAssistantResponse(_sender, msg);
         };
-        const onBackendToolResult = (_sender: any, msg: IToolResultMessage) => {
+        const onBackendToolResult = (_sender: any, msg: IToolResultMessage): void => {
             void handleBackendToolResult(_sender, msg);
         };
 
@@ -528,7 +389,6 @@ export const useAgentExecution = ({
     return {
         // State
         agentExecutionStatus,
-        shouldContinueAgentExecution,
 
         // Functions
         startAgentExecution,

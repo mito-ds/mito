@@ -28,7 +28,7 @@ from mito_ai_core.completions.models import (
     ResponseFormatInfo,
 )
 from mito_ai_core.copilot.model_ids import strip_copilot_prefix
-from mito_ai_core.utils.copilot_utils import (
+from mito_ai_core.clients.copilot_utils import (
     chat_completions_aggregate,
     chat_completions_stream_text_deltas,
     ensure_logged_in_for_completion,

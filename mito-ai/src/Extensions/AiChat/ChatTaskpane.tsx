@@ -64,9 +64,7 @@ import {
     ICodeExplainCompletionRequest,
     IChatCompletionRequest,
     ISmartDebugCompletionRequest,
-    IAgentAutoErrorFixupCompletionRequest,
     IAgentExecutionCompletionRequest,
-    IAgentScratchpadResultCompletionRequest,
     AgentResponse,
     ICompletionStreamChunk
 } from '../../websockets/completions/CompletionModels';
@@ -230,8 +228,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentModeEnabled,
         hasCheckpoint,
         setHasCheckpoint,
-        showRevertQuestionnaire,
-        setShowRevertQuestionnaire,
     } = useAgentMode();
 
     // Create a shared ref for the agent target notebook panel
@@ -293,7 +289,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager,
         setAgentModeEnabled,
         setNextSteps,
-        setShowRevertQuestionnaire,
         setHasCheckpoint,
         setAutoScrollFollowMode,
         agentReview,
@@ -347,40 +342,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             message_id: UUID.uuid4(),
             metadata: smartDebugMetadata,
             stream: true
-        }
-        await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
-    }
-
-    const sendAgentSmartDebugMessage = async (errorMessage: string): Promise<void> => {
-        if (copilotBlocksChatRef.current) {
-            return;
-        }
-        if (agentTargetNotebookPanelRef.current === null) {
-            return
-        }
-
-        // Step 0: reset the state for a new message
-        resetForNewMessage()
-
-        // Enable follow mode when sending agent debug message (same behavior as other modes)
-        setAutoScrollFollowMode(true);
-
-        // Step 1: Create message metadata
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-        const agentSmartDebugMessage = newChatHistoryManager.addAgentSmartDebugMessage(
-            activeThreadIdRef.current, 
-            errorMessage,
-            agentTargetNotebookPanelRef.current
-        )
-        setChatHistoryManager(newChatHistoryManager);
-        setLoadingStatus('thinking');
-
-        // Step 2: Send the message to the AI
-        const smartDebugCompletionRequest: IAgentAutoErrorFixupCompletionRequest = {
-            type: 'agent:autoErrorFixup',
-            message_id: UUID.uuid4(),
-            metadata: agentSmartDebugMessage,
-            stream: false
         }
         await _sendMessageAndSaveResponse(smartDebugCompletionRequest, newChatHistoryManager)
     }
@@ -459,37 +420,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
             stream: false
         }
         websocketClient.sendOneWay(completionRequest)
-    }
-
-    const sendScratchpadResultMessage = async (
-        scratchpadResult: string
-    ): Promise<void> => {
-        if (copilotBlocksChatRef.current) {
-            return;
-        }
-
-        // Step 0: reset the state for a new message
-        resetForNewMessage()
-
-        // Step 1: Add the scratchpad result message to the chat history
-        const newChatHistoryManager = getDuplicateChatHistoryManager()
-
-        const scratchpadResultMetadata = newChatHistoryManager.addScratchpadResultMessage(
-            activeThreadIdRef.current, 
-            scratchpadResult
-        )
-
-        setChatHistoryManager(newChatHistoryManager)
-        setLoadingStatus('thinking');
-
-        // Step 2: Send the message to the AI
-        const completionRequest: IAgentScratchpadResultCompletionRequest = {
-            type: 'agent:scratchpad-result',
-            message_id: UUID.uuid4(),
-            metadata: scratchpadResultMetadata,
-            stream: false
-        }
-        await _sendMessageAndSaveResponse(completionRequest, newChatHistoryManager)
     }
 
     /* 
@@ -703,8 +633,8 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                 } else {
                     const content = aiResponse.items[0]?.content ?? '';
 
-                    if (completionRequest.metadata.promptType === 'agent:execution' || completionRequest.metadata.promptType === 'agent:scratchpad-result' || completionRequest.metadata.promptType === 'agent:autoErrorFixup') {
-                        // Agent:Execution and Agent:ScratchpadResult prompts return a CellUpdate object that we need to parse
+                    if (completionRequest.metadata.promptType === 'agent:execution') {
+                        // Agent:Execution prompts return a structured AgentResponse that we need to parse
                         const agentResponse: AgentResponse = JSON.parse(content)
                         newChatHistoryManager.addAIMessageFromAgentResponse(agentResponse)
                     } else {
@@ -799,8 +729,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         addAgentToolFailureUserMessageAndUpdateState,
         getDuplicateChatHistoryManager,
         sendAgentExecutionMessage,
-        sendScratchpadResultMessage,
-        sendAgentSmartDebugMessage,
         agentReview,
         agentTargetNotebookPanelRef,
         setAgentReviewStatus,
@@ -893,7 +821,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         rejectAICode()
         setNextSteps([])
-        setShowRevertQuestionnaire(false);
     }
 
     useEffect(() => {
@@ -1208,7 +1135,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     hasCheckpoint={hasCheckpoint}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecution.agentExecutionStatus}
-                    showRevertQuestionnaire={showRevertQuestionnaire}
                     reviewAgentChanges={agentReview.reviewAgentChanges}
                     acceptAllAICode={agentReview.acceptAllAICode}
                     rejectAllAICode={agentReview.rejectAllAICode}
@@ -1217,9 +1143,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     hasChanges={agentReview.hasChanges}
                     setHasCheckpoint={setHasCheckpoint}
                     setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
-                    setShowRevertQuestionnaire={setShowRevertQuestionnaire}
-                    getDuplicateChatHistoryManager={getDuplicateChatHistoryManager}
-                    setChatHistoryManager={setChatHistoryManager}
                     app={app}
                     notebookTracker={notebookTracker}
                     chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
@@ -1289,7 +1212,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 setAgentModeEnabled(!isLeftSelected);
                                 // Clear agent checkpoint when switching modes
                                 setHasCheckpoint(false);
-                                setShowRevertQuestionnaire(false);
                                 // Focus the chat input directly
                                 const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                 if (chatInput) {

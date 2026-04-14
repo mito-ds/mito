@@ -18,7 +18,7 @@ import requests
 import sseclient
 
 from mito_ai_core.completions.models import ResponseFormatInfo
-from mito_ai_core.utils.open_ai_utils import get_open_ai_completion_function_params
+from mito_ai_core.clients.open_ai_utils import get_open_ai_completion_function_params
 
 log = logging.getLogger(__name__)
 
