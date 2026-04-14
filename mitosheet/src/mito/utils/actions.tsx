@@ -2665,6 +2665,73 @@ export const getActions = (
             searchTerms: ['AI Transformation'],
             tooltip: "AI Transformation"
         },
+        [ActionEnum.Suggest_Columns]: {
+            type: 'build-time',
+            staticType: ActionEnum.Suggest_Columns,
+            iconToolbar: HexagonAIIcon,
+            titleToolbar: 'Suggest',
+            longTitle: 'Suggest Columns',
+            actionFunction: () => {
+                setEditorState(undefined);
+                const currentSheetIndex = gridState.sheetIndex;
+
+                // Show loading state immediately
+                setUIState(prevUIState => ({
+                    ...prevUIState,
+                    suggestedColumns: {
+                        sheetIndex: currentSheetIndex,
+                        status: 'loading',
+                        columns: [],
+                    },
+                }));
+
+                // Async fetch suggestions
+                void (async () => {
+                    const res = await mitoAPI.getColumnSuggestions(currentSheetIndex);
+                    if (res === undefined || 'error' in res) {
+                        setUIState(prevUIState => ({
+                            ...prevUIState,
+                            suggestedColumns: {
+                                sheetIndex: currentSheetIndex,
+                                status: 'error',
+                                error: (res !== undefined && 'error' in res) ? (res as {error: string}).error : 'Failed to get column suggestions.',
+                                columns: [],
+                            },
+                        }));
+                        return;
+                    }
+                    const payload = res.result;
+                    if ('error' in payload) {
+                        setUIState(prevUIState => ({
+                            ...prevUIState,
+                            suggestedColumns: {
+                                sheetIndex: currentSheetIndex,
+                                status: 'error',
+                                error: payload.error,
+                                columns: [],
+                            },
+                        }));
+                        return;
+                    }
+                    setUIState(prevUIState => ({
+                        ...prevUIState,
+                        suggestedColumns: {
+                            sheetIndex: currentSheetIndex,
+                            status: 'ready',
+                            columns: payload.suggestions.map((s, i) => ({
+                                id: `${i}-${s.column_header}`,
+                                columnHeader: s.column_header,
+                                description: s.description,
+                                code: s.code,
+                            })),
+                        },
+                    }));
+                })();
+            },
+            isDisabled: () => { return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to analyze. Import data.'; },
+            searchTerms: ['suggest columns', 'ai columns', 'column suggestions'],
+            tooltip: 'Let AI suggest new columns based on your data.',
+        },
         [ActionEnum.Suggested_Visualizations]: {
             type: 'build-time',
             staticType: ActionEnum.Suggested_Visualizations,

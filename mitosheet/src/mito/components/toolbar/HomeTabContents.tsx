@@ -199,6 +199,9 @@ export const HomeTabContents = (
             highlightToolbarButton={props.highlightAddColButton}
         />
         <ToolbarButton
+            action={props.actions.buildTimeActions[ActionEnum.Suggest_Columns]}
+        />
+        <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Delete]}
         />
         <div className='toolbar-vertical-line'/>

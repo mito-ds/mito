@@ -100,3 +100,12 @@
     background-color: var(--mito-recon-modified-background-color-dark);
     color: var(--mito-recon-text-color);
 }
+
+/* ── Ghost / AI-suggested cells ── */
+.mito-grid-cell-suggested {
+    opacity: 0.35;
+    pointer-events: none;
+    background-color: var(--mito-background-highlight, #f5f5f5) !important;
+    border-style: dashed !important;
+    color: var(--mito-text);
+}

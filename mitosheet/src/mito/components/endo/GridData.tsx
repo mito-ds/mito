@@ -83,6 +83,7 @@ const GridData = (props: {
                                 colExitAnim.columnIndices.includes(columnIndex);
 
                             const columnID = columnIDs[columnIndex]
+                            const isGhostColumn = columnID?.startsWith('__suggested__');
                             const columnDtype = props.sheetData?.data[columnIndex]?.columnDtype;
                             const index = props.sheetData?.index[rowIndex] !== undefined ? props.sheetData?.index[rowIndex] : 0;
                             const columnFormatType = sheetData.dfFormat.columns[columnID]
@@ -111,16 +112,17 @@ const GridData = (props: {
                             });
 
                             const className = classNames('mito-grid-cell', 'text-unselectable', {
-                                'mito-grid-cell-selected': cellIsSelected,
-                                'mito-grid-cell-conditional-format-background-color': conditionalFormat?.backgroundColor !== undefined,
-                                'mito-grid-cell-hidden': props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
-                                'right-align-number-series': isNumberDtype(columnDtype),
-                                'recon created-recon-background-color': isColumnCreated && rowIndex % 2 !== 0,
-                                'recon created-recon-background-color-dark': isColumnCreated && rowIndex % 2 === 0,
-                                'recon modified-recon-background-color': isColumnModified && rowIndex % 2 !== 0,
-                                'recon modified-recon-background-color-dark': isColumnModified && rowIndex % 2 === 0,
+                                'mito-grid-cell-selected': cellIsSelected && !isGhostColumn,
+                                'mito-grid-cell-conditional-format-background-color': !isGhostColumn && conditionalFormat?.backgroundColor !== undefined,
+                                'mito-grid-cell-hidden': !isGhostColumn && props.editorState !== undefined && props.editorState.rowIndex === rowIndex && props.editorState.columnIndex === columnIndex,
+                                'right-align-number-series': !isGhostColumn && isNumberDtype(columnDtype),
+                                'recon created-recon-background-color': !isGhostColumn && isColumnCreated && rowIndex % 2 !== 0,
+                                'recon created-recon-background-color-dark': !isGhostColumn && isColumnCreated && rowIndex % 2 === 0,
+                                'recon modified-recon-background-color': !isGhostColumn && isColumnModified && rowIndex % 2 !== 0,
+                                'recon modified-recon-background-color-dark': !isGhostColumn && isColumnModified && rowIndex % 2 === 0,
                                 'mito-grid-column-enter': isColumnEntering,
                                 'mito-grid-column-exit': isColumnExiting,
+                                'mito-grid-cell-suggested': isGhostColumn,
                             });
 
                             const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];
@@ -131,15 +133,16 @@ const GridData = (props: {
                             const displayDropdown = isCurrOpenDropdownForCell(props.uiState, rowIndex, columnIndex);
 
                             return (
-                                <div 
+                                <div
                                     className={className} key={columnIndex}
                                     style={{
                                         width: `${cellWidth}px`,
-                                        ...getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex),
-                                        ...(conditionalFormat || {})
+                                        ...(!isGhostColumn ? getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, rowIndex, columnIndex, sheetData.numRows, matchesSearch, props.uiState.highlightedColumnIndex) : {}),
+                                        ...((!isGhostColumn && conditionalFormat) || {})
                                     }}
                                     onContextMenu={(e) => {
-                                        if (e.shiftKey) {
+                                        if (isGhostColumn || e.shiftKey) {
+                                            e.preventDefault();
                                             return;
                                         }
                                         e.preventDefault();
@@ -166,7 +169,7 @@ const GridData = (props: {
                                                 }]
                                             }
                                         });
-                                    
+
                                     }}
                                     tabIndex={-1}
                                     mito-col-index={columnIndex}

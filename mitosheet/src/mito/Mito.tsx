@@ -5,7 +5,7 @@
 
 // Copyright (c) Mito
 
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /*
     Import CSS that we use globally, list these in alphabetical order
     to make it easier to confirm we have imported all sitewide css.
@@ -28,6 +28,7 @@ import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
+import '../../css/mito.css';
 import CatchUpPopup from './components/CatchUpPopup';
 import ErrorBoundary from './components/elements/ErrorBoundary';
 import EndoGrid from './components/endo/EndoGrid';
@@ -478,6 +479,71 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
+
+    // Augment sheetDataArray with ghost/suggested columns when AI suggestions are ready
+    const augmentedSheetDataArray = useMemo(() => {
+        const sc = uiState.suggestedColumns;
+        if (
+            sc === undefined ||
+            sc.status !== 'ready' ||
+            sc.columns.length === 0
+        ) {
+            return sheetDataArray;
+        }
+        const { sheetIndex, columns } = sc;
+        const sheetData = sheetDataArray[sheetIndex];
+        if (sheetData === undefined) return sheetDataArray;
+
+        const ghostCols = columns.map(col => ({
+            columnID: `__suggested__${col.id}`,
+            columnHeader: col.columnHeader as string,
+            columnDtype: 'object',
+            columnData: Array(sheetData.numRows).fill('') as string[],
+        }));
+
+        const augmented = {
+            ...sheetData,
+            numColumns: sheetData.numColumns + ghostCols.length,
+            data: [...sheetData.data, ...ghostCols],
+            columnIDsMap: {
+                ...sheetData.columnIDsMap,
+                ...Object.fromEntries(ghostCols.map(c => [c.columnID, c.columnHeader])),
+            },
+            // columnFormulasMap must have entries for ghost columns or getCellDataFromCellIndexes
+            // will return undefined and crash when it tries to call .length on it
+            columnFormulasMap: {
+                ...sheetData.columnFormulasMap,
+                ...Object.fromEntries(ghostCols.map(c => [c.columnID, []])),
+            },
+            columnFiltersMap: {
+                ...sheetData.columnFiltersMap,
+                ...Object.fromEntries(ghostCols.map(c => [c.columnID, { filters: [], operator: 'And' as const }])),
+            },
+            columnDtypeMap: {
+                ...sheetData.columnDtypeMap,
+                ...Object.fromEntries(ghostCols.map(c => [c.columnID, 'object'])),
+            },
+            conditionalFormattingResult: {
+                ...sheetData.conditionalFormattingResult,
+                results: {
+                    ...sheetData.conditionalFormattingResult.results,
+                    ...Object.fromEntries(ghostCols.map(c => [c.columnID, undefined])),
+                },
+            },
+        };
+
+        const result = [...sheetDataArray];
+        result[sheetIndex] = augmented;
+        return result;
+    }, [sheetDataArray, uiState.suggestedColumns]);
+
+    // Clear suggested columns when an edit is applied (sheetDataArray changes from backend)
+    useEffect(() => {
+        setUIState(prevUIState => {
+            if (prevUIState.suggestedColumns === undefined) return prevUIState;
+            return { ...prevUIState, suggestedColumns: undefined };
+        });
+    }, [analysisData.stepSummaryList.length]);
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -1114,8 +1180,22 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 : undefined
                         }
                     >
+                        {uiState.suggestedColumns?.status === 'loading' && (
+                            <div className='suggested-columns-status-bar suggested-columns-loading'>
+                                ✦ Generating column suggestions…
+                            </div>
+                        )}
+                        {uiState.suggestedColumns?.status === 'error' && (
+                            <div className='suggested-columns-status-bar suggested-columns-error'>
+                                ✕ {uiState.suggestedColumns.error || 'Failed to generate column suggestions.'}
+                                <button
+                                    className='suggested-columns-dismiss'
+                                    onClick={() => setUIState(prev => ({ ...prev, suggestedColumns: undefined }))}
+                                >Dismiss</button>
+                            </div>
+                        )}
                         <EndoGrid
-                            sheetDataArray={sheetDataArray}
+                            sheetDataArray={augmentedSheetDataArray}
                             mitoAPI={mitoAPI}
                             uiState={uiState}
                             setUIState={setUIState}
