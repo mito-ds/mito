@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mito-ai-mcp"
+version = "0.1.0"
+description = "Mito AI MCP server package."
+readme = "README.md"
+license = "AGPL-3.0-only"
+requires-python = ">=3.9"
+authors = [{ name = "Saga Inc." }]
+dependencies = [
+    "mcp",
+    "mito-ai-core",
+]
+
+[project.scripts]
+mito-ai-mcp = "mito_ai_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mito_ai_mcp"]
