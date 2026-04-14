@@ -3,6 +3,11 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+.default-taskpane-div:has(.ai-notes-taskpane-col) {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 /* Col defaults to .spacing-col (nowrap + ellipsis); allow wrapping in the narrow taskpane */
 .ai-notes-taskpane-col.spacing-col {
     overflow: visible;
@@ -11,22 +16,24 @@
     min-width: 0;
     width: 100%;
     box-sizing: border-box;
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .ai-notes-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    padding-left: 0;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
 
 .ai-notes-taskpane-col .ai-notes-list {
-    padding-left: 0;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
 }
 
 .ai-notes-item-wrap {
