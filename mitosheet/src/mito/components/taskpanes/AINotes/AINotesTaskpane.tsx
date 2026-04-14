@@ -3,7 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { MitoAPI } from '../../../api/api';
 import {
     AINotesAnnotation,
@@ -58,7 +58,7 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
         | { status: 'error'; annotationId: string; message: string }
     >({ status: 'idle' });
 
-    const fetchAnnotations = async (focusPreference?: string): Promise<void> => {
+    const fetchAnnotations = useCallback(async (focusPreference?: string): Promise<void> => {
         setState({ type: 'loading' });
         const res = await props.mitoAPI.getAINotesAnnotations(props.selectedSheetIndex);
         if ('error' in res) {
@@ -81,7 +81,8 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                 focusPreference ?? built[0]?.id ?? prev.aiNotesFocusedId,
         }));
         setState({ type: 'ready' });
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.mitoAPI, props.selectedSheetIndex]);
 
     useEffect(() => {
         if (props.skipFetch && props.uiState.aiNotesAnnotations?.length) {
