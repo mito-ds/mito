@@ -301,6 +301,12 @@ function EndoGrid(props: {
 
     const onMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 
+        // Dismiss the AI notes popover when the user clicks anywhere in the grid
+        // (clicks inside the popover are stopped via e.stopPropagation() in AINotesPopover)
+        if (uiState.aiNotesPopover !== undefined) {
+            setUIState((prev) => ({ ...prev, aiNotesPopover: undefined }));
+        }
+
         if (editorState !== undefined) {
             // EDITING MODE
 

@@ -45,6 +45,14 @@ export const AINotesPopover = (props: {
         setApplyingActionId(undefined);
     }, [pop?.annotationId]);
 
+    // Dismiss when the user switches to a different sheet
+    useEffect(() => {
+        if (pop !== undefined) {
+            props.setUIState((prev) => ({ ...prev, aiNotesPopover: undefined }));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.sheetIndex]);
+
     if (!pop || !annotation) return null;
 
     const colLabel =
