@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
 
+from mito_ai_mcp.request_agent_execution import AgentRunnerBridge
+
 SERVER_NAME = "mito-ai-mcp"
 
 mcp = FastMCP(name=SERVER_NAME)
+request_agent_execution = AgentRunnerBridge()
 
 
 @mcp.tool(
@@ -14,12 +17,9 @@ mcp = FastMCP(name=SERVER_NAME)
     description="Run a natural language data analyst request with Mito AI.",
 )
 async def run_data_analyst(prompt: str) -> str:
-    """Placeholder tool implementation for MCP bootstrap."""
-    return (
-        "Mito AI MCP server is running. "
-        "Tool execution bridge is not wired yet. "
-        f"Received prompt: {prompt}"
-    )
+    """Run a one-shot Mito AI analysis and return final text output."""
+    result = await request_agent_execution.run_prompt(prompt)
+    return result.final_text
 
 
 def main() -> None:

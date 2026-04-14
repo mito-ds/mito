@@ -13,6 +13,7 @@ authors = [{ name = "Saga Inc." }]
 dependencies = [
     "mcp",
     "mito-ai-core",
+    "mito-ai-python-tool-executor",
 ]
 
 [project.scripts]
