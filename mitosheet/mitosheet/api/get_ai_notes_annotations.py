@@ -285,6 +285,7 @@ def _merge_missing_cell_notes_from_dataframe(
 ) -> List[Dict[str, Any]]:
     """
     Add cell_notes for each NA cell not already listed so the grid shows per-cell markers.
+    Uses vectorized NA detection (df.isna() + nonzero) instead of a cell-by-cell loop.
     """
     seen_cell: Set[Tuple[int, int]] = set()
     for n in cell_notes:
@@ -295,30 +296,30 @@ def _merge_missing_cell_notes_from_dataframe(
 
     out: List[Dict[str, Any]] = list(cell_notes)
     max_cells = 14
-    num_cols = len(df.columns)
-    for row_idx in range(len(df)):
+    if len(out) >= max_cells:
+        return out
+
+    # Vectorised: find all NA positions in one C-level call
+    na_rows, na_cols = df.isna().to_numpy().nonzero()
+    col_labels = [str(c) for c in df.columns]
+    for row_idx, col_idx in zip(na_rows, na_cols):
         if len(out) >= max_cells:
             break
-        for col_idx in range(num_cols):
-            if len(out) >= max_cells:
-                break
-            if (row_idx, col_idx) in seen_cell:
-                continue
-            if not bool(pd.isna(df.iat[row_idx, col_idx])):
-                continue
-            label = str(df.columns[col_idx])
-            out.append(
-                {
-                    "column": label,
-                    "row": row_idx,
-                    "note": "Missing value in this cell.",
-                    "column_index": col_idx,
-                    "value": "",
-                    "severity": "warning",
-                    "category": "missing",
-                }
-            )
-            seen_cell.add((row_idx, col_idx))
+        key = (int(row_idx), int(col_idx))
+        if key in seen_cell:
+            continue
+        out.append(
+            {
+                "column": col_labels[col_idx],
+                "row": int(row_idx),
+                "note": "Missing value in this cell.",
+                "column_index": int(col_idx),
+                "value": "",
+                "severity": "warning",
+                "category": "missing",
+            }
+        )
+        seen_cell.add(key)
     return out
 
 
