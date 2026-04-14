@@ -23,6 +23,9 @@ CATEGORIES = frozenset(
     {"outlier", "missing", "invalid_domain", "inconsistency", "duplicate", "other"}
 )
 
+# Number of sample rows sent to the LLM; cell_notes with row >= this are invalid
+_CONTEXT_ROWS = 8
+
 
 def _dataframe_context_block(df_name: str, df: pd.DataFrame) -> str:
     lines: List[str] = []
@@ -34,9 +37,9 @@ def _dataframe_context_block(df_name: str, df: pd.DataFrame) -> str:
     lines.append("Null counts per column:")
     for col in df.columns:
         lines.append(f"  - {repr(col)}: {int(nulls[col])}")
-    sample = df.head(8)
-    lines.append("First rows (string preview):")
-    lines.append(sample.to_string(max_rows=8))
+    sample = df.head(_CONTEXT_ROWS)
+    lines.append(f"First {len(sample)} rows (string preview, 0-based row indices):")
+    lines.append(sample.to_string(max_rows=_CONTEXT_ROWS))
     return "\n".join(lines)
 
 
@@ -53,7 +56,7 @@ def _build_prompt(df_context: str, primary_df: str) -> str:
 
 Rules:
 - column_notes: at most 6 items for column-wide issues (missingness, many outliers, duplicates across rows).
-- cell_notes: at most 12 items; use for specific row-level problems; "row" is 0-based position in the dataframe shown.
+- cell_notes: at most 12 items; use for specific row-level problems; "row" must be a 0-based integer from the rows shown (0 to {_CONTEXT_ROWS - 1} inclusive).
 - Prefer BOTH: use column_notes for the overall issue and cell_notes for specific rows (e.g. which cells are missing or anomalous).
 - For each cell_note, "value" must match the cell at (row, column) in the primary sheet.
 - Use column labels exactly as in the data. Valid JSON only; no raw newlines inside strings.
@@ -157,7 +160,8 @@ def _parse_llm_output(
     col_raw: List[Any],
     cell_raw: List[Any],
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    num_rows = len(primary_df_obj)
+    # Only accept cell notes for rows the LLM actually saw in the context
+    num_rows = min(len(primary_df_obj), _CONTEXT_ROWS)
 
     def pick_sev(s: Any) -> str:
         if isinstance(s, str) and s in SEVERITIES:
