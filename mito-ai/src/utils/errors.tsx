@@ -21,8 +21,10 @@ export const isErrorFixupMessage = (
     }
 
     // Detect error-like user text heuristically.
+    // We intentionally allow plain "<Type>Error: ..." messages, because many
+    // backend/tool errors are persisted without trace pointers ("->" or "^").
     const looksLikeError = /(?:\b\w+)?Error:/.test(messageContent);
     const hasTracePointer = messageContent.includes('->') || messageContent.includes('^');
 
-    return hasTracePointer && looksLikeError;
+    return looksLikeError || hasTracePointer;
 }
