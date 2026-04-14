@@ -2,16 +2,11 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import pytest
+import sys
+import types
 from unittest.mock import AsyncMock, MagicMock, patch
 from mito_ai_core.completions.message_history import generate_short_chat_name
 from mito_ai_core.provider_manager import ProviderManager
-
-
-@pytest.fixture
-def provider_config() -> dict:
-    """Create a proper Config object for the ProviderManager."""
-    config = {}
-    return config
 
 
 # Test cases for different models and their expected providers/fast models
@@ -29,7 +24,6 @@ PROVIDER_TEST_CASES = [
 async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
     selected_model: str,
     client_patch_path: str,
-    provider_config: Config,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test that generate_short_chat_name uses the correct provider and that the client uses the fast model."""
@@ -96,9 +90,12 @@ async def test_generate_short_chat_name_uses_correct_provider_and_fast_model(
                 llm_provider=llm_provider
             )
     elif "LiteLLMClient" in client_patch_path:
-        # Patch LiteLLMClient where it's defined (it's imported inside request_completions)
-        # Also patch get_available_models to return LiteLLM models
-        with patch("mito_ai_core.enterprise.litellm_client.LiteLLMClient", return_value=mock_client), \
+        # Provide a fake submodule so request_completions can import LiteLLMClient
+        # without depending on package attribute side effects.
+        fake_litellm_module = types.ModuleType("mito_ai_core.enterprise.litellm_client")
+        fake_litellm_module.LiteLLMClient = MagicMock(return_value=mock_client)  # type: ignore[attr-defined]
+
+        with patch.dict(sys.modules, {"mito_ai_core.enterprise.litellm_client": fake_litellm_module}), \
              patch("mito_ai_core.provider_manager.get_available_models", return_value=["litellm/openai/gpt-4o", "litellm/anthropic/claude-3-5-sonnet"]):
             result = await generate_short_chat_name(
                 user_message="What is the capital of France?",

@@ -15,6 +15,9 @@ from mito_ai_core.completions.models import (
     AgentResponse,
     CellUpdate,
     KernelVariable,
+    MessageType,
+    ResponseFormatInfo,
+    ThreadID,
 )
 
 
@@ -62,7 +65,7 @@ class AgentContext:
     and the tool executor share the same view of the world.
     """
 
-    thread_id: str
+    thread_id: ThreadID
     """Unique conversation thread identifier."""
 
     notebook_id: str
@@ -104,12 +107,16 @@ class CompletionProvider(Protocol):
 
     async def request_completions(
         self,
-        *,
-        message_type: Any,
+        message_type: MessageType,
         messages: List[ChatCompletionMessageParam],
-        response_format_info: Optional[Any] = None,
-        **kwargs: Any,
-    ) -> str: ...
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        user_input: Optional[str] = None,
+        thread_id: Optional[str] = None,
+        max_retries: int = 3,
+        use_fast_model: bool = False,
+        use_smartest_model: bool = False,
+    ) -> str:
+        ...
 
 
 @dataclass(frozen=True)

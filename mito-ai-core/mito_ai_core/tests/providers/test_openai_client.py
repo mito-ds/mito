@@ -13,7 +13,6 @@ CUSTOM_MODEL = "smart-openai-model"
     MessageType.SMART_DEBUG,
     MessageType.CODE_EXPLAIN,
     MessageType.AGENT_EXECUTION,
-    MessageType.AGENT_AUTO_ERROR_FIXUP,
     MessageType.INLINE_COMPLETION,
     MessageType.CHAT_NAME_GENERATION,
 ])

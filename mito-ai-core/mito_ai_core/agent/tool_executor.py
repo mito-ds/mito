@@ -24,7 +24,7 @@ class ToolExecutor(Protocol):
 
     Each method corresponds to one of the agent tools defined in
     ``agent_system_message.py`` (CELL_UPDATE, RUN_ALL_CELLS, GET_CELL_OUTPUT,
-    SCRATCHPAD, ASK_USER_QUESTION).
+    SCRATCHPAD, ASK_USER_QUESTION, CREATE_STREAMLIT_APP, EDIT_STREAMLIT_APP).
 
     All methods are async because the real implementations will involve I/O
     (kernel execution, WebSocket messages, user prompts).
@@ -147,5 +147,43 @@ class ToolExecutor(Protocol):
         Returns
         -------
         ToolResult with *output* containing the user's response text.
+        """
+        ...
+
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        """Create (or open) a Streamlit app preview for this notebook.
+
+        Parameters
+        ----------
+        ctx:
+            Current agent context.
+        message:
+            The agent's reasoning/context text for the action.
+        streamlit_app_prompt:
+            Optional high-level app specification for generation.
+        """
+        ...
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        """Edit the existing Streamlit app preview for this notebook.
+
+        Parameters
+        ----------
+        ctx:
+            Current agent context.
+        streamlit_app_prompt:
+            Required edit instruction describing the desired app changes.
+        message:
+            The agent's reasoning/context text for the action.
         """
         ...

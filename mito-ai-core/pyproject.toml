@@ -48,6 +48,7 @@ test = [
     "pytest",
     "pytest-asyncio",
     "mypy",
+    "types-requests",
 ]
 
 [tool.hatch.build.targets.wheel]

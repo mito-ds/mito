@@ -14,8 +14,9 @@ to the *messages* working list so subsequent LLM calls see them, but it does
 """
 
 from __future__ import annotations
-from typing import Awaitable, Callable, List, Optional, Tuple
-from mito_ai_core.provider_manager import ProviderManager
+import json
+from typing import Awaitable, Callable, List, Optional
+from pydantic import ValidationError
 from openai.types.chat import ChatCompletionMessageParam
 from mito_ai_core.agent.tool_executor import ToolExecutor
 from mito_ai_core.agent.types import AgentContext, AgentRunResult, CompletionProvider, ToolResult
@@ -28,16 +29,15 @@ from mito_ai_core.completions.models import (
     ResponseFormatInfo,
 )
 from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
+from mito_ai_core.completions.models import AgentResponse, MessageType, ResponseFormatInfo
 from mito_ai_core.utils.message_history_utils import append_agent_system_message
 from mito_ai_core.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
-from mito_ai_core.completions.prompt_builders.agent_tool_result_prompt import (
-    create_agent_tool_result_prompt,
-)
+from mito_ai_core.agent.utils import create_display_optimized_tool_result_message
+from mito_ai_core.logger import get_logger
 
 __all__ = ["AgentRunner", "AgentRunnerConfig"]
 
 DEFAULT_MAX_ITERATIONS = 50
-
 
 class AgentRunner:
     """Platform-agnostic agent loop.
@@ -57,6 +57,8 @@ class AgentRunner:
             "get_cell_output",
             "scratchpad",
             "ask_user_question",
+            "create_streamlit_app",
+            "edit_streamlit_app",
         }
     )
 
@@ -110,7 +112,7 @@ class AgentRunner:
         """
 
         last_response: Optional[AgentResponse] = None
-        
+
         # Append the agent system message to the message history if it doesn't already exist
         await append_agent_system_message(
             self._message_history,
@@ -143,16 +145,28 @@ class AgentRunner:
                     format=AgentResponse,
                 ),
             )
-            completion = normalize_agent_response(completion)
-            response = parse_agent_response(completion)
-            last_response = response
 
-            # Append assistant message to message history
             assistant_msg: ChatCompletionMessageParam = {
                 "role": "assistant",
                 "content": completion,
             }
-            await self._message_history.append_message(assistant_msg, assistant_msg, self._provider, ctx.thread_id)
+            await self._message_history.append_message(
+                assistant_msg, assistant_msg, self._provider, ctx.thread_id
+            )
+
+            completion = normalize_agent_response(completion)
+            try:
+                response = parse_agent_response(completion)
+            except (json.JSONDecodeError, TypeError, ValidationError) as exc:
+                await self._handle_malformed_response(
+                    ctx=ctx,
+                    completion=completion,
+                    exception=exc,
+                    on_tool_result=on_tool_result,
+                )
+                continue
+            last_response = response
+
             if on_assistant_response is not None:
                 await on_assistant_response(response)
             
@@ -183,15 +197,33 @@ class AgentRunner:
 
             # Build tool-result message and add to message history
             ai_optimized_tool_msg = create_ai_optimized_tool_result_message(ctx, tool_result)
-            # TODO: For some tools, like scratchpad, we would like to display the tool result to the user.
-            display_optimized_tool_msg = {"role": "user", "content": ''}
-            await self._message_history.append_message(ai_optimized_tool_msg, display_optimized_tool_msg, self._provider, ctx.thread_id)
+            display_optimized_tool_msg = create_display_optimized_tool_result_message(tool_result)
+            await self._message_history.append_message(
+                ai_optimized_tool_msg,
+                display_optimized_tool_msg,
+                self._provider,
+                ctx.thread_id,
+            )
 
             if on_tool_result is not None:
                 await on_tool_result(tool_result)
 
-        # Max iterations exhausted
-        assert last_response is not None  # guaranteed: max_iterations >= 1
+        # Max iterations exhausted. If every completion was malformed, return a
+        # safe terminal response instead of crashing the session loop.
+        if last_response is None:
+            last_response = AgentResponse(
+                type="finished_task",
+                message="Agent stopped after repeated malformed responses.",
+                cell_update=None,
+                get_cell_output_cell_id=None,
+                next_steps=None,
+                analysis_assumptions=None,
+                streamlit_app_prompt=None,
+                question=None,
+                answers=None,
+                scratchpad_code=None,
+                scratchpad_summary=None,
+            )
         return AgentRunResult(
             final_response=last_response,
             finished=False,
@@ -271,7 +303,62 @@ class AgentRunner:
                 response.answers,
             )
 
+        if rtype == "create_streamlit_app":
+            return await self._tool_executor.create_streamlit_app(
+                ctx,
+                response.message,
+                response.streamlit_app_prompt,
+            )
+
+        if rtype == "edit_streamlit_app":
+            if response.streamlit_app_prompt is None:
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message="Agent returned edit_streamlit_app but streamlit_app_prompt is null.",
+                )
+            return await self._tool_executor.edit_streamlit_app(
+                ctx,
+                response.streamlit_app_prompt,
+                response.message,
+            )
+
         # Unreachable when called from run() (DISPATCHABLE guard), but
         # protects against direct calls.
         raise ValueError(f"Cannot dispatch response type: {rtype!r}")
+
+    async def _handle_malformed_response(
+        self,
+        *,
+        ctx: AgentContext,
+        completion: str,
+        exception: Exception,
+        on_tool_result: Optional[Callable[[ToolResult], Awaitable[None]]],
+    ) -> None:
+        """Convert malformed model payloads into recoverable tool-failure feedback."""
+        get_logger().warning(
+            "Malformed agent response; continuing with tool failure feedback. Error: %s",
+            exception,
+        )
+        tool_result = ToolResult(
+            success=False,
+            tool_name="agent_response_validation",
+            error_message=(
+                "Agent returned a malformed response payload. "
+                f"Parser error: {exception}"
+            ),
+        )
+        ai_optimized_tool_msg = create_ai_optimized_tool_result_message(ctx, tool_result)
+        display_optimized_tool_msg: ChatCompletionMessageParam = {
+            "role": "user",
+            "content": "",
+        }
+        await self._message_history.append_message(
+            ai_optimized_tool_msg,
+            display_optimized_tool_msg,
+            self._provider,
+            ctx.thread_id,
+        )
+        if on_tool_result is not None:
+            await on_tool_result(tool_result)
 

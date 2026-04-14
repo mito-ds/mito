@@ -10,8 +10,8 @@ from mito_ai_core.utils.server_limits import (
     OS_MONTHLY_AUTOCOMPLETE_LIMIT,
 )
 from mito_ai_core.completions.models import AgentResponse, MessageType, ResponseFormatInfo
-from mito_ai_core.utils.open_ai_utils import _prepare_request_data_and_headers
-from mito_ai_core.utils.open_ai_utils import get_open_ai_completion_function_params
+from mito_ai_core.clients.open_ai_utils import _prepare_request_data_and_headers
+from mito_ai_core.clients.open_ai_utils import get_open_ai_completion_function_params
 
 REALLY_OLD_DATE = "2020-01-01"
 TODAY = datetime.now().strftime("%Y-%m-%d")
@@ -77,7 +77,7 @@ def test_prepare_request_data_and_headers_basic() -> None:
     """Test basic functionality of _prepare_request_data_and_headers"""
 
     # Mock the user fields
-    with patch("mito_ai_core.utils.open_ai_utils.get_user_field") as mock_get_user_field:
+    with patch("mito_ai_core.clients.open_ai_utils.get_user_field") as mock_get_user_field:
         mock_get_user_field.side_effect = ["test@example.com", "user123"]
         
         # Mock the quota check
@@ -102,7 +102,7 @@ def test_prepare_request_data_and_headers_basic() -> None:
 
 def test_prepare_request_data_and_headers_null_message() -> None:
     """Test handling of null message content"""
-    with patch("mito_ai_core.utils.open_ai_utils.get_user_field") as mock_get_user_field:
+    with patch("mito_ai_core.clients.open_ai_utils.get_user_field") as mock_get_user_field:
         mock_get_user_field.side_effect = ["test@example.com", "user123"]
         
         data, _ = _prepare_request_data_and_headers(
@@ -119,9 +119,9 @@ def test_prepare_request_data_and_headers_null_message() -> None:
 def test_prepare_request_data_and_headers_caches_user_info() -> None:
     """Test that user info is cached after first call"""
     # Mock both the global variables and the get_user_field function
-    with patch("mito_ai_core.utils.open_ai_utils.__user_email", None), \
-         patch("mito_ai_core.utils.open_ai_utils.__user_id", None), \
-         patch("mito_ai_core.utils.open_ai_utils.get_user_field") as mock_get_user_field:
+    with patch("mito_ai_core.clients.open_ai_utils.__user_email", None), \
+         patch("mito_ai_core.clients.open_ai_utils.__user_id", None), \
+         patch("mito_ai_core.clients.open_ai_utils.get_user_field") as mock_get_user_field:
         
         mock_get_user_field.side_effect = ["test@example.com", "user123"]
         
