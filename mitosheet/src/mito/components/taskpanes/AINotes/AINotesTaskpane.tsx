@@ -99,6 +99,14 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
     const annotations = props.uiState.aiNotesAnnotations;
     const focusedId = props.uiState.aiNotesFocusedId;
 
+    // Clear stale error when the user moves focus to a different annotation
+    useEffect(() => {
+        if (applyState.status === 'error' && applyState.annotationId !== focusedId) {
+            setApplyState({ status: 'idle' });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [focusedId]);
+
     const columnDisplayName = (a: AINotesAnnotation): string => {
         const sheet = props.sheetDataArray[a.sheetIndex];
         return sheet?.data[a.columnIndex]?.columnHeader !== undefined
