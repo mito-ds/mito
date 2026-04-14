@@ -261,6 +261,23 @@ function EndoGrid(props: {
         return () => {resizeObserver.disconnect();}
     }, [])
 
+    // Scroll to the first ghost column when suggestions become ready.
+    // Deferred so width reconciliation for ghost columns runs first.
+    useEffect(() => {
+        const sc = props.uiState.suggestedColumns;
+        if (sc === undefined || sc.status !== 'ready' || sc.columns.length === 0) return;
+        const timer = setTimeout(() => {
+            const scrollEl = scrollAndRenderedContainerRef.current;
+            if (!scrollEl) return;
+            const widthData = gridState.widthDataArray[props.sheetIndex];
+            if (!widthData) return;
+            const numRealCols = (sheetData?.numColumns ?? 0) - sc.columns.length;
+            const scrollLeft = numRealCols > 0 ? (widthData.widthSumArray[numRealCols - 1] ?? 0) : 0;
+            scrollEl.scrollLeft = scrollLeft;
+        }, 50);
+        return () => clearTimeout(timer);
+    }, [props.uiState.suggestedColumns?.status])
+
     // Handles a scroll inside the grid 
     const onGridScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
         const newScrollPosition = calculateNewScrollPosition(

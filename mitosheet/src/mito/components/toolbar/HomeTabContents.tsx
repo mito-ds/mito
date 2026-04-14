@@ -198,6 +198,11 @@ export const HomeTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Add_Column_Right]}
             highlightToolbarButton={props.highlightAddColButton}
         />
+        {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION &&
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Suggest_Columns]}
+            />
+        }
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Delete]}
         />

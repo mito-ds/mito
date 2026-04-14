@@ -12,28 +12,21 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from typing import Any, Dict, List
 
 import pandas as pd
-import requests  # type: ignore
 
 from mitosheet.ai.prompt import get_dataframe_creation_code, MAX_CHARS_FOR_INPUT_DATA
-from mitosheet.types import StepsManagerType
-from mitosheet.user.db import get_user_field, increment_user_field
-from mitosheet.user.schemas import (
-    UJ_AI_MITO_API_NUM_USAGES,
-    UJ_STATIC_USER_ID,
-    UJ_USER_EMAIL,
+from mitosheet.api.suggestions_api_utils import (
+    get_suggestions_from_mito_server,
+    get_suggestions_from_open_ai_compatible,
+    get_suggestions_from_openai_key,
+    get_suggestions_llm_payload,
+    strip_json_fences,
 )
-from mitosheet.user.utils import is_pro
+from mitosheet.types import StepsManagerType
 
 CHART_SUGGESTIONS_PROMPT_VERSION = "chart-suggestions-v1"
-
-OPEN_AI_URL = "https://api.openai.com/v1/chat/completions"
-MITO_AI_URL = "https://ogtzairktg.execute-api.us-east-1.amazonaws.com/Prod/completions/"
-
-OPEN_SOURCE_AI_COMPLETIONS_LIMIT = 100
 
 ALLOWED_GRAPH_TYPES = frozenset(
     {
@@ -51,10 +44,6 @@ ALLOWED_GRAPH_TYPES = frozenset(
 )
 
 MAX_SUGGESTIONS = 5
-
-__user_email = None
-__user_id = None
-
 
 def _column_catalog(df: pd.DataFrame, column_indices: List[int] | None = None) -> str:
     lines: List[str] = []
@@ -110,20 +99,11 @@ Rules:
 
 
 def _get_chart_suggestions_llm_payload(prompt: str) -> Dict[str, Any]:
-    return {
-        "model": "gpt-4.1",
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 900,
-        "temperature": 0.2,
-    }
+    return get_suggestions_llm_payload(prompt)
 
 
 def _strip_json_fences(text: str) -> str:
-    t = text.strip()
-    m = re.search(r"```(?:json)?\s*([\s\S]*?)```", t)
-    if m:
-        return m.group(1).strip()
-    return t
+    return strip_json_fences(text)
 
 
 def _parse_suggestions_json(completion: str) -> Any:
@@ -180,114 +160,39 @@ def _validate_suggestions(raw: Any, num_columns: int, allowed_indices: List[int]
 
 
 def _get_chart_suggestions_from_mito_server(user_input: str, prompt: str) -> Dict[str, Any]:
-    global __user_email, __user_id
-
-    if __user_email is None:
-        __user_email = get_user_field(UJ_USER_EMAIL)
-    if __user_id is None:
-        __user_id = get_user_field(UJ_STATIC_USER_ID)
-
-    num_usages = get_user_field(UJ_AI_MITO_API_NUM_USAGES) or 0
-
-    if not is_pro() and num_usages >= OPEN_SOURCE_AI_COMPLETIONS_LIMIT:
-        return {
-            "error": f"You have used Mito AI {OPEN_SOURCE_AI_COMPLETIONS_LIMIT} times."
-        }
-
-    data = {
-        "email": __user_email,
-        "user_id": __user_id,
+    llm_result = get_suggestions_from_mito_server(user_input, prompt)
+    if "error" in llm_result:
+        return llm_result
+    return {
         "user_input": user_input,
-        "data": _get_chart_suggestions_llm_payload(prompt),
+        "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
+        "prompt": prompt,
+        "completion": llm_result["completion"],
     }
-
-    headers = {"Content-Type": "application/json"}
-
-    try:
-        res = requests.post(MITO_AI_URL, headers=headers, json=data)
-    except Exception:
-        return {
-            "error": "There was an error accessing the Mito AI API. This is likely due to internet connectivity problems or a firewall."
-        }
-
-    if res.status_code == 200:
-        increment_user_field(UJ_AI_MITO_API_NUM_USAGES)
-        return {
-            "user_input": user_input,
-            "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
-            "prompt": prompt,
-            "completion": res.json()["completion"],
-        }
-
-    try:
-        return {
-            "error": f'There was an error accessing the MitoAI API. {res.json()["error"]}'
-        }
-    except Exception:
-        return {"error": "There was an error accessing the MitoAI API."}
 
 
 def _get_chart_suggestions_from_open_ai_compatible(url: str, user_input: str, prompt: str) -> Dict[str, Any]:
-    data = _get_chart_suggestions_llm_payload(prompt)
-    headers = {"Content-Type": "application/json"}
-
-    try:
-        res = requests.post(url, headers=headers, json=data)
-    except Exception:
-        return {
-            "error": f"There was an error accessing the API at {url}. This is likely due to internet connectivity problems or a firewall."
-        }
-
-    if res.status_code == 200:
-        res_json = res.json()
-        completion: str = res_json["choices"][0]["message"]["content"]
-        completion = completion.strip()
-        return {
-            "user_input": user_input,
-            "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
-            "prompt": prompt,
-            "completion": completion,
-        }
-
-    try:
-        return {
-            "error": f"There was an error accessing the API at {url}. {res.json()['error']['message']}"
-        }
-    except Exception:
-        return {"error": f"There was an error accessing the API at {url}."}
+    llm_result = get_suggestions_from_open_ai_compatible(url, prompt)
+    if "error" in llm_result:
+        return llm_result
+    return {
+        "user_input": user_input,
+        "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
+        "prompt": prompt,
+        "completion": llm_result["completion"],
+    }
 
 
 def _get_chart_suggestions_from_openai_key(user_input: str, prompt: str) -> Dict[str, Any]:
-    data = _get_chart_suggestions_llm_payload(prompt)
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {os.environ.get('OPENAI_API_KEY')}",
+    llm_result = get_suggestions_from_openai_key(prompt)
+    if "error" in llm_result:
+        return llm_result
+    return {
+        "user_input": user_input,
+        "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
+        "prompt": prompt,
+        "completion": llm_result["completion"],
     }
-
-    try:
-        res = requests.post(OPEN_AI_URL, headers=headers, json=data)
-    except Exception:
-        return {
-            "error": "There was an error accessing the OpenAI API. This is likely due to internet connectivity problems or a firewall."
-        }
-
-    if res.status_code == 200:
-        res_json = res.json()
-        completion: str = res_json["choices"][0]["message"]["content"]
-        completion = completion.strip()
-        return {
-            "user_input": user_input,
-            "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
-            "prompt": prompt,
-            "completion": completion,
-        }
-
-    try:
-        return {
-            "error": f"There was an error accessing the OpenAI API. {res.json()['error']['message']}"
-        }
-    except Exception:
-        return {"error": "There was an error accessing the OpenAI API."}
 
 
 def get_chart_suggestions(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:

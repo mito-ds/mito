@@ -26,6 +26,21 @@ import { SendFunction, SendFunctionErrorReturnType, SendFunctionSuccessReturnTyp
 
 export type MitoAPIResult<ResultType> = {result: ResultType} | SendFunctionErrorReturnType 
 
+/** Response from Python get_column_suggestions (LLM JSON, validated server-side). */
+export type AIColumnSuggestionsResult =
+    | { error: string; prompt_version?: string }
+    | {
+          prompt_version: string;
+          df_name: string;
+          suggestions: {
+              column_header: string;
+              description: string;
+              code: string;
+              /** Backend-computed preview values for the first MAX_PREVIEW_ROWS rows. Empty if exec failed. */
+              preview_values: (string | number | boolean)[];
+          }[];
+      };
+
 /** Response from Python get_chart_suggestions (LLM JSON, validated server-side). */
 export type AIChartSuggestionsResult =
     | { error: string; prompt_version?: string }
@@ -567,6 +582,21 @@ export class MitoAPI {
                 'selection': selection,
                 'previous_failed_completions': previous_failed_completions
             }
+        })
+    }
+
+    /**
+     * LLM column suggestions for the active sheet.
+     */
+    async getColumnSuggestions(
+        sheetIndex: number,
+    ): Promise<MitoAPIResult<AIColumnSuggestionsResult>> {
+        return await this.send<AIColumnSuggestionsResult>({
+            'event': 'api_call',
+            'type': 'get_column_suggestions',
+            'params': {
+                'sheet_index': sheetIndex,
+            },
         })
     }
 
