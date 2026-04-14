@@ -138,8 +138,8 @@ def is_streamlit() -> bool:
 
 
 def ai_notes_enabled() -> bool:
-    """AI notes (LLM annotations) run in Streamlit or a Jupyter notebook kernel."""
-    return is_streamlit() or is_notebook()
+    """AI notes (LLM annotations) run in Streamlit, a Jupyter notebook kernel, or VS Code."""
+    return is_streamlit() or is_notebook() or is_in_vs_code()
 
 
 _IS_DASH = False
