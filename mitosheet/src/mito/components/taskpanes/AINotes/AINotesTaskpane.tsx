@@ -120,65 +120,20 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
         setEditorState: props.setEditorState,
     };
 
-    const renderAnnotationMeta = (a: AINotesAnnotation): JSX.Element => {
-        const col = columnDisplayName(a);
-        const columnLink = (
-            <span
-                className="ai-notes-meta-column-link"
-                role="button"
-                tabIndex={0}
-                title="Select this column in the sheet"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    selectAINotesTargetInGrid(a, 'column', gridSelectDeps);
-                }}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        selectAINotesTargetInGrid(a, 'column', gridSelectDeps);
-                    }
-                }}
-            >
-                {col}
-            </span>
-        );
-        if (a.kind === 'column') {
-            return (
-                <span className="ai-notes-meta">
-                    <span className="ai-notes-meta-prefix">Column:</span>
-                    {columnLink}
-                </span>
-            );
-        }
-        const rowLink = (
-            <span
-                className="ai-notes-meta-row-link"
-                role="button"
-                tabIndex={0}
-                title="Select this row in the sheet"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    selectAINotesTargetInGrid(a, 'row', gridSelectDeps);
-                }}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        selectAINotesTargetInGrid(a, 'row', gridSelectDeps);
-                    }
-                }}
-            >
-                Row {(a.rowIndex ?? 0) + 1}
-            </span>
-        );
-        return (
-            <span className="ai-notes-meta">
-                {rowLink}
-                <span className="ai-notes-meta-infix">, </span>
-                {columnLink}
-            </span>
-        );
+    const focusAnnotation = (a: AINotesAnnotation): void => {
+        props.setUIState((prev) => ({
+            ...prev,
+            selectedSheetIndex: a.sheetIndex,
+            aiNotesFocusedId: a.id,
+            currOpenTaskpane: {
+                type: TaskpaneType.AINOTES,
+            },
+        }));
+    };
+
+    const handleAnnotationSummaryClick = (a: AINotesAnnotation): void => {
+        focusAnnotation(a);
+        selectAINotesTargetInGrid(a, 'column', gridSelectDeps);
     };
 
     const handleApplyAction = async (annotation: AINotesAnnotation, actionId: string): Promise<void> => {
@@ -213,7 +168,7 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                 setUIState={props.setUIState}
             />
             <DefaultTaskpaneBody>
-                <Row justify="center" align="center">
+                <Row justify="start" align="top">
                     <Col className="ai-notes-taskpane-col" flex="1">
                         {state.type === 'loading' && (
                             <Row justify="center" className="mt-25px">
@@ -239,62 +194,62 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                                         <li
                                             key={a.id}
                                             className={classNames('ai-notes-item-wrap', {
-                                                'ai-notes-item-wrap-has-actions':
-                                                    suggested.length > 0,
+                                                'ai-notes-item-wrap-focused': a.id === focusedId,
                                             })}
                                         >
                                             <button
                                                 type="button"
-                                                className={classNames('ai-notes-item', {
-                                                    'ai-notes-item-focused': a.id === focusedId,
-                                                })}
+                                                className="ai-notes-item"
                                                 onClick={() => {
-                                                    props.setUIState((prev) => ({
-                                                        ...prev,
-                                                        selectedSheetIndex: a.sheetIndex,
-                                                        aiNotesFocusedId: a.id,
-                                                        currOpenTaskpane: {
-                                                            type: TaskpaneType.AINOTES,
-                                                        },
-                                                    }));
+                                                    handleAnnotationSummaryClick(a);
                                                 }}
                                             >
-                                                {renderAnnotationMeta(a)}
-                                                {a.text}
+                                                <div className="ai-notes-item-column">{columnDisplayName(a)}</div>
+                                                <div className="ai-notes-item-description">{a.text}</div>
                                             </button>
-                                            {suggested.length > 0 && (
-                                                <div className="ai-notes-item-actions">
-                                                    <p className="ai-notes-item-actions-label">
-                                                        Suggested fix
-                                                    </p>
-                                                    <div className="ai-notes-item-action-row">
+                                            <div className="ai-notes-item-actions">
+                                                <p className="ai-notes-item-actions-label">
+                                                    Recommended Fixes
+                                                </p>
+                                                {suggested.length > 0 && (
+                                                    <div className="ai-notes-item-action-list">
                                                         {suggested.map((s) => (
                                                             <button
                                                                 key={s.id}
                                                                 type="button"
-                                                                className="ai-notes-item-action-btn"
+                                                                className="ai-notes-item-action-link"
                                                                 disabled={applyingAnnotationId !== undefined}
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
                                                                     void handleApplyAction(a, s.id);
                                                                 }}
                                                             >
-                                                                {isApplying && applyingActionId === s.id
-                                                                    ? 'Applying…'
-                                                                    : s.label}
+                                                                <span className="ai-notes-item-action-link-text">
+                                                                    {isApplying && applyingActionId === s.id
+                                                                        ? 'Applying…'
+                                                                        : s.label}
+                                                                </span>
+                                                                <span className="ai-notes-item-action-link-arrow">
+                                                                    →
+                                                                </span>
                                                             </button>
                                                         ))}
                                                     </div>
-                                                    {applyErr !== undefined && (
-                                                        <p
-                                                            className="ai-notes-item-action-error text-color-error"
-                                                            role="alert"
-                                                        >
-                                                            {applyErr}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )}
+                                                )}
+                                                {suggested.length === 0 && (
+                                                    <p className="ai-notes-item-action-empty">
+                                                        No recommended fixes available.
+                                                    </p>
+                                                )}
+                                                {applyErr !== undefined && (
+                                                    <p
+                                                        className="ai-notes-item-action-error text-color-error"
+                                                        role="alert"
+                                                    >
+                                                        {applyErr}
+                                                    </p>
+                                                )}
+                                            </div>
                                         </li>
                                     );
                                 })}
