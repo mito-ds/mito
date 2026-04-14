@@ -3,10 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-.default-taskpane-div:has(.ai-notes-taskpane-col) {
-    padding-left: 0;
-    padding-right: 0;
-}
+/* Match Suggested Graphs: default-taskpane-div keeps its horizontal padding for the header
+   (title + close). Body inset matches .suggested-viz-taskpane-content (10px left/right). */
 
 /* Col defaults to .spacing-col (nowrap + ellipsis); allow wrapping in the narrow taskpane */
 .ai-notes-taskpane-col.spacing-col {
@@ -16,8 +14,8 @@
     min-width: 0;
     width: 100%;
     box-sizing: border-box;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .ai-notes-list {
