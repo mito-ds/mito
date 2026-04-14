@@ -61,3 +61,19 @@ Open the URL printed by Inspector (typically `http://localhost:6274`), connect, 
 3. Fully quit and reopen Claude Desktop.
 4. In Claude, confirm the `mito-ai` MCP server is available and run a simple check prompt such as:
    - "Use `run_data_analyst` with prompt: `Say hello in one sentence.`"
+
+## MCP Client Behavior Matrix
+
+Expected behavior for common MCP clients when using this server:
+
+| MCP Client | Sampling Behavior | Progress Update Behavior |
+|---|---|---|
+| Inspector UI (`@modelcontextprotocol/inspector`) | Sampling capability can be negotiated at protocol level, but this server currently runs direct-provider mode and does not require MCP sampling. | Shows `notifications/progress` in the UI while the tool is running. |
+| Inspector CLI (`@modelcontextprotocol/inspector --cli`) | Same as above; sampling support is client capability, but this server does not depend on it in v1. | Usually prints final `tools/call` output only; progress notifications are not shown inline in normal CLI output. |
+| Claude Desktop | Sampling support may vary by version/client internals; this server does not require it in v1. | Tool works, but progress notifications are generally not shown in chat UI (final output still returns normally). |
+| Cursor | Sampling capability may be client/version dependent; this server does not require it in v1. | Progress notifications are typically visible during long-running tool calls. |
+| ChatGPT MCP connectors | Connector/runtime dependent; treat sampling as optional and not required for this server in v1. | Progress UI is generally limited; expect reliable final output, but not always streaming progress visibility. |
+
+Notes:
+- This server currently targets direct-provider execution; MCP sampling integration is planned as a later enhancement.
+- Client behavior can change across releases, so prefer quick smoke tests (`tools/list` + a short `run_data_analyst` call) when upgrading clients.

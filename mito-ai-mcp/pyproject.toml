@@ -19,5 +19,17 @@ dependencies = [
 [project.scripts]
 mito-ai-mcp = "mito_ai_mcp.server:main"
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: live MCP / full stack (opt-in via MITO_AI_MCP_E2E=1)",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["mito_ai_mcp"]

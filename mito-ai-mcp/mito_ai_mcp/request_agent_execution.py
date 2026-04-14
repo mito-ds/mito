@@ -13,6 +13,7 @@ from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import AgentResponse, MessageType
 from mito_ai_core.provider_manager import ProviderManager
+from mito_ai_core.utils.create import initialize_user
 from mito_ai_python_tool_executor import PythonToolExecutor
 
 
@@ -84,6 +85,10 @@ class RequestAgentExecutionManager:
         cleaned_prompt = prompt.strip()
         if not cleaned_prompt:
             raise ValueError("Prompt must not be empty.")
+
+        # Ensure ~/.mito bootstrap (including user.json) is present before any
+        # provider/usage checks that depend on quota metadata.
+        initialize_user()
 
         run_metadata = metadata or self.default_metadata
         message_history = GlobalMessageHistory()
