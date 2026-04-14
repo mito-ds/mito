@@ -171,7 +171,7 @@ export function columnHeaderHasAINote(
 ): boolean {
     return (
         annotations?.some(
-            (a) => a.kind === 'column' && a.sheetIndex === sheetIndex && a.columnIndex === columnIndex
+            (a) => a.sheetIndex === sheetIndex && a.columnIndex === columnIndex
         ) ?? false
     );
 }
