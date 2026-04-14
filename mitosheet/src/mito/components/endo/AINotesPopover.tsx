@@ -3,16 +3,16 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import '../../../../css/endo/AINotesPopover.css';
 import { MitoAPI } from '../../api/api';
 import { AINotesAnnotation, EditorState, GridState, SheetData, UIState } from '../../types';
 import { getDisplayColumnHeader } from '../../utils/columnHeaders';
 import {
-    applyAINotesAction,
     getSuggestedAINotesActions,
     selectAINotesTargetInGrid,
+    useAINotesApply,
 } from '../../utils/aiNotesUtils';
 
 export const AINotesPopover = (props: {
@@ -27,8 +27,7 @@ export const AINotesPopover = (props: {
 }): JSX.Element | null => {
     const pop = props.uiState.aiNotesPopover;
     const annotations = props.uiState.aiNotesAnnotations;
-    const [actionError, setActionError] = useState<string | undefined>(undefined);
-    const [applyingActionId, setApplyingActionId] = useState<string | undefined>(undefined);
+    const { applyingActionId, actionError, apply, clearState } = useAINotesApply(props.mitoAPI);
 
     const annotation: AINotesAnnotation | undefined = useMemo(() => {
         if (!pop || !annotations) return undefined;
@@ -41,8 +40,8 @@ export const AINotesPopover = (props: {
     }, [annotation, props.sheetData]);
 
     useEffect(() => {
-        setActionError(undefined);
-        setApplyingActionId(undefined);
+        clearState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pop?.annotationId]);
 
     // Dismiss when the user switches to a different sheet
@@ -71,19 +70,13 @@ export const AINotesPopover = (props: {
     };
 
     const applyAction = async (actionId: string): Promise<void> => {
-        setActionError(undefined);
-        setApplyingActionId(actionId);
-        const result = await applyAINotesAction(props.mitoAPI, annotation, actionId);
-        setApplyingActionId(undefined);
-        if (!result.ok) {
-            setActionError(result.error);
-            return;
-        }
-        props.setUIState((prev) => ({
-            ...prev,
-            aiNotesPopover: undefined,
-            aiNotesAnnotations: prev.aiNotesAnnotations?.filter((a) => a.id !== annotation.id),
-        }));
+        await apply(annotation, actionId, () => {
+            props.setUIState((prev) => ({
+                ...prev,
+                aiNotesPopover: undefined,
+                aiNotesAnnotations: prev.aiNotesAnnotations?.filter((a) => a.id !== annotation.id),
+            }));
+        });
     };
 
     const host = props.mitoContainerRef.current;

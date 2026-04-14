@@ -24,9 +24,9 @@ import { classNames } from '../../../utils/classNames';
 import {
     AINotesApiPayload,
     annotationsFromApiPayload,
-    applyAINotesAction,
     getSuggestedAINotesActions,
     selectAINotesTargetInGrid,
+    useAINotesApply,
 } from '../../../utils/aiNotesUtils';
 import { getDisplayColumnHeader } from '../../../utils/columnHeaders';
 import { TaskpaneType } from '../taskpanes';
@@ -52,11 +52,9 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
         | { type: 'ready' }
     >({ type: 'loading' });
 
-    const [applyState, setApplyState] = useState<
-        | { status: 'idle' }
-        | { status: 'applying'; annotationId: string; actionId: string }
-        | { status: 'error'; annotationId: string; message: string }
-    >({ status: 'idle' });
+    const { applyingActionId, actionError: applyError, apply, clearState: clearApplyState } = useAINotesApply(props.mitoAPI);
+    const [applyingAnnotationId, setApplyingAnnotationId] = useState<string | undefined>(undefined);
+    const [errorAnnotationId, setErrorAnnotationId] = useState<string | undefined>(undefined);
 
     const fetchAnnotations = useCallback(async (focusPreference?: string): Promise<void> => {
         setState({ type: 'loading' });
@@ -102,8 +100,9 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
 
     // Clear stale error when the user moves focus to a different annotation
     useEffect(() => {
-        if (applyState.status === 'error' && applyState.annotationId !== focusedId) {
-            setApplyState({ status: 'idle' });
+        if (errorAnnotationId !== undefined && errorAnnotationId !== focusedId) {
+            clearApplyState();
+            setErrorAnnotationId(undefined);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [focusedId]);
@@ -182,34 +181,29 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
         );
     };
 
-    const handleApplyAction = async (
-        annotation: AINotesAnnotation,
-        actionId: string
-    ): Promise<void> => {
-        setApplyState({ status: 'applying', annotationId: annotation.id, actionId });
-        const result = await applyAINotesAction(props.mitoAPI, annotation, actionId);
-        if (!result.ok) {
-            setApplyState({
-                status: 'error',
-                annotationId: annotation.id,
-                message: result.error,
+    const handleApplyAction = async (annotation: AINotesAnnotation, actionId: string): Promise<void> => {
+        setApplyingAnnotationId(annotation.id);
+        setErrorAnnotationId(undefined);
+        const result = await apply(annotation, actionId, () => {
+            setApplyingAnnotationId(undefined);
+            props.setUIState((prev) => {
+                const remaining = (prev.aiNotesAnnotations ?? []).filter(
+                    (x) => x.id !== annotation.id
+                );
+                return {
+                    ...prev,
+                    aiNotesAnnotations: remaining,
+                    aiNotesFocusedId:
+                        prev.aiNotesFocusedId === annotation.id
+                            ? remaining[0]?.id
+                            : prev.aiNotesFocusedId,
+                };
             });
-            return;
-        }
-        setApplyState({ status: 'idle' });
-        props.setUIState((prev) => {
-            const remaining = (prev.aiNotesAnnotations ?? []).filter(
-                (x) => x.id !== annotation.id
-            );
-            return {
-                ...prev,
-                aiNotesAnnotations: remaining,
-                aiNotesFocusedId:
-                    prev.aiNotesFocusedId === annotation.id
-                        ? remaining[0]?.id
-                        : prev.aiNotesFocusedId,
-            };
         });
+        if (!result.ok) {
+            setErrorAnnotationId(annotation.id);
+        }
+        setApplyingAnnotationId(undefined);
     };
 
     return (
@@ -239,14 +233,8 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                             <ul className="ai-notes-list mt-15px">
                                 {annotations.map((a) => {
                                     const suggested = getSuggestedAINotesActions(a, props.sheetDataArray[a.sheetIndex]);
-                                    const isApplying =
-                                        applyState.status === 'applying' &&
-                                        applyState.annotationId === a.id;
-                                    const applyErr =
-                                        applyState.status === 'error' &&
-                                        applyState.annotationId === a.id
-                                            ? applyState.message
-                                            : undefined;
+                                    const isApplying = applyingAnnotationId === a.id;
+                                    const applyErr = errorAnnotationId === a.id ? applyError : undefined;
                                     return (
                                         <li
                                             key={a.id}
@@ -285,17 +273,13 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                                                                 key={s.id}
                                                                 type="button"
                                                                 className="ai-notes-item-action-btn"
-                                                                disabled={
-                                                                    applyState.status === 'applying'
-                                                                }
+                                                                disabled={applyingAnnotationId !== undefined}
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
                                                                     void handleApplyAction(a, s.id);
                                                                 }}
                                                             >
-                                                                {isApplying &&
-                                                                applyState.status === 'applying' &&
-                                                                applyState.actionId === s.id
+                                                                {isApplying && applyingActionId === s.id
                                                                     ? 'Applying…'
                                                                     : s.label}
                                                             </button>

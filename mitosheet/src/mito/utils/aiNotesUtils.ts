@@ -3,6 +3,7 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+import { useCallback, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { getRandomId, type MitoAPI } from '../api/api';
 import { TaskpaneType } from '../components/taskpanes/taskpanes';
@@ -294,6 +295,39 @@ export async function applyAINotesAction(
         return { ok: false, error: applied.error };
     }
     return { ok: true };
+}
+
+/**
+ * Shared hook for applying AI notes actions.
+ * Manages the applying/error state and delegates post-success handling to the caller.
+ */
+export function useAINotesApply(mitoAPI: MitoAPI) {
+    const [applyingActionId, setApplyingActionId] = useState<string | undefined>(undefined);
+    const [actionError, setActionError] = useState<string | undefined>(undefined);
+
+    const clearState = useCallback(() => {
+        setApplyingActionId(undefined);
+        setActionError(undefined);
+    }, []);
+
+    const apply = useCallback(async (
+        annotation: AINotesAnnotation,
+        actionId: string,
+        onSuccess: () => void
+    ): Promise<{ ok: true } | { ok: false }> => {
+        setActionError(undefined);
+        setApplyingActionId(actionId);
+        const result = await applyAINotesAction(mitoAPI, annotation, actionId);
+        setApplyingActionId(undefined);
+        if (!result.ok) {
+            setActionError(result.error);
+            return { ok: false };
+        }
+        onSuccess();
+        return { ok: true };
+    }, [mitoAPI]);
+
+    return { applyingActionId, actionError, apply, clearState };
 }
 
 /**
