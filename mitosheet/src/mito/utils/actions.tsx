@@ -84,7 +84,7 @@ import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
+import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, PopupLocation, PopupType, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
@@ -2675,7 +2675,7 @@ export const getActions = (
                 setEditorState(undefined);
                 const currentSheetIndex = gridState.sheetIndex;
 
-                // Show loading state immediately
+                // Show loading state immediately with a popup
                 setUIState(prevUIState => ({
                     ...prevUIState,
                     suggestedColumns: {
@@ -2683,19 +2683,29 @@ export const getActions = (
                         status: 'loading',
                         columns: [],
                     },
+                    currOpenPopups: {
+                        ...prevUIState.currOpenPopups,
+                        [PopupLocation.TopRight]: {
+                            type: PopupType.EphemeralMessage,
+                            message: 'Generating column suggestions…',
+                        },
+                    },
                 }));
 
                 // Async fetch suggestions
                 void (async () => {
                     const res = await mitoAPI.getColumnSuggestions(currentSheetIndex);
                     if (res === undefined || 'error' in res) {
+                        const errMsg = (res !== undefined && 'error' in res) ? (res as {error: string}).error : 'Failed to get column suggestions.';
                         setUIState(prevUIState => ({
                             ...prevUIState,
-                            suggestedColumns: {
-                                sheetIndex: currentSheetIndex,
-                                status: 'error',
-                                error: (res !== undefined && 'error' in res) ? (res as {error: string}).error : 'Failed to get column suggestions.',
-                                columns: [],
+                            suggestedColumns: undefined,
+                            currOpenPopups: {
+                                ...prevUIState.currOpenPopups,
+                                [PopupLocation.TopRight]: {
+                                    type: PopupType.EphemeralMessage,
+                                    message: `Could not generate suggestions: ${errMsg}`,
+                                },
                             },
                         }));
                         return;
@@ -2704,15 +2714,18 @@ export const getActions = (
                     if ('error' in payload) {
                         setUIState(prevUIState => ({
                             ...prevUIState,
-                            suggestedColumns: {
-                                sheetIndex: currentSheetIndex,
-                                status: 'error',
-                                error: payload.error,
-                                columns: [],
+                            suggestedColumns: undefined,
+                            currOpenPopups: {
+                                ...prevUIState.currOpenPopups,
+                                [PopupLocation.TopRight]: {
+                                    type: PopupType.EphemeralMessage,
+                                    message: `Could not generate suggestions: ${payload.error}`,
+                                },
                             },
                         }));
                         return;
                     }
+                    const numSuggestions = payload.suggestions.length;
                     setUIState(prevUIState => ({
                         ...prevUIState,
                         suggestedColumns: {
@@ -2725,6 +2738,15 @@ export const getActions = (
                                 code: s.code,
                                 previewValues: s.preview_values,
                             })),
+                        },
+                        currOpenPopups: {
+                            ...prevUIState.currOpenPopups,
+                            [PopupLocation.TopRight]: {
+                                type: PopupType.EphemeralMessage,
+                                message: numSuggestions === 0
+                                    ? 'No column suggestions found for this dataset.'
+                                    : `${numSuggestions} column suggestion${numSuggestions > 1 ? 's' : ''} added. Accept or reject each one.`,
+                            },
                         },
                     }));
                 })();

@@ -553,6 +553,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         });
     }, [analysisData.stepSummaryList.length]);
 
+
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
     // Get the column id of the currently selected column. We always default to the 
@@ -1188,20 +1189,6 @@ export const Mito = (props: MitoProps): JSX.Element => {
                                 : undefined
                         }
                     >
-                        {uiState.suggestedColumns?.status === 'loading' && (
-                            <div className='suggested-columns-status-bar suggested-columns-loading'>
-                                ✦ Generating column suggestions…
-                            </div>
-                        )}
-                        {uiState.suggestedColumns?.status === 'error' && (
-                            <div className='suggested-columns-status-bar suggested-columns-error'>
-                                ✕ {uiState.suggestedColumns.error || 'Failed to generate column suggestions.'}
-                                <button
-                                    className='suggested-columns-dismiss'
-                                    onClick={() => setUIState(prev => ({ ...prev, suggestedColumns: undefined }))}
-                                >Dismiss</button>
-                            </div>
-                        )}
                         <EndoGrid
                             sheetDataArray={augmentedSheetDataArray}
                             mitoAPI={mitoAPI}
