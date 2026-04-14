@@ -88,7 +88,7 @@ const sendToolResult = (
         activeCellId?: string;
         isChromeBrowser?: boolean;
     } = {}
-) => {
+): void => {
     websocketClient.sendOneWay({
         type: 'tool_result',
         message_id: UUID.uuid4(),
@@ -326,16 +326,16 @@ export const useAgentExecution = ({
 
     // Subscribe to agent loop streams
     useEffect(() => {
-        const onRequestToolExecution = (_sender: any, command: IRequestToolExecutionMessage) => {
+        const onRequestToolExecution = (_sender: any, command: IRequestToolExecutionMessage): void => {
             void handleRequestToolExecution(_sender, command);
         };
-        const onAgentFinished = (_sender: any, msg: IAgentFinishedMessage) => {
+        const onAgentFinished = (_sender: any, msg: IAgentFinishedMessage): void => {
             void handleAgentFinished(_sender, msg);
         };
-        const onAssistantResponse = (_sender: any, msg: IAssistantResponseMessage) => {
+        const onAssistantResponse = (_sender: any, msg: IAssistantResponseMessage): void => {
             void handleAssistantResponse(_sender, msg);
         };
-        const onBackendToolResult = (_sender: any, msg: IToolResultMessage) => {
+        const onBackendToolResult = (_sender: any, msg: IToolResultMessage): void => {
             void handleBackendToolResult(_sender, msg);
         };
 
