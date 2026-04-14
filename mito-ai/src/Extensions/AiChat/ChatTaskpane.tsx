@@ -228,8 +228,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setAgentModeEnabled,
         hasCheckpoint,
         setHasCheckpoint,
-        showRevertQuestionnaire,
-        setShowRevertQuestionnaire,
     } = useAgentMode();
 
     // Create a shared ref for the agent target notebook panel
@@ -291,7 +289,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         setChatHistoryManager,
         setAgentModeEnabled,
         setNextSteps,
-        setShowRevertQuestionnaire,
         setHasCheckpoint,
         setAutoScrollFollowMode,
         agentReview,
@@ -824,7 +821,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
         */
         rejectAICode()
         setNextSteps([])
-        setShowRevertQuestionnaire(false);
     }
 
     useEffect(() => {
@@ -1139,7 +1135,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     hasCheckpoint={hasCheckpoint}
                     agentModeEnabled={agentModeEnabled}
                     agentExecutionStatus={agentExecution.agentExecutionStatus}
-                    showRevertQuestionnaire={showRevertQuestionnaire}
                     reviewAgentChanges={agentReview.reviewAgentChanges}
                     acceptAllAICode={agentReview.acceptAllAICode}
                     rejectAllAICode={agentReview.rejectAllAICode}
@@ -1148,9 +1143,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                     hasChanges={agentReview.hasChanges}
                     setHasCheckpoint={setHasCheckpoint}
                     setDisplayedNextStepsIfAvailable={setDisplayedNextStepsIfAvailable}
-                    setShowRevertQuestionnaire={setShowRevertQuestionnaire}
-                    getDuplicateChatHistoryManager={getDuplicateChatHistoryManager}
-                    setChatHistoryManager={setChatHistoryManager}
                     app={app}
                     notebookTracker={notebookTracker}
                     chatTaskpaneMessagesRef={chatTaskpaneMessagesRef}
@@ -1220,7 +1212,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 setAgentModeEnabled(!isLeftSelected);
                                 // Clear agent checkpoint when switching modes
                                 setHasCheckpoint(false);
-                                setShowRevertQuestionnaire(false);
                                 // Focus the chat input directly
                                 const chatInput = document.querySelector('.chat-input') as HTMLTextAreaElement;
                                 if (chatInput) {
