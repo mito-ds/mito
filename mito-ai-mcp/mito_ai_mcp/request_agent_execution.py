@@ -65,7 +65,7 @@ class RequestAgentExecutionResult:
 
 
 @dataclass
-class AgentRunnerBridge:
+class RequestAgentExecutionManager:
     """Creates a fresh one-shot ``AgentRunner`` for every prompt."""
 
     default_metadata: RequestAgentExecutionInput = field(
