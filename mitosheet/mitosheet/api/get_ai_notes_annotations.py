@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 
-from mitosheet.api.streamlit_ai_mito_backend import streamlit_ai_backend_completion
+from mitosheet.api.ai_notes_backend import ai_notes_backend_completion
 from mitosheet.types import StepsManagerType
 from mitosheet.user.location import ai_notes_enabled
 
@@ -350,7 +350,7 @@ def get_ai_notes_annotations(
     prompt = _build_prompt(df_context, primary_df)
 
     try:
-        raw = streamlit_ai_backend_completion(
+        raw = ai_notes_backend_completion(
             prompt,
             steps_manager,
             user_input="ai-notes-annotations",

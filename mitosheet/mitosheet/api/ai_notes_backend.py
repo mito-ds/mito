@@ -23,11 +23,11 @@ from mitosheet.api.get_ai_completion import (
 from mitosheet.types import StepsManagerType
 
 
-def streamlit_ai_backend_completion(
+def ai_notes_backend_completion(
     prompt: str,
     steps_manager: StepsManagerType,
     *,
-    user_input: str = "streamlit-ai",
+    user_input: str = "ai-notes",
     prefer_json_object: bool = False,
 ) -> str:
     """
@@ -37,7 +37,7 @@ def streamlit_ai_backend_completion(
     openai_key = os.environ.get("OPENAI_API_KEY")
 
     model = os.environ.get("MITO_OPENAI_MODEL", "gpt-4o-mini")
-    max_tokens = int(os.environ.get("MITO_STREAMLIT_AI_MAX_TOKENS", "3500"))
+    max_tokens = int(os.environ.get("MITO_AI_NOTES_MAX_TOKENS", "3500"))
 
     if byo_url is not None:
         data: Dict[str, Any] = {
