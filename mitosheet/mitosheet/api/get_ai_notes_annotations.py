@@ -337,13 +337,11 @@ def get_ai_notes_annotations(
 
     df_names = steps_manager.curr_step.df_names
     dfs = steps_manager.dfs
-    blocks: List[str] = []
-    for i, df in enumerate(dfs):
-        name = df_names[i] if i < len(df_names) else f"df{i + 1}"
-        blocks.append(_dataframe_context_block(name, df))
 
+    # Only send the selected sheet to the LLM — sending every sheet wastes tokens
+    # and confuses the model when there are many sheets.
     primary_df = df_names[sheet_index] if sheet_index < len(df_names) else f"df{sheet_index + 1}"
-    df_context = "\n\n".join(blocks)
+    df_context = _dataframe_context_block(primary_df, dfs[sheet_index])
     primary_df_obj = dfs[sheet_index]
     prompt = _build_prompt(df_context, primary_df)
 
