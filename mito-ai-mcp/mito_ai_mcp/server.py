@@ -20,14 +20,14 @@ request_agent_execution_manager = RequestAgentExecutionManager()
     name="run_data_analyst",
     description="Run a natural language data analyst request with Mito AI.",
 )
-async def run_data_analyst(prompt: str, ctx: Context) -> str:
+async def run_data_analyst(prompt: str, mcp_context: Context) -> str:
     """Run a one-shot Mito AI analysis and return final text output."""
     progress_step = 0
 
     async def publish_progress(message: str) -> None:
         nonlocal progress_step
         progress_step += 1
-        await _report_progress(ctx, progress=progress_step, message=message)
+        await _report_progress(mcp_context, progress=progress_step, message=message)
 
     await publish_progress("Starting analysis run")
 
@@ -67,9 +67,9 @@ async def _report_progress(ctx: Context, *, progress: int, message: str) -> None
 
 def _format_assistant_progress_message(response: AgentResponse) -> str:
     response_type = response.type.replace("_", " ")
-    summary = _truncate_single_line(response.message)
-    if summary:
-        return f"Assistant response ({response_type}): {summary}"
+    if response.message:
+        # TODO: Format this better. We don't need the tool type like this
+        return f"Assistant response ({response_type}): {response.message}"
     return f"Assistant response ({response_type})"
 
 
@@ -78,20 +78,9 @@ def _format_tool_progress_message(tool_result: ToolResult) -> str:
     if tool_result.success:
         return f"Tool completed ({tool_name})"
 
-    error_message = _truncate_single_line(tool_result.error_message)
-    if error_message:
-        return f"Tool failed ({tool_name}): {error_message}"
+    if tool_result.error_message:
+        return f"Tool failed ({tool_name}): {tool_result.error_message}"
     return f"Tool failed ({tool_name})"
-
-
-def _truncate_single_line(text: str | None, max_chars: int = 140) -> str:
-    if not text:
-        return ""
-
-    compact = " ".join(text.strip().split())
-    if len(compact) <= max_chars:
-        return compact
-    return f"{compact[: max_chars - 3]}..."
 
 
 async def _await_if_needed(value: Any) -> None:
