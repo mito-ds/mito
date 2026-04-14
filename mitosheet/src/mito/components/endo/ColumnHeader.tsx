@@ -225,7 +225,6 @@ const ColumnHeader = (props: {
                 draggable='false'
             >
                 <div className='endo-column-header-suggested-content'>
-                    <span className='endo-column-header-suggested-label'>✦</span>
                     <span className='endo-column-header-suggested-name text-overflow-hide'>{columnHeader + ''}</span>
                     <div className='endo-column-header-suggested-actions'>
                         <button
