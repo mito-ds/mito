@@ -102,6 +102,32 @@ class FakeToolExecutor:
         }))
         return ToolResult(success=True, output="Use yfinance")
 
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        self.calls.append(("create_streamlit_app", {
+            "ctx": ctx,
+            "message": message,
+            "streamlit_app_prompt": streamlit_app_prompt,
+        }))
+        return ToolResult(success=True, output="Created Streamlit app preview")
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("edit_streamlit_app", {
+            "ctx": ctx,
+            "streamlit_app_prompt": streamlit_app_prompt,
+            "message": message,
+        }))
+        return ToolResult(success=True, output="Edited Streamlit app preview")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
