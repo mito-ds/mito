@@ -417,6 +417,7 @@
 .mito-ai-actions-sparkle-icon {
   font-size: 13px;
   line-height: 1;
+  color: var(--mito-highlight);
   display: inline-flex;
   align-items: center;
   justify-content: center;
