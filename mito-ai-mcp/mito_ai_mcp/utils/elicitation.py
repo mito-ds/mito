@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Optional
 
+from pydantic import BaseModel, Field, create_model
+
 from mcp.server.fastmcp import Context
+
+logger = logging.getLogger(__name__)
 
 
 def build_elicitation_handler(ctx: Context):
@@ -23,9 +28,79 @@ async def _elicit_answer(
     if not callable(elicit_fn):
         return None
 
-    response_schema: Any = answers if answers else str
-    result = await elicit_fn(question, response_schema)
+    response_schema = _build_response_schema(answers)
+    logger.info(
+        "Elicitation request prepared: question=%r answers_count=%s schema=%s",
+        _truncate(question),
+        len(answers) if answers else 0,
+        response_schema.__name__,
+    )
+    result = await _call_elicit(elicit_fn, question, response_schema)
     return _normalize_elicitation_result(result)
+
+
+async def _call_elicit(elicit_fn: Any, question: str, response_schema: type[BaseModel]) -> Any:
+    try:
+        return await elicit_fn(question, response_schema)
+    except TypeError as exc:
+        if not _is_signature_mismatch_error(exc):
+            raise
+        logger.info("Elicitation positional call failed: %s", exc)
+
+    try:
+        return await elicit_fn(message=question, schema=response_schema)
+    except TypeError as exc:
+        if not _is_signature_mismatch_error(exc):
+            raise
+        logger.info("Elicitation schema keyword call failed: %s", exc)
+
+    try:
+        return await elicit_fn(message=question, response_type=response_schema)
+    except Exception:
+        logger.exception("Elicitation response_type keyword call failed")
+        raise
+
+
+def _build_response_schema(answers: Optional[list[str]]) -> type[BaseModel]:
+    if not answers:
+        return _create_text_response_schema()
+    return _create_enum_response_schema(answers)
+
+
+def _create_text_response_schema() -> type[BaseModel]:
+    return create_model("AskUserQuestionTextResponse", value=(str, ...))
+
+
+def _create_enum_response_schema(answers: list[str]) -> type[BaseModel]:
+    unique_answers = tuple(dict.fromkeys(answers))
+    if not unique_answers:
+        return _create_text_response_schema()
+
+    return create_model(
+        "AskUserQuestionEnumResponse",
+        value=(
+            str,
+            Field(
+                ...,
+                json_schema_extra={"enum": list(unique_answers)},
+            ),
+        ),
+    )
+
+
+def _truncate(value: str, limit: int = 120) -> str:
+    return value if len(value) <= limit else f"{value[:limit]}..."
+
+
+def _is_signature_mismatch_error(exc: TypeError) -> bool:
+    message = str(exc)
+    mismatch_indicators = (
+        "unexpected keyword argument",
+        "positional argument",
+        "positional arguments",
+        "required positional argument",
+    )
+    return any(indicator in message for indicator in mismatch_indicators)
 
 
 def _normalize_elicitation_result(result: Any) -> Optional[str]:
