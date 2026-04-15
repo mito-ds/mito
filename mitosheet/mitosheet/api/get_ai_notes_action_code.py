@@ -80,7 +80,7 @@ def build_ai_notes_action(
         return "Remove this row", code, None
 
     if action_id == "drop_duplicate_rows":
-        code = f"{name} = {name}.drop_duplicates().reset_index(drop=True)\n{name}"
+        code = f"{name} = {name}.drop_duplicates().reset_index(drop=True)\n"
         return "Drop duplicate rows", code, None
 
     if action_id == "drop_missing_in_column":
