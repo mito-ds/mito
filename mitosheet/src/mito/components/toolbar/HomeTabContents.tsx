@@ -198,6 +198,11 @@ export const HomeTabContents = (
             action={props.actions.buildTimeActions[ActionEnum.Add_Column_Right]}
             highlightToolbarButton={props.highlightAddColButton}
         />
+        {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION &&
+            <ToolbarButton
+                action={props.actions.buildTimeActions[ActionEnum.Suggest_Columns]}
+            />
+        }
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Delete]}
         />
@@ -288,11 +293,6 @@ export const HomeTabContents = (
         <ToolbarButton
             action={props.actions.buildTimeActions[ActionEnum.Graph]}
         />
-        {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && 
-            <ToolbarButton
-                action={props.actions.buildTimeActions[ActionEnum.AI_TRANSFORMATION]}
-            />
-        }
         {props.userProfile.mitoConfig.MITO_CONFIG_CODE_SNIPPETS?.MITO_CONFIG_CODE_SNIPPETS_URL !== undefined && 
             <ToolbarButton
                 action={props.actions.buildTimeActions[ActionEnum.CODESNIPPETS]}

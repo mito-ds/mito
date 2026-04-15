@@ -95,10 +95,11 @@ class ChatMessageMetadata():
     promptType: Literal['chat']
     threadId: ThreadID
     input: str
-    activeCellCode: str 
+    activeCellCode: str
     activeCellId: str
     variables: Optional[List[str]] = None
     files: Optional[List[str]] = None
+    aiOptimizedCells: Optional[List[AIOptimizedCell]] = None
     base64EncodedActiveCellOutput: Optional[str] = None
     index: Optional[int] = None
     stream: bool = False
@@ -163,6 +164,7 @@ class ScratchpadResultMetadata():
     threadId: ThreadID
     scratchpadResult: str
     index: Optional[int] = None
+    isChromeBrowser: bool = True
 
 @dataclass(frozen=True)
 class CompletionRequest:
@@ -200,6 +202,18 @@ class AICapabilities:
 
     # Message type.
     type: str = "ai_capabilities"
+
+
+@dataclass(frozen=True)
+class GithubCopilotLoginStatusMessage:
+    """Pushed over the completion WebSocket when GitHub Copilot auth state changes."""
+
+    status: str
+    type: Literal["github_copilot_login_status"] = "github_copilot_login_status"
+    verification_uri: Optional[str] = None
+    user_code: Optional[str] = None
+    # From GET {api}/models after sign-in; Copilot API ids (no copilot/ prefix).
+    available_chat_models: Optional[List[str]] = None
 
 
 @dataclass(frozen=True)

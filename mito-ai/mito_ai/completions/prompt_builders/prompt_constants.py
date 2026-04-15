@@ -58,6 +58,17 @@ FIGURE_SIZE = (12, 6)
 # === END CONFIG ===
 """
 
+LATEX_RULES = """
+
+- Rendering engine is MathJax, not a LaTeX compiler. Only math/equation syntax is supported — no custom packages, document-level commands, or non-math environments.
+- LaTeX only renders in Markdown cells, not code cells.
+- Use $...$ for inline math and $$...$$ (on its own line) for centered display math.
+- No spaces directly inside the delimiters — $x^2$ works, $ x^2 $ may not.
+- If generating markdown programmatically in Python, use raw strings (r"...") or double-escape backslashes (\\frac) to avoid broken syntax.
+- Stray underscores outside math delimiters can break rendering — keep _ inside $...$ only.
+- Avoid mixing LaTeX display blocks inside HTML tags in the same cell.
+"""
+
 CITATION_RULES = """
 It is important that the user is able to verify any insights that you share with them about their data. To make this easy for the user, you must cite the lines of code that you are drawing the insight from. To provide a citation, use one of the following formats inline in your response:
 

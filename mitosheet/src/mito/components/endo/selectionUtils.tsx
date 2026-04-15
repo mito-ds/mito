@@ -838,6 +838,30 @@ export const getSelectedRowLabelsWithEntireSelectedRow = (selections: MitoSelect
 
 }
 
+/** Data row indices (0 … numRows-1) for rows selected via the index column (entire row). */
+export const getSelectedEntireRowDataIndexes = (
+    selections: MitoSelection[],
+    sheetData: SheetData | undefined
+): number[] => {
+    if (sheetData === undefined) {
+        return [];
+    }
+    const out: number[] = [];
+    selections.forEach((selection) => {
+        if (
+            selection.startingColumnIndex === -1 &&
+            (selection.endingColumnIndex === -1 || selection.endingColumnIndex === sheetData.numColumns)
+        ) {
+            const min = Math.min(selection.startingRowIndex, selection.endingRowIndex);
+            const max = Math.max(selection.startingRowIndex, selection.endingRowIndex);
+            for (let i = min; i <= max; i++) {
+                out.push(i);
+            }
+        }
+    });
+    return [...new Set(out)];
+};
+
 export const getNumberColumnIDs = (sheetData: SheetData | undefined, columnIDs: (ColumnID | undefined)[]): ColumnID[] => {
     const columnIDsAndDtypes: [ColumnID, string][] = columnIDs
         .filter(colId => colId !== undefined)
@@ -865,3 +889,86 @@ export const getSelectedNumberSeriesColumnIDs = (selections: MitoSelection[], sh
     
     return getNumberColumnIDs(sheetData, columnIDs);
 }
+
+/**
+ * Normalizes a selection to body (data grid) row/column index bounds for layout math.
+ * Column-header-only and index-header-only selections expand to full columns/rows.
+ */
+export const getBodyBoundingIndices = (
+    selection: MitoSelection,
+    sheetData: SheetData,
+    currentSheetIndex: number
+): { minR: number; maxR: number; minC: number; maxC: number } | null => {
+    if (selection.sheetIndex !== currentSheetIndex) {
+        return null;
+    }
+    const numRows = Math.min(sheetData.numRows, MAX_ROWS);
+    const numCols = sheetData.numColumns;
+    if (numRows === 0 || numCols === 0) {
+        return null;
+    }
+
+    let minR = Math.min(selection.startingRowIndex, selection.endingRowIndex);
+    let maxR = Math.max(selection.startingRowIndex, selection.endingRowIndex);
+    let minC = Math.min(selection.startingColumnIndex, selection.endingColumnIndex);
+    let maxC = Math.max(selection.startingColumnIndex, selection.endingColumnIndex);
+
+    if (minR <= -1 && maxR <= -1) {
+        minR = 0;
+        maxR = numRows - 1;
+    }
+    if (minC <= -1 && maxC <= -1) {
+        minC = 0;
+        maxC = numCols - 1;
+    }
+
+    minR = Math.max(0, minR);
+    maxR = Math.min(numRows - 1, maxR);
+    minC = Math.max(0, minC);
+    maxC = Math.min(numCols - 1, maxC);
+
+    if (minR > maxR || minC > maxC) {
+        return null;
+    }
+    return { minR, maxR, minC, maxC };
+};
+
+/**
+ * True when the selection covers exactly one column and all data rows (after expanding
+ * column-header and index-header selections). Includes entire-column header clicks
+ * (including MultiIndex header levels with row indices below -1) and dragging to select
+ * a full column; on a single-row sheet this is one body cell.
+ */
+export const isSingleColumnAllRowsSelection = (
+    selection: MitoSelection,
+    sheetData: SheetData,
+    currentSheetIndex: number
+): boolean => {
+    const bounds = getBodyBoundingIndices(selection, sheetData, currentSheetIndex);
+    if (bounds === null) {
+        return false;
+    }
+    const numRows = Math.min(sheetData.numRows, MAX_ROWS);
+    if (numRows === 0) {
+        return false;
+    }
+    return (
+        bounds.minC === bounds.maxC &&
+        bounds.minR === 0 &&
+        bounds.maxR === numRows - 1
+    );
+};
+
+/** True when the selection covers more than one body cell. */
+export const isMultiCellRangeSelection = (
+    selection: MitoSelection,
+    sheetData: SheetData,
+    currentSheetIndex: number
+): boolean => {
+    const bounds = getBodyBoundingIndices(selection, sheetData, currentSheetIndex);
+    if (bounds === null) {
+        return false;
+    }
+    const { minR, maxR, minC, maxC } = bounds;
+    return (maxR - minR + 1) * (maxC - minC + 1) > 1;
+};

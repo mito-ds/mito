@@ -62,6 +62,7 @@ interface IChatMessageProps {
     additionalContext?: Array<{ type: string, value: string }>
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
     scratchpadResult?: string
+    canSendMessages?: boolean
 }
 
 
@@ -88,6 +89,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     additionalContext,
     handleSubmitUserMessage,
     scratchpadResult,
+    canSendMessages = true,
 }): JSX.Element | null => {
     const [isEditing, setIsEditing] = useState(false);
 
@@ -139,6 +141,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                 agentModeEnabled={agentModeEnabled}
                 handleSubmitUserMessage={handleSubmitUserMessageAndCloseEditing}
                 messageIndex={messageIndex}
+                canSendMessages={canSendMessages}
             />
         );
     }
@@ -248,7 +251,7 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                 {message.role === 'user' && additionalContext && additionalContext.length > 0 &&
                                     <>
                                         {additionalContext
-                                            .filter(context => context.type !== 'active_cell') // Hide active cell context in chat messages
+                                            .filter(context => context.type !== 'active_cell' && context.type !== 'notebook') // Hide default context items in chat messages
                                             .map((context, index) => (
                                                 <SelectedContextContainer
                                                     key={`${context.type}-${context.value}-${index}`}

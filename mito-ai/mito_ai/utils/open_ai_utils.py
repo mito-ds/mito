@@ -144,6 +144,8 @@ def get_open_ai_completion_function_params(
     messages: List[ChatCompletionMessageParam], 
     stream: bool,
     response_format_info: Optional[ResponseFormatInfo] = None,
+    *,
+    force_full_json_schema_response_format: bool = False,
 ) -> Dict[str, Any]:
     
     completion_function_params = {
@@ -162,7 +164,10 @@ def get_open_ai_completion_function_params(
     # Note: Abacus only supports {"type": "json_object"} format, not the full JSON schema format.
     if response_format_info:
         # Check if we're using Abacus - it only supports simple {"type": "json_object"} format
-        if is_abacus_configured() or model.lower().startswith('abacus/'):
+        if (
+            not force_full_json_schema_response_format
+            and (is_abacus_configured() or model.lower().startswith('abacus/'))
+        ):
             completion_function_params["response_format"] = {
                 "type": "json_object"
             }

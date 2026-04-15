@@ -9,7 +9,7 @@ import { MitoAPI, getRandomId } from "../api/api";
 import { SendFunctionStatus } from "../api/send";
 import { DEFAULT_SUPPORT_EMAIL } from "../components/elements/GetSupportButton";
 import { getStartingFormula } from "../components/endo/celleditor/cellEditorUtils";
-import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
+import { getColumnIndexesInSelections, getSelectedColumnIDsWithEntireSelectedColumn, getSelectedEntireRowDataIndexes, getSelectedNumberSeriesColumnIDs, getSelectedRowLabelsInSingleSelection, getSelectedRowLabelsWithEntireSelectedRow, isSelectionsOnlyColumnHeaders } from "../components/endo/selectionUtils";
 import { doesAnySheetExist, doesColumnExist, doesSheetContainData, getCellDataFromCellIndexes, getDataframeIsSelected, getAnyGraphIsSelected } from "../components/endo/utils";
 import AIIcon from "../components/icons/AIIcon";
 import AddColumnIcon from "../components/icons/AddColumnIcon";
@@ -84,13 +84,16 @@ import { MergeType } from "../components/taskpanes/Merge/MergeTaskpane";
 import { ALLOW_UNDO_REDO_EDITING_TASKPANES, TaskpaneType } from "../components/taskpanes/taskpanes";
 import { DISCORD_INVITE_LINK } from "../data/documentationLinks";
 import { getDefaultDataframeFormat } from "../pro/taskpanes/SetDataframeFormat/SetDataframeFormatTaskpane";
-import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
+import { Action, ActionEnum, AnalysisData, BuildTimeAction, DFSource, DataframeFormat, EditorState, FilterType, GridState, NumberColumnFormatEnum, PopupLocation, PopupType, RunTimeAction, SheetData, UIState, UserProfile } from "../types";
 import { getColumnHeaderParts, getColumnIDByIndex, getDisplayColumnHeader, getNewColumnHeader } from "./columnHeaders";
 import { getCopyStringForClipboard, writeTextToClipboard } from "./copy";
 import { FORMAT_DISABLED_MESSAGE, changeFormatOfColumns, decreasePrecision, increasePrecision } from "./format";
 import { getDisplayNameOfPythonVariable } from './userDefinedFunctionUtils';
+import { scheduleAnimatedColumnEnter, scheduleAnimatedColumnDelete } from './gridMicroAnimations';
+import { scheduleAnimatedRowDelete } from './gridRowDeleteAnimation';
 import AddChartElementIcon from "../components/icons/GraphToolbar/AddChartElementIcon";
 import SelectDataIcon from "../components/icons/GraphToolbar/SelectDataIcon";
+import HexagonAIIcon from "../components/icons/HexagonAI";
 
 /**
  * This is a wrapper class that holds all frontend actions. This allows us to create and register
@@ -209,6 +212,8 @@ export const getActions = (
                     newColumnHeaderIndex
                 )
 
+                scheduleAnimatedColumnEnter(setUIState, sheetIndex, newColumnHeaderIndex);
+
                 setGridState(prevGridState => {
                     return {
                         ...prevGridState,
@@ -255,6 +260,8 @@ export const getActions = (
                     newColumnHeader,
                     newColumnHeaderIndex
                 )
+
+                scheduleAnimatedColumnEnter(setUIState, sheetIndex, newColumnHeaderIndex);
 
                 setGridState(prevGridState => {
                     return {
@@ -512,20 +519,22 @@ export const getActions = (
 
                 const rowsToDelete = getSelectedRowLabelsWithEntireSelectedRow(gridState.selections, sheetData);
                 if (rowsToDelete.length > 0) {
-                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                    const rowIndices = getSelectedEntireRowDataIndexes(gridState.selections, sheetData);
+                    scheduleAnimatedRowDelete(setUIState, sheetIndex, rowIndices, () =>
+                        mitoAPI.editDeleteRow(sheetIndex, rowsToDelete)
+                    );
                 }
 
                 if (isSelectionsOnlyColumnHeaders(gridState.selections)) {
                     const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
                     const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
 
-                    if (columnIDsToDelete !== undefined) {
-                        await mitoAPI.editDeleteColumn(
-                            sheetIndex,
-                            columnIDsToDelete
-                        )
+                    if (columnIDsToDelete.length > 0) {
+                        scheduleAnimatedColumnDelete(setUIState, sheetIndex, columnIndexesSelected, () =>
+                            mitoAPI.editDeleteColumn(sheetIndex, columnIDsToDelete)
+                        );
                     }
-                } 
+                }
             },
             isDisabled: () => {
                 if (!doesAnySheetExist(sheetDataArray)) {
@@ -565,7 +574,10 @@ export const getActions = (
 
                 const rowsToDelete = getSelectedRowLabelsInSingleSelection(gridState.selections[0], sheetData);
                 if (rowsToDelete.length > 0) {
-                    void mitoAPI.editDeleteRow(sheetIndex, rowsToDelete);
+                    const rowIndices = getSelectedEntireRowDataIndexes(gridState.selections, sheetData);
+                    scheduleAnimatedRowDelete(setUIState, sheetIndex, rowIndices, () =>
+                        mitoAPI.editDeleteRow(sheetIndex, rowsToDelete)
+                    );
                 }
             },
             isDisabled: () => {
@@ -599,11 +611,10 @@ export const getActions = (
                 const columnIndexesSelected = getColumnIndexesInSelections(gridState.selections);
                 const columnIDsToDelete = columnIndexesSelected.map(colIdx => sheetData?.data[colIdx]?.columnID || '').filter(columnID => columnID !== '')
 
-                if (columnIDsToDelete !== undefined) {
-                    await mitoAPI.editDeleteColumn(
-                        sheetIndex,
-                        columnIDsToDelete
-                    )
+                if (columnIDsToDelete.length > 0) {
+                    scheduleAnimatedColumnDelete(setUIState, sheetIndex, columnIndexesSelected, () =>
+                        mitoAPI.editDeleteColumn(sheetIndex, columnIDsToDelete)
+                    );
                 }
             },
             isDisabled: () => {
@@ -2653,6 +2664,117 @@ export const getActions = (
             isDisabled: () => {return userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION ? undefined : 'AI Transformation is deactivated for this version of Mito. Please contact your admin with any questions.'},
             searchTerms: ['AI Transformation'],
             tooltip: "AI Transformation"
+        },
+        [ActionEnum.Suggest_Columns]: {
+            type: 'build-time',
+            staticType: ActionEnum.Suggest_Columns,
+            iconToolbar: HexagonAIIcon,
+            titleToolbar: 'Suggest',
+            longTitle: 'Suggest Columns',
+            actionFunction: () => {
+                setEditorState(undefined);
+                const currentSheetIndex = gridState.sheetIndex;
+
+                // Show loading state immediately with a popup
+                setUIState(prevUIState => ({
+                    ...prevUIState,
+                    suggestedColumns: {
+                        sheetIndex: currentSheetIndex,
+                        status: 'loading',
+                        columns: [],
+                    },
+                    currOpenPopups: {
+                        ...prevUIState.currOpenPopups,
+                        [PopupLocation.TopRight]: {
+                            type: PopupType.EphemeralMessage,
+                            message: 'Generating column suggestions…',
+                        },
+                    },
+                }));
+
+                // Async fetch suggestions
+                void (async () => {
+                    const res = await mitoAPI.getColumnSuggestions(currentSheetIndex);
+                    if (res === undefined || 'error' in res) {
+                        const errMsg = (res !== undefined && 'error' in res) ? (res as {error: string}).error : 'Failed to get column suggestions.';
+                        setUIState(prevUIState => ({
+                            ...prevUIState,
+                            suggestedColumns: undefined,
+                            currOpenPopups: {
+                                ...prevUIState.currOpenPopups,
+                                [PopupLocation.TopRight]: {
+                                    type: PopupType.EphemeralMessage,
+                                    message: `Could not generate suggestions: ${errMsg}`,
+                                },
+                            },
+                        }));
+                        return;
+                    }
+                    const payload = res.result;
+                    if ('error' in payload) {
+                        setUIState(prevUIState => ({
+                            ...prevUIState,
+                            suggestedColumns: undefined,
+                            currOpenPopups: {
+                                ...prevUIState.currOpenPopups,
+                                [PopupLocation.TopRight]: {
+                                    type: PopupType.EphemeralMessage,
+                                    message: `Could not generate suggestions: ${payload.error}`,
+                                },
+                            },
+                        }));
+                        return;
+                    }
+                    const numSuggestions = payload.suggestions.length;
+                    setUIState(prevUIState => ({
+                        ...prevUIState,
+                        suggestedColumns: {
+                            sheetIndex: currentSheetIndex,
+                            status: 'ready',
+                            columns: payload.suggestions.map((s, i) => ({
+                                id: `${i}-${s.column_header}`,
+                                columnHeader: s.column_header,
+                                description: s.description,
+                                code: s.code,
+                                previewValues: s.preview_values,
+                            })),
+                        },
+                        currOpenPopups: {
+                            ...prevUIState.currOpenPopups,
+                            [PopupLocation.TopRight]: {
+                                type: PopupType.EphemeralMessage,
+                                message: numSuggestions === 0
+                                    ? 'No column suggestions found for this dataset.'
+                                    : `${numSuggestions} column suggestion${numSuggestions > 1 ? 's' : ''} added. Accept or reject each one.`,
+                            },
+                        },
+                    }));
+                })();
+            },
+            isDisabled: () => { return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to analyze. Import data.'; },
+            searchTerms: ['suggest columns', 'ai columns', 'column suggestions'],
+            tooltip: 'Let AI suggest new columns based on your data.',
+        },
+        [ActionEnum.Suggested_Visualizations]: {
+            type: 'build-time',
+            staticType: ActionEnum.Suggested_Visualizations,
+            iconToolbar: HexagonAIIcon,
+            titleToolbar: 'Suggest Graphs',
+            longTitle: 'Suggest Graphs',
+            actionFunction: () => {
+                setEditorState(undefined);
+
+                setUIState(prevUIState => {
+                    return {
+                        ...prevUIState,
+                        currOpenTaskpane: {type: TaskpaneType.SUGGESTED_VISUALIZATIONS},
+                        selectedTabType: 'data'
+                    }
+                })
+            },
+            isDisabled: () => {return doesAnySheetExist(sheetDataArray) ? defaultActionDisabledMessage : 'There are no dataframes to analyze. Import data.'},
+            searchTerms: ['suggest graphs', 'suggest charts', 'suggested visualizations', 'charts', 'graphs'],
+            tooltip: "Open graph suggestions."
         },
         [ActionEnum.COLUMN_HEADERS_TRANSFORM]: {
             type: 'build-time',
