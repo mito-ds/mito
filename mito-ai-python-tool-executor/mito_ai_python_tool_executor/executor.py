@@ -404,14 +404,3 @@ class PythonToolExecutor:
             output=ASK_USER_QUESTION_DISABLED_MESSAGE,
             variables=vars_,
         )
-
-    def _format_plaintext_ask_user_payload(
-        self,
-        question: str,
-        answers: Optional[List[str]],
-    ) -> str:
-        lines = [f"USER_INPUT_REQUIRED: {question}"]
-        if answers:
-            lines.append("Suggested answers:")
-            lines.extend(f"- {answer}" for answer in answers)
-        return "\n".join(lines)

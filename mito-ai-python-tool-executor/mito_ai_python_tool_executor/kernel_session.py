@@ -139,11 +139,6 @@ class KernelSession:
         return result
 
 
-def default_kernel_session(*, cwd: str | None = None) -> KernelSession:
-    """Factory for a new kernel session (mostly for tests)."""
-    return KernelSession(cwd=cwd)
-
-
 def _strip_ansi_escape_sequences(text: str) -> str:
     if not isinstance(text, str) or not text:
         return text
