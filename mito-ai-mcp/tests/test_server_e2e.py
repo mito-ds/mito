@@ -215,11 +215,48 @@ async def test_run_data_analyst_uses_first_writable_root_for_notebook_path(
     assert isinstance(metadata, request_agent_execution.RequestAgentExecutionInput)
     assert metadata.notebook_path.startswith(str(tmp_path))
     assert metadata.notebook_path.endswith(".ipynb")
+    assert metadata.kernel_cwd == str(tmp_path)
     assert metadata.files is not None
     assert str(transactions_file) in metadata.files
     assert "transactions.csv" in metadata.files
     assert response["metadata"]["notebook_path"] == metadata.notebook_path
     assert metadata.notebook_path in response["final_text"]
+
+
+@pytest.mark.asyncio
+async def test_run_data_analyst_leaves_kernel_cwd_unset_without_writable_roots(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    async def fake_run_prompt(
+        prompt: str,
+        *,
+        metadata: request_agent_execution.RequestAgentExecutionInput | None = None,
+        on_assistant_response: Callable[[AgentResponse], object] | None = None,
+        on_tool_result: Callable[[ToolResult], object] | None = None,
+    ) -> request_agent_execution.RequestAgentExecutionResult:
+        del prompt, on_assistant_response, on_tool_result
+        assert metadata is not None
+        captured["metadata"] = metadata
+        return request_agent_execution.RequestAgentExecutionResult(
+            final_text="Done",
+            finished=True,
+            iterations=1,
+            thread_id="thread-1",
+            final_response_type="finished_task",
+            notebook_path=metadata.notebook_path,
+            artifact_paths=[metadata.notebook_path],
+        )
+
+    monkeypatch.setattr(mcp_server.request_agent_execution_manager, "run_prompt", fake_run_prompt)
+    ctx = FakeMcpContext()
+
+    await run_data_analyst("Use defaults", mcp_context=ctx)
+
+    metadata = captured["metadata"]
+    assert isinstance(metadata, request_agent_execution.RequestAgentExecutionInput)
+    assert metadata.kernel_cwd is None
 
 
 def test_detect_ask_user_mode_detects_elicitation_capability() -> None:

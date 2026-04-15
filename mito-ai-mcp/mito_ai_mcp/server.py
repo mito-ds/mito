@@ -60,6 +60,8 @@ async def run_data_analyst(prompt: str, mcp_context: Context) -> dict[str, Any]:
     logger.info("Resolved %s files from MCP roots for prompt context", len(prompt_files))
     notebook_path = _resolve_notebook_output_path(roots)
     logger.info("Resolved notebook output path: %s", notebook_path)
+    kernel_cwd = _resolve_kernel_cwd_from_roots(roots)
+    logger.info("Resolved kernel cwd from roots: %s", kernel_cwd)
 
     async def publish_progress(message: str) -> None:
         nonlocal progress_step
@@ -79,6 +81,7 @@ async def run_data_analyst(prompt: str, mcp_context: Context) -> dict[str, Any]:
         prompt,
         metadata=RequestAgentExecutionInput(
             notebook_path=notebook_path,
+            kernel_cwd=kernel_cwd,
             files=prompt_files or None,
             ask_user_mode=ask_user_mode,
             ask_user_handler=build_elicitation_handler(mcp_context),
@@ -112,6 +115,16 @@ def _resolve_notebook_output_path(roots: list[McpRoot]) -> str:
 
     logger.info("No writable MCP roots detected; defaulting notebook path to current directory")
     return os.path.abspath(notebook_name)
+
+
+def _resolve_kernel_cwd_from_roots(roots: list[McpRoot]) -> str | None:
+    for root in roots:
+        if root.path is None:
+            continue
+        absolute_path = os.path.abspath(root.path)
+        if _is_writable_directory(absolute_path):
+            return absolute_path
+    return None
 
 
 def _is_writable_directory(path: str) -> bool:

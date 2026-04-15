@@ -24,9 +24,10 @@ _ANSI_ESCAPE_PATTERN = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 class KernelSession:
     """Starts a single kernel and exposes blocking execute + shutdown."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, cwd: str | None = None) -> None:
         self._km = KernelManager()
-        self._km.start_kernel()
+        start_kwargs = {"cwd": cwd} if cwd else {}
+        self._km.start_kernel(**start_kwargs)
         self._kc = self._km.client()
         self._kc.start_channels()
         self._kc.wait_for_ready(timeout=120)
@@ -138,9 +139,9 @@ class KernelSession:
         return result
 
 
-def default_kernel_session() -> KernelSession:
+def default_kernel_session(*, cwd: str | None = None) -> KernelSession:
     """Factory for a new kernel session (mostly for tests)."""
-    return KernelSession()
+    return KernelSession(cwd=cwd)
 
 
 def _strip_ansi_escape_sequences(text: str) -> str:

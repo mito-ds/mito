@@ -53,15 +53,17 @@ class PythonToolExecutor:
         *,
         ask_user_mode: AskUserMode = "cli",
         ask_user_handler: Optional[AskUserHandler] = None,
+        kernel_cwd: str | None = None,
     ) -> None:
         self._session: Optional[KernelSession] = None
         self._last_cell_text: dict[str, str] = {}
         self._ask_user_mode: AskUserMode = ask_user_mode
         self._ask_user_handler = ask_user_handler
+        self._kernel_cwd = kernel_cwd
 
     def _ensure_session(self) -> KernelSession:
         if self._session is None:
-            self._session = KernelSession()
+            self._session = KernelSession(cwd=self._kernel_cwd)
         return self._session
 
     def shutdown(self) -> None:

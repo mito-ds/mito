@@ -1,6 +1,9 @@
 import asyncio
 
+import pytest
+
 from mito_ai_core.agent.types import AgentContext
+from mito_ai_python_tool_executor import executor as executor_module
 from mito_ai_python_tool_executor.executor import (
     ASK_USER_QUESTION_DISABLED_MESSAGE,
     PythonToolExecutor,
@@ -38,6 +41,23 @@ def test_ask_user_question_plaintext_mode_returns_disabled_message() -> None:
     assert result.success is True
     assert result.tool_name == "ask_user_question"
     assert result.output == ASK_USER_QUESTION_DISABLED_MESSAGE
+
+
+def test_executor_forwards_kernel_cwd_when_starting_session(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, str | None] = {"cwd": None}
+
+    class _KernelSessionStub:
+        def __init__(self, *, cwd: str | None = None) -> None:
+            captured["cwd"] = cwd
+
+    monkeypatch.setattr(executor_module, "KernelSession", _KernelSessionStub)
+
+    executor = PythonToolExecutor(kernel_cwd="/tmp/mcp-root")
+    executor._ensure_session()
+
+    assert captured["cwd"] == "/tmp/mcp-root"
 
 
 def test_ask_user_question_elicitation_without_handler_falls_back_to_disabled_message() -> None:

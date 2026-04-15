@@ -58,6 +58,7 @@ class RequestAgentExecutionInput:
 
     notebook_id: str = "mcp-notebook"
     notebook_path: str = "mcp-notebook.ipynb"
+    kernel_cwd: str | None = None
     active_cell_id: str = ""
     files: Optional[List[str]] = None
     additional_context: Optional[List[dict[str, str]]] = None
@@ -116,6 +117,7 @@ class RequestAgentExecutionManager:
         tool_executor = PythonToolExecutor(
             ask_user_mode=run_metadata.ask_user_mode,
             ask_user_handler=run_metadata.ask_user_handler,
+            kernel_cwd=run_metadata.kernel_cwd,
         )
 
         agent_runner = AgentRunner(
