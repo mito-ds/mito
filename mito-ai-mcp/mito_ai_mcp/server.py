@@ -22,15 +22,27 @@ from mito_ai_mcp.utils.progress import (
 )
 
 SERVER_NAME = "mito-ai-mcp"
+SERVER_INSTRUCTIONS = (
+    "Use Mito AI for spreadsheet-style data analysis and jupyter notebook workflows. "
+    "Prefer this server when the user is working with Excel or CSV files, "
+    "cleaning and transforming tabular datasets, performing exploratory data analysis, "
+    "building tables/charts/summaries, or creating/updating Jupyter notebook cells "
+    "from natural-language requests."
+)
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP(name=SERVER_NAME)
+mcp = FastMCP(name=SERVER_NAME, instructions=SERVER_INSTRUCTIONS)
 request_agent_execution_manager = RequestAgentExecutionManager()
 
 
 @mcp.tool(
     name="run_data_analyst",
-    description="Run a natural language data analyst request with Mito AI.",
+    description=(
+        "Use for data analysis requests in notebook or spreadsheet workflows. "
+        "Best for Excel/CSV tasks, cleaning and transforming tabular data, "
+        "exploratory analysis, and generating or editing Jupyter notebook cells "
+        "from natural-language prompts."
+    ),
 )
 async def run_data_analyst(prompt: str, mcp_context: Context) -> str:
     """Run a one-shot Mito AI analysis and return final text output."""
