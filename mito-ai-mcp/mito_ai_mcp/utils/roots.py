@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable
+from typing import Any
 from urllib.parse import unquote, urlparse
 
 from mcp.server.fastmcp import Context
@@ -43,7 +43,7 @@ async def list_client_roots(ctx: Context, *, force_refresh: bool = False) -> lis
 
 async def _fetch_roots(ctx: Context) -> list[McpRoot]:
     try:
-        raw = await _call_roots_list(ctx)
+        raw = await _call_session_list_roots(ctx)
     except Exception as exc:
         if _is_method_not_supported_error(exc):
             logger.info("Client/session does not support roots/list: %s", exc)
@@ -56,60 +56,16 @@ async def _fetch_roots(ctx: Context) -> list[McpRoot]:
     return [root for root in normalized_roots if root is not None]
 
 
-async def _call_roots_list(ctx: Context) -> Any:
-    candidates = (
-        _resolve_ctx_call(ctx),
-        _resolve_request_context_session_call(ctx),
-        _resolve_request_context_call(ctx),
-    )
-    for call in candidates:
-        if call is None:
-            continue
-        return await call()
-    raise RuntimeError("No MCP roots/list caller found on context")
-
-
-def _resolve_ctx_call(ctx: Context) -> Callable[[], Awaitable[Any]] | None:
-    session = getattr(ctx, "session", None)
-    if session is not None:
-        list_roots_fn = getattr(session, "list_roots", None)
-        if callable(list_roots_fn):
-            return lambda: list_roots_fn()
-
-    call_tool_fn = getattr(ctx, "call_tool", None)
-    if callable(call_tool_fn):
-        return lambda: call_tool_fn("roots/list", {})
-    return None
-
-
-def _resolve_request_context_session_call(ctx: Context) -> Callable[[], Awaitable[Any]] | None:
+async def _call_session_list_roots(ctx: Context) -> Any:
     request_context = getattr(ctx, "request_context", None)
-    if request_context is None:
-        return None
-
-    session = getattr(request_context, "session", None)
+    session = getattr(request_context, "session", None) if request_context is not None else None
     if session is None:
-        return None
+        session = getattr(ctx, "session", None)
 
-    list_roots_fn = getattr(session, "list_roots", None)
-    if callable(list_roots_fn):
-        return lambda: list_roots_fn()
-
-    call_tool_fn = getattr(session, "call_tool", None)
-    if callable(call_tool_fn):
-        return lambda: call_tool_fn("roots/list", {})
-    return None
-
-
-def _resolve_request_context_call(ctx: Context) -> Callable[[], Awaitable[Any]] | None:
-    request_context = getattr(ctx, "request_context", None)
-    if request_context is None:
-        return None
-
-    call_tool_fn = getattr(request_context, "call_tool", None)
-    if callable(call_tool_fn):
-        return lambda: call_tool_fn("roots/list", {})
-    return None
+    list_roots_fn = getattr(session, "list_roots", None) if session is not None else None
+    if not callable(list_roots_fn):
+        raise RuntimeError("No MCP session.list_roots available on context")
+    return await list_roots_fn()
 
 
 def _extract_raw_roots(raw_response: Any) -> list[Any]:
@@ -121,22 +77,11 @@ def _extract_raw_roots(raw_response: Any) -> list[Any]:
         roots = raw_response.get("roots")
         if isinstance(roots, list):
             return roots
-        result = raw_response.get("result")
-        if isinstance(result, dict):
-            nested_roots = result.get("roots")
-            if isinstance(nested_roots, list):
-                return nested_roots
         return []
 
     roots_attr = getattr(raw_response, "roots", None)
     if isinstance(roots_attr, list):
         return roots_attr
-
-    result_attr = getattr(raw_response, "result", None)
-    if result_attr is not None:
-        result_roots = getattr(result_attr, "roots", None)
-        if isinstance(result_roots, list):
-            return result_roots
     return []
 
 

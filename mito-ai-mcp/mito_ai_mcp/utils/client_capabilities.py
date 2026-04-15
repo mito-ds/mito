@@ -30,31 +30,35 @@ def detect_roots_capability(ctx: Context) -> bool:
 def _extract_client_capabilities(ctx: Context) -> Any:
     request_context = getattr(ctx, "request_context", None)
     logger.info("Request context: %s", request_context)
-    if request_context is not None:
-        experimental_context = getattr(request_context, "experimental", None)
-        if experimental_context is not None:
-            for attr_name in ("_client_capabilities", "client_capabilities"):
-                value = getattr(experimental_context, attr_name, None)
-                if value is not None:
-                    return value
-        for attr_name in ("client_capabilities", "capabilities"):
-            value = getattr(request_context, attr_name, None)
-            if value is not None:
-                return value
+    if request_context is None:
+        return None
+
+    direct = getattr(request_context, "client_capabilities", None)
+    if direct is not None:
+        return direct
+
+    experimental_context = getattr(request_context, "experimental", None)
+    if experimental_context is None:
+        return None
+
+    for attr_name in ("_client_capabilities", "client_capabilities"):
+        value = getattr(experimental_context, attr_name, None)
+        if value is not None:
+            return value
     return None
 
 
 def _has_elicitation_capability(capabilities: Any) -> bool:
-    if capabilities is None:
-        return False
-    if isinstance(capabilities, dict):
-        return "elicitation" in capabilities
-    return getattr(capabilities, "elicitation", None) is not None
+    return _has_capability(capabilities, "elicitation")
 
 
 def _has_roots_capability(capabilities: Any) -> bool:
+    return _has_capability(capabilities, "roots")
+
+
+def _has_capability(capabilities: Any, capability_name: str) -> bool:
     if capabilities is None:
         return False
     if isinstance(capabilities, dict):
-        return "roots" in capabilities
-    return getattr(capabilities, "roots", None) is not None
+        return capability_name in capabilities
+    return getattr(capabilities, capability_name, None) is not None

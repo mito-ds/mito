@@ -37,6 +37,10 @@ class _MethodNotFoundError(Exception):
         self.code = -32601
 
 
+class _SessionWithoutListRoots:
+    pass
+
+
 class _FakeUri:
     def __init__(self, value: str) -> None:
         self._value = value
@@ -130,6 +134,24 @@ async def test_list_client_roots_returns_empty_when_roots_not_supported() -> Non
 
     assert roots == []
     assert session.calls == 0
+
+
+@pytest.mark.asyncio
+async def test_list_client_roots_returns_empty_when_session_missing() -> None:
+    ctx = _FakeContext(capabilities={"roots": {}}, session=None)
+
+    roots = await list_client_roots(ctx)
+
+    assert roots == []
+
+
+@pytest.mark.asyncio
+async def test_list_client_roots_returns_empty_when_session_has_no_list_roots() -> None:
+    ctx = _FakeContext(capabilities={"roots": {}}, session=_SessionWithoutListRoots())
+
+    roots = await list_client_roots(ctx)
+
+    assert roots == []
 
 
 @pytest.mark.asyncio
