@@ -383,6 +383,54 @@
   height: 26px;
 }
 
+.mito-ai-actions-group {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  border: 1px solid var(--mito-highlight-light);
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--mito-background);
+}
+
+.mito-ai-actions-group-button {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  border-radius: 0 !important;
+  background: transparent;
+  color: var(--mito-text);
+  height: 100%;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mito-ai-actions-group-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mito-ai-actions-sparkle-icon {
+  font-size: 13px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-0.5px);
+}
+
+.mito-ai-actions-group-button-right {
+  border-left: 1px solid var(--mito-highlight-light);
+}
+
+.mito-ai-actions-group-button:hover {
+  background: var(--mito-toolbar-hover);
+}
+
 .mito-toolbar-tabbar .mito-toolbar-button-icon-container {
   height: 100%;
 }

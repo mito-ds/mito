@@ -15,7 +15,6 @@ import { classNames } from '../../utils/classNames';
 import { isAINotesEnabled } from '../../utils/location';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 import DocumentationIcon from '../icons/DocumentationIcon';
-import AINotesIcon from '../icons/AINotesIcon';
 import AIIcon from '../icons/AIIcon';
 import HexagonAIIcon from '../icons/HexagonAI';
 import { CodeTabContents } from './CodeTabContents';
@@ -160,26 +159,6 @@ export const Toolbar = (
                             action={props.actions.buildTimeActions[ActionEnum.Fullscreen]}
                         />
                     )}
-                    {isAINotesEnabled() && (
-                        <ToolbarButton
-                            action={{
-                                staticType: 'ai-notes-toolbar',
-                                type: 'run-time',
-                                longTitle: 'AI notes',
-                                titleToolbar: '',
-                                actionFunction: () => {
-                                    props.setUIState((prev) => ({
-                                        ...prev,
-                                        currOpenTaskpane: { type: TaskpaneType.AINOTES },
-                                    }));
-                                },
-                                searchTerms: ['ai', 'notes', 'outliers', 'annotations'],
-                                isDisabled: () => undefined,
-                                tooltip: 'Scan the sheet with AI and get notes on data quality issues',
-                            }}
-                            iconOverride={<AINotesIcon />}
-                        />
-                    )}
                 </div>
             </div>
             <div className='mito-toolbar-tabbar'>
@@ -227,19 +206,37 @@ export const Toolbar = (
                         <span style={{transform: 'scale(0.85)', display: 'flex'}}><HexagonAIIcon outlineColor='var(--mito-highlight)' fillColor='var(--mito-highlight-very-light)' /></span>
                         Suggest Graphs
                     </div>
-                    <div
-                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
-                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
-                        onClick={() => {
-                            props.setUIState(prev => ({
-                                ...prev,
-                                currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
-                                selectedTabType: 'data'
-                            }));
-                        }}
-                    >
-                        <AIIcon />
-                        AI
+                    <div className='mito-ai-actions-group'>
+                        <button
+                            type='button'
+                            className={classNames('mito-ai-actions-group-button', 'mito-ai-actions-group-button-left')}
+                            onClick={() => {
+                                props.setUIState(prev => ({
+                                    ...prev,
+                                    currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                    selectedTabType: 'data'
+                                }));
+                            }}
+                        >
+                            <AIIcon />
+                            Ask AI
+                        </button>
+                        {isAINotesEnabled() && (
+                            <button
+                                type='button'
+                                className={classNames('mito-ai-actions-group-button', 'mito-ai-actions-group-button-right')}
+                                onClick={() => {
+                                    props.setUIState(prev => ({
+                                        ...prev,
+                                        currOpenTaskpane: { type: TaskpaneType.AINOTES },
+                                        selectedTabType: 'data'
+                                    }));
+                                }}
+                            >
+                                <span className='mito-ai-actions-sparkle-icon' aria-hidden>✦</span>
+                                AI Notes
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
