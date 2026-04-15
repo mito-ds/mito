@@ -78,7 +78,15 @@ def ai_notes_backend_completion(
             )
         return str(res.json()["choices"][0]["message"]["content"]).strip()
 
-    out = _get_ai_completion_from_mito_server(user_input, prompt)
+    mito_server_data = {
+        "model": "gpt-4o-mini",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": max_tokens,
+        "temperature": 0.2,
+    }
+    out = _get_ai_completion_from_mito_server(
+        user_input, prompt, completion_data=mito_server_data
+    )
     if isinstance(out, dict) and out.get("error"):
         raise RuntimeError(str(out["error"]))
     if not isinstance(out, dict) or "completion" not in out:

@@ -34,7 +34,12 @@ def _get_ai_completion_data(prompt: str) -> Dict[str, Any]:
 __user_email = None
 __user_id = None
 
-def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[str, Any]:
+def _get_ai_completion_from_mito_server(
+        user_input: str,
+        prompt: str,
+        *,
+        completion_data: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
         global __user_email, __user_id
 
         if __user_email is None:
@@ -53,7 +58,7 @@ def _get_ai_completion_from_mito_server(user_input: str, prompt: str) -> Dict[st
                 'email': __user_email,
                 'user_id': __user_id,
                 'user_input': user_input,
-                'data': _get_ai_completion_data(prompt)
+                'data': completion_data if completion_data is not None else _get_ai_completion_data(prompt)
         }
 
         headers = {
