@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Callable
 
@@ -13,6 +14,7 @@ import pytest
 from mito_ai_core.agent import AgentRunResult, ToolResult
 from mito_ai_core.completions.models import AgentResponse
 from mito_ai_mcp import request_agent_execution
+from mito_ai_mcp import server as mcp_server
 from mito_ai_mcp.server import run_data_analyst
 from mito_ai_mcp.utils.client_capabilities import detect_ask_user_mode
 
@@ -55,6 +57,19 @@ class FakeMcpContextWithSdkExperimentalCapabilities(FakeMcpContext):
         self.request_context = SimpleNamespace(
             experimental=SimpleNamespace(_client_capabilities=SimpleNamespace(elicitation={}))
         )
+
+
+class FakeMcpContextWithRoots(FakeMcpContext):
+    def __init__(self, root_path: Path) -> None:
+        super().__init__()
+        self.request_context = SimpleNamespace(
+            client_capabilities={"roots": {}},
+            session=SimpleNamespace(list_roots=self._list_roots),
+        )
+        self._root_path = root_path
+
+    async def _list_roots(self) -> dict[str, object]:
+        return {"roots": [{"uri": self._root_path.as_uri(), "name": "workspace"}]}
 
 
 class FakeProviderManager:
@@ -134,17 +149,77 @@ async def test_run_data_analyst_wires_callbacks_progress_and_final_text(monkeypa
     monkeypatch.setattr(request_agent_execution, "PythonToolExecutor", FakeToolExecutor)
     monkeypatch.setattr(request_agent_execution, "AgentRunner", FakeAgentRunner)
     monkeypatch.setattr(request_agent_execution, "initialize_user", lambda: None)
+    monkeypatch.setattr(request_agent_execution, "save_notebook", lambda nb, path: None)
+    monkeypatch.setattr(request_agent_execution, "cells_to_notebook", lambda cells: {"cells": cells})
+    monkeypatch.setattr(
+        mcp_server,
+        "_resolve_notebook_output_path",
+        lambda _roots: "/tmp/test-mcp-notebook.ipynb",
+    )
 
     ctx = FakeMcpContext()
     result = await run_data_analyst("Summarize this notebook", mcp_context=ctx)
 
-    assert result == "Done\n\nSuggested next steps:\n- Share the summary"
+    assert result == {
+        "final_text": (
+            "Done\n\nSuggested next steps:\n- Share the summary\n\n"
+            "Notebook saved to: /tmp/test-mcp-notebook.ipynb"
+        ),
+        "metadata": {
+            "notebook_path": "/tmp/test-mcp-notebook.ipynb",
+            "artifact_paths": ["/tmp/test-mcp-notebook.ipynb"],
+        },
+    }
     assert ctx.events == [
         (1, "Starting analysis run"),
         (2, "Assistant response (scratchpad): Planning next step"),
         (3, "Tool completed (scratchpad)"),
         (4, "Analysis run completed"),
     ]
+
+
+@pytest.mark.asyncio
+async def test_run_data_analyst_uses_first_writable_root_for_notebook_path(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    transactions_file = tmp_path / "transactions.csv"
+    transactions_file.write_text("customer_id,amount\n123,10\n", encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    async def fake_run_prompt(
+        prompt: str,
+        *,
+        metadata: request_agent_execution.RequestAgentExecutionInput | None = None,
+        on_assistant_response: Callable[[AgentResponse], object] | None = None,
+        on_tool_result: Callable[[ToolResult], object] | None = None,
+    ) -> request_agent_execution.RequestAgentExecutionResult:
+        del prompt, on_assistant_response, on_tool_result
+        assert metadata is not None
+        captured["metadata"] = metadata
+        return request_agent_execution.RequestAgentExecutionResult(
+            final_text="Done",
+            finished=True,
+            iterations=1,
+            thread_id="thread-1",
+            final_response_type="finished_task",
+            notebook_path=metadata.notebook_path,
+            artifact_paths=[metadata.notebook_path],
+        )
+
+    monkeypatch.setattr(mcp_server.request_agent_execution_manager, "run_prompt", fake_run_prompt)
+    ctx = FakeMcpContextWithRoots(tmp_path)
+
+    response = await run_data_analyst("Use the notebook root", mcp_context=ctx)
+
+    metadata = captured["metadata"]
+    assert isinstance(metadata, request_agent_execution.RequestAgentExecutionInput)
+    assert metadata.notebook_path.startswith(str(tmp_path))
+    assert metadata.notebook_path.endswith(".ipynb")
+    assert metadata.files is not None
+    assert str(transactions_file) in metadata.files
+    assert "transactions.csv" in metadata.files
+    assert response["metadata"]["notebook_path"] == metadata.notebook_path
+    assert metadata.notebook_path in response["final_text"]
 
 
 def test_detect_ask_user_mode_detects_elicitation_capability() -> None:
@@ -185,8 +260,10 @@ async def test_run_data_analyst_live_end_to_end() -> None:
         mcp_context=ctx,
     )
 
-    assert isinstance(result, str)
-    assert result.strip() != ""
+    assert isinstance(result, dict)
+    assert isinstance(result["final_text"], str)
+    assert result["final_text"].strip() != ""
+    assert isinstance(result["metadata"], dict)
     assert len(ctx.events) >= 2
     assert ctx.events[0][1] == "Starting analysis run"
     assert ctx.events[-1][1] == "Analysis run completed"
@@ -207,9 +284,10 @@ async def test_run_data_analyst_live_dataframe_analysis_uses_cell_update() -> No
         mcp_context=ctx,
     )
 
-    assert isinstance(result, str)
-    assert "9" in result
+    assert isinstance(result, dict)
+    assert "9" in result["final_text"]
     assert len(ctx.events) >= 2
     assert ctx.events[0][1] == "Starting analysis run"
     assert ctx.events[-1][1] == "Analysis run completed"
     assert any("Tool completed (cell_update)" in message for _, message in ctx.events), ctx.events
+

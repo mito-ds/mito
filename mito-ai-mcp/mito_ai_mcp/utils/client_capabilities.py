@@ -19,6 +19,14 @@ def detect_ask_user_mode(ctx: Context) -> Literal["mcp_elicitation", "mcp_plaint
     return "mcp_elicitation" if supports_elicitation else "mcp_plaintext"
 
 
+def detect_roots_capability(ctx: Context) -> bool:
+    """Return whether the connected client advertised MCP roots support."""
+    capabilities = _extract_client_capabilities(ctx)
+    supports_roots = _has_roots_capability(capabilities)
+    logger.info("Client advertised roots capability: %s", supports_roots)
+    return supports_roots
+
+
 def _extract_client_capabilities(ctx: Context) -> Any:
     request_context = getattr(ctx, "request_context", None)
     logger.info("Request context: %s", request_context)
@@ -42,3 +50,11 @@ def _has_elicitation_capability(capabilities: Any) -> bool:
     if isinstance(capabilities, dict):
         return "elicitation" in capabilities
     return getattr(capabilities, "elicitation", None) is not None
+
+
+def _has_roots_capability(capabilities: Any) -> bool:
+    if capabilities is None:
+        return False
+    if isinstance(capabilities, dict):
+        return "roots" in capabilities
+    return getattr(capabilities, "roots", None) is not None

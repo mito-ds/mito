@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable, List, Optional
 
@@ -15,7 +16,12 @@ from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import AgentResponse, MessageType
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.utils.create import initialize_user
-from mito_ai_python_tool_executor import AskUserMode, PythonToolExecutor
+from mito_ai_python_tool_executor import (
+    AskUserMode,
+    PythonToolExecutor,
+    cells_to_notebook,
+    save_notebook,
+)
 
 AskUserHandler = Callable[[str, Optional[List[str]]], Awaitable[Optional[str]]]
 logger = logging.getLogger(__name__)
@@ -70,6 +76,8 @@ class RequestAgentExecutionResult:
     iterations: int
     thread_id: str
     final_response_type: str
+    notebook_path: str | None
+    artifact_paths: list[str]
 
 
 @dataclass
@@ -139,12 +147,16 @@ class RequestAgentExecutionManager:
         finally:
             tool_executor.shutdown()
 
+        persisted_notebook_path = _persist_notebook(ctx, run_metadata.notebook_path)
+
         return RequestAgentExecutionResult(
             final_text=_agent_result_to_text(result),
             finished=result.finished,
             iterations=result.iterations,
             thread_id=thread_id,
             final_response_type=result.final_response.type,
+            notebook_path=persisted_notebook_path,
+            artifact_paths=[persisted_notebook_path] if persisted_notebook_path else [],
         )
 
 
@@ -173,4 +185,19 @@ def _agent_result_to_text(result: AgentRunResult) -> str:
         )
 
     return "\n\n".join(parts)
+
+
+def _persist_notebook(ctx: AgentContext, notebook_path: str) -> str | None:
+    expanded_notebook_path = os.path.abspath(os.path.expanduser(notebook_path))
+    parent = os.path.dirname(expanded_notebook_path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+
+    try:
+        notebook = cells_to_notebook(ctx.cells)
+        save_notebook(notebook, expanded_notebook_path)
+        return expanded_notebook_path
+    except Exception:
+        logger.exception("Failed to persist MCP notebook to %s", expanded_notebook_path)
+        return None
 
