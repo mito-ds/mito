@@ -558,8 +558,11 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
             let next = prevUIState;
 
-            // Clear AI notes — any edit makes them stale
-            if (hasAnnotations) {
+            // Clear AI notes — any edit makes them stale.
+            // Skip if the AI Notes taskpane is open: the fix action already removes the
+            // resolved annotation, and wiping the rest forces the user to re-fetch.
+            const aiNotesTaskpaneOpen = prevUIState.currOpenTaskpane.type === TaskpaneType.AINOTES;
+            if (hasAnnotations && !aiNotesTaskpaneOpen) {
                 next = { ...next, aiNotesAnnotations: undefined, aiNotesFocusedId: undefined, aiNotesPopover: undefined };
             }
 
