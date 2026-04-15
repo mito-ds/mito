@@ -7977,6 +7977,7 @@ __metadata:
     mkdirp: ^1.0.4
     mocha: ^9.1.2
     npm-run-all: ^4.1.5
+    plotly.js-dist-min: ^3.5.0
     prettier: ^2.1.1
     react: ^18.3.1
     react-dom: ^18.3.1
@@ -8554,6 +8555,13 @@ __metadata:
   dependencies:
     find-up: ^4.0.0
   checksum: 9863e3f35132bf99ae1636d31ff1e1e3501251d480336edb1c211133c8d58906bed80f154a1d723652df1fda91e01c7442c2eeaf9dc83157c7ae89087e43c8d6
+  languageName: node
+  linkType: hard
+
+"plotly.js-dist-min@npm:^3.5.0":
+  version: 3.5.0
+  resolution: "plotly.js-dist-min@npm:3.5.0"
+  checksum: 62846c186d0d1577a08cc288a3354e5d1fac755852e122c3b2eef1cd9abb80203e27620d43818d2a98d47f91179d2abb8447d9a56819e48153442c60c81a95a8
   languageName: node
   linkType: hard
 

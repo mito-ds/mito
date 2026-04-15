@@ -5,7 +5,7 @@
 # Distributed under the terms of the GPL License.
 
 import io
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import plotly.graph_objects as go
 
@@ -99,7 +99,7 @@ def get_graph_index_by_graph_id(graph_data_array: List[Dict[str, Any]], graph_id
 
 def get_html_and_script_from_figure(
     fig: go.Figure, height: str, width: str,
-    include_plotlyjs: bool,
+    include_plotlyjs: Union[bool, str],
 ) -> Dict[str, str]:
     """
     Given a plotly figure, generates HTML from it, and returns
@@ -114,10 +114,15 @@ def get_html_and_script_from_figure(
     """
     # Send the graph back to the frontend
     buffer = io.StringIO()
+    # `include_plotlyjs=True` can emit a CDN script tag in some Plotly versions.
+    # We force inline mode so graph payloads are self-contained and do not depend
+    # on network access in the frontend runtime.
+    include_plotlyjs_value: Union[bool, str] = "inline" if include_plotlyjs else False
+
     fig.write_html(
         buffer,
         full_html=False,
-        include_plotlyjs=include_plotlyjs,
+        include_plotlyjs=include_plotlyjs_value,
         default_height=height,
         default_width=width,
     )

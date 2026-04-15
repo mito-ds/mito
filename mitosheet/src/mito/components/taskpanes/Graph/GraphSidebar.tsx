@@ -25,6 +25,7 @@ import { TaskpaneType } from '../taskpanes';
 import GraphSetupTab from './GraphSetupTab';
 import LoadingSpinner from './LoadingSpinner';
 import { GraphElementType, convertBackendtoFrontendGraphParams, convertFrontendtoBackendGraphParams, getDefaultGraphParams, getGraphElementInfoFromHTMLElement, getGraphElementObjects, getGraphRenderingParams, registerClickEventsForGraphElements } from './graphUtils';
+import loadPlotly from '../../../utils/plotly';
 
 export const GraphTitleEditorPopup = (props: {
     containerRef?: React.RefObject<HTMLDivElement>;
@@ -258,22 +259,53 @@ const GraphSidebar = (props: {
     // not when it is a script tag inside innerHtml (which react does not execute
     // for safety reasons).
     useEffect(() => {
-        try {
+        let isCancelled = false;
+
+        const renderGraph = async () => {
             if (graphOutput === undefined) {
                 return;
             }
-            const executeScript = new Function(graphOutput.graphScript);
-            executeScript()
+
+            const runGraphScript = () => {
+                const executeScript = new Function(graphOutput.graphScript);
+                executeScript();
+            };
+
+            try {
+                runGraphScript();
+            } catch (e) {
+                // Some environments don't allow loading Plotly from CDN, but graph payloads
+                // may already include Plotly inline. Retry loading only when Plotly is missing.
+                const isPlotlyMissing = e instanceof Error && e.message.includes('Plotly is not defined');
+                if (!isPlotlyMissing) {
+                    console.error("Failed to execute graph function", e);
+                    return;
+                }
+
+                try {
+                    await loadPlotly();
+                    if (isCancelled) {
+                        return;
+                    }
+                    runGraphScript();
+                } catch (loadError) {
+                    console.error("Failed to execute graph function", loadError);
+                    return;
+                }
+            }
 
             const graphObjects = getGraphElementObjects(graphOutput);
             graphObjects?.div.on('plotly_afterplot', () => {
                 registerClickEventsForGraphElements(graphOutput, setSelectedGraphElement, props.mitoContainerRef?.current);
             });
-        } catch (e) {
-            console.error("Failed to execute graph function", e)
-        }
+        };
 
-    }, [graphOutput])
+        void renderGraph();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [graphOutput, props.mitoContainerRef])
 
     // Since the UI for the graphing takes up the whole screen, we don't even let the user keep it open
     // If there is no data to graph

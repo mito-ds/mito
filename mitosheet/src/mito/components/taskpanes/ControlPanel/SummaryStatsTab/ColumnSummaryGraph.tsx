@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { MitoAPI } from '../../../../api/api';
 import { ColumnID } from '../../../../types';
+import loadPlotly from '../../../../utils/plotly';
 
 type ColumnSummaryGraphProps = {
     selectedSheetIndex: number;
@@ -49,16 +50,44 @@ function ColumnSummaryGraph(props: ColumnSummaryGraphProps): JSX.Element {
     // not when it is a script tag inside innerHtml (which react does not execute
     // for safety reasons).
     useEffect(() => {
-        if (graphObj === undefined) {
-            return;
-        }
-        try {
-            const executeScript = new Function(graphObj.script);
-            executeScript()
-        } catch (e) {
-            console.error("Failed to execute graph function", e)
-        }
+        let isCancelled = false;
 
+        const renderGraph = async () => {
+            if (graphObj === undefined) {
+                return;
+            }
+
+            const runGraphScript = () => {
+                const executeScript = new Function(graphObj.script);
+                executeScript();
+            };
+
+            try {
+                runGraphScript();
+            } catch (e) {
+                const isPlotlyMissing = e instanceof Error && e.message.includes('Plotly is not defined');
+                if (!isPlotlyMissing) {
+                    console.error("Failed to execute graph function", e);
+                    return;
+                }
+
+                try {
+                    await loadPlotly();
+                    if (isCancelled) {
+                        return;
+                    }
+                    runGraphScript();
+                } catch (loadError) {
+                    console.error("Failed to execute graph function", loadError);
+                }
+            }
+        };
+
+        void renderGraph();
+
+        return () => {
+            isCancelled = true;
+        };
     }, [graphObj])
 
     return (
