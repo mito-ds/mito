@@ -65,7 +65,6 @@ def build_ai_notes_action(
             f"_high = _q3 + 1.5 * _iqr\n"
             f"_keep = _s.isna() | ((_s >= _low) & (_s <= _high))\n"
             f"{name} = {name}.loc[_keep].reset_index(drop=True)\n"
-            f"{name}"
         )
         return "Remove IQR outliers", code, None
 
@@ -76,7 +75,7 @@ def build_ai_notes_action(
         if ri < 0 or ri >= len(df):
             return None, None, "Invalid row index."
         code = (
-            f"{name} = {name}.drop(index={name}.index[{ri}]).reset_index(drop=True)\n{name}"
+            f"{name} = {name}.drop(index={name}.index[{ri}]).reset_index(drop=True)\n"
         )
         return "Remove this row", code, None
 
@@ -87,7 +86,6 @@ def build_ai_notes_action(
     if action_id == "drop_missing_in_column":
         code = (
             f"{name} = {name}.dropna(subset=[{name}.columns[{column_index}]]).reset_index(drop=True)\n"
-            f"{name}"
         )
         return "Drop rows missing in this column", code, None
 
@@ -109,7 +107,6 @@ def build_ai_notes_action(
             f"_col = {name}.columns[{column_index}]\n"
             f"_mean = float({name}[_col].mean())\n"
             f"{name}[_col] = {name}[_col].fillna(_mean)\n"
-            f"{name}"
         )
         return "Fill missing values with average", code, None
 
