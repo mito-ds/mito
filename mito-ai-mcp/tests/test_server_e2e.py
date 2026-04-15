@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from typing import Callable
 
 import pytest
@@ -20,19 +21,40 @@ class FakeMcpContext:
 
     def __init__(self) -> None:
         self.events: list[tuple[int, str]] = []
+        self.request_context = SimpleNamespace(client_capabilities={})
 
     async def report_progress(self, progress: int, total: int | None, message: str) -> None:
         del total  # Unused in tests.
         self.events.append((progress, message))
 
-    def client_supports_extension(self, extension_id: str) -> bool:
-        return extension_id == "elicitation"
+class FakeMcpContextWithElicitation(FakeMcpContext):
+    def __init__(self) -> None:
+        super().__init__()
+        self.request_context = SimpleNamespace(client_capabilities={"elicitation": {}})
 
 
-class FakeMcpContextWithoutElicitation(FakeMcpContext):
-    def client_supports_extension(self, extension_id: str) -> bool:
-        del extension_id
-        return False
+class FakeMcpContextWithFormElicitation(FakeMcpContext):
+    def __init__(self) -> None:
+        super().__init__()
+        self.request_context = SimpleNamespace(
+            client_capabilities={"elicitation": {"form": {}}}
+        )
+
+
+class FakeMcpContextWithOnlyExtensions(FakeMcpContext):
+    def __init__(self) -> None:
+        super().__init__()
+        self.request_context = SimpleNamespace(
+            client_capabilities={"extensions": {"elicitation": {}}}
+        )
+
+
+class FakeMcpContextWithSdkExperimentalCapabilities(FakeMcpContext):
+    def __init__(self) -> None:
+        super().__init__()
+        self.request_context = SimpleNamespace(
+            experimental=SimpleNamespace(_client_capabilities=SimpleNamespace(elicitation={}))
+        )
 
 
 class FakeProviderManager:
@@ -125,13 +147,28 @@ async def test_run_data_analyst_wires_callbacks_progress_and_final_text(monkeypa
     ]
 
 
-def test_detect_ask_user_mode_prefers_elicitation_extension() -> None:
-    ctx = FakeMcpContext()
+def test_detect_ask_user_mode_detects_elicitation_capability() -> None:
+    ctx = FakeMcpContextWithElicitation()
+    assert detect_ask_user_mode(ctx) == "mcp_elicitation"
+
+
+def test_detect_ask_user_mode_supports_form_mode_capability_object() -> None:
+    ctx = FakeMcpContextWithFormElicitation()
+    assert detect_ask_user_mode(ctx) == "mcp_elicitation"
+
+
+def test_detect_ask_user_mode_supports_fastmcp_sdk_capabilities_shape() -> None:
+    ctx = FakeMcpContextWithSdkExperimentalCapabilities()
     assert detect_ask_user_mode(ctx) == "mcp_elicitation"
 
 
 def test_detect_ask_user_mode_falls_back_to_plaintext() -> None:
-    ctx = FakeMcpContextWithoutElicitation()
+    ctx = FakeMcpContext()
+    assert detect_ask_user_mode(ctx) == "mcp_plaintext"
+
+
+def test_detect_ask_user_mode_ignores_extension_only_signal() -> None:
+    ctx = FakeMcpContextWithOnlyExtensions()
     assert detect_ask_user_mode(ctx) == "mcp_plaintext"
 
 
