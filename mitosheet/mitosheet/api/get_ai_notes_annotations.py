@@ -289,7 +289,8 @@ def _merge_missing_cell_notes_from_dataframe(
 ) -> List[Dict[str, Any]]:
     """
     Add cell_notes for each NA cell not already listed so the grid shows per-cell markers.
-    Uses vectorized NA detection (df.isna() + nonzero) instead of a cell-by-cell loop.
+    Scans one column at a time to avoid materializing a full-dataframe boolean mask
+    (O(rows) memory per column instead of O(rows × cols)).
     """
     seen_cell: Set[Tuple[int, int]] = set()
     for n in cell_notes:
@@ -303,27 +304,32 @@ def _merge_missing_cell_notes_from_dataframe(
     if len(out) >= max_cells:
         return out
 
-    # Vectorised: find all NA positions in one C-level call
-    na_rows, na_cols = df.isna().to_numpy().nonzero()
-    col_labels = [str(c) for c in df.columns]
-    for row_idx, col_idx in zip(na_rows, na_cols):
+    for col_idx, col in enumerate(df.columns):
         if len(out) >= max_cells:
             break
-        key = (int(row_idx), int(col_idx))
-        if key in seen_cell:
+        series = df.iloc[:, col_idx]
+        if not series.hasnans:
             continue
-        out.append(
-            {
-                "column": col_labels[col_idx],
-                "row": int(row_idx),
-                "note": "Missing value in this cell.",
-                "column_index": int(col_idx),
-                "value": "",
-                "severity": "warning",
-                "category": "missing",
-            }
-        )
-        seen_cell.add(key)
+        na_row_indices = series.isna().to_numpy().nonzero()[0]
+        label = str(col)
+        for row_idx in na_row_indices:
+            if len(out) >= max_cells:
+                break
+            key = (int(row_idx), col_idx)
+            if key in seen_cell:
+                continue
+            out.append(
+                {
+                    "column": label,
+                    "row": int(row_idx),
+                    "note": "Missing value in this cell.",
+                    "column_index": col_idx,
+                    "value": "",
+                    "severity": "warning",
+                    "category": "missing",
+                }
+            )
+            seen_cell.add(key)
     return out
 
 
