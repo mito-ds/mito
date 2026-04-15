@@ -341,8 +341,7 @@ export class MitoAPI {
                 'column_id': column_id,
                 'height': height,
                 'width': width,
-                // Always include Plotly in graph payloads so rendering does not depend on CDN access.
-                'include_plotlyjs': true,
+                'include_plotlyjs': (window as any).Plotly === undefined
             },
         })
     }
@@ -697,8 +696,7 @@ export class MitoAPI {
                     'height': height, 
                     'width': width
                 },
-                // Always include Plotly in graph payloads so rendering does not depend on CDN access.
-                'include_plotlyjs': true
+                'include_plotlyjs': (window as any).Plotly === undefined
             }
         })
     }

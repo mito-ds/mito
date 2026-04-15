@@ -114,15 +114,11 @@ def get_html_and_script_from_figure(
     """
     # Send the graph back to the frontend
     buffer = io.StringIO()
-    # `include_plotlyjs=True` can emit a CDN script tag in some Plotly versions.
-    # We force inline mode so graph payloads are self-contained and do not depend
-    # on network access in the frontend runtime.
-    include_plotlyjs_value: Union[bool, str] = "inline" if include_plotlyjs else False
 
     fig.write_html(
         buffer,
         full_html=False,
-        include_plotlyjs=include_plotlyjs_value,
+        include_plotlyjs=include_plotlyjs,
         default_height=height,
         default_width=width,
     )
