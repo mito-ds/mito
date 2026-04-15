@@ -14,6 +14,19 @@ Or via script entrypoint:
 mito-ai-mcp
 ```
 
+### Dev Hot Reload (auto-restart on code changes)
+
+Use `watchfiles` to restart the MCP server whenever Python files change anywhere under the `mito/` repo:
+
+```bash
+cd mito-ai-mcp
+source venv/bin/activate
+python -m pip install watchfiles
+watchfiles --filter python "python -m mito_ai_mcp.server" ..
+```
+
+This is restart-on-change (not in-process hot module reload), but it gives the fastest dev loop when testing with clients like Claude Desktop.
+
 
 ## Testing
 

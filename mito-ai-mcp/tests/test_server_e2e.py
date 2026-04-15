@@ -13,6 +13,7 @@ from mito_ai_core.agent import AgentRunResult, ToolResult
 from mito_ai_core.completions.models import AgentResponse
 from mito_ai_mcp import request_agent_execution
 from mito_ai_mcp.server import run_data_analyst
+from mito_ai_mcp.utils.client_capabilities import detect_ask_user_mode
 
 class FakeMcpContext:
     """Minimal context stub that records progress notifications."""
@@ -24,6 +25,15 @@ class FakeMcpContext:
         del total  # Unused in tests.
         self.events.append((progress, message))
 
+    def client_supports_extension(self, extension_id: str) -> bool:
+        return extension_id == "elicitation"
+
+
+class FakeMcpContextWithoutElicitation(FakeMcpContext):
+    def client_supports_extension(self, extension_id: str) -> bool:
+        del extension_id
+        return False
+
 
 class FakeProviderManager:
     async def request_completions(self, **kwargs: object) -> str:
@@ -32,6 +42,9 @@ class FakeProviderManager:
 
 
 class FakeToolExecutor:
+    def __init__(self, **kwargs: object) -> None:
+        del kwargs
+
     def shutdown(self) -> None:
         return None
 
@@ -110,6 +123,16 @@ async def test_run_data_analyst_wires_callbacks_progress_and_final_text(monkeypa
         (3, "Tool completed (scratchpad)"),
         (4, "Analysis run completed"),
     ]
+
+
+def test_detect_ask_user_mode_prefers_elicitation_extension() -> None:
+    ctx = FakeMcpContext()
+    assert detect_ask_user_mode(ctx) == "mcp_elicitation"
+
+
+def test_detect_ask_user_mode_falls_back_to_plaintext() -> None:
+    ctx = FakeMcpContextWithoutElicitation()
+    assert detect_ask_user_mode(ctx) == "mcp_plaintext"
 
 
 @pytest.mark.integration

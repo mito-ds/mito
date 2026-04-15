@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Awaitable, Callable, List, Optional
 
@@ -14,7 +15,10 @@ from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import AgentResponse, MessageType
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.utils.create import initialize_user
-from mito_ai_python_tool_executor import PythonToolExecutor
+from mito_ai_python_tool_executor import AskUserMode, PythonToolExecutor
+
+AskUserHandler = Callable[[str, Optional[List[str]]], Awaitable[Optional[str]]]
+logger = logging.getLogger(__name__)
 
 
 OnAssistantResponse = Callable[[AgentResponse], Awaitable[None]]
@@ -52,6 +56,9 @@ class RequestAgentExecutionInput:
     files: Optional[List[str]] = None
     additional_context: Optional[List[dict[str, str]]] = None
     is_chrome_browser: bool = False
+    # MCP bridge should never default to stdin/stdout prompting.
+    ask_user_mode: AskUserMode = "mcp_plaintext"
+    ask_user_handler: Optional[AskUserHandler] = None
 
 
 @dataclass(frozen=True)
@@ -94,7 +101,14 @@ class RequestAgentExecutionManager:
         message_history = GlobalMessageHistory()
         thread_id = str(message_history.create_new_thread())
         llm = ProviderManager()
-        tool_executor = PythonToolExecutor()
+        logger.info(
+            "Creating PythonToolExecutor with ask_user_mode=%s",
+            run_metadata.ask_user_mode,
+        )
+        tool_executor = PythonToolExecutor(
+            ask_user_mode=run_metadata.ask_user_mode,
+            ask_user_handler=run_metadata.ask_user_handler,
+        )
 
         agent_runner = AgentRunner(
             provider=ProviderAdapter(llm),
