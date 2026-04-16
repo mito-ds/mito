@@ -11,7 +11,7 @@ license = "AGPL-3.0-only"
 requires-python = ">=3.9"
 authors = [{ name = "Saga Inc." }]
 dependencies = [
-    "mcp",
+    "fastmcp",
     "mito-ai-core",
     "mito-ai-python-tool-executor",
 ]
@@ -28,7 +28,7 @@ test = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
-    "integration: live MCP / full stack (opt-in via MITO_AI_MCP_E2E=1)",
+    "integration: live MCP / full stack",
 ]
 
 [tool.hatch.build.targets.wheel]
