@@ -7,7 +7,7 @@ Mito AI MCP server package. Exposes tools such as `run_data_analyst` (stdio tran
 Testing is a two-step process:
 
 1. **Prerequisites** — install this package (editable) so the `python` you point clients at can import it.
-2. **Environment** — pick one: [CLI](#cli), [MCP UI](#mcp-ui), [VS Code](#vs-code), or [Claude Desktop](#claude-desktop).
+2. **Environment** — pick one: [CLI](#cli), [MCP UI](#mcp-ui), [VS Code](#vs-code), [Claude Desktop](#claude-desktop), or [Claude Code (dev)](#claude-code-dev).
 
 You do **not** need to keep `python -m mito_ai_mcp.server` running in a separate terminal before using the CLI, Inspector UI, VS Code, or Claude Desktop. Those clients start the server as a subprocess when they connect.
 
@@ -93,6 +93,21 @@ Fully quit and reopen Claude Desktop. In chat, confirm **mito-ai** is connected 
 
 **After you edit this package’s code:** With `pip install -e .`, you do not need to reinstall. Claude keeps the MCP server process running, so **restart that process** to pick up changes — usually by **fully quitting Claude Desktop** and reopening it, or using the app’s MCP / developer control to restart the server if your build exposes one. Re-run `pip install -e .` only if you change dependencies or install mode.
 
+### Claude Code (dev)
+
+Add the local stdio server from your terminal. From the repo root:
+
+```bash
+cd mito-ai-mcp
+claude mcp add --transport stdio mito-ai -- "$(pwd)/venv/bin/python" -m mito_ai_mcp.server
+```
+
+If your venv lives elsewhere, replace `$(pwd)/venv/bin/python` with your absolute interpreter path, like /Users/username/mito/mito-ai-mcp/venv/bin/python.
+
+After adding, start Claude Code in this repo and ask it to call the `run_data_analyst` MCP tool.
+
+**After code changes:** because this server is started as a subprocess by the client, restart Claude Code (or remove/re-add the server) to ensure a fresh process picks up your latest edits.
+
 ---
 
 ## MCP Client Behavior Matrix
@@ -101,9 +116,10 @@ Fully quit and reopen Claude Desktop. In chat, confirm **mito-ai** is connected 
 |--------|:-----------:|:----:|:--------:|
 | Inspector UI (`@modelcontextprotocol/inspector`) | ✓ | ✓ | ✓ |
 | Inspector CLI (`--cli`) | X | X | ✓ |
+| VS Code | ✓ | ✓ | Unsure |
 | Claude Desktop | X | X | X |
-| Claude Code | ✓ | ✓ | X |
-| Cursor | X | ✓ | * |
-| ChatGPT MCP | X | X | * |
+| Claude Code | ✓ | ✓ | Unsure |
+| Cursor | Unsure | Unsure | Unsure |
+| ChatGPT MCP | Unsure | Unsure | Unsure |
 
 \* **Sampling** can vary by client/version; this server runs in direct-provider mode and does not require MCP sampling in v1. Smoke-test after client upgrades (`tools/list` + a short `run_data_analyst`).
