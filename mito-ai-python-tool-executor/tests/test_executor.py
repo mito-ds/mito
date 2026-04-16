@@ -7,6 +7,7 @@ from mito_ai_python_tool_executor import executor as executor_module
 from mito_ai_python_tool_executor.executor import (
     ASK_USER_QUESTION_DISABLED_MESSAGE,
     PythonToolExecutor,
+    STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE,
 )
 
 
@@ -104,4 +105,42 @@ def test_ask_user_question_elicitation_exception_falls_back_to_disabled_message(
     assert result.success is True
     assert result.tool_name == "ask_user_question"
     assert result.output == ASK_USER_QUESTION_DISABLED_MESSAGE
+    assert result.error_message is None
+
+
+def test_create_streamlit_app_returns_not_implemented_message() -> None:
+    executor = PythonToolExecutor()
+    executor._ensure_session = lambda: _FakeSession()  # type: ignore[method-assign]
+    ctx = _build_context()
+
+    result = asyncio.run(
+        executor.create_streamlit_app(
+            ctx,
+            message="Create a streamlit app",
+            streamlit_app_prompt="Simple dashboard",
+        )
+    )
+
+    assert result.success is True
+    assert result.tool_name == "create_streamlit_app"
+    assert result.output == STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE
+    assert result.error_message is None
+
+
+def test_edit_streamlit_app_returns_not_implemented_message() -> None:
+    executor = PythonToolExecutor()
+    executor._ensure_session = lambda: _FakeSession()  # type: ignore[method-assign]
+    ctx = _build_context()
+
+    result = asyncio.run(
+        executor.edit_streamlit_app(
+            ctx,
+            streamlit_app_prompt="Add date filters",
+            message="Edit the streamlit app",
+        )
+    )
+
+    assert result.success is True
+    assert result.tool_name == "edit_streamlit_app"
+    assert result.output == STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE
     assert result.error_message is None

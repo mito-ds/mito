@@ -19,9 +19,16 @@ from mito_ai_python_tool_executor.kernel_session import KernelSession
 AskUserMode = Literal["cli", "mcp_elicitation", "mcp_plaintext"]
 AskUserHandler = Callable[[str, Optional[List[str]]], Awaitable[Optional[str]]]
 logger = logging.getLogger(__name__)
+
 ASK_USER_QUESTION_DISABLED_MESSAGE = (
     "The ask_user_question tool is disabled in this environment. "
     "Please use your best judgement to assume the user's response and continue working."
+)
+
+STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE = (
+    "This Streamlit and app functionality is disabled in this environment. "
+    "Please use your best judgement on how to proceed. Either continue working in the notebook "
+    "or tell the user that this functionality is disabled."
 )
 
 
@@ -402,5 +409,39 @@ class PythonToolExecutor:
             success=True,
             tool_name="ask_user_question",
             output=ASK_USER_QUESTION_DISABLED_MESSAGE,
+            variables=vars_,
+        )
+
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        del message, streamlit_app_prompt
+        session = self._ensure_session()
+        vars_ = session.fetch_variables()
+        ctx.variables = vars_
+        return ToolResult(
+            success=True,
+            tool_name="create_streamlit_app",
+            output=STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE,
+            variables=vars_,
+        )
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        del streamlit_app_prompt, message
+        session = self._ensure_session()
+        vars_ = session.fetch_variables()
+        ctx.variables = vars_
+        return ToolResult(
+            success=True,
+            tool_name="edit_streamlit_app",
+            output=STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE,
             variables=vars_,
         )
