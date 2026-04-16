@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+import tempfile
 import uuid
 from typing import Any
 
@@ -47,6 +48,14 @@ request_agent_execution_manager = RequestAgentExecutionManager()
         "exploratory analysis, and generating or editing Jupyter notebook cells "
         "from natural-language prompts."
     ),
+    # As a workaround to file system access issues, we tried to get claude to pass the absolute path
+    # to the files to the server, but we then got permission errors.
+#   description=(
+#         """Run data analysis in a Jupyter notebook. Use for Excel/CSV tasks, cleaning tabular data, exploratory analysis, and generating notebook cells from natural language.
+# CRITICAL: If the user references a file that the data analysis is supposed to use
+# you must pass its absolute path to the file on the user's computer in the prompt. Do not use relative paths, or mnt paths. The run_data_analysis function won't have access to those.
+# If you don't have an absolute path, elicit the user for the full path(s) before calling this function. """
+#     ),
 )
 async def run_data_analyst(prompt: str, mcp_context: Context) -> dict[str, Any]:
     """Run a one-shot Mito AI analysis and return text plus artifact metadata."""
@@ -114,7 +123,13 @@ def _resolve_notebook_output_path(roots: list[McpRoot]) -> str:
             return os.path.join(root.path, notebook_name)
 
     logger.info("No writable MCP roots detected; defaulting notebook path to current directory")
-    return os.path.abspath(notebook_name)
+    candidate = os.path.abspath(notebook_name)
+    parent = os.path.dirname(candidate)
+    if parent and os.path.isdir(parent) and os.access(parent, os.W_OK):
+        return candidate
+    fallback = os.path.join(tempfile.gettempdir(), notebook_name)
+    logger.info("Notebook output directory not writable; using temp path: %s", fallback)
+    return fallback
 
 
 def _resolve_kernel_cwd_from_roots(roots: list[McpRoot]) -> str | None:
