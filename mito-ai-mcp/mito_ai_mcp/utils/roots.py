@@ -7,6 +7,7 @@ import os
 from dataclasses import dataclass
 from typing import Any
 from urllib.parse import unquote, urlparse
+from urllib.request import url2pathname
 
 from mcp.server.fastmcp import Context
 
@@ -131,11 +132,22 @@ def file_uri_to_path(uri: str) -> str | None:
     if parsed.netloc not in ("", "localhost"):
         return None
 
-    decoded_path = unquote(parsed.path or "")
-    if not decoded_path:
+    uri_path = parsed.path or ""
+    if not uri_path:
         return None
 
-    return os.path.abspath(decoded_path)
+    # Keep POSIX-style file URI paths stable across platforms (for example /tmp/data.csv),
+    # while still translating Windows drive-letter URIs to native paths.
+    if (
+        os.name == "nt"
+        and len(uri_path) >= 3
+        and uri_path[0] == "/"
+        and uri_path[1].isalpha()
+        and uri_path[2] == ":"
+    ):
+        return url2pathname(uri_path)
+
+    return unquote(uri_path)
 
 
 def _get_cache_owner(ctx: Context) -> Any:

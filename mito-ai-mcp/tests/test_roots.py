@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from types import SimpleNamespace
 from typing import Any
 
@@ -94,6 +95,14 @@ def test_file_uri_to_path_rejects_non_file_scheme() -> None:
 
 def test_file_uri_to_path_rejects_non_local_authority() -> None:
     assert file_uri_to_path("file://remote-host/tmp/data.csv") is None
+
+
+def test_file_uri_to_path_handles_windows_drive_letter_uris() -> None:
+    path = file_uri_to_path("file:///C:/Users/test/data.csv")
+    if os.name == "nt":
+        assert path == "C:\\Users\\test\\data.csv"
+    else:
+        assert path == "/C:/Users/test/data.csv"
 
 
 @pytest.mark.asyncio

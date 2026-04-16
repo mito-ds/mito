@@ -190,7 +190,7 @@ def _agent_result_to_text(result: AgentRunResult) -> str:
 
 
 def _persist_notebook(ctx: AgentContext, notebook_path: str) -> str | None:
-    expanded_notebook_path = os.path.abspath(os.path.expanduser(notebook_path))
+    expanded_notebook_path = os.path.expanduser(notebook_path)
     parent = os.path.dirname(expanded_notebook_path)
     if parent:
         os.makedirs(parent, exist_ok=True)
