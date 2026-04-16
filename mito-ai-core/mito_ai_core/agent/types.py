@@ -10,7 +10,15 @@ from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 from openai.types.chat import ChatCompletionMessageParam
 
-from mito_ai_core.completions.models import AIOptimizedCell, AgentResponse, CellUpdate
+from mito_ai_core.completions.models import (
+    AIOptimizedCell,
+    AgentResponse,
+    CellUpdate,
+    KernelVariable,
+    MessageType,
+    ResponseFormatInfo,
+    ThreadID,
+)
 
 
 @dataclass(frozen=True)
@@ -24,14 +32,17 @@ class ToolResult:
     success: bool
     """Whether the tool executed without errors."""
 
+    tool_name: Optional[str] = None
+    """Which tool was run (e.g. ``cell_update``, ``scratchpad``), when known."""
+
     error_message: Optional[str] = None
     """Human-readable error string when *success* is False."""
 
     cells: Optional[List[AIOptimizedCell]] = None
     """Snapshot of notebook cells after execution, if available."""
 
-    variables: Optional[List[str]] = None
-    """Variable names defined in the kernel after execution, if available."""
+    variables: Optional[List[KernelVariable]] = None
+    """Variables defined in the kernel after execution, if available."""
 
     output: Optional[str] = None
     """Captured stdout / rendered output (e.g. scratchpad print output,
@@ -49,7 +60,7 @@ class AgentContext:
     and the tool executor share the same view of the world.
     """
 
-    thread_id: str
+    thread_id: ThreadID
     """Unique conversation thread identifier."""
 
     notebook_id: str
@@ -64,14 +75,17 @@ class AgentContext:
     active_cell_id: str = ""
     """Cell the user's cursor is in."""
 
-    variables: Optional[List[str]] = None
-    """Variable names currently defined in the kernel."""
+    variables: Optional[List[KernelVariable]] = None
+    """Variables currently defined in the kernel."""
 
     files: Optional[List[str]] = None
     """File names in the working directory."""
 
     is_chrome_browser: bool = True
     """Whether the frontend is a Chrome-based browser (gates GET_CELL_OUTPUT)."""
+
+    additional_context: Optional[List[Dict[str, str]]] = None
+    """Extra structured context (e.g. selections, images) from the client."""
 
 
 @runtime_checkable
@@ -84,12 +98,16 @@ class CompletionProvider(Protocol):
 
     async def request_completions(
         self,
-        *,
-        message_type: Any,
+        message_type: MessageType,
         messages: List[ChatCompletionMessageParam],
-        response_format_info: Optional[Any] = None,
-        **kwargs: Any,
-    ) -> str: ...
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        user_input: Optional[str] = None,
+        thread_id: Optional[str] = None,
+        max_retries: int = 3,
+        use_fast_model: bool = False,
+        use_smartest_model: bool = False,
+    ) -> str:
+        ...
 
 
 @dataclass(frozen=True)

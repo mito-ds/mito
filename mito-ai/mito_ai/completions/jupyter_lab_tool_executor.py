@@ -13,12 +13,12 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from dataclasses import asdict
-from typing import Any, Callable, Dict, List, Optional
+from dataclasses import replace
+from typing import Any, Callable, List, Literal, Optional
 
 from mito_ai_core.agent.tool_executor import ToolExecutor
 from mito_ai_core.agent.types import AgentContext, ToolResult
-from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate
+from mito_ai_core.completions.models import AIOptimizedCell, AgentResponse, CellUpdate
 
 from mito_ai.completions.models import RequestToolExecutionMessage
 from mito_ai.logger import get_logger
@@ -65,12 +65,12 @@ class JupyterLabToolExecutor:
 
     def _send_request_tool_execution_message(
         self,
-        agent_response_dict: Dict[str, Any],
+        agent_response: AgentResponse,
         message: str,
     ) -> None:
         """Push a ``request_tool_execution`` message to the frontend."""
         cmd = RequestToolExecutionMessage(
-            agent_response=agent_response_dict,
+            agent_response=agent_response,
             thread_id=self._thread_id,
             message=message,
         )
@@ -84,7 +84,7 @@ class JupyterLabToolExecutor:
 
     async def _execute_via_frontend(
         self,
-        agent_response_dict: Dict[str, Any],
+        agent_response: AgentResponse,
         message: str,
     ) -> ToolResult:
         """Send a command and wait for the frontend's result."""
@@ -92,8 +92,48 @@ class JupyterLabToolExecutor:
         loop = asyncio.get_event_loop()
         self._pending_result = loop.create_future()
 
-        self._send_request_tool_execution_message(agent_response_dict, message)
-        return await self._wait_for_result()
+        self._send_request_tool_execution_message(agent_response, message)
+        result = await self._wait_for_result()
+        tool_type = agent_response.type
+        if tool_type is not None and result.tool_name is None:
+            return replace(result, tool_name=str(tool_type))
+        return result
+
+    def _build_agent_response(
+        self,
+        type: Literal[
+            "cell_update",
+            "get_cell_output",
+            "run_all_cells",
+            "finished_task",
+            "create_streamlit_app",
+            "edit_streamlit_app",
+            "ask_user_question",
+            "scratchpad",
+        ],
+        message: str,
+        *,
+        cell_update: Optional[CellUpdate] = None,
+        get_cell_output_cell_id: Optional[str] = None,
+        question: Optional[str] = None,
+        answers: Optional[List[str]] = None,
+        scratchpad_code: Optional[str] = None,
+        scratchpad_summary: Optional[str] = None,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> AgentResponse:
+        return AgentResponse(
+            type=type,
+            message=message,
+            cell_update=cell_update,
+            get_cell_output_cell_id=get_cell_output_cell_id,
+            next_steps=None,
+            analysis_assumptions=None,
+            streamlit_app_prompt=streamlit_app_prompt,
+            question=question,
+            answers=answers,
+            scratchpad_code=scratchpad_code,
+            scratchpad_summary=scratchpad_summary,
+        )
 
     # ------------------------------------------------------------------
     # Called by the WebSocket handler when a tool_result message arrives
@@ -125,11 +165,11 @@ class JupyterLabToolExecutor:
         cell_update: CellUpdate,
         message: str,
     ) -> ToolResult:
-        agent_resp = {
-            "type": "cell_update",
-            "message": message,
-            "cell_update": cell_update.model_dump(mode="json"),
-        }
+        agent_resp = self._build_agent_response(
+            type="cell_update",
+            message=message,
+            cell_update=cell_update,
+        )
         return await self._execute_via_frontend(agent_resp, message)
 
     async def run_all_cells(
@@ -137,10 +177,10 @@ class JupyterLabToolExecutor:
         ctx: AgentContext,
         message: str,
     ) -> ToolResult:
-        agent_resp = {
-            "type": "run_all_cells",
-            "message": message,
-        }
+        agent_resp = self._build_agent_response(
+            type="run_all_cells",
+            message=message,
+        )
         return await self._execute_via_frontend(agent_resp, message)
 
     async def get_cell_output(
@@ -149,11 +189,11 @@ class JupyterLabToolExecutor:
         cell_id: str,
         message: str,
     ) -> ToolResult:
-        agent_resp = {
-            "type": "get_cell_output",
-            "message": message,
-            "get_cell_output_cell_id": cell_id,
-        }
+        agent_resp = self._build_agent_response(
+            type="get_cell_output",
+            message=message,
+            get_cell_output_cell_id=cell_id,
+        )
         return await self._execute_via_frontend(agent_resp, message)
 
     async def execute_scratchpad(
@@ -163,12 +203,12 @@ class JupyterLabToolExecutor:
         summary: str,
         message: str,
     ) -> ToolResult:
-        agent_resp = {
-            "type": "scratchpad",
-            "message": message,
-            "scratchpad_code": code,
-            "scratchpad_summary": summary,
-        }
+        agent_resp = self._build_agent_response(
+            type="scratchpad",
+            message=message,
+            scratchpad_code=code,
+            scratchpad_summary=summary,
+        )
         return await self._execute_via_frontend(agent_resp, message)
 
     async def ask_user_question(
@@ -178,10 +218,36 @@ class JupyterLabToolExecutor:
         message: str,
         answers: Optional[List[str]] = None,
     ) -> ToolResult:
-        agent_resp = {
-            "type": "ask_user_question",
-            "message": message,
-            "question": question,
-            "answers": answers,
-        }
+        agent_resp = self._build_agent_response(
+            type="ask_user_question",
+            message=message,
+            question=question,
+            answers=answers,
+        )
+        return await self._execute_via_frontend(agent_resp, message)
+
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        agent_resp = self._build_agent_response(
+            type="create_streamlit_app",
+            message=message,
+            streamlit_app_prompt=streamlit_app_prompt,
+        )
+        return await self._execute_via_frontend(agent_resp, message)
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        agent_resp = self._build_agent_response(
+            type="edit_streamlit_app",
+            message=message,
+            streamlit_app_prompt=streamlit_app_prompt,
+        )
         return await self._execute_via_frontend(agent_resp, message)

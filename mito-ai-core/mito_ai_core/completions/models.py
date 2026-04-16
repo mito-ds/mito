@@ -17,11 +17,11 @@ ThreadID = NewType('ThreadID', str)
     
 class CellUpdate(BaseModel):
     type: Literal['modification', 'new']
-    # Defaults so omitted keys validate (LLMs often omit id for new cells, after_cell_id for edits).
+    # Defaults so omitted keys validate (LLMs often omit id for new cells, etc.).
     after_cell_id: Optional[str] = None
     id: Optional[str] = None
     code: str
-    code_summary: str
+    code_summary: str = "Updating cell"
     cell_type: Optional[Literal['code', 'markdown']] = None
 
 
@@ -70,7 +70,6 @@ class MessageType(Enum):
     SMART_DEBUG = "smartDebug"
     CODE_EXPLAIN = "codeExplain"
     AGENT_EXECUTION = "agent:execution"
-    AGENT_AUTO_ERROR_FIXUP = "agent:autoErrorFixup"
     INLINE_COMPLETION = "inline_completion"
     CHAT_NAME_GENERATION = "chat_name_generation"
     START_NEW_CHAT = "start_new_chat"
@@ -81,7 +80,6 @@ class MessageType(Enum):
     STREAMLIT_CONVERSION = "streamlit_conversion"
     STOP_AGENT = "stop_agent"
     DEPLOY_APP = "deploy_app"
-    AGENT_SCRATCHPAD_RESULT = "agent:scratchpad-result"
     REQUEST_TOOL_EXECUTION = "request_tool_execution"
     TOOL_RESULT = "tool_result"
 
@@ -91,7 +89,15 @@ class AIOptimizedCell():
   cell_type: str
   id: str
   code: str
-  
+
+
+@dataclass(frozen=True)
+class KernelVariable():
+    """Kernel global as reported by the Jupyter front-end (matches TS ``Variable``)."""
+    variable_name: str
+    type: str
+    value: Any = None
+
 
 @dataclass(frozen=True)
 class ChatMessageMetadata():
@@ -100,7 +106,7 @@ class ChatMessageMetadata():
     input: str
     activeCellCode: str
     activeCellId: str
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     files: Optional[List[str]] = None
     aiOptimizedCells: Optional[List[AIOptimizedCell]] = None
     base64EncodedActiveCellOutput: Optional[str] = None
@@ -119,22 +125,10 @@ class AgentExecutionMetadata():
     isChromeBrowser: bool
     notebookPath: str
     notebookID: str
-    base64EncodedActiveCellOutput: Optional[str] = None
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     files: Optional[List[str]] = None
     index: Optional[int] = None
     additionalContext: Optional[List[Dict[str, str]]] = None
-    
-@dataclass(frozen=True)
-class AgentSmartDebugMetadata():
-    promptType: Literal['agent:autoErrorFixup']
-    threadId: ThreadID
-    aiOptimizedCells: List[AIOptimizedCell]
-    errorMessage: str
-    error_message_producing_code_cell_id: str
-    isChromeBrowser: bool
-    variables: Optional[List[str]] = None
-    files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
 class SmartDebugMetadata():
@@ -143,14 +137,14 @@ class SmartDebugMetadata():
     errorMessage: str
     activeCellCode: str 
     activeCellId: str
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     files: Optional[List[str]] = None
     
 @dataclass(frozen=True)
 class CodeExplainMetadata():    
     promptType: Literal['codeExplain']
     threadId: ThreadID
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     activeCellCode: Optional[str] = None
     
 @dataclass(frozen=True)
@@ -158,16 +152,8 @@ class InlineCompleterMetadata():
     promptType: Literal['inline_completion']
     prefix: str 
     suffix: str
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
     files: Optional[List[str]] = None
-
-@dataclass(frozen=True)
-class ScratchpadResultMetadata():
-    promptType: Literal['agent:scratchpad-result']
-    threadId: ThreadID
-    scratchpadResult: str
-    index: Optional[int] = None
-    isChromeBrowser: bool = True
 
 @dataclass(frozen=True)
 class CompletionRequest:

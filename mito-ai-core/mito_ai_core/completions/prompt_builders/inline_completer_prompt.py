@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 from typing import List
+
+from mito_ai_core.completions.models import KernelVariable
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
@@ -9,8 +11,8 @@ from mito_ai_core.completions.prompt_builders.prompt_section_registry.base impor
 def create_inline_prompt(
     prefix: str,
     suffix: str,
-    variables: List[str],
-    files: List[str]
+    variables: List[KernelVariable],
+    files: List[str],
 ) -> str:
     sections: List[PromptSection] = []
     

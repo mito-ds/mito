@@ -12,12 +12,6 @@ from mito_ai_core.tests.providers.utils import mock_openai_client, patch_server_
 FAKE_API_KEY = "sk-1234567890"
 
 @pytest.fixture
-def provider_config() -> dict:
-    """Create a proper Config object for the ProviderManager."""
-    config = {}
-    return config
-
-@pytest.fixture
 def mock_messages():
     """Sample messages for testing."""
     return [{"role": "user", "content": "Test message"}]
@@ -39,11 +33,10 @@ class TestRetryLogic:
     ])
     @pytest.mark.asyncio
     async def test_success_after_retries(
-        self, 
-        attempts_before_success: int, 
-        max_retries: int, 
+        self,
+        attempts_before_success: int,
+        max_retries: int,
         expected_call_count: int,
-        provider_config: Config,
         mock_messages,
         mock_sleep,
         monkeypatch: pytest.MonkeyPatch
@@ -85,11 +78,10 @@ class TestRetryLogic:
     ])
     @pytest.mark.asyncio
     async def test_failure_after_all_retries(
-        self, 
-        exception_type, 
-        max_retries: int, 
+        self,
+        exception_type,
+        max_retries: int,
         expected_call_count: int,
-        provider_config: Config,
         mock_messages,
         mock_sleep,
         monkeypatch: pytest.MonkeyPatch
@@ -129,8 +121,7 @@ class TestRetryLogic:
 
     @pytest.mark.asyncio
     async def test_mixed_exception_types(
-        self, 
-        provider_config: Config,
+        self,
         mock_messages,
         mock_sleep,
         monkeypatch: pytest.MonkeyPatch
@@ -169,8 +160,7 @@ class TestRetryLogic:
 
     @pytest.mark.asyncio
     async def test_last_error_reset_on_success(
-        self, 
-        provider_config: Config,
+        self,
         mock_messages,
         mock_sleep,
         monkeypatch: pytest.MonkeyPatch
@@ -212,8 +202,7 @@ class TestRetryLogic:
 
     @pytest.mark.asyncio
     async def test_no_retries_when_max_retries_zero(
-        self, 
-        provider_config: Config,
+        self,
         mock_messages,
         mock_sleep,
         monkeypatch: pytest.MonkeyPatch
@@ -244,8 +233,7 @@ class TestRetryLogic:
 
     @pytest.mark.asyncio
     async def test_provider_completion_exception_details(
-        self, 
-        provider_config: Config,
+        self,
         mock_messages,
         mock_sleep,
         monkeypatch: pytest.MonkeyPatch
@@ -298,14 +286,13 @@ class TestRetryLogic:
     ])
     @pytest.mark.asyncio
     async def test_logging_functions_comprehensive(
-        self, 
+        self,
         scenario: str,
         side_effects: list,
         max_retries: int,
         expected_retry_logs: int,
         expected_error_logs: int,
         expected_success_logs: int,
-        provider_config: Config,
         mock_messages,
         mock_sleep,
         monkeypatch: pytest.MonkeyPatch,

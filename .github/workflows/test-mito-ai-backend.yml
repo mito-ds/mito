@@ -33,6 +33,7 @@ jobs:
         cache: pip
         cache-dependency-path: |
           mito-ai/setup.py
+          mito-ai-core/pyproject.toml
           tests/requirements.txt
     - name: Install Microsoft ODBC Driver
       if: runner.os == 'Linux'
@@ -47,6 +48,7 @@ jobs:
         Start-Process msiexec.exe -Wait -ArgumentList "/i msodbcsql.msi /qn IACCEPTMSODBCSQLLICENSETERMS=YES"
     - name: Install dependencies
       run: |
+        pip install -e ./mito-ai-core
         cd mito-ai
         pip install -e ".[test, deploy]"
         jlpm install --frozen-lockfile

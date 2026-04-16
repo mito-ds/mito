@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 from google.genai.types import GenerateContentConfig, Part, Content, GenerateContentResponse, ThinkingConfig
 from mito_ai_core.completions.models import CompletionError, CompletionItem, CompletionReply, CompletionStreamChunk, MessageType, ResponseFormatInfo
-from mito_ai_core.utils.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
+from mito_ai_core.clients.gemini_utils import get_gemini_completion_from_mito_server, stream_gemini_completion_from_mito_server, get_gemini_completion_function_params
 from mito_ai_core.utils.mito_server_utils import ProviderCompletionException
 
 def extract_and_parse_gemini_json_response(response: GenerateContentResponse) -> Optional[str]:

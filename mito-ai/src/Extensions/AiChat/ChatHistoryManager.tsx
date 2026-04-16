@@ -7,8 +7,8 @@ import OpenAI from "openai";
 import { IContextManager } from "../ContextManager/ContextManagerPlugin";
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCellsInNotebookPanel, getCellCodeByID, getCellCodeByIDInNotebookPanel } from "../../utils/notebook";
-import { AgentResponse, IAgentExecutionMetadata, IAgentSmartDebugMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata, IScratchpadResultMetadata } from "../../websockets/completions/CompletionModels";
+import { getActiveCellCode, getActiveCellID, getActiveCellIDInNotebookPanel, getAIOptimizedCellsInNotebookPanel, getCellCodeByID } from "../../utils/notebook";
+import { AgentResponse, IAgentExecutionMetadata, IChatMessageMetadata, ICodeExplainMetadata, ISmartDebugMetadata } from "../../websockets/completions/CompletionModels";
 import { addMarkdownCodeFormatting } from "../../utils/strings";
 import { isChromeBasedBrowser } from "../../utils/user";
 import { validateAndCorrectAgentResponse } from "./validationUtils";
@@ -19,8 +19,6 @@ export type PromptType =
     'smartDebug' | 
     'codeExplain' |  
     'agent:execution' | 
-    'agent:scratchpad-result' |
-    'agent:autoErrorFixup' |
     'inline_completion' | 
     'fetch_history' |
     'start_new_chat' |
@@ -141,13 +139,16 @@ export class ChatHistoryManager {
         return this.displayOptimizedChatHistory;
     }
 
-    addChatMessageFromHistory(message: OpenAI.Chat.ChatCompletionMessageParam): void {
+    addChatMessageFromHistory(
+        message: OpenAI.Chat.ChatCompletionMessageParam,
+        promptType: PromptType = 'chat'
+    ): void {
         this.displayOptimizedChatHistory.push(
             {
                 message: message, 
                 type: 'openai message',
                 codeCellID: undefined,
-                promptType: 'chat'
+                promptType
             }
         );
     }
@@ -235,32 +236,6 @@ export class ChatHistoryManager {
         return agentExecutionMetadata
     }
 
-    addScratchpadResultMessage(activeThreadId: string, scratchpadResult: string): IScratchpadResultMetadata {
-        const scratchpadResultMetadata: IScratchpadResultMetadata = {
-            promptType: 'agent:scratchpad-result',
-            threadId: activeThreadId,
-            scratchpadResult: scratchpadResult,
-            isChromeBrowser: isChromeBasedBrowser(),
-        }
-
-        // Add empty user message to display history (like agent execution does for empty input)
-        const userMessage: OpenAI.Chat.ChatCompletionMessageParam = {
-            role: 'user',
-            content: ''
-        }
-
-        this.displayOptimizedChatHistory.push(
-            {
-                message: userMessage,
-                type: 'openai message',
-                promptType: 'agent:scratchpad-result',
-                scratchpadResult: scratchpadResult,
-            }
-        )
-
-        return scratchpadResultMetadata
-    }
-
     addSmartDebugMessage(activeThreadId: string, errorMessage: string): ISmartDebugMetadata {
     
         const activeCellID = getActiveCellID(this.notebookTracker) || ''
@@ -287,35 +262,6 @@ export class ChatHistoryManager {
         );
 
         return smartDebugMetadata
-    }
-
-    addAgentSmartDebugMessage(activeThreadId: string, errorMessage: string, notebookPanel: NotebookPanel): IAgentSmartDebugMetadata {
-
-        const activeCellID = getActiveCellIDInNotebookPanel(notebookPanel)
-        const activeCellCode = getCellCodeByIDInNotebookPanel(notebookPanel, activeCellID)
-
-        const notebookContext = this.contextManager.getNotebookContext(notebookPanel.id);
-        const agentSmartDebugMetadata: IAgentSmartDebugMetadata = {
-            promptType: 'agent:autoErrorFixup',
-            aiOptimizedCells: getAIOptimizedCellsInNotebookPanel(notebookPanel),
-            variables: notebookContext?.variables || [],
-            files: notebookContext?.files || [],
-            errorMessage: errorMessage,
-            error_message_producing_code_cell_id: activeCellID || '',
-            threadId: activeThreadId,
-            isChromeBrowser: isChromeBasedBrowser(),
-        }
-
-        this.displayOptimizedChatHistory.push(
-            {
-                message: getDisplayedOptimizedUserMessage(errorMessage, activeCellCode), 
-                type: 'openai message',
-                codeCellID: activeCellID,
-                promptType: 'agent:autoErrorFixup'
-            }
-        );
-
-        return agentSmartDebugMetadata
     }
 
     addExplainCodeMessage(activeThreadId: string): ICodeExplainMetadata {
@@ -428,6 +374,38 @@ export class ChatHistoryManager {
                 agentResponse: this.deduplicateAssumptions(agentResponse)
             }
         );
+    }
+
+    /**
+     * Tool results belong in the conversation as user messages (same as other tool I/O)
+     */
+    addAgentToolFailureUserMessage(toolErrorDetail: string): void {
+        const userMessage: OpenAI.Chat.ChatCompletionMessageParam = {
+            role: 'user',
+            content: `${toolErrorDetail}`,
+        };
+        const activeCellID = getActiveCellID(this.notebookTracker);
+        this.displayOptimizedChatHistory.push({
+            message: userMessage,
+            type: 'openai message',
+            codeCellID: activeCellID,
+            promptType: 'tool_result',
+        });
+    }
+
+    attachScratchpadResultToLatestScratchpadMessage(scratchpadResult: string): boolean {
+        for (let i = this.displayOptimizedChatHistory.length - 1; i >= 0; i--) {
+            const item = this.displayOptimizedChatHistory[i];
+            if (item?.agentResponse?.type === 'scratchpad') {
+                this.displayOptimizedChatHistory[i] = {
+                    ...item,
+                    scratchpadResult
+                };
+                return true;
+            }
+        }
+
+        return false;
     }
 
     getLastAIMessageIndex = (): number | undefined => {

@@ -1,12 +1,19 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+"""Jupyter server extension and lab UI for Mito AI chat.
+
+Shared AI logic lives in ``mito_ai_core`` (``mito-ai-core`` on PyPI). ``pip
+install mito-ai`` installs it automatically; when developing from the repo,
+install ``mito-ai-core`` in editable mode before this package—see ``README.md``.
+"""
+
 import atexit
 from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
 from mito_ai_core.provider_manager import ProviderManager
-from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
 from mito_ai.log.urls import get_log_urls
 from mito_ai_core.utils.litellm_utils import is_litellm_configured

@@ -12,18 +12,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from mito_ai_core.provider_manager import ProviderManager
 
 @pytest.fixture
-def provider_config() -> dict:
-    """Create a proper Config object for the ProviderManager."""
-    config = {}
-    return config
-
-@pytest.fixture
 def mock_messages():
     """Sample messages for testing."""
     return [{"role": "user", "content": "Test message"}]
 
 @pytest.mark.asyncio
-async def test_request_completions_uses_fast_model_when_requested(provider_config: Config, mock_messages, monkeypatch: pytest.MonkeyPatch):
+async def test_request_completions_uses_fast_model_when_requested(mock_messages, monkeypatch: pytest.MonkeyPatch):
     """Test that request_completions uses the correct model when use_fast_model=True."""
     # Set up environment variables to ensure OpenAI provider is used
     monkeypatch.setenv("OPENAI_API_KEY", "fake-key")
@@ -59,7 +53,7 @@ async def test_request_completions_uses_fast_model_when_requested(provider_confi
             assert call_args[1]['model'] == get_fast_model_for_selected_model(provider.get_selected_model())
 
 @pytest.mark.asyncio
-async def test_stream_completions_uses_fast_model_when_requested(provider_config: Config, mock_messages, monkeypatch: pytest.MonkeyPatch):
+async def test_stream_completions_uses_fast_model_when_requested(mock_messages, monkeypatch: pytest.MonkeyPatch):
     """Test that stream_completions uses the correct model when use_fast_model=True."""
     # Set up environment variables to ensure OpenAI provider is used
     monkeypatch.setenv("OPENAI_API_KEY", "fake-key")
@@ -103,7 +97,7 @@ async def test_stream_completions_uses_fast_model_when_requested(provider_config
             assert call_args[1]['model'] == get_fast_model_for_selected_model(provider.get_selected_model())
 
 @pytest.mark.asyncio
-async def test_request_completions_uses_smartest_model_when_requested(provider_config: Config, mock_messages, monkeypatch: pytest.MonkeyPatch):
+async def test_request_completions_uses_smartest_model_when_requested(mock_messages, monkeypatch: pytest.MonkeyPatch):
     """Test that request_completions uses the correct model when use_smartest_model=True."""
     # Set up environment variables to ensure OpenAI provider is used
     monkeypatch.setenv("OPENAI_API_KEY", "fake-key")
@@ -139,7 +133,7 @@ async def test_request_completions_uses_smartest_model_when_requested(provider_c
             assert call_args[1]['model'] == get_smartest_model_for_selected_model(provider.get_selected_model())
 
 @pytest.mark.asyncio
-async def test_stream_completions_uses_smartest_model_when_requested(provider_config: Config, mock_messages, monkeypatch: pytest.MonkeyPatch):
+async def test_stream_completions_uses_smartest_model_when_requested(mock_messages, monkeypatch: pytest.MonkeyPatch):
     """Test that stream_completions uses the correct model when use_smartest_model=True."""
     # Set up environment variables to ensure OpenAI provider is used
     monkeypatch.setenv("OPENAI_API_KEY", "fake-key")

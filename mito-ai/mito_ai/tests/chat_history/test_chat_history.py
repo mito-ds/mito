@@ -6,7 +6,7 @@ import requests
 import time
 from unittest.mock import patch, MagicMock
 from mito_ai.tests.conftest import TOKEN
-from mito_ai.completions.message_history import GlobalMessageHistory, ChatThread
+from mito_ai_core.completions.message_history import GlobalMessageHistory, ChatThread
 from mito_ai.completions.models import ThreadID
 
 

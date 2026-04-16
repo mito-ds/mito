@@ -30,6 +30,10 @@ pip install -e ".[test]"
 jlpm install
 jlpm run build
 
+# Install mito-ai-core (shared AI layer) before mito-ai
+cd ../mito-ai-core
+pip install -e ".[test]"
+
 # Install mito-ai and build JS
 cd ../mito-ai
 pip install -e ".[test]"

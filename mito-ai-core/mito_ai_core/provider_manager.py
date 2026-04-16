@@ -11,9 +11,9 @@ from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai_core import constants
 from mito_ai_core.enterprise.utils import is_azure_openai_configured
-from mito_ai_core.gemini_client import GeminiClient
-from mito_ai_core.openai_client import OpenAIClient
-from mito_ai_core.anthropic_client import AnthropicClient
+from mito_ai_core.clients.gemini_client import GeminiClient
+from mito_ai_core.clients.openai_client import OpenAIClient
+from mito_ai_core.clients.anthropic_client import AnthropicClient
 from mito_ai_core.logger import get_logger
 from mito_ai_core.completions.models import (
     AICapabilities,
@@ -56,14 +56,47 @@ class ProviderManager:
 
     def __init__(self) -> None:
         self.log = get_logger()
-        self.last_error: Optional[CompletionError] = None
+        self._last_error: Optional[CompletionError] = None
+        self._last_error_observers: List[Callable[[Dict[str, Any]], None]] = []
         self._openai_client: Optional[OpenAIClient] = OpenAIClient()
         # Initialize with the first available model to ensure it's always valid
         # This respects LiteLLM configuration: if LiteLLM is configured, uses first LiteLLM model
         # Otherwise, uses first standard model
         available_models = get_available_models()
         self._selected_model: str = available_models[0] if available_models else "gpt-4.1"
-    
+
+    @property
+    def last_error(self) -> Optional[CompletionError]:
+        return self._last_error
+
+    @last_error.setter
+    def last_error(self, value: Optional[CompletionError]) -> None:
+        self._last_error = value
+        # Match traitlets-style notifications used by the Jupyter completion WebSocket handler.
+        if value is not None:
+            change: Dict[str, Any] = {"new": value}
+            for cb in list(self._last_error_observers):
+                cb(change)
+
+    def observe(self, handler: Callable[[Dict[str, Any]], None], name: str) -> None:
+        """Register *handler* to be called when *name* changes (Jupyter/traitlets API)."""
+        if name != "last_error":
+            raise ValueError(
+                f"ProviderManager.observe only supports 'last_error', got {name!r}"
+            )
+        if handler not in self._last_error_observers:
+            self._last_error_observers.append(handler)
+
+    def unobserve(self, handler: Callable[[Dict[str, Any]], None], name: str) -> None:
+        if name != "last_error":
+            raise ValueError(
+                f"ProviderManager.unobserve only supports 'last_error', got {name!r}"
+            )
+        try:
+            self._last_error_observers.remove(handler)
+        except ValueError:
+            pass
+
     def get_selected_model(self) -> str:
         """Get the currently selected model."""
         return self._selected_model
@@ -191,7 +224,7 @@ class ProviderManager:
         for attempt in range(max_retries + 1):
             try:
                 if model_type == "copilot":
-                    from mito_ai_core.copilot_client import CopilotClient
+                    from mito_ai_core.clients.copilot_client import CopilotClient
                     copilot_client = CopilotClient()
                     completion = await copilot_client.request_completions(
                         messages=messages,
@@ -357,7 +390,7 @@ class ProviderManager:
 
         try:
             if model_type == "copilot":
-                from mito_ai_core.copilot_client import CopilotClient
+                from mito_ai_core.clients.copilot_client import CopilotClient
                 copilot_client = CopilotClient()
                 accumulated_response = await copilot_client.stream_completions(
                     messages=list(messages),

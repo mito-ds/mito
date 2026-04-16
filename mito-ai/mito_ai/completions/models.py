@@ -9,14 +9,15 @@ re-exports them and adds Jupyter-only wire types (agent tool round-trip).
 
 from dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional
+from mito_ai_core.agent import ToolResult
 
 from mito_ai_core.completions.models import (
     AICapabilities,
     AgentExecutionMetadata,
     AgentResponse,
-    AgentSmartDebugMetadata,
     AIOptimizedCell,
     CellUpdate,
+    KernelVariable,
     ChatMessageMetadata,
     ChatThreadMetadata,
     CodeExplainMetadata,
@@ -34,7 +35,6 @@ from mito_ai_core.completions.models import (
     InlineCompleterMetadata,
     MessageType,
     ResponseFormatInfo,
-    ScratchpadResultMetadata,
     SmartDebugMetadata,
     StartNewChatReply,
     ThreadID,
@@ -55,8 +55,8 @@ class RequestToolExecutionMessage:
     The frontend executes the tool and sends back a ToolResultMetadata.
     """
 
-    # The serialized AgentResponse from the LLM
-    agent_response: Dict[str, Any]
+    # The AgentResponse from the LLM
+    agent_response: AgentResponse
 
     # Thread this command belongs to
     thread_id: str
@@ -84,7 +84,7 @@ class ToolResultMetadata:
     cells: Optional[List[AIOptimizedCell]] = None
 
     # Updated variables after tool execution
-    variables: Optional[List[str]] = None
+    variables: Optional[List[KernelVariable]] = None
 
     # Tool output (e.g., scratchpad stdout, cell output base64)
     output: Optional[str] = None
@@ -104,7 +104,7 @@ class AgentFinishedMessage:
     """Message sent from backend to frontend when the agent finishes."""
 
     # The final AgentResponse from the LLM
-    agent_response: Dict[str, Any]
+    agent_response: AgentResponse
 
     # Thread this message belongs to
     thread_id: str
@@ -118,12 +118,31 @@ class AgentFinishedMessage:
     type: Literal["agent_finished"] = "agent_finished"
 
 
+@dataclass
+class AssistantResponseMessage:
+    """Message sent from backend to frontend for each assistant agent step."""
+
+    agent_response: AgentResponse
+    thread_id: str
+    type: Literal["assistant_response"] = "assistant_response"
+
+
+@dataclass
+class ToolResultMessage:
+    """Message sent from backend to frontend with the ToolResult payload."""
+
+    tool_result: ToolResult
+    thread_id: str
+    type: Literal["tool_result"] = "tool_result"
+
+
 __all__ = [
+    "KernelVariable",
     "AICapabilities",
+    "AssistantResponseMessage",
     "AgentExecutionMetadata",
     "AgentFinishedMessage",
     "AgentResponse",
-    "AgentSmartDebugMetadata",
     "AIOptimizedCell",
     "CellUpdate",
     "ChatMessageMetadata",
@@ -144,10 +163,10 @@ __all__ = [
     "MessageType",
     "RequestToolExecutionMessage",
     "ResponseFormatInfo",
-    "ScratchpadResultMetadata",
     "SmartDebugMetadata",
     "StartNewChatReply",
     "ThreadID",
+    "ToolResultMessage",
     "ToolResultMetadata",
     "UpdateModelConfigMetadata",
 ]

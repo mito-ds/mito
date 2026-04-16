@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import asyncio
 import json
 import logging
 import time
@@ -8,6 +9,7 @@ import uuid
 from dataclasses import asdict
 from http import HTTPStatus
 from typing import Any, Dict, List, Optional, Union
+from pydantic import BaseModel
 import tornado
 import tornado.ioloop
 import tornado.web
@@ -15,10 +17,9 @@ from jupyter_core.utils import ensure_async
 from jupyter_server.base.handlers import JupyterHandler
 from tornado.websocket import WebSocketHandler
 from openai.types.chat import ChatCompletionMessageParam
-from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.logger import get_logger
 from mito_ai.completions.models import (
-    AgentSmartDebugMetadata,
     CompletionError,
     CompletionItem,
     CompletionReply,
@@ -34,7 +35,6 @@ from mito_ai.completions.models import (
     CodeExplainMetadata,
     AgentExecutionMetadata,
     InlineCompleterMetadata,
-    ScratchpadResultMetadata,
     ToolResultMetadata,
     MessageType,
     GithubCopilotLoginStatusMessage,
@@ -47,9 +47,6 @@ from mito_ai.completions.completion_handlers.chat_completion_handler import get_
 from mito_ai.completions.completion_handlers.smart_debug_handler import get_smart_debug_completion, stream_smart_debug_completion
 from mito_ai.completions.completion_handlers.code_explain_handler import get_code_explain_completion, stream_code_explain_completion
 from mito_ai.completions.completion_handlers.inline_completer_handler import get_inline_completion
-from mito_ai.completions.completion_handlers.agent_execution_handler import get_agent_execution_completion
-from mito_ai.completions.completion_handlers.agent_auto_error_fixup_handler import get_agent_auto_error_fixup_completion
-from mito_ai.completions.completion_handlers.scratchpad_result_handler import get_scratchpad_result_completion
 from mito_ai.completions.agent_loop import start_agent_loop
 from mito_ai.completions.jupyter_lab_tool_executor import JupyterLabToolExecutor
 from mito_ai_core.utils.telemetry_utils import identify
@@ -57,6 +54,30 @@ from mito_ai_core.utils.version_utils import is_github_copilot_helper_installed
 from mito_ai.copilot import ws_notifier as copilot_ws_notifier
 from mito_ai_core.agent import ToolResult
 from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell
+from mito_ai_core.completions.models import KernelVariable
+
+
+def _coerce_kernel_variables(raw: Any) -> Optional[List[KernelVariable]]:
+    """JSON gives list of dicts; normalize to ``KernelVariable`` instances."""
+    if raw is None:
+        return None
+    out: List[KernelVariable] = []
+    for item in raw:
+        if isinstance(item, KernelVariable):
+            out.append(item)
+        elif isinstance(item, dict):
+            out.append(
+                KernelVariable(
+                    variable_name=str(item.get("variable_name", "")),
+                    type=str(item.get("type", "")),
+                    value=item.get("value"),
+                )
+            )
+        elif isinstance(item, str):
+            out.append(KernelVariable(variable_name=item, type="", value=None))
+        else:
+            raise ValueError(f"Invalid kernel variable payload: {item!r}")
+    return out
 
 
 # This handler is responsible for the mito_ai/completions endpoint.
@@ -64,6 +85,16 @@ from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCe
 # Important: Because this is a server extension, print statements are sent to the
 # jupyter server terminal by default (ie: the terminal you ran `jupyter lab`)
 class CompletionHandler(JupyterHandler, WebSocketHandler):
+    def _to_json_safe(self, value: Any) -> Any:
+        """Recursively convert pydantic models to JSON-safe data."""
+        if isinstance(value, BaseModel):
+            return value.model_dump(mode="json")
+        if isinstance(value, dict):
+            return {k: self._to_json_safe(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [self._to_json_safe(v) for v in value]
+        return value
+
     """Completion websocket handler."""
 
     def initialize(self, llm: ProviderManager, message_history: GlobalMessageHistory) -> None:
@@ -283,7 +314,10 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
 
         # Handle tool_result messages from the frontend
         if type == MessageType.TOOL_RESULT:
-            tool_result_metadata = ToolResultMetadata(**metadata_dict)
+            md_tool = dict(metadata_dict)
+            if "variables" in md_tool:
+                md_tool["variables"] = _coerce_kernel_variables(md_tool.get("variables"))
+            tool_result_metadata = ToolResultMetadata(**md_tool)
             if self._active_tool_executor is not None:
                 cells = None
                 if tool_result_metadata.cells is not None:
@@ -294,6 +328,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     ]
                 result = ToolResult(
                     success=tool_result_metadata.success,
+                    tool_name=tool_result_metadata.toolType,
                     error_message=tool_result_metadata.errorMessage,
                     cells=cells,
                     variables=tool_result_metadata.variables,
@@ -361,15 +396,24 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                     # Regular non-streaming completion
                     completion = await get_code_explain_completion(code_explain_metadata, self._llm, self._message_history)
             elif type == MessageType.AGENT_EXECUTION:
-                agent_execution_metadata = AgentExecutionMetadata(**metadata_dict)
-                await self._start_agent_loop(agent_execution_metadata)
+                md = dict(metadata_dict)
+                # Legacy clients may still send this; cell images come from get_cell_output only.
+                md.pop("base64EncodedActiveCellOutput", None)
+                if "variables" in md:
+                    md["variables"] = _coerce_kernel_variables(md.get("variables"))
+                agent_execution_metadata = AgentExecutionMetadata(**md)
+                self.log.info(
+                    "Starting agent execution (background), thread_id=%s",
+                    agent_execution_metadata.threadId,
+                )
+                # Tornado does not process the next WebSocket message until this
+                # on_message coroutine finishes. The agent loop must receive
+                # tool_result messages from the client, so we must not await the
+                # full loop here — that would deadlock after the first tool call.
+                asyncio.create_task(
+                    self._run_agent_execution_background(agent_execution_metadata)
+                )
                 return
-            elif type == MessageType.AGENT_AUTO_ERROR_FIXUP:
-                agent_auto_error_fixup_metadata = AgentSmartDebugMetadata(**metadata_dict)
-                completion = await get_agent_auto_error_fixup_completion(agent_auto_error_fixup_metadata, self._llm, self._message_history)
-            elif type == MessageType.AGENT_SCRATCHPAD_RESULT:
-                scratchpad_result_metadata = ScratchpadResultMetadata(**metadata_dict)
-                completion = await get_scratchpad_result_completion(scratchpad_result_metadata, self._llm, self._message_history)
             elif type == MessageType.INLINE_COMPLETION:
                 inline_completer_metadata = InlineCompleterMetadata(**metadata_dict)
                 completion = await get_inline_completion(inline_completer_metadata, self._llm, self._message_history)
@@ -395,6 +439,18 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
                 parent_id=parsed_message.get('message_id')
             )
             self.reply(reply)
+
+    async def _run_agent_execution_background(
+        self, metadata: AgentExecutionMetadata
+    ) -> None:
+        """Run the agent loop; errors outside :func:`start_agent_loop`'s own try
+        (e.g. history setup) are reported on the WebSocket."""
+        try:
+            await self._start_agent_loop(metadata)
+        except Exception as e:
+            self.log.error("Agent execution failed", exc_info=True)
+            error = CompletionError.from_exception(e)
+            self._send_error({"new": error})
 
     async def _start_agent_loop(self, metadata: AgentExecutionMetadata) -> None:
         """Launch the mito-ai-core AgentRunner.
@@ -492,7 +548,7 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
             reply: The completion reply object.
                 It must be a dataclass instance.
         """
-        message = asdict(reply)
+        message = self._to_json_safe(asdict(reply))
         super().write_message(message)
 
     def _send_error(self, change: Dict[str, Any]) -> None:

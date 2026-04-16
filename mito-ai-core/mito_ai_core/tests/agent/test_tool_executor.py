@@ -10,7 +10,7 @@ from typing import List, Optional
 import pytest
 
 from mito_ai_core.agent import AgentContext, ToolExecutor, ToolResult
-from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate
+from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate, KernelVariable, ThreadID
 
 
 # ---------------------------------------------------------------------------
@@ -45,7 +45,7 @@ class FakeToolExecutor:
         return ToolResult(
             success=True,
             cells=[new_cell],
-            variables=["df"],
+            variables=[KernelVariable(variable_name="df", type="DataFrame", value=None)],
         )
 
     async def run_all_cells(
@@ -102,6 +102,32 @@ class FakeToolExecutor:
         }))
         return ToolResult(success=True, output="Use yfinance")
 
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        self.calls.append(("create_streamlit_app", {
+            "ctx": ctx,
+            "message": message,
+            "streamlit_app_prompt": streamlit_app_prompt,
+        }))
+        return ToolResult(success=True, output="Created Streamlit app preview")
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("edit_streamlit_app", {
+            "ctx": ctx,
+            "streamlit_app_prompt": streamlit_app_prompt,
+            "message": message,
+        }))
+        return ToolResult(success=True, output="Edited Streamlit app preview")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -109,14 +135,14 @@ class FakeToolExecutor:
 
 def _make_ctx() -> AgentContext:
     return AgentContext(
-        thread_id="t-1",
+        thread_id=ThreadID("t-1"),
         notebook_id="nb-1",
         notebook_path="/tmp/test.ipynb",
         cells=[
             AIOptimizedCell(cell_type="code", id="cell-1", code="import pandas as pd"),
         ],
         active_cell_id="cell-1",
-        variables=["pd"],
+        variables=[KernelVariable(variable_name="pd", type="module", value=None)],
     )
 
 
@@ -246,6 +272,7 @@ class TestToolResultDefaults:
 
     def test_minimal_success(self) -> None:
         r = ToolResult(success=True)
+        assert r.tool_name is None
         assert r.error_message is None
         assert r.cells is None
         assert r.variables is None
@@ -263,7 +290,7 @@ class TestAgentContext:
 
     def test_defaults(self) -> None:
         ctx = AgentContext(
-            thread_id="t-1",
+            thread_id=ThreadID("t-1"),
             notebook_id="nb-1",
             notebook_path="/tmp/test.ipynb",
         )

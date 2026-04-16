@@ -6,18 +6,23 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional
 
 import pytest
 
-from mito_ai_core.agent import AgentContext, AgentRunner, AgentRunResult, ToolExecutor, ToolResult
+from openai.types.chat import ChatCompletionMessageParam
+
+from mito_ai_core.agent import AgentContext, AgentRunResult, ToolExecutor, ToolResult
+from mito_ai_core.agent.agent_runner import AgentRunner
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import (
     AIOptimizedCell,
     AgentResponse,
     CellUpdate,
+    KernelVariable,
     MessageType,
+    ResponseFormatInfo,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fake ProviderManager
@@ -35,10 +40,26 @@ class FakeProviderManager:
         self._completions = list(completions)
         self._call_index = 0
         self.call_count = 0
+        self.last_messages: Optional[List[Any]] = None
+        self.messages_per_call: List[List[Any]] = []
 
-    async def request_completions(self, **kwargs: Any) -> str:
+    async def request_completions(
+        self,
+        message_type: MessageType,
+        messages: List[ChatCompletionMessageParam],
+        response_format_info: Optional[ResponseFormatInfo] = None,
+        user_input: Optional[str] = None,
+        thread_id: Optional[str] = None,
+        max_retries: int = 3,
+        use_fast_model: bool = False,
+        use_smartest_model: bool = False,
+    ) -> str:
         if self._call_index >= len(self._completions):
             raise RuntimeError("FakeProviderManager ran out of completions")
+        msgs = messages
+        # Snapshot: runner mutates the same list after each completion.
+        self.last_messages = list(msgs) if msgs is not None else []
+        self.messages_per_call.append(list(msgs) if msgs is not None else [])
         result = self._completions[self._call_index]
         self._call_index += 1
         self.call_count += 1
@@ -75,7 +96,7 @@ class FakeToolExecutor:
         return ToolResult(
             success=True,
             cells=[new_cell],
-            variables=["df"],
+            variables=[KernelVariable(variable_name="df", type="DataFrame", value=None)],
         )
 
     async def run_all_cells(
@@ -132,23 +153,53 @@ class FakeToolExecutor:
         }))
         return ToolResult(success=True, output="Use yfinance")
 
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        self.calls.append(("create_streamlit_app", {
+            "ctx": ctx,
+            "message": message,
+            "streamlit_app_prompt": streamlit_app_prompt,
+        }))
+        return ToolResult(success=True, output="Created Streamlit app preview")
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("edit_streamlit_app", {
+            "ctx": ctx,
+            "streamlit_app_prompt": streamlit_app_prompt,
+            "message": message,
+        }))
+        return ToolResult(success=True, output="Edited Streamlit app preview")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 
-def _make_ctx() -> AgentContext:
-    return AgentContext(
-        thread_id="t-1",
+def _new_history_and_ctx() -> tuple[GlobalMessageHistory, AgentContext]:
+    """Fresh history with a real thread so ``append_message`` / system prompt setup succeed."""
+    mh = GlobalMessageHistory()
+    tid = mh.create_new_thread()
+    ctx = AgentContext(
+        thread_id=tid,
         notebook_id="nb-1",
         notebook_path="/tmp/test.ipynb",
         cells=[
             AIOptimizedCell(cell_type="code", id="cell-1", code="import pandas as pd"),
         ],
         active_cell_id="cell-1",
-        variables=["pd"],
+        variables=[KernelVariable(variable_name="pd", type="module", value=None)],
     )
+    return mh, ctx
 
 
 def _agent_response_json(
@@ -205,11 +256,10 @@ class TestSingleIterationFinish:
     async def test_returns_finished(self) -> None:
         provider = FakeProviderManager([_finished_response()])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert result.iterations == 1
@@ -220,14 +270,20 @@ class TestSingleIterationFinish:
     async def test_appends_assistant_message_to_working_history(self) -> None:
         provider = FakeProviderManager([_finished_response()])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        await runner.run(ctx, messages)  # type: ignore[arg-type]
+        assistant_texts: list[AgentResponse] = []
 
-        assert len(messages) == 1
-        assert messages[0]["role"] == "assistant"
+        async def on_a(response: AgentResponse) -> None:
+            assistant_texts.append(response)
+
+        await runner.run(ctx, "", on_assistant_response=on_a)
+
+        assert provider.last_messages is not None
+        assert len(provider.last_messages) == 2
+        assert [m["role"] for m in provider.last_messages] == ["system", "user"]
+        assert len(assistant_texts) == 1
 
 
 class TestToolDispatch:
@@ -240,16 +296,44 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert result.iterations == 2
         assert len(executor.calls) == 1
         assert executor.calls[0][0] == "execute_cell_update"
+
+    @pytest.mark.asyncio
+    async def test_cell_update_missing_code_summary_uses_default_and_dispatches(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json(
+                "cell_update",
+                message="Adding code.",
+                cell_update={
+                    "type": "modification",
+                    "id": "cell-1",
+                    "after_cell_id": None,
+                    "code": "import numpy as np",
+                    "cell_type": "code",
+                },
+            ),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert result.iterations == 2
+        assert len(executor.calls) == 1
+        assert executor.calls[0][0] == "execute_cell_update"
+        cell_update = executor.calls[0][1]["cell_update"]
+        assert cell_update.code_summary == "Updating cell"
 
     @pytest.mark.asyncio
     async def test_run_all_cells_dispatched(self) -> None:
@@ -258,11 +342,10 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert executor.calls[0][0] == "run_all_cells"
@@ -278,11 +361,10 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert executor.calls[0][0] == "get_cell_output"
@@ -299,11 +381,10 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert executor.calls[0][0] == "execute_scratchpad"
@@ -320,14 +401,51 @@ class TestToolDispatch:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert executor.calls[0][0] == "ask_user_question"
+
+    @pytest.mark.asyncio
+    async def test_create_streamlit_app_dispatched(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json(
+                "create_streamlit_app",
+                message="Creating app.",
+                streamlit_app_prompt="Create an app with filters",
+            ),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert executor.calls[0][0] == "create_streamlit_app"
+
+    @pytest.mark.asyncio
+    async def test_edit_streamlit_app_dispatched(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json(
+                "edit_streamlit_app",
+                message="Editing app.",
+                streamlit_app_prompt="Add a sidebar date filter",
+            ),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert executor.calls[0][0] == "edit_streamlit_app"
 
 
 class TestContextUpdated:
@@ -340,14 +458,15 @@ class TestContextUpdated:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        await runner.run(ctx, messages)  # type: ignore[arg-type]
+        await runner.run(ctx, "")
 
-        # FakeToolExecutor.execute_cell_update returns cells=[new_cell], variables=["df"]
-        assert ctx.variables == ["df"]
+        # FakeToolExecutor.execute_cell_update returns cells=[new_cell], variables=[df]
+        assert ctx.variables is not None
+        assert len(ctx.variables) == 1
+        assert ctx.variables[0].variable_name == "df"
         assert ctx.cells is not None
         assert len(ctx.cells) == 1
 
@@ -362,22 +481,21 @@ class TestCallbacks:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        assistant_responses: list[str] = []
-        tool_results: list[dict] = []
+        assistant_responses: list[AgentResponse] = []
+        tool_results: list[ToolResult] = []
 
-        async def on_assistant(text: str) -> None:
-            assistant_responses.append(text)
+        async def on_assistant(response: AgentResponse) -> None:
+            assistant_responses.append(response)
 
-        async def on_tool(msg: dict) -> None:
-            tool_results.append(msg)
+        async def on_tool(result: ToolResult) -> None:
+            tool_results.append(result)
 
         await runner.run(
             ctx,
-            messages,  # type: ignore[arg-type]
+            "",
             on_assistant_response=on_assistant,
             on_tool_result=on_tool,
         )
@@ -386,7 +504,7 @@ class TestCallbacks:
         assert len(assistant_responses) == 2
         # 1 dispatchable tool → 1 tool result callback
         assert len(tool_results) == 1
-        assert tool_results[0]["role"] == "user"
+        assert tool_results[0].success is True
 
 
 class TestMaxIterations:
@@ -399,11 +517,10 @@ class TestMaxIterations:
             [_cell_update_response()] * 5
         )
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor, max_iterations=3)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh, max_iterations=3)  # type: ignore[arg-type]
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is False
         assert result.iterations == 3
@@ -413,7 +530,7 @@ class TestMaxIterations:
         provider = FakeProviderManager([])
         executor = FakeToolExecutor()
         with pytest.raises(ValueError, match="max_iterations must be >= 1"):
-            AgentRunner(provider, executor, max_iterations=0)  # type: ignore[arg-type]
+            AgentRunner(provider, executor, GlobalMessageHistory(), max_iterations=0)  # type: ignore[arg-type]
 
 
 class TestWorkingHistory:
@@ -426,39 +543,24 @@ class TestWorkingHistory:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        await runner.run(ctx, messages)  # type: ignore[arg-type]
+        await runner.run(ctx, "")
 
         # Iteration 1: +1 assistant, +1 tool-result
         # Iteration 2: +1 assistant (finished_task, no tool-result)
-        assert len(messages) == 3
-        assert messages[0]["role"] == "assistant"
-        assert messages[1]["role"] == "user"
-        assert messages[2]["role"] == "assistant"
-
-
-class TestNonDispatchableStopsLoop:
-    """Non-dispatchable types (e.g. create_streamlit_app) stop the loop."""
-
-    @pytest.mark.asyncio
-    async def test_streamlit_stops(self) -> None:
-        provider = FakeProviderManager([
-            _agent_response_json("create_streamlit_app", message="Creating app."),
-        ])
-        executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
-
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
-
-        assert result.finished is False
-        assert result.final_response.type == "create_streamlit_app"
-        assert result.iterations == 1
-        assert len(executor.calls) == 0
+        # Working history includes the agent system prompt plus the user turn.
+        assert len(provider.messages_per_call) == 2
+        assert len(provider.messages_per_call[0]) == 2
+        assert [m["role"] for m in provider.messages_per_call[0]] == ["system", "user"]
+        assert len(provider.messages_per_call[1]) == 4
+        assert [m["role"] for m in provider.messages_per_call[1]] == [
+            "system",
+            "user",
+            "assistant",
+            "user",
+        ]
 
 
 class TestNullPayloadHandling:
@@ -471,18 +573,36 @@ class TestNullPayloadHandling:
             _finished_response(),
         ])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         # The null payload should produce a failed ToolResult, not crash
         assert result.finished is True
         assert result.iterations == 2
         # The tool result message should mention the failure
-        tool_msg_content = messages[1]["content"]
-        assert "failed" in tool_msg_content.lower()
+        assert provider.messages_per_call[1][3]["role"] == "user"
+        tool_msg_content = provider.messages_per_call[1][3]["content"]
+        assert "failed" in str(tool_msg_content).lower()
+
+    @pytest.mark.asyncio
+    async def test_null_edit_streamlit_app_prompt(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json("edit_streamlit_app", message="oops", streamlit_app_prompt=None),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert result.iterations == 2
+        assert provider.messages_per_call[1][3]["role"] == "user"
+        tool_msg_content = provider.messages_per_call[1][3]["content"]
+        assert "failed" in str(tool_msg_content).lower()
 
 
 class TestOptionalFieldsFilledByParser:
@@ -494,11 +614,50 @@ class TestOptionalFieldsFilledByParser:
         minimal = json.dumps({"type": "finished_task", "message": "Done."})
         provider = FakeProviderManager([minimal])
         executor = FakeToolExecutor()
-        runner = AgentRunner(provider, executor)  # type: ignore[arg-type]
-        ctx = _make_ctx()
-        messages: List[Dict[str, Any]] = []
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
 
-        result = await runner.run(ctx, messages)  # type: ignore[arg-type]
+        result = await runner.run(ctx, "")
 
         assert result.finished is True
         assert result.final_response.message == "Done."
+
+
+class TestMalformedPayloadRecovery:
+    """Runner converts malformed payloads to recoverable tool errors."""
+
+    @pytest.mark.asyncio
+    async def test_malformed_response_does_not_crash_loop(self) -> None:
+        malformed_cell_update = json.dumps(
+            {
+                "type": "cell_update",
+                "message": "update cell",
+                "cell_update": {
+                    "type": "modification",
+                    "id": "cell-1",
+                    "cell_type": "code",
+                    # Intentionally omit required code to trigger validation error.
+                },
+            }
+        )
+        provider = FakeProviderManager([malformed_cell_update, _finished_response()])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        tool_results: list[ToolResult] = []
+
+        async def on_tool(result: ToolResult) -> None:
+            tool_results.append(result)
+
+        result = await runner.run(ctx, "", on_tool_result=on_tool)
+
+        assert result.finished is True
+        assert result.iterations == 2
+        assert provider.call_count == 2
+        assert len(executor.calls) == 0
+        assert len(tool_results) == 1
+        assert tool_results[0].success is False
+        assert tool_results[0].tool_name == "agent_response_validation"
+        assert tool_results[0].error_message is not None
+        assert "malformed response payload" in tool_results[0].error_message

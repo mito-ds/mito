@@ -27,9 +27,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: pip
-        cache-dependency-path: mito-ai/pyproject.toml
+        cache-dependency-path: |
+          mito-ai/pyproject.toml
+          mito-ai-core/pyproject.toml
     - name: Install dependencies
       run: |
+        pip install -e ./mito-ai-core
         cd mito-ai
         pip install -e ".[test]"
     - name: Check types with MyPY

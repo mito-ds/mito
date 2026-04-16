@@ -16,10 +16,7 @@ import {
     writeCodeToCellByIDInNotebookPanel, 
     scrollToCell, 
 } from "./notebook"
-import { ChatHistoryManager } from "../Extensions/AiChat/ChatHistoryManager"
-import { MutableRefObject } from "react"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
-import { LoadingStatus } from "../Extensions/AiChat/hooks/useChatState"
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
@@ -76,115 +73,6 @@ export const acceptAndRunCellUpdate = async (
     // has updated the state of the variables. This ensures that on the next Ai message
     // gets the most up to date data.
     await sleep(1000)
-}
-
-
-export const retryIfExecutionError = async (
-    notebookPanel: NotebookPanel,
-    app: JupyterFrontEnd,
-    sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>,
-    shouldContinueAgentExecution: MutableRefObject<boolean>,
-    markAgentForStopping: () => Promise<void>,
-    chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>,
-    setLoadingStatus: (status: LoadingStatus) => void
-): Promise<'success' | 'failure' | 'interupted'> => {
-
-    let cell = notebookPanel.content.activeCell as CodeCell;
-
-    // Note: If you update the max retries, update the message we display on each failure
-    // attempt to ensure we don't say "third attempt" over and over again.
-    const MAX_RETRIES = 3;
-    let attempts = 0;
-    let runAllCellsAttempts = 0;
-    const MAX_RUN_ALL_CELLS_ATTEMPTS = 2; // Only allow two run_all_cells attempt per error cycle
-
-    while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
-
-        if (!shouldContinueAgentExecution.current) {
-            await markAgentForStopping()
-            return 'interupted';
-        }
-
-        // If the code cell has an error, we need to send the error to the AI
-        // and get it to fix the error.
-        const errorOutput = cell?.model.outputs?.toJSON().find(output => output.output_type === "error");
-        if (!errorOutput) {
-            return 'success'; // If no error output, we're done
-        }
-        const errorMessage = getFullErrorMessageFromTraceback(errorOutput.traceback as string[]);
-
-        await sendAgentSmartDebugMessage(errorMessage)
-        const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
-
-        // Handle different response types from the agent when fixing errors
-        const agentResponse = aiDisplayOptimizedChatItem?.agentResponse;
-        
-        if (!agentResponse) {
-            return 'failure'
-        }
-
-        if (agentResponse.type === 'cell_update') {
-            const cellUpdate = agentResponse.cell_update
-
-            if (cellUpdate !== undefined && cellUpdate !== null) {
-                setLoadingStatus('running-code');
-                try {
-                    await acceptAndRunCellUpdate(
-                        cellUpdate,
-                        notebookPanel
-                    )
-                } finally {
-                    setLoadingStatus(undefined);
-                }
-            }
-
-            // After applying the fix, refresh the cell reference.
-            // If the cell type changed (e.g., code -> markdown), the error is resolved.
-            const currentActiveCell = notebookPanel.content.activeCell;
-            if (!currentActiveCell || currentActiveCell.model.type !== 'code') {
-                return 'success';
-            }
-            cell = currentActiveCell as CodeCell;
-        } else if (agentResponse.type === 'run_all_cells') {
-            // Prevent infinite loops by limiting run_all_cells attempts
-            if (runAllCellsAttempts >= MAX_RUN_ALL_CELLS_ATTEMPTS) {
-                console.log('Maximum run_all_cells attempts reached, treating as failure');
-                return 'failure';
-            }
-
-            runAllCellsAttempts++;
-            // Execute runAllCells to fix NameError issues
-            setLoadingStatus('running-code');
-            let result;
-            try {
-                result = await runAllCells(app, notebookPanel);
-            } finally {
-                setLoadingStatus(undefined);
-            }
-            if (!result.success) {
-                // If run_all_cells resulted in an error, we should continue with error handling
-                // The error will be caught in the main loop
-                console.log('Error after running all cells:', result.errorMessage);
-            }
-        } else if (agentResponse.type === 'ask_user_question' || agentResponse.type === 'finished_task') {
-            // When the agent asks a question during error retry, we should stop the agent execution
-            // and wait for the user's response, just like in the main execution loop
-            await markAgentForStopping();
-            return 'interupted'
-        } else {
-            // Agent responded with an unexpected type for error fixing
-            return 'failure'
-        }
-
-        attempts++;
-
-        // If this was the last attempt and it still failed
-        if (attempts === MAX_RETRIES && didCellExecutionError(cell)) {
-            return 'failure'
-        }
-    }
-
-    return 'success'
 }
 
 export const runAllCells = async (

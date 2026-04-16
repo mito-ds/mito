@@ -18,6 +18,27 @@ from mito_ai_core.constants import MITO_OPENAI_URL
 __user_email: Optional[str] = None
 __user_id: Optional[str] = None
 
+
+def _openai_strict_schema_fill_required(node: Any) -> None:
+    """Ensure every object lists all ``properties`` keys under ``required``.
+
+    OpenAI ``response_format`` with ``json_schema.strict: true`` rejects schemas
+    where ``required`` omits any key from ``properties`` (error: *Missing '…'*).
+    Pydantic's JSON schema only marks non-defaulted fields as required, so we
+    patch the tree after generation.
+    """
+    if isinstance(node, dict):
+        if node.get("type") == "object" and isinstance(node.get("properties"), dict):
+            props = node["properties"]
+            if props:
+                node["required"] = sorted(props.keys())
+        for child in node.values():
+            _openai_strict_schema_fill_required(child)
+    elif isinstance(node, list):
+        for item in node:
+            _openai_strict_schema_fill_required(item)
+
+
 def _prepare_request_data_and_headers(
     last_message_content: Union[str, None],
     ai_completion_data: Dict[str, Any],
@@ -173,17 +194,19 @@ def get_open_ai_completion_function_params(
             }
         else:
             # For OpenAI and other providers, use the full JSON schema format
-            json_schema = response_format_info.format.schema()
-            
+            json_schema = response_format_info.format.model_json_schema()
+
+            _openai_strict_schema_fill_required(json_schema)
+
             # Add additionalProperties: False to the top-level schema
             json_schema["additionalProperties"] = False
-            
+
             # Nested object definitions in $defs need to have additionalProperties set to False also
             if "$defs" in json_schema:
                 for def_name, def_schema in json_schema["$defs"].items():
                     if def_schema.get("type") == "object":
                         def_schema["additionalProperties"] = False
-            
+
             completion_function_params["response_format"] = {
                 "type": "json_schema",
                 "json_schema": {

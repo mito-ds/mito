@@ -68,10 +68,8 @@ type CompletionRequestMetadata =
   IFetchHistoryMetadata |
   IStartNewChatMetadata |
   IGetThreadsMetadata |
-  IScratchpadResultMetadata |
   IDeleteThreadMetadata |
   IAgentExecutionMetadata | 
-  IAgentSmartDebugMetadata |
   IUpdateModelConfigMetadata |
   IStopAgentMetadata |
   IToolResultMetadata
@@ -96,7 +94,6 @@ export interface IAgentExecutionMetadata {
   activeCellId: string;
   notebookPath: string;
   notebookID: string;
-  base64EncodedActiveCellOutput?: string;
   variables?: Variable[];
   files?: File[];
   input: string;
@@ -105,26 +102,6 @@ export interface IAgentExecutionMetadata {
   isChromeBrowser: boolean;
   additionalContext?: Array<{type: string, value: string}>;
 }
-
-export interface IScratchpadResultMetadata {
-  promptType: 'agent:scratchpad-result'
-  threadId: string;
-  scratchpadResult: string;
-  index?: number;
-  isChromeBrowser?: boolean;
-}
-
-export interface IAgentSmartDebugMetadata {
-  promptType: 'agent:autoErrorFixup'
-  aiOptimizedCells: AIOptimizedCell[]
-  variables?: Variable[];
-  files?: File[];
-  errorMessage: string;
-  error_message_producing_code_cell_id: string
-  threadId: string;
-  isChromeBrowser: boolean;
-}
-
 
 export interface ISmartDebugMetadata {
   promptType: 'smartDebug'
@@ -224,11 +201,6 @@ export interface ISmartDebugCompletionRequest extends ICompletionRequest {
   metadata: ISmartDebugMetadata
 }
 
-export interface IAgentAutoErrorFixupCompletionRequest extends ICompletionRequest {
-  type: 'agent:autoErrorFixup'
-  metadata: IAgentSmartDebugMetadata
-}
-
 export interface ICodeExplainCompletionRequest extends ICompletionRequest {
   type: 'codeExplain'
   metadata: ICodeExplainMetadata
@@ -237,11 +209,6 @@ export interface ICodeExplainCompletionRequest extends ICompletionRequest {
 export interface IAgentExecutionCompletionRequest extends ICompletionRequest {
   type: 'agent:execution'
   metadata: IAgentExecutionMetadata
-}
-
-export interface IAgentScratchpadResultCompletionRequest extends ICompletionRequest {
-  type: 'agent:scratchpad-result'
-  metadata: IScratchpadResultMetadata
 }
 
 export interface IInlineCompleterCompletionRequest extends ICompletionRequest {
@@ -534,6 +501,28 @@ export interface IAgentFinishedMessage {
   iterations: number;
 }
 
+export interface IAssistantResponseMessage {
+  type: 'assistant_response';
+  agent_response: AgentResponse;
+  thread_id: string;
+}
+
+export interface IAgentToolResult {
+  success: boolean;
+  tool_name?: string | null;
+  error_message?: string | null;
+  cells?: AIOptimizedCell[] | null;
+  variables?: Variable[] | null;
+  output?: string | null;
+  extra?: Record<string, unknown>;
+}
+
+export interface IToolResultMessage {
+  type: 'tool_result';
+  tool_result: IAgentToolResult;
+  thread_id: string;
+}
+
 /**
  * Request sent from the frontend to the backend with tool execution results.
  */
@@ -548,7 +537,7 @@ export interface IToolResultMetadata {
   success: boolean;
   errorMessage?: string | null;
   cells?: AIOptimizedCell[] | null;
-  variables?: string[] | null;
+  variables?: Variable[] | null;
   output?: string | null;
   toolType?: string | null;
   activeCellId?: string | null;
@@ -566,4 +555,6 @@ export type CompleterMessage =
   | IFetchThreadsReply
   | IDeleteThreadReply
   | IRequestToolExecutionMessage
-  | IAgentFinishedMessage;
+  | IAgentFinishedMessage
+  | IAssistantResponseMessage
+  | IToolResultMessage;
