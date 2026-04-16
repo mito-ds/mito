@@ -14,6 +14,7 @@ from openai.types.chat import ChatCompletionMessageParam
 
 from mito_ai_core.agent import AgentContext, AgentRunResult, ToolExecutor, ToolResult
 from mito_ai_core.agent.agent_runner import AgentRunner
+from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
 from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai_core.completions.models import (
     AIOptimizedCell,
@@ -368,6 +369,30 @@ class TestToolDispatch:
 
         assert result.finished is True
         assert executor.calls[0][0] == "get_cell_output"
+
+    @pytest.mark.asyncio
+    async def test_get_cell_output_not_dispatched_when_disabled(self) -> None:
+        provider = FakeProviderManager([
+            _agent_response_json(
+                "get_cell_output",
+                message="Checking chart.",
+                get_cell_output_cell_id="cell-1",
+            ),
+            _finished_response(),
+        ])
+        executor = FakeToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(
+            provider,
+            executor,
+            mh,
+            config=AgentRunnerConfig(enable_get_cell_output=False),
+        )  # type: ignore[arg-type]
+
+        result = await runner.run(ctx, "")
+
+        assert result.finished is True
+        assert executor.calls == []
 
     @pytest.mark.asyncio
     async def test_scratchpad_dispatched(self) -> None:

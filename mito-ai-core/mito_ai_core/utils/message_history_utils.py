@@ -15,7 +15,7 @@ async def append_agent_system_message(
     message_history: GlobalMessageHistory,
     provider: CompletionProvider,
     thread_id: ThreadID,
-    is_chrome_browser: bool,
+    enable_get_cell_output: bool,
 ) -> None:
 
     # If the system message already exists, do nothing
@@ -25,8 +25,7 @@ async def append_agent_system_message(
     ):
         return
 
-    include_cell_output_tool = is_chrome_browser
-    system_message_prompt = create_agent_system_message_prompt(include_cell_output_tool)
+    system_message_prompt = create_agent_system_message_prompt(enable_get_cell_output)
 
     system_message: ChatCompletionMessageParam = {
         "role": "system",

@@ -16,6 +16,18 @@ def format_tool_result(response_type: str, result: ToolResult) -> str:
     
     if result.success:
         lines.append(f"Tool '{tool_label}' succeeded.")
+        # --- get_cell_output: technical debt (see also ToolResult, ai_optimized_message) ---
+        # Jupyter path: output is base64 PNG; the LLM sees it as an image via
+        # create_ai_optimized_tool_result_message, so we skip duplicating output in
+        # the text block below (line with response_type != "get_cell_output").
+        # CLI / headless path: only plain text exists. Putting that in *output*
+        # would still route through the image URL branch (wrong MIME / not a PNG).
+        # Executors therefore set output=None and carry plain text in *error_message*
+        # even when success=True — overloading a field meant for failures.
+        # Cleanup: dedicated fields (e.g. output_plain_text vs output_image_base64)
+        # or a typed payload per tool, and branch multimodal vs text in one place.
+        if result.tool_name == "get_cell_output" and result.error_message:
+            lines.append(result.error_message)
     else:
         lines.append(
             f"Tool '{tool_label}' failed: "

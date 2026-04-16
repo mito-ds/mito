@@ -28,6 +28,7 @@ from mito_ai.logger import get_logger
 from mito_ai_core.provider_manager import ProviderManager
 from mito_ai_core.agent import AgentContext, AgentRunResult, ToolResult
 from mito_ai_core.agent.agent_runner import AgentRunner
+from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
 from mito_ai_core.completions.models import AgentResponse, MessageType, ResponseFormatInfo
 from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell
 
@@ -131,6 +132,9 @@ async def start_agent_loop(
         provider=provider_adapter,
         tool_executor=tool_executor,
         message_history=message_history,
+        config=AgentRunnerConfig(
+            enable_get_cell_output=metadata.isChromeBrowser,
+        ),
     )
 
     ctx = AgentContext(

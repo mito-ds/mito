@@ -36,7 +36,12 @@ class ToolResult:
     """Which tool was run (e.g. ``cell_update``, ``scratchpad``), when known."""
 
     error_message: Optional[str] = None
-    """Human-readable error string when *success* is False."""
+    """Human-readable error string when *success* is False.
+
+    Exception: ``get_cell_output`` from headless executors may set this to plain
+    text when *success* is True (see ``format_tool_result``) because *output*
+    is reserved for base64 PNG in the Jupyter UI path — a known model mismatch.
+    """
 
     cells: Optional[List[AIOptimizedCell]] = None
     """Snapshot of notebook cells after execution, if available."""
@@ -82,7 +87,11 @@ class AgentContext:
     """File names in the working directory."""
 
     is_chrome_browser: bool = True
-    """Whether the frontend is a Chrome-based browser (gates GET_CELL_OUTPUT)."""
+    """Whether the client reports a Chrome-based browser (mirrors frontend metadata).
+
+    Use the same value for ``AgentRunnerConfig.enable_get_cell_output`` when
+    constructing :class:`~mito_ai_core.agent.agent_runner.AgentRunner`.
+    """
 
     additional_context: Optional[List[Dict[str, str]]] = None
     """Extra structured context (e.g. selections, images) from the client."""

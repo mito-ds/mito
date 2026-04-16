@@ -61,8 +61,8 @@ async def get_response_from_mito_server(
             body=json.dumps(data),
             request_timeout=http_client_timeout
         )
-        print(f"Mito server request completed in {time.time() - start_time:.2f} seconds")
-        
+        # Timing is left to callers (e.g. CLI) so it can be shown as subtext next to agent steps.
+
         # Parse and validate response
         try:
             content = json.loads(res.body.decode("utf-8"))

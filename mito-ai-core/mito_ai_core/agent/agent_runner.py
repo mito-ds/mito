@@ -23,13 +23,19 @@ from mito_ai_core.agent.types import AgentContext, AgentRunResult, CompletionPro
 from mito_ai_core.agent.utils import normalize_agent_response, parse_agent_response
 from mito_ai_core.completions.ai_optimized_message import create_ai_optimized_message, create_ai_optimized_tool_result_message
 from mito_ai_core.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.models import (
+    AgentResponse,
+    MessageType,
+    ResponseFormatInfo,
+)
+from mito_ai_core.agent.agent_runner_config import AgentRunnerConfig
 from mito_ai_core.completions.models import AgentResponse, MessageType, ResponseFormatInfo
 from mito_ai_core.utils.message_history_utils import append_agent_system_message
 from mito_ai_core.completions.prompt_builders.agent_execution_prompt import create_agent_execution_prompt
 from mito_ai_core.agent.utils import create_display_optimized_tool_result_message
 from mito_ai_core.logger import get_logger
 
-__all__ = ["AgentRunner"]
+__all__ = ["AgentRunner", "AgentRunnerConfig"]
 
 DEFAULT_MAX_ITERATIONS = 50
 
@@ -62,6 +68,8 @@ class AgentRunner:
         tool_executor: ToolExecutor,
         message_history: GlobalMessageHistory,
         max_iterations: int = DEFAULT_MAX_ITERATIONS,
+        *,
+        config: Optional[AgentRunnerConfig] = None,
     ) -> None:
         if max_iterations < 1:
             raise ValueError("max_iterations must be >= 1")
@@ -69,6 +77,7 @@ class AgentRunner:
         self._tool_executor = tool_executor
         self._message_history = message_history
         self._max_iterations = max_iterations
+        self._config = config or AgentRunnerConfig()
 
     # ------------------------------------------------------------------
     # Public API
@@ -109,7 +118,7 @@ class AgentRunner:
             self._message_history,
             self._provider,
             ctx.thread_id,
-            ctx.is_chrome_browser,
+            self._config.enable_get_cell_output,
         )
 
         prompt = create_agent_execution_prompt(ctx, user_input)
@@ -248,6 +257,14 @@ class AgentRunner:
             )
 
         if rtype == "get_cell_output":
+            if not self._config.enable_get_cell_output:
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message=(
+                        "get_cell_output is not available in this environment."
+                    ),
+                )
             if response.get_cell_output_cell_id is None:
                 return ToolResult(
                     success=False,
