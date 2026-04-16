@@ -4,7 +4,7 @@
  */
 
 import { NotebookPanel } from '@jupyterlab/notebook';
-import { scrollToNextCellWithDiff, writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
+import { scrollToNextCellWithDiff, writeCodeToCellByIDInNotebookPanel, deleteCellByIDInNotebookPanel } from '../../utils/notebook';
 import { turnOffDiffsForCell } from '../../utils/codeDiff';
 import { runCellByIDInBackground } from '../../utils/notebook';
 import { AgentReviewStatus, ChangedCell } from './ChatTaskpane';
@@ -55,14 +55,23 @@ export const rejectSingleCellEdit = (
     const changedCell = changedCells.find(cell => cell.cellId === cellId);
     if (!changedCell) return;
 
-    // Mark as reviewed and restore original code
+    // Mark as reviewed
     changedCell.reviewed = true;
-    writeCodeToCellByIDInNotebookPanel(notebookPanel, changedCell.originalCode, cellId)
+
+    // Turn off diffs for this cell before any modifications
     turnOffDiffsForCell(notebookPanel, cellId, codeDiffStripesCompartments.current);
 
-    // Re-run the rejected cell in background. We want to make sure that the agent has the 
-    // most up-to-date version of every variable. 
-    void runCellByIDInBackground(notebookPanel, cellId);
+    if (changedCell.isNewCell) {
+        // Cell was created by the agent — delete it entirely instead of leaving it empty
+        deleteCellByIDInNotebookPanel(notebookPanel, cellId);
+    } else {
+        // Cell existed before — restore original code
+        writeCodeToCellByIDInNotebookPanel(notebookPanel, changedCell.originalCode, cellId);
+
+        // Re-run the rejected cell in background. We want to make sure that the agent has the 
+        // most up-to-date version of every variable.
+        void runCellByIDInBackground(notebookPanel, cellId);
+    }
 
     // Scroll to the next cell with a diff if in agent mode
     scrollToNextCellWithDiff(
@@ -118,13 +127,22 @@ export const rejectAllCellEdits = (
 
     // Reject all cells that have diffs
     unreviewedCells.forEach(changedCell => {
-        // Mark as reviewed and restore original code
+        // Mark as reviewed
         changedCell.reviewed = true;
-        writeCodeToCellByIDInNotebookPanel(notebookPanel, changedCell.originalCode, changedCell.cellId);
+
+        // Turn off diffs for this cell before any modifications
         turnOffDiffsForCell(notebookPanel, changedCell.cellId, codeDiffStripesCompartments.current);
 
-        // Re-run the rejected cell in background. We want to make sure that the agent has the 
-        // most up-to-date version of every variable.
-        void runCellByIDInBackground(notebookPanel, changedCell.cellId);
+        if (changedCell.isNewCell) {
+            // Cell was created by the agent — delete it entirely instead of leaving it empty
+            deleteCellByIDInNotebookPanel(notebookPanel, changedCell.cellId);
+        } else {
+            // Cell existed before — restore original code
+            writeCodeToCellByIDInNotebookPanel(notebookPanel, changedCell.originalCode, changedCell.cellId);
+
+            // Re-run the rejected cell in background. We want to make sure that the agent has the 
+            // most up-to-date version of every variable.
+            void runCellByIDInBackground(notebookPanel, changedCell.cellId);
+        }
     });
 };
