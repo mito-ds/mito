@@ -343,7 +343,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     // Load plotly, so we can generate graphs
     useEffect(() => {
-        loadPlotly()
+        void loadPlotly().catch(() => {
+            // Ignore preload failures: graph payloads can include Plotly inline.
+        });
     }, [])
 
     /**

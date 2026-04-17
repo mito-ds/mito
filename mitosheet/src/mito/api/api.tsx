@@ -341,7 +341,7 @@ export class MitoAPI {
                 'column_id': column_id,
                 'height': height,
                 'width': width,
-                'include_plotlyjs': (window as any).Plotly === undefined,
+                'include_plotlyjs': (window as any).Plotly === undefined
             },
         })
     }
