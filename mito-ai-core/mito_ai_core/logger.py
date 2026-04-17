@@ -18,3 +18,4 @@ def get_logger() -> logging.Logger:
     if _LOGGER is None:
         _LOGGER = logging.getLogger("mito_ai_core")
 
+    return _LOGGER

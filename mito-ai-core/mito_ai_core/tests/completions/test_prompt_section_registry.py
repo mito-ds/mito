@@ -61,6 +61,14 @@ def test_files_section_normalizes_file_entries_to_json() -> None:
     ]
 
 
+@pytest.mark.parametrize("files", [None, []])
+def test_files_section_is_excluded_when_empty(files) -> None:
+    section = SectionRegistry.Files(files)
+
+    assert section.content == "[]"
+    assert str(section) == ""
+
+
 def test_variables_section_normalizes_kernel_variables() -> None:
     variables = [
         KernelVariable(variable_name="df", type="pd.DataFrame", value={"rows": 10}),
@@ -75,6 +83,14 @@ def test_variables_section_normalizes_kernel_variables() -> None:
         {"name": "threshold", "type": "int", "value": 5},
         {"name": "series", "type": "pd.Series", "value": [1, 2, 3]},
     ]
+
+
+@pytest.mark.parametrize("variables", [None, []])
+def test_variables_section_empty_representation_is_empty_list_json(variables) -> None:
+    section = SectionRegistry.Variables(variables)
+
+    assert section.content == "[]"
+    assert str(section) != ""
 
 
 def test_notebook_section_normalizes_cells_with_required_fields() -> None:
