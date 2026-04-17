@@ -53,7 +53,7 @@ from mito_ai_core.utils.telemetry_utils import identify
 from mito_ai_core.utils.version_utils import is_github_copilot_helper_installed
 from mito_ai.copilot import ws_notifier as copilot_ws_notifier
 from mito_ai_core.agent import ToolResult
-from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell
+from mito_ai_core.completions.models import AIOptimizedCell as CoreAIOptimizedCell, ThreadID
 from mito_ai.completions.metadata_validation_utils import validate_metadata_types
 
 
@@ -204,8 +204,8 @@ class CompletionHandler(JupyterHandler, WebSocketHandler):
         if type == MessageType.FETCH_HISTORY:
             
             # If a thread_id is provided, use that thread's history; otherwise, use newest.
-            thread_id = metadata_dict.get('thread_id')
-            display_history = self._message_history.get_display_history(thread_id)
+            thread_id_for_history = ThreadID(str(metadata_dict.get('thread_id', '')))
+            display_history = self._message_history.get_display_history(thread_id_for_history)
             
             reply = FetchHistoryReply(
                 parent_id=parsed_message.get('message_id'),
