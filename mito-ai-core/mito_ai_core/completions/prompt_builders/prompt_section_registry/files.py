@@ -1,6 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+import json
 from typing import List, Optional
 from .base import PromptSection
 
@@ -12,6 +13,10 @@ class FilesSection(PromptSection):
     
     def __init__(self, files: Optional[List[str]]):
         self.files = files
-        self.content = '\n'.join([f"file_name: {file}" for file in files or []])
+        self.content = json.dumps(self._normalize_files(files), indent=2)
         self.name = "Files"
+
+    @staticmethod
+    def _normalize_files(files: Optional[List[str]]) -> List[dict[str, str]]:
+        return [{"path": path} for path in files or []]
 

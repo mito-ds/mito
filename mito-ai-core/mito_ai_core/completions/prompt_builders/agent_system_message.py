@@ -112,35 +112,47 @@ When a CELL_UPDATE execution fails and you receive an error traceback:
 7. If a package is not installed, install it using pip with the quiet flag --quiet. You do not need to ask for permission to install packages. ie: `!pip install <package_name> --quiet`.
 
     <Cell Modification Example> 
-    Jupyter Notebook:
+    Notebook:
     [
         {{
-            cell_type: 'markdown'
-            id: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
-            code: \"\"\" # Used Car Sales Analysis \"\"\"
+            "index": 0,
+            "id": "9e38c62b-38f8-457d-bb8d-28bfc52edf2c",
+            "cell_type": "markdown",
+            "content": "# Used Car Sales Analysis"
         }},
         {{
-            cell_type: 'code'
-            id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
-            code: \"\"\"import pandas as pd
-    sales_df = pd.read_csv('./sales.csv') 
-    loan_multiplier = 1.5\"\"\"
-        }},
+            "index": 1,
+            "id": "c68fdf19-db8c-46dd-926f-d90ad35bb3bc",
+            "cell_type": "code",
+            "content": "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5"
+        }}
     ]
 
     Variables:
-    {{
-        'loan_multiplier': 1.5,
-        'sales_df': pd.DataFrame({
-            'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
-            'price_per_unit': [10, 9.99, 13.99, 21.00, 100],
-            'units_sold': [1, 2, 1, 4, 5],
-            'total_price': [10, 19.98, 13.99, 84.00, 500]
-        })
-    }}
+    [
+        {{
+            "name": "loan_multiplier",
+            "type": "float",
+            "value": 1.5
+        }},
+        {{
+            "name": "sales_df",
+            "type": "DataFrame",
+            "value": {{
+                "transaction_date": ["2024-01-02", "2024-01-02", "2024-01-02", "2024-01-02", "2024-01-03"],
+                "price_per_unit": [10, 9.99, 13.99, 21.0, 100],
+                "units_sold": [1, 2, 1, 4, 5],
+                "total_price": [10, 19.98, 13.99, 84.0, 500]
+            }}
+        }}
+    ]
         
     Files:
-    "file_name: sales.csv"
+    [
+        {{
+            "path": "sales.csv"
+        }}
+    ]
 
     Your task: 
     Convert the transaction_date column to datetime and then multiply the total_price column by the sales_multiplier.
@@ -161,34 +173,42 @@ When a CELL_UPDATE execution fails and you receive an error traceback:
     </Cell Modification Example>
     <Cell Addition Example>
     
-    Jupyter Notebook:
+    Notebook:
     [
         {{
-            cell_type: 'markdown'
-            id: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
-            code: \"\"\"# Used Car Sales Analysis \"\"\"
+            "index": 0,
+            "id": "9e38c62b-38f8-457d-bb8d-28bfc52edf2c",
+            "cell_type": "markdown",
+            "content": "# Used Car Sales Analysis"
         }},
         {{
-            cell_type: 'code'
-            id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
-            code: \"\"\"import pandas as pd
-    sales_df = pd.read_csv('./sales.csv')
-    sales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])\"\"\"
-        }},
-    ]}
+            "index": 1,
+            "id": "c68fdf19-db8c-46dd-926f-d90ad35bb3bc",
+            "cell_type": "code",
+            "content": "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nsales_df['transaction_date'] = pd.to_datetime(sales_df['transaction_date'])"
+        }}
+    ]
 
     Variables:
-    {{
-        'sales_df': pd.DataFrame({
-            'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
-            'price_per_unit': [10, 9.99, 13.99, 21.00, 100],
-            'units_sold': [1, 2, 1, 4, 5],
-            'total_price': [10, 19.98, 13.99, 84.00, 500]
-        }})
-    }}
+    [
+        {{
+            "name": "sales_df",
+            "type": "DataFrame",
+            "value": {{
+                "transaction_date": ["2024-01-02", "2024-01-02", "2024-01-02", "2024-01-02", "2024-01-03"],
+                "price_per_unit": [10, 9.99, 13.99, 21.0, 100],
+                "units_sold": [1, 2, 1, 4, 5],
+                "total_price": [10, 19.98, 13.99, 84.0, 500]
+            }}
+        }}
+    ]
     
     Files:
-    "file_name: sales.csv"
+    [
+        {{
+            "path": "sales.csv"
+        }}
+    ]
 
     Your task: 
     Graph the total_price for each sale
@@ -434,41 +454,61 @@ Important information:
     sections.append(SG.Generic("Citation Rules", f"""{CITATION_RULES}
                                         
     <Example>
-    Jupyter Notebook:
+    Notebook:
     [
         {{
-            cell_type: 'markdown'
-            id: '9e38c62b-38f8-457d-bb8d-28bfc52edf2c'
-            code: \"\"\" # Used Car Sales Analysis \"\"\"
+            "index": 0,
+            "id": "9e38c62b-38f8-457d-bb8d-28bfc52edf2c",
+            "cell_type": "markdown",
+            "content": "# Used Car Sales Analysis"
         }},
         {{
-            cell_type: 'code'
-            id: 'c68fdf19-db8c-46dd-926f-d90ad35bb3bc'
-            code: \"\"\"import pandas as pd
-    tesla_stock_prices_df = pd.read_csv('./tesla_stock_prices.csv)\"\"\"
+            "index": 1,
+            "id": "c68fdf19-db8c-46dd-926f-d90ad35bb3bc",
+            "cell_type": "code",
+            "content": "import pandas as pd\\ntesla_stock_prices_df = pd.read_csv('./tesla_stock_prices.csv')"
         }},
         {{
-            cell_type: 'code',
-            id: '9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8',
-            code: \"\"\"all_time_high_row_idx = tesla_stock_prices_df['closing_price'].idxmax()
-    all_time_high_date = tesla_stock_prices_df.at[all_time_high_row_idx, 'Date']
-    all_time_high_price = tesla_stock_prices_df.at[all_time_high_row_idx, 'closing_price']\"\"\"
+            "index": 2,
+            "id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8",
+            "cell_type": "code",
+            "content": "all_time_high_row_idx = tesla_stock_prices_df['closing_price'].idxmax()\\nall_time_high_date = tesla_stock_prices_df.at[all_time_high_row_idx, 'Date']\\nall_time_high_price = tesla_stock_prices_df.at[all_time_high_row_idx, 'closing_price']"
         }}
     ]
 
     Variables:
-    {{
-        'tesla_stock_prices_df': pd.DataFrame({{
-            'Date': ['2025-01-02', '2024-01-03', '2024-01-04', '2024-01-05', '2024-01-06'],
-            'closing_price': [249.98, 251.03, 250.11, 249.97, 251.45]
-        }}),
-        'all_time_high_row_idx': 501,
-        'all_time_high_date': '2025-03-16',
-        'all_time_high_price': 265.91
-    }}
+    [
+        {{
+            "name": "tesla_stock_prices_df",
+            "type": "DataFrame",
+            "value": {{
+                "Date": ["2025-01-02", "2024-01-03", "2024-01-04", "2024-01-05", "2024-01-06"],
+                "closing_price": [249.98, 251.03, 250.11, 249.97, 251.45]
+            }}
+        }},
+        {{
+            "name": "all_time_high_row_idx",
+            "type": "int",
+            "value": 501
+        }},
+        {{
+            "name": "all_time_high_date",
+            "type": "str",
+            "value": "2025-03-16"
+        }},
+        {{
+            "name": "all_time_high_price",
+            "type": "float",
+            "value": 265.91
+        }}
+    ]
 
     Files:
-    "file_name: tesla_stock_prices.csv"
+    [
+        {{
+            "path": "tesla_stock_prices.csv"
+        }}
+    ]
 
     Your task: Given the dataframe `tesla_stock_prices_df`, what day was Tesla's all time high closing price?
 
