@@ -192,52 +192,56 @@ export const Toolbar = (
                     })}
                 </div>
                 <div className='mito-toolbar-tabbar-right' style={{gap: '6px'}}>
-                    <div
-                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
-                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
-                        onClick={() => {
-                            props.setUIState(prev => ({
-                                ...prev,
-                                currOpenTaskpane: {type: TaskpaneType.SUGGESTED_VISUALIZATIONS},
-                                selectedTabType: 'data'
-                            }));
-                        }}
-                    >
-                        <span style={{transform: 'scale(0.85)', display: 'flex'}}><HexagonAIIcon outlineColor='var(--mito-highlight)' fillColor='var(--mito-highlight-very-light)' /></span>
-                        Suggest Graphs
-                    </div>
-                    <div className='mito-ai-actions-group'>
-                        <button
-                            type='button'
-                            className={classNames('mito-ai-actions-group-button', 'mito-ai-actions-group-button-left')}
-                            onClick={() => {
-                                props.setUIState(prev => ({
-                                    ...prev,
-                                    currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
-                                    selectedTabType: 'data'
-                                }));
-                            }}
-                        >
-                            <AIIcon />
-                            Ask AI
-                        </button>
-                        {isAINotesEnabled() && (
-                            <button
-                                type='button'
-                                className={classNames('mito-ai-actions-group-button', 'mito-ai-actions-group-button-right')}
+                    {props.userProfile.mitoConfig.MITO_CONFIG_FEATURE_DISPLAY_AI_TRANSFORMATION && (
+                        <>
+                            <div
+                                className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                                style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
                                 onClick={() => {
                                     props.setUIState(prev => ({
                                         ...prev,
-                                        currOpenTaskpane: { type: TaskpaneType.AINOTES },
+                                        currOpenTaskpane: {type: TaskpaneType.SUGGESTED_VISUALIZATIONS},
                                         selectedTabType: 'data'
                                     }));
                                 }}
                             >
-                                <span className='mito-ai-actions-sparkle-icon' aria-hidden>✦</span>
-                                AI Notes
-                            </button>
-                        )}
-                    </div>
+                                <span style={{transform: 'scale(0.85)', display: 'flex'}}><HexagonAIIcon outlineColor='var(--mito-highlight)' fillColor='var(--mito-highlight-very-light)' /></span>
+                                Suggest Graphs
+                            </div>
+                            <div className='mito-ai-actions-group'>
+                                <button
+                                    type='button'
+                                    className={classNames('mito-ai-actions-group-button', 'mito-ai-actions-group-button-left')}
+                                    onClick={() => {
+                                        props.setUIState(prev => ({
+                                            ...prev,
+                                            currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                            selectedTabType: 'data'
+                                        }));
+                                    }}
+                                >
+                                    <AIIcon />
+                                    Ask AI
+                                </button>
+                                {isAINotesEnabled() && (
+                                    <button
+                                        type='button'
+                                        className={classNames('mito-ai-actions-group-button', 'mito-ai-actions-group-button-right')}
+                                        onClick={() => {
+                                            props.setUIState(prev => ({
+                                                ...prev,
+                                                currOpenTaskpane: { type: TaskpaneType.AINOTES },
+                                                selectedTabType: 'data'
+                                            }));
+                                        }}
+                                    >
+                                        <span className='mito-ai-actions-sparkle-icon' aria-hidden>✦</span>
+                                        AI Notes
+                                    </button>
+                                )}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
             {/* Default to Home tab if the tab you were in is no longer defined.
