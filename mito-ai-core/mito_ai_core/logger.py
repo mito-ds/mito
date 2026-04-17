@@ -1,21 +1,18 @@
-# Copyright (c) Saga Inc.
-# Distributed under the terms of the GNU Affero General Public License v3.0 License.
-
 import logging
+from typing import Optional
+
+from traitlets.config import Application
 
 
-_LOGGER = None  # type: logging.Logger | None
+_LOGGER: Optional[logging.Logger] = None
 
 
 def get_logger() -> logging.Logger:
-    """Create a logger for the Mito AI Core module.
-
-    Returns a standard Python logger named ``mito_ai_core``.  When the
-    library is used inside Jupyter the caller can attach a handler to
-    ``mito_ai_core`` to integrate with the server log.
-    """
+    """Return a cached logger namespaced under the Jupyter server logger."""
     global _LOGGER
     if _LOGGER is None:
-        _LOGGER = logging.getLogger("mito_ai_core")
+        app = Application.instance()
+        _LOGGER = logging.getLogger("{!s}.mito_ai_core".format(app.log.name))
+        Application.clear_instance()
 
     return _LOGGER
