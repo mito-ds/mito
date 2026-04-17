@@ -3,9 +3,10 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { OpenAI } from "openai";
+import { OpenAI } from 'openai';
 
-export const FREE_TIER_LIMIT_REACHED_ERROR_TITLE = 'mito_server_free_tier_limit_reached'
+export const FREE_TIER_LIMIT_REACHED_ERROR_TITLE =
+  'mito_server_free_tier_limit_reached';
 
 export const isErrorFixupMessage = (
     message: OpenAI.Chat.ChatCompletionMessageParam,
@@ -20,11 +21,10 @@ export const isErrorFixupMessage = (
         return false;
     }
 
-    // Detect error-like user text heuristically.
-    // We intentionally allow plain "<Type>Error: ..." messages, because many
-    // backend/tool errors are persisted without trace pointers ("->" or "^").
+    // Detect traceback-like user text: an exception line plus a pointer line
+    // ("->" e.g. from IPython "---->", or "^" from caret markers).
     const looksLikeError = /(?:\b\w+)?Error:/.test(messageContent);
     const hasTracePointer = messageContent.includes('->') || messageContent.includes('^');
 
-    return looksLikeError || hasTracePointer;
+    return looksLikeError && hasTracePointer;
 }

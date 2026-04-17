@@ -9,6 +9,7 @@ from mito_ai_core.completions.prompt_builders.prompt_constants import (
     CITATION_RULES,
     CELL_REFERENCE_RULES,
     EXCEL_TO_PYTHON_RULES,
+    LATEX_RULES,
     get_database_rules
 )
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
@@ -36,6 +37,7 @@ Each time you use a tool, except for the finished_task tool, the user will execu
     
     sections.append(SG.Generic("Chart Config Rules", CHART_CONFIG_RULES))
     sections.append(SG.Generic("Excel to Python Rules", EXCEL_TO_PYTHON_RULES))
+    sections.append(SG.Generic("LaTeX Rules", LATEX_RULES))
 
     sections.append(SG.Generic("TOOL: CELL_UPDATE", """
 

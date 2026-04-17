@@ -79,9 +79,12 @@ const ColumnHeader = (props: {
         return <></>
     }
 
+    // Ghost/suggested column detection
+    const isGhostColumn = columnID.startsWith('__suggested__');
+
     const hasFilters = columnFilters.filters.length > 0;
-    const editingColumnHeader = props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
-    const editingFinalColumnHeader = props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;
+    const editingColumnHeader = !isGhostColumn && props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex <= -1 && props.editorState.columnIndex === props.columnIndex;
+    const editingFinalColumnHeader = !isGhostColumn && props.editorState !== undefined && props.editorState.editorLocation === 'cell' && props.editorState.rowIndex === -1 && props.editorState.columnIndex === props.columnIndex;
 
 
     // Get the pieces of the column header. If the column header is not a MultiIndex header, then
@@ -168,6 +171,78 @@ const ColumnHeader = (props: {
         />
     )
 
+    // Render ghost/suggested column header
+    if (isGhostColumn) {
+        const suggestedCol = props.uiState.suggestedColumns?.columns.find(
+            c => `__suggested__${c.id}` === columnID
+        );
+        const borderStyle = getBorderStyle(props.gridState.selections, props.gridState.copiedSelections, -1, props.columnIndex, props.sheetData.numRows, false, props.uiState.highlightedColumnIndex);
+
+        const onAccept = () => {
+            if (suggestedCol === undefined) return;
+            // Mark which column is being accepted so the step-change effect removes only this one
+            props.setUIState(prevUIState => {
+                const sc = prevUIState.suggestedColumns;
+                if (sc === undefined) return prevUIState;
+                return { ...prevUIState, suggestedColumns: { ...sc, acceptingColumnId: suggestedCol.id } };
+            });
+            // Apply via AI Transformation step
+            void props.mitoAPI._edit('ai_transformation_edit', {
+                user_input: `Add suggested column: ${suggestedCol.columnHeader}`,
+                prompt_version: 'column-suggestions-v1',
+                prompt: '',
+                completion: suggestedCol.code,
+                edited_completion: suggestedCol.code,
+            }, `__suggested_accept__${suggestedCol.id}`);
+        };
+
+        const onReject = () => {
+            if (suggestedCol === undefined) return;
+            props.setUIState(prevUIState => {
+                const sc = prevUIState.suggestedColumns;
+                if (sc === undefined) return prevUIState;
+                const remaining = sc.columns.filter(c => c.id !== suggestedCol.id);
+                return {
+                    ...prevUIState,
+                    suggestedColumns: remaining.length > 0 ? { ...sc, columns: remaining } : undefined,
+                };
+            });
+        };
+
+        return (
+            <div
+                className='endo-column-header-container endo-column-header-text endo-column-header-suggested'
+                style={{
+                    width: `${width}px`,
+                    borderTop: borderStyle.borderTop,
+                    borderBottom: borderStyle.borderBottom,
+                    borderLeft: borderStyle.borderLeft,
+                    borderRight: borderStyle.borderRight,
+                }}
+                key={props.columnIndex}
+                mito-col-index={props.columnIndex + ''}
+                title={suggestedCol?.description || ''}
+                draggable='false'
+            >
+                <div className='endo-column-header-suggested-content'>
+                    <span className='endo-column-header-suggested-name text-overflow-hide'>{columnHeader + ''}</span>
+                    <div className='endo-column-header-suggested-actions'>
+                        <button
+                            className='endo-column-header-suggested-btn endo-column-header-suggested-accept'
+                            title='Accept: add this column'
+                            onClick={(e) => { e.stopPropagation(); onAccept(); }}
+                        >✓</button>
+                        <button
+                            className='endo-column-header-suggested-btn endo-column-header-suggested-reject'
+                            title='Reject: dismiss this suggestion'
+                            onClick={(e) => { e.stopPropagation(); onReject(); }}
+                        >✕</button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     //If there is a dataRecon set, highlight the column headers that have been created or renamed
     const isColumnCreated = reconIsColumnCreated(columnHeader, props.uiState.dataRecon, props.sheetData)
     const isColumnRenamed = reconIsColumnRenamed(columnHeader, props.uiState.dataRecon, props.sheetData)
@@ -175,7 +250,7 @@ const ColumnHeader = (props: {
     // Give priority to the recon colors, then formatting colors, then default colors
     const backgroundColor = isColumnCreated ? CREATED_RECON_COLOR : isColumnRenamed ? MODIFIED_RECON_COLOR : headerBackgroundColor || HEADER_BACKGROUND_COLOR_DEFAULT;
     const textColor = isColumnCreated || isColumnRenamed ? 'var(--mito-recon-text-color)' : headerTextColor || HEADER_TEXT_COLOR_DEFAULT;
-    
+
     return (
         <div
             className={classNames(
@@ -184,6 +259,12 @@ const ColumnHeader = (props: {
                 {
                     'endo-column-header-container-selected': selected,
                     'recon': isColumnCreated || isColumnRenamed,
+                    'mito-grid-column-enter':
+                        props.uiState.gridColumnEnterAnimation?.sheetIndex === props.gridState.sheetIndex &&
+                        props.uiState.gridColumnEnterAnimation?.columnIndex === props.columnIndex,
+                    'mito-grid-column-exit':
+                        props.uiState.gridColumnExitAnimation?.sheetIndex === props.gridState.sheetIndex &&
+                        props.uiState.gridColumnExitAnimation?.columnIndices.includes(props.columnIndex),
                 },
             )}
             style={{color: textColor, backgroundColor: backgroundColor}}

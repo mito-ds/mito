@@ -3,6 +3,25 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
+.endo-column-header-container.mito-grid-column-enter {
+    animation: mito-column-enter 0.6s ease both;
+}
+
+.endo-column-header-container.mito-grid-column-exit {
+    pointer-events: none;
+    animation: mito-column-delete-exit 0.55s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .endo-column-header-container.mito-grid-column-enter {
+        animation: none;
+    }
+    .endo-column-header-container.mito-grid-column-exit {
+        animation: none;
+        opacity: 0;
+    }
+}
+
 .endo-column-headers-container {
     overflow: hidden;
     /* NOTE: this must match EndoGrid.css */
@@ -140,4 +159,74 @@
 
 .endo-column-header-final-icons:hover path {
     stroke: var(--mito-highlight);
+}
+
+/* ── Ghost / AI-suggested column headers ── */
+.endo-column-header-suggested {
+    background-color: var(--mito-background-highlight, #f5f5f5) !important;
+    opacity: 0.65;
+    cursor: default !important;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    border-style: dashed !important;
+}
+
+.endo-column-header-suggested-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 4px 4px 6px;
+    height: 100%;
+    gap: 4px;
+    overflow: hidden;
+}
+
+.endo-column-header-suggested-label {
+    font-size: 10px;
+    color: var(--mito-highlight, #6c63ff);
+    flex-shrink: 0;
+}
+
+.endo-column-header-suggested-name {
+    flex: 1;
+    font-weight: bold;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--mito-text);
+    opacity: 0.7;
+}
+
+.endo-column-header-suggested-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.endo-column-header-suggested-btn {
+    border: none;
+    background: none;
+    padding: 1px 4px;
+    cursor: pointer;
+    font-size: 12px;
+    border-radius: 3px;
+    line-height: 1;
+}
+
+.endo-column-header-suggested-accept {
+    color: #2a9d3a;
+}
+
+.endo-column-header-suggested-accept:hover {
+    background-color: #d4edda;
+}
+
+.endo-column-header-suggested-reject {
+    color: #c0392b;
+}
+
+.endo-column-header-suggested-reject:hover {
+    background-color: #f8d7da;
 }

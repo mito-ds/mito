@@ -10,18 +10,18 @@
     background-color: var(--mito-highlight);
 }  
 
-/* The 5s must match the 6000 (5s + 1s buffer) in the setInterval function in EphemeralMessage.tsx */ 
+/* The 5s must match the 6000 (5s + 1s buffer) in the setInterval function in EphemeralMessage.tsx */
 .ephemeral-message-animation {
     animation: movein 0.5s ease forwards, moveout 0.5s 5s ease forwards;
 }
-  
+
 @keyframes movein {
-    from { right: -400px; }
-    to   { right: 6px; }
+    from { transform: translateX(120%); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
 }
 
 @keyframes moveout {
-    from { right: 6px; }
-    to   { right: -400px; }
+    from { transform: translateX(0);    opacity: 1; }
+    to   { transform: translateX(120%); opacity: 0; }
 }
 

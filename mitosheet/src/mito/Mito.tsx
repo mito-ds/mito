@@ -5,7 +5,7 @@
 
 // Copyright (c) Mito
 
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /*
     Import CSS that we use globally, list these in alphabetical order
     to make it easier to confirm we have imported all sitewide css.
@@ -28,6 +28,7 @@ import '../../css/sitewide/paddings.css';
 import '../../css/sitewide/scroll.css';
 import '../../css/sitewide/text.css';
 import '../../css/sitewide/widths.css';
+import '../../css/mito.css';
 import CatchUpPopup from './components/CatchUpPopup';
 import ErrorBoundary from './components/elements/ErrorBoundary';
 import EndoGrid from './components/endo/EndoGrid';
@@ -41,6 +42,7 @@ import ErrorReplayedAnalysisModal from './components/modals/ReplayAnalysisModals
 import SignUpModal from './components/modals/SignupModal';
 import { ModalEnum } from './components/modals/modals';
 import AITransformationTaskpane, { AITransformationParams } from './components/taskpanes/AITransformation/AITransformationTaskpane';
+import HelpTaskpane from './components/taskpanes/Help/HelpTaskpane';
 import SuggestedVisualizationsTaskpane from './components/taskpanes/SuggestedVisualizations/SuggestedVisualizationsTaskpane';
 import CannotCreateCommTaskpane from './components/taskpanes/CannotCreateComm/CannotCreateCommTaskpane';
 import CodeOptionsTaskpane from './components/taskpanes/CodeOptions/CodeOptionsTaskpane';
@@ -133,7 +135,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
         selectedTabType: 'data',
         currOpenDropdown: undefined,
         exportConfiguration: {exportType: 'csv'},
-        currentToolbarTab: isDataframeRenderMitosheet? undefined : 'Home', // If dataframe render, default to collapsed toolbar tabs
+        currentToolbarTab: undefined,
         currOpenPopups: {
             [PopupLocation.TopRight]: {type: PopupType.None}
         },
@@ -477,6 +479,88 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     const dfNames = sheetDataArray.map(sheetData => sheetData.dfName);
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
+
+    // Augment sheetDataArray with ghost/suggested columns when AI suggestions are ready
+    const augmentedSheetDataArray = useMemo(() => {
+        const sc = uiState.suggestedColumns;
+        if (
+            sc === undefined ||
+            sc.status !== 'ready' ||
+            sc.columns.length === 0
+        ) {
+            return sheetDataArray;
+        }
+        const { sheetIndex, columns } = sc;
+        const sheetData = sheetDataArray[sheetIndex];
+        if (sheetData === undefined) return sheetDataArray;
+
+        const ghostCols = columns.map(col => {
+            // Use AI-computed preview values; pad or trim to match the sheet row count
+            const preview = col.previewValues;
+            const columnData: (string | number | boolean)[] =
+                preview.length >= sheetData.numRows
+                    ? preview.slice(0, sheetData.numRows)
+                    : [...preview, ...Array(sheetData.numRows - preview.length).fill('')];
+            return {
+                columnID: `__suggested__${col.id}`,
+                columnHeader: col.columnHeader as string,
+                columnDtype: 'object',
+                columnData,
+            };
+        });
+
+        const augmented = {
+            ...sheetData,
+            numColumns: sheetData.numColumns + ghostCols.length,
+            data: [...sheetData.data, ...ghostCols],
+            columnIDsMap: {
+                ...sheetData.columnIDsMap,
+                ...Object.fromEntries(ghostCols.map(c => [c.columnID, c.columnHeader])),
+            },
+            // columnFormulasMap must have entries for ghost columns or getCellDataFromCellIndexes
+            // will return undefined and crash when it tries to call .length on it
+            columnFormulasMap: {
+                ...sheetData.columnFormulasMap,
+                ...Object.fromEntries(ghostCols.map(c => [c.columnID, []])),
+            },
+            columnFiltersMap: {
+                ...sheetData.columnFiltersMap,
+                ...Object.fromEntries(ghostCols.map(c => [c.columnID, { filters: [], operator: 'And' as const }])),
+            },
+            columnDtypeMap: {
+                ...sheetData.columnDtypeMap,
+                ...Object.fromEntries(ghostCols.map(c => [c.columnID, 'object'])),
+            },
+            conditionalFormattingResult: {
+                ...sheetData.conditionalFormattingResult,
+                results: {
+                    ...sheetData.conditionalFormattingResult.results,
+                    ...Object.fromEntries(ghostCols.map(c => [c.columnID, undefined])),
+                },
+            },
+        };
+
+        const result = [...sheetDataArray];
+        result[sheetIndex] = augmented;
+        return result;
+    }, [sheetDataArray, uiState.suggestedColumns]);
+
+    // When a step is applied, either remove the accepted column or clear all suggestions
+    useEffect(() => {
+        setUIState(prevUIState => {
+            const sc = prevUIState.suggestedColumns;
+            if (sc === undefined) return prevUIState;
+            // If an accept triggered this step, remove only that column
+            if (sc.acceptingColumnId !== undefined) {
+                const remaining = sc.columns.filter(c => c.id !== sc.acceptingColumnId);
+                if (remaining.length === 0) return { ...prevUIState, suggestedColumns: undefined };
+                return { ...prevUIState, suggestedColumns: { ...sc, acceptingColumnId: undefined, columns: remaining } };
+            }
+            // Any other edit clears all suggestions
+            return { ...prevUIState, suggestedColumns: undefined };
+        });
+    }, [analysisData.stepSummaryList.length]);
+
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
 
@@ -867,6 +951,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setEditorState={setEditorState}
                     sheetDataArray={sheetDataArray}
                     mitoAPI={mitoAPI}
+                    columnIndices={uiState.currOpenTaskpane.type === TaskpaneType.SUGGESTED_VISUALIZATIONS ? uiState.currOpenTaskpane.columnIndices : undefined}
                 />
             )
             case TaskpaneType.CODEOPTIONS: return (
@@ -919,6 +1004,13 @@ export const Mito = (props: MitoProps): JSX.Element => {
             )
             case TaskpaneType.DEV_TASKPANE: return (
                 <DevTaskpane
+                    userProfile={userProfile}
+                    setUIState={setUIState}
+                    mitoAPI={mitoAPI}
+                />
+            )
+            case TaskpaneType.HELP: return (
+                <HelpTaskpane
                     userProfile={userProfile}
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
@@ -1106,7 +1198,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         }
                     >
                         <EndoGrid
-                            sheetDataArray={sheetDataArray}
+                            sheetDataArray={augmentedSheetDataArray}
                             mitoAPI={mitoAPI}
                             uiState={uiState}
                             setUIState={setUIState}
@@ -1120,6 +1212,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                             sendFunctionStatus={sendFunctionStatus}
                             analysisData={analysisData}
                             actions={actions}
+                            userProfile={userProfile}
                         />
                     </div>
                     {uiState.currOpenTaskpane.type !== TaskpaneType.NONE && 
