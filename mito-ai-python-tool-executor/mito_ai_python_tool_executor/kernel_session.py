@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import re
 from queue import Empty
 from typing import List, Optional, Tuple
 
@@ -17,14 +18,16 @@ from mito_ai_core.kernel_variable_inspection import get_kernel_variable_inspecti
 # Same script as JupyterLab VariableInspector / kernelVariableInspectionScript.ts
 # (mito_ai_core/resources/kernel_variable_inspection.txt).
 _VARIABLE_PROBE = get_kernel_variable_inspection_script()
+_ANSI_ESCAPE_PATTERN = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 
 
 class KernelSession:
     """Starts a single kernel and exposes blocking execute + shutdown."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, cwd: str | None = None) -> None:
         self._km = KernelManager()
-        self._km.start_kernel()
+        start_kwargs = {"cwd": cwd} if cwd else {}
+        self._km.start_kernel(**start_kwargs)
         self._kc = self._km.client()
         self._kc.start_channels()
         self._kc.wait_for_ready(timeout=120)
@@ -65,19 +68,21 @@ class KernelSession:
             content = msg["content"]
 
             if msg_type == "stream":
-                text_parts.append(content.get("text", ""))
+                text_parts.append(_strip_ansi_escape_sequences(content.get("text", "")))
             elif msg_type == "error":
-                error_text = "\n".join(content.get("traceback", []))
+                error_text = _strip_ansi_escape_sequences(
+                    "\n".join(content.get("traceback", []))
+                )
             elif msg_type == "execute_result":
                 data = content.get("data", {})
                 plain = data.get("text/plain")
                 if plain is not None:
-                    text_parts.append(plain)
+                    text_parts.append(_strip_ansi_escape_sequences(plain))
             elif msg_type == "display_data":
                 data = content.get("data", {})
                 plain = data.get("text/plain")
                 if plain is not None:
-                    text_parts.append(plain)
+                    text_parts.append(_strip_ansi_escape_sequences(plain))
             elif msg_type == "status" and content.get("execution_state") == "idle":
                 break
 
@@ -92,9 +97,11 @@ class KernelSession:
             if c.get("status") == "error":
                 tb = c.get("traceback")
                 if tb:
-                    shell_err = "\n".join(tb)
+                    shell_err = _strip_ansi_escape_sequences("\n".join(tb))
                 else:
-                    shell_err = c.get("evalue", "Kernel error")
+                    shell_err = _strip_ansi_escape_sequences(
+                        c.get("evalue", "Kernel error")
+                    )
                 if not error_text:
                     error_text = shell_err
 
@@ -132,6 +139,7 @@ class KernelSession:
         return result
 
 
-def default_kernel_session() -> KernelSession:
-    """Factory for a new kernel session (mostly for tests)."""
-    return KernelSession()
+def _strip_ansi_escape_sequences(text: str) -> str:
+    if not isinstance(text, str) or not text:
+        return text
+    return _ANSI_ESCAPE_PATTERN.sub("", text)
