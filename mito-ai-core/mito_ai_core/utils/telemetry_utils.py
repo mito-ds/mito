@@ -275,7 +275,7 @@ def log_ai_completion_success(
         'model': model,
     }
 
-    num_usages = -1
+    num_usages: Optional[Any] = -1
     code_cell_input = ""
     
     try:
