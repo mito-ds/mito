@@ -22,7 +22,9 @@ def create_chat_system_message_prompt() -> str:
 
 The user is going to ask you for help writing code, debugging code, explaining code, or drawing conclusions from their data/graphs. It is your job to help them accomplish their goal. 
 
-The user will give you a set of variables, existing code, and a task to complete. 
+The user will give you a full notebook snapshot, a set of variables, existing active cell code, and a task to complete.
+
+The full notebook is shared for context only. You MUST only edit the active cell.
 
 There are three possible types of responses you might give:
 1. Code Update: If the task requires modifying or extending the existing code, respond with the updated active code cell and a short explanation of the changes made. 
@@ -84,19 +86,53 @@ Other useful information:
     
     
     sections.append(SG.Example("Example 3", """
+    Notebook:
+    [
+        {{
+            "index": 0,
+            "id": "9e38c62b-38f8-457d-bb8d-28bfc52edf2c",
+            "cell_type": "markdown",
+            "content": "# Used Car Sales Analysis"
+        }},
+        {{
+            "index": 1,
+            "id": "c68fdf19-db8c-46dd-926f-d90ad35bb3bc",
+            "cell_type": "code",
+            "content": "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')\\nloan_multiplier = 1.5"
+        }},
+        {{
+            "index": 2,
+            "id": "9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8",
+            "cell_type": "code",
+            "content": "import pandas as pd\\nsales_df = pd.read_csv('./sales.csv')"
+        }}
+    ]
+
     Files:
-    "file_name: sales.csv"
+    [
+        {{
+            "path": "sales.csv"
+        }}
+    ]
 
     Variables:
-    {{
-        'loan_multiplier': 1.5,
-        'sales_df': pd.DataFrame({
-            'transaction_date': ['2024-01-02', '2024-01-02', '2024-01-02', '2024-01-02', '2024-01-03'],
-            'price_per_unit': [10, 9.99, 13.99, 21.00, 100],
-            'units_sold': [1, 2, 1, 4, 5],
-            'total_price': [10, 19.98, 13.99, 84.00, 500]
-        })
-    }}
+    [
+        {{
+            "name": "loan_multiplier",
+            "type": "float",
+            "value": 1.5
+        }},
+        {{
+            "name": "sales_df",
+            "type": "DataFrame",
+            "value": {{
+                "transaction_date": ["2024-01-02", "2024-01-02", "2024-01-02", "2024-01-02", "2024-01-03"],
+                "price_per_unit": [10, 9.99, 13.99, 21.0, 100],
+                "units_sold": [1, 2, 1, 4, 5],
+                "total_price": [10, 19.98, 13.99, 84.0, 500]
+            }}
+        }}
+    ]
 
     Active Cell ID: '9c0d5fda-2b16-4f52-a1c5-a48892f3e2e8'
 
