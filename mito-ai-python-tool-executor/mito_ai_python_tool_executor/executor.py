@@ -6,14 +6,30 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import uuid
-from typing import List, Optional, Tuple
+from typing import Awaitable, Callable, List, Literal, Optional, Tuple
 
 from mito_ai_core.agent.types import AgentContext, ToolResult
 from mito_ai_core.completions.models import AIOptimizedCell, CellUpdate
 
 from mito_ai_python_tool_executor.blacklisted_words import check_for_blacklisted_words
 from mito_ai_python_tool_executor.kernel_session import KernelSession
+
+AskUserMode = Literal["cli", "mcp_elicitation", "mcp_plaintext"]
+AskUserHandler = Callable[[str, Optional[List[str]]], Awaitable[Optional[str]]]
+logger = logging.getLogger(__name__)
+
+ASK_USER_QUESTION_DISABLED_MESSAGE = (
+    "The ask_user_question tool is disabled in this environment. "
+    "Please use your best judgement to assume the user's response and continue working."
+)
+
+STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE = (
+    "This Streamlit and app functionality is disabled in this environment. "
+    "Please use your best judgement on how to proceed. Either continue working in the notebook "
+    "or tell the user that this functionality is disabled."
+)
 
 
 def _blacklist_error(code: str) -> Optional[str]:
@@ -39,13 +55,22 @@ class PythonToolExecutor:
     ``variables``) and returns :class:`ToolResult` snapshots for the agent loop.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        ask_user_mode: AskUserMode = "cli",
+        ask_user_handler: Optional[AskUserHandler] = None,
+        kernel_cwd: str | None = None,
+    ) -> None:
         self._session: Optional[KernelSession] = None
         self._last_cell_text: dict[str, str] = {}
+        self._ask_user_mode: AskUserMode = ask_user_mode
+        self._ask_user_handler = ask_user_handler
+        self._kernel_cwd = kernel_cwd
 
     def _ensure_session(self) -> KernelSession:
         if self._session is None:
-            self._session = KernelSession()
+            self._session = KernelSession(cwd=self._kernel_cwd)
         return self._session
 
     def shutdown(self) -> None:
@@ -287,6 +312,26 @@ class PythonToolExecutor:
         message: str,
         answers: Optional[List[str]] = None,
     ) -> ToolResult:
+        logger.info(
+            "ask_user_question invoked with mode=%s, answers_provided=%s",
+            self._ask_user_mode,
+            bool(answers),
+        )
+
+        if self._ask_user_mode == "mcp_elicitation":
+            logger.info("Routing ask_user_question via MCP elicitation handler")
+            return await self._ask_user_question_via_mcp(ctx, question, answers)
+        if self._ask_user_mode == "mcp_plaintext":
+            logger.info("Routing ask_user_question via MCP plaintext fallback")
+            return await self._ask_user_question_disabled_response(ctx, question, answers)
+        if self._ask_user_mode != "cli":
+            logger.warning(
+                "Unknown ask_user_mode=%s; forcing plaintext fallback",
+                self._ask_user_mode,
+            )
+            return await self._ask_user_question_disabled_response(ctx, question, answers)
+
+        logger.warning("Routing ask_user_question via CLI stdin/stdout prompt path")
         def _sync() -> ToolResult:
             session = self._ensure_session()
             print(question, flush=True)
@@ -315,3 +360,88 @@ class PythonToolExecutor:
             )
 
         return await asyncio.to_thread(_sync)
+
+    async def _ask_user_question_via_mcp(
+        self,
+        ctx: AgentContext,
+        question: str,
+        answers: Optional[List[str]],
+    ) -> ToolResult:
+        if self._ask_user_handler is None:
+            logger.warning(
+                "ask_user_question is in `mcp_elicitation` mode but no "
+                "elicitation handler is configured; returning disabled "
+                "plaintext message."
+            )
+            return await self._ask_user_question_disabled_response(ctx, question, answers)
+
+        try:
+            answer = await self._ask_user_handler(question, answers)
+        except Exception as exc:
+            logger.warning(
+                "MCP elicitation failed for ask_user_question; returning "
+                "disabled plaintext message. error=%s",
+                exc,
+            )
+            return await self._ask_user_question_disabled_response(ctx, question, answers)
+
+        session = self._ensure_session()
+        vars_ = session.fetch_variables()
+        ctx.variables = vars_
+        return ToolResult(
+            success=True,
+            tool_name="ask_user_question",
+            output=(answer or "").strip(),
+            variables=vars_,
+        )
+
+    async def _ask_user_question_disabled_response(
+        self,
+        ctx: AgentContext,
+        question: str,
+        answers: Optional[List[str]],
+    ) -> ToolResult:
+        del question, answers  # Plaintext mode intentionally disables user prompting.
+        session = self._ensure_session()
+        vars_ = session.fetch_variables()
+        ctx.variables = vars_
+        return ToolResult(
+            success=True,
+            tool_name="ask_user_question",
+            output=ASK_USER_QUESTION_DISABLED_MESSAGE,
+            variables=vars_,
+        )
+
+    async def create_streamlit_app(
+        self,
+        ctx: AgentContext,
+        message: str,
+        streamlit_app_prompt: Optional[str] = None,
+    ) -> ToolResult:
+        del message, streamlit_app_prompt
+        session = self._ensure_session()
+        vars_ = session.fetch_variables()
+        ctx.variables = vars_
+        return ToolResult(
+            success=True,
+            tool_name="create_streamlit_app",
+            output=STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE,
+            variables=vars_,
+        )
+
+    async def edit_streamlit_app(
+        self,
+        ctx: AgentContext,
+        streamlit_app_prompt: str,
+        message: str,
+    ) -> ToolResult:
+        del streamlit_app_prompt, message
+        session = self._ensure_session()
+        vars_ = session.fetch_variables()
+        ctx.variables = vars_
+        return ToolResult(
+            success=True,
+            tool_name="edit_streamlit_app",
+            output=STREAMLIT_FUNCTIONALITY_DISABLED_MESSAGE,
+            variables=vars_,
+        )

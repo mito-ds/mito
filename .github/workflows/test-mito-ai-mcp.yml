@@ -1,0 +1,51 @@
+name: Test - Mito AI MCP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'mito-ai-mcp/**'
+      - 'mito-ai-core/**'
+      - 'mito-ai-python-tool-executor/**'
+  pull_request:
+    paths:
+      - 'mito-ai-mcp/**'
+      - 'mito-ai-core/**'
+      - 'mito-ai-python-tool-executor/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-mito-ai-mcp:
+    name: ${{ matrix.os }} / Py ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: |
+          mito-ai-core/pyproject.toml
+          mito-ai-python-tool-executor/pyproject.toml
+          mito-ai-mcp/pyproject.toml
+    - name: Install dependencies
+      run: |
+        pip install -e ./mito-ai-core
+        pip install -e ./mito-ai-python-tool-executor
+        pip install -e "./mito-ai-mcp[test]"
+    - name: Run tests
+      run: |
+        cd mito-ai-mcp
+        pytest tests/ -v
