@@ -58,7 +58,6 @@ interface IChatMessageProps {
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
     agentModeEnabled: boolean
-    additionalContext?: Array<{ type: string, value: string }>
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
     scratchpadResult?: string
     canSendMessages?: boolean
