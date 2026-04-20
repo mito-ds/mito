@@ -181,6 +181,27 @@ class FakeToolExecutor:
         return ToolResult(success=True, output="Edited Streamlit app preview")
 
 
+class FailingCellUpdateToolExecutor(FakeToolExecutor):
+    """Tool executor that always fails CELL_UPDATE dispatch."""
+
+    async def execute_cell_update(
+        self,
+        ctx: AgentContext,
+        cell_update: CellUpdate,
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("execute_cell_update", {
+            "ctx": ctx,
+            "cell_update": cell_update,
+            "message": message,
+        }))
+        return ToolResult(
+            success=False,
+            tool_name="cell_update",
+            error_message="CELL_UPDATE failed: simulated invalid after_cell_id.",
+        )
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -530,6 +551,35 @@ class TestCallbacks:
         # 1 dispatchable tool → 1 tool result callback
         assert len(tool_results) == 1
         assert tool_results[0].success is True
+
+    @pytest.mark.asyncio
+    async def test_failed_cell_update_callback_suppressed(self) -> None:
+        provider = FakeProviderManager([
+            _cell_update_response(),
+            _finished_response(),
+        ])
+        executor = FailingCellUpdateToolExecutor()
+        mh, ctx = _new_history_and_ctx()
+        runner = AgentRunner(provider, executor, mh)  # type: ignore[arg-type]
+
+        tool_results: list[ToolResult] = []
+
+        async def on_tool(result: ToolResult) -> None:
+            tool_results.append(result)
+
+        await runner.run(
+            ctx,
+            "",
+            on_tool_result=on_tool,
+        )
+
+        # Failed cell_update tool results should not be emitted to host callbacks.
+        assert len(tool_results) == 0
+        # But the failed result should still be visible to the model in history.
+        assert len(provider.messages_per_call) == 2
+        tool_msg_content = str(provider.messages_per_call[1][3]["content"])
+        assert "Tool 'cell_update' failed" in tool_msg_content
+        assert "simulated invalid after_cell_id" in tool_msg_content
 
 
 class TestMaxIterations:
