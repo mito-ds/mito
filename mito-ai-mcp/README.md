@@ -17,6 +17,7 @@ From the `mito-ai-mcp` directory:
 
 ```bash
 cd mito-ai-mcp
+source venv/bin/activate
 pip install -e ../mito-ai-core -e ../mito-ai-python-tool-executor -e .
 ```
 
