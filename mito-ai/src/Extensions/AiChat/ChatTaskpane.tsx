@@ -135,6 +135,8 @@ export interface ChangedCell {
     originalCode: string;
     currentCode: string;
     reviewed: boolean;
+    /** True if this cell was created by the agent (didn't exist before agent execution) */
+    isNewCell: boolean;
 }
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
@@ -1115,7 +1117,6 @@ const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
                                 codeReviewStatus={codeReviewStatus}
                                 setNextSteps={setNextSteps}
                                 agentModeEnabled={agentModeEnabled}
-                                additionalContext={displayOptimizedChat.additionalContext}
                                 scratchpadResult={displayOptimizedChat.scratchpadResult}
                             />
                         )

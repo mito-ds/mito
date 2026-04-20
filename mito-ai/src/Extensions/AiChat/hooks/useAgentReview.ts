@@ -130,7 +130,8 @@ export const useAgentReview = ({
                         cellId: currentCell.id,
                         originalCode: originalCell.code,
                         currentCode: currentCell.code,
-                        reviewed: false
+                        reviewed: false,
+                        isNewCell: false
                     });
                     modified++;
                 }
@@ -140,7 +141,8 @@ export const useAgentReview = ({
                     cellId: currentCell.id,
                     originalCode: '',
                     currentCode: currentCell.code,
-                    reviewed: false
+                    reviewed: false,
+                    isNewCell: true
                 });
                 added++;
             }
@@ -155,7 +157,8 @@ export const useAgentReview = ({
                     cellId: originalCell.id,
                     originalCode: originalCell.code,
                     currentCode: '',
-                    reviewed: false
+                    reviewed: false,
+                    isNewCell: false
                 });
                 removed++;
             }
