@@ -115,21 +115,23 @@ export const writeCodeToCellByID = (
     notebookTracker: INotebookTracker,
     code: string | undefined,
     codeCellID: string,
+    removeCodeFormatting: boolean = true,
 ): void => {
     const notebookPanel = notebookTracker.currentWidget
-    writeCodeToCellByIDInNotebookPanel(notebookPanel, code, codeCellID)
+    writeCodeToCellByIDInNotebookPanel(notebookPanel, code, codeCellID, removeCodeFormatting)
 }
 
 export const writeCodeToCellByIDInNotebookPanel = (
     notebookPanel: NotebookPanel | null,
     code: string | undefined,
     codeCellID: string | undefined,
+    removeCodeFormatting: boolean = true,
 ): void => {
     if (code === undefined || codeCellID === undefined) {
         return;
     }
 
-    const codeMirrorValidCode = removeMarkdownCodeFormatting(code);
+    const codeMirrorValidCode = removeCodeFormatting ? removeMarkdownCodeFormatting(code) : code;
     const notebook = notebookPanel?.content;
     const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
 

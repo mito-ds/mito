@@ -85,7 +85,12 @@ export const acceptAndRunCellUpdate = async (
         };
     }
 
-    writeCodeToCellByIDInNotebookPanel(notebookPanel, cellUpdate.code, cellID)
+    writeCodeToCellByIDInNotebookPanel(
+        notebookPanel,
+        cellUpdate.code,
+        cellID,
+        cellUpdate.cell_type !== 'markdown',
+    )
 
     // We always create code cells, and then convert to markdown if necessary.
     if (cellUpdate.cell_type === 'markdown') {
