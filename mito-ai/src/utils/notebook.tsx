@@ -495,3 +495,43 @@ export const runCellByIDInBackground = async (notebookPanel: NotebookPanel | nul
         notebook.activeCellIndex = originalActiveCellIndex;
     }
 }
+
+/**
+ * Deletes a cell from the notebook by its ID.
+ * 
+ * Guards against deleting the last cell in the notebook, since JupyterLab
+ * requires at least one cell to exist. In that case, the cell is cleared
+ * instead of deleted.
+ * 
+ * @returns true if the cell was deleted (or cleared if last cell), false if the cell was not found.
+ */
+export const deleteCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | null, cellId: string): boolean => {
+    if (!notebookPanel) return false;
+
+    const notebook = notebookPanel.content;
+    const cellIndex = getCellIndexByIDInNotebookPanel(notebookPanel, cellId);
+
+    if (cellIndex === undefined) {
+        return false;
+    }
+
+    // Guard: don't delete the very last cell in the notebook
+    if (notebook.widgets.length <= 1) {
+        // Just clear the cell's content instead
+        writeCodeToCellByIDInNotebookPanel(notebookPanel, '', cellId);
+        return true;
+    }
+
+    // Save the current active cell index so we can restore context afterwards
+    const originalActiveCellIndex = notebook.activeCellIndex;
+
+    // Select the target cell so NotebookActions.deleteCells removes it
+    notebook.activeCellIndex = cellIndex;
+    NotebookActions.deleteCells(notebook);
+
+    // Restore the active cell index, clamping to valid range after deletion
+    const maxIndex = notebook.widgets.length - 1;
+    notebook.activeCellIndex = Math.min(originalActiveCellIndex, maxIndex);
+
+    return true;
+}

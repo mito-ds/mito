@@ -138,6 +138,8 @@ export interface ChangedCell {
     originalCode: string;
     currentCode: string;
     reviewed: boolean;
+    /** True if this cell was created by the agent (didn't exist before agent execution) */
+    isNewCell: boolean;
 }
 
 const ChatTaskpane: React.FC<IChatTaskpaneProps> = ({
