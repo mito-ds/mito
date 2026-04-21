@@ -1,5 +1,46 @@
-# mito-ai-mcp
+# Mito AI MCP Server
 
-## Development Guide
+A Model Context Protocol server that provides Mito AI's data analysis capabilities in your application of choice. This server enables LLMs to perfom better data analysis and visualization, including best-in-class Excel-to-Python workflows. 
+
+## Available Tools
+
+- `run_data_analyst` - Run one-shot Mito AI analysis for notebook/spreadsheet workflows (Excel/CSV, cleaning/transforms, EDA, and Jupyter cell generation/edits).
+  - Required arguments:
+    - `prompt` (string): Natural-language instruction describing the analysis task.
+
+## Installation
+
+### Using uv (recommended)
+
+When using `[uv](https://docs.astral.sh/uv/)` no specific installation is needed. We will use `[uvx](https://docs.astral.sh/uv/guides/tools/)` to directly run *mito-ai-mcp*.
+
+```bash
+uvx mito-ai-mcp
+```
+
+### Using PIP
+
+Alternatively you can install `mito-ai-mcp` via pip:
+
+```bash
+pip install mito-ai-mcp
+```
+
+After installation, you can run it as a script using:
+
+```bash
+python -m mcp_server_time
+```
+
+## Configuration
+
+### VS Code
+
+For quick installation, use the one-click install button below:
+
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=time&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-server-time%22%5D%7D) [![Install with UV in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-UV-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=time&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-server-time%22%5D%7D&quality=insiders)
+
+
+## Development
 
 Developers should consult the [dev guide](./DEV.md).
