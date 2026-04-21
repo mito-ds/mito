@@ -19,7 +19,7 @@ import {
     getAIOptimizedCellsInNotebookPanel,
     highlightCodeCellInNotebookPanel,
     scrollToCell,
-    writeCodeToCellByIDInNotebookPanel
+    writeContentToCellByIDInNotebookPanel
 } from '../../../utils/notebook';
 import { AgentReviewStatus, ChangedCell } from '../ChatTaskpane';
 import { NotebookPanel } from '@jupyterlab/notebook';
@@ -128,6 +128,7 @@ export const useAgentReview = ({
                 if (originalCell.code !== currentCell.code) {
                     changedCells.push({
                         cellId: currentCell.id,
+                        cellType: currentCell.cell_type,
                         originalCode: originalCell.code,
                         currentCode: currentCell.code,
                         reviewed: false,
@@ -139,6 +140,7 @@ export const useAgentReview = ({
                 // Cell was added (doesn't exist in original snapshot)
                 changedCells.push({
                     cellId: currentCell.id,
+                    cellType: currentCell.cell_type,
                     originalCode: '',
                     currentCode: currentCell.code,
                     reviewed: false,
@@ -155,6 +157,7 @@ export const useAgentReview = ({
                 // Cell was removed
                 changedCells.push({
                     cellId: originalCell.id,
+                    cellType: originalCell.cell_type,
                     originalCode: originalCell.code,
                     currentCode: '',
                     reviewed: false,
@@ -262,7 +265,12 @@ export const useAgentReview = ({
             const { unifiedCodeString, unifiedDiffs } = getCodeDiffsAndUnifiedCodeString(change.originalCode, change.currentCode);
 
             // Write the unified code string to the cell
-            writeCodeToCellByIDInNotebookPanel(agentTargetNotebookPanelRef.current, unifiedCodeString, change.cellId);
+            writeContentToCellByIDInNotebookPanel(
+                agentTargetNotebookPanelRef.current,
+                unifiedCodeString,
+                change.cellId,
+                change.cellType,
+            );
 
             // Apply diff stripes to this cell
             applyDiffStripesToCell(agentTargetNotebookPanelRef.current, change.cellId, unifiedDiffs, codeDiffStripesCompartments.current);

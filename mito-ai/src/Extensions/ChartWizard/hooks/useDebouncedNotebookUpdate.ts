@@ -6,7 +6,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { NotebookActions } from '@jupyterlab/notebook';
 import { ChartWizardData } from '../ChartWizardPlugin';
-import { writeCodeToCellByIDInNotebookPanel } from '../../../utils/notebook';
+import { writeContentToCellByIDInNotebookPanel } from '../../../utils/notebook';
 
 interface UseDebouncedNotebookUpdateProps {
     chartData: ChartWizardData | null;
@@ -49,7 +49,7 @@ export const useDebouncedNotebookUpdate = ({
             if (!notebookPanel) return;
 
             // Update the cell code
-            writeCodeToCellByIDInNotebookPanel(notebookPanel, updatedCode, chartData.cellId);
+            writeContentToCellByIDInNotebookPanel(notebookPanel, updatedCode, chartData.cellId, 'code');
 
             // Re-execute the cell to show updated chart
             const notebook = notebookPanel.content;

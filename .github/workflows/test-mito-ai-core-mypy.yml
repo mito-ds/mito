@@ -1,0 +1,38 @@
+name: Test - mito-ai-core mypy
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'mito-ai-core/**'
+  pull_request:
+    paths:
+      - 'mito-ai-core/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-mito-ai-core-mypy:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+        cache-dependency-path: mito-ai-core/pyproject.toml
+    - name: Install dependencies
+      run: |
+        cd mito-ai-core
+        pip install -e ".[test]"
+    - name: Check types with mypy
+      run: |
+        cd mito-ai-core
+        mypy mito_ai_core/ --ignore-missing-imports

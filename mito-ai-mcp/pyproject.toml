@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mito-ai-mcp"
+version = "0.1.0"
+description = "Mito AI MCP server package."
+readme = "README.md"
+license = "AGPL-3.0-only"
+requires-python = ">=3.10"
+authors = [{ name = "Saga Inc." }]
+dependencies = [
+    "fastmcp",
+    "mito-ai-core",
+    "mito-ai-python-tool-executor",
+]
+
+[project.scripts]
+mito-ai-mcp = "mito_ai_mcp.server:main"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-timeout",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+timeout = 60
+markers = [
+    "integration: live MCP / full stack",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["mito_ai_mcp"]

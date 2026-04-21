@@ -263,15 +263,6 @@ describe('ChatHistoryManager', () => {
             expect(metadata.errorMessage).toBe('Error message');
         });
 
-        it('should add agent smart debug message', () => {
-            const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker, mockApp);
-
-            const metadata = manager.addAgentSmartDebugMessage('thread-123', 'Agent error', mockNotebookPanel);
-
-            expect(metadata.promptType).toBe('agent:autoErrorFixup');
-            expect(metadata.errorMessage).toBe('Agent error');
-        });
-
         it('should add explain code message', () => {
             const manager = new ChatHistoryManager(mockContextManager, mockNotebookTracker, mockApp);
 
