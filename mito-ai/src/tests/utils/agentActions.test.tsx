@@ -24,7 +24,7 @@ jest.mock('../../utils/notebook', () => ({
     getActiveCellIDInNotebookPanel: jest.fn(() => 'active-cell-id'),
     getCellIndexByIDInNotebookPanel: jest.fn(() => 0),
     setActiveCellByIDInNotebookPanel: jest.fn(),
-    writeCodeToCellByIDInNotebookPanel: jest.fn(),
+    writeContentToCellByIDInNotebookPanel: jest.fn(),
     scrollToCell: jest.fn(),
 }));
 
@@ -41,7 +41,7 @@ describe('acceptAndRunCellUpdate', () => {
             },
         } as unknown as NotebookPanel);
 
-    test('passes removeCodeFormatting=false for markdown cell updates', async () => {
+    test('passes markdown cell_type for markdown cell updates', async () => {
         const notebookPanel = createNotebookPanel();
 
         const result = await acceptAndRunCellUpdate(
@@ -55,16 +55,16 @@ describe('acceptAndRunCellUpdate', () => {
         );
 
         expect(result).toEqual({ success: true });
-        expect(notebookUtils.writeCodeToCellByIDInNotebookPanel).toHaveBeenCalledWith(
+        expect(notebookUtils.writeContentToCellByIDInNotebookPanel).toHaveBeenCalledWith(
             notebookPanel,
             '# Title\n\n```python\nprint("x")\n```',
             'active-cell-id',
-            false,
+            'markdown',
         );
         expect(NotebookActions.changeCellType).toHaveBeenCalledWith(notebookPanel.content, 'markdown');
     });
 
-    test('passes removeCodeFormatting=true for code cell updates', async () => {
+    test('passes code cell_type for code cell updates', async () => {
         const notebookPanel = createNotebookPanel();
 
         const result = await acceptAndRunCellUpdate(
@@ -78,11 +78,11 @@ describe('acceptAndRunCellUpdate', () => {
         );
 
         expect(result).toEqual({ success: true });
-        expect(notebookUtils.writeCodeToCellByIDInNotebookPanel).toHaveBeenCalledWith(
+        expect(notebookUtils.writeContentToCellByIDInNotebookPanel).toHaveBeenCalledWith(
             notebookPanel,
             '```python\nprint("x")\n```',
             'active-cell-id',
-            true,
+            'code',
         );
         expect(NotebookActions.changeCellType).toHaveBeenCalledWith(notebookPanel.content, 'code');
     });

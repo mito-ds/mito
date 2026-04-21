@@ -132,6 +132,7 @@ export type { CodeReviewStatus, AgentReviewStatus, LoadingStatus } from './hooks
 export type AgentExecutionStatus = 'working' | 'stopping' | 'idle'
 export interface ChangedCell {
     cellId: string;
+    cellType: string;
     originalCode: string;
     currentCode: string;
     reviewed: boolean;

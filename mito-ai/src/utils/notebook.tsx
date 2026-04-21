@@ -111,29 +111,33 @@ export const setActiveCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | 
     }
 }
 
-export const writeCodeToCellByID = (
-    notebookTracker: INotebookTracker,
-    code: string | undefined,
-    codeCellID: string,
-    removeCodeFormatting: boolean = true,
-): void => {
-    const notebookPanel = notebookTracker.currentWidget
-    writeCodeToCellByIDInNotebookPanel(notebookPanel, code, codeCellID, removeCodeFormatting)
+const shouldRemoveCodeFormatting = (cellType: string): boolean => {
+    return cellType !== 'markdown';
 }
 
-export const writeCodeToCellByIDInNotebookPanel = (
-    notebookPanel: NotebookPanel | null,
-    code: string | undefined,
-    codeCellID: string | undefined,
-    removeCodeFormatting: boolean = true,
+export const writeContentToCellByID = (
+    notebookTracker: INotebookTracker,
+    content: string | undefined,
+    cellID: string,
+    cellType: string,
 ): void => {
-    if (code === undefined || codeCellID === undefined) {
+    const notebookPanel = notebookTracker.currentWidget
+    writeContentToCellByIDInNotebookPanel(notebookPanel, content, cellID, cellType)
+}
+
+export const writeContentToCellByIDInNotebookPanel = (
+    notebookPanel: NotebookPanel | null,
+    content: string | undefined,
+    cellID: string | undefined,
+    cellType: string,
+): void => {
+    if (content === undefined || cellID === undefined) {
         return;
     }
 
-    const codeMirrorValidCode = removeCodeFormatting ? removeMarkdownCodeFormatting(code) : code;
+    const codeMirrorValidCode = shouldRemoveCodeFormatting(cellType) ? removeMarkdownCodeFormatting(content) : content;
     const notebook = notebookPanel?.content;
-    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    const cell = notebook?.widgets.find(cell => cell.model.id === cellID);
 
     if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;
@@ -520,7 +524,7 @@ export const deleteCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | nul
     // Guard: don't delete the very last cell in the notebook
     if (notebook.widgets.length <= 1) {
         // Just clear the cell's content instead
-        writeCodeToCellByIDInNotebookPanel(notebookPanel, '', cellId);
+        writeContentToCellByIDInNotebookPanel(notebookPanel, '', cellId, 'code');
         return true;
     }
 

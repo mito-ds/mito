@@ -4,7 +4,7 @@
  */
 
 import { NotebookPanel } from '@jupyterlab/notebook';
-import { scrollToNextCellWithDiff, writeCodeToCellByIDInNotebookPanel, deleteCellByIDInNotebookPanel } from '../../utils/notebook';
+import { scrollToNextCellWithDiff, writeContentToCellByIDInNotebookPanel, deleteCellByIDInNotebookPanel } from '../../utils/notebook';
 import { turnOffDiffsForCell } from '../../utils/codeDiff';
 import { runCellByIDInBackground } from '../../utils/notebook';
 import { AgentReviewStatus, ChangedCell } from './ChatTaskpane';
@@ -24,7 +24,12 @@ const revertCellChanges = (
         deleteCellByIDInNotebookPanel(notebookPanel, changedCell.cellId);
     } else {
         // Cell existed before — restore original code
-        writeCodeToCellByIDInNotebookPanel(notebookPanel, changedCell.originalCode, changedCell.cellId);
+        writeContentToCellByIDInNotebookPanel(
+            notebookPanel,
+            changedCell.originalCode,
+            changedCell.cellId,
+            changedCell.cellType,
+        );
 
         // Re-run the rejected cell in background. We want to make sure that the agent has the
         // most up-to-date version of every variable.
@@ -51,7 +56,12 @@ export const acceptSingleCellEdit = (
     }
 
     // Write the final code to the cell and turn off diffs
-    writeCodeToCellByIDInNotebookPanel(notebookPanel, edit?.code || '', cellId);
+    writeContentToCellByIDInNotebookPanel(
+        notebookPanel,
+        edit?.code || '',
+        cellId,
+        edit?.cell_type || changedCell?.cellType || 'code',
+    );
     turnOffDiffsForCell(notebookPanel, cellId, codeDiffStripesCompartments.current);
 
     // Scroll to the next cell with a diff if in agent mode
@@ -117,7 +127,12 @@ export const acceptAllCellEdits = (
             // Mark as reviewed
             changedCell.reviewed = true;
             // Write the final code to the cell and turn off diffs
-            writeCodeToCellByIDInNotebookPanel(notebookPanel, edit.code, changedCell.cellId);
+            writeContentToCellByIDInNotebookPanel(
+                notebookPanel,
+                edit.code,
+                changedCell.cellId,
+                edit.cell_type,
+            );
             turnOffDiffsForCell(notebookPanel, changedCell.cellId, codeDiffStripesCompartments.current);
         }
     });

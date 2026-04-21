@@ -14,7 +14,7 @@ import {
     getActiveCellIDInNotebookPanel, 
     getCellIndexByIDInNotebookPanel,
     setActiveCellByIDInNotebookPanel, 
-    writeCodeToCellByIDInNotebookPanel, 
+    writeContentToCellByIDInNotebookPanel, 
     scrollToCell, 
 } from "./notebook"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
@@ -85,11 +85,11 @@ export const acceptAndRunCellUpdate = async (
         };
     }
 
-    writeCodeToCellByIDInNotebookPanel(
+    writeContentToCellByIDInNotebookPanel(
         notebookPanel,
         cellUpdate.code,
         cellID,
-        cellUpdate.cell_type !== 'markdown',
+        cellUpdate.cell_type,
     )
 
     // We always create code cells, and then convert to markdown if necessary.

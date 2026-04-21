@@ -4,9 +4,9 @@
  */
 
 import { NotebookPanel } from '@jupyterlab/notebook';
-import { writeCodeToCellByIDInNotebookPanel } from '../../utils/notebook';
+import { writeContentToCellByIDInNotebookPanel } from '../../utils/notebook';
 
-describe('writeCodeToCellByIDInNotebookPanel', () => {
+describe('writeContentToCellByIDInNotebookPanel', () => {
     const cellId = 'cell-1';
 
     const createMockNotebookPanel = () => {
@@ -28,19 +28,20 @@ describe('writeCodeToCellByIDInNotebookPanel', () => {
         return { notebookPanel, cell };
     };
 
-    test('strips markdown code fences by default', () => {
+    test('strips markdown code fences for code cells', () => {
         const { notebookPanel, cell } = createMockNotebookPanel();
 
-        writeCodeToCellByIDInNotebookPanel(
+        writeContentToCellByIDInNotebookPanel(
             notebookPanel,
             "```python\nprint('hello')\n```",
             cellId,
+            'code',
         );
 
         expect(cell.model.sharedModel.source).toBe("print('hello')");
     });
 
-    test('preserves full markdown content when removeCodeFormatting is false', () => {
+    test('preserves full markdown content for markdown cells', () => {
         const { notebookPanel, cell } = createMockNotebookPanel();
         const markdown = `# Header
 
@@ -52,7 +53,7 @@ print('hello')
 
 Some text after code.`;
 
-        writeCodeToCellByIDInNotebookPanel(notebookPanel, markdown, cellId, false);
+        writeContentToCellByIDInNotebookPanel(notebookPanel, markdown, cellId, 'markdown');
 
         expect(cell.model.sharedModel.source).toBe(markdown);
     });
