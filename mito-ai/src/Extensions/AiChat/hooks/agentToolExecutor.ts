@@ -91,10 +91,19 @@ export const executeAgentTool = async ({
             }
 
             setLoadingStatus('running-code');
+            let applyResult;
             try {
-                await acceptAndRunCellUpdate(agentResponse.cell_update, notebookPanel);
+                applyResult = await acceptAndRunCellUpdate(agentResponse.cell_update, notebookPanel);
             } finally {
                 setLoadingStatus(undefined);
+            }
+
+            if (!applyResult.success) {
+                return {
+                    success: false,
+                    errorMessage: applyResult.errorMessage || 'CELL_UPDATE failed before execution.',
+                    toolType: 'cell_update',
+                };
             }
 
             const cells = getAIOptimizedCellsInNotebookPanel(notebookPanel);

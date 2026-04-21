@@ -12,16 +12,22 @@ import {
     createCodeCellAfterCellIDAndActivate,
     didCellExecutionError, 
     getActiveCellIDInNotebookPanel, 
+    getCellIndexByIDInNotebookPanel,
     setActiveCellByIDInNotebookPanel, 
-    writeCodeToCellByIDInNotebookPanel, 
+    writeContentToCellByIDInNotebookPanel, 
     scrollToCell, 
 } from "./notebook"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
 
+export interface ICellUpdateApplyResult {
+    success: boolean;
+    errorMessage?: string;
+}
+
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
     notebookPanel: NotebookPanel,
-): Promise<void> => {
+): Promise<ICellUpdateApplyResult> => {
 
     // If the cellUpdate is creating a new code cell, insert it 
     // before previewing and accepting the code. It is safe to do this 
@@ -30,11 +36,34 @@ export const acceptAndRunCellUpdate = async (
     if (cellUpdate.type === 'new' ) {
         // makes the cell the active cell
         if (cellUpdate.after_cell_id === undefined || cellUpdate.after_cell_id === null) {
-            console.error('after_cell_id is required for new cell creation')
-            return
+            return {
+                success: false,
+                errorMessage: 'CELL_UPDATE failed: `after_cell_id` is required for new cell creation.',
+            };
+        }
+        if (
+            cellUpdate.after_cell_id !== 'new cell' &&
+            getCellIndexByIDInNotebookPanel(notebookPanel, cellUpdate.after_cell_id) === undefined
+        ) {
+            return {
+                success: false,
+                errorMessage: `CELL_UPDATE failed: after_cell_id '${cellUpdate.after_cell_id}' was not found in the current notebook.`,
+            };
         }
         createCodeCellAfterCellIDAndActivate(notebookPanel, cellUpdate.after_cell_id)
     } else {
+        if (!cellUpdate.id) {
+            return {
+                success: false,
+                errorMessage: 'CELL_UPDATE failed: `id` is required for modification updates.',
+            };
+        }
+        if (getCellIndexByIDInNotebookPanel(notebookPanel, cellUpdate.id) === undefined) {
+            return {
+                success: false,
+                errorMessage: `CELL_UPDATE failed: target cell id '${cellUpdate.id}' was not found in the current notebook.`,
+            };
+        }
         setActiveCellByIDInNotebookPanel(notebookPanel, cellUpdate.id)
     }
 
@@ -42,12 +71,26 @@ export const acceptAndRunCellUpdate = async (
     const context = notebookPanel.context;
 
     if (notebook === undefined) {
-        return;
+        return {
+            success: false,
+            errorMessage: 'CELL_UPDATE failed: notebook is unavailable.',
+        };
     }
 
     const cellID = getActiveCellIDInNotebookPanel(notebookPanel)
+    if (!cellID) {
+        return {
+            success: false,
+            errorMessage: 'CELL_UPDATE failed: no active cell could be resolved for writing.',
+        };
+    }
 
-    writeCodeToCellByIDInNotebookPanel(notebookPanel, cellUpdate.code, cellID)
+    writeContentToCellByIDInNotebookPanel(
+        notebookPanel,
+        cellUpdate.code,
+        cellID,
+        cellUpdate.cell_type,
+    )
 
     // We always create code cells, and then convert to markdown if necessary.
     if (cellUpdate.cell_type === 'markdown') {
@@ -73,6 +116,7 @@ export const acceptAndRunCellUpdate = async (
     // has updated the state of the variables. This ensures that on the next Ai message
     // gets the most up to date data.
     await sleep(1000)
+    return { success: true };
 }
 
 export const runAllCells = async (
