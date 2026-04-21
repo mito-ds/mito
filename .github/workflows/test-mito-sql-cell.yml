@@ -20,7 +20,7 @@ concurrency:
 jobs:
   test-mito-sql-cell-jupyterlab:
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 20
     strategy:
       matrix:
         python-version: ['3.10', '3.12']

@@ -47,9 +47,13 @@ litellm = ["litellm"]
 test = [
     "pytest",
     "pytest-asyncio",
+    "pytest-timeout",
     "mypy",
     "types-requests",
 ]
+
+[tool.pytest.ini_options]
+timeout = 30
 
 [tool.hatch.build.targets.wheel]
 packages = ["mito_ai_core"]

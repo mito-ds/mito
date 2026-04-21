@@ -23,10 +23,12 @@ mito-ai-mcp = "mito_ai_mcp.server:main"
 test = [
     "pytest",
     "pytest-asyncio",
+    "pytest-timeout",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+timeout = 30
 markers = [
     "integration: live MCP / full stack",
 ]
