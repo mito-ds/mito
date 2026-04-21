@@ -79,21 +79,6 @@ class AgentRunner:
         self._max_iterations = max_iterations
         self._config = config or AgentRunnerConfig()
 
-    @staticmethod
-    def _should_emit_tool_result_callback(tool_result: ToolResult) -> bool:
-        """Decide whether a tool result should be forwarded to host UI callbacks.
-
-        Failed ``cell_update`` results are intentionally suppressed here because
-        host frontends may render ``on_tool_result`` payloads directly to users.
-        We still append the tool result to AI-optimized history so the agent can
-        recover and retry with corrected tool arguments.
-        """
-        return not (
-            tool_result.tool_name == "cell_update"
-            and not tool_result.success
-            and tool_result.error_message is not None
-        )
-
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
@@ -220,10 +205,7 @@ class AgentRunner:
                 ctx.thread_id,
             )
 
-            if (
-                on_tool_result is not None
-                and self._should_emit_tool_result_callback(tool_result)
-            ):
+            if on_tool_result is not None:
                 await on_tool_result(tool_result)
 
         # Max iterations exhausted. If every completion was malformed, return a
