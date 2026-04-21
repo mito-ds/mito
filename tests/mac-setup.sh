@@ -11,16 +11,18 @@ pip install -r requirements.txt;
 # Install necessary node packages
 jlpm install
 
-# Install playwright. If the user provides a browser, install only that browser
-# Otherwise, install all browsers. This is primarily used so that the CI can
-# install only the necessary browsers.
-if [ $# -eq 0 ]
-  then
-    npx playwright install chromium webkit firefox || echo "Warning: Failed to install some browsers"
-    npx playwright install chrome || echo "Warning: Failed to install Chrome"
-  else
-    npx playwright install $1 || echo "Warning: Failed to install specified browser"
-    npx playwright install || echo "Warning: Failed to install additional browsers"
+# Install Playwright browsers.
+# In CI, default to chromium only to reduce setup time.
+# Locally, preserve broad browser install behavior unless a browser is provided.
+if [ "${CI:-}" = "true" ]; then
+  BROWSER_TO_INSTALL="${1:-chromium}"
+  npx playwright install "$BROWSER_TO_INSTALL" || echo "Warning: Failed to install specified browser"
+elif [ $# -eq 0 ]; then
+  npx playwright install chromium webkit firefox || echo "Warning: Failed to install some browsers"
+  npx playwright install chrome || echo "Warning: Failed to install Chrome"
+else
+  npx playwright install "$1" || echo "Warning: Failed to install specified browser"
+  npx playwright install || echo "Warning: Failed to install additional browsers"
 fi
 
 
