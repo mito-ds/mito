@@ -50,6 +50,7 @@ jobs:
           source venv/bin/activate
           python -m pip install --upgrade pip
           python ../deployment/bump_version.py mito_ai ${{ steps.extract_branch.outputs.branch }}
+          python -m pip install -e ../mito-ai-core --verbose
           python -m pip install -e ".[deploy]" --verbose
           python -m pip check
           jlpm install --frozen-lockfile
