@@ -55,7 +55,7 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
 {
   "mcp": {
     "servers": {
-      "time": {
+      "mito-ai": {
         "command": "uvx",
         "args": ["mito-ai-mcp"]
       }
@@ -72,7 +72,7 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
 {
   "mcp": {
     "servers": {
-      "time": {
+      "mito-ai": {
         "command": "python",
         "args": ["-m", "mito-ai-mcp"]
       }
