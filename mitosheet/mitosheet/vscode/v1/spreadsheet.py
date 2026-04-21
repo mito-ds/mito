@@ -80,6 +80,25 @@ class _MitoVSCodeHandler(BaseHTTPRequestHandler):
             return
 
         msg_id = msg.get('id', '')
+        event_type = msg.get('event', '')
+
+        # log_event messages are fire-and-forget telemetry: the Mito backend
+        # never calls mito_send for them, so polling for a matching response
+        # would block this HTTP connection until _MAX_DELAY elapses. Browsers
+        # cap the number of concurrent HTTP/1.1 connections per origin (~6),
+        # so as log_events pile up (e.g. while navigating the file browser),
+        # we exhaust the connection pool and subsequent API calls hang — this
+        # is what caused "Loading folder contents..." to never resolve after
+        # a couple of directory navigations.
+        #
+        # Process the log event synchronously and respond immediately.
+        if event_type == 'log_event':
+            try:
+                self.server.mito_backend.receive_message(msg)
+            except Exception:
+                pass
+            self._send_json({'event': 'response', 'id': msg_id, 'data': None})
+            return
 
         # Process the message on the backend
         self.server.mito_backend.receive_message(msg)
