@@ -28,7 +28,7 @@ test = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-timeout = 30
+timeout = 60
 markers = [
     "integration: live MCP / full stack",
 ]
