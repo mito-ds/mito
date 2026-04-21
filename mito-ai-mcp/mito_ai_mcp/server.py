@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 """Mito AI MCP stdio server bootstrap."""
 
 from __future__ import annotations

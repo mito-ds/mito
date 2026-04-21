@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 from mito_ai_python_tool_executor.kernel_session import _strip_ansi_escape_sequences
 
 

@@ -1,3 +1,6 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
 """Utility helpers for MCP server request handling."""
 
 from mito_ai_mcp.utils.client_capabilities import detect_ask_user_mode, detect_roots_capability
