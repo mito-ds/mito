@@ -12,7 +12,7 @@ A Model Context Protocol server that provides Mito AI's data analysis capabiliti
 
 ### Using uv (recommended)
 
-When using `[uv](https://docs.astral.sh/uv/)` no specific installation is needed. We will use `[uvx](https://docs.astral.sh/uv/guides/tools/)` to directly run *mito-ai-mcp*.
+When using [`uv`](https://docs.astral.sh/uv/) no specific installation is needed. We will use [`uvx`](https://docs.astral.sh/uv/guides/tools/) to directly run *mito-ai-mcp*.
 
 ```bash
 uvx mito-ai-mcp
