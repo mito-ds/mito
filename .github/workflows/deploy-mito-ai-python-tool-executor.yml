@@ -50,6 +50,7 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           python -m pip install --upgrade pip
+          python -m pip install -e ../mito-ai-core --verbose
           python -m pip install -e . --verbose
           python -m pip install hatchling twine
           python -m pip check
