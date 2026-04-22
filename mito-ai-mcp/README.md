@@ -88,24 +88,10 @@ To set this up in another MCP-compatible app, find its MCP settings page in the 
 
 Then add:
 
-<details>
-<summary>Using uvx</summary>
-
 - Name: mito-ai
 - Type: stdio
 - Command: uvx
 - Arguments: mito-ai-mcp
-
-</details>
-
-<details>
-<summary>Using PIP</summary>
-
-- Name: mito-ai
-- Type: stdio
-- Command: mito-ai-mcp
-
-</details>
 
 ## Development
 
