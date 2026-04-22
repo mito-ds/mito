@@ -72,24 +72,28 @@ python -m mito-ai-mcp
 
 ### Cursor 
 
-You can do this by pressing `Ctrl + Shift + P` and typing `Cursor Settings: Tools & MCPs`. 
+Open the Command Pallet (`Ctrl + Shift + P`) and navigate to `Cursor Settings: Tools & MCPs`. 
 
 Next, scroll to *Install MCP Server*, and fill in the following details:
 
 <details>
 <summary>Using uvx</summary>
+
 - Name: mito-ai
 - Type: stdio
 - Command: uvx
 - Arguments: mito-ai-mcp
+
 </details>
 
 <details>
 <summary>Using PIP</summary>
+
 - Name: mito-ai
 - Type: stdio
 - Command: python
 - Arguments: -m mito-ai-mcp
+
 </details>
 
 ### VS Code
