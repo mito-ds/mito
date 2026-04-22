@@ -110,8 +110,7 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
   "mcp": {
     "servers": {
       "mito-ai": {
-        "command": "python",
-        "args": ["-m", "mito-ai-mcp"]
+        "command": "mito-ai-mcp"
       }
     }
   }
