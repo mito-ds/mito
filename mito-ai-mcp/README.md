@@ -40,7 +40,7 @@ The Mito AI MCP server works with any application that supports MCP. Below are s
 
 Open the Command Pallet (`Ctrl + Shift + P`) and navigate to `Cursor Settings: Tools & MCPs`. 
 
-Next, scroll to *Install MCP Server*, and fill in the following details:
+Next, scroll to *Install MCP Server*, and select *Add Custom MCP*. Then fill in the following details:
 
 <details>
 <summary>Using uvx</summary>
