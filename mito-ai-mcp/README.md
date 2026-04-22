@@ -38,7 +38,13 @@ The Mito AI MCP server works with any application that supports MCP. Below are s
 
 ### Cursor 
 
-Open the Command Pallet (`Ctrl + Shift + P`) and navigate to `Cursor Settings: Tools & MCPs`. 
+For quick installation, use one of the one-click install buttons below:
+
+[![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=uv)
+
+[![Install in Cursor](https://img.shields.io/badge/Cursor-PIP-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=pip)
+
+To manually add the server to Cursor, first, open the Command Pallet (`Ctrl + Shift + P`). Then navigate to `Cursor Settings: Tools & MCPs`. 
 
 Next, scroll to *Install MCP Server*, and select *Add Custom MCP*. Then fill in the following details:
 
