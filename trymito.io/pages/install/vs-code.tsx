@@ -6,23 +6,12 @@ import Footer from "../../components/Footer/Footer";
 import pageStyles from "../../styles/Page.module.css";
 import downloadsStyles from "../../styles/Downloads.module.css";
 import { classNames } from "../../utils/classNames";
-
-const MCP_NAME = "mito-ai";
-type InstallMethod = "uv" | "pip";
-type McpConfig = {
-  command: string;
-  args?: string[];
-};
-
-const MCP_CONFIGS: Record<InstallMethod, McpConfig> = {
-  uv: {
-    command: "uvx",
-    args: ["mito-ai-mcp"],
-  },
-  pip: {
-    command: "mito-ai-mcp",
-  },
-};
+import {
+  MCP_CONFIGS,
+  MCP_NAME,
+  InstallMethod,
+  McpConfig,
+} from "./mcpInstallConfig";
 
 const getVSCodeInstallUrl = (config: McpConfig): string => {
   const encodedConfig = encodeURIComponent(JSON.stringify(config));
