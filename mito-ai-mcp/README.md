@@ -47,8 +47,6 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
 }
 ```
 
-
-
 ### VS Code
 
 For quick installation, use one of the one-click install buttons below:
@@ -77,8 +75,6 @@ Add the following MCP config:
   }
 }
 ```
-
-
 
 ### Other Applications
 
