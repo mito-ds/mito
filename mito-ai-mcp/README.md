@@ -72,7 +72,8 @@ Add the following MCP config:
 
 For quick installation, download the bundle directly:
 
-[mito-ai-mcp.mcpb](https://trymito.io/install/claude-desktop)
+[![mito-ai-mcp.mcpb](https://img.shields.io/badge/Claude-mcpb-DE7356?style=flat-square&logo=claude&logoColor=white)](https://trymito.io/install/claude-desktop)
+
 
 To install, double-click the `.mcpb` file. This should open Claude; follow the directions on screen.
 
