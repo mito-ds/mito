@@ -134,6 +134,7 @@ Claude Desktop uses a `.mcpb` bundle that needs to be built after the server is 
 To rebuild the bundle:
 
 ```bash
+npm install -g @anthropic-ai/mcpb
 mcpb pack
 ```
 
