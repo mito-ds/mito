@@ -124,3 +124,22 @@ After adding, start Claude Code in this repo and ask it to call the `run_data_an
 | ChatGPT MCP | Unsure | Unsure | Unsure |
 
 \* **Sampling** can vary by client/version; this server runs in direct-provider mode and does not require MCP sampling in v1. Smoke-test after client upgrades (`tools/list` + a short `run_data_analyst`).
+
+## Packaging
+
+### Claude Desktop
+
+Claude Desktop uses a `.mcpb` bundle that needs to be built after the server is updated.
+
+To rebuild the bundle:
+
+```bash
+mcpb pack
+```
+
+Then copy the new bundle to the `trymito.io/` dir:
+
+```bash
+mkdir -p ../trymito.io/public/mcp
+cp mito-ai-mcp.mcpb ../trymito.io/public/mcp/mito-ai-mcp.mcpb
+```

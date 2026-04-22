@@ -1,6 +1,6 @@
 # Mito AI MCP Server
 
-This server enables LLMs to perfom better data analysis and visualization, including best-in-class Excel-to-Python workflows. 
+This server enables LLMs to perform better data analysis and visualization, including best-in-class Excel-to-Python workflows.
 
 ## Available Tools
 
@@ -66,25 +66,11 @@ Add the following MCP config:
 
 ### Claude Desktop
 
-Use the MCP bundle (`.mcpb`) for one-click installation in Claude Desktop.
-
 For quick installation, download the bundle directly:
 
-[Install in Claude Desktop](https://trymito.io/install/claude-desktop)
+[mito-ai-mcp.mcpb](https://trymito.io/install/claude-desktop)
 
-Build it from this directory:
-
-```bash
-mcpb pack
-```
-
-This command produces `mito-ai-mcp.mcpb` in the current directory.
-
-Users can then install it in Claude Desktop by:
-
-- Double-clicking the `.mcpb` file
-- Dragging the `.mcpb` file into Claude Desktop
-- Going to **Settings → Extensions → Advanced settings → Install Extension...**
+To install, double-click the `.mcpb` file. This should open Claude; follow the directions on screen.
 
 ### Other Applications
 
