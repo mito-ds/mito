@@ -68,13 +68,17 @@ Add the following MCP config:
 
 Use the MCP bundle (`.mcpb`) for one-click installation in Claude Desktop.
 
+For quick installation, download the bundle directly:
+
+[Install in Claude Desktop](https://trymito.io/install/claude-desktop)
+
 Build it from this directory:
 
 ```bash
 mcpb pack
 ```
 
-This command produces a file named `mito-ai-<version>.mcpb` in the current directory.
+This command produces `mito-ai-mcp.mcpb` in the current directory.
 
 Users can then install it in Claude Desktop by:
 

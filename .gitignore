@@ -22,7 +22,7 @@ mito-sql-cell
 evals/reports/
 
 # Other 
-*.mcpb
+mito-ai-mcp/*.mcpb
 
 ## General
 .DS_Store
