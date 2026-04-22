@@ -34,6 +34,42 @@ python -m mito-ai-mcp
 
 ## Configuration
 
+### Claude Desktop
+
+<details>
+<summary>Using uvx</summary>
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "mito-ai": {
+        "command": "uvx",
+        "args": ["mito-ai-mcp"]
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary>Using PIP</summary>
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "mito-ai": {
+        "command": "python",
+        "args": ["-m", "mito-ai-mcp"]
+      }
+    }
+  }
+}
+```
+</details>
+
 ### Cursor 
 
 For quick installation, use one of the one-click install buttons below:
