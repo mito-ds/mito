@@ -11,7 +11,7 @@ const MCP_NAME = "mito-ai";
 type InstallMethod = "uv" | "pip";
 type McpConfig = {
   command: string;
-  args: string[];
+  args?: string[];
 };
 
 const MCP_CONFIGS: Record<InstallMethod, McpConfig> = {
@@ -20,8 +20,7 @@ const MCP_CONFIGS: Record<InstallMethod, McpConfig> = {
     args: ["mito-ai-mcp"],
   },
   pip: {
-    command: "python",
-    args: ["-m", "mito-ai-mcp"],
+    command: "mito-ai-mcp",
   },
 };
 
