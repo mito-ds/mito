@@ -72,11 +72,25 @@ python -m mito-ai-mcp
 
 ### Cursor 
 
-For quick installation, use one of the one-click install buttons below:
+You can do this by pressing `Ctrl + Shift + P` and typing `Cursor Settings: Tools & MCPs`. 
 
-[![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=mito-ai&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtaXRvLWFpLW1jcCJdfQ==)
+Next, scroll to *Install MCP Server*, and fill in the following details:
 
-[![Install in Cursor](https://img.shields.io/badge/Cursor-PIP-000000?style=flat-square&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=mito-ai&config=eyJjb21tYW5kIjoicHl0aG9uIiwiYXJncyI6WyItbSIsIm1pdG8tYWktbWNwIl19Cg==)
+<details>
+<summary>Using uvx</summary>
+- Name: mito-ai
+- Type: stdio
+- Command: uvx
+- Arguments: mito-ai-mcp
+</details>
+
+<details>
+<summary>Using PIP</summary>
+- Name: mito-ai
+- Type: stdio
+- Command: python
+- Arguments: -m mito-ai-mcp
+</details>
 
 ### VS Code
 
