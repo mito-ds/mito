@@ -10,7 +10,7 @@ This server enables LLMs to perfom better data analysis and visualization, inclu
 
 ## Installation
 
-### Using uv (recommended)
+uv is recommended for installation. 
 
 When using [`uv`](https://docs.astral.sh/uv/) no specific installation is needed. We will use [`uvx`](https://docs.astral.sh/uv/guides/tools/) to directly run *mito-ai-mcp*.
 
@@ -18,19 +18,7 @@ When using [`uv`](https://docs.astral.sh/uv/) no specific installation is needed
 uvx mito-ai-mcp
 ```
 
-### Using PIP
-
-Alternatively you can install `mito-ai-mcp` via pip:
-
-```bash
-pip install mito-ai-mcp
-```
-
-After installation, you can run it as a script using:
-
-```bash
-mito-ai-mcp
-```
+Alternatively, you can install `mito-ai-mcp` via pip. However, this is not reccomended as the package needs to be installed globally.
 
 ## Configuration
 
@@ -38,18 +26,14 @@ The Mito AI MCP server works with any application that supports MCP. Below are s
 
 ### Cursor 
 
-For quick installation, use one of the one-click install buttons below:
+For quick installation, use the one-click install below:
 
 [![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=uv)
-
-[![Install in Cursor](https://img.shields.io/badge/Cursor-PIP-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=pip)
 
 <details>
 <summary>Manual install instructions</summary>
 
 To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + P`) and go to `Cursor Settings: Tools & MCPs`. Scroll to *Install MCP Server* and select *Add Custom MCP*. This will open a JSON file with an `mcpServers` object, add the appropriate config there:
-
-If using uvx:
 
 ```json
 {
@@ -64,18 +48,6 @@ If using uvx:
 }
 ```
 
-If using pip:
-
-```json
-{
-  "mcpServers": {
-    "mito-ai": {
-      "command": "mito-ai-mcp"
-    }
-  }
-}
-```
-
 </details>
 
 ### VS Code
@@ -83,8 +55,6 @@ If using pip:
 For quick installation, use one of the one-click install buttons below:
 
 [![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=uv)
-
-[![Install with Python in VS Code](https://img.shields.io/badge/VS_Code-PIP-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=pip)
 
 <details>
 <summary>Manual install instructions</summary>
@@ -95,7 +65,7 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
 
 > Note that the `mcp` key is needed when using the `mcp.json` file.
 
-If using uvx:
+Add the following MCP config:
 
 ```json
 {
@@ -110,19 +80,6 @@ If using uvx:
 }
 ```
 
-If using pip:
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "mito-ai": {
-        "command": "mito-ai-mcp"
-      }
-    }
-  }
-}
-```
 </details>
 
 ### Other Applications
