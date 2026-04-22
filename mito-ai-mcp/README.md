@@ -1,6 +1,6 @@
 # Mito AI MCP Server
 
-A Model Context Protocol server that provides Mito AI's data analysis capabilities in your application of choice. This server enables LLMs to perfom better data analysis and visualization, including best-in-class Excel-to-Python workflows. 
+This server enables LLMs to perfom better data analysis and visualization, including best-in-class Excel-to-Python workflows. 
 
 ## Available Tools
 
