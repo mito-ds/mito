@@ -29,7 +29,7 @@ pip install mito-ai-mcp
 After installation, you can run it as a script using:
 
 ```bash
-python -m mito-ai-mcp
+mito-ai-mcp
 ```
 
 ## Configuration
