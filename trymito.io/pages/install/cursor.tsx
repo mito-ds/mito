@@ -11,7 +11,7 @@ import {
   MCP_NAME,
   InstallMethod,
   McpConfig,
-} from "./mcpInstallConfig";
+} from "../../utils/mcpInstallConfig";
 
 const getCursorInstallUrl = (config: McpConfig): string => {
   const encodedConfig = window.btoa(JSON.stringify(config));
