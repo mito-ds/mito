@@ -50,9 +50,15 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
 <summary>Using uvx</summary>
 
 ```json
-"mito-ai": {
-    "command": "uvx",
-    "args": ["mito-ai-mcp"]    
+{
+  "mcpServers": {
+    "mito-ai": {
+      "command": "uvx",
+      "args": [
+        "mito-ai-mcp"
+      ]
+    }
+  }
 }
 ```
 
@@ -62,8 +68,12 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
 <summary>Using PIP</summary>
 
 ```json
-"mito-ai": {
-    "command": "mito-ai-mcp"
+{
+  "mcpServers": {
+    "mito-ai": {
+      "command": "mito-ai-mcp"
+    }
+  }
 }
 ```
 
