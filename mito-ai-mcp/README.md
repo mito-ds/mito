@@ -18,7 +18,8 @@ For quick installation, use the one-click install below:
 
 [Install in Cursor](https://trymito.io/install/cursor?method=uv)
 
-Manual install instructions
+<details>
+<summary>Manual install instructions</summary>
 
 To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + P`) and go to `Cursor Settings: Tools & MCPs`. Scroll to *Install MCP Server* and select *Add Custom MCP*. This will open a JSON file with an `mcpServers` object, add the appropriate config there:
 
@@ -34,6 +35,7 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
   }
 }
 ```
+</details>
 
 ### VS Code
 
@@ -41,7 +43,8 @@ For quick installation, use one of the one-click install buttons below:
 
 [Install with UV in VS Code](https://trymito.io/install/vs-code?method=uv)
 
-Manual install instructions
+<details>
+<summary>Manual install instructions</summary>
 
 For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
 
@@ -63,6 +66,7 @@ Add the following MCP config:
   }
 }
 ```
+</details>
 
 ### Claude Desktop
 
@@ -86,15 +90,3 @@ Then add:
 ## Development
 
 Developers should consult the [dev guide](./DEV.md).
-
-## Packaging for Claude Desktop (`.mcpb`)
-
-This repository includes `manifest.json` and `.mcpbignore` so you can package the server with [mcpb](https://github.com/modelcontextprotocol/mcpb).
-
-To build:
-
-```bash
-mcpb pack
-```
-
-This bundle uses `server.type = "uv"` and `entry_point = "mito_ai_mcp/server.py"`, so Claude Desktop installs dependencies from `pyproject.toml` automatically at install time.
