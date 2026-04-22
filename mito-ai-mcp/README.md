@@ -8,6 +8,10 @@ This server enables LLMs to perform better data analysis and visualization, incl
   - Required arguments:
     - `prompt` (string): Natural-language instruction describing the analysis task.
 
+## Installation
+
+Ensure that uv is [installed](https://docs.astral.sh/uv/getting-started/installation/).
+
 ## Configuration
 
 The Mito AI MCP server works with any application that supports MCP. Below are setup instructions for a few popular tools. If yours isn’t listed, see *Other Applications* at the end.
