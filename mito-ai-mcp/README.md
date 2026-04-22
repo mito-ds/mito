@@ -12,7 +12,7 @@ This server enables LLMs to perfom better data analysis and visualization, inclu
 
 uv is recommended for installation. 
 
-When using [`uv`](https://docs.astral.sh/uv/) no specific installation is needed. We will use [`uvx`](https://docs.astral.sh/uv/guides/tools/) to directly run *mito-ai-mcp*.
+When using `[uv](https://docs.astral.sh/uv/)` no specific installation is needed. We will use `[uvx](https://docs.astral.sh/uv/guides/tools/)` to directly run *mito-ai-mcp*.
 
 ```bash
 uvx mito-ai-mcp
@@ -24,14 +24,13 @@ Alternatively, you can install `mito-ai-mcp` via pip. However, this is not recco
 
 The Mito AI MCP server works with any application that supports MCP. Below are setup instructions for a few popular tools. If yours isn’t listed, see *Other Applications* at the end.
 
-### Cursor 
+### Cursor
 
 For quick installation, use the one-click install below:
 
-[![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=uv)
+[Install in Cursor](https://trymito.io/install/cursor?method=uv)
 
-<details>
-<summary>Manual install instructions</summary>
+Manual install instructions
 
 To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + P`) and go to `Cursor Settings: Tools & MCPs`. Scroll to *Install MCP Server* and select *Add Custom MCP*. This will open a JSON file with an `mcpServers` object, add the appropriate config there:
 
@@ -48,16 +47,15 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
 }
 ```
 
-</details>
+
 
 ### VS Code
 
 For quick installation, use one of the one-click install buttons below:
 
-[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=uv)
+[Install with UV in VS Code](https://trymito.io/install/vs-code?method=uv)
 
-<details>
-<summary>Manual install instructions</summary>
+Manual install instructions
 
 For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
 
@@ -80,7 +78,7 @@ Add the following MCP config:
 }
 ```
 
-</details>
+
 
 ### Other Applications
 
