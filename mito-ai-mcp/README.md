@@ -34,6 +34,14 @@ python -m mito-ai-mcp
 
 ## Configuration
 
+### Cursor 
+
+For quick installation, use one of the one-click install buttons below:
+
+[![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=mito-ai&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtaXRvLWFpLW1jcCJdfQ==)
+
+[![Install in Cursor](https://img.shields.io/badge/Cursor-PIP-000000?style=flat-square&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=mito-ai&config=eyJjb21tYW5kIjoicHl0aG9uIiwiYXJncyI6WyItbSIsIm1pdG8tYWktbWNwIl19Cg==)
+
 ### VS Code
 
 For quick installation, use one of the one-click install buttons below:
