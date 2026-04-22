@@ -46,25 +46,28 @@ For quick installation, use one of the one-click install buttons below:
 
 To manually add the server to Cursor, first, open the Command Pallet (`Ctrl + Shift + P`). Then navigate to `Cursor Settings: Tools & MCPs`. 
 
-Next, scroll to *Install MCP Server*, and select *Add Custom MCP*. Then fill in the following details:
+Next, scroll to *Install MCP Server*, and select *Add Custom MCP*. You should see a JSON file, with an `mcpServers` object. Add the appropraite config:
 
 <details>
 <summary>Using uvx</summary>
 
-- Name: mito-ai
-- Type: stdio
-- Command: uvx
-- Arguments: mito-ai-mcp
+```json
+"mito-ai": {
+    "command": "uvx",
+    "args": ["mito-ai-mcp"]    
+}
+```
 
 </details>
 
 <details>
 <summary>Using PIP</summary>
 
-- Name: mito-ai
-- Type: stdio
-- Command: python
-- Arguments: -m mito-ai-mcp
+```json
+"mito-ai": {
+    "command": "mito-ai-mcp"
+}
+```
 
 </details>
 
