@@ -1,0 +1,44 @@
+{
+  "manifest_version": "0.4",
+  "name": "mito-ai",
+  "display_name": "Mito AI",
+  "version": "0.1.0",
+  "description": "Use Mito AI for spreadsheet-style data analysis and Jupyter notebook workflows.",
+  "author": {
+    "name": "Saga Inc."
+  },
+  "server": {
+    "type": "uv",
+    "entry_point": "mito_ai_mcp/server.py",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "${__dirname}",
+        "mito-ai-mcp"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "run_data_analyst",
+      "description": "Run one-shot Mito AI analysis for Excel/CSV workflows, EDA, and Jupyter notebook edits."
+    }
+  ],
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": [
+      "darwin",
+      "win32"
+    ]
+  },
+  "keywords": [
+    "data-analysis",
+    "spreadsheets",
+    "jupyter",
+    "excel",
+    "csv"
+  ],
+  "license": "AGPL-3.0-only"
+}

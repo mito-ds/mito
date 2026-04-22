@@ -21,7 +21,8 @@ mito-sql-cell
 # Evals
 evals/reports/
 
-# Mac Specific 
+# Other 
+*.mcpb
 
 ## General
 .DS_Store

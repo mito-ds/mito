@@ -76,6 +76,24 @@ Add the following MCP config:
 }
 ```
 
+### Claude Desktop
+
+Use the MCP bundle (`.mcpb`) for one-click installation in Claude Desktop.
+
+Build it from this directory:
+
+```bash
+mcpb pack
+```
+
+This command produces a file named `mito-ai-<version>.mcpb` in the current directory.
+
+Users can then install it in Claude Desktop by:
+
+- Double-clicking the `.mcpb` file
+- Dragging the `.mcpb` file into Claude Desktop
+- Going to **Settings → Extensions → Advanced settings → Install Extension...**
+
 ### Other Applications
 
 To set this up in another MCP-compatible app, find its MCP settings page in the docs.
@@ -90,3 +108,15 @@ Then add:
 ## Development
 
 Developers should consult the [dev guide](./DEV.md).
+
+## Packaging for Claude Desktop (`.mcpb`)
+
+This repository includes `manifest.json` and `.mcpbignore` so you can package the server with [mcpb](https://github.com/modelcontextprotocol/mcpb).
+
+To build:
+
+```bash
+mcpb pack
+```
+
+This bundle uses `server.type = "uv"` and `entry_point = "mito_ai_mcp/server.py"`, so Claude Desktop installs dependencies from `pyproject.toml` automatically at install time.
