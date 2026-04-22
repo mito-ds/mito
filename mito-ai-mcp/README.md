@@ -44,9 +44,7 @@ For quick installation, use one of the one-click install buttons below:
 
 [![Install in Cursor](https://img.shields.io/badge/Cursor-PIP-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=pip)
 
-To manually add the server to Cursor, first, open the Command Pallet (`Ctrl + Shift + P`). Then navigate to `Cursor Settings: Tools & MCPs`. 
-
-Next, scroll to *Install MCP Server*, and select *Add Custom MCP*. You should see a JSON file, with an `mcpServers` object. Add the appropraite config:
+To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + P`) and go to `Cursor Settings: Tools & MCPs`.Scroll to *Install MCP Server* and select *Add Custom MCP*. This will open a JSON file with an `mcpServers` object, add the appropriate config there:
 
 <details>
 <summary>Using uvx</summary>
