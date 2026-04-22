@@ -83,9 +83,9 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
 
 For quick installation, use one of the one-click install buttons below:
 
-[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=mito-ai&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mito-ai-mcp%22%5D%7D) [![Install with UV in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-UV-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=mito-ai&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mito-ai-mcp%22%5D%7D&quality=insiders)
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=uv)
 
-[![Install with Python in VS Code](https://img.shields.io/badge/VS_Code-PIP-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?mito-ai=time&config=%7B%22command%22%3A%22python%22%2C%22args%22%3A%5B%22-m%22%2C%22mito-ai-mcp%22%5D%7D) [![Install with Python in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-PIP-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=mito-ai&config=%7B%22command%22%3A%22python%22%2C%22args%22%3A%5B%22-m%22%2C%22mito-ai-mcp%22%5D%7D&quality=insiders)
+[![Install with Python in VS Code](https://img.shields.io/badge/VS_Code-PIP-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=pip)
 
 For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
 
