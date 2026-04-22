@@ -34,41 +34,7 @@ python -m mito-ai-mcp
 
 ## Configuration
 
-### Claude Desktop
-
-<details>
-<summary>Using uvx</summary>
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "mito-ai": {
-        "command": "uvx",
-        "args": ["mito-ai-mcp"]
-      }
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary>Using PIP</summary>
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "mito-ai": {
-        "command": "python",
-        "args": ["-m", "mito-ai-mcp"]
-      }
-    }
-  }
-}
-```
-</details>
+The Mito AI MCP server works with any application that supports MCP. Below are setup instructions for a few popular tools. If yours isn’t listed, see *Other Applications* at the end.
 
 ### Cursor 
 
@@ -144,6 +110,31 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
 ```
 </details>
 
+### Other Applications
+
+To set this up in another MCP-compatible app, find its MCP settings page in the docs.
+
+Then add:
+
+<details>
+<summary>Using uvx</summary>
+
+- Name: mito-ai
+- Type: stdio
+- Command: uvx
+- Arguments: mito-ai-mcp
+
+</details>
+
+<details>
+<summary>Using PIP</summary>
+
+- Name: mito-ai
+- Type: stdio
+- Command: python
+- Arguments: -m mito-ai-mcp
+
+</details>
 
 ## Development
 
