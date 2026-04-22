@@ -16,7 +16,7 @@ The Mito AI MCP server works with any application that supports MCP. Below are s
 
 For quick installation, use the one-click install below:
 
-[Install in Cursor](https://trymito.io/install/cursor?method=uv)
+[![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=uv)
 
 <details>
 <summary>Manual install instructions</summary>
@@ -41,7 +41,7 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
 
 For quick installation, use one of the one-click install buttons below:
 
-[Install with UV in VS Code](https://trymito.io/install/vs-code?method=uv)
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=uv)
 
 <details>
 <summary>Manual install instructions</summary>
