@@ -147,8 +147,7 @@ Then add:
 
 - Name: mito-ai
 - Type: stdio
-- Command: python
-- Arguments: -m mito-ai-mcp
+- Command: mito-ai-mcp
 
 </details>
 
