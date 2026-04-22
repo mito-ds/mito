@@ -44,10 +44,12 @@ For quick installation, use one of the one-click install buttons below:
 
 [![Install in Cursor](https://img.shields.io/badge/Cursor-PIP-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=pip)
 
-To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + P`) and go to `Cursor Settings: Tools & MCPs`.Scroll to *Install MCP Server* and select *Add Custom MCP*. This will open a JSON file with an `mcpServers` object, add the appropriate config there:
-
 <details>
-<summary>Using uvx</summary>
+<summary>Manual install instructions</summary>
+
+To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + P`) and go to `Cursor Settings: Tools & MCPs`. Scroll to *Install MCP Server* and select *Add Custom MCP*. This will open a JSON file with an `mcpServers` object, add the appropriate config there:
+
+If using uvx:
 
 ```json
 {
@@ -62,10 +64,7 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
 }
 ```
 
-</details>
-
-<details>
-<summary>Using PIP</summary>
+If using pip:
 
 ```json
 {
@@ -87,14 +86,16 @@ For quick installation, use one of the one-click install buttons below:
 
 [![Install with Python in VS Code](https://img.shields.io/badge/VS_Code-PIP-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=pip)
 
+<details>
+<summary>Manual install instructions</summary>
+
 For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
 
 Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace. This will allow you to share the configuration with others.
 
 > Note that the `mcp` key is needed when using the `mcp.json` file.
 
-<details>
-<summary>Using uvx</summary>
+If using uvx:
 
 ```json
 {
@@ -108,10 +109,8 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
   }
 }
 ```
-</details>
 
-<details>
-<summary>Using PIP</summary>
+If using pip:
 
 ```json
 {
