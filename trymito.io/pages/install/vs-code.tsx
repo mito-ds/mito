@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
 import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
