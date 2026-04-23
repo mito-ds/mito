@@ -24,6 +24,8 @@ def _validate_server_body(body: Dict[str, Any]) -> str:
     if not isinstance(body.get("command"), str) or not body["command"].strip():
         return "'command' is required"
     args = body.get("args", [])
+    if args is None:
+        args = []
     if not isinstance(args, list) or not all(isinstance(a, str) for a in args):
         return "'args' must be a list of strings"
     env = body.get("env", {})
@@ -35,10 +37,13 @@ def _validate_server_body(body: Dict[str, Any]) -> str:
 
 
 def _normalize_config(body: Dict[str, Any]) -> Dict[str, Any]:
+    args = body.get("args", [])
+    if args is None:
+        args = []
     return {
         "name": body["name"].strip(),
         "command": body["command"].strip(),
-        "args": list(body.get("args", [])),
+        "args": list(args),
         "env": dict(body.get("env", {})),
     }
 

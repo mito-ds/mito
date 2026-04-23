@@ -68,7 +68,7 @@ export const MCPForm: React.FC<IMCPFormProps> = ({
             </div>
 
             <div className="form-group">
-                <label htmlFor="argsText">Arguments</label>
+                <label htmlFor="argsText">Arguments (optional)</label>
                 <textarea
                     id="argsText"
                     name="argsText"
