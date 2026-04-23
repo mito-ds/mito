@@ -74,7 +74,7 @@ export const MCPForm: React.FC<IMCPFormProps> = ({
                     name="argsText"
                     value={formData.argsText}
                     onChange={onInputChange}
-                    placeholder={'mito-ai-mcp'}
+                    placeholder={'mcp-server-time'}
                     className="form-control"
                     rows={4}
                 />
