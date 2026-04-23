@@ -94,7 +94,7 @@ Add the following MCP config:
 In your terminal enter:
 
 ```bash
-claude mcp add --transport stdio mito-ai -- uvx --from mito-ai-mcp
+claude mcp add --transport stdio mito-ai -- uvx mito-ai-mcp
 ```
 
 You should see a success message on submit. You can also enter `claude` from the terminal, and use the `/mcp` command to make sure the mito-ai MCP server is connected. 
