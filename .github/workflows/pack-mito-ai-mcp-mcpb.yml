@@ -1,0 +1,47 @@
+name: Pack - Mito AI MCP (.mcpb)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - 'mito-ai-mcp/**'
+      - '.github/workflows/pack-mito-ai-mcp-mcpb.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  pack-and-sync-mcpb:
+    name: mcpb pack → trymito.io
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Pack bundle and copy to trymito.io
+        run: |
+          set -eux
+          cd mito-ai-mcp
+          npx --yes @anthropic-ai/mcpb pack
+          mkdir -p ../trymito.io/public/mcp
+          cp mito-ai-mcp.mcpb ../trymito.io/public/mcp/mito-ai-mcp.mcpb
+
+      - name: Commit if bundle changed
+        shell: bash
+        run: |
+          set -eux
+          if git diff --quiet -- trymito.io/public/mcp/mito-ai-mcp.mcpb; then
+            echo "No changes to mito-ai-mcp.mcpb"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add trymito.io/public/mcp/mito-ai-mcp.mcpb
+          git commit -m "chore: refresh mito-ai-mcp.mcpb for Claude Desktop"
+          git push
