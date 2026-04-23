@@ -19,7 +19,9 @@ The Mito AI MCP server works with any application that supports MCP. Below are s
 
 #### One-click install
 
-For quick installation, use the one-click install: [![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=uv)
+For quick installation, use the one-click install: 
+
+[![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=uv)
 
 #### Manual install
 
@@ -46,7 +48,9 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
 
 #### One-click install
 
-For quick installation, use one of the one-click install buttons below: [![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=uv)
+For quick installation, use one of the one-click install buttons below: 
+
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=uv)
 
 #### Manual install
 
@@ -79,7 +83,9 @@ Add the following MCP config:
 
 #### One-click install
 
-1. Download the mcp bundle: [![mito-ai-mcp.mcpb](https://img.shields.io/badge/Claude-mcpb-DE7356?style=flat-square&logo=claude&logoColor=white)](https://trymito.io/install/claude-desktop)
+1. Download the mcp bundle: 
+
+[![mito-ai-mcp.mcpb](https://img.shields.io/badge/Claude-mcpb-DE7356?style=flat-square&logo=claude&logoColor=white)](https://trymito.io/install/claude-desktop)
 
 2. Double-click the `.mcpb` file. This should open Claude; follow the directions on screen.
 
