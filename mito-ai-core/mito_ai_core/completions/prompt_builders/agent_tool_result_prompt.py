@@ -1,19 +1,13 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-import json
-from typing import Any, Dict, List, Optional
+from typing import List
 
 from mito_ai_core.agent import ToolResult
 from mito_ai_core.agent.types import AgentContext
+from mito_ai_core.completions.prompt_builders.mcp_tools import format_available_mcp_tools
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
-
-
-def _format_available_mcp_tools(mcp_tools: Optional[List[Dict[str, Any]]]) -> str:
-    if not mcp_tools:
-        return "No MCP tools are currently available."
-    return json.dumps(mcp_tools, indent=2)
 
 
 def format_tool_result(response_type: str, result: ToolResult) -> str:
@@ -58,7 +52,7 @@ def create_agent_tool_result_prompt(context: AgentContext, tool_result: ToolResu
         SG.Variables(context.variables),
         SG.Generic(
             "Available MCP Tools",
-            _format_available_mcp_tools(context.mcp_tools),
+            format_available_mcp_tools(context.mcp_tools),
         ),
         SG.Notebook(context.cells),
         SG.Task("Continue working on the user's task until you have finished"),
