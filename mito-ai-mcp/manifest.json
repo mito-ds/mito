@@ -14,15 +14,12 @@
     "type": "git",
     "url": "https://github.com/mito-ds/mito"
   },
-  "support": "founders@sagacollab.com",
   "server": {
-    "type": "uv",
+    "type": "python",
     "entry_point": "mito_ai_mcp/server.py",
     "mcp_config": {
       "command": "uvx",
       "args": [
-        "--from",
-        "${__dirname}",
         "mito-ai-mcp"
       ],
       "env": {}

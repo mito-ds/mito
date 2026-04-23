@@ -85,7 +85,7 @@ Add the following MCP config:
 
 1. Download the mcp bundle: 
 
-[![mito-ai-mcp.mcpb](https://img.shields.io/badge/Claude-mcpb-DE7356?style=flat-square&logo=claude&logoColor=white)](https://trymito.io/install/claude-desktop)
+[![mito-ai-mcp.mcpb](https://img.shields.io/badge/Claude-mcpb-DE7356?style=flat-square&logo=claude&logoColor=white)](https://github.com/mito-ds/mito/releases/latest/download/mito-ai-mcp.mcpb)
 
 2. Double-click the `.mcpb` file. This should open Claude; follow the directions on screen.
 
@@ -94,7 +94,7 @@ Add the following MCP config:
 In your terminal enter:
 
 ```bash
-claude mcp add --transport stdio mito-ai -- uvx --from mito-ai-mcp
+claude mcp add --transport stdio mito-ai -- uvx mito-ai-mcp
 ```
 
 You should see a success message on submit. You can also enter `claude` from the terminal, and use the `/mcp` command to make sure the mito-ai MCP server is connected. 

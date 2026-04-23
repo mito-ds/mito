@@ -1,0 +1,48 @@
+name: Pack - Mito AI MCP (.mcpb)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'mito-ai-mcp/**'
+      - '.github/workflows/pack-mito-ai-mcp-mcpb.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  pack-and-release-mcpb:
+    name: mcpb pack -> GitHub Release
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Pack bundle
+        run: |
+          set -eux
+          cd mito-ai-mcp
+          npx --yes @anthropic-ai/mcpb pack
+
+      - name: Publish or update rolling release artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eux
+          TAG="mcpb-latest"
+          TITLE="Mito AI MCP Bundle (Latest)"
+          NOTES="Latest build of the Claude Desktop .mcpb bundle from main."
+          ASSET_PATH="mito-ai-mcp/mito-ai-mcp.mcpb"
+
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" "${ASSET_PATH}" --clobber
+            gh release edit "${TAG}" --title "${TITLE}" --notes "${NOTES}" --latest
+          else
+            gh release create "${TAG}" "${ASSET_PATH}" --title "${TITLE}" --notes "${NOTES}" --latest
+          fi
