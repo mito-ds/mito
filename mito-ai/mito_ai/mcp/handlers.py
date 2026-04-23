@@ -89,6 +89,23 @@ class MCPServersHandler(APIHandler):
             return
 
         config = _normalize_config(body)
+        existing_servers = load_servers()
+        if any(
+            existing.get("name", "").strip().lower() == config["name"].lower()
+            for existing in existing_servers.values()
+        ):
+            self.set_status(400)
+            self.finish(
+                json.dumps(
+                    {
+                        "error": (
+                            f"An MCP server named '{config['name']}' already exists. "
+                            "Use a unique name."
+                        )
+                    }
+                )
+            )
+            return
 
         result = await list_server_tools(config)
         if not result.get("success"):

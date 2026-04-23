@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import List, Literal, Optional, NewType, Dict, Any
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # The ThreadID is the unique identifier for the chat thread.
 ThreadID = NewType('ThreadID', str)
@@ -25,6 +25,12 @@ class CellUpdate(BaseModel):
     cell_type: Optional[Literal['code', 'markdown']] = None
 
 
+class MCPToolCall(BaseModel):
+    mcp_server_id: str
+    tool_name: str
+    arguments: Dict[str, Any] = Field(default_factory=dict)
+
+
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 
 # so instead we just combine all of the possible response types into a single class 
 # for now and rely on the AI to respond with the correct types, following the format
@@ -39,6 +45,7 @@ class AgentResponse(BaseModel):
         'edit_streamlit_app', 
         'ask_user_question', 
         'scratchpad',
+        'mcp_tool_call',
     ]
     message: str
     cell_update: Optional[CellUpdate]
@@ -50,6 +57,7 @@ class AgentResponse(BaseModel):
     answers: Optional[List[str]]
     scratchpad_code: Optional[str]
     scratchpad_summary: Optional[str]
+    mcp_tool_call: Optional[MCPToolCall]
     
     
 @dataclass(frozen=True)

@@ -59,6 +59,7 @@ class AgentRunner:
             "ask_user_question",
             "create_streamlit_app",
             "edit_streamlit_app",
+            "mcp_tool_call",
         }
     )
 
@@ -223,6 +224,7 @@ class AgentRunner:
                 answers=None,
                 scratchpad_code=None,
                 scratchpad_summary=None,
+                mcp_tool_call=None,
             )
         return AgentRunResult(
             final_response=last_response,
@@ -320,6 +322,23 @@ class AgentRunner:
             return await self._tool_executor.edit_streamlit_app(
                 ctx,
                 response.streamlit_app_prompt,
+                response.message,
+            )
+
+        if rtype == "mcp_tool_call":
+            if response.mcp_tool_call is None:
+                return ToolResult(
+                    success=False,
+                    tool_name=rtype,
+                    error_message=(
+                        "Agent returned mcp_tool_call but mcp_tool_call payload is null."
+                    ),
+                )
+            return await self._tool_executor.execute_mcp_tool(
+                ctx,
+                response.mcp_tool_call.mcp_server_id,
+                response.mcp_tool_call.tool_name,
+                response.mcp_tool_call.arguments,
                 response.message,
             )
 
