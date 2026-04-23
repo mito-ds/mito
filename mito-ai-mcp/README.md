@@ -10,7 +10,15 @@ This server enables LLMs to perform better data analysis and visualization, incl
 
 ## Installation
 
-Ensure that uv is [installed](https://docs.astral.sh/uv/getting-started/installation/).
+To use the Mito AI MCP server the only requirement is uv. You can find installation instructions [here](https://docs.astral.sh/uv/getting-started/installation/).
+
+Alternatively, you can install the package from PyPI:
+
+```bash
+pip install mito-ai-mcp
+```
+
+However, this method is generally not recommended, as the package must be installed globally for applications to properly detect and launch the MCP server.
 
 ## Configuration
 
