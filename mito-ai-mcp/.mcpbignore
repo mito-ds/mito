@@ -1,10 +1,47 @@
+# Repo metadata
 .git/
 .github/
+
+# Python runtime/cache
+__pycache__/
+*.py[cod]
 .pytest_cache/
 .venv/
 venv/
-__pycache__/
-*.pyc
+
+# Local/test/docs artifacts
 tests/
 docs/
 DEV.md
+
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/
+
+# Build/coverage
+build/
+dist/
+*.egg-info/
+.eggs/
+uv.lock
+.coverage
+coverage/
+htmlcov/
+
+# Node artifacts (defensive)
+node_modules/
+yarn.lock
+package-lock.json
+
+# Notebooks (defensive)
+*.ipynb
+
+# Python tooling caches
+.mypy_cache/
+.ruff_cache/
+
+# Env files
+.env
+.env.*
+!.env.example
