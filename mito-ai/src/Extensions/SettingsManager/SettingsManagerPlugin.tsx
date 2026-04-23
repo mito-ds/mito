@@ -31,7 +31,7 @@ function _activate(
     restorer: ILayoutRestorer | null
 ): WidgetTracker {
     // Create a widget creator function
-    const newWidget = (initialTab?: 'database' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): MainAreaWidget => {
+    const newWidget = (initialTab?: 'database' | 'mcp' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): MainAreaWidget => {
         const content = new SettingsWidget(contextManager, initialTab);
         const widget = new MainAreaWidget({ content });
         widget.id = 'mito-ai-settings';
@@ -48,7 +48,7 @@ function _activate(
     });
 
     // Reusable function to open settings with a specific tab
-    const openSettingsWithTab = (initialTab?: 'database' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): void => {
+    const openSettingsWithTab = (initialTab?: 'database' | 'mcp' | 'general' | 'subscription' | 'rules' | 'profiler' | 'support'): void => {
         // Dispose the old widget and create a new one with the specified tab
         if (widget && !widget.isDisposed) {
             widget.dispose();

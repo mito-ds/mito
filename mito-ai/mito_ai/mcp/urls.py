@@ -1,0 +1,28 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
+from typing import Any, List, Tuple
+
+from jupyter_server.utils import url_path_join
+
+from mito_ai.mcp.handlers import MCPServersHandler
+
+
+def get_mcp_urls(base_url: str) -> List[Tuple[str, Any, dict]]:
+    """Get all MCP related URL patterns.
+
+    Args:
+        base_url: The base URL for the Jupyter server
+
+    Returns:
+        List of (url_pattern, handler_class, handler_kwargs) tuples
+    """
+    BASE_URL = url_path_join(base_url, "mito-ai", "mcp")
+    return [
+        (url_path_join(BASE_URL, "servers"), MCPServersHandler, {}),
+        (
+            url_path_join(BASE_URL, "servers", "(?P<uuid>[^/]+)"),
+            MCPServersHandler,
+            {},
+        ),
+    ]
