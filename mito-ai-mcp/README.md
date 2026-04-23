@@ -10,25 +10,18 @@ This server enables LLMs to perform better data analysis and visualization, incl
 
 ## Installation
 
-To use the Mito AI MCP server the only requirement is uv. You can find installation instructions [here](https://docs.astral.sh/uv/getting-started/installation/).
+The Mito AI MCP server works with any application that supports MCP. Below are setup instructions for a few popular tools: [Cursor](#cursor), [VS Code](#vs-code), [Claude Desktop](#claude-desktop). If yours isn’t listed, see *Other Applications* at the end.
 
-Alternatively, you can install the package from PyPI:
-
-```bash
-pip install mito-ai-mcp
-```
-
-However, this method is generally not recommended, as the package must be installed globally for applications to properly detect and launch the MCP server.
-
-## Configuration
-
-The Mito AI MCP server works with any application that supports MCP. Below are setup instructions for a few popular tools. If yours isn’t listed, see *Other Applications* at the end.
+> [!TIP]
+> To use the Mito AI MCP server the only requirement is uv. You can find installation instructions [here](https://docs.astral.sh/uv/getting-started/installation/).
 
 ### Cursor
 
-For quick installation, use the one-click install below:
+#### One-click install
 
-[![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=uv)
+For quick installation, use the one-click install: [![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=uv)
+
+#### Manual install
 
 <details>
 <summary>Manual install instructions</summary>
@@ -51,9 +44,11 @@ To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + 
 
 ### VS Code
 
-For quick installation, use one of the one-click install buttons below:
+#### One-click install
 
-[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=uv)
+For quick installation, use one of the one-click install buttons below: [![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=uv)
+
+#### Manual install
 
 <details>
 <summary>Manual install instructions</summary>
@@ -82,12 +77,11 @@ Add the following MCP config:
 
 ### Claude Desktop
 
-For quick installation, download the bundle directly:
+#### One-click install
 
-[![mito-ai-mcp.mcpb](https://img.shields.io/badge/Claude-mcpb-DE7356?style=flat-square&logo=claude&logoColor=white)](https://trymito.io/install/claude-desktop)
+1. Download the mcp bundle: [![mito-ai-mcp.mcpb](https://img.shields.io/badge/Claude-mcpb-DE7356?style=flat-square&logo=claude&logoColor=white)](https://trymito.io/install/claude-desktop)
 
-
-To install, double-click the `.mcpb` file. This should open Claude; follow the directions on screen.
+2. Double-click the `.mcpb` file. This should open Claude; follow the directions on screen.
 
 ### Claude Code
 
