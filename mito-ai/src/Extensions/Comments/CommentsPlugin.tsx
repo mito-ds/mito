@@ -17,8 +17,8 @@ import CommentIcon from '../../icons/CommentIcon';
 
 import '../../../style/Comments.css';
 
-// Track compartments for each cell's selection tooltip extension
-const commentSelectionCompartments = new Map<string, Compartment>();
+// Track compartments and the EditorView they were applied to, keyed by cell ID
+const commentSelectionCompartments = new Map<string, { compartment: Compartment; view: any }>();
 
 // Track roots for cleanup
 const outputCommentRoots = new WeakMap<HTMLElement, Root>();
@@ -102,16 +102,19 @@ function applySelectionExtensionToCell(cell: CodeCell): void {
         return;
     }
 
-    let compartment = commentSelectionCompartments.get(cellId);
-    if (!compartment) {
-        compartment = new Compartment();
-        commentSelectionCompartments.set(cellId, compartment);
-        editorView.dispatch({
-            effects: StateEffect.appendConfig.of(
-                compartment.of(commentSelectionExtension())
-            ),
-        });
+    const existing = commentSelectionCompartments.get(cellId);
+    // Skip if already applied to this exact EditorView instance
+    if (existing && existing.view === editorView) {
+        return;
     }
+
+    const compartment = new Compartment();
+    commentSelectionCompartments.set(cellId, { compartment, view: editorView });
+    editorView.dispatch({
+        effects: StateEffect.appendConfig.of(
+            compartment.of(commentSelectionExtension())
+        ),
+    });
 }
 
 /**
@@ -362,6 +365,15 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
                 const notebook = notebookPanel.content;
                 notebook.model?.cells.changed.connect(() => {
                     setTimeout(() => applySelectionExtensionToAllCells(notebookPanel), 100);
+                });
+
+                // When the active cell changes, try to apply the extension.
+                // This catches cells whose editors weren't ready on initial setup.
+                notebook.activeCellChanged.connect(() => {
+                    const activeCell = notebook.activeCell;
+                    if (activeCell instanceof CodeCell) {
+                        applySelectionExtensionToCell(activeCell);
+                    }
                 });
             }).catch(() => {
                 // Ignore errors during setup
