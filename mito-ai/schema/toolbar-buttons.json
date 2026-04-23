@@ -16,10 +16,6 @@
           "command": "toolbar-button:toggle-include-cell-in-app"
         },
         {
-          "name": "comment-on-output",
-          "command": "toolbar-button:comment-on-output"
-        },
-        {
           "name": "accept-code",
           "command": "toolbar-button:accept-code",
           "rank": 1

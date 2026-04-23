@@ -73,59 +73,26 @@
     opacity: 0.85;
 }
 
-/* CodeMirror gutter for comment icons */
-.cm-commentGutter {
-    width: 16px;
-    cursor: pointer;
-}
-
-.comment-gutter-marker {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    color: var(--jp-ui-font-color2);
-    cursor: pointer;
-}
-
-/* Show the gutter marker when hovering over the gutter or the editor line */
-.cm-editor:hover .comment-gutter-marker {
-    opacity: 0.4;
-}
-
-.comment-gutter-marker:hover {
-    opacity: 1 !important;
-    color: var(--jp-brand-color1);
-}
-
-/* Output comment button that appears on hover */
-.output-comment-button {
+/* Output comment button - positioned to the right of the Chart Wizard button */
+.output-comment-button-container {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    z-index: 100;
-    background-color: var(--jp-layout-color1);
-    border: 1px solid var(--jp-border-color1);
-    border-radius: 4px;
-    padding: 2px 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    color: var(--jp-ui-font-color1);
+    top: 8px;
+    right: 8px;
+    z-index: 10;
     opacity: 0;
-    transition: opacity 0.15s ease;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.2s ease-in-out;
 }
 
-.jp-OutputArea-output:hover .output-comment-button {
+/* When the Chart Wizard button is also present, shift the comment button to the right */
+.chart-wizard-output-container .output-comment-button-container {
+    /* The chart wizard button is ~120px wide + 8px right margin.
+       Place comment button to its right. */
+    right: auto;
+    left: 8px;
+}
+
+/* Show the comment button when hovering over the output container */
+.chart-wizard-output-container:hover .output-comment-button-container,
+.output-comment-output-container:hover .output-comment-button-container {
     opacity: 1;
-}
-
-.output-comment-button:hover {
-    background-color: var(--jp-layout-color2);
 }

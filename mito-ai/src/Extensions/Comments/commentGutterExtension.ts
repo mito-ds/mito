@@ -3,106 +3,137 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { Extension, RangeSetBuilder } from '@codemirror/state';
+import { Extension, StateField, StateEffect } from '@codemirror/state';
 import {
     EditorView,
-    GutterMarker,
-    gutter,
-    ViewPlugin,
-    ViewUpdate,
+    showTooltip,
+    Tooltip,
 } from '@codemirror/view';
 
 /**
- * A custom event dispatched when a comment gutter icon is clicked.
- * The detail contains the line number (1-indexed) and the bounding rect for positioning the popover.
+ * A custom event dispatched when the "+ Add comment" button is clicked.
+ * The detail contains the bounding rect for positioning the comment popover.
  */
-export const COMMENT_GUTTER_CLICK_EVENT = 'mito-ai-comment-gutter-click';
+export const COMMENT_TOOLTIP_CLICK_EVENT = 'mito-ai-comment-tooltip-click';
 
-export interface CommentGutterClickDetail {
-    lineNumber: number;
+export interface CommentTooltipClickDetail {
     rect: DOMRect;
 }
 
-// Speech bubble SVG for the gutter marker
-const COMMENT_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" fill="currentColor"/></svg>`;
+// Speech bubble SVG used in the button
+const COMMENT_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="currentColor"/></svg>`;
 
-class CommentMarker extends GutterMarker {
-    private lineNumber: number;
+/**
+ * An effect used to dismiss the tooltip (e.g., after the user clicks the button).
+ */
+const dismissTooltip = StateEffect.define<null>();
 
-    constructor(lineNumber: number) {
-        super();
-        this.lineNumber = lineNumber;
-    }
+/**
+ * State field that tracks whether there is a non-empty text selection,
+ * and if so, provides a tooltip positioned at the selection head.
+ */
+const commentTooltipField = StateField.define<Tooltip | null>({
+    create(state) {
+        const sel = state.selection.main;
+        if (sel.from === sel.to) {
+            return null;
+        }
+        return makeTooltip(sel.head);
+    },
+    update(value, tr) {
+        // Check if the tooltip was explicitly dismissed
+        for (const effect of tr.effects) {
+            if (effect.is(dismissTooltip)) {
+                return null;
+            }
+        }
 
-    toDOM(): HTMLElement {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'comment-gutter-marker';
-        wrapper.innerHTML = COMMENT_SVG;
-        wrapper.title = 'Add comment for AI';
-        wrapper.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const rect = wrapper.getBoundingClientRect();
-            wrapper.dispatchEvent(new CustomEvent(COMMENT_GUTTER_CLICK_EVENT, {
-                bubbles: true,
-                detail: {
-                    lineNumber: this.lineNumber,
-                    rect,
-                } as CommentGutterClickDetail
-            }));
-        });
-        return wrapper;
-    }
+        if (!tr.selection && !tr.docChanged) {
+            return value;
+        }
+
+        const sel = tr.state.selection.main;
+        if (sel.from === sel.to) {
+            return null;
+        }
+        return makeTooltip(sel.head);
+    },
+    provide: (field) => showTooltip.from(field),
+});
+
+function makeTooltip(pos: number): Tooltip {
+    return {
+        pos,
+        above: true,
+        create: () => {
+            const dom = document.createElement('div');
+            dom.className = 'cm-comment-tooltip';
+
+            const btn = document.createElement('button');
+            btn.className = 'cm-comment-tooltip-button';
+            btn.innerHTML = `${COMMENT_SVG} <span>Add comment</span>`;
+            btn.title = 'Add a comment for the AI';
+
+            btn.addEventListener('mousedown', (e) => {
+                // Use mousedown instead of click to fire before the editor
+                // loses focus and clears the selection
+                e.preventDefault();
+                e.stopPropagation();
+
+                const rect = btn.getBoundingClientRect();
+                btn.dispatchEvent(new CustomEvent(COMMENT_TOOLTIP_CLICK_EVENT, {
+                    bubbles: true,
+                    detail: { rect } as CommentTooltipClickDetail,
+                }));
+            });
+
+            dom.appendChild(btn);
+            return { dom };
+        },
+    };
 }
 
 /**
- * A ViewPlugin that tracks which line the cursor is on to show the gutter marker.
+ * Creates the CodeMirror extension that shows a "+ Add comment" tooltip
+ * when the user has text selected in a code cell.
  */
-const commentGutterPlugin = ViewPlugin.fromClass(
-    class {
-        cursorLine: number;
-
-        constructor(view: EditorView) {
-            this.cursorLine = view.state.doc.lineAt(view.state.selection.main.head).number;
-        }
-
-        update(update: ViewUpdate): void {
-            if (update.selectionSet || update.docChanged) {
-                this.cursorLine = update.state.doc.lineAt(update.state.selection.main.head).number;
-            }
-        }
-    }
-);
-
-/**
- * The comment gutter itself. Shows a speech bubble icon on the line where the cursor is.
- */
-const commentGutter = gutter({
-    class: 'cm-commentGutter',
-    markers: (view) => {
-        const plugin = view.plugin(commentGutterPlugin);
-        if (!plugin) {
-            const emptyBuilder = new RangeSetBuilder<GutterMarker>();
-            return emptyBuilder.finish();
-        }
-
-        const cursorLine = plugin.cursorLine;
-        const line = view.state.doc.line(cursorLine);
-
-        const builder = new RangeSetBuilder<GutterMarker>();
-        builder.add(line.from, line.from, new CommentMarker(cursorLine));
-        return builder.finish();
-    },
-    initialSpacer: () => new CommentMarker(0),
-});
-
-/**
- * Creates the CodeMirror extension that adds a comment gutter to the editor.
- * The gutter shows a speech bubble icon on the current cursor line.
- * Clicking the icon dispatches a COMMENT_GUTTER_CLICK_EVENT custom event.
- */
-export function commentGutterExtension(): Extension {
+export function commentSelectionExtension(): Extension {
     return [
-        commentGutterPlugin,
-        commentGutter,
+        commentTooltipField,
+        EditorView.baseTheme({
+            '.cm-comment-tooltip': {
+                padding: '0',
+                border: 'none',
+                background: 'none',
+            },
+            '.cm-comment-tooltip-button': {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '3px 8px',
+                borderRadius: '4px',
+                border: '1px solid var(--jp-border-color1)',
+                backgroundColor: 'var(--jp-layout-color1)',
+                color: 'var(--jp-ui-font-color1)',
+                fontSize: '12px',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+                whiteSpace: 'nowrap' as any,
+            },
+            '.cm-comment-tooltip-button:hover': {
+                backgroundColor: 'var(--jp-layout-color2)',
+                color: 'var(--jp-brand-color1)',
+            },
+            '.cm-comment-tooltip-button span': {
+                lineHeight: '1',
+            },
+        }),
     ];
+}
+
+/**
+ * Dispatch the dismiss effect to hide the tooltip for a given editor view.
+ */
+export function dismissCommentTooltip(view: EditorView): void {
+    view.dispatch({ effects: dismissTooltip.of(null) });
 }
