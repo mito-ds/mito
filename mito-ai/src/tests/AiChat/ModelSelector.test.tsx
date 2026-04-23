@@ -9,6 +9,8 @@ import { render, fireEvent, screen, waitFor, within } from '@testing-library/rea
 import ModelSelector from '../../components/ModelSelector';
 import { DEFAULT_MODEL } from '../../components/ModelSelector';
 import { 
+  CLAUDE_SONNET_4_6_DISPLAY_NAME,
+  CLAUDE_SONNET_4_6_MODEL_NAME,
   GPT_4_1_DISPLAY_NAME, 
   GPT_4_1_MODEL_NAME,
   GPT_5_5_DISPLAY_NAME,
@@ -46,6 +48,7 @@ describe('ModelSelector', () => {
           GPT_5_2_MODEL_NAME,
           GPT_5_5_MODEL_NAME,
           CLAUDE_HAIKU_MODEL_NAME,
+          CLAUDE_SONNET_4_6_MODEL_NAME,
           GEMINI_3_FLASH_MODEL_NAME,
           GEMINI_3_1_PRO_MODEL_NAME,
         ]
@@ -106,6 +109,30 @@ describe('ModelSelector', () => {
     });
   });
 
+  it('calls onConfigChange when Claude Sonnet 4.6 is selected', async () => {
+    render(<ModelSelector onConfigChange={mockOnConfigChange} />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading models...')).not.toBeInTheDocument();
+    });
+
+    const dropdown = screen.getByText(DEFAULT_MODEL).closest('.model-selector-dropdown');
+    if (!dropdown) throw new Error('Dropdown element not found');
+    fireEvent.click(dropdown);
+
+    const modelOptionsContainer = await waitFor(() => {
+      return screen.getByTestId('model-selector').querySelector('.model-options');
+    });
+    if (!modelOptionsContainer) throw new Error('Model options container not found');
+
+    const modelOption = within(modelOptionsContainer as HTMLElement).getByText(CLAUDE_SONNET_4_6_DISPLAY_NAME);
+    fireEvent.click(modelOption);
+
+    expect(mockOnConfigChange).toHaveBeenCalledWith({
+      model: CLAUDE_SONNET_4_6_MODEL_NAME
+    });
+  });
+
   it('loads saved model from localStorage on mount', async () => {
     // Set up localStorage with a saved model (must be in available models)
     const savedConfig = {
@@ -130,6 +157,7 @@ describe('ModelSelector', () => {
           GPT_5_2_MODEL_NAME,
           GPT_5_5_MODEL_NAME,
           CLAUDE_HAIKU_MODEL_NAME,
+          CLAUDE_SONNET_4_6_MODEL_NAME,
           GEMINI_3_FLASH_MODEL_NAME,
           GEMINI_3_1_PRO_MODEL_NAME,
         ]

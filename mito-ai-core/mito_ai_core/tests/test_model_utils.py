@@ -7,6 +7,7 @@ from mito_ai_core.copilot.model_ids import get_fallback_copilot_models_prefixed
 from mito_ai_core.utils.model_utils import (
     get_available_models,
     get_fast_model_for_selected_model,
+    get_smartest_model_for_selected_model,
     STANDARD_MODELS,
     ANTHROPIC_MODEL_ORDER,
     OPENAI_MODEL_ORDER,
@@ -396,3 +397,17 @@ class TestGetFastModelForSelectedModel:
         result = get_fast_model_for_selected_model(selected_model)
         
         assert result == expected_result
+
+
+class TestGetSmartestModelForSelectedModel:
+    """Tests for get_smartest_model_for_selected_model() function."""
+
+    def test_anthropic_haiku_returns_sonnet_4_6(self):
+        """Claude Haiku should resolve to the smartest Anthropic model."""
+        result = get_smartest_model_for_selected_model("claude-haiku-4-5-20251001")
+        assert result == "claude-sonnet-4-6"
+
+    def test_anthropic_sonnet_4_6_returns_itself(self):
+        """Claude Sonnet 4.6 should remain selected as smartest Anthropic model."""
+        result = get_smartest_model_for_selected_model("claude-sonnet-4-6")
+        assert result == "claude-sonnet-4-6"

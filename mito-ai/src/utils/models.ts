@@ -5,6 +5,8 @@
 
 export const CLAUDE_SONNET_DISPLAY_NAME = 'Claude Sonnet 4.5';
 export const CLAUDE_SONNET_MODEL_NAME = 'claude-sonnet-4-5-20250929';
+export const CLAUDE_SONNET_4_6_DISPLAY_NAME = 'Claude Sonnet 4.6';
+export const CLAUDE_SONNET_4_6_MODEL_NAME = 'claude-sonnet-4-6';
 
 export const CLAUDE_HAIKU_DISPLAY_NAME = 'Claude Haiku 4.5';
 export const CLAUDE_HAIKU_MODEL_NAME = 'claude-haiku-4-5-20251001';
@@ -45,6 +47,7 @@ export async function getAvailableModels(): Promise<string[]> {
             GPT_5_2_MODEL_NAME,
             GPT_5_5_MODEL_NAME,
             CLAUDE_HAIKU_MODEL_NAME,
+            CLAUDE_SONNET_4_6_MODEL_NAME,
             GEMINI_3_FLASH_MODEL_NAME,
             GEMINI_3_1_PRO_MODEL_NAME,
         ];
