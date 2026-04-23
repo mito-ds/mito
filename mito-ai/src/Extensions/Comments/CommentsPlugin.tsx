@@ -36,7 +36,9 @@ function showCommentPopover(
     const popover = document.createElement('div');
     popover.className = 'comment-popover';
     popover.style.top = `${rect.bottom + 4}px`;
-    popover.style.left = `${rect.left}px`;
+
+    // Align the popover's right edge with the button's right edge
+    popover.style.right = `${window.innerWidth - rect.right}px`;
 
     const textarea = document.createElement('textarea');
     textarea.placeholder = 'Add a comment for the AI...';
@@ -151,26 +153,6 @@ function getOutputTextContent(cell: CodeCell): string {
     return outputNode.textContent?.trim() || '';
 }
 
-/**
- * Find the CodeCell that contains a given DOM node.
- */
-function findCellForNode(
-    node: HTMLElement,
-    notebookPanel: NotebookPanel
-): CodeCell | null {
-    const cellElement = node.closest('.jp-Cell') as HTMLElement | null;
-    if (!cellElement) {
-        return null;
-    }
-    const cellWidget = notebookPanel.content.widgets.find(cell => {
-        if (cell instanceof CodeCell) {
-            return cell.node.contains(cellElement) || cellElement.contains(cell.node);
-        }
-        return false;
-    });
-    return cellWidget instanceof CodeCell ? cellWidget : null;
-}
-
 // ---- Output Comment Button (React component) ----
 
 interface OutputCommentButtonProps {
@@ -192,19 +174,27 @@ const OutputCommentButton: React.FC<OutputCommentButtonProps> = ({ onClick }) =>
 };
 
 /**
- * Inject a "Comment" button into an output area that already has the
- * chart-wizard-output-container structure (position: relative parent).
- * The button is placed to the right of the chart wizard button.
+ * Inject a "Comment" button into a code cell's output wrapper.
+ * Works for all output types (images, text, tables, HTML, etc.).
  */
 function injectOutputCommentButton(
-    container: HTMLElement,
+    cell: CodeCell,
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
 ): void {
-    // Don't add if already present
-    if (container.querySelector('.output-comment-button-container')) {
+    const outputWrapper = cell.node.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null;
+    if (!outputWrapper) {
         return;
     }
+
+    // Don't add if already present
+    if (outputWrapper.querySelector('.output-comment-button-container')) {
+        return;
+    }
+
+    // Make the wrapper a positioning context and add hover class
+    outputWrapper.style.position = 'relative';
+    outputWrapper.classList.add('output-comment-output-container');
 
     const commentBtnDiv = document.createElement('div');
     commentBtnDiv.className = 'output-comment-button-container';
@@ -215,17 +205,12 @@ function injectOutputCommentButton(
             return;
         }
 
-        const cellWidget = findCellForNode(container, notebookPanel);
-        if (!cellWidget) {
-            return;
-        }
-
-        const cellId = cellWidget.model.id;
+        const cellId = cell.model.id;
         const cellNumber = getCellNumber(notebookPanel, cellId);
         const btnRect = commentBtnDiv.getBoundingClientRect();
 
         showCommentPopover(
-            { ...btnRect, bottom: btnRect.top + btnRect.height + 4, left: btnRect.left } as DOMRect,
+            btnRect,
             async (comment: string) => {
                 const truncatedDisplay = comment.length > 30
                     ? comment.substring(0, 30) + '...'
@@ -238,7 +223,7 @@ function injectOutputCommentButton(
                     // Fall back to text content
                 }
 
-                const outputTextContent = getOutputTextContent(cellWidget);
+                const outputTextContent = getOutputTextContent(cell);
 
                 const value = JSON.stringify({
                     cellId,
@@ -260,43 +245,44 @@ function injectOutputCommentButton(
     root.render(<OutputCommentButton onClick={handleClick} />);
     outputCommentRoots.set(commentBtnDiv, root);
 
-    container.appendChild(commentBtnDiv);
+    outputWrapper.appendChild(commentBtnDiv);
 }
 
 /**
- * Inject comment buttons into all existing chart-wizard output containers,
- * and observe for new ones being added.
+ * Inject comment buttons into all code cells that have output,
+ * and observe for new outputs being rendered.
  */
 function setupOutputCommentButtons(
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
 ): void {
-    // Inject into existing containers
-    const injectAll = (): void => {
-        document.querySelectorAll('.chart-wizard-output-container').forEach((el) => {
-            injectOutputCommentButton(el as HTMLElement, app, notebookTracker);
-        });
+    const injectAllForPanel = (notebookPanel: NotebookPanel): void => {
+        for (const cell of notebookPanel.content.widgets) {
+            if (cell instanceof CodeCell && cell.outputArea?.model.length > 0) {
+                injectOutputCommentButton(cell, app, notebookTracker);
+            }
+        }
     };
 
-    // Also inject into any output area that has position:relative set
-    // (for outputs that don't have chart wizard but are rendered images)
-    injectAll();
+    // Inject into all existing notebooks
+    notebookTracker.forEach(widget => {
+        widget.revealed.then(() => injectAllForPanel(widget)).catch(() => {});
+    });
+
+    // Handle new notebooks
+    notebookTracker.widgetAdded.connect((_sender, widget) => {
+        widget.revealed.then(() => injectAllForPanel(widget)).catch(() => {});
+    });
 
     // Use a MutationObserver to catch newly rendered outputs
-    const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            for (const addedNode of mutation.addedNodes) {
-                if (!(addedNode instanceof HTMLElement)) {
-                    continue;
-                }
-                // Check if the added node itself is a chart wizard container
-                if (addedNode.classList?.contains('chart-wizard-output-container')) {
-                    injectOutputCommentButton(addedNode, app, notebookTracker);
-                }
-                // Check children
-                addedNode.querySelectorAll?.('.chart-wizard-output-container')?.forEach((el) => {
-                    injectOutputCommentButton(el as HTMLElement, app, notebookTracker);
-                });
+    const observer = new MutationObserver(() => {
+        const notebookPanel = notebookTracker.currentWidget;
+        if (!notebookPanel) {
+            return;
+        }
+        for (const cell of notebookPanel.content.widgets) {
+            if (cell instanceof CodeCell && cell.outputArea?.model.length > 0) {
+                injectOutputCommentButton(cell, app, notebookTracker);
             }
         }
     });
@@ -387,11 +373,8 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
             setupNotebook(widget);
         });
 
-        // ---- Output Comments: Inject button into chart-wizard output containers ----
-        // Wait a tick so chart wizard has time to set up its renderers
-        setTimeout(() => {
-            setupOutputCommentButtons(app, notebookTracker);
-        }, 500);
+        // ---- Output Comments: Inject comment button into all output cells ----
+        setupOutputCommentButtons(app, notebookTracker);
 
         console.log('mito-ai: CommentsPlugin activated');
     }

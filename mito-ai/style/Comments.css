@@ -84,7 +84,7 @@
     background-color: var(--purple-500);
 }
 
-/* Output comment button - positioned to the right of the Chart Wizard button */
+/* Output comment button - positioned at top right of output area */
 .output-comment-button-container {
     position: absolute;
     top: 8px;
@@ -94,14 +94,7 @@
     transition: opacity 0.2s ease-in-out;
 }
 
-/* When the Chart Wizard button is also present, shift the comment button to the left */
-.chart-wizard-output-container .output-comment-button-container {
-    right: auto;
-    left: 8px;
-}
-
 /* Show the comment button when hovering over the output container */
-.chart-wizard-output-container:hover .output-comment-button-container,
 .output-comment-output-container:hover .output-comment-button-container {
     opacity: 1;
 }
