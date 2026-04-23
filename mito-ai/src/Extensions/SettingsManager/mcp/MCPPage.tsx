@@ -144,7 +144,7 @@ export const MCPPage = (): JSX.Element => {
                                         <ul>
                                             {server.tools.map(tool => (
                                                 <li key={tool.name} title={tool.description}>
-                                                    <code>{tool.name}</code>
+                                                    <strong>{tool.name}</strong>
                                                     {tool.description ? ` - ${tool.description}` : ''}
                                                 </li>
                                             ))}
