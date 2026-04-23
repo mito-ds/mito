@@ -3,6 +3,7 @@
 
 import pytest
 from datetime import datetime
+from typing import Any, Dict
 from unittest.mock import patch
 from mito_ai_core.utils.server_limits import (
     check_mito_server_quota,
@@ -174,7 +175,7 @@ def test_openai_strict_schema_cell_update_required_matches_properties() -> None:
 
 def test_openai_strict_schema_normalizes_property_nodes_without_type() -> None:
     """Nodes with properties but missing type should still be strict-object schemas."""
-    schema = {
+    schema: Dict[str, Any] = {
         "type": "object",
         "properties": {
             "arguments": {
