@@ -113,7 +113,7 @@ export function commentSelectionExtension(): Extension {
                 padding: '6px 12px',
                 borderRadius: '6px',
                 border: 'none',
-                backgroundColor: 'var(--purple-300)',
+                backgroundColor: 'var(--purple-400)',
                 color: 'var(--purple-700)',
                 fontSize: '13px',
                 fontWeight: '500',
@@ -123,7 +123,7 @@ export function commentSelectionExtension(): Extension {
                 transition: 'background-color 0.15s ease',
             },
             '.cm-comment-tooltip-button:hover': {
-                backgroundColor: 'var(--purple-400)',
+                backgroundColor: 'var(--purple-500)',
             },
             '.cm-comment-tooltip-button span': {
                 lineHeight: '1',
