@@ -108,18 +108,23 @@ async def _call_tool_inner(
         async with ClientSession(read, write) as session:
             await session.initialize()
             result = await session.call_tool(tool_name, arguments=arguments)
+            is_error = bool(getattr(result, "isError", False))
             payload = {
-                "is_error": getattr(result, "isError", False),
+                "is_error": is_error,
                 "structured_content": getattr(result, "structuredContent", None),
                 "content": [
                     _serialize_mcp_content_item(item)
                     for item in getattr(result, "content", []) or []
                 ],
             }
-            return {
-                "success": True,
-                "output": json.dumps(payload, ensure_ascii=False),
-            }
+            serialized_payload = json.dumps(payload, ensure_ascii=False)
+            if is_error:
+                return {
+                    "success": False,
+                    "error": serialized_payload,
+                    "output": serialized_payload,
+                }
+            return {"success": True, "output": serialized_payload}
 
 
 async def call_server_tool(
