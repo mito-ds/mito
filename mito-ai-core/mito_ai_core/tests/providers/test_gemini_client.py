@@ -18,7 +18,7 @@ DUMMY_IMAGE_DATA_URL = (
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgMBAp9l9AAAAABJRU5ErkJggg=="
 )
 
-def test_mixed_text_and_image():
+def test_mixed_text_and_image() -> None:
     messages: List[Dict[str, Any]] = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": [
@@ -36,7 +36,7 @@ def test_mixed_text_and_image():
     # The second part should be a Part object (from google.genai.types)
     assert isinstance(contents[0]["parts"][1], Part)
 
-def test_no_system_instructions_only_content():
+def test_no_system_instructions_only_content() -> None:
     messages: List[Dict[str, Any]] = [
         {"role": "user", "content": "Hello!"},
         {"role": "assistant", "content": "Hi, how can I help you?"}
@@ -49,7 +49,7 @@ def test_no_system_instructions_only_content():
     assert contents[1]["role"] == "model"
     assert contents[1]["parts"][0]["text"] == "Hi, how can I help you?"
 
-def test_system_instructions_and_content():
+def test_system_instructions_and_content() -> None:
     messages: List[Dict[str, Any]] = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "What is the weather today?"}
