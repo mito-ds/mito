@@ -28,8 +28,11 @@ def _openai_strict_schema_fill_required(node: Any) -> None:
     patch the tree after generation.
     """
     if isinstance(node, dict):
-        if node.get("type") == "object" and isinstance(node.get("properties"), dict):
-            props = node["properties"]
+        props = node.get("properties")
+        if isinstance(props, dict):
+            # Some schema producers omit ``type`` even when ``properties`` exists.
+            # OpenAI strict validation still treats this as an object schema.
+            node["type"] = "object"
             if props:
                 node["required"] = sorted(props.keys())
         for child in node.values():
@@ -42,7 +45,9 @@ def _openai_strict_schema_fill_required(node: Any) -> None:
 def _openai_strict_schema_set_additional_properties_false(node: Any) -> None:
     """Ensure every object node explicitly declares ``additionalProperties: false``."""
     if isinstance(node, dict):
-        if node.get("type") == "object":
+        if node.get("type") == "object" or isinstance(node.get("properties"), dict):
+            # Keep object schemas explicit for strict OpenAI JSON schema mode.
+            node["type"] = "object"
             node["additionalProperties"] = False
         for child in node.values():
             _openai_strict_schema_set_additional_properties_false(child)

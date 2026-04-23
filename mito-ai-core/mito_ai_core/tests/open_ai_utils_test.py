@@ -10,7 +10,11 @@ from mito_ai_core.utils.server_limits import (
     OS_MONTHLY_AUTOCOMPLETE_LIMIT,
 )
 from mito_ai_core.completions.models import AgentResponse, MessageType, ResponseFormatInfo
-from mito_ai_core.clients.open_ai_utils import _prepare_request_data_and_headers
+from mito_ai_core.clients.open_ai_utils import (
+    _openai_strict_schema_fill_required,
+    _openai_strict_schema_set_additional_properties_false,
+    _prepare_request_data_and_headers,
+)
 from mito_ai_core.clients.open_ai_utils import get_open_ai_completion_function_params
 
 REALLY_OLD_DATE = "2020-01-01"
@@ -166,3 +170,25 @@ def test_openai_strict_schema_cell_update_required_matches_properties() -> None:
     assert set(cell["required"]) == set(cell["properties"].keys())
     mcp_tool = schema["$defs"]["MCPToolCall"]
     assert mcp_tool["properties"]["arguments"]["type"] == "string"
+
+
+def test_openai_strict_schema_normalizes_property_nodes_without_type() -> None:
+    """Nodes with properties but missing type should still be strict-object schemas."""
+    schema = {
+        "type": "object",
+        "properties": {
+            "arguments": {
+                "properties": {
+                    "foo": {"type": "string"},
+                }
+            }
+        },
+    }
+
+    _openai_strict_schema_fill_required(schema)
+    _openai_strict_schema_set_additional_properties_false(schema)
+
+    arguments = schema["properties"]["arguments"]
+    assert arguments["type"] == "object"
+    assert arguments["required"] == ["foo"]
+    assert arguments["additionalProperties"] is False
