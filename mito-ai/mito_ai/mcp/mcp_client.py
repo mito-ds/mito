@@ -19,6 +19,27 @@ LIST_TOOLS_TIMEOUT_SECONDS = 15
 CALL_TOOL_TIMEOUT_SECONDS = 30
 
 
+def _flatten_exceptions(exc: BaseException) -> list[BaseException]:
+    nested = getattr(exc, "exceptions", None)
+    if nested and isinstance(nested, tuple):
+        leaves: list[BaseException] = []
+        for child in nested:
+            if isinstance(child, BaseException):
+                leaves.extend(_flatten_exceptions(child))
+        if len(leaves) > 0:
+            return leaves
+    return [exc]
+
+
+def _format_exception(exc: BaseException) -> str:
+    leaves = _flatten_exceptions(exc)
+    for leaf in leaves:
+        text = str(leaf).strip()
+        if text:
+            return f"{type(leaf).__name__}: {text}"
+    return f"{type(exc).__name__}: {exc}"
+
+
 def _build_stdio_params(config: Dict[str, Any]) -> StdioServerParameters:
     env = config.get("env") or None
     return StdioServerParameters(
@@ -63,7 +84,7 @@ async def list_server_tools(config: Dict[str, Any]) -> Dict[str, Any]:
             "error": f"Timed out connecting to MCP server after {LIST_TOOLS_TIMEOUT_SECONDS}s",
         }
     except Exception as e:
-        return {"success": False, "error": f"{type(e).__name__}: {e}"}
+        return {"success": False, "error": _format_exception(e)}
 
 
 def _serialize_mcp_content_item(item: Any) -> Dict[str, Any]:
@@ -118,4 +139,4 @@ async def call_server_tool(
             "error": f"Timed out calling MCP tool after {CALL_TOOL_TIMEOUT_SECONDS}s",
         }
     except Exception as e:
-        return {"success": False, "error": f"{type(e).__name__}: {e}"}
+        return {"success": False, "error": _format_exception(e)}
