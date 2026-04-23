@@ -1,126 +1,115 @@
-# mito-ai-mcp
+# Mito AI MCP Server
 
-Mito AI MCP server package. Exposes tools such as `run_data_analyst` (stdio transport) for MCP-capable clients.
+This server enables LLMs to perform better data analysis and visualization, including best-in-class Excel-to-Python workflows.
 
-## Testing
+## Available Tools
 
-Testing is a two-step process:
+- `run_data_analyst` - Run one-shot Mito AI analysis for notebook/spreadsheet workflows (Excel/CSV, cleaning/transforms, EDA, and Jupyter cell generation/edits).
+  - Required arguments:
+    - `prompt` (string): Natural-language instruction describing the analysis task.
 
-1. **Prerequisites** — install this package (editable) so the `python` you point clients at can import it.
-2. **Environment** — pick one: [CLI](#cli), [MCP UI](#mcp-ui), [VS Code](#vs-code), [Claude Desktop](#claude-desktop), or [Claude Code (dev)](#claude-code-dev).
+## Installation
 
-You do **not** need to keep `python -m mito_ai_mcp.server` running in a separate terminal before using the CLI, Inspector UI, VS Code, or Claude Desktop. Those clients start the server as a subprocess when they connect.
+The Mito AI MCP server works with any application that supports MCP. Below are setup instructions for a few popular tools: [Cursor](#cursor), [VS Code](#vs-code), [Claude Desktop](#claude-desktop). If yours isn’t listed, see *Other Applications* at the end.
 
-### Prerequisites
+> [!TIP]
+> To use the Mito AI MCP server the only requirement is uv. You can find installation instructions [here](https://docs.astral.sh/uv/getting-started/installation/).
 
-From the `mito-ai-mcp` directory:
+### Cursor
 
-```bash
-cd mito-ai-mcp
-source venv/bin/activate
-pip install -e ../mito-ai-core -e ../mito-ai-python-tool-executor -e .
-```
+#### One-click install
 
-Optional: run the server alone only to confirm the module loads (not required for the sections below):
+For quick installation, use the one-click install: 
 
-```bash
-python -m mito_ai_mcp.server
-# or: mito-ai-mcp
-```
+[![Install in Cursor](https://img.shields.io/badge/Cursor-UV-000000?style=flat-square&logo=cursor&logoColor=white)](https://trymito.io/install/cursor?method=uv)
 
-**Dev only — hot reload** (auto-restart on changes under `mito/`; use instead of manually restarting while iterating):
+#### Manual install
 
-```bash
-cd mito-ai-mcp
-source venv/bin/activate
-python -m pip install watchfiles
-watchfiles --filter python "python -m mito_ai_mcp.server" ..
-```
+<details>
+<summary>Manual install instructions</summary>
 
-### CLI
-
-One-shot `tools/call` with the Inspector CLI:
-
-```bash
-cd mito-ai-mcp
-npx -y @modelcontextprotocol/inspector@latest --cli python3 -m mito_ai_mcp.server --method tools/call --tool-name run_data_analyst --tool-arg 'prompt=Say hello in one sentence.'
-```
-
-### MCP UI
-
-```bash
-cd mito-ai-mcp
-npx -y @modelcontextprotocol/inspector@latest python3 -m mito_ai_mcp.server
-```
-
-Open the URL Inspector prints (often `http://localhost:6274`), connect, and run `run_data_analyst` from the Tools tab.
-
-### VS Code
-
-Configure a stdio MCP server with the `python` from your editable install and `cwd` set to `mito-ai-mcp`. Exact file location depends on your VS Code version (e.g. project `.vscode/mcp.json`). Example:
-
-```json
-{
-  "servers": {
-    "mito-ai": {
-      "type": "stdio",
-      "command": "/ABSOLUTE/PATH/TO/mito/mito-ai-mcp/venv/bin/python",
-      "args": ["-m", "mito_ai_mcp.server"],
-      "cwd": "/ABSOLUTE/PATH/TO/mito/mito-ai-mcp"
-    }
-  }
-}
-```
-
-Reload the window if needed, then use the MCP tools UI to list tools and run `run_data_analyst`.
-
-### Claude Desktop
-
-Config file (typical paths): **macOS** `~/Library/Application Support/Claude/claude_desktop_config.json`, **Windows** `%APPDATA%\Claude\claude_desktop_config.json`.
+To manually add the server to Cursor, open the Command Palette (`Ctrl + Shift + P`) and go to `Cursor Settings: Tools & MCPs`. Scroll to *Install MCP Server* and select *Add Custom MCP*. This will open a JSON file with an `mcpServers` object, add the appropriate config there:
 
 ```json
 {
   "mcpServers": {
     "mito-ai": {
-      "command": "/ABSOLUTE/PATH/TO/mito/mito-ai-mcp/venv/bin/python",
-      "args": ["-m", "mito_ai_mcp.server"],
-      "cwd": "/ABSOLUTE/PATH/TO/mito/mito-ai-mcp"
+      "command": "uvx",
+      "args": [
+        "mito-ai-mcp"
+      ]
     }
   }
 }
 ```
+</details>
 
-Fully quit and reopen Claude Desktop. In chat, confirm **mito-ai** is connected and invoke `run_data_analyst` (e.g. prompt: “Say hello in one sentence.”).
+### VS Code
 
-**After you edit this package’s code:** With `pip install -e .`, you do not need to reinstall. Claude keeps the MCP server process running, so **restart that process** to pick up changes — usually by **fully quitting Claude Desktop** and reopening it, or using the app’s MCP / developer control to restart the server if your build exposes one. Re-run `pip install -e .` only if you change dependencies or install mode.
+#### One-click install
 
-### Claude Code (dev)
+For quick installation, use one of the one-click install buttons below: 
 
-Add the local stdio server from your terminal. From the repo root:
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://trymito.io/install/vs-code?method=uv)
+
+#### Manual install
+
+<details>
+<summary>Manual install instructions</summary>
+
+For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
+
+Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace. This will allow you to share the configuration with others.
+
+> Note that the `mcp` key is needed when using the `mcp.json` file.
+
+Add the following MCP config:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "mito-ai": {
+        "command": "uvx",
+        "args": ["mito-ai-mcp"]
+      }
+    }
+  }
+}
+```
+</details>
+
+### Claude Desktop
+
+#### One-click install
+
+1. Download the mcp bundle: 
+
+[![mito-ai-mcp.mcpb](https://img.shields.io/badge/Claude-mcpb-DE7356?style=flat-square&logo=claude&logoColor=white)](https://trymito.io/install/claude-desktop)
+
+2. Double-click the `.mcpb` file. This should open Claude; follow the directions on screen.
+
+### Claude Code
+
+In your terminal enter:
 
 ```bash
-cd mito-ai-mcp
-claude mcp add --transport stdio mito-ai -- "$(pwd)/venv/bin/python" -m mito_ai_mcp.server
+claude mcp add --transport stdio mito-ai -- uvx --from mito-ai-mcp
 ```
 
-If your venv lives elsewhere, replace `$(pwd)/venv/bin/python` with your absolute interpreter path, like /Users/username/mito/mito-ai-mcp/venv/bin/python.
+You should see a success message on submit. You can also enter `claude` from the terminal, and use the `/mcp` command to make sure the mito-ai MCP server is connected. 
 
-After adding, start Claude Code in this repo and ask it to call the `run_data_analyst` MCP tool.
+### Other Applications
 
-**After code changes:** because this server is started as a subprocess by the client, restart Claude Code (or remove/re-add the server) to ensure a fresh process picks up your latest edits.
+To set this up in another MCP-compatible app, find its MCP settings page in the docs.
 
----
+Then add:
 
-## MCP Client Behavior Matrix
+- Name: mito-ai
+- Type: stdio
+- Command: uvx
+- Arguments: mito-ai-mcp
 
-| Client | Elicitation | Root | Sampling |
-|--------|:-----------:|:----:|:--------:|
-| Inspector UI (`@modelcontextprotocol/inspector`) | ✓ | ✓ | ✓ |
-| Inspector CLI (`--cli`) | X | X | ✓ |
-| VS Code | ✓ | ✓ | Unsure |
-| Claude Desktop | X | X | X |
-| Claude Code | ✓ | ✓ | Unsure |
-| Cursor | Unsure | Unsure | Unsure |
-| ChatGPT MCP | Unsure | Unsure | Unsure |
+## Development
 
-\* **Sampling** can vary by client/version; this server runs in direct-provider mode and does not require MCP sampling in v1. Smoke-test after client upgrades (`tools/list` + a short `run_data_analyst`).
+Developers should consult the [dev guide](./DEV.md).
