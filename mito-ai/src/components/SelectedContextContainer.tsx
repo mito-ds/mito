@@ -9,6 +9,7 @@ import RuleIcon from '../icons/RuleIcon';
 import CodeIcon from '../icons/CodeIcon';
 import DatabaseIcon from '../icons/DatabaseIcon';
 import PhotoIcon from '../icons/PhotoIcon';
+import CommentIcon from '../icons/CommentIcon';
 import { highlightCodeCell, getCellByID, scrollToCell, highlightLinesOfCodeInCodeCell } from '../utils/notebook';
 
 interface SelectedContextContainerProps {
@@ -52,6 +53,8 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         icon = <CodeIcon />;
     } else if (type === 'dataframe_viewer_selection') {
         icon = <CodeIcon />;
+    } else if (type === 'code_comment' || type === 'output_comment') {
+        icon = <CommentIcon />;
     }
 
     const handleClick = (): void => {
@@ -105,6 +108,42 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             } catch {
                 // Ignore JSON parse errors
             }
+        } else if (type === 'code_comment' && notebookTracker && value) {
+            // Handle code comment click - scroll to and highlight the commented lines
+            try {
+                const commentInfo = JSON.parse(value);
+                const currentWidget = notebookTracker.currentWidget;
+                if (currentWidget) {
+                    scrollToCell(currentWidget, commentInfo.cellId, commentInfo.startLine, 'center');
+                    setTimeout(() => {
+                        const widget = notebookTracker.currentWidget;
+                        if (widget) {
+                            highlightLinesOfCodeInCodeCell(
+                                widget,
+                                commentInfo.cellId,
+                                commentInfo.startLine,
+                                commentInfo.endLine
+                            );
+                        }
+                    }, 500);
+                }
+            } catch {
+                // Ignore JSON parse errors
+            }
+        } else if (type === 'output_comment' && notebookTracker && value) {
+            // Handle output comment click - scroll to the cell
+            try {
+                const commentInfo = JSON.parse(value);
+                const currentWidget = notebookTracker.currentWidget;
+                if (currentWidget) {
+                    scrollToCell(currentWidget, commentInfo.cellId, undefined, 'center');
+                    setTimeout(() => {
+                        highlightCodeCell(notebookTracker, commentInfo.cellId);
+                    }, 500);
+                }
+            } catch {
+                // Ignore JSON parse errors
+            }
         } else if (onClick) {
             // Call the custom onClick handler for other context types
             onClick();
@@ -130,6 +169,20 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             return `The AI will be able to access the ${title} database connection`;
         } else if (type === 'dataframe_viewer_selection') {
             return 'The AI will see the values you selected in the DataFrame output viewer';
+        } else if (type === 'code_comment') {
+            try {
+                const info = JSON.parse(value || '{}');
+                return `Comment on Cell ${info.cellNumber || '?'}, lines ${(info.startLine || 0) + 1}-${(info.endLine || 0) + 1}`;
+            } catch {
+                return 'Comment on code';
+            }
+        } else if (type === 'output_comment') {
+            try {
+                const info = JSON.parse(value || '{}');
+                return `Comment on Cell ${info.cellNumber || '?'} output`;
+            } catch {
+                return 'Comment on output';
+            }
         }
         return "This context will be included in your message to help the AI understand what you're working with";
     };

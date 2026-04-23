@@ -26,6 +26,8 @@ import { AgentExecutionStatus } from '../ChatTaskpane';
 import { uploadFileToBackend } from '../../../utils/fileUpload';
 import {
     COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION,
+    COMMAND_MITO_AI_ADD_CODE_COMMENT,
+    COMMAND_MITO_AI_ADD_OUTPUT_COMMENT,
     COMMAND_MITO_AI_OPEN_CHAT,
 } from '../../../commands';
 
@@ -130,6 +132,56 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     ...prev,
                     {
                         type: 'dataframe_viewer_selection',
+                        value: args.value as string,
+                        display: args.display as string,
+                    },
+                ]);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_CODE_COMMENT, {
+            label: 'Add code comment to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                setAdditionalContext((prev) => [
+                    ...prev,
+                    {
+                        type: 'code_comment',
+                        value: args.value as string,
+                        display: args.display as string,
+                    },
+                ]);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_OUTPUT_COMMENT, {
+            label: 'Add output comment to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                setAdditionalContext((prev) => [
+                    ...prev,
+                    {
+                        type: 'output_comment',
                         value: args.value as string,
                         display: args.display as string,
                     },

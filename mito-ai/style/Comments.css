@@ -1,0 +1,131 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Comment Popover - floating input for entering comments */
+.comment-popover-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+}
+
+.comment-popover {
+    position: fixed;
+    z-index: 10000;
+    background-color: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.comment-popover textarea {
+    width: 100%;
+    min-height: 60px;
+    max-height: 150px;
+    resize: vertical;
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 13px;
+    font-family: var(--jp-ui-font-family);
+    background-color: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color0);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.comment-popover textarea:focus {
+    border-color: var(--jp-brand-color1);
+}
+
+.comment-popover-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.comment-popover-buttons button {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--jp-border-color1);
+    background-color: var(--jp-layout-color1);
+    color: var(--jp-ui-font-color0);
+}
+
+.comment-popover-buttons button.comment-popover-submit {
+    background-color: var(--jp-brand-color1);
+    color: white;
+    border-color: var(--jp-brand-color1);
+}
+
+.comment-popover-buttons button:hover {
+    opacity: 0.85;
+}
+
+/* CodeMirror gutter for comment icons */
+.cm-commentGutter {
+    width: 16px;
+    cursor: pointer;
+}
+
+.comment-gutter-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    color: var(--jp-ui-font-color2);
+    cursor: pointer;
+}
+
+/* Show the gutter marker when hovering over the gutter or the editor line */
+.cm-editor:hover .comment-gutter-marker {
+    opacity: 0.4;
+}
+
+.comment-gutter-marker:hover {
+    opacity: 1 !important;
+    color: var(--jp-brand-color1);
+}
+
+/* Output comment button that appears on hover */
+.output-comment-button {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 100;
+    background-color: var(--jp-layout-color1);
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 4px;
+    padding: 2px 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--jp-ui-font-color1);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.jp-OutputArea-output:hover .output-comment-button {
+    opacity: 1;
+}
+
+.output-comment-button:hover {
+    background-color: var(--jp-layout-color2);
+}
