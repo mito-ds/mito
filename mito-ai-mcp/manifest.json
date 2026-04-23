@@ -5,8 +5,16 @@
   "version": "0.1.0",
   "description": "Use Mito AI for spreadsheet-style data analysis and Jupyter notebook workflows.",
   "author": {
-    "name": "Saga Inc."
+    "name": "Saga Inc.",
+    "email": "founders@sagacollab.com",
+    "url": "https://trymito.io"
   },
+  "homepage": "https://trymito.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mito-ds/mito"
+  },
+  "support": "founders@sagacollab.com",
   "server": {
     "type": "uv",
     "entry_point": "mito_ai_mcp/server.py",
