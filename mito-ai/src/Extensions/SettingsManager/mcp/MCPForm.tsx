@@ -36,7 +36,7 @@ export const MCPForm: React.FC<IMCPFormProps> = ({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="connection-form">
+        <form onSubmit={handleSubmit} className="connection-form mcp-form">
             {formError && <p className="error">{formError}</p>}
 
             <div className="form-group">
@@ -76,7 +76,7 @@ export const MCPForm: React.FC<IMCPFormProps> = ({
                     onChange={onInputChange}
                     placeholder={'mito-ai-mcp'}
                     className="form-control"
-                    rows={3}
+                    rows={4}
                 />
                 <div className="settings-option-description">
                     One argument per line.
@@ -92,7 +92,7 @@ export const MCPForm: React.FC<IMCPFormProps> = ({
                     onChange={onInputChange}
                     placeholder={'API_KEY=...\nOTHER=value'}
                     className="form-control"
-                    rows={3}
+                    rows={4}
                 />
                 <div className="settings-option-description">
                     One KEY=VALUE per line.

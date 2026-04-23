@@ -28,3 +28,23 @@
     padding: 1px 4px;
     font-size: 0.9em;
 }
+
+.mcp-form .form-group textarea {
+    width: 100%;
+    min-height: 8em;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid var(--jp-border-color1);
+    border-radius: 4px;
+    background: var(--jp-layout-color0);
+    color: var(--jp-ui-font-color1);
+    font-size: 14px;
+    line-height: 1.4;
+    resize: vertical;
+}
+
+.mcp-form .form-group textarea:focus {
+    outline: none;
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
