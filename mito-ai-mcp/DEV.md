@@ -129,7 +129,7 @@ After adding, start Claude Code in this repo and ask it to call the `run_data_an
 
 ### Claude Desktop
 
-Claude Desktop uses a `.mcpb` bundle that needs to be built after the server is updated.
+Claude Desktop uses a `.mcpb` bundle that should be built after server updates.
 
 To rebuild the bundle:
 
@@ -138,9 +138,10 @@ npm install -g @anthropic-ai/mcpb
 mcpb pack
 ```
 
-Then copy the new bundle to the `trymito.io/` dir:
+For production distribution, the GitHub Action `.github/workflows/pack-mito-ai-mcp-mcpb.yml` packs on `main` and uploads the bundle to the rolling release artifact. 
+
+User-facing links should always use:
 
 ```bash
-mkdir -p ../trymito.io/public/mcp
-cp mito-ai-mcp.mcpb ../trymito.io/public/mcp/mito-ai-mcp.mcpb
+https://github.com/mito-ds/mito/releases/latest/download/mito-ai-mcp.mcpb
 ```
