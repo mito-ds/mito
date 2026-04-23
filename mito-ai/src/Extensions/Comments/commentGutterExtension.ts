@@ -101,6 +101,13 @@ export function commentSelectionExtension(): Extension {
     return [
         commentTooltipField,
         EditorView.baseTheme({
+            // Override the default CM tooltip container styling
+            '.cm-tooltip.cm-tooltip-above': {
+                backgroundColor: 'transparent',
+                border: 'none',
+                boxShadow: 'none',
+                padding: '0',
+            },
             '.cm-comment-tooltip': {
                 padding: '0',
                 border: 'none',

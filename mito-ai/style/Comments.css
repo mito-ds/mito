@@ -17,60 +17,71 @@
     position: fixed;
     z-index: 10000;
     background-color: var(--jp-layout-color1);
-    border: 1px solid var(--jp-border-color1);
-    border-radius: 6px;
-    padding: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    width: 300px;
+    border: 1px solid var(--jp-border-color2);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+    width: 320px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 }
 
 .comment-popover textarea {
     width: 100%;
-    min-height: 60px;
+    min-height: 72px;
     max-height: 150px;
     resize: vertical;
     border: 1px solid var(--jp-border-color2);
-    border-radius: 4px;
-    padding: 6px 8px;
+    border-radius: 8px;
+    padding: 10px 12px;
     font-size: 13px;
     font-family: var(--jp-ui-font-family);
     background-color: var(--jp-layout-color0);
     color: var(--jp-ui-font-color0);
     outline: none;
     box-sizing: border-box;
+    transition: border-color 0.15s ease;
 }
 
 .comment-popover textarea:focus {
-    border-color: var(--jp-brand-color1);
+    border-color: var(--purple-500);
+}
+
+.comment-popover textarea::placeholder {
+    color: var(--jp-ui-font-color3);
 }
 
 .comment-popover-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 6px;
+    gap: 8px;
 }
 
 .comment-popover-buttons button {
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 12px;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
-    border: 1px solid var(--jp-border-color1);
+    border: 1px solid var(--jp-border-color2);
     background-color: var(--jp-layout-color1);
-    color: var(--jp-ui-font-color0);
-}
-
-.comment-popover-buttons button.comment-popover-submit {
-    background-color: var(--jp-brand-color1);
-    color: white;
-    border-color: var(--jp-brand-color1);
+    color: var(--jp-ui-font-color1);
+    transition: background-color 0.15s ease;
 }
 
 .comment-popover-buttons button:hover {
-    opacity: 0.85;
+    background-color: var(--jp-layout-color2);
+}
+
+.comment-popover-buttons button.comment-popover-submit {
+    background-color: var(--purple-400);
+    color: var(--purple-700);
+    border: none;
+}
+
+.comment-popover-buttons button.comment-popover-submit:hover {
+    background-color: var(--purple-500);
 }
 
 /* Output comment button - positioned to the right of the Chart Wizard button */
@@ -83,10 +94,8 @@
     transition: opacity 0.2s ease-in-out;
 }
 
-/* When the Chart Wizard button is also present, shift the comment button to the right */
+/* When the Chart Wizard button is also present, shift the comment button to the left */
 .chart-wizard-output-container .output-comment-button-container {
-    /* The chart wizard button is ~120px wide + 8px right margin.
-       Place comment button to its right. */
     right: auto;
     left: 8px;
 }
