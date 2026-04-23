@@ -135,6 +135,7 @@ class JupyterLabToolExecutor:
             answers=answers,
             scratchpad_code=scratchpad_code,
             scratchpad_summary=scratchpad_summary,
+            mcp_tool_call=None,
         )
 
     # ------------------------------------------------------------------
