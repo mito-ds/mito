@@ -161,6 +161,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         display: args.display as string,
                     },
                 ]);
+                setInput((prev) => prev.trim() === '' ? 'Please address these comments' : prev);
                 void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
                     focusChatInput: true,
                 });
@@ -186,6 +187,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         display: args.display as string,
                     },
                 ]);
+                setInput((prev) => prev.trim() === '' ? 'Please address these comments' : prev);
                 void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
                     focusChatInput: true,
                 });
