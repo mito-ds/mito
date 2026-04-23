@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - dev
       - main
     paths:
       - 'mito-ai-mcp/**'
@@ -14,8 +13,8 @@ permissions:
   contents: write
 
 jobs:
-  pack-and-sync-mcpb:
-    name: mcpb pack → trymito.io
+  pack-and-release-mcpb:
+    name: mcpb pack -> GitHub Release
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -24,24 +23,26 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Pack bundle and copy to trymito.io
+      - name: Pack bundle
         run: |
           set -eux
           cd mito-ai-mcp
           npx --yes @anthropic-ai/mcpb pack
-          mkdir -p ../trymito.io/public/mcp
-          cp mito-ai-mcp.mcpb ../trymito.io/public/mcp/mito-ai-mcp.mcpb
 
-      - name: Commit if bundle changed
+      - name: Publish or update rolling release artifact
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -eux
-          if git diff --quiet -- trymito.io/public/mcp/mito-ai-mcp.mcpb; then
-            echo "No changes to mito-ai-mcp.mcpb"
-            exit 0
+          TAG="mcpb-latest"
+          TITLE="Mito AI MCP Bundle (Latest)"
+          NOTES="Latest build of the Claude Desktop .mcpb bundle from main."
+          ASSET_PATH="mito-ai-mcp/mito-ai-mcp.mcpb"
+
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" "${ASSET_PATH}" --clobber
+            gh release edit "${TAG}" --title "${TITLE}" --notes "${NOTES}" --latest
+          else
+            gh release create "${TAG}" "${ASSET_PATH}" --title "${TITLE}" --notes "${NOTES}" --latest
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add trymito.io/public/mcp/mito-ai-mcp.mcpb
-          git commit -m "chore: refresh mito-ai-mcp.mcpb for Claude Desktop"
-          git push
