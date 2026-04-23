@@ -81,6 +81,16 @@ For quick installation, download the bundle directly:
 
 To install, double-click the `.mcpb` file. This should open Claude; follow the directions on screen.
 
+### Claude Code
+
+In your terminal enter:
+
+```bash
+claude mcp add --transport stdio mito-ai -- uvx --from mito-ai-mcp
+```
+
+You should see a success message on submit. You can also enter `claude` from the terminal, and use the `/mcp` command to make sure the mito-ai MCP server is connected. 
+
 ### Other Applications
 
 To set this up in another MCP-compatible app, find its MCP settings page in the docs.
