@@ -90,7 +90,7 @@ export const MCPForm: React.FC<IMCPFormProps> = ({
                     name="envText"
                     value={formData.envText}
                     onChange={onInputChange}
-                    placeholder={'API_KEY=...\nOTHER=value'}
+                    placeholder={'API_KEY=sk-123_45'}
                     className="form-control"
                     rows={4}
                 />

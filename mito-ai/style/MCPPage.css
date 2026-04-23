@@ -48,3 +48,7 @@
     border-color: var(--purple-500);
     box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
 }
+
+.mcp-form .settings-option-description {
+    margin-left: 0;
+}
