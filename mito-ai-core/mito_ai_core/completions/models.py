@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
 import traceback
+import json
 from dataclasses import dataclass, field
 from typing import List, Literal, Optional, NewType, Dict, Any
 from openai.types.chat import ChatCompletionMessageParam
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 # The ThreadID is the unique identifier for the chat thread.
 ThreadID = NewType('ThreadID', str)
@@ -28,7 +29,23 @@ class CellUpdate(BaseModel):
 class MCPToolCall(BaseModel):
     mcp_server_id: str
     tool_name: str
-    arguments: Dict[str, Any] = Field(default_factory=dict)
+    # Use a JSON string for strict OpenAI schema compatibility.
+    # We still accept dict/list input and coerce it to JSON via validator.
+    arguments: str = "{}"
+
+    @field_validator("arguments", mode="before")
+    @classmethod
+    def _coerce_arguments_to_json_string(cls, value: Any) -> str:
+        if value is None:
+            return "{}"
+        if isinstance(value, str):
+            return value
+        if isinstance(value, (dict, list)):
+            try:
+                return json.dumps(value)
+            except Exception:
+                return "{}"
+        return str(value)
 
 
 # Using a discriminated Pydantic model doesn't work well with OpenAI's API, 

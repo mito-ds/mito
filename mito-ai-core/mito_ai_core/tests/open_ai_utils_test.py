@@ -164,3 +164,5 @@ def test_openai_strict_schema_cell_update_required_matches_properties() -> None:
     schema = rf["json_schema"]["schema"]
     cell = schema["$defs"]["CellUpdate"]
     assert set(cell["required"]) == set(cell["properties"].keys())
+    mcp_tool = schema["$defs"]["MCPToolCall"]
+    assert mcp_tool["properties"]["arguments"]["type"] == "string"

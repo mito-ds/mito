@@ -334,11 +334,19 @@ class AgentRunner:
                         "Agent returned mcp_tool_call but mcp_tool_call payload is null."
                     ),
                 )
+            parsed_arguments: dict = {}
+            raw_arguments = response.mcp_tool_call.arguments
+            try:
+                loaded = json.loads(raw_arguments) if raw_arguments else {}
+                if isinstance(loaded, dict):
+                    parsed_arguments = loaded
+            except Exception:
+                parsed_arguments = {}
             return await self._tool_executor.execute_mcp_tool(
                 ctx,
                 response.mcp_tool_call.mcp_server_id,
                 response.mcp_tool_call.tool_name,
-                response.mcp_tool_call.arguments,
+                parsed_arguments,
                 response.message,
             )
 
