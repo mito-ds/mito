@@ -172,14 +172,14 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
         } else if (type === 'code_comment') {
             try {
                 const info = JSON.parse(value || '{}');
-                return `Comment on Cell ${info.cellNumber || '?'}, lines ${(info.startLine || 0) + 1}-${(info.endLine || 0) + 1}`;
+                return info.comment || 'Comment on code';
             } catch {
                 return 'Comment on code';
             }
         } else if (type === 'output_comment') {
             try {
                 const info = JSON.parse(value || '{}');
-                return `Comment on Cell ${info.cellNumber || '?'} output`;
+                return info.comment || 'Comment on output';
             } catch {
                 return 'Comment on output';
             }
