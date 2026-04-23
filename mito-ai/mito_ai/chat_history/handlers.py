@@ -4,7 +4,7 @@
 import tornado
 from typing import List, Any
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.completions.models import ChatThreadMetadata
 
 

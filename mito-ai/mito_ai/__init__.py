@@ -1,16 +1,23 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
+"""Jupyter server extension and lab UI for Mito AI chat.
+
+Shared AI logic lives in ``mito_ai_core`` (``mito-ai-core`` on PyPI). ``pip
+install mito-ai`` installs it automatically; when developing from the repo,
+install ``mito-ai-core`` in editable mode before this package—see ``README.md``.
+"""
+
 import atexit
 from typing import List, Dict
 from jupyter_server.utils import url_path_join
 from mito_ai.completions.handlers import CompletionHandler
-from mito_ai.provider_manager import ProviderManager
-from mito_ai.completions.message_history import GlobalMessageHistory
+from mito_ai_core.provider_manager import ProviderManager
+from mito_ai_core.completions.message_history import GlobalMessageHistory
 from mito_ai.app_deploy.handlers import AppDeployHandler
 from mito_ai.log.urls import get_log_urls
-from mito_ai.utils.litellm_utils import is_litellm_configured
-from mito_ai.enterprise.utils import is_abacus_configured
+from mito_ai_core.utils.litellm_utils import is_litellm_configured
+from mito_ai_core.enterprise.utils import is_abacus_configured
 from mito_ai.version_check import VersionCheckHandler
 from mito_ai.db.urls import get_db_urls
 from mito_ai.settings.urls import get_settings_urls
@@ -22,7 +29,7 @@ from mito_ai.file_uploads.urls import get_file_uploads_urls
 from mito_ai.user.urls import get_user_urls
 from mito_ai.chat_history.urls import get_chat_history_urls
 from mito_ai.chart_wizard.urls import get_chart_wizard_urls
-from mito_ai.utils.version_utils import is_enterprise, is_github_copilot_helper_installed
+from mito_ai_core.utils.version_utils import is_enterprise, is_github_copilot_helper_installed
 from mito_ai import constants
 from mito_ai.copilot.urls import get_github_copilot_urls
 
@@ -94,7 +101,7 @@ def _load_jupyter_server_extension(server_app) -> None: # type: ignore
     web_app = server_app.web_app
     base_url = web_app.settings["base_url"]
 
-    provider_manager = ProviderManager(config=server_app.config)
+    provider_manager = ProviderManager()
     
     # Create a single GlobalMessageHistory instance for the entire server
     # This ensures thread-safe access to the .mito/ai-chats directory

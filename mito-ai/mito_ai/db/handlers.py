@@ -7,8 +7,8 @@ import tornado
 import uuid
 from typing import Any, Final
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.utils.schema import MITO_FOLDER
-from mito_ai.utils.telemetry_utils import (
+from mito_ai_core.utils.schema import MITO_FOLDER
+from mito_ai_core.utils.telemetry_utils import (
     log_db_connection_attempt,
     log_db_connection_success,
     log_db_connection_error,

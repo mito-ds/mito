@@ -9,7 +9,7 @@ import pytest
 from traitlets.config import Config
 from openai.types.chat import ChatCompletionMessageParam
 
-from mito_ai.provider_manager import ProviderManager
+from mito_ai_core.provider_manager import ProviderManager
 from mito_ai.completions.models import (
     MessageType,
     AICapabilities,
@@ -18,7 +18,7 @@ from mito_ai.completions.models import (
     ResponseFormatInfo,
     AgentResponse
 )
-from mito_ai.openai_client import OpenAIClient
+from mito_ai_core.clients.openai_client import OpenAIClient
 
 
 FAKE_API_KEY = "sk-1234567890"
@@ -57,20 +57,20 @@ def mock_azure_openai_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("AZURE_OPENAI_API_VERSION", FAKE_AZURE_API_VERSION)
     
     # Set constants
-    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
-    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_ENDPOINT", FAKE_AZURE_ENDPOINT)
-    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", FAKE_AZURE_MODEL)
-    monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_VERSION", FAKE_AZURE_API_VERSION)
+    monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+    monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_ENDPOINT", FAKE_AZURE_ENDPOINT)
+    monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_MODEL", FAKE_AZURE_MODEL)
+    monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_API_VERSION", FAKE_AZURE_API_VERSION)
     
     # Mock enterprise/private functions and directly mock is_azure_openai_configured
-    monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: True)
-    monkeypatch.setattr("mito_ai.enterprise.utils.is_mitosheet_private", lambda: False)
-    monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: True)
+    monkeypatch.setattr("mito_ai_core.enterprise.utils.is_enterprise", lambda: True)
+    monkeypatch.setattr("mito_ai_core.enterprise.utils.is_mitosheet_private", lambda: False)
+    monkeypatch.setattr("mito_ai_core.enterprise.utils.is_azure_openai_configured", lambda: True)
     # Also patch where it's imported in the OpenAI client
-    monkeypatch.setattr("mito_ai.openai_client.is_azure_openai_configured", lambda: True)
+    monkeypatch.setattr("mito_ai_core.clients.openai_client.is_azure_openai_configured", lambda: True)
     
     # Ensure no other OpenAI key is set
-    monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", None)
+    monkeypatch.setattr("mito_ai_core.constants.OPENAI_API_KEY", None)
 
 
 @pytest.fixture
@@ -88,7 +88,6 @@ COMPLETION_MESSAGE_TYPES = [
     MessageType.SMART_DEBUG,
     MessageType.CODE_EXPLAIN,
     MessageType.AGENT_EXECUTION,
-    MessageType.AGENT_AUTO_ERROR_FIXUP,
     MessageType.INLINE_COMPLETION,
     MessageType.CHAT_NAME_GENERATION,
 ]
@@ -144,7 +143,7 @@ class TestAzureOpenAIClientCreation:
     def test_azure_openai_client_capabilities(self, mock_azure_openai_environment: None, provider_config: Config) -> None:
         """Test that Azure OpenAI capabilities are properly returned."""
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             capabilities = openai_client.capabilities
             
             assert capabilities.provider == "Azure OpenAI"
@@ -158,7 +157,7 @@ class TestAzureOpenAIClientCreation:
     def test_azure_openai_client_creation_parameters(self, mock_azure_openai_environment: None, provider_config: Config) -> None:
         """Test that Azure OpenAI client is created with correct parameters."""
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             # Access the client to trigger creation
             _ = openai_client._active_async_client
             
@@ -173,7 +172,7 @@ class TestAzureOpenAIClientCreation:
     def test_azure_openai_model_resolution(self, mock_azure_openai_environment: None, provider_config: Config) -> None:
         """Test that Azure OpenAI model is used regardless of requested model."""
         with patch("openai.AsyncAzureOpenAI"):
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             
             # Test with gpt-4.1 model
             resolved_model = openai_client._adjust_model_for_provider("gpt-4.1")
@@ -201,7 +200,7 @@ class TestAzureOpenAICompletions:
             mock_azure_client, mock_response = create_mock_azure_client_with_response()
             mock_azure_client_class.return_value = mock_azure_client
             
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             
             completion = await openai_client.request_completions(
                 message_type=message_type,
@@ -234,7 +233,7 @@ class TestAzureOpenAICompletions:
             mock_azure_client.is_closed.return_value = False
             mock_azure_client_class.return_value = mock_azure_client
             
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             
             messages: List[ChatCompletionMessageParam] = [
                 {"role": "user", "content": "Test message"}
@@ -276,7 +275,7 @@ class TestAzureOpenAICompletions:
             mock_azure_client, mock_response = create_mock_azure_client_with_response()
             mock_azure_client_class.return_value = mock_azure_client
             
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             
             completion = await openai_client.request_completions(
                 message_type=MessageType.CHAT,
@@ -314,7 +313,7 @@ class TestAzureOpenAIStreamCompletions:
             mock_azure_client.is_closed.return_value = False
             mock_azure_client_class.return_value = mock_azure_client
             
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             
             reply_chunks = []
             def mock_reply(chunk):
@@ -368,7 +367,7 @@ class TestAzureOpenAIStreamCompletions:
             mock_azure_client.is_closed.return_value = False
             mock_azure_client_class.return_value = mock_azure_client
             
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             
             messages: List[ChatCompletionMessageParam] = [
                 {"role": "user", "content": "Test message"}
@@ -428,7 +427,7 @@ class TestAzureOpenAIProviderIntegration:
             mock_azure_client.is_closed.return_value = False
             mock_azure_client_class.return_value = mock_azure_client
             
-            provider = ProviderManager(config=provider_config)
+            provider = ProviderManager()
             provider.set_selected_model("gpt-4.1")
             
             messages: List[ChatCompletionMessageParam] = [
@@ -484,7 +483,7 @@ class TestAzureOpenAIProviderIntegration:
             mock_azure_client.is_closed.return_value = False
             mock_azure_client_class.return_value = mock_azure_client
             
-            provider = ProviderManager(config=provider_config)
+            provider = ProviderManager()
             provider.set_selected_model("gpt-4.1")
             
             messages: List[ChatCompletionMessageParam] = [
@@ -531,10 +530,10 @@ class TestAzureOpenAIConfigurationPriority:
         
         # Set regular OpenAI key (this should be overridden by Azure OpenAI)
         monkeypatch.setenv("OPENAI_API_KEY", "sk-regular-openai-key")
-        monkeypatch.setattr("mito_ai.constants.OPENAI_API_KEY", "sk-regular-openai-key")
+        monkeypatch.setattr("mito_ai_core.constants.OPENAI_API_KEY", "sk-regular-openai-key")
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             capabilities = openai_client.capabilities
             
             # Should still use Azure OpenAI, not regular OpenAI
@@ -555,10 +554,10 @@ class TestAzureOpenAIConfigurationPriority:
         
         # Set Claude key (this should be overridden by Azure OpenAI)
         monkeypatch.setenv("ANTHROPIC_API_KEY", "claude-key")
-        monkeypatch.setattr("mito_ai.constants.ANTHROPIC_API_KEY", "claude-key")
+        monkeypatch.setattr("mito_ai_core.constants.ANTHROPIC_API_KEY", "claude-key")
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             capabilities = openai_client.capabilities
             
             # Should still use Azure OpenAI, not Claude
@@ -582,19 +581,19 @@ class TestAzureOpenAINotConfigured:
         monkeypatch.setenv("AZURE_OPENAI_API_VERSION", FAKE_AZURE_API_VERSION)
         # Missing AZURE_OPENAI_API_KEY
         
-        monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_ENDPOINT", FAKE_AZURE_ENDPOINT)
-        monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", FAKE_AZURE_MODEL)
-        monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_VERSION", FAKE_AZURE_API_VERSION)
-        monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_KEY", None)
+        monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_ENDPOINT", FAKE_AZURE_ENDPOINT)
+        monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_MODEL", FAKE_AZURE_MODEL)
+        monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_API_VERSION", FAKE_AZURE_API_VERSION)
+        monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_API_KEY", None)
         
-        monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: True)
-        monkeypatch.setattr("mito_ai.enterprise.utils.is_mitosheet_private", lambda: False)
+        monkeypatch.setattr("mito_ai_core.enterprise.utils.is_enterprise", lambda: True)
+        monkeypatch.setattr("mito_ai_core.enterprise.utils.is_mitosheet_private", lambda: False)
         # This should return False due to missing API key
-        monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-        monkeypatch.setattr("mito_ai.openai_client.is_azure_openai_configured", lambda: False)
+        monkeypatch.setattr("mito_ai_core.enterprise.utils.is_azure_openai_configured", lambda: False)
+        monkeypatch.setattr("mito_ai_core.clients.openai_client.is_azure_openai_configured", lambda: False)
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             capabilities = openai_client.capabilities
             
             # Should not use Azure OpenAI
@@ -610,20 +609,20 @@ class TestAzureOpenAINotConfigured:
         monkeypatch.setenv("AZURE_OPENAI_MODEL", FAKE_AZURE_MODEL)
         monkeypatch.setenv("AZURE_OPENAI_API_VERSION", FAKE_AZURE_API_VERSION)
         
-        monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
-        monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_ENDPOINT", FAKE_AZURE_ENDPOINT)
-        monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_MODEL", FAKE_AZURE_MODEL)
-        monkeypatch.setattr("mito_ai.constants.AZURE_OPENAI_API_VERSION", FAKE_AZURE_API_VERSION)
+        monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_API_KEY", FAKE_API_KEY)
+        monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_ENDPOINT", FAKE_AZURE_ENDPOINT)
+        monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_MODEL", FAKE_AZURE_MODEL)
+        monkeypatch.setattr("mito_ai_core.constants.AZURE_OPENAI_API_VERSION", FAKE_AZURE_API_VERSION)
         
         # Not enterprise user
-        monkeypatch.setattr("mito_ai.enterprise.utils.is_enterprise", lambda: False)
-        monkeypatch.setattr("mito_ai.enterprise.utils.is_mitosheet_private", lambda: False)
+        monkeypatch.setattr("mito_ai_core.enterprise.utils.is_enterprise", lambda: False)
+        monkeypatch.setattr("mito_ai_core.enterprise.utils.is_mitosheet_private", lambda: False)
         # This should return False due to not being enterprise
-        monkeypatch.setattr("mito_ai.enterprise.utils.is_azure_openai_configured", lambda: False)
-        monkeypatch.setattr("mito_ai.openai_client.is_azure_openai_configured", lambda: False)
+        monkeypatch.setattr("mito_ai_core.enterprise.utils.is_azure_openai_configured", lambda: False)
+        monkeypatch.setattr("mito_ai_core.clients.openai_client.is_azure_openai_configured", lambda: False)
         
         with patch("openai.AsyncAzureOpenAI") as mock_azure_client:
-            openai_client = OpenAIClient(config=provider_config)
+            openai_client = OpenAIClient()
             capabilities = openai_client.capabilities
             
             # Should not use Azure OpenAI

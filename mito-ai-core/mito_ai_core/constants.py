@@ -1,0 +1,89 @@
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GNU Affero General Public License v3.0 License.
+
+import os
+from typing import Union, List
+
+# Claude
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+
+# Gemini
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
+# Ollama
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL")
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+
+# OpenAI
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
+# Azure OpenAI Config 
+AZURE_OPENAI_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_API_VERSION = os.environ.get("AZURE_OPENAI_API_VERSION")
+AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_MODEL = os.environ.get("AZURE_OPENAI_MODEL")
+
+def parse_comma_separated_models(models_str: str) -> List[str]:
+    """
+    Parse a comma-separated string of model names into a list.
+    Handles quoted and unquoted values, stripping whitespace and quotes.
+    
+    Args:
+        models_str: Comma-separated string of model names (e.g., "model1,model2" or '"model1","model2"')
+    
+    Returns:
+        List of model names with whitespace and quotes stripped
+    """
+    if not models_str:
+        return []
+    return [model.strip().strip('"\'') for model in models_str.split(",") if model.strip()]
+
+# LiteLLM Config (Enterprise mode only)
+LITELLM_BASE_URL = os.environ.get("LITELLM_BASE_URL")
+LITELLM_API_KEY = os.environ.get("LITELLM_API_KEY")
+LITELLM_MODELS_STR = os.environ.get("LITELLM_MODELS", "")
+# Parse comma-separated string into list, strip whitespace and quotes
+LITELLM_MODELS = parse_comma_separated_models(LITELLM_MODELS_STR)
+
+# Abacus AI Config (Enterprise mode only)
+ABACUS_BASE_URL = os.environ.get("ABACUS_BASE_URL")
+ABACUS_API_KEY = os.environ.get("ABACUS_API_KEY")
+ABACUS_MODELS_STR = os.environ.get("ABACUS_MODELS", "")
+# Parse comma-separated string into list, strip whitespace and quotes
+ABACUS_MODELS = parse_comma_separated_models(ABACUS_MODELS_STR)
+
+# Mito AI Base URLs and Endpoint Paths
+MITO_PROD_BASE_URL = "https://7eax4i53f5odkshhlry4gw23by0yvnuv.lambda-url.us-east-1.on.aws/v2"
+MITO_DEV_BASE_URL = "https://g5vwmogjg7gh7aktqezyrvcq6a0hyfnr.lambda-url.us-east-1.on.aws/v2"
+MITO_LOCAL_BASE_URL = "http://127.0.0.1:8000/v2" # When you are running the mito completion server locally
+
+# Set ACTIVE_BASE_URL manually
+ACTIVE_BASE_URL = MITO_PROD_BASE_URL  # Change to MITO_DEV_BASE_URL for dev
+
+# Endpoint paths
+ANTHROPIC_PATH = "anthropic/completions"
+GEMINI_PATH = "gemini/completions"
+OPENAI_PATH = "openai/completions"
+
+# Full URLs (always use ACTIVE_BASE_URL)
+MITO_ANTHROPIC_URL = f"{ACTIVE_BASE_URL}/{ANTHROPIC_PATH}"
+MITO_GEMINI_URL = f"{ACTIVE_BASE_URL}/{GEMINI_PATH}"
+MITO_OPENAI_URL = f"{ACTIVE_BASE_URL}/{OPENAI_PATH}"
+
+# Streamlit conversion endpoints
+MITO_STREAMLIT_DEV_BASE_URL = "https://fr12uvtfy5.execute-api.us-east-1.amazonaws.com"
+MITO_STREAMLIT_TEST_BASE_URL = "https://iyual08t6d.execute-api.us-east-1.amazonaws.com"
+
+# Set ACTIVE_BASE_URL manually
+# TODO: Modify to PROD url before release
+ACTIVE_STREAMLIT_BASE_URL = MITO_STREAMLIT_DEV_BASE_URL  # Change to MITO_STREAMLIT_DEV_BASE_URL for dev
+
+# AWS Cognito configuration
+COGNITO_CONFIG_DEV = {
+    'TOKEN_ENDPOINT': 'https://mito-app-auth.auth.us-east-1.amazoncognito.com/oauth2/token',
+    'CLIENT_ID': '2sunerv2m6gp1qk3hib4t8oblh',
+    'CLIENT_SECRET': '',
+    'REDIRECT_URI': 'http://localhost:8888/lab'
+}
+
+ACTIVE_COGNITO_CONFIG = COGNITO_CONFIG_DEV # Change to COGNITO_CONFIG_DEV for dev

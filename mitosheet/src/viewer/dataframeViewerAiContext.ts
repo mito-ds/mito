@@ -39,8 +39,6 @@ export function buildDataframeViewerSelectionContext(
     dataframeName?: string
 ): { display: string; value: string } {
     const { minRow, maxRow, minCol, maxCol } = bounds;
-    const rowCount = maxRow - minRow + 1;
-    const colCount = maxCol - minCol + 1;
     const headers: string[] = [];
     for (let c = minCol; c <= maxCol; c++) {
         headers.push(columnHeaderLabel(columns[c]));
@@ -67,9 +65,10 @@ export function buildDataframeViewerSelectionContext(
             ? `DataFrame: \`${dataframeName.trim()}\`\n\n`
             : "";
     const value = nameLine + markdownTable;
+    const trimmedDataframeName = dataframeName?.trim();
     const display =
-        dataframeName !== undefined && dataframeName.trim() !== ""
-            ? `\`${dataframeName.trim()}\` (${rowCount}×${colCount})`
-            : `DataFrame selection (${rowCount}×${colCount})`;
+        trimmedDataframeName !== undefined && trimmedDataframeName !== ""
+            ? `${trimmedDataframeName} selection`
+            : "DataFrame selection";
     return { display, value };
 }

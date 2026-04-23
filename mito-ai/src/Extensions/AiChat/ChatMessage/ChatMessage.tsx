@@ -31,7 +31,6 @@ import { AgentResponse } from '../../../websockets/completions/CompletionModels'
 import { getCellIdFromCellUpdate } from '../cellUpdateUtils';
 import GetCellOutputToolUI from '../../../components/AgentComponents/GetCellOutputToolUI'
 import AssumptionToolUI from '../../../components/AgentComponents/AssumptionToolUI';
-import SelectedContextContainer from '../../../components/SelectedContextContainer';
 import RunAllCellsToolUI from '../../../components/AgentComponents/RunAllCellsToolUI';
 import AskUserQuestionToolUI from '../../../components/AgentComponents/AskUserQuestionToolUI';
 import ScratchpadToolUI from '../../../components/AgentComponents/ScratchpadToolUI';
@@ -59,7 +58,6 @@ interface IChatMessageProps {
     codeReviewStatus: CodeReviewStatus
     setNextSteps: (nextSteps: string[]) => void
     agentModeEnabled: boolean
-    additionalContext?: Array<{ type: string, value: string }>
     handleSubmitUserMessage: (newContent: string, messageIndex?: number, additionalContext?: Array<{ type: string, value: string }>) => void
     scratchpadResult?: string
     canSendMessages?: boolean
@@ -86,7 +84,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
     codeReviewStatus,
     setNextSteps,
     agentModeEnabled,
-    additionalContext,
     handleSubmitUserMessage,
     scratchpadResult,
     canSendMessages = true,
@@ -247,20 +244,6 @@ const ChatMessage: React.FC<IChatMessageProps> = ({
                                         />
                                     </div>
 
-                                }
-                                {message.role === 'user' && additionalContext && additionalContext.length > 0 &&
-                                    <>
-                                        {additionalContext
-                                            .filter(context => context.type !== 'active_cell' && context.type !== 'notebook') // Hide default context items in chat messages
-                                            .map((context, index) => (
-                                                <SelectedContextContainer
-                                                    key={`${context.type}-${context.value}-${index}`}
-                                                    title={`${context.value}`}
-                                                    type={context.type}
-                                                    onRemove={() => { }} // Read-only in chat history
-                                                />
-                                            ))}
-                                    </>
                                 }
                             </>
                         )

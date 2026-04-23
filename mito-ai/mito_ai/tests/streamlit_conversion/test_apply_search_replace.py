@@ -1,7 +1,7 @@
 # Copyright (c) Saga Inc.
 # Distributed under the terms of the GNU Affero General Public License v3.0 License.
 
-from mito_ai.utils.error_classes import StreamlitConversionError
+from mito_ai_core.utils.error_classes import StreamlitConversionError
 import pytest
 from mito_ai.streamlit_conversion.search_replace_utils import apply_search_replace
 
