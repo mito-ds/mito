@@ -26,7 +26,12 @@ import { AgentExecutionStatus } from '../ChatTaskpane';
 import { uploadFileToBackend } from '../../../utils/fileUpload';
 import {
     COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION,
+    COMMAND_MITO_AI_ADD_CODE_COMMENT,
+    COMMAND_MITO_AI_ADD_OUTPUT_COMMENT,
     COMMAND_MITO_AI_OPEN_CHAT,
+    COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS,
+    COMMAND_MITO_AI_REMOVE_CODE_COMMENT,
+    COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT,
 } from '../../../commands';
 
 interface ChatInputProps {
@@ -140,7 +145,144 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onDataframeViewerContextAddedRef.current?.();
             },
         });
+
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_CODE_COMMENT, {
+            label: 'Add code comment to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                const newValue = args.value as string;
+                let parsed: {
+                    cellId?: string;
+                    startLine?: number;
+                    endLine?: number;
+                } | undefined;
+                try {
+                    parsed = JSON.parse(newValue);
+                } catch {
+                    parsed = undefined;
+                }
+                setAdditionalContext((prev) => {
+                    // Replace existing comment on the same cell+lines
+                    const filtered = prev.filter(item => {
+                        if (item.type !== 'code_comment') { return true; }
+                        if (!parsed) { return true; }
+                        try {
+                            const existing = JSON.parse(item.value);
+                            return !(existing.cellId === parsed.cellId
+                                && existing.startLine === parsed.startLine
+                                && existing.endLine === parsed.endLine);
+                        } catch { return true; }
+                    });
+                    return [...filtered, {
+                        type: 'code_comment',
+                        value: newValue,
+                        display: args.display as string,
+                    }];
+                });
+                setInput((prev) => prev.trim() === '' ? 'Please address these comments' : prev);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_OUTPUT_COMMENT, {
+            label: 'Add output comment to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                const newValue = args.value as string;
+                let parsed: {
+                    cellId?: string;
+                } | undefined;
+                try {
+                    parsed = JSON.parse(newValue);
+                } catch {
+                    parsed = undefined;
+                }
+                setAdditionalContext((prev) => {
+                    // Replace existing comment on the same cell output
+                    const filtered = prev.filter(item => {
+                        if (item.type !== 'output_comment') { return true; }
+                        if (!parsed) { return true; }
+                        try {
+                            const existing = JSON.parse(item.value);
+                            return existing.cellId !== parsed.cellId;
+                        } catch { return true; }
+                    });
+                    return [...filtered, {
+                        type: 'output_comment',
+                        value: newValue,
+                        display: args.display as string,
+                    }];
+                });
+                setInput((prev) => prev.trim() === '' ? 'Please address these comments' : prev);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_REMOVE_CODE_COMMENT, {
+            label: 'Remove code comment from Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (!args || typeof args.cellId !== 'string') { return; }
+                const cellId = args.cellId as string;
+                const startLine = args.startLine as number;
+                const endLine = args.endLine as number;
+                setAdditionalContext((prev) => prev.filter(item => {
+                    if (item.type !== 'code_comment') { return true; }
+                    try {
+                        const existing = JSON.parse(item.value);
+                        return !(existing.cellId === cellId
+                            && existing.startLine === startLine
+                            && existing.endLine === endLine);
+                    } catch { return true; }
+                }));
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT, {
+            label: 'Remove output comment from Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (!args || typeof args.cellId !== 'string') { return; }
+                const cellId = args.cellId as string;
+                setAdditionalContext((prev) => prev.filter(item => {
+                    if (item.type !== 'output_comment') { return true; }
+                    try {
+                        const existing = JSON.parse(item.value);
+                        return existing.cellId !== cellId;
+                    } catch { return true; }
+                }));
+            },
+        });
     }, [app, isEditing]);
+
+    // Dispatch indicator updates whenever comment context changes
+    useEffect(() => {
+        if (isEditing) {
+            return;
+        }
+        const commentContext = additionalContext.filter(
+            c => c.type === 'code_comment' || c.type === 'output_comment'
+        );
+        void app.commands.execute(COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS, {
+            comments: commentContext.map(c => ({ type: c.type, value: c.value })),
+        });
+    }, [additionalContext, app, isEditing]);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;

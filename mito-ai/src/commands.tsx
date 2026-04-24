@@ -30,3 +30,10 @@ export const COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT = 'mito-ai:preview-as-streamli
 
 // Chart Wizard commands
 export const COMMAND_MITO_AI_OPEN_CHART_WIZARD = 'mito-ai:open-chart-wizard';
+
+// Comment commands
+export const COMMAND_MITO_AI_ADD_CODE_COMMENT = `${MITO_AI}:add-code-comment`
+export const COMMAND_MITO_AI_ADD_OUTPUT_COMMENT = `${MITO_AI}:add-output-comment`
+export const COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS = `${MITO_AI}:update-comment-indicators`
+export const COMMAND_MITO_AI_REMOVE_CODE_COMMENT = `${MITO_AI}:remove-code-comment`
+export const COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT = `${MITO_AI}:remove-output-comment`
