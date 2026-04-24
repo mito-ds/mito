@@ -13,6 +13,7 @@ from mito_ai_cli.model_name_utils import resolve_cli_model_name
     [
         ("gpt-4.1", "gpt-4.1"),
         ("GPT-4.1", "gpt-4.1"),
+        ("gpt 5.5", "gpt-5.5"),
         ("haiku-4.5", "claude-haiku-4-5-20251001"),
         ("haiku 4.5", "claude-haiku-4-5-20251001"),
         ("gemini 3.1 pro", "gemini-3.1-pro-preview"),
