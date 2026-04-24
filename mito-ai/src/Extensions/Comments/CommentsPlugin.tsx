@@ -10,7 +10,8 @@ import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
 import { Compartment, StateEffect } from '@codemirror/state';
 import { commentSelectionExtension, COMMENT_TOOLTIP_CLICK_EVENT, CommentTooltipClickDetail, dismissCommentTooltip } from './AddCommentBubble';
-import { COMMAND_MITO_AI_ADD_CODE_COMMENT, COMMAND_MITO_AI_ADD_OUTPUT_COMMENT } from '../../commands';
+import { commentGutterIndicator, CommentLineRange, COMMENT_INDICATOR_CLICK_EVENT, CommentIndicatorClickDetail } from './CommentGutterIndicator';
+import { COMMAND_MITO_AI_ADD_CODE_COMMENT, COMMAND_MITO_AI_ADD_OUTPUT_COMMENT, COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS } from '../../commands';
 import { getCellNumberById } from '../../utils/cellReferences';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import CommentIcon from '../../icons/CommentIcon';
@@ -20,8 +21,14 @@ import '../../../style/Comments.css';
 // Track compartments and the EditorView they were applied to, keyed by cell ID
 const commentSelectionCompartments = new Map<string, { compartment: Compartment; view: any }>();
 
+// Track compartments for gutter indicator extensions, keyed by cell ID
+const commentGutterCompartments = new Map<string, { compartment: Compartment; view: any }>();
+
 // Track roots for cleanup
 const outputCommentRoots = new WeakMap<HTMLElement, Root>();
+
+// Track active comments so indicator clicks can find the matching comment
+let activeComments: Array<{ type: string; value: string }> = [];
 
 /**
  * Shows a DOM-based popover to get the user's comment.
@@ -29,6 +36,7 @@ const outputCommentRoots = new WeakMap<HTMLElement, Root>();
 function showCommentPopover(
     rect: DOMRect,
     onSubmit: (comment: string) => void,
+    initialValue?: string,
 ): void {
     const backdrop = document.createElement('div');
     backdrop.className = 'comment-popover-backdrop';
@@ -65,6 +73,9 @@ function showCommentPopover(
 
     const textarea = document.createElement('textarea');
     textarea.placeholder = 'Add a comment for the AI...';
+    if (initialValue) {
+        textarea.value = initialValue;
+    }
 
     const buttonsDiv = document.createElement('div');
     buttonsDiv.className = 'comment-popover-buttons';
@@ -279,6 +290,135 @@ function setupOutputCommentButtons(
     });
 }
 
+/**
+ * Apply or remove gutter indicators for code comments, and
+ * add/remove purple left border for output comments.
+ */
+function updateCommentIndicators(
+    comments: Array<{ type: string; value: string }>,
+    notebookTracker: INotebookTracker,
+    app: JupyterFrontEnd,
+): void {
+    const notebookPanel = notebookTracker.currentWidget;
+    if (!notebookPanel) {
+        return;
+    }
+
+    activeComments = comments;
+
+    // Group code comments by cellId
+    const codeCommentsByCell = new Map<string, CommentLineRange[]>();
+    for (const comment of comments) {
+        if (comment.type === 'code_comment') {
+            try {
+                const info = JSON.parse(comment.value);
+                const ranges = codeCommentsByCell.get(info.cellId) || [];
+                ranges.push({ startLine: info.startLine, endLine: info.endLine });
+                codeCommentsByCell.set(info.cellId, ranges);
+            } catch {
+                continue;
+            }
+        }
+    }
+
+    // Collect output comment cell IDs
+    const outputCommentCellIds = new Set<string>();
+    for (const comment of comments) {
+        if (comment.type === 'output_comment') {
+            try {
+                const info = JSON.parse(comment.value);
+                outputCommentCellIds.add(info.cellId);
+            } catch {
+                continue;
+            }
+        }
+    }
+
+    // Apply/remove gutter indicators for each cell
+    for (const cell of notebookPanel.content.widgets) {
+        if (!(cell instanceof CodeCell)) {
+            continue;
+        }
+        const cellId = cell.model.id;
+        const cmEditor = cell.editor as any;
+        const editorView = cmEditor?.editor;
+
+        // Handle code comment gutter indicators
+        const ranges = codeCommentsByCell.get(cellId);
+        const existing = commentGutterCompartments.get(cellId);
+
+        if (ranges && editorView) {
+            // Apply or reconfigure the gutter
+            if (existing && existing.view === editorView) {
+                editorView.dispatch({
+                    effects: existing.compartment.reconfigure(commentGutterIndicator(ranges)),
+                });
+            } else {
+                const compartment = new Compartment();
+                commentGutterCompartments.set(cellId, { compartment, view: editorView });
+                editorView.dispatch({
+                    effects: StateEffect.appendConfig.of(
+                        compartment.of(commentGutterIndicator(ranges))
+                    ),
+                });
+            }
+        } else if (existing && editorView && existing.view === editorView) {
+            // Remove gutter for this cell
+            editorView.dispatch({
+                effects: existing.compartment.reconfigure([]),
+            });
+        }
+
+        // Handle output comment left border + click to edit
+        const outputWrapper = cell.node.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null;
+        if (outputWrapper) {
+            // Remove any previous click handler
+            const prevHandler = (outputWrapper as any).__commentIndicatorClick;
+            if (prevHandler) {
+                outputWrapper.removeEventListener('click', prevHandler);
+                delete (outputWrapper as any).__commentIndicatorClick;
+            }
+
+            if (outputCommentCellIds.has(cellId)) {
+                outputWrapper.classList.add('comment-indicator-active');
+
+                // Add click handler to edit the comment
+                const matchingComment = comments.find(c => {
+                    if (c.type !== 'output_comment') { return false; }
+                    try { return JSON.parse(c.value).cellId === cellId; } catch { return false; }
+                });
+                if (matchingComment) {
+                    const handler = (e: Event): void => {
+                        // Only handle clicks on the border area (left 3px)
+                        const mouseEvent = e as MouseEvent;
+                        const wrapperRect = outputWrapper.getBoundingClientRect();
+                        if (mouseEvent.clientX > wrapperRect.left + 10) {
+                            return;
+                        }
+                        const info = JSON.parse(matchingComment.value);
+                        const cellNumber = info.cellNumber;
+                        const rect = new DOMRect(wrapperRect.left, mouseEvent.clientY - 10, 0, 20);
+                        showCommentPopover(rect, (comment: string) => {
+                            const truncatedDisplay = comment.length > 30
+                                ? comment.substring(0, 30) + '...'
+                                : comment;
+                            const value = JSON.stringify({ cellId, cellNumber, comment });
+                            void app.commands.execute(COMMAND_MITO_AI_ADD_OUTPUT_COMMENT, {
+                                value,
+                                display: truncatedDisplay,
+                            });
+                        }, info.comment);
+                    };
+                    outputWrapper.addEventListener('click', handler);
+                    (outputWrapper as any).__commentIndicatorClick = handler;
+                }
+            } else {
+                outputWrapper.classList.remove('comment-indicator-active');
+            }
+        }
+    }
+}
+
 // ---- Plugin ----
 
 const CommentsPlugin: JupyterFrontEndPlugin<void> = {
@@ -374,6 +514,83 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
 
         // ---- Output Comments: Inject comment button into all output cells ----
         setupOutputCommentButtons(app, notebookTracker);
+
+        // ---- Comment Indicators: Register update command ----
+        commands.addCommand(COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS, {
+            label: 'Update comment indicators in notebook',
+            execute: (args?: any) => {
+                const comments = (args?.comments as Array<{ type: string; value: string }>) || [];
+                updateCommentIndicators(comments, notebookTracker, app);
+            },
+        });
+
+        // ---- Comment Indicators: Handle gutter indicator clicks ----
+        document.addEventListener(COMMENT_INDICATOR_CLICK_EVENT, ((e: CustomEvent<CommentIndicatorClickDetail>) => {
+            const { lineNumber } = e.detail;
+
+            const notebookPanel = notebookTracker.currentWidget;
+            if (!notebookPanel) {
+                return;
+            }
+
+            const activeCell = notebookPanel.content.activeCell;
+            if (!activeCell || !(activeCell instanceof CodeCell)) {
+                return;
+            }
+
+            const cellId = activeCell.model.id;
+
+            // Find the matching comment for this cell and line
+            const matchingComment = activeComments.find(c => {
+                if (c.type !== 'code_comment') {
+                    return false;
+                }
+                try {
+                    const info = JSON.parse(c.value);
+                    return info.cellId === cellId && lineNumber >= info.startLine && lineNumber <= info.endLine;
+                } catch {
+                    return false;
+                }
+            });
+
+            if (!matchingComment) {
+                return;
+            }
+
+            const info = JSON.parse(matchingComment.value);
+            const cellNumber = getCellNumberById(cellId, notebookPanel) || 0;
+
+            // Get the rect of the gutter element at the clicked line for popover positioning
+            const cmEditor = activeCell.editor as any;
+            const editorView = cmEditor?.editor;
+            if (!editorView) {
+                return;
+            }
+
+            const lineInfo = editorView.state.doc.line(lineNumber + 1);
+            const coords = editorView.coordsAtPos(lineInfo.from);
+            const rect = new DOMRect(coords?.left || 0, coords?.top || 0, 0, coords ? coords.bottom - coords.top : 20);
+
+            showCommentPopover(rect, (comment: string) => {
+                const truncatedDisplay = comment.length > 30
+                    ? comment.substring(0, 30) + '...'
+                    : comment;
+
+                const value = JSON.stringify({
+                    cellId,
+                    cellNumber,
+                    startLine: info.startLine,
+                    endLine: info.endLine,
+                    selectedCode: info.selectedCode,
+                    comment,
+                });
+
+                void commands.execute(COMMAND_MITO_AI_ADD_CODE_COMMENT, {
+                    value,
+                    display: truncatedDisplay,
+                });
+            }, info.comment);
+        }) as EventListener);
 
         console.log('mito-ai: CommentsPlugin activated');
     }

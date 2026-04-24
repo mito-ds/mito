@@ -98,3 +98,9 @@
 .output-comment-output-container:hover .output-comment-button-container {
     opacity: 1;
 }
+
+/* Output comment indicator - purple left border when a comment is active */
+.jp-Cell-outputWrapper.comment-indicator-active {
+    border-left: 3px solid var(--purple-500);
+    cursor: pointer;
+}

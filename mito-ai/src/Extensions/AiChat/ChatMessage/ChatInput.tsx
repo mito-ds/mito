@@ -29,6 +29,7 @@ import {
     COMMAND_MITO_AI_ADD_CODE_COMMENT,
     COMMAND_MITO_AI_ADD_OUTPUT_COMMENT,
     COMMAND_MITO_AI_OPEN_CHAT,
+    COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS,
 } from '../../../commands';
 
 interface ChatInputProps {
@@ -153,14 +154,25 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ) {
                     return;
                 }
-                setAdditionalContext((prev) => [
-                    ...prev,
-                    {
+                const newValue = args.value as string;
+                const parsed = JSON.parse(newValue);
+                setAdditionalContext((prev) => {
+                    // Replace existing comment on the same cell+lines
+                    const filtered = prev.filter(item => {
+                        if (item.type !== 'code_comment') { return true; }
+                        try {
+                            const existing = JSON.parse(item.value);
+                            return !(existing.cellId === parsed.cellId
+                                && existing.startLine === parsed.startLine
+                                && existing.endLine === parsed.endLine);
+                        } catch { return true; }
+                    });
+                    return [...filtered, {
                         type: 'code_comment',
-                        value: args.value as string,
+                        value: newValue,
                         display: args.display as string,
-                    },
-                ]);
+                    }];
+                });
                 setInput((prev) => prev.trim() === '' ? 'Please address these comments' : prev);
                 void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
                     focusChatInput: true,
@@ -179,14 +191,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ) {
                     return;
                 }
-                setAdditionalContext((prev) => [
-                    ...prev,
-                    {
+                const newValue = args.value as string;
+                const parsed = JSON.parse(newValue);
+                setAdditionalContext((prev) => {
+                    // Replace existing comment on the same cell output
+                    const filtered = prev.filter(item => {
+                        if (item.type !== 'output_comment') { return true; }
+                        try {
+                            const existing = JSON.parse(item.value);
+                            return existing.cellId !== parsed.cellId;
+                        } catch { return true; }
+                    });
+                    return [...filtered, {
                         type: 'output_comment',
-                        value: args.value as string,
+                        value: newValue,
                         display: args.display as string,
-                    },
-                ]);
+                    }];
+                });
                 setInput((prev) => prev.trim() === '' ? 'Please address these comments' : prev);
                 void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
                     focusChatInput: true,
@@ -195,6 +216,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
             },
         });
     }, [app, isEditing]);
+
+    // Dispatch indicator updates whenever comment context changes
+    useEffect(() => {
+        if (isEditing) {
+            return;
+        }
+        const commentContext = additionalContext.filter(
+            c => c.type === 'code_comment' || c.type === 'output_comment'
+        );
+        void app.commands.execute(COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS, {
+            comments: commentContext.map(c => ({ type: c.type, value: c.value })),
+        });
+    }, [additionalContext, app, isEditing]);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;
