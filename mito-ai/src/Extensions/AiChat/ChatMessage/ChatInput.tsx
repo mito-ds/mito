@@ -157,11 +157,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     return;
                 }
                 const newValue = args.value as string;
-                const parsed = JSON.parse(newValue);
+                let parsed: {
+                    cellId?: string;
+                    startLine?: number;
+                    endLine?: number;
+                } | undefined;
+                try {
+                    parsed = JSON.parse(newValue);
+                } catch {
+                    parsed = undefined;
+                }
                 setAdditionalContext((prev) => {
                     // Replace existing comment on the same cell+lines
                     const filtered = prev.filter(item => {
                         if (item.type !== 'code_comment') { return true; }
+                        if (!parsed) { return true; }
                         try {
                             const existing = JSON.parse(item.value);
                             return !(existing.cellId === parsed.cellId
@@ -194,11 +204,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     return;
                 }
                 const newValue = args.value as string;
-                const parsed = JSON.parse(newValue);
+                let parsed: {
+                    cellId?: string;
+                } | undefined;
+                try {
+                    parsed = JSON.parse(newValue);
+                } catch {
+                    parsed = undefined;
+                }
                 setAdditionalContext((prev) => {
                     // Replace existing comment on the same cell output
                     const filtered = prev.filter(item => {
                         if (item.type !== 'output_comment') { return true; }
+                        if (!parsed) { return true; }
                         try {
                             const existing = JSON.parse(item.value);
                             return existing.cellId !== parsed.cellId;
