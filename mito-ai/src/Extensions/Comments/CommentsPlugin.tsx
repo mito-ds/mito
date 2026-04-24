@@ -35,10 +35,33 @@ function showCommentPopover(
 
     const popover = document.createElement('div');
     popover.className = 'comment-popover';
-    popover.style.top = `${rect.bottom + 4}px`;
 
-    // Align the popover's right edge with the button's right edge
-    popover.style.right = `${window.innerWidth - rect.right}px`;
+    // Position the popover, keeping it within the viewport on all sides
+    const popoverWidth = 320;
+    const popoverHeight = 160; // approximate: textarea + buttons + padding
+    const gap = 4;
+    const margin = 16;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Vertical: prefer below the button, flip above if it would overflow bottom
+    if (rect.bottom + gap + popoverHeight > vh - margin) {
+        popover.style.bottom = `${vh - rect.top + gap}px`;
+    } else {
+        popover.style.top = `${rect.bottom + gap}px`;
+    }
+
+    // Horizontal: prefer aligning right edges, but shift if it would overflow left or right
+    const rightEdge = vw - rect.right;
+    if (rect.right - popoverWidth < margin) {
+        // Would overflow left — align left edge with margin
+        popover.style.left = `${Math.max(margin, rect.left)}px`;
+    } else if (rect.right > vw - margin) {
+        // Button itself is near right edge — anchor to right margin
+        popover.style.right = `${margin}px`;
+    } else {
+        popover.style.right = `${rightEdge}px`;
+    }
 
     const textarea = document.createElement('textarea');
     textarea.placeholder = 'Add a comment for the AI...';
