@@ -11,7 +11,6 @@ import { CodeCell } from '@jupyterlab/cells';
 import { Compartment, StateEffect } from '@codemirror/state';
 import { commentSelectionExtension, COMMENT_TOOLTIP_CLICK_EVENT, CommentTooltipClickDetail, dismissCommentTooltip } from './AddCommentBubble';
 import { COMMAND_MITO_AI_ADD_CODE_COMMENT, COMMAND_MITO_AI_ADD_OUTPUT_COMMENT } from '../../commands';
-import { getCellOutputByID } from '../../utils/cellOutput';
 import { getCellNumberById } from '../../utils/cellReferences';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import CommentIcon from '../../icons/CommentIcon';
@@ -226,17 +225,10 @@ function injectOutputCommentButton(
 
         showCommentPopover(
             btnRect,
-            async (comment: string) => {
+            (comment: string) => {
                 const truncatedDisplay = comment.length > 30
                     ? comment.substring(0, 30) + '...'
                     : comment;
-
-                let outputSnapshot: string | undefined;
-                try {
-                    outputSnapshot = await getCellOutputByID(notebookTracker, cellId);
-                } catch {
-                    // Fall back to text content
-                }
 
                 const outputTextContent = getOutputTextContent(cell);
 
@@ -244,7 +236,6 @@ function injectOutputCommentButton(
                     cellId,
                     cellNumber,
                     comment,
-                    outputSnapshot: outputSnapshot || undefined,
                     outputTextContent: outputTextContent || undefined,
                 });
 
