@@ -12,6 +12,7 @@ import { Compartment, StateEffect } from '@codemirror/state';
 import { commentSelectionExtension, COMMENT_TOOLTIP_CLICK_EVENT, CommentTooltipClickDetail, dismissCommentTooltip } from './AddCommentBubble';
 import { COMMAND_MITO_AI_ADD_CODE_COMMENT, COMMAND_MITO_AI_ADD_OUTPUT_COMMENT } from '../../commands';
 import { getCellOutputByID } from '../../utils/cellOutput';
+import { getCellNumberById } from '../../utils/cellReferences';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import CommentIcon from '../../icons/CommentIcon';
 
@@ -155,18 +156,6 @@ function applySelectionExtensionToAllCells(notebookPanel: NotebookPanel): void {
     }
 }
 
-/**
- * Get the cell number (1-indexed) for a cell by its ID.
- */
-function getCellNumber(notebookPanel: NotebookPanel, cellId: string): number {
-    const cells = notebookPanel.content.widgets;
-    for (let i = 0; i < cells.length; i++) {
-        if (cells[i]?.model.id === cellId) {
-            return i + 1;
-        }
-    }
-    return 0;
-}
 
 /**
  * Get the text content of a cell's output area.
@@ -232,7 +221,7 @@ function injectOutputCommentButton(
         }
 
         const cellId = cell.model.id;
-        const cellNumber = getCellNumber(notebookPanel, cellId);
+        const cellNumber = getCellNumberById(cellId, notebookPanel) || 0;
         const btnRect = commentBtnDiv.getBoundingClientRect();
 
         showCommentPopover(
@@ -338,7 +327,7 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
             }
 
             const cellId = activeCell.model.id;
-            const cellNumber = getCellNumber(notebookPanel, cellId);
+            const cellNumber = getCellNumberById(cellId, notebookPanel) || 0;
             const cmEditor = activeCell.editor as any;
             const editorView = cmEditor?.editor;
 
