@@ -4,6 +4,7 @@
 
 name: Deploy - mitosheet-vscode
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
