@@ -9,7 +9,7 @@ import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application'
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
 import { Compartment, StateEffect } from '@codemirror/state';
-import { commentSelectionExtension, COMMENT_TOOLTIP_CLICK_EVENT, CommentTooltipClickDetail, dismissCommentTooltip } from './commentGutterExtension';
+import { commentSelectionExtension, COMMENT_TOOLTIP_CLICK_EVENT, CommentTooltipClickDetail, dismissCommentTooltip } from './AddCommentBubble';
 import { COMMAND_MITO_AI_ADD_CODE_COMMENT, COMMAND_MITO_AI_ADD_OUTPUT_COMMENT } from '../../commands';
 import { getCellOutputByID } from '../../utils/cellOutput';
 import TextAndIconButton from '../../components/TextAndIconButton';
