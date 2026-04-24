@@ -82,47 +82,21 @@ const SelectedContextContainer: React.FC<SelectedContextContainerProps> = ({
             setTimeout(() => {
                 highlightCodeCell(notebookTracker, value);
             }, 500);
-        } else if (type === 'line_selection' && notebookTracker && value) {
-            // Handle line selection context click - scroll to and highlight selected lines
+        } else if ((type === 'line_selection' || type === 'code_comment') && notebookTracker && value) {
+            // Scroll to and highlight the selected/commented lines
             try {
-                const selectionInfo = JSON.parse(value);
+                const info = JSON.parse(value);
                 const currentWidget = notebookTracker.currentWidget;
                 if (currentWidget) {
-                    // Scroll to the cell, positioning based on the start line
-                    // Lines are stored 0-indexed, matching the citation format
-                    scrollToCell(currentWidget, selectionInfo.cellId, selectionInfo.startLine, 'center');
-                    // Highlight the selected lines
-                    setTimeout(() => {
-                        // Re-check currentWidget inside the callback since it may have changed
-                        const widget = notebookTracker.currentWidget;
-                        if (widget) {
-                            highlightLinesOfCodeInCodeCell(
-                                widget,
-                                selectionInfo.cellId,
-                                selectionInfo.startLine,
-                                selectionInfo.endLine
-                            );
-                        }
-                    }, 500);
-                }
-            } catch {
-                // Ignore JSON parse errors
-            }
-        } else if (type === 'code_comment' && notebookTracker && value) {
-            // Handle code comment click - scroll to and highlight the commented lines
-            try {
-                const commentInfo = JSON.parse(value);
-                const currentWidget = notebookTracker.currentWidget;
-                if (currentWidget) {
-                    scrollToCell(currentWidget, commentInfo.cellId, commentInfo.startLine, 'center');
+                    scrollToCell(currentWidget, info.cellId, info.startLine, 'center');
                     setTimeout(() => {
                         const widget = notebookTracker.currentWidget;
                         if (widget) {
                             highlightLinesOfCodeInCodeCell(
                                 widget,
-                                commentInfo.cellId,
-                                commentInfo.startLine,
-                                commentInfo.endLine
+                                info.cellId,
+                                info.startLine,
+                                info.endLine
                             );
                         }
                     }, 500);
