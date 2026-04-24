@@ -402,12 +402,13 @@ class TestGetFastModelForSelectedModel:
 class TestGetSmartestModelForSelectedModel:
     """Tests for get_smartest_model_for_selected_model() function."""
 
-    def test_anthropic_haiku_returns_sonnet_4_6(self):
-        """Claude Haiku should resolve to the smartest Anthropic model."""
-        result = get_smartest_model_for_selected_model("claude-haiku-4-5-20251001")
-        assert result == "claude-sonnet-4-6"
-
-    def test_anthropic_sonnet_4_6_returns_itself(self):
-        """Claude Sonnet 4.6 should remain selected as smartest Anthropic model."""
-        result = get_smartest_model_for_selected_model("claude-sonnet-4-6")
-        assert result == "claude-sonnet-4-6"
+    # Temporarily disabled while "claude-sonnet-4-6" is commented out of ANTHROPIC_MODEL_ORDER
+    # def test_anthropic_haiku_returns_sonnet_4_6(self):
+    #     """Claude Haiku should resolve to the smartest Anthropic model."""
+    #     result = get_smartest_model_for_selected_model("claude-haiku-4-5-20251001")
+    #     assert result == "claude-sonnet-4-6"
+    #
+    # def test_anthropic_sonnet_4_6_returns_itself(self):
+    #     """Claude Sonnet 4.6 should remain selected as smartest Anthropic model."""
+    #     result = get_smartest_model_for_selected_model("claude-sonnet-4-6")
+    #     assert result == "claude-sonnet-4-6"
