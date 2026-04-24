@@ -51,7 +51,7 @@
     },
     "scripts":{
        "build":"npx @vscode/vsce package",
-       "watch":"node esbuild.js --watch"
+       "publish":"npx --yes @vscode/vsce publish"
     },
     "devDependencies":{
        "@types/vscode":"^1.80.0",

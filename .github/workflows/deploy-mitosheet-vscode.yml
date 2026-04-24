@@ -32,12 +32,8 @@ jobs:
         working-directory: mitosheet-vscode
         run: npm ci
 
-      - name: Build
-        working-directory: mitosheet-vscode
-        run: npm run build
-
-      - name: Publish to Visual Studio Marketplace
+      - name: Build and publish extension
         working-directory: mitosheet-vscode
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: npx --yes @vscode/vsce publish
+        run: npm run publish
