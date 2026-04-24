@@ -1,27 +1,27 @@
-## mitosheet-vscode Developers Guide
+## mitosheet-vscode Developer Guide
 
-This package is used to enable the mitosheet to communicate with the VS Code API. Specifically it allows for:
+This package enables mitosheet to communicate with the VS Code API, specifically:
 
-- Writing to cells.
-- Pulling theme data.
+- Writing to cells
+- Pulling theme data
 
-Becuase most of the logic is housed in the mitosheet package, this extension is seldomly updated. 
+Because most logic is housed in the mitosheet package, this extension is seldom updated.
 
 ## Testing Locally
 
-To build this extension run:
+To build this extension, run:
 
 ```bash
 npm run build
 ```
 
-This will generate a `.vsix` file. Use the command pallet to select the install the VSIX file — best to search for "VSIX." 
+This will generate a `.vsix` file. Use the Command Palette to install it — search for "VSIX."
 
 ## Distribution
 
-There are two main marketplaces that we need to publish to, both of which accept a `.vsix` format:
+There are two marketplaces we publish to, both of which accept a `.vsix` format:
 
 1. Visual Studio Marketplace
-2. Open VSX Registry - used by Cursor.
+2. Open VSX Registry (used by Cursor)
 
-Both of these are handled by github Actions. 
+Both are handled by GitHub Actions. The only required change is bumping the version in `package.json`.
