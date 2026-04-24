@@ -274,6 +274,27 @@ function setupOutputCommentButtons(
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
 ): void {
+    const OUTPUT_MUTATION_SELECTOR = '.jp-Cell-outputWrapper, .jp-Cell-outputArea, .jp-OutputArea-output';
+
+    const isRelevantOutputMutationNode = (node: Node): boolean => {
+        if (!(node instanceof HTMLElement)) {
+            return false;
+        }
+
+        // Ignore mutations produced by our own injection.
+        if (node.classList.contains('output-comment-button-container') || node.closest('.output-comment-button-container')) {
+            return false;
+        }
+
+        return node.matches(OUTPUT_MUTATION_SELECTOR) || !!node.querySelector(OUTPUT_MUTATION_SELECTOR);
+    };
+
+    const hasRelevantOutputMutation = (mutations: MutationRecord[]): boolean => {
+        return mutations.some((mutation) =>
+            Array.from(mutation.addedNodes).some(isRelevantOutputMutationNode)
+        );
+    };
+
     const injectAllForPanel = (notebookPanel: NotebookPanel): void => {
         for (const cell of notebookPanel.content.widgets) {
             if (cell instanceof CodeCell && cell.outputArea?.model.length > 0) {
@@ -285,10 +306,25 @@ function setupOutputCommentButtons(
     const setupPanelObserver = (notebookPanel: NotebookPanel): void => {
         notebookPanel.revealed.then(() => {
             injectAllForPanel(notebookPanel);
+            let isInjectScheduled = false;
+
+            const scheduleInjectAll = (): void => {
+                if (isInjectScheduled) {
+                    return;
+                }
+                isInjectScheduled = true;
+                requestAnimationFrame(() => {
+                    isInjectScheduled = false;
+                    injectAllForPanel(notebookPanel);
+                });
+            };
 
             // Scope observer to the notebook node, not document.body
-            const observer = new MutationObserver(() => {
-                injectAllForPanel(notebookPanel);
+            const observer = new MutationObserver((mutations) => {
+                if (!hasRelevantOutputMutation(mutations)) {
+                    return;
+                }
+                scheduleInjectAll();
             });
             observer.observe(notebookPanel.content.node, { childList: true, subtree: true });
 
