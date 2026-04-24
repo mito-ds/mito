@@ -51,8 +51,9 @@
     },
     "scripts":{
        "build":"npx @vscode/vsce package",
-       "publish:vscode":"npx --yes @vscode/vsce publish",
-       "publish:openvsx":"npx --yes ovsx publish"
+       "publish:prepare":"node esbuild.js",
+       "publish:vscode":"npm run publish:prepare && npx --yes @vscode/vsce publish",
+       "publish:openvsx":"npm run publish:prepare && npx --yes ovsx publish"
     },
     "devDependencies":{
        "@types/vscode":"^1.80.0",
