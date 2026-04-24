@@ -312,16 +312,17 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
                 return;
             }
 
+            // Capture selection state now, before showing the popover.
+            // Once the user clicks into the popover textarea, the CM selection is lost.
             const state = editorView.state;
             const selection = state.selection.main;
-
             const startLine = state.doc.lineAt(selection.from).number - 1; // 0-indexed
             const endLine = state.doc.lineAt(selection.to).number - 1;
             const selectedCode = state.sliceDoc(selection.from, selection.to);
 
-            // Dismiss the tooltip before showing the popover
             dismissCommentTooltip(editorView);
 
+            // This callback runs when the user clicks "Add" in the popover
             showCommentPopover(rect, (comment: string) => {
                 const truncatedDisplay = comment.length > 30
                     ? comment.substring(0, 30) + '...'
