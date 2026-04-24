@@ -290,30 +290,27 @@ function setupOutputCommentButtons(
         }
     };
 
-    // Inject into all existing notebooks
-    notebookTracker.forEach(widget => {
-        widget.revealed.then(() => injectAllForPanel(widget)).catch(() => {});
-    });
+    const setupPanelObserver = (notebookPanel: NotebookPanel): void => {
+        notebookPanel.revealed.then(() => {
+            injectAllForPanel(notebookPanel);
 
-    // Handle new notebooks
+            // Scope observer to the notebook node, not document.body
+            const observer = new MutationObserver(() => {
+                injectAllForPanel(notebookPanel);
+            });
+            observer.observe(notebookPanel.content.node, { childList: true, subtree: true });
+
+            // Disconnect when the notebook is disposed
+            notebookPanel.disposed.connect(() => {
+                observer.disconnect();
+            });
+        }).catch(() => {});
+    };
+
+    notebookTracker.forEach(widget => setupPanelObserver(widget));
     notebookTracker.widgetAdded.connect((_sender, widget) => {
-        widget.revealed.then(() => injectAllForPanel(widget)).catch(() => {});
+        setupPanelObserver(widget);
     });
-
-    // Use a MutationObserver to catch newly rendered outputs
-    const observer = new MutationObserver(() => {
-        const notebookPanel = notebookTracker.currentWidget;
-        if (!notebookPanel) {
-            return;
-        }
-        for (const cell of notebookPanel.content.widgets) {
-            if (cell instanceof CodeCell && cell.outputArea?.model.length > 0) {
-                injectOutputCommentButton(cell, app, notebookTracker);
-            }
-        }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
 }
 
 // ---- Plugin ----
