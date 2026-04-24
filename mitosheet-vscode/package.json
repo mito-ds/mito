@@ -51,7 +51,8 @@
     },
     "scripts":{
        "build":"npx @vscode/vsce package",
-       "publish":"npx --yes @vscode/vsce publish"
+       "publish:vscode":"npx --yes @vscode/vsce publish",
+       "publish:openvsx":"npx --yes ovsx publish"
     },
     "devDependencies":{
        "@types/vscode":"^1.80.0",
