@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { createRoot, Root } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { CodeCell } from '@jupyterlab/cells';
@@ -30,8 +30,6 @@ const commentSelectionCompartments = new Map<string, { compartment: Compartment;
 // Track compartments for gutter indicator extensions, keyed by cell ID
 const commentGutterCompartments = new Map<string, { compartment: Compartment; view: any }>();
 
-// Track roots for cleanup
-const outputCommentRoots = new WeakMap<HTMLElement, Root>();
 
 // Track active comments so indicator clicks can find the matching comment
 let activeComments: Array<{ type: string; value: string }> = [];
@@ -264,7 +262,6 @@ function injectOutputCommentButton(
 
     const root = createRoot(commentBtnDiv);
     root.render(<OutputCommentButton onClick={handleClick} />);
-    outputCommentRoots.set(commentBtnDiv, root);
 
     outputWrapper.appendChild(commentBtnDiv);
 }
