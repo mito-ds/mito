@@ -124,15 +124,10 @@ def get_selected_context_str(additional_context: Optional[List[Dict[str, str]]])
                 info = json.loads(comment_json)
                 cell_number = info.get("cellNumber", "?")
                 comment = info.get("comment", "")
-                output_text = info.get("outputTextContent", "")
 
-                location = f"Cell {cell_number} output"
-                parts = [location]
-                if output_text:
-                    parts.append(f"Output content:\n{output_text}")
-                parts.append(f"User's Review Comment: {comment}")
-
-                output_comment_strs.append("\n".join(parts))
+                output_comment_strs.append(
+                    f"Cell {cell_number} output\nUser's Review Comment: {comment}"
+                )
             except (json.JSONDecodeError, KeyError):
                 continue
 

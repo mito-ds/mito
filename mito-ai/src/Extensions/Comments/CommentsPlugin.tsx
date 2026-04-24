@@ -156,17 +156,6 @@ function applySelectionExtensionToAllCells(notebookPanel: NotebookPanel): void {
 }
 
 
-/**
- * Get the text content of a cell's output area.
- */
-function getOutputTextContent(cell: CodeCell): string {
-    const outputNode = cell.outputArea?.node;
-    if (!outputNode) {
-        return '';
-    }
-    return outputNode.textContent?.trim() || '';
-}
-
 // ---- Output Comment Button (React component) ----
 
 interface OutputCommentButtonProps {
@@ -230,13 +219,10 @@ function injectOutputCommentButton(
                     ? comment.substring(0, 30) + '...'
                     : comment;
 
-                const outputTextContent = getOutputTextContent(cell);
-
                 const value = JSON.stringify({
                     cellId,
                     cellNumber,
                     comment,
-                    outputTextContent: outputTextContent || undefined,
                 });
 
                 void app.commands.execute(COMMAND_MITO_AI_ADD_OUTPUT_COMMENT, {
