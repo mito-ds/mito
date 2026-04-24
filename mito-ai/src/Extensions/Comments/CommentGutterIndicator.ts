@@ -41,7 +41,13 @@ export function commentGutterIndicator(ranges: CommentLineRange[]): Extension {
             markers(view) {
                 const builder = new RangeSetBuilder<GutterMarker>();
                 const doc = view.state.doc;
-                for (const range of ranges) {
+                const sortedRanges = [...ranges].sort((a, b) => {
+                    if (a.startLine !== b.startLine) {
+                        return a.startLine - b.startLine;
+                    }
+                    return a.endLine - b.endLine;
+                });
+                for (const range of sortedRanges) {
                     // Convert 0-indexed lines to 1-indexed for CM6 doc
                     for (let line = range.startLine; line <= range.endLine; line++) {
                         const lineNum = line + 1;

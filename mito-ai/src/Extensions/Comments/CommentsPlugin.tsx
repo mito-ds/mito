@@ -357,6 +357,15 @@ function updateCommentIndicators(
 
     activeComments = comments;
 
+    const sortRangesByStartLine = (ranges: CommentLineRange[]): CommentLineRange[] => {
+        return [...ranges].sort((a, b) => {
+            if (a.startLine !== b.startLine) {
+                return a.startLine - b.startLine;
+            }
+            return a.endLine - b.endLine;
+        });
+    };
+
     // Group code comments by cellId
     const codeCommentsByCell = new Map<string, CommentLineRange[]>();
     for (const comment of comments) {
@@ -365,7 +374,7 @@ function updateCommentIndicators(
                 const info = JSON.parse(comment.value);
                 const ranges = codeCommentsByCell.get(info.cellId) || [];
                 ranges.push({ startLine: info.startLine, endLine: info.endLine });
-                codeCommentsByCell.set(info.cellId, ranges);
+                codeCommentsByCell.set(info.cellId, sortRangesByStartLine(ranges));
             } catch {
                 continue;
             }
