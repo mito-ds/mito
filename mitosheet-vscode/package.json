@@ -2,7 +2,7 @@
     "name":"mitosheet-vscode",
     "displayName":"Mitosheet for VSCode",
     "description":"Spreadsheets in VSCode — filter, create pivot tables, and more.",
-    "version":"0.1.1",
+    "version":"0.1.2",
     "publisher":"MitoLabs",
     "icon":"media/icon.png",
     "repository":{
@@ -50,8 +50,10 @@
        ]
     },
     "scripts":{
-       "build":"node esbuild.js",
-       "watch":"node esbuild.js --watch"
+       "build":"npx @vscode/vsce package",
+       "publish:prepare":"node esbuild.js",
+       "publish:vscode":"npm run publish:prepare && npx --yes @vscode/vsce publish",
+       "publish:openvsx":"npm run publish:prepare && npx --yes ovsx publish"
     },
     "devDependencies":{
        "@types/vscode":"^1.80.0",
