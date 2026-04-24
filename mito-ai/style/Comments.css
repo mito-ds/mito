@@ -19,12 +19,31 @@
     background-color: var(--jp-layout-color1);
     border: 1px solid var(--jp-border-color2);
     border-radius: 12px;
-    padding: 12px;
+    padding: 32px 12px 12px 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
     width: 320px;
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.comment-popover-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--jp-ui-font-color2);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.comment-popover-close:hover {
+    background-color: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color0);
 }
 
 .comment-popover textarea {
@@ -82,6 +101,17 @@
 
 .comment-popover-buttons button.comment-popover-submit:hover {
     background-color: var(--purple-500);
+}
+
+.comment-popover-buttons button.comment-popover-delete {
+    background-color: transparent;
+    color: var(--jp-error-color1);
+    border: 1px solid var(--jp-error-color1);
+}
+
+.comment-popover-buttons button.comment-popover-delete:hover {
+    background-color: var(--jp-error-color1);
+    color: white;
 }
 
 /* Output comment button - positioned at top right of output area */

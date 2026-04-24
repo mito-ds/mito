@@ -11,7 +11,13 @@ import { CodeCell } from '@jupyterlab/cells';
 import { Compartment, StateEffect } from '@codemirror/state';
 import { commentSelectionExtension, COMMENT_TOOLTIP_CLICK_EVENT, CommentTooltipClickDetail, dismissCommentTooltip } from './AddCommentBubble';
 import { commentGutterIndicator, CommentLineRange, COMMENT_INDICATOR_CLICK_EVENT, CommentIndicatorClickDetail } from './CommentGutterIndicator';
-import { COMMAND_MITO_AI_ADD_CODE_COMMENT, COMMAND_MITO_AI_ADD_OUTPUT_COMMENT, COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS } from '../../commands';
+import {
+    COMMAND_MITO_AI_ADD_CODE_COMMENT,
+    COMMAND_MITO_AI_ADD_OUTPUT_COMMENT,
+    COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS,
+    COMMAND_MITO_AI_REMOVE_CODE_COMMENT,
+    COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT,
+} from '../../commands';
 import { getCellNumberById } from '../../utils/cellReferences';
 import TextAndIconButton from '../../components/TextAndIconButton';
 import CommentIcon from '../../icons/CommentIcon';
@@ -37,7 +43,10 @@ function showCommentPopover(
     rect: DOMRect,
     onSubmit: (comment: string) => void,
     initialValue?: string,
+    onDelete?: () => void,
 ): void {
+    const isEditing = !!initialValue;
+
     const backdrop = document.createElement('div');
     backdrop.className = 'comment-popover-backdrop';
 
@@ -46,30 +55,31 @@ function showCommentPopover(
 
     // Position the popover, keeping it within the viewport on all sides
     const popoverWidth = 320;
-    const popoverHeight = 160; // approximate: textarea + buttons + padding
+    const popoverHeight = 160;
     const gap = 4;
     const margin = 16;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    // Vertical: prefer below the button, flip above if it would overflow bottom
     if (rect.bottom + gap + popoverHeight > vh - margin) {
         popover.style.bottom = `${vh - rect.top + gap}px`;
     } else {
         popover.style.top = `${rect.bottom + gap}px`;
     }
 
-    // Horizontal: prefer aligning right edges, but shift if it would overflow left or right
     const rightEdge = vw - rect.right;
     if (rect.right - popoverWidth < margin) {
-        // Would overflow left — align left edge with margin
         popover.style.left = `${Math.max(margin, rect.left)}px`;
     } else if (rect.right > vw - margin) {
-        // Button itself is near right edge — anchor to right margin
         popover.style.right = `${margin}px`;
     } else {
         popover.style.right = `${rightEdge}px`;
     }
+
+    // Close button (X) in top right
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'comment-popover-close';
+    closeBtn.textContent = '×';
 
     const textarea = document.createElement('textarea');
     textarea.placeholder = 'Add a comment for the AI...';
@@ -80,15 +90,23 @@ function showCommentPopover(
     const buttonsDiv = document.createElement('div');
     buttonsDiv.className = 'comment-popover-buttons';
 
-    const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Cancel';
+    if (isEditing && onDelete) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'comment-popover-delete';
+        deleteBtn.textContent = 'Delete';
+        buttonsDiv.appendChild(deleteBtn);
+        deleteBtn.addEventListener('click', () => {
+            onDelete();
+            cleanup();
+        });
+    }
 
     const submitBtn = document.createElement('button');
     submitBtn.className = 'comment-popover-submit';
-    submitBtn.textContent = 'Add';
-
-    buttonsDiv.appendChild(cancelBtn);
+    submitBtn.textContent = isEditing ? 'Update' : 'Add';
     buttonsDiv.appendChild(submitBtn);
+
+    popover.appendChild(closeBtn);
     popover.appendChild(textarea);
     popover.appendChild(buttonsDiv);
 
@@ -106,7 +124,7 @@ function showCommentPopover(
     };
 
     backdrop.addEventListener('click', cleanup);
-    cancelBtn.addEventListener('click', cleanup);
+    closeBtn.addEventListener('click', cleanup);
     submitBtn.addEventListener('click', submit);
     textarea.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -407,7 +425,11 @@ function updateCommentIndicators(
                                 value,
                                 display: truncatedDisplay,
                             });
-                        }, info.comment);
+                        }, info.comment, () => {
+                            void app.commands.execute(COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT, {
+                                cellId,
+                            });
+                        });
                     };
                     outputWrapper.addEventListener('click', handler);
                     (outputWrapper as any).__commentIndicatorClick = handler;
@@ -589,7 +611,13 @@ const CommentsPlugin: JupyterFrontEndPlugin<void> = {
                     value,
                     display: truncatedDisplay,
                 });
-            }, info.comment);
+            }, info.comment, () => {
+                void commands.execute(COMMAND_MITO_AI_REMOVE_CODE_COMMENT, {
+                    cellId,
+                    startLine: info.startLine,
+                    endLine: info.endLine,
+                });
+            });
         }) as EventListener);
 
         console.log('mito-ai: CommentsPlugin activated');

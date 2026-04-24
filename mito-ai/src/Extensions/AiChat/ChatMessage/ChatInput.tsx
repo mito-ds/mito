@@ -30,6 +30,8 @@ import {
     COMMAND_MITO_AI_ADD_OUTPUT_COMMENT,
     COMMAND_MITO_AI_OPEN_CHAT,
     COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS,
+    COMMAND_MITO_AI_REMOVE_CODE_COMMENT,
+    COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT,
 } from '../../../commands';
 
 interface ChatInputProps {
@@ -213,6 +215,40 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     focusChatInput: true,
                 });
                 onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_REMOVE_CODE_COMMENT, {
+            label: 'Remove code comment from Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (!args || typeof args.cellId !== 'string') { return; }
+                const cellId = args.cellId as string;
+                const startLine = args.startLine as number;
+                const endLine = args.endLine as number;
+                setAdditionalContext((prev) => prev.filter(item => {
+                    if (item.type !== 'code_comment') { return true; }
+                    try {
+                        const existing = JSON.parse(item.value);
+                        return !(existing.cellId === cellId
+                            && existing.startLine === startLine
+                            && existing.endLine === endLine);
+                    } catch { return true; }
+                }));
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT, {
+            label: 'Remove output comment from Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (!args || typeof args.cellId !== 'string') { return; }
+                const cellId = args.cellId as string;
+                setAdditionalContext((prev) => prev.filter(item => {
+                    if (item.type !== 'output_comment') { return true; }
+                    try {
+                        const existing = JSON.parse(item.value);
+                        return existing.cellId !== cellId;
+                    } catch { return true; }
+                }));
             },
         });
     }, [app, isEditing]);
