@@ -101,7 +101,7 @@ function showCommentPopover(
 
     const submitBtn = document.createElement('button');
     submitBtn.className = 'comment-popover-submit';
-    submitBtn.textContent = isEditing ? 'Update' : 'Add';
+    submitBtn.textContent = isEditing ? 'Update' : 'Add to AI Chat';
     buttonsDiv.appendChild(submitBtn);
 
     popover.appendChild(closeBtn);
