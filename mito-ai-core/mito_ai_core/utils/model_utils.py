@@ -10,12 +10,14 @@ from mito_ai_core.copilot.model_ids import get_fallback_copilot_models_prefixed
 # Model ordering: [fastest, ..., slowest] for each provider
 ANTHROPIC_MODEL_ORDER = [
     "claude-haiku-4-5-20251001",  # Fastest
+    # "claude-sonnet-4-6",          # Smarter
 ]
 
 OPENAI_MODEL_ORDER = [
     "gpt-4.1",      # Fastest
     "gpt-5",
-    "gpt-5.2",      # Slower
+    "gpt-5.2",
+    "gpt-5.5",      # Slower
 ]
 
 GEMINI_MODEL_ORDER = [
@@ -27,7 +29,9 @@ GEMINI_MODEL_ORDER = [
 STANDARD_MODELS = [
     "gpt-4.1",
     "gpt-5.2",
+    "gpt-5.5",
     "claude-haiku-4-5-20251001",
+    # "claude-sonnet-4-6",
     "gemini-3-flash-preview",
     "gemini-3.1-pro-preview",
 ]

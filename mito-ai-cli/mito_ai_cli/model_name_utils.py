@@ -13,6 +13,7 @@ _COMMON_MODEL_PREFIX_ALIASES = {
     "claudehaiku45": "claude-haiku-4-5",
     "gpt41": "gpt-4.1",
     "gpt52": "gpt-5.2",
+    "gpt55": "gpt-5.5",
     "gemini3flash": "gemini-3-flash",
     "gemini31pro": "gemini-3.1-pro",
 }

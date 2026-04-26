@@ -12,10 +12,14 @@ import LightningIcon from '../icons/LightningIcon';
 import { 
   CLAUDE_HAIKU_DISPLAY_NAME, 
   CLAUDE_HAIKU_MODEL_NAME,
+  CLAUDE_SONNET_4_6_DISPLAY_NAME,
+  CLAUDE_SONNET_4_6_MODEL_NAME,
   GPT_4_1_DISPLAY_NAME,
   GPT_4_1_MODEL_NAME,
   GPT_5_2_DISPLAY_NAME,
   GPT_5_2_MODEL_NAME,
+  GPT_5_5_DISPLAY_NAME,
+  GPT_5_5_MODEL_NAME,
   GEMINI_3_FLASH_MODEL_NAME,
   GEMINI_3_FLASH_DISPLAY_NAME,
   GEMINI_3_1_PRO_DISPLAY_NAME,
@@ -74,6 +78,16 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     complexityHandling: 'Medium'
   },
   {
+    displayName: GPT_5_5_DISPLAY_NAME,
+    fullName: GPT_5_5_MODEL_NAME,
+    type: 'smart',
+    goodFor: [...GOOD_FOR_SMART],
+    provider: 'OpenAI',
+    tokenLimit: '1M',
+    speed: 'Slow',
+    complexityHandling: 'High'
+  },
+  {
     displayName: CLAUDE_HAIKU_DISPLAY_NAME,
     fullName: CLAUDE_HAIKU_MODEL_NAME,
     type: 'fast',
@@ -87,6 +101,16 @@ const MODEL_MAPPINGS: ModelMapping[] = [
     tokenLimit: '200K',
     speed: 'Fast',
     complexityHandling: 'Medium'
+  },
+  {
+    displayName: CLAUDE_SONNET_4_6_DISPLAY_NAME,
+    fullName: CLAUDE_SONNET_4_6_MODEL_NAME,
+    type: 'smart',
+    goodFor: [...GOOD_FOR_SMART],
+    provider: 'Anthropic',
+    tokenLimit: '1M',
+    speed: 'Slow',
+    complexityHandling: 'High'
   },
   {
     displayName: GEMINI_3_FLASH_DISPLAY_NAME,
