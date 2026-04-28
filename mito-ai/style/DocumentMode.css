@@ -52,3 +52,13 @@
 .jp-Notebook.jp-mod-mito-document-mode .jp-OutputPrompt {
   visibility: hidden;
 }
+
+/*
+ * In document mode, don't show the active markdown-cell border treatment.
+ * This keeps selected markdown cells looking like part of a continuous doc.
+ */
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-MarkdownCell.jp-mod-active
+  .jp-MarkdownOutput {
+  border-color: transparent;
+}
