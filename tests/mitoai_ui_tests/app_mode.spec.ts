@@ -9,10 +9,10 @@ import {
   waitForIdle,
 } from '../jupyter_utils/jupyterlab_utils';
 
-test.describe('App Mode Button Integration Test', () => {
+test.describe('App Button Integration Test', () => {
   test.use({ autoGoto: false });
 
-  test('Click App Mode button and verify Streamlit app is returned', async ({ page, tmpPath }) => {
+  test('Click App button and verify Streamlit app is returned', async ({ page, tmpPath }) => {
     // Run in Galata's tmpPath so the Jupyter server can write the .py file (avoids "Directory not found")
     await page.goto(`tree/${tmpPath}`);
     // Create a notebook with some simple code
@@ -20,11 +20,10 @@ test.describe('App Mode Button Integration Test', () => {
     await createAndRunNotebookWithCells(page, [notebookCode]);
     await waitForIdle(page);
 
-    // Click the App Mode button in the toolbar
-    // The button has label "App Mode" and is in the cell toolbar
-    const appModeButton = page.locator('.jp-ToolbarButtonComponent-label').filter({ hasText: 'App Mode' });
-    await appModeButton.waitFor({ state: 'visible', timeout: 10000 });
-    await appModeButton.click();
+    // Click the App mode button in the mode switcher
+    const appButton = page.locator('.mode-switcher-segment').filter({ hasText: 'App' });
+    await appButton.waitFor({ state: 'visible', timeout: 10000 });
+    await appButton.click();
     
     // Wait for the Streamlit app preview to appear
     // The preview should open in a new tab with the app preview
