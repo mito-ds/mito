@@ -55,11 +55,28 @@ def _build_prompt(df_context: str, primary_df: str) -> str:
 }}
 
 Rules:
-- column_notes: at most 6 items for column-wide issues (missingness, many outliers, duplicates across rows).
-- cell_notes: at most 12 items; use for specific row-level problems; "row" must be a 0-based integer from the rows shown (0 to {_CONTEXT_ROWS - 1} inclusive).
-- Prefer BOTH: use column_notes for the overall issue and cell_notes for specific rows (e.g. which cells are missing or anomalous).
+- Goal: find data quality problems that are likely mistakes and worth user attention.
+- Do NOT create alerts for values that appear valid/expected. Never write notes like "this is valid" or "looks fine".
+- Every note must be actionable and explain what is wrong, why it may be a problem, and a concrete next check/fix.
+- column_notes: at most 6 items for column-wide issues.
+- cell_notes: at most 12 items; use for specific row-level problems; "row" must be a 0-based integer from rows shown (0 to {_CONTEXT_ROWS - 1} inclusive).
+- Prefer BOTH when relevant: one column_note for the pattern plus cell_notes for specific examples.
 - For each cell_note, "value" must match the cell at (row, column) in the primary sheet.
 - Use column labels exactly as in the data. Valid JSON only; no raw newlines inside strings.
+
+Category definitions (use exactly one per note):
+- missing: value is blank/null/NaN when a real value is typically expected.
+- outlier: numeric/date value is unusually far from other values in the same column and may be an error.
+- invalid_domain: value violates a clear domain rule or format expectation (e.g., impossible date, malformed email, unexpected category code pattern).
+- inconsistency: value conflicts with related values or conventions in the dataset (e.g., mixed units, mixed encodings, contradictory fields).
+- duplicate: repeated value/record where uniqueness is likely expected (ID-like columns or near-identical rows). Do NOT flag normal repeats in categorical columns.
+- other: clear quality issue not covered above; use sparingly.
+
+Alert quality bar:
+- If confidence is low or evidence is weak, skip the alert.
+- Prefer high-signal issues over many low-value alerts.
+- Severity guidance: info = minor/suspicious, warning = likely problem, critical = severe likely error with high impact.
+- Recommended fixes in notes should match the issue (do not suggest deleting rows unless duplication/error evidence is strong).
 
 === Data ===
 {df_context}
