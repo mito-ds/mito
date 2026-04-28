@@ -259,12 +259,20 @@ function makeCellData(code: string): vscode.NotebookCellData {
 }
 
 // Returns true if the given cell looks like a Mito-generated analysis cell.
-// The transpiler always emits `from mitosheet.public.v<N> import *` as the
-// first line, which is a reliable, content-only signal that survives saves.
+// We use a content-only signal (an import from mitosheet.public) that survives
+// notebook save/restore in VS Code.
 function isMitoGeneratedCell(cell: vscode.NotebookCell): boolean {
     if (cell.kind !== vscode.NotebookCellKind.Code) {
         return false;
     }
-    const text = cell.document.getText().trimStart();
-    return /^from\s+mitosheet\.public\.v\d+\s+import\s+\*/.test(text);
+    const text = cell.document.getText();
+    const nonEmptyLines = text
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)
+        .slice(0, 10);
+
+    return nonEmptyLines.some((line) =>
+        /^from\s+mitosheet\.public(?:\.v\d+)?\s+import\s+\*/.test(line)
+    );
 }

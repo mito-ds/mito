@@ -2,7 +2,7 @@
     "name":"mitosheet-vscode",
     "displayName":"Mitosheet for VSCode",
     "description":"Spreadsheets in VSCode — filter, create pivot tables, and more.",
-    "version":"0.1.2",
+    "version":"0.1.3",
     "publisher":"MitoLabs",
     "icon":"media/icon.png",
     "repository":{
