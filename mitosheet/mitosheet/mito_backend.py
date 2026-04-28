@@ -420,6 +420,7 @@ def sheet(
         from mitosheet.vscode.v1.spreadsheet import spreadsheet as _vscode_spreadsheet
         return _vscode_spreadsheet(
             *args,
+            analysis_to_replay=analysis_to_replay,
             sheet_functions=sheet_functions,
             importers=importers,
             editors=editors,

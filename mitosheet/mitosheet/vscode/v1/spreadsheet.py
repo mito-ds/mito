@@ -66,6 +66,10 @@ class _MitoVSCodeHandler(BaseHTTPRequestHandler):
         self._send_json({
             'code': '\n'.join(code_lines),
             'version': self.server.code_version_ref[0],
+            # The VS Code extension uses analysis_name to write an
+            # analysis_to_replay parameter into the originating mitosheet.sheet()
+            # cell, so reruns pick up where the user left off.
+            'analysis_name': self.server.mito_backend.steps_manager.analysis_name,
         })
 
     def do_POST(self) -> None:
@@ -163,6 +167,7 @@ def _get_vscode_frontend_code(port: int, div_id: str, mito_backend: MitoBackend)
 
 def spreadsheet(
         *args: Union[pd.DataFrame, str, None],
+        analysis_to_replay: Optional[str] = None,
         sheet_functions: Optional[List[Callable]] = None,
         importers: Optional[List[Callable]] = None,
         editors: Optional[List[Callable]] = None,
@@ -216,6 +221,7 @@ def spreadsheet(
     # Create the backend
     mito_backend = MitoBackend(
         *args,
+        analysis_to_replay=analysis_to_replay,
         import_folder=import_folder,
         user_defined_functions=sheet_functions,
         user_defined_importers=importers,
@@ -275,6 +281,22 @@ def spreadsheet(
             'type': 'args_update',
             'params': {
                 'args': df_names
+            },
+        })
+
+    # If the caller passed analysis_to_replay, replay the analysis on the
+    # backend before rendering. The Mito React frontend only fires the replay
+    # itself when running inside JupyterLab, so without this the analysis
+    # would never get replayed in VS Code.
+    if analysis_to_replay is not None and mito_backend.steps_manager.analysis_to_replay_exists:
+        mito_backend.receive_message({
+            'event': 'update_event',
+            'id': get_new_id(),
+            'type': 'replay_analysis_update',
+            'params': {
+                'analysis_name': analysis_to_replay,
+                'args': df_names if df_names is not None else [],
+                'step_import_data_list_to_overwrite': [],
             },
         })
 
