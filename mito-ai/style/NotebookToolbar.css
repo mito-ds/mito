@@ -15,7 +15,7 @@
 }
 
 .jp-Notebook-toolbar,
-.jp-NotebookPanel .jp-Toolbar {
+.jp-NotebookPanel-toolbar {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
@@ -32,7 +32,7 @@
 
 /* Mode switcher stays on the left and does not grow */
 .jp-Notebook-toolbar .mito-notebook-view-mode-switcher-widget,
-.jp-NotebookPanel .jp-Toolbar .mito-notebook-view-mode-switcher-widget {
+.jp-NotebookPanel-toolbar .mito-notebook-view-mode-switcher-widget {
   flex: 0 0 auto;
   margin-right: 8px;
   padding-right: 8px;
@@ -41,7 +41,7 @@
 
 /* Spacer fills space between mode switcher and the rest of the toolbar */
 .jp-Notebook-toolbar .mito-notebook-toolbar-spacer,
-.jp-NotebookPanel .jp-Toolbar .mito-notebook-toolbar-spacer {
+.jp-NotebookPanel-toolbar .mito-notebook-toolbar-spacer {
   flex: 1 1 0 !important;
   min-width: 0;
   max-width: none;
@@ -49,7 +49,7 @@
 
 /* Collapse JupyterLab's built-in spacer (but NOT our custom one) so standard items sit next to Run */
 .jp-Notebook-toolbar .jp-Toolbar-spacer:not(.mito-notebook-toolbar-spacer),
-.jp-NotebookPanel .jp-Toolbar .jp-Toolbar-spacer:not(.mito-notebook-toolbar-spacer) {
+.jp-NotebookPanel-toolbar .jp-Toolbar-spacer:not(.mito-notebook-toolbar-spacer) {
   flex: 0 0 0 !important;
   min-width: 0 !important;
   width: 0 !important;
@@ -57,17 +57,17 @@
 
 /* Run cell button: after main toolbar items, before kernel status */
 .jp-Notebook-toolbar .mito-run-cell-button-widget,
-.jp-NotebookPanel .jp-Toolbar .mito-run-cell-button-widget {
+.jp-NotebookPanel-toolbar .mito-run-cell-button-widget {
   margin-left: 0;
   order: 1;
 }
 
 /* Kernel name and execution status icon to the right of Run Active Cell */
 .jp-Notebook-toolbar .jp-KernelName,
-.jp-NotebookPanel .jp-Toolbar .jp-KernelName,
+.jp-NotebookPanel-toolbar .jp-KernelName,
 .jp-Notebook-toolbar .jp-Toolbar-kernelStatus,
-.jp-NotebookPanel .jp-Toolbar .jp-Toolbar-kernelStatus,
+.jp-NotebookPanel-toolbar .jp-Toolbar-kernelStatus,
 .jp-Notebook-toolbar .jp-mod-highlighted:has(.jp-Notebook-ExecutionIndicator),
-.jp-NotebookPanel .jp-Toolbar .jp-mod-highlighted:has(.jp-Notebook-ExecutionIndicator) {
+.jp-NotebookPanel-toolbar .jp-mod-highlighted:has(.jp-Notebook-ExecutionIndicator) {
   order: 2;
 }
