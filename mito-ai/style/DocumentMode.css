@@ -62,3 +62,18 @@
   .jp-MarkdownOutput {
   border-color: transparent;
 }
+
+/*
+ * Hide markdown heading collapse buttons in document mode so the notebook
+ * reads like a clean document without collapser affordances.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-collapseHeadingButton {
+  display: none !important;
+}
+
+/*
+ * Hide output gutter collapser overlay in document mode.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-OutputArea-promptOverlay {
+  display: none !important;
+}
