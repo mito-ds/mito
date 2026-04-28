@@ -295,6 +295,9 @@ export class NotebookViewModeManager implements INotebookViewMode {
     this._killActiveProcess();
     // Dispose iframe/placeholder
     this._disposeTransientWidgets();
+    // Expand any collapsed outputs so Document mode always opens with
+    // fully visible output content.
+    this._expandCollapsedOutputs(panel);
     // Hide native toolbar (Run Cell, cell type, etc. are not relevant in Document mode)
     panel.toolbar.hide();
     // Show custom mode toolbar (mode switcher only, no app buttons since mode is Document)
@@ -306,6 +309,20 @@ export class NotebookViewModeManager implements INotebookViewMode {
     // Attach dblclick listener
     this._attachOrDetachDblclickListener(panel, true);
   }
+
+  /**
+   * Expand collapsed code-cell outputs before entering document mode.
+   */
+  private _expandCollapsedOutputs(panel: NotebookPanel): void {
+    const collapsedOutputToggles = panel.content.node.querySelectorAll<HTMLElement>(
+      '.jp-OutputArea .jp-OutputArea-promptOverlay[title*="Expand"], .jp-OutputArea .jp-mod-collapsed'
+    );
+
+    collapsedOutputToggles.forEach((toggle) => {
+      toggle.click();
+    });
+  }
+
 
   /**
    * Apply the App mode UI: hide native toolbar, show app toolbar,
