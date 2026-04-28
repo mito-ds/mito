@@ -24,3 +24,31 @@
   content: "" !important;
   display: none !important;
 }
+
+/*
+ * Hide cell toolbar buttons in document mode, except the AI agent's
+ * Accept/Reject buttons. Mirrors the existing carve-out in base.css for
+ * `.jp-toolbar-overlap` so the agent flow keeps working from document mode.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-cell-toolbar {
+  display: flex !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-cell-toolbar
+  > *:not([data-jp-item-name='accept-code']):not(
+    [data-jp-item-name='reject-code']
+  ) {
+  display: none !important;
+}
+
+/*
+ * Hide the `Out[N]:` execution-number text on code-cell outputs in
+ * document mode. Use `visibility: hidden` (not `display: none`) so the
+ * 64px prompt column is preserved and outputs keep their existing left
+ * edge — which is also where rendered markdown sits, so alignment between
+ * markdown content and code outputs is preserved automatically.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-OutputPrompt {
+  visibility: hidden;
+}
