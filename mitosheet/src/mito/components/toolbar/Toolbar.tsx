@@ -206,27 +206,26 @@ export const Toolbar = (
                                 }}
                             >
                                 <span style={{transform: 'scale(0.85)', display: 'flex'}}><HexagonAIIcon outlineColor='var(--mito-highlight)' fillColor='var(--mito-highlight-very-light)' /></span>
-                                Suggest Graphs
+                                Suggested Graphs
                             </div>
-                            <div className='mito-ai-actions-group'>
-                                <button
-                                    type='button'
-                                    className={classNames('mito-ai-actions-group-button', 'mito-ai-actions-group-button-left')}
-                                    onClick={() => {
-                                        props.setUIState(prev => ({
-                                            ...prev,
-                                            currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
-                                            selectedTabType: 'data'
-                                        }));
-                                    }}
-                                >
-                                    <AIIcon />
-                                    Ask AI
-                                </button>
+                            <div
+                                className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                                style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
+                                onClick={() => {
+                                    props.setUIState(prev => ({
+                                        ...prev,
+                                        currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                        selectedTabType: 'data'
+                                    }));
+                                }}
+                            >
+                                <AIIcon />
+                                AI Chat
+                            </div>
                                 {isAINotesEnabled() && (
-                                    <button
-                                        type='button'
-                                        className={classNames('mito-ai-actions-group-button', 'mito-ai-actions-group-button-right')}
+                                    <div
+                                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
                                         onClick={() => {
                                             props.setUIState(prev => ({
                                                 ...prev,
@@ -236,10 +235,9 @@ export const Toolbar = (
                                         }}
                                     >
                                         <span className='mito-ai-actions-sparkle-icon' aria-hidden>✦</span>
-                                        AI Notes
-                                    </button>
+                                        AI Alerts
+                                    </div>
                                 )}
-                            </div>
                         </>
                     )}
                 </div>
