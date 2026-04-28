@@ -210,7 +210,7 @@ export const openAppPreviewFromAppFilePath = async (
   }
   let notebookPanel = findNotebookPanelByNotebookID(notebookTracker, notebookID);
   if (notebookPanel) {
-    await streamlitPreviewManager.openAppPreview(app, notebookPanel);
+    await streamlitPreviewManager.startPreview(notebookPanel.context.path, notebookID);
     return;
   }
   const dirPath = PathExt.dirname(appPath);
@@ -226,7 +226,7 @@ export const openAppPreviewFromAppFilePath = async (
   void documentManager.open(notebookPath);
   notebookPanel = await waitForNotebookPanelByNotebookID(notebookTracker, notebookID);
   if (notebookPanel) {
-    await streamlitPreviewManager.openAppPreview(app, notebookPanel);
+    await streamlitPreviewManager.startPreview(notebookPanel.context.path, notebookID);
   } else {
     Notification.emit(
       'Opened the source notebook but could not start App Mode. Try again.',

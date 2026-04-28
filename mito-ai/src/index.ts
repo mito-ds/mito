@@ -18,6 +18,7 @@ import NotebookFooterPlugin from './Extensions/NotebookFooter';
 import mitoThemesPlugin from './Extensions/MitoThemes';
 import ManageAppsPlugin from "./Extensions/AppManager/ManageAppsPlugin"
 import ChartWizardPlugin from './Extensions/ChartWizard/ChartWizardPlugin';
+import NotebookViewModePlugin from './Extensions/NotebookViewMode/NotebookViewModePlugin';
 import CommentsPlugin from './Extensions/Comments/CommentsPlugin';
 
 // This is the main entry point to the mito-ai extension. It must export all of the top level
@@ -38,5 +39,6 @@ export default [
   ManageAppsPlugin,
   mitoThemesPlugin,
   ChartWizardPlugin,
+  NotebookViewModePlugin,
   CommentsPlugin
 ];

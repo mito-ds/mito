@@ -115,6 +115,12 @@ const THEME_CONFIG: Record<string, { light: string; dark: string }> = {
   '--mito-theme-mirror-editor-error-color': { light: '#f00', dark: '#f44747' },
   '--mito-theme-mirror-editor-hr-color': { light: '#999', dark: '#6e6e6e' },
 
+  // Toolbar colors
+  '--mito-theme-segmented-control-active-text': { light: 'rgba(0, 0, 0, 0.87)', dark: 'rgba(255, 255, 255, 0.87)' },
+  '--mito-theme-segmented-control-inactive-text': { light: 'rgba(0, 0, 0, 0.54)', dark: 'rgba(255, 255, 255, 0.5)' },
+  '--mito-theme-toolbar-secondary-btn-border': { light: 'rgba(0, 0, 0, 0.15)', dark: 'rgba(255, 255, 255, 0.15)' },
+  '--mito-theme-toolbar-secondary-btn-hover-bg': { light: 'rgba(0, 0, 0, 0.04)', dark: 'rgba(255, 255, 255, 0.06)' },
+
   // Vega colors
   '--mito-theme-vega-background': { light: 'white', dark: '#1e1e1e' }
 };

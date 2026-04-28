@@ -1,0 +1,79 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ *
+ * Document mode: hide code cell input areas so only markdown and outputs are visible.
+ * Applied when the notebook has class jp-mod-mito-document-mode.
+ */
+
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-InputArea {
+  display: none !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-InputPrompt {
+  display: none !important;
+}
+
+/* Hide any collapser/header for code cells in document mode */
+.jp-Notebook.jp-mod-mito-document-mode .jp-CodeCell .jp-Cell-header {
+  display: none !important;
+}
+
+/* Hide cell number labels in document mode (markdown cells still show header area) */
+.jp-Notebook.jp-mod-mito-document-mode .jp-Cell-header::before {
+  content: "" !important;
+  display: none !important;
+}
+
+/*
+ * Hide cell toolbar buttons in document mode, except the AI agent's
+ * Accept/Reject buttons. Mirrors the existing carve-out in base.css for
+ * `.jp-toolbar-overlap` so the agent flow keeps working from document mode.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-cell-toolbar {
+  display: flex !important;
+}
+
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-cell-toolbar
+  > *:not([data-jp-item-name='accept-code']):not(
+    [data-jp-item-name='reject-code']
+  ) {
+  display: none !important;
+}
+
+/*
+ * Hide the `Out[N]:` execution-number text on code-cell outputs in
+ * document mode. Use `visibility: hidden` (not `display: none`) so the
+ * 64px prompt column is preserved and outputs keep their existing left
+ * edge — which is also where rendered markdown sits, so alignment between
+ * markdown content and code outputs is preserved automatically.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-OutputPrompt {
+  visibility: hidden;
+}
+
+/*
+ * In document mode, don't show the active markdown-cell border treatment.
+ * This keeps selected markdown cells looking like part of a continuous doc.
+ */
+.jp-Notebook.jp-mod-mito-document-mode
+  .jp-MarkdownCell.jp-mod-active
+  .jp-MarkdownOutput {
+  border-color: transparent;
+}
+
+/*
+ * Hide markdown heading collapse buttons in document mode so the notebook
+ * reads like a clean document without collapser affordances.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-collapseHeadingButton {
+  display: none !important;
+}
+
+/*
+ * Hide output gutter collapser overlay in document mode.
+ */
+.jp-Notebook.jp-mod-mito-document-mode .jp-OutputArea-promptOverlay {
+  display: none !important;
+}

@@ -85,7 +85,7 @@ test.describe.parallel("Agent mode basic functionality", () => {
         });
     });
 
-    test("Run agent's plan then send a follow up message", async ({ page }) => {
+    test("Send a follow up message", async ({ page }) => {
 
         // Wait until the agent is done executing
         await waitForAgentToFinish(page);

@@ -8,7 +8,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { UUID } from '@lumino/coreutils';
-import { IStreamlitPreviewManager } from '../../AppPreview/StreamlitPreviewPlugin';
+import { INotebookViewMode } from '../../NotebookViewMode/NotebookViewModePlugin';
 import { CompletionWebsocketClient } from '../../../websockets/completions/CompletionsWebsocketClient';
 import { ChatHistoryManager } from '../ChatHistoryManager';
 import { createCheckpoint } from '../../../utils/checkpoint';
@@ -34,7 +34,7 @@ interface UseAgentExecutionProps {
     contextManager: IContextManager;
     notebookTracker: INotebookTracker;
     app: JupyterFrontEnd;
-    streamlitPreviewManager: IStreamlitPreviewManager;
+    notebookViewMode: INotebookViewMode;
     websocketClient: CompletionWebsocketClient;
     documentManager: IDocumentManager;
     chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>;
@@ -112,7 +112,7 @@ export const useAgentExecution = ({
     contextManager,
     notebookTracker,
     app,
-    streamlitPreviewManager,
+    notebookViewMode,
     websocketClient,
     documentManager,
     chatHistoryManagerRef,
@@ -212,7 +212,7 @@ export const useAgentExecution = ({
                 agentResponse: command.agent_response,
                 app,
                 notebookPanel,
-                streamlitPreviewManager,
+                notebookViewMode,
                 contextManager,
                 setLoadingStatus,
                 addAIMessageFromResponseAndUpdateState,
@@ -246,7 +246,7 @@ export const useAgentExecution = ({
         addAIMessageFromResponseAndUpdateState,
         chatHistoryManagerRef,
         app,
-        streamlitPreviewManager,
+        notebookViewMode,
         markAgentForStopping,
     ]);
 
