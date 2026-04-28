@@ -52,3 +52,16 @@ def set_user_field(field: str, value: Any) -> None:
         old_user_json[field] = value
         with open(USER_JSON_PATH, 'w+') as f:
             f.write(json.dumps(old_user_json))
+
+def increment_user_field(field: str, default: int = 0) -> int:
+    """
+    Reads the current integer value of field from user.json, increments it by 1,
+    writes it back, and returns the new value. Always reads from disk so callers
+    don't need to maintain their own cached copies (which can diverge across modules).
+    """
+    current = get_user_field(field)
+    if not isinstance(current, int):
+        current = default
+    new_value = current + 1
+    set_user_field(field, new_value)
+    return new_value

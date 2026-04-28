@@ -91,6 +91,9 @@ export const ChartDesignTabContents = (
     }
 
     return (<div className='mito-toolbar-bottom'>
+        <ToolbarButton
+            action={props.actions.buildTimeActions[ActionEnum.Suggested_Visualizations]}
+        />
         <ToolbarButton action={props.actions.buildTimeActions[ActionEnum.Graph_SelectData]}/>
         <ChangeChartTypeButton
             {...props}

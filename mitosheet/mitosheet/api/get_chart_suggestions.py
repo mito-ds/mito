@@ -1,0 +1,259 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Copyright (c) Saga Inc.
+# Distributed under the terms of the GPL License.
+
+"""
+LLM-backed chart suggestions for the Suggested Visualizations sidebar.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+from typing import Any, Dict, List
+
+import pandas as pd
+
+from mitosheet.ai.prompt import get_dataframe_creation_code, MAX_CHARS_FOR_INPUT_DATA
+from mitosheet.api.suggestions_api_utils import (
+    get_suggestions_from_mito_server,
+    get_suggestions_from_open_ai_compatible,
+    get_suggestions_from_openai_key,
+    get_suggestions_llm_payload,
+    strip_json_fences,
+)
+from mitosheet.types import StepsManagerType
+
+CHART_SUGGESTIONS_PROMPT_VERSION = "chart-suggestions-v1"
+
+ALLOWED_GRAPH_TYPES = frozenset(
+    {
+        "bar",
+        "line",
+        "scatter",
+        "histogram",
+        "box",
+        "violin",
+        "strip",
+        "density heatmap",
+        "density contour",
+        "ecdf",
+    }
+)
+
+MAX_SUGGESTIONS = 5
+
+def _column_catalog(df: pd.DataFrame, column_indices: List[int] | None = None) -> str:
+    lines: List[str] = []
+    indices = column_indices if column_indices is not None else list(range(len(df.columns)))
+    for i in indices:
+        if i < 0 or i >= len(df.columns):
+            continue
+        col = df.columns[i]
+        dtype = str(df[col].dtype)
+        lines.append(f"  {i}: {repr(col)} ({dtype})")
+    return "\n".join(lines)
+
+
+def build_chart_suggestions_prompt(df_name: str, df: pd.DataFrame, column_indices: List[int] | None = None) -> str:
+    catalog = _column_catalog(df, column_indices)
+    max_chars = min(2000, int(MAX_CHARS_FOR_INPUT_DATA))
+
+    if column_indices is not None:
+        # Show sample data only for the selected columns
+        valid = [i for i in column_indices if 0 <= i < len(df.columns)]
+        df_snippet = df.iloc[:5, valid].to_string(index=False)[:max_chars] if valid else ""
+        scope_note = "The user has selected specific columns — suggest charts that use ONLY the columns in the catalog below."
+        # Use actual indices in the example so the AI doesn't anchor on [0, 1]
+        example_indices = column_indices[:2] if len(column_indices) >= 2 else column_indices[:1]
+    else:
+        df_snippet = get_dataframe_creation_code(df.head(5), max_chars)
+        scope_note = "Suggest the most insightful charts for this dataframe."
+        example_indices = [0, 1]
+
+    example_json = f'{{"suggestions":[{{"title":"short title","description":"one sentence","graph_type":"bar","column_indices":{example_indices}}}]}}'
+
+    return f"""You are a data visualization assistant for tabular data analysis in Mito.
+
+Dataframe variable name: {df_name}
+
+{scope_note}
+
+Column index catalog (use ONLY these indices in column_indices):
+{catalog}
+
+Sample data (truncated):
+{df_snippet}
+
+Respond with ONLY valid JSON (no markdown, no code fences) with this exact shape:
+{example_json}
+
+Rules:
+- Suggest at most {MAX_SUGGESTIONS} charts.
+- graph_type must be one of: bar, line, scatter, histogram, box, violin, strip, density heatmap, density contour, ecdf
+- column_indices must reference valid indices from the catalog above. Order matters: for scatter put x-axis column first, then y-axis; for bar put category column first then numeric; for histogram use one numeric column index only.
+- If nothing fits, return {{"suggestions":[]}}.
+"""
+
+
+def _get_chart_suggestions_llm_payload(prompt: str) -> Dict[str, Any]:
+    return get_suggestions_llm_payload(prompt)
+
+
+def _strip_json_fences(text: str) -> str:
+    return strip_json_fences(text)
+
+
+def _parse_suggestions_json(completion: str) -> Any:
+    text = _strip_json_fences(completion)
+    return json.loads(text)
+
+
+def _validate_suggestions(raw: Any, num_columns: int, allowed_indices: List[int] | None = None) -> List[Dict[str, Any]]:
+    if not isinstance(raw, dict):
+        return []
+    items = raw.get("suggestions")
+    if not isinstance(items, list):
+        return []
+    out: List[Dict[str, Any]] = []
+    for item in items[:MAX_SUGGESTIONS]:
+        if not isinstance(item, dict):
+            continue
+        title = item.get("title")
+        description = item.get("description")
+        graph_type = item.get("graph_type")
+        indices = item.get("column_indices")
+        if not isinstance(title, str) or not isinstance(description, str):
+            continue
+        if not isinstance(graph_type, str) or graph_type not in ALLOWED_GRAPH_TYPES:
+            continue
+        if not isinstance(indices, list) or len(indices) == 0:
+            continue
+        ok = True
+        norm_indices: List[int] = []
+        for x in indices:
+            if isinstance(x, bool):
+                ok = False
+                break
+            if isinstance(x, float) and x == int(x):
+                x = int(x)
+            if not isinstance(x, int) or x < 0 or x >= num_columns:
+                ok = False
+                break
+            if allowed_indices is not None and x not in allowed_indices:
+                ok = False
+                break
+            norm_indices.append(x)
+        if not ok:
+            continue
+        out.append(
+            {
+                "title": title.strip()[:200],
+                "description": description.strip()[:500],
+                "graph_type": graph_type,
+                "column_indices": norm_indices,
+            }
+        )
+    return out
+
+
+def _get_chart_suggestions_from_mito_server(user_input: str, prompt: str) -> Dict[str, Any]:
+    llm_result = get_suggestions_from_mito_server(user_input, prompt)
+    if "error" in llm_result:
+        return llm_result
+    return {
+        "user_input": user_input,
+        "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
+        "prompt": prompt,
+        "completion": llm_result["completion"],
+    }
+
+
+def _get_chart_suggestions_from_open_ai_compatible(url: str, user_input: str, prompt: str) -> Dict[str, Any]:
+    llm_result = get_suggestions_from_open_ai_compatible(url, prompt)
+    if "error" in llm_result:
+        return llm_result
+    return {
+        "user_input": user_input,
+        "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
+        "prompt": prompt,
+        "completion": llm_result["completion"],
+    }
+
+
+def _get_chart_suggestions_from_openai_key(user_input: str, prompt: str) -> Dict[str, Any]:
+    llm_result = get_suggestions_from_openai_key(prompt)
+    if "error" in llm_result:
+        return llm_result
+    return {
+        "user_input": user_input,
+        "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
+        "prompt": prompt,
+        "completion": llm_result["completion"],
+    }
+
+
+def get_chart_suggestions(params: Dict[str, Any], steps_manager: StepsManagerType) -> Dict[str, Any]:
+    sheet_index = params.get("sheet_index")
+    if not isinstance(sheet_index, int):
+        return {"error": "Invalid sheet_index"}
+
+    state = steps_manager.curr_step.final_defined_state
+    df_names = state.df_names
+    dfs = state.dfs
+
+    if sheet_index < 0 or sheet_index >= len(dfs):
+        return {"error": "Invalid sheet index"}
+
+    df = dfs[sheet_index]
+    if df is None or len(df.columns) == 0:
+        return {
+            "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
+            "suggestions": [],
+        }
+
+    raw_column_indices = params.get("column_indices")
+    column_indices: List[int] | None = None
+    if isinstance(raw_column_indices, list) and len(raw_column_indices) > 0:
+        column_indices = [i for i in raw_column_indices if isinstance(i, int) and 0 <= i < len(df.columns)]
+        if not column_indices:
+            column_indices = None
+
+    df_name = df_names[sheet_index] if sheet_index < len(df_names) else "df"
+    prompt = build_chart_suggestions_prompt(str(df_name), df, column_indices)
+
+    user_input = "chart_suggestions"
+
+    byo_url = steps_manager.mito_config.llm_url
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
+    if byo_url is not None:
+        llm_result = _get_chart_suggestions_from_open_ai_compatible(byo_url, user_input, prompt)
+    elif OPENAI_API_KEY is None:
+        llm_result = _get_chart_suggestions_from_mito_server(user_input, prompt)
+    else:
+        llm_result = _get_chart_suggestions_from_openai_key(user_input, prompt)
+
+    if "error" in llm_result:
+        return {"error": llm_result["error"]}
+
+    completion = llm_result.get("completion")
+    if not isinstance(completion, str):
+        return {"error": "Invalid response from language model."}
+
+    try:
+        parsed = _parse_suggestions_json(completion)
+    except (json.JSONDecodeError, ValueError):
+        return {
+            "error": "Could not parse chart suggestions. The model did not return valid JSON.",
+            "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
+        }
+
+    suggestions = _validate_suggestions(parsed, len(df.columns), allowed_indices=column_indices)
+
+    return {
+        "prompt_version": CHART_SUGGESTIONS_PROMPT_VERSION,
+        "suggestions": suggestions,
+    }

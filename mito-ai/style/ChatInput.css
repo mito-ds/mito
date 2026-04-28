@@ -27,6 +27,46 @@
   transform: scale(1.02);
 }
 
+/* DataFrame viewer → Mito AI context: pulse glow on the input shell only */
+.chat-input-container.chat-input-container--attention-glow {
+  animation: mito-ai-chat-input-attention-glow 0.75s ease-in-out 1;
+}
+
+@keyframes mito-ai-chat-input-attention-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.06),
+      0 0 0 1px rgba(0, 0, 0, 0.02);
+  }
+  50% {
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.06),
+      0 0 0 1px rgba(157, 108, 255, 0.45),
+      0 0 0 3px rgba(157, 108, 255, 0.38),
+      0 0 20px 5px rgba(157, 108, 255, 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-input-container.chat-input-container--attention-glow {
+    animation: mito-ai-chat-input-attention-glow-static 1s ease forwards;
+  }
+
+  @keyframes mito-ai-chat-input-attention-glow-static {
+    0%,
+    100% {
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.08),
+        0 2px 4px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(0, 0, 0, 0.02),
+        inset 0 0 0 2px rgba(157, 108, 255, 0.65);
+    }
+  }
+}
+
 .chat-input-text-area-container {
   position: relative;
   height: min-content;

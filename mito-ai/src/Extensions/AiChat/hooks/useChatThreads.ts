@@ -33,7 +33,6 @@ interface UseChatThreadsProps {
     setChatHistoryManager: (manager: ChatHistoryManager) => void;
     setAgentModeEnabled: (enabled: boolean) => void;
     setNextSteps: (steps: string[]) => void;
-    setShowRevertQuestionnaire: (show: boolean) => void;
     setHasCheckpoint: (hasCheckpoint: boolean) => void;
     setAutoScrollFollowMode: (mode: boolean) => void;
     agentReview: {
@@ -67,7 +66,6 @@ export const useChatThreads = ({
     setChatHistoryManager,
     setAgentModeEnabled,
     setNextSteps,
-    setShowRevertQuestionnaire,
     setHasCheckpoint,
     setAutoScrollFollowMode,
     agentReview,
@@ -190,9 +188,6 @@ export const useChatThreads = ({
 
         // Clear next steps when starting a new chat
         setNextSteps([]);
-
-        // Get rid of the revert questionaire if its open
-        setShowRevertQuestionnaire(false);
 
         // Clear agent checkpoint when starting new chat
         setHasCheckpoint(false);

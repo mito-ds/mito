@@ -589,7 +589,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
     IAppManagerService,
     ICommandPalette,
     IDocumentManager,
-  ],
+  ] as JupyterFrontEndPlugin<INotebookViewMode>['requires'],
   provides: INotebookViewMode,
   activate: (
     app: JupyterFrontEnd,

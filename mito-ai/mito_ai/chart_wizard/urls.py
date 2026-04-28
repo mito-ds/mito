@@ -4,7 +4,7 @@
 from typing import List, Tuple, Any
 from jupyter_server.utils import url_path_join
 from mito_ai.chart_wizard.handlers import ConvertChartHandler, AddFieldHandler
-from mito_ai.provider_manager import ProviderManager
+from mito_ai_core.provider_manager import ProviderManager
 
 
 def get_chart_wizard_urls(
@@ -19,7 +19,7 @@ def get_chart_wizard_urls(
     Returns:
         List of (url_pattern, handler_class, handler_kwargs) tuples
     """
-    BASE_URL = base_url + "/mito-ai/chart-wizard"
+    BASE_URL = url_path_join(base_url, "mito-ai", "chart-wizard")
     return [
         (url_path_join(BASE_URL, "convert"), ConvertChartHandler, {"llm": llm}),
         (url_path_join(BASE_URL, "add-field"), AddFieldHandler, {"llm": llm}),

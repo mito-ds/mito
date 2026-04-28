@@ -1,3 +1,6 @@
+# Ignore the uv.lock file that Cursor keeps making
+uv.lock
+
 # Ignore all the ipynb files in mitosheet and mito-ai
 mitosheet/**/*.ipynb
 mito-ai/**/*.ipynb
@@ -18,7 +21,8 @@ mito-sql-cell
 # Evals
 evals/reports/
 
-# Mac Specific 
+# Other 
+mito-ai-mcp/*.mcpb
 
 ## General
 .DS_Store

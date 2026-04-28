@@ -7,6 +7,7 @@ import { test, expect } from '../fixtures';
 import {
     createAndRunNotebookWithCells,
     waitForIdle,
+    typeInNotebookCell,
 } from '../jupyter_utils/jupyterlab_utils';
 import {
     sendMessageToAgent,
@@ -136,8 +137,10 @@ test.describe.parallel("Stop Agent", () => {
     });
 
     test("Stop agent during error fixup", async ({ page }) => {
-        // This is hopefully an impossible thing for the agent to pass. 
-        await sendMessageToAgent(page, "Import the file nba_data.csv. IMPORTANT: THIS CODE IS GOING TO ERROR. NEVER GENERATE A CORRECT VERSION OF THIS CODE.");
+        // Seed the notebook with invalid code so "Run all cells" triggers auto-fixup.
+        await typeInNotebookCell(page, 0, "print(1", true);
+
+        await sendMessageToAgent(page, "Run all cells");
         await waitForIdle(page);
 
         // Wait for the "trying again" message to appear
@@ -202,8 +205,10 @@ test.describe.parallel("Agent mode auto error fixup", () => {
     });
 
     test("Auto Error Fixup", async ({ page }) => {
+        // Seed the notebook with invalid code so "Run all cells" triggers auto-fixup.
+        await typeInNotebookCell(page, 0, "print(1", true);
 
-        await sendMessageToAgent(page, "Import the file nba_data.csv");
+        await sendMessageToAgent(page, "Run all cells");
         await waitForIdle(page);
 
         // Check that the agent eventually sends a message that says it is trying again

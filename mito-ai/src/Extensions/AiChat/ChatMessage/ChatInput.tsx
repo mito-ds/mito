@@ -3,7 +3,8 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 import { classNames } from '../../../utils/classNames';
 import { IContextManager } from '../../ContextManager/ContextManagerPlugin';
 import ChatDropdown from './ChatDropdown';
@@ -23,6 +24,15 @@ import DatabaseButton from '../../../components/DatabaseButton';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { AgentExecutionStatus } from '../ChatTaskpane';
 import { uploadFileToBackend } from '../../../utils/fileUpload';
+import {
+    COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION,
+    COMMAND_MITO_AI_ADD_CODE_COMMENT,
+    COMMAND_MITO_AI_ADD_OUTPUT_COMMENT,
+    COMMAND_MITO_AI_OPEN_CHAT,
+    COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS,
+    COMMAND_MITO_AI_REMOVE_CODE_COMMENT,
+    COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT,
+} from '../../../commands';
 
 interface ChatInputProps {
     app: JupyterFrontEnd;
@@ -38,7 +48,14 @@ interface ChatInputProps {
     displayOptimizedChatHistoryLength?: number;
     agentTargetNotebookPanelRef?: React.RefObject<any>;
     isSignedUp?: boolean;
+    /** When false, user cannot send messages (e.g. GitHub Copilot not signed in). */
+    canSendMessages?: boolean;
     messageIndex?: number;
+    /** Border glow on the input shell when external context is added (e.g. DataFrame viewer). */
+    attentionGlowActive?: boolean;
+    onAttentionGlowAnimationEnd?: () => void;
+    /** Fired when DataFrame viewer selection is added via the Jupyter command (for attention glow, etc.). */
+    onDataframeViewerContextAdded?: () => void;
 }
 
 export interface ExpandedVariable extends Variable {
@@ -74,7 +91,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
     displayOptimizedChatHistoryLength = 0,
     agentTargetNotebookPanelRef,
     isSignedUp = true,
+    canSendMessages = true,
     messageIndex,
+    attentionGlowActive = false,
+    onAttentionGlowAnimationEnd,
+    onDataframeViewerContextAdded,
 }) => {
     const [input, setInput] = useState(initialContent);
     const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -90,6 +111,178 @@ const ChatInput: React.FC<ChatInputProps> = ({
     // Track cell order and line selection
     const cellOrder = useCellOrder(notebookTracker);
     const lineSelection = useLineSelection(notebookTracker, cellOrder);
+
+    const onDataframeViewerContextAddedRef = useRef(onDataframeViewerContextAdded);
+    onDataframeViewerContextAddedRef.current = onDataframeViewerContextAdded;
+
+    useEffect(() => {
+        // Only the main composer registers this command. An editing ChatInput can mount
+        // alongside it; we must not overwrite the command with the edit box's state setter.
+        if (isEditing) {
+            return;
+        }
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_DATAFRAME_VIEWER_SELECTION, {
+            label: 'Add DataFrame viewer selection to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                setAdditionalContext((prev) => [
+                    ...prev,
+                    {
+                        type: 'dataframe_viewer_selection',
+                        value: args.value as string,
+                        display: args.display as string,
+                    },
+                ]);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_CODE_COMMENT, {
+            label: 'Add code comment to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                const newValue = args.value as string;
+                let parsed: {
+                    cellId?: string;
+                    startLine?: number;
+                    endLine?: number;
+                } | undefined;
+                try {
+                    parsed = JSON.parse(newValue);
+                } catch {
+                    parsed = undefined;
+                }
+                setAdditionalContext((prev) => {
+                    // Replace existing comment on the same cell+lines
+                    const filtered = prev.filter(item => {
+                        if (item.type !== 'code_comment') { return true; }
+                        if (!parsed) { return true; }
+                        try {
+                            const existing = JSON.parse(item.value);
+                            return !(existing.cellId === parsed.cellId
+                                && existing.startLine === parsed.startLine
+                                && existing.endLine === parsed.endLine);
+                        } catch { return true; }
+                    });
+                    return [...filtered, {
+                        type: 'code_comment',
+                        value: newValue,
+                        display: args.display as string,
+                    }];
+                });
+                setInput((prev) => prev.trim() === '' ? 'Please address these comments' : prev);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_ADD_OUTPUT_COMMENT, {
+            label: 'Add output comment to Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (
+                    !args ||
+                    typeof args.value !== 'string' ||
+                    typeof args.display !== 'string'
+                ) {
+                    return;
+                }
+                const newValue = args.value as string;
+                let parsed: {
+                    cellId?: string;
+                } | undefined;
+                try {
+                    parsed = JSON.parse(newValue);
+                } catch {
+                    parsed = undefined;
+                }
+                setAdditionalContext((prev) => {
+                    // Replace existing comment on the same cell output
+                    const filtered = prev.filter(item => {
+                        if (item.type !== 'output_comment') { return true; }
+                        if (!parsed) { return true; }
+                        try {
+                            const existing = JSON.parse(item.value);
+                            return existing.cellId !== parsed.cellId;
+                        } catch { return true; }
+                    });
+                    return [...filtered, {
+                        type: 'output_comment',
+                        value: newValue,
+                        display: args.display as string,
+                    }];
+                });
+                setInput((prev) => prev.trim() === '' ? 'Please address these comments' : prev);
+                void app.commands.execute(COMMAND_MITO_AI_OPEN_CHAT, {
+                    focusChatInput: true,
+                });
+                onDataframeViewerContextAddedRef.current?.();
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_REMOVE_CODE_COMMENT, {
+            label: 'Remove code comment from Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (!args || typeof args.cellId !== 'string') { return; }
+                const cellId = args.cellId as string;
+                const startLine = args.startLine as number;
+                const endLine = args.endLine as number;
+                setAdditionalContext((prev) => prev.filter(item => {
+                    if (item.type !== 'code_comment') { return true; }
+                    try {
+                        const existing = JSON.parse(item.value);
+                        return !(existing.cellId === cellId
+                            && existing.startLine === startLine
+                            && existing.endLine === endLine);
+                    } catch { return true; }
+                }));
+            },
+        });
+
+        app.commands.addCommand(COMMAND_MITO_AI_REMOVE_OUTPUT_COMMENT, {
+            label: 'Remove output comment from Mito AI context',
+            execute: (args?: ReadonlyPartialJSONObject) => {
+                if (!args || typeof args.cellId !== 'string') { return; }
+                const cellId = args.cellId as string;
+                setAdditionalContext((prev) => prev.filter(item => {
+                    if (item.type !== 'output_comment') { return true; }
+                    try {
+                        const existing = JSON.parse(item.value);
+                        return existing.cellId !== cellId;
+                    } catch { return true; }
+                }));
+            },
+        });
+    }, [app, isEditing]);
+
+    // Dispatch indicator updates whenever comment context changes
+    useEffect(() => {
+        if (isEditing) {
+            return;
+        }
+        const commentContext = additionalContext.filter(
+            c => c.type === 'code_comment' || c.type === 'output_comment'
+        );
+        void app.commands.execute(COMMAND_MITO_AI_UPDATE_COMMENT_INDICATORS, {
+            comments: commentContext.map(c => ({ type: c.type, value: c.value })),
+        });
+    }, [additionalContext, app, isEditing]);
 
     const handleFileUpload = (file: File): void => {
         let uploadType: string;
@@ -408,6 +601,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }
 
     const getPlaceholderText = (): string => {
+        if (!canSendMessages) {
+            return 'Sign in with GitHub above to use Mito AI';
+        }
         if (!isSignedUp && displayOptimizedChatHistoryLength === 0) {
             return 'Sign up above to use Mito AI';
         } else if (agentExecutionStatus === 'working') {
@@ -425,24 +621,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
     };
 
-    // Automatically add active cell context when in Chat mode and there's active cell code
+    // Automatically add context items based on mode
     useEffect(() => {
         if (!agentModeEnabled) {
-            // Check if active cell context is already present
+            // Chat mode: include both active cell and notebook context
             const hasActiveCellContext = additionalContext.some(context => context.type === 'active_cell');
-
-            if (!hasActiveCellContext) {
-                setAdditionalContext(prev => [...prev, {
-                    type: 'active_cell',
-                    value: 'Active Cell',
-                    display: 'Active Cell'
-                }]);
-            }
-
-            // Remove the current notebook context item
             const hasNotebookContext = additionalContext.some(context => context.type === 'notebook');
-            if (hasNotebookContext) {
-                setAdditionalContext(prev => prev.filter(context => context.type !== 'notebook'));
+
+            if (!hasActiveCellContext || !hasNotebookContext) {
+                setAdditionalContext(prev => {
+                    const updated = [...prev];
+                    if (!hasActiveCellContext) {
+                        updated.push({
+                            type: 'active_cell',
+                            value: 'Active Cell',
+                            display: 'Active Cell'
+                        });
+                    }
+                    if (!hasNotebookContext) {
+                        updated.push({
+                            type: 'notebook',
+                            value: 'Notebook',
+                            display: 'Notebook'
+                        });
+                    }
+                    return updated;
+                });
             }
         } else if (agentModeEnabled) {
             // Remove active cell context when in agent mode
@@ -518,19 +722,33 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <div
-            className={classNames("chat-input-container", { 
-                "editing": isEditing,
-                "drag-over": isDragOver 
+            className={classNames('chat-input-container', {
+                editing: isEditing,
+                'drag-over': isDragOver,
+                'chat-input-container--attention-glow': attentionGlowActive,
             })}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            onAnimationEnd={(e) => {
+                if (
+                    e.target === e.currentTarget &&
+                    e.animationName.includes('mito-ai-chat-input-attention-glow')
+                ) {
+                    onAttentionGlowAnimationEnd?.();
+                }
+            }}
         >
-            <div className='context-container'>
+            <div
+                className='context-container'
+                style={!canSendMessages ? { pointerEvents: 'none', opacity: 0.5 } : undefined}
+            >
                 <DatabaseButton app={app} />
                 <AttachFileButton onFileUploaded={handleFileUpload} notebookTracker={notebookTracker} />
                 <button
+                    type="button"
                     className="context-button"
+                    disabled={!canSendMessages}
                     onClick={() => {
                         setDropdownVisible(true);
                         setDropdownFilter('');
@@ -565,7 +783,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     className={classNames("message", "message-user", 'chat-input', { "agent-mode": agentModeEnabled })}
                     placeholder={getPlaceholderText()}
                     value={input}
-                    disabled={agentExecutionStatus === 'working' || agentExecutionStatus === 'stopping'}
+                    disabled={
+                        !canSendMessages ||
+                        agentExecutionStatus === 'working' ||
+                        agentExecutionStatus === 'stopping'
+                    }
                     onChange={handleInputChange}
                     onPaste={handlePaste}
                     onKeyDown={(e) => {
@@ -582,6 +804,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         // shift + enter to add a new line.
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
+                            if (!canSendMessages) {
+                                return;
+                            }
                             adjustHeight(true)
                             const processedMessage = processMessageForSubmission(input);
                             const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
@@ -615,11 +840,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
             {isEditing &&
                 <div className="message-edit-buttons">
-                    <button onClick={() => {
-                        const processedMessage = processMessageForSubmission(input);
-                        const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
-                        handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
-                    }}>Save</button>
+                    <button
+                        type="button"
+                        disabled={!canSendMessages}
+                        onClick={() => {
+                            if (!canSendMessages) {
+                                return;
+                            }
+                            const processedMessage = processMessageForSubmission(input);
+                            const additionalContextWithoutDisplayNames = getAdditionContextWithoutDisplayNames();
+                            handleSubmitUserMessage(processedMessage, messageIndex, additionalContextWithoutDisplayNames);
+                        }}
+                    >Save</button>
                     <button onClick={onCancel}>Cancel</button>
                 </div>
             }

@@ -7,7 +7,7 @@ from typing import Any, Final, Literal
 import tornado
 import os
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.utils.telemetry_utils import MITO_SERVER_KEY, USER_KEY, log
+from mito_ai_core.utils.telemetry_utils import MITO_SERVER_KEY, USER_KEY, log
 
 
 class LogHandler(APIHandler):

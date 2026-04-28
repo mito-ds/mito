@@ -111,27 +111,33 @@ export const setActiveCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | 
     }
 }
 
-export const writeCodeToCellByID = (
-    notebookTracker: INotebookTracker,
-    code: string | undefined,
-    codeCellID: string,
-): void => {
-    const notebookPanel = notebookTracker.currentWidget
-    writeCodeToCellByIDInNotebookPanel(notebookPanel, code, codeCellID)
+const shouldRemoveCodeFormatting = (cellType: string): boolean => {
+    return cellType !== 'markdown';
 }
 
-export const writeCodeToCellByIDInNotebookPanel = (
-    notebookPanel: NotebookPanel | null,
-    code: string | undefined,
-    codeCellID: string | undefined,
+export const writeContentToCellByID = (
+    notebookTracker: INotebookTracker,
+    content: string | undefined,
+    cellID: string,
+    cellType: string,
 ): void => {
-    if (code === undefined || codeCellID === undefined) {
+    const notebookPanel = notebookTracker.currentWidget
+    writeContentToCellByIDInNotebookPanel(notebookPanel, content, cellID, cellType)
+}
+
+export const writeContentToCellByIDInNotebookPanel = (
+    notebookPanel: NotebookPanel | null,
+    content: string | undefined,
+    cellID: string | undefined,
+    cellType: string,
+): void => {
+    if (content === undefined || cellID === undefined) {
         return;
     }
 
-    const codeMirrorValidCode = removeMarkdownCodeFormatting(code);
+    const codeMirrorValidCode = shouldRemoveCodeFormatting(cellType) ? removeMarkdownCodeFormatting(content) : content;
     const notebook = notebookPanel?.content;
-    const cell = notebook?.widgets.find(cell => cell.model.id === codeCellID);
+    const cell = notebook?.widgets.find(cell => cell.model.id === cellID);
 
     if (cell) {
         cell.model.sharedModel.source = codeMirrorValidCode;
@@ -494,4 +500,44 @@ export const runCellByIDInBackground = async (notebookPanel: NotebookPanel | nul
         // Restore the original active cell
         notebook.activeCellIndex = originalActiveCellIndex;
     }
+}
+
+/**
+ * Deletes a cell from the notebook by its ID.
+ * 
+ * Guards against deleting the last cell in the notebook, since JupyterLab
+ * requires at least one cell to exist. In that case, the cell is cleared
+ * instead of deleted.
+ * 
+ * @returns true if the cell was deleted (or cleared if last cell), false if the cell was not found.
+ */
+export const deleteCellByIDInNotebookPanel = (notebookPanel: NotebookPanel | null, cellId: string): boolean => {
+    if (!notebookPanel) return false;
+
+    const notebook = notebookPanel.content;
+    const cellIndex = getCellIndexByIDInNotebookPanel(notebookPanel, cellId);
+
+    if (cellIndex === undefined) {
+        return false;
+    }
+
+    // Guard: don't delete the very last cell in the notebook
+    if (notebook.widgets.length <= 1) {
+        // Just clear the cell's content instead
+        writeContentToCellByIDInNotebookPanel(notebookPanel, '', cellId, 'code');
+        return true;
+    }
+
+    // Save the current active cell index so we can restore context afterwards
+    const originalActiveCellIndex = notebook.activeCellIndex;
+
+    // Select the target cell so NotebookActions.deleteCells removes it
+    notebook.activeCellIndex = cellIndex;
+    NotebookActions.deleteCells(notebook);
+
+    // Restore the active cell index, clamping to valid range after deletion
+    const maxIndex = notebook.widgets.length - 1;
+    notebook.activeCellIndex = Math.min(originalActiveCellIndex, maxIndex);
+
+    return true;
 }

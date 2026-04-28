@@ -102,7 +102,7 @@ st.write("Hello, World!")
     ])
     def test_start_streamlit_preview_exceptions(self, manager, sample_app_code, exception_type, expected_message):
         """Test streamlit preview start with different exceptions."""
-        from mito_ai.utils.error_classes import StreamlitPreviewError
+        from mito_ai_core.utils.error_classes import StreamlitPreviewError
         
         with patch('subprocess.Popen', side_effect=exception_type):
             app_directory = "/tmp/test_dir"

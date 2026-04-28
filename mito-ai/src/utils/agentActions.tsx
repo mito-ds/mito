@@ -12,19 +12,22 @@ import {
     createCodeCellAfterCellIDAndActivate,
     didCellExecutionError, 
     getActiveCellIDInNotebookPanel, 
+    getCellIndexByIDInNotebookPanel,
     setActiveCellByIDInNotebookPanel, 
-    writeCodeToCellByIDInNotebookPanel, 
+    writeContentToCellByIDInNotebookPanel, 
     scrollToCell, 
 } from "./notebook"
-import { ChatHistoryManager } from "../Extensions/AiChat/ChatHistoryManager"
-import { MutableRefObject } from "react"
 import { CellUpdate } from "../websockets/completions/CompletionModels"
-import { LoadingStatus } from "../Extensions/AiChat/hooks/useChatState"
+
+export interface ICellUpdateApplyResult {
+    success: boolean;
+    errorMessage?: string;
+}
 
 export const acceptAndRunCellUpdate = async (
     cellUpdate: CellUpdate,
     notebookPanel: NotebookPanel,
-): Promise<void> => {
+): Promise<ICellUpdateApplyResult> => {
 
     // If the cellUpdate is creating a new code cell, insert it 
     // before previewing and accepting the code. It is safe to do this 
@@ -33,11 +36,34 @@ export const acceptAndRunCellUpdate = async (
     if (cellUpdate.type === 'new' ) {
         // makes the cell the active cell
         if (cellUpdate.after_cell_id === undefined || cellUpdate.after_cell_id === null) {
-            console.error('after_cell_id is required for new cell creation')
-            return
+            return {
+                success: false,
+                errorMessage: 'CELL_UPDATE failed: `after_cell_id` is required for new cell creation.',
+            };
+        }
+        if (
+            cellUpdate.after_cell_id !== 'new cell' &&
+            getCellIndexByIDInNotebookPanel(notebookPanel, cellUpdate.after_cell_id) === undefined
+        ) {
+            return {
+                success: false,
+                errorMessage: `CELL_UPDATE failed: after_cell_id '${cellUpdate.after_cell_id}' was not found in the current notebook.`,
+            };
         }
         createCodeCellAfterCellIDAndActivate(notebookPanel, cellUpdate.after_cell_id)
     } else {
+        if (!cellUpdate.id) {
+            return {
+                success: false,
+                errorMessage: 'CELL_UPDATE failed: `id` is required for modification updates.',
+            };
+        }
+        if (getCellIndexByIDInNotebookPanel(notebookPanel, cellUpdate.id) === undefined) {
+            return {
+                success: false,
+                errorMessage: `CELL_UPDATE failed: target cell id '${cellUpdate.id}' was not found in the current notebook.`,
+            };
+        }
         setActiveCellByIDInNotebookPanel(notebookPanel, cellUpdate.id)
     }
 
@@ -45,12 +71,26 @@ export const acceptAndRunCellUpdate = async (
     const context = notebookPanel.context;
 
     if (notebook === undefined) {
-        return;
+        return {
+            success: false,
+            errorMessage: 'CELL_UPDATE failed: notebook is unavailable.',
+        };
     }
 
     const cellID = getActiveCellIDInNotebookPanel(notebookPanel)
+    if (!cellID) {
+        return {
+            success: false,
+            errorMessage: 'CELL_UPDATE failed: no active cell could be resolved for writing.',
+        };
+    }
 
-    writeCodeToCellByIDInNotebookPanel(notebookPanel, cellUpdate.code, cellID)
+    writeContentToCellByIDInNotebookPanel(
+        notebookPanel,
+        cellUpdate.code,
+        cellID,
+        cellUpdate.cell_type,
+    )
 
     // We always create code cells, and then convert to markdown if necessary.
     if (cellUpdate.cell_type === 'markdown') {
@@ -76,107 +116,7 @@ export const acceptAndRunCellUpdate = async (
     // has updated the state of the variables. This ensures that on the next Ai message
     // gets the most up to date data.
     await sleep(1000)
-}
-
-
-export const retryIfExecutionError = async (
-    notebookPanel: NotebookPanel,
-    app: JupyterFrontEnd,
-    sendAgentSmartDebugMessage: (errorMessage: string) => Promise<void>,
-    shouldContinueAgentExecution: MutableRefObject<boolean>,
-    markAgentForStopping: () => Promise<void>,
-    chatHistoryManagerRef: React.MutableRefObject<ChatHistoryManager>,
-    setLoadingStatus: (status: LoadingStatus) => void
-): Promise<'success' | 'failure' | 'interupted'> => {
-
-    const cell = notebookPanel.content.activeCell as CodeCell;
-
-    // Note: If you update the max retries, update the message we display on each failure
-    // attempt to ensure we don't say "third attempt" over and over again.
-    const MAX_RETRIES = 3;
-    let attempts = 0;
-    let runAllCellsAttempts = 0;
-    const MAX_RUN_ALL_CELLS_ATTEMPTS = 2; // Only allow two run_all_cells attempt per error cycle
-
-    while (didCellExecutionError(cell) && attempts < MAX_RETRIES) {
-
-        if (!shouldContinueAgentExecution.current) {
-            await markAgentForStopping()
-            return 'interupted';
-        }
-
-        // If the code cell has an error, we need to send the error to the AI
-        // and get it to fix the error.
-        const errorOutput = cell?.model.outputs?.toJSON().find(output => output.output_type === "error");
-        if (!errorOutput) {
-            return 'success'; // If no error output, we're done
-        }
-        const errorMessage = getFullErrorMessageFromTraceback(errorOutput.traceback as string[]);
-
-        await sendAgentSmartDebugMessage(errorMessage)
-        const aiDisplayOptimizedChatItem = chatHistoryManagerRef.current.getLastAIDisplayOptimizedChatItem();
-
-        // Handle different response types from the agent when fixing errors
-        const agentResponse = aiDisplayOptimizedChatItem?.agentResponse;
-        
-        if (!agentResponse) {
-            return 'failure'
-        }
-
-        if (agentResponse.type === 'cell_update') {
-            const cellUpdate = agentResponse.cell_update
-
-            if (cellUpdate !== undefined && cellUpdate !== null) {
-                setLoadingStatus('running-code');
-                try {
-                    await acceptAndRunCellUpdate(
-                        cellUpdate,
-                        notebookPanel
-                    )
-                } finally {
-                    setLoadingStatus(undefined);
-                }
-            }
-        } else if (agentResponse.type === 'run_all_cells') {
-            // Prevent infinite loops by limiting run_all_cells attempts
-            if (runAllCellsAttempts >= MAX_RUN_ALL_CELLS_ATTEMPTS) {
-                console.log('Maximum run_all_cells attempts reached, treating as failure');
-                return 'failure';
-            }
-
-            runAllCellsAttempts++;
-            // Execute runAllCells to fix NameError issues
-            setLoadingStatus('running-code');
-            let result;
-            try {
-                result = await runAllCells(app, notebookPanel);
-            } finally {
-                setLoadingStatus(undefined);
-            }
-            if (!result.success) {
-                // If run_all_cells resulted in an error, we should continue with error handling
-                // The error will be caught in the main loop
-                console.log('Error after running all cells:', result.errorMessage);
-            }
-        } else if (agentResponse.type === 'ask_user_question' || agentResponse.type === 'finished_task') {
-            // When the agent asks a question during error retry, we should stop the agent execution
-            // and wait for the user's response, just like in the main execution loop
-            await markAgentForStopping();
-            return 'interupted'
-        } else {
-            // Agent responded with an unexpected type for error fixing
-            return 'failure'
-        }
-
-        attempts++;
-
-        // If this was the last attempt and it still failed
-        if (attempts === MAX_RETRIES && didCellExecutionError(cell)) {
-            return 'failure'
-        }
-    }
-
-    return 'success'
+    return { success: true };
 }
 
 export const runAllCells = async (

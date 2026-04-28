@@ -4,7 +4,7 @@
 import json
 import tornado
 from jupyter_server.base.handlers import APIHandler
-from mito_ai.utils.model_utils import get_available_models
+from mito_ai_core.utils.model_utils import get_available_models
 
 
 class AvailableModelsHandler(APIHandler):

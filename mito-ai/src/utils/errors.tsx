@@ -3,13 +3,12 @@
  * Distributed under the terms of the GNU Affero General Public License v3.0 License.
  */
 
-import { OpenAI } from "openai";
-import { PromptType } from "../Extensions/AiChat/ChatHistoryManager";
+import { OpenAI } from 'openai';
 
-export const FREE_TIER_LIMIT_REACHED_ERROR_TITLE = 'mito_server_free_tier_limit_reached'
+export const FREE_TIER_LIMIT_REACHED_ERROR_TITLE =
+  'mito_server_free_tier_limit_reached';
 
 export const isErrorFixupMessage = (
-    promptType: PromptType,
     message: OpenAI.Chat.ChatCompletionMessageParam,
     messageContent: string | undefined
 ): boolean => {
@@ -18,15 +17,14 @@ export const isErrorFixupMessage = (
         return false;
     }
 
-    return (
-        // Initially, messages are labeled with the prompt type 'agent:autoErrorFixup'
-        promptType === 'agent:autoErrorFixup' ||
-        // However, when the chat history is saved, this field is stripped, and every message is labeled as 'chat'.
-        // In this case we have to manually determine if the message is an error fixup message.
-        (message.role === 'user' && 
-            messageContent && 
-            messageContent.includes('->') || messageContent?.includes('^') && 
-            /\w+Error:/.test(messageContent)
-        )
-    )
+    if (message.role !== 'user') {
+        return false;
+    }
+
+    // Detect traceback-like user text: an exception line plus a pointer line
+    // ("->" e.g. from IPython "---->", or "^" from caret markers).
+    const looksLikeError = /(?:\b\w+)?Error:/.test(messageContent);
+    const hasTracePointer = messageContent.includes('->') || messageContent.includes('^');
+
+    return looksLikeError && hasTracePointer;
 }

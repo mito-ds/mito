@@ -121,6 +121,14 @@
     visibility: visible;
 }
 
+/* Let the taskpane column shrink in the flex row so inner overflow/scroll works. */
+.mito-taskpane-container-narrow,
+.mito-taskpane-container-wide {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 .mito-taskpane-container {
     width: 0%;
     visibility: hidden;
@@ -131,4 +139,34 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+/* ── Suggested Columns status bar ── */
+.suggested-columns-status-bar {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 8px;
+    border-bottom: 1px solid var(--mito-border, #e0e0e0);
+    flex-shrink: 0;
+}
+
+.suggested-columns-loading {
+    background-color: var(--mito-highlight-very-light, #ece3ff);
+    color: var(--mito-highlight, #6c63ff);
+}
+
+.suggested-columns-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.suggested-columns-dismiss {
+    border: 1px solid currentColor;
+    background: none;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-left: auto;
 }

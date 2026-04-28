@@ -96,6 +96,7 @@ setup_args = dict(
     extras_require = {
         'test': [
             'pytest',
+            'pytest-timeout',
             'flake8',
             'types-chardet',
             'types-requests',
