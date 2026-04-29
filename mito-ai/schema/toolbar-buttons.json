@@ -3,7 +3,13 @@
     "title": "mito_ai",
     "description": "mito-ai settings.",
     "type": "object",
-    "properties": {},
+    "jupyter.lab.transform": true,
+    "properties": {
+        "toolbar": {
+            "type": "array",
+            "default": []
+        }
+    },
     "additionalProperties": false,
     "jupyter.lab.toolbars": {
         "Cell": [

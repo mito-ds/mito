@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) Saga Inc.
+ * Distributed under the terms of the GNU Affero General Public License v3.0 License.
+ */
+
+/* Stack widgets in JupyterLab's top area vertically so the Mito toolbar
+   sits below the menu bar instead of sharing its row. JupyterLab's default
+   `contain: style size` prevents the top panel from growing with its
+   children, so disable containment for this top-area multi-row layout. */
+#jp-top-panel {
+  align-items: stretch;
+  contain: none !important;
+  flex-direction: column;
+  min-height: 104px !important;
+}
+
+.mito-top-toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 0 52px;
+  height: 52px;
+  min-height: 52px;
+  width: 100%;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--jp-border-color2);
+  background: var(--jp-layout-color1);
+}
+
+.mito-top-toolbar-left {
+  flex: 1 1 auto;
+  min-width: 14px;
+  margin-left: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.mito-top-toolbar-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.mito-top-toolbar-right {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-right: 14px;
+  height: 100%;
+}
+
+.mito-top-toolbar-notebook-extensions {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mito-top-toolbar-notebook-hero {
+  display: flex;
+  align-items: center;
+}
+
+.mito-top-toolbar-app-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
