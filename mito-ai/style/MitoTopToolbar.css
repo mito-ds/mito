@@ -137,6 +137,11 @@
     0 2px 6px rgb(15 18 30 / 4%);
 }
 
+.mito-tab-dropdown-scroll-area {
+  max-height: 552px;
+  overflow-y: auto;
+}
+
 .mito-tab-dropdown-group-label {
   padding: 6px 12px 4px;
   color: #9a9aa6;
@@ -198,12 +203,16 @@
   white-space: nowrap;
 }
 
-.mito-tab-dropdown-close {
+.mito-tab-dropdown-row-action {
   width: 18px;
   height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 18px;
+}
+
+.mito-tab-dropdown-close {
   padding: 0;
   border: none;
   border-radius: 4px;

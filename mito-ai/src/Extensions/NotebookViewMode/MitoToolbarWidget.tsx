@@ -179,26 +179,30 @@ class TabDropdownWidget extends ReactWidget {
 
     return (
       <div className="mito-tab-dropdown-menu" role="menu">
-        {notebooks.length === 0 ? (
-          <div className="mito-tab-dropdown-empty">No notebooks open</div>
-        ) : (
-          <>
-            {todayPanels.length > 0 && (
-              <>
-                <div className="mito-tab-dropdown-group-label">Today</div>
-                {todayPanels.map(panel => this._renderNotebookRow(panel, activePanel, notebooks))}
-              </>
-            )}
-            {earlierPanels.length > 0 && (
-              <>
-                <div className="mito-tab-dropdown-group-label">Earlier</div>
-                {earlierPanels.map(panel =>
-                  this._renderNotebookRow(panel, activePanel, notebooks)
-                )}
-              </>
-            )}
-          </>
-        )}
+        <div className="mito-tab-dropdown-scroll-area">
+          {notebooks.length === 0 ? (
+            <div className="mito-tab-dropdown-empty">No notebooks open</div>
+          ) : (
+            <>
+              {todayPanels.length > 0 && (
+                <>
+                  <div className="mito-tab-dropdown-group-label">Today</div>
+                  {todayPanels.map(panel =>
+                    this._renderNotebookRow(panel, activePanel, notebooks)
+                  )}
+                </>
+              )}
+              {earlierPanels.length > 0 && (
+                <>
+                  <div className="mito-tab-dropdown-group-label">Earlier</div>
+                  {earlierPanels.map(panel =>
+                    this._renderNotebookRow(panel, activePanel, notebooks)
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
         <div className="mito-tab-dropdown-divider" />
         {this._renderFooter(notebooks.length)}
       </div>
@@ -236,12 +240,14 @@ class TabDropdownWidget extends ReactWidget {
           {getRelativeTimestamp(timestamp)}
         </span>
         {panel.context.model.dirty ? (
-          <span className="mito-tab-dropdown-dirty-dot" title="Unsaved changes" />
+          <span className="mito-tab-dropdown-row-action">
+            <span className="mito-tab-dropdown-dirty-dot" title="Unsaved changes" />
+          </span>
         ) : (
           <button
             type="button"
             tabIndex={-1}
-            className="mito-tab-dropdown-close"
+            className="mito-tab-dropdown-row-action mito-tab-dropdown-close"
             aria-label={`Close ${filename}`}
             title={`Close ${filename}`}
             onClick={event => {
@@ -269,7 +275,7 @@ class TabDropdownWidget extends ReactWidget {
         onClick={this._openLauncher}
       >
         <span>+ New File</span>
-        <span className="mito-tab-dropdown-footer-hint">opens Launcher</span>
+        <span className="mito-tab-dropdown-footer-hint">Opens Launcher</span>
       </button>
     );
   }
