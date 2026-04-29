@@ -340,11 +340,11 @@ export function useAINotesApply(mitoAPI: MitoAPI) {
 }
 
 /**
- * Focus the sheet and select the annotation's column (entire column) or data row (entire row).
+ * Focus the sheet and select the annotation target in the grid.
  */
 export function selectAINotesTargetInGrid(
     annotation: AINotesAnnotation,
-    target: 'column' | 'row',
+    target: 'column' | 'row' | 'cell',
     deps: {
         setUIState: Dispatch<SetStateAction<UIState>>;
         setGridState: Dispatch<SetStateAction<GridState>>;
@@ -379,7 +379,7 @@ export function selectAINotesTargetInGrid(
                 ],
                 copiedSelections: [],
             }));
-        } else {
+        } else if (target === 'row') {
             const r = annotation.rowIndex ?? 0;
             setGridState((gs) => ({
                 ...gs,
@@ -390,6 +390,22 @@ export function selectAINotesTargetInGrid(
                         endingRowIndex: r,
                         startingColumnIndex: -1,
                         endingColumnIndex: -1,
+                        sheetIndex: annotation.sheetIndex,
+                    },
+                ],
+                copiedSelections: [],
+            }));
+        } else {
+            const r = annotation.rowIndex ?? 0;
+            setGridState((gs) => ({
+                ...gs,
+                sheetIndex: annotation.sheetIndex,
+                selections: [
+                    {
+                        startingRowIndex: r,
+                        endingRowIndex: r,
+                        startingColumnIndex: annotation.columnIndex,
+                        endingColumnIndex: annotation.columnIndex,
                         sheetIndex: annotation.sheetIndex,
                     },
                 ],

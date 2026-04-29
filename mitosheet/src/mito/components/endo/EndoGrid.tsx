@@ -279,8 +279,8 @@ function EndoGrid(props: {
         return () => clearTimeout(timer);
     }, [props.uiState.suggestedColumns?.status])
 
-    // After jumping to a column from AI notes (taskpane / popover links), scroll horizontally
-    // so the column is visible. Selection alone does not move the viewport.
+    // After jumping from AI notes (taskpane / popover links), scroll so the target is visible.
+    // Selection alone does not move the viewport.
     useEffect(() => {
         const focusedId = uiState.aiNotesFocusedId;
         if (focusedId === undefined) {
@@ -292,18 +292,40 @@ function EndoGrid(props: {
         }
 
         const last = gridState.selections[gridState.selections.length - 1];
-        if (
-            last === undefined ||
-            last.sheetIndex !== sheetIndex ||
-            last.startingRowIndex !== -1 ||
-            last.endingRowIndex !== -1 ||
-            last.startingColumnIndex !== ann.columnIndex ||
-            last.endingColumnIndex !== ann.columnIndex
-        ) {
+        if (last === undefined || last.sheetIndex !== sheetIndex) {
+            return;
+        }
+
+        const isColumnSelection =
+            last.startingRowIndex === -1 &&
+            last.endingRowIndex === -1 &&
+            last.startingColumnIndex === ann.columnIndex &&
+            last.endingColumnIndex === ann.columnIndex;
+        const isCellSelection =
+            ann.kind === 'cell' &&
+            ann.rowIndex !== undefined &&
+            last.startingRowIndex === ann.rowIndex &&
+            last.endingRowIndex === ann.rowIndex &&
+            last.startingColumnIndex === ann.columnIndex &&
+            last.endingColumnIndex === ann.columnIndex;
+
+        if (!isColumnSelection && !isCellSelection) {
             return;
         }
 
         const scroll = (): void => {
+            if (isCellSelection && ann.rowIndex !== undefined) {
+                ensureCellVisible(
+                    containerRef.current,
+                    scrollAndRenderedContainerRef.current,
+                    currentSheetView,
+                    gridState,
+                    ann.rowIndex,
+                    ann.columnIndex,
+                );
+                return;
+            }
+
             scrollColumnIntoView(
                 containerRef.current,
                 scrollAndRenderedContainerRef.current,

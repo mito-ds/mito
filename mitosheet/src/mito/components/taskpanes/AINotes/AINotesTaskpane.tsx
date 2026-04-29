@@ -141,7 +141,7 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
 
     const handleAnnotationSummaryClick = (a: AINotesAnnotation): void => {
         focusAnnotation(a);
-        selectAINotesTargetInGrid(a, 'column', gridSelectDeps);
+        selectAINotesTargetInGrid(a, a.kind === 'cell' ? 'cell' : 'column', gridSelectDeps);
     };
 
     const handleApplyAction = async (annotation: AINotesAnnotation, actionId: string): Promise<void> => {
