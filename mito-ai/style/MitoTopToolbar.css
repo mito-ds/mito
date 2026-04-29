@@ -21,6 +21,21 @@
   display: none !important;
 }
 
+/* The Mito toolbar's notebook dropdown replaces JupyterLab's document tab bar.
+   Keep the dock widget's inline split-panel positioning, but move each active
+   document up by the hidden tab bar height so we reclaim the vertical space. */
+#jp-main-dock-panel .lm-DockPanel-tabBar {
+  display: none !important;
+}
+
+#jp-main-dock-panel .lm-DockPanel-widget {
+  transform: translateY(-26px);
+}
+
+#jp-main-dock-panel .lm-DockPanel-widget > .lm-Widget {
+  height: calc(100% + 26px);
+}
+
 .mito-top-toolbar {
   position: relative;
   display: flex;
