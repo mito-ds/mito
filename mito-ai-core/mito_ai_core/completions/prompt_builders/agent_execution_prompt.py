@@ -4,6 +4,7 @@
 from typing import List
 
 from mito_ai_core.agent.types import AgentContext
+from mito_ai_core.completions.prompt_builders.mcp_tools import format_available_mcp_tools
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
@@ -17,6 +18,10 @@ def create_agent_execution_prompt(context: AgentContext, user_input: str) -> str
         SG.Files(context.files),
         SG.Variables(context.variables),
         SG.SelectedContext(context.additional_context),
+        SG.Generic(
+            "Available MCP Tools",
+            format_available_mcp_tools(context.mcp_tools),
+        ),
         SG.ActiveCellId(context.active_cell_id),
         SG.Notebook(context.cells),
         SG.Task(f"{user_input}"),

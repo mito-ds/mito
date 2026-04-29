@@ -11,16 +11,17 @@ frontend, then waiting for the frontend to respond with a ``tool_result``.
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 from dataclasses import replace
-from typing import Any, Callable, List, Literal, Optional
+from typing import Any, Callable, Dict, List, Literal, Optional
 
 from mito_ai_core.agent.tool_executor import ToolExecutor
 from mito_ai_core.agent.types import AgentContext, ToolResult
 from mito_ai_core.completions.models import AIOptimizedCell, AgentResponse, CellUpdate
 
 from mito_ai.completions.models import RequestToolExecutionMessage
+from mito_ai.mcp.mcp_client import call_server_tool
+from mito_ai.mcp.utils import get_server
 from mito_ai.logger import get_logger
 
 __all__ = ["JupyterLabToolExecutor"]
@@ -110,6 +111,7 @@ class JupyterLabToolExecutor:
             "edit_streamlit_app",
             "ask_user_question",
             "scratchpad",
+            "mcp_tool_call",
         ],
         message: str,
         *,
@@ -133,6 +135,7 @@ class JupyterLabToolExecutor:
             answers=answers,
             scratchpad_code=scratchpad_code,
             scratchpad_summary=scratchpad_summary,
+            mcp_tool_call=None,
         )
 
     # ------------------------------------------------------------------
@@ -251,3 +254,34 @@ class JupyterLabToolExecutor:
             streamlit_app_prompt=streamlit_app_prompt,
         )
         return await self._execute_via_frontend(agent_resp, message)
+
+    async def execute_mcp_tool(
+        self,
+        ctx: AgentContext,
+        mcp_server_id: str,
+        tool_name: str,
+        arguments: Dict[str, Any],
+        message: str,
+    ) -> ToolResult:
+        try:
+            server_config = get_server(mcp_server_id)
+        except KeyError as e:
+            return ToolResult(
+                success=False,
+                tool_name="mcp_tool_call",
+                error_message=str(e),
+            )
+
+        result = await call_server_tool(server_config, tool_name, arguments)
+        if result.get("success"):
+            return ToolResult(
+                success=True,
+                tool_name="mcp_tool_call",
+                output=result.get("output"),
+            )
+
+        return ToolResult(
+            success=False,
+            tool_name="mcp_tool_call",
+            error_message=result.get("error", "Unknown MCP tool error"),
+        )

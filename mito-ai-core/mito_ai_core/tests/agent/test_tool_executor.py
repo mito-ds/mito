@@ -128,6 +128,23 @@ class FakeToolExecutor:
         }))
         return ToolResult(success=True, output="Edited Streamlit app preview")
 
+    async def execute_mcp_tool(
+        self,
+        ctx: AgentContext,
+        mcp_server_id: str,
+        tool_name: str,
+        arguments: dict,
+        message: str,
+    ) -> ToolResult:
+        self.calls.append(("execute_mcp_tool", {
+            "ctx": ctx,
+            "mcp_server_id": mcp_server_id,
+            "tool_name": tool_name,
+            "arguments": arguments,
+            "message": message,
+        }))
+        return ToolResult(success=True, output="MCP tool executed")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -283,6 +300,26 @@ class TestToolResultDefaults:
         r = ToolResult(success=False, error_message="NameError: name 'x' is not defined")
         assert not r.success
         assert "NameError" in (r.error_message or "")
+
+
+class TestExecuteMcpTool:
+    @pytest.mark.asyncio
+    async def test_executes_mcp_tool(self) -> None:
+        executor = FakeToolExecutor()
+        ctx = _make_ctx()
+        result = await executor.execute_mcp_tool(
+            ctx,
+            mcp_server_id="server-1",
+            tool_name="search_docs",
+            arguments={"query": "pandas read_csv"},
+            message="Look up usage examples.",
+        )
+
+        assert result.success
+        assert result.output == "MCP tool executed"
+        assert executor.calls[0][1]["mcp_server_id"] == "server-1"
+        assert executor.calls[0][1]["tool_name"] == "search_docs"
+        assert executor.calls[0][1]["arguments"] == {"query": "pandas read_csv"}
 
 
 class TestAgentContext:

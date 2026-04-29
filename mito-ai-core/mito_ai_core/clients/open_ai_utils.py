@@ -28,8 +28,11 @@ def _openai_strict_schema_fill_required(node: Any) -> None:
     patch the tree after generation.
     """
     if isinstance(node, dict):
-        if node.get("type") == "object" and isinstance(node.get("properties"), dict):
-            props = node["properties"]
+        props = node.get("properties")
+        if isinstance(props, dict):
+            # Some schema producers omit ``type`` even when ``properties`` exists.
+            # OpenAI strict validation still treats this as an object schema.
+            node["type"] = "object"
             if props:
                 node["required"] = sorted(props.keys())
         for child in node.values():
@@ -37,6 +40,20 @@ def _openai_strict_schema_fill_required(node: Any) -> None:
     elif isinstance(node, list):
         for item in node:
             _openai_strict_schema_fill_required(item)
+
+
+def _openai_strict_schema_set_additional_properties_false(node: Any) -> None:
+    """Ensure every object node explicitly declares ``additionalProperties: false``."""
+    if isinstance(node, dict):
+        if node.get("type") == "object" or isinstance(node.get("properties"), dict):
+            # Keep object schemas explicit for strict OpenAI JSON schema mode.
+            node["type"] = "object"
+            node["additionalProperties"] = False
+        for child in node.values():
+            _openai_strict_schema_set_additional_properties_false(child)
+    elif isinstance(node, list):
+        for item in node:
+            _openai_strict_schema_set_additional_properties_false(item)
 
 
 def _prepare_request_data_and_headers(
@@ -197,15 +214,7 @@ def get_open_ai_completion_function_params(
             json_schema = response_format_info.format.model_json_schema()
 
             _openai_strict_schema_fill_required(json_schema)
-
-            # Add additionalProperties: False to the top-level schema
-            json_schema["additionalProperties"] = False
-
-            # Nested object definitions in $defs need to have additionalProperties set to False also
-            if "$defs" in json_schema:
-                for def_name, def_schema in json_schema["$defs"].items():
-                    if def_schema.get("type") == "object":
-                        def_schema["additionalProperties"] = False
+            _openai_strict_schema_set_additional_properties_false(json_schema)
 
             completion_function_params["response_format"] = {
                 "type": "json_schema",

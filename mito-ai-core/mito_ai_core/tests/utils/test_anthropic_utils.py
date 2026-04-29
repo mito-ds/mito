@@ -29,7 +29,7 @@ def mock_user_functions(monkeypatch):
     monkeypatch.setattr("mito_ai_core.utils.server_limits.set_user_field", mock_set_field)
 
 
-def test_basic_request_preparation():
+def test_basic_request_preparation() -> None:
     """Test basic request preparation with minimal parameters"""
     model = "claude-3-sonnet"
     max_tokens = 100
@@ -66,7 +66,7 @@ def test_basic_request_preparation():
     assert "system" not in inner_data
 
 
-def test_system_message_handling():
+def test_system_message_handling() -> None:
     """Test handling of system message when provided"""
     system = "You are a helpful assistant"
     messages: List[MessageParam] = [{"role": "user", "content": "Hello"}]
@@ -86,7 +86,7 @@ def test_system_message_handling():
     assert data["data"]["system"] == system
 
 
-def test_tools_and_tool_choice():
+def test_tools_and_tool_choice() -> None:
     """Test handling of tools and tool_choice parameters"""
     tools = cast(List[ToolUnionParam], [{
         "type": "function",

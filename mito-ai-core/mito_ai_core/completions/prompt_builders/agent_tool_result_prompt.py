@@ -5,6 +5,7 @@ from typing import List
 
 from mito_ai_core.agent import ToolResult
 from mito_ai_core.agent.types import AgentContext
+from mito_ai_core.completions.prompt_builders.mcp_tools import format_available_mcp_tools
 from mito_ai_core.completions.prompt_builders.prompt_section_registry import SG, Prompt
 from mito_ai_core.completions.prompt_builders.prompt_section_registry.base import PromptSection
 
@@ -49,6 +50,10 @@ def create_agent_tool_result_prompt(context: AgentContext, tool_result: ToolResu
         SG.Rules(context.additional_context),
         SG.Files(context.files),
         SG.Variables(context.variables),
+        SG.Generic(
+            "Available MCP Tools",
+            format_available_mcp_tools(context.mcp_tools),
+        ),
         SG.Notebook(context.cells),
         SG.Task("Continue working on the user's task until you have finished"),
     ]

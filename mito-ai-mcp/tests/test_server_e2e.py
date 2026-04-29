@@ -117,6 +117,7 @@ class FakeAgentRunner:
                     answers=None,
                     scratchpad_code=None,
                     scratchpad_summary=None,
+                    mcp_tool_call=None,
                 )
             )
 
@@ -136,6 +137,7 @@ class FakeAgentRunner:
                 answers=None,
                 scratchpad_code=None,
                 scratchpad_summary=None,
+                mcp_tool_call=None,
             ),
             finished=True,
             iterations=2,

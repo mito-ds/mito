@@ -334,6 +334,30 @@ Important information:
     </Example>
 
 """))
+
+    # MCP_TOOL_CALL tool
+    sections.append(SG.Generic("TOOL: MCP_TOOL_CALL", """
+Use this tool when the user's request should be handled by an available MCP tool.
+
+Format:
+{{
+    "type": "mcp_tool_call",
+    "message": "<string>",
+    "mcp_tool_call": {{
+        "mcp_server_id": "<string>",
+        "tool_name": "<string>",
+        "arguments": "{{}}"
+    }}
+}}
+
+Important information:
+1. Only use MCP tools listed in the "Available MCP Tools" section of the current prompt.
+2. The mcp_server_id must exactly match one of the listed server IDs.
+3. The tool_name must exactly match a listed tool for that server.
+4. The arguments field must be a JSON string whose parsed object follows that tool's input_schema. If no arguments are needed, use "{}".
+5. Use this tool for tasks outside notebook mutation when an MCP tool is available (e.g. weather lookup, web APIs, external systems).
+6. If no suitable MCP tool is available, use ASK_USER_QUESTION or continue with notebook tools as appropriate.
+"""))
     
     # CREATE_STREAMLIT_APP tool
     sections.append(SG.Generic("TOOL: CREATE_STREAMLIT_APP", """
