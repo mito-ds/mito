@@ -63,24 +63,40 @@
 
 .mito-tab-dropdown-trigger {
   height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 2px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #1a1a24;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.mito-tab-dropdown-trigger-content {
+  height: 26px;
   display: flex;
   align-items: center;
   gap: 8px;
+  box-sizing: border-box;
   padding: 0 10px;
-  border: 1px solid #ececf0;
   border-radius: 7px;
   background: #fff;
-  color: #1a1a24;
-  cursor: pointer;
+  box-shadow:
+    0 1px 2px rgb(15 18 30 / 6%),
+    0 0 0 1px rgb(76 29 149 / 10%);
 }
 
 .mito-tab-dropdown-trigger:hover {
-  background: #f5f5f7;
+  background: transparent;
 }
 
 .mito-tab-dropdown-trigger[aria-expanded='true'] {
-  border-color: #dcdce3;
-  background: #f5f5f7;
+  background: transparent;
 }
 
 .mito-tab-dropdown-file-icon,

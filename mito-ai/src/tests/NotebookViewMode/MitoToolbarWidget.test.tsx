@@ -157,4 +157,20 @@ describe('MitoToolbarWidget', () => {
     expect(css).toContain('max-height: 552px;');
     expect(css).toContain('overflow-y: auto;');
   });
+
+  it('matches the rounded toolbar switcher treatment', () => {
+    const css = fs.readFileSync(
+      path.resolve(__dirname, '../../../style/MitoTopToolbar.css'),
+      'utf-8'
+    );
+
+    expect(css).toContain('.mito-tab-dropdown-trigger');
+    expect(css).toContain('padding: 2px;');
+    expect(css).toContain('border: none;');
+    expect(css).toContain('border-radius: 8px;');
+    expect(css).toContain('background: transparent;');
+    expect(css).toContain('.mito-tab-dropdown-trigger-content');
+    expect(css).toContain('border-radius: 7px;');
+    expect(css).toContain('box-shadow 0.15s ease;');
+  });
 });

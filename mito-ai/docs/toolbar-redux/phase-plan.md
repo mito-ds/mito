@@ -224,6 +224,7 @@ These items were intentionally removed from the Phase 5 uncertainty spike:
 - Final keyboard tab order pass: left → center → right → hero → overflow
 - Tooltips per `spec.md` (Add cell, Edit App caret, mode-switcher items, etc.)
 - Single-document mode visual regression sweep
+- Final tab-dropdown trigger polish: revisit its proportions and visual weight against the mode switcher, including whether the trigger should be slightly taller than the current implementation.
 
 ### Rationale
 All cross-cutting and not gating any feature. Done at the end so it's a single sweep against a stable surface, not a moving target.

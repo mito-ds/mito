@@ -146,19 +146,21 @@ class TabDropdownWidget extends ReactWidget {
           onClick={() => this._setOpen(!this._isOpen, true)}
           onKeyDown={this._handleTriggerKeyDown}
         >
-          <span className="mito-tab-dropdown-file-icon" aria-hidden>
-            <FileIcon />
-          </span>
-          <span className="mito-tab-dropdown-filename">{triggerLabel}</span>
-          {activePanel?.context.model.dirty && (
-            <span className="mito-tab-dropdown-dirty-dot" title="Unsaved changes" />
-          )}
-          {notebooks.length > 0 && (
-            <span className="mito-tab-dropdown-open-count">· {notebooks.length}</span>
-          )}
-          <span className="mito-tab-dropdown-kbd">{shortcutLabel}</span>
-          <span className="mito-tab-dropdown-caret" aria-hidden>
-            <ChevronIcon direction={this._isOpen ? 'up' : 'down'} />
+          <span className="mito-tab-dropdown-trigger-content">
+            <span className="mito-tab-dropdown-file-icon" aria-hidden>
+              <FileIcon />
+            </span>
+            <span className="mito-tab-dropdown-filename">{triggerLabel}</span>
+            {activePanel?.context.model.dirty && (
+              <span className="mito-tab-dropdown-dirty-dot" title="Unsaved changes" />
+            )}
+            {notebooks.length > 0 && (
+              <span className="mito-tab-dropdown-open-count">· {notebooks.length}</span>
+            )}
+            <span className="mito-tab-dropdown-kbd">{shortcutLabel}</span>
+            <span className="mito-tab-dropdown-caret" aria-hidden>
+              <ChevronIcon direction={this._isOpen ? 'up' : 'down'} />
+            </span>
           </span>
         </button>
         {this._isOpen && this._renderMenu(notebooks, activePanel)}
