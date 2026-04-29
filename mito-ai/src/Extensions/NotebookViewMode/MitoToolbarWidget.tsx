@@ -22,8 +22,10 @@ import NotebookViewModeSwitcher from './NotebookViewModeSwitcher';
 import { INotebookViewMode, NotebookViewMode } from './NotebookViewModePlugin';
 
 import '../../../style/MitoTopToolbar.css';
+import '../../../style/RunCellButton.css';
+import '../../../style/button.css';
 
-export class ModeSwitcherWidget extends ReactWidget {
+class ModeSwitcherWidget extends ReactWidget {
   constructor(
     private readonly viewMode: INotebookViewMode,
     private readonly getActivePanel: () => NotebookPanel | null

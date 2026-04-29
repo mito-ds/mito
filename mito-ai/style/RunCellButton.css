@@ -229,15 +229,3 @@
   margin-left: 10px;
   opacity: 0.7;
 }
-
-/* Position the button widget on the right side of the toolbar */
-.jp-Notebook-toolbar .mito-run-cell-button-widget {
-  margin-left: auto;
-  order: 9999; /* Ensure it appears last */
-}
-
-/* Ensure toolbar uses flexbox for proper alignment */
-.jp-Notebook-toolbar {
-  display: flex;
-  align-items: center;
-}

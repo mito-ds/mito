@@ -17,12 +17,8 @@ import {
 import { IThemeManager } from '@jupyterlab/apputils';
 import { ITranslator } from '@jupyterlab/translation';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
-import { ReactWidget } from '@jupyterlab/ui-components';
-import React from 'react';
-import RunCellButton from '../../components/RunCellButton';
 import { enableLineNumbersIfNeeded } from '../../utils/lineNumbers';
 import { MitoPalettes } from './palettes';
-import '../../../style/RunCellButton.css';
 
 /**
  * Updates cell numbers for all cells in a notebook.
@@ -89,8 +85,8 @@ function setupCellNumbering(notebookPanel: NotebookPanel): (() => void) | null {
  * A plugin for the Mito Themes (Light and Dark).
  * 
  * Registers both Mito Light and Mito Dark themes.
- * The Run Cell Button, cell numbering, and hidden default toolbar buttons apply
- * when either Mito theme is active.
+ * Cell numbering and hidden default toolbar buttons apply when either Mito
+ * theme is active.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'mito_ai:themes',
@@ -114,63 +110,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
     
     // Store cell numbering cleanup functions for each notebook
     const cellNumberingCleanups = new Map<NotebookPanel, () => void>();
-
-    // Add Run Cell button to notebook toolbar
-    const addRunCellButton = (notebookPanel: NotebookPanel): void => {
-      const toolbar = notebookPanel.toolbar;
-      if (!toolbar) {
-        return;
-      }
-
-      // Check if button already exists
-      if (toolbar.node.querySelector('.mito-run-cell-button-widget')) {
-        return;
-      }
-
-      // Create React widget with the specific notebook panel
-      class RunCellButtonWidget extends ReactWidget {
-        constructor(private panel: NotebookPanel) {
-          super();
-          this.addClass('mito-run-cell-button-widget');
-        }
-
-        render(): JSX.Element {
-          return React.createElement(RunCellButton, { notebookPanel: this.panel });
-        }
-      }
-
-      const runCellWidget = new RunCellButtonWidget(notebookPanel);
-      
-      // Add to the right side of the toolbar by inserting after spacer or at the end
-      try {
-        toolbar.insertAfter('spacer', 'mito-run-cell-button', runCellWidget);
-      } catch {
-        // If spacer doesn't exist, add at the end
-        toolbar.addItem('mito-run-cell-button', runCellWidget);
-      }
-    };
-
-    // Remove Run Cell button from notebook toolbar
-    const removeRunCellButton = (notebookPanel: NotebookPanel): void => {
-      const toolbar = notebookPanel.toolbar;
-      if (!toolbar) {
-        return;
-      }
-
-      // Find and remove the button widget by iterating toolbar items
-      for (const name of toolbar.names()) {
-        if (name === 'mito-run-cell-button') {
-          // Hide the widget (disposal happens automatically when panel is disposed)
-          const widget = Array.from(toolbar.children()).find(
-            w => w.hasClass('mito-run-cell-button-widget')
-          );
-          if (widget) {
-            widget.dispose();
-          }
-          break;
-        }
-      }
-    };
 
     // Remove cell numbering from a notebook panel
     const removeCellNumbering = (notebookPanel: NotebookPanel): void => {
@@ -196,10 +135,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     };
 
-    // Add buttons and cell numbering to all notebooks (for a specific theme)
-    const addButtonsToAllNotebooks = (themeName: string): void => {
+    // Add Mito theme notebook enhancements to all notebooks (for a specific theme)
+    const addThemeEnhancementsToAllNotebooks = (themeName: string): void => {
       notebookTracker.forEach(widget => {
-        addRunCellButton(widget);
         // Enable line numbers if needed
         void enableLineNumbersIfNeeded(app, widget);
         // Setup cell numbering
@@ -215,7 +153,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
           }
           // Only add if the specified theme is still active
           if (manager.theme === themeName) {
-            addRunCellButton(widget);
             // Enable line numbers if needed
             void enableLineNumbersIfNeeded(app, widget);
             // Setup cell numbering
@@ -233,8 +170,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     };
 
-    // Remove buttons and cell numbering from all notebooks
-    const removeButtonsFromAllNotebooks = (): void => {
+    // Remove Mito theme notebook enhancements from all notebooks
+    const removeThemeEnhancementsFromAllNotebooks = (): void => {
       // Disconnect from new notebooks
       if (lightWidgetAddedConnection) {
         notebookTracker.widgetAdded.disconnect(lightWidgetAddedConnection);
@@ -247,7 +184,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
       // Remove from all existing notebooks
       notebookTracker.forEach(widget => {
-        removeRunCellButton(widget);
         removeCellNumbering(widget);
       });
       
@@ -266,12 +202,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
         palettes.setColorsLight();
         // Load theme CSS (hides default buttons, applies light theme variables)
         await manager.loadCSS(style);
-        // Add Run Cell buttons to all notebooks and enable line numbers
-        addButtonsToAllNotebooks('Mito Light');
+        // Enable line numbers and cell numbering in all notebooks
+        addThemeEnhancementsToAllNotebooks('Mito Light');
       },
       unload: async () => {
-        // Remove Run Cell buttons from all notebooks
-        removeButtonsFromAllNotebooks();
+        // Remove line numbers and cell numbering from all notebooks
+        removeThemeEnhancementsFromAllNotebooks();
       }
     });
 
@@ -286,12 +222,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
         palettes.setColorsDark();
         // Load theme CSS (hides default buttons, applies dark theme variables)
         await manager.loadCSS(style);
-        // Add Run Cell buttons to all notebooks and enable line numbers
-        addButtonsToAllNotebooks('Mito Dark');
+        // Enable line numbers and cell numbering in all notebooks
+        addThemeEnhancementsToAllNotebooks('Mito Dark');
       },
       unload: async () => {
-        // Remove Run Cell buttons from all notebooks
-        removeButtonsFromAllNotebooks();
+        // Remove line numbers and cell numbering from all notebooks
+        removeThemeEnhancementsFromAllNotebooks();
       }
     });
 
