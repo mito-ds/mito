@@ -173,7 +173,7 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                         {state.type === 'loading' && (
                             <Row justify="start" align="center" className="mt-25px ai-notes-loading-status">
                                 <LoadingCircle />
-                                <span className="ml-10px">Fetching AI Alerts</span>
+                                <span className="ml-10px">Fetching AI Alerts...</span>
                             </Row>
                         )}
                         {state.type === 'error' && (
