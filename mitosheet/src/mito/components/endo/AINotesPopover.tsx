@@ -86,16 +86,43 @@ export const AINotesPopover = (props: {
     const cr = host?.getBoundingClientRect();
     const sev = annotation.severity ?? 'info';
 
-    const fallbackLeft = Math.min(pop.x + 10, (typeof window !== 'undefined' ? window.innerWidth : 800) - 400);
-    const fallbackTop  = Math.min(pop.y + 10, (typeof window !== 'undefined' ? window.innerHeight : 600) - 200);
+    const viewportPadding = 8;
+    const defaultPopoverWidth = 380;
+    const defaultPopoverHeight = 320;
+
+    const hostRelativeLeft = host && cr ? pop.x - cr.left + host.scrollLeft + 10 : undefined;
+    const hostRelativeTop = host && cr ? pop.y - cr.top + host.scrollTop + 10 : undefined;
+
+    const minHostLeft = host ? host.scrollLeft + viewportPadding : undefined;
+    const maxHostLeft = host
+        ? host.scrollLeft + host.clientWidth - defaultPopoverWidth - viewportPadding
+        : undefined;
+    const minHostTop = host ? host.scrollTop + viewportPadding : undefined;
+    const maxHostTop = host
+        ? host.scrollTop + host.clientHeight - defaultPopoverHeight - viewportPadding
+        : undefined;
+
+    const fallbackLeftUnclamped = pop.x + 10;
+    const fallbackTopUnclamped = pop.y + 10;
+    const minWindowLeft = viewportPadding;
+    const maxWindowLeft = (typeof window !== 'undefined' ? window.innerWidth : 800) - defaultPopoverWidth - viewportPadding;
+    const minWindowTop = viewportPadding;
+    const maxWindowTop = (typeof window !== 'undefined' ? window.innerHeight : 600) - defaultPopoverHeight - viewportPadding;
+
+    const left = host && hostRelativeLeft !== undefined && minHostLeft !== undefined && maxHostLeft !== undefined
+        ? Math.max(minHostLeft, Math.min(hostRelativeLeft, Math.max(minHostLeft, maxHostLeft)))
+        : Math.max(minWindowLeft, Math.min(fallbackLeftUnclamped, Math.max(minWindowLeft, maxWindowLeft)));
+    const top = host && hostRelativeTop !== undefined && minHostTop !== undefined && maxHostTop !== undefined
+        ? Math.max(minHostTop, Math.min(hostRelativeTop, Math.max(minHostTop, maxHostTop)))
+        : Math.max(minWindowTop, Math.min(fallbackTopUnclamped, Math.max(minWindowTop, maxWindowTop)));
 
     const popEl = (
         <div
             className={`mito-ai-notes-popover mito-ai-notes-popover-severity-${sev}`}
             style={{
                 position: host ? 'absolute' : 'fixed',
-                left: host && cr ? pop.x - cr.left + host.scrollLeft + 10 : fallbackLeft,
-                top:  host && cr ? pop.y - cr.top  + host.scrollTop  + 10 : fallbackTop,
+                left,
+                top,
             }}
             role="dialog"
             aria-label="AI note"
