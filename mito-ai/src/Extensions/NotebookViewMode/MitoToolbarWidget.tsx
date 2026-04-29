@@ -10,7 +10,7 @@ import { IDocumentManager } from '@jupyterlab/docmanager';
 import { PathExt } from '@jupyterlab/coreutils';
 import { ReactWidget, Toolbar } from '@jupyterlab/ui-components';
 import { Widget, Panel, PanelLayout } from '@lumino/widgets';
-import { NotebookPanel } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
 import { showUpdateAppDropdown } from '../AppPreview/UpdateAppDropdown';
 import { showRecreateAppConfirmation, getAppNameFromNotebookID } from '../AppPreview/utils';
 import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
@@ -21,10 +21,407 @@ import { COMMAND_MITO_AI_BETA_MODE_ENABLED } from '../../commands';
 import RunCellButton from '../../components/RunCellButton';
 import NotebookViewModeSwitcher from './NotebookViewModeSwitcher';
 import { INotebookViewMode, NotebookViewMode } from './NotebookViewModePlugin';
+import FileIcon from '../../icons/FileIcon';
+import ChevronIcon from '../../icons/ChevronIcon';
 
 import '../../../style/MitoTopToolbar.css';
 import '../../../style/RunCellButton.css';
 import '../../../style/button.css';
+
+const MAX_FILENAME_LENGTH = 24;
+const IPYNB_EXTENSION = '.ipynb';
+const LAUNCHER_COMMAND = 'launcher:create';
+
+const getShortcutLabel = (): string => {
+  if (typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform)) {
+    return '⌘ K';
+  }
+  return 'Ctrl K';
+};
+
+const getDisplayName = (panel: NotebookPanel): string => {
+  return PathExt.basename(panel.context.path) || panel.title.label;
+};
+
+const middleTruncateFilename = (filename: string): string => {
+  if (filename.length <= MAX_FILENAME_LENGTH) {
+    return filename;
+  }
+
+  const extension = filename.endsWith(IPYNB_EXTENSION) ? IPYNB_EXTENSION : '';
+  const stem = extension ? filename.slice(0, -extension.length) : filename;
+  const availableStemLength = MAX_FILENAME_LENGTH - extension.length - 1;
+  const prefixLength = Math.ceil(availableStemLength / 2);
+  const suffixLength = Math.floor(availableStemLength / 2);
+
+  return `${stem.slice(0, prefixLength)}…${stem.slice(-suffixLength)}${extension}`;
+};
+
+const isToday = (timestamp: number): boolean => {
+  const date = new Date(timestamp);
+  const today = new Date();
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  );
+};
+
+const getRelativeTimestamp = (timestamp: number): string => {
+  const elapsedMs = Date.now() - timestamp;
+  const elapsedMinutes = Math.floor(elapsedMs / 60000);
+
+  if (elapsedMinutes < 1) {
+    return 'now';
+  }
+  if (elapsedMinutes < 60) {
+    return `${elapsedMinutes} min ago`;
+  }
+
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+  if (elapsedHours < 24) {
+    return `${elapsedHours} hr ago`;
+  }
+  if (elapsedHours < 48) {
+    return 'Yesterday';
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric'
+  }).format(new Date(timestamp));
+};
+
+class TabDropdownWidget extends ReactWidget {
+  private readonly _lastOpenedByPanelId = new Map<string, number>();
+  private readonly _trackedPanelIds = new Set<string>();
+  private _isOpen = false;
+  private _activeOptionIndex = 0;
+
+  constructor(
+    private readonly app: JupyterFrontEnd,
+    private readonly notebookTracker: INotebookTracker,
+    private readonly viewMode: INotebookViewMode,
+    private readonly getActivePanel: () => NotebookPanel | null
+  ) {
+    super();
+    this.addClass('mito-top-toolbar-left');
+
+    this.notebookTracker.forEach(panel => {
+      this._setupPanel(panel);
+    });
+    this.notebookTracker.widgetAdded.connect((_, panel) => {
+      this._setupPanel(panel);
+      this.update();
+    });
+    this.notebookTracker.currentChanged.connect((_, panel) => {
+      if (panel) {
+        this._recordOpened(panel);
+      }
+      this.update();
+    });
+  }
+
+  toggleDropdown(): void {
+    this._setOpen(!this._isOpen, true);
+  }
+
+  render(): JSX.Element {
+    const notebooks = this._getSortedNotebooks();
+    const activePanel = this.getActivePanel();
+    const activeFilename = activePanel ? getDisplayName(activePanel) : 'No active notebook';
+    const triggerLabel =
+      notebooks.length === 0 ? 'No notebooks open' : middleTruncateFilename(activeFilename);
+    const triggerTitle = activePanel ? getDisplayName(activePanel) : triggerLabel;
+    const shortcutLabel = getShortcutLabel();
+
+    return (
+      <div className="mito-tab-dropdown-root" onKeyDown={this._handleMenuKeyDown}>
+        <button
+          type="button"
+          className="mito-tab-dropdown-trigger"
+          aria-haspopup="menu"
+          aria-expanded={this._isOpen}
+          title={triggerTitle}
+          onClick={() => this._setOpen(!this._isOpen, true)}
+          onKeyDown={this._handleTriggerKeyDown}
+        >
+          <span className="mito-tab-dropdown-file-icon" aria-hidden>
+            <FileIcon />
+          </span>
+          <span className="mito-tab-dropdown-filename">{triggerLabel}</span>
+          {activePanel?.context.model.dirty && (
+            <span className="mito-tab-dropdown-dirty-dot" title="Unsaved changes" />
+          )}
+          {notebooks.length > 0 && (
+            <span className="mito-tab-dropdown-open-count">· {notebooks.length}</span>
+          )}
+          <span className="mito-tab-dropdown-kbd">{shortcutLabel}</span>
+          <span className="mito-tab-dropdown-caret" aria-hidden>
+            <ChevronIcon direction={this._isOpen ? 'up' : 'down'} />
+          </span>
+        </button>
+        {this._isOpen && this._renderMenu(notebooks, activePanel)}
+      </div>
+    );
+  }
+
+  private _renderMenu(
+    notebooks: NotebookPanel[],
+    activePanel: NotebookPanel | null
+  ): JSX.Element {
+    const todayPanels = notebooks.filter(panel =>
+      isToday(this._lastOpenedByPanelId.get(panel.id) ?? Date.now())
+    );
+    const earlierPanels = notebooks.filter(
+      panel => !isToday(this._lastOpenedByPanelId.get(panel.id) ?? Date.now())
+    );
+
+    return (
+      <div className="mito-tab-dropdown-menu" role="menu">
+        {notebooks.length === 0 ? (
+          <div className="mito-tab-dropdown-empty">No notebooks open</div>
+        ) : (
+          <>
+            {todayPanels.length > 0 && (
+              <>
+                <div className="mito-tab-dropdown-group-label">Today</div>
+                {todayPanels.map(panel => this._renderNotebookRow(panel, activePanel, notebooks))}
+              </>
+            )}
+            {earlierPanels.length > 0 && (
+              <>
+                <div className="mito-tab-dropdown-group-label">Earlier</div>
+                {earlierPanels.map(panel =>
+                  this._renderNotebookRow(panel, activePanel, notebooks)
+                )}
+              </>
+            )}
+          </>
+        )}
+        <div className="mito-tab-dropdown-divider" />
+        {this._renderFooter(notebooks.length)}
+      </div>
+    );
+  }
+
+  private _renderNotebookRow(
+    panel: NotebookPanel,
+    activePanel: NotebookPanel | null,
+    notebooks: NotebookPanel[]
+  ): JSX.Element {
+    const optionIndex = notebooks.indexOf(panel);
+    const filename = getDisplayName(panel);
+    const isActivePanel = panel === activePanel;
+    const isActiveOption = optionIndex === this._activeOptionIndex;
+    const timestamp = this._lastOpenedByPanelId.get(panel.id) ?? Date.now();
+
+    return (
+      <div
+        key={panel.id}
+        role="menuitem"
+        data-active-option={isActiveOption}
+        tabIndex={isActiveOption ? 0 : -1}
+        className={`mito-tab-dropdown-row${isActivePanel ? ' active' : ''}`}
+        title={filename}
+        onClick={() => this._activateNotebook(panel)}
+      >
+        <span className="mito-tab-dropdown-row-icon" aria-hidden>
+          <FileIcon />
+        </span>
+        <span className="mito-tab-dropdown-row-filename">
+          {middleTruncateFilename(filename)}
+        </span>
+        <span className="mito-tab-dropdown-row-time">
+          {getRelativeTimestamp(timestamp)}
+        </span>
+        {panel.context.model.dirty ? (
+          <span className="mito-tab-dropdown-dirty-dot" title="Unsaved changes" />
+        ) : (
+          <button
+            type="button"
+            tabIndex={-1}
+            className="mito-tab-dropdown-close"
+            aria-label={`Close ${filename}`}
+            title={`Close ${filename}`}
+            onClick={event => {
+              event.stopPropagation();
+              panel.close();
+              this.update();
+            }}
+          >
+            x
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  private _renderFooter(optionIndex: number): JSX.Element {
+    const isActiveOption = optionIndex === this._activeOptionIndex;
+    return (
+      <button
+        type="button"
+        role="menuitem"
+        data-active-option={isActiveOption}
+        tabIndex={isActiveOption ? 0 : -1}
+        className="mito-tab-dropdown-footer"
+        onClick={this._openLauncher}
+      >
+        <span>+ New File</span>
+        <span className="mito-tab-dropdown-footer-hint">opens Launcher</span>
+      </button>
+    );
+  }
+
+  private _setupPanel(panel: NotebookPanel): void {
+    if (this._trackedPanelIds.has(panel.id)) {
+      return;
+    }
+
+    this._trackedPanelIds.add(panel.id);
+    this._recordOpened(panel);
+    panel.context.pathChanged.connect(() => this.update());
+    panel.context.model.stateChanged.connect(() => this.update());
+    panel.context.saveState.connect(() => this.update());
+    panel.disposed.connect(() => {
+      this._trackedPanelIds.delete(panel.id);
+      this._lastOpenedByPanelId.delete(panel.id);
+      this._activeOptionIndex = 0;
+      this.update();
+    });
+  }
+
+  private _getSortedNotebooks(): NotebookPanel[] {
+    const notebooks: NotebookPanel[] = [];
+    this.notebookTracker.forEach(panel => {
+      notebooks.push(panel);
+    });
+    return notebooks.sort((a, b) => {
+      return (
+        (this._lastOpenedByPanelId.get(b.id) ?? 0) -
+        (this._lastOpenedByPanelId.get(a.id) ?? 0)
+      );
+    });
+  }
+
+  private _recordOpened(panel: NotebookPanel): void {
+    this._lastOpenedByPanelId.set(panel.id, Date.now());
+  }
+
+  private _setOpen(open: boolean, shouldFocusOption = false): void {
+    if (this._isOpen === open) {
+      return;
+    }
+
+    this._isOpen = open;
+    if (open) {
+      this._activeOptionIndex = this._getInitialOptionIndex();
+      document.addEventListener('mousedown', this._handleDocumentMouseDown);
+      document.addEventListener('keydown', this._handleDocumentKeyDown);
+    } else {
+      document.removeEventListener('mousedown', this._handleDocumentMouseDown);
+      document.removeEventListener('keydown', this._handleDocumentKeyDown);
+    }
+    this.update();
+
+    if (open && shouldFocusOption) {
+      requestAnimationFrame(() => {
+        this.node
+          .querySelector<HTMLElement>('[data-active-option="true"]')
+          ?.focus();
+      });
+    }
+  }
+
+  private _getInitialOptionIndex(): number {
+    const notebooks = this._getSortedNotebooks();
+    const activePanel = this.getActivePanel();
+    const activePanelIndex = activePanel ? notebooks.indexOf(activePanel) : -1;
+    if (activePanelIndex >= 0) {
+      return activePanelIndex;
+    }
+    return notebooks.length > 0 ? 0 : 0;
+  }
+
+  private _moveActiveOption(delta: number): void {
+    const optionCount = this._getSortedNotebooks().length + 1;
+    this._activeOptionIndex =
+      (this._activeOptionIndex + delta + optionCount) % optionCount;
+    this.update();
+    requestAnimationFrame(() => {
+      this.node
+        .querySelector<HTMLElement>('[data-active-option="true"]')
+        ?.focus();
+    });
+  }
+
+  private _activateCurrentOption(): void {
+    const notebooks = this._getSortedNotebooks();
+    const panel = notebooks[this._activeOptionIndex];
+    if (panel) {
+      this._activateNotebook(panel);
+      return;
+    }
+    this._openLauncher();
+  }
+
+  private _activateNotebook(panel: NotebookPanel): void {
+    this._recordOpened(panel);
+    this.app.shell.activateById(panel.id);
+    this.viewMode.syncToCurrentNotebook();
+    this._setOpen(false);
+  }
+
+  private _openLauncher = (): void => {
+    const activePanel = this.getActivePanel();
+    const cwd = activePanel ? PathExt.dirname(activePanel.context.path) : undefined;
+    if (this.app.commands.hasCommand(LAUNCHER_COMMAND)) {
+      void this.app.commands.execute(LAUNCHER_COMMAND, cwd ? { cwd } : undefined);
+    }
+    this._setOpen(false);
+  };
+
+  private _handleTriggerKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
+    if (event.key !== 'ArrowDown' && event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+    event.preventDefault();
+    this._setOpen(true, true);
+  };
+
+  private _handleMenuKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+    if (!this._isOpen) {
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this._moveActiveOption(1);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this._moveActiveOption(-1);
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      this._activateCurrentOption();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this._setOpen(false);
+    }
+  };
+
+  private _handleDocumentMouseDown = (event: MouseEvent): void => {
+    if (!this.node.contains(event.target as Node)) {
+      this._setOpen(false);
+    }
+  };
+
+  private _handleDocumentKeyDown = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape') {
+      this._setOpen(false);
+    }
+  };
+}
 
 class ModeSwitcherWidget extends ReactWidget {
   constructor(
@@ -169,6 +566,7 @@ class AppActionsWidget extends ReactWidget {
 }
 
 export class MitoToolbarWidget extends Widget {
+  private readonly _leftCluster: TabDropdownWidget;
   private readonly _centerWidget: ModeSwitcherWidget;
   private readonly _rightCluster = new Panel();
   private readonly _notebookJupyterControls = new Toolbar();
@@ -179,6 +577,7 @@ export class MitoToolbarWidget extends Widget {
   constructor(
     viewMode: INotebookViewMode,
     getActivePanel: () => NotebookPanel | null,
+    notebookTracker: INotebookTracker,
     app: JupyterFrontEnd,
     private readonly toolbarRegistry: IToolbarWidgetRegistry,
     documentManager: IDocumentManager,
@@ -190,8 +589,7 @@ export class MitoToolbarWidget extends Widget {
     this.addClass('mito-top-toolbar');
     this.node.setAttribute('role', 'toolbar');
 
-    const leftCluster = new Widget();
-    leftCluster.addClass('mito-top-toolbar-left');
+    this._leftCluster = new TabDropdownWidget(app, notebookTracker, viewMode, getActivePanel);
 
     this._centerWidget = new ModeSwitcherWidget(viewMode, getActivePanel);
 
@@ -206,7 +604,7 @@ export class MitoToolbarWidget extends Widget {
 
     const layout = new PanelLayout();
     this.layout = layout;
-    layout.addWidget(leftCluster);
+    layout.addWidget(this._leftCluster);
     layout.addWidget(this._centerWidget);
     layout.addWidget(this._rightCluster);
 
@@ -215,6 +613,10 @@ export class MitoToolbarWidget extends Widget {
 
   get notebookExtensionsToolbar(): Toolbar {
     return this._notebookExtensions;
+  }
+
+  toggleTabDropdown(): void {
+    this._leftCluster.toggleDropdown();
   }
 
   setMode(mode: NotebookViewMode): void {

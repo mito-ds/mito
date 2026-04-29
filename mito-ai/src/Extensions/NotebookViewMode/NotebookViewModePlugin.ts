@@ -28,7 +28,10 @@ import { getNotebookIDAndSetIfNonexistant } from '../../utils/notebookMetadata';
 import { logEvent } from '../../restAPI/RestAPI';
 import { IAppDeployService } from '../AppDeploy/AppDeployPlugin';
 import { IAppManagerService } from '../AppManager/ManageAppsPlugin';
-import { COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT } from '../../commands';
+import {
+  COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT,
+  COMMAND_MITO_AI_TOGGLE_TAB_DROPDOWN
+} from '../../commands';
 import { MitoToolbarWidget } from './MitoToolbarWidget';
 
 export type NotebookViewMode = 'Notebook' | 'Document' | 'App';
@@ -383,6 +386,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
     const toolbarWidget = new MitoToolbarWidget(
       manager,
       getActiveNotebookPanel,
+      notebookTracker,
       app,
       toolbarRegistry,
       documentManager,
@@ -443,6 +447,20 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
           await manager.openPreviewAndSwitchToAppMode(currentWidget);
         }
       }
+    });
+
+    app.commands.addCommand(COMMAND_MITO_AI_TOGGLE_TAB_DROPDOWN, {
+      label: 'Toggle Notebook Tab Dropdown',
+      caption: 'Show or hide the notebook tab dropdown in the Mito toolbar',
+      execute: () => {
+        toolbarWidget.toggleTabDropdown();
+      }
+    });
+    app.commands.addKeyBinding({
+      command: COMMAND_MITO_AI_TOGGLE_TAB_DROPDOWN,
+      keys: ['Accel K'],
+      selector: '.jp-LabShell',
+      preventDefault: true
     });
 
     bindToolbarToPanel(getActiveNotebookPanel());

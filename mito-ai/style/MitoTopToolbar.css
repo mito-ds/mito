@@ -42,6 +42,193 @@
   align-items: center;
 }
 
+.mito-tab-dropdown-root {
+  position: relative;
+}
+
+.mito-tab-dropdown-trigger {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid #ececf0;
+  border-radius: 7px;
+  background: #fff;
+  color: #1a1a24;
+  cursor: pointer;
+}
+
+.mito-tab-dropdown-trigger:hover {
+  background: #f5f5f7;
+}
+
+.mito-tab-dropdown-trigger[aria-expanded='true'] {
+  border-color: #dcdce3;
+  background: #f5f5f7;
+}
+
+.mito-tab-dropdown-file-icon,
+.mito-tab-dropdown-caret,
+.mito-tab-dropdown-row-icon {
+  display: flex;
+  color: #9a9aa6;
+}
+
+.mito-tab-dropdown-filename,
+.mito-tab-dropdown-row-filename {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: #1a1a24;
+  white-space: nowrap;
+}
+
+.mito-tab-dropdown-dirty-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #b45309;
+}
+
+.mito-tab-dropdown-open-count {
+  font-size: 12px;
+  color: #9a9aa6;
+}
+
+.mito-tab-dropdown-kbd {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  line-height: 16px;
+  color: #9a9aa6;
+  padding: 1px 5px;
+  border: 1px solid #ececf0;
+  border-radius: 4px;
+}
+
+.mito-tab-dropdown-menu {
+  position: absolute;
+  top: 38px;
+  left: 0;
+  z-index: 1000;
+  width: 380px;
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid #dcdce3;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow:
+    0 16px 40px rgb(15 18 30 / 12%),
+    0 2px 6px rgb(15 18 30 / 4%);
+}
+
+.mito-tab-dropdown-group-label {
+  padding: 6px 12px 4px;
+  color: #9a9aa6;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.mito-tab-dropdown-row,
+.mito-tab-dropdown-footer {
+  width: 100%;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #1a1a24;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mito-tab-dropdown-footer {
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.mito-tab-dropdown-row:hover,
+.mito-tab-dropdown-footer:hover,
+.mito-tab-dropdown-row[data-active-option='true'],
+.mito-tab-dropdown-footer[data-active-option='true'] {
+  background: #f5f5f7;
+}
+
+.mito-tab-dropdown-row.active {
+  background: #ede9fe;
+}
+
+.mito-tab-dropdown-row-filename {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mito-tab-dropdown-row.active .mito-tab-dropdown-row-icon,
+.mito-tab-dropdown-row.active .mito-tab-dropdown-row-filename {
+  color: #4c1d95;
+  font-weight: 600;
+}
+
+.mito-tab-dropdown-row-time {
+  margin-left: auto;
+  font-size: 11px;
+  color: #9a9aa6;
+  white-space: nowrap;
+}
+
+.mito-tab-dropdown-close {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #9a9aa6;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mito-tab-dropdown-close:hover {
+  background: #ececf0;
+  color: #1a1a24;
+}
+
+.mito-tab-dropdown-empty {
+  padding: 12px;
+  color: #9a9aa6;
+  font-size: 12px;
+}
+
+.mito-tab-dropdown-divider {
+  height: 1px;
+  margin: 4px;
+  background: #ececf0;
+}
+
+.mito-tab-dropdown-footer-hint {
+  color: #9a9aa6;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.mito-tab-dropdown-trigger:focus-visible,
+.mito-tab-dropdown-row:focus-visible,
+.mito-tab-dropdown-footer:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 2px;
+}
+
 .mito-top-toolbar-center {
   position: absolute;
   left: 50%;

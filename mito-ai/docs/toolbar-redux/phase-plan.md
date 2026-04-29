@@ -185,10 +185,11 @@ Trivial scope, completely independent of other phases. Done last among the v1 mo
 ### Scope (only if undeferred)
 - The tab dropdown described in `spec.md` §4 / FR-410:
   - Trigger pill in the left cluster: file icon + filename (monospace, 24-char middle truncation per FR-605) + dirty dot + open-count + ⌘K kbd hint
-  - Open dropdown: 380px wide, search input (visual-only at v1), Pinned / Today / Earlier groups, footer "+ New File" → Launcher
+  - Open dropdown: 380px wide, Today / Earlier groups, footer "+ New File" → Launcher
   - ⌘K global shortcut to toggle
   - Per-row close button or dirty dot, time stamps, active-row highlight
-- Underlying data: open-notebook tracking, last-opened timestamps, pin persistence.
+- Underlying data: open-notebook tracking and last-opened timestamps.
+- Pinning and search are intentionally skipped in this jump-ahead build; see optional polish.
 
 ### Rationale
 This is the largest new subsystem in the spec but is **not** gating any other functionality. The toolbar is fully usable without it (FR-410 explicitly defers). Built last so we can ship v1 of the toolbar first and revisit the tab dropdown as a fast-follow if user research validates the open-rate / time-to-tab-switch metrics.
@@ -198,8 +199,16 @@ If undeferred, the placeholder for the left cluster in v1 may show the active no
 ### Definition of done (if built)
 - Matches `spec.md` §4 visually
 - ⌘K opens from anywhere in the workspace
-- Pinned state persists across reloads (uses `IStateDB`)
 - Empty state ("No notebooks open") works
+
+---
+
+## Optional polish — Tab dropdown fast-follows
+
+These items were intentionally removed from the Phase 5 uncertainty spike:
+
+- **Pinned notebooks**: add per-row pin/unpin controls, render a Pinned group above Today, and persist pinned notebook paths with `IStateDB`.
+- **Search**: add the search input from `spec.md` §4 and filter open notebooks by filename/path.
 
 ---
 
