@@ -11,7 +11,14 @@
   align-items: stretch;
   contain: none !important;
   flex-direction: column;
-  min-height: 104px !important;
+  min-height: calc(var(--jp-private-menubar-height, 28px) + 52px) !important;
+}
+
+/* JupyterLab's first-party logo and top bar are useful in the default
+   horizontal top area, but become extra rows once we stack the top panel. */
+[id='jp-MainLogo'],
+#jp-top-bar {
+  display: none !important;
 }
 
 .mito-top-toolbar {

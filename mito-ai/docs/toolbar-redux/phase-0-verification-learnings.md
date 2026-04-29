@@ -118,23 +118,13 @@ Then we tested disabling containment:
 
 Those changes alone were directionally right, but they did not fully solve the overlap.
 
-## Final Working Insight
+## Updated Working Insight
 
-The geometry showed that the existing JupyterLab top/menu row in this environment behaves like a 52px row, not like the `27px` menu height variable we originally assumed.
+The first pass reserved `104px` because the existing JupyterLab top area appeared to behave like one `52px` row plus the `52px` Mito toolbar row.
 
-So the correct reserved height was not:
+That turned out to be too broad. After forcing `#jp-top-panel` into a column layout, JupyterLab's first-party `#jp-MainLogo` and `#jp-top-bar` widgets each became their own vertical rows. The logo consumed an extra row at the top-left and the top bar produced a blank white row where the old top toolbar used to be.
 
-```text
-27px + 52px = 79px
-```
-
-It was effectively:
-
-```text
-52px + 52px = 104px
-```
-
-Once the top panel reserved 104px, the shell layout behaved correctly.
+The current fix is to hide those two first-party top-area widgets and reserve only the normal menu row plus the Mito toolbar row:
 
 The working CSS direction:
 
@@ -143,26 +133,33 @@ The working CSS direction:
   align-items: stretch;
   contain: none !important;
   flex-direction: column;
-  min-height: 104px !important;
+  min-height: calc(var(--jp-private-menubar-height, 28px) + 52px) !important;
+}
+
+[id='jp-MainLogo'],
+#jp-top-bar {
+  display: none !important;
 }
 ```
 
 After this change:
 
-- Mode switcher remained at approximately `y=59-95`.
-- Main shell/sidebar started at `y=104`.
-- The toolbar no longer overlapped notebook tabs/content.
+- The Jupyter logo no longer gets its own row.
+- The empty first-party top bar row is gone.
+- The Mito toolbar sits directly under the File/Edit/View menu.
+- The notebook tabs/content start immediately below the Mito toolbar.
 - The File menu still opened.
 - Lints passed.
 - The temporary JS layout/debug workaround was removed.
 
 ## Current Diagnosis
 
-The root issue was a combination of three JupyterLab top-panel behaviors:
+The root issue was a combination of four JupyterLab top-panel behaviors:
 
 1. `#jp-top-panel` is `display: flex` in row mode by default, so new top-area widgets share a row unless overridden.
 2. `contain: style size !important` prevents child-driven sizing from behaving naturally.
-3. The top shell area needs to reserve 104px in this environment: one 52px existing top row plus one 52px Mito toolbar row.
+3. `#jp-MainLogo` and `#jp-top-bar` are first-party top-area widgets that become visible rows once the top panel is stacked vertically.
+4. The top shell area should reserve only the menu row plus the 52px Mito toolbar row after those extra first-party widgets are hidden.
 
 ## Engineering Takeaway
 
@@ -189,7 +186,8 @@ Keep the CSS-only approach:
 
 - Stack `#jp-top-panel` vertically.
 - Use `contain: none !important`.
-- Reserve `104px` on the top panel.
+- Hide `#jp-MainLogo` and `#jp-top-bar`.
+- Reserve `calc(var(--jp-private-menubar-height, 28px) + 52px)` on the top panel.
 - Keep `.mito-top-toolbar` fixed at 52px.
 - Do not add JS layout hacks.
 
