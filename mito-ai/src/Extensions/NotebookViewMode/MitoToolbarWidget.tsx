@@ -39,7 +39,7 @@ class ModeSwitcherWidget extends ReactWidget {
     const panel = this.getActivePanel();
     return (
       <NotebookViewModeSwitcher
-        mode={this.viewMode.getMode()}
+        mode={panel ? this.viewMode.getMode() : 'Notebook'}
         disabled={!panel}
         onModeChange={(mode) => {
           if (!panel) {

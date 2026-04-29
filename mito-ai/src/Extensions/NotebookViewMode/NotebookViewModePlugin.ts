@@ -368,6 +368,10 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
       notebookTracker,
       streamlitPreviewManager
     );
+    const getActiveNotebookPanel = (): NotebookPanel | null => {
+      const widget = shell.currentWidget;
+      return widget instanceof NotebookPanel ? widget : null;
+    };
 
     notebookTracker.forEach((panel) => {
       manager.setupNotebookPanel(panel);
@@ -378,7 +382,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
 
     const toolbarWidget = new MitoToolbarWidget(
       manager,
-      () => notebookTracker.currentWidget,
+      getActiveNotebookPanel,
       app,
       documentManager,
       appDeployService,
@@ -396,28 +400,37 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
 
     const bindToolbarToPanel = (panel: NotebookPanel | null): void => {
       toolbarWidget.setActivePanel(panel);
-      if (panel) {
-        panel.toolbar.hide();
-      }
       if (!panel) {
         toolbarWidget.notebookExtensionsToolbar.hide();
         return;
       }
+      panel.toolbar.hide();
       toolbarWidget.notebookExtensionsToolbar.show();
       setToolbar(
         panel,
         notebookToolbarFactory,
         toolbarWidget.notebookExtensionsToolbar
       );
+      toolbarWidget.setMode(manager.getMode());
     };
 
     notebookTracker.currentChanged.connect((_, panel) => {
       bindToolbarToPanel(panel);
     });
 
+    shell.currentChanged.connect(() => {
+      const panel = getActiveNotebookPanel();
+      if (!panel) {
+        toolbarWidget.setMode('Notebook');
+        bindToolbarToPanel(null);
+        return;
+      }
+      manager.syncToCurrentNotebook();
+    });
+
     manager.modeChanged.connect((_, mode) => {
       toolbarWidget.setMode(mode);
-      bindToolbarToPanel(notebookTracker.currentWidget);
+      bindToolbarToPanel(getActiveNotebookPanel());
     });
 
     app.commands.addCommand(COMMAND_MITO_AI_PREVIEW_AS_STREAMLIT, {
@@ -431,8 +444,12 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
       }
     });
 
-    bindToolbarToPanel(notebookTracker.currentWidget);
-    manager.syncToCurrentNotebook();
+    bindToolbarToPanel(getActiveNotebookPanel());
+    if (getActiveNotebookPanel()) {
+      manager.syncToCurrentNotebook();
+    } else {
+      toolbarWidget.setMode('Notebook');
+    }
     return manager;
   }
 };
