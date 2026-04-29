@@ -18,6 +18,11 @@ interface Session {
     notebookUri: string;
     lastVersion: number;
     timer: NodeJS.Timeout;
+    // Set to true while a poll is mid-flight so the next setInterval tick
+    // can skip itself. Without this, two concurrent pollAndUpdate calls
+    // both read the pre-edit notebook state and both insert a fresh
+    // analysis cell, producing duplicates.
+    inFlight: boolean;
 }
 
 const sessions = new Map<string, Session>();
@@ -45,6 +50,7 @@ export function activate(context: vscode.ExtensionContext): void {
             notebookUri: editor.notebook.uri.toString(),
             lastVersion: -1,
             timer,
+            inFlight: false,
         });
 
         context.subscriptions.push({ dispose: () => stopSession(sessionId) });
@@ -71,28 +77,33 @@ async function pollAndUpdate(
     port: number
 ): Promise<void> {
     const session = sessions.get(sessionId);
-    if (!session) {
+    if (!session || session.inFlight) {
         return;
     }
 
-    let result: { code: string; version: number };
+    session.inFlight = true;
     try {
-        result = await fetchCode(port);
-    } catch {
-        // Server gone (kernel restarted etc.) — stop polling
-        stopSession(sessionId);
-        return;
-    }
+        let result: { code: string; version: number; analysis_name: string };
+        try {
+            result = await fetchCode(port);
+        } catch {
+            // Server gone (kernel restarted etc.) — stop polling
+            stopSession(sessionId);
+            return;
+        }
 
-    if (result.version <= session.lastVersion) {
-        return;
-    }
+        if (result.version <= session.lastVersion) {
+            return;
+        }
 
-    session.lastVersion = result.version;
-    await writeCodeCell(notebook, sessionId, result.code);
+        session.lastVersion = result.version;
+        await writeCodeCell(notebook, sessionId, result.code, result.analysis_name);
+    } finally {
+        session.inFlight = false;
+    }
 }
 
-function fetchCode(port: number): Promise<{ code: string; version: number }> {
+function fetchCode(port: number): Promise<{ code: string; version: number; analysis_name: string }> {
     return new Promise((resolve, reject) => {
         const req = http.get(`http://localhost:${port}/code`, (res) => {
             let raw = '';
@@ -116,7 +127,8 @@ function fetchCode(port: number): Promise<{ code: string; version: number }> {
 async function writeCodeCell(
     notebook: vscode.NotebookDocument,
     sessionId: string,
-    code: string
+    code: string,
+    analysisName: string
 ): Promise<void> {
     // Find the cell whose output contains the application/x-mitosheet item with this sessionId
     let mitoCellIndex = -1;
@@ -145,35 +157,122 @@ async function writeCodeCell(
     const targetIndex = mitoCellIndex + 1;
     const edit = new vscode.WorkspaceEdit();
 
-    // Check whether the cell immediately below is already our generated cell
+    // Check whether the cell immediately below is already a Mito-generated
+    // analysis cell. We detect this from the cell content (via the standard
+    // `from mitosheet.public.vN import *` boilerplate the transpiler emits)
+    // rather than via custom metadata, because VS Code's Jupyter serializer
+    // strips unrecognized cell metadata on save.
     const isOurCell =
         targetIndex < notebook.cellCount &&
-        notebook.cellAt(targetIndex).metadata?.mito_session_id === sessionId;
+        isMitoGeneratedCell(notebook.cellAt(targetIndex));
 
     if (isOurCell) {
         // Replace it in-place
         edit.set(notebook.uri, [
             vscode.NotebookEdit.replaceCells(
                 new vscode.NotebookRange(targetIndex, targetIndex + 1),
-                [makeCellData(code, sessionId)]
+                [makeCellData(code)]
             ),
         ]);
     } else {
         // Insert a fresh cell below the Mito output cell
         edit.set(notebook.uri, [
-            vscode.NotebookEdit.insertCells(targetIndex, [makeCellData(code, sessionId)]),
+            vscode.NotebookEdit.insertCells(targetIndex, [makeCellData(code)]),
         ]);
+    }
+
+    // Also write analysis_to_replay="<analysisName>" into the originating
+    // mitosheet.sheet() cell, so reruns pick up the analysis where it left off.
+    const mitoCell = notebook.cellAt(mitoCellIndex);
+    const cellSource = mitoCell.document.getText();
+    const updatedSource = addAnalysisToReplayParameter(cellSource, analysisName);
+    if (updatedSource !== undefined) {
+        const fullRange = new vscode.Range(
+            0,
+            0,
+            mitoCell.document.lineCount,
+            0
+        );
+        edit.replace(mitoCell.document.uri, fullRange, updatedSource);
     }
 
     await vscode.workspace.applyEdit(edit);
 }
 
-function makeCellData(code: string, sessionId: string): vscode.NotebookCellData {
-    const cell = new vscode.NotebookCellData(
+/**
+ * If `code` ends with a mitosheet.sheet(...) call that doesn't already include
+ * an analysis_to_replay parameter, returns a new version with
+ * analysis_to_replay="<analysisName>" added before the closing paren.
+ * Otherwise returns undefined.
+ */
+function addAnalysisToReplayParameter(
+    code: string,
+    analysisName: string
+): string | undefined {
+    if (!isMitosheetCallCode(code)) {
+        return undefined;
+    }
+    if (removeWhitespaceInPythonCode(code).includes('analysis_to_replay=')) {
+        return undefined;
+    }
+
+    // We know the mitosheet.sheet() call is the last thing in the cell, so we
+    // just replace the last closing paren.
+    const lastIndex = code.lastIndexOf(')');
+    if (lastIndex === -1) {
+        return undefined;
+    }
+    const replacement = removeWhitespaceInPythonCode(code).includes('sheet()')
+        ? `analysis_to_replay="${analysisName}")`
+        : `, analysis_to_replay="${analysisName}")`;
+    return code.substring(0, lastIndex) + replacement + code.substring(lastIndex + 1);
+}
+
+function isMitosheetCallCode(code: string): boolean {
+    const lines = code.split(/\r?\n/).filter((line) => line.trim().length > 0);
+    const lastLine = lines.length > 0 ? lines[lines.length - 1] : undefined;
+    if (lastLine === undefined) {
+        return false;
+    }
+    return removeWhitespaceInPythonCode(lastLine).includes('sheet(');
+}
+
+// Removes all whitespace from a string, except for whitespace in quoted strings.
+function removeWhitespaceInPythonCode(code: string): string {
+    const pattern = /('[^']*'|"[^"]*")/;
+    const parts = code.split(pattern);
+    const partsWithoutSpaces = parts.map((part) => {
+        if (pattern.test(part)) {
+            return part;
+        }
+        return part.replace(/\s+/g, '');
+    });
+    return partsWithoutSpaces.join('');
+}
+
+function makeCellData(code: string): vscode.NotebookCellData {
+    return new vscode.NotebookCellData(
         vscode.NotebookCellKind.Code,
         code,
         'python'
     );
-    cell.metadata = { mito_session_id: sessionId };
-    return cell;
+}
+
+// Returns true if the given cell looks like a Mito-generated analysis cell.
+// We use a content-only signal (an import from mitosheet.public) that survives
+// notebook save/restore in VS Code.
+function isMitoGeneratedCell(cell: vscode.NotebookCell): boolean {
+    if (cell.kind !== vscode.NotebookCellKind.Code) {
+        return false;
+    }
+    const text = cell.document.getText();
+    const nonEmptyLines = text
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)
+        .slice(0, 10);
+
+    return nonEmptyLines.some((line) =>
+        /^from\s+mitosheet\.public(?:\.v\d+)?\s+import\s+\*/.test(line)
+    );
 }
