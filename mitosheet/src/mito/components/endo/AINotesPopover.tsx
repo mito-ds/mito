@@ -66,7 +66,10 @@ export const AINotesPopover = (props: {
     };
 
     const selectAndDismiss = (target: 'column' | 'row'): void => {
-        selectAINotesTargetInGrid(annotation, target, gridSelectDeps, { dismissPopover: true });
+        selectAINotesTargetInGrid(annotation, target, gridSelectDeps, {
+            dismissPopover: true,
+            openAINotesTaskpane: false,
+        });
     };
 
     const applyAction = async (actionId: string): Promise<void> => {

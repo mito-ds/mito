@@ -350,7 +350,7 @@ export function selectAINotesTargetInGrid(
         setGridState: Dispatch<SetStateAction<GridState>>;
         setEditorState: Dispatch<SetStateAction<EditorState | undefined>>;
     },
-    options?: { dismissPopover?: boolean }
+    options?: { dismissPopover?: boolean; openAINotesTaskpane?: boolean }
 ): void {
     const { setUIState, setGridState, setEditorState } = deps;
     setEditorState(undefined);
@@ -358,7 +358,9 @@ export function selectAINotesTargetInGrid(
         ...prev,
         selectedSheetIndex: annotation.sheetIndex,
         aiNotesFocusedId: annotation.id,
-        currOpenTaskpane: { type: TaskpaneType.AINOTES },
+        ...(options?.openAINotesTaskpane !== false
+            ? { currOpenTaskpane: { type: TaskpaneType.AINOTES } }
+            : {}),
         ...(options?.dismissPopover === true ? { aiNotesPopover: undefined } : {}),
     }));
     window.setTimeout(() => {
