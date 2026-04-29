@@ -112,8 +112,7 @@ The mode switcher is the most prominent visual element in the toolbar and is the
   - Click opens menu: Code / Markdown / Raw
   - Dispatch existing Lab commands (`notebook:change-cell-to-code`, etc.)
 - Interim implementation note: it is acceptable to reuse JupyterLab's built-in `insert` and `cellType` toolbar items first so the original controls are available while the toolbar redux is in progress.
-- Before final Phase 2 visual signoff, revisit whether to replace those reused Jupyter controls with Mito-owned, spec-styled controls.
-- If we keep the reused Jupyter `cellType` control, polish its visual fit in the new toolbar, including the dropdown caret's vertical alignment.
+- polish the `cellType` its visual fit in the new toolbar, including the dropdown caret's vertical alignment.
 - Add the vertical divider between extension-button area and the hero (1px × 18px, `#ececf0`, 6px horizontal margin).
 - **Restyle `RunCellButton`** per `spec.md` §5:
   - Brand purple fill (`#4c1d95`), white text and icon
@@ -225,6 +224,7 @@ These items were intentionally removed from the Phase 5 uncertainty spike:
 - Tooltips per `spec.md` (Add cell, Edit App caret, mode-switcher items, etc.)
 - Single-document mode visual regression sweep
 - Final tab-dropdown trigger polish: revisit its proportions and visual weight against the mode switcher, including whether the trigger should be slightly taller than the current implementation.
+- Before final Phase 2 visual signoff, revisit whether to replace those reused Jupyter controls with Mito-owned, spec-styled controls.
 
 ### Rationale
 All cross-cutting and not gating any feature. Done at the end so it's a single sweep against a stable surface, not a moving target.

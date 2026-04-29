@@ -22,18 +22,17 @@
 }
 
 /* The Mito toolbar's notebook dropdown replaces JupyterLab's document tab bar.
-   Keep the dock widget's inline split-panel positioning, but move each active
-   document up by the hidden tab bar height so we reclaim the vertical space. */
+   Do not hide the dock tab bar with `display: none` plus a translated document:
+   Lumino still reserves the tab bar's layout height, which leaves a matching
+   blank strip at the bottom of the active document. Collapse the tab bar's box
+   instead so Lumino measures it at 0px and gives that height to the document. */
 #jp-main-dock-panel .lm-DockPanel-tabBar {
-  display: none !important;
-}
-
-#jp-main-dock-panel .lm-DockPanel-widget {
-  transform: translateY(-26px);
-}
-
-#jp-main-dock-panel .lm-DockPanel-widget > .lm-Widget {
-  height: calc(100% + 26px);
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
 }
 
 .mito-top-toolbar {
@@ -296,11 +295,38 @@
   gap: 8px;
 }
 
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button,
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button,
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect {
+  height: 32px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button {
+  width: 32px;
+  min-width: 32px;
+  color: #6b6b78;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button:hover,
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button:hover,
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect:hover {
+  background: #f5f5f7;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button,
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect {
+  padding: 0 10px;
+  color: #3b3b48;
+}
+
 .mito-top-toolbar-jupyter-controls
   [data-jp-item-name='cellType']
   .jp-HTMLSelect
   > span {
-  top: 6px !important;
+  top: 5px !important;
 }
 
 .mito-top-toolbar-notebook-extensions {
@@ -322,8 +348,152 @@
   align-items: center;
 }
 
+.mito-top-toolbar-right-divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: #ececf0;
+}
+
 .mito-top-toolbar-app-actions {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.mito-app-actions-root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mito-app-edit-trigger {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid #dcdce3;
+  border-radius: 7px;
+  background: #fff;
+  color: #1a1a24;
+  cursor: pointer;
+}
+
+.mito-app-edit-trigger:hover {
+  background: #fafafb;
+}
+
+.mito-app-edit-trigger-icon {
+  color: #4c1d95;
+  display: flex;
+}
+
+.mito-app-edit-trigger-caret {
+  color: rgb(107 107 120 / 70%);
+  display: flex;
+}
+
+.mito-app-edit-menu {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  z-index: 1000;
+  width: 300px;
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid #dcdce3;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow:
+    0 16px 40px rgb(15 18 30 / 12%),
+    0 2px 6px rgb(15 18 30 / 4%);
+}
+
+.mito-app-edit-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mito-app-edit-menu-item:hover,
+.mito-app-edit-menu-item.active {
+  background: #f5f5f7;
+}
+
+.mito-app-edit-menu-item-icon {
+  margin-top: 2px;
+  display: flex;
+}
+
+.mito-app-edit-menu-item-icon.brand {
+  color: #4c1d95;
+}
+
+.mito-app-edit-menu-item-icon.warn {
+  color: #b45309;
+}
+
+.mito-app-edit-menu-item-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mito-app-edit-menu-item-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a24;
+}
+
+.mito-app-edit-menu-item-subtitle {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #6b6b78;
+}
+
+.mito-app-edit-menu-item-kbd {
+  align-self: flex-start;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  color: #9a9aa6;
+}
+
+.mito-app-edit-menu-divider {
+  height: 1px;
+  margin: 4px;
+  background: #ececf0;
+}
+
+.mito-app-deploy-button {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid #4c1d95;
+  border-radius: 7px;
+  background: #4c1d95;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.mito-app-deploy-button:hover {
+  background: #3d1376;
+}
+
+.mito-app-deploy-button-icon {
+  display: flex;
 }

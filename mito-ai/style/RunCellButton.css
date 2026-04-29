@@ -17,13 +17,14 @@
   width: 100%;
   border-radius: var(--toolbar-element-radius);
   overflow: hidden;
-  background-color: var(--mito-theme-button-background, var(--blue-300));
-  border: 0.5px solid var(--mito-theme-button-border, var(--blue-900));
+  background-color: #4c1d95;
+  border: 1px solid #4c1d95;
+  box-shadow: 0 1px 0 rgb(76 29 149 / 20%);
   transition: all 0.15s ease;
 }
 
 .mito-run-cell-button-group:hover {
-  background-color: var(--mito-theme-button-hover-background, var(--blue-400));
+  background-color: #3d1376;
 }
 
 /* Shared button styles */
@@ -35,7 +36,7 @@
   border-radius: 0;
   cursor: pointer;
   /* Theme-aware text color */
-  color: var(--mito-theme-button-text, var(--blue-900));
+  color: #fff;
   font-size: 13px;
   font-weight: 400;
   transition: background-color 0.15s ease;
@@ -51,21 +52,15 @@
 .mito-run-cell-button-main {
   flex: 1;
   gap: 6px;
-  padding: 0 10px;
+  padding: 0 12px;
 }
 
 /* Divider between buttons */
 .mito-run-cell-button-divider {
   width: 1px;
-  height: 14px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--mito-theme-button-border, var(--blue-900)) 20%,
-    var(--mito-theme-button-border, var(--blue-900)) 80%,
-    transparent
-  );
-  opacity: 0.4;
+  height: 100%;
+  background: rgb(255 255 255 / 18%);
+  opacity: 1;
   flex-shrink: 0;
 }
 
@@ -80,8 +75,8 @@
 
 /* Play icon styling */
 .mito-run-cell-button-main > svg {
-  color: var(--mito-theme-button-text, var(--blue-900));
-  fill: var(--mito-theme-button-text, var(--blue-900));
+  color: #fff;
+  fill: #fff;
   width: 12px;
   height: 12px;
   flex-shrink: 0;
@@ -91,7 +86,7 @@
 .mito-run-cell-button-dropdown svg {
   width: 14px;
   height: 14px;
-  color: var(--mito-theme-button-text, var(--blue-900));
+  color: #fff;
 }
 
 /* Ensure chevron path only uses stroke, not fill */
@@ -102,49 +97,44 @@
 
 .mito-run-cell-button-text {
   white-space: nowrap;
-  color: var(--mito-theme-button-text, var(--blue-900));
+  color: #fff;
+  font-weight: 500;
 }
 
 /* Running state - applied to the group */
 .mito-run-cell-button-running {
-  border-color: var(--green-900);
+  border-color: #4c1d95;
 }
 
 .mito-run-cell-button-running .mito-run-cell-button,
 .mito-run-cell-button-running .mito-run-cell-button-dropdown {
-  background-color: var(--green-300);
-  color: var(--green-900);
+  background-color: #4c1d95;
+  color: #fff;
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-dropdown:hover {
-  background-color: var(--green-500);
+  background-color: #3d1376;
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-divider {
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--green-900) 20%,
-    var(--green-900) 80%,
-    transparent
-  );
-  opacity: 0.5;
+  background: rgb(255 255 255 / 18%);
+  opacity: 1;
 }
 
 /* LoadingCircle styling when running */
 .mito-run-cell-button-running .mito-run-cell-button-main > svg {
-  color: var(--green-900);
-  fill: var(--green-900);
+  color: #fff;
+  fill: #fff;
   width: 16px;
   height: 16px;
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-text {
-  color: var(--green-900);
+  color: #fff;
 }
 
 .mito-run-cell-button-running .mito-run-cell-button-dropdown svg {
-  color: var(--green-900);
+  color: #fff;
 }
 
 .mito-run-cell-dropdown-menu {
