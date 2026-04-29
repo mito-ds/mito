@@ -111,6 +111,9 @@ The mode switcher is the most prominent visual element in the toolbar and is the
   - Ghost button with caret, label reflects active cell's type
   - Click opens menu: Code / Markdown / Raw
   - Dispatch existing Lab commands (`notebook:change-cell-to-code`, etc.)
+- Interim implementation note: it is acceptable to reuse JupyterLab's built-in `insert` and `cellType` toolbar items first so the original controls are available while the toolbar redux is in progress.
+- Before final Phase 2 visual signoff, revisit whether to replace those reused Jupyter controls with Mito-owned, spec-styled controls.
+- If we keep the reused Jupyter `cellType` control, polish its visual fit in the new toolbar, including the dropdown caret's vertical alignment.
 - Add the vertical divider between extension-button area and the hero (1px × 18px, `#ececf0`, 6px horizontal margin).
 - **Restyle `RunCellButton`** per `spec.md` §5:
   - Brand purple fill (`#4c1d95`), white text and icon

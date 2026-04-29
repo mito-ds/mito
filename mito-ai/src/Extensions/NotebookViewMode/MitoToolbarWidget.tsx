@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { IToolbarWidgetRegistry, ToolbarRegistry } from '@jupyterlab/apputils';
 import { IDocumentManager } from '@jupyterlab/docmanager';
 import { PathExt } from '@jupyterlab/coreutils';
 import { ReactWidget, Toolbar } from '@jupyterlab/ui-components';
@@ -170,6 +171,7 @@ class AppActionsWidget extends ReactWidget {
 export class MitoToolbarWidget extends Widget {
   private readonly _centerWidget: ModeSwitcherWidget;
   private readonly _rightCluster = new Panel();
+  private readonly _notebookJupyterControls = new Toolbar();
   private readonly _notebookExtensions = new Toolbar();
   private readonly _notebookHero = new NotebookHeroWidget();
   private readonly _appActions: AppActionsWidget;
@@ -178,6 +180,7 @@ export class MitoToolbarWidget extends Widget {
     viewMode: INotebookViewMode,
     getActivePanel: () => NotebookPanel | null,
     app: JupyterFrontEnd,
+    private readonly toolbarRegistry: IToolbarWidgetRegistry,
     documentManager: IDocumentManager,
     appDeployService: IAppDeployService,
     appManagerService: IAppManagerService
@@ -193,8 +196,10 @@ export class MitoToolbarWidget extends Widget {
     this._centerWidget = new ModeSwitcherWidget(viewMode, getActivePanel);
 
     this._rightCluster.addClass('mito-top-toolbar-right');
+    this._notebookJupyterControls.addClass('mito-top-toolbar-jupyter-controls');
     this._notebookExtensions.addClass('mito-top-toolbar-notebook-extensions');
     this._appActions = new AppActionsWidget(app, documentManager, appDeployService, appManagerService);
+    this._rightCluster.addWidget(this._notebookJupyterControls);
     this._rightCluster.addWidget(this._notebookExtensions);
     this._rightCluster.addWidget(this._notebookHero);
     this._rightCluster.addWidget(this._appActions);
@@ -214,14 +219,17 @@ export class MitoToolbarWidget extends Widget {
 
   setMode(mode: NotebookViewMode): void {
     if (mode === 'App') {
+      this._notebookJupyterControls.hide();
       this._notebookExtensions.hide();
       this._notebookHero.hide();
       this._appActions.show();
     } else if (mode === 'Notebook') {
+      this._notebookJupyterControls.show();
       this._notebookExtensions.show();
       this._notebookHero.show();
       this._appActions.hide();
     } else {
+      this._notebookJupyterControls.hide();
       this._notebookExtensions.hide();
       this._notebookHero.hide();
       this._appActions.hide();
@@ -230,7 +238,34 @@ export class MitoToolbarWidget extends Widget {
 
   setActivePanel(panel: NotebookPanel | null): void {
     this._centerWidget.update();
+    this._setNotebookJupyterControls(panel);
     this._notebookHero.setPanel(panel);
     this._appActions.setPanel(panel);
+  }
+
+  private _setNotebookJupyterControls(panel: NotebookPanel | null): void {
+    Array.from(this._notebookJupyterControls.children()).forEach((child) => {
+      child.dispose();
+    });
+
+    if (!panel) {
+      return;
+    }
+
+    const toolbarItems: ToolbarRegistry.IWidget[] = [
+      {
+        name: 'insert',
+        command: 'notebook:insert-cell-below',
+        icon: 'ui-components:add'
+      },
+      { name: 'cellType' }
+    ];
+
+    toolbarItems.forEach((item) => {
+      this._notebookJupyterControls.addItem(
+        item.name,
+        this.toolbarRegistry.createWidget('Notebook', panel, item)
+      );
+    });
   }
 }

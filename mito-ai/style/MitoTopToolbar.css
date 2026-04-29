@@ -60,6 +60,22 @@
   height: 100%;
 }
 
+.mito-top-toolbar-jupyter-controls {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect
+  > span {
+  top: 6px !important;
+}
+
 .mito-top-toolbar-notebook-extensions {
   border: none;
   box-shadow: none;
@@ -67,6 +83,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.mito-top-toolbar-notebook-extensions [data-jp-item-name='insert'],
+.mito-top-toolbar-notebook-extensions [data-jp-item-name='cellType'] {
+  display: none;
 }
 
 .mito-top-toolbar-notebook-hero {

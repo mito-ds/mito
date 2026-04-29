@@ -384,6 +384,7 @@ const NotebookViewModePlugin: JupyterFrontEndPlugin<INotebookViewMode> = {
       manager,
       getActiveNotebookPanel,
       app,
+      toolbarRegistry,
       documentManager,
       appDeployService,
       appManagerService
