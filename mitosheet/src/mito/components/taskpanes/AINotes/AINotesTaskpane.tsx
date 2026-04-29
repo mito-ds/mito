@@ -114,6 +114,14 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
             : `Col ${a.columnIndex + 1}`;
     };
 
+    const alertTargetLabel = (a: AINotesAnnotation): string => {
+        const columnName = columnDisplayName(a);
+        if (a.kind === 'cell' && a.rowIndex !== undefined) {
+            return `${columnName} [${a.rowIndex + 1}]`;
+        }
+        return columnName;
+    };
+
     const gridSelectDeps = {
         setUIState: props.setUIState,
         setGridState: props.setGridState,
@@ -205,7 +213,10 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                                                     handleAnnotationSummaryClick(a);
                                                 }}
                                             >
-                                                <div className="ai-notes-item-column">{columnDisplayName(a)}</div>
+                                                <div className="ai-notes-item-column">
+                                                    <span className="ai-notes-item-kind-badge">{a.kind}</span>
+                                                    <span>{alertTargetLabel(a)}</span>
+                                                </div>
                                                 <div className="ai-notes-item-description">{a.text}</div>
                                             </button>
                                             <div className="ai-notes-item-actions">
