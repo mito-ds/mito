@@ -214,7 +214,14 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                                                 }}
                                             >
                                                 <div className="ai-notes-item-column">
-                                                    <span className="ai-notes-item-kind-badge">{a.kind}</span>
+                                                    <span
+                                                        className={classNames('ai-notes-item-kind-badge', {
+                                                            'ai-notes-item-kind-badge-column': a.kind === 'column',
+                                                            'ai-notes-item-kind-badge-cell': a.kind === 'cell',
+                                                        })}
+                                                    >
+                                                        {a.kind}
+                                                    </span>
                                                     <span>{alertTargetLabel(a)}</span>
                                                 </div>
                                                 <div className="ai-notes-item-description">{a.text}</div>
