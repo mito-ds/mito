@@ -171,8 +171,9 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                 <Row justify="start" align="top">
                     <Col className="ai-notes-taskpane-col" flex="1">
                         {state.type === 'loading' && (
-                            <Row justify="center" className="mt-25px">
+                            <Row justify="start" align="center" className="mt-25px ai-notes-loading-status">
                                 <LoadingCircle />
+                                <span className="ml-10px">Fetching AI Alerts</span>
                             </Row>
                         )}
                         {state.type === 'error' && (
@@ -255,17 +256,18 @@ const AINotesTaskpane = (props: AINotesTaskpaneProps): JSX.Element => {
                                 })}
                             </ul>
                         )}
-                        <Row justify="center" className="mt-25px">
-                            <TextButton
-                                variant="dark"
-                                onClick={() => {
-                                    void fetchAnnotations(focusedId);
-                                }}
-                                disabled={state.type === 'loading'}
-                            >
-                                Refresh notes
-                            </TextButton>
-                        </Row>
+                        {state.type !== 'loading' && (
+                            <Row justify="center" className="mt-25px">
+                                <TextButton
+                                    variant="dark"
+                                    onClick={() => {
+                                        void fetchAnnotations(focusedId);
+                                    }}
+                                >
+                                    Refresh notes
+                                </TextButton>
+                            </Row>
+                        )}
                     </Col>
                 </Row>
             </DefaultTaskpaneBody>

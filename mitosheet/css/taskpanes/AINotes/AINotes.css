@@ -165,6 +165,13 @@
     font-size: 12px;
 }
 
+.ai-notes-loading-status {
+    color: var(--mito-text-medium);
+    font-size: 12px;
+    line-height: 1.45;
+    opacity: 0.92;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .ai-notes-item,
     .ai-notes-item-wrap,
