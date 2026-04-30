@@ -189,6 +189,11 @@ interface OutputCommentButtonProps {
     onClick: () => void;
 }
 
+const MITOSHEET_OUTPUT_MIME_TYPES = new Set([
+    'application/x.mito+json',
+    'application/x-mitosheet',
+]);
+
 const OutputCommentButton: React.FC<OutputCommentButtonProps> = ({ onClick }) => {
     return (
         <TextAndIconButton
@@ -266,6 +271,44 @@ function injectOutputCommentButton(
     outputWrapper.appendChild(commentBtnDiv);
 }
 
+function removeOutputCommentButton(cell: CodeCell): void {
+    const outputWrapper = cell.node.querySelector('.jp-Cell-outputWrapper') as HTMLElement | null;
+    if (!outputWrapper) {
+        return;
+    }
+
+    const existingButton = outputWrapper.querySelector('.output-comment-button-container');
+    if (existingButton) {
+        existingButton.remove();
+    }
+}
+
+function isMitosheetOutputCell(cell: CodeCell): boolean {
+    const outputs = cell.outputArea?.model?.toJSON?.() ?? [];
+    for (const output of outputs) {
+        if (output.output_type === 'display_data' || output.output_type === 'execute_result') {
+            const outputData = output.data as Record<string, unknown> | undefined;
+            if (!outputData) {
+                continue;
+            }
+            for (const mimeType of Object.keys(outputData)) {
+                if (MITOSHEET_OUTPUT_MIME_TYPES.has(mimeType) || mimeType.includes('mito')) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    // Fallback for already-rendered Mitosheet outputs in the DOM.
+    if (cell.node.querySelector('.mito-mime-renderer, .mito-container, .mito-viewer')) {
+        return true;
+    }
+
+    // Source fallback for classic mitosheet output cells rendered via JS/HTML.
+    const sourceText = (cell.model.sharedModel.getSource() || '').toLowerCase();
+    return sourceText.includes('mitosheet.sheet(') || sourceText.includes('from mitosheet import sheet');
+}
+
 /**
  * Inject comment buttons into all code cells that have output,
  * and observe for new outputs being rendered.
@@ -298,6 +341,10 @@ function setupOutputCommentButtons(
     const injectAllForPanel = (notebookPanel: NotebookPanel): void => {
         for (const cell of notebookPanel.content.widgets) {
             if (cell instanceof CodeCell && cell.outputArea?.model.length > 0) {
+                if (isMitosheetOutputCell(cell)) {
+                    removeOutputCommentButton(cell);
+                    continue;
+                }
                 injectOutputCommentButton(cell, app, notebookTracker);
             }
         }
