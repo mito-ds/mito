@@ -23,7 +23,7 @@
     margin: 4px 0 0 24px;
     color: var(--mito-text-color-disabled);
     font-size: 12px;
-    animation: ai-alerts-fade-cycle 2.2s ease-in-out;
+    animation: ai-alerts-fade-cycle 2.8s ease-in-out;
 }
 
 @keyframes ai-alerts-fade-cycle {

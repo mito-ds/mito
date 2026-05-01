@@ -102,7 +102,7 @@ const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
 
         const interval = setInterval(() => {
             setLoadingColumnIndex(prev => (prev + 1) % loadingColumnNames.length);
-        }, 2200);
+        }, 2800);
 
         return () => {
             clearInterval(interval);
