@@ -71,7 +71,7 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: #1a1a24;
+  color: var(--mito-theme-toolbar-primary-text);
   cursor: pointer;
   transition: box-shadow 0.15s ease;
 }
@@ -84,10 +84,8 @@
   box-sizing: border-box;
   padding: 0 10px;
   border-radius: 7px;
-  background: #fff;
-  box-shadow:
-    0 1px 2px rgb(15 18 30 / 6%),
-    0 0 0 1px rgb(76 29 149 / 10%);
+  background: var(--mito-theme-toolbar-control-active-background);
+  box-shadow: var(--mito-theme-toolbar-control-active-shadow);
 }
 
 .mito-tab-dropdown-trigger:hover {
@@ -102,14 +100,14 @@
 .mito-tab-dropdown-caret,
 .mito-tab-dropdown-row-icon {
   display: flex;
-  color: #9a9aa6;
+  color: var(--mito-theme-toolbar-muted-text);
 }
 
 .mito-tab-dropdown-filename,
 .mito-tab-dropdown-row-filename {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
-  color: #1a1a24;
+  color: var(--mito-theme-toolbar-primary-text);
   white-space: nowrap;
 }
 
@@ -118,21 +116,21 @@
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: #b45309;
+  background: var(--mito-theme-toolbar-warning);
 }
 
 .mito-tab-dropdown-open-count {
   font-size: 12px;
-  color: #9a9aa6;
+  color: var(--mito-theme-toolbar-muted-text);
 }
 
 .mito-tab-dropdown-kbd {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 10.5px;
   line-height: 16px;
-  color: #9a9aa6;
+  color: var(--mito-theme-toolbar-muted-text);
   padding: 1px 5px;
-  border: 1px solid #ececf0;
+  border: 1px solid var(--mito-theme-toolbar-divider);
   border-radius: 4px;
 }
 
@@ -144,12 +142,10 @@
   width: 380px;
   box-sizing: border-box;
   padding: 6px;
-  border: 1px solid #dcdce3;
+  border: 1px solid var(--mito-theme-toolbar-menu-border);
   border-radius: 10px;
-  background: #fff;
-  box-shadow:
-    0 16px 40px rgb(15 18 30 / 12%),
-    0 2px 6px rgb(15 18 30 / 4%);
+  background: var(--mito-theme-toolbar-menu-background);
+  box-shadow: var(--mito-theme-toolbar-menu-shadow);
 }
 
 .mito-tab-dropdown-scroll-area {
@@ -159,7 +155,7 @@
 
 .mito-tab-dropdown-group-label {
   padding: 6px 12px 4px;
-  color: #9a9aa6;
+  color: var(--mito-theme-toolbar-muted-text);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.6px;
@@ -178,7 +174,7 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: #1a1a24;
+  color: var(--mito-theme-toolbar-primary-text);
   text-align: left;
   cursor: pointer;
 }
@@ -193,11 +189,11 @@
 .mito-tab-dropdown-footer:hover,
 .mito-tab-dropdown-row[data-active-option='true'],
 .mito-tab-dropdown-footer[data-active-option='true'] {
-  background: #f5f5f7;
+  background: var(--mito-theme-toolbar-control-hover-background);
 }
 
 .mito-tab-dropdown-row.active {
-  background: #ede9fe;
+  background: var(--mito-theme-toolbar-accent-background);
 }
 
 .mito-tab-dropdown-row-filename {
@@ -207,14 +203,14 @@
 
 .mito-tab-dropdown-row.active .mito-tab-dropdown-row-icon,
 .mito-tab-dropdown-row.active .mito-tab-dropdown-row-filename {
-  color: #4c1d95;
+  color: var(--mito-theme-toolbar-accent-text);
   font-weight: 600;
 }
 
 .mito-tab-dropdown-row-time {
   margin-left: auto;
   font-size: 11px;
-  color: #9a9aa6;
+  color: var(--mito-theme-toolbar-muted-text);
   white-space: nowrap;
 }
 
@@ -232,31 +228,31 @@
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: #9a9aa6;
+  color: var(--mito-theme-toolbar-muted-text);
   font-size: 13px;
   line-height: 1;
   cursor: pointer;
 }
 
 .mito-tab-dropdown-close:hover {
-  background: #ececf0;
-  color: #1a1a24;
+  background: var(--mito-theme-toolbar-divider);
+  color: var(--mito-theme-toolbar-primary-text);
 }
 
 .mito-tab-dropdown-empty {
   padding: 12px;
-  color: #9a9aa6;
+  color: var(--mito-theme-toolbar-muted-text);
   font-size: 12px;
 }
 
 .mito-tab-dropdown-divider {
   height: 1px;
   margin: 4px;
-  background: #ececf0;
+  background: var(--mito-theme-toolbar-divider);
 }
 
 .mito-tab-dropdown-footer-hint {
-  color: #9a9aa6;
+  color: var(--mito-theme-toolbar-muted-text);
   font-size: 11px;
   font-weight: 400;
 }
@@ -264,7 +260,7 @@
 .mito-tab-dropdown-trigger:focus-visible,
 .mito-tab-dropdown-row:focus-visible,
 .mito-tab-dropdown-footer:focus-visible {
-  outline: 2px solid #a78bfa;
+  outline: 2px solid var(--mito-theme-toolbar-focus-outline);
   outline-offset: 2px;
 }
 
@@ -297,7 +293,9 @@
 
 .mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button,
 .mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button,
-.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect {
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect {
   height: 32px;
   border: none;
   border-radius: 7px;
@@ -307,27 +305,36 @@
 .mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button {
   width: 32px;
   min-width: 32px;
-  color: #6b6b78;
-}
-
-.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button:hover,
-.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button:hover,
-.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect:hover {
-  background: #f5f5f7;
+  color: var(--mito-theme-toolbar-secondary-text);
 }
 
 .mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button,
-.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect {
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect {
   padding: 0 10px;
-  color: #3b3b48;
+  color: var(--mito-theme-toolbar-primary-text);
 }
 
-.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect {
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect {
   display: inline-flex;
   align-items: center;
 }
 
-.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect select {
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='insert'] button:hover,
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] button:hover,
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect:hover {
+  background: var(--mito-theme-toolbar-control-hover-background);
+}
+
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect
+  select {
   height: 100%;
   line-height: 32px;
   margin: 0;
@@ -340,8 +347,14 @@
   -webkit-appearance: none;
 }
 
-.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect select:hover,
-.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect select:focus {
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect
+  select:hover,
+.mito-top-toolbar-jupyter-controls
+  [data-jp-item-name='cellType']
+  .jp-HTMLSelect
+  select:focus {
   background: transparent;
 }
 
@@ -375,7 +388,7 @@
   width: 1px;
   height: 18px;
   margin: 0 6px;
-  background: #ececf0;
+  background: var(--mito-theme-toolbar-divider);
 }
 
 .mito-top-toolbar-app-actions {
@@ -398,24 +411,24 @@
   align-items: center;
   gap: 8px;
   padding: 0 12px;
-  border: 1px solid #dcdce3;
+  border: 1px solid var(--mito-theme-toolbar-menu-border);
   border-radius: 7px;
-  background: #fff;
-  color: #1a1a24;
+  background: var(--mito-theme-toolbar-control-active-background);
+  color: var(--mito-theme-toolbar-primary-text);
   cursor: pointer;
 }
 
 .mito-app-edit-trigger:hover {
-  background: #fafafb;
+  background: var(--mito-theme-toolbar-control-active-hover-background);
 }
 
 .mito-app-edit-trigger-icon {
-  color: #4c1d95;
+  color: var(--mito-theme-toolbar-accent-text);
   display: flex;
 }
 
 .mito-app-edit-trigger-caret {
-  color: rgb(107 107 120 / 70%);
+  color: var(--mito-theme-toolbar-muted-text);
   display: flex;
 }
 
@@ -427,12 +440,10 @@
   width: 300px;
   box-sizing: border-box;
   padding: 6px;
-  border: 1px solid #dcdce3;
+  border: 1px solid var(--mito-theme-toolbar-menu-border);
   border-radius: 10px;
-  background: #fff;
-  box-shadow:
-    0 16px 40px rgb(15 18 30 / 12%),
-    0 2px 6px rgb(15 18 30 / 4%);
+  background: var(--mito-theme-toolbar-menu-background);
+  box-shadow: var(--mito-theme-toolbar-menu-shadow);
 }
 
 .mito-app-edit-menu-item {
@@ -450,7 +461,7 @@
 
 .mito-app-edit-menu-item:hover,
 .mito-app-edit-menu-item.active {
-  background: #f5f5f7;
+  background: var(--mito-theme-toolbar-control-hover-background);
 }
 
 .mito-app-edit-menu-item-icon {
@@ -459,11 +470,11 @@
 }
 
 .mito-app-edit-menu-item-icon.brand {
-  color: #4c1d95;
+  color: var(--mito-theme-toolbar-accent-text);
 }
 
 .mito-app-edit-menu-item-icon.warn {
-  color: #b45309;
+  color: var(--mito-theme-toolbar-warning);
 }
 
 .mito-app-edit-menu-item-text {
@@ -477,26 +488,26 @@
 .mito-app-edit-menu-item-title {
   font-size: 13px;
   font-weight: 500;
-  color: #1a1a24;
+  color: var(--mito-theme-toolbar-primary-text);
 }
 
 .mito-app-edit-menu-item-subtitle {
   font-size: 11.5px;
   line-height: 1.45;
-  color: #6b6b78;
+  color: var(--mito-theme-toolbar-secondary-text);
 }
 
 .mito-app-edit-menu-item-kbd {
   align-self: flex-start;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 10.5px;
-  color: #9a9aa6;
+  color: var(--mito-theme-toolbar-muted-text);
 }
 
 .mito-app-edit-menu-divider {
   height: 1px;
   margin: 4px;
-  background: #ececf0;
+  background: var(--mito-theme-toolbar-divider);
 }
 
 .mito-app-deploy-button {
@@ -505,16 +516,16 @@
   align-items: center;
   gap: 8px;
   padding: 0 14px;
-  border: 1px solid #4c1d95;
+  border: 1px solid var(--mito-theme-toolbar-primary-btn-border);
   border-radius: 7px;
-  background: #4c1d95;
-  color: #fff;
+  background: var(--mito-theme-toolbar-primary-btn-background);
+  color: var(--mito-theme-toolbar-primary-btn-text);
   font-weight: 500;
   cursor: pointer;
 }
 
 .mito-app-deploy-button:hover {
-  background: #3d1376;
+  background: var(--mito-theme-toolbar-primary-btn-hover-background);
 }
 
 .mito-app-deploy-button-icon {

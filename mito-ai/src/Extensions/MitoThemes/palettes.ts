@@ -120,6 +120,68 @@ const THEME_CONFIG: Record<string, { light: string; dark: string }> = {
   '--mito-theme-segmented-control-inactive-text': { light: 'rgba(0, 0, 0, 0.54)', dark: 'rgba(255, 255, 255, 0.5)' },
   '--mito-theme-toolbar-secondary-btn-border': { light: 'rgba(0, 0, 0, 0.15)', dark: 'rgba(255, 255, 255, 0.15)' },
   '--mito-theme-toolbar-secondary-btn-hover-bg': { light: 'rgba(0, 0, 0, 0.04)', dark: 'rgba(255, 255, 255, 0.06)' },
+  '--mito-theme-toolbar-control-background': { light: '#fafafb', dark: '#252526' },
+  '--mito-theme-toolbar-control-active-background': { light: '#fff', dark: '#2d2d2d' },
+  '--mito-theme-toolbar-control-hover-background': { light: '#f5f5f7', dark: 'rgba(255, 255, 255, 0.06)' },
+  '--mito-theme-toolbar-control-active-hover-background': { light: '#fafafb', dark: '#333333' },
+  '--mito-theme-toolbar-control-active-shadow': {
+    light: '0 1px 2px rgb(15 18 30 / 6%), 0 0 0 1px rgb(76 29 149 / 10%)',
+    dark: '0 1px 2px rgb(0 0 0 / 24%), 0 0 0 1px rgb(217 123 192 / 18%)'
+  },
+  '--mito-theme-toolbar-menu-background': { light: '#fff', dark: '#252526' },
+  '--mito-theme-toolbar-menu-border': { light: '#dcdce3', dark: '#3c3c3c' },
+  '--mito-theme-toolbar-menu-shadow': {
+    light: '0 16px 40px rgb(15 18 30 / 12%), 0 2px 6px rgb(15 18 30 / 4%)',
+    dark: '0 16px 40px rgb(0 0 0 / 32%), 0 2px 6px rgb(0 0 0 / 24%)'
+  },
+  '--mito-theme-toolbar-primary-text': {
+    light: '#1a1a24',
+    dark: 'rgba(255, 255, 255, 0.87)'
+  },
+  '--mito-theme-toolbar-secondary-text': {
+    light: '#6b6b78',
+    dark: 'rgba(255, 255, 255, 0.65)'
+  },
+  '--mito-theme-toolbar-muted-text': {
+    light: '#9a9aa6',
+    dark: 'rgba(255, 255, 255, 0.45)'
+  },
+  '--mito-theme-toolbar-accent-text': { light: '#4c1d95', dark: '#D97BC0' },
+  '--mito-theme-toolbar-accent-hover-text': {
+    light: '#4c1d95',
+    dark: '#F4D1EA'
+  },
+  '--mito-theme-toolbar-accent-background': {
+    light: '#ede9fe',
+    dark: 'rgba(217, 123, 192, 0.18)'
+  },
+  '--mito-theme-toolbar-divider': { light: '#ececf0', dark: '#3c3c3c' },
+  '--mito-theme-toolbar-focus-outline': { light: '#a78bfa', dark: '#D97BC0' },
+  '--mito-theme-toolbar-warning': { light: '#b45309', dark: '#f59e0b' },
+  '--mito-theme-toolbar-primary-btn-background': {
+    light: '#4c1d95',
+    dark: '#C65FAA'
+  },
+  '--mito-theme-toolbar-primary-btn-hover-background': {
+    light: '#3d1376',
+    dark: '#D97BC0'
+  },
+  '--mito-theme-toolbar-primary-btn-border': {
+    light: '#4c1d95',
+    dark: '#C65FAA'
+  },
+  '--mito-theme-toolbar-primary-btn-text': {
+    light: '#fff',
+    dark: 'rgba(0, 0, 0, 0.87)'
+  },
+  '--mito-theme-toolbar-primary-btn-divider': {
+    light: 'rgb(255 255 255 / 18%)',
+    dark: 'rgb(0 0 0 / 18%)'
+  },
+  '--mito-theme-toolbar-primary-btn-shadow': {
+    light: '0 1px 0 rgb(76 29 149 / 20%)',
+    dark: '0 1px 0 rgb(0 0 0 / 20%)'
+  },
 
   // Vega colors
   '--mito-theme-vega-background': { light: 'white', dark: '#1e1e1e' }

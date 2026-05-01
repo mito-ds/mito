@@ -12,9 +12,9 @@
   min-height: 32px;
   max-height: 32px;
   padding: 2px;
-  border: 1px solid #ececf0;
+  border: 1px solid var(--mito-theme-toolbar-divider);
   border-radius: 8px;
-  background: #fafafb;
+  background: var(--mito-theme-toolbar-control-background);
 }
 
 .mode-switcher-segment {
@@ -61,27 +61,25 @@
 }
 
 .mode-switcher-segment.selected {
-  color: #4c1d95;
-  background: #fff;
+  color: var(--mito-theme-toolbar-accent-text);
+  background: var(--mito-theme-toolbar-control-active-background);
   border-radius: 7px;
-  box-shadow:
-    0 1px 2px rgb(15 18 30 / 6%),
-    0 0 0 1px rgb(76 29 149 / 10%);
+  box-shadow: var(--mito-theme-toolbar-control-active-shadow);
   font-weight: 600;
 }
 
 .mode-switcher-segment.selected .mode-switcher-segment-icon {
-  color: #4c1d95;
+  color: var(--mito-theme-toolbar-accent-text);
 }
 
 .mode-switcher-segment.unselected {
-  color: #6b6b78;
+  color: var(--mito-theme-toolbar-secondary-text);
   font-weight: 500;
 }
 
 .mode-switcher-segment.unselected:hover {
-  color: #4c1d95;
-  background: #f5f5f7;
+  color: var(--mito-theme-toolbar-accent-hover-text);
+  background: var(--mito-theme-toolbar-control-hover-background);
 }
 
 .mode-switcher-segment.unselected .mode-switcher-segment-icon {
@@ -89,7 +87,7 @@
 }
 
 .mode-switcher-segment:focus-visible {
-  outline: 2px solid #a78bfa;
+  outline: 2px solid var(--mito-theme-toolbar-focus-outline);
   outline-offset: 2px;
 }
 
@@ -99,6 +97,6 @@
 }
 
 .mode-switcher-segment:disabled:hover {
-  color: #6b6b78;
+  color: var(--mito-theme-toolbar-secondary-text);
   background: transparent;
 }
