@@ -19,6 +19,25 @@
     font-size: 12px;
 }
 
+.ai-alerts-loading-column {
+    margin: 4px 0 0 24px;
+    color: var(--mito-text-color-disabled);
+    font-size: 12px;
+    animation: ai-alerts-fade-cycle 2.2s ease-in-out;
+}
+
+@keyframes ai-alerts-fade-cycle {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 .ai-alerts-list {
     display: flex;
     flex-direction: column;

@@ -212,20 +212,6 @@ export const Toolbar = (
                         onClick={() => {
                             props.setUIState(prev => ({
                                 ...prev,
-                                currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
-                                selectedTabType: 'data'
-                            }));
-                        }}
-                    >
-                        <AIIcon />
-                        AI Chat
-                    </div>
-                    <div
-                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
-                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
-                        onClick={() => {
-                            props.setUIState(prev => ({
-                                ...prev,
                                 currOpenTaskpane: {type: TaskpaneType.AIALERTS},
                                 selectedTabType: 'data'
                             }));
@@ -233,6 +219,20 @@ export const Toolbar = (
                     >
                         <ExclamationIcon color='var(--mito-highlight)' />
                         AI Alerts
+                    </div>
+                    <div
+                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
+                        onClick={() => {
+                            props.setUIState(prev => ({
+                                ...prev,
+                                currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                selectedTabType: 'data'
+                            }));
+                        }}
+                    >
+                        <AIIcon />
+                        AI Chat
                     </div>
                 </div>
             </div>

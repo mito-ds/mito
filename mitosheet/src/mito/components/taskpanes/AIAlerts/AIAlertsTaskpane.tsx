@@ -47,9 +47,14 @@ type LoadState =
 const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
     const aiPrivacyPolicyAccepted = props.userProfile.aiPrivacyPolicy;
     const [loadState, setLoadState] = useState<LoadState>({ status: 'loading' });
+    const [loadingColumnIndex, setLoadingColumnIndex] = useState(0);
 
     const sheetIndex = props.uiState.selectedSheetIndex;
     const sheetData = props.sheetDataArray[sheetIndex];
+    const loadingColumnNames = useMemo(
+        () => (sheetData?.data ?? []).map(col => String(col.columnHeader)),
+        [sheetData]
+    );
 
     useEffect(() => {
         let cancelled = false;
@@ -87,6 +92,24 @@ const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
         };
     }, [sheetIndex, props.mitoAPI]);
 
+    useEffect(() => {
+        setLoadingColumnIndex(0);
+    }, [sheetIndex]);
+
+    useEffect(() => {
+        if (loadState.status !== 'loading' || loadingColumnNames.length === 0) {
+            return;
+        }
+
+        const interval = setInterval(() => {
+            setLoadingColumnIndex(prev => (prev + 1) % loadingColumnNames.length);
+        }, 2200);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [loadState.status, loadingColumnNames]);
+
     const columnLabelByIndex = useMemo(() => {
         if (sheetData === undefined) {
             return {};
@@ -109,10 +132,20 @@ const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
             <DefaultTaskpaneBody userProfile={props.userProfile}>
                 <div className='ai-alerts-taskpane-content'>
                     {loadState.status === 'loading' && (
-                        <Row justify='start' align='center' className='ai-alerts-status'>
-                            <LoadingCircle />
-                            <span className='ml-10px'>Linting data quality issues...</span>
-                        </Row>
+                        <div>
+                            <Row justify='start' align='center' className='ai-alerts-status'>
+                                <LoadingCircle />
+                                <span className='ml-10px'>Linting data quality issues...</span>
+                            </Row>
+                            {loadingColumnNames.length > 0 && (
+                                <p
+                                    key={`loading-col-${loadingColumnIndex}`}
+                                    className='ai-alerts-loading-column'
+                                >
+                                    Examining {loadingColumnNames[loadingColumnIndex]}
+                                </p>
+                            )}
+                        </div>
                     )}
                     {loadState.status === 'error' && (
                         <p className='ai-alerts-error'>{loadState.message}</p>
