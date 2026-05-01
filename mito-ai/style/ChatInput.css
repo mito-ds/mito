@@ -120,6 +120,15 @@
   color: currentColor;
 }
 
+/* Ensure the database, attach-file, and add-context buttons all render
+   at the exact dimensions set on them (e.g. 20x20). Without these
+   resets the browser's default button padding inflates the hover area,
+   making the three buttons look uneven. */
+.context-container .icon-button {
+  padding: 0;
+  box-sizing: border-box;
+}
+
 /* Disabled state styles */
 .chat-input:disabled {
   opacity: 0.6;
