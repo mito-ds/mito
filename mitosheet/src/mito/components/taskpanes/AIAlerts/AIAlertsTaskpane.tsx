@@ -6,7 +6,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MitoAPI } from '../../../api/api';
 import { SheetData, UIState, UserProfile } from '../../../types';
-import LoadingCircle from '../../icons/LoadingCircle';
 import Row from '../../layout/Row';
 import AIPrivacyPolicy from '../AITransformation/AIPrivacyPolicy';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
@@ -134,8 +133,7 @@ const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
                     {loadState.status === 'loading' && (
                         <div>
                             <Row justify='start' align='center' className='ai-alerts-status'>
-                                <LoadingCircle />
-                                <span className='ml-10px'>Linting data quality issues...</span>
+                                <span>Linting data quality issues...</span>
                             </Row>
                             {loadingColumnNames.length > 0 && (
                                 <p
