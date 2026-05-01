@@ -52,6 +52,19 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.ai-alert-card:hover {
+    border-color: var(--mito-highlight);
+    background: var(--mito-background-off);
+}
+
+.ai-alert-card:focus-visible {
+    outline: none;
+    border-color: var(--mito-highlight);
+    box-shadow: 0 0 0 2px var(--mito-highlight-light, rgba(154, 92, 219, 0.25));
 }
 
 .ai-alert-card-header {

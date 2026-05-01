@@ -951,6 +951,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setUIState={setUIState}
                     sheetDataArray={sheetDataArray}
                     mitoAPI={mitoAPI}
+                    setGridState={setGridState}
                 />
             )
             case TaskpaneType.SUGGESTED_VISUALIZATIONS: return (

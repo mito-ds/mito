@@ -5,7 +5,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { MitoAPI } from '../../../api/api';
-import { SheetData, UIState, UserProfile } from '../../../types';
+import { GridState, SheetData, UIState, UserProfile } from '../../../types';
 import Row from '../../layout/Row';
 import AIPrivacyPolicy from '../AITransformation/AIPrivacyPolicy';
 import DefaultTaskpane from '../DefaultTaskpane/DefaultTaskpane';
@@ -19,6 +19,7 @@ interface AIAlertsTaskpaneProps {
     uiState: UIState;
     setUIState: React.Dispatch<React.SetStateAction<UIState>>;
     sheetDataArray: SheetData[];
+    setGridState: React.Dispatch<React.SetStateAction<GridState>>;
 }
 
 type AlertRow = {
@@ -121,6 +122,30 @@ const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
         return mapping;
     }, [sheetData]);
 
+    const handleAlertClick = (columnIndices: number[]): void => {
+        const numColumns = sheetData?.data.length ?? 0;
+        const validColumnIndices = columnIndices.filter(idx => idx >= 0 && idx < numColumns);
+        if (validColumnIndices.length === 0) {
+            return;
+        }
+
+        props.setGridState(prev => ({
+            ...prev,
+            selections: validColumnIndices.map(colIdx => ({
+                sheetIndex: sheetIndex,
+                startingRowIndex: -1,
+                endingRowIndex: -1,
+                startingColumnIndex: colIdx,
+                endingColumnIndex: colIdx,
+            })),
+        }));
+
+        props.setUIState(prev => ({
+            ...prev,
+            pendingColumnScroll: { sheetIndex: sheetIndex, columnIndex: validColumnIndices[0] },
+        }));
+    };
+
     if (!aiPrivacyPolicyAccepted) {
         return <AIPrivacyPolicy mitoAPI={props.mitoAPI} setUIState={props.setUIState} />;
     }
@@ -161,7 +186,19 @@ const AIAlertsTaskpane = (props: AIAlertsTaskpaneProps): JSX.Element => {
                             ) : (
                                 <div className='ai-alerts-list'>
                                     {loadState.alerts.map((alert, idx) => (
-                                        <div key={`${alert.title}-${idx}`} className='ai-alert-card'>
+                                        <div
+                                            key={`${alert.title}-${idx}`}
+                                            className='ai-alert-card'
+                                            role='button'
+                                            tabIndex={0}
+                                            onClick={() => handleAlertClick(alert.column_indices)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    handleAlertClick(alert.column_indices);
+                                                }
+                                            }}
+                                        >
                                             <div className='ai-alert-card-header'>
                                                 <span className={`ai-alert-severity ai-alert-severity-${alert.severity}`}>
                                                     {alert.severity.toUpperCase()}
