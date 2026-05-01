@@ -15,7 +15,7 @@ import { classNames } from '../../utils/classNames';
 import { CloseFullscreenIcon, OpenFullscreenIcon } from '../icons/FullscreenIcons';
 import DocumentationIcon from '../icons/DocumentationIcon';
 import AIIcon from '../icons/AIIcon';
-import ExclamationIcon from '../icons/ExclamationIcon';
+import AIChatIcon from '../icons/AIChatIcon';
 import HexagonAIIcon from '../icons/HexagonAI';
 import { CodeTabContents } from './CodeTabContents';
 import { DataTabContents } from './DataTabContents';
@@ -217,7 +217,7 @@ export const Toolbar = (
                             }));
                         }}
                     >
-                        <ExclamationIcon color='var(--mito-highlight)' />
+                        <AIIcon />
                         AI Alerts
                     </div>
                     <div
@@ -231,7 +231,7 @@ export const Toolbar = (
                             }));
                         }}
                     >
-                        <AIIcon />
+                        <AIChatIcon />
                         AI Chat
                     </div>
                 </div>
