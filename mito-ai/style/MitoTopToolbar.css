@@ -322,6 +322,29 @@
   color: #3b3b48;
 }
 
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect {
+  display: inline-flex;
+  align-items: center;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect select {
+  height: 100%;
+  line-height: 32px;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect select:hover,
+.mito-top-toolbar-jupyter-controls [data-jp-item-name='cellType'] .jp-HTMLSelect select:focus {
+  background: transparent;
+}
+
 .mito-top-toolbar-jupyter-controls
   [data-jp-item-name='cellType']
   .jp-HTMLSelect
