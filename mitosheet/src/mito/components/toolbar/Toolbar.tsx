@@ -219,6 +219,20 @@ export const Toolbar = (
                         <AIIcon />
                         AI
                     </div>
+                    <div
+                        className={classNames('text-button', 'text-button-variant-light', 'mito-plan-button', 'cursor-pointer')}
+                        style={{flexDirection: 'row', gap: '5px', alignItems: 'center', border: '1px solid var(--mito-highlight-light)'}}
+                        onClick={() => {
+                            props.setUIState(prev => ({
+                                ...prev,
+                                currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                selectedTabType: 'data'
+                            }));
+                        }}
+                    >
+                        <AIIcon />
+                        AI Alerts
+                    </div>
                 </div>
             </div>
             {/* Default to Home tab if the tab you were in is no longer defined.
