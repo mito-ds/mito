@@ -10,6 +10,8 @@
   justify-content: center;
   background-color: transparent;
   border: none;
+  padding: 0;
+  box-sizing: border-box;
   cursor: pointer;
   position: relative;
 }
