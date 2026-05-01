@@ -54,6 +54,26 @@ export type AIChartSuggestionsResult =
           }[];
       };
 
+/** Response from Python get_data_alerts (LLM JSON, validated server-side). */
+export type AIDataAlertsResult =
+    | { error: string; prompt_version?: string }
+    | {
+          prompt_version: string;
+          alerts: {
+              issue_type: string;
+              severity: 'high' | 'medium' | 'low';
+              title: string;
+              description: string;
+              column_indices: number[];
+          }[];
+          profile_metadata?: {
+              rows_profiled: number;
+              total_rows: number;
+              columns_profiled: number;
+              total_columns: number;
+          };
+      };
+
 export const getRandomId = (): string => {
     return '_' + Math.random().toString(36).substr(2, 9);
 }
@@ -614,6 +634,19 @@ export class MitoAPI {
             'params': {
                 'sheet_index': sheetIndex,
                 ...(columnIndices !== undefined ? { 'column_indices': columnIndices } : {}),
+            },
+        })
+    }
+
+    /**
+     * LLM data-quality alerts for the active sheet.
+     */
+    async getDataAlerts(sheetIndex: number): Promise<MitoAPIResult<AIDataAlertsResult>> {
+        return await this.send<AIDataAlertsResult>({
+            'event': 'api_call',
+            'type': 'get_data_alerts',
+            'params': {
+                'sheet_index': sheetIndex,
             },
         })
     }

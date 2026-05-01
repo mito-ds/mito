@@ -211,7 +211,7 @@ export const Toolbar = (
                         onClick={() => {
                             props.setUIState(prev => ({
                                 ...prev,
-                                currOpenTaskpane: {type: TaskpaneType.AITRANSFORMATION},
+                                currOpenTaskpane: {type: TaskpaneType.AIALERTS},
                                 selectedTabType: 'data'
                             }));
                         }}
