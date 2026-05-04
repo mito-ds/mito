@@ -38,6 +38,7 @@ export interface IContextManager {
 export class ContextManager implements IContextManager {
     private notebookContexts: Map<string, NotebookContext> = new Map();
     private notebookTracker: INotebookTracker;
+    private initializedNotebookPanels: WeakSet<NotebookPanel> = new WeakSet();
 
     constructor(app: JupyterFrontEnd, notebookTracker: INotebookTracker) {
         this.notebookTracker = notebookTracker;
@@ -88,6 +89,12 @@ export class ContextManager implements IContextManager {
         // which files are available.
         const updatedFiles = await getFiles(app, notebookPanel);
         this.updateNotebookFiles(notebookPanel.id, updatedFiles);
+
+        // Avoid registering duplicate listeners when the same notebook panel becomes active again.
+        if (this.initializedNotebookPanels.has(notebookPanel)) {
+            return;
+        }
+        this.initializedNotebookPanels.add(notebookPanel);
     
         // Listen for kernel restart or shut down events and clear the variables for this notebook
         notebookPanel.context.sessionContext.statusChanged.connect((sender, status) => {
