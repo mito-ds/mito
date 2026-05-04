@@ -46,7 +46,7 @@ function StepTaskpane(props: StepTaskpaneProps): JSX.Element {
                                 key={stepSummary.step_id}
                                 beforeCurrIdx={stepSummary.step_idx <= props.currStepIdx}
                                 isCurrIdx={stepSummary.step_idx === props.currStepIdx}
-                                lastIndex={props.stepSummaryList[props.stepSummaryList.length - 1].step_idx}
+                                lastIndex={props.stepSummaryList[props.stepSummaryList.length - 1]?.step_idx ?? props.currStepIdx}
                                 stepData={stepSummary}
                                 mitoAPI={props.mitoAPI}
                                 stepIdx={stepSummary.step_idx}

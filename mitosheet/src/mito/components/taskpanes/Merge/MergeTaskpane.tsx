@@ -112,6 +112,9 @@ const getValidMergeParams = (params: MergeParams, sheetDataArray: SheetData[]): 
 
     const sheetDataOne = sheetDataArray[params.sheet_index_one];
     const sheetDataTwo = sheetDataArray[params.sheet_index_two];
+    if (sheetDataOne === undefined || sheetDataTwo === undefined) {
+        return params;
+    }
 
     const validMergeKeyColumnIDs = merge_key_column_ids.filter(([mergeKeyColumnIDOne, mergeKeyColumnIDTwo]) => {
         return sheetDataOne.columnIDsMap[mergeKeyColumnIDOne] !== undefined && sheetDataTwo.columnIDsMap[mergeKeyColumnIDTwo] !== undefined
@@ -216,8 +219,11 @@ const MergeTaskpane = (props: MergeTaskpaneProps): JSX.Element => {
         return <DefaultEmptyTaskpane setUIState={props.setUIState} message='You need two dataframes before you can merge them.'/>
     }
 
-    const sheetDataOne: SheetData = props.sheetDataArray[params.sheet_index_one];
-    const sheetDataTwo: SheetData = props.sheetDataArray[params.sheet_index_two];
+    const sheetDataOne = props.sheetDataArray[params.sheet_index_one];
+    const sheetDataTwo = props.sheetDataArray[params.sheet_index_two];
+    if (sheetDataOne === undefined || sheetDataTwo === undefined) {
+        return <DefaultEmptyTaskpane setUIState={props.setUIState} message='You need two valid dataframes before you can merge them.'/>;
+    }
 
     const editMergeWarnings = props.existingParams !== undefined ? getEditMergeWarnings(props.existingParams, sheetDataOne, sheetDataTwo) : undefined;
 

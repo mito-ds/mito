@@ -125,7 +125,7 @@ export default function SheetTabContextMenu(props: {
         })
     }
 
-    const dfSource = props.sheetDataArray[props.sheetIndex].dfSource;
+    const dfSource = props.sheetDataArray[props.sheetIndex]?.dfSource;
 
     const dropdownItems: JSX.Element[] = [
         <DropdownItem
@@ -249,4 +249,3 @@ export default function SheetTabContextMenu(props: {
         </Dropdown>
     )
 }
-

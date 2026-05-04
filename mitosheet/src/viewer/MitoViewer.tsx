@@ -181,11 +181,17 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
         index: number,
         name: string,
         rowSpan?: number
-    ) => (
+    ): JSX.Element | null => {
+        const column = payload.columns[index];
+        if (column === undefined) {
+            return null;
+        }
+
+        return (
         <th
             key={index}
             className="mito-viewer__header-cell"
-            title={`${name} (${payload.columns[index].dtype})`}
+            title={`${name} (${column.dtype})`}
             rowSpan={rowSpan}
             style={{
                 width: getColumnWidth(index),
@@ -203,7 +209,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                 {getSortIcon(index)}
             </span>
             <div className="mito-viewer__column-dtype">
-                {payload.columns[index].dtype}
+                {column.dtype}
             </div>
             <div
                 className="mito-viewer__resize-handle"
@@ -218,7 +224,8 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                 }}
             />
         </th>
-    );
+        );
+    };
 
     /**
    * Renders table header row with proper MultiIndex support.
@@ -240,7 +247,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     return levelIndex === 0
                                         ? renderHeaderCell(
                                             index,
-                                            column.name[0],
+                                            column.name[0] ?? '',
                                             columnLevels
                                         )
                                         : null;
@@ -250,6 +257,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                 if (columnLevels > 1 && index > indexLevels) {
                                     const prev = payload.columns[index - 1];
                                     if (
+                                        prev !== undefined &&
                                         prev.name
                                             .slice(0, levelIndex + 1)
                                             .every((val, l) => val === column.name[l])
@@ -268,6 +276,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                     ) {
                                         const next = payload.columns[i];
                                         if (
+                                            next !== undefined &&
                                             next.name
                                                 .slice(0, levelIndex + 1)
                                                 .every((val, l) => val === column.name[l])
@@ -283,7 +292,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                 if (isFinalLevel || columnLevels === 1) {
                                     return renderHeaderCell(
                                         index,
-                                        column.name[isFinalLevel ? levelIndex : 0]
+                                        column.name[isFinalLevel ? levelIndex : 0] ?? ''
                                     );
                                 }
                                 return (
@@ -292,7 +301,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                         className="mito-viewer__header-cell-multiindex"
                                         colSpan={colSpan}
                                     >
-                                        {column.name[levelIndex]}
+                                        {column.name[levelIndex] ?? ''}
                                     </th>
                                 );
                             })}
@@ -340,7 +349,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                             nextRow++
                                         ) {
                                             // Use strict equality to handle booleans correctly
-                                            if (sortedData[nextRow][cellIndex] === cell) {
+                                            if (sortedData[nextRow]?.[cellIndex] === cell) {
                                                 spanCount++;
                                             } else {
                                                 break;
@@ -350,8 +359,9 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
                                         rowSpan[cellIndex] = spanCount;
                                     }
 
-                                    const skip = rowSpan[cellIndex] > 0 && !cellRowSpan;
-                                    rowSpan[cellIndex]--;
+                                    const currentRowSpan = rowSpan[cellIndex] ?? 0;
+                                    const skip = currentRowSpan > 0 && !cellRowSpan;
+                                    rowSpan[cellIndex] = currentRowSpan - 1;
                                     if (skip) {
                                         return null;
                                     }
@@ -370,7 +380,7 @@ export const MitoViewer: React.FC<MitoViewerProps> = ({ payload }) => {
 
                                 // For numeric columns that have any decimals, render all numbers with aligned structure
                                 const maxDecimals = cellIndex < maxDecimalPlaces.length
-                                    ? maxDecimalPlaces[cellIndex]
+                                    ? (maxDecimalPlaces[cellIndex] ?? 0)
                                     : 0;
                                 const decimalPartWidth = maxDecimals > 0 ? `${maxDecimals}ch` : '0ch';
 

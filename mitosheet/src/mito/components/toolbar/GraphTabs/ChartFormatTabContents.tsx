@@ -50,11 +50,11 @@ export const ChartFormatTabContents = (
     // for this graph.
     const stepSummaryList = props.analysisData.stepSummaryList;
     const currGraphStep = stepSummaryList[stepSummaryList.length - 1];
-    const params = currGraphStep.params as GraphParamsBackend | undefined;
+    const params = currGraphStep?.params as GraphParamsBackend | undefined;
 
     // When edits happen, just call the API directly w/ the graph id and the step id
     const updateGraphParam = (update: RecursivePartial<GraphParamsBackend>): void => {
-        if (params === undefined) {
+        if (params === undefined || currGraphStep === undefined) {
             return;
         }
         void props.mitoAPI.editGraph(
@@ -78,7 +78,7 @@ export const ChartFormatTabContents = (
     if (params?.graph_creation?.facet_col_column_id === undefined && params?.graph_creation?.facet_row_column_id === undefined) {
         elementOptions.splice(elementOptions.indexOf('Facet'), 1);
     }
-    const [currElement, setCurrElement] = React.useState<ElementOptionsType>(elementOptions.includes(props.defaultCurrElement) ? props.defaultCurrElement : elementOptions[0]);
+    const [currElement, setCurrElement] = React.useState<ElementOptionsType>(elementOptions.includes(props.defaultCurrElement) ? props.defaultCurrElement : (elementOptions[0] ?? 'Chart Area'));
 
     const renderFormatOptions = (): JSX.Element => {
         switch (currElement) {
@@ -132,4 +132,3 @@ export const ChartFormatTabContents = (
         {renderFormatOptions()}
     </div>);
 }
-

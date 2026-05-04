@@ -56,11 +56,15 @@ const getToolbarButtonsForUserDefinedImports = (
     });
 
     domainToAction.forEach((domainActions, domain) => {
+        const firstDomainAction = domainActions[0];
+        if (firstDomainAction === undefined) {
+            return;
+        }
         if (domainActions.length === 1) {
             soloButtons.push(<ToolbarButton
-                action={domainActions[0]}
+                action={firstDomainAction}
                 iconOverride={<ImportIcon />}
-                key={domainActions[0].staticType}
+                key={firstDomainAction.staticType}
             />);
             return;
         }
@@ -68,7 +72,7 @@ const getToolbarButtonsForUserDefinedImports = (
         // Otherwise, we create a temporary action that opens this dropdown,
         // as we need it for the toolbar button. That's a bit of a hack, but it's
         // well contained to just this function
-        const key = `open-domain-dropdown-${domainActions[0].domain}`;
+        const key = `open-domain-dropdown-${firstDomainAction.domain}`;
         const openDomainAction: RunTimeAction = {
             staticType: key,
             titleToolbar: toTitleCase(domain),
@@ -97,7 +101,7 @@ const getToolbarButtonsForUserDefinedImports = (
         dropdownButtons.push(<ToolbarButton
             action={openDomainAction}
             iconOverride={<ImportIcon />}
-            key={domainActions[0].staticType}
+            key={firstDomainAction.staticType}
         >
             <Dropdown
                 display={typeof uiState.currOpenDropdown === 'object' && uiState.currOpenDropdown.type === 'import-domain-dropdown' && uiState.currOpenDropdown.domain === domain}

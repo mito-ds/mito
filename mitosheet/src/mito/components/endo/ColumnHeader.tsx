@@ -72,7 +72,7 @@ const ColumnHeader = (props: {
 }): JSX.Element => {
 
     const selected = getIsCellSelected(props.gridState.selections, -1, props.columnIndex);
-    const width = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[props.columnIndex];
+    const width = props.gridState.widthDataArray[props.gridState.sheetIndex]?.widthArray[props.columnIndex] ?? DEFAULT_HEIGHT;
     const { columnID, columnFilters, columnHeader, columnDtype, headerBackgroundColor, headerTextColor } = getCellDataFromCellIndexes(props.sheetData, -1, props.columnIndex);
 
     if (columnID === undefined || columnFilters === undefined || columnDtype == undefined || columnHeader === undefined) {
@@ -458,4 +458,3 @@ const ColumnHeader = (props: {
 }
 
 export default React.memo(ColumnHeader);
-

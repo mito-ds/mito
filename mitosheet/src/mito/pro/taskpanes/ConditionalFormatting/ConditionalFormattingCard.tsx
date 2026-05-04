@@ -63,10 +63,12 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
     // We try and give users a good error message. The most common errors are the user are missing a value in their
     // filter, or the types of the filter are incorrect, so we have a simple heuristic to detect which is which
     let likelyCauseOfInvalid = 'This is likely due to incompatible dtypes.'
+    const firstFilter = filters[0];
     if (
+        firstFilter !== undefined &&
         filters.length === 1 && 
-        (Object.keys(NUMBER_SELECT_OPTIONS).includes(filters[0].condition) || (filters[0].condition === 'most_frequent' || filters[0].condition === 'least_frequent')) &&
-        filters[0].value === ''
+        (Object.keys(NUMBER_SELECT_OPTIONS).includes(firstFilter.condition) || (firstFilter.condition === 'most_frequent' || firstFilter.condition === 'least_frequent')) &&
+        firstFilter.value === ''
     ) {
         likelyCauseOfInvalid = 'Please enter a value to finish configuring the conditional format.'
     }
@@ -83,18 +85,29 @@ const getInvalidColumnHeadersMessage = (sheetData: SheetData, invalidColumnIDs: 
 const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Element => {
 
     const conditionalFormatIndex = props.df_format.conditional_formats.findIndex(format => {return format.format_uuid === props.conditionalFormat.format_uuid});
+    if (conditionalFormatIndex === -1) {
+        console.warn(`Unable to render conditional formatting card: format ${props.conditionalFormat.format_uuid} was not found.`);
+        return <></>;
+    }
+
+    const firstFilter = props.conditionalFormat.filters[0];
+    if (firstFilter === undefined) {
+        console.warn(`Unable to render conditional formatting card: format ${props.conditionalFormat.format_uuid} is missing its filter.`);
+        return <></>;
+    }
     
     const invalidColumnIDs = (props.sheetData.conditionalFormattingResult?.invalid_conditional_formats[props.conditionalFormat.format_uuid] || []);
     const invalidColumnIDMessage = getInvalidColumnHeadersMessage(props.sheetData, invalidColumnIDs, props.conditionalFormat.filters);
 
-    const conditionText = capitalizeFirstLetter((ALL_SELECT_OPTIONS[props.conditionalFormat.filters[0]?.condition]['long_name'] || 'contains'));
+    const conditionOption = ALL_SELECT_OPTIONS[firstFilter.condition];
+    const conditionText = capitalizeFirstLetter(conditionOption?.long_name || 'contains');
 
     const color = props.conditionalFormat.color || ROW_TEXT_COLOR_DEFAULT;
     const backgroundColor = props.conditionalFormat.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
 
     return (
         <ExpandableContentCard
-            title={<>{conditionText} {props.conditionalFormat.filters[0]?.value}</>}
+            title={<>{conditionText} {firstFilter.value}</>}
             subtitle={<>{getColumnHeadersIncludedMessage(props.sheetData, props.conditionalFormat.columnIDs)}</>}
             expandedTitle={'Columns to format'}
 
@@ -137,7 +150,12 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                 selectedColumnIDs={props.conditionalFormat.columnIDs}
                 onChange={(newSelectedColumnIDs: ColumnID[]) => {
                     const newConditionalFormats = [...props.df_format.conditional_formats];
-                    newConditionalFormats[conditionalFormatIndex].columnIDs = newSelectedColumnIDs;
+                    const conditionalFormat = newConditionalFormats[conditionalFormatIndex];
+                    if (conditionalFormat === undefined) {
+                        console.warn(`Unable to update conditional formatting columns: format ${props.conditionalFormat.format_uuid} was not found.`);
+                        return;
+                    }
+                    conditionalFormat.columnIDs = newSelectedColumnIDs;
                     props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                 }}
                 getDisplayColumnHeaderOverride={(columnID, columnHeader) => {
@@ -149,13 +167,18 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
             />
             {invalidColumnIDMessage}
             <Filter
-                filter={props.conditionalFormat.filters[0]}
+                filter={firstFilter}
                 columnDtype={undefined}
                 operator={"And"}
                 displayOperator={false}
                 setFilter={(newFilter) => {
                     const newConditionalFormats = [...props.df_format.conditional_formats];
-                    newConditionalFormats[conditionalFormatIndex].filters = [newFilter];
+                    const conditionalFormat = newConditionalFormats[conditionalFormatIndex];
+                    if (conditionalFormat === undefined) {
+                        console.warn(`Unable to update conditional formatting filter: format ${props.conditionalFormat.format_uuid} was not found.`);
+                        return;
+                    }
+                    conditionalFormat.filters = [newFilter];
                     props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                 }}
                 nameLength='long_name'
@@ -165,7 +188,12 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                 color={color}
                 onChange={(newColor) => {
                     const newConditionalFormats = [...props.df_format.conditional_formats];
-                    newConditionalFormats[conditionalFormatIndex].color = newColor;
+                    const conditionalFormat = newConditionalFormats[conditionalFormatIndex];
+                    if (conditionalFormat === undefined) {
+                        console.warn(`Unable to update conditional formatting text color: format ${props.conditionalFormat.format_uuid} was not found.`);
+                        return;
+                    }
+                    conditionalFormat.color = newColor;
                     props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                 }}              
             />
@@ -174,7 +202,12 @@ const ConditionalFormattingCard = (props: ConditionalFormattingProps): JSX.Eleme
                 color={backgroundColor}
                 onChange={(newColor) => {
                     const newConditionalFormats = [...props.df_format.conditional_formats];
-                    newConditionalFormats[conditionalFormatIndex].backgroundColor = newColor;
+                    const conditionalFormat = newConditionalFormats[conditionalFormatIndex];
+                    if (conditionalFormat === undefined) {
+                        console.warn(`Unable to update conditional formatting background color: format ${props.conditionalFormat.format_uuid} was not found.`);
+                        return;
+                    }
+                    conditionalFormat.backgroundColor = newColor;
                     props.updateDataframeFormatParams({...props.df_format, conditional_formats: newConditionalFormats});
                 }}              
             />

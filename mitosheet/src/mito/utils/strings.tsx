@@ -44,7 +44,9 @@ export const fuzzyMatch = (stringOne: string, stringTwo: string): number => {
 
     for (let i = 0; i < possibleTypos.length; i++) {
         for (let j = 0; j < stringOneIgnoredCharacters.length; j++) {
-            if (stringOneIgnoredCharacters[j].includes(possibleTypos[i])) {
+            const candidate = possibleTypos[i];
+            const haystack = stringOneIgnoredCharacters[j];
+            if (candidate !== undefined && haystack !== undefined && haystack.includes(candidate)) {
                 return 1;
             }
         }

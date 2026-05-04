@@ -61,6 +61,9 @@ export const isAnyElementWithSelectorEntirelyVisible = (element: HTMLElement, qu
 
     for (let i = 0; i < nodeList.length; i++) {
         const node = nodeList[i];
+        if (node === undefined) {
+            continue;
+        }
         if (checkElementIsVisible(node)) {
             return true;
         }

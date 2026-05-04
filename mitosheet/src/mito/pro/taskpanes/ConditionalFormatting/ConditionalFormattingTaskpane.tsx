@@ -121,6 +121,10 @@ const ConditionalFormattingTaskpane = (props: ConditionalFormattingTaskpaneProps
     }
 
     const sheetData = props.sheetDataArray[params.sheet_index];
+    if (sheetData === undefined) {
+        console.warn(`Unable to render conditional formatting taskpane: missing sheet data for sheet index ${params.sheet_index}.`);
+        return <DefaultEmptyTaskpane setUIState={props.setUIState}/>;
+    }
     const conditionalFormats = params.df_format.conditional_formats
     // If the user is opening this with a starting column ID, we want to open to that conditional format
     // If the user is opening this otherwise, we want to open the first conditional format.

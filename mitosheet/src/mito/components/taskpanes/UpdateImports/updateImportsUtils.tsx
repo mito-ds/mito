@@ -59,7 +59,7 @@ export const getOriginalAndUpdatedDataframeCreationDataPairs = (originalStepImpo
     const newImports = originalStepImportData !== undefined && updatedStepImportData === undefined ? originalImports : getAllDataframeCreationData(updatedStepImportData);
 
     return originalImports.map((dfCreationData, index): [DataframeCreationData, DataframeCreationData] => {
-        return [dfCreationData, newImports[index]];
+        return [dfCreationData, newImports[index] ?? dfCreationData];
     })
 }
 
@@ -119,7 +119,7 @@ export const updateAllSnowflakeImports = (
     }
 
     updatedStepImportData.forEach((updatedStepImport, idx) => {
-        if (updatedStepImport.imports[0].step_type === 'snowflake_import') {
+        if (updatedStepImport.imports[0]?.step_type === 'snowflake_import') {
             updateDataframeCreation(
                 idx,
                 updatedStepImport.imports[0],

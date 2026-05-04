@@ -51,7 +51,7 @@ export const getDefaultParams = (selectedSheetIndex: number, sheetDataArray: She
 
     return {
         sheet_index: selectedSheetIndex,
-        column_ids: Object.keys(sheetDataArray[selectedSheetIndex]?.columnIDsMap),
+        column_ids: Object.keys(sheetDataArray[selectedSheetIndex]?.columnIDsMap ?? {}),
         keep: 'first',
     }
 }
@@ -103,10 +103,11 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
                     sheetIndex={params.sheet_index}
                     onChange={(newSheetIndex) => {
                         setParams(dropDuplicateParams => {
+                            const newSheetData = props.sheetDataArray[newSheetIndex];
                             return {
                                 ...dropDuplicateParams,
                                 sheet_index: newSheetIndex,
-                                column_ids: props.sheetDataArray[newSheetIndex].data.map(c => c.columnID),
+                                column_ids: newSheetData?.data.map(c => c.columnID) ?? [],
                             }
                         })
 
@@ -197,4 +198,3 @@ const DropDuplicatesTaskpane = (props: DropDuplicatesProps): JSX.Element => {
 };
 
 export default DropDuplicatesTaskpane;
-

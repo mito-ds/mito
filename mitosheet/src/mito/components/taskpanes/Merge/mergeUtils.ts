@@ -20,7 +20,8 @@ export const getFirstSuggestedMergeKeys = (sheetDataArray: SheetData[], sheetOne
     const columnIDsWithSharedColumnHeaders: ([ColumnID, ColumnID] | undefined)[] = sheetOneEntries.map(([columnID, columnHeader]) => {
         const matchingIndex = sheetTwoEntries.findIndex(([, otherColumnHeader]) => {return getDisplayColumnHeader(columnHeader) === getDisplayColumnHeader(otherColumnHeader)});
         if (matchingIndex > -1) {
-            return [columnID, sheetTwoEntries[matchingIndex][0]];
+            const matchingEntry = sheetTwoEntries[matchingIndex];
+            return matchingEntry === undefined ? undefined : [columnID, matchingEntry[0]];
         } else {
             return undefined;
         }

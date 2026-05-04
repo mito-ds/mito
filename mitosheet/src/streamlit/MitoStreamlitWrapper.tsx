@@ -121,8 +121,12 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
                     clearInterval(interval);
 
                     const response = unconsumedResponses[index];
+                    if (response === undefined) {
+                        console.warn(`Response index ${index} was unavailable for message ${id}.`);
+                        return;
+                    }
 
-                    if (response['event'] == 'error') {
+                    if (response.event == 'error') {
                         return resolve({
                             error: response.error,
                             errorShort: response.errorShort,
@@ -137,7 +141,7 @@ class MitoStreamlitWrapper extends StreamlitComponentBase<State> {
                         sheetDataArray: sharedVariables ? getSheetDataArrayFromString(sharedVariables.sheet_data_json) : undefined,
                         analysisData: sharedVariables ? getAnalysisDataFromString(sharedVariables.analysis_data_json) : undefined,
                         userProfile: sharedVariables ? getUserProfileFromString(sharedVariables.user_profile_json) : undefined,
-                        result: response['data'] as ResultType
+                        result: response.data as ResultType
                     });
                 }
             }, RETRY_DELAY);

@@ -36,12 +36,25 @@ export const calculateCurrentSheetView = (
         }
     }
 
+    const currentWidthData = gridState.widthDataArray[gridState.sheetIndex];
+    if (currentWidthData === undefined) {
+        return {
+            startingRowIndex: Math.max(Math.floor(gridState.scrollPosition.scrollTop / DEFAULT_HEIGHT), 0),
+            numRowsRendered: Math.ceil(gridState.viewport.height / DEFAULT_HEIGHT) + 3,
+            startingColumnIndex: 0,
+            numColumnsRendered: 0
+        }
+    }
+
     let foundStart = false;
     let startingColumnIndex = 0;
     let numColumnsRendered = 0;
 
-    for (let i = 0; i < gridState.widthDataArray[gridState.sheetIndex].widthArray.length; i++) {
-        const totalWidth = gridState.widthDataArray[gridState.sheetIndex].widthSumArray[i];
+    for (let i = 0; i < currentWidthData.widthArray.length; i++) {
+        const totalWidth = currentWidthData.widthSumArray[i];
+        if (totalWidth === undefined) {
+            continue;
+        }
 
         if (!foundStart && totalWidth > gridState.scrollPosition.scrollLeft) {
             startingColumnIndex = i;
@@ -51,7 +64,7 @@ export const calculateCurrentSheetView = (
         if (foundStart && totalWidth > (gridState.scrollPosition.scrollLeft + gridState.viewport.width)) {
             numColumnsRendered = i - startingColumnIndex + 1;
             break;
-        } else if (i === gridState.widthDataArray[gridState.sheetIndex].widthArray.length - 1) {
+        } else if (i === currentWidthData.widthArray.length - 1) {
             // If we reach the end of the columns without running out of space to display them
             // then we should just display all of them 
             numColumnsRendered = i - startingColumnIndex + 1
@@ -80,9 +93,12 @@ export const calculateCurrentSheetView = (
 */
 export const calculateTranslate = (gridState: GridState): RendererTranslate => {
     const currentSheetView = calculateCurrentSheetView(gridState);
+    const previousWidthSum = currentSheetView.startingColumnIndex === 0
+        ? 0
+        : gridState.widthDataArray[gridState.sheetIndex]?.widthSumArray[currentSheetView.startingColumnIndex - 1] ?? 0;
 
     return {
-        x: gridState.scrollPosition.scrollLeft - (currentSheetView.startingColumnIndex === 0 ? 0 : gridState.widthDataArray[gridState.sheetIndex].widthSumArray[currentSheetView.startingColumnIndex - 1]),
+        x: gridState.scrollPosition.scrollLeft - previousWidthSum,
         y: gridState.scrollPosition.scrollTop % (DEFAULT_HEIGHT),
     }
 }

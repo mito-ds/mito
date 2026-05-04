@@ -194,7 +194,7 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                             onClick={() => {
                                 setParams((prevParams) => {
                                     const newRangeImports = window.structuredClone(prevParams.range_imports);
-                                    const previousType = newRangeImports.length > 0 ? newRangeImports[0].type : 'range'; // add whatever the previous range is
+                                    const previousType = newRangeImports.length > 0 ? (newRangeImports[0]?.type ?? 'range') : 'range'; // add whatever the previous range is
                                     if (previousType === 'range') {
                                         newRangeImports.unshift({'type': 'range', 'df_name': '', 'value': ''})
                                     } else {
@@ -265,6 +265,9 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
                                             const newDfName = e.target.value;
                                             setParams((prevParams) => {
                                                 const newRangeImports = window.structuredClone(prevParams.range_imports);
+                                                if (newRangeImports[index] === undefined) {
+                                                    return prevParams;
+                                                }
                                                 newRangeImports[index].df_name = newDfName;
                                                 return {
                                                     ...prevParams,
@@ -293,6 +296,9 @@ const ExcelRangeImportTaskpane = (props: ExcelRangeImportTaskpaneProps): JSX.Ele
 
                                                 const previousRangeImport = prevParams.range_imports[index];
                                                 let newRangeImport = prevParams.range_imports[index];
+                                                if (previousRangeImport === undefined || newRangeImport === undefined) {
+                                                    return prevParams;
+                                                }
                                                 
                                                 if (newRangeImportType === 'range') {
                                                     newRangeImport = {

@@ -70,14 +70,29 @@ export const getColumnHeaderParts = (columnHeader: ColumnHeader): {lowerLevelCol
         // of empty strings as the lower level headers. This is just a visual trick to make things
         // look consistent and readable
         if (isSingleStringMultiIndexHeader(columnHeader)) {
+            const finalColumnHeader = columnHeader[0];
+            if (finalColumnHeader === undefined) {
+                console.warn('Encountered an empty multi-index column header.');
+                return {
+                    lowerLevelColumnHeaders: columnHeader.slice(1),
+                    finalColumnHeader: ''
+                }
+            }
             return {
                 lowerLevelColumnHeaders: columnHeader.slice(1),
-                finalColumnHeader: columnHeader[0]
+                finalColumnHeader
             }
         }
 
         const lowerLevelColumnHeaders = columnHeader.slice(0, columnHeader.length - 1);
         const finalColumnHeader = columnHeader[columnHeader.length - 1];
+        if (finalColumnHeader === undefined) {
+            console.warn('Encountered an empty column header while splitting header parts.');
+            return {
+                lowerLevelColumnHeaders: lowerLevelColumnHeaders,
+                finalColumnHeader: ''
+            }
+        }
         return {
             lowerLevelColumnHeaders: lowerLevelColumnHeaders,
             finalColumnHeader: finalColumnHeader
@@ -102,13 +117,18 @@ export const rowIndexToColumnHeaderLevel = (columnHeader: MultiIndexColumnHeader
 export const getFirstCharactersOfColumnHeaders = (columnHeaders: ColumnHeader[], num: number): [string, number] => {
     const columnHeadersCopy = [...columnHeaders]
     let charsRemaining = num
-    const columnHeadersToDisplay = []
+    const columnHeadersToDisplay: string[] = []
     while (columnHeadersCopy.length > 0 && charsRemaining > 0) {
         const nextFullString = getDisplayColumnHeader(columnHeadersCopy.shift() || '')
         let nextPartialString = ''
         for (let i = 0; i < nextFullString.length; i++) {
+            const nextCharacter = nextFullString[i];
             if (charsRemaining > 0) {
-                nextPartialString += nextFullString[i];
+                if (nextCharacter === undefined) {
+                    console.warn('Encountered an unexpected undefined character while formatting column headers.');
+                    break;
+                }
+                nextPartialString += nextCharacter;
                 charsRemaining--;
             }
         }
@@ -131,5 +151,10 @@ export const getNewColumnHeader = (): string => {
 }
 
 export const getColumnIDByIndex = (sheetData: SheetData, columnIndex: number): ColumnID => {
-    return Object.keys(sheetData.columnIDsMap)[columnIndex]
+    const columnID = Object.keys(sheetData.columnIDsMap)[columnIndex]
+    if (columnID === undefined) {
+        console.warn(`No column ID was available for column index ${columnIndex}.`);
+        return '';
+    }
+    return columnID
 }

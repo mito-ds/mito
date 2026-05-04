@@ -68,8 +68,9 @@ export const FormulaTabContents = (
                             })
                             void (props.mitoContainerRef.current?.querySelector('#cell-editor-input') as HTMLElement).focus();
                         } else {
-                            const rowIndex = props.gridState.selections[0].startingRowIndex;
-                            const columnIndex = props.gridState.selections[0].startingColumnIndex;
+                            const firstSelection = props.gridState.selections[0];
+                            const rowIndex = firstSelection?.startingRowIndex ?? 0;
+                            const columnIndex = firstSelection?.startingColumnIndex ?? 0;
                             const {startingColumnFormula, arrowKeysScrollInFormula, editingMode} = getStartingFormula(props.sheetData, props.editorState, rowIndex, columnIndex, false);
                             const newFormula = `=${functionObject.function}(${startingColumnFormula.startsWith('=') ? startingColumnFormula.substring(1) : startingColumnFormula}`;
 
@@ -80,7 +81,7 @@ export const FormulaTabContents = (
                                 arrowKeysScrollInFormula: arrowKeysScrollInFormula,
                                 editorLocation: 'cell',
                                 editingMode: editingMode,
-                                sheetIndex: props.gridState.selections[0].sheetIndex,
+                                sheetIndex: firstSelection?.sheetIndex ?? props.gridState.sheetIndex,
                             })
                         }
                     }}

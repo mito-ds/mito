@@ -45,13 +45,24 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
             <MultiToggleBox
                 searchable
                 onToggleAll={(newSelectedIndexes) => {
-                    const newSelectedColumnIDs = newSelectedIndexes.map(index => {return columnIDs[index]});
+                    const newSelectedColumnIDs = newSelectedIndexes.flatMap(index => {
+                        const columnID = columnIDs[index];
+                        if (columnID === undefined) {
+                            console.warn(`Column index ${index} did not resolve to a column ID.`);
+                            return [];
+                        }
+                        return [columnID];
+                    });
                     props.onChange(newSelectedColumnIDs);
                 }}
                 height='medium'
             >
-                {[...columnIDsAndDtype.map(([columnID, columnDtype], index) => {
+                {columnIDsAndDtype.flatMap(([columnID, columnDtype], index) => {
                     const columnHeader = columnIDsMap[columnID];
+                    if (columnHeader === undefined) {
+                        console.warn(`Column header was unavailable for column ID ${columnID}.`);
+                        return [];
+                    }
 
                     const toggle = props.selectedColumnIDs.includes(columnID);
                     const disabled = (props.disabledColumnIDs !== undefined && props.disabledColumnIDs.includes(columnID)) 
@@ -61,7 +72,7 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
                         ? props.getDisplayColumnHeaderOverride(columnID, columnHeader)
                         : getDisplayColumnHeader(columnHeader);
 
-                    return (
+                    return [(
                         <MultiToggleItem
                             key={index}
                             index={index}
@@ -75,9 +86,9 @@ const MultiToggleColumns = (props: MultiToggleColumnsProps): JSX.Element => {
                             }}
                             disabled={disabled}
                         />
-                    ) 
+                    )]
                 })
-                ]}
+                }
             </MultiToggleBox>
         </div>
     )

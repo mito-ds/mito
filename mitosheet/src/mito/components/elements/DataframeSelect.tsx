@@ -55,6 +55,10 @@ const DataframeSelect = (props: DataframeSelectPros): JSX.Element => {
         .map(sheetData => sheetData.dfName)
         .filter((dfName, sheetIndex) => {return sheetIndex !== props.sheetIndexToIgnore})
     );
+    const selectedDfName = dfNames[props.sheetIndex];
+    if (selectedDfName === undefined) {
+        console.warn(`No dataframe name was available for sheet index ${props.sheetIndex}.`);
+    }
 
     return (
         <Row justify='space-between' align='center' title={props.title}>
@@ -66,7 +70,7 @@ const DataframeSelect = (props: DataframeSelectPros): JSX.Element => {
             <Col span={props.span}>
                 <Select
                     width={props.span === undefined ? 'medium' : undefined}
-                    value={dfNames[props.sheetIndex]}
+                    value={selectedDfName ?? ''}
                     onChange={(newDfName: string) => {
                         const newSheetIndex = dfNames.findIndex((dfName) => dfName === newDfName);
                         // Only callback on real changes

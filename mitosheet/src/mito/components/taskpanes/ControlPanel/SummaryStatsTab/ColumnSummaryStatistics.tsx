@@ -70,10 +70,11 @@ function ColumnSummaryStatistics(props: ColumnDescribeChartProps): JSX.Element {
                             
                             // Add the format, if there is one for this column
                             if (KEY_TO_FORMAT_WITH_COLUMN_FORMAT.includes(key)) {
-                                valueToDisplay = formatCellData(value, props.columnDtype, props.columnFormat)
+                                valueToDisplay = formatCellData(value ?? '', props.columnDtype, props.columnFormat)
                             } 
 
                             // We clip data at 15 letters for now. We also format
+                            valueToDisplay = valueToDisplay ?? '';
                             valueToDisplay = valueToDisplay.substring(0, 15) + (valueToDisplay.length > 15 ? '...' : '')
 
                             return (

@@ -478,13 +478,14 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const dfSources = sheetDataArray.map(sheetData => sheetData.dfSource);
 
     const lastStepSummary = analysisData.stepSummaryList[analysisData.stepSummaryList.length - 1];
+    const currentSelection = gridState.selections[gridState.selections.length - 1];
 
     // Get the column id of the currently selected column. We always default to the 
     // top left corner of the last selection
     const {columnID} = getCellDataFromCellIndexes(
         sheetDataArray[uiState.selectedSheetIndex], 
-        gridState.selections[gridState.selections.length - 1].startingRowIndex, 
-        gridState.selections[gridState.selections.length - 1].startingColumnIndex
+        currentSelection?.startingRowIndex ?? -1, 
+        currentSelection?.startingColumnIndex ?? -1
     );
 
     /* 
@@ -569,14 +570,19 @@ export const Mito = (props: MitoProps): JSX.Element => {
                 />
             )
             case ModalEnum.DeleteGraphs: return (
+                (() => {
+                    const modalSheetData = sheetDataArray[uiState.currOpenModal.sheetIndex];
+                    return (
                 <DeleteGraphsModal
                     setUIState={setUIState}
                     mitoAPI={mitoAPI}
                     graphDataArray={analysisData.graphDataArray}
                     sheetIndex={uiState.currOpenModal.sheetIndex}
                     dependantGraphTabNamesAndIDs={uiState.currOpenModal.dependantGraphTabNamesAndIDs}
-                    dfName={sheetDataArray[uiState.currOpenModal.sheetIndex] ? sheetDataArray[uiState.currOpenModal.sheetIndex].dfName : 'this dataframe'}
+                    dfName={modalSheetData?.dfName ?? 'this dataframe'}
                 />
+                    );
+                })()
             )
             case ModalEnum.UserEditedCode: return (
                 <UserEditedCodeModal
@@ -595,6 +601,9 @@ export const Mito = (props: MitoProps): JSX.Element => {
     const getCurrOpenTaskpane = (): JSX.Element => {
         switch(uiState.currOpenTaskpane.type) {
             case TaskpaneType.CONTROL_PANEL: 
+                if (lastStepSummary === undefined || currentSelection === undefined) {
+                    return <></>;
+                }
                 return (
                     <ControlPanelTaskpane 
                         // Set the columnHeader, sheet index as the key so that the taskpane updates when it is switched
@@ -602,7 +611,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                         key={'' + columnID + uiState.selectedSheetIndex + uiState.selectedColumnControlPanelTab} 
                         selectedSheetIndex={uiState.selectedSheetIndex}
                         sheetData={sheetDataArray[uiState.selectedSheetIndex]}
-                        selection={gridState.selections[gridState.selections.length - 1]} 
+                        selection={currentSelection} 
                         gridState={gridState}
                         mitoContainerRef={mitoContainerRef}
                         setUIState={setUIState} 
@@ -977,6 +986,8 @@ export const Mito = (props: MitoProps): JSX.Element => {
 
     const [resizingTaskpane, setResizingTaskpane] = useState(false);
 
+    const selectedSheetData = sheetDataArray[uiState.selectedSheetIndex];
+
     return (
         <div 
             className="mito-container" 
@@ -1065,7 +1076,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
             }}
         >
             <ErrorBoundary mitoAPI={mitoAPI} analyisData={analysisData} userProfile={userProfile} sheetDataArray={sheetDataArray}>
-                <Toolbar
+                {lastStepSummary !== undefined && selectedSheetData !== undefined && <Toolbar
                     mitoAPI={mitoAPI}
                     currStepIdx={analysisData.currStepIdx}
                     lastStepIndex={lastStepSummary.step_idx}
@@ -1075,7 +1086,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     setGridState={setGridState}
                     uiState={uiState}
                     setUIState={setUIState}
-                    sheetData={sheetDataArray[uiState.selectedSheetIndex]}
+                    sheetData={selectedSheetData}
                     sheetDataArray={sheetDataArray}
                     userProfile={userProfile}
                     editorState={editorState}
@@ -1084,7 +1095,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     sheetIndex={uiState.selectedSheetIndex}
                     closeOpenEditingPopups={closeOpenEditingPopups}
                     hideFullscreenButton={props.hideFullscreenButton}
-                />
+                />}
                 <div className="mito-center-content-container" id="mito-center-content-container"> 
                     <div 
                         className={formulaBarAndSheetClassNames}
@@ -1168,7 +1179,7 @@ export const Mito = (props: MitoProps): JSX.Element => {
                     If the step index of the last step isn't the current step,
                     then we are out of date, and we tell the user this.
                 */}
-                {analysisData.currStepIdx !== lastStepSummary.step_idx && 
+                {lastStepSummary !== undefined && analysisData.currStepIdx !== lastStepSummary.step_idx && 
                     <CatchUpPopup
                         fastForward={() => {
                             void mitoAPI.updateCheckoutStepByIndex(lastStepSummary.step_idx);

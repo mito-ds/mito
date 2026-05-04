@@ -26,16 +26,27 @@ const getCopyStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex
                 // There is nothing to copy here, so just skip it. We just keep this
                 // case for symmetry
             } else {
-                copyString += getDisplayColumnHeader(sheetData.data[columnIndex].columnHeader)
+                const column = sheetData.data[columnIndex];
+                if (column !== undefined) {
+                    copyString += getDisplayColumnHeader(column.columnHeader)
+                }
             }
         } else {
             if (columnIndex === -1) {
-                copyString += sheetData.index[rowIndex];
+                const indexLabel = sheetData.index[rowIndex];
+                if (indexLabel !== undefined) {
+                    copyString += indexLabel;
+                }
             } else {
                 const columnID = getColumnIDByIndex(sheetData, columnIndex);
+                const column = sheetData.data[columnIndex];
+                if (column === undefined) {
+                    continue;
+                }
+                const cellValue = column.columnData[rowIndex];
                 copyString += getCopyStringForValue(
-                    sheetData.data[columnIndex].columnData[rowIndex],
-                    sheetData.data[columnIndex].columnDtype,
+                    cellValue ?? '',
+                    column.columnDtype,
                     sheetData.dfFormat.columns[columnID],
                 )
             }
@@ -50,10 +61,14 @@ const getCopyStringForRow = (sheetData: SheetData, rowIndex: number, lowColIndex
 }
 
 const getSelectionsToCopy = (selections: MitoSelection[]): MitoSelection[] => {
-    const lowRowIndex = Math.min(selections[0].startingRowIndex, selections[0].endingRowIndex);
-    const highRowIndex = Math.max(selections[0].startingRowIndex, selections[0].endingRowIndex);
+    const firstSelection = selections[0];
+    if (firstSelection === undefined) {
+        return [];
+    }
+    const lowRowIndex = Math.min(firstSelection.startingRowIndex, firstSelection.endingRowIndex);
+    const highRowIndex = Math.max(firstSelection.startingRowIndex, firstSelection.endingRowIndex);
 
-    const finalSelections = [selections[0]]
+    const finalSelections = [firstSelection]
 
     // If the are multiple selections, we greedily take all those that have the same row bounds and size
     // and quit as soon as we hit a selection that does not meet this criteria. NOTE: Excel does something
@@ -61,6 +76,9 @@ const getSelectionsToCopy = (selections: MitoSelection[]): MitoSelection[] => {
     // So, this is a fine solution and likely something very rare anyways.
     for (let i = 1; i < selections.length; i++) {
         const selection = selections[i];
+        if (selection === undefined) {
+            continue;
+        }
         const selectionLowRowIndex = Math.min(selection.startingRowIndex, selection.endingRowIndex);
         const selectionHighRowIndex = Math.max(selection.startingRowIndex, selection.endingRowIndex);
 
@@ -82,9 +100,12 @@ const getSelectionsToCopy = (selections: MitoSelection[]): MitoSelection[] => {
 }
 
 const getCopyStringForSelections = (sheetData: SheetData, selections: MitoSelection[]): string => {
-
-    const lowRowIndex = Math.min(selections[0].startingRowIndex, selections[0].endingRowIndex);
-    let highRowIndex = Math.max(selections[0].startingRowIndex, selections[0].endingRowIndex);
+    const firstSelection = selections[0];
+    if (firstSelection === undefined) {
+        return '';
+    }
+    const lowRowIndex = Math.min(firstSelection.startingRowIndex, firstSelection.endingRowIndex);
+    let highRowIndex = Math.max(firstSelection.startingRowIndex, firstSelection.endingRowIndex);
     
     // If we only have column headers selected, then we actually want to take the entire column
     // making sure to not take more rows than there are

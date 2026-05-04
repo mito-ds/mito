@@ -58,7 +58,8 @@ const Tour = (props: {
         The useEffect is fired each time the stepNumber changes.
     */ 
     useEffect(() => {
-        if (steps[stepNumber].tourName === TourName.PIVOT && steps[stepNumber].stepNumber === 1) {
+        const currentStep = steps[stepNumber];
+        if (currentStep?.tourName === TourName.PIVOT && currentStep.stepNumber === 1) {
             props.setHighlightPivotTableButton(true)
         } else {
             props.setHighlightPivotTableButton(false)
@@ -68,14 +69,16 @@ const Tour = (props: {
 
     // Go to stepNumber if it exists, otherwise close the tour
     const goToStep = (newStepNumber: number) => {
+        const currentStep = steps[stepNumber];
+        const nextStep = steps[newStepNumber];
         if (newStepNumber <= steps.length - 1) {
             // Log switching steps
             void props.mitoAPI.log(
                 'switched_tour_step',
                 {
-                    'old_tour_name': steps[stepNumber].tourName,
+                    'old_tour_name': currentStep?.tourName,
                     'old_tour_step': stepNumber,
-                    'new_tour_name': steps[newStepNumber].tourName,
+                    'new_tour_name': nextStep?.tourName,
                     'new_tour_step': newStepNumber,
                     'tour_names': props.tourNames,
                     'total_number_of_tour_steps': steps.length
@@ -115,17 +118,21 @@ const Tour = (props: {
         Retrieve the finalStepText, which is the text displayed in the body of the tour popup.
         Although not enforced by the type system, a tour step should either have a defined stepText of stepTextFunction.
     */ 
-    const stepText = steps[stepNumber].stepText;
-    const stepTextFunction = steps[stepNumber].stepTextFunction;
-    const finalStepText = stepText || (stepTextFunction && stepTextFunction(props.sheetData?.data[0].columnID || ''));
+    const currentStep = steps[stepNumber];
+    if (currentStep === undefined) {
+        return <></>;
+    }
+    const stepText = currentStep.stepText;
+    const stepTextFunction = currentStep.stepTextFunction;
+    const finalStepText = stepText || (stepTextFunction && stepTextFunction(props.sheetData?.data[0]?.columnID || ''));
 
     // If we're at a valid step number
     return (
-        <div className={classNames('tour-container', locationToClassNamesMapping[steps[stepNumber].location])} key={stepNumber}>
+        <div className={classNames('tour-container', locationToClassNamesMapping[currentStep.location])} key={stepNumber}>
             <Row>
                 <Col>
                     <p className='text-header-2 text-color-background-important'>
-                        {steps[stepNumber].stepHeader} ({stepNumber + 1}/{steps.length})
+                        {currentStep.stepHeader} ({stepNumber + 1}/{steps.length})
                     </p>
                 </Col>
             </Row>
@@ -154,7 +161,7 @@ const Tour = (props: {
                         width='small'
                         onClick={() => goToStep(stepNumber + 1)}
                     >
-                        {steps[stepNumber].advanceButtonText}
+                        {currentStep.advanceButtonText}
                     </TextButton>
                 </Col>
             </Row>

@@ -42,12 +42,12 @@ const GridData = (props: {
     const oddRowBackgroundColor = sheetData?.dfFormat?.rows?.odd?.backgroundColor || ODD_ROW_BACKGROUND_COLOR_DEFAULT;
     const evenRowTextColor = sheetData?.dfFormat?.rows?.even?.color || ROW_TEXT_COLOR_DEFAULT;
     const oddRowTextColor = sheetData?.dfFormat?.rows?.odd?.color || ROW_TEXT_COLOR_DEFAULT;
+    const columnIDs = sheetData !== undefined ? (getColumnIDsArrayFromSheetDataArray([sheetData])[0] ?? []) : [];
 
     return (
         <>  
             {sheetData && sheetData.numRows > 0 && Array(currentSheetView.numRowsRendered).fill(0).map((_, _rowIndex) => {
                 const rowIndex = currentSheetView.startingRowIndex + _rowIndex;
-                const columnIDs = getColumnIDsArrayFromSheetDataArray([sheetData])[0]
 
                 const rowClassNames = classNames('mito-grid-row', {
                     'mito-grid-row-even': rowIndex % 2 === 0,
@@ -63,6 +63,9 @@ const GridData = (props: {
                         {Array(currentSheetView.numColumnsRendered).fill(0).map((_, _colIndex) => {
                             const columnIndex = currentSheetView.startingColumnIndex + _colIndex;
                             const columnID = columnIDs[columnIndex]
+                            if (columnID === undefined) {
+                                return null;
+                            }
                             const columnDtype = props.sheetData?.data[columnIndex]?.columnDtype;
                             const index = props.sheetData?.index[rowIndex] !== undefined ? props.sheetData?.index[rowIndex] : 0;
                             const columnFormatType = sheetData.dfFormat.columns[columnID]
@@ -101,7 +104,7 @@ const GridData = (props: {
                                 'recon modified-recon-background-color-dark': isColumnModified && rowIndex % 2 === 0,
                             });
 
-                            const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex].widthArray[columnIndex];
+                            const cellWidth = props.gridState.widthDataArray[props.gridState.sheetIndex]?.widthArray[columnIndex] ?? 0;
 
                             // Format the cell
                             const displayCellData = formatCellData(cellData, columnDtype, columnFormatType)

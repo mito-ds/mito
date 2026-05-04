@@ -208,7 +208,7 @@ const SplitTextToColumnsTaskpane = (props: SplitTextToColumnsTaskpaneProps): JSX
                             )
                         })}
                         <Input 
-                            value={params.delimiters.filter(params_delimiter => !Object.keys(delimiters).includes(params_delimiter))[0]}
+                            value={params.delimiters.filter(params_delimiter => !Object.keys(delimiters).includes(params_delimiter))[0] ?? ''}
                             placeholder="Custom Delimiter" 
                             className='mt-5px'
                             onChange={(e) => {

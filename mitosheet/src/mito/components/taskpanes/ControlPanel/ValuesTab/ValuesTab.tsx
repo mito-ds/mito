@@ -134,10 +134,14 @@ export function ValuesTab(
 
         const uniqueValueCounts: UniqueValueCount[] = [];
         for (let i = 0; i < uniqueValueCountsObj.uniqueValueRowDataArray.length; i++) {
+            const rowData = uniqueValueCountsObj.uniqueValueRowDataArray[i];
+            if (rowData === undefined) {
+                continue;
+            }
             uniqueValueCounts.push({
-                value: uniqueValueCountsObj.uniqueValueRowDataArray[i][0],
-                percentOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][1] as number) * 100,
-                countOccurence: (uniqueValueCountsObj.uniqueValueRowDataArray[i][2] as number),
+                value: rowData[0] ?? '',
+                percentOccurence: ((rowData[1] as number) ?? 0) * 100,
+                countOccurence: (rowData[2] as number) ?? 0,
                 isNotFiltered: true
             })
         }
@@ -169,7 +173,7 @@ export function ValuesTab(
         these are _unique value_ counts. 
     */
     const getUniqueValueCountIndexFromSortedIndex = (index: number): number => {
-        const value = sortedUniqueValueCounts[index].value
+        const value = sortedUniqueValueCounts[index]?.value
         return uniqueValueCounts.findIndex(uniqueValueCount => {
             return uniqueValueCount.value === value
         })
@@ -274,7 +278,9 @@ export function ValuesTab(
                                     const uniqueValueCountIndex = getUniqueValueCountIndexFromSortedIndex(index);
                                     setUniqueValueCounts(oldUniqueValueCounts => {
                                         const newUniqueValueCounts = oldUniqueValueCounts.slice();
-                                        newUniqueValueCounts[uniqueValueCountIndex].isNotFiltered = !uniqueValueCounts[uniqueValueCountIndex].isNotFiltered
+                                        if (newUniqueValueCounts[uniqueValueCountIndex] !== undefined && uniqueValueCounts[uniqueValueCountIndex] !== undefined) {
+                                            newUniqueValueCounts[uniqueValueCountIndex].isNotFiltered = !uniqueValueCounts[uniqueValueCountIndex].isNotFiltered
+                                        }
                                         return newUniqueValueCounts;
                                     })
 
@@ -298,7 +304,9 @@ export function ValuesTab(
                                     const uniqueValueCountIndex = getUniqueValueCountIndexFromSortedIndex(index);
                                     setUniqueValueCounts(oldUniqueValueCounts => {
                                         const newUniqueValueCounts = oldUniqueValueCounts.slice();
-                                        newUniqueValueCounts[uniqueValueCountIndex].isNotFiltered = !uniqueValueCounts[uniqueValueCountIndex].isNotFiltered
+                                        if (newUniqueValueCounts[uniqueValueCountIndex] !== undefined && uniqueValueCounts[uniqueValueCountIndex] !== undefined) {
+                                            newUniqueValueCounts[uniqueValueCountIndex].isNotFiltered = !uniqueValueCounts[uniqueValueCountIndex].isNotFiltered
+                                        }
                                         return newUniqueValueCounts;
                                     })
 

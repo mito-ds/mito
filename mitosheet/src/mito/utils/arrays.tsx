@@ -60,7 +60,13 @@ export function shuffle<T>(array: T[]): T[] {
         currentIndex--;
   
         // And swap it with the current element
-        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        const currentValue = array[currentIndex];
+        const randomValue = array[randomIndex];
+        if (currentValue === undefined || randomValue === undefined) {
+            console.warn('Encountered an unexpected undefined value while shuffling an array.');
+            break;
+        }
+        [array[currentIndex], array[randomIndex]] = [randomValue, currentValue];
     }
   
     return array;

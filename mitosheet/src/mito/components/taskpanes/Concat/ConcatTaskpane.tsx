@@ -35,10 +35,11 @@ interface ConcatTaskpaneProps {
     If any column headers are not included, it reports them to the user.
 */
 const getColumnHeadersIncludedMessage = (notIncludedColumnsArray: ColumnHeader[][], arrIndex: number): JSX.Element => {
-    if (notIncludedColumnsArray[arrIndex].length === 0) {
+    const notIncludedColumns = notIncludedColumnsArray[arrIndex];
+    if (notIncludedColumns === undefined || notIncludedColumns.length === 0) {
         return (<p>&#x2713; All columns are included in the concatenated sheet.</p>)
     } 
-    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(notIncludedColumnsArray[arrIndex], 25)
+    const [columnHeadersString, numOtherColumnHeaders] = getFirstCharactersOfColumnHeaders(notIncludedColumns, 25)
     
     if (numOtherColumnHeaders === 0) {
         return (<p>Columns <span className='text-color-medium-important'>{columnHeadersString}</span> are not included.</p>)

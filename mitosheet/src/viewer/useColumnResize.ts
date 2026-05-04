@@ -200,13 +200,15 @@ export const useColumnResize = (
             // Measure header content (always uses base font)
             if (columnIndex < columns.length) {
                 const column = columns[columnIndex];
-                const headerName =
-                    column.name[columnIndex < indexLevels ? 0 : columnLevels - 1];
-                const headerText = `${headerName} (${column.dtype})`;
-                maxWidth = Math.max(maxWidth, measureTextWidth(headerText, baseFont));
+                if (column !== undefined) {
+                    const headerName =
+                        column.name[columnIndex < indexLevels ? 0 : columnLevels - 1] ?? "";
+                    const headerText = `${headerName} (${column.dtype})`;
+                    maxWidth = Math.max(maxWidth, measureTextWidth(headerText, baseFont));
 
-                // Add space for sort icon (approximately 20px)
-                maxWidth += 20;
+                    // Add space for sort icon (approximately 20px)
+                    maxWidth += 20;
+                }
             }
 
             // Measure cell values in this column
@@ -218,17 +220,25 @@ export const useColumnResize = (
                 : (() => {
                     // Sample strategy: first, last, and evenly spaced middle rows
                     const sampled: any[][] = [];
-                    sampled.push(data[0]); // First row
+                    if (data[0] !== undefined) {
+                        sampled.push(data[0]); // First row
+                    }
                     
                     if (data.length > 2) {
                         const step = Math.ceil((data.length - 2) / (MAX_ROWS_TO_MEASURE - 2));
                         for (let i = 1; i < data.length - 1; i += step) {
-                            sampled.push(data[i]);
+                            const row = data[i];
+                            if (row !== undefined) {
+                                sampled.push(row);
+                            }
                         }
                     }
                     
                     if (data.length > 1) {
-                        sampled.push(data[data.length - 1]); // Last row
+                        const lastRow = data[data.length - 1];
+                        if (lastRow !== undefined) {
+                            sampled.push(lastRow); // Last row
+                        }
                     }
                     
                     return sampled;
@@ -238,7 +248,7 @@ export const useColumnResize = (
             const cellFont = isNumeric ? numericFont : baseFont;
             for (let i = 0; i < rowsToMeasure.length; i++) {
                 const row = rowsToMeasure[i];
-                if (columnIndex < row.length) {
+                if (row !== undefined && columnIndex < row.length) {
                     const cellText = String(row[columnIndex] || "");
                     const cellWidth = measureTextWidth(cellText, cellFont);
                     if (cellWidth > maxWidth) {
@@ -275,4 +285,3 @@ export const useColumnResize = (
         calculateAndAutoResizeColumn,
     };
 };
-

@@ -38,7 +38,7 @@ const SelectAndXIconCard = (props: SelectAndXIconProps): JSX.Element => {
                     searchable
                 >
                     {props.selectableValues.map(id => {
-                        const title = props.titleMap ? props.titleMap[id] : id;
+                        const title = props.titleMap?.[id] ?? id;
                         return (
                             <DropdownItem
                                 key={id}

@@ -77,7 +77,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         props.setFilters((prevFilters) => {
             const newFilters = [...prevFilters];
             const filterGroup = newFilters[groupIndex];
-            if (isFilterGroup(filterGroup)) {
+            if (filterGroup !== undefined && isFilterGroup(filterGroup)) {
                 // If we do have a filter group at that groupIndex, then we add a new filter to it
                 filterGroup.filters.push(
                     getEmptyFilterData(props.columnDtype)
@@ -111,7 +111,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         props.setFilters((prevFilters) => {
             const newFilters = [...prevFilters];
             const filterGroup = newFilters[groupIndex];
-            if (isFilterGroup(filterGroup)) {
+            if (filterGroup !== undefined && isFilterGroup(filterGroup)) {
                 // If we do have a filter group at that groupIndex, then we delete the filter
                 // at the passed filterIndex
                 filterGroup.filters.splice(filterIndex, 1);  
@@ -148,8 +148,10 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         props.setFilters((prevFilters) => {
             const newFilters = [...prevFilters];
             const filterGroup = newFilters[groupIndex];
-            if (isFilterGroup(filterGroup)) {
-                filterGroup.filters[filterIndex] = filter;
+            if (filterGroup !== undefined && isFilterGroup(filterGroup)) {
+                if (filterGroup.filters[filterIndex] !== undefined) {
+                    filterGroup.filters[filterIndex] = filter;
+                }
                 return newFilters;
             } else {
                 // We make no changes if this was not a filter group, which should never occur
@@ -166,7 +168,7 @@ function FilterCard (props: FilterCardProps): JSX.Element {
         props.setFilters((prevFilters) => {
             const newFilters = [...prevFilters];
             const filterGroup = newFilters[groupIndex];
-            if (isFilterGroup(filterGroup)) {
+            if (filterGroup !== undefined && isFilterGroup(filterGroup)) {
                 filterGroup.operator = operator;
                 return newFilters;
             } else {

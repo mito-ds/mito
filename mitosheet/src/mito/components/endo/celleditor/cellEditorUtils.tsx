@@ -59,7 +59,13 @@ export const getFullFormula = (
         return formula;
     }
 
-    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, sheetDataArray[selectedSheetIndex], sheetIndex);
+    const selectedSheetData = sheetDataArray[selectedSheetIndex];
+    if (selectedSheetData === undefined) {
+        console.warn(`No sheet data was available for selected sheet index ${selectedSheetIndex}.`);
+        return formula;
+    }
+
+    const selectionFormulaString = getSelectionFormulaString(pendingSelections.selections, selectedSheetData, sheetIndex);
 
     const beforeSelection = formula.substring(0, pendingSelections.inputSelectionStart);
     const afterSelection = formula.substring(pendingSelections.inputSelectionEnd);
@@ -158,7 +164,14 @@ export const getStartingFormula = (
         } else if (isPrimitiveColumnHeader(columnHeader)) {
             originalValue = getDisplayColumnHeader(columnHeader)
         } else {
-            originalValue = getDisplayColumnHeader(columnHeader[rowIndexToColumnHeaderLevel(columnHeader, rowIndex)]);
+            const columnHeaderLevel = rowIndexToColumnHeaderLevel(columnHeader, rowIndex);
+            const lowerLevelColumnHeader = columnHeader[columnHeaderLevel];
+            if (lowerLevelColumnHeader === undefined) {
+                console.warn(`No column header level was available for row index ${rowIndex}.`);
+                originalValue = ''
+            } else {
+                originalValue = getDisplayColumnHeader(lowerLevelColumnHeader);
+            }
         }
     } else {
         if (columnFormula === undefined || columnFormula === '') {
@@ -286,11 +299,15 @@ export const getSuggestedFunctions = (formula: string, minLength: number, analys
     // If the formula is empty, suggest some placeholder functions, so that the user knows that 
     // functions exist in the first place
     if (formula.length === 0 || formula === '=') {
-        // The order they are in is alphabetical, but we rearrange, so that IF is first
-        const placeholders = functionDocumentationObjects.filter(f => f.function === 'IF' || f.function === 'CONCAT' || f.function === 'DAY');
-        // Rearrrange
-        placeholders.unshift(placeholders[2]);
-        delete placeholders[3];
+        const placeholderFunctions = ['IF', 'CONCAT', 'DAY'];
+        const placeholders = placeholderFunctions.flatMap((functionName) => {
+            const placeholder = functionDocumentationObjects.find(f => f.function === functionName);
+            if (placeholder === undefined) {
+                console.warn(`Missing placeholder documentation for function ${functionName}.`);
+                return [];
+            }
+            return [placeholder];
+        });
 
         return [0, placeholders.map(f => {
             return [f.function, f.description] 
@@ -321,7 +338,7 @@ export const getSuggestedFunctions = (formula: string, minLength: number, analys
                 // We check all the search terms
                 for (let i = 0; i < f.search_terms.length; i++) {
                     const searchTerm = f.search_terms[i];
-                    if (searchTerm.toLowerCase().startsWith(substring)) {
+                    if (searchTerm !== undefined && searchTerm.toLowerCase().startsWith(substring)) {
                         return true
                     }
                 }
@@ -354,9 +371,12 @@ export const getDocumentationFunction = (formula: string, selectionStart: number
     // Loop until we hit a non-function character, building the final function backwards
     let finalFunction = '';
     for (let i = finalParenIndex - 1; i >= 0; i--) {
-        const char = formula[i].toLowerCase();
+        const char = formula[i];
+        if (char === undefined) {
+            break;
+        }
         if (char.match(/^[a-z]+$/i) || char === '_') {
-            finalFunction += char;
+            finalFunction += char.toLowerCase();
         } else {
             break;
         }

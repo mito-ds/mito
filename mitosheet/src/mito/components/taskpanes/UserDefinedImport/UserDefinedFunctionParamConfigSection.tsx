@@ -48,8 +48,12 @@ const UserDefinedFunctionParamConfigSection = (props: {
     let previousSheetIndex = -1;
 
     for (let paramIndex = 0; paramIndex < paramNameAndTypeTuples.length; paramIndex++) {
-        const [paramName, paramType] = paramNameAndTypeTuples[paramIndex];
-        const paramValue = params[paramName];
+        const paramNameAndType = paramNameAndTypeTuples[paramIndex];
+        if (paramNameAndType === undefined) {
+            continue;
+        }
+        const [paramName, paramType] = paramNameAndType;
+        const paramValue = params[paramName] ?? '';
         const paramDisplayName = getDisplayNameOfPythonVariable(paramName)
         
         let inputElement = null;
@@ -64,6 +68,9 @@ const UserDefinedFunctionParamConfigSection = (props: {
                     span={8}
                     onChange={(newSheetIndex) => {
                         const newSheetData = props.sheetDataArray[newSheetIndex];
+                        if (newSheetData === undefined) {
+                            return;
+                        }
                         const newValue = newSheetData.dfName;
                         const newParams = window.structuredClone(params);
                         newParams[paramName] = newValue;
@@ -71,7 +78,11 @@ const UserDefinedFunctionParamConfigSection = (props: {
                         // Find all later parameters that are ColumnHeader typed, before the next DataFrame typed parameter
                         // And set them to the first column in this new dataframe
                         for (let laterParamIndex = paramIndex + 1; laterParamIndex < paramNameAndTypeTuples.length; laterParamIndex++) {
-                            const [laterParamName, laterParamType] = paramNameAndTypeTuples[laterParamIndex];
+                            const laterParamEntry = paramNameAndTypeTuples[laterParamIndex];
+                            if (laterParamEntry === undefined) {
+                                continue;
+                            }
+                            const [laterParamName, laterParamType] = laterParamEntry;
                             if (laterParamType === 'ColumnHeader') {
                                 newParams[laterParamName] = Object.keys(newSheetData.columnIDsMap)[0] || '';
                             } else if (laterParamType === 'DataFrame') {
@@ -190,7 +201,7 @@ const UserDefinedFunctionParamConfigSection = (props: {
                                 <Row key={index}>
                                     <Input
                                         key={'key' + index}
-                                        value={dictKey}
+                                        value={dictKey ?? ''}
                                         onChange={(e) => {
                                             const newValues = [...paramValues];
                                             const newDictKey = e.target.value;
@@ -204,7 +215,7 @@ const UserDefinedFunctionParamConfigSection = (props: {
                                     />
                                     <Input
                                         key={'value' + index}
-                                        value={dictValue}
+                                        value={dictValue ?? ''}
                                         onChange={(e) => {
                                             const newValues = [...paramValues];
                                             const newDictValue = e.target.value;
@@ -271,4 +282,3 @@ const UserDefinedFunctionParamConfigSection = (props: {
 }
 
 export default UserDefinedFunctionParamConfigSection;
-

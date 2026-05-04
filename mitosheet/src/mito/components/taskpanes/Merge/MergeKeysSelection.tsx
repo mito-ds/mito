@@ -48,6 +48,9 @@ const MergeKeysSelectionSection = (props: {
                                 onChange={(columnID: ColumnID) => {
                                     props.setParams(prevParams => {
                                         const newMergeKeys = [...prevParams.merge_key_column_ids];
+                                        if (newMergeKeys[index] === undefined) {
+                                            return prevParams;
+                                        }
                                         newMergeKeys[index][0] = columnID
                                         return {
                                             ...prevParams,
@@ -77,6 +80,9 @@ const MergeKeysSelectionSection = (props: {
                                 onChange={(columnID: ColumnID) => {
                                     props.setParams(prevParams => {
                                         const newMergeKeys = [...prevParams.merge_key_column_ids];
+                                        if (newMergeKeys[index] === undefined) {
+                                            return prevParams;
+                                        }
                                         newMergeKeys[index][1] = columnID
                                         return {
                                             ...prevParams,

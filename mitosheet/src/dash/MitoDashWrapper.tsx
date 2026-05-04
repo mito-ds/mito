@@ -91,8 +91,12 @@ export default class MitoDashWrapper extends Component<Props, State> {
                     clearInterval(interval);
 
                     const response = unconsumedResponses[index];
+                    if (response === undefined) {
+                        console.warn(`Response index ${index} was unavailable for message ${messageID}.`);
+                        return;
+                    }
 
-                    if (response['event'] == 'error') {
+                    if (response.event == 'error') {
                         return resolve({
                             error: response.error,
                             errorShort: response.errorShort,
@@ -107,7 +111,7 @@ export default class MitoDashWrapper extends Component<Props, State> {
                         sheetDataArray: sharedVariables ? getSheetDataArrayFromString(sharedVariables.sheet_data_json) : undefined,
                         analysisData: sharedVariables ? getAnalysisDataFromString(sharedVariables.analysis_data_json) : undefined,
                         userProfile: sharedVariables ? getUserProfileFromString(sharedVariables.user_profile_json) : undefined,
-                        result: response['data'] as ResultType
+                        result: response.data as ResultType
                     });
                 }
             }, RETRY_DELAY);
@@ -118,7 +122,13 @@ export default class MitoDashWrapper extends Component<Props, State> {
     processQueue = () => {
         if (this.state.messageQueue.length > 0) {
             // Send one message
-            const [messageType, message] = this.state.messageQueue[0];
+            const nextMessage = this.state.messageQueue[0];
+            if (nextMessage === undefined) {
+                console.warn('Message queue was unexpectedly empty while processing.');
+                this.setState({ isSendingMessages: false });
+                return;
+            }
+            const [messageType, message] = nextMessage;
 
             this.props.setProps({
                 [messageType]: message

@@ -30,7 +30,12 @@ export const getWidthData = (sheetData: SheetData | undefined, defaultWidthData:
     const widthSumArray = new Array<number>(sheetData.numColumns);
 
     for (let columnIndex = 0; columnIndex < sheetData.data.length; columnIndex++) {
-        const columnID = sheetData.data[columnIndex].columnID;
+        const column = sheetData.data[columnIndex];
+        if (column === undefined) {
+            console.warn(`No column data was available for column index ${columnIndex}.`);
+            continue;
+        }
+        const columnID = column.columnID;
         let columnWidth = DEFAULT_WIDTH;
         if (defaultWidthData !== undefined) {
             // If the defaultWidthData does not have this columnID stored, then take the default width
@@ -39,7 +44,7 @@ export const getWidthData = (sheetData: SheetData | undefined, defaultWidthData:
 
         // NOTE that this is the width after this item!
         widthArray[columnIndex] = columnWidth;
-        const previousSum = columnIndex === 0 ? 0 : widthSumArray[columnIndex - 1];
+        const previousSum = columnIndex === 0 ? 0 : widthSumArray[columnIndex - 1] ?? 0;
         widthSumArray[columnIndex] = previousSum + columnWidth;
     }
 
@@ -55,18 +60,27 @@ export const getWidthData = (sheetData: SheetData | undefined, defaultWidthData:
     column at a specific index.
 */
 export const changeColumnWidthDataArray = (sheetIndex: number, widthDataArray: WidthData[], columnIndex: number, newWidth: number): WidthData[] => {
+    const currentWidthData = widthDataArray[sheetIndex];
+    if (currentWidthData === undefined) {
+        console.warn(`No width data was available for sheet index ${sheetIndex}.`);
+        return widthDataArray;
+    }
     // Update the width array
-    const newWidthArray = [...widthDataArray[sheetIndex].widthArray];
+    const newWidthArray = [...currentWidthData.widthArray];
     newWidthArray[columnIndex] = newWidth;
 
-    const newWidthSumArray = [...widthDataArray[sheetIndex].widthSumArray];
-    for (let i = columnIndex; i < widthDataArray[sheetIndex].widthSumArray.length; i++) {
+    const newWidthSumArray = [...currentWidthData.widthSumArray];
+    for (let i = columnIndex; i < currentWidthData.widthSumArray.length; i++) {
         let previousSumSaved: number | undefined = newWidthSumArray[i - 1];
         if (previousSumSaved === undefined) {
             previousSumSaved = 0;
         }
 
         const columnWidth = newWidthArray[i];
+        if (columnWidth === undefined) {
+            console.warn(`No column width was available for column index ${i}.`);
+            continue;
+        }
         newWidthSumArray[i] = previousSumSaved + columnWidth;
     }
 
@@ -92,7 +106,12 @@ export const reconciliateWidthDataArray = (prevWidthDataArray: WidthData[], colu
     const newColumnWidthsArray: WidthData[] = []
     for (let i = 0; i < sheetDataArray.length; i++) {
         const columnIDs = columnIDsArray[i];
-        const newColumnsWidthsResult = reconciliateWidthData(prevWidthDataArray[i], columnIDs, sheetDataArray[i])
+        const sheetData = sheetDataArray[i];
+        if (columnIDs === undefined || sheetData === undefined) {
+            console.warn(`Missing width reconciliation data for sheet index ${i}.`);
+            continue;
+        }
+        const newColumnsWidthsResult = reconciliateWidthData(prevWidthDataArray[i], columnIDs, sheetData)
         newColumnWidthsArray.push(newColumnsWidthsResult)
     }
 
@@ -117,7 +136,11 @@ export const reconciliateWidthData = (prevWidthData: WidthData | undefined, oldC
     // the first time we're updating the gridState. 
     if (prevWidthData !== undefined && oldColumnIDsArray !== undefined) {
         for (let i = 0; i < oldColumnIDsArray.length; i++) {
-            oldWidths[oldColumnIDsArray[i]] = prevWidthData.widthArray[i];
+            const columnID = oldColumnIDsArray[i];
+            const width = prevWidthData.widthArray[i];
+            if (columnID !== undefined && width !== undefined) {
+                oldWidths[columnID] = width;
+            }
         }
     }
 
@@ -135,7 +158,12 @@ export const guessFullWidthOfColumnHeaderOrContent = (sheetData: SheetData, colu
     const displayColumnHeaderPx = displayColumnHeader.length * 10 + 15
 
     // Estimate the data length as 8px per character in the cell with the longest data
-    const dataMaxLength = Math.max(...(sheetData.data[columnIndex].columnData.map(el => String(el).length))) * 8
+    const column = sheetData.data[columnIndex];
+    if (column === undefined) {
+        console.warn(`No column data was available for column index ${columnIndex}.`);
+        return displayColumnHeaderPx;
+    }
+    const dataMaxLength = Math.max(...(column.columnData.map(el => String(el).length))) * 8
 
     // Return the max 
     return Math.max(displayColumnHeaderPx, dataMaxLength)
