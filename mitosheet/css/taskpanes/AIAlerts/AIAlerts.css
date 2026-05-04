@@ -1,0 +1,111 @@
+.ai-alerts-taskpane-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ai-alerts-status,
+.ai-alerts-error,
+.ai-alerts-metadata {
+    margin: 0;
+}
+
+.ai-alerts-error {
+    color: var(--mito-text-color-red);
+}
+
+.ai-alerts-metadata {
+    color: var(--mito-text-color-medium);
+    font-size: 12px;
+}
+
+.ai-alerts-loading-column {
+    margin: 4px 0 0 24px;
+    color: var(--mito-text-color-disabled);
+    font-size: 12px;
+    animation: ai-alerts-fade-cycle 2.8s ease-in-out;
+}
+
+@keyframes ai-alerts-fade-cycle {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.ai-alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ai-alert-card {
+    border: 1px solid var(--mito-border-light);
+    border-radius: 8px;
+    background: var(--mito-background-light);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.ai-alert-card:hover {
+    border-color: var(--mito-highlight);
+    background: var(--mito-background-off);
+}
+
+.ai-alert-card:focus-visible {
+    outline: none;
+    border-color: var(--mito-highlight);
+    box-shadow: 0 0 0 2px var(--mito-highlight-light, rgba(154, 92, 219, 0.25));
+}
+
+.ai-alert-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ai-alert-severity {
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ai-alert-severity-high {
+    color: #9b1c1c;
+    background: #fee2e2;
+}
+
+.ai-alert-severity-medium {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+.ai-alert-severity-low {
+    color: #065f46;
+    background: #d1fae5;
+}
+
+.ai-alert-issue-type {
+    color: var(--mito-text-color-medium);
+    font-size: 11px;
+}
+
+.ai-alert-title {
+    font-weight: 600;
+}
+
+.ai-alert-description,
+.ai-alert-columns {
+    font-size: 12px;
+    color: var(--mito-text-color-medium);
+}
