@@ -45,8 +45,9 @@ def _truncate_value(value: Any, max_len: int = 60) -> str:
 
 
 def _build_profile(df: pd.DataFrame) -> Dict[str, Any]:
-    sampled = df.head(MAX_SAMPLE_ROWS)
     total_rows = len(df.index)
+    n = min(MAX_SAMPLE_ROWS, total_rows)
+    sampled = df.sample(n=n) if n > 0 else df.iloc[0:0]
 
     column_summaries: List[Dict[str, Any]] = []
     for col_idx, col_name in enumerate(df.columns[:MAX_COLUMNS_PROFILED]):
